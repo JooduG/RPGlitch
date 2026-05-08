@@ -29,6 +29,9 @@
 
   // --- ACTIONS ---
 
+  /**
+   *
+   */
   function handle_select() {
     if (!disabled && onSelect) onSelect();
   }

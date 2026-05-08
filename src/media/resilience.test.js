@@ -6,7 +6,11 @@ import { ExponentialBackoffRetryer, CircuitBreaker } from "@media/resilience.js"
 
 describe("ExponentialBackoffRetryer", () => {
   it("should return result if first call succeeds", async () => {
-    const retryer = new ExponentialBackoffRetryer({ maxAttempts: 3, initialDelay: 10 });
+    const retryer = new ExponentialBackoffRetryer({
+      maxAttempts: 3,
+      initialDelay: 10,
+      maxDelay: 100,
+    });
     const fn = vi.fn().mockResolvedValue("success");
 
     const result = await retryer.retry(fn);
@@ -15,7 +19,11 @@ describe("ExponentialBackoffRetryer", () => {
   });
 
   it("should retry the specified number of times on failure", async () => {
-    const retryer = new ExponentialBackoffRetryer({ maxAttempts: 3, initialDelay: 10 });
+    const retryer = new ExponentialBackoffRetryer({
+      maxAttempts: 3,
+      initialDelay: 10,
+      maxDelay: 100,
+    });
     const fn = vi.fn().mockRejectedValue(new Error("fail"));
 
     await expect(retryer.retry(fn)).rejects.toThrow("fail");
@@ -23,7 +31,11 @@ describe("ExponentialBackoffRetryer", () => {
   });
 
   it("should succeed if a retry succeeds", async () => {
-    const retryer = new ExponentialBackoffRetryer({ maxAttempts: 3, initialDelay: 10 });
+    const retryer = new ExponentialBackoffRetryer({
+      maxAttempts: 3,
+      initialDelay: 10,
+      maxDelay: 100,
+    });
     const fn = vi.fn().mockRejectedValueOnce(new Error("fail")).mockResolvedValueOnce("recovered");
 
     const result = await retryer.retry(fn);
@@ -33,6 +45,7 @@ describe("ExponentialBackoffRetryer", () => {
 });
 
 describe("CircuitBreaker", () => {
+  /** @type {CircuitBreaker} */
   let breaker;
 
   beforeEach(() => {

@@ -5,7 +5,7 @@
 import { themeStore } from "@theme/palette.svelte.js";
 import { describe, expect, test } from "vitest";
 describe("ThemeStore Color Generation", () => {
-  const get_signature = (e) => themeStore.get_signature_color(e);
+  const get_signature = (/** @type {any} */ e) => themeStore.get_signature_color(e);
   describe("Modern entities with signature_color", () => {
     test("returns hex value for entity with signature_color", () => {
       const entity = { signature_color: "Electric Cyan" };

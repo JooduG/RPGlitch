@@ -12,8 +12,12 @@ import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
  */
 export class ReactiveSession {
   isProcessing = $state(false);
+  /** @type {string | null} */
   error = $state(null);
 
+  /**
+   *
+   */
   constructor() {}
 
   /**
@@ -34,7 +38,7 @@ export class ReactiveSession {
 
   /**
    * Start a new story from the Lobby.
-   * @param {Object} selection - { ai, user, fractal }
+   * @param {{ ai: any, user: any, fractal: any }} selection - { ai, user, fractal }
    */
   async start(selection) {
     if (this.isProcessing) return;
@@ -58,7 +62,7 @@ export class ReactiveSession {
       await Engine.generate_prologue(story_id);
     } catch (e) {
       console.error("[Session] Start Failed:", e);
-      this.error = e.message;
+      this.error = /** @type {Error} */ (e).message;
     } finally {
       this.releaseLock();
     }
@@ -76,6 +80,7 @@ export class ReactiveSession {
   /**
    * The Diagnostic Turn Loop
    * Forces visibility into the internal state transitions.
+   * @param {string} text
    */
   async advance_turn(text) {
     if (this.isProcessing) return;
@@ -102,9 +107,9 @@ export class ReactiveSession {
       // PHASE 4: PERSIST (Data)
       await runtime.save(runtime.round);
     } catch (e) {
-      app.log(`Simulation Error: ${e.message}`, "error");
+      app.log(`Simulation Error: ${/** @type {Error} */ (e).message}`, "error");
       console.error("[Session] advance_turn Failed:", e);
-      this.error = e.message;
+      this.error = /** @type {Error} */ (e).message;
     } finally {
       this.releaseLock();
     }
@@ -124,7 +129,7 @@ export class ReactiveSession {
       const story_id = session_driver.require_active();
       await Engine.generate_ai_response(story_id);
     } catch (e) {
-      this.error = e.message;
+      this.error = /** @type {Error} */ (e).message;
     } finally {
       this.releaseLock();
       simulationState.complete();
@@ -143,7 +148,7 @@ export class ReactiveSession {
       const story_id = session_driver.require_active();
       await Engine.generate_ai_response(story_id);
     } catch (e) {
-      this.error = e.message;
+      this.error = /** @type {Error} */ (e).message;
     } finally {
       this.releaseLock();
     }
@@ -151,6 +156,9 @@ export class ReactiveSession {
 
   /**
    * 🧪 DEBUG: Inject AI Message
+   * @param {string} text
+   * @param {string} character_name
+   * @param {string} role
    */
   async log_turn(text, character_name, role) {
     await session_driver.log_turn(text, character_name, role);
@@ -158,6 +166,7 @@ export class ReactiveSession {
 
   /**
    * Delete a log entry by ID
+   * @param {string} id
    */
   async delete_log_entry(id) {
     await session_driver.delete_log_entry(id);
@@ -165,6 +174,8 @@ export class ReactiveSession {
 
   /**
    * Edit a log entry by ID
+   * @param {string} id
+   * @param {string} new_text
    */
   async edit_log_entry(id, new_text) {
     await session_driver.edit_log_entry(id, new_text);

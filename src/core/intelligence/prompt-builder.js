@@ -23,10 +23,54 @@ import { escapeXml, strip_cognition_blocks } from "@core/text-parser.js";
 import { ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
 import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
+/**
+ * @typedef {Object} SimulationEntity
+ * @property {string} name
+ * @property {Object} fragments
+ * @property {Object} fragments.eternal
+ * @property {string} fragments.eternal.non_physical
+ * @property {Object} fragments.present
+ * @property {string} fragments.present.non_physical
+ * @property {any[]} [past]
+ * @property {any[]} [future]
+ */
+
+/**
+ * @typedef {Object} RenderAtom
+ * @property {string} _context
+ * @property {(entity_reference: string|SimulationEntity, limit?: number, offset?: number, options?: any) => string} past
+ * @property {(entity_reference: string|SimulationEntity, limit?: number, offset?: number, options?: any) => string} future
+ * @property {(limit?: number, offset?: number) => string} simulation_log
+ */
+
+/**
+ * @typedef {Object} SimulationParams
+ * @property {number} round
+ * @property {Object.<string, SimulationEntity>} entities
+ * @property {string[]} signal_prompts
+ * @property {string} input
+ * @property {RenderAtom} render_atom
+ * @property {Object} [meta]
+ * @property {boolean} [meta.is_suspicious]
+ */
+
+/**
+ * @typedef {Object} PrologueParams
+ * @property {number} round
+ * @property {Object.<string, SimulationEntity>} entities
+ * @property {string} input
+ * @property {RenderAtom} render_atom
+ */
+
 export const SYSTEM_PROMPTS = {
   /**
    * SIMULATION
    * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.simulation
+   */
+  /**
+   * SIMULATION
+   * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.simulation
+   * @param {SimulationParams} params
    */
   simulation: ({ round, entities, signal_prompts, input, render_atom, meta }) => {
     const ai = entities.AI;
@@ -76,7 +120,13 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
    * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.prologue
    * PURPOSE: Initial scene setup and atmospheric resonance.
    */
-  prologue: ({ round, entities, input, render_atom }) => {
+  /**
+   * PROLOGUE
+   * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.prologue
+   * PURPOSE: Initial scene setup and atmospheric resonance.
+   * @param {PrologueParams} params
+   */
+  prologue: ({ round, entities, input }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
@@ -134,6 +184,11 @@ Provide a final summary of the narrative arc and the fate of the entities involv
    * MEMORY PROTOCOL
    * PURPOSE: Consolidates turns into RAG-compatible vectors.
    */
+  /**
+   * MEMORY PROTOCOL
+   * PURPOSE: Consolidates turns into RAG-compatible vectors.
+   * @param {{ role: string, entity: SimulationEntity, history: any[] }} params
+   */
   memory: ({ role, entity, history }) => {
     const roleSafe = escapeXml(role);
     const entityNameSafe = escapeXml(entity.name || "Unknown");
@@ -158,6 +213,10 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
   /**
    * ENHANCEMENT PROMPT
    */
+  /**
+   * ENHANCEMENT PROMPT
+   * @param {{ label: string, directive: string, enhancer: string, content: string }} params
+   */
   enhancement: ({ label, directive, enhancer, content }) => {
     const labelSafe = escapeXml(label || "");
     const roleSafe = escapeXml(enhancer || "GENERAL");
@@ -180,6 +239,7 @@ ${escapeXml(content)}
  * 🧬🧬🧬🧬🧬🧬🧬🧬 PROTOCOL LIBRARY (The DNA)
  * Rules, directives, and cosmic constraints that govern every simulation.
  * Use render_protocols() to inject these as a markdown list.
+ * @type {Record<string, string>}
  */
 const PROTOCOL_LIBRARY = {
   IDENTITY: `IDENTITY: You are the entity currently encapsulated by the "<YOUR_IDENTITY>" block. Ground all inferences in observable signals.`,
@@ -205,6 +265,10 @@ const PROTOCOL_LIBRARY = {
  * The orchestration layer that produces ready-to-use LLM instruction sets.
  */
 export const prompt_builder = {
+  /**
+   * @param {any} payload
+   * @param {any} snapshot
+   */
   synthesize(payload, snapshot) {
     const { type, entities, input, rawMessages } = payload;
     const render_atom = prompt_builder.create_render_atom(entities, input, rawMessages);
@@ -252,7 +316,14 @@ export const prompt_builder = {
     };
   },
 
+  /**
+   * @param {Object.<string, SimulationEntity>} entities
+   * @param {string} input
+   * @param {any[]} raw_messages
+   * @returns {RenderAtom}
+   */
   create_render_atom(entities, input, raw_messages) {
+    /** @param {string|SimulationEntity} entity_reference */
     const resolve = (entity_reference) =>
       typeof entity_reference === "string"
         ? entities[entity_reference] || entities.AI
@@ -267,6 +338,12 @@ export const prompt_builder = {
 
     return {
       _context: scoring_context,
+      /**
+       * @param {string|SimulationEntity} entity_reference
+       * @param {number} [limit]
+       * @param {number} [offset]
+       * @param {any} [options]
+       */
       past: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
         return temporal_engine.format(entity.past || [], scoring_context, {
@@ -276,6 +353,12 @@ export const prompt_builder = {
           offset,
         });
       },
+      /**
+       * @param {string|SimulationEntity} entity_reference
+       * @param {number} [limit]
+       * @param {number} [offset]
+       * @param {any} [options]
+       */
       future: (entity_reference, limit = 3, offset = 0, options) => {
         const entity = resolve(entity_reference);
         return temporal_engine.format(entity.future || [], scoring_context, {
@@ -285,12 +368,21 @@ export const prompt_builder = {
           offset,
         });
       },
+      /**
+       * @param {number} [limit]
+       * @param {number} [offset]
+       */
       simulation_log: (limit = 10, offset = 0) => {
         return prompt_builder.render_history(raw_messages, limit, offset);
       },
     };
   },
 
+  /**
+   * @param {any[]|string} simulation_log
+   * @param {number} [count]
+   * @param {number} [offset]
+   */
   render_history(simulation_log, count = 10, offset = 0) {
     if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
     if (Array.isArray(simulation_log)) {
@@ -308,6 +400,9 @@ export const prompt_builder = {
     return "";
   },
 
+  /**
+   * @param {string} selection
+   */
   render_protocols(selection) {
     if (!selection) return "";
     return selection
@@ -319,6 +414,9 @@ export const prompt_builder = {
       .join("\n");
   },
 
+  /**
+   * @param {string} str
+   */
   clean(str) {
     if (typeof str !== "string") return "";
     return str
@@ -331,12 +429,23 @@ export const prompt_builder = {
     return { system: SYSTEM_PROMPTS.epilogue(), messages: [] };
   },
 
+  /**
+   * @param {string} role
+   * @param {any} entity
+   * @param {any[]} history
+   */
   build_memory_prompt(role, entity, history) {
     return { system: SYSTEM_PROMPTS.memory({ role, entity, history }), messages: [] };
   },
 
+  /**
+   * @param {string} field_id
+   * @param {string} content
+   * @param {string} [entity_name]
+   */
   build_enhancement(field_id, content, entity_name = "") {
-    const meta = ENTITY_CATALOG[field_id] || {
+    /** @type {any} */
+    const meta = ENTITY_CATALOG[/** @type {keyof typeof ENTITY_CATALOG} */ (field_id)] || {
       directive: "Expand and enrich the fragment.",
       enhancer: "GENERAL",
     };

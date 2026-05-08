@@ -1,97 +1,48 @@
-# Mission Plan
+# Mission Plan - Resolve Type & Lint Issues
 
-## Mission [071]: VisualWing Grid Refinement [DONE]
+This plan outlines the systematic resolution of TypeScript errors, ESLint warnings, and JSDoc mismatches identified across the RPGlitch codebase.
 
-### Goal
+## 1. Research & Analysis (Complete)
 
-Optimize the `VisualWing` color spectrum grid for responsiveness and perfect square geometry. Eliminate horizontal overflow in narrow sidebar contexts by implementing a fluid auto-fill layout. Execute an Ultra-Lean refactor to flatten the DOM and normalize nomenclature.
+- [x] Investigate `src/core/engine/chrono.svelte.js` for argument mismatches.
+- [x] Analyze `src/core/intelligence/context-broker.js` for type mismatches and indexing issues.
+- [x] Review `src/core/security.js` for JSDoc parameter mismatches.
+- [x] Examine `src/state/app.svelte.js` for type assignment errors.
+- [x] Check `src/ui/utils/field-path.js` for object indexing issues.
+- [x] Identify unused variables in `.agents/skills/swarm/scripts/swarm-engine.js`.
+- [x] Resolve `runtime.ai` and `runtime.fractal` null checks and indexing in `intelligence-kernel.js`.
+- [x] Resolve `GenerationOptions` mismatches in `intelligence-kernel.js`.
+- [x] Fix `CircuitBreaker` and `ExponentialBackoffRetryer` issues in `visual-engine.svelte.js` and `resilience.js`.
+- [x] Update `types.d.ts` for plugin globals.
 
-### Completed Changes
+## 2. Implementation Strategy (Strict Typing) (Complete)
 
-#### [071.1] Responsive Grid Implementation [DONE]
+### 2.1 Core Logic & Security
 
-- [x] [MODIFY] `src/ui/profile/VisualWing.svelte`
-  - [x] Implement `repeat(auto-fill, minmax(2.25rem, 1fr))` for the color grid.
-  - [x] Enforce strict 1:1 aspect ratio and zero design drift.
-  - [x] Flatten DOM (remove redundant `.prompt` wrapper).
-  - [x] Normalize nomenclature (`.wrapper`, `.swatches`, `.controls`).
+- [x] **`src/core/security.js`**: Update `process` and `authorizeVisuals` function signatures.
+- [x] **`src/core/engine/chrono.svelte.js`**: Verify `Shield.process` call.
+- [x] **`src/core/engine/engine.js`**: Update `GenerationOptions` typedef.
+- [x] **`src/media/resilience.js`**: Fix `CircuitBreaker.execute` JSDoc.
 
-### Verification Results
+### 2.2 Intelligence & Data
 
-- [x] **Unit Tests**: Passed 4 tests in `VisualWing.test.js`.
-- [x] **Responsiveness**: Verified fluid wrapping across breakpoints.
-- [x] **Aesthetics**: Strictly square swatches with Chalk Regime kinetic feedback.
+- [x] **`src/core/intelligence/context-broker.js`**: Add defaults and guards.
+- [x] **`src/state/runtime.svelte.js`**: Add `associated_ids` to `SimulationEntity`.
+- [x] **`src/core/intelligence/intelligence-kernel.js`**: Fix dynamics indexing and `execute_turn` parameters.
 
----
+### 2.3 UI & State
 
-## Mission [070]: ControlPanel Type Tightening [DONE]
+- [x] **`src/state/app.svelte.js`**: Narrow types and explicit `streaming` state.
+- [x] **`src/ui/utils/field-path.js`**: Dynamic indexing casts.
+- [x] **`src/media/visual-engine.svelte.js`**: Fix constructors, runtime paths, and unused vars.
 
-### Goal
+### 2.4 Cleanup
 
-Strictly define prop interfaces for `ControlPanel` inputs to eliminate runtime type coercion and enforce the "Ultra-Lean" data contract.
+- [x] **`.agents/skills/swarm/scripts/swarm-engine.js`**: Remove unused catch bindings.
+- [x] **`types.d.ts`**: Add `pluginTextToImage` and `pluginUpload` to `Window`.
 
-### Proposed Changes
+## 3. Verification & Quality Gate
 
-#### [070.1] ControlPanel Prop Interfaces [DONE]
-
-- [x] [MODIFY] `src/ui/devmode/ControlPanel.svelte`
-  - [x] Implement TypeScript interfaces for `control` props.
-- [x] [MODIFY] `src/state/control.svelte.js`
-  - [x] Tighten type definitions for exported reactive objects.
-
----
-
-## Mission [069]: TextField Class Normalization [DONE]
-
-### Goal
-
-Standardize the `TextField` component usage in `ControlPanel.svelte` by replacing the legacy `prologue-field` class with the "Ultra-Lean" Chalk Regime semantic standard (`text-area custom-field`).
-
-### Completed Changes
-
-#### [069.1] ControlPanel Normalization [DONE]
-
-- [x] [MODIFY] `src/ui/devmode/ControlPanel.svelte`
-  - Replace legacy `class="prologue-field"` with `class="text-area custom-field"`.
-
-### Verification Results
-
-- [x] **Lint**: Passed `npm run lint`.
-- [x] **Tests**: Passed `npm run test`.
-- [x] **Aesthetic Parity**: Standardized classes inherit global styles without drift.
-
----
-
-## Mission [067]: UI Architecture Simplification [DONE]
-
-### Goal
-
-Simplify and standardize the UI architecture by aggressively merging dispersed state and component logic for Tooltips, Lightboxes, and Backgrounds based on the "Aggressive Merge" strategy.
-
-### Completed Changes
-
-#### [067.1] Tooltip Consolidation [DONE]
-
-- [x] [MODIFY] `src/ui/atoms/Tooltip.svelte`
-- [x] [DELETE] `src/ui/shell/TooltipRenderer.svelte`
-- [x] [DELETE] `src/ui/atoms/tooltip.svelte.js`
-- [x] [MODIFY] `src/ui/App.svelte`
-- [x] [MODIFY] System-wide imports
-
-#### [067.2] Lightbox Consolidation [DONE]
-
-- [x] [MODIFY] `src/ui/atoms/Lightbox.svelte`
-- [x] [DELETE] `src/state/lightbox.svelte.js`
-- [x] [MODIFY] `src/state/app.svelte.js`
-- [x] [MODIFY] `src/ui/App.svelte`
-
-#### [067.3] Background Consolidation [DONE]
-
-- [x] [MODIFY] `src/ui/App.svelte`
-- [x] [DELETE] `src/ui/shell/Background.svelte`
-
-### Verification Results
-
-- [x] **Lint**: Passed `npm run lint`.
-- [x] **Structural Integrity**: All redundant files removed. Global singletons remain functional via module context exports.
-- [x] **Aesthetic Parity**: UI logic remains identical; only the architectural location changed.
+- [ ] Run `npm run verify` (if available) or individual lint/type check commands.
+- [ ] Verify each fix against the reported errors in the editor.
+- [ ] Ensure ZERO regressions in engine logic or aesthetics (Chalk Regime).

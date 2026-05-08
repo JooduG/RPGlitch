@@ -46,6 +46,9 @@ const SEVERITY_LEVELS = {
  * 🕵️ MODULAR AUDITOR ENGINE (The Reflex)
  */
 class Auditor {
+  /**
+   *
+   */
   constructor() {
     this.results = [];
     this.stats = { scanned: 0, violations: 0 };
@@ -62,6 +65,9 @@ class Auditor {
     this.is_names_active = true;
   }
 
+  /**
+   *
+   */
   scan(dir) {
     if (!fs.existsSync(dir)) return;
     const items = fs.readdirSync(dir);
@@ -83,6 +89,9 @@ class Auditor {
     });
   }
 
+  /**
+   *
+   */
   auditFile(filePath) {
     const ext = path.extname(filePath);
     const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
@@ -147,6 +156,9 @@ class Auditor {
     });
   }
 
+  /**
+   *
+   */
   reportViolation(rule, filePath, line, code, errors = []) {
     this.stats.violations++;
     const sev = SEVERITY_LEVELS[rule.severity] || SEVERITY_LEVELS.ADVICE;
@@ -174,6 +186,9 @@ class Auditor {
     console.log("");
   }
 
+  /**
+   *
+   */
   summary() {
     console.log("------------------------");
     console.log(`📊 SCAN COMPLETE: ${this.stats.scanned} files verified.`);

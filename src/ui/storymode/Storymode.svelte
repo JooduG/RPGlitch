@@ -10,7 +10,6 @@
   import { simulationState } from "@state/status.svelte.js";
   import Layout from "@ui/Layout.svelte";
   import Skeleton from "@atoms/Skeleton.svelte";
-  import { onMount } from "svelte";
   import InputBar from "@storymode/InputBar.svelte";
   import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
   import StorymodePanel from "@storymode/StorymodePanel.svelte";
@@ -19,9 +18,9 @@
   let is_thinking = $derived(simulationState.phase === "generating");
 
   // --- ON MOUNT ---
-  onMount(async () => {
+  $effect(() => {
     if (!runtime.is_ready) {
-      await runtime.sync();
+      runtime.sync();
     }
   });
 </script>

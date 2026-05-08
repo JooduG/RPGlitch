@@ -14,11 +14,11 @@ export interface InputTask {
 }
 
 export interface SwarmTask extends InputTask {
-  status: "pending" | "executing" | "completed" | "failed";
+  status: "pending" | "executing" | "verifying" | "completed" | "failed";
   sessionId?: string;
   score: number;
   rationale: string | null;
-  result: string | null;
+  result: any | null;
   error: string | null;
 }
 

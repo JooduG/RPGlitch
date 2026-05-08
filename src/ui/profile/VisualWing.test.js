@@ -12,6 +12,9 @@ const TextToImage = {
 };
 // Replicate handleCreativeAction logic for verification
 // We verify the LOGIC FLOW, since mounting the Svelte 5 component in this Node env is complex.
+/**
+ * @param {any} char
+ */
 function ensureModifiers(char) {
   if (!char.modifiers) {
     char.modifiers = {
@@ -30,6 +33,9 @@ function ensureModifiers(char) {
   }
 }
 
+/**
+ * @param {any} ctx
+ */
 async function handleCreativeAction(ctx) {
   let { busyField, activeField, char, isEnhanceMode, enhancementType } = ctx;
   if (busyField) return { ...ctx, result: "busy" };
@@ -55,6 +61,7 @@ async function handleCreativeAction(ctx) {
 }
 describe("VisualWing Stability (Hotfix)", () => {
   test("ensureModifiers initializes missing modifiers object", () => {
+    /** @type {any} */
     const char = {};
     ensureModifiers(char);
     expect(char.modifiers).toBeDefined();
@@ -63,6 +70,7 @@ describe("VisualWing Stability (Hotfix)", () => {
   });
 
   test("ensureModifiers preserves existing modifiers and fills missing fields", () => {
+    /** @type {any} */
     const char = {
       modifiers: {
         prompt: "Existing prompt",

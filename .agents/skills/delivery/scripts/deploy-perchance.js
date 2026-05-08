@@ -48,16 +48,25 @@ const CONFIG = {
  * 🧩 [SECTION: UTILITIES]
  ************************************************************************************/
 
+/**
+ *
+ */
 function log(emoji, message) {
   const timestamp = new Date().toISOString().substring(11, 19);
   console.log(`  ${emoji} [${timestamp}] ${message}`);
 }
 
+/**
+ *
+ */
 function fatal(message) {
   log("💀", `FATAL: ${message}`);
   process.exit(1);
 }
 
+/**
+ *
+ */
 async function prompt_user(question) {
   const rl = createInterface({ input: process.stdin, output: process.stdout });
   return new Promise((resolve) => {
@@ -72,6 +81,9 @@ async function prompt_user(question) {
  * 🧩 [SECTION: PRE-FLIGHT CHECKS]
  ************************************************************************************/
 
+/**
+ *
+ */
 function pre_flight() {
   log("🔍", "Running pre-flight checks...");
 
@@ -121,6 +133,9 @@ function pre_flight() {
  * 🧩 [SECTION: BROWSER AUTOMATION]
  ************************************************************************************/
 
+/**
+ *
+ */
 async function deploy({ left_content, right_content }) {
   const is_headless = process.env.HEADLESS === "true";
   log("🌐", `Launching browser (${is_headless ? "headless" : "headed"})...`);
@@ -480,6 +495,9 @@ async function deploy({ left_content, right_content }) {
  * 🧩 [SECTION: LOGIN HANDLER]
  ************************************************************************************/
 
+/**
+ *
+ */
 async function attempt_login(page) {
   if (!CONFIG.perchance_username || !CONFIG.perchance_key) {
     fatal("PERCHANCE_USERNAME and PERCHANCE_KEY must be set in .env");
@@ -586,6 +604,9 @@ async function attempt_login(page) {
  * 🧩 [SECTION: MAIN]
  ************************************************************************************/
 
+/**
+ *
+ */
 async function main() {
   console.log("\n  ╔═══════════════════════════════════════════════╗");
   console.log("    ║   🚀 RPGlitch → Perchance Deploy Pipeline   ║");

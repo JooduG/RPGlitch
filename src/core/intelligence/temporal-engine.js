@@ -19,17 +19,25 @@ import { simulation_log as log_store } from "@state/simulation-log.svelte.js";
 import { session_driver } from "@core/engine/session-driver.svelte.js";
 
 /**
- * TEMPORAL LOG ENTRY (Vector Schema)
- * {
- *   id: uuid,
- *   timestamp: number,
- *   text: string,          // The narrative payload (The Summary or The Intent)
- *   type: string,          // "past" | "future"
- *   base_weight: number,    // 1-10 gravity (Trauma=10, Prophecy=9, Minor Plan=3)
- *   dynamics_tags: obj[],   // Physical/Psych Triggers [{id, word}]
- *   vector_tags: string[],  // Semantic Labels (Trauma, Curse, etc.)
- *   meta: object            // For resolution status, etc.
- * }
+ * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
+ * @typedef {import('@state/runtime.svelte.js').SimulationState} SimulationState
+ * @typedef {import('@core/engine/session-driver.svelte.js').session_driver} SessionDriver
+ * @typedef {typeof import('@data/db.js').db} Database
+ * @typedef {import('@data/repository.js').entities} EntityRepository
+ */
+
+/**
+ * @typedef {Object} TemporalVector
+ * @property {string} id - UUID unique identifier.
+ * @property {number} timestamp - Epoch timestamp of creation.
+ * @property {string} text - The narrative payload.
+ * @property {string} type - "past" | "future".
+ * @property {number} base_weight - Narrative gravity (1-10).
+ * @property {Array<{id: string, word: string}>} dynamics_tags - Associated dynamics identifiers.
+ * @property {string[]} vector_tags - Secondary classification tags.
+ * @property {Object} meta - Opaque metadata container.
+ * @property {number} [emotional_weight] - Optional emotional intensity override.
+ * @property {number} [_relevance] - Calculated RAG score (transient).
  */
 
 /**
@@ -38,7 +46,7 @@ import { session_driver } from "@core/engine/session-driver.svelte.js";
  * @param {string} text - The narrative payload.
  * @param {string} [type="future"] - "past" | "future".
  * @param {number} [weight=5] - 1-10 priority.
- * @returns {Object} A strict Temporal Vector.
+ * @returns {TemporalVector} A strict Temporal Vector.
  */
 export function create(text, type = "future", weight = 5) {
   const reflexes = dynamics_engine.dynamics_scan(text);
@@ -57,6 +65,9 @@ export function create(text, type = "future", weight = 5) {
 /**
  * RAG Scoring: Ranks a list of vectors based on relevance and base weight.
  * Symmetric logic for both past and future.
+ * @param {TemporalVector[]} vectors
+ * @param {string} input
+ * @returns {TemporalVector[]}
  */
 export function score(vectors, input) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
@@ -99,7 +110,7 @@ export function score(vectors, input) {
   });
 
   return scored.sort((a, b) => {
-    const diff = b._relevance - a._relevance;
+    const diff = (b._relevance || 0) - (a._relevance || 0);
     if (diff !== 0) return diff;
     return b.timestamp - a.timestamp;
   });
@@ -107,6 +118,15 @@ export function score(vectors, input) {
 
 /**
  * Unified Generator for Prompt formatting.
+ * @param {TemporalVector[]} vectors
+ * @param {string} input
+ * @param {Object} [options]
+ * @param {string} [options.mode]
+ * @param {number} [options.limit]
+ * @param {boolean} [options.vector_text]
+ * @param {boolean} [options.vector_label]
+ * @param {number} [options.offset]
+ * @returns {string}
  */
 export function format(vectors, input, options = {}) {
   const mode = options.mode || "past";
@@ -121,7 +141,7 @@ export function format(vectors, input, options = {}) {
 
   return sorted
     .map((v) => {
-      const weight = v.base_weight ?? v.emotional_weight ?? 5;
+      const weight = v.emotional_weight ?? v.base_weight ?? 5;
       let label;
 
       if (mode === "past") {
@@ -146,6 +166,9 @@ export function format(vectors, input, options = {}) {
 
 /**
  * Transitions an Active Impulse (Future) into a Historical Anchor (Past).
+ * @param {SimulationEntity} entity
+ * @param {string} vector_id
+ * @param {string | null} [resolution]
  */
 export function resolve(entity, vector_id, resolution = null) {
   if (!Array.isArray(entity.future)) return;
@@ -180,6 +203,10 @@ export function resolve(entity, vector_id, resolution = null) {
 
 /**
  * Generates a Resonance record (Historical Anchor) from a slice of history.
+ * @param {SimulationEntity} target_entity
+ * @param {any[]} history_slice
+ * @param {string} [role]
+ * @returns {Promise<TemporalVector | null>}
  */
 export async function weave_resonance(target_entity, history_slice, role = "character") {
   if (!target_entity) return null;
@@ -251,6 +278,12 @@ export const temporal_engine = {
   /**
    * BATCH CONSOLIDATION (The Weaving Cycle)
    * Evicts old messages and weaves them into the Temporal Fabric.
+   * @param {SessionDriver} Session
+   * @param {Database} db
+   * @param {EntityRepository} entities
+   * @param {any} runtime
+   * @param {any} app
+   * @returns {Promise<void>}
    */
   consolidate: async (Session, db, entities, runtime, app) => {
     if (temporal_engine._is_weaving) return;
@@ -259,7 +292,9 @@ export const temporal_engine = {
     try {
       const story_id = Session.require_active();
       const messages = await Session.load_log(story_id);
-      const unconsolidated = messages.filter((m) => !m.meta?.consolidated);
+      const unconsolidated = messages.filter(
+        (/** @type {{ meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated,
+      );
 
       if (unconsolidated.length >= 12) {
         const slice = unconsolidated.slice(0, 10);
@@ -301,6 +336,8 @@ export const temporal_engine = {
 
   /**
    * ENSURE MOMENTUM
+   * @param {any} runtime
+   * @param {any} [app]
    */
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;

@@ -27,6 +27,9 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import url from "node:url";
 
+/**
+ *
+ */
 export class KnowledgeEngine {
   // --- PRIVATE CONFIG (#) ---
   #pinecone_config = {
@@ -43,21 +46,32 @@ export class KnowledgeEngine {
 
   // --- CORE ENGINE: PINECONE (VECTOR) ---
 
+  /**
+   *
+   */
   async #get_pinecone_host() {
     if (this.#pinecone_config.cached_host) return this.#pinecone_config.cached_host;
 
     console.error("📡 Fetching Pinecone index host...");
     const response = await fetch("https://api.pinecone.io/indexes", {
-      headers: { "Api-Key": this.#pinecone_config.api_key },
+      headers: { "Api-Key": this.#pinecone_config.api_key || "" },
     });
-    const data = await response.json();
-    const index = data.indexes.find((i) => i.name === this.#pinecone_config.index_name);
+    const data = /** @type {any} */ (await response.json());
+    const index = data.indexes.find(
+      (/** @type {any} */ i) => i.name === this.#pinecone_config.index_name,
+    );
 
     if (!index) throw new Error(`Index ${this.#pinecone_config.index_name} not found`);
     this.#pinecone_config.cached_host = index.host;
     return this.#pinecone_config.cached_host;
   }
 
+  /**
+   * @param {object} params
+   * @param {string} params.query
+   * @param {string[]} [params.namespaces]
+   * @param {number} [params.top_k]
+   */
   async query_knowledge_base({
     query,
     namespaces = ["knowledge-base.meta", "knowledge-base.external", "knowledge-base.src"],
@@ -69,7 +83,7 @@ export class KnowledgeEngine {
     const embed_res = await fetch("https://api.pinecone.io/embed", {
       method: "POST",
       headers: {
-        "Api-Key": this.#pinecone_config.api_key,
+        "Api-Key": this.#pinecone_config.api_key || "",
         "Content-Type": "application/json",
         "X-Pinecone-API-Version": "2024-07",
       },
@@ -79,7 +93,7 @@ export class KnowledgeEngine {
         inputs: [{ text: query }],
       }),
     });
-    const embed_data = await embed_res.json();
+    const embed_data = /** @type {any} */ (await embed_res.json());
     if (!embed_data.data?.[0]) throw new Error("Embedding failed");
     const vector = embed_data.data[0].values;
 
@@ -88,13 +102,17 @@ export class KnowledgeEngine {
       try {
         const res = await fetch(`https://${host}/query`, {
           method: "POST",
-          headers: { "Api-Key": this.#pinecone_config.api_key, "Content-Type": "application/json" },
+          headers: {
+            "Api-Key": this.#pinecone_config.api_key || "",
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify({ namespace: ns, vector, topK: top_k, includeMetadata: true }),
         });
-        const data = await res.json();
+        const data = /** @type {any} */ (await res.json());
         return { ns, matches: data.matches || [] };
       } catch (err) {
-        console.warn(`⚠️ Namespace ${ns} query failed: ${err.message}`);
+        const error = /** @type {Error} */ (err);
+        console.warn(`⚠️ Namespace ${ns} query failed: ${error.message}`);
         return { ns, matches: [] };
       }
     });
@@ -104,11 +122,17 @@ export class KnowledgeEngine {
     // 3. Flatten and Sort
     return results
       .filter((res) => res?.matches)
-      .flatMap((res) => res.matches.map((m) => ({ ...m, namespace: res.ns })))
+      .flatMap((res) => res.matches.map((/** @type {any} */ m) => ({ ...m, namespace: res.ns })))
       .sort((a, b) => b.score - a.score)
       .slice(0, top_k * 2);
   }
 
+  /**
+   * @param {object} params
+   * @param {string[]} params.paths
+   * @param {string} [params.namespace]
+   * @param {string} [params.root]
+   */
   async write_knowledge_base({ paths, namespace = "knowledge-base.meta", root = process.cwd() }) {
     const host = await this.#get_pinecone_host();
     let gitignore_filter = ignore();
@@ -120,7 +144,7 @@ export class KnowledgeEngine {
     }
 
     const files = [];
-    const walk = async (dir) => {
+    const walk = async (/** @type {string} */ dir) => {
       const items = await fs.readdir(dir);
       for (const item of items) {
         const full_path = path.join(dir, item);
@@ -151,6 +175,7 @@ export class KnowledgeEngine {
 
     console.error(`📑 Processing ${files.length} files for namespace: ${namespace}`);
 
+    /** @type {any[]} */
     const all_chunks = [];
     for (const file of files) {
       const content = await fs.readFile(file, "utf-8");
@@ -159,7 +184,10 @@ export class KnowledgeEngine {
       // Prune existing vectors for this file in this namespace
       await fetch(`https://${host}/vectors/delete`, {
         method: "POST",
-        headers: { "Api-Key": this.#pinecone_config.api_key, "Content-Type": "application/json" },
+        headers: {
+          "Api-Key": this.#pinecone_config.api_key || "",
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ namespace, filter: { source: { $eq: rel_path } } }),
       });
 
@@ -196,7 +224,7 @@ export class KnowledgeEngine {
       const embed_res = await fetch("https://api.pinecone.io/embed", {
         method: "POST",
         headers: {
-          "Api-Key": this.#pinecone_config.api_key,
+          "Api-Key": this.#pinecone_config.api_key || "",
           "Content-Type": "application/json",
           "X-Pinecone-API-Version": "2024-07",
         },
@@ -206,7 +234,7 @@ export class KnowledgeEngine {
           inputs: texts.map((t) => ({ text: t })),
         }),
       });
-      const embed_data = await embed_res.json();
+      const embed_data = /** @type {any} */ (await embed_res.json());
       if (!embed_data.data) throw new Error(`Embedding failed: ${JSON.stringify(embed_data)}`);
 
       const vectors = batch.map((record, idx) => ({
@@ -216,7 +244,10 @@ export class KnowledgeEngine {
       }));
       await fetch(`https://${host}/vectors/upsert`, {
         method: "POST",
-        headers: { "Api-Key": this.#pinecone_config.api_key, "Content-Type": "application/json" },
+        headers: {
+          "Api-Key": this.#pinecone_config.api_key || "",
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({ namespace, vectors }),
       });
       process.stderr.write(
@@ -226,11 +257,17 @@ export class KnowledgeEngine {
     process.stderr.write("\n✨ Ingestion complete.\n");
   }
 
+  /**
+   *
+   */
   async describe_index_stats() {
     const host = await this.#get_pinecone_host();
     const response = await fetch(`https://${host}/describe_index_stats`, {
       method: "POST",
-      headers: { "Api-Key": this.#pinecone_config.api_key, "Content-Type": "application/json" },
+      headers: {
+        "Api-Key": this.#pinecone_config.api_key || "",
+        "Content-Type": "application/json",
+      },
     });
     const stats = await response.json();
     return stats;
@@ -238,12 +275,19 @@ export class KnowledgeEngine {
 
   // --- CORE ENGINE: SUPABASE (COLD STORAGE) ---
 
+  /**
+   * @param {object} params
+   * @param {string} params.session_id
+   * @param {string} params.task_slug
+   * @param {string} params.content
+   * @param {object} [params.metadata]
+   */
   async archive_log({ session_id, task_slug, content, metadata = {} }) {
     const url = `${this.#supabase_config.url}/rest/v1/development_logs`;
     const response = await fetch(url, {
       method: "POST",
       headers: {
-        apikey: this.#supabase_config.key,
+        apikey: this.#supabase_config.key || "",
         Authorization: `Bearer ${this.#supabase_config.key}`,
         "Content-Type": "application/json",
         Prefer: "return=minimal",
@@ -260,12 +304,17 @@ export class KnowledgeEngine {
     return { success: true };
   }
 
+  /**
+   * @param {object} params
+   * @param {string} [params.task_slug]
+   * @param {number} [params.limit]
+   */
   async query_logs({ task_slug, limit = 10 }) {
     let endpoint = `${this.#supabase_config.url}/rest/v1/development_logs?select=*&order=created_at.desc&limit=${limit}`;
     if (task_slug) endpoint += `&task_slug=eq.${task_slug}`;
     const response = await fetch(endpoint, {
       headers: {
-        apikey: this.#supabase_config.key,
+        apikey: this.#supabase_config.key || "",
         Authorization: `Bearer ${this.#supabase_config.key}`,
       },
     });
@@ -275,6 +324,9 @@ export class KnowledgeEngine {
 
   // --- MCP SERVER INTEGRATION ---
 
+  /**
+   *
+   */
   async create_mcp_server() {
     const server = new Server({ name: "data", version: "3.2.0" }, { capabilities: { tools: {} } });
 
@@ -361,7 +413,7 @@ export class KnowledgeEngine {
             await this.archive_log(/** @type {any} */ (args));
             return { content: [{ type: "text", text: "Log archived." }] };
           case "query_cold_storage": {
-            const logs = await this.query_logs(/** @type {any} */ (args));
+            const logs = /** @type {any[]} */ (await this.query_logs(/** @type {any} */ (args)));
             const text = logs
               .map((l) => `[${l.created_at}] ${l.task_slug}: ${l.content}`)
               .join("\n---\n");
@@ -371,7 +423,8 @@ export class KnowledgeEngine {
             throw new Error(`Unknown tool: ${name}`);
         }
       } catch (err) {
-        return { content: [{ type: "text", text: `Error: ${err.message}` }], isError: true };
+        const error = /** @type {Error} */ (err);
+        return { content: [{ type: "text", text: `Error: ${error.message}` }], isError: true };
       }
     });
 
@@ -381,6 +434,9 @@ export class KnowledgeEngine {
   }
 
   // --- CLI BOOTSTRAP ---
+  /**
+   * @param {string[]} args
+   */
   static async bootstrap(args) {
     const engine = new KnowledgeEngine();
     if (args.length === 0) {

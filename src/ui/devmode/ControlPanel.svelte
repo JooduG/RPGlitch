@@ -9,7 +9,7 @@
   import Modal from "@atoms/Modal.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Dialog from "@atoms/Dialog.svelte";
-  import StoryCard from "@devmode/StoryCard.svelte";
+  import StoryCard from "./StoryCard.svelte";
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 
@@ -43,7 +43,7 @@
 
   $effect(() => {
     stories.list().then((res) => {
-      stories_list = res;
+      stories_list = /** @type {Story[]} */ (res);
     });
   });
 
@@ -101,6 +101,9 @@
 
   let show_reset_confirm = $state(false);
 
+  /**
+   *
+   */
   async function executeReset() {
     db.close();
     await db.delete();

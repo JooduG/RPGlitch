@@ -8,6 +8,7 @@
   import Message from "@storymode/Message.svelte";
 
   // --- STATE ---
+  /** @type {HTMLDivElement | null} */
   let scroll_ref = $state(null);
 
   // Derived
@@ -17,12 +18,17 @@
     if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
       // Small timeout to allow DOM render
       setTimeout(() => {
-        if (scroll_ref) scroll_ref.scrollTop = scroll_ref.scrollHeight;
+        if (scroll_ref) {
+          scroll_ref.scrollTop = scroll_ref.scrollHeight;
+        }
       }, 0);
     }
   });
 
   // Helper to map DB role to UI sender
+  /**
+   * @param {string} role
+   */
   function map_role(role) {
     if (role === "assistant" || role === "ai") return "ai";
     if (role === "prologue") return "fractal";
@@ -39,9 +45,13 @@
   });
 
   let show_delete_confirm = $state(false);
+  /** @type {string | number | null} */
   let delete_target_id = $state(null);
 
   // --- ACTIONS ---
+  /**
+   * @param {number} index
+   */
   async function handle_delete(index) {
     const entry = simulation_log.feed[index];
     if (entry && entry.id) {
@@ -50,27 +60,39 @@
     }
   }
 
+  /**
+   *
+   */
   async function execute_delete() {
     if (delete_target_id) {
-      await session.delete_log_entry(delete_target_id);
+      await session.delete_log_entry(delete_target_id.toString());
       delete_target_id = null;
     }
   }
 
+  /**
+   *
+   */
   async function handle_regenerate() {
     await session.retry();
   }
 
+  /**
+   *
+   */
   async function handle_continue() {
     await session.continue();
   }
 
+  /**
+   * @param {number} index
+   */
   async function handle_edit(index) {
     const entry = simulation_log.feed[index];
     if (!entry) return;
     const new_text = prompt("Edit log entry:", entry.text);
-    if (new_text !== null && new_text !== entry.text) {
-      await session.edit_log_entry(entry.id, new_text);
+    if (new_text !== null && new_text !== entry.text && entry.id !== undefined) {
+      await session.edit_log_entry(entry.id.toString(), new_text);
     }
   }
 </script>
@@ -103,9 +125,9 @@
 
   {#if is_active_turn}
     <Message
-      text={app.streaming.content}
-      sender={active_turn_role}
-      character_name={active_turn_name}
+      text={app.streaming.content ?? ""}
+      sender={active_turn_role ?? "ai"}
+      character_name={active_turn_name ?? ""}
       timestamp={new Date()}
       is_last={true}
       busy={true}

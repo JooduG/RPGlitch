@@ -13,6 +13,9 @@
 export function use_actions(node, actions) {
   let instances = new Map();
 
+  /**
+   * @param {(import("svelte/action").Action<HTMLElement, undefined, any> | [import("svelte/action").Action<HTMLElement, undefined, any>, any])[] | [any, any][]} new_actions
+   */
   function update(new_actions) {
     const next_instances = new Map();
 

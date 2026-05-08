@@ -7,6 +7,7 @@ vi.mock("@core/security.js", () => ({
 // We must use JSDOM environment in Vitest to use document.createElement
 // This happens automatically based on the vitest.config.js usually.
 describe("safe_html action", () => {
+  /** @type {any} */
   let mockNode;
   beforeEach(() => {
     // Create a basic mocked DOM node that we can spy on

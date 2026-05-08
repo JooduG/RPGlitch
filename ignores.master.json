@@ -64,7 +64,7 @@
   ],
   "linters": {
     "eslint": [],
-    "htmlhint": [],
+    "htmlhint": ["**/*.svelte"],
     "markdownlint": [],
     "prettier": [],
     "stylelint": []

@@ -100,7 +100,7 @@ describe("AestheticResolver", () => {
   });
 
   it("should use landscape preset for 'fractal' or 'scene' entities", () => {
-    vi.mocked(themeStore.get_signature_label).mockReturnValue(null);
+    vi.mocked(themeStore.get_signature_label).mockReturnValue("");
     const entity = {
       type: "fractal",
       present: { physical: "Infinite spirals" },
@@ -111,7 +111,7 @@ describe("AestheticResolver", () => {
   });
 
   it("should handle missing fields gracefully", () => {
-    vi.mocked(themeStore.get_signature_label).mockReturnValue(null);
+    vi.mocked(themeStore.get_signature_label).mockReturnValue("");
     const result = AestheticResolver.extract({});
     // Fragments should just be the preset if nothing else is present
     expect(result).toContain("Hasselblad H6D-100c");

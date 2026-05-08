@@ -60,7 +60,7 @@ describe("AppBootstrap", () => {
       "error",
     );
     consoleSpy.mockRestore();
-    const errorStackElement = document.getElementById("error-stack");
+    const errorStackElement = /** @type {HTMLElement} */ (document.getElementById("error-stack"));
     expect(errorStackElement).not.toBeNull();
     // When using textContent, the literal string should be present in the text,
     // but it won't be interpreted as HTML.

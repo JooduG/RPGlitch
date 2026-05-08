@@ -35,7 +35,8 @@ describe("context_broker", () => {
     });
 
     it("should gracefully handle missing log text", async () => {
-      const entity = { future: [{ id: "1" }] };
+      const entity = { future: [{ id: "1", vector_tags: [], text: "test" }] };
+      // @ts-ignore
       await expect(context_broker.manage_vector_lifecycle(entity, null)).resolves.not.toThrow();
       await expect(context_broker.manage_vector_lifecycle(entity, "")).resolves.not.toThrow();
     });

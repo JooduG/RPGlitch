@@ -18,6 +18,7 @@ export const AestheticResolver = {
   /**
    * Deterministic extraction of traits from entity fields.
    * EXCLUDES name and description for privacy and precision.
+   * @param {any} entity
    */
   extract(entity = {}) {
     const present = entity.present?.physical || "";
@@ -63,7 +64,7 @@ export const PromptTemplates = {
   /**
    * Refines raw description into dense visual tokens.
    */
-  ENHANCE: (text) =>
+  ENHANCE: (/** @type {string} */ text) =>
     `
 [SYSTEM: CINEMATOGRAPHY_DIRECTOR]
 Translate rough visual descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
@@ -82,7 +83,11 @@ ${escapeXml(text)}
   /**
    * Builds the final system prompt for context-aware generation.
    */
-  BUILDER: (targetType, rawIntent, context) => {
+  BUILDER: (
+    /** @type {any} */ targetType,
+    /** @type {string} */ rawIntent,
+    /** @type {any} */ context,
+  ) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
     let ctxBlock;
@@ -118,7 +123,7 @@ Input Intent: "${escapeXml(rawIntent)}"
 /**
  * Standard resolution mapping for different modes.
  */
-export const getResolution = (mode) => {
+export const getResolution = (/** @type {any} */ mode) => {
   switch (mode) {
     case "landscape":
     case "scene":

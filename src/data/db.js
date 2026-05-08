@@ -61,7 +61,7 @@ export const init = async () => {
   } catch (err) {
     console.error(
       "[Data] Failed to open database. You may need to manually delete it from browser DevTools.",
-      err.stack || err,
+      /** @type {any} */ (err).stack || err,
     );
     throw err;
   }

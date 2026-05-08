@@ -4,26 +4,37 @@
  * The sensory cortex orchestrator.
  */
 import { llm_service } from "@core/intelligence/llm-service.js";
-import { context_broker } from "@core/intelligence/context-broker.js";
 import { entities } from "@data/repository.js";
 import { db } from "@data/db.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState as simulation } from "@state/status.svelte.js";
 import { generateSecureSeed } from "@utils/helpers.js";
 import { ExponentialBackoffRetryer, CircuitBreaker } from "@media/resilience.js";
-import { PromptTemplates, getResolution, NEGATIVE_PROMPT } from "@media/optics.js";
+import { getResolution, NEGATIVE_PROMPT } from "@media/optics.js";
 
+/**
+ *
+ */
 export class VisualEngine {
   // --- Reactive State (Runes) ---
   isLoading = $state(false);
+  /** @type {string | null} */
   error = $state(null);
   attempts = $state(0);
   isOffline = $state(false); // Circuit breaker status
 
+  /**
+   *
+   */
   constructor() {
-    this.retryer = new ExponentialBackoffRetryer({ maxAttempts: 3 });
+    this.retryer = new ExponentialBackoffRetryer({
+      maxAttempts: 3,
+      initialDelay: 1000,
+      maxDelay: 10000,
+    });
     this.breaker = new CircuitBreaker({
       failureThreshold: 3,
+      successThreshold: 2,
       recoveryTimeout: 30000,
     });
   }
@@ -31,6 +42,8 @@ export class VisualEngine {
   /**
    * Primary high-level generation pipeline.
    * Handles character resolution, prompt optimization, and resilient generation.
+   * @param {string} target
+   * @param {any} [options]
    */
   async generate(target, options = {}) {
     this.isLoading = true;
@@ -49,13 +62,14 @@ export class VisualEngine {
         finalPrompt = target; // Direct prompt
       } else if (typeof target === "string") {
         entityId = target;
+        /** @type {any} */
         const entity = await this._resolveEntity(entityId);
 
         // PRIORITY: Use user-edited prompt if available.
         // Fallback to name ONLY for the engine's final generation path.
         finalPrompt = entity.modifiers?.prompt || entity.name;
 
-        options.type = entity.type || "character"; // Store resolved type
+        /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
       } else {
         finalPrompt = String(target);
       }
@@ -64,9 +78,11 @@ export class VisualEngine {
       const result = await this.breaker.execute(async () => {
         return await this.retryer.retry(
           async () => {
+            // @ts-ignore
             if (!window.pluginTextToImage) throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
+            // @ts-ignore
             const data = await window.pluginTextToImage({
               prompt: finalPrompt,
               negativePrompt: NEGATIVE_PROMPT,
@@ -75,9 +91,11 @@ export class VisualEngine {
               height: options.height || res.height,
             });
 
-            return data?.dataUrl || data;
+            return typeof data === "object" && data !== null && "dataUrl" in data
+              ? data.dataUrl
+              : data;
           },
-          (attempt) => {
+          (/** @type {number} */ attempt) => {
             this.attempts = attempt;
             console.warn(`[VisualEngine] Retry attempt ${attempt}...`);
           },
@@ -88,15 +106,20 @@ export class VisualEngine {
       this.isOffline = this.breaker.isOpen;
 
       if (result && entityId && !options.noCache) {
-        await this._cacheImage(entityId, result, options.type || "character");
+        await this._cacheImage(
+          entityId,
+          result,
+          options.type === "user" ? "character" : options.type || "character",
+        );
       }
 
       return result;
     } catch (err) {
-      this.error = err.message;
+      const error = /** @type {Error} */ (err);
+      this.error = error.message;
       this.isOffline = this.breaker.isOpen;
-      console.error("[VisualEngine] Service Failure:", err);
-      throw err;
+      console.error("[VisualEngine] Service Failure:", error);
+      throw error;
     } finally {
       this.isLoading = false;
     }
@@ -104,19 +127,20 @@ export class VisualEngine {
 
   /**
    * Translates text into enhanced visual tokens.
+   * @param {string} text
    */
-  async enhance(text, context = {}) {
+  async enhance(text) {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = PromptTemplates.ENHANCE(text);
+          const system = `[SYSTEM: CINEMATOGRAPHY_DIRECTOR] Translate into a single descriptive paragraph: ${text}`;
 
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
           return this._cleanPrompt(result);
         },
-        (attempt) => {
+        (/** @type {number} */ attempt) => {
           console.warn(`[VisualEngine] Enhancement retry ${attempt}...`);
         },
       );
@@ -125,32 +149,29 @@ export class VisualEngine {
 
   /**
    * Comprehensive visualization for narrative events.
+   * @param {string} storyId
+   * @param {string} visualPrompt
+   * @param {any} [targetType]
+   * @param {any} [options]
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
-    const story = runtime.story.byId[storyId];
+    /** @type {any} */
+    const story = /** @type {any} */ (runtime.simulation)?.story?.by_id?.[storyId];
     if (!story) return { imageUrl: null, refinedPrompt: null };
 
     const targetTypeMap = { fractal: "scene", scene: "scene", user: "user" };
-    const vTarget = targetTypeMap[targetType] || "ai";
+    const vTarget = /** @type {any} */ (targetTypeMap)[targetType] || "ai";
 
-    const targetIdMap = { fractal: story.fractalId, scene: story.fractalId, user: story.userId };
-    const targetId = targetIdMap[targetType] || story.aiId;
+    const targetIdMap = { fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
+    const targetId = /** @type {any} */ (targetIdMap)[targetType] || story.ai_id;
     simulation.start_typing(targetType === "scene" ? "fractal" : targetType || "ai", targetId);
 
     try {
-      const hydrated = await context_broker.hydrate("", "image");
-      const context = {
-        ai: hydrated.entities.AI,
-        user: hydrated.entities.USER,
-        fractal: hydrated.entities.FRACTAL,
-        history: "",
-        mode: "visualize",
-      };
-      const system = PromptTemplates.BUILDER(vTarget, visualPrompt, context);
+      const system = `[SYSTEM: SENSORY_CORTEX] Target: ${vTarget}. Convert intent into an image prompt: "${visualPrompt}"`;
 
       const refined = await llm_service.generate(
         {
-          system: system + "\n<RAW_INTENT>\n" + visualPrompt + "\n</RAW_INTENT>",
+          system: system,
           messages: [],
         },
         { silent: true },
@@ -166,33 +187,48 @@ export class VisualEngine {
 
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
       return { imageUrl, refinedPrompt: cleanPrompt };
-    } catch (err) {
+    } catch {
       return { imageUrl: null, refinedPrompt: null };
     } finally {
       simulation.stop_typing();
     }
   }
 
+  /**
+   * @param {any} file
+   */
   async upload(file) {
+    // @ts-ignore
     if (!window.pluginUpload) return null;
+    // @ts-ignore
     return await window.pluginUpload(file);
   }
 
   // --- Private Helpers ---
 
+  /**
+   * @param {string} id
+   */
   async _resolveEntity(id) {
     return (
       (await entities.get("character", id)) ||
-      (await entities.get("user", id)) ||
       (await entities.get("fractal", id)) || { name: "Unknown", description: "" }
     );
   }
 
+  /**
+   * @param {string} id
+   * @param {any} data
+   * @param {'character' | 'fractal' | 'story'} type
+   */
   async _cacheImage(id, data, type = "character") {
-    await db.entities.update(id, { profile_picture: data, updatedAt: Date.now() });
-    await runtime.updateEntity(type, id, { profile_picture: data });
+    await db.entities.update(id, { profile_picture: data, updated_at: Date.now() });
+    await runtime.update_entity(type, id, { profile_picture: data });
   }
 
+  /**
+   * @param {string} raw
+   */
   _cleanPrompt(raw) {
     if (typeof raw !== "string") return raw;
     return raw

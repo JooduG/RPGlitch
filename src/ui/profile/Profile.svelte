@@ -53,6 +53,9 @@
 
   // --- HANDLERS ---
 
+  /**
+   *
+   */
   function handle_close() {
     if (is_editing) {
       is_editing = false;
@@ -61,6 +64,9 @@
     }
   }
 
+  /**
+   *
+   */
   async function handle_save() {
     is_editing = false;
     is_saving = true;
@@ -90,6 +96,9 @@
     }
   }
 
+  /**
+   *
+   */
   async function handle_delete() {
     try {
       await runtime.delete_entity(entity_type, char.id);
@@ -99,6 +108,9 @@
     }
   }
 
+  /**
+   *
+   */
   function handle_focus_out() {
     setTimeout(() => {
       const active = document.activeElement;

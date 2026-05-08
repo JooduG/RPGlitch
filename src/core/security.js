@@ -4,17 +4,23 @@ import DOMPurify from "dompurify";
  * 🛡️ SECURITY: The Shield
  * Zero-Trust enforcement and data sanitization.
  */
-// 1. Sanitize HTML (Zero-Trust)
+/**
+ * @param {any} dirty
+ */
 export const sanitize = (dirty) => {
   if (typeof window === "undefined") return dirty;
   return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: false }); // String output
 };
-// 1.5. Sanitize HTML to DOM Fragment (Zero-Trust, No innerHTML)
+/**
+ * @param {any} dirty
+ */
 export const sanitizeToFragment = (dirty) => {
   if (typeof window === "undefined") return dirty;
   return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: true }); // DocumentFragment output
 };
-// 2. Escape Logic
+/**
+ * @param {any} str
+ */
 export const escape = (str) => {
   if (str === null || str === undefined) return "";
   return String(str)
@@ -24,18 +30,23 @@ export const escape = (str) => {
     .replace(/"/g, "&quot;")
     .replace(/'/g, "&#39;");
 };
-// Stub for now, can be expanded
+/**
+ * @param {any} text
+ */
 export const checkRefusal = (text) => false;
+/**
+ * @param {any} text
+ */
 export const clean = (text) => (text ? text.trim() : "");
 /**
  * Validates an image file for size, type, and magic numbers.
  * @param {File} file - The file to validate.
- * @param {Object} options - Validation options (maxSize, allowedTypes).
+ * @param {any} [options] - Validation options (maxSize, allowedTypes).
  * @returns {Promise<boolean>} - Resolves if valid, throws error otherwise.
  */
 export const validateImage = async (file, options = {}) => {
-  const maxSize = options.maxSize ?? 5 * 1024 * 1024; // Default 5MB
-  const allowedTypes = options.allowedTypes ?? [
+  const maxSize = /** @type {any} */ (options).maxSize ?? 5 * 1024 * 1024; // Default 5MB
+  const allowedTypes = /** @type {any} */ (options).allowedTypes ?? [
     "image/jpeg",
     "image/png",
     "image/webp",
@@ -61,10 +72,12 @@ export const validateImage = async (file, options = {}) => {
   const buffer = await file.slice(0, 12).arrayBuffer();
   const header = new Uint8Array(buffer);
   const signatures = {
-    "image/jpeg": (h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
-    "image/png": (h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4e && h[3] === 0x47,
-    "image/gif": (h) => h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
-    "image/webp": (h) =>
+    "image/jpeg": (/** @type {Uint8Array} */ h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
+    "image/png": (/** @type {Uint8Array} */ h) =>
+      h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4e && h[3] === 0x47,
+    "image/gif": (/** @type {Uint8Array} */ h) =>
+      h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
+    "image/webp": (/** @type {Uint8Array} */ h) =>
       h[0] === 0x52 &&
       h[1] === 0x49 &&
       h[2] === 0x46 &&
@@ -75,7 +88,7 @@ export const validateImage = async (file, options = {}) => {
       h[11] === 0x50,
   };
 
-  const verify = signatures[file.type];
+  const verify = /** @type {any} */ (signatures)[file.type];
   if (verify) {
     if (!verify(header)) {
       throw new Error(
@@ -99,8 +112,25 @@ export const Security = {
   checkRefusal,
   clean,
   validateImage,
-  // Physics & Authorization
-  authorizeVisuals: (prompt, options) => true,
+  /**
+   * @param {any} prompt
+   * @param {any} [options]
+   */
+  authorizeVisuals: (prompt, options = {}) => true,
+  /**
+   * 🛡️ PROCESS (Causality & Physics Scan)
+   * Evaluates if an action is possible within the current simulation context.
+   * Currently a pass-through placeholder for future logic.
+   * @param {string} input
+   * @param {any} character
+   * @param {any} fractal
+   * @returns {Promise<{causality: {result: string;constraint?: string;};}>}
+   */
+  process: async (input, character, fractal) => {
+    return {
+      causality: { result: "success" },
+    };
+  },
 };
 // Backward Compatibility Alias
 export const Shield = Security;

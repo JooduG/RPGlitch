@@ -1,9 +1,10 @@
 {
   "compilerOptions": {
-    "checkJs": true,
-    "module": "esnext",
     "moduleResolution": "bundler",
     "target": "esnext",
+    "module": "esnext",
+    "lib": ["esnext", "dom", "dom.iterable"],
+
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"],
@@ -12,17 +13,20 @@
       "@state/*": ["src/state/*"],
       "@ui/*": ["src/ui/*"],
       "@atoms/*": ["src/ui/atoms/*"],
-      "@drawer/*": ["src/ui/drawer/*"],
-      "@storymode/*": ["src/ui/storymode/*"],
-      "@storyboard/*": ["src/ui/storyboard/*"],
-      "@profile/*": ["src/ui/profile/*"],
-      "@devmode/*": ["src/ui/devmode/*"],
       "@utils/*": ["src/ui/utils/*"],
       "@theme/*": ["src/theme/*"],
       "@media/*": ["src/media/*"],
-      "@scholar/*": ["src/data/*"]
+      "@devmode/*": ["src/ui/devmode/*"],
+      "@drawer/*": ["src/ui/drawer/*"],
+      "@profile/*": ["src/ui/profile/*"],
+      "@storyboard/*": ["src/ui/storyboard/*"],
+      "@storymode/*": ["src/ui/storymode/*"]
     },
-    "lib": ["esnext", "dom", "dom.iterable"],
+
+    /* THE AI TYPE-SAFETY NET */
+    "checkJs": true,
+    "allowJs": true,
+    "strict": true,
     "allowArbitraryExtensions": true,
     "verbatimModuleSyntax": true
   },
@@ -48,19 +52,17 @@
     ".mcp.json",
     ".npm",
     ".vscode/",
-    "/.DS_Store",
-    "/coverage",
-    "/dist",
+    "**/.DS_Store",
+    "**/coverage",
+    "**/dist",
     "gha-creds-*.json",
     "libs/**",
     "llms.md",
     "mcp.json",
-    "node_modules",
-    "node_modules/",
+    "**/node_modules",
     "nul",
     "scribbles.md",
-    "scrubbles.md",
-    "test-results/"
+    "test-results/",
+    ".jules/"
   ]
 }
-// Trigger refresh: 2026-04-30

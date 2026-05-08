@@ -6,7 +6,9 @@ import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import App from "@ui/App.svelte";
 import { sanitizeToFragment } from "@core/security.js";
+
 let has_initialized = false;
+
 /**
  * FOR TESTING ONLY: Reset the initialization guard.
  */
@@ -16,6 +18,7 @@ export const reset_bootstrap_guard =
         has_initialized = false;
       }
     : () => {};
+
 /**
  * AppBootstrap handles the initial sequence of the application.
  */
@@ -26,22 +29,20 @@ export const AppBootstrap = {
       return;
     }
     has_initialized = true;
+
     try {
       // 1. Seed Premades (Entities/Stories) - Must happen before sync to ensure data exists.
       await seed_premades();
 
       // Parallel Initialization: Reduce critical path for LCP.
-      // 2. Sync Runtime State (Hydrate from DB)
-      // 3. Hydrate Application Settings
-      // 4. Initialize Audio Services
       await Promise.all([runtime.sync(), app.init(), Audio.init()]);
 
       // 5. Mount Svelte App
       mount(App, {
         target: document.getElementById("main-app-container") || document.body,
       });
-      // 6. Tear down boot illusion  it lives in #svelte-root which is NOT the
-      //    mount target, so Svelte never cleans it up. Remove it explicitly.
+
+      // 6. Tear down boot illusion
       document.getElementById("svelte-root")?.remove();
       app.log("[Engine] >> System Online.", "system");
     } catch (err) {
@@ -50,6 +51,7 @@ export const AppBootstrap = {
         `[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`,
         "error",
       );
+
       const error_template = `
                 <div style="background:var(--bg-base); color:var(--color-red); padding:var(--spacing-xl); font-family:var(--font-family-mono); height:100vh; overflow:auto;">
                     <h1 style="border-bottom: 2px solid var(--color-red); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
@@ -63,7 +65,7 @@ export const AppBootstrap = {
       // Use textContent for safety
       const error_stack = document.getElementById("error-stack");
       if (error_stack) {
-        error_stack.textContent = err.stack || String(err);
+        error_stack.textContent = /** @type {any} */ (err).stack || String(err);
       }
     }
   },

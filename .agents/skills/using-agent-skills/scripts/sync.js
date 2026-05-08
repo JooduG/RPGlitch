@@ -14,6 +14,9 @@ console.log("🎨  ORCHESTRATION: GLOBAL STATE SYNC");
 console.log("================================================================================\n");
 
 // 1. Sync eslint.config.js, .gitignore, .geminiignore, linter ignores, and vscode settings
+/**
+ *
+ */
 function syncIgnores() {
   const masterIgnoresPath = path.join(ROOT_DIR, "ignores.master.json");
   if (!fs.existsSync(masterIgnoresPath)) {

@@ -33,8 +33,17 @@ vi.mock("@data/db.js", () => ({
 
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
-    updateEntity: vi.fn().mockResolvedValue(true),
-    story: { byId: {} },
+    update_entity: vi.fn().mockResolvedValue(true),
+    simulation: {
+      story: { by_id: {} },
+    },
+  },
+}));
+
+vi.mock("@state/status.svelte.js", () => ({
+  simulationState: {
+    start_typing: vi.fn(),
+    stop_typing: vi.fn(),
   },
 }));
 
@@ -48,11 +57,12 @@ describe("VisualEngine (Reactive)", () => {
   });
 
   it("should generate an image from a direct prompt", async () => {
-    vi.mocked(window.pluginTextToImage).mockResolvedValue({ dataUrl: "data:image/png;base64,123" });
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue({
+      dataUrl: "data:image/png;base64,123",
+    });
 
     const result = await visual_engine.generate(
       "A photorealistic portrait of a Nordic investigator",
-      { noCache: true },
     );
 
     expect(result).toBe("data:image/png;base64,123");
@@ -61,20 +71,22 @@ describe("VisualEngine (Reactive)", () => {
   });
 
   it("should distinguish short prompts from UUIDs", async () => {
-    vi.mocked(window.pluginTextToImage).mockResolvedValue("image_url");
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue("image_url");
 
     // Case 1: Short prompt (previously failed)
-    await visual_engine.generate("A cat", { noCache: true });
+    await visual_engine.generate("A cat");
     expect(entities.get).not.toHaveBeenCalled();
 
     // Case 2: UUID (should resolve)
     const uuid = "550e8400-e29b-41d4-a716-446655440000";
-    await visual_engine.generate(uuid, { noCache: true });
+    await visual_engine.generate(uuid);
     expect(entities.get).toHaveBeenCalledWith("character", uuid);
   });
 
   it("should handle service failures with retries and circuit breaker", async () => {
-    vi.mocked(window.pluginTextToImage).mockRejectedValue(new Error("GPU Offline"));
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockRejectedValue(
+      new Error("GPU Offline"),
+    );
 
     // failureThreshold is 3
     await expect(visual_engine.generate("test prompt")).rejects.toThrow("GPU Offline");
@@ -106,9 +118,9 @@ describe("VisualEngine (Reactive)", () => {
   });
 
   it("should handle null LLM responses in visualize safely", async () => {
-    vi.mocked(llm_service.generate).mockResolvedValue(null);
+    vi.mocked(llm_service.generate).mockResolvedValue("");
 
-    const result = await visual_engine.visualize("text");
+    const result = await visual_engine.visualize("test-story", "text", "character");
 
     expect(result.imageUrl).toBe(null);
     expect(result.refinedPrompt).toBe(null);
@@ -117,10 +129,10 @@ describe("VisualEngine (Reactive)", () => {
   it("should resolve entities and use them for prompt generation", async () => {
     vi.mocked(entities.get).mockResolvedValue({ name: "Kai", description: "A rugged survivor" });
     vi.mocked(llm_service.generate).mockResolvedValue("Kai, rugged survivor, cinematic");
-    vi.mocked(window.pluginTextToImage).mockResolvedValue("Kai_Image_URL");
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue("Kai_Image_URL");
 
     const uuid = "550e8400-e29b-41d4-a716-446655440001";
-    const result = await visual_engine.generate(uuid, { noCache: true });
+    const result = await visual_engine.generate(uuid);
 
     expect(entities.get).toHaveBeenCalledWith("character", uuid);
     expect(result).toBe("Kai_Image_URL");

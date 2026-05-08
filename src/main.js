@@ -9,8 +9,9 @@ import DOMPurify from "dompurify";
 // Must happen BEFORE any other code runs
 Object.assign(window, { Dexie, DOMPurify });
 // [DEV] Mock rpgLists for local development to bypass 5s bootstrap timeout
-if (!window.rpgLists) {
-  window.rpgLists = {
+const win = /** @type {any} */ (window);
+if (!win.rpgLists) {
+  win.rpgLists = {
     sounds: [],
     voices: [],
     themes: [],

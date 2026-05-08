@@ -76,11 +76,14 @@ describe("temporal_engine", () => {
       const entries = [
         {
           id: "t1",
+          timestamp: 100,
+          text: "A",
+          type: "past",
+          base_weight: 5,
           dynamics_tags: [{ id: "EXPOSURE", word: "kiss" }],
           vector_tags: ["Iron"],
-          text: "A",
+          meta: {},
           emotional_weight: 5,
-          timestamp: 100,
         },
       ];
 
@@ -99,10 +102,21 @@ describe("temporal_engine", () => {
 
   describe("resolve", () => {
     it("transitions a future impulse to a past anchor", () => {
-      const entity = {
-        future: [{ id: "v1", text: "Goal", vector_tags: [] }],
+      const entity = /** @type {any} */ ({
+        future: [
+          {
+            id: "v1",
+            timestamp: 100,
+            text: "Goal",
+            type: "future",
+            base_weight: 5,
+            dynamics_tags: [],
+            vector_tags: [],
+            meta: {},
+          },
+        ],
         past: [],
-      };
+      });
 
       temporal_engine.resolve(entity, "v1", "SUCCESS");
 
@@ -116,9 +130,39 @@ describe("temporal_engine", () => {
   describe("format", () => {
     it("labels past entries based on emotional weight thresholds", () => {
       const past = [
-        { text: "Core memory", emotional_weight: 10, dynamics_tags: [], vector_tags: [] },
-        { text: "Major memory", emotional_weight: 8, dynamics_tags: [], vector_tags: [] },
-        { text: "Minor memory", emotional_weight: 4, dynamics_tags: [], vector_tags: [] },
+        {
+          id: "p1",
+          timestamp: 100,
+          text: "Core memory",
+          type: "past",
+          base_weight: 5,
+          dynamics_tags: [],
+          vector_tags: [],
+          meta: {},
+          emotional_weight: 10,
+        },
+        {
+          id: "p2",
+          timestamp: 200,
+          text: "Major memory",
+          type: "past",
+          base_weight: 5,
+          dynamics_tags: [],
+          vector_tags: [],
+          meta: {},
+          emotional_weight: 8,
+        },
+        {
+          id: "p3",
+          timestamp: 300,
+          text: "Minor memory",
+          type: "past",
+          base_weight: 5,
+          dynamics_tags: [],
+          vector_tags: [],
+          meta: {},
+          emotional_weight: 4,
+        },
       ];
 
       const result = temporal_engine.format(past, "", { mode: "past" });
@@ -130,7 +174,17 @@ describe("temporal_engine", () => {
 
     it("labels future entries as impulses", () => {
       const future = [
-        { text: "Prophecy", emotional_weight: 5, dynamics_tags: [], vector_tags: [] },
+        {
+          id: "f1",
+          timestamp: 100,
+          text: "Prophecy",
+          type: "future",
+          base_weight: 5,
+          dynamics_tags: [],
+          vector_tags: [],
+          meta: {},
+          emotional_weight: 5,
+        },
       ];
 
       const result = temporal_engine.format(future, "", { mode: "future" });
@@ -141,7 +195,7 @@ describe("temporal_engine", () => {
 
   describe("weave_resonance (Historical Condensation)", () => {
     it("successfully condenses history into a resonance via LLM", async () => {
-      const mockEntity = { name: "Viper" };
+      const mockEntity = /** @type {any} */ ({ name: "Viper" });
       const mockHistory = [{ role: "user", content: "test message" }];
       const mockResonance = {
         summary: "A significant event happened.",
@@ -158,19 +212,22 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.weave_resonance(mockEntity, mockHistory, "character");
 
-      expect(result.text).toBe(mockResonance.summary);
-      expect(result.vector_tags).toEqual(["event"]);
-      expect(result.dynamics_tags).toEqual([{ id: "TEST_TAG", word: "" }]);
-      expect(result.timestamp).toBe(Date.now());
+      expect(result?.text).toBe(mockResonance.summary);
+      expect(result?.vector_tags).toEqual(["event"]);
+      expect(result?.dynamics_tags).toEqual([{ id: "TEST_TAG", word: "" }]);
+      expect(result?.timestamp).toBe(Date.now());
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
       const jsonStr = JSON.stringify({ summary: "First object" });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${jsonStr} noise after`);
 
-      const result = await temporal_engine.weave_resonance({ name: "Viper" }, []);
+      const result = await temporal_engine.weave_resonance(
+        /** @type {any} */ ({ name: "Viper" }),
+        [],
+      );
 
-      expect(result.text).toBe("First object");
+      expect(result?.text).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
@@ -181,16 +238,22 @@ describe("temporal_engine", () => {
       const response = `Here is the JSON: ${JSON.stringify(nestedResonance)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
 
-      const result = await temporal_engine.weave_resonance({ name: "Viper" }, []);
+      const result = await temporal_engine.weave_resonance(
+        /** @type {any} */ ({ name: "Viper" }),
+        [],
+      );
 
-      expect(result.text).toBe(nestedResonance.summary);
-      expect(JSON.stringify(result.text)).not.toBe(JSON.stringify(nestedResonance)); // summary is text
+      expect(result?.text).toBe(nestedResonance.summary);
+      expect(JSON.stringify(result?.text)).not.toBe(JSON.stringify(nestedResonance)); // summary is text
     });
 
     it("returns null and logs error if LLM fails", async () => {
       vi.mocked(llm_service.generate).mockRejectedValue(new Error("LLM Down"));
 
-      const result = await temporal_engine.weave_resonance({ name: "Viper" }, []);
+      const result = await temporal_engine.weave_resonance(
+        /** @type {any} */ ({ name: "Viper" }),
+        [],
+      );
 
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalled();
@@ -209,7 +272,13 @@ describe("temporal_engine", () => {
       const mockRuntime = { active_ai: { past: [] } };
       const mockApp = { log: vi.fn() };
 
-      await temporal_engine.consolidate(mockSession, mockDb, mockEntities, mockRuntime, mockApp);
+      await temporal_engine.consolidate(
+        /** @type {any} */ (mockSession),
+        /** @type {any} */ (mockDb),
+        /** @type {any} */ (mockEntities),
+        /** @type {any} */ (mockRuntime),
+        /** @type {any} */ (mockApp),
+      );
 
       expect(mockSession.require_active).toHaveBeenCalled();
       expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();

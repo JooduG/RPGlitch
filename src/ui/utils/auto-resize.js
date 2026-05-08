@@ -1,9 +1,14 @@
 /**
- * @file auto-resize.js
- * Svelte 5 logic action to resize textareas automatically based on their content.
- * Optimized to prevent layout thrashing by batching DOM reads and writes.
- */
+ /**
+  * @file auto-resize.js
+ Svelte 5 logic action to resize textareas automatically based on their content.
+ Optimized to prevent layout thrashing by batching DOM reads and writes.
+  * @param {HTMLElement} node
+  */
 export function auto_resize(node, options = {}) {
+  /**
+   * @type {number}
+   */
   let frame;
   let lastWidth = 0;
   let lastScrollHeight = 0;
@@ -20,10 +25,11 @@ export function auto_resize(node, options = {}) {
         return;
       }
 
-      const syncId = options.syncId;
+      const syncId = /** @type {any} */ (options).syncId;
       const scope = syncId
         ? node.closest(".storymode-grid, .modal-content, body") || document.body
         : null;
+      // @ts-ignore
       const siblings = syncId ? scope.querySelectorAll(`[data-sync-id="${syncId}"]`) : [node];
 
       // 1. PHASE: BATCH WRITE (Reset)
@@ -33,6 +39,7 @@ export function auto_resize(node, options = {}) {
 
       // 2. PHASE: BATCH READ (Measure)
       let maxScrollHeight = 0;
+      /** @type {any[]} */
       const metrics = [];
 
       siblings.forEach((s) => {
@@ -59,6 +66,7 @@ export function auto_resize(node, options = {}) {
       lastScrollHeight = node.scrollHeight;
     });
   };
+
   node.addEventListener("input", update);
   const observer = new ResizeObserver(update);
   observer.observe(node);

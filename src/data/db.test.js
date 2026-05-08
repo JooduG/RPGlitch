@@ -2,7 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import "fake-indexeddb/auto";
 
 describe("Database db.js", () => {
+  /** @type {import('dexie').Dexie | null} */
   let dbInstance;
+  /** @type {import('vitest').MockInstance} */
   let consoleWarnSpy;
 
   beforeEach(async () => {

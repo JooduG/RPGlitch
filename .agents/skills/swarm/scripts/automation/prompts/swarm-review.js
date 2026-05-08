@@ -10,6 +10,9 @@ export const SWARM_TEMPLATES = {
    * REVIEW PROMPT (The 80% Gate)
    * PURPOSE: Evaluates the output of a swarm agent against its task instructions.
    */
+  /**
+   * @param {{ input_prompt: string, agent_output: string }} params
+   */
   review: ({ input_prompt, agent_output }) =>
     `
 <SYSTEM role="VERIFIER" mode="REVIEW">

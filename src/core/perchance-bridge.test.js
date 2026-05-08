@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 describe("PerchanceBridge", () => {
+  /** @type {any} */
   let bridge;
   beforeEach(async () => {
     // Clear modules to re-evaluate perchance-bridge.js and re-instantiate the singleton
@@ -12,14 +13,14 @@ describe("PerchanceBridge", () => {
     vi.restoreAllMocks();
     // Clean up global mutations
     if (typeof window !== "undefined") {
-      delete window.oc;
+      /** @type {any} */ (window).oc = undefined;
     }
   });
   describe("Mock Mode", () => {
     beforeEach(async () => {
       // Ensure window.oc is undefined
       if (typeof window !== "undefined") {
-        delete window.oc;
+        /** @type {any} */ (window).oc = undefined;
       }
       // Dynamically import to get a fresh instance
       const module = await import("@core/perchance-bridge.js");
@@ -53,6 +54,7 @@ describe("PerchanceBridge", () => {
     });
   });
   describe("Live Mode", () => {
+    /** @type {any} */
     let mockOc;
     beforeEach(async () => {
       // Setup mock window.oc
@@ -125,12 +127,12 @@ describe("PerchanceBridge", () => {
       expect(bridge.customData).toEqual({});
     });
     it("should handle a missing 'thread' object gracefully for customData", () => {
-      window.oc.thread = undefined;
+      /** @type {any} */ (window.oc).thread = undefined;
       // This currently throws, but should ideally return {}
       expect(bridge.customData).toEqual({});
     });
     it("should handle a missing 'thread' object gracefully for .on()", () => {
-      window.oc.thread = undefined;
+      /** @type {any} */ (window.oc).thread = undefined;
       bridge.on("testEvent", () => {});
       expect(console.error).toHaveBeenCalledWith(
         `[Security:Bridge] Failed to attach listener for 'testEvent':`,

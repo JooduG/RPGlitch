@@ -12,7 +12,6 @@
   import Storyboard from "@storyboard/Storyboard.svelte";
   import Storymode from "@storymode/Storymode.svelte";
   import Tooltip from "@atoms/Tooltip.svelte";
-  import { onMount } from "svelte";
   import { fade } from "svelte/transition";
 
   // --- CONSOLIDATED BACKGROUND LOGIC ---
@@ -22,7 +21,7 @@
   // Opacity varies based on view for cinematic focus
   // Storymode is dimmer to prioritize text legibility
   let fractal_opacity = $derived(app.view === "storymode" ? 0.4 : 0.75);
-  onMount(() => {
+  $effect(() => {
     app.load_entities();
   });
 </script>

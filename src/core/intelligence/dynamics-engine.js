@@ -12,6 +12,32 @@
  * - trigger: Array  -> Only applies if input matches AND filter passes (Scan Reaction).
  * - Effect : Numerical changes (ai/fractal) and Narrative (text).
  */
+
+/**
+ * @typedef {Object} DynamicsPayload
+ * @property {string} input
+ * @property {Record<string, any>} entities
+ * @property {any} [history]
+ */
+
+/**
+ * @typedef {Object} DynamicsState
+ * @property {Record<string, any>} ai
+ * @property {Record<string, any>} fractal
+ * @property {string[]} flags
+ * @property {Record<string, any>} signals
+ * @property {string[]} signal_prompts
+ * @property {Record<string, string[]>} contributors
+ * @property {Record<string, any>} [key]
+ */
+
+/**
+ * @typedef {Object} DynamicsMatch
+ * @property {string} id
+ * @property {string} scan
+ * @property {any} [config]
+ */
+
 export const DYNAMICS = [
   // 🧪 AI SOMATICS (Passive Signals)
   {
@@ -235,9 +261,14 @@ export const DYNAMICS = [
   },
 ];
 export const dynamics_engine = {
+  /**
+   * @param {DynamicsPayload} payload
+   * @returns {DynamicsState}
+   */
   simulate(payload) {
     const { input, entities, history } = payload;
     const matches = dynamics_engine.dynamics_scan(input);
+    /** @type {DynamicsState} */
     const next_state = {
       ai: { ...entities.AI },
       fractal: entities.FRACTAL
@@ -255,7 +286,7 @@ export const dynamics_engine = {
    * DYNAMICS SCAN (The Unified Scanner)
    * Finds every rule in the registry that matches the input text.
    * @param {string} text
-   * @returns {Array<{ id: string, scan: string, config?: object }>}
+   * @returns {DynamicsMatch[]}
    */
   dynamics_scan(text) {
     if (!text) return [];
@@ -273,8 +304,11 @@ export const dynamics_engine = {
   /**
    * SIMULATION DYNAMICS (The Umbrella Orchestrator)
    * Processes numerical pass, baseline gravity, and narrative pass.
+   * @param {DynamicsState & Record<string, any>} state
+   * @param {any} _prev_state
+   * @param {DynamicsMatch[]} matches
    */
-  simulation_dynamics(state, prev_state, matches) {
+  simulation_dynamics(state, _prev_state, matches) {
     // 1. NUMERICAL PASS: Active Impulses and Passive Laws
     dynamics_engine.dynamics_numerical(state, matches);
     // 2. PHYSICS PASS: Baseline settlement and Threshold laws (Flags only)
@@ -293,6 +327,8 @@ export const dynamics_engine = {
   /**
    * DYNAMICS NUMERICAL (Numerical Stage)
    * Applies numerical shifts from matching triggers OR matching filters (for Laws).
+   * @param {DynamicsState & Record<string, any>} state
+   * @param {DynamicsMatch[]} matches
    */
   dynamics_numerical(state, matches) {
     if (!state.contributors) state.contributors = {};
@@ -338,6 +374,8 @@ export const dynamics_engine = {
   /**
    * DYNAMICS NARRATIVE (Narrative Stage)
    * Pushes prompts to the final output based on the settled state.
+   * @param {DynamicsState & Record<string, any>} state
+   * @param {DynamicsMatch[]} matches
    */
   dynamics_narrative(state, matches) {
     DYNAMICS.forEach((data) => {
@@ -355,12 +393,21 @@ export const dynamics_engine = {
       }
     });
   },
+  /**
+   * @param {Record<string, number>} d - The current dynamics state.
+   * @param {any} filter - The filter configuration.
+   * @returns {boolean} True if the filter passes.
+   */
   _evaluate_filter(d, filter) {
     if (!filter) return true;
     const above_ok = Object.entries(filter.above || {}).every(([axis, limit]) => d[axis] > limit);
     const below_ok = Object.entries(filter.below || {}).every(([axis, limit]) => d[axis] < limit);
     return above_ok && below_ok;
   },
+  /**
+   * @param {any} entity - The entity to extract baselines from.
+   * @returns {Record<string, number>} The entity's baseline dynamics.
+   */
   _get_baselines(entity) {
     // dynamics_baseline: permanent per-entity gravitational center.
     // Set by the user outside a simulation; gravity pulls live dynamics back toward it each round.
@@ -368,11 +415,13 @@ export const dynamics_engine = {
     return entity?.dynamics_baseline || {};
   },
   /**
-   * PHYSICS ENGINE (Gravity & Settlement)
-   * Pulls dynamics back toward baselines and clamps results.
    * Generates persistent state flags for AI response conditioning.
+   * @param {Record<string, number>} d
+   * @param {Record<string, number>} baselines
+   * @param {DynamicsMatch[]} _matches
+   * @param {DynamicsState} _state
    */
-  _process_entity_dynamics(d, baselines, matches, state) {
+  _process_entity_dynamics(d, baselines, _matches, _state) {
     // 1. Gravity Pull
     Object.keys(d).forEach((axis) => {
       const target = baselines[axis] ?? 50;

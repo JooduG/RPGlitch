@@ -1,18 +1,15 @@
 import { includeIgnoreFile } from "@eslint/compat";
 import js from "@eslint/js";
 import prettier from "eslint-config-prettier";
+import jsdoc from "eslint-plugin-jsdoc";
 import svelte from "eslint-plugin-svelte";
+import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
-// import markdownlintPlugin from "eslint-plugin-markdownlint";
-// import markdownlintParser from "eslint-plugin-markdownlint/parser.js";
-
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
-
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   includeIgnoreFile(gitignorePath),
-
   {
     // @agent:ignore-start
     ignores: [
@@ -62,9 +59,11 @@ export default [
   ...svelte.configs.recommended,
   prettier,
   ...svelte.configs.prettier,
-  // prettierPlugin (removed for performance - rely on format script)
-
   {
+    plugins: {
+      jsdoc,
+      "unused-imports": unusedImports,
+    },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -85,16 +84,54 @@ export default [
       sourceType: "module",
     },
     rules: {
-      "no-unused-vars": [
-        "warn",
+      /* ========================================================================
+			   [**] 1. THE RUNE REGIME (SVELTE 5)
+			   ======================================================================== */
+      // Vi litar på kompilatorn för export let, men blockerar legacy hooks.
+      "no-restricted-imports": [
+        "error",
         {
-          args: "none",
-          ignoreRestSiblings: true,
-          caughtErrors: "none",
+          paths: [
+            {
+              name: "svelte",
+              importNames: [
+                "onMount",
+                "onDestroy",
+                "afterUpdate",
+                "beforeUpdate",
+                "createEventDispatcher",
+              ],
+              message: "Legacy Svelte 4 logic forbidden. Use $effect() or callback props.",
+            },
+          ],
         },
       ],
-      "no-undef": "error",
+      /* ========================================================================
+			   [**] 2. TYPE SAFETY (MUFFLED TO WARN)
+			   ======================================================================== */
+      "jsdoc/require-jsdoc": "warn",
+      "jsdoc/require-param-type": "warn",
+      "jsdoc/require-returns-type": "warn",
+      "jsdoc/valid-types": "warn",
+      /* ========================================================================
+			   [**] 3. GARBAGE COLLECTION (ACTIVE)
+			   ======================================================================== */
+      "no-unused-vars": "off",
+      "unused-imports/no-unused-imports": "error",
+      "unused-imports/no-unused-vars": [
+        "warn",
+        {
+          vars: "all",
+          varsIgnorePattern: "^_",
+          args: "after-used",
+          argsIgnorePattern: "^_",
+        },
+      ],
+      /* ========================================================================
+			   [**] 4. UTILITY
+			   ======================================================================== */
       "no-console": "off",
+      "no-undef": "error",
     },
   },
   {
@@ -102,16 +139,6 @@ export default [
     languageOptions: {
       parserOptions: {
         /* svelteConfig detected automatically */
-      },
-    },
-  },
-  // markdownlint (handled by markdownlint-cli2)
-  {
-    files: ["tools/**/*.js", "build/scripts/**/*.js"],
-    languageOptions: {
-      globals: {
-        ...globals.node,
-        KEYWORDS_EXTERNAL: "readonly",
       },
     },
   },

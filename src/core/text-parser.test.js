@@ -15,8 +15,8 @@ describe("strip_cognition_blocks", () => {
   });
 
   it("should return empty string for null or undefined", () => {
-    expect(strip_cognition_blocks(null)).toBe("");
-    expect(strip_cognition_blocks(undefined)).toBe("");
+    expect(strip_cognition_blocks(/** @type {any} */ (null))).toBe("");
+    expect(strip_cognition_blocks(/** @type {any} */ (undefined))).toBe("");
   });
 
   it("should handle empty <think> blocks", () => {
@@ -33,8 +33,8 @@ describe("strip_cognition_blocks", () => {
 
 describe("clean_image_prompts", () => {
   const testCases = [
-    { description: "null input", input: null, expected: "" },
-    { description: "undefined input", input: undefined, expected: "" },
+    { description: "null input", input: /** @type {any} */ (null), expected: "" },
+    { description: "undefined input", input: /** @type {any} */ (undefined), expected: "" },
     { description: "an empty string", input: "", expected: "" },
     {
       description: "text with no prompts",
@@ -128,9 +128,9 @@ describe("clean_image_prompts", () => {
       expected: "Hello <image_prompt world",
     },
   ];
-  it.each(testCases)("should handle $description", ({ input, expected }) => {
-    expect(clean_image_prompts(input)).toBe(expected);
-  });
+  it.each(testCases)("should handle $description", ({ input, expected }) =>
+    expect(clean_image_prompts(input)).toBe(expected),
+  );
 });
 
 describe("text-parser: escapeXml", () => {
@@ -147,8 +147,8 @@ describe("text-parser: escapeXml", () => {
   });
 
   it("should handle empty or null input gracefully", () => {
-    expect(escapeXml(null)).toBe("");
-    expect(escapeXml(undefined)).toBe("");
+    expect(escapeXml(/** @type {any} */ (null))).toBe("");
+    expect(escapeXml(/** @type {any} */ (undefined))).toBe("");
     expect(escapeXml("")).toBe("");
   });
 

@@ -10,13 +10,13 @@ describe("Button Atom", () => {
 
   test("applies variant classes", () => {
     const { container } = render(Button, { variant: "secondary" });
-    const button = container.querySelector("button");
+    const button = /** @type {any} */ (container.querySelector("button"));
     expect(button.classList.contains("variant-secondary")).toBe(true);
   });
 
   test("handles busy state correctly", () => {
     const { container } = render(Button, { busy: true });
-    const button = container.querySelector("button");
+    const button = /** @type {any} */ (container.querySelector("button"));
 
     expect(button.disabled).toBe(true);
     expect(button.getAttribute("aria-busy")).toBe("true");
@@ -25,7 +25,7 @@ describe("Button Atom", () => {
 
   test("handles disabled state correctly", () => {
     const { container } = render(Button, { disabled: true });
-    const button = container.querySelector("button");
+    const button = /** @type {any} */ (container.querySelector("button"));
 
     expect(button.disabled).toBe(true);
     expect(button.getAttribute("aria-disabled")).toBe("true");
@@ -34,7 +34,7 @@ describe("Button Atom", () => {
   test("busy state takes priority over rest.disabled=false", () => {
     // Testing the fix where {...rest} is at the top
     const { container } = render(Button, { busy: true, disabled: false });
-    const button = container.querySelector("button");
+    const button = /** @type {any} */ (container.querySelector("button"));
 
     expect(button.disabled).toBe(true);
     expect(button.getAttribute("aria-busy")).toBe("true");
@@ -42,13 +42,13 @@ describe("Button Atom", () => {
 
   test("defaults to type='button'", () => {
     const { container } = render(Button, {});
-    const button = container.querySelector("button");
+    const button = /** @type {any} */ (container.querySelector("button"));
     expect(button.getAttribute("type")).toBe("button");
   });
 
   test("allows overriding type via rest", () => {
     const { container } = render(Button, { type: "submit" });
-    const button = container.querySelector("button");
+    const button = /** @type {any} */ (container.querySelector("button"));
     expect(button.getAttribute("type")).toBe("submit");
   });
 });

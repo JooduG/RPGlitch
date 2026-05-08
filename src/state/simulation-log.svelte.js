@@ -1,8 +1,27 @@
 import { session_driver } from "@core/engine/session-driver.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-// 📜 Simulation Log State
+/**
+ * @typedef {Object} LogEntry
+ * @property {string|number} [id]
+ * @property {string} role
+ * @property {string} [type]
+ * @property {string} text
+ * @property {string} [turn_type]
+ * @property {string} [character_name]
+ * @property {number} [round]
+ * @property {any} [meta]
+ * @property {number} [created_at]
+ * @property {string} [story_id]
+ * @property {string|Date|number} [timestamp]
+ * @property {string[]} [attachments]
+ */
+
 export class SimulationLogStore {
+  /** @type {LogEntry[]} */
   feed = $state([]);
+  /**
+   *
+   */
   constructor() {}
   /**
    * Synchronize with persistence.
@@ -13,7 +32,7 @@ export class SimulationLogStore {
     this.feed = msgs;
   }
   /**
-   * @param {Object} entry - The log entry to add
+   * @param {LogEntry} entry - The log entry to add
    */
   add(entry) {
     // Prevent duplicates if ID exists
@@ -21,7 +40,7 @@ export class SimulationLogStore {
     this.feed = [...this.feed, entry];
   }
   /**
-   * @param {string} id - Entry ID to remove
+   * @param {string | number} id - Entry ID to remove
    */
   remove(id) {
     this.feed = this.feed.filter((m) => m.id !== id);

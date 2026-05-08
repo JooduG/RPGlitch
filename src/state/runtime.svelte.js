@@ -6,7 +6,71 @@ import { SESSION_ID_KEY } from "@core/constants.js";
 // 1. Entities (character, active_user, active_ai, active_fractal)
 // 2. Story / Narrative (story, story_id, simulation_log, turn, ready)
 // 3. Physics / Dynamics (ai_physics, fractal_physics)
+/**
+ * @typedef {import('@core/intelligence/temporal-engine.js').TemporalVector} TemporalVector
+ * @typedef {import('./simulation-log.svelte.js').LogEntry} LogEntry
+ */
+
+/**
+ * @typedef {Object} EntityDynamics
+ * @property {number} [chaos]
+ * @property {number} [intensity]
+ * @property {number} [openness]
+ * @property {number} [affinity]
+ * @property {number} [velocity]
+ * @property {number} [entropy]
+ */
+
+/**
+ * @typedef {Object} EntityFragments
+ * @property {string} non_physical
+ * @property {string} physical
+ */
+
+/**
+ * @typedef {Object} SimulationEntity
+ * @property {string | number | null} id
+ * @property {string} name
+ * @property {string} [description]
+ * @property {EntityFragments} eternal
+ * @property {EntityFragments} present
+ * @property {TemporalVector[]} past
+ * @property {TemporalVector[]} future
+ * @property {EntityDynamics} dynamics
+ * @property {EntityDynamics} [dynamics_baseline]
+ * @property {any} [voice]
+ * @property {string | null} [profile_picture]
+ * @property {string} [signature_color]
+ * @property {any} [modifiers]
+ * @property {string[]} [associated_ids]
+ */
+
+/**
+ * @typedef {Object} EntityState
+ * @property {SimulationEntity} character
+ * @property {SimulationEntity | null} active_user
+ * @property {SimulationEntity | null} active_ai
+ * @property {SimulationEntity} active_fractal
+ */
+
+/**
+ * @typedef {Object} SimulationState
+ * @property {boolean} is_ready
+ * @property {string | null} story_id
+ * @property {Object} story
+ * @property {Record<string, any>} story.by_id
+ * @property {string | null} story.active_id
+ * @property {Object} simulation_log
+ * @property {Record<string, LogEntry[]>} simulation_log.by_story_id
+ * @property {number} round
+ * @property {string} turn_type
+ */
+
+/**
+ *
+ */
 function createRuntimeStore() {
+  /** @type {EntityState} */
   let entity_state = $state({
     character: {
       id: null,
@@ -31,6 +95,7 @@ function createRuntimeStore() {
     active_user: null,
     active_ai: null,
     active_fractal: {
+      id: "active_fractal",
       name: "Environment",
       description: "",
       eternal: { non_physical: "", physical: "" },
@@ -38,8 +103,11 @@ function createRuntimeStore() {
       past: [],
       future: [],
       dynamics: { velocity: 50, entropy: 50 },
+      profile_picture: null,
+      signature_color: "",
     },
   });
+  /** @type {SimulationState} */
   let simulation_state = $state({
     is_ready: false,
     story_id: null,
@@ -49,7 +117,9 @@ function createRuntimeStore() {
     turn_type: "USER_TURN", // USER_TURN, AI_TURN, SYSTEM_TURN
   });
   // [R5] Dynamics Snapshots (Live Physics)
+  /** @type {EntityDynamics | null} */
   let ai_physics = $state(null);
+  /** @type {EntityDynamics | null} */
   let fractal_physics = $state(null);
   $effect.root(() => {
     $effect(() => {
@@ -73,15 +143,15 @@ function createRuntimeStore() {
     get character() {
       return entity_state.character;
     },
-    /** @returns {any} */
+    /** @returns {SimulationEntity | null} */
     get active_user() {
       return entity_state.active_user;
     },
-    /** @returns {any} */
+    /** @returns {SimulationEntity | null} */
     get active_ai() {
       return entity_state.active_ai;
     },
-    /** @returns {any} */
+    /** @returns {SimulationEntity} */
     get active_fractal() {
       return entity_state.active_fractal;
     },
@@ -89,18 +159,20 @@ function createRuntimeStore() {
       return ai_physics;
     },
     set ai(val) {
-      ai_physics = val;
+      const fallback = { chaos: 50, intensity: 50, openness: 50, affinity: 50 };
+      ai_physics = val || fallback;
       if (entity_state.active_ai) {
-        entity_state.active_ai.dynamics = val;
+        entity_state.active_ai.dynamics = val || fallback;
       }
     },
     get fractal() {
       return fractal_physics;
     },
     set fractal(val) {
-      fractal_physics = val;
+      const fallback = { velocity: 50, entropy: 50 };
+      fractal_physics = val || fallback;
       if (entity_state.active_fractal) {
-        entity_state.active_fractal.dynamics = val;
+        entity_state.active_fractal.dynamics = val || fallback;
       }
     },
     get simulation() {
@@ -137,14 +209,27 @@ function createRuntimeStore() {
         : null;
     },
     // --- VECTOR API ---
+    /**
+     * @param {string} [role]
+     * @returns {TemporalVector[]}
+     */
     active_vectors: (role = "AI") => {
       const entity = api._get_entity_by_role(role);
       return entity?.future || [];
     },
+    /**
+     * @param {string} [role]
+     * @returns {string}
+     */
     active_vector: (role = "AI") => {
       const entity = api._get_entity_by_role(role);
       return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "");
     },
+    /**
+     * @param {string} text
+     * @param {string} [role]
+     * @param {boolean} [is_vanguard]
+     */
     add_vector: (text, role = "AI", is_vanguard = false) => {
       const entity = api._get_entity_by_role(role);
       if (!entity) return;
@@ -153,6 +238,10 @@ function createRuntimeStore() {
       if (is_vanguard) entity.future.unshift(new_vector);
       else entity.future.push(new_vector);
     },
+    /**
+     * @param {string} content
+     * @param {boolean} [is_user]
+     */
     log_turn: (content, is_user = false) => {
       const story_id = simulation_state.story_id || "debug";
       if (!simulation_state.simulation_log.by_story_id[story_id]) {
@@ -167,12 +256,19 @@ function createRuntimeStore() {
         created_at: Date.now(),
       });
     },
+    /**
+     * @param {string} [role]
+     */
     complete_vector: (role = "AI") => {
       const entity = api._get_entity_by_role(role);
       if (Array.isArray(entity?.future) && entity.future.length > 0) {
         entity.future.shift();
       }
     },
+    /**
+     * @param {string} role
+     * @returns {SimulationEntity | null}
+     */
     _get_entity_by_role: (role) => {
       if (role === "AI") return entity_state.active_ai;
       if (role === "USER") return entity_state.active_user;
@@ -199,9 +295,15 @@ function createRuntimeStore() {
         const story = await db.stories.get(simulation_state.story_id);
         if (!story) return;
         const [user_data, ai_data, fractal_data] = await Promise.all([
-          entities.get("character", story.user_id),
-          entities.get("character", story.ai_id || "unknown_ai"),
-          entities.get("fractal", story.fractal_id),
+          /** @type {Promise<SimulationEntity | null>} */ (
+            entities.get("character", story.user_id)
+          ),
+          /** @type {Promise<SimulationEntity | null>} */ (
+            entities.get("character", story.ai_id || "unknown_ai")
+          ),
+          /** @type {Promise<SimulationEntity | null>} */ (
+            entities.get("fractal", story.fractal_id)
+          ),
         ]);
         if (user_data) {
           entity_state.character = {
@@ -233,10 +335,14 @@ function createRuntimeStore() {
         console.warn("[Data] Sync Failed:", err);
       }
     },
+    /**
+     * Synchronizes the runtime state with the database.
+     * @param {number|null} [round]
+     */
     save: async (round = null) => {
       if (!simulation_state.story_id) return;
       try {
-        const target_round = round ?? 0;
+        const target_round = typeof round === "number" ? round : 0;
         await db.stories.update(simulation_state.story_id, {
           round: target_round,
           last_played: Date.now(),
@@ -247,6 +353,10 @@ function createRuntimeStore() {
         console.error("[Data] Story Save Failed:", err);
       }
     },
+    /**
+     * @param {'character' | 'fractal'} type
+     * @param {SimulationEntity} entity
+     */
     save_entity: async (type, entity) => {
       try {
         await entities.upsert(type, entity);
@@ -258,6 +368,11 @@ function createRuntimeStore() {
         throw err;
       }
     },
+    /**
+     * @param {'character' | 'fractal' | 'story'} type
+     * @param {string | number} id
+     * @param {any} data
+     */
     update_entity: async (type, id, data) => {
       try {
         if (type === "story") {
@@ -268,7 +383,7 @@ function createRuntimeStore() {
         } else {
           // Add updated_at if not present for consistency
           const payload = { ...data, updated_at: Date.now() };
-          await entities.update(type, id, payload);
+          await entities.update(type, String(id), payload);
           const targets = [
             ...new Set([
               entity_state.character,
@@ -285,14 +400,24 @@ function createRuntimeStore() {
         console.error(`[Data] Update Entity (${type}) Failed:`, err);
       }
     },
+    /**
+     * @param {'character' | 'fractal'} type
+     * @param {string | number} id
+     */
     delete_entity: async (type, id) => {
       try {
-        await entities.remove(type, id);
+        await entities.remove(type, String(id));
       } catch (err) {
         console.error("[Data] Entity Delete Failed:", err);
         throw err;
       }
     },
+    /**
+     * @param {Object} mock_data
+     * @param {SimulationEntity} [mock_data.user]
+     * @param {SimulationEntity} [mock_data.ai]
+     * @param {SimulationEntity} [mock_data.fractal]
+     */
     _debug_inject: (mock_data) => {
       if (mock_data.user) entity_state.active_user = mock_data.user;
       if (mock_data.ai) entity_state.active_ai = mock_data.ai;

@@ -61,6 +61,7 @@ export const get_random_signature_key = () => {
 /**
  * Main Normalizer
  * Enforces structural integrity and sanitization.
+ * @param {any} base
  */
 export const normalize = (base = {}) => {
   // [FIX] Destructure id, timestamps, and database flags so they aren't lost
@@ -170,7 +171,8 @@ export const normalize = (base = {}) => {
     dynamics: (() => {
       if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics };
       // Seed from type-template on birth
-      return ENTITY_TEMPLATES[type]?.dynamics ? { ...ENTITY_TEMPLATES[type].dynamics } : {};
+      const template = /** @type {any} */ (ENTITY_TEMPLATES)[type];
+      return template?.dynamics ? { ...template.dynamics } : {};
     })(),
     // --- VOICE ---
     voice: {
@@ -204,9 +206,11 @@ export function coerce_temporal_array(val) {
 /**
  * 🏘️ THE FACTORY
  * Creates a brand new, fully normalized entity with a RANDOM signature color.
+ * @param {string} type
+ * @param {any} overrides
  */
 export const create_new = (type = "character", overrides = {}) => {
-  const template = ENTITY_TEMPLATES[type] || ENTITY_TEMPLATES.character;
+  const template = /** @type {any} */ (ENTITY_TEMPLATES)[type] || ENTITY_TEMPLATES.character;
   const new_entity = {
     ...template,
     ...overrides,
@@ -219,6 +223,8 @@ export const create_new = (type = "character", overrides = {}) => {
 };
 /**
  * Formats a premade entity for storage injection.
+ * @param {any} entity
+ * @param {string} type
  */
 export const format_premade = (entity, type) => {
   return {

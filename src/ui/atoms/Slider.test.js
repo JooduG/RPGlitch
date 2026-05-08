@@ -10,8 +10,8 @@ describe("Slider Atom", () => {
 
   test("handles busy state correctly", () => {
     const { container, getByText } = render(Slider, { label: "Intensity", busy: true });
-    const input = container.querySelector("input");
-    const wrapper = container.querySelector(".wrapper");
+    const input = /** @type {any} */ (container.querySelector("input"));
+    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
 
     expect(input.disabled).toBe(true);
     expect(wrapper.classList.contains("is-busy")).toBe(true);
@@ -20,7 +20,7 @@ describe("Slider Atom", () => {
 
   test("handles disabled state correctly", () => {
     const { container, getByText } = render(Slider, { label: "Intensity", disabled: true });
-    const input = container.querySelector("input");
+    const input = /** @type {any} */ (container.querySelector("input"));
 
     expect(input.disabled).toBe(true);
     expect(getByText("INTENSITY: DISABLED")).toBeDefined();
@@ -30,8 +30,8 @@ describe("Slider Atom", () => {
     const { container } = render(Slider, {
       style: "margin-top: 20px; color: red;",
     });
-    const wrapper = container.querySelector(".wrapper");
-    const input = container.querySelector("input");
+    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const input = /** @type {any} */ (container.querySelector("input"));
     const style = wrapper.getAttribute("style");
 
     expect(style).toContain("margin-top: 20px");

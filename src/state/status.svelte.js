@@ -2,17 +2,23 @@
 // Tracks the heartbeat of the engine without revealing it.
 export const simulationState = $state({
   phase: "idle", // "idle" | "generating" | "locked"
-  role: null, // "ai" | "system" | "fractal" | null
+  /** @type {"ai" | "system" | "fractal" | "user" | null} */
+  role: null,
+  /** @type {string | number | null} */
   active_id: null,
   is_typing: false,
   // Actions
   start_generation(role = "ai") {
     this.phase = "generating";
-    this.role = role;
+    /** @type {any} */ (this).role = role;
   },
+  /**
+   * @param {"ai" | "system" | "fractal" | "user" | null} role
+   * @param {string | number | null} id
+   */
   start_typing(role, id) {
     this.is_typing = true;
-    this.role = role;
+    /** @type {any} */ (this).role = role;
     this.active_id = id;
   },
   stop_typing() {

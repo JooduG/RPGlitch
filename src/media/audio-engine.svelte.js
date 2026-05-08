@@ -13,32 +13,45 @@ const STORAGE_KEY = "rpglitch_audio_settings";
  * [SECTION: VOICE ENGINE]
  * Low-level wrapper for window.speechSynthesis.
  ************************************************************************************/
+/**
+ *
+ */
 export class VoiceEngine {
   // --- REACTIVE STATE ---
   isSpeaking = $state(false);
+  /** @type {any[]} */
   voices = $state([]);
+  /** @type {string | null} */
   selectedVoice = $state(null);
   volume = $state(1.0);
   rate = $state(1.0);
   pitch = $state(1.0);
 
   // --- PRIVATE ---
+  /** @type {SpeechSynthesis | null} */
   _synth = null;
+  /** @type {SpeechSynthesisUtterance | null} */
   _utterance = null;
 
+  /**
+   *
+   */
   constructor() {
     if (typeof window !== "undefined") {
       this._synth = window.speechSynthesis;
       this._loadVoices();
-      if (this._synth && this._synth.onvoiceschanged !== undefined) {
-        this._synth.onvoiceschanged = () => this._loadVoices();
+      if (this._synth && /** @type {any} */ (this._synth).onvoiceschanged !== undefined) {
+        /** @type {any} */ (this._synth).onvoiceschanged = () => this._loadVoices();
       }
     }
   }
 
+  /**
+   *
+   */
   _loadVoices() {
     if (!this._synth) return;
-    let rawVoices = this._synth.getVoices();
+    let rawVoices = /** @type {SpeechSynthesis} */ (this._synth).getVoices();
     this.voices = rawVoices
       .filter((v) => v.lang.startsWith("en") || v.lang.startsWith("sv"))
       .map((v) => ({
@@ -51,7 +64,7 @@ export class VoiceEngine {
         supportsParams: !v.name.includes("Natural"),
         _ref: v,
       }))
-      .sort((a, b) => {
+      .sort((/** @type {any} */ a, /** @type {any} */ b) => {
         const regionSort = a.region.localeCompare(b.region);
         if (regionSort !== 0) return regionSort;
         return a.name.localeCompare(b.name);
@@ -64,6 +77,9 @@ export class VoiceEngine {
     }
   }
 
+  /**
+   * @param {string} lang
+   */
   _getRegionLabel(lang) {
     try {
       const displayNames = new Intl.DisplayNames(["en"], { type: "region" });
@@ -74,6 +90,9 @@ export class VoiceEngine {
     }
   }
 
+  /**
+   * @param {string} text
+   */
   speak(text) {
     if (!this._synth || !text) return;
     this.stop();
@@ -95,14 +114,19 @@ export class VoiceEngine {
       this.isSpeaking = false;
       this._utterance = null;
     };
-    this._utterance.onerror = (e) => {
+    this._utterance.onerror = (/** @type {any} */ e) => {
       console.warn("[AudioEngine] Synthesis error", e);
       this.isSpeaking = false;
       this._utterance = null;
     };
-    this._synth.speak(this._utterance);
+    /** @type {SpeechSynthesis} */ (this._synth).speak(this._utterance);
   }
 
+  /**
+   * @param {string} uri
+   * @param {number} [rate]
+   * @param {number} [pitch]
+   */
   preview(uri, rate = 1.0, pitch = 1.0) {
     if (!this._synth) return;
     this.stop();
@@ -116,12 +140,15 @@ export class VoiceEngine {
     utterance.pitch = pitch;
     utterance.onend = () => (this.isSpeaking = false);
     utterance.onerror = () => (this.isSpeaking = false);
-    this._synth.speak(utterance);
+    /** @type {SpeechSynthesis} */ (this._synth).speak(utterance);
   }
 
+  /**
+   *
+   */
   stop() {
     if (this._synth) {
-      this._synth.cancel();
+      /** @type {SpeechSynthesis} */ (this._synth).cancel();
     }
     this.isSpeaking = false;
     this._utterance = null;
@@ -132,10 +159,16 @@ export class VoiceEngine {
  * [SECTION: AUDIO EFFECTS ENGINE]
  * Handles sound effects and browser AudioContext state.
  ************************************************************************************/
+/**
+ *
+ */
 class AudioEffectsEngine {
   // --- PRIVATE STATE ---
+  /** @type {AudioContext | null} */
   #audioContext = null;
+  /** @type {Map<string, AudioBuffer>} */
   #buffers = new Map();
+  /** @type {Map<string, Promise<AudioBuffer>>} */
   #pendingBuffers = new Map();
   #unlocked = false;
   #lastPlayed = 0;
@@ -144,10 +177,16 @@ class AudioEffectsEngine {
   // --- REACTIVE STATE ---
   notifications_enabled = $state(true);
 
+  /**
+   *
+   */
   constructor() {
     this.#initListeners();
   }
 
+  /**
+   *
+   */
   async initSettings() {
     try {
       const entry = await db.audio_prefs.get(STORAGE_KEY);
@@ -159,6 +198,9 @@ class AudioEffectsEngine {
     }
   }
 
+  /**
+   * @param {any} enabled
+   */
   async setNotifications(enabled) {
     this.notifications_enabled = !!enabled;
     try {
@@ -171,6 +213,9 @@ class AudioEffectsEngine {
     }
   }
 
+  /**
+   *
+   */
   #initListeners() {
     if (typeof window === "undefined") return;
 
@@ -185,13 +230,19 @@ class AudioEffectsEngine {
     );
   }
 
+  /**
+   *
+   */
   async unlock() {
     if (this.#unlocked) return;
     try {
       if (!this.#audioContext) {
-        this.#audioContext = new (window.AudioContext || window.webkitAudioContext)();
+        const AudioCtx =
+          /** @type {any} */ (window).AudioContext ||
+          /** @type {any} */ (window).webkitAudioContext;
+        this.#audioContext = new AudioCtx();
       }
-      if (this.#audioContext.state === "suspended") {
+      if (this.#audioContext && this.#audioContext.state === "suspended") {
         await this.#audioContext.resume();
       }
       this.#unlocked = true;
@@ -200,6 +251,9 @@ class AudioEffectsEngine {
     }
   }
 
+  /**
+   * @param {string} key
+   */
   async play(key) {
     if (key === "notification" && !this.notifications_enabled) return;
     if (!this.#unlocked || !this.#audioContext) return;
@@ -211,7 +265,9 @@ class AudioEffectsEngine {
     let url = null;
     const soundList = getRpgList("sounds");
     if (soundList.length > 0) {
-      const entry = soundList.find((s) => typeof s === "string" && s.startsWith(key + "="));
+      const entry = soundList.find(
+        (/** @type {any} */ s) => typeof s === "string" && s.startsWith(key + "="),
+      );
       if (entry) url = entry.split("=").slice(1).join("=").trim();
     }
 
@@ -234,7 +290,11 @@ class AudioEffectsEngine {
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
               const arrayBuffer = await response.arrayBuffer();
               const decoded = await new Promise((resolve, reject) => {
-                const promise = this.#audioContext.decodeAudioData(arrayBuffer, resolve, reject);
+                const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(
+                  arrayBuffer,
+                  resolve,
+                  reject,
+                );
                 if (promise) promise.then(resolve).catch(reject);
               });
               this.#buffers.set(key, decoded);
@@ -248,9 +308,9 @@ class AudioEffectsEngine {
           buffer = await fetchPromise;
         }
       }
-      const source = this.#audioContext.createBufferSource();
-      source.buffer = buffer;
-      source.connect(this.#audioContext.destination);
+      const source = /** @type {AudioContext} */ (this.#audioContext).createBufferSource();
+      source.buffer = buffer || null;
+      source.connect(/** @type {AudioContext} */ (this.#audioContext).destination);
       source.start(0);
     } catch (e) {
       console.warn("[AudioEngine] Playback error:", e);
@@ -268,20 +328,32 @@ export const Audio = new (class {
 
   voice = new VoiceEngine();
 
+  /**
+   *
+   */
   get notifications_enabled() {
     return this.#effects.notifications_enabled;
   }
+  /**
+   *
+   */
   set notifications_enabled(v) {
     this.#effects.setNotifications(v);
   }
 
+  /**
+   * @param {string} soundId
+   */
   play(soundId) {
     return this.#effects.play(soundId);
   }
 
+  /**
+   *
+   */
   async init() {
     if (this.#initPromise) return this.#initPromise;
-    this.#initPromise = this.#effects.initSettings();
+    this.#initPromise = /** @type {any} */ (this.#effects).initSettings();
     return this.#initPromise;
   }
 })();

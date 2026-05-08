@@ -6,6 +6,9 @@ import { runtime } from "@state/runtime.svelte.js";
 import { simulation_log } from "@state/simulation-log.svelte.js";
 import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
 import { Engine } from "@core/engine/engine.js";
+/**
+ *
+ */
 export class ChronoStore {
   // No local state needed, acts as a controller for app.simulation
   /**
@@ -17,11 +20,12 @@ export class ChronoStore {
    * 4. Echo Resonance (Data)
    * 5. Anchoring State (Runtime)
    * 6. Unlocks UI
+   * @param {string|null} input
    */
   async advance_turn(input = null) {
     if (app.simulation.loading) return; // Prevent double-clicks
-    const storyId = runtime.storyId;
-    if (!storyId) {
+    const story_id = runtime.story_id;
+    if (!story_id) {
       console.error("[Chrono] No active story found.");
       return;
     }
@@ -32,6 +36,7 @@ export class ChronoStore {
     try {
       // 2. OBSERVATION: Process Input & Physics (Shield)
       // We pass the current runtime character context to the Shield
+      /** @type {any} */
       let shieldContext = null;
       let finalInput = input;
       if (input && runtime.character) {
@@ -58,18 +63,19 @@ export class ChronoStore {
       // 3. SYNTHESIS: Generate Narrative (Engine)
       // simulationState.start_generation('ai') will be called by Engine.generate_ai_response
       app.log(`LLM synthesizing turn ${app.round + 1}...`, "ai");
-      // The GM facade maps generateAiResponse -> Engine.generateAiResponse(storyId, options)
+      // The GM facade maps generateAiResponse -> Engine.generateAiResponse(story_id, options)
       // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
-      await Engine.generate_ai_response(storyId, {
+      await Engine.generate_ai_response(story_id, {
         shieldContext,
-        input: finalInput,
+        input: finalInput ?? undefined,
       });
       // 4. ECHO: Commit to Resonance (Echo/Scholar)
       simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
       app.log("Echo recording temporal resonance...", "db");
       // 5. ANCHOR: Persist the timeline
       await runtime.save(runtime.round);
-    } catch (error) {
+    } catch (err) {
+      const error = /** @type {any} */ (err);
       app.log(`Time Fracture: ${error.message}`, "error");
       console.error("[Chrono] 💥 Time Fracture:", error);
       // Push error to feed so user knows what happened

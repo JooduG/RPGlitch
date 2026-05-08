@@ -19,11 +19,17 @@
   let is_focused = $state(false);
   /** @type {HTMLTextAreaElement | undefined} */
   let textarea;
+  /**
+   *
+   */
   function adjust_height() {
     if (!textarea) return;
     textarea.style.height = "auto";
     textarea.style.height = textarea.scrollHeight + "px";
   }
+  /**
+   *
+   */
   async function handle_send() {
     const text = value.trim();
     if (!text || is_locked) return;
@@ -42,6 +48,9 @@
       handle_send();
     }
   }
+  /**
+   *
+   */
   function handle_input() {
     adjust_height();
   }

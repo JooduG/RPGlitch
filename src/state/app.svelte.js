@@ -31,6 +31,9 @@ const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
   minute: "2-digit",
   second: "2-digit",
 });
+/**
+ *
+ */
 export class AppStore {
   initialized = false;
   // --- NAVIGATION ---
@@ -38,14 +41,23 @@ export class AppStore {
   control_panel_open = $state(false);
   profile_open = $state(false);
   // --- ENTITY SELECTION STATE (STORYBOARD) ---
-  /** @type {any} */
+  /** @type {any | null} */
   selected_ai = $state(null);
-  /** @type {any} */
+  /** @type {any | null} */
   selected_user = $state(null);
-  /** @type {any} */
+  /** @type {any | null} */
   selected_fractal = $state(null);
+  /**
+   * @type {string | any[]}
+   */
   ai_list = $state([]);
+  /**
+   * @type {any[]}
+   */
   user_list = $state([]);
+  /**
+   * @type {string | any[]}
+   */
   fractal_list = $state([]);
   entities_loaded = $state(false);
   /** @type {DrawerState} */
@@ -80,17 +92,29 @@ export class AppStore {
   });
   // --- SENSORY ENGINES ---
   visual = visual_engine;
+  /**
+   *
+   */
   get round() {
     return runtime.round;
   }
+  /**
+   *
+   */
   set round(val) {
     runtime.round = val;
   }
+  /**
+   *
+   */
   get turnType() {
-    return runtime.turnType;
+    return runtime.turn_type;
   }
+  /**
+   *
+   */
   set turnType(val) {
-    runtime.turnType = val;
+    runtime.turn_type = val;
   }
   // --- READINESS (Derived Logic) ---
   selected_count = $derived(
@@ -104,10 +128,14 @@ export class AppStore {
     return this.is_ready;
   }
   // --- TELEMETRY (DevMode HUD) ---
+  /**
+   * @type {any[]}
+   */
   logs = $state([]);
   /**
    * Records a system event.
    * Uses Intl.format(Date.now()) to satisfy ESLint prefer-svelte-reactivity.
+   * @param {string} message
    */
   log(message, type = "system") {
     const entry = {
@@ -127,6 +155,9 @@ export class AppStore {
    * ----------------------------------------------------------------------------------
    * Initialization and persistent storage logic.
    ************************************************************************************/
+  /**
+   *
+   */
   async init() {
     if (typeof window === "undefined" || this.initialized) return;
     this.initialized = true;
@@ -177,6 +208,7 @@ export class AppStore {
     }
   };
   // --- LLM STREAMING ---
+  /** @type {{ active: boolean, content: string, node_id: string | null, role: "ai" | "user" | "fractal" | "system" | null }} */
   streaming = $state({
     active: false,
     content: "",
@@ -191,10 +223,10 @@ export class AppStore {
   toggle_control_panel = () => {
     this.control_panel_open = !this.control_panel_open;
   };
-  set_view = (view) => {
+  set_view = (/** @type {string} */ view) => {
     this.view = view;
   };
-  open_drawer = (type) => {
+  open_drawer = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
     this.drawer.type = type;
     this.drawer.open = true;
   };
@@ -208,7 +240,10 @@ export class AppStore {
    * Selects an entity for the current session.
    * Automatically normalizes the object to ensure a flattened schema.
    */
-  select_entity = (type, entity) => {
+  select_entity = (
+    /** @type {'ai' | 'user' | 'fractal' | null} */ type,
+    /** @type {any} */ entity,
+  ) => {
     const clean = normalize(entity);
     if (type === "ai") this.selected_ai = clean;
     else if (type === "user") this.selected_user = clean;
@@ -232,14 +267,20 @@ export class AppStore {
   close_profile = () => {
     this.profile_open = false;
   };
-  open_profile = (entity) => {
+  open_profile = (/** @type {any} */ entity) => {
     this.toggle_profile(true, entity);
   };
 
+  /**
+   *
+   */
   get profile_target_id() {
     return this.editing_entity?.id || null;
   }
 
+  /**
+   *
+   */
   get profile_target_type() {
     return this.editing_entity?.type || null;
   }
@@ -266,13 +307,17 @@ export class AppStore {
     this.save_settings();
   };
   // STREAMING CONTROL
+  /**
+   * @param {string | null} id
+   * @param {"ai" | "user" | "fractal" | "system" | null} role
+   */
   start_stream = (id, role = "ai") => {
     this.streaming.active = true;
     this.streaming.content = "";
     this.streaming.node_id = id;
     this.streaming.role = role;
   };
-  update_stream = (chunk) => {
+  update_stream = (/** @type {string} */ chunk) => {
     this.streaming.content += chunk;
   };
   end_stream = () => {
@@ -280,7 +325,7 @@ export class AppStore {
     this.streaming.node_id = null;
     this.streaming.role = "ai";
   };
-  open_image_preview = (src, caption = "") => {
+  open_image_preview = (/** @type {any} */ src, caption = "") => {
     openImagePreview(src, caption);
   };
   reroll_title = () => {

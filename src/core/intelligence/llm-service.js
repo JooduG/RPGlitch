@@ -78,9 +78,9 @@ export const llm_service = {
    * @param {string}  [payload.startWith]           - Text to prepend to the model response.
    * @param {string}  [payload.role]                - Optional role for the generation (e.g., 'ai', 'fractal').
    * @param {string}  [payload.node_id]             - UI node ID for the stream.
-   * @param {Object}  [payload.params]              - Generation parameters.
-   * @param {Array}   [payload.stopSequences]       - Stop sequences.
-   * @param {Object}  [options]                     - Runtime overrides.
+   * @param {any}  [payload.params]              - Generation parameters.
+   * @param {string[]} [payload.stopSequences]       - Stop sequences.
+   * @param {Object} [options]                      - Runtime overrides.
    * @param {boolean} [options.silent]              - Suppress streaming UI and console errors.
    * @param {boolean} [options.raw]                 - Skip post-processing sanitization.
    * @param {number}  [options.temperature]         - Override temperature.
@@ -129,10 +129,13 @@ export const llm_service = {
       };
 
       // 4. Wire streaming to the app layer
-      const on_token = (chunk) => {
+      const on_token = (/** @type {string} */ chunk) => {
         if (!options.silent) {
-          if (!app.streaming.active)
-            app.start_stream(payload.node_id || "temp", payload.role || "ai");
+          if (!app.streaming.active) {
+            /** @type {any} */
+            const role = payload.role || "ai";
+            app.start_stream(payload.node_id || "temp", role);
+          }
           app.update_stream(chunk);
         }
         if (options.onToken) options.onToken(chunk);

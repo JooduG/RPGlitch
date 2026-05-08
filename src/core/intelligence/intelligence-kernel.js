@@ -25,10 +25,15 @@ import { db } from "@data/db.js";
 import { simulationState } from "@state/status.svelte.js";
 import { entities } from "@data/repository.js";
 import { session_driver } from "@core/engine/session-driver.svelte.js";
+/**
+ * @typedef {import('@core/engine/engine.js').GenerationOptions} GenerationOptions
+ */
+
 export const gamemaster = {
   /**
    * THE MECHANICAL GATE
    * Translates raw dynamical thresholds into narrative directives.
+   * @param {{ ai?: any; fractal?: any; flags?: string[]; signals?: Record<string, any>; signal_prompts: any; contributors?: Record<string, string[]>; key?: Record<string, any> | undefined; }} state
    */
   generate_narrative_bridges(state) {
     const bridges = [...(state.signal_prompts || [])];
@@ -60,14 +65,18 @@ export const gamemaster = {
   /**
    * CAPTURE DYNAMICS DELTA
    * Detects changes in entity dynamics and logs a telemetry entry.
+   * @param {{ ai: any; fractal: any; flags?: string[]; signals?: any; signal_prompts?: string[]; contributors?: any; key?: Record<string, any> | undefined; }} snapshot
    */
   async capture_dynamics_delta(snapshot) {
+    /**
+     * @type {string[]}
+     */
     const deltas = [];
 
     // AI Deltas
     if (snapshot.ai?.dynamics) {
       Object.entries(snapshot.ai.dynamics).forEach(([axis, val]) => {
-        const old_val = runtime.ai[axis] ?? 50;
+        const old_val = /** @type {any} */ (runtime.ai)?.[axis] ?? 50;
         const diff = val - old_val;
         if (diff !== 0) {
           const cause = snapshot.contributors?.[`AI.${axis}`]?.join(", ") || "GM";
@@ -79,7 +88,7 @@ export const gamemaster = {
     // Fractal Deltas
     if (snapshot.fractal?.dynamics) {
       Object.entries(snapshot.fractal.dynamics).forEach(([axis, val]) => {
-        const old_val = runtime.fractal[axis] ?? 50;
+        const old_val = /** @type {any} */ (runtime.fractal)?.[axis] ?? 50;
         const diff = val - old_val;
         if (diff !== 0) {
           const cause = snapshot.contributors?.[`FRACTAL.${axis}`]?.join(", ") || "GM";
@@ -109,9 +118,7 @@ export const gamemaster = {
    * The primary simulation loop for a narrative turn.
    *
    * @param {string} story_id
-   * @param {Object} options
-   * @param {string} [options.input] - User input to react to.
-   * @param {string} [options.role="ai"] - Role to generate for.
+   * @param {GenerationOptions} options
    */
   async execute_turn(story_id, options = {}) {
     const { input = "", role = "ai", ...llm_options } = options;
@@ -131,7 +138,7 @@ export const gamemaster = {
         content: m.text || m.content || "",
         character_name: m.character_name,
       }));
-    const payload = await context_broker.hydrate(input, "simulation", simulation_log);
+    const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
     // 3. SIMULATION: Resolve physics and behaviors
     const snapshot = dynamics_engine.simulate(payload);
 
@@ -153,14 +160,38 @@ export const gamemaster = {
       "system",
     );
     // 6. GENERATION: Call the model with retry logic
-    const response = await this._execute_with_retry(async () => {
+    const response = await this.execute_with_retry(async () => {
+      const {
+        temperature,
+        top_p,
+        repetition_penalty,
+        max_tokens,
+        model,
+        onToken,
+        json,
+        signal,
+        silent,
+        raw,
+      } = llm_options;
+
       return await llm_service.generate(
         {
           system,
           messages: simulation_log,
           role,
         },
-        llm_options,
+        {
+          temperature,
+          top_p,
+          repetition_penalty,
+          max_tokens,
+          model,
+          onToken,
+          json,
+          signal,
+          silent,
+          raw,
+        },
       );
     });
     // 7. PERSISTENCE: Save the result
@@ -188,13 +219,14 @@ export const gamemaster = {
   /**
    * EXECUTE PROLOGUE
    * Specialized turn for starting a new story.
+   * @param {string} story_id
    */
   async execute_prologue(story_id) {
     const payload = await context_broker.hydrate("", "prologue");
     const result = prompt_builder.synthesize(payload, {});
     if (!result.system) return null;
     app.log("gamemaster: Generating prologue...", "system");
-    const response = await this._execute_with_retry(async () => {
+    const response = await this.execute_with_retry(async () => {
       return await llm_service.generate({ system: result.system, role: "fractal" });
     });
     const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
@@ -214,12 +246,13 @@ export const gamemaster = {
   /**
    * EXECUTE EPILOGUE
    * Final summary or conclusion for a story.
+   * @param {string} _story_id
    */
-  async execute_epilogue(story_id) {
+  async execute_epilogue(_story_id) {
     const { system } = prompt_builder.build_epilogue();
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
-    const response = await this._execute_with_retry(async () => {
+    const response = await this.execute_with_retry(async () => {
       return await llm_service.generate({ system, role: "ai" });
     });
     await session_driver.log_turn(response, "Narrator", "ai");
@@ -227,8 +260,10 @@ export const gamemaster = {
   },
   /**
    * INTERNAL: Execute with exponential backoff retry.
+   * @param {() => Promise<any>} fn
+   * @returns {Promise<any>}
    */
-  async _execute_with_retry(fn, retries = 3, delay = 1000) {
+  async execute_with_retry(fn, retries = 3, delay = 1000) {
     try {
       return await fn();
     } catch (err) {
@@ -238,7 +273,7 @@ export const gamemaster = {
         "warn",
       );
       await new Promise((resolve) => setTimeout(resolve, delay));
-      return await this._execute_with_retry(fn, retries - 1, delay * 2);
+      return await this.execute_with_retry(fn, retries - 1, delay * 2);
     }
   },
 };

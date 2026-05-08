@@ -4,6 +4,9 @@
  * It isolates the application from the chaotic environment of the host window.
  */
 class PerchanceBridge {
+  /**
+   *
+   */
   constructor() {
     this._mockMode = typeof window === "undefined" || !window.oc;
     if (this._mockMode) {

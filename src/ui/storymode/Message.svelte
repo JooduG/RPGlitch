@@ -98,6 +98,9 @@
   // Check if we have visible story text
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
 
+  /**
+   *
+   */
   function handle_focus() {
     isFocused = true;
   }
@@ -108,6 +111,9 @@
     isFocused = false;
   }
 
+  /**
+   *
+   */
   async function handle_copy() {
     try {
       await navigator.clipboard.writeText(text);

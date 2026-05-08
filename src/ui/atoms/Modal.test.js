@@ -26,7 +26,7 @@ if (!Element.prototype.animate) {
       commitStyles: () => {},
       updatePlaybackRate: () => {},
       persist: () => {},
-      dispatchEvent: (event) => true,
+      dispatchEvent: (/** @type {any} */) => true,
       finished: null,
     };
     animation.finished = Promise.resolve(animation);
@@ -50,7 +50,7 @@ describe("Modal.svelte", () => {
     const backdrop = container.querySelector(".wrapper");
     expect(backdrop).toBeTruthy();
     // Simulate click on the backdrop
-    await fireEvent.click(backdrop);
+    await fireEvent.click(/** @type {any} */ (backdrop));
     // Ensure on_close was called
     expect(on_close).toHaveBeenCalledTimes(1);
   });
@@ -67,7 +67,7 @@ describe("Modal.svelte", () => {
     const backdrop = container.querySelector(".wrapper");
     expect(backdrop).toBeTruthy();
     // Clicking the backdrop should trigger on_close
-    await fireEvent.click(backdrop);
+    await fireEvent.click(/** @type {any} */ (backdrop));
     // Ensure on_close was called
     expect(on_close).toHaveBeenCalledTimes(1);
   });

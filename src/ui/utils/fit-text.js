@@ -11,8 +11,14 @@
  */
 export function fit_text(node, options = {}) {
   let currentOptions = { ...options };
+  /**
+   * @type {number | null}
+   */
   let frameId = null;
 
+  /**
+   *
+   */
   function adjust() {
     if (frameId) cancelAnimationFrame(frameId);
 
@@ -90,6 +96,9 @@ export function fit_text(node, options = {}) {
   adjust();
 
   return {
+    /**
+     * @param {{ maxSize?: number | undefined; minSize?: number | undefined; lineHeight?: string | undefined; }} newOptions
+     */
     update(newOptions) {
       currentOptions = { ...newOptions };
       adjust();

@@ -20,8 +20,9 @@ const error = console.error;
  * Trusts the Normalizer to enforce the flattened "Twin-Cylinder" structure.
  */
 export const seed_premades = async () => {
-  if (typeof globalThis !== "undefined" && globalThis._seeding) return;
-  if (typeof globalThis !== "undefined") globalThis._seeding = true;
+  const g = /** @type {any} */ (globalThis);
+  if (typeof globalThis !== "undefined" && g._seeding) return;
+  if (typeof globalThis !== "undefined") g._seeding = true;
   try {
     const existing = await db.entities.toArray();
     const toAdd = [];
@@ -55,7 +56,7 @@ export const seed_premades = async () => {
   } catch (err) {
     error("Foundry Error: Failed to seed the premade gods.", err);
   } finally {
-    if (typeof globalThis !== "undefined") globalThis._seeding = false;
+    if (typeof globalThis !== "undefined") /** @type {any} */ (globalThis)._seeding = false;
   }
 };
 // ============================================================================
@@ -64,11 +65,16 @@ export const seed_premades = async () => {
 export const entities = {
   /**
    * Lists all entities of a specific type (character/fractal).
+   * @param {'character'|'fractal'} type
    */
   async list(type) {
     try {
       const items = await db.entities.where("type").equals(type).toArray();
-      return items.sort((a, b) => (a.name || "").localeCompare(b.name || ""));
+      return items.sort((a, b) =>
+        (String(/** @type {any} */ (a).name) || "").localeCompare(
+          String(/** @type {any} */ (b).name) || "",
+        ),
+      );
     } catch (err) {
       error(`Error listing the ${type} census:`, err);
       return [];
@@ -76,6 +82,8 @@ export const entities = {
   },
   /**
    * Retrieves a single entity by ID, falling back to premades if not in DB.
+   * @param {'character'|'fractal'} type
+   * @param {string} id
    */
   async get(type, id) {
     try {
@@ -90,6 +98,8 @@ export const entities = {
   /**
    * Saves or updates an entity.
    * Force-normalizes and flattens everything before it touches the disk.
+   * @param {'character'|'fractal'} type
+   * @param {any} entity
    */
   async upsert(type, entity) {
     try {
@@ -116,6 +126,8 @@ export const entities = {
   },
   /**
    * Deletes an entity if it matches the requested type.
+   * @param {'character'|'fractal'} type
+   * @param {string} id
    */
   async remove(type, id) {
     try {
@@ -131,6 +143,9 @@ export const entities = {
   /**
    * Updates an entity directly without full normalization.
    * Useful for partial updates or metadata stamps.
+   * @param {'character'|'fractal'} type
+   * @param {string} id
+   * @param {any} data
    */
   async update(type, id, data) {
     try {
@@ -160,7 +175,10 @@ export const stories = {
       const fractalIds = [
         ...new Set(allStories.filter((s) => s.fractal_id).map((s) => s.fractal_id)),
       ];
-      const fractals = await db.entities.where("id").anyOf(fractalIds).toArray();
+      const fractals = await db.entities
+        .where("id")
+        .anyOf(/** @type {any[]} */ (fractalIds))
+        .toArray();
       const fractalMap = new Map(fractals.map((f) => [f.id, f]));
 
       return allStories.map((story) => {
@@ -181,10 +199,13 @@ export const stories = {
       return [];
     }
   },
+  /** @param {any} id */
   get: (id) => db.stories.get(id),
+  /** @param {any} id @param {any} changes */
   update: (id, changes) => db.stories.update(id, changes),
   /**
    * Deletes a story and its entire simulation log.
+   * @param {any} id
    */
   async delete(id) {
     await db.simulation_log.where("story_id").equals(id).delete();

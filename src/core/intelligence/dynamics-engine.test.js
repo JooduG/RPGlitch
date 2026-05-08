@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
 describe("Dynamics Engine v2 (Refactored)", () => {
   describe("Mechanics: simulation_dynamics", () => {
+    /** @returns {any} */
     const createBaseState = () => ({
       ai: {
         dynamics: { intensity: 50, chaos: 50, openness: 50, affinity: 50 },
@@ -14,13 +15,14 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       fractal: {
         dynamics: { velocity: 50, entropy: 50 },
       },
-      flags: [],
-      signals: {},
-      signal_prompts: [],
+      flags: /** @type {string[]} */ ([]),
+      signals: /** @type {Record<string, any>} */ ({}),
+      signal_prompts: /** @type {string[]} */ ([]),
+      contributors: /** @type {Record<string, string[]>} */ ({}),
     });
     it("should resole Default Dynamics correctly", () => {
       const state = createBaseState();
-      const triggered = [];
+      const triggered = /** @type {import('./dynamics-engine.js').DynamicsMatch[]} */ ([]);
       dynamics_engine.simulation_dynamics(state, null, triggered);
       expect(state.ai.dynamics.intensity).toBe(50);
       expect(state.signal_prompts.length).toBe(0);
@@ -36,7 +38,9 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       // Gravity: (50 - 80) * 0.25 = -7.5
       // 80 - 7.5 = 72.5 -> Round to 73
       expect(state.ai.dynamics.intensity).toBe(73);
-      expect(state.signal_prompts.some((i) => i.includes("Pacing fast"))).toBe(true);
+      expect(
+        state.signal_prompts.some((/** @type {string} */ i) => i.includes("Pacing fast")),
+      ).toBe(true);
       expect(state.signals.ADRENALINE).toBe(true);
     });
     it("should trigger VIOLENCE reflex on combat input", () => {
@@ -81,6 +85,10 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     });
   });
   describe("Skeptic's Toll: SUSPICIOUS reflex", () => {
+    /**
+     * @param {number} openness
+     * @returns {any}
+     */
     const createTollState = (openness = 50) => ({
       ai: {
         dynamics: {
@@ -91,21 +99,23 @@ describe("Dynamics Engine v2 (Refactored)", () => {
         },
       },
       fractal: { dynamics: { velocity: 50, entropy: 50 } },
-      flags: [],
-      signals: {},
-      signal_prompts: [],
+      flags: /** @type {string[]} */ ([]),
+      signals: /** @type {Record<string, any>} */ ({}),
+      signal_prompts: /** @type {string[]} */ ([]),
+      contributors: /** @type {Record<string, string[]>} */ ({}),
     });
     it("should SILENTLY PASS if openness >= 30", () => {
       const state = createTollState(50);
-      const triggered = [
+      const triggered = /** @type {import('./dynamics-engine.js').DynamicsMatch[]} */ ([
         {
           id: "SUSPICIOUS",
+          scan: "",
           config: {
             filter: { below: { openness: 30 } },
             effect: { ai: { affinity: -10, intensity: 10 } },
           },
         },
-      ];
+      ]);
       dynamics_engine.simulation_dynamics(state, null, triggered);
       expect(state.ai.dynamics.openness).toBe(50);
       expect(state.ai.dynamics.affinity).toBe(50);
@@ -113,9 +123,10 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     });
     it("should TRIGGER REFLEX if openness < 30", () => {
       const state = createTollState(10);
-      const triggered = [
+      const triggered = /** @type {import('./dynamics-engine.js').DynamicsMatch[]} */ ([
         {
           id: "SUSPICIOUS",
+          scan: "",
           config: {
             filter: { below: { openness: 30 } },
             effect: {
@@ -124,31 +135,36 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             },
           },
         },
-      ];
+      ]);
       dynamics_engine.simulation_dynamics(state, null, triggered);
       expect(state.ai.dynamics.openness).toBe(20);
       expect(state.ai.dynamics.intensity).toBe(58);
       expect(state.ai.dynamics.affinity).toBe(43);
-      expect(state.signal_prompts.some((p) => p.includes("You don't believe them"))).toBe(true);
+      expect(
+        state.signal_prompts.some((/** @type {string} */ p) =>
+          p.includes("You don't believe them"),
+        ),
+      ).toBe(true);
     });
   });
   describe("Trigger Matching & Semantic Grouping", () => {
+    /** @param {string} text */
     const scan = (text) => dynamics_engine.dynamics_scan(text);
     it("resolves 'kissing' to root 'affection'", () => {
       const matches = scan("She was kissing him.");
-      const match = matches.find((m) => m.scan === "affection");
+      const match = /** @type {any} */ (matches.find((m) => m.scan === "affection"));
       expect(match).toBeDefined();
       expect(match.id).toBe("VULNERABILITY");
     });
     it("resolves 'fought' to root 'combat'", () => {
       const matches = scan("They fought bravely.");
-      const match = matches.find((m) => m.scan === "combat");
+      const match = /** @type {any} */ (matches.find((m) => m.scan === "combat"));
       expect(match).toBeDefined();
       expect(match.id).toBe("VIOLENCE");
     });
     it("resolves 'screamed' to root 'horror'", () => {
       const matches = scan("She screamed in terror.");
-      const match = matches.find((m) => m.scan === "horror");
+      const match = /** @type {any} */ (matches.find((m) => m.scan === "horror"));
       expect(match).toBeDefined();
       expect(match.id).toBe("ANOMALY");
     });
@@ -160,7 +176,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
     });
     it("resolves 'barrier' to root 'armor'", () => {
       const matches = scan("A shimmering barrier appeared.");
-      const match = matches.find((m) => m.scan === "armor");
+      const match = /** @type {any} */ (matches.find((m) => m.scan === "armor"));
       expect(match).toBeDefined();
       expect(match.id).toBe("FORTIFICATION");
     });

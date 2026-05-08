@@ -90,6 +90,9 @@
     custom_title = e.currentTarget.textContent;
     is_custom = true;
   }
+  /**
+   *
+   */
   function handle_dbl_click() {
     is_custom = false;
     custom_title = "";

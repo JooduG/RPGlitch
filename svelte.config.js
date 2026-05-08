@@ -1,31 +1,28 @@
 import { mdsvex } from "mdsvex";
-import path from "path";
-import sveltePreprocess from "svelte-preprocess";
-import { fileURLToPath } from "url";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export default {
-  preprocess: [
-    sveltePreprocess({
-      scss: {
-        importer: [
-          (url) => {
-            if (url.startsWith("@theme/")) {
-              return {
-                file: path.resolve(__dirname, "src/theme", url.slice(7)),
-              };
-            }
-            return null;
-          },
-        ],
-        includePaths: [path.resolve(__dirname, "src/theme")],
-      },
-    }),
-    mdsvex(),
-  ],
+  // Strip out svelte-preprocess and SCSS.
+  // The AI must use the vanilla CSS variables from engine.css.
+  preprocess: [mdsvex()],
+
   extensions: [".svelte", ".svx"],
+
+  compilerOptions: {
+    /* ========================================================================
+       [**] THE RUNE REGIME (COMPILER LEVEL)
+       ======================================================================== */
+    // FATAL CONSTRAINT: Force the compiler into strict Svelte 5 mode.
+    // The build will instantly crash if the AI attempts Svelte 4 legacy syntax.
+    runes: true,
+
+    // Perchance Optimization: Forces Svelte to inject CSS directly into the JS bundle
+    // rather than generating external stylesheet files that are hard to copy-paste.
+    css: "injected",
+  },
+
   vitePlugin: {
+    // Svelte Inspector: Hold Alt + X in the browser to click any UI element
+    // and instantly open the exact line of code in VS Code.
     inspector: {
       toggleKeyCombo: "alt-x",
       showToggleButton: "always",

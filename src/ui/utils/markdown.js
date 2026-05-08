@@ -1,15 +1,17 @@
 /**
- * Safely parses basic markdown into an AST format for rendering without eval/innerHTML.
- * Currently supports strong (**) and emphasis (*).
- *
- * @param {string} text - The raw markdown text
- * @returns {Array} An array of paragraph blocks, each containing an array of inline tokens
- */
+ /**
+  * Safely parses basic markdown into an AST format for rendering without eval/innerHTML.
+  * Currently supports strong (**) and emphasis (*).
+  *
+  * @param {string} text - The raw markdown text
+  * @returns {any[][]} An array of paragraph blocks, each containing an array of inline tokens
+  */
 export function parse_markdown(text) {
   if (!text) return [];
   let paragraphs = text.split(/\n\s*\n/);
   return paragraphs.map((p) => {
     let normalized = p.replace(/\n/g, " ");
+    /** @type {any[]} */
     let tokens = [];
     const regex = /\*\*\*([\s\S]+?)\*\*\*|\*\*([\s\S]+?)\*\*|\*([\s\S]+?)\*/g;
     let lastIndex = 0;

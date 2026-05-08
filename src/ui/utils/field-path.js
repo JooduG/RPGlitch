@@ -11,11 +11,17 @@
  */
 export function get_value(obj, path) {
   if (!obj || !path) return "";
-  return (
-    path
-      .split(".")
-      .reduce((acc, part) => (acc && acc[part] !== undefined ? acc[part] : undefined), obj) ?? ""
-  );
+  /** @type {any} */
+  const result = path
+    .split(".")
+    .reduce(
+      (acc, part) =>
+        acc && /** @type {any} */ (acc)[part] !== undefined
+          ? /** @type {any} */ (acc)[part]
+          : undefined,
+      obj,
+    );
+  return result ?? "";
 }
 
 /**
@@ -29,6 +35,10 @@ export function set_value(obj, path, val) {
   if (!obj || !path) return;
   const keys = path.split(".");
   const last = keys.pop();
-  const target = keys.reduce((acc, key) => (acc[key] = acc[key] || {}), obj);
-  target[last] = val;
+  /** @type {any} */
+  const target = keys.reduce((acc, key) => {
+    /** @type {any} */ (acc)[key] = /** @type {any} */ (acc)[key] || {};
+    return /** @type {any} */ (acc)[key];
+  }, obj);
+  if (last) /** @type {any} */ (target)[last] = val;
 }

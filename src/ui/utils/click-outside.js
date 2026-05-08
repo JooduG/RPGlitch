@@ -1,10 +1,11 @@
 /**
- * click-outside.js
- * Svelte 5 action to detect clicks outside a specific element.
+ * @param {HTMLElement} node
+ * @param {(event: MouseEvent) => void} handler
  */
 export function click_outside(node, handler) {
+  /** @param {MouseEvent} event */
   const handleClick = (event) => {
-    if (node && !node.contains(event.target) && !event.defaultPrevented) {
+    if (node && !node.contains(/** @type {Node} */ (event.target)) && !event.defaultPrevented) {
       handler(event);
     }
   };

@@ -28,28 +28,53 @@ import { SWARM_TEMPLATES } from "./automation/prompts/swarm-review.js";
 
 // --- Svelte 5 Rune Shims for Node.js ---
 if (typeof globalThis.$state === "undefined") {
-  /** @type {any} */
+  /**
+   * @template T
+   * @param {T} [v]
+   * @returns {T | undefined}
+   */
   const _state = (v = undefined) => v;
+  /** @param {any} v */
   _state.snapshot = (v) => JSON.parse(JSON.stringify(v));
+  /**
+   * @template T
+   * @param {T} [v]
+   * @returns {T | undefined}
+   */
   _state.raw = (v = undefined) => v;
+  /**
+   * @template T
+   * @param {T} [v]
+   * @returns {T | undefined}
+   */
   _state.eager = (v = undefined) => v;
-  globalThis.$state = _state;
+  globalThis.$state = /** @type {any} */ (_state);
 
-  /** @type {any} */
+  /**
+   * @template T
+   * @param {T} v
+   * @returns {T}
+   */
   const _derived = (v) => v;
-  _derived.by = (fn) => fn();
-  globalThis.$derived = _derived;
+  _derived.by = (/** @type {() => any} */ fn) => fn();
+  globalThis.$derived = /** @type {any} */ (_derived);
 
-  /** @type {any} */
-  const _effect = (fn) => {};
-  _effect.pre = (fn) => {};
+  /**
+   * @param {() => void | (() => void)} _fn
+   */
+  const _effect = (_fn) => {};
+  _effect.pre = (/** @type {() => void | (() => void)} */ _fn) => {};
   _effect.pending = () => false;
   _effect.tracking = () => false;
+  /**
+   * @param {() => void | (() => void)} fn
+   * @returns {() => void}
+   */
   _effect.root = (fn) => {
     fn();
     return () => {};
   };
-  globalThis.$effect = _effect;
+  globalThis.$effect = /** @type {any} */ (_effect);
 }
 const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
 const { jules } = await import("@google/jules-sdk");
@@ -64,39 +89,63 @@ const jules_client = jules.with({
   apiKey: process.env.JULES_API_KEY,
 });
 
+/**
+ *
+ */
 export class SwarmEngine {
   // --- PRIVATE STATE (#) ---
+  /** @type {import('./swarm-types.js').SwarmTask[]} */
   #tasks = [];
+  /** @type {number} */
   #processed_count = 0;
+  /** @type {number} */
   #active_agent_count = 0;
+  /** @type {import('./swarm-types.js').SwarmError[]} */
   #errors = [];
 
   // --- PUBLIC GETTERS (REACTIVE) ---
+  /**
+   * @type {import('./swarm-types.js').SwarmTask[]}
+   */
   get tasks() {
     return this.#tasks;
   }
+  /**
+   * @type {number}
+   */
   get processed_count() {
     return this.#processed_count;
   }
+  /**
+   * @type {number}
+   */
   get active_agent_count() {
     return this.#active_agent_count;
   }
+  /**
+   * @type {import('./swarm-types.js').SwarmError[]}
+   */
   get errors() {
     return this.#errors;
   }
 
   // --- DERIVED METRICS ---
+  /**
+   * @type {number}
+   */
   get progress() {
     return this.#tasks.length > 0 ? (this.#processed_count / this.#tasks.length) * 100 : 0;
   }
 
+  /**
+   * @type {boolean}
+   */
   get is_complete() {
     return this.#tasks.length > 0 && this.#processed_count === this.#tasks.length;
   }
 
   /**
-   * THE 80% GATE
-   * Percentage of tasks that met the confidence threshold.
+   * @type {number}
    */
   get confidence_score() {
     if (this.#tasks.length === 0) return 0;
@@ -117,7 +166,7 @@ export class SwarmEngine {
         execAsync("git log -n 3 --oneline"),
       ]);
       return `[GIT_CONTEXT]\nBranch: ${branch.trim()}\nStatus: ${status.trim()}\nRecent:\n${logs.trim()}\n`;
-    } catch (e) {
+    } catch {
       return "[GIT_CONTEXT] (Git not available)";
     }
   }
@@ -131,7 +180,7 @@ export class SwarmEngine {
       const { stdout: url } = await execAsync("git remote get-url origin");
       const match = url.trim().match(/[:/]([^/]+\/[^/.]+)(\.git)?$/);
       return match ? match[1] : "JooduG/RPGlitch";
-    } catch (e) {
+    } catch {
       return "JooduG/RPGlitch";
     }
   }
@@ -139,7 +188,7 @@ export class SwarmEngine {
   /**
    * DISPATCH SWARM
    * Run a fleet of agents on a manifest.
-   * @param {Array<import('./swarm-types.js').InputTask>} manifest
+   * @param {import('./swarm-types.js').InputTask[]} manifest
    * @param {import('./swarm-types.js').DispatchOptions} [options]
    * @returns {Promise<import('./swarm-types.js').DispatchResult>}
    */
@@ -191,7 +240,7 @@ export class SwarmEngine {
         task.sessionId = session.id;
 
         // AutomatedSession.result() blocks until terminal state and returns the outcome
-        const outcome = await session.result();
+        const outcome = /** @type {import('@google/jules-sdk').Outcome} */ (await session.result());
         this.#active_agent_count--;
 
         if (outcome.state === "completed") {
@@ -201,7 +250,8 @@ export class SwarmEngine {
           const output_data = outcome.outputs !== undefined ? outcome.outputs : outcome;
           const output =
             typeof output_data === "string" ? output_data : JSON.stringify(output_data);
-          const verification = await this.#verify_task(task.instructions || task.prompt, output);
+          const task_prompt = task.instructions || task.prompt || "No instructions provided.";
+          const verification = await this.#verify_task(task_prompt, output);
           task.score = verification.score;
           task.rationale = verification.rationale;
           task.status = "completed";
@@ -213,8 +263,9 @@ export class SwarmEngine {
         this.#processed_count++;
       }
     } catch (err) {
-      console.error(`[swarm_engine] Swarm dispatch failed:`, err);
-      this.#errors.push({ message: err.message });
+      const error = /** @type {Error} */ (err);
+      console.error(`[swarm_engine] Swarm dispatch failed:`, error);
+      this.#errors.push({ message: error.message });
     }
 
     return {
@@ -226,6 +277,9 @@ export class SwarmEngine {
 
   /**
    * INTERNAL: 80% Gate verification.
+   * @param {string} prompt
+   * @param {string} output
+   * @returns {Promise<{score: number, rationale: string}>}
    */
   async #verify_task(prompt, output) {
     try {
@@ -237,12 +291,15 @@ export class SwarmEngine {
       const jsonMatch = response.match(/\{[\s\S]*\}/);
       const clean_json = jsonMatch ? jsonMatch[0] : response;
       return JSON.parse(clean_json);
-    } catch (err) {
+    } catch {
       return { score: 0, rationale: "Verification Engine Error" };
     }
   }
 
   // --- CLI DISPATCHER ---
+  /**
+   * @param {string[]} args
+   */
   static async bootstrap(args) {
     const flags = {
       human: args.includes("--human"),
@@ -267,7 +324,10 @@ export class SwarmEngine {
     }
   }
 
-  static show_meta(flags = { agent: true }) {
+  /**
+   * @param {object} [_flags]
+   */
+  static show_meta(_flags = { agent: true }) {
     const meta = { name: "swarm", description: "Fleet Logistics", version: "3.2.0" };
     console.log(JSON.stringify(meta, null, 2));
   }
@@ -276,9 +336,12 @@ export class SwarmEngine {
    * PARSE MANIFEST FROM MARKDOWN
    * Extracts tasks from a markdown file (e.g., Task.md or PR body).
    * Looks for items starting with [ ] or [x] in a "Tasks" section.
+   * @param {string} content
+   * @returns {Promise<import('./swarm-types.js').SwarmTask[]>}
    */
   async parse_markdown_manifest(content) {
     const lines = content.split("\n");
+    /** @type {import('./swarm-types.js').SwarmTask[]} */
     const tasks = [];
     let in_task_section = false;
 
@@ -295,13 +358,21 @@ export class SwarmEngine {
           id: `task-${tasks.length + 1}`,
           prompt: match[2].trim(),
           status: match[1].toLowerCase() === "x" ? "completed" : "pending",
+          score: 0,
+          rationale: null,
+          result: null,
+          error: null,
         });
       }
     }
     return tasks;
   }
 
-  async cli_review(args, flags) {
+  /**
+   * @param {string[]} _args
+   * @param {object} _flags
+   */
+  async cli_review(_args, _flags) {
     console.log("PR Review pattern initialized...");
     const manifest = [{ id: "audit-1", prompt: "Perform a security audit." }];
     const result = await this.dispatch_manifest(manifest);
@@ -311,7 +382,7 @@ export class SwarmEngine {
   /**
    * THE ECHO DSL (Query)
    * Wraps jules.select() to expose SQL-like querying for the engine.
-   * @param {import("@google/jules-sdk").JulesQuery} queryObj
+   * @param {import("@google/jules-sdk").JulesQuery<any>} queryObj
    */
   async query(queryObj) {
     try {
@@ -324,16 +395,19 @@ export class SwarmEngine {
   }
 
   /**
-   * LOG STREAM
-   * Maps to Jules SDK's native session.stream() with a typed handler map.
+   * @param {import("@google/jules-sdk").AutomatedSession} session
+   * @param {import('./swarm-types.js').StreamHandlers} [handlers]
+   * @returns {Promise<void>}
    */
   async logStream(session, handlers = {}) {
     for await (const activity of session.stream()) {
       const type = activity.type;
+      const data = "message" in activity ? { message: activity.message } : activity;
+
       if (handlers[type]) {
-        handlers[type](activity.data);
+        handlers[type](data);
       } else {
-        console.log(`[swarm-engine] Activity [${type}]:`, activity.data);
+        console.log(`[swarm-engine] Activity [${type}]:`, data);
       }
     }
   }

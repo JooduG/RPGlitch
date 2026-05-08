@@ -33,6 +33,8 @@ export const generateSecureSeed = (limit = 1000000) => {
 
 /**
  * Picks a random element from an array securely.
+ * @param {any[]} array
+ * @returns {any}
  */
 export const pickRandom = (array) => {
   if (!Array.isArray(array) || array.length === 0) return null;
@@ -42,10 +44,14 @@ export const pickRandom = (array) => {
 
 /**
  * Standard debounce implementation.
+ * @param {Function} fn
+ * @param {number} [wait]
+ * @returns {(...args: any[]) => void}
  */
 export const debounce = (fn, wait = 250) => {
+  /** @type {any} */
   let t;
-  return (...args) => {
+  return (/** @type {any[]} */ ...args) => {
     clearTimeout(t);
     t = setTimeout(() => fn.apply(null, args), wait);
   };
@@ -53,5 +59,9 @@ export const debounce = (fn, wait = 250) => {
 
 /**
  * Clamps a number between min and max.
+ * @param {number|string} n
+ * @param {number} [min]
+ * @param {number} [max]
+ * @returns {number}
  */
 export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0));

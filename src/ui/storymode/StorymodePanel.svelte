@@ -28,7 +28,8 @@
     role="button"
     tabindex="0"
     onclick={() => app.toggle_profile(true, entity)}
-    onkeydown={(e) => e.key === "Enter" && app.toggle_profile(true, entity)}
+    onkeydown={(/** @type {KeyboardEvent} */ e) =>
+      e.key === "Enter" && app.toggle_profile(true, entity)}
     aria-label="View Profile: {name}"
   >
     <ProfilePicture {entity} />

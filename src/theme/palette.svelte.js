@@ -85,6 +85,9 @@ export const PROFILE_PICTURE_PLACEHOLDERS = {
     "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4eiIvPjxwYXRoIGQ9Ik02IDIxdi0yYTYgNiAwIDAgMSAxMiAweiIvPjwvc3ZnPg==",
 };
 
+/**
+ *
+ */
 class ThemeStore {
   /************************************************************************************
    * [LEVEL 1: LOGIC & PARSERS]
@@ -94,7 +97,7 @@ class ThemeStore {
 
   /**
    * Helper to convert Hex to RGB triplet
-   * @param {string} hex - "#RRGGBB" or "var(--color-name)"
+   * @param {string} [hex] - "#RRGGBB" or "var(--color-name)"
    * @returns {string} - "R, G, B"
    */
   hex_to_rgb(hex) {
@@ -102,7 +105,7 @@ class ThemeStore {
 
     // Reverse lookup CSS tokens back to raw hex if they come from the standard palette
     if (hex.startsWith("var(")) {
-      const standard_match = Object.entries(PALETTE_VARS).find(([k, v]) => v === hex);
+      const standard_match = Object.entries(PALETTE_VARS).find(([, v]) => v === hex);
       if (standard_match) hex = standard_match[0];
       else return hex.replace(")", "-rgb)"); // Nordic custom colors fallback
     }
@@ -118,6 +121,7 @@ class ThemeStore {
 
   /**
    * Gets a deterministic color from a seed if no explicit color is set.
+   * @param {string} [seed]
    */
   get_deterministic_color(seed) {
     const final_seed = seed || "default";
@@ -126,16 +130,26 @@ class ThemeStore {
       hash = final_seed.charCodeAt(i) + ((hash << 5) - hash);
     }
     const keys = Object.keys(PALETTE);
-    const hex = PALETTE[keys[Math.abs(hash) % keys.length]];
+    const hex = /** @type {string} */ (
+      /** @type {any} */ (PALETTE)[keys[Math.abs(hash) % keys.length]]
+    );
     return this.resolve_token(hex) || hex;
   }
 
+  /**
+   * @param {string} [color]
+   * @returns {string | null}
+   */
   resolve_token(color) {
     if (!color) return null;
     if (color.startsWith("var(")) return color;
-    return PALETTE_VARS[color] || null;
+    return /** @type {any} */ (PALETTE_VARS)[color] || null;
   }
 
+  /**
+   * @param {string} [hex]
+   * @returns {string}
+   */
   get_color_name(hex) {
     if (!hex) return "";
     // 1. Direct search in PALETTE by value
@@ -146,7 +160,7 @@ class ThemeStore {
 
     // 2. Resolve token first if it's a var()
     if (hex.startsWith("var(")) {
-      const hex_val = Object.entries(PALETTE_VARS).find(([k, v]) => v === hex)?.[0];
+      const hex_val = Object.entries(PALETTE_VARS).find(([, v]) => v === hex)?.[0];
       if (hex_val) return this.get_color_name(hex_val);
     }
 
@@ -156,13 +170,15 @@ class ThemeStore {
   /**
    * Returns the direct human-readable label for an entity's signature color.
    * Eliminates the Name -> Hex -> Name round-trip.
+   * @param {any} entity
+   * @returns {string}
    */
   get_signature_label(entity) {
     if (!entity) return "";
     const color = entity.signature_color;
 
     // 1. If it's already a valid label (UI default), use it
-    if (color && PALETTE[color]) return color;
+    if (color && /** @type {any} */ (PALETTE)[color]) return color;
 
     // 2. If it's a hex or token, try to resolve it
     if (color) {
@@ -178,6 +194,10 @@ class ThemeStore {
   }
 
   // Internal hash helper for deterministic resolution
+  /**
+   * @param {string} str
+   * @returns {number}
+   */
   _hash(str) {
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
@@ -188,6 +208,8 @@ class ThemeStore {
 
   /**
    * Resolves the actual color value (Hex or Token) for an entity.
+   * @param {any} entity
+   * @returns {string}
    */
   get_signature_color(entity) {
     if (entity) {
@@ -198,8 +220,8 @@ class ThemeStore {
         if (token) return token;
 
         // 2. Check named palette keys
-        if (PALETTE[color]) {
-          const hex = PALETTE[color];
+        if (/** @type {any} */ (PALETTE)[color]) {
+          const hex = /** @type {any} */ (PALETTE)[color];
           return this.resolve_token(hex) || hex;
         }
         return color; // Fallback to raw hex
@@ -217,6 +239,10 @@ class ThemeStore {
    * Luminosity and generative aesthetics.
    ************************************************************************************/
 
+  /**
+   * @param {string | null} [hex]
+   * @returns {string}
+   */
   get_contrast_color(hex) {
     if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--color-white)";
     let color = hex.replace("#", "");
@@ -234,6 +260,11 @@ class ThemeStore {
     return yiq >= 128 ? "var(--color-black)" : "var(--color-white)";
   }
 
+  /**
+   * @param {string} hex
+   * @param {number} [amount]
+   * @returns {string}
+   */
   darken_color(hex, amount = 20) {
     if (!hex || hex.startsWith("var") || hex.startsWith("hsl")) return hex;
     let color = hex.replace("#", "");

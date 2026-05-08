@@ -137,9 +137,9 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.meta.ai).toEqual(snapshot.ai.dynamics);
       expect(result.meta.fractal).toEqual(snapshot.fractal.dynamics);
       expect(result.meta.signals).toContain("SIGNAL_X");
-      expect(result.meta.vectors).toBeDefined();
-      expect(result.meta.vectors.past).toBeInstanceOf(Array);
-      expect(result.meta.vectors.future).toBeInstanceOf(Array);
+      expect(result.meta?.vectors).toBeDefined();
+      expect(result.meta?.vectors?.past).toBeInstanceOf(Array);
+      expect(result.meta?.vectors?.future).toBeInstanceOf(Array);
     });
   });
 });

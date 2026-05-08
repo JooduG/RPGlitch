@@ -1,6 +1,16 @@
 /**
  * @file src/core/intelligence/context-broker.js
  *
+ * @typedef {import('../../state/runtime.svelte.js').SimulationEntity} SimulationEntity
+ *
+ * @typedef {Object} DataPoint
+ * @property {string} text
+ * @property {string} type
+ * @property {string} enhancer
+ * @property {string} section
+ * @property {string} [layer]
+ * @property {number} [hit]
+ *
  * €
  * 🔌 CONTEXT BROKER    The State Adapter & Document Assembler
  * €
@@ -21,6 +31,9 @@ const LOG_CACHE = new WeakMap();
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
+/**
+ * @param {any} msg
+ */
 function get_sanitized_text(msg) {
   if (!msg || typeof msg !== "object") return "";
   if (LOG_CACHE.has(msg)) return LOG_CACHE.get(msg);
@@ -32,6 +45,8 @@ function get_sanitized_text(msg) {
 }
 /**
  * Resolves a dot-notation path against a nested object.
+ * @param {any} obj
+ * @param {string} path
  */
 function get_path_value(obj, path) {
   const parts = path.split(".");
@@ -49,9 +64,12 @@ function get_path_value(obj, path) {
 }
 /**
  * Converts entity data into raw statistical data points.
+ * @param {any} entity
+ * @returns {DataPoint[]}
  */
 function to_data_points(entity) {
   if (!entity) return [];
+  /** @type {DataPoint[]} */
   const list = [];
   Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
     let val = get_path_value(entity, fieldId);
@@ -59,8 +77,8 @@ function to_data_points(entity) {
     if (val && typeof val === "string") {
       list.push({
         text: clean_text(val, 2000),
-        type: metadata.label,
-        enhancer: metadata.enhancer,
+        type: metadata.label ?? "unknown",
+        enhancer: metadata.enhancer ?? "SYSTEM",
         section: metadata.section_label || "Present",
         layer: metadata.layer_key,
       });
@@ -79,7 +97,7 @@ export const context_broker = {
    *
    * @param {string} input - The current user input.
    * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
-   * @param {Array} simulation_log - Recent message log.
+   * @param {any[]} simulation_log - Recent message log.
    */
   async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round || 1;
@@ -106,10 +124,10 @@ export const context_broker = {
       entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text)),
     ).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
 
-    const entities = {};
+    const entities = /** @type {Record<string, any>} */ ({});
     // Synchronous hydration of entities
     entries.forEach(({ role, data }) => {
-      const raw = data || { name: role, role, fragments: [] };
+      const raw = /** @type {SimulationEntity} */ (data || { name: role, role, fragments: [] });
       const data_points = to_data_points(raw);
       // Lexical filtering for AI relevance
       const filtered =
@@ -124,6 +142,7 @@ export const context_broker = {
         });
       }
       // Build the structured Fragment view (Sovereign Schema)
+      /** @type {Record<string, any>} */
       const fragments = {
         eternal: { physical: "", non_physical: "" },
         present: { physical: "", non_physical: "" },
@@ -131,8 +150,10 @@ export const context_broker = {
       filtered.forEach((f) => {
         const layer = f.layer?.toLowerCase();
         const field = f.type === "Physical" ? "physical" : "non_physical";
-        if (fragments[layer] && fragments[layer][field] === "") {
-          fragments[layer][field] = f.text;
+        if (layer && (layer === "eternal" || layer === "present")) {
+          if (fragments[layer][field] === "") {
+            fragments[layer][field] = f.text;
+          }
         }
       });
       entities[role] = {
@@ -143,7 +164,7 @@ export const context_broker = {
         past: raw.past,
         future: raw.future,
         dynamics: raw.dynamics, // Pass through for physics calculation
-        associated_ids: raw.associated_ids || [],
+        associated_ids: /** @type {any} */ (raw).associated_ids || [],
       };
     });
     // 2. Build Unified Payload
@@ -163,6 +184,7 @@ export const context_broker = {
   },
   /**
    * Creates a dense beat-map of recent history.
+   * @param {any[]} history
    */
   assemble_snapshot(history = []) {
     if (!history.length) return null;
@@ -177,6 +199,8 @@ export const context_broker = {
   },
   /**
    * Dynamically resolves FUTURE_VECTOR items based on recent simulation log keywords.
+   * @param {any} entity
+   * @param {string} recent_log_text
    */
   async manage_vector_lifecycle(entity, recent_log_text) {
     if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
@@ -188,6 +212,7 @@ export const context_broker = {
     const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
 
     // Helper to safely escape strings for RegExp if needed
+    /** @param {string} str */
     const escape_regex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const vectors_to_resolve = [];
@@ -197,7 +222,7 @@ export const context_broker = {
 
       // 1. Check strict vector tags
       if (Array.isArray(vector.vector_tags)) {
-        is_resolved = vector.vector_tags.some((tag) => {
+        is_resolved = vector.vector_tags.some((/** @type {string} */ tag) => {
           const t = tag.toLowerCase();
           if (t.includes(" ")) {
             // Multi-word tag: use escaped regex with word boundaries
@@ -219,7 +244,7 @@ export const context_broker = {
         const words = vector.text
           .toLowerCase()
           .split(/[\s,.;:!?()"'[\]{}]+/)
-          .filter((w) => w.length > 4);
+          .filter((/** @type {string} */ w) => w.length > 4);
 
         const keywords = Array.from(new Set(words));
 
@@ -253,6 +278,8 @@ export const context_broker = {
   },
   /**
    * Relevance-based sorting for raw data points.
+   * @param {DataPoint[]} data_points
+   * @param {string} objective
    */
   lexical_filter(data_points, objective) {
     if (!objective || !Array.isArray(data_points)) return data_points;
@@ -260,7 +287,7 @@ export const context_broker = {
     const keywords = objective
       .toLowerCase()
       .split(/\W+/)
-      .filter((w) => w.length > 3);
+      .filter((/** @type {string} */ w) => w.length > 3);
 
     if (keywords.length === 0) return data_points;
 
@@ -270,7 +297,7 @@ export const context_broker = {
     return data_points
       .map((dp) => {
         const text = (dp?.text || "").toLowerCase();
-        const hit = keywords.some((k) => text.includes(k));
+        const hit = keywords.some((/** @type {string} */ k) => text.includes(k));
         return { dp, hit: hit ? 1 : 0 };
       })
       .sort((a, b) => b.hit - a.hit)

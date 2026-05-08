@@ -5,10 +5,27 @@
  */
 
 /**
+ * @typedef {Object} RetryOptions
+ * @property {number} [maxAttempts]
+ * @property {number} [initialDelay]
+ * @property {number} [maxDelay]
+ */
+
+/**
+ * @typedef {Object} BreakerOptions
+ * @property {number} [failureThreshold]
+ * @property {number} [successThreshold]
+ * @property {number} [recoveryTimeout]
+ */
+
+/**
  * Exponential Backoff Retryer
  * Retries an asynchronous function with increasing delays.
  */
 export class ExponentialBackoffRetryer {
+  /**
+   * @param {RetryOptions} [options]
+   */
   constructor(options = {}) {
     this.maxAttempts = options.maxAttempts || 3;
     this.initialDelay = options.initialDelay || 1000;
@@ -20,7 +37,7 @@ export class ExponentialBackoffRetryer {
    * @param {Function} fn - Async function to execute.
    * @param {Function} onRetry - Callback for reporting retry attempts.
    */
-  async retry(fn, onRetry = null) {
+  async retry(fn, onRetry = () => {}) {
     let lastError;
     let delay = this.initialDelay;
 
@@ -48,10 +65,13 @@ export class ExponentialBackoffRetryer {
  * Prevents calling a failing service to allow it to recover.
  */
 export class CircuitBreaker {
-  constructor(options = {}) {
-    this.failureThreshold = options.failureThreshold || 3;
-    this.successThreshold = options.successThreshold || 2;
-    this.recoveryTimeout = options.recoveryTimeout || 30000; // 30s default
+  /**
+   *
+   */
+  constructor(options = { failureThreshold: 3, successThreshold: 2, recoveryTimeout: 30000 }) {
+    this.failureThreshold = options.failureThreshold ?? 3;
+    this.successThreshold = options.successThreshold ?? 2;
+    this.recoveryTimeout = options.recoveryTimeout ?? 30000; // 30s default
 
     this.state = "CLOSED"; // CLOSED, OPEN, HALF_OPEN
     this.failureCount = 0;
@@ -59,18 +79,28 @@ export class CircuitBreaker {
     this.lastFailureTime = 0;
   }
 
+  /**
+   *
+   */
   get isClosed() {
     return this.state === "CLOSED";
   }
+  /**
+   *
+   */
   get isOpen() {
     return this.state === "OPEN";
   }
+  /**
+   *
+   */
   get isHalfOpen() {
     return this.state === "HALF_OPEN";
   }
 
   /**
    * Executes a function protected by the circuit breaker.
+   * @param {Function} fn
    */
   async execute(fn) {
     this._evaluateState();
@@ -89,6 +119,9 @@ export class CircuitBreaker {
     }
   }
 
+  /**
+   *
+   */
   _onSuccess() {
     this.failureCount = 0;
     if (this.isHalfOpen) {
@@ -100,6 +133,9 @@ export class CircuitBreaker {
     }
   }
 
+  /**
+   *
+   */
   _onFailure() {
     this.failureCount++;
     this.lastFailureTime = Date.now();
@@ -109,6 +145,9 @@ export class CircuitBreaker {
     }
   }
 
+  /**
+   *
+   */
   _evaluateState() {
     if (this.isOpen && Date.now() - this.lastFailureTime > this.recoveryTimeout) {
       this.state = "HALF_OPEN";

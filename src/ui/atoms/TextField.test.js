@@ -3,8 +3,17 @@ import { expect, test, describe } from "vitest";
 import TextField from "./TextField.svelte";
 
 global.ResizeObserver = class ResizeObserver {
+  /**
+   *
+   */
   observe() {}
+  /**
+   *
+   */
   unobserve() {}
+  /**
+   *
+   */
   disconnect() {}
 };
 
@@ -21,7 +30,7 @@ describe("TextField", () => {
 
   test("renders textarea in edit mode", () => {
     const { container } = render(TextField, { value: "Hello World", is_edit: true });
-    const textarea = container.querySelector("textarea");
+    const textarea = /** @type {any} */ (container.querySelector("textarea"));
     expect(textarea).toBeDefined();
     expect(textarea.value).toBe("Hello World");
   });
@@ -35,8 +44,8 @@ describe("TextField", () => {
       header_actions: () => "Actions",
     });
 
-    const chassis = container.querySelector(".wrapper");
-    const input = container.querySelector(".body");
+    const chassis = /** @type {any} */ (container.querySelector(".wrapper"));
+    const input = /** @type {any} */ (container.querySelector(".body"));
 
     await fireEvent.focus(input);
     expect(chassis.classList.contains("is-expanded")).toBe(true);
@@ -44,7 +53,7 @@ describe("TextField", () => {
 
   test("applies atmospheric weight styles", () => {
     const { container } = render(TextField, { weight: 5 });
-    const chassis = container.querySelector(".wrapper");
+    const chassis = /** @type {any} */ (container.querySelector(".wrapper"));
     const style = chassis.getAttribute("style");
 
     expect(style).toContain("--weight-intensity: 0.5");
@@ -59,8 +68,8 @@ describe("TextField", () => {
       required: true,
       "data-testid": "inner-element",
     });
-    const wrapperEdit = containerEdit.querySelector(".wrapper");
-    const textarea = containerEdit.querySelector("textarea");
+    const wrapperEdit = /** @type {any} */ (containerEdit.querySelector(".wrapper"));
+    const textarea = /** @type {any} */ (containerEdit.querySelector("textarea"));
 
     expect(wrapperEdit.getAttribute("name")).toBeNull();
     expect(textarea.getAttribute("name")).toBe("test-field");
@@ -72,8 +81,8 @@ describe("TextField", () => {
       name: "test-field-readonly",
       "data-testid": "inner-element-readonly",
     });
-    const wrapperReadonly = containerReadonly.querySelector(".wrapper");
-    const bodyReadonly = containerReadonly.querySelector(".body.is-readonly");
+    const wrapperReadonly = /** @type {any} */ (containerReadonly.querySelector(".wrapper"));
+    const bodyReadonly = /** @type {any} */ (containerReadonly.querySelector(".body.is-readonly"));
 
     expect(wrapperReadonly.getAttribute("name")).toBeNull();
     expect(bodyReadonly.getAttribute("name")).toBe("test-field-readonly");

@@ -101,7 +101,15 @@ describe("validation.js", () => {
     ]);
 
     // Mock File for Vitest
+    /**
+     *
+     */
     class MockFile {
+      /**
+       * @param {any[]} parts
+       * @param {string} filename
+       * @param {{ type: any; size?: any; lastModified?: any; webkitRelativePath?: any; }} properties
+       */
       constructor(parts, filename, properties) {
         this.parts = parts;
         this.name = filename;
@@ -110,9 +118,15 @@ describe("validation.js", () => {
         this.lastModified = properties.lastModified || Date.now();
         this.webkitRelativePath = properties.webkitRelativePath || "";
       }
+      /**
+       *
+       */
       async bytes() {
         return new Uint8Array(await this.arrayBuffer());
       }
+      /**
+       *
+       */
       stream() {
         return new ReadableStream({
           start: async (controller) => {
@@ -121,9 +135,15 @@ describe("validation.js", () => {
           },
         });
       }
+      /**
+       *
+       */
       async text() {
         return new TextDecoder().decode(await this.arrayBuffer());
       }
+      /**
+       *
+       */
       async arrayBuffer() {
         const combined = new Uint8Array(this.parts.reduce((acc, p) => acc + p.byteLength, 0));
         let offset = 0;
@@ -133,6 +153,10 @@ describe("validation.js", () => {
         }
         return combined.buffer;
       }
+      /**
+       * @param {number} start
+       * @param {number} end
+       */
       slice(start, end) {
         const slicedParts = [];
         let currentPos = 0;

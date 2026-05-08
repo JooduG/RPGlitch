@@ -27,6 +27,34 @@
  *   sublabel  {string}   UI subtitle shown beneath the section header.
  *   columns   {number}   UI grid column count for the section's fields.
  */
+/**
+ * @typedef {Object} EntityField
+ * @property {string} [label]
+ * @property {string} [directive]
+ * @property {string} [enhancer]
+ * @property {string} [description]
+ * @property {string} [type]
+ * @property {string} [unit_label]
+ */
+/**
+ * @typedef {Object} EntitySection
+ * @property {string} [label]
+ * @property {string} [sublabel]
+ * @property {string} [unit_label]
+ * @property {string} [directive]
+ * @property {string} [enhancer]
+ * @property {string} [type]
+ * @property {Record<string, EntityField | string>} [fields]
+ */
+/**
+ * @typedef {Object} EntityFragmentRoot
+ * @property {string} name
+ * @property {string} description
+ * @property {EntitySection} eternal
+ * @property {EntitySection} present
+ * @property {EntitySection} future
+ * @property {EntitySection} past
+ */
 /************************************************************************************
  * [SECTION: ENTITY FRAGMENTS]
  * ----------------------------------------------------------------------------------
@@ -119,18 +147,30 @@ export const ENTITY_FRAGMENTS = {
  * Keys use dot notation: "eternal.non_physical", "past.essence", etc.
  ************************************************************************************/
 /**
+ * @typedef {Object} CatalogEntry
+ * @property {string} id - Dot-notation key, e.g. "eternal.non_physical"
+ * @property {string} section_label - Parent section display name, e.g. "Eternal"
+ * @property {string} layer_key - Parent section key in uppercase, e.g. "ETERNAL"
+ * @property {string} [label] - UI label.
+ * @property {string} [directive] - AI instruction.
+ * @property {string} [enhancer] - Semantic tag.
+ * @property {string} [description] - Fallback description.
+ * @property {string} [unit_label] - Label for individual items (for arrays).
+ * @property {string} [type] - Field type (e.g., "array").
+ */
+
+/**
  * Builds a flat `{ [dotKey]: metadata }` map from the nested ENTITY_FRAGMENTS tree.
- * Each entry is enriched with:
- *   - `id`           {string}  Dot-notation key, e.g. "eternal.non_physical"
- *   - `section_label`{string}  Parent section display name, e.g. "Eternal"
- *   - `layer_key`    {string}  Parent section key in uppercase, e.g. "ETERNAL"
+ * Each entry is enriched with ID and section metadata.
  *
- * @returns {Object.<string, Object>} Flat catalog keyed by dot-notation field ID.
+ * @returns {Record<string, CatalogEntry>} Flat catalog keyed by dot-notation field ID.
  */
 function build_entity_catalog() {
+  /** @type {Record<string, any>} */
   const catalog = {};
-  Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, section]) => {
-    if (typeof section === "string" || section === null) return;
+  Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, sectionObj]) => {
+    if (typeof sectionObj === "string" || sectionObj === null) return;
+    const section = /** @type {EntitySection} */ (sectionObj);
     // 1. Add sub-fields if they exist
     if (section.fields) {
       Object.entries(section.fields).forEach(([field_key, field]) => {
@@ -177,14 +217,15 @@ export const PROFILE_SECTIONS = Object.entries(ENTITY_FRAGMENTS)
   // Filter out top-level strings (like 'name' and 'description')
   .filter(([_, section]) => typeof section !== "string" && section !== null)
   .map(([sectionKey, sectionObj]) => {
-    /** @type {any} */
-    const section = sectionObj;
+    const section = /** @type {EntitySection} */ (sectionObj);
     const fields =
       section.fields && section.type !== "array"
-        ? Object.entries(section.fields).map(([fieldKey, field]) => {
+        ? Object.entries(section.fields).map(([fieldKey, fieldVal]) => {
+            const field =
+              typeof fieldVal === "string" ? { label: fieldKey, description: fieldVal } : fieldVal;
             return {
               key: `${sectionKey}.${fieldKey}`, // e.g. "eternal.physical"
-              label: field.label,
+              label: field.label || fieldKey,
               description: field.directive || field.description || "",
               enhancer: field.enhancer,
               type: field.type,
@@ -195,7 +236,7 @@ export const PROFILE_SECTIONS = Object.entries(ENTITY_FRAGMENTS)
             {
               key: sectionKey, // e.g. "past" or "future"
               label: section.label,
-              description: section.directive || section.description || "",
+              description: section.directive || "",
               enhancer: section.enhancer,
               type: section.type,
               unitLabel: section.unit_label || "Vector",

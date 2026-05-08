@@ -32,7 +32,9 @@ describe("core/utils", () => {
     });
 
     it("should return null for non-array", () => {
+      // @ts-ignore
       expect(pickRandom(null)).toBeNull();
+      // @ts-ignore
       expect(pickRandom(undefined)).toBeNull();
     });
   });

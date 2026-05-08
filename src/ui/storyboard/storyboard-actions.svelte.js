@@ -16,10 +16,11 @@ export const storyboard = {
     }
     if (!app.ai_list.length) return;
     // 1. Random AI
-    app.selected_ai = pickRandom(app.ai_list);
+    app.selected_ai = pickRandom(Array.isArray(app.ai_list) ? app.ai_list : []);
     // 2. Random User (Cannot be same as AI)
+    /** @type {any[]} */
     let available_users = app.user_list;
-    if (app.selected_ai) {
+    if (app.selected_ai && Array.isArray(app.user_list)) {
       available_users = app.user_list.filter((u) => u.id !== app.selected_ai.id);
     }
     if (available_users.length) {
@@ -31,8 +32,8 @@ export const storyboard = {
       }
     }
     // 3. Random Fractal
-    if (app.fractal_list.length) {
-      app.selected_fractal = pickRandom(app.fractal_list);
+    if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
+      app.selected_fractal = pickRandom(Array.isArray(app.fractal_list) ? app.fractal_list : []);
     }
     // Ensure title updates on randomize
     if (typeof app.reroll_title === "function") {

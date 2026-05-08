@@ -1,16 +1,10 @@
 {
-  "MD003": {
-    "style": "atx"
-  },
-  "MD007": {
-    "indent": 2
-  },
+  "MD003": { "style": "atx" },
+  "MD007": { "indent": 2 },
   "MD009": false,
   "MD013": false,
   "MD022": false,
-  "MD024": {
-    "siblings_only": true
-  },
+  "MD024": { "siblings_only": true },
   "MD028": false,
   "MD029": false,
   "MD030": false,

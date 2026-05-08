@@ -92,9 +92,7 @@
         if (!has_prompt_text) {
           char.modifiers.prompt = AestheticResolver.extract(char);
         } else {
-          const result = await app.visual.enhance(char.modifiers.prompt, {
-            physical: char.modifiers.prompt,
-          });
+          const result = await app.visual.enhance(char.modifiers.prompt);
           if (result) char.modifiers.prompt = result;
         }
       } else if (active_field) {

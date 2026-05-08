@@ -8,6 +8,7 @@ import { SESSION_ID_KEY } from "@core/constants.js";
  * Handles persistence and state for the active story.
  */
 
+/** @type {string | null} */
 let _active_id = null;
 
 export const session_driver = {
@@ -17,6 +18,7 @@ export const session_driver = {
 
   /**
    * Get the active story ID or throw.
+   * @returns {string}
    */
   require_active: function () {
     if (!_active_id) throw new Error("No active session found.");
@@ -39,6 +41,8 @@ export const session_driver = {
 
   /**
    * Create a new session entry from a character/fractal selection
+   * @param {any} selection
+   * @returns {Promise<string>}
    */
   create_from_selection: async function (selection) {
     const id = await db.stories.add({
@@ -90,6 +94,8 @@ export const session_driver = {
 
   /**
    * Send user input (Log it)
+   * @param {string} text
+   * @returns {Promise<void>}
    */
   send: async function (text) {
     const character_name = runtime.active_user?.name || "User";
@@ -110,6 +116,7 @@ export const session_driver = {
 
   /**
    * Delete a log entry
+   * @param {string | number} id
    */
   delete_log_entry: async function (id) {
     await db.simulation_log.delete(Number(id));
@@ -118,6 +125,8 @@ export const session_driver = {
 
   /**
    * Edit a log entry
+   * @param {string | number} id
+   * @param {string} new_text
    */
   edit_log_entry: async function (id, new_text) {
     await db.simulation_log.update(Number(id), { text: new_text });
@@ -126,6 +135,11 @@ export const session_driver = {
 
   /**
    * Add a message to the simulation log
+   * @param {string} text
+   * @param {string} role
+   * @param {string} character_name
+   * @param {string} [turn_type]
+   * @param {any} [meta]
    */
   log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}) {
     const story_id = session_driver.require_active();
@@ -145,6 +159,10 @@ export const session_driver = {
 
   /**
    * Legacy wrapper for log_message matching Intelligence Kernel's expected signature.
+   * @param {string} text
+   * @param {string} character_name
+   * @param {string} role
+   * @param {any} [meta]
    */
   log_turn: async function (text, character_name, role, meta = {}) {
     return await this.log_message(
@@ -158,6 +176,8 @@ export const session_driver = {
 
   /**
    * Fetch history for a story.
+   * @param {string} story_id
+   * @returns {Promise<any[]>}
    */
   load_log: async function (story_id) {
     if (!story_id) return [];
@@ -166,6 +186,9 @@ export const session_driver = {
 
   /**
    * Add a system/telemetry log entry
+   * @param {string} text
+   * @param {string} [role]
+   * @param {any} [meta]
    */
   log_system_entry: async function (text, role = "system", meta = {}) {
     const story_id = session_driver.require_active();

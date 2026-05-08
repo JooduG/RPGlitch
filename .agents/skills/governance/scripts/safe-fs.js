@@ -1,5 +1,8 @@
 import fs from "fs";
 
+/**
+ *
+ */
 export function safeStatSync(filePath) {
   try {
     return fs.statSync(filePath);

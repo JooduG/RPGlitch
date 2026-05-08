@@ -5,7 +5,7 @@ describe("Narrative Vector System", () => {
   beforeEach(() => {
     // Reset state before each test
     runtime._debug_inject({
-      fractal: { id: "test-fractal", active: true, future: [] },
+      fractal: /** @type {any} */ ({ id: "test-fractal", active: true, future: [] }),
     });
   });
 

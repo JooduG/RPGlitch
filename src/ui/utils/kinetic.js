@@ -6,6 +6,10 @@
  * "Identical Math System-Wide."
  */
 // --- Constants & Token Integration ---
+/**
+ * @param {string} token
+ * @param {any} fallback
+ */
 const getMotionToken = (token, fallback) => {
   if (typeof window === "undefined") return fallback;
   const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
@@ -29,8 +33,15 @@ const EASE_SMOOTH = "ease-in-out";
  * A subtle nervous twitch, rotational.
  * Usage: use:shimmy
  */
+/**
+ * @param {HTMLElement} node
+ */
 export function shimmy(node) {
-  let animation;
+  /** @type {Animation|null} */
+  let animation = null;
+  /**
+   *
+   */
   function trigger() {
     if (animation) animation.cancel();
     // Keyframes for the "Jazz Hands" (12 to 3)
@@ -45,6 +56,9 @@ export function shimmy(node) {
       iterations: Infinity,
     });
   }
+  /**
+   *
+   */
   function cleanup() {
     if (animation) {
       animation.cancel();
@@ -67,8 +81,15 @@ export function shimmy(node) {
  * A "Pop" scale effect.
  * Usage: use:pulse
  */
+/**
+ * @param {HTMLElement} node
+ */
 export function pulse(node) {
-  let animation;
+  /** @type {Animation|null} */
+  let animation = null;
+  /**
+   *
+   */
   function trigger() {
     if (animation) animation.cancel();
     const keyframes = [{ transform: "scale(1)" }, { transform: `scale(${PULSE_SCALE})` }];
@@ -79,10 +100,14 @@ export function pulse(node) {
       fill: "forwards",
     });
   }
+  /**
+   *
+   */
   function cleanup() {
     if (animation) {
       animation.reverse(); // Animate back smoothly
-      animation.onfinish = () => animation.cancel();
+      const anim = animation;
+      anim.onfinish = () => anim.cancel();
     }
   }
   node.addEventListener("mouseenter", trigger);
@@ -102,14 +127,24 @@ export function pulse(node) {
  * A 90 degree rotation.
  * Usage: use:spin
  */
+/**
+ * @param {HTMLElement} node
+ */
 export function spin(node) {
   const targetSelector = "svg";
-  let animation;
+  /** @type {Animation|null} */
+  let animation = null;
 
+  /**
+   *
+   */
   function getTarget() {
     return node.querySelector(targetSelector) || node;
   }
 
+  /**
+   *
+   */
   function trigger() {
     const target = getTarget();
     if (animation) {
@@ -124,6 +159,9 @@ export function spin(node) {
     }
   }
 
+  /**
+   *
+   */
   function reset() {
     if (animation) {
       animation.playbackRate = -1;
@@ -146,13 +184,23 @@ export function spin(node) {
  * A quick horizontal thrust.
  * Usage: use:stab
  */
+/**
+ * @param {HTMLElement} node
+ */
 export function stab(node) {
   const targetSelector = "svg";
   const DISTANCE = 5; // px
-  let animation;
+  /** @type {Animation|null} */
+  let animation = null;
+  /**
+   *
+   */
   function getTarget() {
     return node.querySelector(targetSelector) || node;
   }
+  /**
+   *
+   */
   function trigger() {
     if (animation) animation.cancel();
     const target = getTarget();
@@ -168,6 +216,9 @@ export function stab(node) {
       iterations: Infinity,
     });
   }
+  /**
+   *
+   */
   function cleanup() {
     if (animation) {
       animation.cancel();
@@ -190,15 +241,22 @@ export function stab(node) {
  * Enables drag-to-scroll with momentum.
  * Usage: use:kineticScroll
  */
+/**
+ * @param {HTMLElement} node
+ */
 export function kineticScroll(node) {
   let isDown = false;
-  let startY;
-  let scrollTop;
+  /** @type {number} */
+  let startY = 0;
+  /** @type {number} */
+  let scrollTop = 0;
   let velocity = 0;
   let lastY = 0;
   let lastTime = 0;
-  let rafId;
+  /** @type {number|null} */
+  let rafId = null;
 
+  /** @param {any} e */
   const onDown = (e) => {
     isDown = true;
     const pageY = e.pageY || (e.touches ? e.touches[0].pageY : 0);
@@ -215,6 +273,7 @@ export function kineticScroll(node) {
     requestAnimationFrame(applyMomentum);
   };
 
+  /** @param {any} e */
   const onMove = (e) => {
     if (!isDown) return;
 

@@ -13,7 +13,7 @@ const md = new MarkdownIt({
 /**
  * Extracts <think> blocks from text.
  * Handles partial tags during streaming.
- * @param {string} text
+ * @param {string|null|undefined} text
  * @returns {{ content: string, think: string|null }}
  */
 export function parse_think_block(text) {
@@ -39,7 +39,7 @@ export function parse_think_block(text) {
 }
 /**
  * Strips all <think> blocks and optional trailing newlines.
- * @param {string} text
+ * @param {string|null|undefined} text
  * @returns {string}
  */
 export function strip_cognition_blocks(text) {
@@ -48,7 +48,7 @@ export function strip_cognition_blocks(text) {
 }
 /**
  * Removes <image_prompt> tags from text.
- * @param {string} text
+ * @param {string|null|undefined} text
  * @returns {string}
  */
 export function clean_image_prompts(text) {
@@ -89,7 +89,7 @@ export function clean_image_prompts(text) {
 }
 /**
  * Master parser that runs all passes.
- * @param {string} rawText
+ * @param {string|null|undefined} rawText
  * @returns {{ displayText: string, think: string|null, sceneData: object|null }}
  */
 export function parse_message(rawText) {
@@ -111,7 +111,7 @@ export function parse_message(rawText) {
 
 /**
  * Escapes characters for safe use in XML.
- * @param {string} str
+ * @param {string|null|undefined} str
  * @returns {string}
  */
 export function escapeXml(str) {
@@ -129,7 +129,7 @@ export function escapeXml(str) {
 /**
  * Text sanitization for prompt safety.
  * Removes markdown-like characters and collapses whitespace.
- * @param {string} text
+ * @param {string|null|undefined} text
  * @param {number} [limit=500]
  * @returns {string}
  */

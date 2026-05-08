@@ -47,7 +47,7 @@ describe("llm_service - sanitize", () => {
 });
 
 describe("llm_service - generate", () => {
-  let originalWindowAi;
+  let /** @type {any} */ originalWindowAi;
   beforeEach(() => {
     vi.clearAllMocks();
     originalWindowAi = window.ai;
@@ -65,7 +65,8 @@ describe("llm_service - generate", () => {
 
   it("should throw an error if window.ai is not available", async () => {
     const originalAi = window.ai;
-    delete window.ai; // Ensure it's totally gone
+    // @ts-ignore
+    window.ai = undefined; // Ensure it's totally gone
 
     await expect(
       llm_service.generate({ system: "", messages: [] }, { silent: true }),

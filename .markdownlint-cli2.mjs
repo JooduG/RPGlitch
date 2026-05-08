@@ -1,8 +1,13 @@
 import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 import markdownIt from "markdown-it";
 import githubRules, { init } from "@github/markdownlint-github";
 
-const localConfig = JSON.parse(fs.readFileSync("./.markdownlint.json", "utf8"));
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const localConfig = JSON.parse(
+  fs.readFileSync(path.resolve(__dirname, "./.markdownlint.json"), "utf8"),
+);
 
 export default {
   config: {
@@ -13,6 +18,5 @@ export default {
   },
   markdownItFactory: () => markdownIt({ html: true }),
   customRules: githubRules,
-
   outputFormatters: [["markdownlint-cli2-formatter-pretty", { appendLink: true }]],
 };

@@ -85,6 +85,9 @@ function scanForTodo(dir, items_found = []) {
   return items_found;
 }
 
+/**
+ *
+ */
 export function syncBacklog() {
   console.log("🧹 Scanning for #TODO-AI tags...");
   const found = scanForTodo(ROOT_DIR);

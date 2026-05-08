@@ -46,7 +46,7 @@
     role="dialog"
     aria-modal="true"
     tabindex="-1"
-    onclick={(e) => e.stopPropagation()}
+    onclick={(/** @type {{ stopPropagation: () => any; }} */ e) => e.stopPropagation()}
     transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}
     use:use_actions={actions}
   >
