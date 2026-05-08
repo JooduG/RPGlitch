@@ -32,11 +32,11 @@ export default defineConfig({
     globals: true,
 
     // THE BOUNDARY: Vitest strictly owns .test.js. Playwright owns .e2e.js and .spec.js.
-    // Notice the paths now correctly point to `.agent` instead of `.agents`
+    // Notice the paths now correctly point to `.agents` instead of `.agent`
     include: ["src/**/*.test.{js,ts}", ".agents/skills/*/scripts/**/*.test.{js,ts}"],
     exclude: ["**/node_modules/**", "**/dist/**", "**/.git/**"],
 
-    // Test setup hook (Path corrected to .agent)
+    // Test setup hook (Path corrected to .agents)
     setupFiles: [".agents/skills/governance/scripts/test-setup.js"],
   },
 });

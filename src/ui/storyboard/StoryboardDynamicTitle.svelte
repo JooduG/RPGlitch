@@ -131,7 +131,6 @@
   h1 {
     font-size: clamp(var(--font-size-xxxl), 10vw, var(--font-size-xxxxxl));
     line-height: 1.1;
-    min-height: calc(var(--line-height-s) * 2em);
     margin: 0;
     font-family: Satisfy, cursive;
     letter-spacing: var(--letter-spacing-s);

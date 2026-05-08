@@ -1,48 +1,40 @@
-# Mission Plan - Resolve Type & Lint Issues
+# Update Legacy .agent/ References
 
-This plan outlines the systematic resolution of TypeScript errors, ESLint warnings, and JSDoc mismatches identified across the RPGlitch codebase.
+This plan outlines the steps to identify and update all remaining occurrences of the legacy `.agent/` directory reference to the new `.agents/` structure. This follows a recent rename to stabilize the environment and ensure all automated workflows function correctly.
 
-## 1. Research & Analysis (Complete)
+## User Review Required
 
-- [x] Investigate `src/core/engine/chrono.svelte.js` for argument mismatches.
-- [x] Analyze `src/core/intelligence/context-broker.js` for type mismatches and indexing issues.
-- [x] Review `src/core/security.js` for JSDoc parameter mismatches.
-- [x] Examine `src/state/app.svelte.js` for type assignment errors.
-- [x] Check `src/ui/utils/field-path.js` for object indexing issues.
-- [x] Identify unused variables in `.agents/skills/swarm/scripts/swarm-engine.js`.
-- [x] Resolve `runtime.ai` and `runtime.fractal` null checks and indexing in `intelligence-kernel.js`.
-- [x] Resolve `GenerationOptions` mismatches in `intelligence-kernel.js`.
-- [x] Fix `CircuitBreaker` and `ExponentialBackoffRetryer` issues in `visual-engine.svelte.js` and `resilience.js`.
-- [x] Update `types.d.ts` for plugin globals.
+> [!NOTE]
+> The search identified legacy references in `.agents/archive/` and `.agents/snapshots/`. Per previous instructions, these will be **ignored** as they are historical records. Only active configuration, documentation, and templates will be updated.
 
-## 2. Implementation Strategy (Strict Typing) (Complete)
+## Proposed Changes
 
-### 2.1 Core Logic & Security
+### Documentation & Configuration
 
-- [x] **`src/core/security.js`**: Update `process` and `authorizeVisuals` function signatures.
-- [x] **`src/core/engine/chrono.svelte.js`**: Verify `Shield.process` call.
-- [x] **`src/core/engine/engine.js`**: Update `GenerationOptions` typedef.
-- [x] **`src/media/resilience.js`**: Fix `CircuitBreaker.execute` JSDoc.
+#### [MODIFY] [DESIGN.md](file:///c:/Users/johng/source/repos/RPGlitch/DESIGN.md)
 
-### 2.2 Intelligence & Data
+- Update the link to Aesthetics rules from `.agent/rules/` to `.agents/rules/`.
 
-- [x] **`src/core/intelligence/context-broker.js`**: Add defaults and guards.
-- [x] **`src/state/runtime.svelte.js`**: Add `associated_ids` to `SimulationEntity`.
-- [x] **`src/core/intelligence/intelligence-kernel.js`**: Fix dynamics indexing and `execute_turn` parameters.
+#### [MODIFY] [vitest.config.js](file:///c:/Users/johng/source/repos/RPGlitch/vitest.config.js)
 
-### 2.3 UI & State
+- Update comments on lines 35 and 39 that incorrectly refer to `.agent`. Note that the actual code already correctly uses `.agents`.
 
-- [x] **`src/state/app.svelte.js`**: Narrow types and explicit `streaming` state.
-- [x] **`src/ui/utils/field-path.js`**: Dynamic indexing casts.
-- [x] **`src/media/visual-engine.svelte.js`**: Fix constructors, runtime paths, and unused vars.
+### Swarm Skill Templates
 
-### 2.4 Cleanup
+#### [MODIFY] [manifest.json](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/swarm/templates/manifest.json)
 
-- [x] **`.agents/skills/swarm/scripts/swarm-engine.js`**: Remove unused catch bindings.
-- [x] **`types.d.ts`**: Add `pluginTextToImage` and `pluginUpload` to `Window`.
+- Update `meta.workflow` and `meta.skill` paths to use `.agents/` instead of `.agent/`.
 
-## 3. Verification & Quality Gate
+---
 
-- [ ] Run `npm run verify` (if available) or individual lint/type check commands.
-- [ ] Verify each fix against the reported errors in the editor.
-- [ ] Ensure ZERO regressions in engine logic or aesthetics (Chalk Regime).
+## Verification Plan
+
+### Automated Tests
+
+- Run `npm run audit` to ensure all audited paths and nomenclature are correct.
+- Run `npm run test:unit` to verify that the Vitest configuration change (even if just comments) hasn't introduced any issues.
+- Run `npm run deploy:prepare` to perform a full system check (lint, audit, test, build).
+
+### Manual Verification
+
+- Verify that the link in `DESIGN.md` correctly points to the existing file in the `.agents/rules/` directory.

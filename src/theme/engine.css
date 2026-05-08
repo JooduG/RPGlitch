@@ -56,14 +56,14 @@
   --opacity-none: 0;
   --opacity-xxxs: 0.02; /* Detail Veil */
   --opacity-min: var(--opacity-xxxs);
-  --opacity-xxs: 0.04; /* Whisper */
-  --opacity-xs: 0.08; /* Ghost */
-  --opacity-s: 0.15; /* Base */
-  --opacity-m: 0.25; /* Floating */
+  --opacity-xxs: 0.04;
+  --opacity-xs: 0.08; /* Whisper */
+  --opacity-s: 0.15; /* Ghost */
+  --opacity-m: 0.25; /* Base */
   --opacity-l: 0.4; /* Peak Focus */
-  --opacity-xl: 0.6; /* Substantial */
-  --opacity-xxl: 0.8; /* Heavy */
-  --opacity-max: 1;
+  --opacity-xl: 0.6;
+  --opacity-xxl: 0.8; /* Substantial */
+  --opacity-max: 1; /* Heavy */
 
   /* Specialized State Colors */
   --color-red-glow: rgb(var(--color-red-rgb) / var(--opacity-s));
@@ -90,17 +90,19 @@
   --font-color-m: var(--color-frisk);
 
   /* Size Scale (Ascending) */
-  --font-size-xxxs: var(--spacing-xs); /* Ghost Label */
-  --font-size-xxs: 0.625rem; /* Micro Metadata */
-  --font-size-xs: var(--spacing-s); /* Auxiliary Info */
-  --font-size-s: 0.875rem; /* Dense Text */
-  --font-size-m: var(--spacing-m); /* BASELINE Body */
-  --font-size-l: 1.125rem; /* Large Body */
-  --font-size-xl: 1.25rem; /* Feature Copy */
-  --font-size-xxl: var(--spacing-l); /* Subheading */
-  --font-size-xxxl: var(--spacing-xl); /* Medium Heading */
-  --font-size-xxxxl: 2.5rem; /* Major Heading */
-  --font-size-xxxxxl: 5rem; /* Display Focus */
+  --font-size-xxxs: var(--spacing-xs);
+  --font-size-xxs: 0.625rem; /* Ghost Label */
+  --font-size-xs: var(--spacing-s); /* Micro Metadata */
+  --font-size-s: 0.875rem; /* Auxiliary Info */
+  --font-size-m: var(--spacing-m); /* Dense Text */
+  --font-size-l: 1.125rem; /* BASELINE Body */
+  --font-size-xl: 1.25rem; /* Large Body */
+  --font-size-xxl: var(--spacing-l); /* Feature Copy */
+  --font-size-xxxl: var(--spacing-xl); /* Subheading */
+  --font-size-xxxxl: 2.5rem; /* Medium Heading */
+  --font-size-xxxxxl: 5rem; /* Major Heading */
+
+  /* Display Focus */
 
   /* Weights (Ascending) */
   --font-weight-m: 400;
@@ -125,14 +127,14 @@
   --spacing-0: 0;
   --spacing-px: 1px;
   --spacing-border: 1.5px;
-  --spacing-xxxs: 0.125rem; /* Detail Shift */
-  --spacing-xxs: 0.25rem; /* Micro Spacing */
-  --spacing-xs: 0.5rem; /* Atom Padding */
-  --spacing-s: 0.75rem; /* Group Spacing */
-  --spacing-m: 1rem; /* BASELINE Padding */
-  --spacing-l: 1.5rem; /* Standard Gap */
-  --spacing-xl: 2rem; /* Component Block */
-  --spacing-xxl: 3rem;
+  --spacing-xxxs: 0.125rem;
+  --spacing-xxs: 0.25rem; /* Detail Shift */
+  --spacing-xs: 0.5rem; /* Micro Spacing */
+  --spacing-s: 0.75rem; /* Atom Padding */
+  --spacing-m: 1rem; /* Group Spacing */
+  --spacing-l: 1.5rem; /* BASELINE Padding */
+  --spacing-xl: 2rem; /* Standard Gap */
+  --spacing-xxl: 3rem; /* Component Block */
   --spacing-xxxl: 4rem; /* Major Section */
   --spacing-xxxxl: 6rem; /* Global Gutter */
 
@@ -167,12 +169,12 @@
   --z-index-xs: -1; /* Sub-Floor */
   --z-index-1: 1;
   --z-index-2: 2;
-  --z-index-s: 0; /* Floor */
-  --z-index-m: 10; /* Surface */
-  --z-index-l: 100; /* Overlays */
-  --z-index-xl: 450; /* Shields */
-  --z-index-xxl: 950; /* Focus Layers */
-  --z-index-max: 9999; /* System Alerts */
+  --z-index-s: 0;
+  --z-index-m: 10; /* Floor */
+  --z-index-l: 100; /* Surface */
+  --z-index-xl: 450; /* Overlays */
+  --z-index-xxl: 950; /* Shields */
+  --z-index-max: 9999; /* Focus Layers */
 
   /* Glassmorph Scale (Ascending Depth) */
   --glass-xxs: rgb(var(--color-black-rgb) / var(--opacity-l)); /* The Pit */
@@ -368,7 +370,9 @@ kbd {
   background: var(--glass-s);
   padding: 2px 4px;
   border-radius: var(--border-radius-xs);
-  border: var(--border-bottom); /* Inherited standard border style */
+  border: var(--border-bottom);
+
+  /* Inherited standard border style */
 }
 
 /* ============================================================================
