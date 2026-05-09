@@ -31,9 +31,9 @@ export const escape = (str) => {
     .replace(/'/g, "&#39;");
 };
 /**
- * @param {any} text
+ * @param {any} _text
  */
-export const checkRefusal = (text) => false;
+export const checkRefusal = (_text) => false;
 /**
  * @param {any} text
  */
@@ -114,19 +114,19 @@ export const Security = {
   validateImage,
   /**
    * @param {any} prompt
-   * @param {any} [options]
+   * @param {any} [_options]
    */
-  authorizeVisuals: (prompt, options = {}) => true,
+  authorizeVisuals: (prompt, _options = {}) => true,
   /**
    * 🛡️ PROCESS (Causality & Physics Scan)
    * Evaluates if an action is possible within the current simulation context.
    * Currently a pass-through placeholder for future logic.
-   * @param {string} input
-   * @param {any} character
-   * @param {any} fractal
+   * @param {string} _input
+   * @param {any} _character
+   * @param {any} _fractal
    * @returns {Promise<{causality: {result: string;constraint?: string;};}>}
    */
-  process: async (input, character, fractal) => {
+  process: async (_input, _character, _fractal) => {
     return {
       causality: { result: "success" },
     };

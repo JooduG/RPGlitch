@@ -32,7 +32,7 @@ const cleanHeaderLabel = (text) => {
 /**
  * Determines if a template header matches an actual header.
  */
-const isHeaderMatch = (templateHeader, actualLevel, actualText, projectName) => {
+const isHeaderMatch = (templateHeader, actualLevel, actualText, _projectName) => {
   if (templateHeader.level !== actualLevel) return false;
 
   const actualClean = cleanHeaderLabel(actualText);
@@ -126,7 +126,7 @@ export const getTemplateStructure = (type) => {
  * Validates content against a template structure.
  * @param {string} content - The markdown content to audit.
  * @param {object} structure - { fields, headers } from getTemplateStructure.
- * @param {function} report - callback(severity, message)
+ * @param {Function} report - callback(severity, message)
  */
 export const validateAgainstStructure = (content, structure, report) => {
   // if no structure was found, automatically skip validation

@@ -466,7 +466,7 @@ async function deploy({ left_content, right_content }) {
       const screenshotPath = resolve(PROJECT_ROOT, "deploy-error.png");
       await page.screenshot({ path: screenshotPath });
       log("📸", `Error screenshot saved to: ${screenshotPath}`);
-    } catch (e) {
+    } catch {
       log("⚠️", "Could not take error screenshot.");
     }
 
@@ -544,7 +544,7 @@ async function attempt_login(page) {
       state: "visible",
       timeout: 10000,
     });
-  } catch (e) {
+  } catch {
     log("⚠️", "Fields not visible. Forcing modal display style...");
     await page.evaluate(() => {
       const loginModal = document.querySelector("#loginModalCtn");
