@@ -4,14 +4,15 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { session_driver } from "@core/engine/session-driver.svelte.js";
+  import { simulation_log } from "@state/simulation-log.svelte.js";
+  import { simulationState } from "@state/status.svelte.js";
+
   import Button from "@atoms/Button.svelte";
   import Toggle from "@atoms/Toggle.svelte";
   import Modal from "@atoms/Modal.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Dialog from "@atoms/Dialog.svelte";
   import StoryCard from "./StoryCard.svelte";
-  import { simulation_log } from "@state/simulation-log.svelte.js";
-  import { simulationState } from "@state/status.svelte.js";
 
   /** @typedef {import('@data/repository.js').Story} Story */
   /** @typedef {import('@state/control.svelte.js').AppSettings} AppSettings */
@@ -19,39 +20,28 @@
 
   /**
    * @typedef {Object} Props
-   * @property {AppSettings} [settings=app.settings] - Explicit settings object for the panel.
-   * @property {string} [prologue=app.prologue] - Narrative prologue text.
+   * @property {AppSettings} [settings=app.settings]
+   * @property {string} [prologue=app.prologue]
    */
 
   /** @type {Props} */
   let { settings = $bindable(app.settings), prologue = $bindable(app.prologue) } = $props();
 
-  /**
-   * Main system interface for settings and prologue configuration.
-   * [070] - Implemented strict Prop interfaces and type tightening.
-   */
+  /** @type {Story[]} */
+  let story_cache = $state([]);
 
   /**
+   * System actions logger
    * @param {string} action
    */
-  function handleAction(action) {
-    app.log(`Control Panel: ${action}`, "system");
-  }
-
-  /** @type {Story[]} */
-  let stories_list = $state([]);
-
-  $effect(() => {
-    stories.list().then((res) => {
-      stories_list = /** @type {Story[]} */ (res);
-    });
-  });
+  const log_action = (action) => app.log(`Control Panel: ${action}`, "system");
 
   /**
+   * Load a story and transition view
    * @param {string|number} id
    */
-  async function loadStory(id) {
-    handleAction("LoadStory: " + id);
+  async function load_story(id) {
+    log_action(`Loading Story [${id}]`);
     await session_driver.set_active(String(id));
     await runtime.sync(String(id));
     await simulation_log.refresh();
@@ -60,163 +50,155 @@
   }
 
   /**
+   * Generate mock content for debugging
    * @param {MockRole} role
    */
-  async function mock_generation(role) {
+  async function run_mock(role) {
     const is_fractal = role === "fractal";
     const name = is_fractal
       ? runtime.active_fractal?.name || "Fractal"
       : runtime.active_ai?.name || "AI";
 
-    const dummyText = is_fractal
+    const content = is_fractal
       ? `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n[[ Cyber London ]] · [[ 21:30 ]] · [[ Acid Neon ]] \n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`
       : `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteur sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`;
 
-    // 1. Enter thinking state
-    app.toggle_control_panel(); // Close panel to see the animation
+    app.toggle_control_panel();
     simulationState.start_generation(role);
 
-    // Simulate AI thinking time to show animation
     await new Promise((r) => setTimeout(r, 2500));
 
-    // 2. Transition to streaming
-    simulationState.complete(); // Stop "thinking" indicator
+    simulationState.complete();
     app.start_stream("mock-node", role);
 
-    // 2. Stream in content
-    let current = "";
-    const words = dummyText.split(" ");
+    let buffer = "";
+    const words = content.split(" ");
     for (let i = 0; i < words.length; i++) {
-      current += (i === 0 ? "" : " ") + words[i];
-      app.streaming.content = current;
+      buffer += (i === 0 ? "" : " ") + words[i];
+      app.streaming.content = buffer;
       await new Promise((r) => setTimeout(r, 60));
     }
 
-    // 3. Push to log, then end stream
-    await session_driver.log_turn(dummyText, name, role, { turn_type: "SYSTEM_TURN" });
+    await session_driver.log_turn(content, name, role, { turn_type: "SYSTEM_TURN" });
     app.end_stream();
-
-    app.log(`Mock ${role} turn complete.`, "system");
+    log_action(`Mock ${role} transition complete`);
   }
 
-  let show_reset_confirm = $state(false);
-
   /**
-   *
+   * Destructive system reset
    */
-  async function executeReset() {
+  async function hard_reset() {
     db.close();
     await db.delete();
     setTimeout(() => window.location.reload(), 150);
   }
 
-  /* --- STATE HELPERS --- */
-  let isStoryboard = $derived(app.view === "storyboard");
-  let isStoryMode = $derived(app.view === "storymode");
+  let is_confirming_reset = $state(false);
+  let is_storyboard = $derived(app.view === "storyboard");
+  let is_storymode = $derived(app.view === "storymode");
+
+  $effect(() => {
+    stories.list().then((res) => {
+      story_cache = /** @type {Story[]} */ (res);
+    });
+  });
 </script>
 
 <Dialog
   type="confirm"
-  bind:open={show_reset_confirm}
+  bind:open={is_confirming_reset}
   title="Wipe Memories?"
   message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
   confirm_label="Erase All"
-  on_confirm={executeReset}
+  on_confirm={hard_reset}
 />
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>
-  <article class="control-panel-wrapper" data-testid="control-panel">
-    <!-- HEADER: System Toggles -->
-    <header>
+  <article class="wrapper" data-testid="control-panel">
+    <header class="header">
       <Toggle
         label="CALL MODE"
         bind:value={settings.call_mode}
         onchange={() => app.save_settings()}
       />
       <Toggle
-        label="NOTIFICATIONS"
+        label="SOUND"
         bind:value={settings.sound}
         onchange={() => app.save_settings()}
       />
     </header>
 
-    <!-- BODY: Prologue (Lobby Only) -->
-    {#if isStoryboard}
-      <div class="storyboard">
+    {#if is_storyboard}
+      <section class="body">
         <TextField
-          class="text-area custom-field"
+          class="text-area"
           is_edit={true}
           placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
           bind:value={prologue}
         />
-      </div>
+      </section>
     {/if}
 
-    <!-- BODY: Actions (Story Mode Only) -->
-    {#if isStoryMode}
-      <div class="storymode">
+    {#if is_storymode}
+      <section class="body actions">
         <Button
           label="GHOSTWRITE"
           variant="primary"
           size="sm"
-          onclick={() => handleAction("Ghostwrite")}
+          onclick={() => log_action("Ghostwrite")}
         />
-        <Button label="PHOTO" variant="secondary" size="sm" onclick={() => handleAction("Photo")} />
-
-        <!-- DEBUG MOCKS -->
-        <Button
-          label="MOCK: PROLOGUE"
-          variant="invisible"
-          size="sm"
-          onclick={() => mock_generation("fractal")}
+        <Button 
+          label="PHOTO" 
+          variant="secondary" 
+          size="sm" 
+          onclick={() => log_action("Photo")} 
         />
         <Button
-          label="MOCK: AI TURN"
+          label="MOCK PROLOGUE"
           variant="invisible"
           size="sm"
-          onclick={() => mock_generation("ai")}
+          onclick={() => run_mock("fractal")}
         />
-
+        <Button
+          label="MOCK TURN"
+          variant="invisible"
+          size="sm"
+          onclick={() => run_mock("ai")}
+        />
         <Button
           label="END STORY"
           variant="secondary"
           size="sm"
-          onclick={() => handleAction("EndStory")}
+          onclick={() => log_action("EndStory")}
         />
-      </div>
+      </section>
     {/if}
 
-    <footer>
-      <div class="stories-section">
-        <h3 class="stories-headline">STORIES</h3>
-        {#if stories_list && stories_list.length > 0}
-          <div class="stories-list">
-            {#each stories_list as story (story.id)}
-              <StoryCard {story} onclick={() => loadStory(story.id)} />
+    <footer class="footer">
+      <section class="section">
+        <h3 class="headline">STORIES</h3>
+        {#if story_cache.length > 0}
+          <div class="list scrollbar">
+            {#each story_cache as story (story.id)}
+              <StoryCard {story} onclick={() => load_story(story.id)} />
             {/each}
           </div>
         {:else}
-          <p class="no-stories">No stories found in the archives.</p>
+          <p class="status">No stories found in the archives.</p>
         {/if}
-      </div>
+      </section>
 
-      <div class="dev-row">
+      <div class="actions secondary">
         <Toggle
-          label="DevMode"
+          label="DEVMODE"
           bind:value={settings.dev_mode}
           onchange={() => app.save_settings()}
         />
-        <Button variant="danger" size="sm" onclick={() => (show_reset_confirm = true)}>
+        <Button variant="danger" size="sm" onclick={() => (is_confirming_reset = true)}>
           <svg
+            class="icon-xs icon-outline"
             xmlns="http://www.w3.org/2000/svg"
-            width="14"
-            height="14"
             viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
           >
             <path d="M3 6h18" />
             <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
@@ -230,70 +212,77 @@
 </Modal>
 
 <style>
-  .control-panel-wrapper {
-    width: 100%;
+  .wrapper {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-m);
+    width: 100%;
   }
 
-  header {
+  .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: var(--spacing-s);
     flex-wrap: wrap;
+  }
+
+  .body {
+    display: flex;
+    flex-direction: column;
     gap: var(--spacing-s);
   }
 
-  .storymode {
+  .actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-s);
     justify-content: center;
   }
 
-  footer {
+  .footer {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-s);
+    gap: var(--spacing-m);
   }
 
-  .stories-section {
+  .section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
     width: 100%;
   }
 
-  .stories-headline {
-    font-size: var(--font-size-small);
-    color: var(--font-color-m);
-    text-align: center;
-    letter-spacing: var(--letter-spacing-m);
+  .headline {
     margin: 0 0 var(--spacing-xs);
-    border-bottom: var(--spacing-px) solid var(--color-border-s);
     padding-bottom: var(--spacing-xxs);
+    border-bottom: var(--spacing-px) solid var(--color-border-s);
+    color: var(--font-color-s);
+    font-size: var(--font-size-nano);
+    letter-spacing: var(--letter-spacing-l);
+    text-align: center;
+    text-transform: uppercase;
   }
 
-  .stories-list {
+  .list {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
-    max-height: 200px;
+    max-height: var(--dropdown-max-height);
     overflow-y: auto;
   }
 
-  .no-stories {
-    text-align: center;
-    font-size: var(--font-size-small);
-    color: var(--font-color-m);
-    font-style: italic;
+  .status {
     padding: var(--spacing-m) 0;
+    color: var(--font-color-s);
+    font-size: var(--font-size-small);
+    font-style: italic;
+    text-align: center;
   }
 
-  .dev-row {
-    display: flex;
+  .actions.secondary {
     justify-content: space-between;
-    align-items: center;
+    padding-top: var(--spacing-s);
+    border-top: var(--spacing-px) solid var(--color-border-s);
   }
 </style>

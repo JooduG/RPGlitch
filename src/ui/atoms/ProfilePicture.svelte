@@ -166,8 +166,7 @@
     letter-spacing: -0.05em;
 
     /* Punchy "Branded" Aesthetics - Boosted Presence */
-    opacity: 0.35;
-    mix-blend-mode: soft-light;
+    opacity: 1;
 
     /* Subtle Depth Shadow */
     filter: drop-shadow(0 0 20px rgb(var(--color-white-rgb) / 15%));

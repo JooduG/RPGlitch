@@ -17,6 +17,7 @@
 - [ ] Storymode SOTA Refactor: `Message.svelte`
 - [ ] Storymode SOTA Refactor: `StorymodeFeed.svelte`
 - [ ] Storymode SOTA Refactor: `InputBar.svelte`
+- [ ] Devmode SOTA Refactor: `ControlPanel.svelte`
 - [ ] Wire up Kinetic Animations: `StoryboardPill.svelte`
 - [ ] Verification
   - [ ] Build & Lint check
