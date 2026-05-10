@@ -67,7 +67,7 @@
     align-items: center;
     gap: var(--spacing-m);
     padding: var(--spacing-xxs) 0;
-    
+
     /* Interaction */
     cursor: pointer;
     user-select: none;

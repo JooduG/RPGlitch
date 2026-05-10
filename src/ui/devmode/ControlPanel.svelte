@@ -121,11 +121,7 @@
         bind:value={settings.call_mode}
         onchange={() => app.save_settings()}
       />
-      <Toggle
-        label="SOUND"
-        bind:value={settings.sound}
-        onchange={() => app.save_settings()}
-      />
+      <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
     </header>
 
     {#if is_storyboard}
@@ -147,24 +143,14 @@
           size="sm"
           onclick={() => log_action("Ghostwrite")}
         />
-        <Button 
-          label="PHOTO" 
-          variant="secondary" 
-          size="sm" 
-          onclick={() => log_action("Photo")} 
-        />
+        <Button label="PHOTO" variant="secondary" size="sm" onclick={() => log_action("Photo")} />
         <Button
           label="MOCK PROLOGUE"
           variant="invisible"
           size="sm"
           onclick={() => run_mock("fractal")}
         />
-        <Button
-          label="MOCK TURN"
-          variant="invisible"
-          size="sm"
-          onclick={() => run_mock("ai")}
-        />
+        <Button label="MOCK TURN" variant="invisible" size="sm" onclick={() => run_mock("ai")} />
         <Button
           label="END STORY"
           variant="secondary"
@@ -195,11 +181,7 @@
           onchange={() => app.save_settings()}
         />
         <Button variant="danger" size="sm" onclick={() => (is_confirming_reset = true)}>
-          <svg
-            class="icon-xs icon-outline"
-            xmlns="http://www.w3.org/2000/svg"
-            viewBox="0 0 24 24"
-          >
+          <svg class="icon-xs icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
             <path d="M3 6h18" />
             <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />

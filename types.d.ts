@@ -1,7 +1,7 @@
 /// <reference types="vite/client" />
 /**
  * 🛸 RPGlitch: Global Type Definitions
- * Refined for Total TypeScript compatibility.
+ * Mariana Trench SOTA Refactor: Clarity, Robustness, Optimal Flow.
  */
 
 import type { Table } from "dexie";
@@ -9,11 +9,17 @@ import Dexie from "dexie";
 
 declare global {
   // =========================================================================
-  // [1] PERCHANCE RUNTIME GLOBALS
+  // [1] UTILITIES & COMMON TYPES
   // =========================================================================
 
-  const ai: (prompt: string, options?: Record<string, unknown>) => Promise<string>;
+  /** Common JSON-compatible map */
+  type JsonMap = Record<string, unknown>;
 
+  // =========================================================================
+  // [2] RUNTIME CONTEXT (PERCHANCE GLOBALS)
+  // =========================================================================
+
+  /** Interface for text-to-image options */
   interface T2IOptions {
     prompt: string;
     negativePrompt?: string;
@@ -22,42 +28,74 @@ declare global {
     height?: number;
   }
 
-  const t2i: (options: T2IOptions) => Promise<string | { dataUrl: string }>;
-  const pluginTextToImage: (options: T2IOptions) => Promise<string | { dataUrl: string }>;
-  const textToImage: (
-    prompt: string | T2IOptions,
-    options?: Record<string, unknown>,
-  ) => Promise<string | { dataUrl: string }>;
+  /** Result object for image generation plugins */
+  interface T2IObject {
+    dataUrl: string;
+  }
 
-  const upload: (data: unknown, options?: Record<string, unknown>) => Promise<unknown>;
+  /** Result type for image generation plugins */
+  type T2IResult = string | T2IObject;
+
+  /** Perchance AI streaming interface */
+  function ai(prompt: string, options?: JsonMap): Promise<string>;
+
+  /** Primary text-to-image generator */
+  function t2i(options: T2IOptions): Promise<T2IResult>;
+
+  /** Legacy/Plugin text-to-image interface */
+  function pluginTextToImage(options: T2IOptions): Promise<T2IResult>;
+
+  /** Unified text-to-image interface with prompt overloading */
+  function textToImage(prompt: string | T2IOptions, options?: JsonMap): Promise<T2IResult>;
+
+  /** Asset upload utility */
+  function upload(data: unknown, options?: JsonMap): Promise<unknown>;
+
+  /** Plugin asset upload alias */
   const pluginUpload: typeof upload;
 
-  const update: () => void;
+  /** Forces a UI tick/update */
+  function update(): void;
 
-  const oc: {
+  // =========================================================================
+  // [3] EXTERNAL MODULES & DATA STRUCTURES
+  // =========================================================================
+
+  /** Perchance Output Context (OC) structure */
+  interface PerchanceOC {
     characters?: unknown[];
     worlds?: unknown[];
-    settings?: Record<string, unknown>;
-    sounds?: Record<string, unknown>;
+    settings?: JsonMap;
+    sounds?: JsonMap;
     thread: {
       on: (event: string, callback: (...args: unknown[]) => void) => void;
       customData?: unknown;
     };
     [key: string]: unknown;
-  };
+  }
 
-  const rpgLists: {
+  const oc: PerchanceOC;
+
+  /** Global RPG shared lists */
+  interface RPGLists {
     sounds?: unknown;
     [key: string]: unknown;
-  };
+  }
 
-  const DOMPurify: {
-    sanitize: (input: string, config?: Record<string, unknown>) => string;
-  };
+  const rpgLists: RPGLists;
+
+  /** Security & Sanitization kernel */
+  interface PurifyKernel {
+    sanitize: (input: string, config?: JsonMap) => string;
+  }
+
+  const DOMPurify: PurifyKernel;
 
   // =========================================================================
-  // [2] ENGINE STATE INTERFACES
+  // [4] ENGINE STATE ARCHITECTURE
   // =========================================================================
+
+  /** Atomic snapshot of a simulation turn */
   interface TurnState {
     id: string;
     phase: "idle" | "scanning" | "forecasting" | "echoing";
@@ -65,6 +103,7 @@ declare global {
     timestamp: number;
   }
 
+  /** Global application runtime state */
   interface AppState {
     storyMode: "chat" | "grid";
     theme: string;
@@ -72,46 +111,49 @@ declare global {
     activeTrackId?: string;
   }
 
+  /** Fundamental unit of world knowledge */
   interface LoreAtom {
     uid: string;
     content: string;
     type: "character" | "location" | "event" | "rule";
-    metadata: Record<string, unknown>;
+    metadata: JsonMap;
   }
 
   // =========================================================================
-  // [3] WINDOW BINDINGS
+  // [5] HOST INTEGRATION (WINDOW)
   // =========================================================================
+
   interface Window {
     chrono: unknown;
     webkitAudioContext: typeof AudioContext;
-    RPGLITCH_CONFIG: Record<string, unknown>;
+    RPGLITCH_CONFIG: JsonMap;
     app: unknown;
     rpgApp: unknown;
     state: unknown;
     GameMaster: unknown;
     Engine: unknown;
     Dexie: typeof Dexie;
-    DOMPurify: typeof DOMPurify;
+    DOMPurify: PurifyKernel;
     ai: typeof ai;
     t2i: typeof t2i;
-    rpgLists: typeof rpgLists;
+    rpgLists: RPGLists;
     pluginTextToImage: typeof pluginTextToImage;
     pluginUpload: typeof pluginUpload;
-    oc: typeof oc;
+    oc: PerchanceOC;
     update: typeof update;
   }
 }
 
 // =========================================================================
-// [4] DEXIE DATABASE SCHEMA
+// [6] DATABASE SCHEMA
 // =========================================================================
+
 declare module "dexie" {
   interface Dexie {
-    stories: Table<Record<string, unknown>, string>;
-    messages: Table<Record<string, unknown>, string>;
-    entities: Table<Record<string, unknown>, string>;
-    settings: Table<Record<string, unknown>, string>;
+    stories: Table<JsonMap, string>;
+    messages: Table<JsonMap, string>;
+    entities: Table<JsonMap, string>;
+    settings: Table<JsonMap, string>;
   }
 }
 
