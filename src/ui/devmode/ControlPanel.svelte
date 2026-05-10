@@ -114,8 +114,8 @@
 />
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>
-  <article class="wrapper" data-testid="control-panel">
-    <header class="header">
+  <div class="control-panel" data-testid="control-panel">
+    <header class="panel-header">
       <Toggle
         label="CALL MODE"
         bind:value={settings.call_mode}
@@ -125,18 +125,18 @@
     </header>
 
     {#if is_storyboard}
-      <section class="body">
+      <div class="panel-body">
         <TextField
           class="text-area"
           is_edit={true}
           placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
           bind:value={prologue}
         />
-      </section>
+      </div>
     {/if}
 
     {#if is_storymode}
-      <section class="body actions">
+      <div class="panel-actions">
         <Button
           label="GHOSTWRITE"
           variant="primary"
@@ -157,11 +157,11 @@
           size="sm"
           onclick={() => log_action("EndStory")}
         />
-      </section>
+      </div>
     {/if}
 
-    <footer class="footer">
-      <section class="section">
+    <footer class="panel-footer">
+      <div class="story-section">
         <h3 class="headline">STORIES</h3>
         {#if story_cache.length > 0}
           <div class="list scrollbar">
@@ -172,9 +172,9 @@
         {:else}
           <p class="status">No stories found in the archives.</p>
         {/if}
-      </section>
+      </div>
 
-      <div class="actions secondary">
+      <div class="system-actions">
         <Toggle
           label="DEVMODE"
           bind:value={settings.dev_mode}
@@ -190,18 +190,18 @@
         </Button>
       </div>
     </footer>
-  </article>
+  </div>
 </Modal>
 
 <style>
-  .wrapper {
+  .control-panel {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-m);
     width: 100%;
   }
 
-  .header {
+  .panel-header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -209,26 +209,26 @@
     flex-wrap: wrap;
   }
 
-  .body {
+  .panel-body {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-s);
   }
 
-  .actions {
+  .panel-actions {
     display: flex;
     flex-wrap: wrap;
     gap: var(--spacing-s);
     justify-content: center;
   }
 
-  .footer {
+  .panel-footer {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-m);
   }
 
-  .section {
+  .story-section {
     display: flex;
     flex-direction: column;
     gap: var(--spacing-xs);
@@ -262,7 +262,8 @@
     text-align: center;
   }
 
-  .actions.secondary {
+  .system-actions {
+    display: flex;
     justify-content: space-between;
     padding-top: var(--spacing-s);
     border-top: var(--spacing-px) solid var(--color-border-s);

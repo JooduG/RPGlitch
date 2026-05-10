@@ -17,8 +17,8 @@
 - [x] Storymode SOTA Refactor: `Message.svelte`
 - [x] Storymode SOTA Refactor: `StorymodeFeed.svelte`
 - [x] Storymode SOTA Refactor: `InputBar.svelte`
-- [ ] Devmode SOTA Refactor: `ControlPanel.svelte`
-- [ ] Wire up Kinetic Animations: `StoryboardPill.svelte`
+- [x] Devmode SOTA Refactor: `ControlPanel.svelte`
+- [x] Wire up Kinetic Animations: `StoryboardPill.svelte`
 - [ ] Verification
   - [x] Build & Lint check
   - [x] Manual UI audit
@@ -27,6 +27,8 @@
 
 | Timestamp (ISO 8601)   | Task                | Skill Invoked        | Outcome     |
 | ---------------------- | ------------------- | -------------------- | ----------- |
+| 2026-05-10T19:00+00:00 | ControlPanel SOTA Refactor | `svelte`             | ✅ Resolved |
+| 2026-05-10T19:00+00:00 | Kinetic Animation Verification | `browser-testing`    | ✅ Resolved |
 | 2026-05-10T14:57+00:00 | Storymode Refactor  | `svelte`             | ✅ Resolved |
 | 2026-05-08T01:44+02:00 | Update legacy paths | `using-agent-skills` | ✅ Resolved |
 | 2026-05-08T06:24+02:00 | Storyboard Merge    | `svelte`             | ✅ Resolved |
