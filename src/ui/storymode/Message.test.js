@@ -32,6 +32,7 @@ vi.mock("@theme/palette.svelte.js", () => ({
 describe("Message.svelte", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    app.settings.dev_mode = false;
   });
 
   it("should render a user message and apply user-row class", () => {
