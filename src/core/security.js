@@ -116,7 +116,7 @@ export const Security = {
    * @param {any} prompt
    * @param {any} [_options]
    */
-  authorizeVisuals: (_prompt, _options = {}) => true,
+  authorizeVisuals: (prompt, _options = {}) => true,
   /**
    * 🛡️ PROCESS (Causality & Physics Scan)
    * Evaluates if an action is possible within the current simulation context.

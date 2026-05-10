@@ -90,7 +90,7 @@
   async function hard_reset() {
     db.close();
     await db.delete();
-    setTimeout(() => window.location.reload(), 2000);
+    setTimeout(() => window.location.reload(), 150);
   }
 
   let is_confirming_reset = $state(false);
