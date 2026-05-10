@@ -162,6 +162,10 @@
   --dropdown-max-height: 300px;
   --card-width-m: clamp(160px, 16vw, 240px);
   --card-height-m: clamp(240px, 24vw, 360px);
+
+  /* Layout Widths */
+  --panel-width-s: 280px;
+  --panel-width-m: 400px;
   --width-tooltip: 14rem;
 
   /****************************************************************************

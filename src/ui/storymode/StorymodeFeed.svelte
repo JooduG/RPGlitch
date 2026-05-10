@@ -146,12 +146,12 @@
 <style>
   .storymode-feed {
     flex: 1;
-    min-height: 12.5rem;
+    min-height: 200px;
     overflow: hidden auto;
-    padding: var(--spacing-m) 0;
+    padding: var(--spacing-m) var(--spacing-0);
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: var(--spacing-0);
     scroll-behavior: smooth;
   }
 
@@ -167,6 +167,6 @@
   }
 
   .empty-feed-fallback p {
-    max-width: 25rem;
+    max-width: var(--panel-width-m, 25rem);
   }
 </style>

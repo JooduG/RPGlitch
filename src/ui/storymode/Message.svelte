@@ -137,11 +137,10 @@
     class:user-row={is_user}
     class:ai-row={is_ai}
     class:fractal-row={is_fractal}
-    class:centered-row={is_fractal}
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
-      class="message-bubble field-chassis"
+      class="message-bubble"
       class:user-bubble={is_user}
       class:ai-bubble={is_ai}
       class:fractal-bubble={is_fractal}
@@ -252,11 +251,9 @@
         {:else}
           {#if app.settings.dev_mode}
             {#if think_block}
-              <div>
-                <DataBox label="⚙️ DevMode: Reasoning">
-                  {think_block}
-                </DataBox>
-              </div>
+              <DataBox label="⚙️ DevMode: Reasoning">
+                {think_block}
+              </DataBox>
             {/if}
 
             {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
@@ -312,10 +309,8 @@
     justify-content: flex-start;
   }
 
-  .message-row.fractal-row,
-  .message-row.centered-row {
+  .message-row.fractal-row {
     justify-content: center;
-    padding: var(--spacing-m) var(--spacing-xxxxl);
   }
 
   .message-bubble {
@@ -328,6 +323,7 @@
     border-radius: var(--border-radius-xl);
     transition: all var(--motion-l) var(--motion-elastic);
     background: color-mix(in srgb, var(--glass-xs), var(--signature-color) 3%);
+    border: var(--border-side);
     border-color: rgb(var(--color-white-rgb) / 5%);
     overflow: hidden;
     outline: none;
@@ -415,7 +411,7 @@
 
   .message-bubble.is-focused .field-header {
     height: 2.2rem;
-    background: color-mix(in srgb, var(--signature-color), black 30%);
+    background: color-mix(in srgb, var(--signature-color), var(--color-black) 30%);
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 12%);
     overflow: visible;
   }

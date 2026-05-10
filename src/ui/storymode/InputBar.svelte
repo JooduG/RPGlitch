@@ -128,14 +128,14 @@
     font-family: inherit;
     font-size: var(--font-size-body);
     line-height: var(--line-height-m);
-    max-height: 12.5rem; /* Standardized ~200px */
+    max-height: 200px;
     overflow-y: hidden;
   }
 
   /* Sizing for the icons within the buttons */
   :global(button .icon) {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--spacing-l);
+    height: var(--spacing-l);
     fill: currentcolor;
     transition: transform var(--motion-l);
   }
