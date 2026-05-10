@@ -61,35 +61,35 @@
   );
 
   let entity = $derived.by(() => {
-    // 1. Explicit character name check
-    if (character_name) {
-      if (is_user && (runtime.active_user?.name === character_name || character_name === "User"))
-        return runtime.active_user || app.selected_user;
-      if (is_ai && (runtime.active_ai?.name === character_name || character_name === "AI"))
-        return runtime.active_ai || app.selected_ai;
+    if (is_user) {
       if (
-        is_fractal &&
+        character_name &&
+        (runtime.active_user?.name === character_name || character_name === "User")
+      )
+        return runtime.active_user || app.selected_user;
+      return runtime.active_user || app.selected_user;
+    }
+    if (is_ai) {
+      if (character_name && (runtime.active_ai?.name === character_name || character_name === "AI"))
+        return runtime.active_ai || app.selected_ai;
+      return runtime.active_ai || app.selected_ai;
+    }
+    if (is_fractal) {
+      if (
+        character_name &&
         (runtime.active_fractal?.name === character_name || character_name === "Fractal")
       )
         return runtime.active_fractal || app.selected_fractal;
+      return runtime.active_fractal || app.selected_fractal;
     }
-
-    // 2. Fallback to active runtime entities if role matches
-    if (is_user) return runtime.active_user || app.selected_user;
-    if (is_ai) return runtime.active_ai || app.selected_ai;
-    if (is_fractal) return runtime.active_fractal || app.selected_fractal;
-
     return null;
   });
 
-  let signature_color = $derived.by(() => {
-    // Priority 1: Entity's own signature color
-    if (entity?.signature_color) return themeStore.get_signature_color(entity);
-
-    // Priority 2: Fallback to role-based deterministic colors
-    if (character_name) return themeStore.get_deterministic_color(character_name);
-    return themeStore.get_deterministic_color(sender);
-  });
+  let signature_color = $derived(
+    entity?.signature_color
+      ? themeStore.get_signature_color(entity)
+      : themeStore.get_deterministic_color(character_name || sender),
+  );
 
   let parsed = $derived(parse_message(text));
   let display_text = $derived(parsed.displayText);
@@ -244,53 +244,51 @@
         </div>
       </div>
 
-      <div class="message-body">
-        {#if busy && !text}
+      {#if busy && !text}
+        <div class="thinking-wrapper">
+          <TypingIndicator variant="pill" signatureColor={signature_color} />
+        </div>
+      {:else}
+        {#if app.settings.dev_mode}
+          {#if think_block}
+            <div>
+              <DataBox label="⚙️ DevMode: Reasoning">
+                {think_block}
+              </DataBox>
+            </div>
+          {/if}
+
+          {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
+            <DevTelemetryBlock {meta} />
+          {/if}
+        {/if}
+
+        {#if attachments.length > 0}
+          <div class="attachments">
+            {#each attachments as src (src)}
+              <Button
+                variant="invisible"
+                className="attachment-button"
+                onclick={() => app.open_image_preview(src)}
+                aria-label="View Attachment"
+                actions={[tooltip]}
+              >
+                <img {src} alt="Attachment" class="attachment-image" />
+              </Button>
+            {/each}
+          </div>
+        {/if}
+
+        {#if has_display_text}
+          <div class="message-content" use:safe_html={display_text}></div>
+        {/if}
+
+        {#if busy && !has_display_text}
           <div class="thinking-wrapper">
             <TypingIndicator variant="pill" signatureColor={signature_color} />
           </div>
-        {:else}
-          {#if app.settings.dev_mode}
-            {#if think_block}
-              <div>
-                <DataBox label="⚙️ DevMode: Reasoning">
-                  {think_block}
-                </DataBox>
-              </div>
-            {/if}
-
-            {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
-              <DevTelemetryBlock {meta} />
-            {/if}
-          {/if}
-
-          {#if attachments.length > 0}
-            <div class="attachments">
-              {#each attachments as src (src)}
-                <Button
-                  variant="invisible"
-                  className="attachment-button"
-                  onclick={() => app.open_image_preview(src)}
-                  aria-label="View Attachment"
-                  actions={[tooltip]}
-                >
-                  <img {src} alt="Attachment" class="attachment-image" />
-                </Button>
-              {/each}
-            </div>
-          {/if}
-
-          {#if has_display_text}
-            <div class="message-content" use:safe_html={display_text}></div>
-          {/if}
-
-          {#if busy && !has_display_text}
-            <div class="thinking-wrapper">
-              <TypingIndicator variant="pill" signatureColor={signature_color} />
-            </div>
-          {/if}
         {/if}
-      </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -320,8 +318,8 @@
 
   .message-bubble {
     width: fit-content;
-    min-width: 12rem;
-    max-width: 50vw;
+    min-width: var(--width-sidebar);
+    max-width: var(--width-modal-max);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -335,8 +333,8 @@
   }
 
   .fractal-bubble {
-    width: 60rem;
-    max-width: 90%;
+    max-width: var(--width-modal-max);
+    width: 100%;
   }
 
   /* Soft Point Corner Directionality */
@@ -414,7 +412,8 @@
   }
 
   .message-bubble.is-focused .field-header {
-    height: 2.2rem;
+    height: auto;
+    min-height: var(--spacing-xl);
     background: color-mix(in srgb, var(--signature-color), black 30%);
     border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 12%);
     overflow: visible;
@@ -479,7 +478,10 @@
   }
 
   /* --- BODY LOGIC --- */
-  .message-body {
+  .message-content,
+  .attachments,
+  .thinking-wrapper,
+  .message-content ~ div {
     padding: var(--spacing-m) var(--spacing-l);
     position: relative;
     z-index: var(--z-index-1);

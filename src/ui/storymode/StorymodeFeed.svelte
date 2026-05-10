@@ -13,15 +13,15 @@
 
   // Derived
 
+  import { tick } from "svelte";
   // Auto-scroll logic
   $effect(() => {
     if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
-      // Small timeout to allow DOM render
-      setTimeout(() => {
+      tick().then(() => {
         if (scroll_ref) {
           scroll_ref.scrollTop = scroll_ref.scrollHeight;
         }
-      }, 0);
+      });
     }
   });
 
@@ -146,7 +146,7 @@
 <style>
   .storymode-feed {
     flex: 1;
-    min-height: 12.5rem;
+    min-height: var(--card-height-m);
     overflow: hidden auto;
     padding: var(--spacing-m) 0;
     display: flex;
@@ -167,6 +167,6 @@
   }
 
   .empty-feed-fallback p {
-    max-width: 25rem;
+    max-width: var(--width-modal-max);
   }
 </style>

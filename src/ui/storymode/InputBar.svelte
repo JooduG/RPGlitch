@@ -108,7 +108,7 @@
 
 <style>
   :global(.input-bar-pill) {
-    max-width: 48rem;
+    max-width: var(--width-modal-max);
     margin: var(--spacing-l) auto;
   }
 
@@ -128,14 +128,14 @@
     font-family: inherit;
     font-size: var(--font-size-body);
     line-height: var(--line-height-m);
-    max-height: 12.5rem; /* Standardized ~200px */
+    max-height: var(--card-height-m); /* Standardized ~200px */
     overflow-y: hidden;
   }
 
   /* Sizing for the icons within the buttons */
   :global(button .icon) {
-    width: 1.25rem;
-    height: 1.25rem;
+    width: var(--icon-m);
+    height: var(--icon-m);
     fill: currentcolor;
     transition: transform var(--motion-l);
   }
