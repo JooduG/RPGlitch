@@ -45,6 +45,7 @@ describe("Message.svelte", () => {
     const messageRow = container.querySelector(".message-row");
     expect(messageRow).toBeTruthy();
     expect(messageRow?.classList.contains("user-row")).toBe(true);
+    expect(screen.getByText("UserTest")).toBeTruthy();
     expect(screen.getByText("Hello, World!")).toBeTruthy();
   });
 
