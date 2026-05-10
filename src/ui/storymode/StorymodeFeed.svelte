@@ -146,7 +146,7 @@
 <style>
   .storymode-feed {
     flex: 1;
-    min-height: 12.5rem;
+    min-height: var(--dropdown-max-height);
     overflow: hidden auto;
     padding: var(--spacing-m) 0;
     display: flex;
@@ -167,6 +167,6 @@
   }
 
   .empty-feed-fallback p {
-    max-width: 25rem;
+    max-width: var(--width-modal-max);
   }
 </style>

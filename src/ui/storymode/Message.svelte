@@ -60,36 +60,21 @@
         meta?.type === "MEMORY_FORMATION"),
   );
 
-  let entity = $derived.by(() => {
-    // 1. Explicit character name check
-    if (character_name) {
-      if (is_user && (runtime.active_user?.name === character_name || character_name === "User"))
-        return runtime.active_user || app.selected_user;
-      if (is_ai && (runtime.active_ai?.name === character_name || character_name === "AI"))
-        return runtime.active_ai || app.selected_ai;
-      if (
-        is_fractal &&
-        (runtime.active_fractal?.name === character_name || character_name === "Fractal")
-      )
-        return runtime.active_fractal || app.selected_fractal;
-    }
+  let entity = $derived(
+    is_user
+      ? runtime.active_user || app.selected_user
+      : is_ai
+        ? runtime.active_ai || app.selected_ai
+        : is_fractal
+          ? runtime.active_fractal || app.selected_fractal
+          : null,
+  );
 
-    // 2. Fallback to active runtime entities if role matches
-    if (is_user) return runtime.active_user || app.selected_user;
-    if (is_ai) return runtime.active_ai || app.selected_ai;
-    if (is_fractal) return runtime.active_fractal || app.selected_fractal;
-
-    return null;
-  });
-
-  let signature_color = $derived.by(() => {
-    // Priority 1: Entity's own signature color
-    if (entity?.signature_color) return themeStore.get_signature_color(entity);
-
-    // Priority 2: Fallback to role-based deterministic colors
-    if (character_name) return themeStore.get_deterministic_color(character_name);
-    return themeStore.get_deterministic_color(sender);
-  });
+  let signature_color = $derived(
+    entity?.signature_color
+      ? themeStore.get_signature_color(entity)
+      : themeStore.get_deterministic_color(character_name || sender),
+  );
 
   let parsed = $derived(parse_message(text));
   let display_text = $derived(parsed.displayText);
@@ -252,11 +237,9 @@
         {:else}
           {#if app.settings.dev_mode}
             {#if think_block}
-              <div>
-                <DataBox label="⚙️ DevMode: Reasoning">
-                  {think_block}
-                </DataBox>
-              </div>
+              <DataBox label="⚙️ DevMode: Reasoning">
+                {think_block}
+              </DataBox>
             {/if}
 
             {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
@@ -320,7 +303,7 @@
 
   .message-bubble {
     width: fit-content;
-    min-width: 12rem;
+    min-width: var(--width-sidebar);
     max-width: 50vw;
     display: flex;
     flex-direction: column;
@@ -335,7 +318,7 @@
   }
 
   .fractal-bubble {
-    width: 60rem;
+    width: var(--width-modal-max);
     max-width: 90%;
   }
 
