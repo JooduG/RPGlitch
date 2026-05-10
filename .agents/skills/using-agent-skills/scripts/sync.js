@@ -73,7 +73,7 @@ function syncIgnores() {
     let settings = {};
     try {
       settings = JSON.parse(fs.readFileSync(vscodePath, "utf8"));
-    } catch (e) {
+    } catch {
       console.warn("⚠️  Could not parse .vscode/settings.json, creating new.");
     }
 
