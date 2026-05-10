@@ -10,7 +10,7 @@
  * Env:   PERCHANCE_URL, PERCHANCE_USERNAME, PERCHANCE_KEY (from .env)
  *
  * Architecture:
- *   Left Panel  → src/RPGlitch-left-panel.txt  → window.modelTextEditor
+ *   Left Panel  → .agents/skills/delivery/assets/RPGlitch-left-panel.txt  → window.modelTextEditor
  *   Right Panel → dist/index.html              → window.outputTemplateEditor
  *   Save        → app.saveGenerator()
  ************************************************************************************/
@@ -35,7 +35,8 @@ const CONFIG = {
   perchance_username: process.env.PERCHANCE_USERNAME || "",
   perchance_key: process.env.PERCHANCE_KEY || "",
 
-  left_panel_path: resolve(PROJECT_ROOT, "src", "RPGlitch-left-panel.txt"),
+  left_panel_path: resolve(PROJECT_ROOT, ".agents", "skills", "delivery", "assets", "RPGlitch-left-panel.txt"),
+  max_bundle_size: 1024 * 1024, // 1MB limit for Perchance stability
   right_panel_path: resolve(PROJECT_ROOT, "dist", "index.html"),
 
   // Optimization is a requirement for Perchance stability
