@@ -116,7 +116,7 @@ const checkItem = (name, isDir, relPath, report, parentDir = null) => {
           `Forbidden usage of 'var' detected: ${varMatches.join(", ")}`,
         );
       }
-    } catch (e) {
+    } catch {
       /* skip */
     }
   }
