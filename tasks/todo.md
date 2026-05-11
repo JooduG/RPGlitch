@@ -20,6 +20,6 @@
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601) | Task | Skill Invoked | Outcome |
-| :--- | :--- | :--- | :--- |
-| 2026-05-11T08:40:00Z | Token Refactor & Recovery | `designer` | 🔄 Active |
+| Timestamp (ISO 8601) | Task                      | Skill Invoked | Outcome   |
+| :------------------- | :------------------------ | :------------ | :-------- |
+| 2026-05-11T08:40:00Z | Token Refactor & Recovery | `designer`    | 🔄 Active |

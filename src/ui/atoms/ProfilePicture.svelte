@@ -184,9 +184,7 @@
     opacity: var(--opacity-solid);
 
     /* Subtle Depth Shadow */
-    filter: drop-shadow(
-      0 0 var(--spacing-8) rgb(var(--color-white-rgb), var(--opacity-whisper))
-    );
+    filter: drop-shadow(0 0 var(--spacing-8) rgb(var(--color-white-rgb), var(--opacity-whisper)));
 
     /* Layout Hardening */
     width: 100%;
