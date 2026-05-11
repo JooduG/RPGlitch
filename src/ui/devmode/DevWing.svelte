@@ -91,7 +91,7 @@
                     ))}
                   aria-label="Increase"
                 >
-                  <svg viewBox="0 0 24 24" class="icon-medium"
+                  <svg viewBox="0 0 24 24" class="icon-small"
                     ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
                   >
                 </Button>
@@ -108,7 +108,7 @@
                     ))}
                   aria-label="Decrease"
                 >
-                  <svg viewBox="0 0 24 24" class="icon-medium"
+                  <svg viewBox="0 0 24 24" class="icon-small"
                     ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
                   >
                 </Button>
@@ -295,9 +295,9 @@
     color: var(--color-white);
   }
 
-  .icon-medium {
-    width: var(--icon-medium);
-    height: var(--icon-medium);
+  .icon-small {
+    width: var(--icon-small);
+    height: var(--icon-small);
   }
 
   .raw-explorer summary {

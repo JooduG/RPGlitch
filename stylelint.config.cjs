@@ -25,6 +25,7 @@ module.exports = {
       rules: {
         "scale-unlimited/declaration-strict-value": null,
         "color-no-hex": null,
+        "declaration-property-value-disallowed-list": null,
       },
     },
   ],

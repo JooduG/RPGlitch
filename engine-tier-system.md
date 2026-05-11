@@ -166,7 +166,6 @@ Implements a 12-column layout where each column width is fluid based on the view
    */
   --avatar-medium-size: var(--spacing-12);
   --library-card-width: clamp(10rem, 16vw, 20rem);
-  --spacing-12: var(--spacing-12);
 }
 
 /****************************************************************************
