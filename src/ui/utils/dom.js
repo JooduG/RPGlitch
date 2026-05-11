@@ -83,7 +83,6 @@ export function resolve_px(value, fallback = 0, context = null) {
     if (typeof el.dataset !== "undefined") {
       el.dataset.resolveValue = String(cssValue);
     }
-    el.style.fontSize = cssValue;
     el.style.paddingTop = "0px";
     el.style.paddingTop = cssValue;
     const computed = window.getComputedStyle(el).paddingTop;
