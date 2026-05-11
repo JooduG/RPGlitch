@@ -89,7 +89,7 @@
       rgb(from var(--color-gunmetal) r g b / var(--opacity-ghost)),
       var(--signature-color) 12%
     );
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     transition: all var(--duration-standard) var(--ease-standard);
     border-top-right-radius: calc(var(--radius-standard) - var(--spacing-px));
   }

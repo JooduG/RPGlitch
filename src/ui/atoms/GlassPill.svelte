@@ -70,7 +70,7 @@
     align-items: center;
     justify-content: center;
     gap: var(--spacing-1);
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     pointer-events: auto;
 
     /* --- Surface --- */
@@ -117,7 +117,7 @@
   /* --- Busy State --- */
   .wrapper.is-busy {
     cursor: wait;
-    filter: grayscale(1) brightness(0.8);
+    filter: grayscale(1) var(--brightness-dim);
     pointer-events: none;
   }
 

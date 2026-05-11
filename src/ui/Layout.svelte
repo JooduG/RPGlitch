@@ -81,7 +81,7 @@
     overflow: hidden;
     position: fixed;
     inset: 0;
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     transform: translateZ(0);
     color: var(--color-white);
     transition:
@@ -183,7 +183,7 @@
   .stage-footer {
     grid-column: 2 / 12;
     grid-row: 1;
-    z-index: var(--z-overlay);
+    z-index: var(--overlay-z-index);
     pointer-events: none;
     align-self: stretch;
     display: flex;
@@ -209,7 +209,7 @@
     left: 0;
     right: 0;
     align-items: flex-start;
-    z-index: var(--z-overlay-peak);
+    z-index: var(--overlay-peak-z-index);
   }
 
   /* --- COLUMN BEHAVIOR --- */

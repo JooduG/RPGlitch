@@ -1,77 +1,54 @@
-# [Refactor] Final UI Component Migration
+# [Refactor] Standardizing Z-Index Design Tokens
 
-Normalize the remaining UI components to ensure 100% compliance with the 3-tier design token architecture defined in `engine.css`.
+Audit and refactor the z-index token system to ensure 100% compliance with the 3-tier design token architecture. This eliminates legacy `--z-` tokens and raw foundation usages in favor of semantic Tier 2 tokens.
 
 ## User Review Required
 
 > [!IMPORTANT]
-> This is the final stage of the design token normalization. All components will now rely on semantic Tier 2 tokens for spacing, layout, and kinetic behavior.
+> I am introducing new semantic tokens to bridge the gap between `--surface-z-index` (10) and `--overlay-z-index` (100).
+> Specifically, I'm adding `--surface-peak-z-index` (20) and `--mid-z-index` (50) to accommodate existing use cases that were hardcoded to foundations.
+
+> [!NOTE]
+> The `max-z-index` (9999) used for the noise layer is preserved as it ensures the "atmospheric noise" covers all visual elements while allowing interaction via `pointer-events: none`.
 
 ## Proposed Changes
 
-### [UI Components]
-
-#### [MODIFY] [Drawer.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/drawer/Drawer.svelte)
-
-- Replace all legacy spacing tokens (`--spacing-X`) with semantic T2 tokens (`--space-X`).
-- Remove raw pixel values (e.g., `2px` bars) and replace with relative units or `var(--spacing-px)`.
-- Align header typography and layout with semantic grid units.
-- Standardize interaction transitions using `var(--motion-standard)`.
-
-#### [MODIFY] [LibraryCard.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/drawer/LibraryCard.svelte)
-
-- Replace `var(--opacity-m)` with `var(--opacity-muted)`.
-- Normalize padding and bar height using semantic tokens.
-- Replace raw `line-height: 1.2` with `var(--line-height-tight)`.
-
-#### [MODIFY] [Backdrop.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/atoms/Backdrop.svelte)
-
-- Update `z-index` to use semantic `var(--z-overlay)`.
-
-#### [MODIFY] [Dialog.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/atoms/Dialog.svelte)
-
-- Fix typo `var(--font-weight-xl)` to `var(--font-weight-heavy)`.
-
-### [Audit & Stability]
-
-#### [MODIFY] [app.svelte.js](file:///c:/Users/johng/source/repos/RPGlitch/src/state/app.svelte.js)
-
-- Fix TypeScript index signature errors in `init_viewport` using correct type casting.
-- Refactor touch detection to use direct property check for `ontouchstart` to resolve `in-operator-narrowing` diagnostic.
-
-#### [MODIFY] [types.d.ts](file:///c:/Users/johng/source/repos/RPGlitch/types.d.ts)
-
-- Augment `Window` interface with `ontouchstart` for improved type safety and diagnostic resolution.
-
-#### [MODIFY] [Layout.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/Layout.svelte)
-
-- Resolve "unused CSS selector" warnings by fixing redundant nested `.universal-stage` selectors.
-- Implement `is-mini` binding for ultra-small viewports.
-
-#### [MODIFY] [EntityFragments.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFragments.svelte), [EntityFooter.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/EntityFooter.svelte), [Drawer.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/drawer/Drawer.svelte)
-
-- Add missing `is-mini` class bindings for consistent responsive state propagation.
-
----
-
-### [Phase 6: RCS Migration]
+### [Theme]
 
 #### [MODIFY] [engine.css](file:///c:/Users/johng/source/repos/RPGlitch/src/theme/engine.css)
 
-- [DELETE] `--color-black-rgb`, `--color-white-rgb`, `--color-chalk-rgb`.
-- Update all internal variable dependencies (borders, elevations) to use Relative Color Syntax.
+- Add new semantic tokens:
+  - `--surface-peak-z-index`: `var(--z-index-20)` (For elements sitting atop a surface, e.g., headers).
+  - `--mid-z-index`: `var(--z-index-50)` (For intermediate layers like dev tools or floating wings).
+- Clean up any unused or legacy comments in the z-index section.
 
-#### [MODIFY] [UI Components]
+### [UI Components - Legacy Cleanup]
 
-- Migrate all inline `rgb(var(--color-X-rgb) / alpha)` patterns to `rgb(from var(--color-X) r g b / alpha)`.
-- Impacted files: `Message.svelte`, `VisualWing.svelte`, `VectorArray.svelte`, `EntityFragments.svelte`, `DataBox.svelte`, `DevTelemetryBlock.svelte`, `StoryboardDynamicTitle.svelte`, `ImagePreview.svelte`.
+#### [MODIFY] Multiple Files (Atomic & Feature Components)
+
+Replace legacy and foundation tokens with semantic equivalents:
+
+| Legacy/Foundation                  | Semantic Replacement          | Impacted Files                                                                                                                   |
+| :--------------------------------- | :---------------------------- | :------------------------------------------------------------------------------------------------------------------------------- |
+| `var(--z-surface)`                 | `var(--surface-z-index)`      | `GlassPill.svelte`, `Skeleton.svelte`, `TextField.svelte`, `Button.svelte`                                                       |
+| `var(--z-0)`                       | `var(--floor-z-index)`        | `ProfilePicture.svelte`                                                                                                          |
+| `var(--z-50)`, `var(--z-index-50)` | `var(--mid-z-index)`          | `Storymode.svelte`, `VisualWing.svelte`, `DevWing.svelte`, `StoryCard.svelte`, `ImagePreview.svelte`, `DevTelemetryBlock.svelte` |
+| `var(--z-index-20)`                | `var(--surface-peak-z-index)` | `Message.svelte`, `VectorArray.svelte`                                                                                           |
+| `var(--z-index-10)`                | `var(--surface-z-index)`      | `Message.svelte`, `VectorArray.svelte`, `EntityFragments.svelte`                                                                 |
+
+#### [MODIFY] [VectorArray.svelte](file:///c:/Users/johng/source/repos/RPGlitch/src/ui/profile/VectorArray.svelte)
+
+- Refactor `calc(var(--modal-z-index) + 1)` to use `var(--overlay-peak-z-index)` if it needs to be above normal surfaces, or a more appropriate local stack.
 
 ## Verification Plan
 
 ### Automated Tests
 
-- `npm run verify` (including `svelte-check`) to ensure zero errors and zero warnings.
+- `npm run lint:css` to ensure no raw `z-index` values or disallowed tokens remain.
+- `svelte-check` to verify no broken variable references.
 
 ### Manual Verification
 
-- Resize browser window to 768px (mobile) and 480px (mini) to verify vertical stacking and state-driven class application.
+- Inspect `Modal` and `Drawer` overlays to ensure they still stack correctly above the main UI.
+- Verify `Tooltip` and `ImagePreview` are still visible at the highest layers.
+- Check that the `Message` component headers correctly stack above their bodies.

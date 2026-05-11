@@ -78,28 +78,6 @@ class ThemeStore {
    ************************************************************************************/
 
   /**
-   * Helper to convert Hex to RGB triplet
-   * @deprecated Use CSS Relative Color Syntax: rgb(from var(--hex) r g b / opacity)
-   * @param {string} [hex] - "#RRGGBB" or "var(--color-name)"
-   * @returns {string} - "R, G, B"
-   */
-  hex_to_rgb(hex) {
-    if (!hex) return "168, 85, 247"; // Default purple
-
-    // If it's already a var, we can't reliably parse it to a triplet in JS
-    // without getComputedStyle. We return the var and hope the caller uses RCS.
-    if (hex.startsWith("var(")) return hex;
-
-    const shorthand_regex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
-    hex = hex.replace(shorthand_regex, (m, r, g, b) => r + r + g + g + b + b);
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-
-    return result
-      ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}`
-      : "168, 85, 247";
-  }
-
-  /**
    * Gets a deterministic color from a seed if no explicit color is set.
    * @param {string} [seed]
    */

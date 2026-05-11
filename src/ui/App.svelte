@@ -74,7 +74,7 @@
     height: 100vh;
     overflow: hidden;
     background: transparent;
-    z-index: var(--z-index-surface);
+    z-index: var(--surface-z-index);
   }
 
   :global(html),
@@ -95,7 +95,7 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: var(--z-index-floor);
+    z-index: var(--floor-z-index);
     background-color: var(--background-base);
     overflow: hidden;
     pointer-events: none;

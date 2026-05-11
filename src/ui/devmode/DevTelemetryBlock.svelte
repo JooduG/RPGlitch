@@ -273,15 +273,15 @@
 
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 rgb(var(--color-cyan-rgb) / 40%);
+      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / 40%);
     }
 
     70% {
-      box-shadow: 0 0 0 var(--spacing-3) rgb(var(--color-cyan-rgb) / 0%);
+      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--color-cyan) r g b / 0%);
     }
 
     100% {
-      box-shadow: 0 0 0 0 rgb(var(--color-cyan-rgb) / 0%);
+      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / 0%);
     }
   }
 
@@ -309,8 +309,8 @@
   }
 
   .resonance-item {
-    background: rgb(var(--color-cyan-rgb) / 5%) !important;
-    border-color: rgb(var(--color-cyan-rgb) / 20%) !important;
+    background: rgb(from var(--color-cyan) r g b / 5%) !important;
+    border-color: rgb(from var(--color-cyan) r g b / 20%) !important;
     animation: slide-in var(--duration-standard) var(--motion-elastic) both;
   }
 
@@ -401,12 +401,12 @@
   }
 
   .delta-item.is-positive {
-    border-color: rgb(var(--color-cyan-rgb) / 30%);
+    border-color: rgb(from var(--color-cyan) r g b / 30%);
     color: var(--color-cyan);
   }
 
   .delta-item.is-negative {
-    border-color: rgb(var(--color-frozen-rgb) / 30%);
+    border-color: rgb(from var(--color-frozen) r g b / 30%);
     color: var(--color-frozen);
   }
 
@@ -465,7 +465,7 @@
     bottom: 0;
     width: var(--spacing-px);
     background: rgb(from var(--color-white) r g b / 20%);
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
   }
 
   .metric-fill {
@@ -563,7 +563,7 @@
     padding: var(--spacing-xxxs) var(--spacing-2);
     background: var(--glass-base);
     border: var(--border-side);
-    border-color: rgb(var(--color-cyan-rgb) / 20%);
+    border-color: rgb(from var(--color-cyan) r g b / 20%);
     color: var(--color-cyan);
     border-radius: var(--radius-pill);
     font-size: var(--font-size-nano);

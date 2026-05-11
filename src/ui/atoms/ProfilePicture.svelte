@@ -122,7 +122,7 @@
     opacity: var(--noise-opacity);
     pointer-events: none;
     mix-blend-mode: overlay;
-    z-index: var(--z-0);
+    z-index: var(--floor-z-index);
   }
 
   .wrapper.is-busy {
@@ -142,7 +142,8 @@
   .media.no-bg {
     object-fit: contain;
     filter: drop-shadow(
-      0 var(--spacing-2) var(--spacing-4) rgb(var(--bg-base-rgb), var(--opacity-heavy))
+      0 var(--spacing-2) var(--spacing-4)
+        rgb(from var(--background-base) r g b / var(--opacity-heavy))
     );
   }
 
@@ -165,7 +166,7 @@
     background-image: radial-gradient(
       circle at center,
       transparent 0%,
-      rgb(var(--bg-base-rgb), var(--opacity-heavy)) 100%
+      rgb(from var(--background-base) r g b / var(--opacity-heavy)) 100%
     );
   }
 
@@ -184,7 +185,9 @@
     opacity: var(--opacity-solid);
 
     /* Subtle Depth Shadow */
-    filter: drop-shadow(0 0 var(--spacing-8) rgb(var(--color-white-rgb), var(--opacity-whisper)));
+    filter: drop-shadow(
+      0 0 var(--spacing-8) rgb(from var(--color-white) r g b / var(--opacity-whisper))
+    );
 
     /* Layout Hardening */
     width: 100%;

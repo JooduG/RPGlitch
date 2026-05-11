@@ -85,7 +85,7 @@
         onclick={on_view_profile}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="icon-small icon-smallolid">
+        <svg viewBox="0 0 24 24" class="icon-small icon-solid">
           <path
             d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
           />
@@ -128,7 +128,7 @@
     transition:
       box-shadow var(--duration-standard) var(--ease-standard),
       border-color var(--duration-standard) var(--ease-standard);
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
   }
 
   .card:hover::after {
@@ -201,7 +201,7 @@
     flex-direction: column;
     justify-content: flex-end;
     padding: var(--spacing-8) var(--spacing-2) var(--spacing-2);
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     pointer-events: none;
     border-radius: 0 0 var(--radius-standard) var(--radius-standard);
   }
@@ -240,7 +240,7 @@
     position: absolute;
     top: var(--spacing-2);
     right: var(--spacing-2);
-    z-index: var(--z-overlay);
+    z-index: var(--overlay-z-index);
     visibility: hidden;
     opacity: 0;
     transition:

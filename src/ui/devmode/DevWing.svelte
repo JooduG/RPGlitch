@@ -160,7 +160,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
+    background-color: rgb(from var(--color-gunmetal) r g b / 45%);
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -212,7 +212,7 @@
     background: var(--color-cyan);
     box-shadow: 0 0 var(--spacing-3) var(--color-cyan);
     transition: width var(--duration-reflex) var(--motion-dissolve);
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
   }
 
   .dynamic-label {
@@ -223,7 +223,7 @@
     color: var(--color-frisk);
     margin-bottom: var(--spacing-1);
     cursor: help;
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
   }
 
   .value-container {
@@ -232,7 +232,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
   }
 
   .value-container input {

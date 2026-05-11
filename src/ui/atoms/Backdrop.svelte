@@ -14,7 +14,7 @@
     busy = false,
 
     // Design
-    z_index = "var(--z-index-overlay)",
+    z_index = "var(--overlay-z-index)",
     class: className = "",
 
     // Slots/Snippets
@@ -23,6 +23,15 @@
 
     ...rest
   } = $props();
+
+  // Sync transition with design tokens
+  let duration = $state(250);
+  if (typeof window !== "undefined") {
+    const val = getComputedStyle(document.documentElement)
+      .getPropertyValue("--duration-fast")
+      .trim();
+    if (val) duration = parseInt(val, 10) || 250;
+  }
 </script>
 
 <div
@@ -31,7 +40,7 @@
   class:is-blurred={is_blurred}
   class:is-busy={busy}
   style:z-index={z_index}
-  transition:fade={{ duration: 250 }}
+  transition:fade={{ duration }}
   use:use_actions={actions}
 >
   {@render children?.()}
@@ -48,13 +57,13 @@
     /* Atmosphere */
     background: radial-gradient(
       circle at center,
-      rgb(var(--background-gradient-4-rgb), var(--opacity-heavy)),
-      rgb(var(--color-black-rgb), var(--opacity-substantial))
+      rgb(from var(--background-gradient-4) r g b / var(--opacity-heavy)),
+      rgb(from var(--color-black) r g b / var(--opacity-substantial))
     );
     cursor: pointer;
 
     /* Physics */
-    z-index: var(--z-index-overlay);
+    z-index: var(--overlay-z-index);
 
     /* Interaction Hygiene */
     user-select: none;
@@ -63,7 +72,7 @@
   }
 
   .wrapper.is-blurred {
-    backdrop-filter: var(--blur-mist) saturate(0.4) brightness(0.8);
+    backdrop-filter: var(--blur-mist) saturate(0.4) var(--brightness-dim);
   }
 
   .wrapper.is-busy {

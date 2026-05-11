@@ -94,7 +94,7 @@
     font-size: var(--font-size-base);
     text-align: center;
     max-width: 80%;
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
     box-shadow: var(--shadow-heavy);
   }
 </style>

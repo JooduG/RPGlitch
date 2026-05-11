@@ -22,7 +22,7 @@ description: Start spec-driven development — write a structured specification 
 
 ### Phase 2: Specification
 
-1. **Drafting**: Create the [SPEC](../../SPEC.md) covering objectives, project structure, and style.
+1. **Drafting**: Create the [SPEC](../../tasks/SPEC.md) covering objectives, project structure, and style.
 2. **Boundary Definition**: Explicitly state what is in scope vs. out of scope.
 
 ### Phase 3: Finalization

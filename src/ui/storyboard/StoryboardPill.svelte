@@ -147,7 +147,7 @@
     justify-content: center;
     width: 100%;
     position: relative;
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     pointer-events: auto;
   }
 

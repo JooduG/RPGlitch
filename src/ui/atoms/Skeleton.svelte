@@ -89,7 +89,7 @@
     filter: var(--blur-mist);
     animation: shimmer 2.5s var(--ease-standard) infinite;
     pointer-events: none;
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
   }
 
   @keyframes shimmer {

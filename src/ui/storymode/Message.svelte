@@ -391,7 +391,7 @@
     position: relative;
     top: 0;
     border-radius: var(--radius-standard) var(--radius-standard) var(--spacing-0) var(--spacing-0);
-    z-index: var(--z-20);
+    z-index: var(--surface-peak-z-index);
   }
 
   .message-bubble.is-focused .field-header {
@@ -464,7 +464,7 @@
   .message-body {
     padding: var(--spacing-4) var(--spacing-6);
     position: relative;
-    z-index: var(--z-10);
+    z-index: var(--surface-z-index);
   }
 
   .message-content {

@@ -221,7 +221,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
+    background-color: rgb(from var(--color-gunmetal) r g b / 45%);
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -290,7 +290,7 @@
     transform: translateY(calc(-1 * var(--spacing-2)));
     position: fixed;
     overflow-y: auto;
-    z-index: var(--z-max);
+    z-index: var(--max-z-index);
     background: var(--glass-peak);
     backdrop-filter: var(--blur-mist);
     border-radius: var(--radius-subtle);

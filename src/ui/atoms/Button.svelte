@@ -162,7 +162,7 @@
   .wrapper.is-cover {
     position: absolute;
     inset: 0;
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     border-radius: inherit;
     padding: 0;
     min-height: 0;

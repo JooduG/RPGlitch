@@ -90,7 +90,7 @@
     top: 0;
     bottom: 0;
     width: 70%;
-    z-index: 0;
+    z-index: var(--floor-z-index);
     pointer-events: none;
     opacity: var(--opacity-whisper);
     mask-image: linear-gradient(
@@ -119,7 +119,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-px);
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
     position: relative;
     padding-left: var(--spacing-2); /* Breath for the accent bar */
   }

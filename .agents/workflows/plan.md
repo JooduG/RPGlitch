@@ -17,7 +17,7 @@ description: Break work into small verifiable tasks with acceptance criteria and
 
 ### Phase 1: Intake
 
-1. **Research**: Anchor the task in the [SPEC](../../SPEC.md) and current codebase state.
+1. **Research**: Anchor the task in the [SPEC](../../tasks/SPEC.md) and current codebase state.
 2. **Mental Model**: Build a comprehensive view of the impacted components and data flow.
 
 ### Phase 2: Slicing

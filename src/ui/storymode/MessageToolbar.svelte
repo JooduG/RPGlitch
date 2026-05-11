@@ -139,7 +139,7 @@
     opacity: var(--opacity-none);
     pointer-events: none;
     transition: opacity var(--duration-standard);
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     height: max-content;
   }
 

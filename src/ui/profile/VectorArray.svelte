@@ -249,7 +249,7 @@
   }
 
   .item:hover {
-    z-index: calc(var(--z-modal) + 1);
+    z-index: var(--surface-z-index);
   }
 
   /* --- STEPPER --- */
@@ -274,7 +274,7 @@
     min-width: var(--spacing-3);
     text-align: center;
     pointer-events: none;
-    z-index: var(--z-10);
+    z-index: var(--surface-z-index);
     line-height: 1;
     display: flex;
     align-items: center;
@@ -305,7 +305,7 @@
     cursor: pointer;
     opacity: 0;
     transition: all var(--duration-fast);
-    z-index: var(--z-20);
+    z-index: var(--surface-peak-z-index);
     padding: 0;
   }
 

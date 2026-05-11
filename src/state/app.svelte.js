@@ -189,11 +189,16 @@ export class AppStore {
   init_viewport() {
     if (typeof window === "undefined") return;
 
+    // Retrieve tokens from the central design system
+    const style = getComputedStyle(document.documentElement);
+    const getBreakpoint = (/** @type {string} */ name) =>
+      style.getPropertyValue(`--breakpoint-${name}`).trim();
+
     const queries = {
-      mini: "(max-width: 30rem)",
-      mobile: "(max-width: 48rem)",
-      tablet: "(max-width: 64rem)",
-      desktop: "(max-width: 80rem)",
+      mini: `(max-width: ${getBreakpoint("mini") || "30rem"})`,
+      mobile: `(max-width: ${getBreakpoint("mobile") || "48rem"})`,
+      tablet: `(max-width: ${getBreakpoint("tablet") || "64rem"})`,
+      desktop: `(max-width: ${getBreakpoint("desktop") || "80rem"})`,
     };
 
     Object.keys(queries).forEach((key) => {

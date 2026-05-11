@@ -67,6 +67,6 @@
     flex-shrink: 0;
     width: 100%;
     padding-bottom: 0;
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
   }
 </style>

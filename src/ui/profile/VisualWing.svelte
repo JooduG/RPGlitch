@@ -280,7 +280,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(var(--color-gunmetal-rgb) / 45%);
+    background-color: rgb(from var(--color-gunmetal) r g b / 45%);
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -312,7 +312,7 @@
   }
 
   .swatches :global(.swatch:hover:not(:disabled, .active)) {
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
     box-shadow: var(--shadow-heavy);
     filter: brightness(1.15);
   }
@@ -326,7 +326,7 @@
 
     box-shadow: var(--active-swatch-shadow);
     transform: scale(1.06);
-    z-index: var(--z-50);
+    z-index: var(--mid-z-index);
     cursor: default;
   }
 

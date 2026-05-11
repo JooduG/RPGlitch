@@ -173,7 +173,18 @@
   $effect(() => {
     if (tooltip_state.active && tooltip_el) {
       const rect = tooltip_el.getBoundingClientRect();
-      const padding = 12; // Matches var(--spacing-3) for safety boundaries
+
+      let padding = 12; // Fallback matches var(--spacing-3)
+      if (typeof window !== "undefined") {
+        const temp = document.createElement("div");
+        temp.style.position = "absolute";
+        temp.style.width = "var(--spacing-3)";
+        temp.style.visibility = "hidden";
+        document.body.appendChild(temp);
+        padding = parseFloat(window.getComputedStyle(temp).width) || 12;
+        document.body.removeChild(temp);
+      }
+
       let x_offset_px = 0;
       arrow_flipped = false;
 
@@ -227,7 +238,7 @@
 <style>
   .tooltip-portal {
     position: fixed;
-    z-index: var(--z-max);
+    z-index: var(--max-z-index);
     pointer-events: none;
     will-change: transform, opacity;
     display: flex;
@@ -276,7 +287,7 @@
     bottom: calc(var(--spacing-2) * -1);
     left: 50%;
     transform: translateX(-50%);
-    z-index: var(--z-floor);
+    z-index: var(--floor-z-index);
   }
 
   .tooltip-arrow::after {

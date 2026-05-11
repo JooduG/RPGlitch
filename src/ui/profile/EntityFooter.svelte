@@ -71,7 +71,7 @@
       rgb(from var(--color-gunmetal) r g b / 25%),
       var(--signature-color) 15%
     );
-    z-index: var(--z-overlay);
+    z-index: var(--overlay-z-index);
     transition: all var(--duration-standard);
     border-radius: 0 0 var(--radius-standard) 0;
   }

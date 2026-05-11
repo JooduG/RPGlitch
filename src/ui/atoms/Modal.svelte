@@ -16,7 +16,7 @@
 
     // Design
     variant = "standard",
-    z_index = "var(--z-index-overlay)",
+    z_index = "var(--overlay-z-index)",
     class: className = "",
 
     // Handlers
@@ -82,7 +82,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    z-index: var(--z-index-below);
+    z-index: var(--deep-z-index);
     background-image: var(--noise-url);
     opacity: var(--noise-opacity);
     mix-blend-mode: overlay;

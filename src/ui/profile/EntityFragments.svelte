@@ -272,7 +272,7 @@
   }
 
   .group:hover {
-    z-index: calc(var(--z-modal) + var(--z-10));
+    z-index: var(--overlay-peak-z-index);
   }
 
   .field-label {

@@ -16,7 +16,7 @@ The `specification` skill is the RPGlitch Engine's filter for product thinking. 
 1. **Phase 1: Diverge**: Interrogate ambiguous requests to find the core mechanic.
 2. **Phase 2: Handshake**: Reflect intent back to the user for confirmation.
 3. **Phase 3: Converge**: Evaluate directions against the "Nordic Aesthetic" and technical feasibility.
-4. **Phase 4: Specification**: Draft the final blueprint in `SPEC.md` or a feature-specific doc.
+4. **Phase 4: Specification**: Draft the final blueprint in `tasks/SPEC.md` or a feature-specific doc.
 
 ## How It Works
 

@@ -36,38 +36,12 @@
   --color-purple: #a855f7;
   --color-pink: #ec4899;
 
-  /* RGB Components for Foundations (Tier 1) */
-  --color-black-rgb: 0, 0, 0;
-  --color-chalk-rgb: 34, 35, 38;
-  --color-gunmetal-rgb: 54, 56, 64;
-  --color-frozen-rgb: 85, 93, 102;
-  --color-frisk-rgb: 242, 247, 250;
-  --color-white-rgb: 247, 249, 252;
-
-  --color-red-rgb: 239, 68, 68;
-  --color-rose-rgb: 251, 113, 133;
-  --color-orange-rgb: 249, 115, 22;
-  --color-amber-rgb: 251, 191, 36;
-  --color-yellow-rgb: 253, 224, 71;
-  --color-lime-rgb: 132, 204, 22;
-  --color-forest-rgb: 21, 128, 61;
-  --color-emerald-rgb: 16, 185, 129;
-  --color-teal-rgb: 20, 184, 166;
-  --color-cyan-rgb: 17, 174, 204;
-  --color-blue-rgb: 59, 130, 246;
-  --color-indigo-rgb: 129, 140, 248;
-  --color-violet-rgb: 192, 132, 252;
-  --color-purple-rgb: 168, 85, 247;
-  --color-pink-rgb: 236, 72, 153;
-
   /* Atmospheric Gradients (Foundations) */
   --background-base: var(--color-chalk);
-  --background-base-rgb: var(--color-chalk-rgb);
   --background-gradient-1: #0b101a;
   --background-gradient-2: #14182b;
   --background-gradient-3: #1e1b38;
   --background-gradient-4: #16243b;
-  --background-gradient-4-rgb: 22, 36, 59;
 
   /* Spacing (4px Atomic Grid - Ascending) */
   --spacing-unit: 0.25rem;
@@ -123,6 +97,7 @@
   --z-index-50: 50;
   --z-index-100: 100;
   --z-index-200: 200;
+  --z-index-210: 210;
   --z-index-300: 300;
   --z-index-1000: 1000;
   --z-index-max-raw: 9999;
@@ -285,12 +260,16 @@
   --click-sink: var(--scale-sink);
   --click-dim: var(--brightness-dim);
 
-  --z-index-floor: var(--z-index-0);
-  --z-index-surface: var(--z-index-100);
-  --z-index-overlay: var(--z-index-200);
-  --z-index-overlay-peak: 210;
-  --z-index-modal: var(--z-index-300);
-  --z-index-max: var(--z-index-max-raw);
+  --deep-z-index: var(--z-index-below);
+  --floor-z-index: var(--z-index-0);
+  --surface-z-index: var(--z-index-10);
+  --surface-peak-z-index: var(--z-index-20);
+  --mid-z-index: var(--z-index-50);
+  --overlay-z-index: var(--z-index-100);
+  --overlay-peak-z-index: var(--z-index-210);
+  --modal-z-index: var(--z-index-300);
+  --toast-z-index: var(--z-index-1000);
+  --max-z-index: var(--z-index-max-raw);
 
   /* Vertical Layout Foundations */
   --offset-header: 10vh;
@@ -368,7 +347,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: var(--z-index-max);
+  z-index: var(--max-z-index);
   pointer-events: none;
   opacity: var(--noise-opacity);
   background-image: var(--noise-url);
@@ -539,7 +518,7 @@ h6 {
   background: var(--color-frozen);
   color: var(--color-white);
   padding: var(--spacing-2);
-  z-index: var(--z-index-max);
+  z-index: var(--max-z-index);
   transition: top var(--duration-reflex) var(--ease-standard);
   border-radius: 0 0 var(--radius-subtle) 0;
 }

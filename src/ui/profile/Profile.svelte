@@ -43,7 +43,6 @@
   // --- DERIVED ---
 
   const signature_color = $derived(themeStore.get_signature_color(char));
-  const signature_rgb = $derived(themeStore.get_signature_label(char));
 
   // --- EFFECTS ---
 
@@ -177,10 +176,7 @@
         {/if}
       </aside>
 
-      <div
-        class="card scrollbar"
-        style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
-      >
+      <div class="card scrollbar" style="--signature-color: {signature_color};">
         <div class="signature-bar"></div>
         <div class="avatar">
           <ProfilePicture entity={char} />
@@ -229,7 +225,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     order: 1;
     margin-right: 0;
     --scrollbar-thumb: rgb(from var(--color-white) r g b / var(--opacity-muted));
@@ -256,13 +252,13 @@
     width: 100%;
     height: 100%;
     max-height: var(--drawer-height-max);
-    background: rgb(from var(--glass-elevated-color) r g b / var(--glass-elevated-opacity));
+    background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
     border-radius: var(--radius-standard);
     box-shadow: var(--shadow-heavy);
     position: relative;
     overflow: visible;
-    z-index: var(--z-overlay);
+    z-index: var(--overlay-z-index);
     display: grid;
     grid-template-columns: minmax(12.5rem, 30%) 1fr;
     grid-template-rows: minmax(0, 1fr);
@@ -286,7 +282,7 @@
       var(--signature-color) 85%,
       transparent
     );
-    z-index: var(--z-max);
+    z-index: var(--max-z-index);
     pointer-events: none;
     --signature-glow: 0 0 var(--spacing-2) var(--signature-color);
 

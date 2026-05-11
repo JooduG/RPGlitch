@@ -181,7 +181,7 @@
     box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-2)) var(--tf-accent);
     position: relative;
     top: var(--spacing-px);
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -232,7 +232,7 @@
     display: block;
     overflow: hidden auto;
     position: relative;
-    z-index: var(--z-surface);
+    z-index: var(--surface-z-index);
   }
 
   .body[data-mode="edit"] {
