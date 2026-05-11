@@ -139,6 +139,7 @@
   --duration-fast: 250ms;
   --duration-standard: 350ms;
   --duration-slow: 500ms;
+  --duration-pulse: 1000ms;
   --duration-atmospheric: 1500ms;
   --duration-shimmer: 2500ms;
   --duration-tremor: 4s;
@@ -164,10 +165,13 @@
   --brightness-glow: brightness(1.2);
   --scale-lift: scale(1.02);
   --scale-sink: scale(0.96);
-  --scale-pulse: scale(1.08);
+  --kinetic-pulse-max: 1.08;
+  --kinetic-pulse-mid: 1.04;
+  --scale-pulse: scale(var(--kinetic-pulse-max));
   --scale-zoom: scale(1.1);
 
   --kinetic-shimmy-rotation: 30deg;
+  --kinetic-shimmy-y: calc(var(--spacing-pixel) / 2);
   --kinetic-shimmy-tremor: var(--spacing-pixel);
   --kinetic-shimmy-offset: var(--kinetic-shimmy-tremor);
   --kinetic-spin-rotation: 90deg;

@@ -8,17 +8,6 @@
 /* --- Token Integration --- */
 
 /**
- * @param {string} token
- * @param {string} fallback
- * @returns {string}
- */
-const get_token_raw = (token, fallback) => {
-  if (typeof window === "undefined") return fallback;
-  const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-  return val || fallback;
-};
-
-/**
  * Parses CSS time strings (e.g. "250ms", "0.5s") into raw milliseconds.
  * @param {string} str
  * @returns {number}
@@ -29,26 +18,6 @@ export const parse_ms = (str) => {
   const [_, val, unit] = match;
   return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
 };
-
-// Global Constants (Durations)
-const DURATION_FAST = parse_ms(get_token_raw("--duration-fast", "250ms"));
-const DURATION_SLOW = parse_ms(get_token_raw("--duration-slow", "500ms"));
-
-// Global Constants (Easings)
-const EASE_OUT = get_token_raw("--ease-out", "cubic-bezier(0, 0, 0.2, 1)");
-const EASE_ELASTIC = get_token_raw("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)");
-
-// Global Constants (Kinetic Dimensions)
-const SHIMMY_DEG = get_token_raw("--kinetic-shimmy-rotation", "30deg");
-const SHIMMY_X = get_token_raw("--kinetic-shimmy-offset", "1px");
-const SHIMMY_Y = get_token_raw("--kinetic-shimmy-y", "0.5px");
-const PULSE_SCALE_MAX = 1.08;
-const PULSE_SCALE_MID = 1.04;
-const SPIN_ROTATION = get_token_raw("--kinetic-spin-rotation", "90deg");
-const ROLL_ROTATION = get_token_raw("--kinetic-roll-rotation", "360deg");
-const STAB_DISTANCE = get_token_raw("--kinetic-stab-distance", "4px");
-
-const FRICTION = parseFloat(get_token_raw("--kinetic-momentum-friction", "0.95"));
 
 /* --- Kinetic Primitives --- */
 
@@ -74,17 +43,25 @@ export function shimmy(node) {
     node.dataset.kinetic = "true";
     const target = get_target(node);
     if (animation) animation.cancel();
+
+    const style = getComputedStyle(node);
+    const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
+
     animation = target.animate(
       [
         { transform: "translate(0, 0) rotate(0deg)" },
         {
-          transform: `translate(calc(${SHIMMY_X} * -1), ${SHIMMY_Y}) rotate(calc(${SHIMMY_DEG} * -1))`,
+          transform:
+            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(calc(var(--kinetic-shimmy-rotation) * -1))",
         },
-        { transform: `translate(${SHIMMY_X}, calc(${SHIMMY_Y} * -1)) rotate(${SHIMMY_DEG})` },
+        {
+          transform:
+            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(var(--kinetic-shimmy-rotation))",
+        },
         { transform: "translate(0, 0) rotate(0deg)" },
       ],
       {
-        duration: DURATION_SLOW,
+        duration,
         easing: "linear",
         iterations: Infinity,
       },
@@ -127,18 +104,21 @@ export function pulse(node) {
     node.dataset.kinetic = "true";
     if (animation) animation.cancel();
 
+    const style = getComputedStyle(node);
+    const duration = parse_ms(style.getPropertyValue("--duration-pulse").trim() || "1000ms");
+
     // Heartbeat thump: big beat -> small beat -> rest
     animation = node.animate(
       [
         { transform: "scale(1)", offset: 0 },
-        { transform: `scale(${PULSE_SCALE_MAX})`, offset: 0.14 },
+        { transform: "scale(var(--kinetic-pulse-max))", offset: 0.14 },
         { transform: "scale(1)", offset: 0.28 },
-        { transform: `scale(${PULSE_SCALE_MID})`, offset: 0.42 },
+        { transform: "scale(var(--kinetic-pulse-mid))", offset: 0.42 },
         { transform: "scale(1)", offset: 0.7 },
         { transform: "scale(1)", offset: 1 },
       ],
       {
-        duration: 1000,
+        duration,
         easing: "ease-in-out",
         iterations: Infinity,
       },
@@ -149,7 +129,10 @@ export function pulse(node) {
     if (animation) {
       // Smooth return to 1
       animation.cancel();
-      node.animate([{ transform: "scale(1)" }], { duration: DURATION_FAST, easing: EASE_OUT });
+      const style = getComputedStyle(node);
+      const duration = parse_ms(style.getPropertyValue("--duration-fast").trim() || "250ms");
+      const easing = style.getPropertyValue("--ease-out").trim() || "cubic-bezier(0, 0, 0.2, 1)";
+      node.animate([{ transform: "scale(1)" }], { duration, easing });
     }
     delete node.dataset.kinetic;
   };
@@ -185,11 +168,16 @@ export function spin(node) {
       animation.playbackRate = 1;
       animation.play();
     } else {
+      const style = getComputedStyle(node);
+      const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
+      const easing =
+        style.getPropertyValue("--ease-elastic").trim() || "cubic-bezier(0.34, 1.56, 0.64, 1)";
+
       animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: `rotate(${SPIN_ROTATION})` }],
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--kinetic-spin-rotation))" }],
         {
-          duration: DURATION_SLOW,
-          easing: EASE_ELASTIC,
+          duration,
+          easing,
           fill: "forwards",
         },
       );
@@ -241,11 +229,16 @@ export function roll(node) {
       animation.playbackRate = 1;
       animation.play();
     } else {
+      const style = getComputedStyle(node);
+      const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
+      const easing =
+        style.getPropertyValue("--ease-elastic").trim() || "cubic-bezier(0.34, 1.56, 0.64, 1)";
+
       animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: `rotate(${ROLL_ROTATION})` }],
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--kinetic-roll-rotation))" }],
         {
-          duration: DURATION_SLOW,
-          easing: EASE_ELASTIC,
+          duration,
+          easing,
           fill: "forwards",
         },
       );
@@ -296,15 +289,20 @@ export function stab(node) {
     node.dataset.kinetic = "true";
     if (animation) animation.cancel();
     const target = get_target(node);
+
+    const style = getComputedStyle(node);
+    const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
+    const easing = style.getPropertyValue("--ease-out").trim() || "cubic-bezier(0, 0, 0.2, 1)";
+
     animation = target.animate(
       [
         { transform: "translateX(0)", offset: 0 },
-        { transform: `translateX(${STAB_DISTANCE})`, offset: 0.2 },
+        { transform: "translateX(var(--kinetic-stab-distance))", offset: 0.2 },
         { transform: "translateX(0)", offset: 1 },
       ],
       {
-        duration: DURATION_SLOW,
-        easing: EASE_OUT,
+        duration,
+        easing,
         iterations: Infinity,
       },
     );
@@ -348,6 +346,8 @@ export function kinetic_scroll(node) {
    */
   let raf_id = null;
 
+  let current_friction = 0.95;
+
   const on_down = (/** @type {any} */ e) => {
     is_down = true;
     const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
@@ -361,13 +361,16 @@ export function kinetic_scroll(node) {
 
   const on_up = () => {
     is_down = false;
+    current_friction = parseFloat(
+      getComputedStyle(node).getPropertyValue("--kinetic-momentum-friction").trim() || "0.95",
+    );
     requestAnimationFrame(apply_momentum);
   };
 
   const apply_momentum = () => {
     if (is_down || Math.abs(velocity) < 0.1) return;
     node.scrollTop -= velocity * 10;
-    velocity *= FRICTION;
+    velocity *= current_friction;
     raf_id = requestAnimationFrame(apply_momentum);
   };
 
