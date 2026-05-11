@@ -54,9 +54,12 @@
   --spacing-5: calc(var(--spacing-unit) * 5); /* 20px */
   --spacing-6: calc(var(--spacing-unit) * 6); /* 24px */
   --spacing-8: calc(var(--spacing-unit) * 8); /* 32px */
+  --spacing-9: calc(var(--spacing-unit) * 9); /* 36px */
   --spacing-10: calc(var(--spacing-unit) * 10); /* 40px */
   --spacing-12: calc(var(--spacing-unit) * 12); /* 48px */
+  --spacing-15: calc(var(--spacing-unit) * 15); /* 60px */
   --spacing-16: calc(var(--spacing-unit) * 16); /* 64px */
+  --spacing-20: calc(var(--spacing-unit) * 20); /* 80px */
   --spacing-24: calc(var(--spacing-unit) * 24); /* 96px */
   --spacing-40: calc(var(--spacing-unit) * 40); /* 160px */
   --spacing-60: calc(var(--spacing-unit) * 60); /* 15rem */
@@ -68,14 +71,21 @@
   --radius-rounded: var(--spacing-8); /* 32px (2rem) */
   --radius-pill: 9999px;
 
+  /* Aspect Ratios */
+  --aspect-square: 1 / 1;
+
   /* --- Atmospheric & Layer Foundations --- */
 
+  --opacity-none: 0;
   --opacity-ghost: 0.08;
   --opacity-whisper: 0.15;
   --opacity-muted: 0.3;
   --opacity-base: 0.4;
+  --opacity-half: 0.5;
   --opacity-heavy: 0.6;
+  --opacity-moderate: 0.7;
   --opacity-substantial: 0.8;
+  --opacity-intense: 0.9;
   --opacity-solid: 1;
 
   --blur-whisper: blur(var(--spacing-1));
@@ -124,11 +134,13 @@
   --grid-12: var(--grid-width);
 
   /* Motion & Atmosphere */
+  --duration-none: 0s;
   --duration-reflex: 150ms;
   --duration-fast: 250ms;
   --duration-standard: 350ms;
   --duration-slow: 500ms;
   --duration-atmospheric: 1500ms;
+  --duration-shimmer: 2500ms;
   --duration-tremor: 4s;
 
   --scale-tremor-high: scale(1.002);
@@ -153,6 +165,7 @@
   --scale-lift: scale(1.02);
   --scale-sink: scale(0.96);
   --scale-pulse: scale(1.08);
+  --scale-zoom: scale(1.1);
 
   --kinetic-shimmy-rotation: 30deg;
   --kinetic-shimmy-tremor: var(--spacing-pixel);
@@ -163,6 +176,10 @@
   --kinetic-drag-threshold: 10;
   --kinetic-scroll-multiplier: 1.5;
   --kinetic-momentum-friction: 0.95;
+
+  /* Angles */
+  --angle-right: 90deg;
+  --angle-skew: -20deg;
 
   /* Utility Logic */
   --auto-resize-buffer: var(--spacing-pixel);
@@ -296,6 +313,12 @@
 
   /* Control Components */
   --storyboard-pill-width: clamp(10rem, var(--grid-3), 15rem);
+
+  /* Skeleton Components */
+  --skeleton-card-min-height: var(--storyboard-card-height);
+  --skeleton-hero-min-height: var(--spacing-60);
+  --skeleton-text-height: 1em;
+  --skeleton-text-width: 60%;
 
   /* Modal & Drawer Components (Semantic Sizes) */
   --modal-width-thin: var(--grid-4);

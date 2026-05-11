@@ -340,7 +340,7 @@
   .message-bubble::before {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: var(--spacing-0);
     pointer-events: none;
     border-radius: inherit;
     padding: var(--spacing-pixel);
@@ -350,15 +350,15 @@
       transparent 40%
     );
     mask:
-      linear-gradient(var(--color-white) 0 0) content-box,
-      linear-gradient(var(--color-white) 0 0);
+      linear-gradient(var(--color-white) var(--spacing-0) var(--spacing-0)) content-box,
+      linear-gradient(var(--color-white) var(--spacing-0) var(--spacing-0));
     mask-composite: exclude;
-    opacity: 0.5;
+    opacity: var(--opacity-half);
     transition: opacity var(--duration-standard);
   }
 
   .message-bubble.is-focused::before {
-    opacity: 1;
+    opacity: var(--opacity-solid);
     background: linear-gradient(
       to bottom,
       var(--signature-color),
@@ -380,7 +380,7 @@
   .field-header {
     height: var(--spacing-pixel);
     background: linear-gradient(
-      90deg,
+      var(--angle-right),
       transparent 0%,
       var(--signature-color, var(--color-frozen)) 50%,
       transparent 100%
@@ -389,33 +389,33 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    top: 0;
+    top: var(--spacing-0);
     border-radius: var(--radius-standard) var(--radius-standard) var(--spacing-0) var(--spacing-0);
     z-index: var(--surface-peak-z-index);
   }
 
   .message-bubble.is-focused .field-header {
-    height: 2.25rem;
+    height: var(--spacing-9);
     background: color-mix(in srgb, var(--signature-color), black 30%);
     border-bottom: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / 12%);
     overflow: visible;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--spacing-4);
+    padding: var(--spacing-0) var(--spacing-4);
   }
 
   .header-status,
   .header-actions {
-    opacity: 0;
+    opacity: var(--opacity-none);
     transform: translateY(calc(var(--spacing-1) * -1));
     transition: all var(--duration-fast);
   }
 
   .message-bubble.is-focused .header-status,
   .message-bubble.is-focused .header-actions {
-    opacity: 1;
-    transform: translateY(0);
+    opacity: var(--opacity-solid);
+    transform: translateY(var(--spacing-0));
   }
 
   .header-status {
@@ -440,7 +440,7 @@
   .timestamp {
     font-size: var(--font-size-nano);
     color: var(--color-white);
-    opacity: 0.5;
+    opacity: var(--opacity-half);
   }
 
   .header-actions {
@@ -457,7 +457,7 @@
 
   .header-actions :global(.button:hover) {
     color: var(--color-white);
-    transform: scale(1.1);
+    transform: var(--scale-zoom);
   }
 
   /* --- BODY LOGIC --- */
@@ -482,23 +482,24 @@
   .message-content :global(b) {
     font-weight: var(--font-weight-heavy);
     color: var(--signature-color);
-    text-shadow: 0 0 var(--spacing-2) rgb(from var(--signature-color) r g b / 25%);
+    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
+      rgb(from var(--signature-color) r g b / 25%);
   }
 
   /* High-Vis Narration */
   .message-content :global(em),
   .message-content :global(i) {
     font-style: italic;
-    opacity: 0.9;
+    opacity: var(--opacity-intense);
     color: var(--font-color-muted);
   }
 
   .message-content :global(p) {
-    margin: 0 0 var(--spacing-3) 0;
+    margin: var(--spacing-0) var(--spacing-0) var(--spacing-3) var(--spacing-0);
   }
 
   .message-content :global(p:last-child) {
-    margin-bottom: 0;
+    margin-bottom: var(--spacing-0);
   }
 
   .thinking-wrapper {
@@ -514,9 +515,9 @@
   .message-bubble.is-busy .field-header::after {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: var(--spacing-0);
     background: linear-gradient(
-      90deg,
+      var(--angle-right),
       transparent 0%,
       rgb(from var(--color-white) r g b / 20%) 50%,
       transparent 100%
@@ -527,11 +528,11 @@
 
   @keyframes scan {
     from {
-      transform: translateX(-100%) skewX(-20deg);
+      transform: translateX(-100%) skewX(var(--angle-skew));
     }
 
     to {
-      transform: translateX(100%) skewX(-20deg);
+      transform: translateX(100%) skewX(var(--angle-skew));
     }
   }
 

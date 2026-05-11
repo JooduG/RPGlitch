@@ -49,37 +49,37 @@
   /* Variant Harmonization */
   .wrapper.card {
     border-radius: var(--radius-standard);
-    min-height: 6.25rem; /* 100px */
+    min-height: var(--skeleton-card-min-height);
   }
 
   .wrapper.hero {
     border-radius: var(--radius-standard);
-    min-height: 15rem; /* 240px */
+    min-height: var(--skeleton-hero-min-height);
   }
 
   .wrapper.profile-picture,
   .wrapper.circle {
     border-radius: var(--radius-full);
-    aspect-ratio: 1 / 1;
+    aspect-ratio: var(--aspect-square);
     width: var(--icon-medium);
     height: var(--icon-medium);
   }
 
   .wrapper.text {
-    height: 1em;
+    height: var(--skeleton-text-height);
     margin-bottom: var(--spacing-2);
     border-radius: var(--radius-subtle);
-    width: 60%; /* Default partial width for text skeletons */
+    width: var(--skeleton-text-width);
   }
 
   /* Shimmer Effect: The Nordic Fog */
   .wrapper::after {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: var(--spacing-0);
     transform: translateX(-100%);
     background: linear-gradient(
-      90deg,
+      var(--angle-right),
       transparent 0%,
       rgb(from var(--color-white) r g b / var(--opacity-ghost)) 30%,
       rgb(from var(--color-white) r g b / var(--opacity-muted)) 50%,
@@ -87,7 +87,7 @@
       transparent 100%
     );
     filter: var(--blur-mist);
-    animation: shimmer 2.5s var(--ease-standard) infinite;
+    animation: shimmer var(--duration-shimmer) var(--ease-standard) infinite;
     pointer-events: none;
     z-index: var(--surface-z-index);
   }

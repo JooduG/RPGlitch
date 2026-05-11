@@ -176,7 +176,7 @@
 
   .row {
     display: grid;
-    grid-template-columns: minmax(60px, 80px) 1fr;
+    grid-template-columns: minmax(var(--spacing-15), var(--spacing-20)) 1fr;
     gap: var(--spacing-4);
     min-width: 0;
   }
@@ -221,7 +221,7 @@
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
     color: var(--color-white);
-    opacity: 0.8;
+    opacity: var(--opacity-substantial);
     pointer-events: none;
     letter-spacing: var(--font-spacing-l);
     white-space: nowrap;
@@ -268,7 +268,7 @@
     min-width: 0;
     justify-content: stretch;
     align-items: stretch;
-    transition: z-index 0s;
+    transition: z-index var(--duration-none);
   }
 
   .group:hover {
@@ -295,7 +295,7 @@
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-l);
     color: var(--color-white);
-    opacity: 0.7;
+    opacity: var(--opacity-moderate);
   }
 
   /* --- GLOBAL OVERRIDES --- */
@@ -319,7 +319,7 @@
   :global(.enhance-btn:hover) {
     background: transparent;
     color: var(--color-white);
-    transform: scale(1.1);
+    transform: var(--scale-zoom);
   }
 
   /* --- RESPONSIVE --- */
