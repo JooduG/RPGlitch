@@ -36,7 +36,7 @@
     /* Base Surface: Sunken placeholder logic */
     background: rgb(from var(--glass-sunken-color) r g b / var(--glass-sunken-opacity));
     backdrop-filter: var(--glass-sunken-blur);
-    border: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-standard);
     overflow: hidden;
     position: relative;

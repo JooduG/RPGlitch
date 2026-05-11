@@ -343,7 +343,7 @@
     inset: 0;
     pointer-events: none;
     border-radius: inherit;
-    padding: var(--spacing-px);
+    padding: var(--spacing-pixel);
     background: linear-gradient(
       to bottom,
       color-mix(in srgb, transparent, var(--signature-color) 40%),
@@ -378,7 +378,7 @@
 
   /* --- HEADER LOGIC --- */
   .field-header {
-    height: var(--spacing-px);
+    height: var(--spacing-pixel);
     background: linear-gradient(
       90deg,
       transparent 0%,
@@ -397,7 +397,7 @@
   .message-bubble.is-focused .field-header {
     height: 2.25rem;
     background: color-mix(in srgb, var(--signature-color), black 30%);
-    border-bottom: var(--spacing-px) solid rgb(from var(--color-white) r g b / 12%);
+    border-bottom: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / 12%);
     overflow: visible;
     display: flex;
     align-items: center;

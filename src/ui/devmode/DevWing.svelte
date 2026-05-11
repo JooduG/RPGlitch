@@ -129,7 +129,7 @@
     <div class="raw-explorer">
       <details>
         <summary>View JSON Data</summary>
-        <DataBox maxHeight="calc(var(--spacing-4) * 15)">
+        <DataBox maxHeight="var(--spacing-60)">
           <pre>{JSON.stringify(char, null, 2)}</pre>
         </DataBox>
       </details>
@@ -184,7 +184,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: calc(var(--spacing-4) * 4.5);
+    min-height: var(--spacing-16);
     background: var(--glass-sunken);
     border-radius: var(--radius-subtle);
     transition: all var(--duration-standard) var(--motion-elastic);
@@ -198,7 +198,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: var(--spacing-xxxs);
+    height: var(--spacing-2);
     background: var(--color-cyan);
     opacity: 0.2;
   }
@@ -207,7 +207,7 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    height: var(--spacing-xxxs);
+    height: var(--spacing-2);
     width: var(--dynamic-value, 0%);
     background: var(--color-cyan);
     box-shadow: 0 0 var(--spacing-3) var(--color-cyan);
@@ -282,7 +282,7 @@
     background: transparent;
     border: none;
     color: var(--color-cyan);
-    padding: var(--spacing-xxxs);
+    padding: var(--spacing-2);
     cursor: pointer;
     display: flex;
     align-items: center;

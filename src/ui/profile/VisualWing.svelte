@@ -321,7 +321,7 @@
     outline: 2px solid rgb(from var(--color-white) r g b / 70%);
     outline-offset: 2px;
     --active-swatch-shadow:
-      0 0 0 var(--spacing-px) rgb(from var(--color-white) r g b / 15%) inset,
+      0 0 0 var(--spacing-pixel) rgb(from var(--color-white) r g b / 15%) inset,
       0 0 var(--spacing-3) var(--spacing-1) var(--swatch-color);
 
     box-shadow: var(--active-swatch-shadow);

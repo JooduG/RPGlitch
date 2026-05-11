@@ -58,6 +58,7 @@
   --spacing-12: calc(var(--spacing-unit) * 12); /* 48px */
   --spacing-16: calc(var(--spacing-unit) * 16); /* 64px */
   --spacing-24: calc(var(--spacing-unit) * 24); /* 96px */
+  --spacing-60: calc(var(--spacing-unit) * 60); /* 15rem */
 
   /* Radii (Ascending) */
   --radius-sharp: var(--spacing-1); /* 4px */

@@ -157,7 +157,7 @@
     outline: none;
     background: var(--glass-elevated);
     --title-focus-shadow:
-      0 0 0 var(--spacing-px) var(--color-frisk),
+      0 0 0 var(--spacing-pixel) var(--color-frisk),
       0 0 var(--spacing-6) rgb(from var(--color-frisk) r g b / var(--opacity-muted));
 
     box-shadow: var(--title-focus-shadow);

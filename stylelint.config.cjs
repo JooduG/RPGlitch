@@ -87,14 +87,14 @@ module.exports = {
           "double",
         ],
         message:
-          "RPGlitch Engine [FATAL]: Raw values hallucinated! You MUST use a variable from engine.css (e.g., var(--spacing-m)). Halt and read the tokens file.",
+          "RPGlitch Engine [FATAL]: Raw values hallucinated! You MUST use a variable from engine.css (e.g., var(--spacing-4)). Halt and read the tokens file.",
       },
     ],
 
     // FATAL: Block AI agents from using math to bypass the design system grid
     "declaration-property-value-disallowed-list": [
       {
-        "/^.*$/": ["/calc\\(.*--spacing-px.*\\*/", "/calc\\(.*--spacing-unit.*\\*/"],
+        "/^.*$/": ["/calc\\(.*--spacing-pixel.*\\*/", "/calc\\(.*--spacing-unit.*\\*/"],
       },
       {
         message:

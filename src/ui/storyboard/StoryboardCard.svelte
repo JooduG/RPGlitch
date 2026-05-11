@@ -123,7 +123,7 @@
     inset: 0;
     pointer-events: none;
     border-radius: var(--radius-standard);
-    box-shadow: inset 0 0 0 var(--spacing-px) transparent;
+    box-shadow: inset 0 0 0 var(--spacing-pixel) transparent;
     border: var(--border-muted);
     transition:
       box-shadow var(--duration-standard) var(--ease-standard),
@@ -133,7 +133,7 @@
 
   .card:hover::after {
     border-color: var(--signature-color);
-    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color);
+    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color);
   }
 
   .card:focus-visible {
@@ -141,7 +141,7 @@
   }
 
   .card:focus-visible::after {
-    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color);
+    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color);
   }
 
   /* --- PLACEHOLDER --- */

@@ -180,7 +180,7 @@
     background: rgb(from var(--tf-accent) r g b / var(--header-opacity));
     box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-2)) var(--tf-accent);
     position: relative;
-    top: var(--spacing-px);
+    top: var(--spacing-pixel);
     z-index: var(--surface-z-index);
     display: flex;
     align-items: center;
@@ -200,7 +200,8 @@
     top: 0;
     box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-4))
       rgb(from var(--tf-accent) r g b / var(--opacity-muted));
-    border-bottom: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-bottom: var(--spacing-pixel) solid
+      rgb(from var(--color-white) r g b / var(--opacity-ghost));
   }
 
   .status,

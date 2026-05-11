@@ -144,7 +144,7 @@
       rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-end),
       rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 100%
     );
-    box-shadow: inset 0 var(--spacing-px) var(--spacing-px)
+    box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-pill);
     border: none;
@@ -162,7 +162,7 @@
       rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-end),
       rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 100%
     );
-    box-shadow: inset 0 var(--spacing-px) var(--spacing-px)
+    box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-pill);
     border: none;

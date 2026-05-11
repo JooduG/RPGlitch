@@ -311,7 +311,7 @@
     box-shadow: none;
     background: transparent;
     filter: drop-shadow(
-      var(--spacing-0) var(--spacing-px) var(--spacing-xxxs)
+      var(--spacing-0) var(--spacing-pixel) var(--spacing-2)
         rgb(from var(--color-black) r g b / 80%)
     );
   }

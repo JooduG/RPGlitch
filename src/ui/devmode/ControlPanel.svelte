@@ -242,7 +242,7 @@
   .headline {
     margin: 0 0 var(--spacing-2);
     padding-bottom: var(--spacing-1);
-    border-bottom: var(--spacing-px) solid var(--color-border-s);
+    border-bottom: var(--spacing-pixel) solid var(--color-border-s);
     color: var(--font-color-muted);
     font-size: var(--font-size-nano);
     letter-spacing: var(--font-spacing-l);
@@ -269,6 +269,6 @@
   .actions.secondary {
     justify-content: space-between;
     padding-top: var(--spacing-3);
-    border-top: var(--spacing-px) solid var(--color-border-s);
+    border-top: var(--spacing-pixel) solid var(--color-border-s);
   }
 </style>

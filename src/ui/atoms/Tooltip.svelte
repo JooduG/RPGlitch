@@ -265,7 +265,7 @@
     color: var(--color-white);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-standard);
-    border: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
+    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
     font-size: var(--font-size-tiny);
     font-family: var(--font-family-base);
     text-transform: none;
@@ -293,7 +293,7 @@
   .tooltip-arrow::after {
     content: "";
     position: absolute;
-    bottom: var(--spacing-px);
+    bottom: var(--spacing-pixel);
     left: calc(var(--spacing-2) * -1);
     border-left: var(--spacing-2) solid transparent;
     border-right: var(--spacing-2) solid transparent;
@@ -309,7 +309,7 @@
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {
-    top: var(--spacing-px);
+    top: var(--spacing-pixel);
     bottom: auto;
     border-top: none;
     border-bottom: var(--spacing-2) solid var(--bg-base);

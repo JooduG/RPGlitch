@@ -40,7 +40,6 @@
 **/.gemini/**
 !**/rpglitch-left-panel.txt
 .secrets
-**/.gemini/**
 **/.jules/**
 act_output.log
 gha-creds-*.json

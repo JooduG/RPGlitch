@@ -370,8 +370,8 @@
   .tag {
     font-size: var(--font-size-tiny);
     background: rgb(from var(--color-white) r g b / 10%);
-    padding: var(--spacing-px) var(--spacing-2);
-    border: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    padding: var(--spacing-pixel) var(--spacing-2);
+    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-sharp);
     color: var(--color-white);
     opacity: 0.9;

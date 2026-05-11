@@ -394,7 +394,7 @@
     font-size: var(--font-size-nano);
     color: var(--color-white);
     background: rgb(from var(--color-black) r g b / 30%);
-    padding: var(--spacing-xxxs) var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-2);
     border-radius: var(--radius-sharp);
     white-space: nowrap;
     transition: all var(--duration-fast);
@@ -463,7 +463,7 @@
     left: 50%;
     top: 0;
     bottom: 0;
-    width: var(--spacing-px);
+    width: var(--spacing-pixel);
     background: rgb(from var(--color-white) r g b / 20%);
     z-index: var(--mid-z-index);
   }
@@ -513,7 +513,7 @@
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-sharp);
     background: rgb(from var(--color-black) r g b / 15%);
-    border-left: var(--spacing-xxxs) solid transparent;
+    border-left: var(--spacing-2) solid transparent;
   }
 
   .vector-item.future {
@@ -560,7 +560,7 @@
   }
 
   .signal-pill {
-    padding: var(--spacing-xxxs) var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-2);
     background: var(--glass-base);
     border: var(--border-side);
     border-color: rgb(from var(--color-cyan) r g b / 20%);

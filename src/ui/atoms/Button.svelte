@@ -198,8 +198,8 @@
 
   /* --- Operational States --- */
   .wrapper:focus-visible {
-    outline: var(--spacing-px) solid var(--color-white);
-    outline-offset: var(--spacing-px);
+    outline: var(--spacing-pixel) solid var(--color-white);
+    outline-offset: var(--spacing-pixel);
   }
 
   .wrapper:disabled {
@@ -249,7 +249,7 @@
     color: var(--color-white);
     --danger-hover-shadow:
       0 0 var(--spacing-4) rgb(from var(--color-red) r g b / var(--opacity-muted)),
-      inset 0 0 0 var(--spacing-px) var(--color-red);
+      inset 0 0 0 var(--spacing-pixel) var(--color-red);
 
     box-shadow: var(--danger-hover-shadow);
   }

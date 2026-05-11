@@ -213,7 +213,7 @@
 
   .wings {
     width: 0;
-    min-width: var(--spacing-px);
+    min-width: var(--spacing-pixel);
     max-width: 0;
     opacity: 0;
     overflow: hidden;
@@ -274,7 +274,7 @@
     top: 0;
     left: 0;
     right: 0;
-    height: var(--spacing-px);
+    height: var(--spacing-pixel);
     background: linear-gradient(
       90deg,
       transparent,
@@ -297,8 +297,8 @@
     display: flex;
     flex-direction: column;
     background: transparent;
-    border-radius: calc(var(--radius-standard) - var(--spacing-px)) 0 0
-      calc(var(--radius-standard) - var(--spacing-px));
+    border-radius: calc(var(--radius-standard) - var(--spacing-pixel)) 0 0
+      calc(var(--radius-standard) - var(--spacing-pixel));
     overflow: hidden;
   }
 
@@ -314,8 +314,8 @@
     text-align: left;
     line-height: var(--font-height-short);
     min-height: calc(var(--spacing-6) * 3);
-    border-radius: 0 calc(var(--radius-standard) - var(--spacing-px))
-      calc(var(--radius-standard) - var(--spacing-px)) 0;
+    border-radius: 0 calc(var(--radius-standard) - var(--spacing-pixel))
+      calc(var(--radius-standard) - var(--spacing-pixel)) 0;
     --scrollbar-thumb: rgb(from var(--signature-color) r g b / var(--opacity-muted));
     --scrollbar-thumb-hover: rgb(from var(--signature-color) r g b / var(--opacity-heavy));
   }

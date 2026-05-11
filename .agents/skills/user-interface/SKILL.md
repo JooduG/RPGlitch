@@ -27,7 +27,7 @@ When building dropdowns, tooltips, or context menus, use viewport-aware position
 - **Assessment**: Calculate space above and below the anchor using `getBoundingClientRect()`.
 - **State Selection**: Default to "dropdown" but switch to "dropup" if space below is < `DROPDOWN_MAX_HEIGHT` and `space_above > space_below`.
 - **Dynamic Max-Height**: Constrain the element to `Math.min(available_space - padding, DROPDOWN_MAX_HEIGHT)`.
-- **Coordinate Assignment**: Map coordinates to a reactive state object using `--spacing-l` (1.5rem) as a safety buffer.
+- **Coordinate Assignment**: Map coordinates to a reactive state object using `--spacing-6` (1.5rem) as a safety buffer.
 
 ### 2. Layout Stabilization (The Guard)
 

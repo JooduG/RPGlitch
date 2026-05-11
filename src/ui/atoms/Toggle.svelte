@@ -180,7 +180,7 @@
 
   /* Accessibility Focus */
   input:focus-visible + .track {
-    outline: var(--spacing-px) solid var(--color-frozen);
-    outline-offset: var(--spacing-px);
+    outline: var(--spacing-pixel) solid var(--color-frozen);
+    outline-offset: var(--spacing-pixel);
   }
 </style>
