@@ -307,6 +307,7 @@
   .body {
     height: 100%;
     display: flex;
+    flex-direction: column;
     font-size: var(--font-size-h3);
     font-weight: var(--font-weight-bold);
     letter-spacing: var(--font-spacing-tight);

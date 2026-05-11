@@ -113,6 +113,7 @@
     "audit:logic": "npm run test:unit",
     "audit:api": "npm run audit:warden",
     "audit:quality": "npm run verify",
+    "audit:tokens": "npm run audit:css",
     "audit:theme": "npm run audit:warden -- --theme",
     "audit:security": "node .agents/skills/governance/scripts/warden.js --security",
     "audit:simulation": "vitest run .agents/skills/governance/scripts/simulation-audit.test.js",
@@ -149,7 +150,8 @@
     "swarm:merge": "node --import tsx .agents/skills/swarm/scripts/automation/swarm-merge.ts",
     "swarm:plan": "node --import tsx .agents/skills/swarm/scripts/automation/swarm-plan.ts",
     "sync": "node .agents/skills/using-agent-skills/scripts/sync.js",
-    "test": "node .agents/skills/using-agent-skills/scripts/summarize.js test:unit",
+    "test": "node .agents/skills/using-agent-skills/scripts/summarize.js test:unit test:tokens",
+    "test:tokens": "vitest run .agents/skills/css/scripts/token-integrity.test.js",
     "test:ui": "vitest --ui",
     "test:unit": "vitest run",
     "verify": "node .agents/skills/using-agent-skills/scripts/summarize.js lint audit test"

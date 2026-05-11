@@ -4,6 +4,8 @@
  * Optimized to prevent layout thrashing by batching DOM reads and writes.
  */
 
+import { resolve_px } from "./dom.js";
+
 /**
  * Auto-resizes an element based on its content
  * @param {HTMLElement} node
@@ -23,10 +25,7 @@ export function auto_resize(node, options = {}) {
 
     frame = requestAnimationFrame(() => {
       // 0. Load tokens dynamically (Red Thread)
-      const buffer =
-        parseFloat(
-          getComputedStyle(document.documentElement).getPropertyValue("--auto-resize-buffer"),
-        ) || 2;
+      const buffer = resolve_px("--auto-resize-buffer", 2, node);
 
       // Skip if no change in content or width
       if (node.clientWidth === lastWidth && node.scrollHeight === lastScrollHeight) {
@@ -55,7 +54,7 @@ export function auto_resize(node, options = {}) {
           const sStyle = getComputedStyle(s);
           const sIsBorderBox = sStyle.boxSizing === "border-box";
           const sBorderOffset = sIsBorderBox
-            ? parseFloat(sStyle.borderTopWidth) + parseFloat(sStyle.borderBottomWidth)
+            ? resolve_px(sStyle.borderTopWidth, 0, s) + resolve_px(sStyle.borderBottomWidth, 0, s)
             : 0;
 
           const sScrollHeight = s.scrollHeight;

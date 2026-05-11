@@ -6,9 +6,6 @@
    * Flattened architecture for maximum efficiency and zero-bloat.
    */
 
-  /** @type {number | null} */
-  let cached_spacing = null;
-
   /**
    * @typedef {Object} TooltipState
    * @property {string | null} text - Current tooltip text
@@ -160,6 +157,7 @@
 <script>
   import { portal } from "@utils/portal.js";
   import { scale } from "svelte/transition";
+  import { resolve_px } from "@utils/dom.js";
 
   // --- RENDERER LOGIC ---
   /** @type {HTMLElement | null} */
@@ -169,28 +167,34 @@
   let flip_style = $state("");
   let arrow_flipped = $state(false);
 
+  // Environmental tracking for reactivity to layout shifts
+  let env_version = $state(0);
+
+  $effect(() => {
+    const handler = () => env_version++;
+    window.addEventListener("resize", handler, { passive: true });
+    window.addEventListener("scroll", handler, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("resize", handler);
+      window.removeEventListener("scroll", handler, { capture: true });
+    };
+  });
+
   $effect(() => {
     if (!tooltip_state.active) ready = false;
   });
 
   $effect(() => {
+    // Read env_version to trigger re-run on resize/scroll
+
+    env_version;
+
     if (tooltip_state.active && tooltip_el) {
       const rect = tooltip_el.getBoundingClientRect();
 
-      let padding = 12; // Fallback matches var(--spacing-3)
-      if (typeof window !== "undefined") {
-        if (cached_spacing === null) {
-          const el = document.createElement("div");
-          el.style.position = "absolute";
-          el.style.visibility = "hidden";
-          el.style.pointerEvents = "none";
-          el.style.width = "var(--spacing-3)";
-          document.body.appendChild(el);
-          cached_spacing = parseFloat(window.getComputedStyle(el).width) || 12;
-          el.remove();
-        }
-        padding = cached_spacing;
-      }
+      // 0. Load tokens dynamically (Chalk Regime)
+      // Use document.documentElement as context for root tokens
+      const padding = resolve_px("--spacing-3", 12, document.documentElement);
 
       let x_offset_px = 0;
       arrow_flipped = false;

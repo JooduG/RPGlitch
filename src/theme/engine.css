@@ -411,6 +411,15 @@
   --toggle-current-height: var(--toggle-height);
   --toggle-current-thumb-size: var(--toggle-thumb-size);
   --toggle-current-thumb-offset: var(--toggle-thumb-offset);
+
+  /* Telemetry & Dynamics Logic Hooks */
+  --metric-offset: 0%;
+  --metric-span: 0%;
+  --metric-color: var(--color-cyan);
+  --dynamic-value: 0%;
+
+  /* Layout Hooks */
+  --stage-align: center;
 }
 
 /* ============================================================================

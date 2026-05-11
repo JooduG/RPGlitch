@@ -7,7 +7,7 @@
    */
   import { use_actions } from "@ui/utils/use-actions.js";
   import { fade } from "svelte/transition";
-  import { parse_ms } from "@ui/utils/kinetic.js";
+  import { resolve_ms } from "@ui/utils/dom.js";
 
   let {
     // State
@@ -26,13 +26,7 @@
   } = $props();
 
   // Sync transition with design tokens
-  let duration = $state(250);
-  if (typeof window !== "undefined") {
-    const val = getComputedStyle(document.documentElement)
-      .getPropertyValue("--duration-fast")
-      .trim();
-    if (val) duration = parse_ms(val) || 250;
-  }
+  let duration = $state(resolve_ms("--duration-fast", 250));
 </script>
 
 <div

@@ -11,6 +11,7 @@ import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { visual_engine } from "@media/visual-engine.svelte.js";
 import { generateUUID } from "@utils/helpers.js";
+import { resolve_px } from "@utils/dom.js";
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
@@ -198,9 +199,10 @@ export class AppStore {
     this._viewport_cleanup = [];
 
     // Retrieve tokens from the central design system
-    const style = getComputedStyle(document.documentElement);
-    const getBreakpoint = (/** @type {string} */ name) =>
-      style.getPropertyValue(`--breakpoint-${name}`).trim();
+    const getBreakpoint = (/** @type {string} */ name) => {
+      const px = resolve_px(`--breakpoint-${name}`, 0);
+      return px ? `${px}px` : null;
+    };
 
     const queries = {
       mini: `(max-width: ${getBreakpoint("mini") || "30rem"})`,

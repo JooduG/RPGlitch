@@ -5,19 +5,7 @@
  * RUTHLESSLY STANDARDIZED: Identical math system-wide.
  */
 
-/* --- Token Integration --- */
-
-/**
- * Parses CSS time strings (e.g. "250ms", "0.5s") into raw milliseconds.
- * @param {string} str
- * @returns {number}
- */
-export const parse_ms = (str) => {
-  const match = str.match(/([\d.]+)(ms|s)/);
-  if (!match) return parseFloat(str) || 0;
-  const [_, val, unit] = match;
-  return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
-};
+import { resolve_ms, resolve_number, resolve_string } from "./dom.js";
 
 /* --- Kinetic Primitives --- */
 
@@ -44,8 +32,7 @@ export function shimmy(node) {
     const target = get_target(node);
     if (animation) animation.cancel();
 
-    const style = getComputedStyle(node);
-    const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
+    const duration = resolve_ms("--duration-slow", 500, node);
 
     animation = target.animate(
       [
@@ -104,8 +91,7 @@ export function pulse(node) {
     node.dataset.kinetic = "true";
     if (animation) animation.cancel();
 
-    const style = getComputedStyle(node);
-    const duration = parse_ms(style.getPropertyValue("--duration-pulse").trim() || "1000ms");
+    const duration = resolve_ms("--duration-pulse", 1000, node);
 
     // Heartbeat thump: big beat -> small beat -> rest
     animation = node.animate(
@@ -129,9 +115,8 @@ export function pulse(node) {
     if (animation) {
       // Smooth return to 1
       animation.cancel();
-      const style = getComputedStyle(node);
-      const duration = parse_ms(style.getPropertyValue("--duration-fast").trim() || "250ms");
-      const easing = style.getPropertyValue("--ease-out").trim() || "cubic-bezier(0, 0, 0.2, 1)";
+      const duration = resolve_ms("--duration-fast", 250, node);
+      const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
       node.animate([{ transform: "scale(1)" }], { duration, easing });
     }
     delete node.dataset.kinetic;
@@ -168,10 +153,8 @@ export function spin(node) {
       animation.playbackRate = 1;
       animation.play();
     } else {
-      const style = getComputedStyle(node);
-      const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
-      const easing =
-        style.getPropertyValue("--ease-elastic").trim() || "cubic-bezier(0.34, 1.56, 0.64, 1)";
+      const duration = resolve_ms("--duration-slow", 500, node);
+      const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
       animation = target.animate(
         [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--kinetic-spin-rotation))" }],
@@ -229,10 +212,8 @@ export function roll(node) {
       animation.playbackRate = 1;
       animation.play();
     } else {
-      const style = getComputedStyle(node);
-      const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
-      const easing =
-        style.getPropertyValue("--ease-elastic").trim() || "cubic-bezier(0.34, 1.56, 0.64, 1)";
+      const duration = resolve_ms("--duration-slow", 500, node);
+      const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
       animation = target.animate(
         [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--kinetic-roll-rotation))" }],
@@ -290,9 +271,8 @@ export function stab(node) {
     if (animation) animation.cancel();
     const target = get_target(node);
 
-    const style = getComputedStyle(node);
-    const duration = parse_ms(style.getPropertyValue("--duration-slow").trim() || "500ms");
-    const easing = style.getPropertyValue("--ease-out").trim() || "cubic-bezier(0, 0, 0.2, 1)";
+    const duration = resolve_ms("--duration-slow", 500, node);
+    const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
 
     animation = target.animate(
       [
@@ -364,10 +344,7 @@ export function kinetic_scroll(node) {
 
   const apply_momentum = () => {
     if (is_down || Math.abs(velocity) < 0.1) return;
-    const style = getComputedStyle(node);
-    const friction = parseFloat(
-      style.getPropertyValue("--kinetic-momentum-friction").trim() || "0.95",
-    );
+    const friction = resolve_number("--kinetic-momentum-friction", 0.95, node);
     node.scrollTop -= velocity * 10;
     velocity *= friction;
     raf_id = requestAnimationFrame(apply_momentum);
@@ -376,11 +353,8 @@ export function kinetic_scroll(node) {
   const on_move = (/** @type {any} */ e) => {
     if (!is_down) return;
 
-    const style = getComputedStyle(node);
-    const multiplier = parseFloat(
-      style.getPropertyValue("--kinetic-scroll-multiplier").trim() || "1.5",
-    );
-    const threshold = parseFloat(style.getPropertyValue("--kinetic-drag-threshold").trim() || "10");
+    const multiplier = resolve_number("--kinetic-scroll-multiplier", 1.5, node);
+    const threshold = resolve_number("--kinetic-drag-threshold", 10, node);
 
     const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
     const y = page_y - node.offsetTop;

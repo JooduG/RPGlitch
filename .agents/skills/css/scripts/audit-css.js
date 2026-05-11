@@ -1,3 +1,5 @@
+import { validateLine } from "./token-integrity.js";
+
 /**
  * 🎨 CSS Audit Rules
  */
@@ -18,6 +20,16 @@ export const cssRules = [
     severity: "ADVICE",
     regex: /border:\s*[1-9]px/,
     message: "❌ Pixel border detected. Use depth markers like shadows.",
+  },
+  {
+    id: "TOKEN_INTEGRITY",
+    severity: "HERESY",
+    regex: /var\(--/,
+    message: "❌ Hallucinated token detected. Variable not defined in engine.css.",
+    validate: (line) => {
+      const invalidToken = validateLine(line);
+      return !!invalidToken; // Returns true if an invalid token is found (violation)
+    },
   },
 ];
 

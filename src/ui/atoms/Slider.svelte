@@ -177,7 +177,10 @@
     border-radius: var(--radius-pill);
     cursor: pointer;
     box-shadow: var(--slider-thumb-shadow);
-    margin-top: calc(var(--slider-track-height) * -0.5); /* Centering on track */
+    margin-top: calc(
+      (var(--slider-track-height) - var(--slider-thumb-size)) / 2
+    ); /* Centering on track */
+
     border: none;
     transition:
       transform var(--duration-standard) var(--ease-elastic),
@@ -192,6 +195,10 @@
     border-radius: var(--radius-pill);
     cursor: pointer;
     box-shadow: var(--slider-thumb-shadow);
+    margin-top: calc(
+      (var(--slider-track-height) - var(--slider-thumb-size)) / 2
+    ); /* Centering on track */
+
     border: none;
     transition:
       transform var(--duration-standard) var(--ease-elastic),

@@ -16,7 +16,7 @@
 
     // Design
     variant = "standard",
-    z_index = "var(--overlay-z-index)",
+    z_index = "var(--modal-z-index)",
     class: className = "",
 
     // Handlers

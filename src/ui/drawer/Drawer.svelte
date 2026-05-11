@@ -91,7 +91,7 @@
 <svelte:window onkeydown={handle_keydown} />
 
 {#if is_open}
-  <Backdrop onclick={() => app.close_drawer()} z_index="var(--overlay-z-index)" />
+  <Backdrop onclick={() => app.close_drawer()} z_index="var(--modal-z-index)" />
 
   <div
     class="drawer glass-elevated"

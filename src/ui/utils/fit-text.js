@@ -1,5 +1,4 @@
-/** @type {HTMLElement | null} */
-let sharedMeasureEl = null;
+import { resolve_px, resolve_number } from "./dom.js";
 
 /**
  * Svelte Action: fitText
@@ -34,67 +33,36 @@ export function fit_text(node, options = {}) {
 
       // 3. Line-height: reset or apply override
 
-      const rootStyle = window.getComputedStyle(document.documentElement);
-
-      // Load centralized logic tokens (Tier 1 Foundations)
-      const TOKEN_MIN_SIZE =
-        rootStyle.getPropertyValue("--fit-text-min").trim() || "var(--font-size-tiny)";
-      const TOKEN_LINE_HEIGHT =
-        rootStyle.getPropertyValue("--fit-text-height").trim() || "var(--font-height-short)";
-      const TOKEN_TOLERANCE = parseFloat(rootStyle.getPropertyValue("--fit-text-tolerance")) || 1;
-
-      /**
-       * Helper to resolve CSS values (handles variables, clamp, rem, etc.)
-       * @param {string | number | undefined} value
-       * @param {number} fallback
-       * @returns {number}
-       */
-      const resolve_px = (value, fallback) => {
-        if (!value) return fallback;
-        if (typeof value === "number") return value;
-
-        // If it's a variable or complex string, measure it using the shared element
-        if (!sharedMeasureEl && typeof document !== "undefined") {
-          sharedMeasureEl = document.createElement("div");
-          sharedMeasureEl.style.position = "absolute";
-          sharedMeasureEl.style.visibility = "hidden";
-          sharedMeasureEl.style.pointerEvents = "none";
-          sharedMeasureEl.style.zIndex = "-9999";
-          document.body.appendChild(sharedMeasureEl);
-        }
-
-        if (sharedMeasureEl) {
-          sharedMeasureEl.style.fontSize = value.startsWith("--") ? `var(${value})` : value;
-          const result = parseFloat(window.getComputedStyle(sharedMeasureEl).fontSize);
-          return isNaN(result) ? fallback : result;
-        }
-
-        return fallback;
-      };
+      // 0. Load tokens dynamically (Chalk Regime)
+      const tolerance = resolve_number("--fit-text-tolerance", 1, node);
+      const default_line_height = "var(--fit-text-height, var(--font-height-short))";
 
       // 4. Determine boundaries
-      // Default to --fit-text-min if no minSize provided
-      const minSize = resolve_px(currentOptions.minSize || TOKEN_MIN_SIZE, 12);
+      const minSize = resolve_px(
+        currentOptions.minSize || "--fit-text-min",
+        resolve_px("--font-size-tiny", 12, node),
+        node,
+      );
 
       let maxSize;
       if (currentOptions.maxSize) {
-        maxSize = resolve_px(currentOptions.maxSize, 16);
+        maxSize = resolve_px(currentOptions.maxSize, 16, node);
       } else {
         // Measure the 'natural' CSS size (e.g. from clamp or fixed rem)
         node.style.fontSize = "";
-        maxSize = parseFloat(window.getComputedStyle(node).fontSize) || 16;
+        maxSize = resolve_px(window.getComputedStyle(node).fontSize, 16, node);
       }
 
       // Default line-height from tokens
-      node.style.lineHeight = currentOptions.lineHeight || TOKEN_LINE_HEIGHT;
+      node.style.lineHeight = currentOptions.lineHeight || default_line_height;
 
       // Initial state: Start at the maximum allowed size
       node.style.fontSize = `${maxSize}px`;
 
       const isOverflowing = () => {
         return (
-          node.scrollHeight > node.clientHeight + TOKEN_TOLERANCE ||
-          node.scrollWidth > node.clientWidth + TOKEN_TOLERANCE
+          node.scrollHeight > node.clientHeight + tolerance ||
+          node.scrollWidth > node.clientWidth + tolerance
         );
       };
 
