@@ -107,13 +107,13 @@
   --blur-void: blur(var(--spacing-10));
 
   --shadow-ghost: 0 var(--spacing-1) var(--spacing-1)
-    rgb(var(--color-black-rgb), var(--opacity-muted));
+    rgb(from var(--color-black) r g b / var(--opacity-muted));
   --shadow-light: 0 var(--spacing-1) var(--spacing-3)
-    rgb(var(--color-black-rgb), var(--opacity-muted));
+    rgb(from var(--color-black) r g b / var(--opacity-muted));
   --shadow-heavy: 0 var(--spacing-2) var(--spacing-6)
-    rgb(var(--color-black-rgb), var(--opacity-heavy));
+    rgb(from var(--color-black) r g b / var(--opacity-heavy));
   --shadow-font: 0 var(--spacing-pixel) var(--spacing-1)
-    rgb(var(--color-black-rgb), var(--opacity-heavy));
+    rgb(from var(--color-black) r g b / var(--opacity-heavy));
 
   /* Z-Index Foundations */
   --z-index-below: -1;
