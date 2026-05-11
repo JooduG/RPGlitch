@@ -12,8 +12,8 @@
 function get_var_name(value) {
   const trimmed = String(value).trim();
   if (trimmed.startsWith("--")) return trimmed;
-  const match = trimmed.match(/^var\((--[^,)]+)(?:,[^)]+)?\)$/);
-  return match ? match[1].trim() : null;
+  const match = trimmed.match(/^var\s*\(\s*(--[^,)\s]+)/);
+  return match ? match[1] : null;
 }
 
 /** @type {HTMLElement | null} */
