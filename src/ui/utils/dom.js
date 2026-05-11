@@ -258,9 +258,9 @@ export function resolve_string(value, fallback = "", context = null) {
     if (typeof el.dataset !== "undefined") {
       el.dataset.resolveValue = String(cssValue);
     }
-    el.style.fontFamily = cssValue;
-    const resolved = window.getComputedStyle(el).fontFamily.replace(/['"]/g, "").trim();
-    if (resolved && resolved !== "initial" && resolved !== "serif") return resolved;
+    el.style.setProperty("--proxy", cssValue);
+    const resolved = window.getComputedStyle(el).getPropertyValue("--proxy").trim();
+    if (resolved && resolved !== "initial") return resolved.replace(/['"]/g, "");
   }
 
   return fallback;
