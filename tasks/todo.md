@@ -1,35 +1,25 @@
-# Mission Command (TODO)
+# Mission Command: Token Refactor & Recovery
 
-- [x] Update legacy references [x]
-  - [x] Modify `DESIGN.md`
-  - [x] Modify `vitest.config.js`
-  - [x] Modify `.agents/skills/swarm/templates/manifest.json`
-  - [x] Fix global `mcp_config.json` path error
-- [x] Verification [x]
-  - [x] Run `npm run deploy:prepare`
-  - [x] Final audit (junction removed, singular .agents committed)
-  - [x] Verified full system green (271 tests, clean build)
-- [x] Merge `storyboard-actions.svelte.js` into `StoryboardPill.svelte`
-- [x] Verification
-  - [x] Svelte 5 logic check via autofixer
-  - [x] Clean delete of legacy actions file
-- [x] Mariana Trench Refactor: `StoryboardCard.svelte`
-- [x] Storymode SOTA Refactor: `Message.svelte`
-- [x] Storymode SOTA Refactor: `StorymodeFeed.svelte`
-- [x] Storymode SOTA Refactor: `InputBar.svelte`
-- [ ] Devmode SOTA Refactor: `ControlPanel.svelte`
-- [ ] Wire up Kinetic Animations: `StoryboardPill.svelte`
-- [ ] Verification
-  - [x] Build & Lint check
-  - [x] Manual UI audit
+- [x] Recover from "White Void" (Audit `engine.css` and components)
+- [x] Rename Tier 3 Modal/Drawer Tokens
+  - [x] Update `engine.css`
+  - [x] Update `Modal.svelte`
+  - [x] Update `Drawer.svelte`
+- [x] Purge Legacy Tokens (`--bg-`, `--grad-`, `--z-`)
+  - [x] `ProfilePicture.svelte`
+  - [x] `ImagePreview.svelte`
+  - [x] `StoryboardCard.svelte`
+  - [x] `Storymode.svelte`
+  - [x] `EntityFragments.svelte`
+  - [x] `VisualWing.svelte`
+- [x] Audit Initials Sizing
+  - [x] Test `fit_text` scaling in `ProfilePicture.svelte`
+- [x] Final Verification & Cleanup
+  - [x] `npm run lint:css`
+  - [x] Browser visual audit
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601)   | Task                | Skill Invoked        | Outcome     |
-| ---------------------- | ------------------- | -------------------- | ----------- |
-| 2026-05-10T14:57+00:00 | Storymode Refactor  | `svelte`             | ✅ Resolved |
-| 2026-05-08T01:44+02:00 | Update legacy paths | `using-agent-skills` | ✅ Resolved |
-| 2026-05-08T06:24+02:00 | Storyboard Merge    | `svelte`             | ✅ Resolved |
-| 2026-05-08T06:44+02:00 | StoryboardCard SOTA | `designer`           | ✅ Resolved |
-| 2026-05-08T16:35+02:00 | UI Audit            | `browser-testing`    | ✅ Resolved |
-| 2026-05-08T16:40+02:00 | Storymode SOTA Plan | `planning`           | ✅ Resolved |
+| Timestamp (ISO 8601) | Task | Skill Invoked | Outcome |
+| :--- | :--- | :--- | :--- |
+| 2026-05-11T08:40:00Z | Token Refactor & Recovery | `designer` | 🔄 Active |

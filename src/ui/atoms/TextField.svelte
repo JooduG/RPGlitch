@@ -5,9 +5,9 @@
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { use_actions } from "@ui/utils/use-actions.js";
   import { auto_resize } from "@ui/utils/auto-resize.js";
   import { parse_markdown } from "@ui/utils/markdown.js";
+  import { use_actions } from "@ui/utils/use-actions.js";
   import { fade } from "svelte/transition";
 
   let {
@@ -145,20 +145,21 @@
 
 <style>
   .wrapper {
-    --shield-height-dormant: var(--spacing-xxxs);
-    --shield-height-active: var(--spacing-xl);
-    --anim-physics: var(--motion-l) var(--motion-elastic);
+    --tf-shield-dormant: var(--spacing-1);
+    --tf-shield-active: var(--spacing-6);
 
     width: 100%;
     display: flex;
     flex-direction: column;
     position: relative;
-    border-radius: var(--border-radius-m);
-    background: var(--glass-xs);
+    border-radius: var(--radius-standard);
+    background: var(--glass-sunken-color); /* Fallback */
+    background: rgb(from var(--glass-sunken-color) r g b / var(--opacity-ghost));
+    backdrop-filter: var(--glass-sunken-blur);
     transition:
-      border-color var(--motion-m),
-      box-shadow var(--motion-m),
-      background var(--motion-m);
+      border-color var(--duration-standard) var(--ease-standard),
+      box-shadow var(--duration-standard) var(--ease-standard),
+      background var(--duration-standard) var(--ease-standard);
     overflow: hidden;
   }
 
@@ -170,36 +171,36 @@
 
   .wrapper[data-expanded="true"] {
     border-color: var(--color-white);
-    box-shadow: 0 0 var(--spacing-m) rgb(var(--color-white-rgb) / 5%);
+    box-shadow: var(--shadow-heavy);
   }
 
   .header {
-    height: var(--shield-height-dormant);
-    border-radius: calc(var(--border-radius-m) - 1px) calc(var(--border-radius-m) - 1px) 0 0;
+    height: var(--tf-shield-dormant);
+    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
     background: rgb(from var(--tf-accent) r g b / var(--header-opacity));
-    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-xs)) var(--tf-accent);
+    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-2)) var(--tf-accent);
     position: relative;
     top: var(--spacing-px);
-    z-index: var(--z-index-m);
+    z-index: var(--z-surface);
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--spacing-s);
+    padding: 0 var(--spacing-2);
     transition:
-      height var(--anim-physics),
-      top var(--anim-physics),
-      opacity var(--motion-m),
-      background var(--anim-physics),
-      box-shadow var(--anim-physics);
+      height var(--duration-standard) var(--ease-elastic),
+      top var(--duration-standard) var(--ease-elastic),
+      opacity var(--duration-fast) var(--ease-standard),
+      background var(--duration-standard) var(--ease-elastic),
+      box-shadow var(--duration-standard) var(--ease-elastic);
     overflow: hidden;
   }
 
   .wrapper[data-expanded="true"] .header {
-    height: var(--shield-height-active);
+    height: var(--tf-shield-active);
     top: 0;
-    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-s))
-      rgb(from var(--tf-accent) r g b / 15%);
-    border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 8%);
+    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-4))
+      rgb(from var(--tf-accent) r g b / var(--opacity-muted));
+    border-bottom: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
   }
 
   .status,
@@ -215,23 +216,23 @@
 
   .body {
     width: 100%;
-    min-height: var(--spacing-xxl);
-    max-height: 15rem; /* Checked against raw? */
-    padding: var(--spacing-s);
+    min-height: var(--spacing-16);
+    max-height: 15rem; /* Specific functional limit */
+    padding: var(--spacing-4);
     background: transparent;
     border: none;
     outline: none;
-    color: var(--color-white);
-    font-family: var(--font-family-body);
+    color: var(--font-color-base);
+    font-family: var(--font-family-base);
     font-size: var(--font-size-small);
-    line-height: var(--line-height-m);
+    line-height: var(--font-height-base);
     text-align: left;
     box-sizing: border-box;
     margin: 0;
     display: block;
     overflow: hidden auto;
     position: relative;
-    z-index: var(--z-index-m);
+    z-index: var(--z-surface);
   }
 
   .body[data-mode="edit"] {
@@ -246,20 +247,20 @@
 
   .body::placeholder,
   .placeholder {
-    color: var(--color-frisk);
+    color: var(--font-color-muted);
     font-style: italic;
-    font-weight: var(--font-weight-m);
-    opacity: 0.7;
+    font-weight: var(--font-weight-base);
+    opacity: var(--opacity-heavy);
   }
 
   .wrapper[data-disabled="true"] {
-    opacity: var(--opacity-s);
+    opacity: var(--opacity-muted);
     cursor: not-allowed;
   }
 
   .wrapper[data-busy="true"] {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(0.5);
   }
 
   .wrapper[data-busy="true"] > * {
@@ -272,35 +273,35 @@
   }
 
   .paragraph[data-spaced="true"] {
-    margin-top: var(--spacing-s);
+    margin-top: var(--spacing-4);
   }
 
   .strong {
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-bold);
     color: var(--color-white);
   }
 
   .em {
     font-style: italic;
-    opacity: 0.9;
+    opacity: var(--opacity-heavy);
   }
 
   /* Global child overrides for injected snippet content */
   :global(.status-tag) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
-    letter-spacing: var(--letter-spacing-l);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     color: var(--color-white);
   }
 
   :global(.status-msg) {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-ghost);
-    opacity: 0.6;
+    font-size: var(--font-size-tiny);
+    opacity: var(--opacity-muted);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-m);
+    letter-spacing: var(--font-spacing-base);
     color: var(--color-white);
     white-space: nowrap;
     overflow: hidden;

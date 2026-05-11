@@ -1,10 +1,28 @@
 /**
- /**
-  * @file auto-resize.js
- Svelte 5 logic action to resize textareas automatically based on their content.
- Optimized to prevent layout thrashing by batching DOM reads and writes.
-  * @param {HTMLElement} node
-  */
+ * @file auto-resize.js
+ * Svelte 5 logic action to resize textareas automatically based on their content.
+ * Optimized to prevent layout thrashing by batching DOM reads and writes.
+ */
+/**
+ * Fetches the auto-resize buffer from CSS tokens
+ * @returns {number}
+ */
+const get_buffer = () => {
+  if (typeof window === "undefined") return 2;
+  return (
+    parseFloat(
+      getComputedStyle(document.documentElement).getPropertyValue("--auto-resize-buffer"),
+    ) || 2
+  );
+};
+const BUFFER = get_buffer();
+
+/**
+ * Auto-resizes an element based on its content
+ * @param {HTMLElement} node
+ * @param {Object} options
+ * @returns {Object} Action return object
+ */
 export function auto_resize(node, options = {}) {
   /**
    * @type {number}
@@ -18,7 +36,7 @@ export function auto_resize(node, options = {}) {
 
     frame = requestAnimationFrame(() => {
       // Add a small buffer to prevent flickering scrollbars
-      const buffer = 2;
+      const buffer = BUFFER;
 
       // Skip if no change in content or width
       if (node.clientWidth === lastWidth && node.scrollHeight === lastScrollHeight) {

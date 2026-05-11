@@ -4,17 +4,17 @@
    * ❄️ THE SIMULATION MESSAGE
    * Renders parsed messages in a Unified Nordic Chassis.
    */
+  import TypingIndicator from "@atoms/TypingIndicator.svelte";
   import { parse_message } from "@core/text-parser.js";
+  import DataBox from "@devmode/DataBox.svelte";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import DataBox from "@devmode/DataBox.svelte";
-  import TypingIndicator from "@atoms/TypingIndicator.svelte";
   import { safe_html } from "@utils/safe-html.js";
 
   import Button from "@atoms/Button.svelte";
-  import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
 
   /**
    * @typedef {Object} Props
@@ -138,94 +138,92 @@
       onfocusout={handle_focus_out}
       role="article"
     >
-      <div class="field-header">
-        <div class="header-content">
-          <div class="header-status">
-            <span class="entity-name"
-              >{entity?.name || character_name || (is_fractal ? "Fractal" : sender)}</span
+      <div class="header field-header">
+        <div class="header-status">
+          <span class="entity-name"
+            >{entity?.name || character_name || (is_fractal ? "Fractal" : sender)}</span
+          >
+          <span class="timestamp">{time_label}</span>
+        </div>
+        <div class="header-actions">
+          {#if is_ai && is_last}
+            <Button
+              variant="invisible"
+              size="sm"
+              square={true}
+              aria-label="Continue"
+              actions={[tooltip]}
+              onclick={on_continue}
             >
-            <span class="timestamp">{time_label}</span>
-          </div>
-          <div class="header-actions">
-            {#if is_ai && is_last}
-              <Button
-                variant="invisible"
-                size="sm"
-                square={true}
-                aria-label="Continue"
-                actions={[tooltip]}
-                onclick={on_continue}
+              <svg viewBox="0 0 24 24" class="icon-small"
+                ><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg
               >
-                <svg viewBox="0 0 24 24" class="icon-xs"
-                  ><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg
-                >
-              </Button>
-              <Button
-                variant="invisible"
-                size="sm"
-                square={true}
-                aria-label="Reroll"
-                actions={[tooltip]}
-                onclick={on_regenerate}
-              >
-                <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                  <polyline points="23 4 23 10 17 10" stroke="currentColor"></polyline>
-                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor"></path>
-                </svg>
-              </Button>
-            {/if}
-            <Button
-              variant="invisible"
-              size="sm"
-              square={true}
-              aria-label="Edit"
-              actions={[tooltip]}
-              onclick={on_edit}
-            >
-              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                <path
-                  d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                  stroke="currentColor"
-                ></path>
-                <path
-                  d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                  stroke="currentColor"
-                ></path>
-              </svg>
             </Button>
             <Button
               variant="invisible"
               size="sm"
               square={true}
-              aria-label="Copy"
+              aria-label="Reroll"
               actions={[tooltip]}
-              onclick={handle_copy}
+              onclick={on_regenerate}
             >
-              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
-                <path
-                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                  stroke="currentColor"
-                ></path>
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                <polyline points="23 4 23 10 17 10" stroke="currentColor"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor"></path>
               </svg>
             </Button>
-            <Button
-              variant="invisible"
-              size="sm"
-              square={true}
-              aria-label="Delete"
-              actions={[tooltip]}
-              onclick={on_delete}
-            >
-              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
-                <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
-                <path
-                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                  stroke="currentColor"
-                ></path>
-              </svg>
-            </Button>
-          </div>
+          {/if}
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Edit"
+            actions={[tooltip]}
+            onclick={on_edit}
+          >
+            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <path
+                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                stroke="currentColor"
+              ></path>
+              <path
+                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                stroke="currentColor"
+              ></path>
+            </svg>
+          </Button>
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Copy"
+            actions={[tooltip]}
+            onclick={handle_copy}
+          >
+            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
+              <path
+                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                stroke="currentColor"
+              ></path>
+            </svg>
+          </Button>
+          <Button
+            variant="invisible"
+            size="sm"
+            square={true}
+            aria-label="Delete"
+            actions={[tooltip]}
+            onclick={on_delete}
+          >
+            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
+              <path
+                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                stroke="currentColor"
+              ></path>
+            </svg>
+          </Button>
         </div>
       </div>
 
@@ -282,9 +280,9 @@
   .message-row {
     display: flex;
     width: 100%;
-    padding: var(--spacing-m) var(--spacing-xxxxl);
+    padding: var(--spacing-4) var(--spacing-24);
     position: relative;
-    transition: all var(--motion-m);
+    transition: all var(--duration-fast);
   }
 
   .message-row.user-row {
@@ -298,7 +296,7 @@
   .message-row.fractal-row,
   .message-row.centered-row {
     justify-content: center;
-    padding: var(--spacing-m) var(--spacing-xxxxl);
+    padding: var(--spacing-4) var(--spacing-24);
   }
 
   .message-bubble {
@@ -308,33 +306,33 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    border-radius: var(--border-radius-xl);
-    transition: all var(--motion-l) var(--motion-elastic);
-    background: color-mix(in srgb, var(--glass-xs), var(--signature-color) 3%);
-    border-color: rgb(var(--color-white-rgb) / 5%);
+    border-radius: var(--radius-standard);
+    transition: all var(--duration-standard) var(--motion-elastic);
+    background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
+    border-color: rgb(from var(--color-white) r g b / 5%);
     overflow: hidden;
     outline: none;
     cursor: pointer;
   }
 
   .fractal-bubble {
-    width: var(--width-modal-max);
+    width: var(--modal-max);
     max-width: 90%;
   }
 
   /* Soft Point Corner Directionality */
   .user-bubble {
-    border-bottom-right-radius: var(--border-radius-s);
+    border-bottom-right-radius: var(--radius-sharp);
   }
 
   .ai-bubble {
-    border-bottom-left-radius: var(--border-radius-s);
+    border-bottom-left-radius: var(--radius-sharp);
   }
 
   .message-bubble.is-focused {
     border-color: var(--color-white);
-    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-l) var(--color-white-glow);
-    background: color-mix(in srgb, var(--glass-xs), var(--signature-color) 6%);
+    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-6) var(--color-white-glow);
+    background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
     overflow: visible;
   }
 
@@ -345,7 +343,7 @@
     inset: 0;
     pointer-events: none;
     border-radius: inherit;
-    padding: var(--spacing-border);
+    padding: var(--spacing-px);
     background: linear-gradient(
       to bottom,
       color-mix(in srgb, transparent, var(--signature-color) 40%),
@@ -356,7 +354,7 @@
       linear-gradient(var(--color-white) 0 0);
     mask-composite: exclude;
     opacity: 0.5;
-    transition: opacity var(--motion-l);
+    transition: opacity var(--duration-standard);
   }
 
   .message-bubble.is-focused::before {
@@ -380,41 +378,42 @@
 
   /* --- HEADER LOGIC --- */
   .field-header {
-    height: 2px;
+    height: var(--spacing-px);
     background: linear-gradient(
       90deg,
       transparent 0%,
       var(--signature-color, var(--color-frozen)) 50%,
       transparent 100%
     );
-    transition: all var(--motion-l) var(--motion-elastic);
+    transition: all var(--duration-standard) var(--motion-elastic);
     display: flex;
     flex-direction: column;
     position: relative;
     top: 0;
-    border-radius: var(--border-radius-xl) var(--border-radius-xl) var(--spacing-0) var(--spacing-0);
-    z-index: var(--z-index-2);
+    border-radius: var(--radius-standard) var(--radius-standard) var(--spacing-0) var(--spacing-0);
+    z-index: var(--z-20);
   }
 
   .message-bubble.is-focused .field-header {
-    height: 2.2rem;
+    height: 2.25rem;
     background: color-mix(in srgb, var(--signature-color), black 30%);
-    border-bottom: var(--spacing-px) solid rgb(var(--color-white-rgb) / 12%);
+    border-bottom: var(--spacing-px) solid rgb(from var(--color-white) r g b / 12%);
     overflow: visible;
-  }
-
-  .header-content {
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--spacing-m);
-    opacity: 0;
-    transform: translateY(-5px);
-    transition: all var(--motion-m);
+    padding: 0 var(--spacing-4);
   }
 
-  .message-bubble.is-focused .header-content {
+  .header-status,
+  .header-actions {
+    opacity: 0;
+    transform: translateY(calc(var(--spacing-1) * -1));
+    transition: all var(--duration-fast);
+  }
+
+  .message-bubble.is-focused .header-status,
+  .message-bubble.is-focused .header-actions {
     opacity: 1;
     transform: translateY(0);
   }
@@ -423,18 +422,18 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
     overflow: hidden;
     font-family: var(--font-family-mono);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-l);
   }
 
   .entity-name {
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     color: var(--color-white);
-    text-shadow: 0 0 8px rgb(var(--color-white-rgb) / 30%);
+    text-shadow: 0 0 var(--spacing-2) rgb(from var(--color-white) r g b / 30%);
     white-space: nowrap;
   }
 
@@ -447,13 +446,13 @@
   .header-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
   }
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
     color: color-mix(in srgb, var(--color-white), var(--signature-color) 20%);
-    transition: all var(--motion-l);
+    transition: all var(--duration-standard);
   }
 
   .header-actions :global(.button:hover) {
@@ -463,17 +462,17 @@
 
   /* --- BODY LOGIC --- */
   .message-body {
-    padding: var(--spacing-m) var(--spacing-l);
+    padding: var(--spacing-4) var(--spacing-6);
     position: relative;
-    z-index: var(--z-index-1);
+    z-index: var(--z-10);
   }
 
   .message-content {
-    line-height: var(--line-height-m);
-    font-size: var(--font-size-body);
-    font-family: var(--font-family-body);
+    line-height: var(--font-height-m);
+    font-size: var(--font-size-base);
+    font-family: var(--font-family-base);
     color: var(--color-white);
-    text-shadow: 0 var(--spacing-px) 2px rgb(var(--color-black-rgb) / 60%);
+    text-shadow: var(--shadow-font);
     text-align: left;
     text-wrap: pretty;
   }
@@ -481,9 +480,9 @@
   /* Bold & Bright Dialogue */
   .message-content :global(strong),
   .message-content :global(b) {
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     color: var(--signature-color);
-    text-shadow: 0 0 8px rgb(from var(--signature-color) r g b / 25%);
+    text-shadow: 0 0 var(--spacing-2) rgb(from var(--signature-color) r g b / 25%);
   }
 
   /* High-Vis Narration */
@@ -491,11 +490,11 @@
   .message-content :global(i) {
     font-style: italic;
     opacity: 0.9;
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
   }
 
   .message-content :global(p) {
-    margin: 0 0 var(--spacing-s) 0;
+    margin: 0 0 var(--spacing-3) 0;
   }
 
   .message-content :global(p:last-child) {
@@ -504,7 +503,7 @@
 
   .thinking-wrapper {
     display: flex;
-    padding: var(--spacing-s) 0;
+    padding: var(--spacing-3) 0;
   }
 
   /* --- BUSY ANIMATION (The "Something") --- */
@@ -519,11 +518,11 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgb(var(--color-white-rgb) / 20%) 50%,
+      rgb(from var(--color-white) r g b / 20%) 50%,
       transparent 100%
     );
     width: 100%;
-    animation: scan var(--motion-xxl) linear infinite;
+    animation: scan var(--duration-atmospheric) linear infinite;
   }
 
   @keyframes scan {
@@ -537,25 +536,25 @@
   }
 
   .attachments {
-    margin-bottom: var(--spacing-m);
+    margin-bottom: var(--spacing-4);
   }
 
   .message-row :global(.button.attachment-button) {
-    padding: var(--spacing-xxs);
+    padding: var(--spacing-1);
     min-height: 0;
-    background: var(--glass-s);
-    margin: 0 0 var(--spacing-xs) 0;
+    background: var(--glass-base);
+    margin: 0 0 var(--spacing-2) 0;
     width: fit-content;
   }
 
   .message-row :global(.button.attachment-button:hover) {
-    background: var(--glass-l);
+    background: var(--glass-elevated);
   }
 
   .attachment-image {
     max-width: 100%;
-    border-radius: var(--border-radius-s);
-    box-shadow: var(--shadow-s);
+    border-radius: var(--radius-sharp);
+    box-shadow: var(--shadow-ghost);
     object-fit: cover;
   }
 </style>

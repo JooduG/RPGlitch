@@ -1,10 +1,10 @@
 <script>
+  import Button from "@atoms/Button.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
   import { app } from "@state/app.svelte.js";
   import { session } from "@state/session.svelte.js";
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import Button from "@atoms/Button.svelte";
-  import Dialog from "@atoms/Dialog.svelte";
   import Message from "@storymode/Message.svelte";
 
   // --- STATE ---
@@ -148,7 +148,7 @@
     flex: 1;
     min-height: var(--dropdown-max-height);
     overflow: hidden auto;
-    padding: var(--spacing-m) 0;
+    padding: var(--spacing-4) 0;
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -160,13 +160,13 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xxl) var(--spacing-l);
+    padding: var(--spacing-12) var(--spacing-6);
     text-align: center;
-    color: var(--font-color-s);
-    gap: var(--spacing-m);
+    color: var(--font-color-muted);
+    gap: var(--spacing-4);
   }
 
   .empty-feed-fallback p {
-    max-width: var(--width-modal-max);
+    max-width: var(--modal-max);
   }
 </style>

@@ -37,7 +37,8 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-!**/.agents/skills/delivery/assets/RPGlitch-left-panel.txt
+**/.gemini/**
+!**/rpglitch-left-panel.txt
 .secrets
 **/.gemini/**
 **/.jules/**

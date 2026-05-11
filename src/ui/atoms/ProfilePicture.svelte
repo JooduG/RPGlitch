@@ -92,7 +92,7 @@
     />
   {:else}
     <div class="status">
-      <div class="initials" use:fit_text={{ maxSize: 600, minSize: 10 }}>
+      <div class="initials" use:fit_text={{ minSize: 10 }}>
         {initials}
       </div>
     </div>
@@ -107,13 +107,26 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: var(--glass-xs);
+    background: var(--glass-sunken);
+    backdrop-filter: var(--glass-sunken-blur);
     position: relative;
-    transition: filter var(--motion-m);
+    transition: filter var(--duration-standard) var(--ease-standard);
+  }
+
+  /* Atmospheric Noise Overlay (Local) */
+  .wrapper::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background-image: var(--noise-url);
+    opacity: var(--noise-opacity);
+    pointer-events: none;
+    mix-blend-mode: overlay;
+    z-index: var(--z-0);
   }
 
   .wrapper.is-busy {
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(var(--opacity-heavy));
     cursor: wait;
     pointer-events: none;
   }
@@ -123,12 +136,14 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: filter var(--motion-m);
+    transition: filter var(--duration-standard) var(--ease-standard);
   }
 
   .media.no-bg {
     object-fit: contain;
-    filter: drop-shadow(0 0.5rem 1rem rgb(var(--color-black-rgb) / 50%));
+    filter: drop-shadow(
+      0 var(--spacing-2) var(--spacing-4) rgb(var(--bg-base-rgb), var(--opacity-heavy))
+    );
   }
 
   .media.flipped {
@@ -150,30 +165,40 @@
     background-image: radial-gradient(
       circle at center,
       transparent 0%,
-      rgb(var(--color-black-rgb) / 40%) 100%
+      rgb(var(--bg-base-rgb), var(--opacity-heavy)) 100%
     );
   }
 
   /* The Watermark Initials */
   .initials {
     font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     color: var(--color-white);
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
-    line-height: 0.7;
-    letter-spacing: -0.05em;
+    line-height: var(--font-height-short);
+    letter-spacing: var(--font-spacing-tight);
 
     /* Punchy "Branded" Aesthetics - Boosted Presence */
-    opacity: 1;
+    opacity: var(--opacity-solid);
 
     /* Subtle Depth Shadow */
-    filter: drop-shadow(0 0 20px rgb(var(--color-white-rgb) / 15%));
+    filter: drop-shadow(
+      0 0 var(--spacing-8) rgb(var(--color-white-rgb), var(--opacity-whisper))
+    );
 
     /* Layout Hardening */
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     white-space: nowrap;
     text-align: center;
-    padding: var(--spacing-xs);
+    padding: 0;
+    font-size: calc(
+      var(--spacing-unit) * 40
+    ); /* Large starting size for fit_text to scale down from */
   }
 </style>

@@ -1,8 +1,8 @@
 <script>
-  import { app } from "@state/app.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { pickRandom } from "@core/utils.js";
+  import { app } from "@state/app.svelte.js";
+  import { themeStore } from "@theme/palette.svelte.js";
   // ============================================
   // LOCAL STATE (Component-Owned)
   // ============================================
@@ -130,34 +130,35 @@
 
   h1 {
     font-size: clamp(var(--font-size-h3), 10vw, var(--font-size-h1));
-    line-height: 1.1;
+    line-height: var(--font-height-short);
     margin: 0;
     font-family: Satisfy, cursive;
-    letter-spacing: var(--letter-spacing-s);
+    letter-spacing: var(--font-spacing-tight);
     cursor: text;
-    transition: all var(--motion-l) var(--motion-elastic);
-    border-radius: var(--border-radius-l);
-    padding: var(--spacing-xxs) var(--spacing-s);
+    transition: all var(--duration-standard) var(--ease-elastic);
+    border-radius: var(--radius-standard);
+    padding: var(--spacing-1) var(--spacing-3);
     text-wrap: balance;
     max-width: 80vw;
-    margin-inline: auto;
+    margin-inline: 0;
 
     /* Soft ethereal glow */
-    text-shadow: 0 0 20px rgb(var(--color-black-rgb) / 50%);
+    text-shadow: 0 0 var(--spacing-5) rgb(from var(--color-black) r g b / var(--opacity-heavy));
     display: block;
-    min-width: 300px;
     text-align: center;
   }
 
   h1:hover {
-    background: var(--glass-xs);
+    background: var(--glass-sunken);
+    transform: var(--hover-lift);
   }
 
   h1:focus-within {
     outline: none;
-    background: var(--glass-l);
+    background: var(--glass-elevated);
     --title-focus-shadow:
-      0 0 0 var(--spacing-xxs) var(--signature-color), 0 0 var(--spacing-l) var(--color-pink);
+      0 0 0 var(--spacing-px) var(--color-frisk),
+      0 0 var(--spacing-6) rgb(from var(--color-frisk) r g b / var(--opacity-muted));
 
     box-shadow: var(--title-focus-shadow);
   }

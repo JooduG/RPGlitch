@@ -93,14 +93,14 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-xs);
-    padding: var(--spacing-xs) var(--spacing-m);
-    min-height: var(--spacing-xxl);
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-4);
+    min-height: var(--spacing-12);
     position: relative;
 
     /* --- Typography --- */
     font-family: inherit;
-    font-weight: var(--font-weight-l);
+    font-weight: var(--font-weight-bold);
     font-size: var(--font-size-small);
     line-height: 1;
     text-decoration: none;
@@ -110,48 +110,48 @@
     cursor: pointer;
     pointer-events: auto;
     border: none;
-    border-radius: var(--border-radius-m);
+    border-radius: var(--radius-standard);
     background: transparent;
-    color: var(--font-color-m);
+    color: var(--font-color-base);
 
     /* --- Motion --- */
     transition:
-      background-color var(--motion-l) var(--motion-elastic),
-      color var(--motion-l) var(--motion-elastic),
-      box-shadow var(--motion-l) var(--motion-elastic),
-      transform var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l) var(--motion-elastic),
-      border-color var(--motion-l) var(--motion-elastic);
+      background-color var(--duration-slow) var(--ease-elastic),
+      color var(--duration-slow) var(--ease-elastic),
+      box-shadow var(--duration-slow) var(--ease-elastic),
+      transform var(--duration-slow) var(--ease-elastic),
+      filter var(--duration-slow) var(--ease-elastic),
+      border-color var(--duration-slow) var(--ease-elastic);
   }
 
   /* --- Kinetic Stabilization --- */
   .wrapper[data-kinetic="true"] {
     /* Disable CSS transform transitions when WAAPI is active to prevent jitter */
     transition:
-      background-color var(--motion-l) var(--motion-elastic),
-      color var(--motion-l) var(--motion-elastic),
-      box-shadow var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l) var(--motion-elastic),
-      border-color var(--motion-l) var(--motion-elastic);
+      background-color var(--duration-slow) var(--ease-elastic),
+      color var(--duration-slow) var(--ease-elastic),
+      box-shadow var(--duration-slow) var(--ease-elastic),
+      filter var(--duration-slow) var(--ease-elastic),
+      border-color var(--duration-slow) var(--ease-elastic);
   }
 
   /* --- Structural Modifiers --- */
   .wrapper.is-sm {
-    min-height: var(--spacing-xl);
-    padding: var(--spacing-xxs) var(--spacing-s);
+    min-height: var(--spacing-8);
+    padding: var(--spacing-1) var(--spacing-3);
     font-size: var(--font-size-tiny);
   }
 
   .wrapper.is-square {
     padding: 0;
-    min-height: var(--spacing-m);
+    min-height: var(--spacing-4);
     aspect-ratio: 1;
     flex-shrink: 0;
   }
 
   .wrapper.is-square.is-sm {
-    width: var(--icon-s);
-    height: var(--icon-s);
+    width: var(--icon-small);
+    height: var(--icon-small);
   }
 
   .wrapper.is-full {
@@ -162,8 +162,8 @@
   .wrapper.is-cover {
     position: absolute;
     inset: 0;
-    z-index: var(--z-index-m);
-    border-radius: 0;
+    z-index: var(--z-surface);
+    border-radius: inherit;
     padding: 0;
     min-height: 0;
     width: 100%;
@@ -177,13 +177,13 @@
   .variant-primary {
     background: var(--color-white);
     color: var(--color-chalk);
-    box-shadow: var(--shadow-m);
+    box-shadow: var(--shadow-heavy);
   }
 
   .variant-secondary {
     background: var(--signature-color, var(--color-frozen));
     color: var(--color-white);
-    box-shadow: var(--shadow-s);
+    box-shadow: var(--shadow-ghost);
   }
 
   .variant-danger {
@@ -193,25 +193,25 @@
 
   .variant-invisible {
     background: transparent;
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
   }
 
   /* --- Operational States --- */
   .wrapper:focus-visible {
-    outline: 2px solid var(--color-white);
-    outline-offset: 2px;
+    outline: var(--spacing-px) solid var(--color-white);
+    outline-offset: var(--spacing-px);
   }
 
   .wrapper:disabled {
-    opacity: var(--opacity-s);
-    filter: grayscale(1);
+    opacity: var(--opacity-muted);
+    filter: grayscale(var(--opacity-solid));
     pointer-events: none;
     transform: none;
     box-shadow: none;
   }
 
   .wrapper:active:not(:disabled) {
-    transform: scale(var(--motion-click, 0.95));
+    transform: var(--click-sink);
   }
 
   .wrapper[data-kinetic="true"]:active:not(:disabled) {
@@ -219,20 +219,20 @@
   }
 
   .wrapper:hover:not(:disabled) {
-    filter: var(--hover-brightness);
+    filter: var(--hover-glow);
   }
 
   .wrapper.is-busy {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(var(--opacity-heavy));
     pointer-events: none;
   }
 
   /* --- Interaction Refinements --- */
   .variant-primary:hover:not(:disabled) {
-    filter: brightness(1.05);
-    box-shadow: var(--shadow-l);
-    transform: scale(1.02);
+    filter: var(--hover-glow);
+    box-shadow: var(--shadow-heavy);
+    transform: var(--hover-lift);
   }
 
   .variant-primary[data-kinetic="true"]:hover:not(:disabled) {
@@ -240,7 +240,7 @@
   }
 
   .variant-secondary:hover:not(:disabled) {
-    box-shadow: var(--shadow-m);
+    box-shadow: var(--shadow-heavy);
     border-color: var(--color-white);
   }
 
@@ -248,7 +248,8 @@
     background: var(--color-red);
     color: var(--color-white);
     --danger-hover-shadow:
-      0 0 var(--spacing-m) var(--color-red-glow), inset 0 0 0 var(--spacing-px) var(--color-red);
+      0 0 var(--spacing-4) rgb(from var(--color-red) r g b / var(--opacity-muted)),
+      inset 0 0 0 var(--spacing-px) var(--color-red);
 
     box-shadow: var(--danger-hover-shadow);
   }
@@ -256,7 +257,7 @@
   .variant-invisible:hover:not(:disabled) {
     background: transparent;
     color: var(--color-white);
-    filter: brightness(1.2);
+    filter: var(--hover-glow);
   }
 
   /* --- Global Resets --- */

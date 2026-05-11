@@ -40,6 +40,13 @@ export class AppStore {
   view = $state("storyboard"); // 'storyboard' | 'storymode'
   control_panel_open = $state(false);
   profile_open = $state(false);
+  viewport = $state({
+    mini: false,
+    mobile: false,
+    tablet: false,
+    desktop: false,
+    is_touch: false,
+  });
   // --- ENTITY SELECTION STATE (STORYBOARD) ---
   /** @type {any | null} */
   selected_ai = $state(null);
@@ -161,6 +168,10 @@ export class AppStore {
   async init() {
     if (typeof window === "undefined" || this.initialized) return;
     this.initialized = true;
+
+    // Initialize responsive listeners
+    this.init_viewport();
+
     try {
       const entry = await db.kv_settings.get(KV_SETTINGS_KEY);
       if (entry && entry.value) {
@@ -169,6 +180,39 @@ export class AppStore {
     } catch (e) {
       console.error("[Security] Settings Hydration Failed:", e);
     }
+  }
+
+  /**
+   * Centralized Viewport Observer
+   * Syncs with engine.css tokens.
+   */
+  init_viewport() {
+    if (typeof window === "undefined") return;
+
+    const queries = {
+      mini: "(max-width: 30rem)",
+      mobile: "(max-width: 48rem)",
+      tablet: "(max-width: 64rem)",
+      desktop: "(max-width: 80rem)",
+    };
+
+    Object.keys(queries).forEach((key) => {
+      const k = /** @type {keyof typeof queries} */ (key);
+      const query = queries[k];
+      const mql = window.matchMedia(query);
+
+      // Initial state
+      this.viewport[k] = mql.matches;
+
+      // Listener (Modern API)
+      mql.addEventListener("change", (e) => {
+        this.viewport[k] = e.matches;
+        this.log(`Viewport Change: ${k} -> ${e.matches}`, "system");
+      });
+    });
+
+    // Touch detection
+    this.viewport.is_touch = window.ontouchstart !== undefined || navigator.maxTouchPoints > 0;
   }
   /**
    * Hydrates the storyboard lists with characters and fractals.

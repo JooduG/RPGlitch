@@ -32,7 +32,6 @@
     "**/.DS_Store": true,
     "**/.antigravityignore": true,
     "**/.eslintcache": true,
-    "**/.gemini/**": true,
     "**/.gemini/[!s]*": true,
     "**/.gemini/s[!e]*": true,
     "**/.geminiignore": true,

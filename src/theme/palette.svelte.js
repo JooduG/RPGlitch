@@ -60,24 +60,6 @@ export const PALETTE_VARS = {
   "#fb7185": "var(--color-rose)",
 };
 
-export const RGB_MAP = {
-  "Crimson Red": "239, 68, 68",
-  "Sunset Orange": "249, 115, 22",
-  "Pumpkin Amber": "251, 191, 36",
-  "Lemon Yellow": "253, 224, 71",
-  "Lime Green": "132, 204, 22",
-  "Forest Green": "21, 128, 61",
-  "Emerald Green": "16, 185, 129",
-  "Neon Teal": "20, 184, 166",
-  "Electric Cyan": "17, 174, 204",
-  "Ocean Blue": "59, 130, 246",
-  "Deep Indigo": "129, 140, 248",
-  "Twilight Violet": "192, 132, 252",
-  "Royal Purple": "168, 85, 247",
-  "Hot Pink": "236, 72, 153",
-  "Coral Rose": "251, 113, 133",
-};
-
 export const IMG_RESOLUTION = "512x768";
 
 export const PROFILE_PICTURE_PLACEHOLDERS = {
@@ -97,18 +79,16 @@ class ThemeStore {
 
   /**
    * Helper to convert Hex to RGB triplet
+   * @deprecated Use CSS Relative Color Syntax: rgb(from var(--hex) r g b / opacity)
    * @param {string} [hex] - "#RRGGBB" or "var(--color-name)"
    * @returns {string} - "R, G, B"
    */
   hex_to_rgb(hex) {
     if (!hex) return "168, 85, 247"; // Default purple
 
-    // Reverse lookup CSS tokens back to raw hex if they come from the standard palette
-    if (hex.startsWith("var(")) {
-      const standard_match = Object.entries(PALETTE_VARS).find(([, v]) => v === hex);
-      if (standard_match) hex = standard_match[0];
-      else return hex.replace(")", "-rgb)"); // Nordic custom colors fallback
-    }
+    // If it's already a var, we can't reliably parse it to a triplet in JS
+    // without getComputedStyle. We return the var and hope the caller uses RCS.
+    if (hex.startsWith("var(")) return hex;
 
     const shorthand_regex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i;
     hex = hex.replace(shorthand_regex, (m, r, g, b) => r + r + g + g + b + b);

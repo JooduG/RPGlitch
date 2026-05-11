@@ -14,7 +14,7 @@
     busy = false,
 
     // Design
-    z_index = "var(--z-index-xl)",
+    z_index = "var(--z-index-overlay)",
     class: className = "",
 
     // Slots/Snippets
@@ -31,7 +31,7 @@
   class:is-blurred={is_blurred}
   class:is-busy={busy}
   style:z-index={z_index}
-  transition:fade={{ duration: 300 }}
+  transition:fade={{ duration: 250 }}
   use:use_actions={actions}
 >
   {@render children?.()}
@@ -46,11 +46,15 @@
     justify-content: center;
 
     /* Atmosphere */
-    background: var(--glass-xs);
+    background: radial-gradient(
+      circle at center,
+      rgb(var(--background-gradient-4-rgb), var(--opacity-heavy)),
+      rgb(var(--color-black-rgb), var(--opacity-substantial))
+    );
     cursor: pointer;
 
     /* Physics */
-    z-index: var(--z-index-xl);
+    z-index: var(--z-index-overlay);
 
     /* Interaction Hygiene */
     user-select: none;
@@ -59,7 +63,7 @@
   }
 
   .wrapper.is-blurred {
-    backdrop-filter: var(--blur-s);
+    backdrop-filter: var(--blur-mist) saturate(0.4) brightness(0.8);
   }
 
   .wrapper.is-busy {

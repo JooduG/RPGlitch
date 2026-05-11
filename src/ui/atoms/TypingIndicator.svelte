@@ -41,30 +41,30 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
     width: fit-content;
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l) var(--motion-elastic);
+    border-radius: var(--radius-pill);
+    transition: all var(--duration-standard) var(--ease-elastic);
   }
 
   /* ── Variant: glass (default — floating bubble) ──────── */
   .wrapper.glass {
-    padding: var(--spacing-xs) var(--spacing-l);
-    background: var(--glass-l);
-    border: var(--border-s);
-    box-shadow: var(--shadow-s);
+    padding: var(--spacing-2) var(--spacing-8);
+    background: var(--glass-elevated-color); /* Maps to glass-elevated foundation */
+    backdrop-filter: var(--glass-elevated-blur);
+    box-shadow: var(--shadow-ghost);
     height: 2.5rem;
   }
 
   .wrapper.glass .dot {
-    background-color: var(--font-color-m);
+    background-color: var(--font-color-base);
   }
 
   /* ── Variant: pill (inline / chat) ───────────────────── */
   .wrapper.pill {
-    padding: var(--spacing-xs) var(--spacing-m);
+    padding: var(--spacing-2) var(--spacing-4);
     background: var(--activity-color);
-    height: var(--spacing-xl);
+    height: var(--spacing-12);
   }
 
   /* ── Variant: minimal (bare dots) ────────────────────── */
@@ -77,10 +77,10 @@
 
   /* ── Dot ──────────────────────────────────────────────── */
   .dot {
-    width: var(--spacing-xs);
-    height: var(--spacing-xs);
+    width: var(--spacing-2);
+    height: var(--spacing-2);
     background-color: var(--color-white);
-    border-radius: var(--border-radius-full);
+    border-radius: var(--radius-pill);
     animation: typing-pulse 1.4s infinite ease-in-out both;
   }
 
@@ -92,10 +92,9 @@
     animation-delay: -0.16s;
   }
 
-  /* ── Busy State ───────────────────────────────────────── */
   .wrapper.is-busy {
-    filter: brightness(0.8) grayscale(0.5);
-    opacity: var(--opacity-s);
+    filter: var(--brightness-dim) grayscale(0.5);
+    opacity: var(--opacity-muted);
   }
 
   /* ── Keyframes ────────────────────────────────────────── */

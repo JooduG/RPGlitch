@@ -5,10 +5,10 @@
    * A generic glassmorphic modal wrapper.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { scale } from "svelte/transition";
-  import { quartOut } from "svelte/easing";
   import Backdrop from "@atoms/Backdrop.svelte";
   import { use_actions } from "@ui/utils/use-actions.js";
+  import { quartOut } from "svelte/easing";
+  import { scale, fly } from "svelte/transition";
 
   let {
     // State
@@ -16,7 +16,7 @@
 
     // Design
     variant = "standard",
-    z_index = "var(--z-index-xl)",
+    z_index = "var(--z-index-overlay)",
     class: className = "",
 
     // Handlers
@@ -41,13 +41,14 @@
 <Backdrop onclick={on_close} {z_index} {busy}>
   <div
     {...rest}
-    class="base glass-xxl {variant} {className}"
+    class="base glass-peak {variant} {className}"
     class:is-busy={busy}
     role="dialog"
     aria-modal="true"
     tabindex="-1"
-    onclick={(/** @type {{ stopPropagation: () => any; }} */ e) => e.stopPropagation()}
-    transition:scale={{ duration: 400, easing: quartOut, start: 0.9 }}
+    onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
+    in:fly={{ y: 20, duration: 400, easing: quartOut }}
+    out:scale={{ duration: 300, easing: quartOut, start: 0.95 }}
     use:use_actions={actions}
   >
     {@render children?.()}
@@ -62,23 +63,36 @@
   .base {
     position: relative;
     width: 95%;
-    max-width: 480px;
-    min-width: 280px;
-    max-height: 90vh;
-    padding: var(--spacing-xl);
+    max-width: var(--modal-width-base);
+    min-width: var(--modal-width-thin);
+    max-height: var(--modal-height-standard);
+    padding: var(--padding-loose);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-l);
+    gap: var(--gap-loose);
     overflow: hidden;
-    cursor: default; /* Reset cursor from Backdrop's pointer */
+    border-radius: var(--radius-standard);
+    cursor: default;
     pointer-events: auto;
-    transition: filter var(--motion-m);
+    transition: filter var(--duration-standard);
+  }
+
+  /* Nordic Collection Noise Texture */
+  .base:not(.profile)::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: var(--z-index-below);
+    background-image: var(--noise-url);
+    opacity: var(--noise-opacity);
+    mix-blend-mode: overlay;
+    pointer-events: none;
   }
 
   /* Variant Specifics */
   .base.profile {
     width: 100%;
-    max-width: 1000px;
+    max-width: var(--modal-width-wide);
     background: transparent;
     backdrop-filter: none;
     border: none;
@@ -89,18 +103,18 @@
 
   .base.preview,
   .base.mini {
-    max-width: 320px;
+    max-width: var(--modal-width-thin);
   }
 
   .base.mini {
-    padding: var(--spacing-l);
-    gap: var(--spacing-m);
+    padding: var(--padding-tight);
+    gap: var(--gap-tight);
   }
 
   /* Busy State Logic */
   .base.is-busy {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(0.5);
     pointer-events: none;
   }
 </style>

@@ -141,6 +141,7 @@ declare global {
     pluginUpload: typeof pluginUpload;
     oc: PerchanceOC;
     update: typeof update;
+    ontouchstart?: unknown;
   }
 }
 

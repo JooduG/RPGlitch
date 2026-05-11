@@ -39,9 +39,11 @@
     "**/templates/**",
     "**/test-results/**",
     "**/yarn.lock",
-    "**/tmp/**"
+    "**/tmp/**",
+    "**/.gemini/**"
   ],
   "geminiignore": [
+    "**/.agents/**",
     "!**/.env",
     "!**/.gemini/**",
     "!**/.geminiignore",
@@ -74,7 +76,6 @@
       "**/.DS_Store": true,
       "**/.antigravityignore": true,
       "**/.eslintcache": true,
-      "**/.gemini/**": true,
       "**/.gemini/[!s]*": true,
       "**/.gemini/s[!e]*": true,
       "**/.geminiignore": true,

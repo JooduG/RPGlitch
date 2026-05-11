@@ -65,31 +65,31 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: var(--spacing-m);
-    padding: var(--spacing-xxs) 0;
+    gap: var(--spacing-4);
+    padding: var(--spacing-1) 0;
 
     /* Interaction */
     cursor: pointer;
     user-select: none;
-    transition: opacity var(--motion-l);
+    transition: opacity var(--duration-standard) var(--ease-standard);
 
     /* Internal Geometry (Chalk Regime Mapping) */
-    --toggle-w: calc(var(--spacing-xl) + var(--spacing-s));
-    --toggle-h: var(--font-size-h5);
-    --thumb-size: var(--spacing-m);
-    --thumb-offset: calc((var(--toggle-h) - var(--thumb-size)) / 2);
+    --toggle-width: calc(var(--spacing-12) + var(--spacing-2));
+    --toggle-height: var(--font-size-h5);
+    --thumb-size: var(--spacing-4);
+    --thumb-offset: calc((var(--toggle-height) - var(--thumb-size)) / 2);
   }
 
   /* --- MODIFIERS --- */
 
   .wrapper.is-disabled {
-    opacity: var(--opacity-m);
+    opacity: var(--opacity-muted);
     cursor: default;
   }
 
   .wrapper.is-busy {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(0.5);
   }
 
   .wrapper.is-busy > * {
@@ -97,8 +97,8 @@
   }
 
   .wrapper.is-sm {
-    --toggle-w: calc(var(--spacing-xl) + var(--spacing-xxs));
-    --toggle-h: var(--spacing-m);
+    --toggle-width: calc(var(--spacing-8) + var(--spacing-1));
+    --toggle-height: var(--spacing-4);
     --thumb-size: var(--font-size-small);
   }
 
@@ -107,9 +107,9 @@
   /* Logic Kernel (Hidden Input) */
   input {
     position: absolute;
-    width: var(--spacing-0);
-    height: var(--spacing-0);
-    opacity: var(--opacity-none);
+    width: 0;
+    height: 0;
+    opacity: 0;
     pointer-events: none;
   }
 
@@ -117,11 +117,14 @@
   .track {
     position: relative;
     flex-shrink: 0;
-    width: var(--toggle-w);
-    height: var(--toggle-h);
-    background-color: var(--glass-xs);
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l) var(--motion-elastic);
+    width: var(--toggle-width);
+    height: var(--toggle-height);
+    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
+    backdrop-filter: var(--blur-whisper);
+    border-radius: var(--radius-pill);
+    transition:
+      background-color var(--duration-standard) var(--ease-standard),
+      box-shadow var(--duration-standard) var(--ease-standard);
   }
 
   /* The Thumb */
@@ -133,27 +136,29 @@
     width: var(--thumb-size);
     height: var(--thumb-size);
     background-color: var(--color-frisk);
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l) var(--motion-elastic);
+    border-radius: var(--radius-pill);
+    transition:
+      transform var(--duration-standard) var(--ease-elastic),
+      background-color var(--duration-standard) var(--ease-standard);
   }
 
   /* Label Styling */
   .label {
-    font-family: var(--font-family-body);
+    font-family: var(--font-family-base);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-l);
-    color: var(--font-color-s);
-    letter-spacing: var(--letter-spacing-l);
+    font-weight: var(--font-weight-bold);
+    color: var(--font-color-muted);
+    letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     white-space: nowrap;
-    transition: color var(--motion-l);
+    transition: color var(--duration-standard) var(--ease-standard);
   }
 
   /* --- STATES --- */
 
   /* Hover Interaction */
   .wrapper:hover:not(.is-disabled) .track::before {
-    filter: var(--hover-brightness);
+    filter: var(--hover-glow);
   }
 
   .wrapper:hover:not(.is-disabled) .label {
@@ -162,18 +167,20 @@
 
   /* Checked Appearance */
   input:checked + .track {
-    background-color: rgb(var(--color-frozen-rgb) / var(--opacity-xl));
+    background-color: rgb(from var(--color-frozen) r g b / var(--opacity-heavy));
   }
 
   input:checked + .track::before {
     background-color: var(--color-white);
-    transform: translateX(calc(var(--toggle-w) - var(--thumb-size) - (var(--thumb-offset) * 2)));
-    box-shadow: 0 0 var(--spacing-xs) rgb(var(--color-white-rgb) / var(--opacity-m));
+    transform: translateX(
+      calc(var(--toggle-width) - var(--thumb-size) - (var(--thumb-offset) * 2))
+    );
+    box-shadow: 0 0 var(--spacing-1) rgb(from var(--color-white) r g b / var(--opacity-muted));
   }
 
   /* Accessibility Focus */
   input:focus-visible + .track {
-    outline: var(--spacing-2px) solid var(--color-frozen);
-    outline-offset: var(--spacing-2px);
+    outline: var(--spacing-px) solid var(--color-frozen);
+    outline-offset: var(--spacing-px);
   }
 </style>

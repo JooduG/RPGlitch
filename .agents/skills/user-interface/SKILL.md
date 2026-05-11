@@ -33,7 +33,7 @@ When building dropdowns, tooltips, or context menus, use viewport-aware position
 
 Maintain a "solid" interface through consistent structural patterns:
 
-- **Stable Readonly Fields**: Provide a `min-height` (e.g., `2.5rem` or `var(--icon-m)`) for fields, even when empty, to prevent layout collapses.
+- **Stable Readonly Fields**: Provide a `min-height` (e.g., `2.5rem` or `var(--icon-medium)`) for fields, even when empty, to prevent layout collapses.
 - **Robust Click-Outside**: Use `e.target instanceof Node` and fallback to `parentElement` to ensure hits on deeply nested children are caught.
 - **Text Truncation**: Use the `.truncate` utility (ellipsis) in flex containers. Ensure parent has `min-width: 0`.
 - **Boundary Control**: Use `max-height` and `overflow-y: auto` on dynamic content areas to prevent squashing adjacent UI.

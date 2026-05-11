@@ -34,12 +34,13 @@
 <style>
   .wrapper {
     /* Base Surface: Sunken placeholder logic */
-    background: var(--glass-s);
-    border: var(--border-s);
-    border-radius: var(--border-radius-m);
+    background: rgb(from var(--glass-sunken-color) r g b / var(--glass-sunken-opacity));
+    backdrop-filter: var(--glass-sunken-blur);
+    border: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-radius: var(--radius-standard);
     overflow: hidden;
     position: relative;
-    min-height: var(--spacing-m);
+    min-height: var(--spacing-4);
 
     /* Hardware acceleration for shimmer */
     isolation: isolate;
@@ -47,27 +48,27 @@
 
   /* Variant Harmonization */
   .wrapper.card {
-    border-radius: var(--border-radius-xl);
-    min-height: 100px;
+    border-radius: var(--radius-standard);
+    min-height: 6.25rem; /* 100px */
   }
 
   .wrapper.hero {
-    border-radius: var(--border-radius-xl);
-    min-height: 240px;
+    border-radius: var(--radius-standard);
+    min-height: 15rem; /* 240px */
   }
 
   .wrapper.profile-picture,
   .wrapper.circle {
-    border-radius: var(--border-radius-full);
+    border-radius: var(--radius-full);
     aspect-ratio: 1 / 1;
-    width: var(--icon-m);
-    height: var(--icon-m);
+    width: var(--icon-medium);
+    height: var(--icon-medium);
   }
 
   .wrapper.text {
     height: 1em;
-    margin-bottom: var(--spacing-xs);
-    border-radius: var(--border-radius-s);
+    margin-bottom: var(--spacing-2);
+    border-radius: var(--radius-subtle);
     width: 60%; /* Default partial width for text skeletons */
   }
 
@@ -80,15 +81,15 @@
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgb(var(--color-white-rgb) / var(--opacity-xxs)) 30%,
-      rgb(var(--color-white-rgb) / var(--opacity-xs)) 50%,
-      rgb(var(--color-white-rgb) / var(--opacity-xxs)) 70%,
+      rgb(from var(--color-white) r g b / var(--opacity-ghost)) 30%,
+      rgb(from var(--color-white) r g b / var(--opacity-muted)) 50%,
+      rgb(from var(--color-white) r g b / var(--opacity-ghost)) 70%,
       transparent 100%
     );
-    filter: blur(var(--blur-xl));
-    animation: shimmer 2.5s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    filter: var(--blur-mist);
+    animation: shimmer 2.5s var(--ease-standard) infinite;
     pointer-events: none;
-    z-index: var(--z-index-m);
+    z-index: var(--z-surface);
   }
 
   @keyframes shimmer {

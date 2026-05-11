@@ -5,12 +5,12 @@
    * Manages character voice selection and parameters.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import { Audio } from "@media/audio-engine.svelte.js";
   import Button from "@atoms/Button.svelte";
   import Slider from "@atoms/Slider.svelte";
-  import { portal } from "@utils/portal.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
+  import { Audio } from "@media/audio-engine.svelte.js";
+  import { portal } from "@utils/portal.js";
 
   /** @type {{ char: any, is_editing: boolean }} */
   let { char = $bindable(), is_editing } = $props();
@@ -125,7 +125,7 @@
   });
 </script>
 
-<section class="wing glass-l">
+<section class="wing glass-elevated">
   <div class="header" bind:this={anchor_el}>
     <Button
       className="select {show_dropdown ? 'active' : ''}"
@@ -178,7 +178,7 @@
       onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
       variant="invisible"
     >
-      <svg viewBox="0 0 24 24" class="icon-xs">
+      <svg viewBox="0 0 24 24" class="icon-small">
         <path
           fill="currentColor"
           d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
@@ -220,10 +220,10 @@
     flex: 1;
     min-height: 0;
     position: relative;
-    transition: all var(--motion-l) var(--motion-elastic);
+    transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(var(--color-gunmetal-rgb) / 45%);
-    padding: var(--spacing-m);
-    gap: var(--spacing-m);
+    padding: var(--spacing-4);
+    gap: var(--spacing-4);
   }
 
   /* --- Layout --- */
@@ -232,7 +232,7 @@
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
     width: 100%;
     align-items: center;
   }
@@ -240,44 +240,44 @@
   .body {
     display: flex;
     flex-direction: row;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
     width: 100%;
   }
 
   /* --- Controls --- */
 
   :global(.select) {
-    height: var(--icon-m);
+    height: var(--icon-medium);
     min-height: 0;
-    background: var(--glass-xs);
+    background: var(--glass-sunken);
     border: none;
-    border-radius: var(--border-radius-m);
-    transition: all var(--motion-l) var(--motion-elastic);
+    border-radius: var(--radius-subtle);
+    transition: all var(--duration-standard) var(--motion-elastic);
   }
 
   :global(.preview) {
-    height: var(--icon-m);
+    height: var(--icon-medium);
     min-height: 0;
-    background: var(--glass-xs);
+    background: var(--glass-sunken);
     border: none;
-    border-radius: var(--border-radius-m);
-    transition: all var(--motion-l) var(--motion-elastic);
+    border-radius: var(--radius-subtle);
+    transition: all var(--duration-standard) var(--motion-elastic);
   }
 
   :global(.select:hover:not(:disabled)),
   :global(.preview:hover:not(:disabled)),
   :global(.select.active) {
-    background: var(--glass-s);
+    background: var(--glass-base);
     filter: brightness(1.2);
   }
 
   :global(.select) {
     width: 100%;
-    padding: 0 var(--spacing-m);
+    padding: 0 var(--spacing-4);
   }
 
   :global(.preview) {
-    width: var(--icon-m);
+    width: var(--icon-medium);
     padding: 0;
   }
 
@@ -287,17 +287,17 @@
     visibility: hidden;
     pointer-events: none;
     opacity: 0;
-    transform: translateY(calc(-1 * var(--spacing-xs)));
+    transform: translateY(calc(-1 * var(--spacing-2)));
     position: fixed;
     overflow-y: auto;
-    z-index: var(--z-index-max);
-    background: var(--glass-xl);
-    backdrop-filter: var(--blur-m);
-    border-radius: var(--border-radius-m);
+    z-index: var(--z-max);
+    background: var(--glass-peak);
+    backdrop-filter: var(--blur-mist);
+    border-radius: var(--radius-subtle);
     transition:
-      opacity var(--motion-l) ease,
-      transform var(--motion-l) var(--motion-elastic),
-      visibility var(--motion-l);
+      opacity var(--duration-standard) ease,
+      transform var(--duration-standard) var(--motion-elastic),
+      visibility var(--duration-standard);
     display: flex;
     flex-direction: column;
   }
@@ -306,36 +306,36 @@
     visibility: visible;
     pointer-events: auto;
     opacity: 1;
-    transform: translateY(var(--spacing-xs));
+    transform: translateY(var(--spacing-2));
   }
 
   .menu.is-dropup {
-    transform: translateY(var(--spacing-xs));
+    transform: translateY(var(--spacing-2));
   }
 
   .menu.is-visible.is-dropup {
-    transform: translateY(calc(-1 * var(--spacing-xs)));
+    transform: translateY(calc(-1 * var(--spacing-2)));
   }
 
   /* --- Menu Items --- */
 
   :global(.option) {
     width: 100%;
-    padding: var(--spacing-xs) var(--spacing-s);
+    padding: var(--spacing-2) var(--spacing-3);
     background: transparent;
     border: none;
     text-align: left;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
     border-radius: 0;
     min-height: 0;
   }
 
   :global(.option:hover),
   :global(.option.active) {
-    background: var(--glass-xs);
+    background: var(--glass-sunken);
   }
 
   /* --- Labels & Tags --- */
@@ -352,11 +352,11 @@
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
     letter-spacing: 0.1em;
     line-height: 1;
     text-align: right;

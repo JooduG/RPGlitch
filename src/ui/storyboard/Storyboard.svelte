@@ -1,11 +1,11 @@
 <script>
-  import { app } from "@state/app.svelte.js";
   import Skeleton from "@atoms/Skeleton.svelte";
-  import Layout from "@ui/Layout.svelte";
   import Drawer from "@drawer/Drawer.svelte";
+  import { app } from "@state/app.svelte.js";
   import StoryboardCard from "@storyboard/StoryboardCard.svelte";
   import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
   import StoryboardPill from "@storyboard/StoryboardPill.svelte";
+  import Layout from "@ui/Layout.svelte";
 </script>
 
 <Layout align="center">
@@ -18,7 +18,11 @@
   <!-- LEFT: AI -->
   {#snippet left()}
     {#if !app.entities_loaded}
-      <Skeleton variant="card" width="var(--card-width, 25vh)" height="var(--card-height, 40vh)" />
+      <Skeleton
+        variant="card"
+        width="var(--storyboard-card-width, var(--grid-2))"
+        height="var(--storyboard-card-height, var(--grid-3))"
+      />
     {:else}
       <StoryboardCard
         type="ai"
@@ -33,7 +37,11 @@
   <!-- CENTER: Fractal -->
   {#snippet center()}
     {#if !app.entities_loaded}
-      <Skeleton variant="card" width="var(--card-height, 40vh)" height="var(--card-width, 25vh)" />
+      <Skeleton
+        variant="card"
+        width="var(--storyboard-card-height, var(--grid-3))"
+        height="var(--storyboard-card-width, var(--grid-2))"
+      />
     {:else}
       <StoryboardCard
         type="fractal"
@@ -48,7 +56,11 @@
   <!-- RIGHT: User -->
   {#snippet right()}
     {#if !app.entities_loaded}
-      <Skeleton variant="card" width="var(--card-width, 25vh)" height="var(--card-height, 40vh)" />
+      <Skeleton
+        variant="card"
+        width="var(--storyboard-card-width, var(--grid-2))"
+        height="var(--storyboard-card-height, var(--grid-3))"
+      />
     {:else}
       <StoryboardCard
         type="user"

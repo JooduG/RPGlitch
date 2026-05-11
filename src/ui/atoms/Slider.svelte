@@ -79,19 +79,19 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
     cursor: pointer;
   }
 
   .wrapper.is-disabled {
-    opacity: var(--opacity-s);
+    opacity: var(--opacity-muted);
     filter: grayscale(1);
     cursor: default;
   }
 
   .wrapper.is-busy {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(0.5);
   }
 
   .wrapper.is-busy > * {
@@ -101,16 +101,16 @@
   /* --- ELEMENTS --- */
 
   .header {
-    font-family: var(--font-family-body);
+    font-family: var(--font-family-base);
     font-size: var(--font-size-tiny);
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
     text-transform: uppercase;
     text-align: left;
-    letter-spacing: 0.12em;
-    font-weight: var(--font-weight-l);
-    transition: color var(--motion-l);
+    letter-spacing: var(--font-spacing-loose);
+    font-weight: var(--font-weight-bold);
+    transition: color var(--duration-standard) var(--ease-standard);
     user-select: none;
-    margin-bottom: var(--spacing-xxs);
+    margin-bottom: var(--spacing-1);
   }
 
   /* Hover state for label */
@@ -122,7 +122,7 @@
     display: block;
     width: 100%;
     margin: 0;
-    height: var(--spacing-s);
+    height: var(--spacing-2);
     background: transparent;
     appearance: none;
     outline: none;
@@ -134,101 +134,103 @@
   /* Track Styling */
   input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
-    height: 0.25rem;
+    height: var(--spacing-1);
     background: linear-gradient(
       to right,
-      var(--glass-xs) 0%,
-      var(--glass-xs) var(--fill-start),
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 0%,
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-start),
       var(--color-frozen) var(--fill-start),
       var(--color-frozen) var(--fill-end),
-      var(--glass-xs) var(--fill-end),
-      var(--glass-xs) 100%
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-end),
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 100%
     );
-    box-shadow: inset var(--spacing-0) var(--spacing-px) var(--spacing-xxxs) var(--color-white-glow);
-    border-radius: var(--border-radius-full);
+    box-shadow: inset 0 var(--spacing-px) var(--spacing-px)
+      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-radius: var(--radius-pill);
     border: none;
   }
 
   input[type="range"]::-moz-range-track {
     width: 100%;
-    height: 0.25rem;
+    height: var(--spacing-1);
     background: linear-gradient(
       to right,
-      var(--glass-xs) 0%,
-      var(--glass-xs) var(--fill-start),
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 0%,
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-start),
       var(--color-frozen) var(--fill-start),
       var(--color-frozen) var(--fill-end),
-      var(--glass-xs) var(--fill-end),
-      var(--glass-xs) 100%
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-end),
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 100%
     );
-    box-shadow: inset var(--spacing-0) var(--spacing-px) var(--spacing-xxxs) var(--color-white-glow);
-    border-radius: var(--border-radius-full);
+    box-shadow: inset 0 var(--spacing-px) var(--spacing-px)
+      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-radius: var(--radius-pill);
     border: none;
   }
 
   /* Thumb Styling */
   input[type="range"]::-webkit-slider-thumb {
     appearance: none;
-    width: var(--spacing-s);
-    height: var(--spacing-s);
+    width: var(--spacing-2);
+    height: var(--spacing-2);
     background: var(--color-white);
-    border-radius: var(--border-radius-full);
+    border-radius: var(--radius-pill);
     cursor: pointer;
-    --thumb-shadow: 0 0 var(--spacing-xs) var(--color-white), var(--shadow-s);
+    --thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
 
     box-shadow: var(--thumb-shadow);
-    margin-top: calc(var(--spacing-xxs) * -1); /* Centering on var(--spacing-xxs) track */
+    margin-top: calc(var(--spacing-1) * -0.5); /* Centering on var(--spacing-1) track */
     border: none;
     transition:
-      transform var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l);
+      transform var(--duration-standard) var(--ease-elastic),
+      filter var(--duration-standard) var(--ease-standard);
   }
 
   input[type="range"]::-moz-range-thumb {
     appearance: none;
-    width: var(--spacing-s);
-    height: var(--spacing-s);
+    width: var(--spacing-2);
+    height: var(--spacing-2);
     background: var(--color-white);
-    border-radius: var(--border-radius-full);
+    border-radius: var(--radius-pill);
     cursor: pointer;
-    --thumb-shadow: 0 0 var(--spacing-xs) var(--color-white), var(--shadow-s);
+    --thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
 
     box-shadow: var(--thumb-shadow);
     border: none;
     transition:
-      transform var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l);
+      transform var(--duration-standard) var(--ease-elastic),
+      filter var(--duration-standard) var(--ease-standard);
   }
 
   /* --- STATES --- */
 
   .wrapper:hover:not(.is-disabled) input[type="range"]::-webkit-slider-thumb {
-    filter: brightness(1.2);
+    filter: var(--hover-glow);
   }
 
   .wrapper:hover:not(.is-disabled) input[type="range"]::-moz-range-thumb {
-    filter: brightness(1.2);
+    filter: var(--hover-glow);
   }
 
   input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {
-    transform: scale(1.3);
+    transform: var(--scale-lift);
   }
 
   input[type="range"]:active:not(:disabled)::-moz-range-thumb {
-    transform: scale(1.3);
+    transform: var(--scale-lift);
   }
 
   input[type="range"]:disabled::-webkit-slider-thumb {
     appearance: none;
     background: var(--color-frozen);
-    opacity: var(--opacity-s);
+    opacity: var(--opacity-muted);
     box-shadow: none;
     border: none;
   }
 
   input[type="range"]:disabled::-moz-range-thumb {
     background: var(--color-frozen);
-    opacity: var(--opacity-s);
+    opacity: var(--opacity-muted);
     box-shadow: none;
     border: none;
   }

@@ -4,9 +4,9 @@
    * ⚙️ DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    */
-  import DataBox from "@devmode/DataBox.svelte";
   import Button from "@atoms/Button.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import DataBox from "@devmode/DataBox.svelte";
 
   let { char = $bindable(), is_editing } = $props();
 
@@ -59,7 +59,7 @@
   });
 </script>
 
-<section class="wing glass-l">
+<section class="wing glass-elevated">
   <div class="group">
     <div class="dynamics-grid">
       {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
@@ -91,7 +91,7 @@
                     ))}
                   aria-label="Increase"
                 >
-                  <svg viewBox="0 0 24 24" class="icon-xxs"
+                  <svg viewBox="0 0 24 24" class="icon-medium"
                     ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
                   >
                 </Button>
@@ -108,7 +108,7 @@
                     ))}
                   aria-label="Decrease"
                 >
-                  <svg viewBox="0 0 24 24" class="icon-xxs"
+                  <svg viewBox="0 0 24 24" class="icon-medium"
                     ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
                   >
                 </Button>
@@ -129,7 +129,7 @@
     <div class="raw-explorer">
       <details>
         <summary>View JSON Data</summary>
-        <DataBox maxHeight="15rem">
+        <DataBox maxHeight="calc(var(--spacing-4) * 15)">
           <pre>{JSON.stringify(char, null, 2)}</pre>
         </DataBox>
       </details>
@@ -159,35 +159,35 @@
     flex: 1;
     min-height: 0;
     position: relative;
-    transition: all var(--motion-l) var(--motion-elastic);
+    transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(var(--color-gunmetal-rgb) / 45%);
-    padding: var(--spacing-m);
-    gap: var(--spacing-m);
+    padding: var(--spacing-4);
+    gap: var(--spacing-4);
   }
 
   .group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
     width: 100%;
   }
 
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
   }
 
   .dynamic-box {
-    padding: var(--spacing-s);
+    padding: var(--spacing-3);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 4.5rem;
-    background: var(--glass-xs);
-    border-radius: var(--border-radius-m);
-    transition: all var(--motion-l) var(--motion-elastic);
+    min-height: calc(var(--spacing-4) * 4.5);
+    background: var(--glass-sunken);
+    border-radius: var(--radius-subtle);
+    transition: all var(--duration-standard) var(--motion-elastic);
     position: relative;
     overflow: hidden;
   }
@@ -198,7 +198,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: var(--spacing-xxxs);
     background: var(--color-cyan);
     opacity: 0.2;
   }
@@ -207,12 +207,12 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    height: 2px;
+    height: var(--spacing-xxxs);
     width: var(--dynamic-value, 0%);
     background: var(--color-cyan);
-    box-shadow: 0 0 var(--spacing-s) var(--color-cyan);
-    transition: width var(--motion-s) var(--motion-dissolve);
-    z-index: var(--z-index-m);
+    box-shadow: 0 0 var(--spacing-3) var(--color-cyan);
+    transition: width var(--duration-reflex) var(--motion-dissolve);
+    z-index: var(--z-50);
   }
 
   .dynamic-label {
@@ -221,9 +221,9 @@
     text-transform: uppercase;
     letter-spacing: 0.12em;
     color: var(--color-frisk);
-    margin-bottom: var(--spacing-xxs);
+    margin-bottom: var(--spacing-1);
     cursor: help;
-    z-index: var(--z-index-m);
+    z-index: var(--z-50);
   }
 
   .value-container {
@@ -232,19 +232,19 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    z-index: var(--z-index-m);
+    z-index: var(--z-50);
   }
 
   .value-container input {
     width: 100%;
     background: transparent;
     border: none;
-    color: var(--font-color-m);
+    color: var(--font-color-base);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
     text-align: center;
-    padding: var(--spacing-xs) 0;
+    padding: var(--spacing-2) 0;
     outline: none;
     appearance: textfield;
   }
@@ -256,21 +256,21 @@
   }
 
   .value-display {
-    color: var(--font-color-m);
+    color: var(--font-color-base);
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-body);
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    padding: var(--spacing-xs) 0;
+    padding: var(--spacing-2) 0;
   }
 
   .step-controls {
     position: absolute;
-    right: -var(--spacing-xs);
+    right: -var(--spacing-2);
     display: flex;
     flex-direction: column;
     gap: 0;
     opacity: 0;
-    transition: opacity var(--motion-m);
+    transition: opacity var(--duration-fast);
   }
 
   .dynamic-box:hover .step-controls,
@@ -287,17 +287,17 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--motion-l);
-    border-radius: var(--border-radius-s);
+    transition: all var(--duration-standard);
+    border-radius: var(--radius-sharp);
   }
 
   .step-controls :global(:hover) {
     color: var(--color-white);
   }
 
-  .icon-xxs {
-    width: 1.25rem;
-    height: 1.25rem;
+  .icon-medium {
+    width: var(--icon-medium);
+    height: var(--icon-medium);
   }
 
   .raw-explorer summary {
@@ -316,24 +316,24 @@
   .footer-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
   }
 
   .meta-item {
     display: flex;
     justify-content: space-between;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: 0.05em;
   }
 
   .meta-item .tag {
-    color: var(--font-color-s);
-    width: 4rem;
+    color: var(--font-color-muted);
+    width: var(--spacing-16);
   }
 
   .meta-item .val {
-    color: var(--font-color-m);
+    color: var(--font-color-base);
   }
 </style>

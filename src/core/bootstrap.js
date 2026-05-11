@@ -1,11 +1,11 @@
 // src/core/bootstrap.js
-import { mount } from "svelte";
+import { sanitizeToFragment } from "@core/security.js";
 import { seed_premades } from "@data/repository.js";
 import { Audio } from "@media/audio-engine.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import App from "@ui/App.svelte";
-import { sanitizeToFragment } from "@core/security.js";
+import { mount } from "svelte";
 
 let has_initialized = false;
 
@@ -53,10 +53,10 @@ export const AppBootstrap = {
       );
 
       const error_template = `
-                <div style="background:var(--bg-base); color:var(--color-red); padding:var(--spacing-xl); font-family:var(--font-family-mono); height:100vh; overflow:auto;">
-                    <h1 style="border-bottom: 2px solid var(--color-red); padding-bottom: var(--spacing-s); margin-bottom: var(--spacing-m);">SYSTEM HALTED</h1>
-                    <p style="color:var(--color-white); opacity:0.8;">The engine failed to ignite. Check the console or stack trace below:</p>
-                    <pre id="error-stack" style="background:var(--glass-xs); padding:var(--spacing-m); border-radius:var(--border-radius-m); color:var(--color-red); white-space: pre-wrap; word-break: break-all;"></pre>
+                <div style="background:var(--background-base); color:var(--color-red); padding:var(--spacing-8); font-family:var(--font-family-mono); height:100vh; overflow:auto;">
+                    <h1 style="border-bottom: var(--spacing-2) solid var(--color-red); padding-bottom: var(--spacing-2); margin-bottom: var(--spacing-4);">SYSTEM HALTED</h1>
+                    <p style="color:var(--color-white); opacity:var(--opacity-substantial);">The engine failed to ignite. Check the console or stack trace below:</p>
+                    <pre id="error-stack" style="background:var(--glass-sunken); padding:var(--spacing-4); border-radius:var(--radius-subtle); color:var(--color-red); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `;
       const fragment = sanitizeToFragment(error_template);

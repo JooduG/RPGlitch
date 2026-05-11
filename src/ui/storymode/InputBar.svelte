@@ -5,13 +5,13 @@
    * The main interface for user input during Storymode.
    * Flattened Schema Compliant.
    */
+  import Button from "@atoms/Button.svelte";
+  import GlassPill from "@atoms/GlassPill.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   import { Engine } from "@core/engine/engine.js";
   import { app } from "@state/app.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import GlassPill from "@atoms/GlassPill.svelte";
   import { spin, stab } from "@utils/kinetic.js";
-  import Button from "@atoms/Button.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
   let { disabled = false } = $props();
   // [R5] Auto-disable when engine is busy
   let is_locked = $derived(disabled || simulationState.phase !== "idle");
@@ -108,12 +108,12 @@
 
 <style>
   :global(.input-bar-pill) {
-    max-width: 48rem;
-    margin: var(--spacing-l) auto;
+    max-width: var(--breakpoint-mobile);
+    margin: var(--spacing-8) auto;
   }
 
   :global(.input-bar-pill.is-disabled) .input-area {
-    opacity: var(--opacity-m);
+    opacity: var(--opacity-muted);
     pointer-events: none;
   }
 
@@ -121,22 +121,22 @@
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--font-color-m);
-    padding: var(--spacing-s);
+    color: var(--font-color-base);
+    padding: var(--spacing-2);
     resize: none;
     outline: none;
     font-family: inherit;
-    font-size: var(--font-size-body);
-    line-height: var(--line-height-m);
-    max-height: var(--dropdown-max-height);
+    font-size: var(--font-size-base);
+    line-height: var(--font-height-base);
+    max-height: var(--drawer-height-max);
     overflow-y: hidden;
   }
 
   /* Sizing for the icons within the buttons */
   :global(button .icon) {
-    width: var(--icon-m);
-    height: var(--icon-m);
+    width: var(--icon-medium);
+    height: var(--icon-medium);
     fill: currentcolor;
-    transition: transform var(--motion-l);
+    transition: transform var(--motion-standard);
   }
 </style>

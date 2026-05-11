@@ -5,9 +5,9 @@
    * High-fidelity visual representing an entity in the story feed.
    * Flattened Schema Compliant.
    */
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
   let { entity, side = "left" } = $props();
   // Default Fallbacks
   let name = $derived(entity?.name || "Unknown");
@@ -50,6 +50,6 @@
     height: 100%;
     position: relative;
     cursor: pointer;
-    background: var(--glass-xs);
+    background: var(--glass-sunken);
   }
 </style>

@@ -4,15 +4,16 @@
    * THE TEMPORAL HYBRID FIELDS
    * Dynamically renders the Eternal, Present, Past, and Future sections.
    */
-  import { llm_service } from "@core/intelligence/llm-service.js";
-  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import { PROFILE_SECTIONS } from "@core/intelligence/entity-fragments.js";
+  import { llm_service } from "@core/intelligence/llm-service.js";
+  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
+  import VectorArray from "@profile/VectorArray.svelte";
+  import { app } from "@state/app.svelte.js";
   import { get_value, set_value } from "@utils/field-path.js";
   import { fly } from "svelte/transition";
-  import { PROFILE_SECTIONS } from "@core/intelligence/entity-fragments.js";
-  import VectorArray from "@profile/VectorArray.svelte";
 
   let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
 
@@ -60,7 +61,12 @@
   }
 </script>
 
-<div class="wrapper" data-testid="profile-fragments">
+<div
+  class="wrapper"
+  class:is-mobile={app.viewport.mobile}
+  class:is-mini={app.viewport.mini}
+  data-testid="profile-fragments"
+>
   {#each PROFILE_SECTIONS as section (section.id)}
     {@const arrayField = section.fields.find((f) => f.type === "array")}
     <div class="row">
@@ -137,7 +143,7 @@
                       disabled={busy_fields.has(field.key) || !safe_get(field.key)}
                       onclick={() => handle_enhance(field.key, safe_get(field.key))}
                     >
-                      <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+                      <svg viewBox="0 0 24 24" class="icon-small icon-outline">
                         <path
                           d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
                           fill="var(--color-white)"
@@ -163,15 +169,15 @@
     overflow: visible;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-l);
-    margin: 0 calc(-1 * var(--spacing-m));
-    padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
+    gap: var(--spacing-6);
+    margin: 0 calc(-1 * var(--spacing-4));
+    padding: var(--spacing-8) var(--spacing-4) var(--spacing-4);
   }
 
   .row {
     display: grid;
     grid-template-columns: minmax(60px, 80px) 1fr;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
     min-width: 0;
   }
 
@@ -182,7 +188,7 @@
     align-self: center;
     padding: 0;
     cursor: default;
-    transition: all var(--motion-l);
+    transition: all var(--duration-standard);
     display: flex;
     flex-direction: column;
     align-items: flex-end;
@@ -195,42 +201,42 @@
   .section-label {
     margin: 0;
     font-size: var(--font-size-small);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     color: var(--signature-color);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
-    transition: all var(--motion-l);
+    gap: var(--spacing-2);
+    transition: all var(--duration-standard);
     position: relative;
   }
 
   .add-hint {
     position: absolute;
-    right: calc(100% + var(--spacing-xxs));
+    right: calc(100% + var(--spacing-1));
     top: 50%;
     transform: translateY(-50%);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     color: var(--color-white);
     opacity: 0.8;
     pointer-events: none;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-l);
     white-space: nowrap;
-    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-xs)
-      rgb(var(--color-white-rgb) / 40%);
+    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
+      rgb(from var(--color-white) r g b / 40%);
   }
 
   .section-sub {
     margin: 0;
     font-size: var(--font-size-tiny);
-    color: var(--font-color-m);
-    font-weight: var(--font-weight-m);
-    opacity: var(--opacity-m);
+    color: var(--font-color-base);
+    font-weight: var(--font-weight-bold);
+    opacity: var(--opacity-muted);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-l);
     text-shadow: var(--shadow-font);
   }
 
@@ -238,7 +244,7 @@
 
   .body {
     display: grid;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
     min-width: 0;
   }
 
@@ -258,7 +264,7 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
     min-width: 0;
     justify-content: stretch;
     align-items: stretch;
@@ -266,18 +272,18 @@
   }
 
   .group:hover {
-    z-index: calc(var(--z-index-xxl) + var(--z-index-1));
+    z-index: calc(var(--z-modal) + var(--z-10));
   }
 
   .field-label {
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
     color: var(--signature-color);
     opacity: var(--opacity-full);
     text-align: center;
     text-shadow: var(--shadow-font);
-    margin-bottom: var(--spacing-xxs);
+    margin-bottom: var(--spacing-1);
     width: 100%;
   }
 
@@ -287,7 +293,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-l);
     color: var(--color-white);
     opacity: 0.7;
   }
@@ -305,7 +311,8 @@
     box-shadow: none;
     background: transparent;
     filter: drop-shadow(
-      var(--spacing-0) var(--spacing-px) var(--spacing-2px) rgb(var(--color-black-rgb) / 80%)
+      var(--spacing-0) var(--spacing-px) var(--spacing-xxxs)
+        rgb(from var(--color-black) r g b / 80%)
     );
   }
 
@@ -317,19 +324,17 @@
 
   /* --- RESPONSIVE --- */
 
-  @media (width <= 600px) {
-    .row {
-      grid-template-columns: 1fr;
-      gap: var(--spacing-xs);
-    }
+  .wrapper.is-mobile .row {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-2);
+  }
 
-    .side {
-      text-align: left;
-      align-items: flex-start;
-    }
+  .wrapper.is-mobile .side {
+    text-align: left;
+    align-items: flex-start;
+  }
 
-    .body[data-columns] {
-      grid-template-columns: 1fr;
-    }
+  .wrapper.is-mobile .body[data-columns] {
+    grid-template-columns: 1fr;
   }
 </style>

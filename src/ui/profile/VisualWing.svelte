@@ -154,7 +154,7 @@
   }
 </script>
 
-<section class="wrapper glass-l">
+<section class="wrapper glass-elevated">
   <!-- Signature Color Swatches -->
   <div class="swatches">
     {#each SPECTRUM_COLORS as [name, hex] (name)}
@@ -212,12 +212,12 @@
             disabled={is_creative_disabled}
           >
             {#if has_prompt_text}
-              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
                 <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"
                 ></path>
               </svg>
             {:else}
-              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"
                 ></path>
                 <polyline points="7 10 12 15 17 10" stroke="var(--color-white)"></polyline>
@@ -236,7 +236,7 @@
             onclick={handle_generate}
             disabled={!is_editing || is_prompt_busy}
           >
-            <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
               <path
                 d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                 stroke="var(--color-white)"
@@ -279,10 +279,10 @@
     flex: 1;
     min-height: 0;
     position: relative;
-    transition: all var(--motion-l) var(--motion-elastic);
+    transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(var(--color-gunmetal-rgb) / 45%);
-    padding: var(--spacing-m);
-    gap: var(--spacing-m);
+    padding: var(--spacing-4);
+    gap: var(--spacing-4);
   }
 
   /* --- Swatches --- */
@@ -290,7 +290,7 @@
   .swatches {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
     width: 100%;
   }
 
@@ -301,32 +301,32 @@
     padding: 0;
     min-width: 0;
     min-height: 0;
-    border-radius: var(--border-radius-m);
+    border-radius: var(--radius-subtle);
     cursor: pointer;
     transition:
-      transform var(--motion-m) var(--motion-dissolve),
-      box-shadow var(--motion-m) var(--motion-dissolve),
-      outline var(--motion-m) var(--motion-dissolve),
-      filter var(--motion-m) var(--motion-dissolve);
-    box-shadow: var(--shadow-s);
+      transform var(--duration-fast) var(--motion-dissolve),
+      box-shadow var(--duration-fast) var(--motion-dissolve),
+      outline var(--duration-fast) var(--motion-dissolve),
+      filter var(--duration-fast) var(--motion-dissolve);
+    box-shadow: var(--shadow-ghost);
   }
 
   .swatches :global(.swatch:hover:not(:disabled, .active)) {
-    z-index: var(--z-index-m);
-    box-shadow: var(--shadow-m);
+    z-index: var(--z-50);
+    box-shadow: var(--shadow-heavy);
     filter: brightness(1.15);
   }
 
   .swatches :global(.swatch.active) {
-    outline: 2px solid rgb(var(--color-white-rgb) / 70%);
+    outline: 2px solid rgb(from var(--color-white) r g b / 70%);
     outline-offset: 2px;
     --active-swatch-shadow:
-      0 0 0 var(--spacing-px) rgb(var(--color-white-rgb) / 15%) inset,
-      0 0 var(--spacing-s) var(--spacing-xxs) var(--swatch-color);
+      0 0 0 var(--spacing-px) rgb(from var(--color-white) r g b / 15%) inset,
+      0 0 var(--spacing-3) var(--spacing-1) var(--swatch-color);
 
     box-shadow: var(--active-swatch-shadow);
     transform: scale(1.06);
-    z-index: var(--z-index-m);
+    z-index: var(--z-50);
     cursor: default;
   }
 
@@ -337,7 +337,7 @@
 
   .swatches :global(.swatch:disabled) {
     cursor: default;
-    opacity: var(--opacity-l);
+    opacity: var(--opacity-base);
   }
 
   /* --- Status & Actions --- */
@@ -345,7 +345,7 @@
   :global(.prompt-field .status) {
     display: flex;
     align-items: center;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
     color: var(--color-white);
   }
 
@@ -356,8 +356,8 @@
   :global(.prompt-field .tag) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
-    letter-spacing: var(--letter-spacing-l);
+    font-weight: var(--font-weight-heavy);
+    letter-spacing: var(--font-spacing-l);
     text-transform: uppercase;
     color: inherit;
   }
@@ -369,7 +369,7 @@
   :global(.prompt-field .actions) {
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
   }
 
   .upload {
@@ -381,7 +381,7 @@
   .controls {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
   }
 
   /* --- Animations --- */

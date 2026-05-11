@@ -9,36 +9,55 @@
 
 /**
  * @param {string} token
- * @param {number} fallback
- * @returns {number}
- */
-const get_motion_token = (token, fallback) => {
-  if (typeof window === "undefined") return fallback;
-  const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
-  if (!val) return fallback;
-
-  if (val.endsWith("ms")) return parseFloat(val);
-  if (val.endsWith("s")) return parseFloat(val) * 1000;
-  return isNaN(parseFloat(val)) ? fallback : parseFloat(val);
-};
-
-/**
- * @param {string} token
  * @param {string} fallback
  * @returns {string}
  */
-const get_easing_token = (token, fallback) => {
+const get_token_raw = (token, fallback) => {
   if (typeof window === "undefined") return fallback;
   const val = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
   return val || fallback;
 };
 
-// Global Constants
-const MOTION_FAST = get_motion_token("--motion-s", 100);
-const MOTION_SLOW = get_motion_token("--motion-l", 400);
-const EASE_ELASTIC = get_easing_token("--motion-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)");
+/**
+ * Parses CSS time strings (e.g. "250ms", "0.5s") into raw milliseconds.
+ * @param {string} str
+ * @returns {number}
+ */
+const parse_ms = (str) => {
+  const match = str.match(/([\d.]+)(ms|s)/);
+  if (!match) return parseFloat(str) || 0;
+  const [_, val, unit] = match;
+  return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
+};
+
+// Global Constants (Durations)
+const DURATION_FAST = parse_ms(get_token_raw("--duration-fast", "250ms"));
+const DURATION_SLOW = parse_ms(get_token_raw("--duration-slow", "500ms"));
+
+// Global Constants (Easings)
+const EASE_OUT = get_token_raw("--ease-out", "cubic-bezier(0, 0, 0.2, 1)");
+const EASE_ELASTIC = get_token_raw("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)");
+
+// Global Constants (Kinetic Dimensions)
+const SHIMMY_DEG = get_token_raw("--kinetic-shimmy-rotation", "30deg");
+const SHIMMY_X = get_token_raw("--kinetic-shimmy-offset", "1px");
+const SHIMMY_Y = get_token_raw("--kinetic-shimmy-y", "0.5px");
+const PULSE_SCALE_MAX = 1.08;
+const PULSE_SCALE_MID = 1.04;
+const SPIN_ROTATION = get_token_raw("--kinetic-spin-rotation", "90deg");
+const ROLL_ROTATION = get_token_raw("--kinetic-roll-rotation", "360deg");
+const STAB_DISTANCE = get_token_raw("--kinetic-stab-distance", "4px");
+
+const FRICTION = parseFloat(get_token_raw("--kinetic-momentum-friction", "0.95"));
 
 /* --- Kinetic Primitives --- */
+
+/**
+ * Helper to find appropriate animation target
+ * @param {Element} node
+ * @returns {Element}
+ */
+const get_target = (node) => node.querySelector("svg") || /** @type {HTMLElement} */ (node);
 
 /**
  * Shimmy Action
@@ -46,25 +65,26 @@ const EASE_ELASTIC = get_easing_token("--motion-elastic", "cubic-bezier(0.34, 1.
  * @param {HTMLElement} node
  */
 export function shimmy(node) {
-  const DEG = 30;
-  const X = 1;
-  /** @type {Animation|null} */
+  /**
+   * @type {Animation | null}
+   */
   let animation = null;
 
-  const get_target = () => node.querySelector("svg") || node;
-
   const trigger = () => {
-    const target = get_target();
+    node.dataset.kinetic = "true";
+    const target = get_target(node);
     if (animation) animation.cancel();
     animation = target.animate(
       [
         { transform: "translate(0, 0) rotate(0deg)" },
-        { transform: `translate(-${X}px, 0.5px) rotate(-${DEG}deg)` },
-        { transform: `translate(${X}px, -0.5px) rotate(${DEG}deg)` },
+        {
+          transform: `translate(calc(${SHIMMY_X} * -1), ${SHIMMY_Y}) rotate(calc(${SHIMMY_DEG} * -1))`,
+        },
+        { transform: `translate(${SHIMMY_X}, calc(${SHIMMY_Y} * -1)) rotate(${SHIMMY_DEG})` },
         { transform: "translate(0, 0) rotate(0deg)" },
       ],
       {
-        duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
+        duration: DURATION_SLOW,
         easing: "linear",
         iterations: Infinity,
       },
@@ -72,6 +92,7 @@ export function shimmy(node) {
   };
 
   const stop = () => {
+    delete node.dataset.kinetic;
     if (animation) {
       animation.cancel();
       animation = null;
@@ -93,28 +114,44 @@ shimmy.is_kinetic = true;
 
 /**
  * Pulse Action
- * A "Pop" scale effect.
+ * A looping "Heartbeat" thump.
  * @param {HTMLElement} node
  */
 export function pulse(node) {
-  const SCALE = 1.05;
-  /** @type {Animation|null} */
+  /**
+   * @type {Animation | null}
+   */
   let animation = null;
 
   const trigger = () => {
+    node.dataset.kinetic = "true";
     if (animation) animation.cancel();
-    animation = node.animate([{ transform: "scale(1)" }, { transform: `scale(${SCALE})` }], {
-      duration: typeof MOTION_FAST === "number" ? MOTION_FAST : parseFloat(MOTION_FAST),
-      easing: "ease-out",
-      fill: "forwards",
-    });
+
+    // Heartbeat thump: big beat -> small beat -> rest
+    animation = node.animate(
+      [
+        { transform: "scale(1)", offset: 0 },
+        { transform: `scale(${PULSE_SCALE_MAX})`, offset: 0.14 },
+        { transform: "scale(1)", offset: 0.28 },
+        { transform: `scale(${PULSE_SCALE_MID})`, offset: 0.42 },
+        { transform: "scale(1)", offset: 0.7 },
+        { transform: "scale(1)", offset: 1 },
+      ],
+      {
+        duration: 1000,
+        easing: "ease-in-out",
+        iterations: Infinity,
+      },
+    );
   };
 
   const stop = () => {
     if (animation) {
-      animation.reverse();
-      animation.onfinish = () => animation?.cancel();
+      // Smooth return to 1
+      animation.cancel();
+      node.animate([{ transform: "scale(1)" }], { duration: DURATION_FAST, easing: EASE_OUT });
     }
+    delete node.dataset.kinetic;
   };
 
   node.addEventListener("mouseenter", trigger);
@@ -136,22 +173,26 @@ pulse.is_kinetic = true;
  * @param {HTMLElement} node
  */
 export function spin(node) {
-  /** @type {Animation|null} */
+  /**
+   * @type {Animation | null}
+   */
   let animation = null;
 
-  const get_target = () => node.querySelector("svg") || node;
-
   const trigger = () => {
-    const target = get_target();
+    node.dataset.kinetic = "true";
+    const target = get_target(node);
     if (animation) {
       animation.playbackRate = 1;
       animation.play();
     } else {
-      animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
-        duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
-        easing: EASE_ELASTIC,
-        fill: "forwards",
-      });
+      animation = target.animate(
+        [{ transform: "rotate(0deg)" }, { transform: `rotate(${SPIN_ROTATION})` }],
+        {
+          duration: DURATION_SLOW,
+          easing: EASE_ELASTIC,
+          fill: "forwards",
+        },
+      );
     }
   };
 
@@ -159,6 +200,13 @@ export function spin(node) {
     if (animation) {
       animation.playbackRate = -1;
       animation.play();
+      animation.onfinish = () => {
+        if (animation && animation.playbackRate === -1) {
+          delete node.dataset.kinetic;
+        }
+      };
+    } else {
+      delete node.dataset.kinetic;
     }
   };
 
@@ -177,31 +225,57 @@ spin.is_kinetic = true;
 
 /**
  * Roll Action
- * A full 360 degree rotation. Perfect for re-roll buttons.
+ * A full 360 degree rotation with rollback.
  * @param {HTMLElement} node
  */
 export function roll(node) {
-  /** @type {Animation|null} */
+  /**
+   * @type {Animation | null}
+   */
   let animation = null;
 
-  const get_target = () => node.querySelector("svg") || node;
-
   const trigger = () => {
-    const target = get_target();
-    if (animation) animation.cancel();
-    animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
-      duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
-      easing: EASE_ELASTIC,
-      fill: "forwards",
-    });
+    node.dataset.kinetic = "true";
+    const target = get_target(node);
+    if (animation) {
+      animation.playbackRate = 1;
+      animation.play();
+    } else {
+      animation = target.animate(
+        [{ transform: "rotate(0deg)" }, { transform: `rotate(${ROLL_ROTATION})` }],
+        {
+          duration: DURATION_SLOW,
+          easing: EASE_ELASTIC,
+          fill: "forwards",
+        },
+      );
+    }
+  };
+
+  const stop = () => {
+    if (animation) {
+      animation.playbackRate = -1;
+      animation.play();
+      animation.onfinish = () => {
+        if (animation && animation.playbackRate === -1) {
+          delete node.dataset.kinetic;
+          animation.cancel();
+          animation = null;
+        }
+      };
+    } else {
+      delete node.dataset.kinetic;
+    }
   };
 
   node.addEventListener("mouseenter", trigger);
+  node.addEventListener("mouseleave", stop);
 
   return {
     destroy() {
       if (animation) animation.cancel();
       node.removeEventListener("mouseenter", trigger);
+      node.removeEventListener("mouseleave", stop);
     },
   };
 }
@@ -213,30 +287,31 @@ roll.is_kinetic = true;
  * @param {HTMLElement} node
  */
 export function stab(node) {
-  const DISTANCE = 5;
-  /** @type {Animation|null} */
+  /**
+   * @type {Animation | null}
+   */
   let animation = null;
 
-  const get_target = () => node.querySelector("svg") || node;
-
   const trigger = () => {
+    node.dataset.kinetic = "true";
     if (animation) animation.cancel();
-    const target = get_target();
+    const target = get_target(node);
     animation = target.animate(
       [
         { transform: "translateX(0)", offset: 0 },
-        { transform: `translateX(${DISTANCE}px)`, offset: 0.2 },
+        { transform: `translateX(${STAB_DISTANCE})`, offset: 0.2 },
         { transform: "translateX(0)", offset: 1 },
       ],
       {
-        duration: typeof MOTION_SLOW === "number" ? MOTION_SLOW : parseFloat(MOTION_SLOW),
-        easing: "ease-out",
+        duration: DURATION_SLOW,
+        easing: EASE_OUT,
         iterations: Infinity,
       },
     );
   };
 
   const stop = () => {
+    delete node.dataset.kinetic;
     if (animation) {
       animation.cancel();
       animation = null;
@@ -292,7 +367,7 @@ export function kinetic_scroll(node) {
   const apply_momentum = () => {
     if (is_down || Math.abs(velocity) < 0.1) return;
     node.scrollTop -= velocity * 10;
-    velocity *= 0.95;
+    velocity *= FRICTION;
     raf_id = requestAnimationFrame(apply_momentum);
   };
 

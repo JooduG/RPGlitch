@@ -8,9 +8,9 @@
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { slide } from "svelte/transition";
-  import { quintOut } from "svelte/easing";
   import { generateUUID } from "@core/utils.js";
+  import { quintOut } from "svelte/easing";
+  import { slide } from "svelte/transition";
 
   /**
    * @typedef {Object} VectorItem
@@ -196,7 +196,7 @@
               className="delete"
               onclick={() => remove_item(i)}
             >
-              <svg viewBox="0 0 24 24" class="icon-xs icon-outline">
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
                 <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
                 <path
                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -213,7 +213,11 @@
   {#if items.length === 0 && !is_editing}
     <div class="empty-state" in:slide>
       <span class="empty-msg">
-        <svg viewBox="0 0 24 24" class="icon-xs" style="width: 14px; height: 14px;">
+        <svg
+          viewBox="0 0 24 24"
+          class="icon-small"
+          style="width: var(--font-size-small); height: var(--font-size-small);"
+        >
           <path
             fill="currentColor"
             d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
@@ -232,31 +236,31 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
     position: relative;
   }
 
   .item {
     position: relative;
     width: 100%;
-    transition: all var(--motion-m);
+    transition: all var(--duration-fast);
     display: flex;
     align-items: flex-start;
   }
 
   .item:hover {
-    z-index: calc(var(--z-index-xxl) + 1);
+    z-index: calc(var(--z-modal) + 1);
   }
 
   /* --- STEPPER --- */
 
   .stepper {
     display: grid;
-    grid-template-columns: 1.2rem 1.4rem 1.2rem;
+    grid-template-columns: var(--spacing-6) var(--spacing-8) var(--spacing-6);
     place-items: center;
-    min-width: 3.8rem;
+    min-width: var(--spacing-16);
     height: 100%;
-    margin-right: var(--spacing-s);
+    margin-right: var(--spacing-3);
     user-select: none;
     align-self: center;
   }
@@ -265,12 +269,12 @@
     grid-column: 2;
     font-family: var(--font-family-mono);
     font-size: var(--font-size-small);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     color: var(--color-white);
-    min-width: 0.8rem;
+    min-width: var(--spacing-3);
     text-align: center;
     pointer-events: none;
-    z-index: var(--z-index-1);
+    z-index: var(--z-10);
     line-height: 1;
     display: flex;
     align-items: center;
@@ -300,8 +304,8 @@
     font-size: var(--font-size-small);
     cursor: pointer;
     opacity: 0;
-    transition: all var(--motion-m);
-    z-index: var(--z-index-2);
+    transition: all var(--duration-fast);
+    z-index: var(--z-20);
     padding: 0;
   }
 
@@ -334,7 +338,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
     overflow: hidden;
     height: 100%;
   }
@@ -347,11 +351,11 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-l);
     padding: 0;
     outline: none;
     opacity: 0.8;
-    transition: opacity var(--motion-m);
+    transition: opacity var(--duration-fast);
   }
 
   .tags-input:focus {
@@ -365,29 +369,28 @@
 
   .tag {
     font-size: var(--font-size-tiny);
-    background: rgb(var(--color-white-rgb) / 10%);
-    padding: var(--spacing-2px) var(--spacing-xs);
-    border: var(--border-m);
-    border-color: rgb(var(--color-white-rgb) / var(--opacity-xxs));
-    border-radius: var(--border-radius-s);
+    background: rgb(from var(--color-white) r g b / 10%);
+    padding: var(--spacing-px) var(--spacing-2);
+    border: var(--spacing-px) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-radius: var(--radius-sharp);
     color: var(--color-white);
     opacity: 0.9;
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-l);
     white-space: nowrap;
-    text-shadow: 0 1px 2px rgb(var(--color-black-rgb) / 80%);
+    text-shadow: var(--shadow-font);
     display: flex;
     align-items: center;
-    height: calc(100% - 8px);
+    height: calc(100% - var(--spacing-1));
   }
 
   /* --- ACTIONS --- */
 
   :global(.delete) {
     color: var(--color-white);
-    transition: all var(--motion-m);
+    transition: all var(--duration-fast);
     background: transparent;
-    filter: drop-shadow(0 1px 2px rgb(var(--color-black-rgb) / 80%));
+    filter: drop-shadow(0 1px 2px rgb(from var(--color-black) r g b / 80%));
   }
 
   :global(.delete:hover) {
@@ -399,8 +402,8 @@
   /* --- EMPTY STATE --- */
 
   .empty-state {
-    padding: var(--spacing-xs) var(--spacing-s);
-    min-height: 2.5rem;
+    padding: var(--spacing-2) var(--spacing-3);
+    min-height: calc(var(--spacing-4) * 2.5);
     display: flex;
     align-items: center;
   }
@@ -409,13 +412,13 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     color: var(--color-frisk);
-    opacity: var(--opacity-s);
-    letter-spacing: var(--letter-spacing-l);
+    opacity: var(--opacity-whisper);
+    letter-spacing: var(--font-spacing-l);
     text-transform: uppercase;
     pointer-events: none;
     user-select: none;
     display: flex;
     align-items: center;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
   }
 </style>

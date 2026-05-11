@@ -23,11 +23,11 @@
     on_view_profile = () => {},
   } = $props();
 
-  import { themeStore } from "@theme/palette.svelte.js";
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import { fit_text } from "@utils/fit-text.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import { themeStore } from "@theme/palette.svelte.js";
+  import { fit_text } from "@utils/fit-text.js";
 
   // --- STATE & DERIVATIONS ---
 
@@ -35,15 +35,14 @@
   let signature_color = $derived(
     is_empty ? "var(--color-frisk)" : themeStore.get_signature_color(entity),
   );
-  let signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
 
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
 </script>
 
 <div
-  class="card {type}-card glass-l interactable"
+  class="card {type}-card glass-elevated interactable"
   use:tooltip={{ text: a11y_label }}
-  style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
+  style="--signature-color: {signature_color};"
   aria-label={a11y_label}
   data-testid="storyboard-card"
 >
@@ -52,11 +51,11 @@
     <Button variant="invisible" cover={true} onclick={on_select} className="placeholder">
       <div class="placeholder-content">
         {#if type === "fractal"}
-          <svg viewBox="0 0 24 24" class="icon-xl icon-outline">
+          <svg viewBox="0 0 24 24" class="icon-large icon-outline">
             <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
           </svg>
         {:else}
-          <svg viewBox="0 0 24 24" class="icon-xl icon-outline">
+          <svg viewBox="0 0 24 24" class="icon-large icon-outline">
             <path
               d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
             />
@@ -72,7 +71,7 @@
     </Button>
 
     <div class="overlay">
-      <h3 use:fit_text={{ minSize: 26 }}>{entity.name}</h3>
+      <h3 use:fit_text={{ minSize: "var(--font-size-base)" }}>{entity.name}</h3>
       <p>{entity.description || "No description provided."}</p>
     </div>
 
@@ -86,7 +85,7 @@
         onclick={on_view_profile}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="icon-s icon-solid">
+        <svg viewBox="0 0 24 24" class="icon-small icon-smallolid">
           <path
             d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
           />
@@ -100,16 +99,21 @@
   /* --- CARD SHELL --- */
   .card {
     position: relative;
-    width: var(--card-width-m);
-    height: var(--card-height-m);
+    width: var(--storyboard-card-width);
+    height: var(--storyboard-card-height);
     overflow: hidden;
-    border-radius: var(--border-radius-l);
+    border-radius: var(--radius-standard);
+    transition: transform var(--duration-fast) var(--ease-standard);
+  }
+
+  .card:hover {
+    transform: var(--hover-lift);
   }
 
   /* Landscape Orientation for Fractals */
   .fractal-card {
-    width: var(--card-height-m);
-    height: var(--card-width-m);
+    width: var(--storyboard-card-height);
+    height: var(--storyboard-card-width);
   }
 
   /* Structural Border (Pseudo-element) */
@@ -118,14 +122,18 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
-    border-radius: var(--border-radius-l);
+    border-radius: var(--radius-standard);
     box-shadow: inset 0 0 0 var(--spacing-px) transparent;
-    transition: box-shadow var(--motion-m) ease;
-    z-index: var(--z-index-xl);
+    border: var(--border-muted);
+    transition:
+      box-shadow var(--duration-standard) var(--ease-standard),
+      border-color var(--duration-standard) var(--ease-standard);
+    z-index: var(--z-surface);
   }
 
   .card:hover::after {
-    box-shadow: inset 0 0 0 var(--spacing-border) var(--signature-color);
+    border-color: var(--signature-color);
+    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color);
   }
 
   .card:focus-visible {
@@ -133,7 +141,7 @@
   }
 
   .card:focus-visible::after {
-    box-shadow: inset 0 0 0 var(--spacing-border) var(--signature-color);
+    box-shadow: inset 0 0 0 var(--spacing-px) var(--signature-color);
   }
 
   /* --- PLACEHOLDER --- */
@@ -143,27 +151,29 @@
     display: flex;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
+    border-radius: var(--radius-standard);
   }
 
   .placeholder-content {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--spacing-m);
-    color: var(--font-color-s);
-    opacity: var(--opacity-m);
-    transition: opacity var(--motion-m) ease;
+    gap: var(--spacing-1);
+    color: var(--font-color-muted);
+    opacity: var(--opacity-muted);
+    transition: opacity var(--duration-standard) var(--ease-standard);
   }
 
   .card:hover .placeholder-content {
-    opacity: var(--opacity-max);
+    opacity: var(--opacity-solid);
   }
 
   .placeholder-content .label {
     font-family: var(--font-family-heading);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
   }
 
   /* --- BODY --- */
@@ -171,6 +181,7 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
+    border-radius: var(--radius-standard);
   }
 
   /* --- OVERLAY --- */
@@ -182,27 +193,28 @@
     height: 50%;
     background: linear-gradient(
       to top,
-      var(--color-chalk) 0%,
-      rgb(from var(--color-chalk) r g b / var(--opacity-xl)) 50%,
+      var(--bg-base) 0%,
+      rgb(from var(--bg-base) r g b / var(--opacity-heavy)) 50%,
       transparent 100%
     );
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: var(--spacing-xl) var(--spacing-m) var(--spacing-m);
-    z-index: var(--z-index-l);
+    padding: var(--spacing-8) var(--spacing-2) var(--spacing-2);
+    z-index: var(--z-surface);
     pointer-events: none;
+    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
   }
 
   .overlay h3 {
     margin: 0;
     font-family: var(--font-family-heading);
-    color: rgb(var(--signature-rgb));
+    color: var(--signature-color);
     text-shadow: var(--shadow-font);
     font-size: var(--font-size-h3);
-    line-height: 1;
-    letter-spacing: var(--letter-spacing-s);
-    max-width: 80%;
+    line-height: var(--font-height-short);
+    letter-spacing: var(--font-spacing-tight);
+    max-width: 85%;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -211,28 +223,31 @@
   }
 
   .overlay p {
-    margin: var(--spacing-xxs) 0 0;
+    margin: var(--spacing-1) 0 0;
     font-size: var(--font-size-small);
-    color: var(--font-color-m);
-    line-height: var(--line-height-s);
+    color: var(--font-color-base);
+    line-height: var(--font-height-short);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    opacity: var(--opacity-xl);
+    opacity: var(--opacity-heavy);
   }
 
   /* --- ACTIONS --- */
   .actions {
     position: absolute;
-    top: var(--spacing-m);
-    right: var(--spacing-m);
-    z-index: var(--z-index-xxl);
+    top: var(--spacing-2);
+    right: var(--spacing-2);
+    z-index: var(--z-overlay);
     visibility: hidden;
     opacity: 0;
-    transition: all var(--motion-m) ease;
-    transform: translateY(calc(var(--spacing-xs) * -1));
+    transition:
+      transform var(--duration-standard) var(--ease-standard),
+      opacity var(--duration-standard) var(--ease-standard),
+      visibility var(--duration-standard) var(--ease-standard);
+    transform: translateY(calc(var(--spacing-1) * -1));
   }
 
   .card:hover .actions {
@@ -242,21 +257,24 @@
   }
 
   .actions :global(.button.action-btn) {
-    width: var(--icon-xl);
-    height: var(--icon-xl);
-    border-radius: var(--border-radius-full);
-    background: var(--glass-xxl);
-    backdrop-filter: var(--blur-xl);
-    color: var(--color-white);
+    width: var(--icon-large);
+    height: var(--icon-large);
+    border-radius: var(--radius-pill);
+    background: var(--color-white);
+    backdrop-filter: var(--blur-mist);
+    color: var(--bg-base);
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: all var(--motion-m) var(--motion-elastic);
+    transition:
+      background var(--duration-standard) var(--ease-standard),
+      transform var(--duration-standard) var(--ease-elastic),
+      box-shadow var(--duration-standard) var(--ease-standard);
   }
 
   .actions :global(.button.action-btn:hover) {
-    background: color-mix(in srgb, var(--glass-xxl), var(--color-white) var(--opacity-s));
-    transform: scale(1.15);
-    box-shadow: 0 0 var(--spacing-m) rgb(from var(--signature-color) r g b / var(--opacity-m));
+    background: rgb(from var(--color-white) r g b / var(--opacity-heavy));
+    transform: var(--hover-lift);
+    box-shadow: var(--shadow-heavy);
   }
 </style>

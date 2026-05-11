@@ -20,7 +20,9 @@
 
   // Opacity varies based on view for cinematic focus
   // Storymode is dimmer to prioritize text legibility
-  let fractal_opacity = $derived(app.view === "storymode" ? 0.4 : 0.75);
+  let fractal_opacity = $derived(
+    app.view === "storymode" ? "var(--opacity-base)" : "var(--opacity-substantial)",
+  );
   $effect(() => {
     app.load_entities();
   });
@@ -72,7 +74,7 @@
     height: 100vh;
     overflow: hidden;
     background: transparent;
-    z-index: var(--z-index-1); /* Above Background.svelte (0) */
+    z-index: var(--z-index-surface);
   }
 
   :global(html),
@@ -83,8 +85,8 @@
   }
 
   .app-container.has-tension {
-    animation: reality-tremor 4s infinite ease-in-out;
-    filter: saturate(1.2) contrast(1.1);
+    animation: reality-tremor var(--duration-tremor) infinite var(--ease-standard);
+    filter: var(--saturation-tension) var(--contrast-tension);
   }
 
   /* --- CONSOLIDATED BACKGROUND STYLES --- */
@@ -93,8 +95,8 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 0; /* Floor: behind app-container (1) */
-    background-color: var(--bg-base);
+    z-index: var(--z-index-floor);
+    background-color: var(--background-base);
     overflow: hidden;
     pointer-events: none;
   }
@@ -103,10 +105,10 @@
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 15% 50%, var(--bg-grad-1), transparent 50%),
-      radial-gradient(circle at 85% 30%, var(--bg-grad-2), transparent 50%),
-      radial-gradient(circle at 50% 80%, var(--bg-grad-3), transparent 50%),
-      radial-gradient(circle at 50% 10%, var(--bg-grad-4), transparent 50%);
+      radial-gradient(circle at 15% 50%, var(--background-gradient-1), transparent 50%),
+      radial-gradient(circle at 85% 30%, var(--background-gradient-2), transparent 50%),
+      radial-gradient(circle at 50% 80%, var(--background-gradient-3), transparent 50%),
+      radial-gradient(circle at 50% 10%, var(--background-gradient-4), transparent 50%);
     background-size: cover;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -119,7 +121,7 @@
     background-position: center;
 
     /* Atmospheric softening */
-    filter: blur(8px) brightness(0.3);
+    filter: var(--blur-mist) var(--brightness-muted);
     will-change: opacity, filter;
   }
 
@@ -130,15 +132,21 @@
     }
 
     25% {
-      transform: translate(-1px, 1px) scale(1.002);
+      transform: translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-offset))
+        var(--scale-tremor-high);
     }
 
     50% {
-      transform: translate(1px, -1px) scale(0.998);
+      transform: translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-offset) * -1))
+        var(--scale-tremor-low);
     }
 
     75% {
-      transform: translate(-1px, -1px) scale(1.001);
+      transform: translate(
+          calc(var(--kinetic-shimmy-offset) * -1),
+          calc(var(--kinetic-shimmy-offset) * -1)
+        )
+        var(--scale-tremor-mid);
     }
   }
 </style>

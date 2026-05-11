@@ -5,8 +5,8 @@
  *
  * @param {HTMLElement} node
  * @param {Object} [options]
- * @param {number} [options.maxSize] - Optional: Force a starting font size in px
- * @param {number} [options.minSize=12] - Minimum font size in px
+ * @param {number | string} [options.maxSize] - Optional: Force a starting font size (px number or CSS string)
+ * @param {number | string} [options.minSize] - Minimum font size (px number or CSS string)
  * @param {string} [options.lineHeight='1.2'] - Line height to apply
  */
 export function fit_text(node, options = {}) {
@@ -30,31 +30,60 @@ export function fit_text(node, options = {}) {
       if (node.clientHeight === 0 || node.clientWidth === 0) return;
 
       // 3. Line-height: reset or apply override
-      node.style.lineHeight = currentOptions.lineHeight || "";
 
-      const computedStyle = window.getComputedStyle(node);
+      const rootStyle = window.getComputedStyle(document.documentElement);
+
+      // Load centralized logic tokens (Tier 1 Foundations)
+      const TOKEN_MIN_SIZE =
+        rootStyle.getPropertyValue("--fit-text-min").trim() || "var(--font-size-tiny)";
+      const TOKEN_LINE_HEIGHT =
+        rootStyle.getPropertyValue("--fit-text-height").trim() || "var(--font-height-short)";
+      const TOKEN_TOLERANCE = parseFloat(rootStyle.getPropertyValue("--fit-text-tolerance")) || 1;
+
+      /**
+       * Helper to resolve CSS values (handles variables, clamp, rem, etc.)
+       * @param {string | number | undefined} value
+       * @param {number} fallback
+       * @returns {number}
+       */
+      const resolve_px = (value, fallback) => {
+        if (!value) return fallback;
+        if (typeof value === "number") return value;
+
+        // If it's a variable or complex string, measure it
+        const temp = document.createElement("div");
+        temp.style.position = "absolute";
+        temp.style.visibility = "hidden";
+        temp.style.fontSize = value.startsWith("--") ? `var(${value})` : value;
+        document.body.appendChild(temp);
+        const result = parseFloat(window.getComputedStyle(temp).fontSize);
+        document.body.removeChild(temp);
+        return isNaN(result) ? fallback : result;
+      };
 
       // 4. Determine boundaries
-      const minSize = currentOptions.minSize || 10;
-      let maxSize;
+      // Default to --fit-text-min if no minSize provided
+      const minSize = resolve_px(currentOptions.minSize || TOKEN_MIN_SIZE, 12);
 
+      let maxSize;
       if (currentOptions.maxSize) {
-        maxSize = currentOptions.maxSize;
+        maxSize = resolve_px(currentOptions.maxSize, 16);
       } else {
         // Measure the 'natural' CSS size (e.g. from clamp or fixed rem)
-        maxSize = parseFloat(computedStyle.fontSize) || 16;
+        node.style.fontSize = "";
+        maxSize = parseFloat(window.getComputedStyle(node).fontSize) || 16;
       }
+
+      // Default line-height from tokens
+      node.style.lineHeight = currentOptions.lineHeight || TOKEN_LINE_HEIGHT;
 
       // Initial state: Start at the maximum allowed size
       node.style.fontSize = `${maxSize}px`;
 
-      // Tolerance to prevent subpixel rounding loops
-      const TOLERANCE = 1;
-
       const isOverflowing = () => {
         return (
-          node.scrollHeight > node.clientHeight + TOLERANCE ||
-          node.scrollWidth > node.clientWidth + TOLERANCE
+          node.scrollHeight > node.clientHeight + TOKEN_TOLERANCE ||
+          node.scrollWidth > node.clientWidth + TOKEN_TOLERANCE
         );
       };
 
