@@ -66,7 +66,7 @@
     display: inline-flex;
     align-items: center;
     gap: var(--spacing-4);
-    padding: var(--spacing-1) 0;
+    padding: var(--spacing-1) var(--spacing-0);
 
     /* Interaction */
     cursor: pointer;
@@ -107,9 +107,9 @@
   /* Logic Kernel (Hidden Input) */
   input {
     position: absolute;
-    width: 0;
-    height: 0;
-    opacity: 0;
+    width: var(--spacing-0);
+    height: var(--spacing-0);
+    opacity: var(--opacity-none);
     pointer-events: none;
   }
 
@@ -175,7 +175,8 @@
     transform: translateX(
       calc(var(--toggle-width) - var(--thumb-size) - (var(--thumb-offset) * 2))
     );
-    box-shadow: 0 0 var(--spacing-1) rgb(from var(--color-white) r g b / var(--opacity-muted));
+    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-1)
+      rgb(from var(--color-white) r g b / var(--opacity-muted));
   }
 
   /* Accessibility Focus */

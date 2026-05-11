@@ -153,8 +153,7 @@
     flex-direction: column;
     position: relative;
     border-radius: var(--radius-standard);
-    background: var(--glass-sunken-color); /* Fallback */
-    background: rgb(from var(--glass-sunken-color) r g b / var(--opacity-ghost));
+    background: var(--glass-sunken);
     backdrop-filter: var(--glass-sunken-blur);
     transition:
       border-color var(--duration-standard) var(--ease-standard),
@@ -218,7 +217,7 @@
   .body {
     width: 100%;
     min-height: var(--spacing-16);
-    max-height: 15rem; /* Specific functional limit */
+    max-height: var(--spacing-60); /* Specific functional limit */
     padding: var(--spacing-4);
     background: transparent;
     border: none;

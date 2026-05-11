@@ -267,7 +267,7 @@
   }
 
   .tooltip-content {
-    background: rgb(from var(--glass-peak-color) r g b / var(--glass-peak-opacity));
+    background: var(--glass-peak);
     backdrop-filter: var(--glass-peak-blur);
     color: var(--color-white);
     padding: var(--spacing-1) var(--spacing-2);

@@ -7,6 +7,7 @@
    */
   import { use_actions } from "@ui/utils/use-actions.js";
   import { fade } from "svelte/transition";
+  import { parse_ms } from "@ui/utils/kinetic.js";
 
   let {
     // State
@@ -30,7 +31,7 @@
     const val = getComputedStyle(document.documentElement)
       .getPropertyValue("--duration-fast")
       .trim();
-    if (val) duration = parseInt(val, 10) || 250;
+    if (val) duration = parse_ms(val) || 250;
   }
 </script>
 

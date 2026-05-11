@@ -23,7 +23,7 @@ const get_token_raw = (token, fallback) => {
  * @param {string} str
  * @returns {number}
  */
-const parse_ms = (str) => {
+export const parse_ms = (str) => {
   const match = str.match(/([\d.]+)(ms|s)/);
   if (!match) return parseFloat(str) || 0;
   const [_, val, unit] = match;
