@@ -245,10 +245,10 @@
   --font-size-h1: clamp(3rem, 5vw + 2rem, 6rem);
 
   /* Surface Mapping (Glass) */
-  --glass-sunken: rgb(var(--color-gunmetal-rgb), var(--opacity-muted));
-  --glass-base: rgb(var(--color-chalk-rgb), var(--opacity-muted));
-  --glass-elevated: rgb(var(--color-frozen-rgb), var(--opacity-ghost));
-  --glass-peak: rgb(var(--color-white-rgb), var(--opacity-muted));
+  --glass-sunken: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
+  --glass-base: rgb(from var(--color-chalk) r g b / var(--opacity-muted));
+  --glass-elevated: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
+  --glass-peak: rgb(from var(--color-white) r g b / var(--opacity-muted));
 
   --glass-sunken-blur: var(--blur-whisper);
   --glass-base-blur: var(--blur-whisper);
