@@ -50,7 +50,7 @@
   /* ── Variant: glass (default — floating bubble) ──────── */
   .wrapper.glass {
     padding: var(--spacing-2) var(--spacing-8);
-    background: var(--glass-elevated-color); /* Maps to glass-elevated foundation */
+    background: var(--glass-elevated); /* Maps to glass-elevated foundation */
     backdrop-filter: var(--glass-elevated-blur);
     box-shadow: var(--shadow-ghost);
     height: 2.5rem;

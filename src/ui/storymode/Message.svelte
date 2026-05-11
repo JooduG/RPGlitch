@@ -316,7 +316,7 @@
   }
 
   .fractal-bubble {
-    width: var(--modal-max);
+    width: var(--modal-width-wide);
     max-width: 90%;
   }
 

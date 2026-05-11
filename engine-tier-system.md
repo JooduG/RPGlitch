@@ -147,10 +147,6 @@ Implements a 12-column layout where each column width is fluid based on the view
   /* Spacing */
   --card-padding: var(--spacing-4);
 
-  /* Z-Index Semantic Mapping */
-  --z-surface: var(--z-surface);
-  --z-modal: var(--z-modal);
-
   /* Interaction Motion Mapping */
   --kinetic-hover-scale: scale(var(--scale-lift));
   --kinetic-hover-brightness: brightness(var(--brightness-glow));

@@ -36,6 +36,8 @@ const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
  */
 export class AppStore {
   initialized = false;
+  /** @type {Array<() => void>} */
+  _viewport_cleanup = [];
   // --- NAVIGATION ---
   view = $state("storyboard"); // 'storyboard' | 'storymode'
   control_panel_open = $state(false);
@@ -189,6 +191,12 @@ export class AppStore {
   init_viewport() {
     if (typeof window === "undefined") return;
 
+    // Cleanup existing listeners if re-initializing
+    if (this._viewport_cleanup) {
+      this._viewport_cleanup.forEach((/** @type {() => void} */ cleanup) => cleanup());
+    }
+    this._viewport_cleanup = [];
+
     // Retrieve tokens from the central design system
     const style = getComputedStyle(document.documentElement);
     const getBreakpoint = (/** @type {string} */ name) =>
@@ -210,10 +218,12 @@ export class AppStore {
       this.viewport[k] = mql.matches;
 
       // Listener (Modern API)
-      mql.addEventListener("change", (e) => {
+      const listener = (/** @type {MediaQueryListEvent} */ e) => {
         this.viewport[k] = e.matches;
         this.log(`Viewport Change: ${k} -> ${e.matches}`, "system");
-      });
+      };
+      mql.addEventListener("change", listener);
+      this._viewport_cleanup.push(() => mql.removeEventListener("change", listener));
     });
 
     // Touch detection

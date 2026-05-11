@@ -167,6 +167,6 @@
   }
 
   .empty-feed-fallback p {
-    max-width: var(--modal-max);
+    max-width: var(--grid-width-max);
   }
 </style>

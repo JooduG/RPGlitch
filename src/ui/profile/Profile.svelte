@@ -221,7 +221,7 @@
     transition: all var(--duration-standard) var(--ease-standard);
     transform: scale(0.9);
     height: 100%;
-    max-height: var(--drawer-height-max);
+    max-height: var(--modal-height-tall);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-4);
@@ -251,7 +251,7 @@
     max-width: var(--profile-width);
     width: 100%;
     height: 100%;
-    max-height: var(--drawer-height-max);
+    max-height: var(--modal-height-tall);
     background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
     border-radius: var(--radius-standard);
@@ -354,7 +354,7 @@
   }
 
   .wrapper.is-mobile .avatar {
-    flex: 0 0 clamp(20rem, 20vh, var(--avatar-profile));
+    flex: 0 0 clamp(20rem, 20vh, var(--avatar-medium-size));
     border-radius: 0;
   }
 

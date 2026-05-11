@@ -338,6 +338,7 @@
   --wing-width: var(--grid-2);
   --profile-width: var(--grid-8);
   --profile-initials-size-base: var(--spacing-40);
+  --avatar-medium-size: 25rem;
 }
 
 /* ============================================================================
