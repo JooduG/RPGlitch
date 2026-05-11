@@ -89,7 +89,7 @@ export function resolve_px(value, fallback = 0, context = null) {
     const result = parseFloat(computed);
     if (isNaN(result)) return fallback;
     // If we got 0 but the input wasn't 0, it likely failed to resolve
-    if (result === 0 && !trimmed.startsWith("0") && !trimmed.includes("(0")) return fallback;
+    if (result === 0 && !trimmed.startsWith("0") && !trimmed.includes("(0") && !trimmed.startsWith("calc")) return fallback;
 
     return result;
   }
