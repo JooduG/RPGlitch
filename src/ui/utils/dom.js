@@ -70,7 +70,7 @@ export function resolve_px(value, fallback = 0, context = null) {
     }
   }
 
-  // 3. Measure using a dummy element for complex values
+  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
   const cssValue = varName ? `var(${varName})` : trimmed;
 
   const el = get_measure_el();
