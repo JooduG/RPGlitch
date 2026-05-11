@@ -20,20 +20,29 @@ function get_var_name(value) {
 let sharedMeasureEl = null;
 
 /**
- * Ensures the shared measurement element exists in the DOM.
+ * Ensures the shared measurement element exists in the DOM and is parented correctly.
+ * @param {HTMLElement | null} [context] - Optional element context for parenting
  * @returns {HTMLElement | null}
  */
-function get_measure_el() {
+function get_measure_el(context = null) {
   if (!sharedMeasureEl && typeof document !== "undefined") {
     sharedMeasureEl = document.createElement("div");
     sharedMeasureEl.style.position = "absolute";
     sharedMeasureEl.style.visibility = "hidden";
     sharedMeasureEl.style.pointerEvents = "none";
     sharedMeasureEl.style.zIndex = "-9999";
-    // Using a display: flex container allows us to resolve unitless numbers via flex-grow
+    // Using a flex container allows us to resolve unitless numbers via flex-grow
     sharedMeasureEl.style.display = "flex";
     document.body.appendChild(sharedMeasureEl);
   }
+
+  if (sharedMeasureEl) {
+    const targetParent = context || document.body;
+    if (sharedMeasureEl.parentElement !== targetParent) {
+      targetParent.appendChild(sharedMeasureEl);
+    }
+  }
+
   return sharedMeasureEl;
 }
 
@@ -72,13 +81,8 @@ export function resolve_px(value, fallback = 0, context = null) {
 
   const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
 
-  const el = get_measure_el();
+  const el = get_measure_el(context);
   if (el) {
-    const targetParent = context || document.body;
-    if (el.parentElement !== targetParent) {
-      targetParent.appendChild(el);
-    }
-
     // Pass the raw value to the mock/browser via dataset for easier resolution in test environments
     if (typeof el.dataset !== "undefined") {
       el.dataset.resolveValue = String(cssValue);
@@ -89,7 +93,13 @@ export function resolve_px(value, fallback = 0, context = null) {
     const result = parseFloat(computed);
     if (isNaN(result)) return fallback;
     // If we got 0 but the input wasn't 0, it likely failed to resolve
-    if (result === 0 && !trimmed.startsWith("0") && !trimmed.includes("(0") && !trimmed.startsWith("calc")) return fallback;
+    if (
+      result === 0 &&
+      !trimmed.startsWith("0") &&
+      !trimmed.includes("(0") &&
+      !trimmed.startsWith("calc")
+    )
+      return fallback;
 
     return result;
   }
@@ -131,15 +141,10 @@ export function resolve_ms(value, fallback = 0, context = null) {
   }
 
   // 3. Measure using dummy element
-  const cssValue = varName ? `var(${varName})` : trimmed;
+  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
 
-  const el = get_measure_el();
+  const el = get_measure_el(context);
   if (el) {
-    const targetParent = context || document.body;
-    if (el.parentElement !== targetParent) {
-      targetParent.appendChild(el);
-    }
-
     // Pass the raw value to the mock/browser via dataset
     if (typeof el.dataset !== "undefined") {
       el.dataset.resolveValue = String(cssValue);
@@ -190,15 +195,10 @@ export function resolve_number(value, fallback = 0, context = null) {
   }
 
   // 3. Measure using dummy element
-  const cssValue = varName ? `var(${varName})` : trimmed;
+  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
 
-  const el = get_measure_el();
+  const el = get_measure_el(context);
   if (el) {
-    const targetParent = context || document.body;
-    if (el.parentElement !== targetParent) {
-      targetParent.appendChild(el);
-    }
-
     // Pass the raw value to the mock/browser via dataset
     if (typeof el.dataset !== "undefined") {
       el.dataset.resolveValue = String(cssValue);
@@ -244,14 +244,9 @@ export function resolve_string(value, fallback = "", context = null) {
   }
 
   // 3. Fallback to dummy
-  const cssValue = `var(${varName})`;
-  const el = get_measure_el();
+  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
+  const el = get_measure_el(context);
   if (el) {
-    const targetParent = context || document.body;
-    if (el.parentElement !== targetParent) {
-      targetParent.appendChild(el);
-    }
-
     // Pass the raw value to the mock/browser via dataset
     if (typeof el.dataset !== "undefined") {
       el.dataset.resolveValue = String(cssValue);

@@ -71,7 +71,15 @@ describe("dom utilities", () => {
         // If it's our measurement element, we simulate resolution
         if (el.style?.zIndex === "-9999") {
           const mockStyle = {
-            getPropertyValue: (/** @type {string} */ prop) => style.getPropertyValue(prop),
+            getPropertyValue: (/** @type {string} */ prop) => {
+              const val = style.getPropertyValue(prop);
+              // If we're asking for a variable, we might need to resolve it
+              if (prop.startsWith("--")) {
+                return resolveMockValue(val, el);
+              }
+              return val;
+            },
+            paddingTop: resolveMockValue(el.dataset?.resolveValue || style.paddingTop, el),
             fontSize: resolveMockValue(el.dataset?.resolveValue || style.fontSize, el),
             transitionDuration: resolveMockValue(
               el.dataset?.resolveValue || style.transitionDuration,
