@@ -15,10 +15,6 @@
  * - Return clean success/failure strings.
  * - Truncate long outputs.
  */
-
-/**
- *
- */
 async function main() {
   try {
     // TODO: Add actual script logic here.

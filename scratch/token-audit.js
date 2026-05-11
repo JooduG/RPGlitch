@@ -20,7 +20,8 @@ const usedTokens = new Map();
 const varRegex = /var\((--[a-zA-Z0-9-]+)\)/g;
 
 /**
- *
+ * Recursively scans a directory for files and extracts used CSS tokens.
+ * @param {string} dir - The directory path to scan.
  */
 function scanDir(dir) {
   const files = fs.readdirSync(dir);
