@@ -426,7 +426,7 @@
     overflow: hidden;
     font-family: var(--font-family-mono);
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
   }
 
   .entity-name {
@@ -468,7 +468,7 @@
   }
 
   .message-content {
-    line-height: var(--font-height-m);
+    line-height: var(--font-height-base);
     font-size: var(--font-size-base);
     font-family: var(--font-family-base);
     color: var(--color-white);

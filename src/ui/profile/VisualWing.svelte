@@ -357,7 +357,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     color: inherit;
   }

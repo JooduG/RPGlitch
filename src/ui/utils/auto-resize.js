@@ -22,7 +22,7 @@ export function auto_resize(node, options = {}) {
     if (frame) cancelAnimationFrame(frame);
 
     frame = requestAnimationFrame(() => {
-      // Add a small buffer to prevent flickering scrollbars
+      // 0. Load tokens dynamically (Red Thread)
       const buffer =
         parseFloat(
           getComputedStyle(document.documentElement).getPropertyValue("--auto-resize-buffer"),

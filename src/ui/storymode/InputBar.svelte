@@ -128,7 +128,7 @@
     font-family: inherit;
     font-size: var(--font-size-base);
     line-height: var(--font-height-base);
-    max-height: var(--drawer-height-max);
+    max-height: var(--modal-height-short);
     overflow-y: hidden;
   }
 

@@ -145,9 +145,6 @@
 
 <style>
   .wrapper {
-    --tf-shield-dormant: var(--spacing-1);
-    --tf-shield-active: var(--spacing-6);
-
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -174,9 +171,9 @@
   }
 
   .header {
-    height: var(--tf-shield-dormant);
+    height: var(--tf-header-height-dormant);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-    background: rgb(from var(--tf-accent) r g b / var(--header-opacity));
+    background: var(--tf-header-bg-dormant);
     box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-2)) var(--tf-accent);
     position: relative;
     top: var(--spacing-pixel);
@@ -195,8 +192,9 @@
   }
 
   .wrapper[data-expanded="true"] .header {
-    height: var(--tf-shield-active);
+    height: var(--tf-header-height-active);
     top: 0;
+    background: var(--tf-header-bg-active);
     box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-4))
       rgb(from var(--tf-accent) r g b / var(--opacity-muted));
     border-bottom: var(--spacing-pixel) solid

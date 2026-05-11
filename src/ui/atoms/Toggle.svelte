@@ -74,10 +74,10 @@
     transition: opacity var(--duration-standard) var(--ease-standard);
 
     /* Internal Geometry (Chalk Regime Mapping) */
-    --toggle-width: calc(var(--spacing-12) + var(--spacing-2));
-    --toggle-height: var(--font-size-h5);
-    --thumb-size: var(--spacing-4);
-    --thumb-offset: calc((var(--toggle-height) - var(--thumb-size)) / 2);
+    --toggle-current-width: var(--toggle-width);
+    --toggle-current-height: var(--toggle-height);
+    --toggle-current-thumb-size: var(--toggle-thumb-size);
+    --toggle-current-thumb-offset: var(--toggle-thumb-offset);
   }
 
   /* --- MODIFIERS --- */
@@ -97,9 +97,12 @@
   }
 
   .wrapper.is-sm {
-    --toggle-width: calc(var(--spacing-8) + var(--spacing-1));
-    --toggle-height: var(--spacing-4);
-    --thumb-size: var(--font-size-small);
+    --toggle-current-width: var(--toggle-sm-width);
+    --toggle-current-height: var(--toggle-sm-height);
+    --toggle-current-thumb-size: var(--toggle-sm-thumb-size);
+    --toggle-current-thumb-offset: calc(
+      (var(--toggle-sm-height) - var(--toggle-sm-thumb-size)) / 2
+    );
   }
 
   /* --- ELEMENTS --- */
@@ -117,8 +120,8 @@
   .track {
     position: relative;
     flex-shrink: 0;
-    width: var(--toggle-width);
-    height: var(--toggle-height);
+    width: var(--toggle-current-width);
+    height: var(--toggle-current-height);
     background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
     backdrop-filter: var(--blur-whisper);
     border-radius: var(--radius-pill);
@@ -131,10 +134,10 @@
   .track::before {
     content: "";
     position: absolute;
-    top: var(--thumb-offset);
-    left: var(--thumb-offset);
-    width: var(--thumb-size);
-    height: var(--thumb-size);
+    top: var(--toggle-current-thumb-offset);
+    left: var(--toggle-current-thumb-offset);
+    width: var(--toggle-current-thumb-size);
+    height: var(--toggle-current-thumb-size);
     background-color: var(--color-frisk);
     border-radius: var(--radius-pill);
     transition:
@@ -173,7 +176,11 @@
   input:checked + .track::before {
     background-color: var(--color-white);
     transform: translateX(
-      calc(var(--toggle-width) - var(--thumb-size) - (var(--thumb-offset) * 2))
+      calc(
+        /* stylelint-disable-next-line scss/operator-no-newline-after */
+        var(--toggle-current-width) - var(--toggle-current-thumb-size) -
+          (var(--toggle-current-thumb-offset) * 2)
+      )
     );
     box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-1)
       rgb(from var(--color-white) r g b / var(--opacity-muted));

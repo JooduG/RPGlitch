@@ -70,6 +70,7 @@
   --radius-standard: var(--spacing-4); /* 16px (1rem) */
   --radius-rounded: var(--spacing-8); /* 32px (2rem) */
   --radius-pill: 9999px;
+  --radius-full: var(--radius-pill);
 
   /* Aspect Ratios */
   --aspect-square: 1 / 1;
@@ -131,7 +132,7 @@
   --grid-9: calc(var(--grid-unit) * 9);
   --grid-10: calc(var(--grid-unit) * 10);
   --grid-11: calc(var(--grid-unit) * 11);
-  --grid-12: var(--grid-width);
+  --grid-12: calc(var(--grid-unit) * 12);
 
   /* Motion & Atmosphere */
   --duration-none: 0s;
@@ -211,13 +212,9 @@
   --font-height-tall: 1.8;
 
   --font-spacing-tight: -0.02em;
+  --font-spacing-s: var(--font-spacing-tight);
   --font-spacing-base: 0em;
   --font-spacing-loose: 0.05em;
-
-  /* Typography Logic */
-  --fit-text-min: var(--font-size-tiny);
-  --fit-text-height: var(--font-height-short);
-  --fit-text-tolerance: 1;
 
   /****************************************************************************
    * [TIER 2] SEMANTICS: THE INTENT
@@ -230,6 +227,7 @@
 
   --font-color-base: var(--color-frisk);
   --font-color-muted: var(--color-frozen);
+  --color-white-glow: rgb(from var(--color-white) r g b / var(--opacity-muted));
 
   --font-size-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem);
   --font-size-tiny: clamp(0.7rem, 0.5vw + 0.6rem, 0.8rem);
@@ -241,6 +239,11 @@
   --font-size-h3: clamp(1.5rem, 2vw + 1.2rem, 2.5rem);
   --font-size-h2: clamp(2rem, 3vw + 1.5rem, 3.5rem);
   --font-size-h1: clamp(3rem, 5vw + 2rem, 6rem);
+
+  /* Typography Logic */
+  --fit-text-min: var(--font-size-tiny);
+  --fit-text-height: var(--font-height-short);
+  --fit-text-tolerance: 1;
 
   /* Surface Mapping (Glass) */
   --glass-sunken: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
@@ -306,6 +309,14 @@
   --motion-standard: var(--duration-standard) var(--ease-standard);
   --motion-slow: var(--duration-slow) var(--ease-standard);
   --motion-elastic: var(--duration-slow) var(--ease-elastic);
+  --motion-dissolve: opacity var(--duration-standard) var(--ease-standard);
+
+  /* Semantic Layout */
+  --dropdown-max-height: 20rem;
+  --width-sidebar: var(--grid-2);
+  --signature-color: var(--color-cyan);
+  --signature-glow: 0 0 var(--spacing-4) var(--signature-color);
+  --danger-hover-shadow: 0 0 var(--spacing-3) var(--color-red);
 
   /****************************************************************************
    * [TIER 3] SHARED COMPONENTS
@@ -317,6 +328,7 @@
 
   /* Control Components */
   --storyboard-pill-width: clamp(10rem, var(--grid-3), 15rem);
+  --pill-signature: rgb(from var(--signature-color) r g b / var(--opacity-muted));
 
   /* Skeleton Components */
   --skeleton-card-min-height: var(--storyboard-card-height);
@@ -330,6 +342,7 @@
   --modal-width-wide: var(--grid-8);
 
   --modal-height-short: 20vh;
+  --modal-height-base: var(--modal-height-standard);
   --modal-height-standard: 40vh;
   --modal-height-tall: 70vh;
 
@@ -343,6 +356,61 @@
   --profile-width: var(--grid-8);
   --profile-initials-size-base: var(--spacing-40);
   --avatar-medium-size: 25rem;
+
+  /* Slider Components */
+  --slider-track-height: var(--spacing-1);
+  --slider-thumb-size: var(--spacing-2);
+  --slider-fill-color-start: var(--signature-color);
+  --slider-fill-color-end: var(--color-gunmetal);
+  --slider-thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
+
+  /* TextField Components */
+  --tf-header-bg-dormant: rgb(from var(--color-black) r g b / var(--opacity-muted));
+  --tf-header-bg-active: rgb(from var(--signature-color) r g b / var(--opacity-ghost));
+  --tf-header-height-dormant: var(--spacing-1);
+  --tf-header-height-active: var(--spacing-6);
+  --tf-accent-default: var(--signature-color);
+
+  /* Toggle Components */
+  --toggle-height: var(--font-size-h5);
+  --toggle-width: calc(var(--spacing-12) + var(--spacing-2));
+  --toggle-thumb-size: var(--spacing-4);
+  --toggle-thumb-offset: calc((var(--toggle-height) - var(--toggle-thumb-size)) / 2);
+
+  --toggle-sm-height: var(--spacing-4);
+  --toggle-sm-width: calc(var(--spacing-8) + var(--spacing-1));
+  --toggle-sm-thumb-size: var(--font-size-small);
+
+  /* TypingIndicator */
+  --activity-color: var(--signature-color);
+
+  /* DataBox & Telemetry */
+  --box-height: auto;
+  --box-max-height: 25rem;
+  --font-height-s: var(--font-height-short);
+
+  /* Visual Swatches */
+  --swatch-dynamic-bg: var(--color-gunmetal);
+  --swatch-color: var(--signature-color);
+  --active-swatch-shadow: var(--signature-glow);
+
+  /* Titles */
+  --part-color: var(--color-frozen);
+  --title-focus-shadow: var(--signature-glow);
+
+  /* --- Dynamic Overrides (Tier 3) --- */
+
+  /* These tokens are managed by JS or component state but registered here for system integrity. */
+  --tf-accent: var(--signature-color);
+  --weight-intensity: 0;
+  --fill-start: 0%;
+  --fill-end: 100%;
+
+  /* Internal Component State (Tier 3) */
+  --toggle-current-width: var(--toggle-width);
+  --toggle-current-height: var(--toggle-height);
+  --toggle-current-thumb-size: var(--toggle-thumb-size);
+  --toggle-current-thumb-offset: var(--toggle-thumb-offset);
 }
 
 /* ============================================================================

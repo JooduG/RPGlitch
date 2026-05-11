@@ -223,7 +223,7 @@
     color: var(--color-white);
     opacity: var(--opacity-substantial);
     pointer-events: none;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
     text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
       rgb(from var(--color-white) r g b / 40%);
@@ -236,7 +236,7 @@
     font-weight: var(--font-weight-bold);
     opacity: var(--opacity-muted);
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     text-shadow: var(--shadow-font);
   }
 
@@ -280,7 +280,7 @@
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
     color: var(--signature-color);
-    opacity: var(--opacity-full);
+    opacity: var(--opacity-solid);
     text-align: center;
     text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-1);
@@ -293,7 +293,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     color: var(--color-white);
     opacity: var(--opacity-moderate);
   }

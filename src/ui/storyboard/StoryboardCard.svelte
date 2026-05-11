@@ -193,8 +193,8 @@
     height: 50%;
     background: linear-gradient(
       to top,
-      var(--bg-base) 0%,
-      rgb(from var(--bg-base) r g b / var(--opacity-heavy)) 50%,
+      var(--background-base) 0%,
+      rgb(from var(--background-base) r g b / var(--opacity-heavy)) 50%,
       transparent 100%
     );
     display: flex;
@@ -262,7 +262,7 @@
     border-radius: var(--radius-pill);
     background: var(--color-white);
     backdrop-filter: var(--blur-mist);
-    color: var(--bg-base);
+    color: var(--background-base);
     display: flex;
     align-items: center;
     justify-content: center;

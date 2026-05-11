@@ -122,7 +122,7 @@
     display: block;
     width: 100%;
     margin: 0;
-    height: var(--spacing-2);
+    height: var(--slider-thumb-size);
     background: transparent;
     appearance: none;
     outline: none;
@@ -134,15 +134,15 @@
   /* Track Styling */
   input[type="range"]::-webkit-slider-runnable-track {
     width: 100%;
-    height: var(--spacing-1);
+    height: var(--slider-track-height);
     background: linear-gradient(
       to right,
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-start),
-      var(--color-frozen) var(--fill-start),
-      var(--color-frozen) var(--fill-end),
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-end),
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 100%
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 0%,
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-start),
+      var(--slider-fill-color-start) var(--fill-start),
+      var(--slider-fill-color-start) var(--fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
     );
     box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
@@ -152,15 +152,15 @@
 
   input[type="range"]::-moz-range-track {
     width: 100%;
-    height: var(--spacing-1);
+    height: var(--slider-track-height);
     background: linear-gradient(
       to right,
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-start),
-      var(--color-frozen) var(--fill-start),
-      var(--color-frozen) var(--fill-end),
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) var(--fill-end),
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-muted)) 100%
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 0%,
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-start),
+      var(--slider-fill-color-start) var(--fill-start),
+      var(--slider-fill-color-start) var(--fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
     );
     box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
@@ -171,15 +171,13 @@
   /* Thumb Styling */
   input[type="range"]::-webkit-slider-thumb {
     appearance: none;
-    width: var(--spacing-2);
-    height: var(--spacing-2);
+    width: var(--slider-thumb-size);
+    height: var(--slider-thumb-size);
     background: var(--color-white);
     border-radius: var(--radius-pill);
     cursor: pointer;
-    --thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
-
-    box-shadow: var(--thumb-shadow);
-    margin-top: calc(var(--spacing-1) * -0.5); /* Centering on var(--spacing-1) track */
+    box-shadow: var(--slider-thumb-shadow);
+    margin-top: calc(var(--slider-track-height) * -0.5); /* Centering on track */
     border: none;
     transition:
       transform var(--duration-standard) var(--ease-elastic),
@@ -188,14 +186,12 @@
 
   input[type="range"]::-moz-range-thumb {
     appearance: none;
-    width: var(--spacing-2);
-    height: var(--spacing-2);
+    width: var(--slider-thumb-size);
+    height: var(--slider-thumb-size);
     background: var(--color-white);
     border-radius: var(--radius-pill);
     cursor: pointer;
-    --thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
-
-    box-shadow: var(--thumb-shadow);
+    box-shadow: var(--slider-thumb-shadow);
     border: none;
     transition:
       transform var(--duration-standard) var(--ease-elastic),

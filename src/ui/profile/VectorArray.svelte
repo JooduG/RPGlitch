@@ -300,7 +300,7 @@
     height: 100%;
     background: none;
     border: none;
-    color: var(--color-text-pri);
+    color: var(--font-color-muted);
     font-size: var(--font-size-small);
     cursor: pointer;
     opacity: 0;
@@ -351,7 +351,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     padding: 0;
     outline: none;
     opacity: 0.8;
@@ -376,7 +376,7 @@
     color: var(--color-white);
     opacity: 0.9;
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
     text-shadow: var(--shadow-font);
     display: flex;
@@ -413,7 +413,7 @@
     font-size: var(--font-size-nano);
     color: var(--color-frisk);
     opacity: var(--opacity-whisper);
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     pointer-events: none;
     user-select: none;

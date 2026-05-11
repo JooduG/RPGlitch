@@ -304,7 +304,7 @@
     left: calc(var(--spacing-2) * -1);
     border-left: var(--spacing-2) solid transparent;
     border-right: var(--spacing-2) solid transparent;
-    border-top: var(--spacing-2) solid var(--bg-base);
+    border-top: var(--spacing-2) solid var(--background-base);
     opacity: var(--opacity-heavy);
   }
 
@@ -319,6 +319,6 @@
     top: var(--spacing-pixel);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--spacing-2) solid var(--bg-base);
+    border-bottom: var(--spacing-2) solid var(--background-base);
   }
 </style>

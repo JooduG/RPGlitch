@@ -44,7 +44,7 @@
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     color: var(--color-cyan);
   }
 
@@ -52,7 +52,7 @@
     padding: var(--spacing-3);
     overflow: hidden auto;
     font-size: var(--font-size-small);
-    line-height: var(--font-height-m);
+    line-height: var(--font-height-base);
     color: var(--font-color-base);
   }
 

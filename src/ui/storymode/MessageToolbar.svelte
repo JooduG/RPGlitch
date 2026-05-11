@@ -156,7 +156,7 @@
 
   /* Interaction: Reveal on row hover (handled via parent class or global style) */
   :global(.message-row:hover) .message-toolbar {
-    opacity: var(--opacity-full);
+    opacity: var(--opacity-solid);
     pointer-events: auto;
   }
 

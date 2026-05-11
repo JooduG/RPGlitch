@@ -9,6 +9,8 @@
     "paths": {
       "@/*": ["src/*"],
       "@core/*": ["src/core/*"],
+      "@intelligence/*": ["src/core/intelligence/*"],
+      "@engine/*": ["src/core/engine/*"],
       "@data/*": ["src/data/*"],
       "@state/*": ["src/state/*"],
       "@ui/*": ["src/ui/*"],
@@ -23,7 +25,6 @@
       "@storymode/*": ["src/ui/storymode/*"]
     },
 
-    /* THE AI TYPE-SAFETY NET */
     "checkJs": true,
     "allowJs": true,
     "strict": true,

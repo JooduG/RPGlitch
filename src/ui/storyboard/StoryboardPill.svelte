@@ -177,7 +177,7 @@
   }
 
   :global(.unified-capsule .capsule-action.wrapper.is-ready) {
-    opacity: var(--opacity-full);
+    opacity: var(--opacity-solid);
   }
 
   :global(.unified-capsule .capsule-action.wrapper.is-ready .label) {
@@ -195,7 +195,7 @@
     font-family: var(--font-family-base);
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-small);
-    letter-spacing: var(--font-spacing-m);
+    letter-spacing: var(--font-spacing-base);
     color: var(--font-color-base);
     text-shadow: var(--shadow-font);
   }

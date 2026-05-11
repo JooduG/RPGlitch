@@ -346,8 +346,6 @@ export function kinetic_scroll(node) {
    */
   let raf_id = null;
 
-  let current_friction = 0.95;
-
   const on_down = (/** @type {any} */ e) => {
     is_down = true;
     const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
@@ -361,27 +359,34 @@ export function kinetic_scroll(node) {
 
   const on_up = () => {
     is_down = false;
-    current_friction = parseFloat(
-      getComputedStyle(node).getPropertyValue("--kinetic-momentum-friction").trim() || "0.95",
-    );
     requestAnimationFrame(apply_momentum);
   };
 
   const apply_momentum = () => {
     if (is_down || Math.abs(velocity) < 0.1) return;
+    const style = getComputedStyle(node);
+    const friction = parseFloat(
+      style.getPropertyValue("--kinetic-momentum-friction").trim() || "0.95",
+    );
     node.scrollTop -= velocity * 10;
-    velocity *= current_friction;
+    velocity *= friction;
     raf_id = requestAnimationFrame(apply_momentum);
   };
 
   const on_move = (/** @type {any} */ e) => {
     if (!is_down) return;
 
+    const style = getComputedStyle(node);
+    const multiplier = parseFloat(
+      style.getPropertyValue("--kinetic-scroll-multiplier").trim() || "1.5",
+    );
+    const threshold = parseFloat(style.getPropertyValue("--kinetic-drag-threshold").trim() || "10");
+
     const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
     const y = page_y - node.offsetTop;
-    const walk = (y - start_y) * 1.5;
+    const walk = (y - start_y) * multiplier;
 
-    if (Math.abs(walk) < 10) return;
+    if (Math.abs(walk) < threshold) return;
     if (e.cancelable) e.preventDefault();
 
     node.scrollTop = scroll_top - walk;

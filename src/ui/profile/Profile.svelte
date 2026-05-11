@@ -260,7 +260,7 @@
     overflow: visible;
     z-index: var(--overlay-z-index);
     display: grid;
-    grid-template-columns: minmax(12.5rem, 30%) 1fr;
+    grid-template-columns: minmax(var(--spacing-40), 30%) 1fr;
     grid-template-rows: minmax(0, 1fr);
     gap: 0;
     transition: all var(--duration-standard) var(--ease-standard);
