@@ -85,9 +85,10 @@ export function resolve_px(value, fallback = 0, context = null) {
       el.dataset.resolveValue = String(cssValue);
     }
     el.style.fontSize = cssValue;
-    const computed = window.getComputedStyle(el).fontSize;
+    el.style.paddingTop = "0px";
+    el.style.paddingTop = cssValue;
+    const computed = window.getComputedStyle(el).paddingTop;
     const result = parseFloat(computed);
-
     if (isNaN(result)) return fallback;
     // If we got 0 but the input wasn't 0, it likely failed to resolve
     if (result === 0 && !trimmed.startsWith("0") && !trimmed.includes("(0")) return fallback;
