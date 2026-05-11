@@ -70,7 +70,6 @@ export function resolve_px(value, fallback = 0, context = null) {
     }
   }
 
-  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
   const cssValue = varName ? `var(${varName})` : trimmed;
 
   const el = get_measure_el();
