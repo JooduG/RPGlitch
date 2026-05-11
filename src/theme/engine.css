@@ -268,9 +268,9 @@
   --shadow-ambient: var(--shadow-ghost);
   --shadow-focus: var(--shadow-heavy);
 
-  --border-muted: var(--spacing-pixel) solid rgb(var(--color-white-rgb), var(--opacity-muted));
-  --border-whisper: var(--spacing-pixel) solid rgb(var(--color-white-rgb), var(--opacity-whisper));
-  --border-ghost: var(--spacing-pixel) solid rgb(var(--color-white-rgb), var(--opacity-ghost));
+  --border-muted: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
+  --border-whisper: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-whisper));
+  --border-ghost: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
 
   --border-top: var(--border-muted);
   --border-side: var(--border-whisper);
