@@ -58,6 +58,7 @@
   --spacing-12: calc(var(--spacing-unit) * 12); /* 48px */
   --spacing-16: calc(var(--spacing-unit) * 16); /* 64px */
   --spacing-24: calc(var(--spacing-unit) * 24); /* 96px */
+  --spacing-40: calc(var(--spacing-unit) * 40); /* 160px */
   --spacing-60: calc(var(--spacing-unit) * 60); /* 15rem */
 
   /* Radii (Ascending) */
@@ -244,11 +245,14 @@
   --shadow-ambient: var(--shadow-ghost);
   --shadow-focus: var(--shadow-heavy);
 
-  --border-muted: var(--spacing-pixel) solid
+  --border-width-base: var(--spacing-pixel);
+  --border-width-thick: var(--spacing-1);
+
+  --border-muted: var(--border-width-base) solid
     rgb(from var(--color-white) r g b / var(--opacity-muted));
-  --border-whisper: var(--spacing-pixel) solid
+  --border-whisper: var(--border-width-base) solid
     rgb(from var(--color-white) r g b / var(--opacity-whisper));
-  --border-ghost: var(--spacing-pixel) solid
+  --border-ghost: var(--border-width-base) solid
     rgb(from var(--color-white) r g b / var(--opacity-ghost));
 
   --border-top: var(--border-muted);
@@ -310,6 +314,7 @@
   /* Profile Specific */
   --wing-width: var(--grid-2);
   --profile-width: var(--grid-8);
+  --profile-initials-size-base: var(--spacing-40);
 }
 
 /* ============================================================================

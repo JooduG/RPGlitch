@@ -1,3 +1,6 @@
+/** @type {HTMLElement | null} */
+let sharedMeasureEl = null;
+
 /**
  * Svelte Action: fitText
  * Automatically scales font size down to fit within the container's height/width.
@@ -50,15 +53,23 @@ export function fit_text(node, options = {}) {
         if (!value) return fallback;
         if (typeof value === "number") return value;
 
-        // If it's a variable or complex string, measure it
-        const temp = document.createElement("div");
-        temp.style.position = "absolute";
-        temp.style.visibility = "hidden";
-        temp.style.fontSize = value.startsWith("--") ? `var(${value})` : value;
-        document.body.appendChild(temp);
-        const result = parseFloat(window.getComputedStyle(temp).fontSize);
-        document.body.removeChild(temp);
-        return isNaN(result) ? fallback : result;
+        // If it's a variable or complex string, measure it using the shared element
+        if (!sharedMeasureEl && typeof document !== "undefined") {
+          sharedMeasureEl = document.createElement("div");
+          sharedMeasureEl.style.position = "absolute";
+          sharedMeasureEl.style.visibility = "hidden";
+          sharedMeasureEl.style.pointerEvents = "none";
+          sharedMeasureEl.style.zIndex = "-9999";
+          document.body.appendChild(sharedMeasureEl);
+        }
+
+        if (sharedMeasureEl) {
+          sharedMeasureEl.style.fontSize = value.startsWith("--") ? `var(${value})` : value;
+          const result = parseFloat(window.getComputedStyle(sharedMeasureEl).fontSize);
+          return isNaN(result) ? fallback : result;
+        }
+
+        return fallback;
       };
 
       // 4. Determine boundaries

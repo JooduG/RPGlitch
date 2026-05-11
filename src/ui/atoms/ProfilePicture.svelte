@@ -198,8 +198,8 @@
     white-space: nowrap;
     text-align: center;
     padding: 0;
-    font-size: calc(
-      var(--spacing-unit) * 40
+    font-size: var(
+      --profile-initials-size-base
     ); /* Large starting size for fit_text to scale down from */
   }
 </style>

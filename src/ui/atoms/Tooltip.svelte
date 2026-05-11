@@ -6,6 +6,9 @@
    * Flattened architecture for maximum efficiency and zero-bloat.
    */
 
+  /** @type {number | null} */
+  let cached_spacing = null;
+
   /**
    * @typedef {Object} TooltipState
    * @property {string | null} text - Current tooltip text
@@ -176,13 +179,17 @@
 
       let padding = 12; // Fallback matches var(--spacing-3)
       if (typeof window !== "undefined") {
-        const temp = document.createElement("div");
-        temp.style.position = "absolute";
-        temp.style.width = "var(--spacing-3)";
-        temp.style.visibility = "hidden";
-        document.body.appendChild(temp);
-        padding = parseFloat(window.getComputedStyle(temp).width) || 12;
-        document.body.removeChild(temp);
+        if (cached_spacing === null) {
+          const el = document.createElement("div");
+          el.style.position = "absolute";
+          el.style.visibility = "hidden";
+          el.style.pointerEvents = "none";
+          el.style.width = "var(--spacing-3)";
+          document.body.appendChild(el);
+          cached_spacing = parseFloat(window.getComputedStyle(el).width) || 12;
+          el.remove();
+        }
+        padding = cached_spacing;
       }
 
       let x_offset_px = 0;
