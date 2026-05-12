@@ -206,7 +206,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
     const computed = window.getComputedStyle(el).transitionDuration;
 
     // Detect failure: if it stayed at sentinel, it definitely failed.
-    if (computed === sentinel) {
+    if (parseFloat(computed) === parseFloat(sentinel)) {
       return fallback;
     }
 
