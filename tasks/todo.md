@@ -25,6 +25,9 @@
 | 2026-05-12T02:25:00Z | Enforce Strict Duration Units  | `javascript`              | ✅ Resolved |
 | 2026-05-12T02:35:00Z | Remove Redundant CSS Lookup    | `javascript`              | ✅ Resolved |
 | 2026-05-12T02:40:00Z | Optimize Tooltip Positioning   | `svelte`                  | ✅ Resolved |
+| 2026-05-12T05:22:00Z | Harden parseFloat Comparisons  | `javascript`              | ✅ Resolved |
+| 2026-05-12T07:48:00Z | Harden Modal Transition Offset | `svelte`                  | ✅ Resolved |
+| 2026-05-12T07:49:00Z | Harden ProfilePicture minSize  | `svelte`                  | ✅ Resolved |
 
 ## 🛠️ Task Breakdown
 

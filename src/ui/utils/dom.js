@@ -254,7 +254,7 @@ export function resolve_number(value, fallback = 0, context = null) {
   if (el) {
     const computed = window.getComputedStyle(el).flexGrow;
 
-    if (computed === sentinel) {
+    if (parseFloat(computed) === parseFloat(sentinel)) {
       return fallback;
     }
 

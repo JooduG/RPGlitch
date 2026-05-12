@@ -92,7 +92,7 @@
     />
   {:else}
     <div class="status">
-      <div class="initials" use:fit_text={{ minSize: 10 }}>
+      <div class="initials" use:fit_text={{ minSize: "var(--fit-text-min)" }}>
         {initials}
       </div>
     </div>

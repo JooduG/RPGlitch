@@ -9,6 +9,7 @@
   import { use_actions } from "@ui/utils/use-actions.js";
   import { quartOut } from "svelte/easing";
   import { scale, fly } from "svelte/transition";
+  import { resolve_px } from "@utils/dom.js";
 
   let {
     // State
@@ -28,6 +29,8 @@
 
     ...rest
   } = $props();
+
+  let offset = $derived(resolve_px("--spacing-5", 20, document.documentElement));
 </script>
 
 <svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />
@@ -47,7 +50,7 @@
     aria-modal="true"
     tabindex="-1"
     onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
-    in:fly={{ y: 20, duration: 400, easing: quartOut }}
+    in:fly={{ y: offset, duration: 400, easing: quartOut }}
     out:scale={{ duration: 300, easing: quartOut, start: 0.95 }}
     use:use_actions={actions}
   >
