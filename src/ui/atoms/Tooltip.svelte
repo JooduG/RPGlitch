@@ -167,17 +167,32 @@
   let flip_style = $state("");
   let arrow_flipped = $state(false);
 
-  // Environmental tracking for reactivity to layout shifts
-  let env_version = $state(0);
+  // Environmental tracking for reactivity to layout and scroll shifts
+  let scroll_version = $state(0);
+  let layout_version = $state(0);
+  let padding = $state(12);
 
   $effect(() => {
-    const handler = () => env_version++;
-    window.addEventListener("resize", handler, { passive: true });
-    window.addEventListener("scroll", handler, { passive: true, capture: true });
-    return () => {
-      window.removeEventListener("resize", handler);
-      window.removeEventListener("scroll", handler, { capture: true });
+    const on_scroll = () => scroll_version++;
+    const on_layout = () => {
+      layout_version++;
+      scroll_version++; // Layout shift usually requires repositioning
     };
+    window.addEventListener("resize", on_layout, { passive: true });
+    window.addEventListener("scroll", on_scroll, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("resize", on_layout);
+      window.removeEventListener("scroll", on_scroll, { capture: true });
+    };
+  });
+
+  $effect(() => {
+    if (tooltip_state.active) {
+      // 1. Resolve tokens only when needed (activation or layout shift)
+      // This prevents resolve_px (which triggers reflow) from running during scroll
+      layout_version;
+      padding = resolve_px("--spacing-3", 12, document.documentElement);
+    }
   });
 
   $effect(() => {
@@ -185,27 +200,25 @@
   });
 
   $effect(() => {
-    // Read env_version to trigger re-run on resize/scroll
-
-    env_version;
+    // 2. High-frequency positioning logic
+    scroll_version;
 
     if (tooltip_state.active && tooltip_el) {
       const rect = tooltip_el.getBoundingClientRect();
 
-      // 0. Load tokens dynamically (Chalk Regime)
-      // Use document.documentElement as context for root tokens
-      const padding = resolve_px("--spacing-3", 12, document.documentElement);
+      // Use cached padding to avoid resolve_px/reflow during scroll
+      const current_padding = padding;
 
       let x_offset_px = 0;
       arrow_flipped = false;
 
-      if (rect.right > window.innerWidth - padding) {
-        x_offset_px = -(rect.right - (window.innerWidth - padding));
-      } else if (rect.left < padding) {
-        x_offset_px = padding - rect.left;
+      if (rect.right > window.innerWidth - current_padding) {
+        x_offset_px = -(rect.right - (window.innerWidth - current_padding));
+      } else if (rect.left < current_padding) {
+        x_offset_px = current_padding - rect.left;
       }
 
-      if (rect.top < padding && tooltip_state.target) {
+      if (rect.top < current_padding && tooltip_state.target) {
         arrow_flipped = true;
         const target_rect = tooltip_state.target.getBoundingClientRect();
         flip_style = `top: calc(${target_rect.bottom}px + var(--spacing-2));`;

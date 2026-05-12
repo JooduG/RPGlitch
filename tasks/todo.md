@@ -2,13 +2,14 @@
 
 ## 🎯 Current Objectives
 
-- [x] Refactor `src/ui/atoms/Tooltip.svelte` to use `resolve_px` <!-- id: 0 -->
+- [x] Refactor `src/ui/atoms/Tooltip.svelte` (performance & resolution) <!-- id: 0 -->
 - [x] Refactor `src/ui/utils/auto-resize.js` border resolution <!-- id: 1 -->
 - [x] Refactor `src/ui/utils/fit-text.js` fontSize resolution <!-- id: 2 -->
 - [x] System-wide audit for `parseFloat` on CSS properties <!-- id: 3 -->
 - [x] Optimized `kinetic.js` and enhanced `dom.js` helpers <!-- id: 4 -->
 - [x] Harden `dom.js`: fallback preservation & DOM hygiene <!-- id: 9 -->
 - [x] Enforce strict units for durations in `dom.js` <!-- id: 10 -->
+- [x] Remove manual CSS variable resolution in `dom.js` <!-- id: 11 -->
 
 ## 🧠 Skill Log
 
@@ -22,6 +23,8 @@
 | 2026-05-12T01:50:00Z | Fix DOM Test Mocks & Verify    | `test-driven-development` | ✅ Resolved |
 | 2026-05-12T02:05:00Z | Harden DOM Proxy Resolution    | `javascript`              | ✅ Resolved |
 | 2026-05-12T02:25:00Z | Enforce Strict Duration Units  | `javascript`              | ✅ Resolved |
+| 2026-05-12T02:35:00Z | Remove Redundant CSS Lookup    | `javascript`              | ✅ Resolved |
+| 2026-05-12T02:40:00Z | Optimize Tooltip Positioning   | `svelte`                  | ✅ Resolved |
 
 ## 🛠️ Task Breakdown
 

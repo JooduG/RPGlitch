@@ -5,18 +5,6 @@
  */
 
 /**
- * Extracts the variable name from a string like "var(--name)" or "--name".
- * @param {string} value
- * @returns {string | null}
- */
-function get_var_name(value) {
-  const trimmed = String(value).trim();
-  if (trimmed.startsWith("--")) return trimmed.split(",")[0].trim();
-  const match = trimmed.match(/^var\s*\(\s*(--[^,)\s]+)/);
-  return match ? match[1] : null;
-}
-
-/**
  * Prepares a CSS value for measurement, wrapping raw variables in var().
  * @param {string} value
  * @returns {string}
@@ -122,18 +110,7 @@ export function resolve_px(value, fallback = 0, context = null) {
     if (!isNaN(direct)) return direct;
   }
 
-  // 2. Variable resolution via context (Manual Lookup - only for simple variables)
-  const varName = get_var_name(trimmed);
-  const isSimpleVar = !trimmed.includes(",");
-  if (context && varName && isSimpleVar) {
-    const style = window.getComputedStyle(context);
-    const resolved = style.getPropertyValue(varName).trim();
-    if (resolved && resolved !== trimmed) {
-      return resolve_px(resolved, fallback, context);
-    }
-  }
-
-  // 3. Browser Resolution
+  // 2. Browser Resolution
   const sentinel = "1.234px";
   const el = prepare_measure(trimmed, "paddingTop", sentinel, context);
   if (el) {
@@ -179,18 +156,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
     return unit === "ms" ? numeric : numeric * 1000;
   }
 
-  // 2. Variable resolution via context
-  const varName = get_var_name(trimmed);
-  const isSimpleVar = !trimmed.includes(",");
-  if (context && varName && isSimpleVar) {
-    const style = window.getComputedStyle(context);
-    const resolved = style.getPropertyValue(varName).trim();
-    if (resolved && resolved !== trimmed) {
-      return resolve_ms(resolved, fallback, context);
-    }
-  }
-
-  // 3. Browser Resolution
+  // 2. Browser Resolution
   const sentinel = "1.234ms";
   const el = prepare_measure(trimmed, "transitionDuration", sentinel, context);
   if (el) {
@@ -230,18 +196,7 @@ export function resolve_number(value, fallback = 0, context = null) {
   const direct = parseFloat(trimmed);
   if (!isNaN(direct) && !trimmed.includes("var") && !trimmed.includes("calc")) return direct;
 
-  // 2. Variable resolution via context
-  const varName = get_var_name(trimmed);
-  const isSimpleVar = !trimmed.includes(",");
-  if (context && varName && isSimpleVar) {
-    const style = window.getComputedStyle(context);
-    const resolved = style.getPropertyValue(varName).trim();
-    if (resolved && resolved !== trimmed) {
-      return resolve_number(resolved, fallback, context);
-    }
-  }
-
-  // 3. Browser Resolution
+  // 2. Browser Resolution
   const sentinel = "1.234";
   const el = prepare_measure(trimmed, "flexGrow", sentinel, context);
   if (el) {
@@ -273,18 +228,7 @@ export function resolve_string(value, fallback = "", context = null) {
   const trimmed = String(value).trim();
   if (!trimmed) return fallback;
 
-  // 1. Variable resolution via context
-  const varName = get_var_name(trimmed);
-  const isSimpleVar = !trimmed.includes(",");
-  if (context && varName && isSimpleVar) {
-    const style = window.getComputedStyle(context);
-    const resolved = style.getPropertyValue(varName).trim();
-    if (resolved && resolved !== trimmed) {
-      return resolve_string(resolved, fallback, context);
-    }
-  }
-
-  // 2. Browser Resolution
+  // 1. Browser Resolution
   const cssValue = get_css_value(trimmed);
   const el = get_measure_el(context);
   if (el) {
