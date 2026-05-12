@@ -184,16 +184,24 @@
   >
     {#snippet status()}
       {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
-        <div class="status" class:is-error={app.visual.error || app.visual.isOffline}>
-          {#if app.visual.isOffline}
-            <span class="tag">OFFLINE</span>
-          {:else if app.visual.error}
-            <span class="tag">ERROR</span>
-          {:else if app.visual.attempts > 0}
-            <span class="tag pulse">RETRYING</span>
-          {:else}
-            <span class="tag pulse">GENERATING</span>
-          {/if}
+        <div
+          class="status-bar"
+          class:is-error={app.visual.error || app.visual.isOffline}
+          class:is-loading={is_prompt_busy}
+        >
+          <div class="status-content">
+            {#if app.visual.isOffline}
+              <span class="tag">OFFLINE</span>
+            {:else if app.visual.error}
+              <span class="tag">ERROR</span>
+              <span class="status-msg">{app.visual.error}</span>
+            {:else if app.visual.attempts > 0}
+              <span class="tag pulse">RETRYING</span>
+              <span class="status-msg">Attempt {app.visual.attempts}</span>
+            {:else}
+              <span class="tag pulse">GENERATING</span>
+            {/if}
+          </div>
         </div>
       {/if}
     {/snippet}
@@ -342,15 +350,27 @@
 
   /* --- Status & Actions --- */
 
-  :global(.prompt-field .status) {
+  :global(.prompt-field .status-bar) {
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
     color: var(--color-white);
+    background: rgb(from var(--color-white) r g b / 5%);
+    padding: var(--spacing-1) var(--spacing-3);
+    border-radius: var(--radius-pill);
+    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / 10%);
   }
 
-  :global(.prompt-field .status.is-error) {
+  :global(.prompt-field .status-content) {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+  }
+
+  :global(.prompt-field .status-bar.is-error) {
     color: var(--color-red);
+    background: rgb(from var(--color-red) r g b / 10%);
+    border-color: rgb(from var(--color-red) r g b / 20%);
   }
 
   :global(.prompt-field .tag) {

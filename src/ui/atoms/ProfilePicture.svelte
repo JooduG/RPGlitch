@@ -107,22 +107,8 @@
     align-items: center;
     justify-content: center;
     overflow: hidden;
-    background: var(--glass-sunken);
-    backdrop-filter: var(--glass-sunken-blur);
     position: relative;
     transition: filter var(--duration-standard) var(--ease-standard);
-  }
-
-  /* Atmospheric Noise Overlay (Local) */
-  .wrapper::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background-image: var(--noise-url);
-    opacity: var(--noise-opacity);
-    pointer-events: none;
-    mix-blend-mode: overlay;
-    z-index: var(--floor-z-index);
   }
 
   .wrapper.is-busy {

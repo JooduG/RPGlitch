@@ -170,13 +170,12 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-6);
-    margin: 0 calc(-1 * var(--spacing-4));
-    padding: var(--spacing-8) var(--spacing-4) var(--spacing-4);
+    padding: var(--padding-standard);
   }
 
   .row {
     display: grid;
-    grid-template-columns: minmax(var(--spacing-15), var(--spacing-20)) 1fr;
+    grid-template-columns: var(--profile-fragment-column) 1fr;
     gap: var(--spacing-4);
     min-width: 0;
   }

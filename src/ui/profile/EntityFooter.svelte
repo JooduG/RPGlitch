@@ -61,10 +61,9 @@
 <style>
   .footer {
     position: relative;
-    margin: auto calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-4));
-    padding: var(--spacing-4) var(--spacing-4) var(--spacing-4) 0;
+    padding: var(--padding-standard);
     display: grid;
-    grid-template-columns: var(--spacing-24) 1fr;
+    grid-template-columns: var(--profile-fragment-column) 1fr;
     gap: var(--spacing-4);
     background: color-mix(
       in srgb,

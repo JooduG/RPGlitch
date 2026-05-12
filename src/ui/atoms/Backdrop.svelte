@@ -46,8 +46,10 @@
     position: fixed;
     inset: 0;
     display: flex;
-    align-items: center;
+    align-items: flex-start; /* Centering handled by margin:auto on children */
     justify-content: center;
+    overflow-y: auto;
+    padding: var(--spacing-10) 0;
 
     /* Atmosphere */
     background: radial-gradient(
@@ -64,6 +66,16 @@
     user-select: none;
     -webkit-tap-highlight-color: transparent;
     pointer-events: auto;
+  }
+
+  /* 
+   * [063] VERTICAL CENTERING HACK: 
+   * By setting margin: auto on the direct child of an align-items: flex-start container,
+   * we get perfect centering when the content is smaller than the viewport,
+   * and a natural top-start scroll when it overflows.
+   */
+  .wrapper > :global(*) {
+    margin: auto;
   }
 
   .wrapper.is-blurred {

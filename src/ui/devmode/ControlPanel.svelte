@@ -36,7 +36,7 @@
 
   const MOCK_CONTENT = {
     fractal: `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n[[ Cyber London ]] · [[ 21:30 ]] · [[ Acid Neon ]] \n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
-    ai: `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteurীকার sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`
+    ai: `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteurীকার sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`,
   };
 
   /**
@@ -54,7 +54,7 @@
     await session_driver.set_active(String(id));
     await runtime.sync(String(id));
     await simulation_log.refresh();
-    
+
     app.set_view("storymode");
     app.toggle_control_panel();
   }
@@ -66,7 +66,7 @@
   async function simulate_stream(text) {
     let buffer = "";
     const words = text.split(" ");
-    
+
     for (let i = 0; i < words.length; i++) {
       buffer += (i === 0 ? "" : " ") + words[i];
       app.streaming.content = buffer;
@@ -80,10 +80,10 @@
    */
   async function run_mock(role) {
     const is_fractal = role === "fractal";
-    const entity_name = is_fractal 
-      ? runtime.active_fractal?.name || "Fractal" 
+    const entity_name = is_fractal
+      ? runtime.active_fractal?.name || "Fractal"
       : runtime.active_ai?.name || "AI";
-      
+
     const content = MOCK_CONTENT[role];
 
     app.toggle_control_panel();
@@ -99,7 +99,7 @@
 
     await session_driver.log_turn(content, entity_name, role, { turn_type: "SYSTEM_TURN" });
     app.end_stream();
-    
+
     log_action(`Mock ${role} transition complete`);
   }
 
@@ -131,7 +131,6 @@
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()}>
   <article class="wrapper" data-testid="control-panel">
-    
     <!-- Top-Level Settings -->
     <header class="header">
       <Toggle
@@ -139,11 +138,7 @@
         bind:value={settings.call_mode}
         onchange={() => app.save_settings()}
       />
-      <Toggle 
-        label="SOUND" 
-        bind:value={settings.sound} 
-        onchange={() => app.save_settings()} 
-      />
+      <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
     </header>
 
     <!-- Contextual Body Blocks -->
@@ -166,24 +161,14 @@
           size="sm"
           onclick={() => log_action("Ghostwrite")}
         />
-        <Button 
-          label="PHOTO" 
-          variant="secondary" 
-          size="sm" 
-          onclick={() => log_action("Photo")} 
-        />
+        <Button label="PHOTO" variant="secondary" size="sm" onclick={() => log_action("Photo")} />
         <Button
           label="MOCK PROLOGUE"
           variant="invisible"
           size="sm"
           onclick={() => run_mock("fractal")}
         />
-        <Button 
-          label="MOCK TURN" 
-          variant="invisible" 
-          size="sm" 
-          onclick={() => run_mock("ai")} 
-        />
+        <Button label="MOCK TURN" variant="invisible" size="sm" onclick={() => run_mock("ai")} />
         <Button
           label="END STORY"
           variant="secondary"
@@ -209,30 +194,21 @@
 
     <!-- Dangerous / Admin Actions -->
     <div class="footer">
-      <Toggle
-        label="DEVMODE"
-        bind:value={settings.dev_mode}
-        onchange={() => app.save_settings()}
-      />
+      <Toggle label="DEVMODE" bind:value={settings.dev_mode} onchange={() => app.save_settings()} />
       <Toggle
         label="GRID OVERLAY"
         bind:value={settings.dev_grid_visible}
         onchange={() => app.save_settings()}
       />
-      <br>
+      <br />
       <Button variant="danger" size="sm" onclick={() => (is_confirming_reset = true)}>
-        <svg
-          class="icon-small icon-outline"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-        >
+        <svg class="icon-small icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M3 6h18" />
           <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
         </svg>
       </Button>
     </div>
-
   </article>
 </Modal>
 
@@ -274,7 +250,7 @@
 
   .title {
     padding: var(--padding-standard) 0 0 0;
-    color: var(--font-color-standard);
+    color: var(--font-color-base);
     font-size: var(--font-size-h5);
     letter-spacing: var(--font-spacing-loose);
     text-align: center;

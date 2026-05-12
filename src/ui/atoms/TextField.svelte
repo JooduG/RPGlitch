@@ -82,12 +82,12 @@
   <header class="header">
     {#if is_expanded}
       {#if status}
-        <div class="status" in:fade={{ duration: 200, delay: 100 }}>
+        <div class="status" in:fade={{ duration: 200, delay: 0 }}>
           {@render status()}
         </div>
       {/if}
       {#if header_actions}
-        <div class="actions" in:fade={{ duration: 200, delay: 150 }}>
+        <div class="actions" in:fade={{ duration: 200, delay: 50 }}>
           {@render header_actions()}
         </div>
       {/if}
@@ -256,8 +256,12 @@
     cursor: not-allowed;
   }
 
-  .wrapper[data-busy="true"] {
+  .wrapper[data-busy="true"],
+  .wrapper[data-busy="true"] .body {
     cursor: wait;
+  }
+
+  .wrapper[data-busy="true"] {
     filter: var(--brightness-dim) grayscale(0.5);
   }
 

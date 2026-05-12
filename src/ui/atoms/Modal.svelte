@@ -96,8 +96,6 @@
   .base.profile {
     width: fit-content;
     max-width: 100vw;
-    max-height: var(--modal-height-tall);
-    margin-bottom: var(--spacing-40); /* Optical centering: raise it significantly */
     background: transparent;
     backdrop-filter: none;
     border: none;
@@ -109,7 +107,8 @@
   .base.preview,
   .base.mini {
     max-width: var(--columns-3);
-    padding: var(--padding-loose) var(--padding-standard) var(--padding-standard) var(--padding-standard);
+    padding: var(--padding-loose) var(--padding-standard) var(--padding-standard)
+      var(--padding-standard);
   }
 
   /* Busy State Logic */

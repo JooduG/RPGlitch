@@ -1,48 +1,41 @@
-# 📝 Plan: Chess Grid & Grid Overlay
+# Mission Plan: Unifying Visual Busy States 🛠️
 
-Refactor the UI grid system to use a standardized 12-column Chess Grid (a-l, 1-12) and introduce a non-clickable visual overlay for debugging and visualization.
+We are unifying the "busy" state visual feedback across the application to ensure consistent user experience during long-running operations like image generation.
 
-## 🎯 Objective
+## 🎯 Objectives
 
-- Standardize grid nomenclature to Chess notation (a-l, 1-12).
-- Fix layout centering issues on ultrawide displays.
-- Provide a visual debug overlay for grid alignment.
+- [x] **Unify Cursor Feedback**: Ensure `TextField` shows `cursor: wait` in all modes when busy.
+- [x] **Synchronize VisualWing Status**: Ensure the status bar appears immediately upon generation start.
+- [x] **Verification**: Audit the visual transitions and cursor behavior.
 
-## 🏗️ Structural Changes
+## 🛠️ Implementation Steps
 
-- **Theme**: Update `engine.css` with lowercase grid tokens.
-- **State**: Add `dev_grid_visible` to `settings`.
-- **UI**:
-  - `Layout.svelte`: Standardize grid lines and fix centering.
-  - `GridOverlay.svelte`: Visual representation of the grid.
-  - `ControlPanel.svelte`: Add toggle for the overlay.
+### 1. TextField Cursor Fix 🖱️
 
-## 📐 Coordinate Usage (e.g., B2)
+- **File**: `src/ui/atoms/TextField.svelte`
+- **Change**: Explicitly set `cursor: wait` on the `.body` container when `data-busy="true"` is present on the wrapper.
+- **Status**: ✅ Done
 
-- To place an element in "B2":
-  - `grid-column: col-b / col-c;`
-  - `grid-row: row-2 / row-3;`
-- This covers the cell between line B and C, and row 2 and 3.
+### 2. VisualWing Status Sync 📊
 
-## ✅ Acceptance Criteria
+- **File**: `src/ui/profile/VisualWing.svelte`
+- **Change**: Refined status bar with improved styling and explicit reactive checks.
+- **Optimization**: Reduced header transition delays in `TextField` to eliminate perceived latency.
+- **Status**: ✅ Done
 
-- [x] Grid overlay toggles correctly.
-- [x] Grid lines align perfectly with layout columns/rows.
-- [x] Layout is centered on wide screens.
-- [x] No raw `px`, `rem`, or `#` values used.
-- [x] Svelte 5 Runes used for state.
+### 3. Verification & Audit 🔍
 
-## 📅 Task List
+- **Task**: Verified with `svelte-check` and manual code review.
+- **Status**: ✅ Done
 
-- [x] Step 1: Update `engine.css` tokens.
-- [x] Step 2: Add `dev_grid_visible` to state.
-- [x] Step 3: Create `GridOverlay.svelte`.
-- [x] Step 4: Add toggle to `ControlPanel.svelte`.
-- [x] Step 5: Refactor `Layout.svelte` (Centering & Lines).
-- [x] Step 6: Verify and Cleanup.
+## 🧠 Reasoning & Strategy
+
+- **Architectural Clarity**: State-driven styling via data attributes remains robust.
+- **Performance**: Latency reduction in transitions significantly improves "feel".
+- **Immersion**: High-fidelity feedback loop for generation and retries.
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601) | Task                      | Skill Invoked                    | Outcome     |
-| -------------------- | ------------------------- | -------------------------------- | ----------- |
-| 2026-05-12T10:45:00Z | Chess Grid Implementation | svelte, designer, user-interface | ✅ Resolved |
+| Timestamp (ISO 8601) | Task              | Skill Invoked              | Outcome     |
+| -------------------- | ----------------- | -------------------------- | ----------- |
+| 2026-05-12T15:00:00Z | Unify busy states | svelte, designer, planning | ✅ Resolved |

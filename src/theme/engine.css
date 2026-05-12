@@ -61,6 +61,7 @@
   --spacing-16: calc(var(--spacing-unit) * 16); /* 64px */
   --spacing-20: calc(var(--spacing-unit) * 20); /* 80px */
   --spacing-24: calc(var(--spacing-unit) * 24); /* 96px */
+  --spacing-30: calc(var(--spacing-unit) * 30); /* 120px */
   --spacing-40: calc(var(--spacing-unit) * 40); /* 160px */
   --spacing-60: calc(var(--spacing-unit) * 60); /* 15rem */
 
@@ -116,8 +117,8 @@
   --z-index-max-raw: 9999;
 
   /* Grid Foundation (Fluid 12-Column System) */
-  --grid-width-max: 90rem;
-  --grid-height-max: 100vh;
+  --grid-width-max: 200vh;
+  --grid-height-max: 100vw;
 
   --grid-width: clamp(20rem, 100vw, var(--grid-width-max));
   --grid-height: clamp(20rem, 100vh, var(--grid-height-max));
@@ -430,9 +431,11 @@
 
   /* Profile Specific */
   --wing-width: var(--columns-2);
-  --profile-width: var(--columns-8);
+  --profile-width: var(--columns-6);
+  --profile-height: var(--columns-4);
+  --profile-fragment-column: var(--spacing-24);
   --profile-initials-size-base: var(--spacing-40);
-  --avatar-medium-size: 25rem;
+  --avatar-medium-size: var(--columns-2);
 
   /* Slider Components */
   --slider-track-height: var(--spacing-1);

@@ -212,9 +212,10 @@
   /* ── Wings sidebar ─────────────────────────────────────────── */
 
   .wings {
-    width: 0;
-    min-width: 0;
-    max-width: 0;
+    position: absolute;
+    right: calc(100% + var(--spacing-6));
+    top: 0;
+    width: var(--wing-width);
     opacity: 0;
     overflow: hidden;
     pointer-events: none;
@@ -226,29 +227,24 @@
     flex-direction: column;
     gap: var(--gap-standard);
     z-index: var(--surface-z-index);
-    margin-right: 0;
     --scrollbar-thumb: rgb(from var(--color-white) r g b / var(--opacity-muted));
     --scrollbar-thumb-hover: rgb(from var(--color-white) r g b / var(--opacity-heavy));
   }
 
   .wings.is-visible {
-    width: var(--wing-width);
-    min-width: var(--wing-width);
-    max-width: var(--wing-width);
     opacity: var(--opacity-solid);
     pointer-events: auto;
     transform: scale(1);
     overflow-y: auto;
-    margin-right: var(--spacing-6);
   }
 
   /* ── Card (glassmorphic entity panel) ─────────────────────── */
 
   .card {
     order: 2;
-    width: 100vw;
-    max-width: var(--columns-6);
-    height: 100%;
+    width: var(--columns-6);
+    min-height: var(--rows-8);
+    height: auto;
     background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
     border-radius: var(--radius-standard);
@@ -257,11 +253,19 @@
     overflow: visible;
     z-index: var(--overlay-z-index);
     display: grid;
-    grid-template-columns: minmax(var(--spacing-40), 30%) 1fr;
-    grid-template-rows: minmax(0, 1fr);
+    grid-template-columns: var(--columns-2) var(--columns-4);
+    grid-template-rows: auto;
     gap: 0;
     transition: all var(--duration-standard) var(--ease-standard);
-    will-change: transform, width, max-width;
+    will-change: transform, width;
+  }
+
+  .wrapper.is-editing .card {
+    /* 
+     * [063] THE METICULOUS GRID SHIFT:
+     * Shift 2 columns to the left to balance the 3-column wing on the right.
+     */
+    transform: translateX(calc(-1 * var(--columns-2)));
   }
 
   /* ── Signature accent bar ──────────────────────────────────── */
@@ -290,7 +294,10 @@
   /* ── Avatar column (ProfilePicture) ────────────────────────── */
 
   .avatar {
-    height: 100%;
+    grid-column: 1;
+    grid-row: 1 / -1; /* Cover 8 rows high (or full height when growing) */
+    height: auto;
+    min-height: 100%;
     display: flex;
     flex-direction: column;
     background: transparent;
@@ -302,20 +309,14 @@
   /* ── Body column (scrollable content) ─────────────────────── */
 
   .body {
-    height: 100%;
+    grid-column: 2;
+    height: auto;
     display: flex;
     flex-direction: column;
-    font-size: var(--font-size-h3);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: var(--font-spacing-tight);
-    text-shadow: var(--shadow-font);
-    text-align: left;
-    line-height: var(--font-height-short);
     min-height: calc(var(--spacing-6) * 3);
     border-radius: 0 calc(var(--radius-standard) - var(--spacing-pixel))
       calc(var(--radius-standard) - var(--spacing-pixel)) 0;
-    --scrollbar-thumb: rgb(from var(--signature-color) r g b / var(--opacity-muted));
-    --scrollbar-thumb-hover: rgb(from var(--signature-color) r g b / var(--opacity-heavy));
+    overflow: visible;
   }
 
   /* ── Responsive: tablet / mobile ──────────────────────────── */

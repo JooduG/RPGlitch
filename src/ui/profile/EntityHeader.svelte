@@ -79,10 +79,7 @@
     display: flex;
     flex-direction: column;
     gap: var(--spacing-1);
-
-    /* [063] Bleed full width into parent padding via negative margins */
-    width: calc(100% + (2 * var(--spacing-4)));
-    margin: calc(-1 * var(--spacing-4));
+    width: 100%;
     padding: var(--spacing-4);
     background: color-mix(
       in srgb,

@@ -23,9 +23,7 @@
       "url": "https://mcp.context7.com/mcp"
     },
     "data": {
-      "args": [
-        "./.agents/skills/data/scripts/knowledge.js"
-      ],
+      "args": ["./.agents/skills/data/scripts/knowledge.js"],
       "command": "node",
       "env": {
         "PINECONE_API_KEY": "pcsk_vvGN2_67wnzYvzpZzBpiTWu39K2hWCp19hnS7GDeXYm6PbWothAyacBq67wmcQwspSivq",
@@ -57,9 +55,7 @@
     "playwright": {
       "args": [],
       "command": "./node_modules/.bin/playwright-mcp.cmd",
-      "excludeTools": [
-        "browser_close"
-      ]
+      "excludeTools": ["browser_close"]
     },
     "StitchMCP": {
       "args": [
