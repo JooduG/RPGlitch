@@ -69,8 +69,8 @@
     max-width: 95vw;
     max-height: 95vh;
     width: auto;
-    padding: var(--spacing-m);
-    gap: var(--spacing-m); /* Parity with original margin-top */
+    padding: var(--spacing-4);
+    gap: var(--spacing-4); /* Parity with original margin-top */
     background: transparent;
     border: none;
     box-shadow: none;
@@ -80,21 +80,21 @@
   .visual {
     max-width: 90vw;
     max-height: 85vh;
-    border-radius: var(--border-radius-s);
-    box-shadow: var(--shadow-xxl);
+    border-radius: var(--radius-sharp);
+    box-shadow: var(--shadow-heavy);
     object-fit: contain;
     pointer-events: auto;
   }
 
   .label {
-    color: var(--font-color-m);
-    background: rgb(var(--color-black-rgb) / var(--opacity-m));
-    padding: var(--spacing-s) var(--spacing-m);
-    border-radius: var(--border-radius-s);
-    font-size: var(--font-size-body);
+    color: var(--font-color-base);
+    background: rgb(from var(--color-black) r g b / var(--opacity-muted));
+    padding: var(--spacing-3) var(--spacing-4);
+    border-radius: var(--radius-sharp);
+    font-size: var(--font-size-base);
     text-align: center;
     max-width: 80%;
-    z-index: var(--z-index-m);
-    box-shadow: var(--shadow-l);
+    z-index: var(--mid-z-index);
+    box-shadow: var(--shadow-heavy);
   }
 </style>

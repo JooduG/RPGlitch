@@ -37,9 +37,9 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-!**/.agents/skills/delivery/assets/RPGlitch-left-panel.txt
-.secrets
 **/.gemini/**
+!**/rpglitch-left-panel.txt
+.secrets
 **/.jules/**
 act_output.log
 gha-creds-*.json

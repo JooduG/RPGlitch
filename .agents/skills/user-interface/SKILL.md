@@ -27,13 +27,13 @@ When building dropdowns, tooltips, or context menus, use viewport-aware position
 - **Assessment**: Calculate space above and below the anchor using `getBoundingClientRect()`.
 - **State Selection**: Default to "dropdown" but switch to "dropup" if space below is < `DROPDOWN_MAX_HEIGHT` and `space_above > space_below`.
 - **Dynamic Max-Height**: Constrain the element to `Math.min(available_space - padding, DROPDOWN_MAX_HEIGHT)`.
-- **Coordinate Assignment**: Map coordinates to a reactive state object using `--spacing-l` (1.5rem) as a safety buffer.
+- **Coordinate Assignment**: Map coordinates to a reactive state object using `--spacing-6` (1.5rem) as a safety buffer.
 
 ### 2. Layout Stabilization (The Guard)
 
 Maintain a "solid" interface through consistent structural patterns:
 
-- **Stable Readonly Fields**: Provide a `min-height` (e.g., `2.5rem` or `var(--icon-m)`) for fields, even when empty, to prevent layout collapses.
+- **Stable Readonly Fields**: Provide a `min-height` (e.g., `2.5rem` or `var(--icon-medium)`) for fields, even when empty, to prevent layout collapses.
 - **Robust Click-Outside**: Use `e.target instanceof Node` and fallback to `parentElement` to ensure hits on deeply nested children are caught.
 - **Text Truncation**: Use the `.truncate` utility (ellipsis) in flex containers. Ensure parent has `min-width: 0`.
 - **Boundary Control**: Use `max-height` and `overflow-y: auto` on dynamic content areas to prevent squashing adjacent UI.

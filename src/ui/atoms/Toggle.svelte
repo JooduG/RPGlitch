@@ -65,31 +65,31 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: var(--spacing-m);
-    padding: var(--spacing-xxs) 0;
+    gap: var(--spacing-4);
+    padding: var(--spacing-1) var(--spacing-0);
 
     /* Interaction */
     cursor: pointer;
     user-select: none;
-    transition: opacity var(--motion-l);
+    transition: opacity var(--duration-standard) var(--ease-standard);
 
     /* Internal Geometry (Chalk Regime Mapping) */
-    --toggle-w: calc(var(--spacing-xl) + var(--spacing-s));
-    --toggle-h: var(--font-size-h5);
-    --thumb-size: var(--spacing-m);
-    --thumb-offset: calc((var(--toggle-h) - var(--thumb-size)) / 2);
+    --toggle-current-width: var(--toggle-width);
+    --toggle-current-height: var(--toggle-height);
+    --toggle-current-thumb-size: var(--toggle-thumb-size);
+    --toggle-current-thumb-offset: var(--toggle-thumb-offset);
   }
 
   /* --- MODIFIERS --- */
 
   .wrapper.is-disabled {
-    opacity: var(--opacity-m);
+    opacity: var(--opacity-muted);
     cursor: default;
   }
 
   .wrapper.is-busy {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(0.5);
   }
 
   .wrapper.is-busy > * {
@@ -97,9 +97,12 @@
   }
 
   .wrapper.is-sm {
-    --toggle-w: calc(var(--spacing-xl) + var(--spacing-xxs));
-    --toggle-h: var(--spacing-m);
-    --thumb-size: var(--font-size-small);
+    --toggle-current-width: var(--toggle-sm-width);
+    --toggle-current-height: var(--toggle-sm-height);
+    --toggle-current-thumb-size: var(--toggle-sm-thumb-size);
+    --toggle-current-thumb-offset: calc(
+      (var(--toggle-sm-height) - var(--toggle-sm-thumb-size)) / 2
+    );
   }
 
   /* --- ELEMENTS --- */
@@ -117,43 +120,48 @@
   .track {
     position: relative;
     flex-shrink: 0;
-    width: var(--toggle-w);
-    height: var(--toggle-h);
-    background-color: var(--glass-xs);
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l) var(--motion-elastic);
+    width: var(--toggle-current-width);
+    height: var(--toggle-current-height);
+    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
+    backdrop-filter: var(--blur-whisper);
+    border-radius: var(--radius-pill);
+    transition:
+      background-color var(--duration-standard) var(--ease-standard),
+      box-shadow var(--duration-standard) var(--ease-standard);
   }
 
   /* The Thumb */
   .track::before {
     content: "";
     position: absolute;
-    top: var(--thumb-offset);
-    left: var(--thumb-offset);
-    width: var(--thumb-size);
-    height: var(--thumb-size);
+    top: var(--toggle-current-thumb-offset);
+    left: var(--toggle-current-thumb-offset);
+    width: var(--toggle-current-thumb-size);
+    height: var(--toggle-current-thumb-size);
     background-color: var(--color-frisk);
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l) var(--motion-elastic);
+    border-radius: var(--radius-pill);
+    transition:
+      transform var(--duration-standard) var(--ease-elastic),
+      background-color var(--duration-standard) var(--ease-standard);
   }
 
   /* Label Styling */
   .label {
-    font-family: var(--font-family-body);
+    font-family: var(--font-family-base);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-l);
-    color: var(--font-color-s);
-    letter-spacing: var(--letter-spacing-l);
+    font-weight: var(--font-weight-bold);
+    color: var(--font-color-muted);
+    letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     white-space: nowrap;
-    transition: color var(--motion-l);
+    transition: color var(--duration-standard) var(--ease-standard);
   }
 
   /* --- STATES --- */
 
   /* Hover Interaction */
   .wrapper:hover:not(.is-disabled) .track::before {
-    filter: var(--hover-brightness);
+    filter: var(--hover-glow);
   }
 
   .wrapper:hover:not(.is-disabled) .label {
@@ -162,18 +170,25 @@
 
   /* Checked Appearance */
   input:checked + .track {
-    background-color: rgb(var(--color-frozen-rgb) / var(--opacity-xl));
+    background-color: rgb(from var(--color-frozen) r g b / var(--opacity-heavy));
   }
 
   input:checked + .track::before {
     background-color: var(--color-white);
-    transform: translateX(calc(var(--toggle-w) - var(--thumb-size) - (var(--thumb-offset) * 2)));
-    box-shadow: 0 0 var(--spacing-xs) rgb(var(--color-white-rgb) / var(--opacity-m));
+    transform: translateX(
+      calc(
+        /* stylelint-disable-next-line scss/operator-no-newline-after */
+        var(--toggle-current-width) - var(--toggle-current-thumb-size) -
+          (var(--toggle-current-thumb-offset) * 2)
+      )
+    );
+    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-1)
+      rgb(from var(--color-white) r g b / var(--opacity-muted));
   }
 
   /* Accessibility Focus */
   input:focus-visible + .track {
-    outline: var(--spacing-2px) solid var(--color-frozen);
-    outline-offset: var(--spacing-2px);
+    outline: var(--spacing-pixel) solid var(--color-frozen);
+    outline-offset: var(--spacing-pixel);
   }
 </style>

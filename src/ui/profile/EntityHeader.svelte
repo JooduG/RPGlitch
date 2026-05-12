@@ -5,9 +5,10 @@
    * Renders the entity's name and description in read and edit states.
    */
   import { ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
-  import { fit_text } from "@utils/fit-text.js";
-  import { auto_resize } from "@utils/auto-resize.js";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import { app } from "@state/app.svelte.js";
+  import { auto_resize } from "@utils/auto-resize.js";
+  import { fit_text } from "@utils/fit-text.js";
 
   /** @typedef {import("@data/content-normaliser.js").normalize} Normalizer */
   /** @typedef {ReturnType<Normalizer>} Entity */
@@ -22,7 +23,12 @@
   const is_name_active = $derived(active_field?.key === "name");
 </script>
 
-<header class:is-editing={is_editing} data-testid="profile-header">
+<header
+  class:is-editing={is_editing}
+  class:is-mobile={app.viewport.mobile}
+  class:is-mini={app.viewport.mini}
+  data-testid="profile-header"
+>
   {#if is_editing}
     <h1
       class="name edit"
@@ -72,46 +78,46 @@
     position: relative;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-1);
 
     /* [063] Bleed full width into parent padding via negative margins */
-    width: calc(100% + (2 * var(--spacing-m)));
-    margin: calc(-1 * var(--spacing-m));
-    padding: var(--spacing-m);
+    width: calc(100% + (2 * var(--spacing-4)));
+    margin: calc(-1 * var(--spacing-4));
+    padding: var(--spacing-4);
     background: color-mix(
       in srgb,
-      rgb(from var(--color-gunmetal) r g b / 20%),
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-ghost)),
       var(--signature-color) 12%
     );
-    z-index: var(--z-index-xl);
-    transition: all var(--motion-l);
-    border-top-right-radius: calc(var(--border-radius-l) - 1px);
+    z-index: var(--surface-z-index);
+    transition: all var(--duration-standard) var(--ease-standard);
+    border-top-right-radius: calc(var(--radius-standard) - var(--spacing-pixel));
   }
 
   /* ── NAME ─────────────────────────────────────────────────────────── */
   .name {
     width: 100%;
     margin: 0;
-    padding: var(--spacing-xs);
+    padding: var(--spacing-1);
     color: var(--signature-color);
-    font-size: clamp(32px, 8vw, 64px);
-    font-weight: var(--font-weight-xl);
-    letter-spacing: -0.02em;
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--font-spacing-tight);
     text-shadow: var(--shadow-font);
     text-align: left;
-    line-height: 1;
-    min-height: 4.5rem;
+    line-height: var(--font-height-short);
+    min-height: calc(var(--spacing-12) * 1.5);
     outline: none;
     background: transparent;
     border: none;
-    border-radius: var(--border-radius-m);
+    border-radius: var(--radius-standard);
     box-shadow: none;
     display: flex;
     align-items: center;
     transition:
-      background var(--motion-l),
-      border-color var(--motion-l),
-      box-shadow var(--motion-l);
+      background var(--duration-standard),
+      border-color var(--duration-standard),
+      box-shadow var(--duration-standard);
   }
 
   .name.edit {
@@ -121,28 +127,29 @@
 
   .name.edit span {
     display: inline-block;
-    min-width: 2px;
+    min-width: var(--spacing-pixel);
     outline: none;
   }
 
   .name.edit span:empty::before {
     content: attr(data-placeholder);
     color: var(--color-frisk);
-    opacity: 0.4;
+    opacity: var(--opacity-muted);
     font-style: italic;
     pointer-events: none;
   }
 
   /* ── DESCRIPTION ──────────────────────────────────────────────────── */
+
   .description {
     width: 100%;
     margin: 0;
-    margin-top: var(--spacing-xxs);
-    padding: var(--spacing-xs) var(--spacing-s);
+    margin-top: var(--spacing-pixel);
+    padding: var(--spacing-1) var(--spacing-2);
     color: var(--color-white);
-    font-family: var(--font-family-body);
-    font-size: var(--font-size-body);
-    line-height: var(--line-height-m);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--font-height-base);
   }
 
   /* [063] Naked textarea: borderless, no glow, human-first reading */
@@ -151,52 +158,49 @@
     border: none;
     outline: none;
     resize: none;
-    opacity: 0.8;
-    border-radius: var(--border-radius-m);
+    opacity: var(--opacity-heavy);
+    border-radius: var(--radius-standard);
     box-shadow: none;
-    transition: opacity var(--motion-m);
+    transition: opacity var(--duration-fast);
   }
 
   .description.edit:focus {
-    opacity: 1;
+    opacity: var(--opacity-solid);
   }
 
   .description:not(.edit) {
     opacity: 0.7;
     white-space: pre-wrap;
-    transition: opacity var(--motion-m);
+    transition: opacity var(--duration-fast);
   }
 
   .description:not(.edit):empty::before {
     content: attr(data-placeholder);
     color: var(--color-frisk);
-    opacity: 0.4;
+    opacity: var(--opacity-muted);
     font-style: italic;
   }
 
   /* ── RESPONSIVE ───────────────────────────────────────────────────── */
-  @media (width <= 850px) {
-    /* Synchronized with Profile.svelte breakpoint */
-    header {
-      padding: var(--spacing-s);
-      border-radius: 0;
-      margin: calc(-1 * var(--spacing-s)) calc(-1 * var(--spacing-s)) var(--spacing-s);
-    }
 
-    .name {
-      font-size: var(--font-size-h5);
-      padding: var(--spacing-xxs);
-      min-height: auto;
-    }
+  header.is-mobile {
+    /* Synchronized with Profile.svelte breakpoint */
+    padding: var(--spacing-2);
+    border-radius: 0;
+    margin: calc(-1 * var(--spacing-2)) calc(-1 * var(--spacing-2)) var(--spacing-2);
   }
 
-  @media (width <= 480px) {
-    header {
-      padding: var(--spacing-xs);
-    }
+  header.is-mobile .name {
+    font-size: var(--font-size-h5);
+    padding: var(--spacing-pixel);
+    min-height: auto;
+  }
 
-    .name {
-      font-size: var(--font-size-h6);
-    }
+  header.is-mini {
+    padding: var(--spacing-1);
+  }
+
+  header.is-mini .name {
+    font-size: var(--font-size-h6);
   }
 </style>

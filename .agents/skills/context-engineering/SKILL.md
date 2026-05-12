@@ -13,7 +13,7 @@ The `context-engineering` skill is the practice of deliberately curating what th
 
 ### Strategic Context
 
-- **Sovereign Hierarchy**: Prioritize Rules (GEMINI.md) → Spec (SPEC.md) → Reality (Source code) → Feedback (Tests/Logs).
+- **Sovereign Hierarchy**: Prioritize Rules (GEMINI.md) → Spec (tasks/SPEC.md) → Reality (Source code) → Feedback (Tests/Logs).
 - **Signal-to-Noise**: Avoid context flooding (>2000 lines); use targeted retrieval to keep the focus sharp.
 - **Dual-Layer Memory**: Utilize the `data` skill to retrieve historical context without bloating the current window.
 
@@ -34,7 +34,7 @@ The `context-engineering` skill is the practice of deliberately curating what th
 
 - **TRUSTED**: Original source code, tests, and Rules files.
 - **VERIFY**: Config files, external documentation, and history logs.
-- **SPEC OVERRIDE**: If `SPEC.md` contradicts code, the Spec is the target reality.
+- **SPEC OVERRIDE**: If `tasks/SPEC.md` contradicts code, the Spec is the target reality.
 
 ## Usage
 

@@ -45,7 +45,7 @@
 <svelte:window onkeydown={(e) => open && !busy && e.key === "Enter" && handle_confirm()} />
 
 {#if open}
-  <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-max)" {busy}>
+  <Modal variant="mini" on_close={handle_cancel} z_index="var(--max-z-index)" {busy}>
     <article class="wrapper" class:is-confirm={type === "confirm"} class:is-busy={busy} {...rest}>
       <header class="header">
         {#if type === "alert"}
@@ -80,12 +80,12 @@
     display: flex;
     flex-direction: column;
     width: 100%;
-    animation: slide-up var(--motion-m) var(--motion-elastic);
+    animation: slide-up var(--duration-standard) var(--ease-elastic);
   }
 
   .wrapper.is-busy {
     cursor: wait;
-    filter: brightness(0.8) grayscale(0.5);
+    filter: var(--brightness-dim) grayscale(0.5);
   }
 
   .wrapper.is-busy > * {
@@ -95,21 +95,21 @@
   .header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-s);
-    margin-bottom: var(--spacing-s);
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-2);
   }
 
   .icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 1.25rem;
-    height: 1.25rem;
-    background: rgb(var(--color-frozen-rgb) / var(--opacity-s));
+    width: var(--icon-medium);
+    height: var(--icon-medium);
+    background: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
     color: var(--color-frozen);
-    border-radius: var(--border-radius-full);
+    border-radius: var(--radius-pill);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
   }
 
@@ -117,28 +117,28 @@
     margin: 0;
     font-family: var(--font-family-heading);
     font-size: var(--font-size-h6);
-    font-weight: var(--font-weight-l);
-    color: var(--font-color-m);
-    letter-spacing: -0.01em;
+    font-weight: var(--font-weight-bold);
+    color: var(--font-color-base);
+    letter-spacing: var(--font-spacing-tight);
   }
 
   .body {
-    padding: var(--spacing-xs) 0 var(--spacing-l);
-    color: var(--font-color-s);
-    font-size: var(--font-size-body);
-    line-height: var(--line-height-m);
+    padding: var(--spacing-2) 0 var(--spacing-8);
+    color: var(--font-color-muted);
+    font-size: var(--font-size-base);
+    line-height: var(--font-height-base);
   }
 
   .footer {
     display: flex;
     justify-content: flex-end;
-    gap: var(--spacing-s);
+    gap: var(--spacing-2);
     margin-top: auto;
   }
 
   @keyframes slide-up {
     from {
-      transform: translateY(10px);
+      transform: translateY(var(--spacing-2));
       opacity: 0;
     }
 

@@ -12,8 +12,8 @@
   import { fly } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
-  import LibraryCard from "@drawer/LibraryCard.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import LibraryCard from "@drawer/LibraryCard.svelte";
 
   // --- STATE & DERIVATIONS ---
 
@@ -91,24 +91,26 @@
 <svelte:window onkeydown={handle_keydown} />
 
 {#if is_open}
-  <Backdrop onclick={() => app.close_drawer()} z_index="calc(var(--z-index-xl) - 1)" />
+  <Backdrop onclick={() => app.close_drawer()} z_index="var(--modal-z-index)" />
 
   <div
-    class="drawer glass-l"
+    class="drawer glass-elevated"
+    class:is-mobile={app.viewport.mobile}
+    class:is-mini={app.viewport.mini}
     role="dialog"
     aria-labelledby="drawer-title"
     transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
   >
     <header class="header">
-      <h2 id="drawer-title">{title}</h2>
+      <h4 id="drawer-title">{title}</h4>
     </header>
 
     <div class="body no-scrollbar" use:kinetic_scroll>
       <div class="grid">
         <!-- "Create New" card -->
         <div
-          class="card--new glass-s interactable"
-          style="--signature-color: var(--color-frisk); --signature-rgb: var(--color-frisk-rgb);"
+          class="card--new glass-sunken interactable"
+          style="--signature-color: var(--color-frisk);"
           role="button"
           tabindex="0"
           aria-label="Create new entity"
@@ -134,7 +136,7 @@
             {entity}
             type={drawer_type ?? undefined}
             disabled={is_disabled(entity)}
-            onSelect={() => handle_select(entity)}
+            onclick={() => handle_select(entity)}
             onViewProfile={() => app.open_profile(entity)}
           />
         {/each}
@@ -142,7 +144,7 @@
 
       {#if entity_list.length === 0}
         <div class="empty">
-          <h2>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h2>
+          <h4>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h4>
           <p>Click "Create New" to initialize one.</p>
         </div>
       {/if}
@@ -158,45 +160,43 @@
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: 1200px;
-    max-height: 85vh;
-    border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
-    z-index: var(--z-index-xl);
+    max-width: var(--grid-10);
+    max-height: var(--modal-height-base);
+    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
+    z-index: var(--modal-z-index);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    border-bottom: none;
-    box-shadow: var(--shadow-xl);
+    box-shadow: var(--shadow-heavy);
   }
 
   /* --- HEADER --- */
   .header {
-    padding: var(--spacing-m) var(--spacing-l);
+    padding: var(--padding-standard) var(--padding-loose);
     display: flex;
     justify-content: space-between;
     align-items: center;
   }
 
-  .header h2 {
+  .header h4 {
     margin: 0;
-    letter-spacing: var(--letter-spacing-l);
-    font-weight: var(--font-weight-xl);
+    letter-spacing: var(--font-spacing-loose);
+    font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
-    text-shadow: var(--shadow-font);
   }
 
   /* --- BODY --- */
   .body {
     flex: 1;
     overflow-y: auto;
-    padding: 0 var(--spacing-l) var(--spacing-m);
+    padding: 0 var(--padding-standard) var(--padding-standard);
   }
 
   /* --- GRID --- */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-    gap: var(--spacing-l);
+    grid-template-columns: repeat(auto-fill, minmax(var(--grid-1), 1fr));
+    gap: var(--padding-standard);
     width: 100%;
   }
 
@@ -210,36 +210,24 @@
     flex-direction: column;
     border: none;
     padding: 0;
-    background: var(--glass-s);
+    background: transparent;
     cursor: pointer;
-    border-radius: var(--border-radius-m);
+    border-radius: var(--radius-standard);
     overflow: hidden;
-    transition:
-      transform var(--motion-l) var(--motion-elastic),
-      filter var(--motion-l);
-  }
-
-  .card--new:hover {
-    transform: scale(1.02);
-    filter: brightness(1.1);
-  }
-
-  .card--new:active {
-    transform: scale(var(--motion-click));
   }
 
   .card--new .visual {
     flex: 1.5;
-    background: var(--glass-s);
+    background: var(--glass-elevated);
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     position: relative;
-    border-radius: var(--border-radius-m) var(--border-radius-m) 0 0;
+    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
   }
 
-  /* Strip ProfilePicture's own background so .visual glass-s shows through */
+  /* Strip ProfilePicture's own background so .visual glass-sunken shows through */
   .card--new .visual :global(.profile-picture),
   .card--new .visual :global(.placeholder) {
     background: transparent;
@@ -248,20 +236,20 @@
 
   .card--new .info {
     flex: 0.6;
-    padding: var(--spacing-s);
+    padding: var(--padding-tight);
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-s);
-    border-radius: 0 0 var(--border-radius-m) var(--border-radius-m);
+    background: var(--glass-base);
+    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
   }
 
   .card--new .label {
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     font-family: var(--font-family-heading);
     text-transform: uppercase;
-    font-size: var(--font-size-body);
-    letter-spacing: var(--letter-spacing-m);
+    font-size: var(--font-size-base);
+    letter-spacing: var(--font-spacing-loose);
     color: var(--signature-color);
     text-align: center;
   }
@@ -271,10 +259,10 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 2px;
+    height: var(--gap-tight);
     background: var(--signature-color);
     opacity: 0;
-    transition: opacity var(--motion-l);
+    transition: opacity var(--motion-standard);
   }
 
   .card--new:hover .bar {
@@ -287,32 +275,42 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-xxxl) var(--spacing-xl);
+    padding: var(--padding-standard) var(--padding-loose);
     text-align: center;
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
   }
 
-  .empty h2 {
+  .empty h4 {
     margin: 0;
-    font-size: var(--font-size-h4);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
   }
 
   .empty p {
-    opacity: var(--opacity-l);
-    margin-top: var(--spacing-xs);
+    opacity: var(--opacity-heavy);
+    margin-top: var(--padding-loose);
   }
 
   /* --- RESPONSIVE --- */
-  @media (width <= 768px) {
-    .drawer {
-      max-width: 100vw;
-      border-radius: var(--border-radius-xl) var(--border-radius-xl) 0 0;
-    }
+  .drawer.is-mobile {
+    max-width: 100vw;
+    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
+  }
 
-    .grid {
-      grid-template-columns: repeat(2, 1fr);
-      gap: var(--spacing-m);
-    }
+  .drawer.is-mobile .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--padding-standard);
+  }
+
+  .drawer.is-mini .grid {
+    grid-template-columns: 1fr;
+    gap: var(--padding-standard);
+  }
+
+  .drawer.is-mini .header {
+    padding: var(--padding-standard);
+  }
+
+  .drawer.is-mini .body {
+    padding: 0 var(--padding-standard) var(--padding-standard);
   }
 </style>

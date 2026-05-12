@@ -37,7 +37,7 @@
   );
 </script>
 
-<div class="story-item" style="--signature-color: {signature_color}">
+<div class="story-item interactable" style="--signature-color: {signature_color}">
   <Button variant="invisible" cover={true} {onclick} />
 
   <div class="story-info">
@@ -60,15 +60,18 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: var(--spacing-s);
-    background: var(--glass-s);
-    backdrop-filter: var(--blur-s);
-    border: var(--border-s);
-    border-left: var(--spacing-xxs) solid var(--signature-color, var(--color-white));
-    border-radius: var(--border-radius-m);
-    box-shadow: var(--shadow-s);
+    padding: var(--spacing-3);
+    background: var(--glass-base);
+    backdrop-filter: var(--blur-whisper);
+
+    /* Standard 1px border all around for radius consistency */
+    border: var(--border-muted);
+
+    /* Accent bar via inset shadow to avoid corner clipping */
+    box-shadow: var(--shadow-ambient);
+    border-radius: var(--radius-subtle);
     cursor: pointer;
-    transition: all var(--motion-s);
+    transition: all var(--duration-standard) var(--ease-standard);
     text-align: left;
     position: relative;
     overflow: hidden;
@@ -76,11 +79,9 @@
   }
 
   .story-item:hover {
-    background: var(--glass-l);
-    border-top-color: var(--signature-color);
-    border-right-color: var(--signature-color);
-    border-bottom-color: var(--signature-color);
-    box-shadow: var(--shadow-m);
+    background: var(--glass-elevated);
+    border-color: var(--signature-color);
+    box-shadow: var(--shadow-focus);
   }
 
   .story-backdrop {
@@ -89,42 +90,48 @@
     top: 0;
     bottom: 0;
     width: 70%;
-    z-index: 0;
+    z-index: var(--floor-z-index);
     pointer-events: none;
-    opacity: 0.15;
-    mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%);
+    opacity: var(--opacity-whisper);
+    mask-image: linear-gradient(
+      to left,
+      var(--color-black) 0%,
+      var(--color-black) 20%,
+      transparent 100%
+    );
     transition:
-      opacity var(--motion-m),
-      width var(--motion-s);
+      opacity var(--duration-fast),
+      width var(--duration-reflex);
   }
 
   .story-backdrop.has-image {
     background-size: cover;
     background-position: center;
-    opacity: 0.25;
+    opacity: var(--opacity-muted);
   }
 
   .story-item:hover .story-backdrop {
-    opacity: 0.4;
+    opacity: var(--opacity-base);
     width: 80%;
   }
 
   .story-info {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxxs);
-    z-index: var(--z-index-m);
+    gap: var(--spacing-pixel);
+    z-index: var(--mid-z-index);
     position: relative;
+    padding-left: var(--spacing-2); /* Breath for the accent bar */
   }
 
   .story-title {
-    font-size: var(--font-size-body);
-    font-weight: var(--font-weight-m);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-bold);
     color: var(--color-white);
   }
 
   .story-meta {
     font-size: var(--font-size-tiny);
-    color: var(--font-color-m);
+    color: var(--font-color-base);
   }
 </style>

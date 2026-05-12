@@ -1,17 +1,17 @@
 <script>
+  import { session_driver } from "@core/engine/session-driver.svelte.js";
   import { db } from "@data/db.js";
   import { stories } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
-  import { session_driver } from "@core/engine/session-driver.svelte.js";
   import { simulation_log } from "@state/simulation-log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 
   import Button from "@atoms/Button.svelte";
-  import Toggle from "@atoms/Toggle.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
   import TextField from "@atoms/TextField.svelte";
-  import Dialog from "@atoms/Dialog.svelte";
+  import Toggle from "@atoms/Toggle.svelte";
   import StoryCard from "./StoryCard.svelte";
 
   /** @typedef {import('@data/repository.js').Story} Story */
@@ -181,7 +181,11 @@
           onchange={() => app.save_settings()}
         />
         <Button variant="danger" size="sm" onclick={() => (is_confirming_reset = true)}>
-          <svg class="icon-xs icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <svg
+            class="icon-small icon-outline"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
             <path d="M3 6h18" />
             <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
             <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -197,7 +201,7 @@
   .wrapper {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
     width: 100%;
   }
 
@@ -205,43 +209,43 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
     flex-wrap: wrap;
   }
 
   .body {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
   }
 
   .actions {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
     justify-content: center;
   }
 
   .footer {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
   }
 
   .section {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
     width: 100%;
   }
 
   .headline {
-    margin: 0 0 var(--spacing-xs);
-    padding-bottom: var(--spacing-xxs);
-    border-bottom: var(--spacing-px) solid var(--color-border-s);
-    color: var(--font-color-s);
+    margin: 0 0 var(--spacing-2);
+    padding-bottom: var(--spacing-1);
+    border-bottom: var(--border-muted);
+    color: var(--font-color-muted);
     font-size: var(--font-size-nano);
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     text-align: center;
     text-transform: uppercase;
   }
@@ -249,14 +253,14 @@
   .list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
     max-height: var(--dropdown-max-height);
     overflow-y: auto;
   }
 
   .status {
-    padding: var(--spacing-m) 0;
-    color: var(--font-color-s);
+    padding: var(--spacing-4) 0;
+    color: var(--font-color-muted);
     font-size: var(--font-size-small);
     font-style: italic;
     text-align: center;
@@ -264,7 +268,7 @@
 
   .actions.secondary {
     justify-content: space-between;
-    padding-top: var(--spacing-s);
-    border-top: var(--spacing-px) solid var(--color-border-s);
+    padding-top: var(--spacing-3);
+    border-top: var(--border-muted);
   }
 </style>

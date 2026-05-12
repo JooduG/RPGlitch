@@ -24,7 +24,7 @@ You are strictly operating within a closed-loop token system. The "Soul" is real
 
 - **Primary Source**: `src/theme/engine.css`.
 - **CRITICAL HALT CONDITION**: You are STRICTLY FORBIDDEN from writing raw pixel values (`px`), rems (`rem`), ems (`em`), or hex codes (`#`) in ANY file.
-- If you are about to write `padding: 16px;`, you MUST HALT, read `src/theme/engine.css`, and use `padding: var(--spacing-m);` instead.
+- If you are about to write `padding: 16px;`, you MUST HALT, read `src/theme/engine.css`, and use `padding: var(--spacing-4);` instead.
 - If a required variable does not exist in `engine.css`, DO NOT hallucinate one. You must HALT execution and prompt the user to authorize a new Level 7 Alias.
 
 ---

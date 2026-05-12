@@ -1,3 +1,5 @@
+import { resolve_px, resolve_number, resolve_ms } from "./dom.js";
+
 /**
  * native-tilt.js
  * A dependency-free Svelte action that replicates vanilla-tilt.js physics.
@@ -15,14 +17,20 @@
 export function tilt(node, options = {}) {
   // Configuration
   const settings = {
-    max: 15, // max tilt rotation (degrees)
-    perspective: 1000, // transform perspective (px)
-    scale: 1.05, // transform scale on hover
-    speed: 300, // transition speed (ms)
-    axis: null, // 'x' or 'y' - disable one axis
-    reset: true, // reset on mouseleave
+    max: 15,
+    perspective: 1000,
+    scale: 1.05,
+    speed: 300,
+    axis: null,
+    reset: true,
     ...options,
   };
+
+  // Standardize settings using CSS resolution (allows tokens)
+  settings.max = resolve_number(settings.max, 15);
+  settings.perspective = resolve_px(settings.perspective, 1000);
+  settings.scale = resolve_number(settings.scale, 1.05);
+  settings.speed = resolve_ms(settings.speed, 300);
 
   let width = 0;
   let height = 0;

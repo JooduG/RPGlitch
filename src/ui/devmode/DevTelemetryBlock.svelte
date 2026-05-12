@@ -260,12 +260,12 @@
 
 <style>
   .telemetry-block {
-    margin-bottom: var(--spacing-m);
-    animation: slide-in var(--motion-m) var(--motion-elastic);
+    margin-bottom: var(--spacing-4);
+    animation: slide-in var(--duration-fast) var(--motion-elastic);
   }
 
   .telemetry-block.is-standalone {
-    margin: var(--spacing-xs) 0;
+    margin: var(--spacing-2) 0;
     max-width: 85%;
     margin-left: auto;
     margin-right: auto;
@@ -273,15 +273,15 @@
 
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 rgb(var(--color-cyan-rgb) / 40%);
+      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / 40%);
     }
 
     70% {
-      box-shadow: 0 0 0 var(--spacing-s) rgb(var(--color-cyan-rgb) / 0%);
+      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--color-cyan) r g b / 0%);
     }
 
     100% {
-      box-shadow: 0 0 0 0 rgb(var(--color-cyan-rgb) / 0%);
+      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / 0%);
     }
   }
 
@@ -291,27 +291,27 @@
   }
 
   .resonance-header {
-    margin-bottom: var(--spacing-m);
+    margin-bottom: var(--spacing-4);
   }
 
   .resonance-title {
     display: block;
     font-size: var(--font-size-small);
     color: var(--color-white);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     letter-spacing: -0.02em;
   }
 
   .resonance-desc {
     font-size: var(--font-size-tiny);
-    color: var(--font-color-s);
-    margin: var(--spacing-xxs) 0 0 0;
+    color: var(--font-color-muted);
+    margin: var(--spacing-1) 0 0 0;
   }
 
   .resonance-item {
-    background: rgb(var(--color-cyan-rgb) / 5%) !important;
-    border-color: rgb(var(--color-cyan-rgb) / 20%) !important;
-    animation: slide-in var(--motion-l) var(--motion-elastic) both;
+    background: rgb(from var(--color-cyan) r g b / 5%) !important;
+    border-color: rgb(from var(--color-cyan) r g b / 20%) !important;
+    animation: slide-in var(--duration-standard) var(--motion-elastic) both;
   }
 
   .resonance-item:nth-child(2) {
@@ -351,62 +351,62 @@
   .telemetry-container {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-m);
-    padding: var(--spacing-xxs);
+    gap: var(--spacing-4);
+    padding: var(--spacing-1);
   }
 
   .telemetry-meta {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: calc(-1 * var(--spacing-s));
+    margin-bottom: calc(-1 * var(--spacing-3));
     opacity: 0.5;
   }
 
   .telemetry-time {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-ghost);
-    color: var(--font-color-s);
+    font-size: var(--font-size-nano);
+    color: var(--font-color-muted);
   }
 
   .sub-label {
-    font-size: var(--font-size-ghost);
+    font-size: var(--font-size-nano);
     color: var(--color-cyan);
     opacity: 0.6;
-    margin-bottom: var(--spacing-xs);
-    font-weight: var(--font-weight-xl);
+    margin-bottom: var(--spacing-2);
+    font-weight: var(--font-weight-heavy);
     letter-spacing: 0.1em;
     text-transform: uppercase;
   }
 
   /* Deltas */
   .deltas-tray {
-    padding-bottom: var(--spacing-xs);
+    padding-bottom: var(--spacing-2);
   }
 
   .delta-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
   }
 
   .delta-item {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     color: var(--color-white);
-    background: rgb(var(--color-black-rgb) / 30%);
-    padding: var(--spacing-xxxs) var(--spacing-xs);
-    border-radius: var(--border-radius-s);
+    background: rgb(from var(--color-black) r g b / 30%);
+    padding: var(--spacing-2) var(--spacing-2);
+    border-radius: var(--radius-sharp);
     white-space: nowrap;
-    transition: all var(--motion-m);
+    transition: all var(--duration-fast);
   }
 
   .delta-item.is-positive {
-    border-color: rgb(var(--color-cyan-rgb) / 30%);
+    border-color: rgb(from var(--color-cyan) r g b / 30%);
     color: var(--color-cyan);
   }
 
   .delta-item.is-negative {
-    border-color: rgb(var(--color-frozen-rgb) / 30%);
+    border-color: rgb(from var(--color-frozen) r g b / 30%);
     color: var(--color-frozen);
   }
 
@@ -418,25 +418,25 @@
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-l);
+    gap: var(--spacing-6);
   }
 
   .dynamics-column {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
   }
 
   .metric-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
   }
 
   .metric-label {
     font-size: var(--font-size-tiny);
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
     text-transform: lowercase;
     min-width: 5rem;
   }
@@ -445,14 +445,14 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
   }
 
   .metric-track {
     flex: 1;
-    height: var(--spacing-xxs);
-    background: var(--glass-s);
-    border-radius: var(--border-radius-full);
+    height: var(--spacing-1);
+    background: var(--glass-base);
+    border-radius: var(--radius-pill);
     position: relative;
     overflow: hidden;
   }
@@ -463,9 +463,9 @@
     left: 50%;
     top: 0;
     bottom: 0;
-    width: var(--spacing-px);
-    background: rgb(var(--color-white-rgb) / 20%);
-    z-index: var(--z-index-m);
+    width: var(--spacing-pixel);
+    background: rgb(from var(--color-white) r g b / 20%);
+    z-index: var(--mid-z-index);
   }
 
   .metric-fill {
@@ -474,8 +474,8 @@
     width: var(--metric-span, 0%);
     background: var(--metric-color, var(--color-cyan));
     height: 100%;
-    border-radius: var(--border-radius-full);
-    transition: all var(--motion-l);
+    border-radius: var(--radius-pill);
+    transition: all var(--duration-standard);
   }
 
   .metric-value {
@@ -490,8 +490,8 @@
   .vector-fabric {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-l);
-    padding-top: var(--spacing-m);
+    gap: var(--spacing-6);
+    padding-top: var(--spacing-4);
   }
 
   .vector-column {
@@ -502,18 +502,18 @@
   .vector-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-xxs);
+    gap: var(--spacing-1);
   }
 
   .vector-item {
     display: flex;
-    gap: var(--spacing-s);
+    gap: var(--spacing-3);
     font-size: var(--font-size-tiny);
-    line-height: var(--line-height-s);
-    padding: var(--spacing-xxs) var(--spacing-xs);
-    border-radius: var(--border-radius-s);
-    background: rgb(var(--color-black-rgb) / 15%);
-    border-left: var(--spacing-xxxs) solid transparent;
+    line-height: var(--font-height-s);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-sharp);
+    background: rgb(from var(--color-black) r g b / 15%);
+    border-left: var(--spacing-2) solid transparent;
   }
 
   .vector-item.future {
@@ -527,12 +527,12 @@
   .vector-score {
     font-family: var(--font-family-mono);
     color: var(--color-cyan);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     opacity: 0.8;
   }
 
   .vector-text {
-    color: var(--font-color-m);
+    color: var(--font-color-base);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -543,30 +543,30 @@
 
   .empty-hint {
     font-size: var(--font-size-nano);
-    color: var(--font-color-s);
+    color: var(--font-color-muted);
     opacity: 0.3;
     font-family: var(--font-family-mono);
   }
 
   /* Signals */
   .signals-tray {
-    padding-top: var(--spacing-m);
+    padding-top: var(--spacing-4);
   }
 
   .pill-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-xs);
+    gap: var(--spacing-2);
   }
 
   .signal-pill {
-    padding: var(--spacing-xxxs) var(--spacing-xs);
-    background: var(--glass-s);
-    border: var(--border-m);
-    border-color: rgb(var(--color-cyan-rgb) / 20%);
+    padding: var(--spacing-2) var(--spacing-2);
+    background: var(--glass-base);
+    border: var(--border-side);
+    border-color: rgb(from var(--color-cyan) r g b / 20%);
     color: var(--color-cyan);
-    border-radius: var(--border-radius-full);
-    font-size: var(--font-size-ghost);
+    border-radius: var(--radius-pill);
+    font-size: var(--font-size-nano);
     font-family: var(--font-family-mono);
     text-transform: uppercase;
   }

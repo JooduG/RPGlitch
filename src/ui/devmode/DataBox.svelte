@@ -24,40 +24,40 @@
 <style>
   .data-box {
     width: 100%;
-    background: var(--glass-xs);
-    border: var(--border-s);
-    border-radius: var(--border-radius-m);
+    background: var(--glass-sunken);
+    border: var(--border-bottom);
+    border-radius: var(--radius-subtle);
     overflow: hidden;
     display: flex;
     flex-direction: column;
     height: var(--box-height);
     max-height: var(--box-max-height);
-    transition: all var(--motion-l);
+    transition: all var(--duration-standard);
     text-align: left;
     font-family: var(--font-family-mono);
-    opacity: var(--opacity-xl);
+    opacity: var(--opacity-heavy);
   }
 
   .data-header {
-    padding: var(--spacing-xs) var(--spacing-s);
-    background: rgb(var(--color-white-rgb) / 3%);
+    padding: var(--spacing-2) var(--spacing-3);
+    background: rgb(from var(--color-white) r g b / 3%);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-xl);
+    font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
-    letter-spacing: var(--letter-spacing-l);
+    letter-spacing: var(--font-spacing-loose);
     color: var(--color-cyan);
   }
 
   .data-content {
-    padding: var(--spacing-s);
+    padding: var(--spacing-3);
     overflow: hidden auto;
     font-size: var(--font-size-small);
-    line-height: var(--line-height-m);
-    color: var(--font-color-m);
+    line-height: var(--font-height-base);
+    color: var(--font-color-base);
   }
 
   .data-content.is-code {
-    background: rgb(var(--color-black-rgb) / 10%);
+    background: rgb(from var(--color-black) r g b / 10%);
   }
 
   :global(.data-content pre) {

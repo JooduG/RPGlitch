@@ -1,3 +1,5 @@
+import { resolve_px, resolve_number } from "./dom.js";
+
 /**
  * Svelte Action: fitText
  * Automatically scales font size down to fit within the container's height/width.
@@ -5,8 +7,8 @@
  *
  * @param {HTMLElement} node
  * @param {Object} [options]
- * @param {number} [options.maxSize] - Optional: Force a starting font size in px
- * @param {number} [options.minSize=12] - Minimum font size in px
+ * @param {number | string} [options.maxSize] - Optional: Force a starting font size (px number or CSS string)
+ * @param {number | string} [options.minSize] - Minimum font size (px number or CSS string)
  * @param {string} [options.lineHeight='1.2'] - Line height to apply
  */
 export function fit_text(node, options = {}) {
@@ -30,31 +32,37 @@ export function fit_text(node, options = {}) {
       if (node.clientHeight === 0 || node.clientWidth === 0) return;
 
       // 3. Line-height: reset or apply override
-      node.style.lineHeight = currentOptions.lineHeight || "";
 
-      const computedStyle = window.getComputedStyle(node);
+      // 0. Load tokens dynamically (Chalk Regime)
+      const tolerance = resolve_number("--fit-text-tolerance", 1, node);
+      const default_line_height = "var(--fit-text-height, var(--font-height-short))";
 
       // 4. Determine boundaries
-      const minSize = currentOptions.minSize || 10;
-      let maxSize;
+      const minSize = resolve_px(
+        currentOptions.minSize || "--fit-text-min",
+        resolve_px("--font-size-tiny", 12, node),
+        node,
+      );
 
+      let maxSize;
       if (currentOptions.maxSize) {
-        maxSize = currentOptions.maxSize;
+        maxSize = resolve_px(currentOptions.maxSize, 16, node);
       } else {
         // Measure the 'natural' CSS size (e.g. from clamp or fixed rem)
-        maxSize = parseFloat(computedStyle.fontSize) || 16;
+        node.style.fontSize = "";
+        maxSize = parseFloat(window.getComputedStyle(node).fontSize) || 16;
       }
+
+      // Default line-height from tokens
+      node.style.lineHeight = currentOptions.lineHeight || default_line_height;
 
       // Initial state: Start at the maximum allowed size
       node.style.fontSize = `${maxSize}px`;
 
-      // Tolerance to prevent subpixel rounding loops
-      const TOLERANCE = 1;
-
       const isOverflowing = () => {
         return (
-          node.scrollHeight > node.clientHeight + TOLERANCE ||
-          node.scrollWidth > node.clientWidth + TOLERANCE
+          node.scrollHeight > node.clientHeight + tolerance ||
+          node.scrollWidth > node.clientWidth + tolerance
         );
       };
 

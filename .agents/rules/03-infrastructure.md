@@ -62,7 +62,7 @@ See [Svelte](../skills/svelte).
 
 Once a plan is approved and grounded, execute using this atomic sequence:
 
-1. **Task Tracking**: Ensure the root [Mission Plan](../../tasks/plan.md) is initialized and anchored to [SPEC.md](../../SPEC.md).
+1. **Task Tracking**: Ensure the root [Mission Plan](../../tasks/plan.md) is initialized and anchored to [tasks/SPEC.md](../../tasks/SPEC.md).
 2. **Logic & Tools**: Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions.
 3. **Aesthetic Polish**: Apply **The Chalk Regime** from [DESIGN.md](../../design.md) CSS variables and UI layout rules.
 4. **State Persistence**: Anchor dynamic state and memory structures.

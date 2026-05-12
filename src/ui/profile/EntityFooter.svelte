@@ -4,6 +4,7 @@
    * THE COMMAND CENTER — Primary Save, Delete, and Edit actions.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
+  import { app } from "@state/app.svelte.js";
   import Button from "@atoms/Button.svelte";
 
   /**
@@ -19,7 +20,12 @@
   let { is_editing, is_saving, onclick_edit, onclick_save, onclick_delete } = $props();
 </script>
 
-<footer class="footer" data-testid="entity-footer">
+<footer
+  class="footer"
+  class:is-mobile={app.viewport.mobile}
+  class:is-mini={app.viewport.mini}
+  data-testid="entity-footer"
+>
   {#if is_editing}
     <div class="actions">
       <Button
@@ -55,19 +61,19 @@
 <style>
   .footer {
     position: relative;
-    margin: auto calc(-1 * var(--spacing-m)) calc(-1 * var(--spacing-m));
-    padding: var(--spacing-m) var(--spacing-m) var(--spacing-m) 0;
+    margin: auto calc(-1 * var(--spacing-4)) calc(-1 * var(--spacing-4));
+    padding: var(--spacing-4) var(--spacing-4) var(--spacing-4) 0;
     display: grid;
-    grid-template-columns: var(--spacing-xxxxl) 1fr;
-    gap: var(--spacing-m);
+    grid-template-columns: var(--spacing-24) 1fr;
+    gap: var(--spacing-4);
     background: color-mix(
       in srgb,
       rgb(from var(--color-gunmetal) r g b / 25%),
       var(--signature-color) 15%
     );
-    z-index: var(--z-index-xl);
-    transition: all var(--motion-l);
-    border-radius: 0 0 var(--border-radius-l) 0;
+    z-index: var(--overlay-z-index);
+    transition: all var(--duration-standard);
+    border-radius: 0 0 var(--radius-standard) 0;
   }
 
   /* Fills column 1 when only the Edit button is shown. */
@@ -79,23 +85,21 @@
   .actions {
     grid-column: 2;
     display: flex;
-    gap: var(--spacing-m);
+    gap: var(--spacing-4);
     width: 100%;
   }
 
-  @media (width <= 768px) {
-    .footer {
-      grid-template-columns: 1fr;
-      padding: var(--spacing-s);
-    }
+  .footer.is-mobile {
+    grid-template-columns: 1fr;
+    padding: var(--spacing-3);
+  }
 
-    .gap {
-      display: none;
-    }
+  .footer.is-mobile .gap {
+    display: none;
+  }
 
-    .actions {
-      grid-column: 1;
-    }
+  .footer.is-mobile .actions {
+    grid-column: 1;
   }
 
   /* Phantom slot; mirrors Delete's position in readonly mode. */

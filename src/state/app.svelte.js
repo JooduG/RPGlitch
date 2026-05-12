@@ -11,6 +11,7 @@ import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { visual_engine } from "@media/visual-engine.svelte.js";
 import { generateUUID } from "@utils/helpers.js";
+import { resolve_px } from "@utils/dom.js";
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
@@ -36,10 +37,19 @@ const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
  */
 export class AppStore {
   initialized = false;
+  /** @type {Array<() => void>} */
+  _viewport_cleanup = [];
   // --- NAVIGATION ---
   view = $state("storyboard"); // 'storyboard' | 'storymode'
   control_panel_open = $state(false);
   profile_open = $state(false);
+  viewport = $state({
+    mini: false,
+    mobile: false,
+    tablet: false,
+    desktop: false,
+    is_touch: false,
+  });
   // --- ENTITY SELECTION STATE (STORYBOARD) ---
   /** @type {any | null} */
   selected_ai = $state(null);
@@ -161,6 +171,10 @@ export class AppStore {
   async init() {
     if (typeof window === "undefined" || this.initialized) return;
     this.initialized = true;
+
+    // Initialize responsive listeners
+    this.init_viewport();
+
     try {
       const entry = await db.kv_settings.get(KV_SETTINGS_KEY);
       if (entry && entry.value) {
@@ -169,6 +183,53 @@ export class AppStore {
     } catch (e) {
       console.error("[Security] Settings Hydration Failed:", e);
     }
+  }
+
+  /**
+   * Centralized Viewport Observer
+   * Syncs with engine.css tokens.
+   */
+  init_viewport() {
+    if (typeof window === "undefined") return;
+
+    // Cleanup existing listeners if re-initializing
+    if (this._viewport_cleanup) {
+      this._viewport_cleanup.forEach((/** @type {() => void} */ cleanup) => cleanup());
+    }
+    this._viewport_cleanup = [];
+
+    // Retrieve tokens from the central design system
+    const getBreakpoint = (/** @type {string} */ name) => {
+      const px = resolve_px(`--breakpoint-${name}`, 0);
+      return px ? `${px}px` : null;
+    };
+
+    const queries = {
+      mini: `(max-width: ${getBreakpoint("mini") || "30rem"})`,
+      mobile: `(max-width: ${getBreakpoint("mobile") || "48rem"})`,
+      tablet: `(max-width: ${getBreakpoint("tablet") || "64rem"})`,
+      desktop: `(max-width: ${getBreakpoint("desktop") || "80rem"})`,
+    };
+
+    Object.keys(queries).forEach((key) => {
+      const k = /** @type {keyof typeof queries} */ (key);
+      const query = queries[k];
+      const mql = window.matchMedia(query);
+
+      // Initial state
+      this.viewport[k] = mql.matches;
+
+      // Listener (Modern API)
+      const listener = (/** @type {MediaQueryListEvent} */ e) => {
+        this.viewport[k] = e.matches;
+        this.log(`Viewport Change: ${k} -> ${e.matches}`, "system");
+      };
+      mql.addEventListener("change", listener);
+      this._viewport_cleanup.push(() => mql.removeEventListener("change", listener));
+    });
+
+    // Touch detection
+    this.viewport.is_touch = window.ontouchstart !== undefined || navigator.maxTouchPoints > 0;
   }
   /**
    * Hydrates the storyboard lists with characters and fractals.

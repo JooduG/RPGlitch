@@ -157,6 +157,7 @@
 <script>
   import { portal } from "@utils/portal.js";
   import { scale } from "svelte/transition";
+  import { resolve_px } from "@utils/dom.js";
 
   // --- RENDERER LOGIC ---
   /** @type {HTMLElement | null} */
@@ -166,27 +167,61 @@
   let flip_style = $state("");
   let arrow_flipped = $state(false);
 
+  // Environmental tracking for reactivity to layout and scroll shifts
+  let scroll_version = $state(0);
+  let layout_version = $state(0);
+  let padding = $state(12);
+
+  $effect(() => {
+    const on_scroll = () => scroll_version++;
+    const on_layout = () => {
+      layout_version++;
+      scroll_version++; // Layout shift usually requires repositioning
+    };
+    window.addEventListener("resize", on_layout, { passive: true });
+    window.addEventListener("scroll", on_scroll, { passive: true, capture: true });
+    return () => {
+      window.removeEventListener("resize", on_layout);
+      window.removeEventListener("scroll", on_scroll, { capture: true });
+    };
+  });
+
+  $effect(() => {
+    if (tooltip_state.active) {
+      // 1. Resolve tokens only when needed (activation or layout shift)
+      // This prevents resolve_px (which triggers reflow) from running during scroll
+      layout_version;
+      padding = resolve_px("--spacing-3", 12, document.documentElement);
+    }
+  });
+
   $effect(() => {
     if (!tooltip_state.active) ready = false;
   });
 
   $effect(() => {
+    // 2. High-frequency positioning logic
+    scroll_version;
+
     if (tooltip_state.active && tooltip_el) {
       const rect = tooltip_el.getBoundingClientRect();
-      const padding = 12; // Matches var(--spacing-s) for safety boundaries
+
+      // Use cached padding to avoid resolve_px/reflow during scroll
+      const current_padding = padding;
+
       let x_offset_px = 0;
       arrow_flipped = false;
 
-      if (rect.right > window.innerWidth - padding) {
-        x_offset_px = -(rect.right - (window.innerWidth - padding));
-      } else if (rect.left < padding) {
-        x_offset_px = padding - rect.left;
+      if (rect.right > window.innerWidth - current_padding) {
+        x_offset_px = -(rect.right - (window.innerWidth - current_padding));
+      } else if (rect.left < current_padding) {
+        x_offset_px = current_padding - rect.left;
       }
 
-      if (rect.top < padding && tooltip_state.target) {
+      if (rect.top < current_padding && tooltip_state.target) {
         arrow_flipped = true;
         const target_rect = tooltip_state.target.getBoundingClientRect();
-        flip_style = `top: calc(${target_rect.bottom}px + var(--spacing-xs));`;
+        flip_style = `top: calc(${target_rect.bottom}px + var(--spacing-2));`;
         transform_override = `translateX(-50%) translateY(0%) translateX(${x_offset_px}px)`;
       } else {
         flip_style = "";
@@ -208,7 +243,7 @@
     bind:this={tooltip_el}
     class:ready
     style:left="{tooltip_state.x}px"
-    style:top="calc({tooltip_state.y}px - var(--spacing-xs))"
+    style:top="calc({tooltip_state.y}px - var(--spacing-2))"
     style={flip_style}
     style:transform={transform_override}
     data-flipped={arrow_flipped}
@@ -227,7 +262,7 @@
 <style>
   .tooltip-portal {
     position: fixed;
-    z-index: var(--z-index-max);
+    z-index: var(--max-z-index);
     pointer-events: none;
     will-change: transform, opacity;
     display: flex;
@@ -245,64 +280,62 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    filter: drop-shadow(var(--shadow-m));
+    filter: drop-shadow(var(--shadow-heavy));
   }
 
   .tooltip-content {
-    background: var(--glass-xl);
-    backdrop-filter: var(--blur-l);
+    background: var(--glass-peak);
+    backdrop-filter: var(--glass-peak-blur);
     color: var(--color-white);
-    padding: var(--spacing-xs) var(--spacing-s);
-    border-radius: var(--border-radius-m);
-    border: var(--border-xl);
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-standard);
+    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
     font-size: var(--font-size-tiny);
-    font-family: var(--font-family-body);
+    font-family: var(--font-family-base);
     text-transform: none;
     letter-spacing: normal;
     white-space: normal;
     width: max-content;
-    max-width: 14rem;
+    max-width: 15rem;
     text-align: center;
-    line-height: var(--line-height-s);
+    line-height: var(--font-height-short);
   }
 
   .tooltip-arrow {
-    width: var(--spacing-0);
-    height: var(--spacing-0);
-    border-left: var(--spacing-tooltip-arrow) solid transparent;
-    border-right: var(--spacing-tooltip-arrow) solid transparent;
-    border-top: var(--spacing-tooltip-arrow) solid
-      var(--border-color, rgb(var(--color-white-rgb) / var(--opacity-s)));
+    width: 0;
+    height: 0;
+    border-left: var(--spacing-2) solid transparent;
+    border-right: var(--spacing-2) solid transparent;
+    border-top: var(--spacing-2) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
     position: absolute;
-    bottom: calc(var(--spacing-tooltip-arrow) * -1);
+    bottom: calc(var(--spacing-2) * -1);
     left: 50%;
     transform: translateX(-50%);
-    z-index: var(--z-index-1);
+    z-index: var(--floor-z-index);
   }
 
   .tooltip-arrow::after {
     content: "";
     position: absolute;
-    bottom: var(--spacing-2px);
-    left: calc(var(--spacing-tooltip-arrow) * -1);
-    border-left: var(--spacing-tooltip-arrow) solid transparent;
-    border-right: var(--spacing-tooltip-arrow) solid transparent;
-    border-top: var(--spacing-tooltip-arrow) solid var(--color-frozen);
-    opacity: var(--opacity-l);
+    bottom: var(--spacing-pixel);
+    left: calc(var(--spacing-2) * -1);
+    border-left: var(--spacing-2) solid transparent;
+    border-right: var(--spacing-2) solid transparent;
+    border-top: var(--spacing-2) solid var(--background-base);
+    opacity: var(--opacity-heavy);
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow {
-    top: calc(var(--spacing-tooltip-arrow) * -1);
+    top: calc(var(--spacing-2) * -1);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--spacing-tooltip-arrow) solid
-      var(--border-color, rgb(var(--color-white-rgb) / var(--opacity-s)));
+    border-bottom: var(--spacing-2) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {
-    top: var(--spacing-2px);
+    top: var(--spacing-pixel);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--spacing-tooltip-arrow) solid var(--color-frozen);
+    border-bottom: var(--spacing-2) solid var(--background-base);
   }
 </style>

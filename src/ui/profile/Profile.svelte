@@ -5,19 +5,19 @@
    * Chalk Regime UI · Flat DOM · Ultra-Lean CSS
    */
   import { entities } from "@/data/repository.js";
-  import { app } from "@state/app.svelte.js";
-  import { runtime } from "@state/runtime.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
-  import { normalize } from "@data/content-normaliser.js";
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import { normalize } from "@data/content-normaliser.js";
+  import DevWing from "@devmode/DevWing.svelte";
+  import AudioWing from "@profile/AudioWing.svelte";
   import EntityFooter from "@profile/EntityFooter.svelte";
   import EntityFragments from "@profile/EntityFragments.svelte";
   import EntityHeader from "@profile/EntityHeader.svelte";
-  import Dialog from "@atoms/Dialog.svelte";
-  import AudioWing from "@profile/AudioWing.svelte";
-  import DevWing from "@devmode/DevWing.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
+  import { app } from "@state/app.svelte.js";
+  import { runtime } from "@state/runtime.svelte.js";
+  import { themeStore } from "@theme/palette.svelte.js";
   import { SvelteSet } from "svelte/reactivity";
 
   const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
@@ -43,7 +43,6 @@
   // --- DERIVED ---
 
   const signature_color = $derived(themeStore.get_signature_color(char));
-  const signature_rgb = $derived(themeStore.hex_to_rgb(signature_color));
 
   // --- EFFECTS ---
 
@@ -160,6 +159,8 @@
       class="wrapper"
       class:is-editing={is_editing}
       class:is-dev={app.settings.dev_mode}
+      class:is-mobile={app.viewport.mobile}
+      class:is-mini={app.viewport.mini}
       onclick={handle_bg_click}
       onfocusout={handle_focus_out}
       role="presentation"
@@ -175,10 +176,7 @@
         {/if}
       </aside>
 
-      <div
-        class="card scrollbar"
-        style="--signature-color: {signature_color}; --signature-rgb: {signature_rgb};"
-      >
+      <div class="card scrollbar" style="--signature-color: {signature_color};">
         <div class="signature-bar"></div>
         <div class="avatar">
           <ProfilePicture entity={char} />
@@ -215,57 +213,57 @@
 
   .wings {
     width: 0;
-    min-width: 0;
+    min-width: var(--spacing-pixel);
     max-width: 0;
-    opacity: var(--opacity-none);
+    opacity: 0;
     overflow: hidden;
     pointer-events: none;
-    transition: all var(--motion-s) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--duration-standard) var(--ease-standard);
     transform: scale(0.9);
     height: 100%;
-    max-height: 85vh;
+    max-height: var(--modal-height-tall);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-m);
-    z-index: var(--z-index-m);
+    gap: var(--spacing-4);
+    z-index: var(--surface-z-index);
     order: 1;
     margin-right: 0;
-    --scrollbar-thumb: rgb(var(--color-white-rgb) / var(--opacity-s));
-    --scrollbar-thumb-hover: rgb(var(--color-white-rgb) / var(--opacity-l));
+    --scrollbar-thumb: rgb(from var(--color-white) r g b / var(--opacity-muted));
+    --scrollbar-thumb-hover: rgb(from var(--color-white) r g b / var(--opacity-heavy));
   }
 
   .wings.is-visible {
-    width: 240px;
-    min-width: 240px;
-    max-width: 240px;
-    opacity: var(--opacity-full);
+    width: var(--wing-width);
+    min-width: var(--wing-width);
+    max-width: var(--wing-width);
+    opacity: var(--opacity-solid);
     pointer-events: auto;
     transform: scale(1);
     overflow-y: auto;
-    margin-right: var(--spacing-l);
+    margin-right: var(--spacing-6);
   }
 
   /* ── Card (glassmorphic entity panel) ─────────────────────── */
 
   .card {
     order: 2;
-    min-width: 85vh;
-    max-width: 1000px;
+    min-width: 20rem;
+    max-width: var(--profile-width);
     width: 100%;
     height: 100%;
-    max-height: 85vh;
-    background: var(--glass-xl);
-    backdrop-filter: var(--blur-l);
-    border-radius: var(--border-radius-l);
-    box-shadow: var(--shadow-xl);
+    max-height: var(--modal-height-tall);
+    background: var(--glass-elevated);
+    backdrop-filter: var(--glass-elevated-blur);
+    border-radius: var(--radius-standard);
+    box-shadow: var(--shadow-heavy);
     position: relative;
     overflow: visible;
-    z-index: var(--z-index-l);
+    z-index: var(--overlay-z-index);
     display: grid;
-    grid-template-columns: minmax(200px, 30%) 1fr;
+    grid-template-columns: minmax(var(--spacing-40), 30%) 1fr;
     grid-template-rows: minmax(0, 1fr);
     gap: 0;
-    transition: all var(--motion-m) cubic-bezier(0.4, 0, 0.2, 1);
+    transition: all var(--duration-standard) var(--ease-standard);
     will-change: transform, width, max-width;
   }
 
@@ -276,7 +274,7 @@
     top: 0;
     left: 0;
     right: 0;
-    height: 1px;
+    height: var(--spacing-pixel);
     background: linear-gradient(
       90deg,
       transparent,
@@ -284,9 +282,9 @@
       var(--signature-color) 85%,
       transparent
     );
-    z-index: var(--z-index-xxl);
+    z-index: var(--max-z-index);
     pointer-events: none;
-    --signature-glow: 0 0 var(--spacing-s) var(--signature-color);
+    --signature-glow: 0 0 var(--spacing-2) var(--signature-color);
 
     box-shadow: var(--signature-glow);
     opacity: 0.8;
@@ -299,7 +297,8 @@
     display: flex;
     flex-direction: column;
     background: transparent;
-    border-radius: calc(var(--border-radius-l) - 1px) 0 0 calc(var(--border-radius-l) - 1px);
+    border-radius: calc(var(--radius-standard) - var(--spacing-pixel)) 0 0
+      calc(var(--radius-standard) - var(--spacing-pixel));
     overflow: hidden;
   }
 
@@ -309,68 +308,67 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    padding: var(--spacing-m);
-    background: transparent;
-    gap: 0;
-    min-height: 0;
-    overflow-y: auto;
-    border-radius: 0 calc(var(--border-radius-l) - 1px) calc(var(--border-radius-l) - 1px) 0;
-    --scrollbar-thumb: rgb(var(--signature-rgb) / var(--opacity-s));
-    --scrollbar-thumb-hover: rgb(var(--signature-rgb) / var(--opacity-l));
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--font-spacing-tight);
+    text-shadow: var(--shadow-font);
+    text-align: left;
+    line-height: var(--font-height-short);
+    min-height: calc(var(--spacing-6) * 3);
+    border-radius: 0 calc(var(--radius-standard) - var(--spacing-pixel))
+      calc(var(--radius-standard) - var(--spacing-pixel)) 0;
+    --scrollbar-thumb: rgb(from var(--signature-color) r g b / var(--opacity-muted));
+    --scrollbar-thumb-hover: rgb(from var(--signature-color) r g b / var(--opacity-heavy));
   }
 
   /* ── Responsive: tablet / mobile ──────────────────────────── */
 
-  @media (width <= 850px) {
-    .wrapper {
-      flex-direction: column;
-      align-items: stretch;
-      height: 100%;
-      justify-content: flex-start;
-      padding: 0;
-    }
-
-    .wings.is-visible {
-      width: 100%;
-      min-width: 100%;
-      max-width: 100%;
-      height: auto;
-      max-height: 40vh;
-      order: 3;
-      transform: none;
-      padding: 0 var(--spacing-s);
-    }
-
-    .card {
-      order: 1;
-      max-width: 100%;
-      height: 100%;
-      max-height: 100%;
-      flex: 1;
-      border-radius: 0;
-      display: flex;
-      flex-direction: column;
-      overflow-y: auto;
-    }
-
-    .avatar {
-      flex: 0 0 clamp(140px, 20vh, 220px);
-      border-radius: 0;
-    }
-
-    .body {
-      flex: 0 0 auto;
-      padding: var(--spacing-m);
-      overflow-y: visible;
-      height: auto;
-      border-radius: 0;
-    }
+  .wrapper.is-mobile {
+    flex-direction: column;
+    align-items: stretch;
+    height: 100%;
+    justify-content: flex-start;
+    padding: 0;
   }
 
-  @media (width <= 480px) {
-    .body {
-      padding: var(--spacing-s);
-      gap: var(--spacing-s);
-    }
+  .wrapper.is-mobile .wings.is-visible {
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: 40vh;
+    order: 3;
+    transform: none;
+    padding: 0 var(--spacing-2);
+  }
+
+  .wrapper.is-mobile .card {
+    order: 1;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    flex: 1;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .wrapper.is-mobile .avatar {
+    flex: 0 0 clamp(20rem, 20vh, var(--avatar-medium-size));
+    border-radius: 0;
+  }
+
+  .wrapper.is-mobile .body {
+    flex: 0 0 auto;
+    padding: var(--spacing-4);
+    overflow-y: visible;
+    height: auto;
+    border-radius: 0;
+  }
+
+  .wrapper.is-mini .body {
+    padding: var(--spacing-2);
+    gap: var(--spacing-2);
   }
 </style>

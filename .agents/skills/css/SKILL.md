@@ -33,7 +33,7 @@ The `css` skill is the technical implementation layer for styling and layout. It
 1. **Token Synchronization**: Identify the correct Nordic Collection tokens for the task.
 2. **Layering & Depth**: Apply Antigravity shadow tokens and glassmorphic blur effects.
 3. **Execution of Spells**: Build smooth micro-interactions using physics-based transitions.
-4. **Audit**: Ensure zero hardcoded hex codes and verify 60fps performance.
+4. **Audit**: Ensure zero hardcoded hex codes, verify 60fps performance, and **validate token integrity** against `engine.css`.
 
 ### Technical Constraints
 
