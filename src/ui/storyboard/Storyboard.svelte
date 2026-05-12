@@ -1,4 +1,11 @@
 <script>
+  /**
+   * @file Storyboard.svelte
+   * ❄️ THE STORYBOARD CONSOLE
+   * Visual orchestration of active entities and narrative focus.
+   * Refactored: Mariana Trench SOTA Refactor
+   * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
+   */
   import Skeleton from "@atoms/Skeleton.svelte";
   import Drawer from "@drawer/Drawer.svelte";
   import { app } from "@state/app.svelte.js";
@@ -15,14 +22,9 @@
     {/if}
   {/snippet}
 
-  <!-- LEFT: AI -->
   {#snippet left()}
     {#if !app.entities_loaded}
-      <Skeleton
-        variant="card"
-        width="var(--storyboard-card-width, var(--grid-2))"
-        height="var(--storyboard-card-height, var(--grid-3))"
-      />
+      <Skeleton variant="card" width="var(--columns-2)" height="var(--columns-3)" />
     {:else}
       <StoryboardCard
         type="ai"
@@ -34,14 +36,9 @@
     {/if}
   {/snippet}
 
-  <!-- CENTER: Fractal -->
   {#snippet center()}
     {#if !app.entities_loaded}
-      <Skeleton
-        variant="card"
-        width="var(--storyboard-card-height, var(--grid-3))"
-        height="var(--storyboard-card-width, var(--grid-2))"
-      />
+      <Skeleton variant="card" width="var(--columns-3)" height="var(--columns-2)" />
     {:else}
       <StoryboardCard
         type="fractal"
@@ -53,14 +50,9 @@
     {/if}
   {/snippet}
 
-  <!-- RIGHT: User -->
   {#snippet right()}
     {#if !app.entities_loaded}
-      <Skeleton
-        variant="card"
-        width="var(--storyboard-card-width, var(--grid-2))"
-        height="var(--storyboard-card-height, var(--grid-3))"
-      />
+      <Skeleton variant="card" width="var(--columns-2)" height="var(--columns-3)" />
     {:else}
       <StoryboardCard
         type="user"
@@ -79,7 +71,6 @@
   {/snippet}
 </Layout>
 
-<!-- Entity Drawer (The Library) -->
 {#if app.entities_loaded}
   <Drawer />
 {/if}

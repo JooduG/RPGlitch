@@ -1,55 +1,68 @@
 <script>
   /**
    * @file StorymodePanel.svelte
-   * [**] THE ENTITY SHOWCASE
-   * High-fidelity visual representing an entity in the story feed.
-   * Flattened Schema Compliant.
+   * THE ENTITY SHOWCASE
+   * Logic:
+   * 1. High-fidelity visual representing an entity in the story feed.
+   * 2. Supports profile view on interaction.
+   * 3. Integrated with Nordic Collection & Chess Grid.
    */
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
+
   let { entity, side = "left" } = $props();
-  // Default Fallbacks
+
+  // --- DERIVATIONS ---
   let name = $derived(entity?.name || "Unknown");
   let signature_color = $derived(themeStore.get_signature_color(entity));
-
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  let a11y_label = $derived(`View Profile: ${name}`);
 </script>
 
 <article
-  class="panel-container"
-  class:side-left={side === "left"}
-  class:side-right={side === "right"}
-  style="--entity-color: {signature_color}"
+  class="root"
+  class:is-left={side === "left"}
+  class:is-right={side === "right"}
+  style:--entity-color={signature_color}
 >
-  <div
-    class="visual-anchor"
-    use:tooltip={{ text: `View Profile: ${name}` }}
-    role="button"
-    tabindex="0"
+  <button
+    class="anchor interactable"
+    use:tooltip={{ text: a11y_label }}
     onclick={() => app.toggle_profile(true, entity)}
-    onkeydown={(/** @type {KeyboardEvent} */ e) =>
-      e.key === "Enter" && app.toggle_profile(true, entity)}
-    aria-label="View Profile: {name}"
+    aria-label={a11y_label}
   >
     <ProfilePicture {entity} />
-  </div>
+  </button>
 </article>
 
 <style>
-  .panel-container {
+  .root {
     width: 100%;
     height: 100%;
-    pointer-events: auto;
     position: relative;
     overflow: hidden;
+    pointer-events: auto;
   }
 
-  .visual-anchor {
+  .anchor {
     width: 100%;
     height: 100%;
     position: relative;
     cursor: pointer;
     background: var(--glass-sunken);
+    border: none;
+    padding: var(--spacing-0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition:
+      transform var(--motion-standard),
+      filter var(--motion-standard);
+  }
+
+  .anchor:hover {
+    transform: var(--hover-lift);
+    filter: var(--hover-glow);
   }
 </style>

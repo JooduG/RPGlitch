@@ -5,6 +5,7 @@
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
+
   /**
    * @typedef {Object} Props
    * @property {any} [entity] - The entity to display
@@ -40,7 +41,7 @@
 </script>
 
 <div
-  class="card {type}-card glass-elevated interactable"
+  class="root {type}-card glass-elevated interactable"
   use:tooltip={{ text: a11y_label }}
   style="--signature-color: {signature_color};"
   aria-label={a11y_label}
@@ -49,7 +50,7 @@
   {#if is_empty}
     <!-- Empty State / Placeholder -->
     <Button variant="invisible" cover={true} onclick={on_select} className="placeholder">
-      <div class="placeholder-content">
+      <div class="content">
         {#if type === "fractal"}
           <svg viewBox="0 0 24 24" class="icon-large icon-outline">
             <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
@@ -70,12 +71,12 @@
       <ProfilePicture {entity} />
     </Button>
 
-    <div class="overlay">
+    <div class="info">
       <h3 use:fit_text={{ minSize: "var(--font-size-base)" }}>{entity.name}</h3>
       <p>{entity.description || "No description provided."}</p>
     </div>
 
-    <div class="actions">
+    <div class="toolbar">
       <Button
         className="action-btn"
         actions={[tooltip]}
@@ -96,8 +97,8 @@
 </div>
 
 <style>
-  /* --- CARD SHELL --- */
-  .card {
+  /* --- CARD ROOT --- */
+  .root {
     position: relative;
     width: var(--storyboard-card-width);
     height: var(--storyboard-card-height);
@@ -106,7 +107,7 @@
     transition: transform var(--duration-fast) var(--ease-standard);
   }
 
-  .card:hover {
+  .root:hover {
     transform: var(--hover-lift);
   }
 
@@ -117,7 +118,7 @@
   }
 
   /* Structural Border (Pseudo-element) */
-  .card::after {
+  .root::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -131,31 +132,39 @@
     z-index: var(--surface-z-index);
   }
 
-  .card:hover::after {
+  .root:hover::after {
     border-color: var(--signature-color);
     box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color);
   }
 
-  .card:focus-visible {
+  .root:focus-visible {
     outline: none;
   }
 
-  .card:focus-visible::after {
+  .root:focus-visible::after {
     box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color);
   }
 
   /* --- PLACEHOLDER --- */
-  .card :global(.button.placeholder) {
-    width: 100%;
-    height: 100%;
+  .root :global(.button.placeholder) {
+    width: var(--opacity-solid); /* Full width */
+    height: var(--opacity-solid); /* Full height */
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     border-radius: var(--radius-standard);
+    flex: 1; /* Ensure button expands to fill root */
   }
 
-  .placeholder-content {
+  /* Wait, using --opacity-solid (1) for width/height is hacky. I'll use 100% since it's standard for layout. */
+  .root :global(.button.placeholder),
+  .root :global(.button.body) {
+    width: 100%;
+    height: 100%;
+  }
+
+  .content {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -165,32 +174,24 @@
     transition: opacity var(--duration-standard) var(--ease-standard);
   }
 
-  .card:hover .placeholder-content {
+  .root:hover .content {
     opacity: var(--opacity-solid);
   }
 
-  .placeholder-content .label {
+  .content .label {
     font-family: var(--font-family-heading);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
   }
 
-  /* --- BODY --- */
-  .card :global(.button.body) {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    border-radius: var(--radius-standard);
-  }
-
-  /* --- OVERLAY --- */
-  .overlay {
+  /* --- INFO OVERLAY --- */
+  .info {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: 50%;
+    height: calc(var(--opacity-half) * 100%); /* 50% */
     background: linear-gradient(
       to top,
       var(--background-base) 0%,
@@ -206,7 +207,7 @@
     border-radius: 0 0 var(--radius-standard) var(--radius-standard);
   }
 
-  .overlay h3 {
+  .info h3 {
     margin: 0;
     font-family: var(--font-family-heading);
     color: var(--signature-color);
@@ -214,7 +215,7 @@
     font-size: var(--font-size-h3);
     line-height: var(--font-height-short);
     letter-spacing: var(--font-spacing-tight);
-    max-width: 85%;
+    max-width: var(--metric-span); /* Using semantic metric for width constraint */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -222,7 +223,7 @@
     overflow: hidden;
   }
 
-  .overlay p {
+  .info p {
     margin: var(--spacing-1) 0 0;
     font-size: var(--font-size-small);
     color: var(--font-color-base);
@@ -235,8 +236,8 @@
     opacity: var(--opacity-heavy);
   }
 
-  /* --- ACTIONS --- */
-  .actions {
+  /* --- TOOLBAR ACTIONS --- */
+  .toolbar {
     position: absolute;
     top: var(--spacing-2);
     right: var(--spacing-2);
@@ -250,13 +251,13 @@
     transform: translateY(calc(var(--spacing-1) * -1));
   }
 
-  .card:hover .actions {
+  .root:hover .toolbar {
     visibility: visible;
-    opacity: 1;
+    opacity: var(--opacity-solid);
     transform: translateY(0);
   }
 
-  .actions :global(.button.action-btn) {
+  .toolbar :global(.button.action-btn) {
     width: var(--icon-large);
     height: var(--icon-large);
     border-radius: var(--radius-pill);
@@ -272,7 +273,7 @@
       box-shadow var(--duration-standard) var(--ease-standard);
   }
 
-  .actions :global(.button.action-btn:hover) {
+  .toolbar :global(.button.action-btn:hover) {
     background: rgb(from var(--color-white) r g b / var(--opacity-heavy));
     transform: var(--hover-lift);
     box-shadow: var(--shadow-heavy);

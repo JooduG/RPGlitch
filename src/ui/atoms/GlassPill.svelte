@@ -23,19 +23,19 @@
    * @property {any[]} [actions=[]]
    */
 
-  /** @type {Props} */
+  /** @type {Props & Record<string, any>} */
   let {
     orientation = "horizontal",
     is_focused = false,
     busy = false,
     signature_color = "var(--color-frozen)",
     class: className = "",
-    children,
-    top,
-    center,
-    bottom,
-    left,
-    right,
+    children = undefined,
+    top = undefined,
+    center = undefined,
+    bottom = undefined,
+    left = undefined,
+    right = undefined,
     actions = [],
     ...rest
   } = $props();

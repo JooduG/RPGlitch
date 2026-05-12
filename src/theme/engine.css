@@ -42,6 +42,7 @@
   --background-gradient-2: #14182b;
   --background-gradient-3: #1e1b38;
   --background-gradient-4: #16243b;
+  --background-abyssal: #05070a;
 
   /* Spacing (4px Atomic Grid - Ascending) */
   --spacing-unit: 0.25rem;
@@ -116,23 +117,104 @@
   --z-index-max-raw: 9999;
 
   /* Grid Foundation (Fluid 12-Column System) */
-  --grid-columns: 12;
   --grid-width-max: 90rem;
-  --grid-width: clamp(20rem, 100vw, var(--grid-width-max));
-  --grid-unit: calc(var(--grid-width) / var(--grid-columns));
+  --grid-height-max: 100vh;
 
-  --grid-1: calc(var(--grid-unit) * 1);
-  --grid-2: calc(var(--grid-unit) * 2);
-  --grid-3: calc(var(--grid-unit) * 3);
-  --grid-4: calc(var(--grid-unit) * 4);
-  --grid-5: calc(var(--grid-unit) * 5);
-  --grid-6: calc(var(--grid-unit) * 6);
-  --grid-7: calc(var(--grid-unit) * 7);
-  --grid-8: calc(var(--grid-unit) * 8);
-  --grid-9: calc(var(--grid-unit) * 9);
-  --grid-10: calc(var(--grid-unit) * 10);
-  --grid-11: calc(var(--grid-unit) * 11);
-  --grid-12: calc(var(--grid-unit) * 12);
+  --grid-width: clamp(20rem, 100vw, var(--grid-width-max));
+  --grid-height: clamp(20rem, 100vh, var(--grid-height-max));
+
+  --grid-units: 12;
+  --column-units: var(--grid-units);
+  --row-units: var(--grid-units);
+
+  --column-unit: calc(var(--grid-width) / var(--column-units));
+  --row-unit: calc(var(--grid-height) / var(--row-units));
+
+  --column: var(--column-unit);
+  --columns-2: calc(var(--column-unit) * 2);
+  --columns-3: calc(var(--column-unit) * 3);
+  --columns-4: calc(var(--column-unit) * 4);
+  --columns-5: calc(var(--column-unit) * 5);
+  --columns-6: calc(var(--column-unit) * 6);
+  --columns-7: calc(var(--column-unit) * 7);
+  --columns-8: calc(var(--column-unit) * 8);
+  --columns-9: calc(var(--column-unit) * 9);
+  --columns-10: calc(var(--column-unit) * 10);
+  --columns-11: calc(var(--column-unit) * 11);
+  --columns-12: calc(var(--column-unit) * 12);
+
+  --row: var(--row-unit);
+  --rows-2: calc(var(--row-unit) * 2);
+  --rows-3: calc(var(--row-unit) * 3);
+  --rows-4: calc(var(--row-unit) * 4);
+  --rows-5: calc(var(--row-unit) * 5);
+  --rows-6: calc(var(--row-unit) * 6);
+  --rows-7: calc(var(--row-unit) * 7);
+  --rows-8: calc(var(--row-unit) * 8);
+  --rows-9: calc(var(--row-unit) * 9);
+  --rows-10: calc(var(--row-unit) * 10);
+  --rows-11: calc(var(--row-unit) * 11);
+  --rows-12: calc(var(--row-unit) * 12);
+
+  /* Coordinate Tokens (a-l | 1-12) - The Chess Board Positions 
+   * Usage Example (Position B2):
+   * grid-column: col-b / col-c;
+   * grid-row: row-2 / row-3;
+   */
+  --column-a: 0px;
+  --column-b: var(--column-unit);
+  --column-c: var(--columns-2);
+  --column-d: var(--columns-3);
+  --column-e: var(--columns-4);
+  --column-f: var(--columns-5);
+  --column-g: var(--columns-6);
+  --column-h: var(--columns-7);
+  --column-i: var(--columns-8);
+  --column-j: var(--columns-9);
+  --column-k: var(--columns-10);
+  --column-l: var(--columns-11);
+  --column-end: var(--columns-12);
+
+  --row-1: 0px;
+  --row-2: var(--row-unit);
+  --row-3: var(--rows-2);
+  --row-4: var(--rows-3);
+  --row-5: var(--rows-4);
+  --row-6: var(--rows-5);
+  --row-7: var(--rows-6);
+  --row-8: var(--rows-7);
+  --row-9: var(--rows-8);
+  --row-10: var(--rows-9);
+  --row-11: var(--rows-10);
+  --row-12: var(--rows-11);
+  --row-end: var(--rows-12);
+
+  /* Legacy Aliases (coord-x) */
+  --coord-a: var(--column-a);
+  --coord-b: var(--column-b);
+  --coord-c: var(--column-c);
+  --coord-d: var(--column-d);
+  --coord-e: var(--column-e);
+  --coord-f: var(--column-f);
+  --coord-g: var(--column-g);
+  --coord-h: var(--column-h);
+  --coord-i: var(--column-i);
+  --coord-j: var(--column-j);
+  --coord-k: var(--column-k);
+  --coord-l: var(--column-l);
+
+  --coord-1: var(--row-1);
+  --coord-2: var(--row-2);
+  --coord-3: var(--row-3);
+  --coord-4: var(--row-4);
+  --coord-5: var(--row-5);
+  --coord-6: var(--row-6);
+  --coord-7: var(--row-7);
+  --coord-8: var(--row-8);
+  --coord-9: var(--row-9);
+  --coord-10: var(--row-10);
+  --coord-11: var(--row-11);
+  --coord-12: var(--row-12);
 
   /* Motion & Atmosphere */
   --duration-none: 0s;
@@ -313,7 +395,7 @@
 
   /* Semantic Layout */
   --dropdown-max-height: 20rem;
-  --width-sidebar: var(--grid-2);
+  --width-sidebar: var(--columns-2);
   --signature-color: var(--color-cyan);
   --signature-glow: 0 0 var(--spacing-4) var(--signature-color);
   --danger-hover-shadow: 0 0 var(--spacing-3) var(--color-red);
@@ -323,11 +405,11 @@
    ****************************************************************************/
 
   /* Card Components */
-  --storyboard-card-width: var(--grid-2);
-  --storyboard-card-height: var(--grid-3);
+  --storyboard-card-width: var(--columns-2);
+  --storyboard-card-height: var(--columns-3);
 
   /* Control Components */
-  --storyboard-pill-width: clamp(10rem, var(--grid-3), 15rem);
+  --storyboard-pill-width: clamp(10rem, var(--columns-3), 15rem);
   --pill-signature: rgb(from var(--signature-color) r g b / var(--opacity-muted));
 
   /* Skeleton Components */
@@ -337,9 +419,9 @@
   --skeleton-text-width: 60%;
 
   /* Modal & Drawer Components (Semantic Sizes) */
-  --modal-width-thin: var(--grid-4);
-  --modal-width-base: var(--grid-6);
-  --modal-width-wide: var(--grid-8);
+  --modal-width-thin: var(--columns-4);
+  --modal-width-base: var(--columns-6);
+  --modal-width-wide: var(--columns-8);
 
   --modal-height-short: 20vh;
   --modal-height-base: var(--modal-height-standard);
@@ -352,8 +434,8 @@
   --icon-large: 2rem;
 
   /* Profile Specific */
-  --wing-width: var(--grid-2);
-  --profile-width: var(--grid-8);
+  --wing-width: var(--columns-2);
+  --profile-width: var(--columns-8);
   --profile-initials-size-base: var(--spacing-40);
   --avatar-medium-size: 25rem;
 
@@ -395,8 +477,14 @@
   --active-swatch-shadow: var(--signature-glow);
 
   /* Titles */
-  --part-color: var(--color-frozen);
-  --title-focus-shadow: var(--signature-glow);
+  --title-color-part: var(--color-frozen);
+  --title-shadow-ambient: 0 0 var(--spacing-5)
+    rgb(from var(--color-black) r g b / var(--opacity-heavy));
+  --title-shadow-focus:
+    0 0 0 var(--spacing-pixel) var(--color-frisk),
+    0 0 var(--spacing-6) rgb(from var(--color-frisk) r g b / var(--opacity-muted));
+  --title-glow-signature: var(--signature-glow);
+  --entity-color: var(--signature-color);
 
   /* --- Dynamic Overrides (Tier 3) --- */
 
@@ -594,6 +682,11 @@ h6 {
 .icon-solid {
   fill: currentcolor;
   stroke: none;
+}
+
+.grid-unit {
+  width: var(--column-unit);
+  height: var(--row-unit);
 }
 
 /* Scrollbar Utility */

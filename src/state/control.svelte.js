@@ -12,6 +12,7 @@
  * @property {boolean} stream_text - Toggles the character text streaming/typing animation.
  * @property {boolean} auto_scroll - Toggles automatic log scrolling to the bottom of the stack.
  * @property {boolean} dev_mode - Enables the Telemetry HUD and system debug overrides.
+ * @property {boolean} dev_grid_visible - Toggles the visual chess grid overlay.
  */
 
 /**

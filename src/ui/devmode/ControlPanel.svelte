@@ -180,6 +180,11 @@
           bind:value={settings.dev_mode}
           onchange={() => app.save_settings()}
         />
+        <Toggle
+          label="GRID OVERLAY"
+          bind:value={settings.dev_grid_visible}
+          onchange={() => app.save_settings()}
+        />
         <Button variant="danger" size="sm" onclick={() => (is_confirming_reset = true)}>
           <svg
             class="icon-small icon-outline"

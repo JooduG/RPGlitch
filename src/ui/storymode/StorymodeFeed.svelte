@@ -1,4 +1,12 @@
 <script>
+  /**
+   * @file StorymodeFeed.svelte
+   * THE NARRATIVE CONDUIT
+   * Logic:
+   * 1. Renders the sequential story log entries.
+   * 2. Manages auto-scroll and turn-state visualization.
+   * 3. Integrated with Nordic Collection & Chess Grid.
+   */
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
   import { app } from "@state/app.svelte.js";
@@ -10,23 +18,25 @@
   // --- STATE ---
   /** @type {HTMLDivElement | null} */
   let scroll_ref = $state(null);
+  let show_delete_confirm = $state(false);
+  /** @type {string | number | null} */
+  let delete_target_id = $state(null);
 
-  // Derived
+  // --- DERIVATIONS ---
 
   // Auto-scroll logic
   $effect(() => {
     if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
-      // Small timeout to allow DOM render
-      setTimeout(() => {
-        if (scroll_ref) {
-          scroll_ref.scrollTop = scroll_ref.scrollHeight;
-        }
-      }, 0);
+      const el = scroll_ref;
+      // Frame-sync to ensure DOM layout is complete
+      requestAnimationFrame(() => {
+        if (el) el.scrollTop = el.scrollHeight;
+      });
     }
   });
 
-  // Helper to map DB role to UI sender
   /**
+   * Helper to map DB roles to UI sender archetypes
    * @param {string} role
    */
   function map_role(role) {
@@ -35,7 +45,7 @@
     return role;
   }
 
-  // Derived turn state
+  // Turn state orchestration
   let is_active_turn = $derived(simulationState.phase === "generating" || app.streaming.active);
   let active_turn_role = $derived(app.streaming.active ? app.streaming.role : simulationState.role);
   let active_turn_name = $derived.by(() => {
@@ -44,17 +54,12 @@
     return "";
   });
 
-  let show_delete_confirm = $state(false);
-  /** @type {string | number | null} */
-  let delete_target_id = $state(null);
-
   // --- ACTIONS ---
-  /**
-   * @param {number} index
-   */
+
+  /** @param {number} index */
   async function handle_delete(index) {
     const entry = simulation_log.feed[index];
-    if (entry && entry.id) {
+    if (entry?.id) {
       delete_target_id = entry.id;
       show_delete_confirm = true;
     }
@@ -70,28 +75,13 @@
     }
   }
 
-  /**
-   *
-   */
-  async function handle_regenerate() {
-    await session.retry();
-  }
-
-  /**
-   *
-   */
-  async function handle_continue() {
-    await session.continue();
-  }
-
-  /**
-   * @param {number} index
-   */
+  /** @param {number} index */
   async function handle_edit(index) {
     const entry = simulation_log.feed[index];
-    if (!entry) return;
+    if (!entry?.id) return;
+
     const new_text = prompt("Edit log entry:", entry.text);
-    if (new_text !== null && new_text !== entry.text && entry.id !== undefined) {
+    if (new_text !== null && new_text !== entry.text) {
       await session.edit_log_entry(entry.id.toString(), new_text);
     }
   }
@@ -105,7 +95,8 @@
   confirm_label="Delete"
   on_confirm={execute_delete}
 />
-<div class="storymode-feed scrollbar" bind:this={scroll_ref}>
+
+<div class="root scrollbar no-scrollbar" bind:this={scroll_ref}>
   {#each simulation_log.feed as entry, index (entry.id)}
     <Message
       text={entry.text}
@@ -116,8 +107,8 @@
       attachments={entry.attachments}
       is_last={index === simulation_log.feed.length - 1}
       on_delete={() => handle_delete(index)}
-      on_regenerate={() => handle_regenerate()}
-      on_continue={() => handle_continue()}
+      on_regenerate={() => session.retry()}
+      on_continue={() => session.continue()}
       on_edit={() => handle_edit(index)}
       meta={entry.meta}
     />
@@ -133,7 +124,7 @@
       busy={true}
     />
   {:else if simulation_log.feed.length === 0}
-    <div class="empty-feed-fallback">
+    <div class="fallback">
       <p>
         Establishing context stream... If the screen remains black, please check your network or AI
         plugin settings.
@@ -144,18 +135,20 @@
 </div>
 
 <style>
-  .storymode-feed {
+  .root {
+    flex: var(--opacity-solid); /* Use opacity-solid for 1 if needed, or just 1 */
     flex: 1;
     min-height: var(--dropdown-max-height);
     overflow: hidden auto;
-    padding: var(--spacing-4) 0;
+    padding: var(--spacing-4) var(--spacing-0);
     display: flex;
     flex-direction: column;
-    gap: 0;
+    gap: var(--spacing-0);
     scroll-behavior: smooth;
+    width: 100%;
   }
 
-  .empty-feed-fallback {
+  .fallback {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -164,9 +157,10 @@
     text-align: center;
     color: var(--font-color-muted);
     gap: var(--spacing-4);
+    height: 100%;
   }
 
-  .empty-feed-fallback p {
-    max-width: var(--grid-width-max);
+  .fallback p {
+    max-width: var(--columns-8);
   }
 </style>

@@ -3,7 +3,8 @@
    * @file Storymode.svelte
    * ❄️ THE MAIN STAGE
    * Container for the active game session, simulation log, and side panels.
-   * Flattened Schema Compliant.
+   * Refactored: Mariana Trench SOTA Refactor
+   * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
@@ -25,7 +26,7 @@
   });
 </script>
 
-<Layout mode="cinematic">
+<Layout mode="storymode">
   {#snippet left()}
     {#if !app.entities_loaded}
       <Skeleton variant="card" width="100%" height="100%" />
@@ -33,18 +34,20 @@
       <StorymodePanel entity={app.selected_ai} side="left" />
     {/if}
   {/snippet}
+
   {#snippet center()}
-    <div class="game-stage">
+    <div class="root">
       {#if !app.entities_loaded}
         <Skeleton variant="card" width="100%" height="100%" />
       {:else}
         <StorymodeFeed />
-        <div class="input-container">
+        <div class="input-wrapper">
           <InputBar disabled={is_thinking} />
         </div>
       {/if}
     </div>
   {/snippet}
+
   {#snippet right()}
     {#if !app.entities_loaded}
       <Skeleton variant="card" width="100%" height="100%" />
@@ -55,18 +58,19 @@
 </Layout>
 
 <style>
-  .game-stage {
+  .root {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
     position: relative;
+    overflow: hidden;
   }
 
-  .input-container {
+  .input-wrapper {
     flex-shrink: 0;
     width: 100%;
-    padding-bottom: 0;
+    padding: var(--spacing-0);
     z-index: var(--mid-z-index);
   }
 </style>

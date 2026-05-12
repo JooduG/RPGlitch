@@ -5,37 +5,37 @@
    * View-switching logic using storyboard and storymode terminology.
    */
   import { app } from "@state/app.svelte.js";
-  import { imagePreview } from "@atoms/ImagePreview.svelte";
   import ImagePreview from "@atoms/ImagePreview.svelte";
   import ControlPanel from "@devmode/ControlPanel.svelte";
   import Profile from "@profile/Profile.svelte";
   import Storyboard from "@storyboard/Storyboard.svelte";
   import Storymode from "@storymode/Storymode.svelte";
+  import GridOverlay from "@devmode/GridOverlay.svelte";
   import Tooltip from "@atoms/Tooltip.svelte";
   import { fade } from "svelte/transition";
 
-  // --- CONSOLIDATED BACKGROUND LOGIC ---
-  // Derived state for the active fractal background
-  let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
+  // --- DERIVED ---
 
-  // Opacity varies based on view for cinematic focus
-  // Storymode is dimmer to prioritize text legibility
+  let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
   let fractal_opacity = $derived(
     app.view === "storymode" ? "var(--opacity-base)" : "var(--opacity-substantial)",
   );
+
+  // --- EFFECTS ---
+
   $effect(() => {
     app.load_entities();
   });
 </script>
 
-<div class="background-stage" aria-hidden="true">
-  <!-- Layer 1: The Nordic Gradient (Always Present) -->
-  <div class="gradient-layer"></div>
+<div class="stage" aria-hidden="true">
+  <!-- Layer 1: The Nordic Gradient -->
+  <div class="gradient"></div>
 
-  <!-- Layer 2: Fractal Imagery (Dynamic) -->
+  <!-- Layer 2: Fractal Imagery -->
   {#if fractal_url}
     <div
-      class="fractal-layer"
+      class="fractal"
       style:background-image="url('{fractal_url}')"
       style:opacity={fractal_opacity}
       transition:fade={{ duration: 2000 }}
@@ -43,54 +43,52 @@
   {/if}
 </div>
 
-<div
-  class="app-container"
-  class:view-storyboard={app.view === "storyboard"}
-  class:view-storymode={app.view === "storymode"}
-  class:has-tension={app.tension > 0}
+<main
+  class="wrapper"
+  class:is-storyboard={app.view === "storyboard"}
+  class:is-storymode={app.view === "storymode"}
+  class:is-tense={app.tension > 0}
   in:fade={{ duration: 800 }}
 >
-  {#if imagePreview.active}
-    <ImagePreview />
-  {/if}
+  <ImagePreview />
+
   {#if app.profile_open}
     <Profile entity_type={app.profile_target_type} />
   {/if}
+
   {#if app.control_panel_open}
     <ControlPanel />
   {/if}
+
   {#if app.view === "storyboard"}
     <Storyboard />
   {:else if app.view === "storymode"}
     <Storymode />
   {/if}
-</div>
+</main>
+
 <Tooltip />
+<GridOverlay />
 
 <style>
-  .app-container {
+  /* ── Core Shell (Ultra-Lean Layout) ────────────────────────── */
+
+  .wrapper {
     position: relative;
     width: 100%;
     height: 100vh;
     overflow: hidden;
-    background: transparent;
     z-index: var(--surface-z-index);
   }
 
-  :global(html),
-  :global(body) {
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-  }
-
-  .app-container.has-tension {
-    animation: reality-tremor var(--duration-tremor) infinite var(--ease-standard);
+  .wrapper.is-tense {
+    animation: tremor var(--duration-tremor) infinite var(--ease-standard);
     filter: var(--saturation-tension) var(--contrast-tension);
   }
 
-  /* --- CONSOLIDATED BACKGROUND STYLES --- */
-  .background-stage {
+  /* ── Atmospheric Stage ─────────────────────────────────────── */
+
+  .stage {
     position: fixed;
     inset: 0;
     width: 100vw;
@@ -101,7 +99,7 @@
     pointer-events: none;
   }
 
-  .gradient-layer {
+  .gradient {
     position: absolute;
     inset: 0;
     background-image:
@@ -114,18 +112,27 @@
     background-repeat: no-repeat;
   }
 
-  .fractal-layer {
+  .fractal {
     position: absolute;
     inset: 0;
     background-size: cover;
     background-position: center;
-
-    /* Atmospheric softening */
     filter: var(--blur-mist) var(--brightness-muted);
     will-change: opacity, filter;
   }
 
-  @keyframes reality-tremor {
+  /* ── Global Overrides ─────────────────────────────────────── */
+
+  :global(html),
+  :global(body) {
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+  }
+
+  /* ── Kinetic Physics ──────────────────────────────────────── */
+
+  @keyframes tremor {
     0%,
     100% {
       transform: translate(0, 0) scale(1);

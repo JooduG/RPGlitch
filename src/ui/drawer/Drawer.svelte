@@ -160,7 +160,7 @@
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: var(--grid-10);
+    max-width: var(--columns-10);
     max-height: var(--modal-height-base);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
     z-index: var(--modal-z-index);
@@ -195,7 +195,8 @@
   /* --- GRID --- */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--grid-1), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--column), 1fr));
+    justify-content: center;
     gap: var(--padding-standard);
     width: 100%;
   }

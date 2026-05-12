@@ -99,6 +99,7 @@ export class AppStore {
     stream_text: true,
     auto_scroll: true,
     dev_mode: false,
+    dev_grid_visible: false,
   });
   // --- SENSORY ENGINES ---
   visual = visual_engine;
