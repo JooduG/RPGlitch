@@ -171,7 +171,7 @@ describe("dom utilities", () => {
   describe("resolve_ms", () => {
     it("resolves simple numbers as ms", () => {
       expect(resolve_ms(100)).toBe(100);
-      expect(resolve_ms("150")).toBe(150);
+      expect(resolve_ms("150", 999)).toBe(999);
     });
 
     it("resolves duration strings", () => {

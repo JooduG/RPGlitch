@@ -48,7 +48,12 @@ function get_measure_el(context = null) {
     document.body.appendChild(sharedMeasureEl);
   }
 
-  const canAcceptChildren = context && context.nodeType === 1 && !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template)$/i.test(context.tagName);
+  const canAcceptChildren =
+    context &&
+    context.nodeType === 1 &&
+    !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template)$/i.test(
+      context.tagName,
+    );
   const targetParent = canAcceptChildren ? context : document.body;
   if (sharedMeasureEl.parentElement !== targetParent) {
     targetParent.appendChild(sharedMeasureEl);
@@ -166,8 +171,12 @@ export function resolve_ms(value, fallback = 0, context = null) {
   const match = trimmed.match(/^([-.\d]+)(ms|s)?$/);
   if (match && !trimmed.includes("var") && !trimmed.includes("calc")) {
     const [_, val, unit] = match;
-    if (!unit) return parseFloat(val); // Treat unitless as ms
-    return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
+    const numeric = parseFloat(val);
+    if (!unit) {
+      // CSS durations (except 0) require a unit.
+      return numeric === 0 ? 0 : fallback;
+    }
+    return unit === "ms" ? numeric : numeric * 1000;
   }
 
   // 2. Variable resolution via context

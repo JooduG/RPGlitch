@@ -8,6 +8,7 @@
 - [x] System-wide audit for `parseFloat` on CSS properties <!-- id: 3 -->
 - [x] Optimized `kinetic.js` and enhanced `dom.js` helpers <!-- id: 4 -->
 - [x] Harden `dom.js`: fallback preservation & DOM hygiene <!-- id: 9 -->
+- [x] Enforce strict units for durations in `dom.js` <!-- id: 10 -->
 
 ## 🧠 Skill Log
 
@@ -20,6 +21,7 @@
 | 2026-05-12T00:43:00Z | Harden DOM Fallbacks           | `javascript`              | ✅ Resolved |
 | 2026-05-12T01:50:00Z | Fix DOM Test Mocks & Verify    | `test-driven-development` | ✅ Resolved |
 | 2026-05-12T02:05:00Z | Harden DOM Proxy Resolution    | `javascript`              | ✅ Resolved |
+| 2026-05-12T02:25:00Z | Enforce Strict Duration Units  | `javascript`              | ✅ Resolved |
 
 ## 🛠️ Task Breakdown
 
