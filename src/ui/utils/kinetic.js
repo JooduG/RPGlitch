@@ -30,7 +30,10 @@ export function shimmy(node) {
   const trigger = () => {
     node.dataset.kinetic = "true";
     const target = get_target(node);
-    if (animation) animation.cancel();
+    if (animation) {
+      animation.cancel();
+      animation = null;
+    }
 
     const duration = resolve_ms("--duration-slow", 500, node);
 
@@ -86,10 +89,21 @@ export function pulse(node) {
    * @type {Animation | null}
    */
   let animation = null;
+  /**
+   * @type {Animation | null}
+   */
+  let return_anim = null;
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    if (animation) animation.cancel();
+    if (animation) {
+      animation.cancel();
+      animation = null;
+    }
+    if (return_anim) {
+      return_anim.cancel();
+      return_anim = null;
+    }
 
     const duration = resolve_ms("--duration-pulse", 1000, node);
 
@@ -115,13 +129,16 @@ export function pulse(node) {
     if (animation) {
       // Smooth return to 1
       animation.cancel();
+      animation = null;
+
       const duration = resolve_ms("--duration-fast", 250, node);
       const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
-      const returnAnim = node.animate([{ transform: "scale(1)" }], { duration, easing });
-      returnAnim.onfinish = () => {
+      return_anim = node.animate([{ transform: "scale(1)" }], { duration, easing });
+      return_anim.onfinish = () => {
         delete node.dataset.kinetic;
+        return_anim = null;
       };
-    } else {
+    } else if (!return_anim) {
       delete node.dataset.kinetic;
     }
   };
@@ -272,7 +289,10 @@ export function stab(node) {
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    if (animation) animation.cancel();
+    if (animation) {
+      animation.cancel();
+      animation = null;
+    }
     const target = get_target(node);
 
     const duration = resolve_ms("--duration-slow", 500, node);

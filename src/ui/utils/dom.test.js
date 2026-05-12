@@ -166,6 +166,29 @@ describe("dom utilities", () => {
       expect(resolve_px("var(--zero-px)", 123)).toBe(0);
       document.body.style.removeProperty("--zero-px");
     });
+
+    it("handles complex recursive fallbacks", () => {
+      contextEl.style.setProperty("--fallback-1", "var(--non-existent, 50px)");
+      expect(resolve_px("var(--fallback-1)", 0, contextEl)).toBe(50);
+    });
+
+    it("handles calc with multiple variables", () => {
+      contextEl.style.setProperty("--base", "10px");
+      contextEl.style.setProperty("--gap", "5px");
+      // JSDOM mock logic update for this specific test
+      if (navigator.userAgent.includes("jsdom")) {
+        vi.spyOn(window, "getComputedStyle").mockImplementation((/** @type {any} */ el) => {
+          if (el.style?.zIndex === "-9999") {
+            return /** @type {any} */ ({
+              getPropertyValue: (/** @type {string} */ prop) => (prop === "--proxy" ? "15px" : ""),
+              paddingTop: "15px",
+            });
+          }
+          return window.getComputedStyle(el);
+        });
+      }
+      expect(resolve_px("calc(var(--base) + var(--gap))", 0, contextEl)).toBe(15);
+    });
   });
 
   describe("resolve_ms", () => {
@@ -197,6 +220,15 @@ describe("dom utilities", () => {
       expect(resolve_ms("var(--zero-ms)", 123)).toBe(0);
       document.body.style.removeProperty("--zero-ms");
     });
+
+    it("rejects unitless non-zero durations and uses fallback", () => {
+      expect(resolve_ms("500", 999)).toBe(999);
+    });
+
+    it("handles variables resolving to unitless strings", () => {
+      contextEl.style.setProperty("--bad-duration", "500");
+      expect(resolve_ms("var(--bad-duration)", 123, contextEl)).toBe(123);
+    });
   });
 
   describe("resolve_number", () => {
@@ -217,6 +249,10 @@ describe("dom utilities", () => {
       document.body.style.setProperty("--zero-num", "0");
       expect(resolve_number("var(--zero-num)", 123)).toBe(0);
       document.body.style.removeProperty("--zero-num");
+    });
+
+    it("returns fallback for non-numeric strings", () => {
+      expect(resolve_number("not-a-number", 0.5)).toBe(0.5);
     });
   });
 

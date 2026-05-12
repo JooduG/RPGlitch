@@ -30,7 +30,7 @@
     ...rest
   } = $props();
 
-  let offset = $derived(resolve_px("--spacing-5", 20, document.documentElement));
+  let offset = $derived(resolve_px("--spacing-5", 0, document.documentElement));
 </script>
 
 <svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />
