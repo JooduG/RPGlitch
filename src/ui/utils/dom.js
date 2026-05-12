@@ -149,7 +149,7 @@ export function resolve_px(value, fallback = 0, context = null) {
 
     // Detect failure: if it stayed at sentinel, it definitely failed.
     // (Note: prepare_measure already does proxy detection for variables)
-    if (computed === sentinel) {
+    if (parseFloat(computed) === parseFloat(sentinel)) {
       return fallback;
     }
 
