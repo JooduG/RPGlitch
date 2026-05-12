@@ -117,9 +117,13 @@ export function pulse(node) {
       animation.cancel();
       const duration = resolve_ms("--duration-fast", 250, node);
       const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
-      node.animate([{ transform: "scale(1)" }], { duration, easing });
+      const returnAnim = node.animate([{ transform: "scale(1)" }], { duration, easing });
+      returnAnim.onfinish = () => {
+        delete node.dataset.kinetic;
+      };
+    } else {
+      delete node.dataset.kinetic;
     }
-    delete node.dataset.kinetic;
   };
 
   node.addEventListener("mouseenter", trigger);

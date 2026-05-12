@@ -14,6 +14,28 @@ function get_css_value(value) {
   return trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
 }
 
+/**
+ * Tries to resolve a variable directly from a context element.
+ * @param {string} trimmed
+ * @param {HTMLElement | null} context
+ * @returns {string | null}
+ */
+function try_direct_var_resolve(trimmed, context) {
+  if (!context || typeof window === "undefined") return null;
+
+  const isVar = trimmed.startsWith("--") || (trimmed.startsWith("var(") && trimmed.endsWith(")"));
+  if (!isVar) return null;
+
+  const varName = trimmed.startsWith("--") ? trimmed : trimmed.slice(4, -1).trim();
+  if (varName.includes(",")) return null; // Skip complex fallbacks
+
+  try {
+    return window.getComputedStyle(context).getPropertyValue(varName).trim();
+  } catch {
+    return null;
+  }
+}
+
 /** @type {HTMLElement | null} */
 let sharedMeasureEl = null;
 
@@ -110,7 +132,16 @@ export function resolve_px(value, fallback = 0, context = null) {
     if (!isNaN(direct)) return direct;
   }
 
-  // 2. Browser Resolution
+  // 2. Fast Path: Direct Variable Resolution from context
+  const fastResolved = try_direct_var_resolve(trimmed, context);
+  if (fastResolved) {
+    const match = fastResolved.match(/^([-.\d]+)(px)?$/);
+    if (match && !fastResolved.includes("calc") && !fastResolved.includes("var")) {
+      return parseFloat(match[1]);
+    }
+  }
+
+  // 3. Browser Resolution (Measurement Element)
   const sentinel = "1.234px";
   const el = prepare_measure(trimmed, "paddingTop", sentinel, context);
   if (el) {
@@ -156,7 +187,19 @@ export function resolve_ms(value, fallback = 0, context = null) {
     return unit === "ms" ? numeric : numeric * 1000;
   }
 
-  // 2. Browser Resolution
+  // 2. Fast Path: Direct Variable Resolution from context
+  const direct = try_direct_var_resolve(trimmed, context);
+  if (direct) {
+    const compMatch = direct.match(/^([-.\d]+)(s|ms)?$/);
+    if (compMatch && !direct.includes("calc") && !direct.includes("var")) {
+      const [_, val, unit] = compMatch;
+      const numeric = parseFloat(val);
+      if (!unit) return numeric === 0 ? 0 : fallback;
+      return unit === "ms" ? numeric : numeric * 1000;
+    }
+  }
+
+  // 3. Browser Resolution
   const sentinel = "1.234ms";
   const el = prepare_measure(trimmed, "transitionDuration", sentinel, context);
   if (el) {
@@ -196,7 +239,16 @@ export function resolve_number(value, fallback = 0, context = null) {
   const direct = parseFloat(trimmed);
   if (!isNaN(direct) && !trimmed.includes("var") && !trimmed.includes("calc")) return direct;
 
-  // 2. Browser Resolution
+  // 2. Fast Path: Direct Variable Resolution from context
+  const fastResolved = try_direct_var_resolve(trimmed, context);
+  if (fastResolved) {
+    const numeric = parseFloat(fastResolved);
+    if (!isNaN(numeric) && !fastResolved.includes("calc") && !fastResolved.includes("var")) {
+      return numeric;
+    }
+  }
+
+  // 3. Browser Resolution
   const sentinel = "1.234";
   const el = prepare_measure(trimmed, "flexGrow", sentinel, context);
   if (el) {
@@ -228,7 +280,13 @@ export function resolve_string(value, fallback = "", context = null) {
   const trimmed = String(value).trim();
   if (!trimmed) return fallback;
 
-  // 1. Browser Resolution
+  // 1. Fast Path: Direct Variable Resolution from context
+  const direct = try_direct_var_resolve(trimmed, context);
+  if (direct && direct !== "SENTINEL" && !direct.includes("var(")) {
+    return direct.replace(/['"]/g, "");
+  }
+
+  // 2. Browser Resolution (Measurement Element)
   const cssValue = get_css_value(trimmed);
   const el = get_measure_el(context);
   if (el) {

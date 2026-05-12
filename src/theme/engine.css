@@ -460,7 +460,7 @@ body::before {
   content: "";
   position: fixed;
   inset: 0;
-  z-index: var(--max-z-index);
+  z-index: var(--mid-z-index);
   pointer-events: none;
   opacity: var(--noise-opacity);
   background-image: var(--noise-url);
