@@ -54,7 +54,7 @@ export function auto_resize(node, options = {}) {
           const sStyle = getComputedStyle(s);
           const sIsBorderBox = sStyle.boxSizing === "border-box";
           const sBorderOffset = sIsBorderBox
-            ? resolve_px(sStyle.borderTopWidth, 0, s) + resolve_px(sStyle.borderBottomWidth, 0, s)
+            ? parseFloat(sStyle.borderTopWidth) + parseFloat(sStyle.borderBottomWidth)
             : 0;
 
           const sScrollHeight = s.scrollHeight;
