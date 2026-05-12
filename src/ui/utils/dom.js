@@ -48,7 +48,8 @@ function get_measure_el(context = null) {
     document.body.appendChild(sharedMeasureEl);
   }
 
-  const targetParent = context || document.body;
+  const canAcceptChildren = context && context.nodeType === 1 && !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea)$/i.test(context.tagName);
+  const targetParent = canAcceptChildren ? context : document.body;
   if (sharedMeasureEl.parentElement !== targetParent) {
     targetParent.appendChild(sharedMeasureEl);
   }
