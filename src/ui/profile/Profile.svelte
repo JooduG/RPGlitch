@@ -203,8 +203,8 @@
     align-items: center;
     justify-content: center;
     gap: 0;
-    width: 100%;
-    max-width: 100%;
+    width: fit-content;
+    max-width: 100vw;
     overflow: visible;
     position: relative;
   }
@@ -213,7 +213,7 @@
 
   .wings {
     width: 0;
-    min-width: var(--spacing-pixel);
+    min-width: 0;
     max-width: 0;
     opacity: 0;
     overflow: hidden;
@@ -224,9 +224,8 @@
     max-height: var(--modal-height-tall);
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-4);
+    gap: var(--gap-standard);
     z-index: var(--surface-z-index);
-    order: 1;
     margin-right: 0;
     --scrollbar-thumb: rgb(from var(--color-white) r g b / var(--opacity-muted));
     --scrollbar-thumb-hover: rgb(from var(--color-white) r g b / var(--opacity-heavy));
@@ -247,11 +246,9 @@
 
   .card {
     order: 2;
-    min-width: 20rem;
-    max-width: var(--profile-width);
-    width: 100%;
+    width: 100vw;
+    max-width: var(--columns-6);
     height: 100%;
-    max-height: var(--modal-height-tall);
     background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
     border-radius: var(--radius-standard);

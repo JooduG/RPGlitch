@@ -203,7 +203,7 @@
     /* Storymode Stacking (Hero Focus) */
     &.is-storymode {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: min-content var(--mobile-hero-height) 1fr min-content;
+      grid-template-rows: min-content var(--spacing-24) 1fr min-content;
 
       .is-left {
         grid-column: 1 / 2;
@@ -247,15 +247,14 @@
   }
 
   .header {
-    grid-row: row-1;
-    top: var(--offset-header);
+    grid-row: row-2;
     align-items: flex-end;
   }
 
   .footer {
-    grid-row: row-12;
-    bottom: var(--offset-footer);
+    grid-row: row-11;
     align-items: flex-start;
     z-index: var(--overlay-peak-z-index);
+    height: var(--row);
   }
 </style>

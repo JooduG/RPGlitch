@@ -42,7 +42,6 @@
   --background-gradient-2: #14182b;
   --background-gradient-3: #1e1b38;
   --background-gradient-4: #16243b;
-  --background-abyssal: #05070a;
 
   /* Spacing (4px Atomic Grid - Ascending) */
   --spacing-unit: 0.25rem;
@@ -328,8 +327,8 @@
   --fit-text-tolerance: 1;
 
   /* Surface Mapping (Glass) */
-  --glass-sunken: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
-  --glass-base: rgb(from var(--color-chalk) r g b / var(--opacity-muted));
+  --glass-sunken: rgb(from var(--color-chalk) r g b / var(--opacity-muted));
+  --glass-base: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
   --glass-elevated: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
   --glass-peak: rgb(from var(--color-white) r g b / var(--opacity-muted));
 
@@ -382,11 +381,6 @@
   --toast-z-index: var(--z-index-1000);
   --max-z-index: var(--z-index-max-raw);
 
-  /* Vertical Layout Foundations */
-  --offset-header: 10vh;
-  --offset-footer: 15vh;
-  --mobile-hero-height: 25vh;
-
   --motion-fast: var(--duration-fast) var(--ease-standard);
   --motion-standard: var(--duration-standard) var(--ease-standard);
   --motion-slow: var(--duration-slow) var(--ease-standard);
@@ -405,15 +399,16 @@
    ****************************************************************************/
 
   /* Card Components */
-  --storyboard-card-width: var(--columns-2);
-  --storyboard-card-height: var(--columns-3);
+  --storyboard-character-card-width: var(--columns-2);
+  --storyboard-character-card-height: var(--rows-6);
+  --storyboard-fractal-card-width: var(--columns-4);
+  --storyboard-fractal-card-height: var(--rows-4);
 
   /* Control Components */
-  --storyboard-pill-width: clamp(10rem, var(--columns-3), 15rem);
   --pill-signature: rgb(from var(--signature-color) r g b / var(--opacity-muted));
 
   /* Skeleton Components */
-  --skeleton-card-min-height: var(--storyboard-card-height);
+  --skeleton-card-min-height: var(--storyboard-character-card-height);
   --skeleton-hero-min-height: var(--spacing-60);
   --skeleton-text-height: 1em;
   --skeleton-text-width: 60%;
@@ -423,10 +418,10 @@
   --modal-width-base: var(--columns-6);
   --modal-width-wide: var(--columns-8);
 
-  --modal-height-short: 20vh;
+  --modal-height-short: var(--rows-4);
   --modal-height-base: var(--modal-height-standard);
-  --modal-height-standard: 40vh;
-  --modal-height-tall: 70vh;
+  --modal-height-standard: var(--rows-6);
+  --modal-height-tall: var(--rows-8);
 
   /* Icon Components */
   --icon-small: 1rem;

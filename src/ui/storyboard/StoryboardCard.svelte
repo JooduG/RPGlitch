@@ -100,8 +100,8 @@
   /* --- CARD ROOT --- */
   .root {
     position: relative;
-    width: var(--storyboard-card-width);
-    height: var(--storyboard-card-height);
+    width: var(--storyboard-character-card-width);
+    height: var(--storyboard-character-card-height);
     overflow: hidden;
     border-radius: var(--radius-standard);
     transition: transform var(--duration-fast) var(--ease-standard);
@@ -113,8 +113,8 @@
 
   /* Landscape Orientation for Fractals */
   .fractal-card {
-    width: var(--storyboard-card-height);
-    height: var(--storyboard-card-width);
+    width: var(--storyboard-fractal-card-width);
+    height: var(--storyboard-fractal-card-height);
   }
 
   /* Structural Border (Pseudo-element) */

@@ -150,6 +150,7 @@
     position: relative;
     z-index: var(--surface-z-index);
     pointer-events: auto;
+    height: 100%;
   }
 
   /* Scoped overrides for Storyboard specific layout */
@@ -171,8 +172,8 @@
   }
 
   :global(.orchestrator .action.wrapper) {
-    height: 100%;
-    width: var(--storyboard-pill-width);
+    height: var(--row);
+    width: var(--columns-2);
     justify-content: center;
     opacity: var(--opacity-muted);
   }

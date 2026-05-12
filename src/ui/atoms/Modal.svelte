@@ -44,7 +44,7 @@
 <Backdrop onclick={on_close} {z_index} {busy}>
   <div
     {...rest}
-    class="base glass-peak {variant} {className}"
+    class="base glass-elevated {variant} {className}"
     class:is-busy={busy}
     role="dialog"
     aria-modal="true"
@@ -66,13 +66,13 @@
   .base {
     position: relative;
     width: 95%;
-    max-width: var(--modal-width-base);
-    min-width: var(--modal-width-thin);
-    max-height: var(--modal-height-standard);
-    padding: var(--padding-loose);
+    max-width: var(--columns-4);
+    min-width: var(--columns-2);
+    max-height: var(--rows-6);
+    padding: var(--padding-standard);
     display: flex;
     flex-direction: column;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
     overflow: hidden;
     border-radius: var(--radius-standard);
     cursor: default;
@@ -94,8 +94,10 @@
 
   /* Variant Specifics */
   .base.profile {
-    width: 100%;
-    max-width: var(--modal-width-wide);
+    width: fit-content;
+    max-width: 100vw;
+    max-height: var(--modal-height-tall);
+    margin-bottom: var(--spacing-40); /* Optical centering: raise it significantly */
     background: transparent;
     backdrop-filter: none;
     border: none;
@@ -106,12 +108,8 @@
 
   .base.preview,
   .base.mini {
-    max-width: var(--modal-width-thin);
-  }
-
-  .base.mini {
-    padding: var(--padding-tight);
-    gap: var(--gap-tight);
+    max-width: var(--columns-3);
+    padding: var(--padding-loose) var(--padding-standard) var(--padding-standard) var(--padding-standard);
   }
 
   /* Busy State Logic */
