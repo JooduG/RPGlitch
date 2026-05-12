@@ -36,7 +36,7 @@ describe("Slider Atom", () => {
 
     expect(style).toContain("margin-top: 20px");
     expect(style).toContain("color: red");
-    expect(style).toContain("--fill-start");
+    expect(style).toContain("--state-fill-start");
 
     expect(input.getAttribute("style")).toBeNull();
   });
@@ -50,8 +50,8 @@ describe("Slider Atom", () => {
     const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
     const style = wrapper.getAttribute("style");
 
-    expect(style).toContain("--fill-start: 50%");
-    expect(style).toContain("--fill-end: 75%");
+    expect(style).toContain("--state-fill-start: 50%");
+    expect(style).toContain("--state-fill-end: 75%");
   });
 
   test("respects neutral point for fill tokens", () => {
@@ -63,7 +63,7 @@ describe("Slider Atom", () => {
     const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
     const style = wrapper.getAttribute("style");
 
-    expect(style).toContain("--fill-start: 20%");
-    expect(style).toContain("--fill-end: 50%");
+    expect(style).toContain("--state-fill-start: 20%");
+    expect(style).toContain("--state-fill-end: 50%");
   });
 });

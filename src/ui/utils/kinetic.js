@@ -42,11 +42,11 @@ export function shimmy(node) {
         { transform: "translate(0, 0) rotate(0deg)" },
         {
           transform:
-            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(calc(var(--kinetic-shimmy-rotation) * -1))",
+            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(calc(var(--angle-shimmy) * -1))",
         },
         {
           transform:
-            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(var(--kinetic-shimmy-rotation))",
+            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(var(--angle-shimmy))",
         },
         { transform: "translate(0, 0) rotate(0deg)" },
       ],
@@ -111,9 +111,9 @@ export function pulse(node) {
     animation = node.animate(
       [
         { transform: "scale(1)", offset: 0 },
-        { transform: "scale(var(--kinetic-pulse-max))", offset: 0.14 },
+        { transform: "var(--scale-pulse-max)", offset: 0.14 },
         { transform: "scale(1)", offset: 0.28 },
-        { transform: "scale(var(--kinetic-pulse-mid))", offset: 0.42 },
+        { transform: "var(--scale-pulse-mid)", offset: 0.42 },
         { transform: "scale(1)", offset: 0.7 },
         { transform: "scale(1)", offset: 1 },
       ],
@@ -178,7 +178,7 @@ export function spin(node) {
       const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
       animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--kinetic-spin-rotation))" }],
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--angle-spin))" }],
         {
           duration,
           easing,
@@ -237,7 +237,7 @@ export function roll(node) {
       const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
       animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--kinetic-roll-rotation))" }],
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--angle-roll))" }],
         {
           duration,
           easing,

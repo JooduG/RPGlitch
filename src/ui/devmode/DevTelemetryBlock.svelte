@@ -167,9 +167,9 @@
                       <div
                         class="metric-fill"
                         style="
-                          --metric-offset: {Math.min(50, get_pct(val))}%;
-                          --metric-span: {Math.abs(get_pct(val) - 50)}%;
-                          --metric-color: {get_pct(val) > 50
+                          --state-metric-offset: {Math.min(50, get_pct(val))}%;
+                          --state-metric-span: {Math.abs(get_pct(val) - 50)}%;
+                          --state-metric-color: {get_pct(val) > 50
                           ? 'var(--color-cyan)'
                           : 'var(--color-frozen)'}
                         "
@@ -193,9 +193,9 @@
                       <div
                         class="metric-fill"
                         style="
-                          --metric-offset: {Math.min(50, get_pct(val))}%;
-                          --metric-span: {Math.abs(get_pct(val) - 50)}%;
-                          --metric-color: {get_pct(val) > 50
+                          --state-metric-offset: {Math.min(50, get_pct(val))}%;
+                          --state-metric-span: {Math.abs(get_pct(val) - 50)}%;
+                          --state-metric-color: {get_pct(val) > 50
                           ? 'var(--color-cyan)'
                           : 'var(--color-frozen)'}
                         "
@@ -452,7 +452,7 @@
     flex: 1;
     height: var(--spacing-1);
     background: var(--glass-base);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     position: relative;
     overflow: hidden;
   }
@@ -470,11 +470,11 @@
 
   .metric-fill {
     position: absolute;
-    left: var(--metric-offset, 0%);
-    width: var(--metric-span, 0%);
-    background: var(--metric-color, var(--color-cyan));
+    left: var(--state-metric-offset, 0%);
+    width: var(--state-metric-span, 0%);
+    background: var(--state-metric-color, var(--color-cyan));
     height: 100%;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     transition: all var(--duration-standard);
   }
 
@@ -565,7 +565,7 @@
     border: var(--border-side);
     border-color: rgb(from var(--color-cyan) r g b / 20%);
     color: var(--color-cyan);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     font-size: var(--font-size-nano);
     font-family: var(--font-family-mono);
     text-transform: uppercase;

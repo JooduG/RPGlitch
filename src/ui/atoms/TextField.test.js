@@ -56,7 +56,7 @@ describe("TextField", () => {
     const chassis = /** @type {any} */ (container.querySelector(".wrapper"));
     const style = chassis.getAttribute("style");
 
-    expect(style).toContain("--weight-intensity: 0.5");
+    expect(style).toContain("--state-weight-intensity: 0.5");
     expect(style).toContain("--header-opacity: 0.6");
   });
 

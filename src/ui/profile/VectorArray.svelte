@@ -141,7 +141,7 @@
             {#if is_editing}
               <Button
                 variant="invisible"
-                size="sm"
+                size="small"
                 square
                 className="step down"
                 onclick={() => update_weight(i, -1)}
@@ -156,7 +156,7 @@
             {#if is_editing}
               <Button
                 variant="invisible"
-                size="sm"
+                size="small"
                 square
                 className="step up"
                 onclick={() => update_weight(i, 1)}
@@ -188,7 +188,7 @@
           {#if is_editing}
             <Button
               variant="invisible"
-              size="sm"
+              size="small"
               square
               actions={[tooltip]}
               tooltip="Remove {unit_label}"

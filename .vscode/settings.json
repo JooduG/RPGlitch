@@ -29,21 +29,22 @@
   ],
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "files.exclude": {
-    "**/.DS_Store": true,
     "**/.antigravityignore": true,
+    "**/.DS_Store": true,
     "**/.eslintcache": true,
     "**/.gemini/[!s]*": true,
     "**/.gemini/s[!e]*": true,
     "**/.geminiignore": true,
     "**/.gitignore": true,
     "**/.playwright-auth/**": true,
-    "**/Thumbs.db": true,
     "**/bun.lockb": true,
     "**/node_modules/**": true,
     "**/pnpm-lock.yaml": true,
+    "**/Thumbs.db": true,
     "**/yarn.lock": true,
     "/.env": false,
-    "DESIGN.md": true
+    "DESIGN.md": true,
+    ".agents/settings.json": true
   },
   "github-actions.workflows.pinned.workflows": []
 }

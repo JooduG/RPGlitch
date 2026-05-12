@@ -215,7 +215,7 @@
     font-size: var(--font-size-h3);
     line-height: var(--font-height-short);
     letter-spacing: var(--font-spacing-tight);
-    max-width: var(--metric-span); /* Using semantic metric for width constraint */
+    max-width: 100%; /* Using semantic metric for width constraint */
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -260,7 +260,7 @@
   .toolbar :global(.button.action-btn) {
     width: var(--icon-large);
     height: var(--icon-large);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     background: var(--color-white);
     backdrop-filter: var(--blur-mist);
     color: var(--background-base);

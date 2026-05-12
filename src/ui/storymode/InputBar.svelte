@@ -82,7 +82,7 @@
   {#snippet left()}
     <Button
       variant="invisible"
-      size="sm"
+      size="small"
       square={true}
       className="action-btn is-settings"
       onclick={() => app.toggle_control_panel()}
@@ -114,7 +114,7 @@
   {#snippet right()}
     <Button
       variant="invisible"
-      size="sm"
+      size="small"
       square={true}
       className="action-btn is-send"
       onclick={handle_send}

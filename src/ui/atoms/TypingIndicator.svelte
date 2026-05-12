@@ -27,7 +27,7 @@
   {...rest}
   class="wrapper {variant} {className}"
   class:is-busy={busy}
-  style="--activity-color: {signature_color}"
+  style="--state-activity-color: {signature_color}"
   use:use_actions={actions}
 >
   <div class="dot"></div>
@@ -43,7 +43,7 @@
     justify-content: center;
     gap: var(--spacing-1);
     width: fit-content;
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     transition: all var(--duration-standard) var(--ease-elastic);
   }
 
@@ -63,7 +63,7 @@
   /* ── Variant: pill (inline / chat) ───────────────────── */
   .wrapper.pill {
     padding: var(--spacing-2) var(--spacing-4);
-    background: var(--activity-color);
+    background: var(--state-activity-color);
     height: var(--spacing-12);
   }
 
@@ -80,7 +80,7 @@
     width: var(--spacing-2);
     height: var(--spacing-2);
     background-color: var(--color-white);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     animation: typing-pulse 1.4s infinite ease-in-out both;
   }
 

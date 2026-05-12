@@ -10,7 +10,8 @@
   {#if text}
     <div class="text-content">{text}</div>
   {/if}
-  <Button data-testid="mock-delete" variant="invisible" size="sm" onclick={on_delete}>Delete</Button
+  <Button data-testid="mock-delete" variant="invisible" size="small" onclick={on_delete}
+    >Delete</Button
   >
-  <Button data-testid="mock-edit" variant="invisible" size="sm" onclick={on_edit}>Edit</Button>
+  <Button data-testid="mock-edit" variant="invisible" size="small" onclick={on_edit}>Edit</Button>
 </div>

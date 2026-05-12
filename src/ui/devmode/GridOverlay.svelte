@@ -80,7 +80,7 @@
       [row-12] 1fr
       [row-end];
     pointer-events: none;
-    z-index: var(--z-index-max-raw);
+    z-index: var(--z-index-max);
     opacity: var(--opacity-muted);
     border: var(--spacing-pixel) dashed var(--color-frozen);
   }

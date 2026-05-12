@@ -43,7 +43,7 @@
       {#if is_ai && isLast}
         <Button
           variant="invisible"
-          size="sm"
+          size="small"
           square={true}
           className="toolbar-btn continue"
           aria-label="Continue"
@@ -56,7 +56,7 @@
         </Button>
         <Button
           variant="invisible"
-          size="sm"
+          size="small"
           square={true}
           className="toolbar-btn reroll"
           aria-label="Reroll"
@@ -72,7 +72,7 @@
 
       <Button
         variant="invisible"
-        size="sm"
+        size="small"
         square={true}
         className="toolbar-btn edit"
         aria-label="Edit"
@@ -87,7 +87,7 @@
 
       <Button
         variant="invisible"
-        size="sm"
+        size="small"
         square={true}
         className="toolbar-btn copy"
         aria-label="Copy"
@@ -108,7 +108,7 @@
 
       <Button
         variant="invisible"
-        size="sm"
+        size="small"
         square={true}
         className="toolbar-btn delete"
         aria-label="Delete"
@@ -170,7 +170,7 @@
     background: transparent;
     border: none;
     color: var(--font-color-muted);
-    padding: 0; /* Let Button sm/square handle dimensions */
+    padding: 0; /* Let Button small/square handle dimensions */
     transition: all var(--duration-standard);
   }
 
@@ -221,6 +221,6 @@
     font-size: var(--font-size-tiny);
     color: var(--font-color-muted);
     opacity: var(--opacity-muted);
-    letter-spacing: var(--font-spacing-s);
+    letter-spacing: var(--font-spacing-tight);
   }
 </style>

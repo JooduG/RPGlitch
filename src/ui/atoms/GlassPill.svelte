@@ -46,7 +46,7 @@
   class="wrapper {orientation} {className} glass-elevated"
   class:is-focused={is_focused}
   class:is-busy={busy}
-  style="--pill-signature: {signature_color};"
+  style="--state-signature-color: {signature_color};"
   use:use_actions={actions}
 >
   {#if orientation === "horizontal"}
@@ -74,7 +74,7 @@
     pointer-events: auto;
 
     /* --- Surface --- */
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
 
     /* --- Motion --- */
     transition:
@@ -110,8 +110,9 @@
 
   /* --- Focus States --- */
   .wrapper.is-focused {
-    border-color: var(--pill-signature);
-    box-shadow: 0 0 var(--spacing-4) color-mix(in srgb, var(--pill-signature) 30%, transparent);
+    border-color: var(--state-signature-color);
+    box-shadow: 0 0 var(--spacing-4)
+      color-mix(in srgb, var(--state-signature-color) 30%, transparent);
   }
 
   /* --- Busy State --- */

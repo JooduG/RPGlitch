@@ -3,8 +3,8 @@
 
 /* ============================================================================
  * THE RPGLITCH ENGINE (ENGINE.CSS)
- * 3-Tier Design Token Architecture.
- * T1: Foundations -> T2: Semantics -> T3: Shared Components.
+ * 4-Tier Design Token Architecture.
+ * T1: Foundations (Atoms) -> T2: Semantics (Molecules) -> T3: Organisms -> T4: Realization.
  * ============================================================================ */
 
 :root {
@@ -12,7 +12,7 @@
    * [TIER 1] FOUNDATIONS: THE RAW MATERIALS (Property-First | Ascending)
    ****************************************************************************/
 
-  /* Colors (The Nordic Collection) */
+  /* --- Colors (The Nordic Collection) --- */
   --color-black: #000;
   --color-chalk: #222326;
   --color-gunmetal: #363840;
@@ -20,6 +20,7 @@
   --color-frisk: #f2f7fa;
   --color-white: #f7f9fc;
 
+  /* Signature Palette */
   --color-red: #ef4444;
   --color-rose: #fb7185;
   --color-orange: #f97316;
@@ -36,16 +37,35 @@
   --color-purple: #a855f7;
   --color-pink: #ec4899;
 
-  /* Atmospheric Gradients (Foundations) */
+  /* Background Palette */
   --background-base: var(--color-chalk);
   --background-gradient-1: #0b101a;
   --background-gradient-2: #14182b;
   --background-gradient-3: #1e1b38;
   --background-gradient-4: #16243b;
 
-  /* Spacing (4px Atomic Grid - Ascending) */
-  --spacing-unit: 0.25rem;
+  /* --- Breakpoints --- */
+  --breakpoint-mini: 30rem; /* 480px */
+  --breakpoint-mobile: 48rem; /* 768px */
+  --breakpoint-tablet: 64rem; /* 1024px */
+  --breakpoint-desktop: 80rem; /* 1280px */
+
+  /* --- Z-Index (Foundational) --- */
+  --z-index-below: -1;
+  --z-index-0: 0;
+  --z-index-10: 10;
+  --z-index-20: 20;
+  --z-index-50: 50;
+  --z-index-100: 100;
+  --z-index-200: 200;
+  --z-index-210: 210;
+  --z-index-300: 300;
+  --z-index-1000: 1000;
+  --z-index-max: 9999;
+
+  /* --- Spatial Logic --- */
   --spacing-pixel: 1px;
+  --spacing-unit: 0.25rem;
   --spacing-0: 0;
   --spacing-1: calc(var(--spacing-unit) * 1); /* 4px */
   --spacing-2: calc(var(--spacing-unit) * 2); /* 8px */
@@ -65,72 +85,24 @@
   --spacing-40: calc(var(--spacing-unit) * 40); /* 160px */
   --spacing-60: calc(var(--spacing-unit) * 60); /* 15rem */
 
-  /* Radii (Ascending) */
+  /* --- Radius --- */
   --radius-sharp: var(--spacing-1); /* 4px */
   --radius-subtle: var(--spacing-2); /* 8px */
   --radius-standard: var(--spacing-4); /* 16px (1rem) */
   --radius-rounded: var(--spacing-8); /* 32px (2rem) */
-  --radius-pill: 9999px;
-  --radius-full: var(--radius-pill);
+  --radius-full: 9999px;
 
-  /* Aspect Ratios */
-  --aspect-square: 1 / 1;
-
-  /* --- Atmospheric & Layer Foundations --- */
-
-  --opacity-none: 0;
-  --opacity-ghost: 0.08;
-  --opacity-whisper: 0.15;
-  --opacity-muted: 0.3;
-  --opacity-base: 0.4;
-  --opacity-half: 0.5;
-  --opacity-heavy: 0.6;
-  --opacity-moderate: 0.7;
-  --opacity-substantial: 0.8;
-  --opacity-intense: 0.9;
-  --opacity-solid: 1;
-
-  --blur-whisper: blur(var(--spacing-1));
-  --blur-mist: blur(var(--spacing-3));
-  --blur-void: blur(var(--spacing-10));
-
-  --shadow-ghost: 0 var(--spacing-1) var(--spacing-1)
-    rgb(from var(--color-black) r g b / var(--opacity-muted));
-  --shadow-light: 0 var(--spacing-1) var(--spacing-3)
-    rgb(from var(--color-black) r g b / var(--opacity-muted));
-  --shadow-heavy: 0 var(--spacing-2) var(--spacing-6)
-    rgb(from var(--color-black) r g b / var(--opacity-heavy));
-  --shadow-font: 0 var(--spacing-pixel) var(--spacing-1)
-    rgb(from var(--color-black) r g b / var(--opacity-heavy));
-
-  /* Z-Index Foundations */
-  --z-index-below: -1;
-  --z-index-0: 0;
-  --z-index-10: 10;
-  --z-index-20: 20;
-  --z-index-50: 50;
-  --z-index-100: 100;
-  --z-index-200: 200;
-  --z-index-210: 210;
-  --z-index-300: 300;
-  --z-index-1000: 1000;
-  --z-index-max-raw: 9999;
-
-  /* Grid Foundation (Fluid 12-Column System) */
-  --grid-width-max: 200vh;
-  --grid-height-max: 100vw;
-
+  /* --- Grid Foundation --- 12 by 12 grid for chessboard layout */
+  --grid-units: 12;
+  --grid-width-max: calc(var(--golden-ratio) * 100vh);
+  --grid-height-max: calc(var(--golden-ratio) * 100vw);
   --grid-width: clamp(20rem, 100vw, var(--grid-width-max));
   --grid-height: clamp(20rem, 100vh, var(--grid-height-max));
 
-  --grid-units: 12;
-  --column-units: var(--grid-units);
-  --row-units: var(--grid-units);
-
-  --column-unit: calc(var(--grid-width) / var(--column-units));
-  --row-unit: calc(var(--grid-height) / var(--row-units));
-
+  /* --- Grid Columns --- */
   --column: var(--column-unit);
+  --column-units: var(--grid-units);
+  --column-unit: calc(var(--grid-width) / var(--column-units));
   --columns-2: calc(var(--column-unit) * 2);
   --columns-3: calc(var(--column-unit) * 3);
   --columns-4: calc(var(--column-unit) * 4);
@@ -143,25 +115,8 @@
   --columns-11: calc(var(--column-unit) * 11);
   --columns-12: calc(var(--column-unit) * 12);
 
-  --row: var(--row-unit);
-  --rows-2: calc(var(--row-unit) * 2);
-  --rows-3: calc(var(--row-unit) * 3);
-  --rows-4: calc(var(--row-unit) * 4);
-  --rows-5: calc(var(--row-unit) * 5);
-  --rows-6: calc(var(--row-unit) * 6);
-  --rows-7: calc(var(--row-unit) * 7);
-  --rows-8: calc(var(--row-unit) * 8);
-  --rows-9: calc(var(--row-unit) * 9);
-  --rows-10: calc(var(--row-unit) * 10);
-  --rows-11: calc(var(--row-unit) * 11);
-  --rows-12: calc(var(--row-unit) * 12);
-
-  /* Coordinate Tokens (a-l | 1-12) - The Chess Board Positions 
-   * Usage Example (Position B2):
-   * grid-column: col-b / col-c;
-   * grid-row: row-2 / row-3;
-   */
-  --column-a: 0px;
+  /* --- Column Grid Chess Coordinates --- */
+  --column-a: var(--spacing-0);
   --column-b: var(--column-unit);
   --column-c: var(--columns-2);
   --column-d: var(--columns-3);
@@ -175,7 +130,24 @@
   --column-l: var(--columns-11);
   --column-end: var(--columns-12);
 
-  --row-1: 0px;
+  /* --- Grid Rows --- */
+  --row: var(--row-unit);
+  --row-units: var(--grid-units);
+  --row-unit: calc(var(--grid-height) / var(--row-units));
+  --rows-2: calc(var(--row-unit) * 2);
+  --rows-3: calc(var(--row-unit) * 3);
+  --rows-4: calc(var(--row-unit) * 4);
+  --rows-5: calc(var(--row-unit) * 5);
+  --rows-6: calc(var(--row-unit) * 6);
+  --rows-7: calc(var(--row-unit) * 7);
+  --rows-8: calc(var(--row-unit) * 8);
+  --rows-9: calc(var(--row-unit) * 9);
+  --rows-10: calc(var(--row-unit) * 10);
+  --rows-11: calc(var(--row-unit) * 11);
+  --rows-12: calc(var(--row-unit) * 12);
+
+  /* --- Row Grid Chess Coordinates --- */
+  --row-1: var(--spacing-0);
   --row-2: var(--row-unit);
   --row-3: var(--rows-2);
   --row-4: var(--rows-3);
@@ -189,34 +161,33 @@
   --row-12: var(--rows-11);
   --row-end: var(--rows-12);
 
-  /* Legacy Aliases (coord-x) */
-  --coord-a: var(--column-a);
-  --coord-b: var(--column-b);
-  --coord-c: var(--column-c);
-  --coord-d: var(--column-d);
-  --coord-e: var(--column-e);
-  --coord-f: var(--column-f);
-  --coord-g: var(--column-g);
-  --coord-h: var(--column-h);
-  --coord-i: var(--column-i);
-  --coord-j: var(--column-j);
-  --coord-k: var(--column-k);
-  --coord-l: var(--column-l);
+  /* --- Opacity --- */
+  --opacity-none: 0;
+  --opacity-noise: 0.03;
+  --opacity-ghost: 0.08;
+  --opacity-whisper: 0.15;
+  --opacity-muted: 0.3;
+  --opacity-base: 0.4;
+  --opacity-half: 0.5;
+  --opacity-heavy: 0.6;
+  --opacity-moderate: 0.7;
+  --opacity-substantial: 0.8;
+  --opacity-intense: 0.9;
+  --opacity-solid: 1;
 
-  --coord-1: var(--row-1);
-  --coord-2: var(--row-2);
-  --coord-3: var(--row-3);
-  --coord-4: var(--row-4);
-  --coord-5: var(--row-5);
-  --coord-6: var(--row-6);
-  --coord-7: var(--row-7);
-  --coord-8: var(--row-8);
-  --coord-9: var(--row-9);
-  --coord-10: var(--row-10);
-  --coord-11: var(--row-11);
-  --coord-12: var(--row-12);
+  /* --- Blur --- */
+  --blur-whisper: blur(var(--spacing-1));
+  --blur-mist: blur(var(--spacing-4));
+  --blur-void: blur(var(--spacing-10));
 
-  /* Motion & Atmosphere */
+  /* --- Filters --- */
+  --brightness-muted: brightness(0.3);
+  --brightness-dim: brightness(0.8);
+  --brightness-glow: brightness(1.2);
+  --contrast-tension: contrast(1.1);
+  --saturation-tension: saturate(1.2);
+
+  /* --- Kinetic Physics (Time Atoms) --- */
   --duration-none: 0s;
   --duration-reflex: 150ms;
   --duration-fast: 250ms;
@@ -227,90 +198,53 @@
   --duration-shimmer: 2500ms;
   --duration-tremor: 4s;
 
-  --scale-tremor-high: scale(1.002);
-  --scale-tremor-mid: scale(1.001);
-  --scale-tremor-low: scale(0.998);
+  /* --- Angle Atoms (Size Sorted) --- */
+  --angle-skew: -20deg;
+  --angle-shimmy: 30deg;
+  --angle-right: 90deg;
+  --angle-spin: 90deg;
+  --angle-roll: 360deg;
 
-  --saturation-tension: saturate(1.2);
-  --contrast-tension: contrast(1.1);
-
-  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  --ease-out: cubic-bezier(0, 0, 0.2, 1);
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);
-  --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
-
-  /* Nordic Foundations: Atmosphere */
-  --noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-  --noise-opacity: var(--opacity-ghost);
-
-  --brightness-dim: brightness(0.8);
-  --brightness-muted: brightness(0.3);
-  --brightness-glow: brightness(1.2);
-  --scale-lift: scale(1.02);
+  /* --- Scale Atoms (Size Sorted) --- */
   --scale-sink: scale(0.96);
-  --kinetic-pulse-max: 1.08;
-  --kinetic-pulse-mid: 1.04;
-  --scale-pulse: scale(var(--kinetic-pulse-max));
+  --scale-tremor-low: scale(0.998);
+  --scale-tremor-mid: scale(1.001);
+  --scale-tremor-high: scale(1.002);
+  --scale-lift: scale(1.02);
+  --scale-pulse-mid: scale(1.04);
+  --scale-pulse-max: scale(1.08);
   --scale-zoom: scale(1.1);
 
-  --kinetic-shimmy-rotation: 30deg;
+  /* --- Easing --- */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-out: cubic-bezier(0, 0, 0.2, 1);
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+
+  /* --- Kinetic Logic --- */
   --kinetic-shimmy-y: calc(var(--spacing-pixel) / 2);
   --kinetic-shimmy-tremor: var(--spacing-pixel);
   --kinetic-shimmy-offset: var(--kinetic-shimmy-tremor);
-  --kinetic-spin-rotation: 90deg;
-  --kinetic-roll-rotation: 360deg;
   --kinetic-stab-distance: var(--spacing-1);
-  --kinetic-drag-threshold: 10;
-  --kinetic-scroll-multiplier: 1.5;
   --kinetic-momentum-friction: 0.95;
+  --kinetic-scroll-multiplier: 1.5;
+  --kinetic-drag-threshold: 10;
 
-  /* Angles */
-  --angle-right: 90deg;
-  --angle-skew: -20deg;
-
-  /* Utility Logic */
-  --auto-resize-buffer: var(--spacing-pixel);
-
-  /* Scrollbar */
-  --scrollbar-width: var(--spacing-2);
-  --scrollbar-track: transparent;
-  --scrollbar-thumb: var(--color-gunmetal);
-  --scrollbar-thumb-hover: var(--color-frisk);
-
-  /* Breakpoints (Ascending) */
-  --breakpoint-mini: 30rem; /* 480px */
-  --breakpoint-mobile: 48rem; /* 768px */
-  --breakpoint-tablet: 64rem; /* 1024px */
-  --breakpoint-desktop: 80rem; /* 1280px */
-
-  /* Typography Foundations */
-  --font-weight-thin: 300;
-  --font-weight-base: 400;
-  --font-weight-bold: 700;
-  --font-weight-heavy: 900;
-
-  --font-height-short: 1.2;
-  --font-height-base: 1.5;
-  --font-height-tall: 1.8;
-
-  --font-spacing-tight: -0.02em;
-  --font-spacing-s: var(--font-spacing-tight);
-  --font-spacing-base: 0em;
-  --font-spacing-loose: 0.05em;
+  /* --- Other Foundations --- */
+  --golden-ratio: 1.618;
+  --aspect-square: 1 / 1;
+  --noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
 
   /****************************************************************************
-   * [TIER 2] SEMANTICS: THE INTENT
+   * [TIER 2] SEMANTICS: THE INTENT (Molecules)
    ****************************************************************************/
 
-  /* Typography Semantics */
+  /* --- Typography Fonts --- */
   --font-family-base: "Inter", system-ui, -apple-system, sans-serif;
   --font-family-heading: "Ubuntu", sans-serif;
   --font-family-mono: "JetBrains Mono", monospace;
 
-  --font-color-base: var(--color-frisk);
-  --font-color-muted: var(--color-frozen);
-  --color-white-glow: rgb(from var(--color-white) r g b / var(--opacity-muted));
-
+  /* --- Font Sizes --- */
   --font-size-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem);
   --font-size-tiny: clamp(0.7rem, 0.5vw + 0.6rem, 0.8rem);
   --font-size-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
@@ -322,55 +256,86 @@
   --font-size-h2: clamp(2rem, 3vw + 1.5rem, 3.5rem);
   --font-size-h1: clamp(3rem, 5vw + 2rem, 6rem);
 
-  /* Typography Logic */
-  --fit-text-min: var(--font-size-tiny);
-  --fit-text-height: var(--font-height-short);
-  --fit-text-tolerance: 1;
+  /* --- Font Weights --- */
+  --font-weight-thin: 300;
+  --font-weight-base: 400;
+  --font-weight-bold: 700;
+  --font-weight-heavy: 900;
 
-  /* Surface Mapping (Glass) */
+  /* --- Font Heights --- */
+  --font-height-short: 1.2;
+  --font-height-base: 1.5;
+  --font-height-tall: 1.8;
+
+  /* --- Font Spacing --- */
+  --font-spacing-tight: -0.02em;
+  --font-spacing-base: 0em;
+  --font-spacing-loose: 0.05em;
+
+  /* --- Font Colors --- */
+  --font-color-muted: var(--color-frozen);
+  --font-color-base: var(--color-frisk);
+
+  /* --- Signature Tokens (Molecular) --- */
+  --signature-color: var(--color-cyan);
+  --signature-glow: 0 0 var(--spacing-4) var(--signature-color);
+  --danger-color: var(--color-red);
+  --danger-glow: 0 0 var(--spacing-3) var(--danger-color);
+  --danger-hover-shadow:
+    0 0 var(--spacing-4) rgb(from var(--color-red) r g b / var(--opacity-muted)),
+    inset 0 0 0 var(--spacing-pixel) var(--color-red);
+
+  /* --- Depth & Shadows --- */
+  --shadow-ghost: 0 1px 2px rgb(from var(--color-black) r g b / var(--opacity-ghost));
+  --shadow-light: 0 4px 12px rgb(from var(--color-black) r g b / var(--opacity-whisper));
+  --shadow-heavy: 0 8px 32px rgb(from var(--color-black) r g b / var(--opacity-muted));
+  --shadow-font: 0 var(--spacing-pixel) var(--spacing-pixel) var(--color-black);
+  --shadow-ambient: var(--shadow-ghost);
+  --shadow-focus: var(--shadow-heavy);
+
+  /* --- Interaction & Motion --- */
+  --hover-lift: var(--scale-lift);
+  --hover-glow: var(--brightness-glow);
+  --click-sink: var(--scale-sink);
+  --click-dim: var(--brightness-dim);
+  --motion-fast: var(--duration-fast) var(--ease-standard);
+  --motion-standard: var(--duration-standard) var(--ease-standard);
+  --motion-slow: var(--duration-slow) var(--ease-standard);
+  --motion-elastic: var(--duration-slow) var(--ease-elastic);
+  --motion-dissolve: opacity var(--duration-standard) var(--ease-standard);
+
+  /* --- Glass Systems --- */
+  --glass-elevated: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
   --glass-sunken: rgb(from var(--color-chalk) r g b / var(--opacity-muted));
   --glass-base: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
-  --glass-elevated: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
   --glass-peak: rgb(from var(--color-white) r g b / var(--opacity-muted));
-
   --glass-sunken-blur: var(--blur-whisper);
   --glass-base-blur: var(--blur-whisper);
   --glass-elevated-blur: var(--blur-mist);
   --glass-peak-blur: var(--blur-void);
 
-  /* Spacing Semantics */
-  --padding-standard: var(--spacing-4);
+  /* --- Padding & Gap --- */
+  --gap-tight: var(--spacing-1);
+  --gap-standard: var(--spacing-2);
+  --gap-loose: var(--spacing-4);
   --padding-tight: var(--spacing-2);
+  --padding-standard: var(--spacing-4);
   --padding-loose: var(--spacing-8);
 
-  --gap-standard: var(--spacing-2);
-  --gap-tight: var(--spacing-1);
-  --gap-loose: var(--spacing-4);
-
-  /* Surface Semantics */
-  --shadow-ambient: var(--shadow-ghost);
-  --shadow-focus: var(--shadow-heavy);
-
+  /* --- Borders --- */
   --border-width-base: var(--spacing-pixel);
   --border-width-thick: var(--spacing-1);
-
-  --border-muted: var(--border-width-base) solid
-    rgb(from var(--color-white) r g b / var(--opacity-muted));
-  --border-whisper: var(--border-width-base) solid
-    rgb(from var(--color-white) r g b / var(--opacity-whisper));
   --border-ghost: var(--border-width-base) solid
     rgb(from var(--color-white) r g b / var(--opacity-ghost));
-
+  --border-whisper: var(--border-width-base) solid
+    rgb(from var(--color-white) r g b / var(--opacity-whisper));
+  --border-muted: var(--border-width-base) solid
+    rgb(from var(--color-white) r g b / var(--opacity-muted));
   --border-top: var(--border-muted);
   --border-side: var(--border-whisper);
   --border-bottom: var(--border-ghost);
 
-  /* Interaction Semantics */
-  --hover-lift: var(--scale-lift);
-  --hover-glow: var(--brightness-glow);
-  --click-sink: var(--scale-sink);
-  --click-dim: var(--brightness-dim);
-
+  /* --- Z-Index Semantics --- */
   --deep-z-index: var(--z-index-below);
   --floor-z-index: var(--z-index-0);
   --surface-z-index: var(--z-index-10);
@@ -380,138 +345,110 @@
   --overlay-peak-z-index: var(--z-index-210);
   --modal-z-index: var(--z-index-300);
   --toast-z-index: var(--z-index-1000);
-  --max-z-index: var(--z-index-max-raw);
-
-  --motion-fast: var(--duration-fast) var(--ease-standard);
-  --motion-standard: var(--duration-standard) var(--ease-standard);
-  --motion-slow: var(--duration-slow) var(--ease-standard);
-  --motion-elastic: var(--duration-slow) var(--ease-elastic);
-  --motion-dissolve: opacity var(--duration-standard) var(--ease-standard);
-
-  /* Semantic Layout */
-  --dropdown-max-height: 20rem;
-  --width-sidebar: var(--columns-2);
-  --signature-color: var(--color-cyan);
-  --signature-glow: 0 0 var(--spacing-4) var(--signature-color);
-  --danger-hover-shadow: 0 0 var(--spacing-3) var(--color-red);
+  --max-z-index: var(--z-index-max);
 
   /****************************************************************************
-   * [TIER 3] SHARED COMPONENTS
+   * [TIER 3] ORGANISMS: SHARED COMPONENT TOKENS (Configuration)
    ****************************************************************************/
 
-  /* Card Components */
-  --storyboard-character-card-width: var(--columns-2);
-  --storyboard-character-card-height: var(--rows-6);
-  --storyboard-fractal-card-width: var(--columns-4);
-  --storyboard-fractal-card-height: var(--rows-4);
-
-  /* Control Components */
-  --pill-signature: rgb(from var(--signature-color) r g b / var(--opacity-muted));
-
-  /* Skeleton Components */
-  --skeleton-card-min-height: var(--storyboard-character-card-height);
-  --skeleton-hero-min-height: var(--spacing-60);
-  --skeleton-text-height: 1em;
-  --skeleton-text-width: 60%;
-
-  /* Modal & Drawer Components (Semantic Sizes) */
+  /* --- Shell & Layout (The Scaffolding) --- */
+  --width-sidebar: var(--columns-2);
+  --dropdown-max-height: calc(var(--spacing-10) * 8);
   --modal-width-thin: var(--columns-4);
   --modal-width-base: var(--columns-6);
   --modal-width-wide: var(--columns-8);
-
   --modal-height-short: var(--rows-4);
-  --modal-height-base: var(--modal-height-standard);
+  --modal-height-base: var(--rows-6);
   --modal-height-standard: var(--rows-6);
   --modal-height-tall: var(--rows-8);
+  --skeleton-text-height: 1em;
+  --skeleton-text-width: 60%;
+  --skeleton-hero-min-height: var(--spacing-60);
 
-  /* Icon Components */
-  --icon-small: 1rem;
-  --icon-medium: 1.25rem;
-  --icon-large: 2rem;
+  /* --- Interface Controls (The Widgetry) --- */
+  --toggle-height: var(--font-size-h5);
+  --toggle-width: calc(var(--spacing-12) + var(--spacing-2));
+  --toggle-thumb-size: var(--spacing-4);
+  --toggle-thumb-offset: calc((var(--toggle-height) - var(--toggle-thumb-size)) / 2);
+  --toggle-small-height: var(--spacing-4);
+  --toggle-small-width: calc(var(--spacing-8) + var(--spacing-1));
+  --toggle-small-thumb-size: var(--font-size-small);
+  --slider-track-height: var(--spacing-1);
+  --slider-thumb-size: var(--spacing-2);
+  --slider-fill-color-start: var(--color-frisk);
+  --slider-fill-color-end: var(--color-gunmetal);
+  --slider-thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
+  --swatch-dynamic-bg: var(--color-gunmetal);
+  --swatch-color: var(--signature-color);
+  --active-swatch-shadow: 0 0 var(--spacing-4) var(--signature-color);
+  --icon-small: var(--spacing-4);
+  --icon-medium: var(--spacing-5);
+  --icon-large: var(--spacing-8);
 
-  /* Profile Specific */
+  /* --- Reactive Slates (The Dynamic Hooks) --- */
+  --state-accent: var(--color-frisk);
+  --state-signature-color: var(--color-cyan);
+  --state-dev-accent: var(--color-frisk);
+  --state-intensity: 0;
+  --state-weight-intensity: 0;
+  --state-fill-start: 0%;
+  --state-fill-end: 100%;
+  --state-metric-offset: 0%;
+  --state-metric-span: 0%;
+  --state-metric-color: var(--color-cyan);
+  --state-activity-color: var(--color-teal);
+  --state-value: 0%;
+  --state-weight: 0;
+  --state-align: center;
+  --state-toggle-width: var(--toggle-width);
+  --state-toggle-height: var(--toggle-height);
+  --state-toggle-thumb-size: var(--toggle-thumb-size);
+  --state-toggle-thumb-offset: var(--toggle-thumb-offset);
+
+  /* --- Domain Units (The Narrative) --- */
+  --avatar-medium-size: var(--columns-2);
   --wing-width: var(--columns-2);
   --profile-width: var(--columns-6);
   --profile-height: var(--columns-4);
   --profile-fragment-column: var(--spacing-24);
   --profile-initials-size-base: var(--spacing-40);
-  --avatar-medium-size: var(--columns-2);
+  --storyboard-character-card-width: var(--columns-2);
+  --storyboard-character-card-height: var(--rows-6);
+  --storyboard-fractal-card-width: var(--columns-4);
+  --storyboard-fractal-card-height: var(--rows-4);
+  --skeleton-card-min-height: var(--storyboard-character-card-height);
 
-  /* Slider Components */
-  --slider-track-height: var(--spacing-1);
-  --slider-thumb-size: var(--spacing-2);
-  --slider-fill-color-start: var(--signature-color);
-  --slider-fill-color-end: var(--color-gunmetal);
-  --slider-thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost);
-
-  /* TextField Components */
-  --tf-header-bg-dormant: rgb(from var(--color-black) r g b / var(--opacity-muted));
-  --tf-header-bg-active: rgb(from var(--signature-color) r g b / var(--opacity-ghost));
-  --tf-header-height-dormant: var(--spacing-1);
-  --tf-header-height-active: var(--spacing-6);
-  --tf-accent-default: var(--signature-color);
-
-  /* Toggle Components */
-  --toggle-height: var(--font-size-h5);
-  --toggle-width: calc(var(--spacing-12) + var(--spacing-2));
-  --toggle-thumb-size: var(--spacing-4);
-  --toggle-thumb-offset: calc((var(--toggle-height) - var(--toggle-thumb-size)) / 2);
-
-  --toggle-sm-height: var(--spacing-4);
-  --toggle-sm-width: calc(var(--spacing-8) + var(--spacing-1));
-  --toggle-sm-thumb-size: var(--font-size-small);
-
-  /* TypingIndicator */
-  --activity-color: var(--signature-color);
-
-  /* DataBox & Telemetry */
+  /* --- Telemetry & Titles --- */
   --box-height: auto;
-  --box-max-height: 25rem;
+  --box-max-height: calc(var(--spacing-20) * 5);
   --font-height-s: var(--font-height-short);
-
-  /* Visual Swatches */
-  --swatch-dynamic-bg: var(--color-gunmetal);
-  --swatch-color: var(--signature-color);
-  --active-swatch-shadow: var(--signature-glow);
-
-  /* Titles */
   --title-color-part: var(--color-frozen);
   --title-shadow-ambient: 0 0 var(--spacing-5)
     rgb(from var(--color-black) r g b / var(--opacity-heavy));
   --title-shadow-focus:
     0 0 0 var(--spacing-pixel) var(--color-frisk),
     0 0 var(--spacing-6) rgb(from var(--color-frisk) r g b / var(--opacity-muted));
-  --title-glow-signature: var(--signature-glow);
+  --title-glow-signature: 0 0 var(--spacing-5) var(--signature-color);
   --entity-color: var(--signature-color);
 
-  /* --- Dynamic Overrides (Tier 3) --- */
-
-  /* These tokens are managed by JS or component state but registered here for system integrity. */
-  --tf-accent: var(--signature-color);
-  --weight-intensity: 0;
-  --fill-start: 0%;
-  --fill-end: 100%;
-
-  /* Internal Component State (Tier 3) */
-  --toggle-current-width: var(--toggle-width);
-  --toggle-current-height: var(--toggle-height);
-  --toggle-current-thumb-size: var(--toggle-thumb-size);
-  --toggle-current-thumb-offset: var(--toggle-thumb-offset);
-
-  /* Telemetry & Dynamics Logic Hooks */
-  --metric-offset: 0%;
-  --metric-span: 0%;
-  --metric-color: var(--color-cyan);
-  --dynamic-value: 0%;
-
-  /* Layout Hooks */
-  --stage-align: center;
+  /* --- Environment --- */
+  --scrollbar-width: var(--spacing-2);
+  --scrollbar-track: transparent;
+  --scrollbar-thumb: var(--color-gunmetal);
+  --scrollbar-thumb-hover: var(--color-frisk);
+  --auto-resize-buffer: var(--spacing-pixel);
+  --dev-header-height-dormant: var(--spacing-1);
+  --dev-header-height-active: var(--spacing-6);
+  --dev-header-bg-dormant: rgb(from var(--color-black) r g b / var(--opacity-muted));
+  --dev-header-bg-active: rgb(from var(--color-frisk) r g b / var(--opacity-ghost));
+  --dev-accent-default: var(--color-frisk);
 }
 
 /* ============================================================================
- * RESETS & BASE STYLES
+ * [TIER 4] REALIZATION: IMPLEMENTATIONS & RESETS
  * ============================================================================ */
 
+/* --- Resets & Base --- */
 html,
 body {
   font-size: 100%;
@@ -541,18 +478,19 @@ body {
   position: relative;
 }
 
-/* Atmospheric Noise Layer (Nordic Collection) */
+/* Atmospheric Noise Layer */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   z-index: var(--mid-z-index);
   pointer-events: none;
-  opacity: var(--noise-opacity);
+  opacity: var(--opacity-noise);
   background-image: var(--noise-url);
   mix-blend-mode: overlay;
 }
 
+/* Typography Realization */
 h1,
 h2,
 h3,
@@ -589,10 +527,7 @@ h6 {
   font-size: var(--font-size-h6);
 }
 
-/* ============================================================================
- * UTILITIES
- * ============================================================================ */
-
+/* --- Interaction Utilities --- */
 .interactable {
   cursor: pointer;
   transition:
@@ -610,6 +545,7 @@ h6 {
   filter: var(--brightness-dim);
 }
 
+/* --- Glass Systems --- */
 .glass-sunken,
 .glass-base,
 .glass-elevated,
@@ -644,18 +580,7 @@ h6 {
   box-shadow: var(--shadow-heavy);
 }
 
-.visually-hidden {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip-path: inset(50%);
-  white-space: nowrap;
-  border: 0;
-}
-
+/* --- Atomic Widgets --- */
 .icon-small {
   width: var(--icon-small);
   height: var(--icon-small);
@@ -687,7 +612,19 @@ h6 {
   height: var(--row-unit);
 }
 
-/* Scrollbar Utility */
+/* --- Accessibility & Scrollbars --- */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
 ::-webkit-scrollbar {
   width: var(--scrollbar-width);
 }
@@ -698,7 +635,7 @@ h6 {
 
 ::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-full);
 }
 
 ::-webkit-scrollbar-thumb:hover {
@@ -714,7 +651,6 @@ h6 {
   scrollbar-width: none;
 }
 
-/* Skip Link Utility */
 .skip-link {
   position: absolute;
   top: -100px;

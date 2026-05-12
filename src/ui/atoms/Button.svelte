@@ -12,7 +12,7 @@
    *   label?: string,
    *   variant?: "primary" | "secondary" | "danger" | "invisible",
    *   cover?: boolean,
-   *   size?: "sm" | "md",
+   *   size?: "small" | "md",
    *   square?: boolean,
    *   full_width?: boolean,
    *   busy?: boolean,
@@ -71,7 +71,7 @@
   {...rest}
   class="wrapper variant-{variant} {resolved_class}"
   class:is-cover={cover}
-  class:is-sm={size === "sm"}
+  class:is-small={size === "small"}
   class:is-square={square}
   class:is-full={full_width}
   class:is-busy={busy}
@@ -110,7 +110,7 @@
     cursor: pointer;
     pointer-events: auto;
     border: none;
-    border-radius: var(--radius-standard);
+    border-radius: var(--radius-subtle);
     background: transparent;
     color: var(--font-color-base);
 
@@ -136,7 +136,7 @@
   }
 
   /* --- Structural Modifiers --- */
-  .wrapper.is-sm {
+  .wrapper.is-small {
     min-height: var(--spacing-8);
     padding: var(--spacing-1) var(--spacing-3);
     font-size: var(--font-size-tiny);
@@ -149,7 +149,7 @@
     flex-shrink: 0;
   }
 
-  .wrapper.is-square.is-sm {
+  .wrapper.is-square.is-small {
     width: var(--icon-small);
     height: var(--icon-small);
   }
@@ -247,10 +247,6 @@
   .variant-danger:hover:not(:disabled) {
     background: var(--color-red);
     color: var(--color-white);
-    --danger-hover-shadow:
-      0 0 var(--spacing-4) rgb(from var(--color-red) r g b / var(--opacity-muted)),
-      inset 0 0 0 var(--spacing-pixel) var(--color-red);
-
     box-shadow: var(--danger-hover-shadow);
   }
 

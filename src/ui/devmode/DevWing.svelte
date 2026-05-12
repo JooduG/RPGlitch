@@ -66,7 +66,7 @@
         <div
           class="dynamic-box"
           class:is-editing={is_editing}
-          style="--dynamic-value: {char[dynamic.source][dynamic.key]}%"
+          style="--state-value: {char[dynamic.source][dynamic.key]}%"
         >
           <span class="dynamic-label" use:tooltip={dynamic.desc}>{dynamic.label}</span>
           <div class="value-container">
@@ -80,7 +80,7 @@
               <div class="step-controls">
                 <Button
                   variant="invisible"
-                  size="sm"
+                  size="small"
                   square={true}
                   className="step-up"
                   actions={[[tooltip, "Increase"]]}
@@ -97,7 +97,7 @@
                 </Button>
                 <Button
                   variant="invisible"
-                  size="sm"
+                  size="small"
                   square={true}
                   className="step-down"
                   actions={[[tooltip, "Decrease"]]}
@@ -199,7 +199,7 @@
     left: 0;
     right: 0;
     height: var(--spacing-2);
-    background: var(--color-cyan);
+    background: var(--dev-accent-default);
     opacity: 0.2;
   }
 
@@ -208,9 +208,9 @@
     bottom: 0;
     left: 0;
     height: var(--spacing-2);
-    width: var(--dynamic-value, 0%);
-    background: var(--color-cyan);
-    box-shadow: 0 0 var(--spacing-3) var(--color-cyan);
+    width: var(--state-value, 0%);
+    background: var(--dev-accent-default);
+    box-shadow: 0 0 var(--spacing-3) var(--dev-accent-default);
     transition: width var(--duration-reflex) var(--motion-dissolve);
     z-index: var(--mid-z-index);
   }
@@ -281,7 +281,7 @@
   .step-controls :global(*) {
     background: transparent;
     border: none;
-    color: var(--color-cyan);
+    color: var(--dev-accent-default);
     padding: var(--spacing-2);
     cursor: pointer;
     display: flex;
@@ -303,7 +303,7 @@
   .raw-explorer summary {
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-bold);
-    color: var(--color-cyan);
+    color: var(--dev-accent-default);
     text-transform: uppercase;
     cursor: pointer;
     letter-spacing: 0.05em;

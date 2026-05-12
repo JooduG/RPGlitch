@@ -3,7 +3,7 @@
    * @typedef {Object} Props
    * @property {boolean} [value] - Current toggle state.
    * @property {string} [label] - Optional label text.
-   * @property {"md" | "sm"} [size] - Component scale.
+   * @property {"md" | "small"} [size] - Component scale.
    * @property {boolean} [disabled] - Interactive lock state.
    * @property {boolean} [busy] - Async lock state.
    * @property {any[]} [actions] - Svelte actions.
@@ -38,7 +38,7 @@
   class="wrapper {className}"
   class:is-disabled={disabled || busy}
   class:is-busy={busy}
-  class:is-sm={size === "sm"}
+  class:is-small={size === "small"}
   aria-busy={busy}
   aria-disabled={disabled || busy}
   {style}
@@ -74,10 +74,10 @@
     transition: opacity var(--duration-standard) var(--ease-standard);
 
     /* Internal Geometry (Chalk Regime Mapping) */
-    --toggle-current-width: var(--toggle-width);
-    --toggle-current-height: var(--toggle-height);
-    --toggle-current-thumb-size: var(--toggle-thumb-size);
-    --toggle-current-thumb-offset: var(--toggle-thumb-offset);
+    --state-toggle-width: var(--toggle-width);
+    --state-toggle-height: var(--toggle-height);
+    --state-toggle-thumb-size: var(--toggle-thumb-size);
+    --state-toggle-thumb-offset: var(--toggle-thumb-offset);
   }
 
   /* --- MODIFIERS --- */
@@ -96,12 +96,12 @@
     pointer-events: none;
   }
 
-  .wrapper.is-sm {
-    --toggle-current-width: var(--toggle-sm-width);
-    --toggle-current-height: var(--toggle-sm-height);
-    --toggle-current-thumb-size: var(--toggle-sm-thumb-size);
-    --toggle-current-thumb-offset: calc(
-      (var(--toggle-sm-height) - var(--toggle-sm-thumb-size)) / 2
+  .wrapper.is-small {
+    --state-toggle-width: var(--toggle-small-width);
+    --state-toggle-height: var(--toggle-small-height);
+    --state-toggle-thumb-size: var(--toggle-small-thumb-size);
+    --state-toggle-thumb-offset: calc(
+      (var(--toggle-small-height) - var(--toggle-small-thumb-size)) / 2
     );
   }
 
@@ -120,11 +120,11 @@
   .track {
     position: relative;
     flex-shrink: 0;
-    width: var(--toggle-current-width);
-    height: var(--toggle-current-height);
+    width: var(--state-toggle-width);
+    height: var(--state-toggle-height);
     background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
     backdrop-filter: var(--blur-whisper);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     transition:
       background-color var(--duration-standard) var(--ease-standard),
       box-shadow var(--duration-standard) var(--ease-standard);
@@ -134,12 +134,12 @@
   .track::before {
     content: "";
     position: absolute;
-    top: var(--toggle-current-thumb-offset);
-    left: var(--toggle-current-thumb-offset);
-    width: var(--toggle-current-thumb-size);
-    height: var(--toggle-current-thumb-size);
+    top: var(--state-toggle-thumb-offset);
+    left: var(--state-toggle-thumb-offset);
+    width: var(--state-toggle-thumb-size);
+    height: var(--state-toggle-thumb-size);
     background-color: var(--color-frisk);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     transition:
       transform var(--duration-standard) var(--ease-elastic),
       background-color var(--duration-standard) var(--ease-standard);
@@ -175,13 +175,14 @@
 
   input:checked + .track::before {
     background-color: var(--color-white);
+    /* stylelint-disable scss/operator-no-newline-after, scss/operator-no-unspaced */
     transform: translateX(
       calc(
-        /* stylelint-disable-next-line scss/operator-no-newline-after */
-        var(--toggle-current-width) - var(--toggle-current-thumb-size) -
-          (var(--toggle-current-thumb-offset) * 2)
+        var(--state-toggle-width) - var(--state-toggle-thumb-size) -
+          (var(--state-toggle-thumb-offset) * 2)
       )
     );
+    /* stylelint-enable scss/operator-no-newline-after, scss/operator-no-unspaced */
     box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-1)
       rgb(from var(--color-white) r g b / var(--opacity-muted));
   }

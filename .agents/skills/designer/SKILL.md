@@ -67,3 +67,105 @@ mcp_chrome-devtools_list_console_messages
 - [ ] Structural stability (Positioning, Truncation) delegated to `user-interface`.
 - [ ] Layout snaps to the modular `--spacing-*` scale.
 - [ ] Specialized tasks (CSS/Motion/Audio) were delegated to the correct skills.
+
+## RPGlitch 3-Tier Tokens (The Chalk Regime)
+
+The RPGlitch Engine uses a strict 3-tier design token architecture to ensure aesthetic consistency (Nordic Noir) and maintainable fluid layouts.
+
+## The 3-Tier Hierarchy
+
+Follow this strict inheritance chain: `T1 (Foundation) -> T2 (Semantic) -> T3 (Shared Component)`.
+
+### Tier 1: Foundations (The Ruler)
+
+**Format:** `--[prop]-[value]` (e.g., `--spacing-4`, `--duration-reflex`)
+
+- **Raw Constants**: The ONLY place where absolute numbers, hex codes, or units (px, rem, ms) are allowed.
+- **Zero-Digit Rule**: No "magic numbers" or absolute units in Tiers 2 and 3.
+- **Atomic Grid**: All spacing must be a multiple of the 4px unit (`0.25rem`).
+- **Scales**:
+  - **Radii**: `sharp` (4px), `subtle` (8px), `standard` (16px), `rounded` (32px), `pill` (9999px).
+  - **Motion**: `reflex` (150ms), `fast` (250ms), `standard` (350ms), `slow` (500ms).
+  - **Presence (Opacity)**: `ghost` (0.08), `muted` (0.3), `heavy` (0.6), `solid` (1.0).
+
+### Tier 2: Semantics (The Intent)
+
+**Format:** `--[role]-[prop]` (e.g., `--card-padding`, `--overlay-z-index`)
+
+- **Mapping**: Maps Foundations to a functional purpose.
+- **Nomenclature**: Use descriptive roles (e.g., `header-bg`, `text-primary`).
+- **Signature Hook**: Implement entity color fallbacks:
+  `--signature-color: var(--signature-color, var(--color-frozen));`
+
+### Tier 3: Shared Components (The Annex)
+
+**Format:** `--[component]-[role]-[prop]` (e.g., `--tarot-card-width`)
+
+- **Shared Metrics**: Metrics used by two or more related components.
+
+## Sovereign Rules (Chalk Regime)
+
+1. **The Zero-Digit Rule**: Tiers 2 and 3 MUST reference variables. Use `calc()` with T1 foundations if needed, but avoid multiplication to reach fixed pixel values (e.g., `calc(var(--spacing-px) * 20)` is "cheating").
+2. **Modern Color Syntax**: Use Relative Color Syntax for transparency:
+   `rgb(from var(--color-chalk) r g b / var(--opacity-muted))`
+3. **Property-First Sorting**: In `engine.css`, sort variables by property category, then by size (ascending).
+4. **Fluid Everything**: Use `clamp()` for typography, spacing, and widths to eliminate media queries.
+5. **Eviction Policy**: If a variable is used in ONLY one `.svelte` file, move it to that file's `<style>` block.
+
+## Reference Values (Foundations)
+
+- **Spacing**: `--spacing-1` (4px), `--spacing-2` (8px), `--spacing-4` (16px), `--spacing-8` (32px).
+- **Z-Index**: `--z-deep` (-1), `--z-floor` (0), `--z-surface` (10), `--z-overlay` (100), `--z-modal` (1000).
+
+## RPGlitch UI Harmonization
+
+This skill ensures that UI components follow the standardized RPGlitch architecture for snippets, actions, and processing states.
+
+## Atomic Standardization
+
+All atoms (Button, TextField, Slider, etc.) must follow a consistent interface to prevent architectural drift.
+
+### 1. Snippet Naming
+
+- **`header_actions`**: Use this name for snippet props that render action buttons in a component's header (e.g., in `TextField` or `Modal`).
+- **Standardization**: Avoid the generic name `actions` for snippets to prevent conflict with Svelte Actions.
+
+### 2. Svelte Action Prop
+
+- **`actions`**: Always use this name for the prop that accepts an array of Svelte Actions (e.g., `[shimmy, tooltip]`).
+- **Internal Helper**: Use `use:use_actions={actions}` from `@ui/utils/use-actions.js` to apply them.
+
+## Busy State Harmonization (Processing)
+
+Components that wait for AI engine output (Text Enhancement, Image Generation) must use the harmonized "Busy" pattern.
+
+### TextField Pattern
+
+- **`busy` prop**: When `true`, the `TextField` should:
+  1. Show a `wait` cursor.
+  2. Maintain an expanded header (even if not focused).
+  3. Display the status message in the `status` snippet.
+- **`status` snippet**: A dedicated slot for left-aligned status content (text, indicators, animations) within the header.
+
+### Workflow for Busy State
+
+1. In the organism (e.g., `VisualWing`), track the busy state of the operation.
+2. Pass `busy={is_processing}` to the `TextField`.
+3. Provide a snippet for the `status`:
+
+```svelte
+{#snippet status()}
+  {#if is_processing}
+    <span class="engine-status">RETRYING...</span>
+  {/if}
+{/snippet}
+
+<TextField {busy} {status} ... />
+```
+
+## Harmonization Verification
+
+- [ ] Snippet for header actions is named `header_actions`.
+- [ ] Svelte Actions prop is named `actions`.
+- [ ] `TextField` header stays expanded during `busy` state.
+- [ ] Status messages are rendered in the `status` snippet slot.

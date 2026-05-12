@@ -73,7 +73,7 @@
   data-busy={busy}
   data-no-bg={no_background}
   data-disabled={disabled || busy}
-  style="{style}; --tf-accent: {signature_color}; --weight-intensity: {intensity}; --header-opacity: {header_opacity};"
+  style="{style}; --state-dev-accent: {signature_color}; --state-weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
   use:use_actions={actions}
   aria-busy={busy}
@@ -171,10 +171,10 @@
   }
 
   .header {
-    height: var(--tf-header-height-dormant);
+    height: var(--dev-header-height-dormant);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-    background: var(--tf-header-bg-dormant);
-    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-2)) var(--tf-accent);
+    background: var(--dev-header-bg-dormant);
+    box-shadow: 0 0 calc(var(--state-weight-intensity) * var(--spacing-2)) var(--state-dev-accent);
     position: relative;
     top: var(--spacing-pixel);
     z-index: var(--surface-z-index);
@@ -192,11 +192,11 @@
   }
 
   .wrapper[data-expanded="true"] .header {
-    height: var(--tf-header-height-active);
+    height: var(--dev-header-height-active);
     top: 0;
-    background: var(--tf-header-bg-active);
-    box-shadow: 0 0 calc(var(--weight-intensity) * var(--spacing-4))
-      rgb(from var(--tf-accent) r g b / var(--opacity-muted));
+    background: var(--dev-header-bg-active);
+    box-shadow: 0 0 calc(var(--state-weight-intensity) * var(--spacing-4))
+      rgb(from var(--state-dev-accent) r g b / var(--opacity-muted));
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
   }

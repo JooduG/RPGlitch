@@ -149,7 +149,7 @@
           {#if is_ai && is_last}
             <Button
               variant="invisible"
-              size="sm"
+              size="small"
               square={true}
               aria-label="Continue"
               actions={[tooltip]}
@@ -161,7 +161,7 @@
             </Button>
             <Button
               variant="invisible"
-              size="sm"
+              size="small"
               square={true}
               aria-label="Reroll"
               actions={[tooltip]}
@@ -175,7 +175,7 @@
           {/if}
           <Button
             variant="invisible"
-            size="sm"
+            size="small"
             square={true}
             aria-label="Edit"
             actions={[tooltip]}
@@ -194,7 +194,7 @@
           </Button>
           <Button
             variant="invisible"
-            size="sm"
+            size="small"
             square={true}
             aria-label="Copy"
             actions={[tooltip]}
@@ -210,7 +210,7 @@
           </Button>
           <Button
             variant="invisible"
-            size="sm"
+            size="small"
             square={true}
             aria-label="Delete"
             actions={[tooltip]}
@@ -331,7 +331,7 @@
 
   .message-bubble.is-focused {
     border-color: var(--color-white);
-    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-6) var(--color-white-glow);
+    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-6) var(--color-white);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
     overflow: visible;
   }

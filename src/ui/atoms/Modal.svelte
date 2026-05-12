@@ -7,9 +7,9 @@
    */
   import Backdrop from "@atoms/Backdrop.svelte";
   import { use_actions } from "@ui/utils/use-actions.js";
-  import { quartOut } from "svelte/easing";
-  import { scale, fly } from "svelte/transition";
   import { resolve_px } from "@utils/dom.js";
+  import { quartOut } from "svelte/easing";
+  import { fly, scale } from "svelte/transition";
 
   let {
     // State
@@ -87,7 +87,7 @@
     inset: 0;
     z-index: var(--deep-z-index);
     background-image: var(--noise-url);
-    opacity: var(--noise-opacity);
+    opacity: var(--opacity-noise);
     mix-blend-mode: overlay;
     pointer-events: none;
   }

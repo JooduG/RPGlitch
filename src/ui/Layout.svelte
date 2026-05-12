@@ -119,7 +119,7 @@
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: var(--stage-align, center);
+    align-items: var(--state-align, center);
     transition:
       opacity var(--motion-fast),
       transform var(--motion-fast);

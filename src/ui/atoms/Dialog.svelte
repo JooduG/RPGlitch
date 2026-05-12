@@ -107,7 +107,7 @@
     height: var(--icon-medium);
     background: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
     color: var(--color-frozen);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;

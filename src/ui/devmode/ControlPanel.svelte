@@ -158,21 +158,26 @@
         <Button
           label="GHOSTWRITE"
           variant="primary"
-          size="sm"
+          size="small"
           onclick={() => log_action("Ghostwrite")}
         />
-        <Button label="PHOTO" variant="secondary" size="sm" onclick={() => log_action("Photo")} />
+        <Button
+          label="PHOTO"
+          variant="secondary"
+          size="small"
+          onclick={() => log_action("Photo")}
+        />
         <Button
           label="MOCK PROLOGUE"
           variant="invisible"
-          size="sm"
+          size="small"
           onclick={() => run_mock("fractal")}
         />
-        <Button label="MOCK TURN" variant="invisible" size="sm" onclick={() => run_mock("ai")} />
+        <Button label="MOCK TURN" variant="invisible" size="small" onclick={() => run_mock("ai")} />
         <Button
           label="END STORY"
           variant="secondary"
-          size="sm"
+          size="small"
           onclick={() => log_action("EndStory")}
         />
       </section>
@@ -201,7 +206,7 @@
         onchange={() => app.save_settings()}
       />
       <br />
-      <Button variant="danger" size="sm" onclick={() => (is_confirming_reset = true)}>
+      <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)}>
         <svg class="icon-small icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
           <path d="M3 6h18" />
           <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />

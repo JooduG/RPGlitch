@@ -112,3 +112,56 @@ Present the updated motion logic and visual demonstrations of the transitions.
 - [ ] Hardware acceleration (compositor-only properties) confirmed in the styles.
 - [ ] Interaction triggers (hover, click, gesture) are precise and responsive.
 - [ ] **Hard Evidence Recorded**: A browser performance trace showing clean frame timing.
+
+## RPGlitch Kinetic Animations
+
+The RPGlitch Engine uses kinetic interactions to provide tactile feedback and maintain a "glitchy" but high-fidelity Nordic aesthetic.
+
+## Implementation Pattern
+
+Standard atoms support kinetic actions through a unified `actions` prop.
+
+### 1. Import Actions
+
+Import kinetic actions from the central utility:
+
+```javascript
+import { pulse, roll, shimmy, spin } from "@utils/kinetic.js";
+```
+
+### 2. Pass to Component
+
+Pass the desired actions as an array to the `actions` prop:
+
+```svelte
+<Button actions={[shimmy, pulse]}>Interact</Button>
+```
+
+### 3. Internal Atom Logic
+
+Atoms apply these actions using the `use_actions` helper (standardized pattern):
+
+```svelte
+<script>
+  import { use_actions } from "@ui/utils/use-actions.js";
+  let { actions = [] } = $props();
+</script>
+
+<button use:use_actions={actions}>
+  <slot />
+</button>
+```
+
+## Available Kinetic Actions
+
+- **`shimmy`**: A subtle, jittery tremor. Used for "Busy" states or mild warnings.
+- **`spin`**: A full 360-degree rotation. Used for settings buttons or refreshing.
+- **`pulse`**: A rhythmic scaling effect. Used for indicators or high-priority calls to action.
+- **`roll`**: A barrel-roll transition.
+
+## Design Rules
+
+1. **Nomenclature**: Use descriptive, physics-led names for animations.
+2. **Standardization**: Always use the `actions` prop for Svelte actions.
+3. **Combination**: Kinetic actions are designed to be composable (e.g., `[shimmy, tooltip]`).
+4. **IsKinetic Flag**: Kinetic actions should have a property `is_kinetic = true` for identification.

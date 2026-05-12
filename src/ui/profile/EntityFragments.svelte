@@ -135,7 +135,7 @@
                   {#if is_editing}
                     <Button
                       variant="invisible"
-                      size="sm"
+                      size="small"
                       square={true}
                       aria-label="Enhance with AI"
                       className="enhance-btn"

@@ -211,7 +211,7 @@
         <div class="actions">
           <Button
             variant="invisible"
-            size="sm"
+            size="small"
             square
             aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
             className="action"
@@ -236,7 +236,7 @@
 
           <Button
             variant="invisible"
-            size="sm"
+            size="small"
             square
             aria-label="Generate Image"
             className="action"
@@ -357,7 +357,7 @@
     color: var(--color-white);
     background: rgb(from var(--color-white) r g b / 5%);
     padding: var(--spacing-1) var(--spacing-3);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / 10%);
   }
 

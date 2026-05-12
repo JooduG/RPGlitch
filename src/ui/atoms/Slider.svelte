@@ -51,7 +51,7 @@
   class="wrapper {className}"
   class:is-disabled={disabled || busy}
   class:is-busy={busy}
-  style="{style}; --fill-start: {fill_start}%; --fill-end: {fill_end}%;"
+  style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"
   data-testid={test_id}
   aria-busy={busy}
   aria-disabled={disabled || busy}
@@ -138,15 +138,15 @@
     background: linear-gradient(
       to right,
       rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-start),
-      var(--slider-fill-color-start) var(--fill-start),
-      var(--slider-fill-color-start) var(--fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-start),
+      var(--slider-fill-color-start) var(--state-fill-start),
+      var(--slider-fill-color-start) var(--state-fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-end),
       rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
     );
     box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     border: none;
   }
 
@@ -156,15 +156,15 @@
     background: linear-gradient(
       to right,
       rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-start),
-      var(--slider-fill-color-start) var(--fill-start),
-      var(--slider-fill-color-start) var(--fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-start),
+      var(--slider-fill-color-start) var(--state-fill-start),
+      var(--slider-fill-color-start) var(--state-fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-end),
       rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
     );
     box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--color-white) r g b / var(--opacity-ghost));
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     border: none;
   }
 
@@ -174,7 +174,7 @@
     width: var(--slider-thumb-size);
     height: var(--slider-thumb-size);
     background: var(--color-white);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     cursor: pointer;
     box-shadow: var(--slider-thumb-shadow);
     margin-top: calc(
@@ -192,7 +192,7 @@
     width: var(--slider-thumb-size);
     height: var(--slider-thumb-size);
     background: var(--color-white);
-    border-radius: var(--radius-pill);
+    border-radius: var(--radius-full);
     cursor: pointer;
     box-shadow: var(--slider-thumb-shadow);
     margin-top: calc(
