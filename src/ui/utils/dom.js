@@ -61,7 +61,7 @@ function get_measure_el(context = null) {
   const canAcceptChildren =
     context &&
     context.nodeType === 1 &&
-    !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template)$/i.test(
+    !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test(
       context.tagName,
     );
   const targetParent = canAcceptChildren ? context : document.body;
