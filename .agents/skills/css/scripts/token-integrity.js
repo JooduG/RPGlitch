@@ -64,7 +64,7 @@ export function getDefinedTokens() {
 export function validateLine(line) {
   const defined = getDefinedTokens();
   // Support hyphens and underscores in variable usage
-  const varRegex = /var\((--[a-zA-Z0-9_-]+)(?:\s*,\s*[^)]+)?\)/g;
+  const varRegex = /var\((--[a-zA-Z0-9_-]+)/g;
   let match;
 
   while ((match = varRegex.exec(line)) !== null) {
