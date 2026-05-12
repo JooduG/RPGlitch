@@ -200,7 +200,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
   }
 
   // 3. Browser Resolution
-  const sentinel = "1.234ms";
+  const sentinel = "1.234s";
   const el = prepare_measure(trimmed, "transitionDuration", sentinel, context);
   if (el) {
     const computed = window.getComputedStyle(el).transitionDuration;
