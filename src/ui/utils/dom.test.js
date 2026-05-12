@@ -160,6 +160,12 @@ describe("dom utilities", () => {
       expect(resolve_px("invalid", 123)).toBe(123);
       expect(resolve_px(undefined, 456)).toBe(456);
     });
+
+    it("resolves variables set to 0 correctly", () => {
+      document.body.style.setProperty("--zero-px", "0px");
+      expect(resolve_px("var(--zero-px)", 123)).toBe(0);
+      document.body.style.removeProperty("--zero-px");
+    });
   });
 
   describe("resolve_ms", () => {
@@ -185,6 +191,12 @@ describe("dom utilities", () => {
     it("returns fallback for invalid values", () => {
       expect(resolve_ms("invalid", 999)).toBe(999);
     });
+
+    it("resolves variables set to 0 correctly", () => {
+      document.body.style.setProperty("--zero-ms", "0ms");
+      expect(resolve_ms("var(--zero-ms)", 123)).toBe(0);
+      document.body.style.removeProperty("--zero-ms");
+    });
   });
 
   describe("resolve_number", () => {
@@ -199,6 +211,12 @@ describe("dom utilities", () => {
 
     it("resolves var() calls via flex-grow proxy", () => {
       expect(resolve_number("var(--local-num)", 0, contextEl)).toBe(0.75);
+    });
+
+    it("resolves variables set to 0 correctly", () => {
+      document.body.style.setProperty("--zero-num", "0");
+      expect(resolve_number("var(--zero-num)", 123)).toBe(0);
+      document.body.style.removeProperty("--zero-num");
     });
   });
 

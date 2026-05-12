@@ -11,9 +11,19 @@
  */
 function get_var_name(value) {
   const trimmed = String(value).trim();
-  if (trimmed.startsWith("--")) return trimmed;
+  if (trimmed.startsWith("--")) return trimmed.split(",")[0].trim();
   const match = trimmed.match(/^var\s*\(\s*(--[^,)\s]+)/);
   return match ? match[1] : null;
+}
+
+/**
+ * Prepares a CSS value for measurement, wrapping raw variables in var().
+ * @param {string} value
+ * @returns {string}
+ */
+function get_css_value(value) {
+  const trimmed = String(value).trim();
+  return trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
 }
 
 /** @type {HTMLElement | null} */
@@ -25,25 +35,62 @@ let sharedMeasureEl = null;
  * @returns {HTMLElement | null}
  */
 function get_measure_el(context = null) {
-  if (!sharedMeasureEl && typeof document !== "undefined") {
+  if (typeof document === "undefined") return null;
+
+  if (!sharedMeasureEl) {
     sharedMeasureEl = document.createElement("div");
+    sharedMeasureEl.id = "shared-measure-el";
     sharedMeasureEl.style.position = "absolute";
     sharedMeasureEl.style.visibility = "hidden";
     sharedMeasureEl.style.pointerEvents = "none";
     sharedMeasureEl.style.zIndex = "-9999";
-    // Using a flex container allows us to resolve unitless numbers via flex-grow
     sharedMeasureEl.style.display = "flex";
     document.body.appendChild(sharedMeasureEl);
   }
 
-  if (sharedMeasureEl) {
-    const targetParent = context || document.body;
-    if (sharedMeasureEl.parentElement !== targetParent) {
-      targetParent.appendChild(sharedMeasureEl);
-    }
+  const targetParent = context || document.body;
+  if (sharedMeasureEl.parentElement !== targetParent) {
+    targetParent.appendChild(sharedMeasureEl);
   }
 
   return sharedMeasureEl;
+}
+
+/**
+ * Helper to prepare the measurement element with a value and sentinel for failure detection.
+ * @param {string} value
+ * @param {string} prop
+ * @param {string} sentinel
+ * @param {HTMLElement | null} context
+ * @returns {HTMLElement | null}
+ */
+function prepare_measure(value, prop, sentinel, context) {
+  const el = get_measure_el(context);
+  if (!el) return null;
+
+  const cssValue = get_css_value(value);
+  if (typeof el.dataset !== "undefined") {
+    el.dataset.resolveValue = cssValue;
+  }
+
+  // 1. Proxy resolution to detect valid vs invalid variables (handles 0 vs undefined)
+  el.style.setProperty("--proxy", "SENTINEL");
+  el.style.setProperty("--proxy", cssValue);
+  const resolved = window.getComputedStyle(el).getPropertyValue("--proxy").trim();
+
+  // If it stayed at SENTINEL, the browser rejected the value.
+  // If it became empty string, it was a var() that resolved to nothing (invalid at compute time).
+  if (resolved === "SENTINEL" || (resolved === "" && cssValue !== "")) {
+    return null;
+  }
+
+  // 2. Set actual property for unit resolution (e.g. rem -> px)
+  // @ts-ignore - Dynamic property access
+  el.style[prop] = sentinel;
+  // @ts-ignore - Dynamic property access
+  el.style[prop] = cssValue;
+
+  return el;
 }
 
 /**
@@ -69,9 +116,10 @@ export function resolve_px(value, fallback = 0, context = null) {
     if (!isNaN(direct)) return direct;
   }
 
-  // 2. Variable resolution via context (Manual Lookup)
+  // 2. Variable resolution via context (Manual Lookup - only for simple variables)
   const varName = get_var_name(trimmed);
-  if (context && varName) {
+  const isSimpleVar = !trimmed.includes(",");
+  if (context && varName && isSimpleVar) {
     const style = window.getComputedStyle(context);
     const resolved = style.getPropertyValue(varName).trim();
     if (resolved && resolved !== trimmed) {
@@ -79,29 +127,20 @@ export function resolve_px(value, fallback = 0, context = null) {
     }
   }
 
-  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
-
-  const el = get_measure_el(context);
+  // 3. Browser Resolution
+  const sentinel = "1.234px";
+  const el = prepare_measure(trimmed, "paddingTop", sentinel, context);
   if (el) {
-    // Pass the raw value to the mock/browser via dataset for easier resolution in test environments
-    if (typeof el.dataset !== "undefined") {
-      el.dataset.resolveValue = String(cssValue);
-    }
-    el.style.paddingTop = "0px";
-    el.style.paddingTop = cssValue;
     const computed = window.getComputedStyle(el).paddingTop;
-    const result = parseFloat(computed);
-    if (isNaN(result)) return fallback;
-    // If we got 0 but the input wasn't 0, it likely failed to resolve
-    if (
-      result === 0 &&
-      !trimmed.startsWith("0") &&
-      !trimmed.includes("(0") &&
-      !trimmed.startsWith("calc")
-    )
-      return fallback;
 
-    return result;
+    // Detect failure: if it stayed at sentinel, it definitely failed.
+    // (Note: prepare_measure already does proxy detection for variables)
+    if (computed === sentinel) {
+      return fallback;
+    }
+
+    const result = parseFloat(computed);
+    return isNaN(result) ? fallback : result;
   }
 
   return fallback;
@@ -132,7 +171,8 @@ export function resolve_ms(value, fallback = 0, context = null) {
 
   // 2. Variable resolution via context
   const varName = get_var_name(trimmed);
-  if (context && varName) {
+  const isSimpleVar = !trimmed.includes(",");
+  if (context && varName && isSimpleVar) {
     const style = window.getComputedStyle(context);
     const resolved = style.getPropertyValue(varName).trim();
     if (resolved && resolved !== trimmed) {
@@ -140,25 +180,21 @@ export function resolve_ms(value, fallback = 0, context = null) {
     }
   }
 
-  // 3. Measure using dummy element
-  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
-
-  const el = get_measure_el(context);
+  // 3. Browser Resolution
+  const sentinel = "1.234ms";
+  const el = prepare_measure(trimmed, "transitionDuration", sentinel, context);
   if (el) {
-    // Pass the raw value to the mock/browser via dataset
-    if (typeof el.dataset !== "undefined") {
-      el.dataset.resolveValue = String(cssValue);
-    }
-    el.style.transitionDuration = cssValue;
     const computed = window.getComputedStyle(el).transitionDuration;
+
+    // Detect failure: if it stayed at sentinel, it definitely failed.
+    if (computed === sentinel) {
+      return fallback;
+    }
 
     const compMatch = computed.match(/([-.\d]+)(s|ms)/);
     if (compMatch) {
       const [_, val, unit] = compMatch;
-      const res = unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
-      // Handle invalid resolution returning 0
-      if (res === 0 && !trimmed.startsWith("0") && !trimmed.includes("(0")) return fallback;
-      return res;
+      return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
     }
   }
 
@@ -186,7 +222,8 @@ export function resolve_number(value, fallback = 0, context = null) {
 
   // 2. Variable resolution via context
   const varName = get_var_name(trimmed);
-  if (context && varName) {
+  const isSimpleVar = !trimmed.includes(",");
+  if (context && varName && isSimpleVar) {
     const style = window.getComputedStyle(context);
     const resolved = style.getPropertyValue(varName).trim();
     if (resolved && resolved !== trimmed) {
@@ -194,22 +231,18 @@ export function resolve_number(value, fallback = 0, context = null) {
     }
   }
 
-  // 3. Measure using dummy element
-  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
-
-  const el = get_measure_el(context);
+  // 3. Browser Resolution
+  const sentinel = "1.234";
+  const el = prepare_measure(trimmed, "flexGrow", sentinel, context);
   if (el) {
-    // Pass the raw value to the mock/browser via dataset
-    if (typeof el.dataset !== "undefined") {
-      el.dataset.resolveValue = String(cssValue);
+    const computed = window.getComputedStyle(el).flexGrow;
+
+    if (computed === sentinel) {
+      return fallback;
     }
-    el.style.flexGrow = cssValue;
-    const result = parseFloat(window.getComputedStyle(el).flexGrow);
 
-    if (isNaN(result)) return fallback;
-    if (result === 0 && !trimmed.startsWith("0") && !trimmed.includes("(0")) return fallback;
-
-    return result;
+    const result = parseFloat(computed);
+    return isNaN(result) ? fallback : result;
   }
 
   return fallback;
@@ -230,12 +263,10 @@ export function resolve_string(value, fallback = "", context = null) {
   const trimmed = String(value).trim();
   if (!trimmed) return fallback;
 
-  // 1. If it's not a variable or var() call, it's a raw string
+  // 1. Variable resolution via context
   const varName = get_var_name(trimmed);
-  if (!varName) return trimmed;
-
-  // 2. Resolve via context
-  if (context) {
+  const isSimpleVar = !trimmed.includes(",");
+  if (context && varName && isSimpleVar) {
     const style = window.getComputedStyle(context);
     const resolved = style.getPropertyValue(varName).trim();
     if (resolved && resolved !== trimmed) {
@@ -243,17 +274,21 @@ export function resolve_string(value, fallback = "", context = null) {
     }
   }
 
-  // 3. Fallback to dummy
-  const cssValue = trimmed.startsWith("--") ? `var(${trimmed})` : trimmed;
+  // 2. Browser Resolution
+  const cssValue = get_css_value(trimmed);
   const el = get_measure_el(context);
   if (el) {
-    // Pass the raw value to the mock/browser via dataset
     if (typeof el.dataset !== "undefined") {
-      el.dataset.resolveValue = String(cssValue);
+      el.dataset.resolveValue = cssValue;
     }
+    el.style.setProperty("--proxy", "SENTINEL");
     el.style.setProperty("--proxy", cssValue);
     const resolved = window.getComputedStyle(el).getPropertyValue("--proxy").trim();
-    if (resolved && resolved !== "initial") return resolved.replace(/['"]/g, "");
+
+    // If it's valid, it should be different from SENTINEL and not empty (unless original was empty)
+    if (resolved && resolved !== "SENTINEL") {
+      return resolved.replace(/['"]/g, "");
+    }
   }
 
   return fallback;
