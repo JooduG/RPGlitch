@@ -50,7 +50,7 @@ export function fit_text(node, options = {}) {
       } else {
         // Measure the 'natural' CSS size (e.g. from clamp or fixed rem)
         node.style.fontSize = "";
-        maxSize = resolve_px(window.getComputedStyle(node).fontSize, 16, node);
+        maxSize = parseFloat(window.getComputedStyle(node).fontSize) || 16;
       }
 
       // Default line-height from tokens
