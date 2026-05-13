@@ -156,7 +156,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
 2. **Incremental Execution**:
    - **Task Selection**: Identify the next pending task in the track's `plan.md`.
    - **State Mutation**: Mark the active task as in-progress `[~]` in the `plan.md`.
-   - **The TDD Loop**: Execute the task using the **Red-Green-Refactor** cycle. Use the [test-driven-development](../test/SKILL.md) skill to verify correctness.
+   - **The TDD Loop**: Execute the task using the **Red-Green-Refactor** cycle. Use the [test](../test/SKILL.md) skill to verify correctness.
    - **Completion**: Upon successful verification, commit the changes and update the task status in `plan.md` to `[x] <sha>` using the 7-character commit hash.
 3. **Audit Trail**:
    - **Skill Log**: Update the persistent Skill Log in `tasks/todo.md` with the task description, the skill invoked, and the outcome for every significant tool usage or state transition.
