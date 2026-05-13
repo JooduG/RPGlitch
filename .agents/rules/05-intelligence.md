@@ -14,32 +14,35 @@ trigger: always_on
 
 Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
-| Block Type      | Trigger                                             | MCP / Framework                                        |
-| :-------------- | :-------------------------------------------------- | :----------------------------------------------------- |
-| **Research**    | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
-| **Simulation**  | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local)                 |
-| **Sensory**     | Vision, **Optics**, Audio, Design.                  | `designer`, `image-generation`, `audio`, `css`         |
-| **Operations**  | Repository lifecycle, PRs, Issues.                  | **GH CLI** (`gh`)                                      |
-| **Resonance**   | Quality gates, template compliance, health.         | `warden`                                               |
-| **Reasoning**   | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                         |
-| **Reframing**   | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                               |
-| **Diversity**   | Trade-offs, simulated expertise.                    | `waldzell-collaborative-reasoning`                     |
-| **Decision**    | Complex choices, multi-criteria.                    | `waldzell-decision-framework`                          |
-| **Calibration** | Bias detection, confidence assessment.              | `waldzell-metacognitive-monitoring`                    |
+| **Strategy** | Product vision, blueprints, specs. | `planning`, `designer` |
+| **Tactics** | Task breakdown, implementation tracks. | `planning`, `source-driven-development` |
+| **Research** | Knowledge gaps, library patterns, web access. | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
+| **Simulation** | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local) |
+| **Sensory** | Vision, **Optics**, Audio, Design. | `designer`, `image-generation`, `audio`, `css` |
+| **Operations** | Repository lifecycle, PRs, Issues. | `/04-release` ↔ `delivery`, `security-and-hardening` |
+| **Resonance** | Quality gates, template compliance, health. | `/03-review` ↔ `quality`, `governance` |
+| **Reasoning** | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools` |
+| **Reframing** | "Impossible" bugs, flawed approach. | `waldzell-clear-thought` |
+| **Diversity** | Trade-offs, simulated expertise. | `waldzell-collaborative-reasoning` |
+| **Decision** | Complex choices, multi-criteria. | `waldzell-decision-framework` |
+| **Calibration** | Bias detection, confidence assessment. | `waldzell-metacognitive-monitoring` |
+| **VCS** | Reverts, branch management, history. | `/05-revert` ↔ `git-workflow-and-versioning` |
+| **Verification**| Tests, audits, TDD cycles. | `/06-test` ↔ `test-driven-development`, `quality` |
 
 ---
 
-### 2. Information Grounding
+### 2. Information Grounding (Sovereignty Axioms)
 
-Every claim must be anchored in the "Reality of the Codebase."
+Every claim must be anchored in the "Reality of the Codebase." The following **Sovereignty Axioms** are master laws that cannot be overridden:
 
 - **Quoting Mandate**: Verify logic state by quoting exact applicable information.
-- **Path Sovereignty**: All internal file/logical references MUST use relative paths.
+- **Path Sovereignty**: All internal file/logical references MUST use relative paths (e.g., `tasks/plan.md`).
 - **Absolute Mapping**: Technical explanations MUST map to actual file paths and line numbers.
+- **Auditable Proof (Git Notes)**: Verification reports and task summaries MUST be attached to commits via `git notes` to maintain a clean workspace while preserving forensics.
 
 ---
 
-### 3. Lexical Laws & Nomenclature
+### 3. Lexical Laws & Nomenclature (Sovereignty Axioms)
 
 To prevent cognitive drift, nomenclature is absolute.
 
@@ -51,6 +54,7 @@ To prevent cognitive drift, nomenclature is absolute.
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
 - **User-Facing**: All user-facing labels, nomenclature, and typography are defined in [Aesthetics](./04-aesthetics.md).
+- **Localization**: Metric/SI only. ISO 8601. Europe/Stockholm (GMT+2 CEST).
 
 #### **The RPGlitch Lexicon**
 
@@ -90,11 +94,34 @@ All complexity routing (Level 1/2/3 → Role → Workflow) is defined there. `GE
 To maintain the technical quality trail and ensure historical continuity, all complex missions (Level 2 & Level 3) MUST have a dedicated blueprint file.
 
 - **Location**: `tasks/plan.md`
+- **Status Protocol**: Tasks in the blueprint must follow a strict lifecycle:
+  - `[ ]`: Pending
+  - `[~]`: In Progress (Active)
+  - `[x] <sha>`: Completed (with 7-char commit hash)
 - **Archival**: To comply with strict zero-trust hygiene (Rule 06), the blueprint file MUST be persisted to Cold Storage (see §7.3.2) and then deleted from the local workspace upon mission completion ([DONE]). Do not archive it to walkthrough.md.
 
 ---
 
-### 6. Completeness & Truncation
+### 6. Execution & Verification Protocol (TDD)
+
+Every implementation must be preceded by a verification plan and follow the Red-Green-Refactor cycle.
+
+#### **The TDD Cycle**
+
+1. **Red**: Write a failing test that defines the task's success criteria.
+2. **Green**: Implement the minimum code required to pass the test.
+3. **Refactor**: Optimize the code while maintaining the green state.
+
+#### **Phase Checkpointing**
+
+Upon completing a logical phase in the blueprint:
+
+- **Diff Audit**: Verify all changes since the last checkpoint (`git diff --name-only <last_sha>`).
+- **Test Coverage**: Ensure every modified code file has a corresponding test file.
+- **Verification Plan**: Present a manual verification plan to the user before final checkpointing.
+- **Checkpoint Commit**: Create a dedicated `conductor(checkpoint)` commit to anchor the phase.
+
+### 7. Completeness & Truncation
 
 Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
 
@@ -104,24 +131,29 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 ---
 
-### 6. Workflow Registry
+### 8. Workflow Registry
 
-The following sovereign workflows are registered for agentic orchestration.
+The following sovereign workflows are registered for agentic orchestration within the Conductor framework.
 
-- **/boot**: Fresh Session Initialization. Syncs context, mental model, and global state.
-- **/continue**: Resume Interrupted Work.
-- **/swarm**: Swarm Command. Manual Swarm Orchestration. Human-initiated specialized sub-agent deployment.
-- **/github**: Local GitHub Ops. Automates PRs, issues, and local sync via **GH CLI**.
-- **/rewind**: Emergency Stop. Restore state from failover.
+- **[/00-status](../workflows/conductor/00-status.md)**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
+- **[/01-plan](../workflows/conductor/01-plan.md)**: Tactical Planning & Specification. Generates track-specific blueprints.
+- **[/02-implement](../workflows/conductor/02-implement.md)**: Incremental Tactical Implementation. Drives the TDD loop.
+- **[/03-review](../workflows/conductor/03-review.md)**: Quality Gate & Verification. Reviews completed track work.
+- **[/04-release](../workflows/conductor/04-release.md)**: Release & Handoff. Hardening and GitHub Deployment.
+- **[/05-revert](../workflows/conductor/05-revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
+- **[/06-test](../workflows/conductor/06-test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
+- **[/07-triage](../workflows/conductor/07-triage.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
+- **[/swarm](../workflows/utility/swarm.md)**: Manual Swarm Orchestration.- **/boot**: (Legacy alias for /00-status) Fresh Session Initialization.
+- **/continue**: (Legacy alias for /00-status) Resume Interrupted Work.
 
 ---
 
-### 7. Memory Protocol (Agent vs Application)
+### 9. Memory Protocol (Agent vs Application)
 
 > **CRITICAL DISTINCTION**:
 >
-> - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the **[Simulation](../skills/simulation/SKILL.md)** skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the **[Data](../skills/data/SKILL.md)** skill.
+> - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the [Simulation](../skills/simulation/SKILL.md) skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Data](../skills/data/SKILL.md) skill.
 
 Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
 
@@ -141,7 +173,7 @@ Agents MUST utilize the dual-layer memory system via the [Data](../skills/data/S
 
 ---
 
-### 8. Turn Signal & Skill Log Protocol
+### 10. Turn Signal & Skill Log Protocol
 
 Operational metadata is emitted at two layers:
 
@@ -156,9 +188,9 @@ A single lean line emitted at the end of each response. No tables, no lists.
 **Examples:**
 
 ```
-> ⚒️ Operations | `incremental-implementation` | /build
-> 🎨 Tactics | `planning-and-task-breakdown` | /plan
-> 🎭 Strategy | `specification` | /spec
+> ⚒️ Operations | `incremental-implementation` | /02-implement
+> 🎨 Tactics | `planning` | /01-plan
+> 🎭 Strategy | `planning` | /01-plan
 ```
 
 > [!TIP]

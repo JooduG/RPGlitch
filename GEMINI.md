@@ -8,7 +8,7 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 
 ### 1.1 Passive Governance
 
-[Rules](./.agents/rules), mandatory prerequisites ([specification](./.agents/skills/specification/SKILL.md) and [test-driven-development](./.agents/skills/test-driven-development/SKILL.md)), and constraints.
+[Rules](./.agents/rules), mandatory prerequisites ([planning](./.agents/skills/planning/SKILL.md) and [test-driven-development](./.agents/skills/test-driven-development/SKILL.md)), and constraints.
 
 ### 1.2 Order of operations
 
@@ -24,7 +24,7 @@ User preferences.
 
 ### 1.5 Intent Decoding
 
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [specification](./.agents/skills/specification/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [planning](./.agents/skills/planning/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ## 🧠 2. Hypothesis Generation & Triage
 
@@ -38,9 +38,9 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 
-- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/build](./.agents/workflows/build.md)_.
-- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/plan](./.agents/workflows/plan.md)_ -> **Level**1.
-- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/spec](./.agents/workflows/spec.md)_ -> **Level 2**.
+- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/02-implement](./.agents/workflows/conductor/02-implement.md)_.
+- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan](./.agents/workflows/conductor/01-plan.md)_ -> **Level**1.
+- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/01-plan](./.agents/workflows/conductor/01-plan.md)_ -> **Level 2**.
 
 ### 2.3 Risk & Level Mapping
 
@@ -100,7 +100,7 @@ If the _logic shifts_ drastically during testing -> _update the [Plan](./tasks/p
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Specification](./.agents/skills/specification/SKILL.md) and verified via [Test-driven Development](./.agents/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [planning](./.agents/skills/planning/SKILL.md) and verified via [test-driven-development](./.agents/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agents/rules/05-intelligence.md).
 
@@ -111,7 +111,7 @@ Every operational turn must conclude with a metadata block that signals the acti
 Below are the most common skills to be used in this step:
 
 - **[Designer & Sensory Dispatcher](./.agents/skills/designer)**: Orchestrates the atmosphere. Directs CSS, Motion, Audio, and Image-Gen specialists.
-- **[Specification](./.agents/skills/specification)**: Moves from "raw vibe" to technical blueprint.
+- **[Planning](./.agents/skills/planning)**: Moves from "raw vibe" to technical blueprint.
 - **[Planning](./.agents/skills/planning)**: Breaks work into vertical slices and delivers increments.
 - **[API & Interface Design](./.agents/skills/api-and-interface-design)**: Ensures stable, hard-to-misuse contracts and boundary validation.
 - **[Governance](./.agents/skills/governance)**: Architect of Laws, ADRs, and automated audits.

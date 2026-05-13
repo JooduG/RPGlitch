@@ -1,41 +1,47 @@
-# Mission Plan: Unifying Visual Busy States 🛠️
+# Mission Plan: Conductor Narrative Refinement 🎭
 
-We are unifying the "busy" state visual feedback across the application to ensure consistent user experience during long-running operations like image generation.
+We are refining the Conductor workflow ecosystem by transforming legacy documentation into high-fidelity, persona-driven manual entries.
 
 ## 🎯 Objectives
 
-- [x] **Unify Cursor Feedback**: Ensure `TextField` shows `cursor: wait` in all modes when busy.
-- [x] **Synchronize VisualWing Status**: Ensure the status bar appears immediately upon generation start.
-- [x] **Verification**: Audit the visual transitions and cursor behavior.
+- [x] **Consolidate Protocols**: Migrate legacy build, plan, and review files to the new `conductor/` structure. <!-- id: task-21-polish -->
+- [x] **Enrich Narrative**: Infuse workflows with distinct personas (Architect, Specialist, Auditor, etc.). <!-- id: task-23-narrative -->
+- [x] **Anchor SOPs**: Link all workflow steps to high-fidelity SOP anchors in the unified Planning skill. <!-- id: task-22-sop -->
+- [x] **System Sync**: Update `GEMINI.md` to resolve broken paths and officially stabilize the Conductor engine. <!-- id: system-sync -->
 
 ## 🛠️ Implementation Steps
 
-### 1. TextField Cursor Fix 🖱️
+### 1. Conductor Protocol Migration 🏗️
 
-- **File**: `src/ui/atoms/TextField.svelte`
-- **Change**: Explicitly set `cursor: wait` on the `.body` container when `data-busy="true"` is present on the wrapper.
 - **Status**: ✅ Done
+- **Forensics**:
+  - `00-status.md` (The Conductor)
+  - `01-plan.md` (Strategy Architect)
+  - `02-implement.md` (Tactical Specialist)
+  - `03-review.md` (Quality Auditor)
+  - `04-release.md` (Release Engineer)
+  - `05-revert.md` (State Reconciler)
+  - `06-test.md` (Diagnostics Officer)
 
-### 2. VisualWing Status Sync 📊
+### 2. Skill Consolidation 🧠
 
-- **File**: `src/ui/profile/VisualWing.svelte`
-- **Change**: Refined status bar with improved styling and explicit reactive checks.
-- **Optimization**: Reduced header transition delays in `TextField` to eliminate perceived latency.
 - **Status**: ✅ Done
+- **Action**: Merged `specification` skill into `planning` skill. Updated all internal references.
 
-### 3. Verification & Audit 🔍
+### 3. System Sovereignty & Links 🛡️
 
-- **Task**: Verified with `svelte-check` and manual code review.
 - **Status**: ✅ Done
+- **Action**: Updated `GEMINI.md` workflow registry to reflect the new structure. Verified all path sovereignty.
 
 ## 🧠 Reasoning & Strategy
 
-- **Architectural Clarity**: State-driven styling via data attributes remains robust.
-- **Performance**: Latency reduction in transitions significantly improves "feel".
-- **Immersion**: High-fidelity feedback loop for generation and retries.
+- **Architectural Integrity**: By consolidating workflows, we reduce cognitive overhead and eliminate legacy "slop".
+- **Narrative Immersion**: The persona-driven approach ensures the agent maintains a consistent behavioral profile during complex operations.
+- **TDD Compliance**: All implementation steps are anchored to the unified Planning SOPs for strict quality control.
 
 ## 🧠 Skill Log
 
-| Timestamp (ISO 8601) | Task              | Skill Invoked              | Outcome     |
-| -------------------- | ----------------- | -------------------------- | ----------- |
-| 2026-05-12T15:00:00Z | Unify busy states | svelte, designer, planning | ✅ Resolved |
+| Timestamp (ISO 8601) | Task                          | Skill Invoked            | Outcome     |
+| -------------------- | ----------------------------- | ------------------------ | ----------- |
+| 2026-05-13T19:30:00Z | Narrative Polish              | `planning`, `governance` | ✅ Resolved |
+| 2026-05-13T19:50:00Z | Conductor Protocol Refinement | `planning`, `governance` | ✅ Resolved |

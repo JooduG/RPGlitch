@@ -18,7 +18,7 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 
 RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
 
-- **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics from [DESIGN.md](../../design.md) ensure imagination remains central.
+- **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics defined in _the [Aesthetics](./04-aesthetics.md) rule_ ensure imagination remains central.
 - **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
 - **Recursive Intelligence**: Logic is a pillar. The [Engine](../../src/core/engine/) orchestrates input, [Security](../../src/core/security.js) enforces physics, and [Data](../../src/data/) ensures memory.
 

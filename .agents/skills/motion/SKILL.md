@@ -148,7 +148,7 @@ Atoms apply these actions using the `use_actions` helper (standardized pattern):
 </script>
 
 <button use:use_actions={actions}>
-  <slot />
+  {@render children?.()}
 </button>
 ```
 

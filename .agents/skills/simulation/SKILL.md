@@ -15,7 +15,7 @@ The `simulation` skill is the core metaphysical heartbeat of the RPGlitch Engine
 
 - **Positive Triggers**: Modifying round/turn logic in the `DynamicsEngine`, implementing new physics or state mutations, or adding new entity management behaviors.
 - **Narrative Shifts**: Changing how AI characters react to world state mutations or updating the story-swapping logic.
-- **EXCLUSIONS**: Do not use for pure UI layout changes or aesthetic tweaks; use `frontend-ui-engineering` or `designer`.
+- **EXCLUSIONS**: Do not use for pure UI layout changes or aesthetic tweaks; use `user-interface` or `designer`.
 
 ## How It Works
 

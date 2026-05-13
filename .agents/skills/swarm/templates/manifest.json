@@ -1,0 +1,22 @@
+{
+  "project": "RPGlitch",
+  "version": "5.0.0",
+  "swarm_id": "[UUID]",
+  "timestamp": "[ISO-DATE]",
+  "confidence_threshold": 0.8,
+  "tasks": [
+    {
+      "id": "task-logic",
+      "role": "Logic Specialist",
+      "focus": "Svelte 5 Runes & Engine State",
+      "files": [
+        "src/core/engine/state.svelte.js"
+      ],
+      "prompt": "Implement the core state transitions defined in the mission brief."
+    }
+  ],
+  "meta": {
+    "workflow": ".agents/workflows/07-swarm.md",
+    "skill": ".agents/skills/swarm/SKILL.md"
+  }
+}

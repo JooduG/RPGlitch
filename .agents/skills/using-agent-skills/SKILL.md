@@ -67,21 +67,21 @@ Never create temporary diagnostic files, logs, or command redirects in the proje
 
 Use this map to route your current task to the appropriate specialized skill:
 
-- **Planning & Spec**: `specification`, `planning`, `stitch`.
+- **Planning & Spec**: `planning`, `stitch`.
 - **Engineering**: `svelte`, `javascript`, `simulation`, `source-driven-development`, `performance-optimization`, `deprecation-and-migration`.
 - **Sensory & Design**: `designer`, `css`, `motion`, `audio`, `image-generation`.
 - **Governance**: `governance`, `security-and-hardening`, `context-engineering`.
 - **Research & Context**: `find-docs`, `data`, `deepwiki`, `firecrawl`.
 - **Verification**: `test-driven-development`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `quality`.
-- **Delivery**: `git-workflow-and-versioning`, `delivery`.
+- **Delivery**: `git-workflow-and-versioning`, `release`.
 
 ### Complexity Triage
 
-| Level       | Role          | Workflow                        | Scope                                               |
-| :---------- | :------------ | :------------------------------ | :-------------------------------------------------- |
-| **Level 1** | ⚒️ Operations | ⚡ `/test` → `/build`           | Typos, CSS tweaks, minor logic.                     |
-| **Level 2** | 🎨 Tactics    | 🧠 `/plan` → `/build`           | New features, refactors, multi-file changes.        |
-| **Level 3** | 🎭 Strategy   | 🤔 `/spec` → `/plan` → `/build` | Architectural shifts, high ambiguity, core systems. |
+| Level       | Role          | Workflow                                            | Scope                                               |
+| :---------- | :------------ | :-------------------------------------------------- | :-------------------------------------------------- |
+| **Level 1** | ⚒️ Operations | ⚡ `/test` → `/02-implement`                        | Typos, CSS tweaks, minor logic.                     |
+| **Level 2** | 🎨 Tactics    | 🧠 `/01-plan` → `/02-implement`                     | New features, refactors, multi-file changes.        |
+| **Level 3** | 🎭 Strategy   | 🤔 `/01-plan` (spec) → `/01-plan` → `/02-implement` | Architectural shifts, high ambiguity, core systems. |
 
 ### Skill Invocation Protocol
 
