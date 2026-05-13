@@ -9,11 +9,11 @@ skills:
   css: .agents/skills/css/SKILL.md
   data: .agents/skills/data/SKILL.md
   debugging-and-error-recovery: .agents/skills/debugging-and-error-recovery/SKILL.md
-  delivery: .agents/skills/delivery/SKILL.md
+  release: .agents/skills/release/SKILL.md
   deprecation-and-migration: .agents/skills/deprecation-and-migration/SKILL.md
   designer: .agents/skills/designer/SKILL.md
   find-docs: .agents/skills/find-docs/SKILL.md
-  git-workflow-and-versioning: .agents/skills/git-workflow-and-versioning/SKILL.md
+  git: .agents/skills/git/SKILL.md
   governance: .agents/skills/governance/SKILL.md
   image-generation: .agents/skills/image-generation/SKILL.md
   javascript: .agents/skills/javascript/SKILL.md
@@ -24,30 +24,29 @@ skills:
   security-and-hardening: .agents/skills/security-and-hardening/SKILL.md
   simulation: .agents/skills/simulation/SKILL.md
   source-driven-development: .agents/skills/source-driven-development/SKILL.md
-  specification: .agents/skills/specification/SKILL.md
   stitch-skill: .agents/skills/stitch-skill/SKILL.md
   supabase-postgres-best-practices: .agents/skills/supabase-postgres-best-practices/SKILL.md
   svelte: .agents/skills/svelte/SKILL.md
   swarm: .agents/skills/swarm/SKILL.md
-  test-driven-development: .agents/skills/test-driven-development/SKILL.md
+  test: .agents/skills/test/SKILL.md
   user-interface: .agents/skills/user-interface/SKILL.md
   using-agent-skills: .agents/skills/using-agent-skills/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
-  10x: .agents/workflows/idea-generation.md
-  boot: .agents/workflows/boot.md
-  build: .agents/workflows/build.md
-  code-simplify: .agents/workflows/code-simplify.md
-  continue: .agents/workflows/continue.md
-  github: .agents/workflows/github.md
-  plan: .agents/workflows/plan.md
-  review: .agents/workflows/review.md
-  ship: .agents/workflows/ship.md
-  spec: .agents/workflows/spec.md
-  swarm: .agents/workflows/swarm.md
-  test: .agents/workflows/test.md
-  update-npm-dependencies-check-updates: .agents/workflows/update-npm-dependencies-check-updates.md
+  00-status: .agents/workflows/conductor/00-status.md
+  01-plan: .agents/workflows/conductor/01-plan.md
+  02-implement: .agents/workflows/conductor/02-implement.md
+  03-review: .agents/workflows/conductor/03-review.md
+  04-release: .agents/workflows/conductor/04-release.md
+  05-revert: .agents/workflows/conductor/05-revert.md
+  06-test: .agents/workflows/conductor/06-test.md
+  code-simplify: .agents/workflows/utility/code-simplify.md
+  idea-generation: .agents/workflows/utility/idea-generation.md
+  refactor: .agents/workflows/utility/refactor.md
+  swarm: .agents/workflows/utility/swarm.md
+  setup-conductor: .agents/workflows/rare/setup-conductor.md
+  update-npm-dependencies-check-updates: .agents/workflows/rare/update-npm-dependencies-check-updates.md
 
 # ⚖️ Governance (The Law & The Audit)
 governance:

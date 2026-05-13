@@ -8,13 +8,13 @@ This document represents the formal **[/04-review]** of the Antigravity Engine f
 
 - **Status**: ✅ VERIFIED
 - **Logic**: `swarm-engine.js` correctly utilizes a browser/Node bridge. It checks for `window.ai` and falls back to `@google/jules-sdk` seamlessly.
-- **Path**: `file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/swarm/scripts/swarm-engine.js#L89`
+- **Path**: [swarm-engine.js](../../swarm/scripts/swarm-engine.js#L89)
 
 ### 2. Rune Shims (Svelte-to-Node Bridge)
 
 - **Status**: ✅ VERIFIED
 - **Logic**: Static mocks for $state, $derived, and $effect allow for error-free imports of reactive logic files into the Node background environment.
-- **Path**: `file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/swarm/scripts/swarm-engine.js#L26-35`
+- **Path**: [swarm-engine.js](../../swarm/scripts/swarm-engine.js#L26-35)
 
 ### 3. Knowledge CLI (Semantic Retrieval)
 

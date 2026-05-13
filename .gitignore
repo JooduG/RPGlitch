@@ -39,6 +39,7 @@
 **/tmp/**
 **/.gemini/**
 !**/rpglitch-left-panel.txt
+!**/templates/**
 .secrets
 **/.jules/**
 act_output.log
