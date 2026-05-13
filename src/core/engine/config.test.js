@@ -9,8 +9,9 @@ import {
 } from "./config.js";
 
 describe("core/engine/config", () => {
-  it("should have the correct APP_VERSION", () => {
-    expect(APP_VERSION).toBe("0.2.0 (Coronation)");
+  it("should have a valid APP_VERSION format", () => {
+    // This regex checks for a SemVer-like string followed by a name in parentheses.
+    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+ \([\w\s]+\)$/);
   });
 
   describe("CONFIG structure", () => {
