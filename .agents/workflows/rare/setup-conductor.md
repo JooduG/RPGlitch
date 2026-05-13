@@ -322,7 +322,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 
 1.  **Initiate Dialogue:** Announce that the initial scaffolding is complete and you now need the user's input to select the project's coding skills and styleguides from the locally available templates.
 2.  **Select Skills:**
-    - List the available skill templates by using the `run_command` tool to execute `ls ~/.agents/skills/conductor/templates/skills/`. **CRITICAL: You MUST use `run_command` for this step. Do NOT use the `list_dir` tool, as the templates directory resides outside of your allowed workspace and the call will fail.**
+    - List the available skill templates by using the run_shell_command tool to execute ls .agents/skills/planning/templates/skills/. **CRITICAL: You MUST use run_shell_command for this step. Do NOT use the list_dir tool, as the templates directory resides outside of your allowed workspace and the call will fail.**
     - **FOR GREENFIELD PROJECTS:**
       - **Recommendation:** Based on the Tech Stack defined in the previous step, recommend the most appropriate skills (e.g., "javascript" for a Svelte project) and explain why.
       - **Determine Mode:** Use the `ask_user` tool:
