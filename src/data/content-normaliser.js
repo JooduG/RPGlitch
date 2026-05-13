@@ -64,7 +64,6 @@ export const get_random_signature_key = () => {
  * @param {any} base
  */
 export const normalize = (base = {}) => {
-  // [FIX] Destructure id, timestamps, and database flags so they aren't lost
   const {
     id,
     created_at,
@@ -82,6 +81,10 @@ export const normalize = (base = {}) => {
     is_snapshot,
     isSnapshot,
     version,
+    associated_ids,
+    associatedIds,
+    dynamics_baseline,
+    dynamicsBaseline,
     name = "",
     description = "",
     type = "character",
@@ -105,19 +108,23 @@ export const normalize = (base = {}) => {
   const norm_is_custom = is_custom ?? isCustom ?? 0;
   const norm_is_chosen = is_chosen ?? isChosen ?? 0;
   const norm_is_snapshot = is_snapshot ?? isSnapshot ?? 0;
-  const norm_origin_id = origin_id || originId || null;
+  const norm_origin_id = origin_id ?? originId ?? null;
+  const norm_associated_ids = Array.isArray(associated_ids ?? associatedIds) ? [...(associated_ids ?? associatedIds)] : [];
+  const norm_dynamics_baseline = (dynamics_baseline ?? dynamicsBaseline) instanceof Object ? { ...(dynamics_baseline ?? dynamicsBaseline) } : null;
 
   const result = {
     // --- CORE METADATA ---
-    id: id || "",
-    created_at: created_at || createdAt || 0,
-    updated_at: updated_at || updatedAt || 0,
+    id: id ?? "",
+    created_at: created_at ?? createdAt ?? 0,
+    updated_at: updated_at ?? updatedAt ?? 0,
     origin_id: norm_origin_id,
     is_premade: norm_is_premade,
     is_custom: norm_is_custom,
     is_chosen: norm_is_chosen,
     is_snapshot: norm_is_snapshot,
-    version: version || 0,
+    version: version ?? 0,
+    associated_ids: norm_associated_ids,
+    dynamics_baseline: norm_dynamics_baseline,
 
     // [BACKWARD COMPAT] CamelCase DB flags for Dexie indexes
     isCustom: norm_is_custom,
@@ -125,6 +132,8 @@ export const normalize = (base = {}) => {
     isChosen: norm_is_chosen,
     isSnapshot: norm_is_snapshot,
     originId: norm_origin_id,
+    associatedIds: norm_associated_ids,
+    dynamicsBaseline: norm_dynamics_baseline,
 
     name: sanitize_html(name).trim(),
     description: sanitize_html(description).trim(),

@@ -109,6 +109,8 @@ describe("content-normaliser.js", () => {
         is_chosen: 1,
         is_snapshot: 1,
         version: 5,
+        associated_ids: ["abc"],
+        dynamics_baseline: { chaos: 50 },
       };
       const result = normalize(input);
       expect(result.id).toBe("id-123");
@@ -120,6 +122,8 @@ describe("content-normaliser.js", () => {
       expect(result.is_chosen).toBe(1);
       expect(result.is_snapshot).toBe(1);
       expect(result.version).toBe(5);
+      expect(result.associated_ids).toEqual(["abc"]);
+      expect(result.dynamics_baseline).toEqual({ chaos: 50 });
 
       // Verify camelCase mappings
       expect(result.originId).toBe("origin-456");
@@ -127,6 +131,8 @@ describe("content-normaliser.js", () => {
       expect(result.isPremade).toBe(1);
       expect(result.isChosen).toBe(1);
       expect(result.isSnapshot).toBe(1);
+      expect(result.associatedIds).toEqual(["abc"]);
+      expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
     });
 
     it("should handle camelCase variants for database flags", () => {
@@ -138,6 +144,8 @@ describe("content-normaliser.js", () => {
         isCustom: 1,
         isChosen: 1,
         isSnapshot: 1,
+        associatedIds: ["abc"],
+        dynamicsBaseline: { chaos: 50 },
       };
       const result = normalize(input);
       expect(result.created_at).toBe(1000);
@@ -147,6 +155,8 @@ describe("content-normaliser.js", () => {
       expect(result.is_custom).toBe(1);
       expect(result.is_chosen).toBe(1);
       expect(result.is_snapshot).toBe(1);
+      expect(result.associated_ids).toEqual(["abc"]);
+      expect(result.dynamics_baseline).toEqual({ chaos: 50 });
 
       // Verify camelCase preservation
       expect(result.originId).toBe("origin-456");
@@ -154,6 +164,8 @@ describe("content-normaliser.js", () => {
       expect(result.isPremade).toBe(1);
       expect(result.isChosen).toBe(1);
       expect(result.isSnapshot).toBe(1);
+      expect(result.associatedIds).toEqual(["abc"]);
+      expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
     });
 
     it("should prioritize snake_case over camelCase when both are present", () => {
