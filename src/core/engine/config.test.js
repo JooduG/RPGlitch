@@ -16,9 +16,9 @@ describe("core/engine/config", () => {
   describe("CONFIG structure", () => {
     it("should have the correct ENTITIES structure", () => {
       expect(CONFIG.ENTITIES).toEqual({
-        AI: expect.any(String),
-        USER: expect.any(String),
-        FRACTAL: expect.any(String),
+        AI: "ai_character",
+        USER: "user_persona",
+        FRACTAL: "fractal",
       });
     });
 
