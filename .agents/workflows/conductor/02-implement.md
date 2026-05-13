@@ -60,7 +60,7 @@ Refer to **[SOP-04](../../skills/planning/SKILL.md#L123)** for the detailed disc
 
 **PROTOCOL: Execute the tactical plan with high-fidelity technical precision.**
 
-The Implementation Grind is a rhythmic cycle of creation and verification. It follows the **[Task Lifecycle & Mission Control](../../skills/planning/SKILL.md#L134)** SOP to ensure that every change is captured and anchored.
+The Implementation Grind is a rhythmic cycle of creation and verification. It follows the **[Task Lifecycle & Mission Control](../../skills/planning/SKILL.md#L151)** SOP to ensure that every change is captured and anchored.
 
 ### Track Activation
 
