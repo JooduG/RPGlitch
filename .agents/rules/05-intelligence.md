@@ -143,7 +143,8 @@ The following sovereign workflows are registered for agentic orchestration withi
 - **[/05-revert](../workflows/conductor/05-revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
 - **[/06-test](../workflows/conductor/06-test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
 - **[/07-triage](../workflows/conductor/07-triage.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
-- **[/swarm](../workflows/utility/swarm.md)**: Manual Swarm Orchestration.- **/boot**: (Legacy alias for /00-status) Fresh Session Initialization.
+- **[/swarm](../workflows/utility/swarm.md)**: Manual Swarm Orchestration.
+- /boot: (Legacy alias for /00-status) Fresh Session Initialization.
 - **/continue**: (Legacy alias for /00-status) Resume Interrupted Work.
 
 ---
