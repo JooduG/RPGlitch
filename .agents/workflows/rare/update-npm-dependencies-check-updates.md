@@ -33,7 +33,7 @@ date_added: 2024-03-29
 
 ### Phase 2: Interactive Update (Step 5: Execution)
 
-1. **Candidate Review**: Run `npm run update:check` (or `ncu -i`). Select the packages for update. [[Invoke: ci-cd-and-automation]](../../skills/git-workflow-and-versioning/)
+1. **Candidate Review**: Run npm run update:check (or ncu -i). Select the packages for update. [[Invoke: ci-cd-and-automation]](../../skills/git/)
 2. **Execution**: Apply the updates and run `npm install`.
 
 ### Phase 3: Finalization
