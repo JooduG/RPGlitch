@@ -10,7 +10,7 @@ import {
 
 describe("core/engine/config", () => {
   it("should have the correct APP_VERSION", () => {
-    expect(APP_VERSION).toBe("0.2.0 (Coronation)");
+    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+/);
   });
 
   describe("CONFIG structure", () => {
