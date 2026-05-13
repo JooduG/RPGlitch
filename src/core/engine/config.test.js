@@ -10,7 +10,7 @@ import {
 
 describe("core/engine/config", () => {
   it("should have a valid APP_VERSION format", () => {
-    // This regex checks for a SemVer-like string followed by a name in parentheses.
+    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+ \(.*\)$/);
     expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+ \([\w\s]+\)$/);
   });
 
