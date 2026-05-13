@@ -109,8 +109,8 @@ export const normalize = (base = {}) => {
   const norm_is_chosen = is_chosen ?? isChosen ?? 0;
   const norm_is_snapshot = is_snapshot ?? isSnapshot ?? 0;
   const norm_origin_id = origin_id ?? originId ?? null;
-  const norm_associated_ids = associated_ids ?? associatedIds ?? [];
-  const norm_dynamics_baseline = dynamics_baseline ?? dynamicsBaseline ?? null;
+  const norm_associated_ids = Array.isArray(associated_ids ?? associatedIds) ? [...(associated_ids ?? associatedIds)] : [];
+  const norm_dynamics_baseline = (dynamics_baseline ?? dynamicsBaseline) instanceof Object ? { ...(dynamics_baseline ?? dynamicsBaseline) } : null;
 
   const result = {
     // --- CORE METADATA ---
