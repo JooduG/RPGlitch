@@ -31,9 +31,11 @@ export const escape = (str) => {
     .replace(/'/g, "&#39;");
 };
 /**
- * @param {any} _text
+ * Evaluates if a given text should be refused based on safety or policy rules.
+ * Currently a pass-through placeholder that always returns false.
+ * @returns {boolean}
  */
-export const checkRefusal = (_text) => false;
+export const checkRefusal = () => false;
 /**
  * @param {any} text
  */
