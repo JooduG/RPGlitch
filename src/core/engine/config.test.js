@@ -33,10 +33,10 @@ describe("core/engine/config", () => {
 
     it("should have the correct DYNAMICS structure", () => {
       expect(CONFIG.DYNAMICS).toEqual({
-        RELEVANCE_DYNAMICS_BONUS: expect.any(Number),
-        RELEVANCE_TRIGGER_BONUS: expect.any(Number),
-        RELEVANCE_VECTOR_BONUS: expect.any(Number),
-        VISUAL_TEMP_DEFAULT: expect.any(Number),
+        RELEVANCE_DYNAMICS_BONUS: 1,
+        RELEVANCE_TRIGGER_BONUS: 2,
+        RELEVANCE_VECTOR_BONUS: 3,
+        VISUAL_TEMP_DEFAULT: 0.45,
       });
     });
 
