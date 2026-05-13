@@ -37,7 +37,7 @@ _Triggered via `/github` or after successful Hardening._
 
 We now transition from local state to remote synchronization. We are updating the "Echo"—the persistent record of our work.
 
-1.  **Commit Forensic Audit ([SOP-13](../../skills/planning/SKILL.md#L229))**: Review the local commit history. Ensure every change is captured in a logical, atomic commit with a clear, descriptive message. If necessary, use `git commit --amend` to polish the narrative before pushing.
+1.  **Commit Forensic Audit ([SOP-13](../../skills/planning/SKILL.md#L254))**: Review the local commit history. Ensure every change is captured in a logical, atomic commit with a clear, descriptive message. If necessary, use `git commit --amend` to polish the narrative before pushing.
 2.  **Origin Pulse**: Push all verified commits to the remote origin. This synchronizes the local workspace with the global repository state.
 3.  **Branch Isolation**: Confirm that the current feature branch is correctly named and strictly isolated from the protected `main` branch.
 
