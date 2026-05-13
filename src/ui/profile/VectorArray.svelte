@@ -120,7 +120,7 @@
   }
 </script>
 
-<div class="wrapper" style="--accent-color: {signature_color}">
+<div class="root" style="--accent-color: {signature_color}">
   {#each items as item, i (item.id || i)}
     <div
       class="item"
@@ -232,7 +232,7 @@
 <style>
   /* --- LAYOUT --- */
 
-  .wrapper {
+  .root {
     width: 100%;
     display: flex;
     flex-direction: column;

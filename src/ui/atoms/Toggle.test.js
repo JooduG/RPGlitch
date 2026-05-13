@@ -11,7 +11,7 @@ describe("Toggle Atom", () => {
   test("handles busy state correctly", () => {
     const { container } = render(Toggle, { busy: true });
     const input = /** @type {any} */ (container.querySelector("input"));
-    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const wrapper = /** @type {any} */ (container.querySelector(".root"));
 
     expect(input.disabled).toBe(true);
     expect(wrapper.classList.contains("is-busy")).toBe(true);
@@ -29,7 +29,7 @@ describe("Toggle Atom", () => {
     const { container } = render(Toggle, {
       style: "margin-top: 20px; color: red;",
     });
-    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const wrapper = /** @type {any} */ (container.querySelector(".root"));
     const input = /** @type {any} */ (container.querySelector("input"));
 
     expect(wrapper.getAttribute("style")).toContain("margin-top: 20px");

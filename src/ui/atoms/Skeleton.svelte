@@ -24,7 +24,7 @@
 
 <div
   {...rest}
-  class="wrapper {variant} {className}"
+  class="root {variant} {className}"
   style:width
   style:height
   style:aspect-ratio={aspect_ratio}
@@ -32,7 +32,7 @@
 ></div>
 
 <style>
-  .wrapper {
+  .root {
     /* Base Surface: Sunken placeholder logic */
     background: var(--glass-sunken);
     backdrop-filter: var(--glass-sunken-blur);
@@ -47,25 +47,25 @@
   }
 
   /* Variant Harmonization */
-  .wrapper.card {
+  .root.card {
     border-radius: var(--radius-standard);
     min-height: var(--skeleton-card-min-height);
   }
 
-  .wrapper.hero {
+  .root.hero {
     border-radius: var(--radius-standard);
     min-height: var(--skeleton-hero-min-height);
   }
 
-  .wrapper.profile-picture,
-  .wrapper.circle {
+  .root.profile-picture,
+  .root.circle {
     border-radius: var(--radius-full);
     aspect-ratio: var(--aspect-square);
     width: var(--icon-medium);
     height: var(--icon-medium);
   }
 
-  .wrapper.text {
+  .root.text {
     height: var(--skeleton-text-height);
     margin-bottom: var(--spacing-2);
     border-radius: var(--radius-subtle);
@@ -73,7 +73,7 @@
   }
 
   /* Shimmer Effect: The Nordic Fog */
-  .wrapper::after {
+  .root::after {
     content: "";
     position: absolute;
     inset: var(--spacing-0);

@@ -6,14 +6,60 @@
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
-  import Skeleton from "@atoms/Skeleton.svelte";
-  import Drawer from "@drawer/Drawer.svelte";
-  import { app } from "@state/app.svelte.js";
-  import StoryboardCard from "@storyboard/StoryboardCard.svelte";
-  import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
-  import StoryboardPill from "@storyboard/StoryboardPill.svelte";
+
   import Layout from "@ui/Layout.svelte";
+  import Drawer from "@drawer/Drawer.svelte";
+  import Skeleton from "@atoms/Skeleton.svelte";
+  import StoryboardCard from "@storyboard/StoryboardCard.svelte";
+  import StoryboardPill from "@storyboard/StoryboardPill.svelte";
+  import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
+  import { app } from "@state/app.svelte.js";
+
+  // --- DERIVATIONS ---
+
+  /**
+   * Card configuration for DRY slot rendering
+   */
+  const slots = $derived({
+    ai: {
+      type: "ai",
+      entity: app.selected_ai,
+      label: "AI Character",
+      width: "var(--storyboard-character-card-width)",
+      height: "var(--storyboard-character-card-height)",
+    },
+    fractal: {
+      type: "fractal",
+      entity: app.selected_fractal,
+      label: "Fractal",
+      width: "var(--storyboard-fractal-card-width)",
+      height: "var(--storyboard-fractal-card-height)",
+    },
+    user: {
+      type: "user",
+      entity: app.selected_user,
+      label: "User Persona",
+      width: "var(--storyboard-character-card-width)",
+      height: "var(--storyboard-character-card-height)",
+    },
+  });
 </script>
+
+{#snippet Slot(
+  /** @type {{ type: any; entity: any; label: any; width: any; height: any; }} */ config,
+)}
+  {#if !app.entities_loaded}
+    <Skeleton variant="card" width={config.width} height={config.height} />
+  {:else}
+    <StoryboardCard
+      type={config.type}
+      entity={config.entity}
+      role_label={config.label}
+      on_select={() => app.open_drawer(config.type)}
+      on_view_profile={() => app.toggle_profile(true, config.entity)}
+    />
+  {/if}
+{/snippet}
 
 <Layout align="center">
   {#snippet header()}
@@ -23,45 +69,15 @@
   {/snippet}
 
   {#snippet left()}
-    {#if !app.entities_loaded}
-      <Skeleton variant="card" width="var(--columns-2)" height="var(--columns-3)" />
-    {:else}
-      <StoryboardCard
-        type="ai"
-        entity={app.selected_ai}
-        role_label="AI Character"
-        on_select={() => app.open_drawer("ai")}
-        on_view_profile={() => app.toggle_profile(true, app.selected_ai)}
-      />
-    {/if}
+    {@render Slot(slots.ai)}
   {/snippet}
 
   {#snippet center()}
-    {#if !app.entities_loaded}
-      <Skeleton variant="card" width="var(--columns-3)" height="var(--columns-2)" />
-    {:else}
-      <StoryboardCard
-        type="fractal"
-        entity={app.selected_fractal}
-        role_label="Fractal"
-        on_select={() => app.open_drawer("fractal")}
-        on_view_profile={() => app.toggle_profile(true, app.selected_fractal)}
-      />
-    {/if}
+    {@render Slot(slots.fractal)}
   {/snippet}
 
   {#snippet right()}
-    {#if !app.entities_loaded}
-      <Skeleton variant="card" width="var(--columns-2)" height="var(--columns-3)" />
-    {:else}
-      <StoryboardCard
-        type="user"
-        entity={app.selected_user}
-        role_label="User Persona"
-        on_select={() => app.open_drawer("user")}
-        on_view_profile={() => app.toggle_profile(true, app.selected_user)}
-      />
-    {/if}
+    {@render Slot(slots.user)}
   {/snippet}
 
   {#snippet footer()}

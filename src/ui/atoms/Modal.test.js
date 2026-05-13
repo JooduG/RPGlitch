@@ -47,7 +47,7 @@ describe("Modal.svelte", () => {
       variant: "profile",
     });
     // Find the backdrop which handles external clicks
-    const backdrop = container.querySelector(".wrapper");
+    const backdrop = container.querySelector(".root");
     expect(backdrop).toBeTruthy();
     // Simulate click on the backdrop
     await fireEvent.click(/** @type {any} */ (backdrop));
@@ -61,10 +61,10 @@ describe("Modal.svelte", () => {
       variant: "profile",
     });
     // Find the modal content element
-    const modalContent = container.querySelector(".base.profile");
+    const modalContent = container.querySelector(".root.profile");
     expect(modalContent).toBeTruthy();
     // Find the backdrop
-    const backdrop = container.querySelector(".wrapper");
+    const backdrop = container.querySelector(".root");
     expect(backdrop).toBeTruthy();
     // Clicking the backdrop should trigger on_close
     await fireEvent.click(/** @type {any} */ (backdrop));

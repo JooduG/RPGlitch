@@ -35,7 +35,7 @@
 </script>
 
 <label
-  class="wrapper {className}"
+  class="root {className}"
   class:is-disabled={disabled || busy}
   class:is-busy={busy}
   class:is-small={size === "small"}
@@ -60,7 +60,7 @@
 </label>
 
 <style>
-  .wrapper {
+  .root {
     /* Layout */
     position: relative;
     display: inline-flex;
@@ -82,21 +82,21 @@
 
   /* --- MODIFIERS --- */
 
-  .wrapper.is-disabled {
+  .root.is-disabled {
     opacity: var(--opacity-muted);
     cursor: default;
   }
 
-  .wrapper.is-busy {
+  .root.is-busy {
     cursor: wait;
     filter: var(--brightness-dim) grayscale(0.5);
   }
 
-  .wrapper.is-busy > * {
+  .root.is-busy > * {
     pointer-events: none;
   }
 
-  .wrapper.is-small {
+  .root.is-small {
     --state-toggle-width: var(--toggle-small-width);
     --state-toggle-height: var(--toggle-small-height);
     --state-toggle-thumb-size: var(--toggle-small-thumb-size);
@@ -160,11 +160,11 @@
   /* --- STATES --- */
 
   /* Hover Interaction */
-  .wrapper:hover:not(.is-disabled) .track::before {
+  .root:hover:not(.is-disabled) .track::before {
     filter: var(--hover-glow);
   }
 
-  .wrapper:hover:not(.is-disabled) .label {
+  .root:hover:not(.is-disabled) .label {
     color: var(--color-white);
   }
 

@@ -11,7 +11,7 @@ describe("Slider Atom", () => {
   test("handles busy state correctly", () => {
     const { container, getByText } = render(Slider, { label: "Intensity", busy: true });
     const input = /** @type {any} */ (container.querySelector("input"));
-    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const wrapper = /** @type {any} */ (container.querySelector(".root"));
 
     expect(input.disabled).toBe(true);
     expect(wrapper.classList.contains("is-busy")).toBe(true);
@@ -30,7 +30,7 @@ describe("Slider Atom", () => {
     const { container } = render(Slider, {
       style: "margin-top: 20px; color: red;",
     });
-    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const wrapper = /** @type {any} */ (container.querySelector(".root"));
     const input = /** @type {any} */ (container.querySelector("input"));
     const style = wrapper.getAttribute("style");
 
@@ -47,7 +47,7 @@ describe("Slider Atom", () => {
     // fill_start: min(75, 50) = 50%
     // fill_end: max(75, 50) = 75%
     const { container } = render(Slider, { min: 0, max: 2, value: 1.5 });
-    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const wrapper = /** @type {any} */ (container.querySelector(".root"));
     const style = wrapper.getAttribute("style");
 
     expect(style).toContain("--state-fill-start: 50%");
@@ -60,7 +60,7 @@ describe("Slider Atom", () => {
     // val_pct: 20%
     // fill_start: 20%, fill_end: 50%
     const { container } = render(Slider, { min: 0, max: 100, value: 20, neutral: 50 });
-    const wrapper = /** @type {any} */ (container.querySelector(".wrapper"));
+    const wrapper = /** @type {any} */ (container.querySelector(".root"));
     const style = wrapper.getAttribute("style");
 
     expect(style).toContain("--state-fill-start: 20%");

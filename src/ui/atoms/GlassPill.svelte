@@ -43,7 +43,7 @@
 
 <div
   {...rest}
-  class="wrapper {orientation} {className} glass-elevated"
+  class="root {orientation} {className} glass-elevated"
   class:is-focused={is_focused}
   class:is-busy={busy}
   style="--state-signature-color: {signature_color};"
@@ -63,7 +63,7 @@
 </div>
 
 <style>
-  .wrapper {
+  .root {
     /* --- Layout --- */
     position: relative;
     display: flex;
@@ -87,7 +87,7 @@
   }
 
   /* --- Kinetic Stabilization --- */
-  .wrapper[data-kinetic="true"] {
+  .root[data-kinetic="true"] {
     transition:
       border-color var(--duration-slow),
       box-shadow var(--duration-slow),
@@ -109,21 +109,21 @@
   }
 
   /* --- Focus States --- */
-  .wrapper.is-focused {
+  .root.is-focused {
     border-color: var(--state-signature-color);
     box-shadow: 0 0 var(--spacing-4)
       color-mix(in srgb, var(--state-signature-color) 30%, transparent);
   }
 
   /* --- Busy State --- */
-  .wrapper.is-busy {
+  .root.is-busy {
     cursor: wait;
     filter: grayscale(1) var(--brightness-dim);
     pointer-events: none;
   }
 
   /* --- Global Child Resets --- */
-  .wrapper :global(svg) {
+  .root :global(svg) {
     display: block;
   }
 </style>

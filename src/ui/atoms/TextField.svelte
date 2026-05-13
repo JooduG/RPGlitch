@@ -67,7 +67,7 @@
 </script>
 
 <div
-  class="wrapper {className}"
+  class="root {className}"
   class:is-expanded={is_expanded}
   data-expanded={is_expanded}
   data-busy={busy}
@@ -144,7 +144,7 @@
 </div>
 
 <style>
-  .wrapper {
+  .root {
     width: 100%;
     display: flex;
     flex-direction: column;
@@ -159,13 +159,13 @@
     overflow: hidden;
   }
 
-  .wrapper[data-no-bg="true"] {
+  .root[data-no-bg="true"] {
     background: transparent;
     border: none;
     box-shadow: none;
   }
 
-  .wrapper[data-expanded="true"] {
+  .root[data-expanded="true"] {
     border-color: var(--color-white);
     box-shadow: var(--shadow-heavy);
   }
@@ -181,7 +181,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 var(--spacing-2);
+    padding: var(--spacing-0) var(--spacing-2);
     transition:
       height var(--duration-standard) var(--ease-elastic),
       top var(--duration-standard) var(--ease-elastic),
@@ -191,7 +191,7 @@
     overflow: hidden;
   }
 
-  .wrapper[data-expanded="true"] .header {
+  .root[data-expanded="true"] .header {
     height: var(--dev-header-height-active);
     top: 0;
     background: var(--dev-header-bg-active);
@@ -226,7 +226,7 @@
     line-height: var(--font-height-base);
     text-align: left;
     box-sizing: border-box;
-    margin: 0;
+    margin: var(--spacing-0);
     display: block;
     overflow: hidden auto;
     position: relative;
@@ -251,27 +251,27 @@
     opacity: var(--opacity-heavy);
   }
 
-  .wrapper[data-disabled="true"] {
+  .root[data-disabled="true"] {
     opacity: var(--opacity-muted);
     cursor: not-allowed;
   }
 
-  .wrapper[data-busy="true"],
-  .wrapper[data-busy="true"] .body {
+  .root[data-busy="true"],
+  .root[data-busy="true"] .body {
     cursor: wait;
   }
 
-  .wrapper[data-busy="true"] {
+  .root[data-busy="true"] {
     filter: var(--brightness-dim) grayscale(0.5);
   }
 
-  .wrapper[data-busy="true"] > * {
+  .root[data-busy="true"] > * {
     pointer-events: none;
   }
 
   .paragraph {
     width: 100%;
-    margin: 0;
+    margin: var(--spacing-0);
   }
 
   .paragraph[data-spaced="true"] {

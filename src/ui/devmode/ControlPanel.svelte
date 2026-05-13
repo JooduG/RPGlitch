@@ -129,114 +129,95 @@
   on_confirm={hard_reset}
 />
 
-<Modal variant="standard" on_close={() => app.toggle_control_panel()}>
-  <article class="wrapper" data-testid="control-panel">
-    <!-- Top-Level Settings -->
-    <header class="header">
-      <Toggle
-        label="CALL MODE"
-        bind:value={settings.call_mode}
-        onchange={() => app.save_settings()}
-      />
-      <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
-    </header>
+<Modal variant="standard" on_close={() => app.toggle_control_panel()} data-testid="control-panel">
+  <!-- Top-Level Settings -->
+  <header class="header">
+    <Toggle
+      label="CALL MODE"
+      bind:value={settings.call_mode}
+      onchange={() => app.save_settings()}
+    />
+    <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
+  </header>
 
-    <!-- Contextual Body Blocks -->
-    {#if is_storyboard}
-      <section class="body">
-        <TextField
-          class="text-area"
-          is_edit={true}
-          placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
-          bind:value={prologue}
-        />
-      </section>
-    {/if}
-
-    {#if is_storymode}
-      <section class="actions">
-        <Button
-          label="GHOSTWRITE"
-          variant="primary"
-          size="small"
-          onclick={() => log_action("Ghostwrite")}
-        />
-        <Button
-          label="PHOTO"
-          variant="secondary"
-          size="small"
-          onclick={() => log_action("Photo")}
-        />
-        <Button
-          label="MOCK PROLOGUE"
-          variant="invisible"
-          size="small"
-          onclick={() => run_mock("fractal")}
-        />
-        <Button label="MOCK TURN" variant="invisible" size="small" onclick={() => run_mock("ai")} />
-        <Button
-          label="END STORY"
-          variant="secondary"
-          size="small"
-          onclick={() => log_action("EndStory")}
-        />
-      </section>
-    {/if}
-
-    <!-- Stories Listing -->
+  <!-- Contextual Body Blocks -->
+  {#if is_storyboard}
     <section class="body">
-      <h3 class="title">STORIES</h3>
-      {#if story_cache.length > 0}
-        <div class="list scrollbar">
-          {#each story_cache as story (story.id)}
-            <StoryCard {story} onclick={() => load_story(story.id)} />
-          {/each}
-        </div>
-      {:else}
-        <p class="status">No stories found in the archives.</p>
-      {/if}
+      <TextField
+        class="text-area"
+        is_edit={true}
+        placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
+        bind:value={prologue}
+      />
     </section>
+  {/if}
 
-    <!-- Dangerous / Admin Actions -->
-    <div class="footer">
+  {#if is_storymode}
+    <section class="actions">
+      <Button
+        label="GHOSTWRITE"
+        variant="primary"
+        size="small"
+        onclick={() => log_action("Ghostwrite")}
+      />
+      <Button label="PHOTO" variant="secondary" size="small" onclick={() => log_action("Photo")} />
+      <Button
+        label="MOCK PROLOGUE"
+        variant="invisible"
+        size="small"
+        onclick={() => run_mock("fractal")}
+      />
+      <Button label="MOCK TURN" variant="invisible" size="small" onclick={() => run_mock("ai")} />
+      <Button
+        label="END STORY"
+        variant="secondary"
+        size="small"
+        onclick={() => log_action("EndStory")}
+      />
+    </section>
+  {/if}
+
+  <!-- Stories Listing -->
+  <section class="body">
+    <h3 class="title">STORIES</h3>
+    {#if story_cache.length > 0}
+      <div class="list scrollbar">
+        {#each story_cache as story (story.id)}
+          <StoryCard {story} onclick={() => load_story(story.id)} />
+        {/each}
+      </div>
+    {:else}
+      <p class="status">No stories found in the archives.</p>
+    {/if}
+  </section>
+
+  <!-- Dangerous / Admin Actions -->
+  <footer class="footer">
+    <div class="admin-settings">
       <Toggle label="DEVMODE" bind:value={settings.dev_mode} onchange={() => app.save_settings()} />
       <Toggle
         label="GRID OVERLAY"
         bind:value={settings.dev_grid_visible}
         onchange={() => app.save_settings()}
       />
-      <br />
-      <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)}>
-        <svg class="icon-small icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-          <path d="M3 6h18" />
-          <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        </svg>
-      </Button>
     </div>
-  </article>
+    <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)}>
+      <svg class="icon-small icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M3 6h18" />
+        <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
+        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+      </svg>
+    </Button>
+  </footer>
 </Modal>
 
 <style>
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-
   .header {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: var(--gap-standard);
     flex-wrap: wrap;
-  }
-
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
   }
 
   .actions {
@@ -254,7 +235,7 @@
   }
 
   .title {
-    padding: var(--padding-standard) 0 0 0;
+    padding: var(--padding-standard) var(--spacing-0) var(--spacing-0);
     color: var(--font-color-base);
     font-size: var(--font-size-h5);
     letter-spacing: var(--font-spacing-loose);
@@ -271,19 +252,27 @@
   }
 
   .status {
-    padding: 0 var(--padding-standard) var(--padding-tight);
+    padding: var(--spacing-0) var(--padding-standard) var(--padding-tight);
     color: var(--font-color-muted);
     font-size: var(--font-size-small);
     font-style: italic;
     text-align: center;
-    margin: 0;
+    margin: var(--spacing-0);
   }
 
   .footer {
     display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--gap-standard);
+    padding-top: var(--padding-standard);
+  }
+
+  .admin-settings {
+    display: flex;
     justify-content: space-around;
     flex-wrap: wrap;
     gap: var(--gap-standard);
-    padding-top: var(--padding-standard);
+    width: 100%;
   }
 </style>

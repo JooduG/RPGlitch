@@ -77,7 +77,7 @@
 
 <div
   {...rest}
-  class="wrapper {className}"
+  class="root {className}"
   class:is-busy={busy}
   style="--signature-color: {signature_color}"
   use:use_actions={actions}
@@ -100,7 +100,7 @@
 </div>
 
 <style>
-  .wrapper {
+  .root {
     width: 100%;
     height: 100%;
     display: flex;
@@ -111,7 +111,7 @@
     transition: filter var(--duration-standard) var(--ease-standard);
   }
 
-  .wrapper.is-busy {
+  .root.is-busy {
     filter: var(--brightness-dim) grayscale(var(--opacity-heavy));
     cursor: wait;
     pointer-events: none;

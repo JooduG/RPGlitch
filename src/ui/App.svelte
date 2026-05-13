@@ -44,7 +44,7 @@
 </div>
 
 <main
-  class="wrapper"
+  class="root"
   class:is-storyboard={app.view === "storyboard"}
   class:is-storymode={app.view === "storymode"}
   class:is-tense={app.tension > 0}
@@ -73,7 +73,7 @@
 <style>
   /* ── Core Shell (Ultra-Lean Layout) ────────────────────────── */
 
-  .wrapper {
+  .root {
     position: relative;
     width: 100%;
     height: 100vh;
@@ -81,7 +81,7 @@
     z-index: var(--surface-z-index);
   }
 
-  .wrapper.is-tense {
+  .root.is-tense {
     animation: tremor var(--duration-tremor) infinite var(--ease-standard);
     filter: var(--saturation-tension) var(--contrast-tension);
   }

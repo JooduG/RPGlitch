@@ -2,23 +2,31 @@
   /**
    * @file src/ui/profile/Profile.svelte
    * 🧬 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
-   * Chalk Regime UI · Flat DOM · Ultra-Lean CSS
+   * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
   import { entities } from "@/data/repository.js";
   import Dialog from "@atoms/Dialog.svelte";
+  import Button from "@atoms/Button.svelte";
   import Modal from "@atoms/Modal.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { PROFILE_SECTIONS, ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
+  import { llm_service } from "@core/intelligence/llm-service.js";
+  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { normalize } from "@data/content-normaliser.js";
+  import { get_value, set_value } from "@utils/field-path.js";
   import DevWing from "@devmode/DevWing.svelte";
   import AudioWing from "@profile/AudioWing.svelte";
-  import EntityFooter from "@profile/EntityFooter.svelte";
-  import EntityFragments from "@profile/EntityFragments.svelte";
-  import EntityHeader from "@profile/EntityHeader.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
+  import VectorArray from "@profile/VectorArray.svelte";
+  import TextField from "@atoms/TextField.svelte";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
+  import { auto_resize } from "@utils/auto-resize.js";
+  import { fit_text } from "@utils/fit-text.js";
   import { SvelteSet } from "svelte/reactivity";
+  import { fly } from "svelte/transition";
 
   const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 
@@ -40,9 +48,16 @@
   /** @type {any} */
   let char = $state(normalize(app.editing_entity || runtime.character));
 
+  /** @type {string | null} */
+  let hovered_section = $state(null);
+
+  /** @type {Record<string, any>} */
+  let vector_refs = $state({});
+
   // --- DERIVED ---
 
   const signature_color = $derived(themeStore.get_signature_color(char));
+  const is_name_active = $derived(active_field?.key === "name");
 
   // --- EFFECTS ---
 
@@ -53,7 +68,7 @@
   // --- HANDLERS ---
 
   /**
-   *
+   * Closes the profile modal or exits editing mode.
    */
   function handle_close() {
     if (is_editing) {
@@ -64,7 +79,7 @@
   }
 
   /**
-   *
+   * Saves the current entity state to the repository.
    */
   async function handle_save() {
     is_editing = false;
@@ -96,7 +111,7 @@
   }
 
   /**
-   *
+   * Deletes the current entity after confirmation.
    */
   async function handle_delete() {
     try {
@@ -108,7 +123,7 @@
   }
 
   /**
-   *
+   * Resets active field when focus leaves the card.
    */
   function handle_focus_out() {
     setTimeout(() => {
@@ -142,6 +157,45 @@
       if (document.activeElement instanceof HTMLElement) document.activeElement.blur();
     }
   }
+
+  // --- FRAGMENT HANDLERS ---
+
+  /**
+   * Returns the field value, defaulting to an empty string.
+   * @param {string} path
+   */
+  const safe_get = (path) => {
+    const val = get_value(char, path);
+    return val === undefined || val === null ? "" : val;
+  };
+
+  /**
+   * Delegates to a VectorArray instance to prepend a new item.
+   * @param {string | undefined} fieldKey
+   */
+  function handle_add_click(fieldKey) {
+    if (!is_editing || !fieldKey) return;
+    vector_refs[fieldKey]?.add_item();
+  }
+
+  /**
+   * Streams an AI enhancement for a plain-text field.
+   * @param {string} fieldKey
+   * @param {string} value
+   */
+  async function handle_enhance(fieldKey, value) {
+    if (!value || busy_fields.has(fieldKey)) return;
+    busy_fields.add(fieldKey);
+    try {
+      const payload = prompt_builder.build_enhancement(fieldKey, value);
+      const result = await llm_service.enhance(payload);
+      if (result) set_value(char, fieldKey, result);
+    } catch (err) {
+      console.error("Enhance failed:", err);
+    } finally {
+      busy_fields.delete(fieldKey);
+    }
+  }
 </script>
 
 {#if char?.id}
@@ -156,7 +210,7 @@
 
   <Modal variant="profile" on_close={handle_close}>
     <div
-      class="wrapper"
+      class="root"
       class:is-editing={is_editing}
       class:is-dev={app.settings.dev_mode}
       class:is-mobile={app.viewport.mobile}
@@ -166,6 +220,115 @@
       role="presentation"
       data-is-editing={is_editing}
     >
+      <!-- 🧱 BOLTED ASSEMBLY: Card + Wings -->
+      <div class="card scrollbar" style="--signature-color: {signature_color};">
+        <div class="signature-bar"></div>
+
+        <div class="avatar-column">
+          <ProfilePicture entity={char} />
+        </div>
+
+        <!-- ── Header ────────────────────────────────────────── -->
+        <header
+          class="header"
+          class:is-editing={is_editing}
+          class:is-mobile={app.viewport.mobile}
+          class:is-mini={app.viewport.mini}
+          data-testid="profile-header"
+        >
+          {#if is_editing}
+            <h1
+              class="name edit"
+              class:is-active={is_name_active}
+              use:tooltip={{ text: "Edit Entity Name" }}
+              aria-label="Edit Entity Name"
+            >
+              <span
+                contenteditable="true"
+                bind:innerText={char.name}
+                role="textbox"
+                tabindex="0"
+                data-placeholder={ENTITY_FRAGMENTS.name}
+                onfocus={() => (active_field = { key: "name", label: "Entity Name" })}
+              ></span>
+            </h1>
+          {:else}
+            <h1
+              class="name"
+              use:tooltip={{ text: "Entity Name" }}
+              aria-label="Entity Name"
+              use:fit_text={{ minSize: 40 }}
+            >
+              {char.name || ENTITY_FRAGMENTS.name}
+            </h1>
+          {/if}
+
+          {#if is_editing}
+            <textarea
+              class="description edit scrollbar"
+              use:tooltip={{ text: "Edit Entity Description" }}
+              placeholder={ENTITY_FRAGMENTS.description}
+              bind:value={char.description}
+              use:auto_resize
+              aria-label="Edit Entity Description"
+              onfocus={() => (active_field = null)}
+            ></textarea>
+          {:else}
+            <p class="description" data-placeholder={ENTITY_FRAGMENTS.description}>
+              {char.description || ""}
+            </p>
+          {/if}
+        </header>
+
+        <!-- ── Body ──────────────────────────────────────────── -->
+        <div class="body scrollbar">
+          <div class="content">
+            {@render EntityBody()}
+          </div>
+        </div>
+
+        <!-- ── Footer ────────────────────────────────────────── -->
+        <footer
+          class="footer"
+          class:is-mobile={app.viewport.mobile}
+          class:is-mini={app.viewport.mini}
+          data-testid="entity-footer"
+        >
+          <div class="actions">
+            {#if is_editing}
+              <Button
+                variant="danger"
+                full_width
+                onclick={() => (show_delete_confirm = true)}
+                disabled={is_saving}
+                data-testid="delete-button"
+              >
+                Delete
+              </Button>
+              <Button
+                variant="secondary"
+                full_width
+                onclick={handle_save}
+                disabled={is_saving}
+                data-testid="save-button"
+              >
+                {is_saving ? "Saving..." : "Save"}
+              </Button>
+            {:else}
+              <span class="spacer"></span>
+              <Button
+                variant="secondary"
+                full_width
+                onclick={() => (is_editing = true)}
+                data-testid="edit-button"
+              >
+                Edit
+              </Button>
+            {/if}
+          </div>
+        </footer>
+      </div>
+
       <aside class="wings scrollbar" class:is-visible={is_editing || app.settings.dev_mode}>
         {#if is_editing}
           <VisualWing bind:char {is_editing} {busy_fields} bind:active_field />
@@ -175,58 +338,169 @@
           <DevWing bind:char {is_editing} />
         {/if}
       </aside>
-
-      <div class="card scrollbar" style="--signature-color: {signature_color};">
-        <div class="signature-bar"></div>
-        <div class="avatar">
-          <ProfilePicture entity={char} />
-        </div>
-        <main class="body scrollbar">
-          <EntityHeader bind:char {is_editing} bind:active_field />
-          <EntityFragments bind:char {is_editing} {busy_fields} bind:active_field />
-          <EntityFooter
-            {is_editing}
-            {is_saving}
-            onclick_edit={() => (is_editing = true)}
-            onclick_save={handle_save}
-            onclick_delete={() => (show_delete_confirm = true)}
-          />
-        </main>
-      </div>
     </div>
   </Modal>
 {/if}
 
+{#snippet EntityBody()}
+  <div
+    class="fragments"
+    class:is-mobile={app.viewport.mobile}
+    class:is-mini={app.viewport.mini}
+    data-testid="profile-fragments"
+  >
+    {#each PROFILE_SECTIONS as section (section.id)}
+      {@const arrayField = section.fields.find((f) => f.type === "array")}
+
+      <!-- SECTION LABEL -->
+      <div
+        class="side"
+        class:interactive={is_editing && arrayField}
+        onclick={() => handle_add_click(arrayField?.key)}
+        onmouseenter={() => (hovered_section = section.id)}
+        onmouseleave={() => (hovered_section = null)}
+        role="presentation"
+      >
+        <h2 class="section-label">
+          {#if is_editing && hovered_section === section.id && arrayField}
+            <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>ADD</span>
+          {/if}
+          {section.label}
+        </h2>
+        {#if section.sublabel}
+          <p class="section-sub">{section.sublabel}</p>
+        {/if}
+      </div>
+
+      <!-- SECTION FIELDS -->
+      <div class="fields-container" data-columns={section.fields.length}>
+        {#each section.fields as field (field.key)}
+          <div class="group">
+            {#if field.label && section.id === "eternal"}
+              <span class="field-label">{field.label}</span>
+            {/if}
+
+            {#if field.type === "array"}
+              <VectorArray
+                bind:this={vector_refs[field.key]}
+                {char}
+                path={field.key}
+                {is_editing}
+                {get_value}
+                {set_value}
+                unit_label={field.unitLabel}
+                signature_color="var(--signature-color)"
+              />
+            {:else}
+              <TextField
+                is_edit={is_editing}
+                syncId={section.label}
+                signature_color="var(--signature-color)"
+                class="text-area custom-field {active_field?.key === field.key ? 'active' : ''}"
+                placeholder={field.description}
+                value={safe_get(field.key)}
+                oninput={(/** @type {any} */ e) =>
+                  set_value(char, field.key, e.currentTarget.value)}
+                busy={busy_fields.has(field.key)}
+                onfocus={() => {
+                  active_field = {
+                    key: field.key,
+                    label: field.label || section.label || "",
+                  };
+                }}
+              >
+                {#snippet status()}
+                  {#if busy_fields.has(field.key)}
+                    <span class="status pulse">ENHANCING</span>
+                  {/if}
+                {/snippet}
+
+                {#snippet header_actions()}
+                  {#if is_editing}
+                    <Button
+                      variant="invisible"
+                      size="small"
+                      square={true}
+                      aria-label="Enhance with AI"
+                      className="enhance-btn"
+                      actions={[tooltip]}
+                      disabled={busy_fields.has(field.key) || !safe_get(field.key)}
+                      onclick={() => handle_enhance(field.key, safe_get(field.key))}
+                    >
+                      <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                        <path
+                          d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
+                          fill="var(--color-white)"
+                        ></path>
+                      </svg>
+                    </Button>
+                  {/if}
+                {/snippet}
+              </TextField>
+            {/if}
+          </div>
+        {/each}
+      </div>
+    {/each}
+  </div>
+{/snippet}
+
 <style>
-  .wrapper {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0;
-    width: fit-content;
-    max-width: 100vw;
+  /* ── Root 12x12 Grid ───────────────────────────────────────── */
+
+  .root {
+    display: grid;
+    grid-template-columns:
+      [col-a] 1fr
+      [col-b] 1fr
+      [col-c] 1fr
+      [col-d] 1fr
+      [col-e] 1fr
+      [col-f] 1fr
+      [col-g] 1fr
+      [col-h] 1fr
+      [col-i] 1fr
+      [col-j] 1fr
+      [col-k] 1fr
+      [col-l] 1fr
+      [col-end];
+    grid-template-rows:
+      [row-1] 1fr
+      [row-2] 1fr
+      [row-3] 1fr
+      [row-4] 1fr
+      [row-5] 1fr
+      [row-6] 1fr
+      [row-7] 1fr
+      [row-8] 1fr
+      [row-9] 1fr
+      [row-10] 1fr
+      [row-11] 1fr
+      [row-12] 1fr
+      [row-end];
+    width: var(--grid-width);
+    height: var(--grid-height);
+    margin: auto;
     overflow: visible;
     position: relative;
+    pointer-events: none;
   }
 
   /* ── Wings sidebar ─────────────────────────────────────────── */
 
   .wings {
-    position: absolute;
-    right: calc(100% + var(--spacing-6));
-    top: 0;
-    width: var(--wing-width);
-    opacity: 0;
-    overflow: hidden;
-    pointer-events: none;
-    transition: all var(--duration-standard) var(--ease-standard);
-    transform: scale(0.9);
+    grid-column: col-j / col-l; /* Anchor to columns 10-11 */
+    grid-row: row-3 / row-11;
+    width: 100%;
     height: 100%;
-    max-height: var(--modal-height-tall);
+    opacity: 0;
+    pointer-events: none;
     display: flex;
     flex-direction: column;
     gap: var(--gap-standard);
-    z-index: var(--surface-z-index);
+    z-index: var(--overlay-peak-z-index);
+    transition: all var(--duration-standard) var(--ease-standard);
+    transform: scale(0.95) translateX(var(--spacing-4));
     --scrollbar-thumb: rgb(from var(--color-white) r g b / var(--opacity-muted));
     --scrollbar-thumb-hover: rgb(from var(--color-white) r g b / var(--opacity-heavy));
   }
@@ -234,38 +508,40 @@
   .wings.is-visible {
     opacity: var(--opacity-solid);
     pointer-events: auto;
-    transform: scale(1);
+    transform: scale(1) translateX(0);
     overflow-y: auto;
+  }
+
+  .root.is-editing .wings {
+    grid-column: col-i / col-l;
   }
 
   /* ── Card (glassmorphic entity panel) ─────────────────────── */
 
   .card {
-    order: 2;
-    width: var(--columns-6);
-    min-height: var(--rows-8);
-    height: auto;
+    grid-column: col-d / col-j; /* Bolted position: Centered (3-6-3) */
+    grid-row: row-3 / row-11;
+    pointer-events: auto;
+    width: 100%;
+    height: 100%;
     background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
     border-radius: var(--radius-standard);
     box-shadow: var(--shadow-heavy);
     position: relative;
-    overflow: visible;
+    overflow: hidden;
     z-index: var(--overlay-z-index);
+
+    /* Internal Bolted Grid */
     display: grid;
-    grid-template-columns: var(--columns-2) var(--columns-4);
-    grid-template-rows: auto;
+    grid-template-columns: var(--avatar-medium-size) 1fr;
+    grid-template-rows: [header] auto [body] 1fr [footer] auto;
     gap: 0;
     transition: all var(--duration-standard) var(--ease-standard);
-    will-change: transform, width;
   }
 
-  .wrapper.is-editing .card {
-    /* 
-     * [063] THE METICULOUS GRID SHIFT:
-     * Shift 2 columns to the left to balance the 3-column wing on the right.
-     */
-    transform: translateX(calc(-1 * var(--columns-2)));
+  .root.is-editing .card {
+    grid-column: col-b / col-h;
   }
 
   /* ── Signature accent bar ──────────────────────────────────── */
@@ -285,88 +561,387 @@
     );
     z-index: var(--max-z-index);
     pointer-events: none;
-    --signature-glow: 0 0 var(--spacing-2) var(--signature-color);
-
-    box-shadow: var(--signature-glow);
+    box-shadow: 0 0 var(--spacing-2) var(--signature-color);
     opacity: 0.8;
   }
 
-  /* ── Avatar column (ProfilePicture) ────────────────────────── */
+  /* ── Avatar column ─────────────────────────────────────────── */
 
-  .avatar {
+  .avatar-column {
     grid-column: 1;
-    grid-row: 1 / -1; /* Cover 8 rows high (or full height when growing) */
-    height: auto;
-    min-height: 100%;
+    grid-row: 1 / -1; /* Bolt to full height */
+    width: var(--avatar-medium-size);
+    height: 100%;
     display: flex;
     flex-direction: column;
     background: transparent;
-    border-radius: calc(var(--radius-standard) - var(--spacing-pixel)) 0 0
-      calc(var(--radius-standard) - var(--spacing-pixel));
     overflow: hidden;
+    border-right: var(--spacing-pixel) solid
+      rgb(from var(--color-white) r g b / var(--opacity-ghost));
   }
 
-  /* ── Body column (scrollable content) ─────────────────────── */
+  /* ── Header ────────────────────────────────────────────────────────── */
+
+  .header {
+    grid-column: 2;
+    grid-row: header;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    width: 100%;
+    padding: var(--spacing-4);
+    background: color-mix(
+      in srgb,
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-ghost)),
+      var(--signature-color) 8%
+    );
+    z-index: var(--surface-z-index);
+    border-bottom: var(--spacing-pixel) solid
+      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+  }
+
+  .name {
+    width: 100%;
+    margin: 0;
+    padding: var(--spacing-1);
+    color: var(--signature-color);
+    font-size: var(--font-size-h3);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--font-spacing-tight);
+    text-shadow: var(--shadow-font);
+    text-align: left;
+    line-height: var(--font-height-short);
+    min-height: calc(var(--spacing-12) * 1.5);
+    outline: none;
+    background: transparent;
+    border: none;
+    display: flex;
+    align-items: center;
+    transition: all var(--duration-standard);
+  }
+
+  .name.edit {
+    cursor: text;
+    caret-color: var(--signature-color);
+  }
+
+  .name.edit span {
+    display: inline-block;
+    min-width: var(--spacing-pixel);
+    outline: none;
+  }
+
+  .name.edit span:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-frisk);
+    opacity: var(--opacity-muted);
+    font-style: italic;
+    pointer-events: none;
+  }
+
+  .description {
+    width: 100%;
+    margin: 0;
+    margin-top: var(--spacing-pixel);
+    padding: var(--spacing-1) var(--spacing-2);
+    color: var(--color-white);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-base);
+    line-height: var(--font-height-base);
+    opacity: 0.7;
+    white-space: pre-wrap;
+    transition: opacity var(--duration-fast);
+  }
+
+  .description.edit {
+    background: transparent;
+    border: none;
+    outline: none;
+    resize: none;
+    opacity: var(--opacity-heavy);
+  }
+
+  .description.edit:focus {
+    opacity: var(--opacity-solid);
+  }
+
+  .description:empty::before {
+    content: attr(data-placeholder);
+    color: var(--color-frisk);
+    opacity: var(--opacity-muted);
+    font-style: italic;
+  }
+
+  /* ── Body column (scrollable container) ───────────────────── */
 
   .body {
     grid-column: 2;
-    height: auto;
+    grid-row: body;
+    overflow-y: auto;
+    min-height: 0;
     display: flex;
     flex-direction: column;
-    min-height: calc(var(--spacing-6) * 3);
-    border-radius: 0 calc(var(--radius-standard) - var(--spacing-pixel))
-      calc(var(--radius-standard) - var(--spacing-pixel)) 0;
-    overflow: visible;
   }
 
-  /* ── Responsive: tablet / mobile ──────────────────────────── */
+  .content {
+    flex: 1;
+    padding: var(--spacing-2) 0;
+  }
 
-  .wrapper.is-mobile {
+  /* ── Footer ────────────────────────────────────────────────────────── */
+
+  .footer {
+    grid-column: 2;
+    grid-row: footer;
+    position: relative;
+    padding: var(--padding-standard);
+    background: color-mix(
+      in srgb,
+      rgb(from var(--color-gunmetal) r g b / 15%),
+      var(--signature-color) 10%
+    );
+    z-index: var(--overlay-z-index);
+    border-top: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+  }
+
+  .actions {
+    display: flex;
+    gap: var(--spacing-4);
+    width: 100%;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  :global(.actions > *) {
+    flex: 1;
+  }
+
+  /* ── Responsive ────────────────────────────────────────────── */
+
+  .root.is-mobile {
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     height: 100%;
     justify-content: flex-start;
     padding: 0;
+    overflow-y: auto;
+    pointer-events: auto;
   }
 
-  .wrapper.is-mobile .wings.is-visible {
-    width: 100%;
-    min-width: 100%;
-    max-width: 100%;
-    height: auto;
-    max-height: 40vh;
-    order: 3;
-    transform: none;
-    padding: 0 var(--spacing-2);
-  }
-
-  .wrapper.is-mobile .card {
-    order: 1;
-    max-width: 100%;
-    height: 100%;
-    max-height: 100%;
-    flex: 1;
+  .root.is-mobile .card {
+    grid-column: auto;
+    grid-row: auto;
+    flex: 1 0 auto;
     border-radius: 0;
     display: flex;
     flex-direction: column;
-    overflow-y: auto;
+    overflow: visible;
   }
 
-  .wrapper.is-mobile .avatar {
-    flex: 0 0 clamp(20rem, 20vh, var(--avatar-medium-size));
-    border-radius: 0;
-  }
-
-  .wrapper.is-mobile .body {
+  .root.is-mobile .avatar-column {
     flex: 0 0 auto;
-    padding: var(--spacing-4);
-    overflow-y: visible;
-    height: auto;
+    aspect-ratio: var(--aspect-square);
     border-radius: 0;
+    border-right: none;
+    border-bottom: var(--spacing-pixel) solid
+      rgb(from var(--color-white) r g b / var(--opacity-ghost));
   }
 
-  .wrapper.is-mini .body {
+  .root.is-mobile .header,
+  .root.is-mobile .body,
+  .root.is-mobile .footer {
+    grid-column: auto;
+    grid-row: auto;
+    width: 100%;
+  }
+
+  .root.is-mobile .header {
+    padding: var(--spacing-4);
+  }
+
+  .root.is-mobile .body {
+    overflow-y: visible;
+    padding: 0;
+  }
+
+  .root.is-mobile .wings {
+    grid-column: auto;
+    grid-row: auto;
+    width: 100%;
+    max-height: 40vh;
+    padding: var(--spacing-4);
+    transform: none;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .root.is-mini .header {
     padding: var(--spacing-2);
+  }
+
+  .root.is-mini .name {
+    font-size: var(--font-size-h5);
+  }
+
+  /* --- FRAGMENTS GRID --- */
+
+  .fragments {
+    display: grid;
+    grid-template-columns: var(--profile-fragment-column) 1fr;
+    gap: var(--spacing-8) var(--spacing-4);
+    padding: var(--padding-standard);
+    min-width: 0;
+  }
+
+  .side {
+    text-align: right;
+    align-self: start;
+    padding-top: var(--spacing-2);
+    cursor: default;
+    transition: all var(--duration-standard);
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+  }
+
+  .side.interactive {
+    cursor: pointer;
+  }
+
+  .section-label {
+    margin: 0;
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-heavy);
+    color: var(--signature-color);
+    text-transform: uppercase;
+    text-shadow: var(--shadow-font);
+    display: flex;
+    align-items: center;
     gap: var(--spacing-2);
+    transition: all var(--duration-standard);
+    position: relative;
+    line-height: var(--font-height-short);
+  }
+
+  .add-hint {
+    position: absolute;
+    right: calc(100% + var(--spacing-1));
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-tiny);
+    font-weight: var(--font-weight-heavy);
+    color: var(--color-white);
+    opacity: var(--opacity-substantial);
+    pointer-events: none;
+    letter-spacing: var(--font-spacing-loose);
+    white-space: nowrap;
+    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
+      rgb(from var(--color-white) r g b / 40%);
+  }
+
+  .section-sub {
+    margin: 0;
+    font-size: var(--font-size-tiny);
+    color: var(--font-color-base);
+    font-weight: var(--font-weight-bold);
+    opacity: var(--opacity-muted);
+    text-transform: uppercase;
+    letter-spacing: var(--font-spacing-loose);
+    text-shadow: var(--shadow-font);
+  }
+
+  .fields-container {
+    display: grid;
+    gap: var(--spacing-4);
+    min-width: 0;
+  }
+
+  .fields-container[data-columns="2"] {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fields-container[data-columns="1"] {
+    grid-template-columns: 1fr;
+  }
+
+  .group {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    min-width: 0;
+    justify-content: stretch;
+    align-items: stretch;
+  }
+
+  .group:hover {
+    z-index: var(--overlay-peak-z-index);
+  }
+
+  .field-label {
+    font-size: var(--font-size-tiny);
+    font-weight: var(--font-weight-heavy);
+    text-transform: uppercase;
+    color: var(--signature-color);
+    opacity: var(--opacity-solid);
+    text-align: center;
+    text-shadow: var(--shadow-font);
+    margin-bottom: var(--spacing-1);
+    width: 100%;
+  }
+
+  .status {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-nano);
+    text-transform: uppercase;
+    letter-spacing: var(--font-spacing-loose);
+    color: var(--color-white);
+    opacity: var(--opacity-moderate);
+  }
+
+  :global(.text-area.custom-field) {
+    height: 100%;
+  }
+
+  :global(.enhance-btn) {
+    color: var(--color-white);
+    border: none;
+    outline: none;
+    box-shadow: none;
+    background: transparent;
+    filter: drop-shadow(
+      var(--spacing-0) var(--spacing-pixel) var(--spacing-2)
+        rgb(from var(--color-black) r g b / 80%)
+    );
+  }
+
+  :global(.enhance-btn:hover) {
+    background: transparent;
+    color: var(--color-white);
+    transform: var(--scale-zoom);
+  }
+
+  /* --- RESPONSIVE OVERRIDES --- */
+
+  .fragments.is-mobile {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-6);
+  }
+
+  .fragments.is-mobile .side {
+    text-align: left;
+    align-items: flex-start;
+    padding-top: 0;
+  }
+
+  .fragments.is-mobile .fields-container[data-columns] {
+    grid-template-columns: 1fr;
   }
 </style>

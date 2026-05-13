@@ -25,7 +25,7 @@
 
 <div
   {...rest}
-  class="wrapper {variant} {className}"
+  class="root {variant} {className}"
   class:is-busy={busy}
   style="--state-activity-color: {signature_color}"
   use:use_actions={actions}
@@ -37,7 +37,7 @@
 
 <style>
   /* ── Root ─────────────────────────────────────────────── */
-  .wrapper {
+  .root {
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -48,27 +48,27 @@
   }
 
   /* ── Variant: glass (default — floating bubble) ──────── */
-  .wrapper.glass {
+  .root.glass {
     padding: var(--spacing-2) var(--spacing-8);
     background: var(--glass-elevated); /* Maps to glass-elevated foundation */
     backdrop-filter: var(--glass-elevated-blur);
     box-shadow: var(--shadow-ghost);
-    height: 2.5rem;
+    height: var(--spacing-10);
   }
 
-  .wrapper.glass .dot {
+  .root.glass .dot {
     background-color: var(--font-color-base);
   }
 
   /* ── Variant: pill (inline / chat) ───────────────────── */
-  .wrapper.pill {
+  .root.pill {
     padding: var(--spacing-2) var(--spacing-4);
     background: var(--state-activity-color);
     height: var(--spacing-12);
   }
 
   /* ── Variant: minimal (bare dots) ────────────────────── */
-  .wrapper.minimal {
+  .root.minimal {
     padding: 0;
     background: transparent;
     border: none;
@@ -92,7 +92,7 @@
     animation-delay: -0.16s;
   }
 
-  .wrapper.is-busy {
+  .root.is-busy {
     filter: var(--brightness-dim) grayscale(0.5);
     opacity: var(--opacity-muted);
   }

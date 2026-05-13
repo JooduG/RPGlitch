@@ -7,13 +7,14 @@
    */
   import Backdrop from "@atoms/Backdrop.svelte";
   import { use_actions } from "@ui/utils/use-actions.js";
-  import { resolve_px } from "@utils/dom.js";
+  import { resolve_px, resolve_ms } from "@ui/utils/dom.js";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
 
   let {
     // State
     busy = false,
+    blur = true, // Pass-through for Backdrop blur
 
     // Design
     variant = "standard",
@@ -30,7 +31,10 @@
     ...rest
   } = $props();
 
-  let offset = $derived(resolve_px("--spacing-5", 0, document.documentElement));
+  // The 'Fly' offset and durations are derived from design tokens.
+  const offset = $derived(resolve_px("--spacing-5", 20));
+  const duration_in = $derived(resolve_ms("--duration-standard", 350));
+  const duration_out = $derived(resolve_ms("--duration-fast", 250));
 </script>
 
 <svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />
@@ -38,20 +42,19 @@
 <!-- 
   DOM FLATTENED: 
   The Modal content is nested directly within the Backdrop.
-  This eliminates the redundant .modal-layout wrapper and leverages 
-  the Backdrop's existing flex-centering and transition logic.
+  Standardized Nomenclature: .root replaces .base for top-level alignment.
 -->
-<Backdrop onclick={on_close} {z_index} {busy}>
+<Backdrop onclick={on_close} {z_index} {busy} is_blurred={blur}>
   <div
     {...rest}
-    class="base glass-elevated {variant} {className}"
+    class="root glass-elevated {variant} {className}"
     class:is-busy={busy}
     role="dialog"
     aria-modal="true"
     tabindex="-1"
     onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
-    in:fly={{ y: offset, duration: 400, easing: quartOut }}
-    out:scale={{ duration: 300, easing: quartOut, start: 0.95 }}
+    in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
+    out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
     use:use_actions={actions}
   >
     {@render children?.()}
@@ -61,19 +64,19 @@
 <style>
   /**
    * ULTRA-LEAN NOMENCLATURE:
-   * .base - The core modal container.
+   * .root - The core modal container.
    */
-  .base {
+  .root {
     position: relative;
-    width: 95%;
-    max-width: var(--columns-4);
-    min-width: var(--columns-2);
-    max-height: var(--rows-6);
-    padding: var(--padding-standard);
     display: flex;
     flex-direction: column;
-    gap: var(--gap-standard);
     overflow: hidden;
+
+    /* Dimensions grounded in Grid Foundation */
+    width: clamp(var(--columns-3), 90vw, var(--modal-width-thin));
+    height: clamp(var(--rows-3), 90vw, var(--modal-height-base));
+    padding: var(--padding-standard);
+    gap: var(--gap-standard);
     border-radius: var(--radius-standard);
     cursor: default;
     pointer-events: auto;
@@ -81,7 +84,7 @@
   }
 
   /* Nordic Collection Noise Texture */
-  .base:not(.profile)::before {
+  .root:not(.profile)::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -92,27 +95,27 @@
     pointer-events: none;
   }
 
-  /* Variant Specifics */
-  .base.profile {
+  /* Variant Specifics: Profile (Transparent Passthrough) */
+  .root.profile {
     width: fit-content;
-    max-width: 100vw;
+    max-width: var(--grid-width-max);
     background: transparent;
     backdrop-filter: none;
     border: none;
     box-shadow: none;
     overflow: visible;
-    padding: 0;
+    padding: var(--spacing-0);
   }
 
-  .base.preview,
-  .base.mini {
-    max-width: var(--columns-3);
-    padding: var(--padding-loose) var(--padding-standard) var(--padding-standard)
-      var(--padding-standard);
+  /* Variant Specifics: Preview/Mini (Compact) */
+  .root.preview,
+  .root.mini {
+    max-width: var(--modal-width-thin);
+    padding: var(--padding-loose) var(--padding-standard) var(--padding-standard);
   }
 
-  /* Busy State Logic */
-  .base.is-busy {
+  /* Busy State Logic: Kinetic Grayout */
+  .root.is-busy {
     cursor: wait;
     filter: var(--brightness-dim) grayscale(0.5);
     pointer-events: none;

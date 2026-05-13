@@ -21,12 +21,11 @@
     // Design
     confirm_label = "Confirm",
     cancel_label = "Cancel",
+    ok_label = "OK",
 
     // Handlers
     on_confirm = () => {},
     on_cancel = () => {},
-
-    ...rest
   } = $props();
 
   const handle_confirm = () => {
@@ -40,111 +39,94 @@
     on_cancel();
     open = false;
   };
+
+  // Derived state for SOTA logic
+  const show_icon = $derived(type === "alert");
 </script>
 
 <svelte:window onkeydown={(e) => open && !busy && e.key === "Enter" && handle_confirm()} />
 
 {#if open}
   <Modal variant="mini" on_close={handle_cancel} z_index="var(--max-z-index)" {busy}>
-    <article class="wrapper" class:is-confirm={type === "confirm"} class:is-busy={busy} {...rest}>
-      <header class="header">
-        {#if type === "alert"}
-          <span class="icon" aria-hidden="true">i</span>
-        {/if}
-        <h3 class="title">{title}</h3>
-      </header>
+    <header class="header">
+      {#if show_icon}
+        <span class="icon" aria-hidden="true">i</span>
+      {/if}
+      <h3 class="title">{title}</h3>
+    </header>
 
-      <div class="body">
-        <p>{message}</p>
-      </div>
+    <div class="body">
+      <p class="message">{message}</p>
+    </div>
 
-      <footer class="footer">
-        {#if type === "confirm"}
-          <Button variant="invisible" onclick={handle_cancel} label={cancel_label} {busy} />
-          <Button variant="danger" onclick={handle_confirm} label={confirm_label} {busy} />
-        {:else}
-          <Button variant="primary" onclick={handle_cancel} label="OK" {busy} />
-        {/if}
-      </footer>
-    </article>
+    <footer class="actions">
+      {#if type === "confirm"}
+        <Button variant="invisible" onclick={handle_cancel} label={cancel_label} {busy} />
+        <Button variant="danger" onclick={handle_confirm} label={confirm_label} {busy} />
+      {:else}
+        <Button variant="primary" onclick={handle_confirm} label={ok_label} {busy} />
+      {/if}
+    </footer>
   </Modal>
 {/if}
 
 <style>
   /**
    * ULTRA-LEAN NOMENCLATURE:
-   * .wrapper - Main layout container (animated).
-   * .header, .body, .footer - Structural regions.
+   * .header, .title, .body, .message, .actions - Structural regions.
    */
-  .wrapper {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    animation: slide-up var(--duration-standard) var(--ease-elastic);
-  }
-
-  .wrapper.is-busy {
-    cursor: wait;
-    filter: var(--brightness-dim) grayscale(0.5);
-  }
-
-  .wrapper.is-busy > * {
-    pointer-events: none;
-  }
-
   .header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
-    margin-bottom: var(--spacing-2);
+    gap: var(--spacing-3);
+    padding-bottom: var(--spacing-2);
   }
 
   .icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--icon-medium);
-    height: var(--icon-medium);
-    background: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
+    width: var(--spacing-8);
+    height: var(--spacing-8);
+    background: color-mix(in srgb, var(--color-frozen), transparent 85%);
     color: var(--color-frozen);
     border-radius: var(--radius-full);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
+    flex-shrink: 0;
   }
 
   .title {
-    margin: 0;
+    margin: var(--spacing-0);
     font-family: var(--font-family-heading);
     font-size: var(--font-size-h6);
     font-weight: var(--font-weight-bold);
     color: var(--font-color-base);
     letter-spacing: var(--font-spacing-tight);
+    line-height: var(--font-height-short);
   }
 
   .body {
-    padding: var(--spacing-2) 0 var(--spacing-8);
+    flex: 1;
+    min-height: 0;
+  }
+
+  .message {
+    margin: var(--spacing-0);
+    padding: var(--spacing-2) var(--spacing-0) var(--spacing-6);
     color: var(--font-color-muted);
     font-size: var(--font-size-base);
     line-height: var(--font-height-base);
+    white-space: pre-wrap;
   }
 
-  .footer {
+  .actions {
     display: flex;
     justify-content: flex-end;
-    gap: var(--spacing-2);
+    gap: var(--spacing-3);
     margin-top: auto;
-  }
-
-  @keyframes slide-up {
-    from {
-      transform: translateY(var(--spacing-2));
-      opacity: 0;
-    }
-
-    to {
-      transform: translateY(0);
-      opacity: 1;
-    }
+    padding-top: var(--spacing-4);
+    border-top: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
   }
 </style>

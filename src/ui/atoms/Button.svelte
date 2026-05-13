@@ -7,54 +7,28 @@
    */
   import { use_actions } from "@ui/utils/use-actions.js";
 
-  /**
-   * @type {{
-   *   label?: string,
-   *   variant?: "primary" | "secondary" | "danger" | "invisible",
-   *   cover?: boolean,
-   *   size?: "small" | "md",
-   *   square?: boolean,
-   *   full_width?: boolean,
-   *   busy?: boolean,
-   *   class?: string,
-   *   className?: string,
-   *   children?: import('svelte').Snippet,
-   *   actions?: Array<any>,
-   *   disabled?: boolean,
-   *   onclick?: import('svelte/elements').MouseEventHandler<HTMLButtonElement>,
-   *   onmouseenter?: import('svelte/elements').MouseEventHandler<HTMLButtonElement>,
-   *   onmouseleave?: import('svelte/elements').MouseEventHandler<HTMLButtonElement>,
-   *   role?: string,
-   *   style?: string,
-   *   tooltip?: string,
-   *   tabindex?: string | number,
-   *   type?: "button" | "submit" | "reset",
-   *   "aria-label"?: string,
-   *   "aria-selected"?: boolean,
-   *   "aria-expanded"?: boolean,
-   *   "aria-haspopup"?: string | boolean,
-   *   "data-testid"?: string,
-   *   [key: string]: any
-   * }}
-   */
   let {
+    // Data
     label = "",
-    variant = "primary",
+    children = null,
+
+    // State
+    variant = "primary", // 'primary' | 'secondary' | 'danger' | 'invisible'
+    size = "md", // 'small' | 'md'
+    busy = false,
+    disabled = false,
+
+    // Design
     cover = false,
-    size = "md",
     square = false,
     full_width = false,
-    busy = false,
-    class: svelte_class = "",
-    className = "",
-    children,
-    disabled = false,
+    class: className = "",
+
+    // Handlers
     actions = [],
+
     ...rest
   } = $props();
-
-  // Merge both aliases for seamless migration
-  const resolved_class = $derived([svelte_class, className].filter(Boolean).join(" "));
 
   /** @type {HTMLButtonElement} */
   let element;
@@ -69,7 +43,7 @@
   bind:this={element}
   type="button"
   {...rest}
-  class="wrapper variant-{variant} {resolved_class}"
+  class="root variant-{variant} {className}"
   class:is-cover={cover}
   class:is-small={size === "small"}
   class:is-square={square}
@@ -88,7 +62,11 @@
 </button>
 
 <style>
-  .wrapper {
+  /**
+   * ULTRA-LEAN NOMENCLATURE:
+   * .root - Main interaction layer.
+   */
+  .root {
     /* --- Layout --- */
     display: inline-flex;
     align-items: center;
@@ -102,7 +80,7 @@
     font-family: inherit;
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-small);
-    line-height: 1;
+    line-height: var(--font-height-short);
     text-decoration: none;
     user-select: none;
 
@@ -125,7 +103,7 @@
   }
 
   /* --- Kinetic Stabilization --- */
-  .wrapper[data-kinetic="true"] {
+  .root[data-kinetic="true"] {
     /* Disable CSS transform transitions when WAAPI is active to prevent jitter */
     transition:
       background-color var(--duration-slow) var(--ease-elastic),
@@ -136,35 +114,35 @@
   }
 
   /* --- Structural Modifiers --- */
-  .wrapper.is-small {
+  .root.is-small {
     min-height: var(--spacing-8);
     padding: var(--spacing-1) var(--spacing-3);
     font-size: var(--font-size-tiny);
   }
 
-  .wrapper.is-square {
-    padding: 0;
+  .root.is-square {
+    padding: var(--spacing-0);
     min-height: var(--spacing-4);
-    aspect-ratio: 1;
+    aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
   }
 
-  .wrapper.is-square.is-small {
+  .root.is-square.is-small {
     width: var(--icon-small);
     height: var(--icon-small);
   }
 
-  .wrapper.is-full {
+  .root.is-full {
     width: 100%;
     flex: 1;
   }
 
-  .wrapper.is-cover {
+  .root.is-cover {
     position: absolute;
     inset: 0;
     z-index: var(--surface-z-index);
     border-radius: inherit;
-    padding: 0;
+    padding: var(--spacing-0);
     min-height: 0;
     width: 100%;
     height: 100%;
@@ -197,12 +175,12 @@
   }
 
   /* --- Operational States --- */
-  .wrapper:focus-visible {
+  .root:focus-visible {
     outline: var(--spacing-pixel) solid var(--color-white);
     outline-offset: var(--spacing-pixel);
   }
 
-  .wrapper:disabled {
+  .root:disabled {
     opacity: var(--opacity-muted);
     filter: grayscale(var(--opacity-solid));
     pointer-events: none;
@@ -210,19 +188,19 @@
     box-shadow: none;
   }
 
-  .wrapper:active:not(:disabled) {
+  .root:active:not(:disabled) {
     transform: var(--click-sink);
   }
 
-  .wrapper[data-kinetic="true"]:active:not(:disabled) {
+  .root[data-kinetic="true"]:active:not(:disabled) {
     transform: none; /* Let kinetic engine handle the physics */
   }
 
-  .wrapper:hover:not(:disabled) {
+  .root:hover:not(:disabled) {
     filter: var(--hover-glow);
   }
 
-  .wrapper.is-busy {
+  .root.is-busy {
     cursor: wait;
     filter: var(--brightness-dim) grayscale(var(--opacity-heavy));
     pointer-events: none;
@@ -257,7 +235,7 @@
   }
 
   /* --- Global Resets --- */
-  .wrapper :global(.icon) {
+  .root :global(.icon) {
     pointer-events: none;
   }
 </style>

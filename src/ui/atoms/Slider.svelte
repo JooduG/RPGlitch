@@ -48,7 +48,7 @@
 </script>
 
 <label
-  class="wrapper {className}"
+  class="root {className}"
   class:is-disabled={disabled || busy}
   class:is-busy={busy}
   style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"
@@ -73,7 +73,7 @@
 </label>
 
 <style>
-  .wrapper {
+  .root {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -83,18 +83,18 @@
     cursor: pointer;
   }
 
-  .wrapper.is-disabled {
+  .root.is-disabled {
     opacity: var(--opacity-muted);
     filter: grayscale(1);
     cursor: default;
   }
 
-  .wrapper.is-busy {
+  .root.is-busy {
     cursor: wait;
     filter: var(--brightness-dim) grayscale(0.5);
   }
 
-  .wrapper.is-busy > * {
+  .root.is-busy > * {
     pointer-events: none;
   }
 
@@ -114,20 +114,20 @@
   }
 
   /* Hover state for label */
-  .wrapper:hover:not(.is-disabled) .header {
+  .root:hover:not(.is-disabled) .header {
     color: var(--color-white);
   }
 
   input[type="range"] {
     display: block;
     width: 100%;
-    margin: 0;
+    margin: var(--spacing-0);
     height: var(--slider-thumb-size);
     background: transparent;
     appearance: none;
     outline: none;
     border: none;
-    padding: 0;
+    padding: var(--spacing-0);
     overflow: visible;
   }
 
@@ -207,11 +207,11 @@
 
   /* --- STATES --- */
 
-  .wrapper:hover:not(.is-disabled) input[type="range"]::-webkit-slider-thumb {
+  .root:hover:not(.is-disabled) input[type="range"]::-webkit-slider-thumb {
     filter: var(--hover-glow);
   }
 
-  .wrapper:hover:not(.is-disabled) input[type="range"]::-moz-range-thumb {
+  .root:hover:not(.is-disabled) input[type="range"]::-moz-range-thumb {
     filter: var(--hover-glow);
   }
 

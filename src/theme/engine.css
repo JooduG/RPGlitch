@@ -94,8 +94,8 @@
 
   /* --- Grid Foundation --- 12 by 12 grid for chessboard layout */
   --grid-units: 12;
-  --grid-width-max: calc(var(--golden-ratio) * 100vh);
-  --grid-height-max: calc(var(--golden-ratio) * 100vw);
+  --grid-width-max: clamp(50rem, calc(var(--golden-ratio) * 100vh), 1800px);
+  --grid-height-max: clamp(25rem, calc(var(--golden-ratio) * 100vw), 100vh);
   --grid-width: clamp(20rem, 100vw, var(--grid-width-max));
   --grid-height: clamp(20rem, 100vh, var(--grid-height-max));
 
@@ -657,7 +657,7 @@ h6 {
   left: 0;
   background: var(--color-frozen);
   color: var(--color-white);
-  padding: var(--spacing-2);
+  padding: var(--padding-tight);
   z-index: var(--max-z-index);
   transition: top var(--duration-reflex) var(--ease-standard);
   border-radius: 0 0 var(--radius-subtle) 0;

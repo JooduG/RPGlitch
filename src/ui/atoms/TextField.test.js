@@ -44,7 +44,7 @@ describe("TextField", () => {
       header_actions: () => "Actions",
     });
 
-    const chassis = /** @type {any} */ (container.querySelector(".wrapper"));
+    const chassis = /** @type {any} */ (container.querySelector(".root"));
     const input = /** @type {any} */ (container.querySelector(".body"));
 
     await fireEvent.focus(input);
@@ -53,7 +53,7 @@ describe("TextField", () => {
 
   test("applies atmospheric weight styles", () => {
     const { container } = render(TextField, { weight: 5 });
-    const chassis = /** @type {any} */ (container.querySelector(".wrapper"));
+    const chassis = /** @type {any} */ (container.querySelector(".root"));
     const style = chassis.getAttribute("style");
 
     expect(style).toContain("--state-weight-intensity: 0.5");
@@ -68,7 +68,7 @@ describe("TextField", () => {
       required: true,
       "data-testid": "inner-element",
     });
-    const wrapperEdit = /** @type {any} */ (containerEdit.querySelector(".wrapper"));
+    const wrapperEdit = /** @type {any} */ (containerEdit.querySelector(".root"));
     const textarea = /** @type {any} */ (containerEdit.querySelector("textarea"));
 
     expect(wrapperEdit.getAttribute("name")).toBeNull();
@@ -81,7 +81,7 @@ describe("TextField", () => {
       name: "test-field-readonly",
       "data-testid": "inner-element-readonly",
     });
-    const wrapperReadonly = /** @type {any} */ (containerReadonly.querySelector(".wrapper"));
+    const wrapperReadonly = /** @type {any} */ (containerReadonly.querySelector(".root"));
     const bodyReadonly = /** @type {any} */ (containerReadonly.querySelector(".body.is-readonly"));
 
     expect(wrapperReadonly.getAttribute("name")).toBeNull();
