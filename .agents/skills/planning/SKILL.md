@@ -293,7 +293,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Offer `npm run lint:fix` for style violations.
 3. **Forensics**:
    - Apply [Debugging & Error Recovery](../debugging-and-error-recovery/SKILL.md) for failures.
-   - Apply **Defense-in-Depth Validation** (Rule 06 §1.1).
+   - Apply **Defense-in-Depth Validation** ([Rule 06](../../rules/06-compliance.md) §1.1).
 
 ## Verification Checklist
 
