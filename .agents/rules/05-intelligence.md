@@ -19,7 +19,7 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 | **Research** | Knowledge gaps, library patterns, web access. | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
 | **Simulation** | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local) |
 | **Sensory** | Vision, **Optics**, Audio, Design. | `designer`, `image-generation`, `audio`, `css` |
-| **Operations** | Repository lifecycle, PRs, Issues. | `/04-release` ↔ `delivery`, `security-and-hardening` |
+| **Operations** | Repository lifecycle, PRs, Issues. | /04-release ↔ release, security-and-hardening |
 | **Resonance** | Quality gates, template compliance, health. | `/03-review` ↔ `quality`, `governance` |
 | **Reasoning** | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools` |
 | **Reframing** | "Impossible" bugs, flawed approach. | `waldzell-clear-thought` |
