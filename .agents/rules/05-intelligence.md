@@ -26,7 +26,7 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 | **Diversity** | Trade-offs, simulated expertise. | `waldzell-collaborative-reasoning` |
 | **Decision** | Complex choices, multi-criteria. | `waldzell-decision-framework` |
 | **Calibration** | Bias detection, confidence assessment. | `waldzell-metacognitive-monitoring` |
-| **VCS** | Reverts, branch management, history. | `/05-revert` ↔ `git-workflow-and-versioning` |
+| **VCS** | Reverts, branch management, history. | /05-revert ↔ git |
 | **Verification**| Tests, audits, TDD cycles. | `/06-test` ↔ `test-driven-development`, `quality` |
 
 ---
