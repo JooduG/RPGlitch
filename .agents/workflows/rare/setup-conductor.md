@@ -362,7 +362,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 3.  **Action (Skill Injection):** For each selected skill, execute the following logic:
     - If the directory `.agents/skills/<skill_name>/` does **not** exist:
       - Create it: `mkdir -p .agents/skills/<skill_name>/`.
-      - Copy the template as the primary instruction file: `cp ~/.agents/skills/conductor/templates/skills/<skill_name>.md .agents/skills/<skill_name>/SKILL.md`.
+      - Copy the template as the primary instruction file: cp .agents/skills/planning/templates/skills/<skill_name>.md .agents/skills/<skill_name>/SKILL.md.
     - If the directory `.agents/skills/<skill_name>/` **already** exists:
       - Ensure the resources directory exists: `mkdir -p .agents/skills/<skill_name>/resources/`.
       - Copy the template as a supplemental styleguide: `cp ~/.agents/skills/conductor/templates/skills/<skill_name>.md .agents/skills/<skill_name>/resources/<skill_name>-conductor-guide.md`.
