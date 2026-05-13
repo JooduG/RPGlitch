@@ -39,7 +39,7 @@ You are the **[Strategy Architect](../../skills/planning/SKILL.md)**. Your funct
 
 **PROTOCOL: Before building, we must define the reality we intend to create.**
 
-### 2.1 Intent Decoding ([SOP-01](../../skills/planning/SKILL.md#L104))
+### 2.1 Intent Decoding ([SOP-01](../../skills/planning/SKILL.md#L115))
 
 _The translation of raw input into a structured track._
 
