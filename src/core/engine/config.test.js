@@ -9,9 +9,8 @@ import {
 } from "./config.js";
 
 describe("core/engine/config", () => {
-  it("should have a valid APP_VERSION format", () => {
-    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+ \(.*\)$/);
-    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+ \([\w\s]+\)$/);
+  it("should have the correct APP_VERSION", () => {
+    expect(APP_VERSION).toBe("0.2.0 (Coronation)");
   });
 
   describe("CONFIG structure", () => {
@@ -42,15 +41,17 @@ describe("core/engine/config", () => {
     });
 
     it("should have the correct MESSAGES", () => {
-      expect(CONFIG.MESSAGES.CONNECTION_LOST).toBe("Connection lost with AI server.");
-      expect(CONFIG.MESSAGES.REFUSAL_TRIGGERS).toEqual([
-        "i cannot",
-        "i can't",
-        "cannot generate",
-        "policy",
-        "guidelines",
-        "sorry, but",
-      ]);
+      expect(CONFIG.MESSAGES).toEqual({
+        CONNECTION_LOST: "Connection lost with AI server.",
+        REFUSAL_TRIGGERS: [
+          "i cannot",
+          "i can't",
+          "cannot generate",
+          "policy",
+          "guidelines",
+          "sorry, but",
+        ],
+      });
     });
   });
 
