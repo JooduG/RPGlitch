@@ -9,8 +9,9 @@ import {
 } from "./config.js";
 
 describe("core/engine/config", () => {
-  it("should have the correct APP_VERSION", () => {
-    expect(APP_VERSION).toBe("0.2.0 (Coronation)");
+  it("should have a valid APP_VERSION format", () => {
+    // Checks for a format like "x.y.z (Codename)" to avoid breaking on version bumps.
+    expect(APP_VERSION).toMatch(/^\d+\.\d+\.\d+ \(.+\)$/);
   });
 
   describe("CONFIG structure", () => {
