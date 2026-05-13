@@ -298,31 +298,34 @@
             {#if is_editing}
               <Button
                 variant="danger"
-                full_width
+                className="action-btn"
                 onclick={() => (show_delete_confirm = true)}
                 disabled={is_saving}
                 data-testid="delete-button"
               >
-                Delete
+                Delete Entity
               </Button>
               <Button
                 variant="secondary"
-                full_width
+                className="action-btn"
                 onclick={handle_save}
                 disabled={is_saving}
                 data-testid="save-button"
               >
-                {is_saving ? "Saving..." : "Save"}
+                {is_saving ? "Finalizing..." : "Commit Changes"}
               </Button>
             {:else}
-              <span class="spacer"></span>
+              <div class="footer-meta">
+                <span class="meta-label">ID:</span>
+                <span class="meta-value">{char.id.slice(0, 8)}</span>
+              </div>
               <Button
                 variant="secondary"
-                full_width
+                className="action-btn edit-trigger"
                 onclick={() => (is_editing = true)}
                 data-testid="edit-button"
               >
-                Edit
+                Initialize Edit Mode
               </Button>
             {/if}
           </div>
@@ -349,10 +352,11 @@
     class:is-mini={app.viewport.mini}
     data-testid="profile-fragments"
   >
-    {#each PROFILE_SECTIONS as section (section.id)}
+    {#each PROFILE_SECTIONS as section, i (section.id)}
       {@const arrayField = section.fields.find((f) => f.type === "array")}
+      {@const sectionIndex = String(i + 1).padStart(2, "0")}
 
-      <!-- SECTION LABEL -->
+      <!-- SECTION LABEL (Left Column) -->
       <div
         class="side"
         class:interactive={is_editing && arrayField}
@@ -361,22 +365,25 @@
         onmouseleave={() => (hovered_section = null)}
         role="presentation"
       >
-        <h2 class="section-label">
-          {#if is_editing && hovered_section === section.id && arrayField}
-            <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>ADD</span>
+        <div class="label-wrapper">
+          <h2 class="section-label">
+            <span class="label-prefix">[{sectionIndex}]</span>
+            <span class="label-text">{section.label}</span>
+            {#if is_editing && hovered_section === section.id && arrayField}
+              <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>+ ADD</span>
+            {/if}
+          </h2>
+          {#if section.sublabel}
+            <p class="section-sub">{section.sublabel}</p>
           {/if}
-          {section.label}
-        </h2>
-        {#if section.sublabel}
-          <p class="section-sub">{section.sublabel}</p>
-        {/if}
+        </div>
       </div>
 
-      <!-- SECTION FIELDS -->
+      <!-- SECTION FIELDS (Right Column) -->
       <div class="fields-container" data-columns={section.fields.length}>
         {#each section.fields as field (field.key)}
           <div class="group">
-            {#if field.label && section.id === "eternal"}
+            {#if field.label && (section.id === "eternal" || section.id === "present")}
               <span class="field-label">{field.label}</span>
             {/if}
 
@@ -711,10 +718,6 @@
     width: 100%;
   }
 
-  .spacer {
-    flex: 1;
-  }
-
   :global(.actions > *) {
     flex: 1;
   }
@@ -792,20 +795,29 @@
   .fragments {
     display: grid;
     grid-template-columns: var(--profile-fragment-column) 1fr;
-    gap: var(--spacing-8) var(--spacing-4);
-    padding: var(--padding-standard);
+    gap: var(--spacing-10) var(--spacing-6);
+    padding: var(--spacing-6) var(--spacing-4);
     min-width: 0;
   }
 
   .side {
     text-align: right;
-    align-self: start;
-    padding-top: var(--spacing-2);
     cursor: default;
     transition: all var(--duration-standard);
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    justify-content: center;
+    position: relative;
+    border-right: var(--spacing-pixel) solid
+      rgb(from var(--signature-color) r g b / var(--opacity-substantial));
+    padding-right: var(--spacing-4);
+  }
+
+  .label-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    width: 100%;
   }
 
   .side.interactive {
@@ -814,51 +826,67 @@
 
   .section-label {
     margin: 0;
-    font-size: var(--font-size-small);
+    font-size: var(--font-size-h5);
     font-weight: var(--font-weight-heavy);
     color: var(--signature-color);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
     display: flex;
-    align-items: center;
-    gap: var(--spacing-2);
+    flex-direction: column;
+    align-items: flex-end;
+    gap: var(--spacing-1);
     transition: all var(--duration-standard);
     position: relative;
     line-height: var(--font-height-short);
+    letter-spacing: var(--font-spacing-loose);
+  }
+
+  .label-prefix {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-nano);
+    font-weight: var(--font-weight-bold);
+    opacity: var(--opacity-moderate);
+    color: var(--color-white);
+    letter-spacing: var(--font-spacing-loose);
+  }
+
+  .label-text {
+    font-size: var(--font-size-h5);
+    font-weight: var(--font-weight-heavy);
   }
 
   .add-hint {
     position: absolute;
-    right: calc(100% + var(--spacing-1));
-    top: 50%;
-    transform: translateY(-50%);
+    right: 0;
+    top: calc(100% + var(--spacing-2));
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
+    font-size: var(--font-size-nano);
     font-weight: var(--font-weight-heavy);
-    color: var(--color-white);
+    color: var(--signature-color);
     opacity: var(--opacity-substantial);
     pointer-events: none;
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
-    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
-      rgb(from var(--color-white) r g b / 40%);
+    text-shadow: 0 0 var(--spacing-2) var(--signature-color);
   }
 
   .section-sub {
     margin: 0;
-    font-size: var(--font-size-tiny);
-    color: var(--font-color-base);
+    font-size: var(--font-size-nano);
+    color: var(--color-white);
     font-weight: var(--font-weight-bold);
     opacity: var(--opacity-muted);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     text-shadow: var(--shadow-font);
+    font-style: italic;
   }
 
   .fields-container {
     display: grid;
     gap: var(--spacing-4);
     min-width: 0;
+    align-items: stretch;
   }
 
   .fields-container[data-columns="2"] {
@@ -881,20 +909,47 @@
     align-items: stretch;
   }
 
-  .group:hover {
-    z-index: var(--overlay-peak-z-index);
-  }
-
   .field-label {
-    font-size: var(--font-size-tiny);
+    font-size: var(--font-size-nano);
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
     color: var(--signature-color);
     opacity: var(--opacity-solid);
-    text-align: center;
+    text-align: left;
     text-shadow: var(--shadow-font);
     margin-bottom: var(--spacing-1);
     width: 100%;
+    letter-spacing: var(--font-spacing-loose);
+    padding-left: var(--spacing-1);
+    border-left: var(--spacing-pixel) solid var(--signature-color);
+  }
+
+  .footer-meta {
+    display: flex;
+    gap: var(--spacing-2);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-nano);
+    opacity: var(--opacity-moderate);
+    align-items: center;
+  }
+
+  .meta-label {
+    color: var(--signature-color);
+  }
+
+  .meta-value {
+    color: var(--color-white);
+  }
+
+  :global(.action-btn) {
+    flex: 1;
+    font-weight: var(--font-weight-heavy) !important;
+    letter-spacing: var(--font-spacing-loose) !important;
+    text-transform: uppercase !important;
+  }
+
+  :global(.action-btn.edit-trigger) {
+    flex: 2;
   }
 
   .status {
@@ -931,17 +986,28 @@
   /* --- RESPONSIVE OVERRIDES --- */
 
   .fragments.is-mobile {
-    grid-template-columns: 1fr;
-    gap: var(--spacing-6);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-8);
   }
 
-  .fragments.is-mobile .side {
-    text-align: left;
-    align-items: flex-start;
-    padding-top: 0;
+  .root.is-mobile .side {
+    text-align: center;
+    border-bottom: var(--spacing-pixel) solid
+      rgb(from var(--signature-color) r g b / var(--opacity-substantial));
+    padding-right: 0;
+    padding-bottom: var(--spacing-2);
+    align-items: center;
   }
 
-  .fragments.is-mobile .fields-container[data-columns] {
-    grid-template-columns: 1fr;
+  .root.is-mobile .section-label {
+    align-items: center;
+  }
+
+  .root.is-mobile .add-hint {
+    position: relative;
+    right: auto;
+    top: auto;
+    margin-top: var(--spacing-2);
   }
 </style>
