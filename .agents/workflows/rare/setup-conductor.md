@@ -103,7 +103,18 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 
 3.  **Execute Workflow based on Maturity:**
 
-- **If Brownfield:** - Announce that an existing project has been detected, and **briefly state the specific indicator you found** (e.g., "because I found a `package.json` file"). Be concise. - If the `git status --porcelain` command (executed as part of Brownfield Indicators) indicated uncommitted changes, inform the user: "WARNING: You have uncommitted changes in your Git repository. Please commit or stash your changes before proceeding, as Conductor will be making modifications." - **Begin Brownfield Project Initialization Protocol:** - **1.0 Pre-analysis Confirmation:** 1. **Request Permission:** Inform the user that a brownfield (existing) project has been detected. 2. **Ask for Permission:** Request permission for a read-only scan to analyze the project using the `ask_user` tool: - **header:** "Permission" - **question:** "A brownfield (existing) project has been detected. May I perform a read-only scan to analyze the project?" - **type:** "yesno" 3. **Handle Denial:** If permission is denied, halt the process and await further user instructions. 4. **Confirmation:** Upon confirmation, proceed to the next step.
+- **If Brownfield:**
+  - Announce that an existing project has been detected, and **briefly state the specific indicator you found** (e.g., "because I found a package.json file"). Be concise.
+  - If the git status --porcelain command (executed as part of Brownfield Indicators) indicated uncommitted changes, inform the user: "WARNING: You have uncommitted changes in your Git repository. Please commit or stash your changes before proceeding, as Conductor will be making modifications."
+  - **Begin Brownfield Project Initialization Protocol:**
+    - **1.0 Pre-analysis Confirmation:**
+      1. **Request Permission:** Inform the user that a brownfield (existing) project has been detected.
+      2. **Ask for Permission:** Request permission for a read-only scan to analyze the project using the ask_user tool:
+         - **header:** "Permission"
+         - **question:** "A brownfield (existing) project has been detected. May I perform a read-only scan to analyze the project?"
+         - **type:** "yesno"
+      3. **Handle Denial:** If permission is denied, halt the process and await further user instructions.
+      4. **Confirmation:** Upon confirmation, proceed to the next step.
 
 ```markdown
 - **2.0 Code Analysis:**
