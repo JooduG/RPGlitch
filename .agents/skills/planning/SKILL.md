@@ -225,7 +225,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - **Aesthetic Alignment**: Ensure questions account for the **Nordic Collection** and **Chalk Regime** (Rule 04).
    - **Logic Alignment**: Ensure questions account for **Svelte 5 Runes** and **Local-First** persistence (Rule 03).
    - **Interaction Flow**: Summarize your understanding before moving on to drafting.
-3. **Validation**: Reflect the drafted `spec.md` back to the user for explicit approval before proceeding to planning. Apply the **[Strategic Specification](#L31)** section of this skill to ensure total alignment.
+3. **Validation**: Reflect the drafted spec.md back to the user for explicit approval before proceeding to planning. Apply the **[Strategic Specification](#strategic-specification)** section of this skill to ensure total alignment.
 
 ### SOP-11: Guided Implementation Planning
 
