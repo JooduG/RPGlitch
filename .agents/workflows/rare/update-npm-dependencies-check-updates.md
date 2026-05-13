@@ -16,7 +16,7 @@ date_added: 2024-03-29
 ## Context-Injection: Dependency Management
 
 - Rules: [Compliance](../../rules/06-compliance.md)
-- Skill: [CI/CD & Automation](../../skills/git-workflow-and-versioning/)
+- Skill: [CI/CD & Automation](../../skills/git/)
 - Tool: [npm-check-updates (ncu)](../../../package.json)
 
 ## Capabilities: Dependency Audit
