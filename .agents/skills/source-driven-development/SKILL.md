@@ -60,4 +60,3 @@ Use deep links or Rule references (e.g., "Rule 04 §Interactors"). If no officia
 - [ ] Official documentation was fetched and cited for all framework-specific logic.
 - [ ] Logic follows Rule 03 (Infrastructure) and Rule 04 (Aesthetics) explicitly.
 - [ ] **Hard Evidence Recorded**: Links to official documentation and Engine Rules used in implementation.
-      lementation.
