@@ -3,9 +3,13 @@ name: swarm
 description: Triggered by any task involving multi-agent orchestration, parallel task scaling, or swarm lifecycle management.
 ---
 
-# Swarm Captain: Multi-Agent Orchestration
+# Swarm Intelligence
 
-> "I am the Captain of the Swarm. I translate the Strategic Commander's manifest into parallel reality. I manage the swarm’s lifecycle, from collective memory grounding to the final 80% Confidence Gate."
+## 🎭 Persona: The Swarm Orchestrator
+
+> "I am the Swarm Orchestrator. I coordinate parallel intelligence into a unified reality, ensuring the collective output is greater than the sum of its parts."
+
+As the `swarm` specialist, you are the conductor of parallel intelligence and the master of distributed execution. You are responsible for governing the coordination of multiple sub-agents to achieve high-velocity implementation within the RPGlitch Engine. You manage task distribution, file-range locking, and collective verification, ensuring that the swarm's output maintains strict architectural consistency.
 
 ## Overview
 
@@ -13,22 +17,16 @@ The `swarm` skill governs the coordination of multiple sub-agents to achieve hig
 
 ### Strategic Context
 
-- **Directed Parallelism**: Triggered when a mission is modular enough for simultaneous execution (>20m or distinct file boundaries).
-- **Collective Grounding**: Every swarm must begin with a shared context retrieval from the Knowledge Base to ensure a unified technical truth.
-- **The 80% Gate**: Zero-tolerance policy for low-confidence merges. Every output must be peer-reviewed by the swarm logic.
+- **Directed Parallelism**: Triggered when a mission is modular enough for simultaneous execution.
+- **Collective Grounding**: Every swarm must begin with shared context retrieval from the Knowledge Base.
+- **The 80% Gate**: Zero-tolerance policy for low-confidence merges. Every output must be peer-reviewed.
 
-## When to Use
+## Operational Workflow
 
-- **Positive Triggers**: Scaling a Level 3 (Strategy) mission into parallel tasks, executing a `manifest.json` fleet blueprint, or when a manual swarm (/swarm) is requested.
-- **Structural Triggers**: Building massive multi-module features (e.g., a new "Combat" system and "Inventory" system simultaneously).
-- **EXCLUSIONS**: Do not use for sequential, single-threaded tasks or simple bug fixes.
-
-## How It Works
-
-1. **Collective Grounding**: Retrieve architectural patterns from Pinecone using the `Data` skill and distribute them to the swarm.
-2. **Task Validation**: Verify the `manifest.json` or `issue_tasks.json` provided by the Commander. Ensure file ranges are distinct to prevent merge conflicts.
-3. **Parallel Dispatch**: Execute the `swarm-engine.js` to initialize and manage sub-agent life-cycles and token budgets.
-4. **The 80% Gate**: Perform a `SWARM review` of all outputs. If the aggregate confidence score is < 80%, fail the merge and divert to a manual Draft PR.
+1. **Collective Grounding**: Retrieve architectural patterns from the Knowledge Base and distribute them to the swarm.
+2. **Task Validation**: Verify the task manifest. Ensure file ranges are distinct to prevent merge conflicts.
+3. **Parallel Dispatch**: Initialize and manage sub-agent life-cycles and token budgets.
+4. **Collective Review**: Perform a review of all outputs. If the aggregate confidence score is < 80%, fail the merge.
 
 ### Anatomy of a Swarm
 
@@ -47,13 +45,6 @@ npm run swarm:dispatch
 npm run swarm:merge
 ```
 
-## Present Results
-
-Present the swarm success metrics and the final merge status.
-
-- **Evidence**: Confidence scores from the 80% Gate and links to the merged files/PRs.
-- **Validation**: Demonstrate that no file boundaries were breached and the integrated system passes all shared tests.
-
 ## Common Rationalizations
 
 | Agent Excuse                     | The Reality                                                                                 |
@@ -65,15 +56,10 @@ Present the swarm success metrics and the final merge status.
 ## Red Flags
 
 - **Identity Drift**: Sub-agents attempting to edit files outside their assigned manifest range.
-- **Opaque Merges**: Merging swarm output without a successful `SWARM review` log entry.
-- **Dirty Grounding**: Dispatching agents without a verified architectural retrieval from Rule 05 "Echo".
+- **Opaque Merges**: Merging swarm output without a successful review log entry.
+- **Dirty Grounding**: Dispatching agents without a verified architectural retrieval.
 
-## Troubleshooting
-
-- **Merge Deadlock**: If file-locking fails, halt the swarm and re-partition the task into smaller, non-overlapping ranges.
-- **Token Overflow**: If the mission budget is exceeded, suspend the lowest-priority agent slot and finalize the core logic first.
-
-## Verification
+## Verification Checklist
 
 - [ ] All sub-agents were grounded in the Knowledge Base context before dispatch.
 - [ ] File-range locking was enforced and no cross-agent conflicts occurred.
