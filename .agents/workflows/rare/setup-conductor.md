@@ -404,7 +404,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 
 1.  **Initialize Intelligence Protocol:**
     - Create `.agents/rules/05-intelligence.md` using the **Core Protocol** (Sovereignty Axioms) as the foundation.
-    - Append the content of .agents/skills/planning/templates/workflow.md as the operational instructions.
+    - Append the content of ~/.agents/skills/planning/templates/workflow.md as the operational instructions.
 
 2.  **Determine Mode:** Use the `ask_user` tool to let the user choose their preferred workflow.
     - **questions:**
