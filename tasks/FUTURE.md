@@ -2,26 +2,56 @@
 
 ## 🎯 Goal
 
-Finalize the "Chalk Regime" architecture and remediate all remaining "Heresy" (hardcoded units) in the codebase.
+Standardize all 30 Specialist Skill Manuals (`SKILL.md`) with identity-centric persona headers and ensure full alignment with the Conductor workflow architecture.
 
 ## 🔍 Research & Audit
 
-- [x] Audit `src/` for hardcoded `px`, `rem`, and hex colors.
-- [x] Verify `DESIGN.md` token registry alignment.
+- [x] Audit all `SKILL.md` files for legacy formatting.
+- [x] Map all Personas from `GEMINI.md` to their respective Skills.
 
 ## ✅ Verification (TDD)
 
-- [x] Run `npm run verify` to ensure no token violations.
-- [x] Manual check of `Profile.svelte` aesthetics.
+- [ ] Verify each `SKILL.md` contains the standardized header.
+- [x] Run `npm run verify` to ensure no broken links or protocol violations.
 
 ## 🛠️ Tasks
 
-- [x] **Track 1: Rename Signature Palette Colors** (Synchronization of Sovereign Source)
-- [x] **Track 2: Deconstruct and rebuild `DESIGN.md`** (The Sovereign Source)
-- [x] **Track 3: Refactor `sync-tokens.js`** (The Physical Bridge)
-- [ ] **Track 4: Refactor `04-aesthetics.md`** (The Aesthetic Constitution)
-- [ ] **Track 5: Standardize Specialist Manuals** (Designer, CSS, UI, Motion, Audio, Image Gen)
-- [x] **Track 6: Harden the Warden and remediate Heresy**
+- [x] **Phase 1: Foundation Refactor**
+  - [x] Refactor `GEMINI.md` to prune redundant persona descriptions.
+  - [x] Update `/01-plan.md` and `/02-implement.md` to mandate explicit skill activation.
+- [x] **Phase 2: Individual Skill Standardization (The Rollout)**
+  - [x] `api-and-interface-design`
+  - [x] `audio`
+  - [x] `browser-testing-with-devtools`
+  - [x] `context-engineering`
+  - [x] `css`
+  - [x] `data`
+  - [x] `debugging-and-error-recovery`
+  - [x] `deprecation-and-migration`
+  - [x] `designer`
+  - [x] `find-docs`
+  - [x] `git`
+  - [x] `governance`
+  - [x] `image-generation`
+  - [x] `javascript`
+  - [x] `jules`
+  - [x] `motion`
+  - [x] `performance-optimization`
+  - [x] `planning`
+  - [x] `quality`
+  - [x] `security-and-hardening`
+  - [x] `ship`
+  - [x] `simulation`
+  - [x] `source-driven-development`
+  - [x] `supabase-postgres-best-practices`
+  - [x] `svelte`
+  - [x] `swarm`
+  - [x] `test`
+  - [x] `user-interface`
+  - [x] `using-agent-skills`
+- [x] **Phase 3: Final Verification & Audit**
+  - [x] Run full project verify.
+  - [x] Handoff to Ship.
 
 ---
 

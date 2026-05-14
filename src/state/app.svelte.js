@@ -136,7 +136,6 @@ export class AppStore {
       this.settings.dev_mode ||
       (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
 
-    // console.log(`[AppStore:Readiness] ready=${ready}, count=${this.selected_count}, dev=${this.settings.dev_mode}`);
     return ready;
   });
   /** Legacy alias for storyboard readiness */
