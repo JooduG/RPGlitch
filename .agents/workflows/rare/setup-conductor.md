@@ -365,7 +365,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
       - Copy the template as the primary instruction file: cp ~/.agents/skills/planning/templates/skills/<skill_name>.md .agents/skills/<skill_name>/SKILL.md.
     - If the directory `.agents/skills/<skill_name>/` **already** exists:
       - Ensure the resources directory exists: `mkdir -p .agents/skills/<skill_name>/resources/`.
-      - Copy the template as a supplemental styleguide: `cp ~/.agents/skills/conductor/templates/skills/<skill_name>.md .agents/skills/<skill_name>/resources/<skill_name>-conductor-guide.md`.
+      - Copy the template as a supplemental styleguide: cp ~/.agents/skills/planning/templates/skills/<skill_name>.md .agents/skills/<skill_name>/resources/<skill_name>-conductor-guide.md.
 4.  **Continue:** Immediately proceed to the next section.
 
 ### 2.5 Aesthetics & Image Generation (Interactive)
