@@ -105,7 +105,9 @@
     "ip-address": "^10.1.1"
   },
   "scripts": {
-    "audit": "node .agents/skills/using-agent-skills/scripts/summarize.js audit:nomenclature audit:warden audit:theme audit:perf audit:backlog audit:simulation",
+    "audit": "node .agents/skills/using-agent-skills/scripts/summarize.js audit:src audit:dev",
+    "audit:src": "node .agents/skills/using-agent-skills/scripts/summarize.js audit:css audit:perf audit:theme audit:security audit:svelte audit:warden",
+    "audit:dev": "node .agents/skills/using-agent-skills/scripts/summarize.js audit:nomenclature audit:backlog audit:agent",
     "audit:agent": "node .agents/skills/using-agent-skills/scripts/summarize.js audit:skills audit:templates",
     "audit:backlog": "node .agents/skills/governance/scripts/warden-project.js",
     "audit:css": "node .agents/skills/governance/scripts/warden.js --css",
@@ -150,8 +152,9 @@
     "swarm:dispatch": "node --import tsx .agents/skills/swarm/scripts/automation/swarm-dispatch.ts",
     "swarm:merge": "node --import tsx .agents/skills/swarm/scripts/automation/swarm-merge.ts",
     "swarm:plan": "node --import tsx .agents/skills/swarm/scripts/automation/swarm-plan.ts",
-    "sync": "node .agents/skills/using-agent-skills/scripts/sync.js && npm run sync:design",
+    "sync": "node .agents/skills/using-agent-skills/scripts/summarize.js sync:ignores sync:design",
     "sync:design": "node .agents/skills/css/scripts/sync-tokens.js",
+    "sync:ignores": "node .agents/skills/using-agent-skills/scripts/sync.js",
     "test": "node .agents/skills/using-agent-skills/scripts/summarize.js test:unit test:tokens",
     "test:tokens": "vitest run .agents/skills/css/scripts/",
     "test:ui": "vitest --ui",

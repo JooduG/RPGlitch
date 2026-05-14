@@ -55,7 +55,7 @@
     variant="invisible"
     cover={true}
     onclick={on_select}
-    className="body"
+    class="body"
     aria-label={a11y_label}
   >
     {#if is_empty}
@@ -88,7 +88,7 @@
     <!-- [ACTIONS] CONTEXTUAL TOOLBAR -->
     <nav class="actions">
       <Button
-        className="item"
+        class="item"
         actions={[[tooltip, { text: `View ${entity.name} Profile` }]]}
         variant="invisible"
         aria-label="View {entity.name} Profile"
@@ -131,7 +131,7 @@
     inset: 0;
     pointer-events: none;
     border-radius: inherit;
-    border: var(--border-muted);
+    border: var(--border-width-base) solid transparent;
     box-shadow: inset 0 0 0 var(--spacing-pixel) transparent;
     transition:
       box-shadow var(--duration-standard) var(--ease-standard),
@@ -155,7 +155,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--gap-standard);
-    color: var(--font-color-muted);
+    color: var(--color-white);
     opacity: var(--opacity-muted);
     transition: opacity var(--duration-standard) var(--ease-standard);
   }
@@ -167,6 +167,16 @@
   .status .icon {
     width: var(--spacing-20);
     height: var(--spacing-20);
+  }
+
+  .icon-outline {
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 1.5;
+  }
+
+  .icon-solid {
+    fill: currentcolor;
   }
 
   .status .primary {
@@ -182,17 +192,19 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 50%;
+    height: 45%;
     background: linear-gradient(
       to top,
       var(--background-base) 0%,
-      rgb(from var(--background-base) r g b / var(--opacity-heavy)) 50%,
+      rgb(from var(--background-base) r g b / var(--opacity-substantial)) 60%,
       transparent 100%
     );
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    padding: var(--padding-loose) var(--padding-tight) var(--padding-tight);
+    align-items: center;
+    text-align: center;
+    padding: var(--padding-loose) var(--padding-standard);
     z-index: var(--surface-peak-z-index);
     pointer-events: none;
     border-radius: 0 0 var(--radius-standard) var(--radius-standard);
@@ -203,10 +215,10 @@
     font-family: var(--font-family-heading);
     color: var(--signature-color);
     text-shadow: var(--shadow-font);
-    font-size: var(--font-size-h3);
+    font-size: var(--font-size-h4);
     line-height: var(--font-height-short);
     letter-spacing: var(--font-spacing-tight);
-    max-width: 100%;
+    width: 100%;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
@@ -216,15 +228,16 @@
 
   .header .secondary {
     margin: var(--spacing-1) 0 0;
+    font-family: var(--font-family-base);
     font-size: var(--font-size-small);
-    color: var(--font-color-base);
+    color: var(--color-white);
     line-height: var(--font-height-short);
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    opacity: var(--opacity-heavy);
+    opacity: var(--opacity-substantial);
   }
 
   /* --- ACTIONS (Toolbar) --- */

@@ -131,9 +131,14 @@ export class AppStore {
   selected_count = $derived(
     (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0),
   );
-  is_ready = $derived(
-    this.settings.dev_mode || (this.selected_ai && this.selected_user && this.selected_fractal),
-  );
+  is_ready = $derived.by(() => {
+    const ready =
+      this.settings.dev_mode ||
+      (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
+
+    // console.log(`[AppStore:Readiness] ready=${ready}, count=${this.selected_count}, dev=${this.settings.dev_mode}`);
+    return ready;
+  });
   /** Legacy alias for storyboard readiness */
   get storyboard_ready() {
     return this.is_ready;

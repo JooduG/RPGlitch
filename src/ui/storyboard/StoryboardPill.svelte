@@ -92,7 +92,7 @@
   <GlassPill class="orchestrator interactable">
     {#snippet left()}
       <Button
-        className="flank"
+        class="flank"
         variant="invisible"
         {...{ "aria-label": "Shuffle All" }}
         onclick={() => storyboard.shuffle()}
@@ -109,8 +109,7 @@
 
     {#snippet center()}
       <Button
-        className="action"
-        class={ready_to_begin ? "is-ready" : ""}
+        class="action {ready_to_begin ? 'is-ready' : ''}"
         variant="invisible"
         busy={!ready_to_begin}
         onclick={storyboard.begin}
@@ -124,7 +123,7 @@
 
     {#snippet right()}
       <Button
-        className="flank"
+        class="flank"
         variant="invisible"
         {...{ "aria-label": "Settings" }}
         onclick={app.toggle_control_panel}
@@ -153,9 +152,8 @@
     height: 100%;
   }
 
-  /* Scoped overrides for Storyboard specific layout */
-  :global(.orchestrator .flank.wrapper),
-  :global(.orchestrator .action.wrapper) {
+  :global(.orchestrator .flank.root),
+  :global(.orchestrator .action.root) {
     background: transparent;
     border: none;
     box-shadow: none;
@@ -165,24 +163,24 @@
       filter var(--duration-standard);
   }
 
-  :global(.orchestrator .wrapper:hover:not(:disabled)) {
+  :global(.orchestrator .root:hover:not(:disabled)) {
     background: transparent;
     color: var(--color-white);
     filter: var(--hover-glow);
   }
 
-  :global(.orchestrator .action.wrapper) {
+  :global(.orchestrator .action.root) {
     height: var(--row);
     width: var(--columns-2);
     justify-content: center;
     opacity: var(--opacity-muted);
   }
 
-  :global(.orchestrator .action.wrapper.is-ready) {
+  :global(.orchestrator .action.root.is-ready) {
     opacity: var(--opacity-solid);
   }
 
-  :global(.orchestrator .action.wrapper.is-ready .label) {
+  :global(.orchestrator .action.root.is-ready .label) {
     color: var(--color-emerald);
     text-shadow: 0 0 var(--spacing-2) rgb(from var(--color-emerald) r g b / var(--opacity-muted));
   }
@@ -194,9 +192,9 @@
   }
 
   .label {
-    font-family: var(--font-family-base);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-h5);
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-heavy);
+    font-size: var(--font-size-h6);
     letter-spacing: var(--font-spacing-base);
     color: var(--font-color-base);
     text-shadow: var(--shadow-font);

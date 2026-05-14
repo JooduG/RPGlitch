@@ -348,7 +348,8 @@
 
   /* --- ELEVATION --- */
   --danger-glow: 0 0 var(--spacing-3) var(--danger-color);
-  --danger-hover-shadow: 0 0 var(--spacing-4) rgb(from var(--color-red) r g b / var(--opacity-muted));
+  --danger-hover-shadow: 0 0 var(--spacing-4)
+    rgb(from var(--color-red) r g b / var(--opacity-muted));
   --glass-base: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
   --glass-base-blur: var(--blur-whisper);
   --glass-elevated: rgb(from var(--color-frozen) r g b / var(--opacity-ghost));
@@ -360,9 +361,12 @@
   --shadow-ambient: var(--shadow-ghost);
   --shadow-focus: var(--shadow-heavy);
   --shadow-font: 0 var(--spacing-pixel) var(--spacing-pixel) var(--color-black);
-  --shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px) rgb(from var(--color-black) r g b / var(--opacity-ghost));
-  --shadow-heavy: 0 var(--spacing-2) var(--spacing-8) rgb(from var(--color-black) r g b / var(--opacity-muted));
-  --shadow-light: 0 var(--spacing-1) var(--spacing-3) rgb(from var(--color-black) r g b / var(--opacity-whisper));
+  --shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px)
+    rgb(from var(--color-black) r g b / var(--opacity-ghost));
+  --shadow-heavy: 0 var(--spacing-2) var(--spacing-8)
+    rgb(from var(--color-black) r g b / var(--opacity-muted));
+  --shadow-light: 0 var(--spacing-1) var(--spacing-3)
+    rgb(from var(--color-black) r g b / var(--opacity-whisper));
   --signature-glow: 0 0 var(--spacing-4) var(--signature-color);
 
   /* --- LAYOUT --- */
@@ -373,8 +377,93 @@
   --golden-ratio: 1.618;
   --width-sidebar: var(--columns-2);
   --wing-width: var(--columns-2);
-
 }
 
 /* --- T4: Realization (Patterns & Resets) --- */
 
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+:global(html),
+:global(body) {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--font-family-base);
+  color: var(--font-color-base);
+  background-color: var(--background-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-family-heading);
+  margin: 0;
+  line-height: var(--font-height-short);
+}
+
+h1 { font-size: var(--font-size-h1); }
+h2 { font-size: var(--font-size-h2); }
+h3 { font-size: var(--font-size-h3); }
+h4 { font-size: var(--font-size-h4); }
+h5 { font-size: var(--font-size-h5); }
+h6 { font-size: var(--font-size-h6); }
+
+.glass-sunken {
+  background: var(--glass-sunken);
+  backdrop-filter: var(--glass-sunken-blur);
+}
+
+.glass-base {
+  background: var(--glass-base);
+  backdrop-filter: var(--glass-base-blur);
+}
+
+.glass-elevated {
+  background: var(--glass-elevated);
+  backdrop-filter: var(--glass-elevated-blur);
+}
+
+.glass-peak {
+  background: var(--glass-peak);
+  backdrop-filter: var(--glass-peak-blur);
+}
+
+.interactable {
+  cursor: pointer;
+  user-select: none;
+  transition:
+    transform var(--duration-reflex) var(--ease-standard),
+    filter var(--duration-reflex) var(--ease-standard),
+    opacity var(--duration-reflex) var(--ease-standard);
+}
+
+.interactable:hover {
+  transform: var(--hover-lift);
+  filter: var(--hover-glow);
+}
+
+.interactable:active {
+  transform: var(--click-sink);
+  filter: var(--click-dim);
+}
+
+/* --- ICONS --- */
+
+.icon-small {
+  width: var(--icon-small);
+  height: var(--icon-small);
+}
+
+.icon-medium {
+  width: var(--icon-medium);
+  height: var(--icon-medium);
+}
+
+.icon-large {
+  width: var(--icon-large);
+  height: var(--icon-large);
+}
