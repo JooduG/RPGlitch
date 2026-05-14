@@ -42,7 +42,7 @@ Implement reliable click-outside handlers and focus management to prevent "stuck
 Implement protocols for handling background processing and providing immediate visual confirmation of Engine activity.
 
 - **Reactive State**: Track active fields using a `SvelteSet` in the parent orchestrator.
-- **Interaction Locking**: Prevent race conditions by disabling input, setting `cursor: wait`, and applying `opacity: var(--opacity-m)` during busy states.
+- **Interaction Locking**: Prevent race conditions by disabling input, setting `cursor: wait`, and applying `opacity: var(--opacity-moderate)` during busy states.
 - **Engine Heartbeat**: Coordinate with global `simulationState` (e.g., `start_generation`, `stop_generation`) to trigger system-level indicators.
 
 ## 📜 Mandatory Directives
