@@ -16,11 +16,12 @@ Finalize the "Chalk Regime" architecture and remediate all remaining "Heresy" (h
 
 ## 🛠️ Tasks
 
-- [ ] **Track 1: Deconstruct and rebuild `DESIGN.md`** (The Sovereign Source)
-- [ ] **Track 2: Refactor `sync-tokens.js`** (The Physical Bridge)
-- [ ] **Track 3: Refactor `04-aesthetics.md`** (The Aesthetic Constitution)
-- [ ] **Track 4: Standardize Specialist Manuals** (Designer, CSS, UI, Motion, Audio, Image Gen)
-- [ ] **Track 5: Harden the Warden and remediate Heresy**
+- [x] **Track 1: Rename Signature Palette Colors** (Synchronization of Sovereign Source)
+- [ ] **Track 2: Deconstruct and rebuild `DESIGN.md`** (The Sovereign Source)
+- [ ] **Track 3: Refactor `sync-tokens.js`** (The Physical Bridge)
+- [ ] **Track 4: Refactor `04-aesthetics.md`** (The Aesthetic Constitution)
+- [ ] **Track 5: Standardize Specialist Manuals** (Designer, CSS, UI, Motion, Audio, Image Gen)
+- [ ] **Track 6: Harden the Warden and remediate Heresy**
 
 ---
 
