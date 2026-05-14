@@ -322,7 +322,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 
 1.  **Initiate Dialogue:** Announce that the initial scaffolding is complete and you now need the user's input to select the project's coding skills and styleguides from the locally available templates.
 2.  **Select Skills:**
-    - List the available skill templates by using the run_shell_command tool to execute ls .agents/skills/planning/templates/skills/. **CRITICAL: You MUST use run_shell_command for this step. Do NOT use the list_dir tool, as the templates directory resides outside of your allowed workspace and the call will fail.**
+    - List the available skill templates by using the run_shell_command tool to execute ls ~/.agents/skills/planning/templates/skills/. **CRITICAL: You MUST use run_shell_command for this step. Do NOT use the list_dir tool, as the templates directory resides outside of your allowed workspace and the call will fail.**
     - **FOR GREENFIELD PROJECTS:**
       - **Recommendation:** Based on the Tech Stack defined in the previous step, recommend the most appropriate skills (e.g., "javascript" for a Svelte project) and explain why.
       - **Determine Mode:** Use the `ask_user` tool:
@@ -362,10 +362,10 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 3.  **Action (Skill Injection):** For each selected skill, execute the following logic:
     - If the directory `.agents/skills/<skill_name>/` does **not** exist:
       - Create it: `mkdir -p .agents/skills/<skill_name>/`.
-      - Copy the template as the primary instruction file: cp .agents/skills/planning/templates/skills/<skill_name>.md .agents/skills/<skill_name>/SKILL.md.
+      - Copy the template as the primary instruction file: cp ~/.agents/skills/planning/templates/skills/<skill_name>.md .agents/skills/<skill_name>/SKILL.md.
     - If the directory `.agents/skills/<skill_name>/` **already** exists:
       - Ensure the resources directory exists: `mkdir -p .agents/skills/<skill_name>/resources/`.
-      - Copy the template as a supplemental styleguide: `cp ~/.agents/skills/conductor/templates/skills/<skill_name>.md .agents/skills/<skill_name>/resources/<skill_name>-conductor-guide.md`.
+      - Copy the template as a supplemental styleguide: cp ~/.agents/skills/planning/templates/skills/<skill_name>.md .agents/skills/<skill_name>/resources/<skill_name>-conductor-guide.md.
 4.  **Continue:** Immediately proceed to the next section.
 
 ### 2.5 Aesthetics & Image Generation (Interactive)
@@ -404,7 +404,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 
 1.  **Initialize Intelligence Protocol:**
     - Create `.agents/rules/05-intelligence.md` using the **Core Protocol** (Sovereignty Axioms) as the foundation.
-    - Append the content of .agents/skills/planning/templates/workflow.md as the operational instructions.
+    - Append the content of ~/.agents/skills/planning/templates/workflow.md as the operational instructions.
 
 2.  **Determine Mode:** Use the `ask_user` tool to let the user choose their preferred workflow.
     - **questions:**
