@@ -1,8 +1,0 @@
-{
-  "id": "design-rebuild-2026-05-14",
-  "type": "refactor",
-  "status": "planning",
-  "created_at": "2026-05-14T08:50:00Z",
-  "updated_at": "2026-05-14T08:50:00Z",
-  "description": "Deconstruct and rebuild DESIGN.md, refactor bridges, and remediate technical debt."
-}

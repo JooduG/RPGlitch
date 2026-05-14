@@ -58,18 +58,12 @@ For **Medium** and **High-Risk** tasks, you must validate your hypothesis before
 
 When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agents/skills/using-agent-skills/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
 
-- **[Data](./.agents/skills/data/SKILL.md)**: Dual-layer memory system via the [Data](./.agents/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
-  - Tools: `read_knowledge_base`, `describe_knowledge_base`, and `query_cold_storage`.
-- **[Find Docs](./.agents/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns via Context7.
-  - Tools: `resolve-library-id` and `query-docs`.
+- **[Data](./.agents/skills/data/SKILL.md)**: Dual-layer memory system (Pinecone/Supabase).
+- **[Find Docs](./.agents/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns (Context7).
 - **[Svelte](./.agents/skills/svelte/SKILL.md)**: Official Svelte 5 logic and code verification.
-  - Tools: `get-documentation` and `list-sections`.
 - **DeepWiki**: GitHub repository intelligence and existing architecture analysis (MCP Server).
-  - Tools: `read_wiki_structure` and `read_wiki_contents`.
-- **FireCrawl**: Web scraping and data extraction.
-  - Tools: `firecrawl_scrape`, `firecrawl_map`, `firecrawl_search`, `firecrawl_extract`, `firecrawl_browser_create`, `firecrawl_browser_execute`, `firecrawl_browser_delete`, and `firecrawl_browser_list`.
-- **[GitHub CLI](https://cli.github.com/)**: Primary interface for repository lifecycle management (PRs, Issues, Workflow).
-  - Commands: `gh pr create`, `gh issue list`, `gh run view`.
+- **FireCrawl**: Web scraping and data extraction (MCP Server).
+- **[GitHub CLI](https://cli.github.com/)**: Repository lifecycle management (PRs, Issues, Workflow).
 
 #### 3.2 Processing Deficit
 

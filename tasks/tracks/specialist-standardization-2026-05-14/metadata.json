@@ -1,9 +1,0 @@
-{
-  "id": "specialist-standardization-2026-05-14",
-  "type": "refactor",
-  "status": "in-progress",
-  "priority": "P1",
-  "created_at": "2026-05-14T13:47:00Z",
-  "updated_at": "2026-05-14T13:47:00Z",
-  "objective": "Move persona definitions from GEMINI.md and workflows into individual SKILL.md manuals and update activation protocols."
-}
