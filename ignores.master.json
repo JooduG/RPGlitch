@@ -39,11 +39,9 @@
     "**/templates/**",
     "**/test-results/**",
     "**/yarn.lock",
-    "**/tmp/**",
-    "**/.gemini/**"
+    "**/tmp/**"
   ],
   "geminiignore": [
-    "**/.agents/**",
     "!**/.env",
     "!**/.gemini/**",
     "!**/.geminiignore",
@@ -62,7 +60,8 @@
     ".secrets",
     "**/.jules/**",
     "act_output.log",
-    "gha-creds-*.json"
+    "gha-creds-*.json",
+    "**/.gemini/**"
   ],
   "linters": {
     "eslint": [],
@@ -86,9 +85,7 @@
       "**/pnpm-lock.yaml": true,
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
-      "/.env": false,
-      "DESIGN.md": true,
-      ".agents/settings.json": true
+      "/.env": false
     }
   }
 }

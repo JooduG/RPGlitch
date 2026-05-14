@@ -1,9 +1,9 @@
 ---
-name: 06-test
+name: test
 description: Unified Verification & Diagnostics - Running tests, audits, and health checks.
 ---
 
-# 🛡️ 06-test - Verification & Diagnostics
+# 🛡️ Test - Verification & Diagnostics
 
 ## 1.0 SYSTEM DIRECTIVE
 
@@ -32,7 +32,7 @@ We present the user with a clinical selection of diagnostic depths. Whether it i
 
 ### Tactical Execution
 
-Diagnostics are executed through the project's command-line interface. We monitor the output stream with clinical focus, parsing for architectural violations and security breaches in accordance with **[Slot 06: Compliance](../../rules/06-compliance.md)**. Any failure triggers an immediate forensic sequence.
+Diagnostics are executed through the project's command-line interface. We monitor the output stream with clinical focus, parsing for architectural violations and security breaches in accordance with **[GEMINI.md#🛡️-06-compliance](../../../GEMINI.md#️-06-compliance)**. Any failure triggers an immediate forensic sequence.
 
 Refer to **[SOP-15](../../skills/planning/SKILL.md#L256)** for the detailed selection and execution mechanics.
 

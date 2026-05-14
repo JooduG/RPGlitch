@@ -49,7 +49,7 @@ Use deep links or Rule references (e.g., "Rule 04 §Interactors"). If you cannot
 mcp_svelte_get_documentation section="$state"
 
 # Verify project rules before implementing aesthetics
-view_file AbsolutePath=".../.agents/rules/04-aesthetics.md"
+view_file AbsolutePath="../../../GEMINI.md#🛡️-04-aesthetics"
 ```
 
 ## Present Results

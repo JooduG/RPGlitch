@@ -296,7 +296,7 @@
     letter-spacing: normal;
     white-space: normal;
     width: max-content;
-    max-width: 15rem;
+    max-width: var(--spacing-60);
     text-align: center;
     line-height: var(--font-height-short);
   }

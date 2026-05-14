@@ -369,7 +369,7 @@
 
   .tag {
     font-size: var(--font-size-tiny);
-    background: rgb(from var(--color-white) r g b / 10%);
+    background: rgb(from var(--color-white) r g b / var(--opacity-ghost));
     padding: var(--spacing-pixel) var(--spacing-2);
     border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-sharp);
@@ -390,7 +390,10 @@
     color: var(--color-white);
     transition: all var(--duration-fast);
     background: transparent;
-    filter: drop-shadow(0 1px 2px rgb(from var(--color-black) r g b / 80%));
+    filter: drop-shadow(
+      0 var(--spacing-pixel) var(--spacing-2px)
+        rgb(from var(--color-black) r g b / var(--opacity-substantial))
+    );
   }
 
   :global(.delete:hover) {

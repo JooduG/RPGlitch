@@ -221,7 +221,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--color-gunmetal) r g b / 45%);
+    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-base));
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -357,7 +357,7 @@
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
     color: var(--font-color-muted);
-    letter-spacing: 0.1em;
+    letter-spacing: var(--font-spacing-wide);
     line-height: 1;
     text-align: right;
     flex-shrink: 0;

@@ -37,5 +37,4 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-**/.gemini/**
 **/*.svelte

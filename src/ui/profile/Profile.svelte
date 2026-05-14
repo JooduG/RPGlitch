@@ -705,7 +705,7 @@
     padding: var(--padding-standard);
     background: color-mix(
       in srgb,
-      rgb(from var(--color-gunmetal) r g b / 15%),
+      rgb(from var(--color-gunmetal) r g b / var(--opacity-whisper)),
       var(--signature-color) 10%
     );
     z-index: var(--overlay-z-index);
@@ -801,16 +801,16 @@
   }
 
   .side {
-    text-align: right;
+    text-align: left;
     cursor: default;
     transition: all var(--duration-standard);
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
-    border-right: var(--spacing-pixel) solid
+    border-left: var(--spacing-pixel) solid
       rgb(from var(--signature-color) r g b / var(--opacity-substantial));
-    padding-right: var(--spacing-4);
+    padding-left: var(--spacing-4);
   }
 
   .label-wrapper {
@@ -833,7 +833,7 @@
     text-shadow: var(--shadow-font);
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
+    align-items: flex-start;
     gap: var(--spacing-1);
     transition: all var(--duration-standard);
     position: relative;
@@ -857,7 +857,7 @@
 
   .add-hint {
     position: absolute;
-    right: 0;
+    left: 0;
     top: calc(100% + var(--spacing-2));
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
@@ -973,7 +973,7 @@
     background: transparent;
     filter: drop-shadow(
       var(--spacing-0) var(--spacing-pixel) var(--spacing-2)
-        rgb(from var(--color-black) r g b / 80%)
+        rgb(from var(--color-black) r g b / var(--opacity-substantial))
     );
   }
 

@@ -1,3 +1,432 @@
-# Design System
+---
+name: RPGlitch
+version: alpha
+borders:
+  border-bottom: var(--border-ghost)
+  border-ghost: var(--border-width-base) solid
+  border-muted: var(--border-width-base) solid
+  border-side: var(--border-whisper)
+  border-top: var(--border-muted)
+  border-whisper: var(--border-width-base) solid
+  border-width-base: var(--spacing-pixel)
+  border-width-thick: var(--spacing-1)
+breakpoints:
+  breakpoint-desktop: 80rem
+  breakpoint-mini: 30rem
+  breakpoint-mobile: 48rem
+  breakpoint-tablet: 64rem
+colors:
+  background-base: var(--color-chalk)
+  background-gradient-1: "#0b101a"
+  background-gradient-2: "#14182b"
+  background-gradient-3: "#1e1b38"
+  background-gradient-4: "#16243b"
+  color-amber: "#fbbf24"
+  color-black: "#000"
+  color-blue: "#3b82f6"
+  color-chalk: "#222326"
+  color-cyan: "#11aecc"
+  color-emerald: "#10b981"
+  color-forest: "#15803d"
+  color-frisk: "#f2f7fa"
+  color-frozen: "#555d66"
+  color-gunmetal: "#363840"
+  color-indigo: "#818cf8"
+  color-lime: "#84cc16"
+  color-orange: "#f97316"
+  color-pink: "#ec4899"
+  color-purple: "#a855f7"
+  color-red: "#f00"
+  color-rose: "#fb7185"
+  color-teal: "#14b8a6"
+  color-violet: "#c084fc"
+  color-white: "#f7f9fc"
+  color-yellow: "#fde047"
+  danger-color: var(--color-red)
+  entity-color: var(--signature-color)
+  font-color-base: var(--color-frisk)
+  font-color-muted: var(--color-frozen)
+  signature-color: var(--color-cyan)
+components:
+  active-swatch-shadow: 0 0 var(--spacing-4) var(--signature-color)
+  avatar-medium-size: var(--columns-2)
+  dev-accent-default: var(--color-frisk)
+  dev-header-bg-active: rgb(from var(--color-frisk) r g b / var(--opacity-ghost))
+  dev-header-bg-dormant: rgb(from var(--color-black) r g b / var(--opacity-muted))
+  dev-header-height-active: var(--spacing-6)
+  dev-header-height-dormant: var(--spacing-1)
+  icon-large: var(--spacing-8)
+  icon-medium: var(--spacing-5)
+  icon-small: var(--spacing-4)
+  modal-height-base: var(--rows-6)
+  modal-height-short: var(--rows-4)
+  modal-height-standard: var(--rows-6)
+  modal-height-tall: var(--rows-8)
+  modal-width-base: var(--columns-6)
+  modal-width-thin: var(--columns-4)
+  modal-width-wide: var(--columns-8)
+  profile-fragment-column: var(--spacing-24)
+  profile-height: var(--columns-4)
+  profile-initials-size-base: var(--spacing-40)
+  profile-width: var(--columns-6)
+  scrollbar-thumb: var(--color-gunmetal)
+  scrollbar-thumb-hover: var(--color-frisk)
+  scrollbar-track: transparent
+  scrollbar-width: var(--spacing-2)
+  skeleton-card-min-height: var(--storyboard-character-card-height)
+  skeleton-hero-min-height: var(--spacing-60)
+  skeleton-text-height: 1em
+  skeleton-text-width: 60%
+  slider-fill-color-end: var(--color-gunmetal)
+  slider-fill-color-start: var(--color-frisk)
+  slider-thumb-shadow: 0 0 var(--spacing-1) var(--color-white), var(--shadow-ghost)
+  slider-thumb-size: var(--spacing-2)
+  slider-track-height: var(--spacing-1)
+  state-accent: var(--color-frisk)
+  state-activity-color: var(--color-teal)
+  state-align: center
+  state-dev-accent: var(--color-frisk)
+  state-fill-end: 100%
+  state-fill-start: 0%
+  state-intensity: "0"
+  state-metric-color: var(--color-cyan)
+  state-metric-offset: 0%
+  state-metric-span: 0%
+  state-signature-color: var(--color-cyan)
+  state-toggle-height: var(--toggle-height)
+  state-toggle-thumb-offset: var(--toggle-thumb-offset)
+  state-toggle-thumb-size: var(--toggle-thumb-size)
+  state-toggle-width: var(--toggle-width)
+  state-value: 0%
+  state-weight: "0"
+  state-weight-intensity: "0"
+  storyboard-character-card-height: var(--rows-6)
+  storyboard-character-card-width: var(--columns-2)
+  storyboard-fractal-card-height: var(--rows-4)
+  storyboard-fractal-card-width: var(--columns-4)
+  swatch-color: var(--signature-color)
+  swatch-dynamic-bg: var(--color-gunmetal)
+  title-color-part: var(--color-frozen)
+  title-glow-signature: 0 0 var(--spacing-5) var(--signature-color)
+  title-shadow-ambient: 0 0 var(--spacing-5)
+  title-shadow-focus: 0 0 0 var(--spacing-pixel) var(--color-frisk)
+  toggle-height: var(--font-size-h5)
+  toggle-small-height: var(--spacing-4)
+  toggle-small-thumb-size: var(--font-size-small)
+  toggle-small-width: calc(var(--spacing-8) + var(--spacing-1))
+  toggle-thumb-offset: calc((var(--toggle-height) - var(--toggle-thumb-size)) / 2)
+  toggle-thumb-size: var(--spacing-4)
+  toggle-width: calc(var(--spacing-12) + var(--spacing-2))
+depth:
+  deep-z-index: var(--z-index-below)
+  floor-z-index: var(--z-index-0)
+  max-z-index: var(--z-index-max)
+  mid-z-index: var(--z-index-50)
+  modal-z-index: var(--z-index-300)
+  overlay-peak-z-index: var(--z-index-210)
+  overlay-z-index: var(--z-index-100)
+  surface-peak-z-index: var(--z-index-20)
+  surface-z-index: var(--z-index-10)
+  toast-z-index: var(--z-index-1000)
+  z-index-0: "0"
+  z-index-10: "10"
+  z-index-100: "100"
+  z-index-1000: "1000"
+  z-index-20: "20"
+  z-index-200: "200"
+  z-index-210: "210"
+  z-index-300: "300"
+  z-index-50: "50"
+  z-index-below: "-1"
+  z-index-max: "9999"
+effects:
+  noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
+  opacity-noise: "0.03"
+elevation:
+  danger-glow: 0 0 var(--spacing-3) var(--danger-color)
+  danger-hover-shadow: 0 0 var(--spacing-4) rgb(from var(--color-red) r g b / var(--opacity-muted))
+  glass-base: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted))
+  glass-base-blur: var(--blur-whisper)
+  glass-elevated: rgb(from var(--color-frozen) r g b / var(--opacity-ghost))
+  glass-elevated-blur: var(--blur-mist)
+  glass-peak: rgb(from var(--color-white) r g b / var(--opacity-muted))
+  glass-peak-blur: var(--blur-void)
+  glass-sunken: rgb(from var(--color-chalk) r g b / var(--opacity-muted))
+  glass-sunken-blur: var(--blur-whisper)
+  shadow-ambient: var(--shadow-ghost)
+  shadow-focus: var(--shadow-heavy)
+  shadow-font: 0 var(--spacing-pixel) var(--spacing-pixel) var(--color-black)
+  shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px) rgb(from var(--color-black) r g b / var(--opacity-ghost))
+  shadow-heavy: 0 var(--spacing-2) var(--spacing-8) rgb(from var(--color-black) r g b / var(--opacity-muted))
+  shadow-light: 0 var(--spacing-1) var(--spacing-3) rgb(from var(--color-black) r g b / var(--opacity-whisper))
+  signature-glow: 0 0 var(--spacing-4) var(--signature-color)
+filters:
+  blur-mist: blur(var(--spacing-4))
+  blur-void: blur(var(--spacing-10))
+  blur-whisper: blur(var(--spacing-1))
+  brightness-dim: brightness(0.8)
+  brightness-glow: brightness(1.2)
+  brightness-muted: brightness(0.3)
+  contrast-tension: contrast(1.1)
+  saturation-tension: saturate(1.2)
+grid:
+  column: var(--column-unit)
+  column-a: var(--spacing-0)
+  column-b: var(--column-unit)
+  column-c: var(--columns-2)
+  column-d: var(--columns-3)
+  column-e: var(--columns-4)
+  column-end: var(--columns-12)
+  column-f: var(--columns-5)
+  column-g: var(--columns-6)
+  column-h: var(--columns-7)
+  column-i: var(--columns-8)
+  column-j: var(--columns-9)
+  column-k: var(--columns-10)
+  column-l: var(--columns-11)
+  column-unit: calc(var(--grid-width) / var(--column-units))
+  column-units: var(--grid-units)
+  columns-10: calc(var(--column-unit) * 10)
+  columns-11: calc(var(--column-unit) * 11)
+  columns-12: calc(var(--column-unit) * 12)
+  columns-2: calc(var(--column-unit) * 2)
+  columns-3: calc(var(--column-unit) * 3)
+  columns-4: calc(var(--column-unit) * 4)
+  columns-5: calc(var(--column-unit) * 5)
+  columns-6: calc(var(--column-unit) * 6)
+  columns-7: calc(var(--column-unit) * 7)
+  columns-8: calc(var(--column-unit) * 8)
+  columns-9: calc(var(--column-unit) * 9)
+  grid-height: clamp(20rem, 100vh, var(--grid-height-max))
+  grid-height-max: clamp(25rem, calc(var(--golden-ratio) * 100vw), 100vh)
+  grid-units: "12"
+  grid-width: clamp(var(--grid-width-min), 100vw, var(--grid-width-max))
+  grid-width-max: clamp(50rem, calc(var(--golden-ratio) * 100vh), 1800px)
+  grid-width-min: 20rem
+  row: var(--row-unit)
+  row-1: var(--spacing-0)
+  row-10: var(--rows-9)
+  row-11: var(--rows-10)
+  row-12: var(--rows-11)
+  row-2: var(--row-unit)
+  row-3: var(--rows-2)
+  row-4: var(--rows-3)
+  row-5: var(--rows-4)
+  row-6: var(--rows-5)
+  row-7: var(--rows-6)
+  row-8: var(--rows-7)
+  row-9: var(--rows-8)
+  row-end: var(--rows-12)
+  row-unit: calc(var(--grid-height) / var(--row-units))
+  row-units: var(--grid-units)
+  rows-10: calc(var(--row-unit) * 10)
+  rows-11: calc(var(--row-unit) * 11)
+  rows-12: calc(var(--row-unit) * 12)
+  rows-2: calc(var(--row-unit) * 2)
+  rows-3: calc(var(--row-unit) * 3)
+  rows-4: calc(var(--row-unit) * 4)
+  rows-5: calc(var(--row-unit) * 5)
+  rows-6: calc(var(--row-unit) * 6)
+  rows-7: calc(var(--row-unit) * 7)
+  rows-8: calc(var(--row-unit) * 8)
+  rows-9: calc(var(--row-unit) * 9)
+kinetic:
+  angle-right: 90deg
+  angle-roll: 360deg
+  angle-shimmy: 30deg
+  angle-skew: "-20deg"
+  angle-spin: 90deg
+  click-dim: var(--brightness-dim)
+  click-sink: var(--scale-sink)
+  duration-atmospheric: 1500ms
+  duration-fast: 250ms
+  duration-none: 0s
+  duration-pulse: 1000ms
+  duration-reflex: 150ms
+  duration-shimmer: 2500ms
+  duration-slow: 500ms
+  duration-standard: 350ms
+  duration-tremor: 4s
+  ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1)
+  ease-in: cubic-bezier(0.4, 0, 1, 1)
+  ease-out: cubic-bezier(0, 0, 0.2, 1)
+  ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
+  hover-glow: var(--brightness-glow)
+  hover-lift: var(--scale-lift)
+  kinetic-drag-threshold: "10"
+  kinetic-momentum-friction: "0.95"
+  kinetic-scroll-multiplier: "1.5"
+  kinetic-shimmy-offset: var(--kinetic-shimmy-tremor)
+  kinetic-shimmy-tremor: var(--spacing-pixel)
+  kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
+  kinetic-slide-y: calc(var(--spacing-pixel) * 10)
+  kinetic-stab-distance: var(--spacing-1)
+  motion-dissolve: opacity var(--duration-standard) var(--ease-standard)
+  motion-elastic: var(--duration-slow) var(--ease-elastic)
+  motion-fast: var(--duration-fast) var(--ease-standard)
+  motion-slow: var(--duration-slow) var(--ease-standard)
+  motion-standard: var(--duration-standard) var(--ease-standard)
+  scale-lift: scale(1.02)
+  scale-pulse-max: scale(1.08)
+  scale-pulse-mid: scale(1.04)
+  scale-sink: scale(0.96)
+  scale-tremor-high: scale(1.002)
+  scale-tremor-low: scale(0.998)
+  scale-tremor-mid: scale(1.001)
+  scale-zoom: scale(1.1)
+layout:
+  aspect-square: 1 / 1
+  box-height: auto
+  box-max-height: calc(var(--spacing-20) * 5)
+  dropdown-max-height: calc(var(--spacing-10) * 8)
+  golden-ratio: "1.618"
+  width-sidebar: var(--columns-2)
+  wing-width: var(--columns-2)
+opacity:
+  opacity-base: "0.4"
+  opacity-ghost: "0.08"
+  opacity-half: "0.5"
+  opacity-heavy: "0.6"
+  opacity-intense: "0.9"
+  opacity-moderate: "0.7"
+  opacity-muted: "0.3"
+  opacity-none: "0"
+  opacity-solid: "1"
+  opacity-substantial: "0.8"
+  opacity-whisper: "0.15"
+rounded:
+  radius-full: 9999px
+  radius-rounded: var(--spacing-8)
+  radius-sharp: var(--spacing-1)
+  radius-standard: var(--spacing-4)
+  radius-subtle: var(--spacing-2)
+spacing:
+  auto-resize-buffer: var(--spacing-pixel)
+  gap-loose: var(--spacing-4)
+  gap-standard: var(--spacing-2)
+  gap-tight: var(--spacing-1)
+  padding-loose: var(--spacing-8)
+  padding-standard: var(--spacing-4)
+  padding-tight: var(--spacing-2)
+  spacing-0: "0"
+  spacing-1: calc(var(--spacing-unit) * 1)
+  spacing-10: calc(var(--spacing-unit) * 10)
+  spacing-12: calc(var(--spacing-unit) * 12)
+  spacing-15: calc(var(--spacing-unit) * 15)
+  spacing-16: calc(var(--spacing-unit) * 16)
+  spacing-2: calc(var(--spacing-unit) * 2)
+  spacing-20: calc(var(--spacing-unit) * 20)
+  spacing-24: calc(var(--spacing-unit) * 24)
+  spacing-3: calc(var(--spacing-unit) * 3)
+  spacing-30: calc(var(--spacing-unit) * 30)
+  spacing-4: calc(var(--spacing-unit) * 4)
+  spacing-40: calc(var(--spacing-unit) * 40)
+  spacing-5: calc(var(--spacing-unit) * 5)
+  spacing-6: calc(var(--spacing-unit) * 6)
+  spacing-60: calc(var(--spacing-unit) * 60)
+  spacing-8: calc(var(--spacing-unit) * 8)
+  spacing-9: calc(var(--spacing-unit) * 9)
+  spacing-2px: 2px
+  spacing-pixel: 1px
+  spacing-unit: 0.25rem
+typography:
+  font-family-base: '"Inter", system-ui, -apple-system, sans-serif'
+  font-family-heading: '"Ubuntu", sans-serif'
+  font-family-mono: '"JetBrains Mono", monospace'
+  font-height-base: "1.5"
+  font-height-s: var(--font-height-short)
+  font-height-short: "1.2"
+  font-height-tall: "1.8"
+  font-size-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
+  font-size-h1: clamp(3rem, 5vw + 2rem, 6rem)
+  font-size-h2: clamp(2rem, 3vw + 1.5rem, 3.5rem)
+  font-size-h3: clamp(1.5rem, 2vw + 1.2rem, 2.5rem)
+  font-size-h4: clamp(1.25rem, 1.5vw + 1.1rem, 1.8rem)
+  font-size-h5: clamp(1.1rem, 1.2vw + 1rem, 1.5rem)
+  font-size-h6: clamp(1rem, 1vw + 0.9rem, 1.25rem)
+  font-size-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem)
+  font-size-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem)
+  font-size-tiny: clamp(0.7rem, 0.5vw + 0.6rem, 0.8rem)
+  font-spacing-base: 0em
+  font-spacing-loose: 0.05em
+  font-spacing-tight: "-0.02em"
+  font-spacing-wide: 0.1em
+  font-spacing-wider: 0.12em
+  font-weight-base: "400"
+  font-weight-bold: "700"
+  font-weight-heavy: "900"
+  font-weight-thin: "300"
+---
 
-See [Aesthetics](.agents/rules/04-aesthetics.md) for the design system.
+# ⚔️ RPGlitch Design System: The Chalk Regime
+
+> "Depth is the ultimate luxury. Precision is the baseline of sovereignty."
+
+The RPGlitch Design System, formally designated as the **Chalk Regime**, is a high-fidelity aesthetic framework optimized for the **Nordic Collection**. It envisions the application as a high-end research terminal situated within a sub-zero facility—cool, deep, and elegant.
+
+## ❄️ The Nordic Collection (Vision)
+
+The interface is a high-end research terminal in a frozen facility.
+
+- **The Atmosphere**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic blurs.
+- **The Voice**: Cool, clinical, and precise.
+- **The Palette**: Gunmetal, Chalk, and Frozen tones.
+
+## 📐 The Chalk Regime (Laws)
+
+### 1. Token Sovereignty [FATAL CONSTRAINT]
+
+The system operates within a closed-loop token architecture. Writing raw pixel values (`px`), rems (`rem`), ems (`em`), or hex codes (`#`) in any implementation file is strictly forbidden (**Heresy**).
+
+### 2. Kinetic Physics (The Grounded Law)
+
+Interactions favor depth and filters over vertical "lifts" or "bounces." Hover focuses on icon color and brightness, not layout shift.
+
+### 3. Visual Depth (The Z-Law)
+
+Visual hierarchy is governed by the Z-Law. Components detach from the abyssal background via structural shadows and glassmorphic filters.
+
+### 4. Auditory Harmony
+
+Sound effects must be clinical and minimalist. Audio is a feedback layer, never an interruption.
+
+---
+
+## 🏗️ Technical Architecture (4-Tier)
+
+1. **T1: Foundations (Atoms)**: Base values like spacing units, colors, and timing.
+2. **T2: Semantics (Molecules)**: Functional mappings (e.g., `--background-base`).
+3. **T3: Organisms**: Component-specific tokens (e.g., `--modal-width-base`).
+4. **T4: Realization**: CSS classes and Svelte logic that manifest the system.
+
+---
+
+## 🧩 Pattern Registry (T4 Realization)
+
+### Structural Chassis
+
+- `.glass-sunken`: Submerged layer. Used for backgrounds and inactive containers.
+- `.glass-base`: Default interface layer.
+- `.glass-elevated`: Floating layer. Used for active cards and popovers.
+- `.glass-peak`: Maximum elevation. Used for modals and critical dialogs.
+
+### Interaction Reflex
+
+- `.interactable`: Standard hover/active behavior (Grounded Law).
+- `.truncate`: Ellipsis truncation for text containers.
+
+### Typography
+
+- `h1-h6`: Architectural weight, tightly tracked.
+- `.data-output`: Monochromatic, spaced, terminal-style text.
+
+---
+
+## 🤖 THE WEAVER PROTOCOL
+
+The **Weaver** is the bridge between the Architect's intent and the Engine's reality.
+
+1. **The Source**: All changes start in **DESIGN.md**.
+2. **The Sync**: `npm run sync:design` triggers the Weaver to generate `design.css` and `tokens.js`.
+3. **The Audit**: `npm run audit:css` (The Warden) ensures 100% compliance across the codebase.
+4. **The Handoff**: The Agent Specialist MUST verify implementation against the generated bridge before committing.

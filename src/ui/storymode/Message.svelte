@@ -309,7 +309,7 @@
     border-radius: var(--radius-standard);
     transition: all var(--duration-standard) var(--motion-elastic);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
-    border-color: rgb(from var(--color-white) r g b / 5%);
+    border-color: rgb(from var(--color-white) r g b / var(--opacity-ghost));
     overflow: hidden;
     outline: none;
     cursor: pointer;
@@ -397,7 +397,8 @@
   .message-bubble.is-focused .field-header {
     height: var(--spacing-9);
     background: color-mix(in srgb, var(--signature-color), black 30%);
-    border-bottom: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / 12%);
+    border-bottom: var(--spacing-pixel) solid
+      rgb(from var(--color-white) r g b / var(--opacity-whisper));
     overflow: visible;
     display: flex;
     align-items: center;
@@ -433,7 +434,7 @@
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
     color: var(--color-white);
-    text-shadow: 0 0 var(--spacing-2) rgb(from var(--color-white) r g b / 30%);
+    text-shadow: 0 0 var(--spacing-2) rgb(from var(--color-white) r g b / var(--opacity-muted));
     white-space: nowrap;
   }
 
@@ -483,7 +484,7 @@
     font-weight: var(--font-weight-heavy);
     color: var(--signature-color);
     text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
-      rgb(from var(--signature-color) r g b / 25%);
+      rgb(from var(--signature-color) r g b / var(--opacity-muted));
   }
 
   /* High-Vis Narration */
@@ -519,7 +520,7 @@
     background: linear-gradient(
       var(--angle-right),
       transparent 0%,
-      rgb(from var(--color-white) r g b / 20%) 50%,
+      rgb(from var(--color-white) r g b / var(--opacity-whisper)) 50%,
       transparent 100%
     );
     width: 100%;

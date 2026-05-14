@@ -273,15 +273,15 @@
 
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / 40%);
+      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / var(--opacity-base));
     }
 
     70% {
-      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--color-cyan) r g b / 0%);
+      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--color-cyan) r g b / var(--opacity-none));
     }
 
     100% {
-      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / 0%);
+      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / var(--opacity-none));
     }
   }
 
@@ -299,7 +299,7 @@
     font-size: var(--font-size-small);
     color: var(--color-white);
     font-weight: var(--font-weight-heavy);
-    letter-spacing: -0.02em;
+    letter-spacing: var(--font-spacing-tight);
   }
 
   .resonance-desc {
@@ -309,8 +309,8 @@
   }
 
   .resonance-item {
-    background: rgb(from var(--color-cyan) r g b / 5%) !important;
-    border-color: rgb(from var(--color-cyan) r g b / 20%) !important;
+    background: rgb(from var(--color-cyan) r g b / var(--opacity-ghost)) !important;
+    border-color: rgb(from var(--color-cyan) r g b / var(--opacity-whisper)) !important;
     animation: slide-in var(--duration-standard) var(--motion-elastic) both;
   }
 
@@ -339,7 +339,7 @@
   @keyframes slide-in {
     from {
       opacity: 0;
-      transform: translateY(10px);
+      transform: translateY(var(--kinetic-slide-y));
     }
 
     to {
@@ -359,7 +359,7 @@
     display: flex;
     justify-content: flex-end;
     margin-bottom: calc(-1 * var(--spacing-3));
-    opacity: 0.5;
+    opacity: var(--opacity-half);
   }
 
   .telemetry-time {
@@ -371,10 +371,10 @@
   .sub-label {
     font-size: var(--font-size-nano);
     color: var(--color-cyan);
-    opacity: 0.6;
+    opacity: var(--opacity-heavy);
     margin-bottom: var(--spacing-2);
     font-weight: var(--font-weight-heavy);
-    letter-spacing: 0.1em;
+    letter-spacing: var(--font-spacing-wide);
     text-transform: uppercase;
   }
 
@@ -393,7 +393,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     color: var(--color-white);
-    background: rgb(from var(--color-black) r g b / 30%);
+    background: rgb(from var(--color-black) r g b / var(--opacity-muted));
     padding: var(--spacing-2) var(--spacing-2);
     border-radius: var(--radius-sharp);
     white-space: nowrap;
@@ -401,17 +401,17 @@
   }
 
   .delta-item.is-positive {
-    border-color: rgb(from var(--color-cyan) r g b / 30%);
+    border-color: rgb(from var(--color-cyan) r g b / var(--opacity-muted));
     color: var(--color-cyan);
   }
 
   .delta-item.is-negative {
-    border-color: rgb(from var(--color-frozen) r g b / 30%);
+    border-color: rgb(from var(--color-frozen) r g b / var(--opacity-muted));
     color: var(--color-frozen);
   }
 
   .delta-text {
-    opacity: 0.9;
+    opacity: var(--opacity-intense);
   }
 
   /* Dynamics Grid */
@@ -438,7 +438,7 @@
     font-size: var(--font-size-tiny);
     color: var(--font-color-muted);
     text-transform: lowercase;
-    min-width: 5rem;
+    min-width: var(--spacing-20);
   }
 
   .metric-visual {
@@ -464,7 +464,7 @@
     top: 0;
     bottom: 0;
     width: var(--spacing-pixel);
-    background: rgb(from var(--color-white) r g b / 20%);
+    background: rgb(from var(--color-white) r g b / var(--opacity-whisper));
     z-index: var(--mid-z-index);
   }
 
@@ -481,7 +481,7 @@
   .metric-value {
     font-size: var(--font-size-nano);
     color: var(--color-white);
-    min-width: 1.5rem;
+    min-width: var(--spacing-6);
     text-align: right;
     font-family: var(--font-family-mono);
   }
@@ -512,7 +512,7 @@
     line-height: var(--font-height-s);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-sharp);
-    background: rgb(from var(--color-black) r g b / 15%);
+    background: rgb(from var(--color-black) r g b / var(--opacity-whisper));
     border-left: var(--spacing-2) solid transparent;
   }
 
@@ -528,7 +528,7 @@
     font-family: var(--font-family-mono);
     color: var(--color-cyan);
     font-weight: var(--font-weight-heavy);
-    opacity: 0.8;
+    opacity: var(--opacity-substantial);
   }
 
   .vector-text {
@@ -544,7 +544,7 @@
   .empty-hint {
     font-size: var(--font-size-nano);
     color: var(--font-color-muted);
-    opacity: 0.3;
+    opacity: var(--opacity-muted);
     font-family: var(--font-family-mono);
   }
 
@@ -563,7 +563,7 @@
     padding: var(--spacing-2) var(--spacing-2);
     background: var(--glass-base);
     border: var(--border-side);
-    border-color: rgb(from var(--color-cyan) r g b / 20%);
+    border-color: rgb(from var(--color-cyan) r g b / var(--opacity-whisper));
     color: var(--color-cyan);
     border-radius: var(--radius-full);
     font-size: var(--font-size-nano);

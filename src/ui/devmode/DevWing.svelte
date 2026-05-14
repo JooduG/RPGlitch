@@ -219,7 +219,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
-    letter-spacing: 0.12em;
+    letter-spacing: var(--font-spacing-wider);
     color: var(--color-frisk);
     margin-bottom: var(--spacing-1);
     cursor: help;
@@ -306,7 +306,7 @@
     color: var(--dev-accent-default);
     text-transform: uppercase;
     cursor: pointer;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--font-spacing-loose);
   }
 
   .raw-explorer summary:hover {
@@ -325,7 +325,7 @@
     gap: var(--spacing-3);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: var(--font-spacing-loose);
   }
 
   .meta-item .tag {

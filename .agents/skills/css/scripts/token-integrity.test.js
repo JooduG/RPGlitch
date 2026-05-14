@@ -11,7 +11,7 @@ describe("Token Integrity", () => {
     tokens = getDefinedTokens();
   });
 
-  it("should load tokens from engine.css", () => {
+  it("should load tokens from design.css", () => {
     expect(tokens.size).toBeGreaterThan(0);
   });
 

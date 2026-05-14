@@ -34,12 +34,12 @@ module.exports = {
        [**] THE CHALK REGIME (AI HALLUCINATION DEFENSES)
        ======================================================================== */
 
-    // FATAL: Block all raw hex codes globally outside of engine.css
+    // FATAL: Block all raw hex codes globally outside of design.css
     "color-no-hex": [
       true,
       {
         message:
-          "RPGlitch Engine [FATAL]: Hex codes are strictly forbidden. Use var(--color-*) from engine.css.",
+          "RPGlitch Engine [FATAL]: Hex codes are strictly forbidden. Use var(--color-*) from design.css.",
       },
     ],
 
@@ -88,7 +88,7 @@ module.exports = {
           "double",
         ],
         message:
-          "RPGlitch Engine [FATAL]: Raw values hallucinated! You MUST use a variable from engine.css (e.g., var(--spacing-4)). Halt and read the tokens file.",
+          "RPGlitch Engine [FATAL]: Raw values hallucinated! You MUST use a variable from design.css (e.g., var(--spacing-4)). Halt and read the tokens file.",
       },
     ],
 
@@ -99,7 +99,7 @@ module.exports = {
       },
       {
         message:
-          "RPGlitch Engine [FATAL]: Cheating detected! Do not use calc() to multiply atomic units. Use a T1/T2 token from engine.css.",
+          "RPGlitch Engine [FATAL]: Cheating detected! Do not use calc() to multiply atomic units. Use a T1/T2 token from design.css.",
       },
     ],
 
@@ -134,7 +134,7 @@ module.exports = {
     // Let yourself use empty lines for readability
     "custom-property-empty-line-before": null,
 
-    // Stop it from yelling about cascading duplicate variables in engine.css
+    // Stop it from yelling about cascading duplicate variables in design.css
     "declaration-block-no-duplicate-custom-properties": null,
 
     // Unplug modern color-function demands to preserve legacy RPGlitch palettes

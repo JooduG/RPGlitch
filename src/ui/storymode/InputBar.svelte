@@ -131,7 +131,7 @@
 
 <style>
   :global(.root[data-testid="input-bar"]) {
-    width: clamp(20rem, 100%, var(--breakpoint-mobile));
+    width: clamp(var(--grid-width-min), 100%, var(--breakpoint-mobile));
     margin-inline: auto;
     transition:
       opacity var(--duration-standard) var(--ease-standard),

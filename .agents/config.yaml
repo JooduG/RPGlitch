@@ -2,65 +2,90 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  api-and-interface-design: .agents/skills/api-and-interface-design/SKILL.md
-  audio: .agents/skills/audio/SKILL.md
-  browser-testing-with-devtools: .agents/skills/browser-testing-with-devtools/SKILL.md
-  context-engineering: .agents/skills/context-engineering/SKILL.md
-  css: .agents/skills/css/SKILL.md
-  data: .agents/skills/data/SKILL.md
-  debugging-and-error-recovery: .agents/skills/debugging-and-error-recovery/SKILL.md
-  release: .agents/skills/release/SKILL.md
-  deprecation-and-migration: .agents/skills/deprecation-and-migration/SKILL.md
-  designer: .agents/skills/designer/SKILL.md
-  find-docs: .agents/skills/find-docs/SKILL.md
+  master-skill-router: .agents/skills/using-agent-skills/SKILL.md
   git: .agents/skills/git/SKILL.md
-  governance: .agents/skills/governance/SKILL.md
-  image-generation: .agents/skills/image-generation/SKILL.md
-  javascript: .agents/skills/javascript/SKILL.md
-  motion: .agents/skills/motion/SKILL.md
-  performance-optimization: .agents/skills/performance-optimization/SKILL.md
-  planning: .agents/skills/planning/SKILL.md
-  quality: .agents/skills/quality/SKILL.md
-  security-and-hardening: .agents/skills/security-and-hardening/SKILL.md
-  simulation: .agents/skills/simulation/SKILL.md
+  jules: .agents/skills/jules/SKILL.md
+  api-and-interface-design: .agents/skills/api-and-interface-design/SKILL.md
   source-driven-development: .agents/skills/source-driven-development/SKILL.md
-  stitch-skill: .agents/skills/stitch-skill/SKILL.md
   supabase-postgres-best-practices: .agents/skills/supabase-postgres-best-practices/SKILL.md
-  svelte: .agents/skills/svelte/SKILL.md
   swarm: .agents/skills/swarm/SKILL.md
-  test: .agents/skills/test/SKILL.md
-  user-interface: .agents/skills/user-interface/SKILL.md
-  using-agent-skills: .agents/skills/using-agent-skills/SKILL.md
+  design/code:
+    designer: .agents/skills/designer/SKILL.md
+    css: .agents/skills/css/SKILL.md
+    motion: .agents/skills/motion/SKILL.md
+    audio: .agents/skills/audio/SKILL.md
+    user-interface: .agents/skills/user-interface/SKILL.md
+    busy-state-implementation: .agents/skills/busy-state-implementation/SKILL.md
+    svelte: .agents/skills/svelte/SKILL.md
+    image-generation: .agents/skills/image-generation/SKILL.md
+    javascript: .agents/skills/javascript/SKILL.md
+    simulation: .agents/skills/simulation/SKILL.md
+  development:
+    governance: .agents/skills/governance/SKILL.md
+    find-docs: .agents/skills/find-docs/SKILL.md
+    ship: .agents/skills/ship/SKILL.md
+    planning: .agents/skills/planning/SKILL.md
+    context-engineering: .agents/skills/context-engineering/SKILL.md
+    data: .agents/skills/data/SKILL.md
+  QA:
+    quality: .agents/skills/quality/SKILL.md
+    test: .agents/skills/test/SKILL.md
+    browser-testing-with-devtools: .agents/skills/browser-testing-with-devtools/SKILL.md
+    debugging-and-error-recovery: .agents/skills/debugging-and-error-recovery/SKILL.md
+    deprecation-and-migration: .agents/skills/deprecation-and-migration/SKILL.md
+    performance-optimization: .agents/skills/performance-optimization/SKILL.md
+    security-and-hardening: .agents/skills/security-and-hardening/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
+  utility:
+    code-simplify: .agents/workflows/utility/code-simplify.md
+    idea-generation: .agents/workflows/utility/idea-generation.md
+    refactor: .agents/workflows/utility/refactor.md
+    swarm: .agents/workflows/utility/swarm.md
+    revert: .agents/workflows/utility/revert.md
+    test: .agents/workflows/utility/test.md
+    classify: .agents/workflows/utility/classify.md
   00-status: .agents/workflows/conductor/00-status.md
   01-plan: .agents/workflows/conductor/01-plan.md
   02-implement: .agents/workflows/conductor/02-implement.md
   03-review: .agents/workflows/conductor/03-review.md
-  04-release: .agents/workflows/conductor/04-release.md
-  05-revert: .agents/workflows/conductor/05-revert.md
-  06-test: .agents/workflows/conductor/06-test.md
-  code-simplify: .agents/workflows/utility/code-simplify.md
-  idea-generation: .agents/workflows/utility/idea-generation.md
-  refactor: .agents/workflows/utility/refactor.md
-  swarm: .agents/workflows/utility/swarm.md
-  setup-conductor: .agents/workflows/rare/setup-conductor.md
-  update-npm-dependencies-check-updates: .agents/workflows/rare/update-npm-dependencies-check-updates.md
+  04-ship: .agents/workflows/conductor/04-ship.md
+  reminders: .agents/workflows/nudges/
 
-# ⚖️ Governance (The Law & The Audit)
+# ⚖️ Core
 governance:
-  mandate: GEMINI.md
+  amendments: GEMINI.md
+  design_system: DESIGN.md
   audit_level: C3
-  rules:
-    rule-foundation: .agents/rules/01-foundation.md
-    rule-simulation: .agents/rules/02-simulation.md
-    rule-infrastructure: .agents/rules/03-infrastructure.md
-    rule-aesthetics: .agents/rules/04-aesthetics.md
-    rule-intelligence: .agents/rules/05-intelligence.md
-    rule-compliance: .agents/rules/06-compliance.md
+  memory:
+    future: tasks/FUTURE.md
+    eternal: tasks/ETERNAL.md
+    past: .agents/archive/
+    present:
+      current: tasks/PRESENT.md
+      temporary: tmp/
+      human_notes: scribbles.md
 
-# 📝 Workspace (Active Memory)
-workspace:
-  tracks: tasks/plan.md
-  mission_board: tasks/todo.md
+# Project Source Files
+src:
+  core:
+    index.html: src/index.html
+    main.js: src/main.js
+    app.svelte: src/ui/app.svelte
+    design.css: src/theme/design.css
+    engine: src/core/engine/
+    intelligence: src/core/intelligence/
+  ui:
+    layout: src/ui/layout.svelte
+    atoms: src/ui/atoms/
+    profile: src/ui/profile/
+    storyboard: src/ui/storyboard/
+    storymode: src/ui/storymode/
+    utils: src/ui/utils/
+    drawer: src/ui/drawer/
+    devmode: src/ui/devmode/
+  data: src/data/
+  state: src/state/
+  media: src/media/
+  theme: src/theme/

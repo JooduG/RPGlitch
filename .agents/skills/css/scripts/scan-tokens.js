@@ -1,11 +1,11 @@
-import { validateLine } from "../.agents/skills/css/scripts/token-integrity.js";
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { validateLine } from "./token-integrity.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const ROOT_DIR = path.resolve(__dirname, "..");
+const ROOT_DIR = path.resolve(__dirname, "..", "..", "..", "..");
 const SRC_DIR = path.join(ROOT_DIR, "src");
 
 /**
@@ -19,7 +19,7 @@ function scan(dir) {
     if (fs.statSync(fullPath).isDirectory()) {
       if (item !== "node_modules") scan(fullPath);
     } else if (fullPath.endsWith(".svelte") || fullPath.endsWith(".css")) {
-      if (fullPath.endsWith("engine.css")) return;
+      if (fullPath.endsWith("design.css")) return;
       const content = fs.readFileSync(fullPath, "utf-8");
       const lines = content.split("\n");
       lines.forEach((line, i) => {

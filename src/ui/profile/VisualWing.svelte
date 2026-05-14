@@ -288,7 +288,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--color-gunmetal) r g b / 45%);
+    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-base));
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -326,10 +326,10 @@
   }
 
   .swatches :global(.swatch.active) {
-    outline: 2px solid rgb(from var(--color-white) r g b / 70%);
-    outline-offset: 2px;
+    outline: var(--spacing-2px) solid rgb(from var(--color-white) r g b / var(--opacity-moderate));
+    outline-offset: var(--spacing-2px);
     --active-swatch-shadow:
-      0 0 0 var(--spacing-pixel) rgb(from var(--color-white) r g b / 15%) inset,
+      0 0 0 var(--spacing-pixel) rgb(from var(--color-white) r g b / var(--opacity-whisper)) inset,
       0 0 var(--spacing-3) var(--spacing-1) var(--swatch-color);
 
     box-shadow: var(--active-swatch-shadow);
@@ -355,10 +355,10 @@
     align-items: center;
     gap: var(--spacing-3);
     color: var(--color-white);
-    background: rgb(from var(--color-white) r g b / 5%);
+    background: rgb(from var(--color-white) r g b / var(--opacity-ghost));
     padding: var(--spacing-1) var(--spacing-3);
     border-radius: var(--radius-full);
-    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / 10%);
+    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-whisper));
   }
 
   :global(.prompt-field .status-content) {
@@ -369,8 +369,8 @@
 
   :global(.prompt-field .status-bar.is-error) {
     color: var(--color-red);
-    background: rgb(from var(--color-red) r g b / 10%);
-    border-color: rgb(from var(--color-red) r g b / 20%);
+    background: rgb(from var(--color-red) r g b / var(--opacity-whisper));
+    border-color: rgb(from var(--color-red) r g b / var(--opacity-whisper));
   }
 
   :global(.prompt-field .tag) {

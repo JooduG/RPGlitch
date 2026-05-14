@@ -8,7 +8,7 @@
   "general": {
     "enablePromptCompletion": true,
     "plan": {
-      "@": ".tasks/plan.md"
+      "@": ["tasks/", "tasks/FUTURE.md", "tasks/PRESENT.md", "tasks/ETERNAL.md"]
     },
     "preferredEditor": "antigravity"
   },

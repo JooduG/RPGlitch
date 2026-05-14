@@ -19,7 +19,6 @@ import { projectRules } from "./warden-project.js";
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
 const SKILLS_DIR = path.join(ROOT_DIR, ".agents/skills");
-const RULES_DIR = path.join(ROOT_DIR, ".agents/rules");
 const WORKFLOWS_DIR = path.join(ROOT_DIR, ".agents/workflows");
 
 // Load .gitignore
@@ -59,7 +58,7 @@ class Auditor {
       ".md": projectRules,
     };
     this.is_skills_active = true;
-    this.is_rules_active = true;
+    this.is_rules_active = false; // Rules centralized in GEMINI.md
     this.is_workflows_active = true;
     this.is_project_active = true;
     this.is_names_active = true;
@@ -96,7 +95,7 @@ class Auditor {
     const ext = path.extname(filePath);
     const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 
-    if (relPath.includes("audit-") || relPath.endsWith("engine.css")) return;
+    if (relPath.includes("audit-") || relPath.endsWith("design.css")) return;
 
     let rules = [];
 
@@ -337,14 +336,14 @@ if (filterArgs.length > 0) {
 }
 
 // Primary Scan Paths
-[SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR, path.join(ROOT_DIR, "tasks")].forEach((dir) =>
+[SRC_DIR, SKILLS_DIR, WORKFLOWS_DIR, path.join(ROOT_DIR, "tasks")].forEach((dir) =>
   auditor.scan(dir),
 );
 
 // Nomenclature Scan
 if (auditor.is_names_active) {
   const name_stats = { scanned: 0, violations: 0 };
-  [SRC_DIR, SKILLS_DIR, RULES_DIR, WORKFLOWS_DIR].forEach((dir) => {
+  [SRC_DIR, SKILLS_DIR, WORKFLOWS_DIR].forEach((dir) => {
     scan_nomenclature(dir, name_stats, (id, sev, rel_path, msg) => {
       auditor.stats.violations++;
       const s = SEVERITY_LEVELS[sev] || SEVERITY_LEVELS.DEBT;

@@ -188,7 +188,7 @@ export class AppStore {
 
   /**
    * Centralized Viewport Observer
-   * Syncs with engine.css tokens.
+   * Syncs with design.css tokens.
    */
   init_viewport() {
     if (typeof window === "undefined") return;

@@ -8,7 +8,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 const ROOT_DIR = process.cwd();
-const TODO_FILE = path.join(ROOT_DIR, "tasks", "todo.md");
+const TODO_FILE = path.join(ROOT_DIR, "tasks", "PRESENT.md");
 
 // Load .gitignore
 const ig = ignore();
@@ -28,7 +28,7 @@ export const projectRules = [
     severity: "DEBT",
     regex: /#TODO-AI/,
     message:
-      "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/todo.md.",
+      "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/PRESENT.md.",
     validate: (line, filePath) =>
       !filePath.includes("warden-project.js") &&
       !filePath.includes("audit-security.js") &&
@@ -98,7 +98,7 @@ export function syncBacklog() {
   }
 
   if (!fs.existsSync(TODO_FILE)) {
-    console.warn("⚠️ tasks/todo.md not found. Creating it...");
+    console.warn("⚠️ tasks/PRESENT.md not found. Creating it...");
     fs.mkdirSync(path.dirname(TODO_FILE), { recursive: true });
     fs.writeFileSync(TODO_FILE, "# Project Tasks\n\n");
   }
@@ -130,7 +130,7 @@ export function syncBacklog() {
   }
 
   fs.writeFileSync(TODO_FILE, content);
-  console.log(`✅ Synchronized ${found.length} items to tasks/todo.md`);
+  console.log(`✅ Synchronized ${found.length} items to tasks/PRESENT.md`);
 }
 
 /**

@@ -73,7 +73,7 @@ Use this map to route your current task to the appropriate specialized skill:
 - **Governance**: `governance`, `security-and-hardening`, `context-engineering`.
 - **Research & Context**: `find-docs`, `data`, `deepwiki`, `firecrawl`.
 - **Verification**: `test-driven-development`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `quality`.
-- **Delivery**: `git`, `release`.
+- **Delivery**: `git`, `ship`.
 
 ### Complexity Triage
 
@@ -91,7 +91,7 @@ Declare your anchor and active state via the **Turn Signal** (Rule 05):
 > [Role emoji] [Role] | `[active-skill]` | [/workflow]
 ```
 
-**And log the invocation in `tasks/todo.md`:**
+**And log the invocation in `tasks/PRESENT.md`:**
 
 ```markdown
 | Timestamp         | Task        | Skill Invoked | Outcome   |

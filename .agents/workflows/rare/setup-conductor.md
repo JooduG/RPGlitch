@@ -45,21 +45,21 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
     - Slot 04: `.agents/rules/04-aesthetics.md`
     - Slot 05: `.agents/rules/05-intelligence.md`
     - Slot 06: `.agents/rules/06-compliance.md`
-    - `tasks/index.md` and `tasks/tracks.md`
+    - `tasks/PRESENT.md` and `tasks/ETERNAL.md`
 
 4.  **Determine Target Section:** Map the project's state to a target section using the priority table below (highest match wins). **DO NOT JUMP YET.** Keep this target in mind.
 
-| Artifact Exists                                                          | Target Section  | Announcement                                                                                                                                                                                  |
-| :----------------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| All files in `tasks/<track_id>/` (`spec.md`, `plan.md`, `metadata.json`) | **HALT**        | "The project is already initialized. Use `/01-plan` or `/02-implement`."                                                                                                                      |
-| `tasks/index.md`                                                         | **Section 3.0** | "Resuming setup: Scaffolding is complete. Next: generate the first track. (Note: If an incomplete track folder was detected, we will restart this step to ensure a clean, consistent state)." |
-| `.agents/rules/05-intelligence.md`                                       | **Section 2.7** | "Resuming setup: Workflow is defined. Next: generate project index."                                                                                                                          |
-| `.agents/rules/04-aesthetics.md`                                         | **Section 2.6** | "Resuming setup: Aesthetics defined. Next: define project workflow."                                                                                                                          |
-| .agents/skills/                                                          | **Section 2.5** | "Resuming setup: Skills & Styleguides selected. Next: define project aesthetics."                                                                                                             |
-| `.agents/rules/03-infrastructure.md`                                     | **Section 2.4** | "Resuming setup: Tech Stack defined. Next: select Skills."                                                                                                                                    |
-| `.agents/rules/02-product.md` (mind project-specific suffix)             | **Section 2.3** | "Resuming setup: Core Guidelines are complete. Next: define the Technology Stack."                                                                                                            |
-| `.agents/rules/01-foundation.md`                                         | **Section 2.2** | "Resuming setup: Product Guide is complete. Next: create Product Guidelines."                                                                                                                 |
-| (None)                                                                   | **Section 2.0** | "Initializing new project setup."                                                                                                                                                             |
+| Artifact Exists                                                 | Target Section  | Announcement                                                                                                                                                                                  |
+| :-------------------------------------------------------------- | :-------------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| All files in `tasks/` (`ETERNAL.md`, `FUTURE.md`, `PRESENT.md`) | **HALT**        | "The project is already initialized. Use `/01-plan` or `/02-implement`."                                                                                                                      |
+| `tasks/PRESENT.md`                                              | **Section 3.0** | "Resuming setup: Scaffolding is complete. Next: generate the first track. (Note: If an incomplete track folder was detected, we will restart this step to ensure a clean, consistent state)." |
+| `.agents/rules/05-intelligence.md`                              | **Section 2.7** | "Resuming setup: Workflow is defined. Next: generate project index."                                                                                                                          |
+| `.agents/rules/04-aesthetics.md`                                | **Section 2.6** | "Resuming setup: Aesthetics defined. Next: define project workflow."                                                                                                                          |
+| .agents/skills/                                                 | **Section 2.5** | "Resuming setup: Skills & Styleguides selected. Next: define project aesthetics."                                                                                                             |
+| `.agents/rules/03-infrastructure.md`                            | **Section 2.4** | "Resuming setup: Tech Stack defined. Next: select Skills."                                                                                                                                    |
+| `.agents/rules/02-product.md` (mind project-specific suffix)    | **Section 2.3** | "Resuming setup: Core Guidelines are complete. Next: define the Technology Stack."                                                                                                            |
+| `.agents/rules/01-foundation.md`                                | **Section 2.2** | "Resuming setup: Product Guide is complete. Next: create Product Guidelines."                                                                                                                 |
+| (None)                                                          | **Section 2.0** | "Initializing new project setup."                                                                                                                                                             |
 
 5. **Proceed to Section 2.0:** You MUST proceed to Section 2.0 to establish the Greenfield/Brownfield context before jumping to your target.
 
@@ -431,7 +431,7 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 ### 2.7 Finalization
 
 1.  **Generate Index File:**
-    - Create `tasks/index.md` with the following content (replacing `02-product.md` with the actual filename resolved in Section 2.0.1):
+    - Create `tasks/PRESENT.md` with the following content (replacing `02-product.md` with the actual filename resolved in Section 2.0.1):
 
 ```md
 # Project Context
@@ -450,11 +450,11 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 
 ## Management
 
-- [Tracks Registry](./tracks.md)
+- [Tracks Registry](./PRESENT.md)
 - [Tracks Directory](./)
 ```
 
-- **Announce:** "Created `tasks/index.md` to serve as the project context index."
+- **Announce:** "Created `tasks/PRESENT.md` to serve as the project context dashboard."
 
 2.  **Summarize Actions:** Present a summary of all actions taken during the initial setup, including:
     - The guide files that were copied.
@@ -543,10 +543,10 @@ NOTE: `.gemini` and `.agents` are used interchangeably.
 ### 3.3 Convert the Initial Track into Artifacts (Automated)
 
 1.  **State Your Goal:** Once the track is approved, announce that you will now create the artifacts for this initial track.
-2.  **Initialize Tracks File:** Create the `tasks/tracks.md` file with the initial header and the first track:
+2.  **Initialize Dashboard:** Create the `tasks/PRESENT.md` file with the initial header and the first track:
 
 ```md
-# Project Tracks
+# 🛰️ Present (The Dashboard)
 
 This file tracks all major tracks for the project. Each track has its own detailed plan in its respective folder.
 
@@ -561,8 +561,8 @@ This file tracks all major tracks for the project. Each track has its own detail
 3.  **Generate Track Artifacts:**
     a. **Define Track:** The approved title is the track description.
     b. **Generate Track-Specific Spec & Plan:**
-    i. Automatically generate a detailed `spec.md` for this track.
-    ii. Automatically generate a `plan.md` for this track. - **CRITICAL:** The structure of the tasks must adhere to the principles outlined in the **Core Protocol** at `.agents/rules/05-intelligence.md`. - **TDD Requirement:** Each feature task must be broken down into the TDD Cycle: **Red** (Write failing tests), **Green** (Implement to pass), and **Refactor**. - **Status Protocol:** Include status markers for **EVERY** task and sub-task. The format must be: - Parent Task: `- [ ] Task: ...` - Sub-task: `- [ ] ...` - Completed Task: `- [x] <7-char-sha> Task: ...` - **CRITICAL: Inject Phase Completion Tasks.** You MUST read the `.agents/rules/05-intelligence.md` file to determine the "Phase Checkpointing" requirements. For each **Phase** that you generate in `plan.md`, you MUST append a final meta-task: - `- [ ] Task: Conductor - Phase Checkpoint '<Phase Name>' (Protocol in 05-intelligence.md)`.
+    i. Automatically generate a detailed `ETERNAL.md` for this track.
+    ii. Automatically generate a `FUTURE.md` for this track. - **CRITICAL:** The structure of the tasks must adhere to the principles outlined in the **Core Protocol** at `.agents/rules/05-intelligence.md`. - **TDD Requirement:** Each feature task must be broken down into the TDD Cycle: **Red** (Write failing tests), **Green** (Implement to pass), and **Refactor**. - **Status Protocol:** Include status markers for **EVERY** task and sub-task. The format must be: - Parent Task: `- [ ] Task: ...` - Sub-task: `- [ ] ...` - Completed Task: `- [x] <7-char-sha> Task: ...` - **CRITICAL: Inject Phase Completion Tasks.** You MUST read the `.agents/rules/05-intelligence.md` file to determine the "Phase Checkpointing" requirements. For each **Phase** that you generate in `FUTURE.md`, you MUST append a final meta-task: - `- [ ] Task: Conductor - Phase Checkpoint '<Phase Name>' (Protocol in 05-intelligence.md)`.
 
 c. **Create Track Artifacts:**
 i. **Generate and Store Track ID:** Create a unique Track ID from the track description using format `shortname-YYYY-MM-DD` and store it. You MUST use this exact same ID for all subsequent steps for this track.
@@ -581,19 +581,19 @@ iii. **Create `metadata.json`:** In the new directory, create a `metadata.json` 
 ```
 
 Populate fields with actual values. Use the current timestamp.
-iv. **Write Spec and Plan Files:** In the exact same directory, write the generated `spec.md` and `plan.md` files.
-v. **Write Index File:** In the exact same directory, write `index.md` with content:
+iv. **Write Eternal and Future Files:** Write the generated `ETERNAL.md` and `FUTURE.md` files to the `tasks/` directory.
+v. **Write Dashboard File:** Write `tasks/PRESENT.md` with content:
 
 ```md
 # Track <track_id> Context
 
-- [Specification](./spec.md)
-- [Implementation Plan](./plan.md)
+- [Eternal Foundation](./ETERNAL.md)
+- [Implementation Plan](./FUTURE.md)
 - [Metadata](./metadata.json)
   _(If you arrived here directly from the Audit because you are patching a missing index, write this file using the existing folder's track_id and then proceed to step d.)_
 ```
 
-d. **Exit Plan Mode:** Call the `exit_plan_mode` tool with the path: `<Tracks Directory>/<track_id>/index.md`.
+d. **Exit Plan Mode:** Call the `exit_plan_mode` tool with the path: `tasks/PRESENT.md`.
 
 e. **Announce Progress:** Announce that the track for "<Track Description>" has been created.
 

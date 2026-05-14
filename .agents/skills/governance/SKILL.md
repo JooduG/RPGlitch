@@ -34,7 +34,7 @@ Records significant choices in `tasks/decisions/`.
 
 ### 2. Rule Maintenance
 
-Owns the integrity of the `.agents/rules/` directory. Updates Rules (01-06) as new patterns emerge.
+Owns the integrity of the **[GEMINI.md](../../../GEMINI.md)**. Updates Laws (01-06) as new patterns emerge.
 
 ### 3. Repository Hygiene (The Basement)
 

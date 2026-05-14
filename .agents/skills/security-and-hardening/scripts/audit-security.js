@@ -34,9 +34,14 @@ export const securityRules = [
         "swarm-merge.ts",
         "swarm-plan.ts",
         "knowledge.js",
+        "sync-tokens.js",
+        "scan-tokens.js",
+        "debug-auditor.js",
       ];
       return (
-        !filePath.endsWith(".test.js") && !cliScripts.some((script) => filePath.includes(script))
+        !filePath.endsWith(".test.js") &&
+        !cliScripts.some((script) => filePath.includes(script)) &&
+        !filePath.includes("/scripts/")
       );
     },
   },

@@ -51,8 +51,7 @@ export default [
       "**/templates/**",
       "**/test-results/**",
       "**/yarn.lock",
-      "**/tmp/**",
-      "**/.gemini/**"
+      "**/tmp/**"
     ],
     // @agent:ignore-end
   },

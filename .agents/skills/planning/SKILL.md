@@ -30,7 +30,7 @@ The development lifecycle begins with **Strategic Specification**, distilling ch
 1. **Phase 1: Diverge**: Interrogate ambiguous requests to find the core mechanic.
 2. **Phase 2: Handshake**: Reflect intent back to the user for confirmation (Signal Handshake).
 3. **Phase 3: Converge**: Evaluate directions against the "Nordic Aesthetic" and technical feasibility.
-4. **Phase 4: Specification**: Draft the final blueprint in the track's `spec.md`.
+4. **Phase 4: Specification**: Draft the final blueprint in the track's `ETERNAL.md`.
 
 ## How It Works
 
@@ -66,7 +66,7 @@ Every feature specification MUST contain:
 
 #### 2.1 Task Breakdown
 
-Decompose specifications into discrete units of work in `tasks/plan.md`.
+Decompose specifications into discrete units of work in `tasks/FUTURE.md`.
 
 - **Small (S)**: 1-2 files.
 - **Medium (M)**: 3-5 files.
@@ -86,31 +86,26 @@ The `planning` skill operates as the engine for the **Conductor Framework**. It 
 
 Use these triggers to navigate the development lifecycle:
 
-| Trigger           | Purpose                             | Source                                                       |
-| :---------------- | :---------------------------------- | :----------------------------------------------------------- |
-| **/00-status**    | Session Initialization & Monitoring | [00-status.md](../../workflows/conductor/00-status.md)       |
-| **/01-plan**      | Tactical Planning & Spec Generation | [01-plan.md](../../workflows/conductor/01-plan.md)           |
-| **/02-implement** | Incremental Tactical Implementation | [02-implement.md](../../workflows/conductor/02-implement.md) |
-| **/03-review**    | Quality Gate & Verification         | [03-review.md](../../workflows/conductor/03-review.md)       |
-| **/04-release**   | Release & Handoff (Perchance)       | [04-release.md](../../workflows/conductor/04-release.md)     |
-| **/05-revert**    | Logical State Reconciliation        | [05-revert.md](../../workflows/conductor/05-revert.md)       |
-| **/06-test**      | Unified Diagnostics & Audits        | [06-test.md](../../workflows/conductor/06-test.md)           |
+| Trigger           | Purpose                                | Source                                                       |
+| :---------------- | :------------------------------------- | :----------------------------------------------------------- |
+| **/00-status**    | Session Initialization & Monitoring    | [00-status.md](../../workflows/conductor/00-status.md)       |
+| **/01-plan**      | Tactical Planning & Eternal Foundation | [01-plan.md](../../workflows/conductor/01-plan.md)           |
+| **/02-implement** | Incremental Tactical Implementation    | [02-implement.md](../../workflows/conductor/02-implement.md) |
+| **/03-review**    | Quality Gate & Verification            | [03-review.md](../../workflows/conductor/03-review.md)       |
+| **/04-ship**      | Ship & Handoff (Perchance)             | [04-ship.md](../../workflows/conductor/04-ship.md)           |
 
 ### 📐 Universal File Resolution Protocol
 
 To find a file (e.g., "Foundation") within a specific context:
 
 1.  **Identify Index**:
-    - **Project Context**: `tasks/plan.md`.
-    - **Track Context**: `<track_folder>/index.md` (resolved via `tasks/tracks.md`).
-2.  **Check Index**: Read the index and resolve paths **relative to the index file location**.
+    - **Project Context**: `tasks/PRESENT.md`.
+    - **Track Context**: `tasks/tracks/<track_id>/PRESENT.md`.
+2.  **Check Index**: Read `tasks/PRESENT.md` and resolve paths relative to the root.
 3.  **Default Path Mapping**:
-    - **Foundation**: `rules/01-foundation.md`
-    - **Infrastructure**: `rules/03-infrastructure.md`
-    - **Intelligence**: `rules/05-intelligence.md`
-    - **Simulation**: `rules/02-simulation.md`
-    - **Registry**: `tasks/tracks.md`
-    - **Spec/Plan**: `tasks/tracks/<track_id>/[spec|plan].md`
+    - **Governance**: `GEMINI.md`
+    - **Registry**: `tasks/PRESENT.md`
+    - **Spec/Plan**: `tasks/tracks/<track_id>/[ETERNAL|FUTURE].md`
 
 ### SOP-01: Track Initialization & ID Generation
 
@@ -125,20 +120,18 @@ When initializing a new unit of work (Track):
 
 Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
 
-- `spec.md`: Technical Specification.
-- `plan.md`: Hierarchical Implementation Plan.
+- `ETERNAL.md`: Technical Specification.
+- `FUTURE.md`: Hierarchical Implementation Plan.
 - `metadata.json`: Machine-readable state.
-- `index.md`: Navigation hub.
-
-### SOP-03: Metadata & Registry Updates
+- `PRESENT.md`: Navigation hub.
 
 - **Metadata**: Adhere to the `metadata.json` schema (id, type, status, timestamps).
-- **Mission Board (`tasks/todo.md`)**: Append to `## 🎯 Current Objectives`.
-- **Tracks Registry (`tasks/tracks.md`)**: Append section with relative link to `index.md`.
+- **Mission Board**: Update `tasks/PRESENT.md` under `## 🚀 Active Mission`.
+- **Tracks Registry**: Update `tasks/PRESENT.md` under `## 🗺️ Roadmap (Tracks)`.
 
 ### SOP-04: Track Discovery & Selection
 
-1. **Source of Truth**: Read `tasks/todo.md` and parse the `## 🎯 Current Objectives` section.
+1. **Source of Truth**: Read `tasks/PRESENT.md` and parse the `## 🗺️ Roadmap (Tracks)` section.
 2. **Discovery Logic**:
    - Extract all pending tracks following the pattern `- [ ] Track: <Description> (ID: <track_id>)`.
    - If no tracks are found, notify the user that the Mission Board is empty.
@@ -146,20 +139,20 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - **Explicit Selection**: If a track name or ID was provided as an argument, perform a case-insensitive match against the extracted descriptions.
    - **Implicit Selection**: If no argument was provided, automatically identify the first incomplete track (`[ ]`).
    - **Confirmation**: Always use the `ask_user` tool to confirm the selected track before proceeding.
-4. **Validation**: Resolve the directory `tasks/tracks/<track_id>/` and verify that the core artifacts (`spec.md` and `plan.md`) are present and readable.
+4. **Validation**: Resolve the directory `tasks/tracks/<track_id>/` and verify that the core artifacts (`ETERNAL.md` and `FUTURE.md`) are present and readable.
 
 ### SOP-05: Task Lifecycle & Mission Control
 
 1. **Track Activation**:
-   - Update the status of the selected track in the **Mission Board** (`tasks/todo.md`) from `[ ]` to `[~]`.
+   - Update the status of the selected track in the **Mission Board** (`tasks/PRESENT.md`) from `[ ]` to `[~]`.
    - Resolve the track's folder and read the **Specification** and **Implementation Plan**.
 2. **Incremental Execution**:
-   - **Task Selection**: Identify the next pending task in the track's `plan.md`.
-   - **State Mutation**: Mark the active task as in-progress `[~]` in the `plan.md`.
+   - **Task Selection**: Identify the next pending task in the track's `FUTURE.md`.
+   - **State Mutation**: Mark the active task as in-progress `[~]` in the `FUTURE.md`.
    - **The TDD Loop**: Execute the task using the **Red-Green-Refactor** cycle. Use the [test](../test/SKILL.md) skill to verify correctness.
-   - **Completion**: Upon successful verification, commit the changes and update the task status in `plan.md` to `[x] <sha>` using the 7-character commit hash.
+   - **Completion**: Upon successful verification, commit the changes and update the task status in `FUTURE.md` to `[x] <sha>` using the 7-character commit hash.
 3. **Audit Trail**:
-   - **Skill Log**: Update the persistent Skill Log in `tasks/todo.md` with the task description, the skill invoked, and the outcome for every significant tool usage or state transition.
+   - **Skill Log**: Update the persistent Skill Log (Pulse) in `tasks/PRESENT.md` with the task description, the skill invoked, and the outcome.
 4. **Track Finalization**:
    - Once all tasks in the local plan are complete, update the Mission Board entry to `[x]`.
    - Create a `chore(conductor): Mark track '<track_id>' as complete` commit.
@@ -168,7 +161,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
 
 1. **Trigger**: This protocol MUST be executed only when a track reaches `[x]` status in the Mission Board.
 2. **Impact Analysis**:
-   - Perform a diff between the track's `spec.md` and the project **Rule Slots** (`01-foundation.md`, `03-infrastructure.md`, `02-simulation.md`).
+   - Perform a diff between the track's `ETERNAL.md` and the project **Rule Sections** in `GEMINI.md`.
    - Identify if the new implementation introduces architectural shifts that should be codified as "Axioms" or "Infrastructure Laws".
 3. **The Approval Handshake**:
    - For each impacted slot, generate a formatted diff of proposed changes.
@@ -181,18 +174,18 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
 
 1. **Interactive Cleanup**: Present the user with the following lifecycle options via `ask_user`:
    - **Review**: Transition to the `/03-review` workflow for a quality audit.
-   - **Archive**: Move the track folder to `tasks/archive/`, remove the entry from `tasks/todo.md`, and commit as `chore(conductor): Archive track '<track_id>'`.
-   - **Delete**: Permanently delete the track folder, remove the entry from `tasks/todo.md`, and commit as `chore(conductor): Delete track '<track_id>'`.
+   - **Archive**: Move the track folder to `.agents/archive/`, update the entry in `tasks/PRESENT.md`, and commit as `chore(conductor): Archive track '<track_id>'`.
+   - **Delete**: Permanently delete the track folder, remove the entry from `tasks/PRESENT.md`, and commit as `chore(conductor): Delete track '<track_id>'`.
    - **Skip**: Maintain the current state for later review.
 2. **Registry Maintenance**: Ensure the Mission Board and track history remain clean and focused on current objectives.
 
 ### SOP-08: Review Forensics & Scope Discovery
 
 1. **Scope Identification**:
-   - If no scope provided, identify the first active `[~]` track in `tasks/todo.md`.
+   - If no scope provided, identify the first active `[~]` track in `tasks/PRESENT.md`.
    - If no active track, list recent `[x]` tracks for retrospective review.
 2. **Forensics**:
-   - Parse the track's `plan.md` to extract all recorded SHAs.
+   - Parse the track's `FUTURE.md` to extract all recorded SHAs.
    - Resolve the **Revision Range** (from the parent of the first SHA to the head of the last SHA).
 3. **Diff Strategy**:
    - Run `git diff --shortstat` to evaluate change volume.
@@ -201,7 +194,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
 ### SOP-09: Revert Forensics & State Reconciliation
 
 1. **SHA Mapping**:
-   - Locate the target in `tasks/todo.md` or `tasks/tracks/<id>/plan.md`.
+   - Locate the target in `tasks/PRESENT.md` or `tasks/tracks/<id>/FUTURE.md`.
    - Extract all associated SHAs.
    - Search for `conductor(checkpoint)` commits to define logical bounds.
 2. **Drift Detection**:
@@ -211,8 +204,8 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Compile SHAs in **reverse chronological order**.
    - Identify collateral commits and warn the user.
 4. **State Reset**:
-   - Change task/track status back to `[ ]` in `todo.md` and `plan.md`.
-   - Remove associated entries from the Skill Log.
+   - Change task/track status back to `[ ]` in `tasks/PRESENT.md` and `FUTURE.md`.
+   - Remove associated entries from the Pulse (History).
 
 ### SOP-10: Guided Specification & Requirement Gathering
 
@@ -225,7 +218,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - **Aesthetic Alignment**: Ensure questions account for the **Nordic Collection** and **Chalk Regime** (Rule 04).
    - **Logic Alignment**: Ensure questions account for **Svelte 5 Runes** and **Local-First** persistence (Rule 03).
    - **Interaction Flow**: Summarize your understanding before moving on to drafting.
-3. **Validation**: Reflect the drafted spec.md back to the user for explicit approval before proceeding to planning. Apply the **[Strategic Specification](#strategic-specification)** section of this skill to ensure total alignment.
+3. **Validation**: Reflect the drafted `ETERNAL.md` back to the user for explicit approval before proceeding to drafting. Apply the **[Strategic Specification](#1-strategic-specification-idea-workshop)** section of this skill to ensure total alignment.
 
 ### SOP-11: Guided Implementation Planning
 
@@ -238,20 +231,20 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Include status markers `[ ]`.
    - Conclude with a "Verification & Audit" phase (Rule 06).
    - **The TDD Mandate**: Every logical phase MUST follow the **Red-Green-Refactor** cycle (Rule 05 §6). Integrate the [test-driven-development](../test/SKILL.md) skill.
-3. **Validation**: Reflect the drafted `plan.md` back to the user for explicit approval before initialization.
+3. **Validation**: Reflect the drafted `FUTURE.md` back to the user for explicit approval before initialization.
 
 ### SOP-12: Mission Status & Velocity Audit
 
 1. **Discovery**: Identify the active track `[~]` and its current task `[~]`.
 2. **Analysis**:
-   - **Local Velocity**: Calculate percentage of completed tasks `[x]` vs. total tasks in the track's `plan.md`.
-   - **Skill Log Forensics**: Review the last 3-5 entries in `tasks/todo.md` for historical continuity.
+   - **Local Velocity**: Calculate percentage of completed tasks `[x]` vs. total tasks in the track's `FUTURE.md`.
+   - **Skill Log Forensics**: Review the last 3-5 entries in `tasks/PRESENT.md` Pulse section for historical continuity.
    - **Remote Pulse**: Run `gh pr list` and `gh issue list` to detect unlinked work or remote drift.
 3. **Reporting**:
    - Provide a high-fidelity summary including ISO 8601 timestamp, active vector, and health status.
    - Highlight blockers or unverified increments.
 
-### SOP-13: Release Synchronization & Deployment
+### SOP-13: Ship Synchronization & Deployment
 
 1. **Commit Audit**:
    - Verify all local changes for the track are captured in atomic commits.
@@ -260,14 +253,14 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Open a Pull Request via `gh pr create --fill`.
    - Link relevant issue IDs via `gh issue list`.
 3. **Deployment & Finalization**:
-   - Trigger Perchance deployment if applicable via the [Release](../release/SKILL.md) skill.
-   - Update the **Mission Board** (`tasks/todo.md`) status to `[x]`.
+   - Trigger Perchance deployment if applicable via the [Ship](../ship/SKILL.md) skill.
+   - Update the **Mission Board** (`tasks/PRESENT.md`) status to `[x]`.
    - Delete the local working branch after remote confirmation.
 
 ### SOP-14: Five-Axis Review & Reporting
 
 1. **Verification Axes**:
-   - **Sovereignty**: Alignment with `spec.md` and `plan.md`.
+   - **Sovereignty**: Alignment with `ETERNAL.md` and `FUTURE.md`.
    - **Infrastructure (Slot 03)**: Svelte 5 purity, Chalk Regime tokens (no raw units).
    - **Compliance (Slot 06)**: Security boundaries, sanitization, Boy Scout Rule.
    - **Intelligence (Slot 05)**: TDD coverage, atomic history, test results.
@@ -278,7 +271,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - **Findings**: Categorized (Critical/High/Medium/Low) with diff suggestions.
 3. **Decision Logic**:
    - Use `ask_user` for "Apply Fixes", "Manual Fix", or "Complete Objective".
-   - Update `plan.md` with "Review Fixes" tasks if needed.
+   - Update `FUTURE.md` with "Review Fixes" tasks if needed.
 
 ### SOP-15: Diagnostic Verification & Analysis
 
@@ -293,7 +286,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Offer `npm run lint:fix` for style violations.
 3. **Forensics**:
    - Apply [Debugging & Error Recovery](../debugging-and-error-recovery/SKILL.md) for failures.
-   - Apply **Defense-in-Depth Validation** ([Rule 06](../../rules/06-compliance.md) §1.1).
+   - Apply **Defense-in-Depth Validation** ([GEMINI.md](../../../GEMINI.md#🛡️-06-compliance) §1.1).
 
 ## Verification Checklist
 

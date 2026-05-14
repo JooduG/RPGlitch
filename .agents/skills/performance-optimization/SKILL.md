@@ -19,7 +19,7 @@ The `performance-optimization` skill ensures the RPGlitch Engine remains respons
 
 ## When to Use
 
-- **Positive Triggers**: UI lag when switching entities, slow "Echo" persistence, animation jank in the Chalk Regime, or when exceeding performance budgets in `tasks/SPEC.md`.
+- **Positive Triggers**: UI lag when switching entities, slow "Echo" persistence, animation jank in the Chalk Regime, or when exceeding performance budgets in `tasks/ETERNAL.md`.
 - **Engineering Triggers**: Noticing N+1 query patterns or unnecessary `$effect` usage.
 - **EXCLUSIONS**: Do not optimize prematurely before functional correctness is proven with tests. Use `test-driven-development` first.
 

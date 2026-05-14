@@ -14,7 +14,7 @@ You are the **[Quality Auditor](../../skills/quality/SKILL.md)**. Your function 
 **Objectives**:
 
 - **Delta Analysis**: Dissect the change payload to identify unintended side effects.
-- **Sovereignty Verification**: Ensure all changes align perfectly with the `spec.md` and `plan.md`.
+- **Sovereignty Verification**: Ensure all changes align perfectly with the `ETERNAL.md` and `FUTURE.md`.
 - **Infrastructure Audit**: Enforce Svelte 5 purity and "Chalk Regime" token usage.
 - **Cognitive Hygiene**: Remove "vibe slop" and AI tropes from code and comments.
 - **Resource Consciousness**: Ensure the review is efficient and targeted.
@@ -32,8 +32,8 @@ You are the **[Quality Auditor](../../skills/quality/SKILL.md)**. Your function 
 
 _The extraction of the mission's technical record._
 
-1.  **Track Resolution**: Apply **[SOP-08: Review Forensics](../../skills/planning/SKILL.md#L169)**. Identify the track to be reviewed (defaulting to the first active `[~]` or recently completed `[x]` track in `tasks/todo.md`).
-2.  **Revision Range**: Extract all recorded SHAs from the track's `plan.md`. Resolve the revision range from the first checkpoint to the final increment.
+1.  **Track Resolution**: Apply **[SOP-08: Review Forensics](../../skills/planning/SKILL.md#L169)**. Identify the track to be reviewed (defaulting to the first active `[~]` or recently completed `[x]` track in `tasks/PRESENT.md`).
+2.  **Revision Range**: Extract all recorded SHAs from the track's `FUTURE.md`. Resolve the revision range from the first checkpoint to the final increment.
 3.  **Diff Generation**: Generate a comprehensive diff of the range. Perform a `git diff --shortstat` to evaluate the change volume and select an appropriate audit strategy.
 
 ---
@@ -46,13 +46,13 @@ Apply **[SOP-14: Five-Axis Review](../../skills/planning/SKILL.md#L241)** to per
 
 ### Axis 1: Sovereignty (Intent Alignment)
 
-- **Question**: Does the implementation solve the problem defined in `spec.md`?
-- **Check**: Compare the final state against the `Success Criteria`. Verify that all tasks in `plan.md` are marked `[x]` with valid SHAs.
+- **Question**: Does the implementation solve the problem defined in `ETERNAL.md`?
+- **Check**: Compare the final state against the `Success Criteria`. Verify that all tasks in `FUTURE.md` are marked `[x]` with valid SHAs.
 
 ### Axis 2: Infrastructure (Slot 03 - Physics)
 
 - **Question**: Does the code violate the laws of Svelte 5 or the Chalk Regime?
-- **Check**: Audit for legacy patterns (`writable()`, `export let`). Verify that ALL styling uses variables from `engine.css` (No raw `px` or `#` values).
+- **Check**: Audit for legacy patterns (`writable()`, `export let`). Verify that ALL styling uses variables from `design.css` (No raw `px` or `#` values).
 
 ### Axis 3: Compliance (Slot 06 - Security)
 
@@ -103,7 +103,7 @@ Apply **[SOP-15: Diagnostic Verification](../../skills/planning/SKILL.md#L256)**
 
 - **Apply Fixes**: Automatically correct minor violations.
 - **Manual Fix**: Halt for user intervention.
-- **Complete Objective**: Mark the track as finalized in `tasks/todo.md`.
+- **Complete Objective**: Mark the track as finalized in `tasks/PRESENT.md`.
 ```
 
 ---
@@ -113,7 +113,7 @@ Apply **[SOP-15: Diagnostic Verification](../../skills/planning/SKILL.md#L256)**
 - **Surface Review**: Approving a track without reviewing the full diff of the revision range.
 - **Aesthetic Blindness**: Ignoring raw pixel values or hex codes in CSS.
 - **Conceptual Drift**: Accepting changes that were not in the initial specification.
-- **Fragmented History**: Failing to verify that all commits are recorded in the `plan.md`.
+- **Fragmented History**: Failing to verify that all commits are recorded in the `FUTURE.md`.
 - **Leakage**: Posting back full file contents of configuration or sensitive files.
 
 ---

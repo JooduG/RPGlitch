@@ -1,9 +1,9 @@
 ---
-name: 07-triage
+name: classify
 description: Analyzes and categorizes tasks, issues, or requests with consistent reasoning.
 ---
 
-# 07-triage - Cognitive Classification & Sorting
+# Cognitive Classification & Sorting
 
 ## 1.0 SYSTEM DIRECTIVE
 
@@ -43,7 +43,7 @@ Apply the following principles to categorize the intent:
 Refer to the **[Complexity Triage Table](../../skills/using-agent-skills/SKILL.md)** to route the task:
 
 - **Level 1 (Surgical)**: Single file, clear fix.
-- **Level 2 (Tactical)**: Multi-file, requires a `plan.md`.
+- **Level 2 (Tactical)**: Multi-file, requires a `FUTURE.md`.
 - **Level 3 (Strategic)**: Cross-cutting, requires an ADR and /01-plan.
 
 ---

@@ -1,12 +1,44 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import { execSync } from "child_process";
 import path from "path";
 import { defineConfig } from "vite";
 import devtoolsJson from "vite-plugin-devtools-json";
 import { viteSingleFile } from "vite-plugin-singlefile";
+
+// 🎨 Design Token Sync Plugin
+/**
+ * Vite plugin to synchronize design tokens on build and file changes.
+ * @returns {import('vite').Plugin} The Vite plugin object.
+ */
+function designTokenSync() {
+  return {
+    name: "design-token-sync",
+    buildStart() {
+      try {
+        console.log("🎨 Syncing design tokens...");
+        execSync("node ./.agents/skills/css/scripts/sync-tokens.js", { stdio: "inherit" });
+      } catch (err) {
+        console.error("❌ Design token sync failed:", err.message);
+      }
+    },
+    handleHotUpdate({ file }) {
+      if (file.endsWith("DESIGN.md")) {
+        try {
+          console.log("🎨 DESIGN.md changed, resyncing tokens...");
+          execSync("node ./.agents/skills/css/scripts/sync-tokens.js", { stdio: "inherit" });
+          // Optionally trigger a full reload or just let Vite handle the CSS update
+        } catch (err) {
+          console.error("❌ Design token sync failed:", err.message);
+        }
+      }
+    },
+  };
+}
+
 export default defineConfig({
   // Root must point to where index.html lives
   root: "src",
-  plugins: [svelte(), viteSingleFile(), devtoolsJson()],
+  plugins: [designTokenSync(), svelte(), viteSingleFile(), devtoolsJson()],
   resolve: {
     // Top-Level Domain Aliasing
     // Restricting aliases to major folders forces better structural boundaries.
@@ -54,6 +86,10 @@ export default defineConfig({
     port: 4001,
     strictPort: false, // Fail if port 4000 is taken, rather than silently jumping to 4001
     open: true, // Automatically open embedded browser on boot
+    watch: {
+      // Ensure DESIGN.md is watched even though it's outside the src root
+      ignored: ["!**/DESIGN.md"],
+    },
   },
   preview: {
     port: 8080,

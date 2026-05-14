@@ -1,4 +1,4 @@
-import { validateLine } from "../.agents/skills/css/scripts/token-integrity.js";
+import { validateLine } from "./token-integrity.js";
 import fs from "fs";
 
 const filePath = "src/ui/atoms/Slider.svelte";

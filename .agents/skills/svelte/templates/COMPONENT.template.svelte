@@ -53,20 +53,20 @@
 </article>
 
 <style>
-    /* Church & State: Styles belong here, scoped. */
+    /* Church & State: Styles belong here, scoped. Zero raw values — Chalk Regime. */
 
     .c-card {
         background: var(--glass-base);
         border-radius: var(--radius-subtle);
-        padding: 1rem;
+        padding: var(--padding-standard);
         display: flex;
         flex-direction: column;
-        gap: 1rem;
+        gap: var(--gap-standard);
     }
 
     .c-card__title {
-        font-size: 1.25rem;
-        font-weight: 600;
+        font-size: var(--font-size-h5);
+        font-weight: var(--font-weight-bold);
     }
 
     .c-card__footer {
@@ -76,12 +76,13 @@
 
     .c-btn {
         background: var(--signature-color);
-        color: white;
-        padding: 0.5rem 1rem;
+        color: var(--color-black);
+        padding: var(--padding-tight) var(--padding-standard);
         border-radius: var(--radius-sharp);
+        transition: opacity var(--duration-fast) var(--ease-standard);
     }
 
     .c-btn:hover {
-        opacity: 0.9;
+        opacity: var(--opacity-intense);
     }
 </style>

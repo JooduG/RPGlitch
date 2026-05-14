@@ -37,10 +37,10 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-**/.gemini/**
 !**/rpglitch-left-panel.txt
 !**/templates/**
 .secrets
 **/.jules/**
 act_output.log
 gha-creds-*.json
+**/.gemini/**

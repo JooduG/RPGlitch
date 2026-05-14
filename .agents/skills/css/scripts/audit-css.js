@@ -8,12 +8,14 @@ export const cssRules = [
   {
     id: "RAW_COLOR",
     severity: "HERESY",
-    // Matches hex, rgb, hsl. Ignores if it's inside a var() or url().
     regex: /#([0-9A-Fa-f]{3}){1,2}\b|\brgba?\(|\bhsla?\(/,
     message: "❌ Hardcoded color detected. Use Tokens: var(--color-chalk), etc.",
-    // Additional check to ignore url() content and var()
     validate: (line) =>
-      !line.includes("url(") && !line.includes("var(") && !line.includes("hex_to_rgb"),
+      !line.includes("url(") &&
+      !line.includes("var(") &&
+      !line.includes("hex_to_rgb") &&
+      !line.trim().startsWith("/*") &&
+      !line.trim().startsWith("*"),
   },
   {
     id: "PIXEL_BORDER",
@@ -22,13 +24,51 @@ export const cssRules = [
     message: "❌ Pixel border detected. Use depth markers like shadows.",
   },
   {
+    id: "RAW_UNIT",
+    severity: "HERESY",
+    // Matches any number followed by px, rem, em, or hex codes.
+    // Ignores 0, 0%, 100%, 1px (if specifically allowed), and content inside var() or url().
+    regex:
+      /(?<!var\([^)]*)\b([1-9][0-9]*(\.[0-9]+)?|0\.[0-9]+)(px|rem|em)\b|#([0-9A-Fa-f]{3}){1,2}\b/,
+    message:
+      "❌ Hardcoded unit or hex color detected. Use Tokens: var(--spacing-4), var(--color-chalk), etc.",
+    validate: (line) => {
+      // Ignore comments
+      if (line.trim().startsWith("/*") || line.trim().startsWith("*")) return false;
+
+      const unitRegex =
+        /\b([1-9][0-9]*(\.[0-9]+)?|0\.[0-9]+)(px|rem|em)\b|#([0-9A-Fa-f]{3}){1,2}\b/g;
+      const matches = line.match(unitRegex);
+      if (!matches) return false;
+
+      const isHexToRgb = line.includes("hex_to_rgb");
+      if (isHexToRgb) return false;
+
+      // Check if ANY of the matches are outside of var() or url()
+      // This is a bit complex for a simple validator, but we can check if the match exists outside of those wrappers
+      for (const match of matches) {
+        // Simple check: is this specific match preceded by "var(" or "url("?
+        // We can use the index of the match
+        const index = line.indexOf(match);
+        const prefix = line.substring(0, index);
+
+        const isInsideVar = prefix.includes("var(") && !prefix.split("var(").pop().includes(")");
+        const isInsideUrl = prefix.includes("url(") && !prefix.split("url(").pop().includes(")");
+
+        if (!isInsideVar && !isInsideUrl) return true;
+      }
+
+      return false;
+    },
+  },
+  {
     id: "TOKEN_INTEGRITY",
     severity: "HERESY",
     regex: /var\(--/,
-    message: "❌ Hallucinated token detected. Variable not defined in engine.css.",
+    message: "❌ Hallucinated token detected. Variable not defined in design.css.",
     validate: (line) => {
       const invalidToken = validateLine(line);
-      return !!invalidToken; // Returns true if an invalid token is found (violation)
+      return !!invalidToken;
     },
   },
 ];

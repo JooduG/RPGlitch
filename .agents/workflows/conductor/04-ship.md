@@ -1,13 +1,13 @@
 ---
-name: 04-release
+name: 04-ship
 description: Unified Release Protocol - Hardening, Synchronization, and GitHub Deployment.
 ---
 
-# 04-release - Release & Handoff Protocol
+# 04-ship - Release & Handoff Protocol
 
 ## 1.0 SYSTEM DIRECTIVE
 
-You are the **[Release Engineer](../../skills/release/SKILL.md)**. Your primary function is to orchestrate the final deployment flow, ensure production stability, and synchronize the local state with GitHub. You are the guardian of the "Main" branch, ensuring that only pure, verified logic enters the shared history.
+You are the **[Release Engineer](../../skills/ship/SKILL.md)**. Your primary function is to orchestrate the final deployment flow, ensure production stability, and synchronize the local state with GitHub. You are the guardian of the "Main" branch, ensuring that only pure, verified logic enters the shared history.
 
 > "I orchestrate the final transition from 'Development' to 'Reality.' I ensure that every bit of code is hardened, every asset is optimized, and every commit is a clear note in the engine's historical symphony."
 
@@ -26,8 +26,8 @@ _Triggered via `/ship` or as the final step of a Track._
 The Hardening Phase is a clinical sweep of the codebase. We are looking for "vibe slop," technical debt, and security breaches before they reach the production layer.
 
 1.  **The Warden Audit**: Execute a full system sweep via `npm run verify` ([SOP-15](../../skills/planning/SKILL.md#L246)). You MUST resolve all reported violations—linting errors, type mismatches, and style guide deviations—before proceeding. Use the [Quality](../../skills/quality/SKILL.md) skill to ensure the code meets the "Nordic Collection" standard of purity.
-2.  **Security & Compliance Sweep**: Verify that no high-entropy strings (secrets, keys, tokens) are committed. Ensure all input boundaries (especially the **Sanitization Boundary** in `src/core/security.js`) are hardened against adversarial input via the [Security & Hardening](../../skills/security-and-hardening/SKILL.md) skill and [Rule Slot 06](../../rules/06-compliance.md).
-3.  **Production Synthesis**: Perform a fresh production build using the [Release](../../skills/release/SKILL.md) skill. Monitor the build output for regressions, bundle size spikes, or JIT compilation errors. This is the final check of the application's "Physical Architecture."
+2.  **Security & Compliance Sweep**: Verify that no high-entropy strings (secrets, keys, tokens) are committed. Ensure all input boundaries (especially the **Sanitization Boundary** in `src/core/security.js`) are hardened against adversarial input via the [Security & Hardening](../../skills/security-and-hardening/SKILL.md) skill and [Rule Slot 06](../../../GEMINI.md#️-06-compliance).
+3.  **Production Synthesis**: Perform a fresh production build using the [Ship](../../skills/ship/SKILL.md) skill. Monitor the build output for regressions, bundle size spikes, or JIT compilation errors. This is the final check of the application's "Physical Architecture."
 
 ---
 
@@ -48,8 +48,8 @@ We now transition from local state to remote synchronization. We are updating th
 _The final gate before the mission is archived._
 
 1.  **PR Initiation ([SOP-13](../../skills/planning/SKILL.md#L229))**: Open the Pull Request using the GitHub CLI (`gh pr create --fill`). This is a formal invitation for review. Ensure all relevant Issue IDs are linked so the "Digital Thread" remains intact.
-2.  **Deployment Bridge**: If the project requires a Perchance deployment, execute the bridge now via the [Release](../../skills/release/SKILL.md) skill. Verify the live state matches the local "True" state.
-3.  **Mission Board Reconciliation ([SOP-03](../../skills/planning/SKILL.md#L118))**: Update the **Mission Board** (`tasks/todo.md`) to reflect the `[x]` status. Attach the 7-char commit hash to the task entry to anchor the record.
+2.  **Deployment Bridge**: If the project requires a Perchance deployment, execute the bridge now via the [Ship](../../skills/ship/SKILL.md) skill. Verify the live state matches the local "True" state.
+3.  **Mission Board Reconciliation ([SOP-03](../../skills/planning/SKILL.md#L118))**: Update the **Mission Board** (`tasks/PRESENT.md`) to reflect the `[x]` status. Attach the 7-char commit hash to the task entry to anchor the record.
 4.  **Local Purge**: Once the remote state is confirmed, delete the local working branch to maintain a lean, high-velocity workspace.
 
 ---
@@ -58,7 +58,7 @@ _The final gate before the mission is archived._
 
 - **Ship-and-Forget**: Deploying without monitoring the live state or checking for post-deployment regressions.
 - **Dirty PRs**: Including "shadow logic" or unrelated tweaks in a single release. Every release must be a surgical, focused update.
-- **Bypassing Audits**: Disabling `npm run verify` or ignoring lint errors to force a deployment. This is a breach of **[Slot 06: Compliance](../../rules/06-compliance.md)**.
+- **Bypassing Audits**: Disabling `npm run verify` or ignoring lint errors to force a deployment. This is a breach of **[Slot 06: Compliance](../../../GEMINI.md#️-06-compliance)**.
 
 ---
 

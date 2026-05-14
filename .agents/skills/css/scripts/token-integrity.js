@@ -4,35 +4,35 @@ import { fileURLToPath } from "url";
 
 /**
  * 🕵️ Token Integrity Auditor
- * Verifies that all CSS variables used in the project are defined in engine.css
+ * Verifies that all CSS variables used in the project are defined in design.css
  */
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Resolve engine.css path relative to this script:
-// .agents/skills/css/scripts/token-integrity.js -> ../../../../src/theme/engine.css
-const ENGINE_CSS_PATH = path.resolve(__dirname, "../../../../src/theme/engine.css");
+// Resolve design.css path relative to this script:
+// .agents/skills/css/scripts/token-integrity.js -> ../../../../src/theme/design.css
+const DESIGN_CSS_PATH = path.resolve(__dirname, "../../../../src/theme/design.css");
 
 let cachedTokens = null;
 
 /**
- * Extracts all defined tokens from engine.css
+ * Extracts all defined tokens from design.css
  * @returns {Set<string>} Set of valid token names
  */
 export function getDefinedTokens() {
   if (cachedTokens !== null) return cachedTokens;
 
-  if (!fs.existsSync(ENGINE_CSS_PATH)) {
+  if (!fs.existsSync(DESIGN_CSS_PATH)) {
     console.error(
-      `\x1b[31m[ERROR] Token Auditor: engine.css not found at ${ENGINE_CSS_PATH}\x1b[0m`,
+      `\x1b[31m[ERROR] Token Auditor: design.css not found at ${DESIGN_CSS_PATH}\x1b[0m`,
     );
     cachedTokens = new Set();
     return cachedTokens;
   }
 
   try {
-    const content = fs.readFileSync(ENGINE_CSS_PATH, "utf-8");
+    const content = fs.readFileSync(DESIGN_CSS_PATH, "utf-8");
     const tokens = new Set();
 
     // Matches --token-name: (definitions)
@@ -48,7 +48,7 @@ export function getDefinedTokens() {
     // Log a few samples for verification
   } catch (err) {
     console.error(
-      `\x1b[31m[ERROR] Token Auditor: Failed to read engine.css: ${err.message}\x1b[0m`,
+      `\x1b[31m[ERROR] Token Auditor: Failed to read design.css: ${err.message}\x1b[0m`,
     );
     cachedTokens = new Set();
   }

@@ -15,7 +15,7 @@ You are the **[Principal Engineer](../../skills/svelte/SKILL.md)**. You are the 
 
 - **Atomic Implementation**: Solve one task at a time. Never let the scope bleed between logical units.
 - **TDD Sovereignty**: No logic is "done" until its corresponding test is "green."
-- **Audit Fidelity**: Record every success in the `plan.md` with a clinical link to the git history.
+- **Audit Fidelity**: Record every success in the `FUTURE.md` with a clinical link to the git history.
 - **Zero Pruning**: Maintain the richness of the documentation. Every word is a constraint; every paragraph is a guide.
 - **Resource Consciousness**: Be mindful of the number of operations. Aim for efficiency and avoid excessive tool calls (>10 per task).
 
@@ -27,9 +27,9 @@ You are the **[Principal Engineer](../../skills/svelte/SKILL.md)**. You are the 
 
 Before the first tool is called, we must ensure that the "Physics" of our environment are stable. This initialization phase is not merely a check; it is a synchronization of the agent's context with the project's foundational laws.
 
-1.  **Axiom Resolution**: Using the **[Universal File Resolution Protocol](../../skills/planning/SKILL.md#L88)**, we resolve the path to the **6-Slot Rule System**. We verify that the laws of Foundation, Infrastructure, and Aesthetics are present and readable.
-2.  **Mission Registry**: We locate the **Mission Board** (`tasks/todo.md`) to ensure we are operating within the current strategic timeline.
-3.  **Plan Verification**: You **MUST** locate the latest plan of action (e.g., `tasks/plan.md`) and verify it corresponds to the active track. Do not act without a verified plan.
+1.  **Axiom Resolution**: Using the **[Universal File Resolution Protocol](../../skills/planning/SKILL.md#L99)**, we resolve the path to the **[GEMINI.md](../../../GEMINI.md)**. We verify that the laws of Foundation, Infrastructure, and Aesthetics are present and readable.
+2.  **Mission Registry**: We locate the **Mission Board** (`tasks/PRESENT.md`) to ensure we are operating within the current strategic timeline.
+3.  **Plan Verification**: You **MUST** locate the latest plan of action (e.g., `tasks/FUTURE.md`) and verify it corresponds to the active track. Do not act without a verified plan.
 4.  **Critical Halt**: If the environment is fragmented or the rules are missing, the session must pause. Announce: _"Conductor environment unsynchronized. Initialization required via /setup-conductor."_ and HALT.
 
 ---
@@ -42,7 +42,7 @@ Implementation does not happen in a vacuum. It is a targeted strike against a sp
 
 ### The Clinical Scan
 
-We begin by parsing the **Mission Board** (`tasks/todo.md`). We search for the next authorized objective—the first track marked with a pending `[ ]` status. This scan filters out the noise and identifies the exact narrative line we are meant to follow.
+We begin by parsing the **Mission Board** (`tasks/PRESENT.md`). We search for the next authorized objective—the first track marked with a pending `[ ]` status. This scan filters out the noise and identifies the exact narrative line we are meant to follow.
 
 ### The Signal Handshake
 
@@ -50,7 +50,7 @@ Once a track is identified, we do not proceed in silence. We invoke the `ask_use
 
 ### Artifact Integrity
 
-With the handshake complete, we resolve the track's physical artifacts: the `spec.md` (the "What") and the `plan.md` (the "How"). We verify that these blueprints are mature and have been properly initialized. If the artifacts are missing, the cycle reverts to the planning phase.
+With the handshake complete, we resolve the track's physical artifacts: the `ETERNAL.md` (the "What") and the `FUTURE.md` (the "How"). We verify that these blueprints are mature and have been properly initialized. If the artifacts are missing, the cycle reverts to the planning phase.
 
 Refer to **[SOP-04](../../skills/planning/SKILL.md#L123)** for the detailed discovery and selection mechanics.
 
@@ -76,7 +76,7 @@ The **Tactical Specialist** lives and dies by the test. For each task, we follow
 
 ### Forensic Recording
 
-As each task reaches its "Done" state, we update the `plan.md` with the specific 7-character git SHA. We simultaneously update the persistent **Skill Log** in `tasks/todo.md`, creating a durable record of our technical reasoning and tool usage.
+As each task reaches its "Done" state, we update the `FUTURE.md` with the specific 7-character git SHA. We simultaneously update the persistent **Skill Log** in `tasks/PRESENT.md`, creating a durable record of our technical reasoning and tool usage.
 
 Refer to **[SOP-05](../../skills/planning/SKILL.md#L134)** for the detailed lifecycle management protocol.
 
@@ -86,7 +86,7 @@ Refer to **[SOP-05](../../skills/planning/SKILL.md#L134)** for the detailed life
 
 **PROTOCOL: Codify implementation details back into the system's axioms.**
 
-As the track concludes, we must bridge the gap between the "State" (the code) and the "Echo" (the documentation). This synchronization ensures that our architectural laws remain current. This process follows the **[Governance & Documentation Sync](../../skills/planning/SKILL.md#L149)** SOP.
+As the track concludes, we must bridge the gap between the "State" (the code) and the "Echo" (the documentation). This synchronization ensures that our architectural laws remain current. This process follows the [Governance](../../skills/governance/SKILL.md) & [Documentation](../../skills/planning/SKILL.md#L149) sync SOP.
 
 1.  **Axiom Audit**: We perform a clinical audit of our implementation against the **Rule Slots**. We identify if our work has introduced new patterns that should be elevated to system-wide laws.
 2.  **The Authorization Handshake**: Any proposed changes to the rules are presented as formatted diffs. We wait for the user's explicit "Authorize" before modifying the core foundation files.
