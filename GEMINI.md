@@ -100,7 +100,7 @@ If the _logic shifts_ drastically during testing -> _update the [Plan](./tasks/p
 
 ## ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [planning](./.agents/skills/planning/SKILL.md) and verified via [test-driven-development](./.agents/skills/test/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [planning](./.agents/skills/planning/SKILL.md) and verified via [test-driven-development](./.agents/skills/test-driven-development/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Intelligence](.agents/rules/05-intelligence.md).
 
