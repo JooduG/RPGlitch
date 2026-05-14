@@ -2,39 +2,38 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  master-skill-router: .agents/skills/using-agent-skills/SKILL.md
+  master-skill-router: .agents/skills/executive/SKILL.md
   git: .agents/skills/git/SKILL.md
   jules: .agents/skills/jules/SKILL.md
-  api-and-interface-design: .agents/skills/api-and-interface-design/SKILL.md
-  source-driven-development: .agents/skills/source-driven-development/SKILL.md
-  supabase-postgres-best-practices: .agents/skills/supabase-postgres-best-practices/SKILL.md
+  api-design: .agents/skills/api-design/SKILL.md
+  provenance: .agents/skills/provenance/SKILL.md
+  supabase: .agents/skills/supabase/SKILL.md
   swarm: .agents/skills/swarm/SKILL.md
   design/code:
     designer: .agents/skills/designer/SKILL.md
     css: .agents/skills/css/SKILL.md
     motion: .agents/skills/motion/SKILL.md
     audio: .agents/skills/audio/SKILL.md
-    user-interface: .agents/skills/user-interface/SKILL.md
-    busy-state-implementation: .agents/skills/busy-state-implementation/SKILL.md
+    ui: .agents/skills/ui/SKILL.md
     svelte: .agents/skills/svelte/SKILL.md
     image-generation: .agents/skills/image-generation/SKILL.md
     javascript: .agents/skills/javascript/SKILL.md
     simulation: .agents/skills/simulation/SKILL.md
   development:
-    governance: .agents/skills/governance/SKILL.md
+    legislative: .agents/skills/legislative/SKILL.md
     find-docs: .agents/skills/find-docs/SKILL.md
     ship: .agents/skills/ship/SKILL.md
     planning: .agents/skills/planning/SKILL.md
-    context-engineering: .agents/skills/context-engineering/SKILL.md
+    context: .agents/skills/context/SKILL.md
     data: .agents/skills/data/SKILL.md
   QA:
     quality: .agents/skills/quality/SKILL.md
     test: .agents/skills/test/SKILL.md
-    browser-testing-with-devtools: .agents/skills/browser-testing-with-devtools/SKILL.md
-    debugging-and-error-recovery: .agents/skills/debugging-and-error-recovery/SKILL.md
-    deprecation-and-migration: .agents/skills/deprecation-and-migration/SKILL.md
-    performance-optimization: .agents/skills/performance-optimization/SKILL.md
-    security-and-hardening: .agents/skills/security-and-hardening/SKILL.md
+    devtools: .agents/skills/devtools/SKILL.md
+    debug: .agents/skills/debug/SKILL.md
+    migration: .agents/skills/migration/SKILL.md
+    performance: .agents/skills/performance/SKILL.md
+    security: .agents/skills/security/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
@@ -54,7 +53,7 @@ workflows:
   reminders: .agents/workflows/nudges/
 
 # ⚖️ Core
-governance:
+legislative:
   amendments: GEMINI.md
   design_system: DESIGN.md
   audit_level: C3

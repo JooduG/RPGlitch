@@ -92,7 +92,7 @@ Refer to **[SOP-05](../../skills/planning/SKILL.md#L134)** for the detailed life
 
 **PROTOCOL: Codify implementation details back into the system's axioms.**
 
-As the track concludes, we must bridge the gap between the "State" (the code) and the "Echo" (the documentation). This synchronization ensures that our architectural laws remain current. This process follows the [Governance](../../skills/governance/SKILL.md) & [Documentation](../../skills/planning/SKILL.md#L149) sync SOP.
+As the track concludes, we must bridge the gap between the "State" (the code) and the "Echo" (the documentation). This synchronization ensures that our architectural laws remain current. This process follows the [legislative](../../skills/legislative/SKILL.md) & [Documentation](../../skills/planning/SKILL.md#L149) sync SOP.
 
 1.  **Axiom Audit**: We perform a clinical audit of our implementation against the **Rule Slots**. We identify if our work has introduced new patterns that should be elevated to system-wide laws.
 2.  **The Authorization Handshake**: Any proposed changes to the rules are presented as formatted diffs. We wait for the user's explicit "Authorize" before modifying the core foundation files.

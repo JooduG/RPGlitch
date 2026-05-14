@@ -54,7 +54,7 @@ If fixable violations—such as style or linting errors—are detected, we offer
 
 ### Deep Hardening
 
-For logical or structural failures, we perform deep forensics using the [Debugging & Error Recovery](../../skills/debugging-and-error-recovery/SKILL.md) skill. we identify the root cause and suggest a hardening path that prevents the regression from recurring, strengthening the engine's immune system.
+For logical or structural failures, we perform deep forensics using the [Debugging & Error Recovery](../../skills/debugging/SKILL.md) skill. we identify the root cause and suggest a hardening path that prevents the regression from recurring, strengthening the engine's immune system.
 
 Refer to **[SOP-15](../../skills/planning/SKILL.md#L256)** for the detailed analysis and reporting structure.
 

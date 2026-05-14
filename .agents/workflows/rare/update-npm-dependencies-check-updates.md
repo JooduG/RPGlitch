@@ -28,7 +28,7 @@ date_added: 2024-03-29
 
 ### Phase 1: Pre-Audit (Step 3: Research)
 
-1. **Hygiene Scan**: Run `npm audit` to determine the current security risk. [[Invoke: security-and-hardening]](../../skills/security-and-hardening/)
+1. **Hygiene Scan**: Run `npm audit` to determine the current security risk. [[Invoke: security]](../../skills/security/)
 2. **Current Baseline**: Record the current versions of any major dependencies (Svelte, Vite).
 
 ### Phase 2: Interactive Update (Step 5: Execution)

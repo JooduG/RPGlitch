@@ -144,8 +144,7 @@
 
   /* --- ELEVATION --- */
   --danger-glow: 0 0 var(--spacing-3) var(--danger-color);
-  --danger-hover-shadow: 0 0 var(--spacing-4)
-    rgb(from var(--crimson-red) r g b / var(--opacity-muted));
+  --danger-hover-shadow: 0 0 var(--spacing-4) rgb(from var(--crimson-red) r g b / var(--opacity-muted));
   --glass-base: rgb(from var(--gunmetal) r g b / var(--opacity-muted));
   --glass-base-blur: var(--blur-whisper);
   --glass-elevated: rgb(from var(--frozen) r g b / var(--opacity-ghost));
@@ -157,12 +156,9 @@
   --shadow-ambient: var(--shadow-ghost);
   --shadow-focus: var(--shadow-heavy);
   --shadow-font: 0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black);
-  --shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px)
-    rgb(from var(--void-black) r g b / var(--opacity-ghost));
-  --shadow-heavy: 0 var(--spacing-2) var(--spacing-8)
-    rgb(from var(--void-black) r g b / var(--opacity-muted));
-  --shadow-light: 0 var(--spacing-1) var(--spacing-3)
-    rgb(from var(--void-black) r g b / var(--opacity-whisper));
+  --shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px) rgb(from var(--void-black) r g b / var(--opacity-ghost));
+  --shadow-heavy: 0 var(--spacing-2) var(--spacing-8) rgb(from var(--void-black) r g b / var(--opacity-muted));
+  --shadow-light: 0 var(--spacing-1) var(--spacing-3) rgb(from var(--void-black) r g b / var(--opacity-whisper));
   --signature-glow: 0 0 var(--spacing-4) var(--signature-color);
 
   /* --- FILTERS --- */

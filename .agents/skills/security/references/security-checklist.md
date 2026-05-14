@@ -1,6 +1,6 @@
 # Security Checklist: The Sovereign Audit
 
-Quick reference for simulation engine security. Use alongside the `security-and-hardening` skill.
+Quick reference for simulation engine security. Use alongside the `security` skill.
 
 ## 🔬 Table of Contents
 

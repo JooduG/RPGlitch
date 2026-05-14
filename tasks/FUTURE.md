@@ -20,35 +20,35 @@ Standardize all 30 Specialist Skill Manuals (`SKILL.md`) with identity-centric p
   - [x] Refactor `GEMINI.md` to prune redundant persona descriptions.
   - [x] Update `/01-plan.md` and `/02-implement.md` to mandate explicit skill activation.
 - [x] **Phase 2: Individual Skill Standardization (The Rollout)**
-  - [x] `api-and-interface-design`
+  - [x] `api`
   - [x] `audio`
-  - [x] `browser-testing-with-devtools`
-  - [x] `context-engineering`
+  - [x] `devtools`
+  - [x] `context`
   - [x] `css`
   - [x] `data`
-  - [x] `debugging-and-error-recovery`
-  - [x] `deprecation-and-migration`
+  - [x] `debugging`
+  - [x] `migration`
   - [x] `designer`
   - [x] `find-docs`
   - [x] `git`
-  - [x] `governance`
+  - [x] `legislative`
   - [x] `image-generation`
   - [x] `javascript`
   - [x] `jules`
   - [x] `motion`
-  - [x] `performance-optimization`
+  - [x] `performance`
   - [x] `planning`
   - [x] `quality`
-  - [x] `security-and-hardening`
+  - [x] `security`
   - [x] `ship`
   - [x] `simulation`
-  - [x] `source-driven-development`
+  - [x] `provenance`
   - [x] `supabase-postgres-best-practices`
   - [x] `svelte`
   - [x] `swarm`
   - [x] `test`
-  - [x] `user-interface`
-  - [x] `using-agent-skills`
+  - [x] `ui`
+  - [x] `executive`
 - [x] **Phase 3: Final Verification & Audit**
   - [x] Run full project verify.
   - [x] Handoff to Ship.

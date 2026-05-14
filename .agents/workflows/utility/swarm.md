@@ -47,7 +47,7 @@ date_added: 2024-03-31
 
 1. **PR Consolidation**: Consolidate the output of all sub-agents using `npm run swarm:merge`. This scripts finds the task PRs, updates them, and performs the merge logic.
 2. **The 80% Gate**: Ensure the swarm has performed its own internal audit via the `swarm-review` prompt logic.
-3. **Global Audit**: Run a final compliance sweep and verify CI locally using `act` before pushing. [[Invoke: security-and-hardening]](../skills/security-and-hardening/SKILL.md)
+3. **Global Audit**: Run a final compliance sweep and verify CI locally using `act` before pushing. [[Invoke: security]](../skills/security/SKILL.md)
 
 ## Anti-Patterns
 

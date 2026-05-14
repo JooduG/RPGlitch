@@ -9,7 +9,7 @@ import { safeStatSync } from "./safe-fs.js";
 
 // 1. Import Domain Rules (Updated Paths)
 import { cssRules, themeRules } from "../../css/scripts/audit-css.js";
-import { securityRules } from "../../security-and-hardening/scripts/audit-security.js";
+import { securityRules } from "../../security/scripts/audit-security.js";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
 import { scan_nomenclature } from "./audit-nomenclature.js";
 import { skill_rules } from "./audit-skills.js";

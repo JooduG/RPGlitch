@@ -26,7 +26,7 @@ _Triggered via `/ship` or as the final step of a Track._
 The Hardening Phase is a clinical sweep of the codebase. We are looking for "vibe slop," technical debt, and security breaches before they reach the production layer.
 
 1.  **The Warden Audit**: Execute a full system sweep via `npm run verify` ([SOP-15](../../skills/planning/SKILL.md#L246)). You MUST resolve all reported violations—linting errors, type mismatches, and style guide deviations—before proceeding. Use the [Quality](../../skills/quality/SKILL.md) skill to ensure the code meets the "Nordic Collection" standard of purity.
-2.  **Security & Compliance Sweep**: Verify that no high-entropy strings (secrets, keys, tokens) are committed. Ensure all input boundaries (especially the **Sanitization Boundary** in `src/core/security.js`) are hardened against adversarial input via the [Security & Hardening](../../skills/security-and-hardening/SKILL.md) skill and [Rule Slot 06](../../../GEMINI.md#️-06-compliance).
+2.  **Security & Compliance Sweep**: Verify that no high-entropy strings (secrets, keys, tokens) are committed. Ensure all input boundaries (especially the **Sanitization Boundary** in `src/core/security.js`) are hardened against adversarial input via the [Security & Hardening](../../skills/security/SKILL.md) skill and [Rule Slot 06](../../../GEMINI.md#️-06-compliance).
 3.  **Production Synthesis**: Perform a fresh production build using the [Ship](../../skills/ship/SKILL.md) skill. Monitor the build output for regressions, bundle size spikes, or JIT compilation errors. This is the final check of the application's "Physical Architecture."
 
 ---

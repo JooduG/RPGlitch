@@ -24,7 +24,7 @@ User preferences.
 
 #### 1.5 Intent Decoding
 
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [Planning](./.agents/skills/planning/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [Planning](./.agents/skills/planning/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/executive/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ### 🧠 2. Hypothesis Generation & Triage
 
@@ -36,7 +36,7 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 #### 2.2 Complexity Triage
 
-Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
+Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/executive/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 
 - **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/02-implement](./.agents/workflows/conductor/02-implement.md)_.
 - **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan](./.agents/workflows/conductor/01-plan.md)_ -> **Level 1**.
@@ -44,7 +44,7 @@ Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/using-age
 
 #### 2.3 Risk & Level Mapping
 
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md).
+Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agents/skills/executive/SKILL.md).
 
 - **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic.
 - **Medium Risk (Level 2)**: Refactors, state migrations, features.
@@ -52,11 +52,11 @@ Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQ
 
 ### 🔍 3. Deep Research & Cognitive Routing
 
-For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. First, consult the [Master Dispatcher](./.agents/skills/using-agent-skills/SKILL.md) to select the appropriate workflow. Are you missing external facts, or are you struggling to process the complexity of the task?
+For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. First, consult the [Master Dispatcher](./.agents/skills/executive/SKILL.md) to select the appropriate workflow. Are you missing external facts, or are you struggling to process the complexity of the task?
 
 #### 3.1 Knowledge Deficit
 
-When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agents/skills/using-agent-skills/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
+When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agents/skills/executive/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
 
 - **[Data](./.agents/skills/data/SKILL.md)**: Dual-layer memory system (Pinecone/Supabase).
 - **[Find Docs](./.agents/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns (Context7).
@@ -106,8 +106,8 @@ Below are the most common skills to be used in this step:
 
 - **[Designer](./.agents/skills/designer/SKILL.md)**
 - **[Planning](./.agents/skills/planning/SKILL.md)**
-- **[API & Interface Design](./.agents/skills/api-and-interface-design/SKILL.md)**
-- **[Governance](./.agents/skills/governance/SKILL.md)**
+- **[API & Interface Design](./.agents/skills/api-design/SKILL.md)**
+- **[legislative](./.agents/skills/legislative/SKILL.md)**
 - **[Quality](./.agents/skills/quality/SKILL.md)**
 - **[Ship](./.agents/skills/ship/SKILL.md)**
 - **[Svelte Specialist](./.agents/skills/svelte/SKILL.md)**
@@ -376,7 +376,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [UI](./src/ui/): Atomic Design (Svelte 5 components).
   - [Media](./src/media/): Internal Sensory Assets ([Visuals](./.agents/skills/image-generation/), [Audio](./.agents/skills/audio/)).
 - [Skills](./.agents/skills/) for infrastructural expertise:
-  - [Skill Router](./.agents/skills/using-agent-skills/): Intent Decoding, Complexity Triage & Skill Selection.
+  - [Skill Router](./.agents/skills/executive/): Intent Decoding, Complexity Triage & Skill Selection.
   - [Simulation](./.agents/skills/simulation/): Narrative Bridges & Game Logic.
   - [Security](./.agents/skills/security/): Adversarial Audit & Security.
 
@@ -458,13 +458,13 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 | **Area**         | **Purpose**                                         | **Related Skills**                                                              |
 | ---------------- | --------------------------------------------------- | ------------------------------------------------------------------------------- |
 | **Strategy**     | Product vision, blueprints, specs.                  | `planning`, `designer`, `find-docs`, `deepwiki`, `data`                         |
-| **Tactics**      | Task breakdown, implementation tracks.              | `planning`, `source-driven-development`, `find-docs`, `deepwiki`, `data`        |
+| **Tactics**      | Task breakdown, implementation tracks.              | `planning`, `provenance`, `find-docs`, `deepwiki`, `data`                       |
 | **Research**     | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data`, `planning`              |
 | **Simulation**   | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local), `find-docs`, `deepwiki`, `data`         |
 | **Sensory**      | Vision, **Optics**, Audio, Design.                  | `designer`, `image-generation`, `audio`, `css`, `find-docs`, `deepwiki`, `data` |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`, `find-docs`, `deepwiki`, `data`               |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`                                                |
-| **Resonance**    | Quality gates, template compliance, health.         | `/03-review` ↔ `quality`, `governance`                                          |
+| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`, `find-docs`, `deepwiki`, `data`                |
+| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`                                                 |
+| **Resonance**    | Quality gates, template compliance, health.         | `/03-review` ↔ `quality`, `legislative`                                         |
 | **Reasoning**    | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                                                  |
 | **Reframing**    | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                                                        |
 | **Diversity**    | Trade-offs, simulated expertise.                    | `waldzell-collaborative-reasoning`                                              |
@@ -526,7 +526,7 @@ To prevent cognitive drift, nomenclature is absolute.
 
 #### 4. Complexity & Workflow Routing
 
-See the authoritative triage table in **[Complexity Triage](./.agents/skills/using-agent-skills/SKILL.md#complexity-triage)**.
+See the authoritative triage table in **[Complexity Triage](./.agents/skills/executive/SKILL.md#complexity-triage)**.
 
 All complexity routing (Level 1/2/3 → Role → Workflow) is defined there. `GEMINI.md` and this rule defer to it as the single source of truth.
 
@@ -652,9 +652,9 @@ A durable table updated whenever a skill is invoked or a task transitions state.
 ```markdown
 ## 🧠 Pulse (History)
 
-| Timestamp (ISO 8601)   | Task                   | Skill Invoked                | Outcome     |
-| ---------------------- | ---------------------- | ---------------------------- | ----------- |
-| 2026-04-12T12:00+02:00 | Fix round counter race | debugging-and-error-recovery | ✅ Resolved |
+| Timestamp (ISO 8601)   | Task                   | Skill Invoked | Outcome     |
+| ---------------------- | ---------------------- | ------------- | ----------- |
+| 2026-04-12T12:00+02:00 | Fix round counter race | debug         | ✅ Resolved |
 ```
 
 **Mandate**: Update the Pulse (History) in `tasks/PRESENT.md`:
