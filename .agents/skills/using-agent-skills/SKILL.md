@@ -73,7 +73,7 @@ Use this map to route your current task to the appropriate specialized skill:
 - **Governance**: `governance`, `security-and-hardening`, `context-engineering`.
 - **Research & Context**: `find-docs`, `data`, `deepwiki`, `firecrawl`.
 - **Verification**: `test-driven-development`, `browser-testing-with-devtools`, `debugging-and-error-recovery`, `quality`.
-- **Delivery**: `git-workflow-and-versioning`, `release`.
+- **Delivery**: `git`, `release`.
 
 ### Complexity Triage
 

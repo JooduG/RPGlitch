@@ -32,9 +32,9 @@ The **Conductor** does not act in a vacuum. We must first verify the foundation.
 2.  **Dispatcher Activation**: Load the [Master Dispatcher](../../skills/using-agent-skills/SKILL.md). This initializes the skill routing map and behavioral laws for the session.
 3.  **Context Engineering**: Optimize your internal context for the RPGlitch Engine using the [Context Engineering](../../skills/context-engineering/SKILL.md) skill.
 
-### Phase 2: Mission Synchronization ([SOP-04](../../skills/planning/SKILL.md#L123))
+### Phase 2: Mission Synchronization ([SOP-04](../../skills/planning/SKILL.md#L139))
 
-1.  **Mission Board Recovery**: Resolve the **Mission Board** (`tasks/todo.md`) and active track plans. Identify the current operational focus via **[SOP-04: Track Discovery & Selection](../../skills/planning/SKILL.md#L123)**.
+1.  **Mission Board Recovery**: Resolve the **Mission Board** (`tasks/todo.md`) and active track plans. Identify the current operational focus via **[SOP-04: Track Discovery & Selection](../../skills/planning/SKILL.md#L139)**.
 2.  **Historical Forensics**: Recover architectural context and historical design decisions from Pinecone via the [Data](../../skills/data/SKILL.md) skill. This ensures you are building on the work of those who came before you.
 3.  **Skill Log Audit**: Synchronize the persistent **Skill Log** in `tasks/todo.md` to ensure continuity across sessions.
 

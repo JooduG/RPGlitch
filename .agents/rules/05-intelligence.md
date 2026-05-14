@@ -19,14 +19,14 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 | **Research** | Knowledge gaps, library patterns, web access. | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data` |
 | **Simulation** | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local) |
 | **Sensory** | Vision, **Optics**, Audio, Design. | `designer`, `image-generation`, `audio`, `css` |
-| **Operations** | Repository lifecycle, PRs, Issues. | `/04-release` ↔ `delivery`, `security-and-hardening` |
+| **Operations** | Repository lifecycle, PRs, Issues. | `/04-release` ↔ `release`, `security-and-hardening` |
 | **Resonance** | Quality gates, template compliance, health. | `/03-review` ↔ `quality`, `governance` |
 | **Reasoning** | Multi-step breakdown, chain-of-thought. | `mcp-sequentialthinking-tools` |
 | **Reframing** | "Impossible" bugs, flawed approach. | `waldzell-clear-thought` |
 | **Diversity** | Trade-offs, simulated expertise. | `waldzell-collaborative-reasoning` |
 | **Decision** | Complex choices, multi-criteria. | `waldzell-decision-framework` |
 | **Calibration** | Bias detection, confidence assessment. | `waldzell-metacognitive-monitoring` |
-| **VCS** | Reverts, branch management, history. | `/05-revert` ↔ `git-workflow-and-versioning` |
+| **VCS** | Reverts, branch management, history. | `/05-revert` ↔ `git` |
 | **Verification**| Tests, audits, TDD cycles. | `/06-test` ↔ `test-driven-development`, `quality` |
 
 ---
@@ -143,8 +143,9 @@ The following sovereign workflows are registered for agentic orchestration withi
 - **[/05-revert](../workflows/conductor/05-revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
 - **[/06-test](../workflows/conductor/06-test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
 - **[/07-triage](../workflows/conductor/07-triage.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
-- **[/swarm](../workflows/utility/swarm.md)**: Manual Swarm Orchestration.- **/boot**: (Legacy alias for /00-status) Fresh Session Initialization.
-- **/continue**: (Legacy alias for /00-status) Resume Interrupted Work.
+- **[/swarm](../workflows/utility/swarm.md)**: Manual Swarm Orchestration.
+- **[/boot](../workflows/conductor/00-status.md)**: (Legacy alias for /00-status) Fresh Session Initialization.
+- **[/continue](../workflows/conductor/00-status.md)**: (Legacy alias for /00-status) Resume Interrupted Work.
 
 ---
 

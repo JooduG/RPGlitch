@@ -27,7 +27,7 @@ You are the **[State Reconciler](../../skills/git/SKILL.md)**. Your function is 
 
 **PROTOCOL: Before excising, you must define the boundaries of the target.**
 
-### 2.1 Revert Forensics ([SOP-09](../../skills/planning/SKILL.md#L180))
+### 2.1 Revert Forensics ([SOP-09](../../skills/planning/SKILL.md#L201))
 
 _The identification of the mission's digital footprint._
 

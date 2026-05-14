@@ -28,7 +28,7 @@ You are the **[Quality Auditor](../../skills/quality/SKILL.md)**. Your function 
 
 **PROTOCOL: Identify the scope of the change before the audit begins.**
 
-### 2.1 Scope Discovery ([SOP-08](../../skills/planning/SKILL.md#L169))
+### 2.1 Scope Discovery ([SOP-08](../../skills/planning/SKILL.md#L189))
 
 _The extraction of the mission's technical record._
 
