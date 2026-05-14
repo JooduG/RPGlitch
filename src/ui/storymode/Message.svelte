@@ -309,7 +309,7 @@
     border-radius: var(--radius-standard);
     transition: all var(--duration-standard) var(--motion-elastic);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
-    border-color: rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-color: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     overflow: hidden;
     outline: none;
     cursor: pointer;
@@ -330,8 +330,8 @@
   }
 
   .message-bubble.is-focused {
-    border-color: var(--color-white);
-    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-6) var(--color-white);
+    border-color: var(--pure-white);
+    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-6) var(--pure-white);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
     overflow: visible;
   }
@@ -350,8 +350,8 @@
       transparent 40%
     );
     mask:
-      linear-gradient(var(--color-white) var(--spacing-0) var(--spacing-0)) content-box,
-      linear-gradient(var(--color-white) var(--spacing-0) var(--spacing-0));
+      linear-gradient(var(--pure-white) var(--spacing-0) var(--spacing-0)) content-box,
+      linear-gradient(var(--pure-white) var(--spacing-0) var(--spacing-0));
     mask-composite: exclude;
     opacity: var(--opacity-half);
     transition: opacity var(--duration-standard);
@@ -382,7 +382,7 @@
     background: linear-gradient(
       var(--angle-right),
       transparent 0%,
-      var(--signature-color, var(--color-frozen)) 50%,
+      var(--signature-color, var(--frozen)) 50%,
       transparent 100%
     );
     transition: all var(--duration-standard) var(--motion-elastic);
@@ -398,7 +398,7 @@
     height: var(--spacing-9);
     background: color-mix(in srgb, var(--signature-color), black 30%);
     border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--color-white) r g b / var(--opacity-whisper));
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     overflow: visible;
     display: flex;
     align-items: center;
@@ -433,14 +433,14 @@
   .entity-name {
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
-    color: var(--color-white);
-    text-shadow: 0 0 var(--spacing-2) rgb(from var(--color-white) r g b / var(--opacity-muted));
+    color: var(--pure-white);
+    text-shadow: 0 0 var(--spacing-2) rgb(from var(--pure-white) r g b / var(--opacity-muted));
     white-space: nowrap;
   }
 
   .timestamp {
     font-size: var(--font-size-nano);
-    color: var(--color-white);
+    color: var(--pure-white);
     opacity: var(--opacity-half);
   }
 
@@ -452,12 +452,12 @@
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
-    color: color-mix(in srgb, var(--color-white), var(--signature-color) 20%);
+    color: color-mix(in srgb, var(--pure-white), var(--signature-color) 20%);
     transition: all var(--duration-standard);
   }
 
   .header-actions :global(.button:hover) {
-    color: var(--color-white);
+    color: var(--pure-white);
     transform: var(--scale-zoom);
   }
 
@@ -472,7 +472,7 @@
     line-height: var(--font-height-base);
     font-size: var(--font-size-base);
     font-family: var(--font-family-base);
-    color: var(--color-white);
+    color: var(--pure-white);
     text-shadow: var(--shadow-font);
     text-align: left;
     text-wrap: pretty;
@@ -520,7 +520,7 @@
     background: linear-gradient(
       var(--angle-right),
       transparent 0%,
-      rgb(from var(--color-white) r g b / var(--opacity-whisper)) 50%,
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,
       transparent 100%
     );
     width: 100%;

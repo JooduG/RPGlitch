@@ -180,23 +180,23 @@
   }
 
   :global(.toolbar-btn.continue:hover) {
-    color: var(--color-emerald);
+    color: var(--emerald-green);
   }
 
   :global(.toolbar-btn.reroll:hover) {
-    color: var(--color-pink);
+    color: var(--hot-pink);
   }
 
   :global(.toolbar-btn.edit:hover) {
-    color: var(--color-amber);
+    color: var(--pumpkin-amber);
   }
 
   :global(.toolbar-btn.copy:hover) {
-    color: var(--color-cyan);
+    color: var(--electric-cyan);
   }
 
   :global(.toolbar-btn.delete:hover) {
-    color: var(--color-red);
+    color: var(--crimson-red);
   }
 
   .icon-medium {

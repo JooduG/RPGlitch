@@ -5,60 +5,15 @@
  *  Following the "Red Thread": Foundation -> Logic -> UI Fallbacks.
  *  ============================================================================ */
 
+import { PALETTE as DYNAMIC_PALETTE, PALETTE_VARS as DYNAMIC_PALETTE_VARS } from "./tokens.js";
+
 /**************************************************************************************
  * [LEVEL 0: FOUNDATION REGISTRY]
  * The static mapping of colors and their CSS variable counterparts.
  ************************************************************************************/
 
-export const PALETTE = {
-  /* Warm Hues */
-  "Crimson Red": "#ef4444",
-  "Sunset Orange": "#f97316",
-  "Pumpkin Amber": "#fbbf24",
-  "Lemon Yellow": "#fde047",
-
-  /* Green Hues */
-  "Lime Green": "#84cc16",
-  "Forest Green": "#15803d",
-  "Emerald Green": "#10b981",
-
-  /* Cool Hues */
-  "Neon Teal": "#14b8a6",
-  "Electric Cyan": "#11aecc",
-  "Ocean Blue": "#3b82f6",
-  "Deep Indigo": "#818cf8",
-
-  /* Purple & Pink Hues */
-  "Twilight Violet": "#c084fc",
-  "Royal Purple": "#a855f7",
-  "Hot Pink": "#ec4899",
-  "Coral Rose": "#fb7185",
-};
-
-export const PALETTE_VARS = {
-  /* Warm */
-  "#ef4444": "var(--color-red)",
-  "#f97316": "var(--color-orange)",
-  "#fbbf24": "var(--color-amber)",
-  "#fde047": "var(--color-yellow)",
-
-  /* Green */
-  "#84cc16": "var(--color-lime)",
-  "#15803d": "var(--color-forest)",
-  "#10b981": "var(--color-emerald)",
-
-  /* Cool */
-  "#14b8a6": "var(--color-teal)",
-  "#11aecc": "var(--color-cyan)",
-  "#3b82f6": "var(--color-blue)",
-  "#818cf8": "var(--color-indigo)",
-
-  /* Purple/Pink */
-  "#c084fc": "var(--color-violet)",
-  "#a855f7": "var(--color-purple)",
-  "#ec4899": "var(--color-pink)",
-  "#fb7185": "var(--color-rose)",
-};
+export const PALETTE = DYNAMIC_PALETTE;
+export const PALETTE_VARS = DYNAMIC_PALETTE_VARS;
 
 export const IMG_RESOLUTION = "512x768";
 
@@ -202,7 +157,7 @@ class ThemeStore {
    * @returns {string}
    */
   get_contrast_color(hex) {
-    if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--color-white)";
+    if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--pure-white)";
     let color = hex.replace("#", "");
     if (color.length === 3) {
       color = color
@@ -210,12 +165,12 @@ class ThemeStore {
         .map((c) => c + c)
         .join("");
     }
-    if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--color-white)";
+    if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--pure-white)";
     const r = parseInt(color.substring(0, 2), 16);
     const g = parseInt(color.substring(2, 4), 16);
     const b = parseInt(color.substring(4, 6), 16);
     const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-    return yiq >= 128 ? "var(--color-black)" : "var(--color-white)";
+    return yiq >= 128 ? "var(--void-black)" : "var(--pure-white)";
   }
 
   /**

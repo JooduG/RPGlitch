@@ -88,8 +88,8 @@
     justify-content: center;
     width: var(--spacing-8);
     height: var(--spacing-8);
-    background: color-mix(in srgb, var(--color-frozen), transparent 85%);
-    color: var(--color-frozen);
+    background: color-mix(in srgb, var(--frozen), transparent 85%);
+    color: var(--frozen);
     border-radius: var(--radius-full);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
@@ -127,6 +127,6 @@
     gap: var(--spacing-3);
     margin-top: auto;
     padding-top: var(--spacing-4);
-    border-top: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-top: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 </style>

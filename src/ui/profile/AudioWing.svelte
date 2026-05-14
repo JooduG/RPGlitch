@@ -221,7 +221,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-base));
+    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-base));
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }

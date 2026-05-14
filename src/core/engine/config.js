@@ -63,7 +63,7 @@ export const CONFIG = {
   // --- TOKENS (Bridge) ---
   // Direct access to key theme tokens for JS-driven logic
   THEME: {
-    GRID_UNITS: parseInt(TOKENS["grid-units"] || "12"),
+    GRID_UNITS: parseInt(TOKENS["column-units"] || "12"),
     ANIMATION_STANDARD: TOKENS["duration-standard"],
     EASE_STANDARD: TOKENS["ease-standard"],
   },

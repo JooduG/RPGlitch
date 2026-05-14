@@ -36,7 +36,7 @@
     /* Base Surface: Sunken placeholder logic */
     background: var(--glass-sunken);
     backdrop-filter: var(--glass-sunken-blur);
-    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-standard);
     overflow: hidden;
     position: relative;
@@ -81,9 +81,9 @@
     background: linear-gradient(
       var(--angle-right),
       transparent 0%,
-      rgb(from var(--color-white) r g b / var(--opacity-ghost)) 30%,
-      rgb(from var(--color-white) r g b / var(--opacity-muted)) 50%,
-      rgb(from var(--color-white) r g b / var(--opacity-ghost)) 70%,
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 30%,
+      rgb(from var(--pure-white) r g b / var(--opacity-muted)) 50%,
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 70%,
       transparent 100%
     );
     filter: var(--blur-mist);

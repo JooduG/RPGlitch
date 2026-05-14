@@ -197,10 +197,10 @@
               onclick={() => remove_item(i)}
             >
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <polyline points="3 6 5 6 21 6" stroke="var(--color-white)"></polyline>
+                <polyline points="3 6 5 6 21 6" stroke="var(--pure-white)"></polyline>
                 <path
                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                  stroke="var(--color-white)"
+                  stroke="var(--pure-white)"
                 ></path>
               </svg>
             </Button>
@@ -270,7 +270,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-small);
     font-weight: var(--font-weight-heavy);
-    color: var(--color-white);
+    color: var(--pure-white);
     min-width: var(--spacing-3);
     text-align: center;
     pointer-events: none;
@@ -315,7 +315,7 @@
 
   .stepper :global(.step:hover) {
     opacity: 1;
-    color: var(--color-white);
+    color: var(--pure-white);
     background: transparent;
     filter: none;
   }
@@ -347,7 +347,7 @@
     width: 100%;
     background: transparent;
     border: none;
-    color: var(--color-white);
+    color: var(--pure-white);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
@@ -363,17 +363,17 @@
   }
 
   .tags-input::placeholder {
-    color: var(--color-white);
+    color: var(--pure-white);
     opacity: 0.3;
   }
 
   .tag {
     font-size: var(--font-size-tiny);
-    background: rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     padding: var(--spacing-pixel) var(--spacing-2);
-    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-sharp);
-    color: var(--color-white);
+    color: var(--pure-white);
     opacity: 0.9;
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
@@ -387,17 +387,17 @@
   /* --- ACTIONS --- */
 
   :global(.delete) {
-    color: var(--color-white);
+    color: var(--pure-white);
     transition: all var(--duration-fast);
     background: transparent;
     filter: drop-shadow(
       0 var(--spacing-pixel) var(--spacing-2px)
-        rgb(from var(--color-black) r g b / var(--opacity-substantial))
+        rgb(from var(--void-black) r g b / var(--opacity-substantial))
     );
   }
 
   :global(.delete:hover) {
-    color: var(--color-red);
+    color: var(--crimson-red);
     background: transparent;
     transform: scale(1.1);
   }
@@ -414,7 +414,7 @@
   .empty-msg {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
-    color: var(--color-frisk);
+    color: var(--frisk);
     opacity: var(--opacity-whisper);
     letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;

@@ -221,15 +221,15 @@
           >
             {#if has_prompt_text}
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--color-white)"
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
                 ></path>
               </svg>
             {:else}
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--color-white)"
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
                 ></path>
-                <polyline points="7 10 12 15 17 10" stroke="var(--color-white)"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3" stroke="var(--color-white)"></line>
+                <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="var(--pure-white)"></line>
               </svg>
             {/if}
           </Button>
@@ -247,9 +247,9 @@
             <svg viewBox="0 0 24 24" class="icon-small icon-outline">
               <path
                 d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                stroke="var(--color-white)"
+                stroke="var(--pure-white)"
               ></path>
-              <circle cx="12" cy="13" r="4" stroke="var(--color-white)"></circle>
+              <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
             </svg>
           </Button>
         </div>
@@ -288,7 +288,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-base));
+    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-base));
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -326,10 +326,10 @@
   }
 
   .swatches :global(.swatch.active) {
-    outline: var(--spacing-2px) solid rgb(from var(--color-white) r g b / var(--opacity-moderate));
+    outline: var(--spacing-2px) solid rgb(from var(--pure-white) r g b / var(--opacity-moderate));
     outline-offset: var(--spacing-2px);
     --active-swatch-shadow:
-      0 0 0 var(--spacing-pixel) rgb(from var(--color-white) r g b / var(--opacity-whisper)) inset,
+      0 0 0 var(--spacing-pixel) rgb(from var(--pure-white) r g b / var(--opacity-whisper)) inset,
       0 0 var(--spacing-3) var(--spacing-1) var(--swatch-color);
 
     box-shadow: var(--active-swatch-shadow);
@@ -354,11 +354,11 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-3);
-    color: var(--color-white);
-    background: rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    color: var(--pure-white);
+    background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     padding: var(--spacing-1) var(--spacing-3);
     border-radius: var(--radius-full);
-    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-whisper));
+    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
   }
 
   :global(.prompt-field .status-content) {
@@ -368,9 +368,9 @@
   }
 
   :global(.prompt-field .status-bar.is-error) {
-    color: var(--color-red);
-    background: rgb(from var(--color-red) r g b / var(--opacity-whisper));
-    border-color: rgb(from var(--color-red) r g b / var(--opacity-whisper));
+    color: var(--crimson-red);
+    background: rgb(from var(--crimson-red) r g b / var(--opacity-whisper));
+    border-color: rgb(from var(--crimson-red) r g b / var(--opacity-whisper));
   }
 
   :global(.prompt-field .tag) {

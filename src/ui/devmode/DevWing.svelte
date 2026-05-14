@@ -160,7 +160,7 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--color-gunmetal) r g b / 45%);
+    background-color: rgb(from var(--gunmetal) r g b / 45%);
     padding: var(--spacing-4);
     gap: var(--spacing-4);
   }
@@ -220,7 +220,7 @@
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-wider);
-    color: var(--color-frisk);
+    color: var(--frisk);
     margin-bottom: var(--spacing-1);
     cursor: help;
     z-index: var(--mid-z-index);
@@ -292,7 +292,7 @@
   }
 
   .step-controls :global(:hover) {
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   .icon-small {
@@ -310,7 +310,7 @@
   }
 
   .raw-explorer summary:hover {
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   .footer-meta {

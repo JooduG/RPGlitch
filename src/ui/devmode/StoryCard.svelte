@@ -95,8 +95,8 @@
     opacity: var(--opacity-whisper);
     mask-image: linear-gradient(
       to left,
-      var(--color-black) 0%,
-      var(--color-black) 20%,
+      var(--void-black) 0%,
+      var(--void-black) 20%,
       transparent 100%
     );
     transition:
@@ -127,7 +127,7 @@
   .story-title {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   .story-meta {

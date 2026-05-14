@@ -165,7 +165,7 @@
 
   :global(.orchestrator .root:hover:not(:disabled)) {
     background: transparent;
-    color: var(--color-white);
+    color: var(--pure-white);
     filter: var(--hover-glow);
   }
 
@@ -181,8 +181,8 @@
   }
 
   :global(.orchestrator .action.root.is-ready .label) {
-    color: var(--color-emerald);
-    text-shadow: 0 0 var(--spacing-2) rgb(from var(--color-emerald) r g b / var(--opacity-muted));
+    color: var(--emerald-green);
+    text-shadow: 0 0 var(--spacing-2) rgb(from var(--emerald-green) r g b / var(--opacity-muted));
   }
 
   .content {

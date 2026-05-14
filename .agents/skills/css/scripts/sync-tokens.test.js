@@ -53,8 +53,9 @@ describe("Design Token Sync", () => {
   it("should sync from MD to CSS robustly", () => {
     const md = `---
 name: Test
-colors:
-  primary: "#ff0000"
+foundations:
+  colors:
+    primary: "#ff0000"
 ---
 # Design`;
     fs.writeFileSync(MD_PATH, md);

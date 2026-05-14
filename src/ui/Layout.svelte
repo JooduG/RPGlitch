@@ -103,7 +103,7 @@
     height: var(--grid-height);
     overflow: hidden;
     z-index: var(--surface-z-index);
-    color: var(--color-white);
+    color: var(--pure-white);
     transition: opacity var(--motion-fast);
   }
 
@@ -209,11 +209,7 @@
         grid-column: 1 / 2;
         grid-row: 2;
         height: 100%;
-        background: radial-gradient(
-          circle at top center,
-          var(--color-gunmetal),
-          var(--color-black)
-        );
+        background: radial-gradient(circle at top center, var(--gunmetal), var(--void-black));
       }
 
       .is-right {

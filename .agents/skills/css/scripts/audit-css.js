@@ -9,7 +9,7 @@ export const cssRules = [
     id: "RAW_COLOR",
     severity: "HERESY",
     regex: /#([0-9A-Fa-f]{3}){1,2}\b|\brgba?\(|\bhsla?\(/,
-    message: "❌ Hardcoded color detected. Use Tokens: var(--color-chalk), etc.",
+    message: "❌ Hardcoded color detected. Use Tokens: var(--chalk), etc.",
     validate: (line) =>
       !line.includes("url(") &&
       !line.includes("var(") &&
@@ -31,7 +31,7 @@ export const cssRules = [
     regex:
       /(?<!var\([^)]*)\b([1-9][0-9]*(\.[0-9]+)?|0\.[0-9]+)(px|rem|em)\b|#([0-9A-Fa-f]{3}){1,2}\b/,
     message:
-      "❌ Hardcoded unit or hex color detected. Use Tokens: var(--spacing-4), var(--color-chalk), etc.",
+      "❌ Hardcoded unit or hex color detected. Use Tokens: var(--spacing-4), var(--chalk), etc.",
     validate: (line) => {
       // Ignore comments
       if (line.trim().startsWith("/*") || line.trim().startsWith("*")) return false;

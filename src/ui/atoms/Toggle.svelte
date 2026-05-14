@@ -122,7 +122,7 @@
     flex-shrink: 0;
     width: var(--state-toggle-width);
     height: var(--state-toggle-height);
-    background-color: rgb(from var(--color-gunmetal) r g b / var(--opacity-muted));
+    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-muted));
     backdrop-filter: var(--blur-whisper);
     border-radius: var(--radius-full);
     transition:
@@ -138,7 +138,7 @@
     left: var(--state-toggle-thumb-offset);
     width: var(--state-toggle-thumb-size);
     height: var(--state-toggle-thumb-size);
-    background-color: var(--color-frisk);
+    background-color: var(--frisk);
     border-radius: var(--radius-full);
     transition:
       transform var(--duration-standard) var(--ease-elastic),
@@ -165,16 +165,16 @@
   }
 
   .root:hover:not(.is-disabled) .label {
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   /* Checked Appearance */
   input:checked + .track {
-    background-color: rgb(from var(--color-frozen) r g b / var(--opacity-heavy));
+    background-color: rgb(from var(--frozen) r g b / var(--opacity-heavy));
   }
 
   input:checked + .track::before {
-    background-color: var(--color-white);
+    background-color: var(--pure-white);
     /* stylelint-disable scss/operator-no-newline-after, scss/operator-no-unspaced */
     transform: translateX(
       calc(
@@ -184,12 +184,12 @@
     );
     /* stylelint-enable scss/operator-no-newline-after, scss/operator-no-unspaced */
     box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-1)
-      rgb(from var(--color-white) r g b / var(--opacity-muted));
+      rgb(from var(--pure-white) r g b / var(--opacity-muted));
   }
 
   /* Accessibility Focus */
   input:focus-visible + .track {
-    outline: var(--spacing-pixel) solid var(--color-frozen);
+    outline: var(--spacing-pixel) solid var(--frozen);
     outline-offset: var(--spacing-pixel);
   }
 </style>

@@ -34,7 +34,7 @@
 
   let is_empty = $derived(!entity);
   let signature_color = $derived(
-    is_empty ? "var(--color-frisk)" : themeStore.get_signature_color(entity),
+    is_empty ? "var(--frisk)" : themeStore.get_signature_color(entity),
   );
 
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
@@ -51,13 +51,7 @@
   data-testid="storyboard-card"
 >
   <!-- [BODY] MAIN INTERACTION LAYER -->
-  <Button
-    variant="invisible"
-    cover={true}
-    onclick={on_select}
-    class="body"
-    aria-label={a11y_label}
-  >
+  <Button variant="invisible" cover={true} onclick={on_select} class="body" aria-label={a11y_label}>
     {#if is_empty}
       <div class="status">
         {#if type === "fractal"}
@@ -155,7 +149,7 @@
     flex-direction: column;
     align-items: center;
     gap: var(--gap-standard);
-    color: var(--color-white);
+    color: var(--pure-white);
     opacity: var(--opacity-muted);
     transition: opacity var(--duration-standard) var(--ease-standard);
   }
@@ -230,7 +224,7 @@
     margin: var(--spacing-1) 0 0;
     font-family: var(--font-family-base);
     font-size: var(--font-size-small);
-    color: var(--color-white);
+    color: var(--pure-white);
     line-height: var(--font-height-short);
     display: -webkit-box;
     -webkit-line-clamp: 2;
@@ -265,7 +259,7 @@
     width: var(--icon-large);
     height: var(--icon-large);
     border-radius: var(--radius-full);
-    background: var(--color-white);
+    background: var(--pure-white);
     backdrop-filter: var(--blur-mist);
     color: var(--background-base);
     display: flex;
@@ -278,7 +272,7 @@
   }
 
   .actions :global(.item:hover) {
-    background: rgb(from var(--color-white) r g b / var(--opacity-heavy));
+    background: rgb(from var(--pure-white) r g b / var(--opacity-heavy));
     transform: var(--hover-lift);
     box-shadow: var(--shadow-heavy);
   }

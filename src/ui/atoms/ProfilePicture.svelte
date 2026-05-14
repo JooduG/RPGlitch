@@ -66,7 +66,7 @@
   const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
   const media_url = $derived(entity?.profile_picture);
   const signature_color = $derived(
-    entity ? themeStore.get_signature_color(entity) : "var(--color-gunmetal)",
+    entity ? themeStore.get_signature_color(entity) : "var(--gunmetal)",
   );
   const initials = $derived(placeholder_char || calculate_initials(name));
 
@@ -160,7 +160,7 @@
   .initials {
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-heavy);
-    color: var(--color-white);
+    color: var(--pure-white);
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
@@ -172,7 +172,7 @@
 
     /* Subtle Depth Shadow */
     filter: drop-shadow(
-      0 0 var(--spacing-8) rgb(from var(--color-white) r g b / var(--opacity-whisper))
+      0 0 var(--spacing-8) rgb(from var(--pure-white) r g b / var(--opacity-whisper))
     );
 
     /* Layout Hardening */

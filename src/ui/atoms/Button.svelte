@@ -153,20 +153,20 @@
 
   /* --- Thematic Variants --- */
   .variant-primary {
-    background: var(--color-white);
-    color: var(--color-chalk);
+    background: var(--pure-white);
+    color: var(--chalk);
     box-shadow: var(--shadow-heavy);
   }
 
   .variant-secondary {
-    background: var(--signature-color, var(--color-frozen));
-    color: var(--color-white);
+    background: var(--signature-color, var(--frozen));
+    color: var(--pure-white);
     box-shadow: var(--shadow-ghost);
   }
 
   .variant-danger {
     background: transparent;
-    color: var(--color-red);
+    color: var(--crimson-red);
   }
 
   .variant-invisible {
@@ -176,7 +176,7 @@
 
   /* --- Operational States --- */
   .root:focus-visible {
-    outline: var(--spacing-pixel) solid var(--color-white);
+    outline: var(--spacing-pixel) solid var(--pure-white);
     outline-offset: var(--spacing-pixel);
   }
 
@@ -219,18 +219,18 @@
 
   .variant-secondary:hover:not(:disabled) {
     box-shadow: var(--shadow-heavy);
-    border-color: var(--color-white);
+    border-color: var(--pure-white);
   }
 
   .variant-danger:hover:not(:disabled) {
-    background: var(--color-red);
-    color: var(--color-white);
+    background: var(--crimson-red);
+    color: var(--pure-white);
     box-shadow: var(--danger-hover-shadow);
   }
 
   .variant-invisible:hover:not(:disabled) {
     background: transparent;
-    color: var(--color-white);
+    color: var(--pure-white);
     filter: var(--hover-glow);
   }
 

@@ -24,7 +24,7 @@
 
     // Design
     no_background = false,
-    signature_color = "var(--color-frozen)",
+    signature_color = "var(--frozen)",
     class: className = "",
     style = "",
 
@@ -166,7 +166,7 @@
   }
 
   .root[data-expanded="true"] {
-    border-color: var(--color-white);
+    border-color: var(--pure-white);
     box-shadow: var(--shadow-heavy);
   }
 
@@ -198,7 +198,7 @@
     box-shadow: 0 0 calc(var(--state-weight-intensity) * var(--spacing-4))
       rgb(from var(--state-dev-accent) r g b / var(--opacity-muted));
     border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   .status,
@@ -280,7 +280,7 @@
 
   .strong {
     font-weight: var(--font-weight-bold);
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   .em {
@@ -295,7 +295,7 @@
     font-weight: var(--font-weight-bold);
     letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   :global(.status-msg) {
@@ -304,7 +304,7 @@
     opacity: var(--opacity-muted);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-base);
-    color: var(--color-white);
+    color: var(--pure-white);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;

@@ -57,7 +57,10 @@ const CATEGORY_RULES = [
       /swatch-/,
     ],
   },
-  { id: "colors", patterns: [/^color-/, /^background-/, /-color$/, /-color-/] },
+  {
+    id: "colors",
+    patterns: [/^color-/, /^background-/, /-color$/, /-color-/],
+  },
   { id: "typography", patterns: [/^font-/] },
   { id: "spacing", patterns: [/^spacing-/, /^gap-/, /^padding-/, /^auto-resize-buffer$/] },
   { id: "rounded", patterns: [/^radius-/] },
@@ -80,8 +83,6 @@ const CATEGORY_RULES = [
     ],
   },
 ];
-
-const ORDERED_CATEGORIES = CATEGORY_RULES.map((r) => r.id);
 
 /**
  * Parses DESIGN.md into data (frontmatter) and body.
@@ -113,16 +114,64 @@ function extractCSSBlocks(body) {
   return cssBlocks.join("\n\n");
 }
 
+const TIERS = ["foundations", "semantics", "organisms"];
+
 /**
- * Categorizes a token based on CATEGORY_RULES.
+ * Categorizes a token based on CATEGORY_RULES and its value.
+ * Maps to { tier, category }
  */
-function getCategory(name) {
+function getCategoryAndTier(name, value) {
+  // 1. Identify category by pattern
+  let category = "other";
   for (const rule of CATEGORY_RULES) {
     if (rule.patterns.some((p) => p.test(name))) {
-      return rule.id;
+      category = rule.id;
+      break;
     }
   }
-  return "other";
+
+  // 1.1 Detect color by value if not caught by pattern (for prefix-less tokens)
+  if (
+    category === "other" &&
+    (value.startsWith("#") || value.startsWith("rgb") || value.startsWith("hsl"))
+  ) {
+    category = "colors";
+  }
+
+  // 2. Assign tier based on category and value
+  let tier = "foundations"; // Default
+
+  if (category === "components" || category === "organisms") {
+    tier = "organisms";
+    category = "components";
+  } else if (["borders", "effects", "elevation", "filters", "layout", "depth"].includes(category)) {
+    tier = "semantics";
+  } else if (category === "colors") {
+    // If it's a foundation color primitive (raw hex or named color without var)
+    if (value.startsWith("#") || !value.includes("var(")) tier = "foundations";
+    else tier = "semantics";
+  } else if (category === "spacing") {
+    if (/spacing-(unit|pixel|\d+px)/.test(name)) tier = "foundations";
+    else tier = "semantics";
+  } else if (category === "typography") {
+    if (/font-(family|weight|height-base|height-short|height-tall)/.test(name))
+      tier = "foundations";
+    else tier = "semantics";
+  } else if (category === "kinetic") {
+    if (/^(duration|ease)-/.test(name)) tier = "foundations";
+    else tier = "semantics";
+  } else if (category === "grid") {
+    if (/^(column-units|row-units|grid-width-min|grid-width-max|grid-height-max)/.test(name))
+      tier = "foundations";
+    else tier = "semantics";
+  } else if (category === "rounded") {
+    if (name === "radius-full") tier = "foundations";
+    else tier = "semantics";
+  } else if (category === "breakpoints" || category === "opacity") {
+    tier = "foundations";
+  }
+
+  return { tier, category };
 }
 
 /**
@@ -134,38 +183,37 @@ function generateCSS(data, cssPatterns, metadata = {}) {
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
  * ============================================================================ */
 
-:root {
-`;
+:root {`;
 
   const preservedComments = metadata.comments || {};
   const processedTokens = new Set();
 
-  for (const cat of ORDERED_CATEGORIES) {
-    const tokens = data[cat];
-    if (!tokens || typeof tokens !== "object") continue;
-
-    css += `  /* --- ${cat.toUpperCase()} --- */\n`;
-    Object.entries(tokens)
-      .sort()
-      .forEach(([name, value]) => {
-        processedTokens.add(name);
-        if (preservedComments[name]) {
-          css += `  /* ${preservedComments[name]} */\n`;
-        }
-        css += `  --${name}: ${value};\n`;
+  TIERS.forEach((tier) => {
+    if (data[tier] && typeof data[tier] === "object") {
+      css += `\n  /* ==================== T${TIERS.indexOf(tier) + 1}: ${tier.toUpperCase()} ==================== */\n`;
+      Object.entries(data[tier]).forEach(([category, tokens]) => {
+        if (!tokens || typeof tokens !== "object") return;
+        css += `\n  /* --- ${category.toUpperCase()} --- */\n`;
+        Object.entries(tokens)
+          .sort()
+          .forEach(([name, value]) => {
+            processedTokens.add(name);
+            if (preservedComments[name]) {
+              css += `  /* ${preservedComments[name]} */\n`;
+            }
+            css += `  --${name}: ${value};\n`;
+          });
       });
-    css += `\n`;
-  }
+    }
+  });
 
   // Handle uncategorized tokens that might be in the root of the data
   const otherTokens = {};
   Object.entries(data).forEach(([key, value]) => {
-    // If it's not a known category and not a known metadata field, it's an uncategorized token
-    if (!ORDERED_CATEGORIES.includes(key) && !["name", "version", "description"].includes(key)) {
+    if (!TIERS.includes(key) && !["name", "version", "description"].includes(key)) {
       if (typeof value !== "object") {
         otherTokens[key] = value;
       } else {
-        // It's an object but not a recognized category. We'll still treat its entries as tokens.
         Object.entries(value).forEach(([subKey, subValue]) => {
           otherTokens[subKey] = subValue;
         });
@@ -174,24 +222,22 @@ function generateCSS(data, cssPatterns, metadata = {}) {
   });
 
   if (Object.keys(otherTokens).length > 0) {
-    css += `  /* --- OTHER --- */\n`;
-    Object.entries(otherTokens)
-      .sort()
-      .forEach(([name, value]) => {
-        if (!processedTokens.has(name)) {
-          processedTokens.add(name);
-          if (preservedComments[name]) {
-            css += `  /* ${preservedComments[name]} */\n`;
-          }
-          css += `  --${name}: ${value};\n`;
+    const remaining = Object.entries(otherTokens).filter(([name]) => !processedTokens.has(name));
+    if (remaining.length > 0) {
+      css += `\n  /* --- UNMAPPED --- */\n`;
+      remaining.sort().forEach(([name, value]) => {
+        processedTokens.add(name);
+        if (preservedComments[name]) {
+          css += `  /* ${preservedComments[name]} */\n`;
         }
+        css += `  --${name}: ${value};\n`;
       });
-    css += `\n`;
+    }
   }
 
   css += `}\n\n`;
-  css += `/* --- T4: Realization (Patterns & Resets) --- */\n\n`;
   css += cssPatterns;
+  if (!css.endsWith("\n")) css += "\n";
 
   return css;
 }
@@ -201,17 +247,41 @@ function generateCSS(data, cssPatterns, metadata = {}) {
  */
 function generateJSBridge(data) {
   const allTokens = {};
+  const palette = {};
+  const paletteVars = {};
 
-  // Collect all tokens including uncategorized ones
-  for (const cat of ORDERED_CATEGORIES) {
-    if (data[cat] && typeof data[cat] === "object") {
-      Object.assign(allTokens, data[cat]);
+  // Flatten nested structure
+  TIERS.forEach((tier) => {
+    if (data[tier] && typeof data[tier] === "object") {
+      Object.entries(data[tier]).forEach(([category, categoryTokens]) => {
+        if (categoryTokens && typeof categoryTokens === "object") {
+          Object.assign(allTokens, categoryTokens);
+
+          // Capture colors for palette constants
+          if (category === "colors") {
+            Object.entries(categoryTokens).forEach(([name, value]) => {
+              // Only include foundation colors (raw hex values)
+              if (value.startsWith("#")) {
+                const label = name
+                  .split("-")
+                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(" ");
+                palette[label] = value;
+                paletteVars[value] = `var(--${name})`;
+              }
+            });
+          }
+        }
+      });
     }
-  }
+  });
 
+  // Handle root tokens
   Object.entries(data).forEach(([key, value]) => {
-    if (typeof value !== "object" && !["name", "version", "description"].includes(key)) {
-      allTokens[key] = value;
+    if (!TIERS.includes(key) && !["name", "version", "description"].includes(key)) {
+      if (typeof value !== "object") {
+        allTokens[key] = value;
+      }
     }
   });
 
@@ -229,6 +299,10 @@ function generateJSBridge(data) {
  * ============================================================================ */
 
 export const TOKENS = ${JSON.stringify(sortedTokens, null, 2)};
+
+export const PALETTE = ${JSON.stringify(palette, null, 2)};
+
+export const PALETTE_VARS = ${JSON.stringify(paletteVars, null, 2)};
 `;
 
   fs.writeFileSync(JS_BRIDGE_PATH, content);
@@ -290,8 +364,7 @@ function syncFromCSS() {
   }
 
   const cssContent = fs.readFileSync(CSS_PATH, "utf8");
-  const tokens = {};
-  const comments = [];
+  const tieredTokens = {};
 
   // Extract tokens and comments from :root block
   const rootMatch = cssContent.match(/:root\s*\{([\s\S]*?)\}/);
@@ -300,11 +373,6 @@ function syncFromCSS() {
     let currentLine = 0;
     while (currentLine < lines.length) {
       const line = lines[currentLine];
-
-      const commentMatch = line.match(/\/\* (.*?) \*\//);
-      if (commentMatch && !commentMatch[1].startsWith("---")) {
-        comments.push(commentMatch[1]);
-      }
 
       const match = line.match(/^\s*--([\w-]+):\s*(.*?)\s*$/);
       if (match) {
@@ -320,9 +388,10 @@ function syncFromCSS() {
         }
         value = value.replace(/;$/, "").trim();
 
-        const category = getCategory(name);
-        if (!tokens[category]) tokens[category] = {};
-        tokens[category][name] = value;
+        const { tier, category } = getCategoryAndTier(name, value);
+        if (!tieredTokens[tier]) tieredTokens[tier] = {};
+        if (!tieredTokens[tier][category]) tieredTokens[tier][category] = {};
+        tieredTokens[tier][category][name] = value;
       }
       currentLine++;
     }
@@ -333,31 +402,32 @@ function syncFromCSS() {
     : "# Design\n";
   const { data: originalData, body } = parseDesignDoc(originalMd);
 
-  // Update original data with new tokens, maintaining non-token metadata
+  // Update original data with new tokens
   const newData = { ...originalData };
 
-  // Clear old categories and replace with new tokens to handle deletions
-  ORDERED_CATEGORIES.forEach((cat) => delete newData[cat]);
-  if (newData.other) delete newData.other;
-
-  // Re-insert categorized tokens in sorted order
-  Object.keys(tokens)
-    .sort()
-    .forEach((cat) => {
-      const sortedTokens = {};
-      Object.keys(tokens[cat])
+  // Rebuild the tiered structure
+  TIERS.forEach((tier) => {
+    if (tieredTokens[tier]) {
+      newData[tier] = {};
+      Object.keys(tieredTokens[tier])
         .sort()
-        .forEach((key) => {
-          sortedTokens[key] = tokens[cat][key];
+        .forEach((category) => {
+          const sortedTokens = {};
+          Object.keys(tieredTokens[tier][category])
+            .sort()
+            .forEach((key) => {
+              sortedTokens[key] = tieredTokens[tier][category][key];
+            });
+          newData[tier][category] = sortedTokens;
         });
-      newData[cat] = sortedTokens;
-    });
+    }
+  });
 
   // Rebuild the file
   let yamlStr = yaml.dump(newData, {
     indent: 2,
     lineWidth: -1,
-    sortKeys: true,
+    sortKeys: false, // Maintain tier order
     quotingType: '"',
     forceQuotes: false,
   });
@@ -367,15 +437,7 @@ function syncFromCSS() {
   yamlStr = yamlStr.replace(/: '(\d+px)'/g, ': "$1"');
   yamlStr = yamlStr.replace(/: '(\d+)'/g, ': "$1"');
 
-  let finalMd = `---\n${yamlStr}---\n\n`;
-
-  if (comments.length > 0) {
-    const uniqueComments = comments.filter((c) => !body.includes(c) && !yamlStr.includes(c));
-    if (uniqueComments.length > 0) {
-      finalMd += "> " + uniqueComments.join("\n> ") + "\n\n";
-    }
-  }
-  finalMd += body;
+  const finalMd = `---\n${yamlStr}---\n\n${body}`;
 
   fs.writeFileSync(DESIGN_MD_PATH, finalMd);
   console.log("✅ Updated DESIGN.md frontmatter.");

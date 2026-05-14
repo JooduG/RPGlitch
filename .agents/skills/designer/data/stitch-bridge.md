@@ -16,8 +16,8 @@ Always use these tokens instead of raw colors or generic descriptions in the spe
 
 | Semantic Goal          | Token                    | Technical Value |
 | :--------------------- | :----------------------- | :-------------- |
-| **High-Contrast Text** | `var(--color-chalk)`     | `#222326`       |
-| **Icy Accent**         | `var(--color-frozen)`    | `#555d66`       |
+| **High-Contrast Text** | `var(--chalk)`           | `#222326`       |
+| **Icy Accent**         | `var(--frozen)`          | `#555d66`       |
 | **Card Background**    | `var(--bg-card)`         | `#363840`       |
 | **Rounded Corners**    | `var(--border-radius-m)` | `0.5rem`        |
 

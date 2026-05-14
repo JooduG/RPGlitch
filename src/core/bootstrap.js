@@ -53,10 +53,10 @@ export const AppBootstrap = {
       );
 
       const error_template = `
-                <div style="background:var(--background-base); color:var(--color-red); padding:var(--spacing-8); font-family:var(--font-family-mono); height:100vh; overflow:auto;">
-                    <h1 style="border-bottom: var(--border-width-thick) solid var(--color-red); padding-bottom: var(--spacing-2); margin-bottom: var(--spacing-4);">SYSTEM HALTED</h1>
-                    <p style="color:var(--color-white); opacity:var(--opacity-substantial);">The engine failed to ignite. Check the console or stack trace below:</p>
-                    <pre id="error-stack" style="background:var(--glass-sunken); padding:var(--spacing-4); border-radius:var(--radius-subtle); color:var(--color-red); white-space: pre-wrap; word-break: break-all;"></pre>
+                <div style="background:var(--background-base); color:var(--crimson-red); padding:var(--spacing-8); font-family:var(--font-family-mono); height:100vh; overflow:auto;">
+                    <h1 style="border-bottom: var(--border-width-thick) solid var(--crimson-red); padding-bottom: var(--spacing-2); margin-bottom: var(--spacing-4);">SYSTEM HALTED</h1>
+                    <p style="color:var(--pure-white); opacity:var(--opacity-substantial);">The engine failed to ignite. Check the console or stack trace below:</p>
+                    <pre id="error-stack" style="background:var(--glass-sunken); padding:var(--spacing-4); border-radius:var(--radius-subtle); color:var(--crimson-red); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `;
       const fragment = sanitizeToFragment(error_template);

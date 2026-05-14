@@ -88,7 +88,7 @@
 
   .label {
     color: var(--font-color-base);
-    background: rgb(from var(--color-black) r g b / var(--opacity-muted));
+    background: rgb(from var(--void-black) r g b / var(--opacity-muted));
     padding: var(--spacing-3) var(--spacing-4);
     border-radius: var(--radius-sharp);
     font-size: var(--font-size-base);

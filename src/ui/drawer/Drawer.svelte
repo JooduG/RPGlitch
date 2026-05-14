@@ -110,7 +110,7 @@
         <!-- "Create New" card -->
         <div
           class="card--new glass-sunken interactable"
-          style="--signature-color: var(--color-frisk);"
+          style="--signature-color: var(--frisk);"
           role="button"
           tabindex="0"
           aria-label="Create new entity"

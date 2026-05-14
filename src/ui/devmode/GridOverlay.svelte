@@ -82,19 +82,19 @@
     pointer-events: none;
     z-index: var(--z-index-max);
     opacity: var(--opacity-muted);
-    border: var(--spacing-pixel) dashed var(--color-frozen);
+    border: var(--spacing-pixel) dashed var(--frozen);
   }
 
   /* Lines */
   .col-line {
-    border-left: var(--spacing-pixel) solid var(--color-frozen);
+    border-left: var(--spacing-pixel) solid var(--frozen);
     height: 100%;
     grid-row: 1 / -1;
     position: relative;
   }
 
   .row-line {
-    border-top: var(--spacing-pixel) solid var(--color-frozen);
+    border-top: var(--spacing-pixel) solid var(--frozen);
     width: 100%;
     grid-column: 1 / -1;
     position: relative;
@@ -105,8 +105,8 @@
     position: absolute;
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
-    color: var(--color-frozen);
-    background: var(--color-black);
+    color: var(--frozen);
+    background: var(--void-black);
     padding: var(--spacing-0) var(--spacing-1);
     opacity: var(--opacity-heavy);
   }
@@ -125,7 +125,7 @@
   .point {
     width: var(--spacing-1);
     height: var(--spacing-1);
-    background: var(--color-frozen);
+    background: var(--frozen);
     border-radius: var(--radius-full);
     transform: translate(-50%, -50%);
   }

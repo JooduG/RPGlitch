@@ -286,10 +286,10 @@
   .tooltip-content {
     background: var(--glass-peak);
     backdrop-filter: var(--glass-peak-blur);
-    color: var(--color-white);
+    color: var(--pure-white);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-standard);
-    border: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
+    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
     font-size: var(--font-size-tiny);
     font-family: var(--font-family-base);
     text-transform: none;
@@ -306,7 +306,7 @@
     height: 0;
     border-left: var(--spacing-2) solid transparent;
     border-right: var(--spacing-2) solid transparent;
-    border-top: var(--spacing-2) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
+    border-top: var(--spacing-2) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
     position: absolute;
     bottom: calc(var(--spacing-2) * -1);
     left: 50%;
@@ -329,7 +329,7 @@
     top: calc(var(--spacing-2) * -1);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--spacing-2) solid rgb(from var(--color-white) r g b / var(--opacity-muted));
+    border-bottom: var(--spacing-2) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {

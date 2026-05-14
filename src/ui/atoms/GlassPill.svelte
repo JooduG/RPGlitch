@@ -12,7 +12,7 @@
    * @property {"horizontal" | "vertical"} [orientation="horizontal"]
    * @property {boolean} [is_focused=false]
    * @property {boolean} [busy=false]
-   * @property {string} [signature_color="var(--color-frozen)"]
+   * @property {string} [signature_color="var(--frozen)"]
    * @property {string} [class=""]
    * @property {import('svelte').Snippet} [children]
    * @property {import('svelte').Snippet} [top]
@@ -28,7 +28,7 @@
     orientation = "horizontal",
     is_focused = false,
     busy = false,
-    signature_color = "var(--color-frozen)",
+    signature_color = "var(--frozen)",
     class: className = "",
     children = undefined,
     top = undefined,

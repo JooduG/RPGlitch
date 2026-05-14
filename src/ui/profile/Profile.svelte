@@ -437,7 +437,7 @@
                       <svg viewBox="0 0 24 24" class="icon-small icon-outline">
                         <path
                           d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
-                          fill="var(--color-white)"
+                          fill="var(--pure-white)"
                         ></path>
                       </svg>
                     </Button>
@@ -508,8 +508,8 @@
     z-index: var(--overlay-peak-z-index);
     transition: all var(--duration-standard) var(--ease-standard);
     transform: scale(0.95) translateX(var(--spacing-4));
-    --scrollbar-thumb: rgb(from var(--color-white) r g b / var(--opacity-muted));
-    --scrollbar-thumb-hover: rgb(from var(--color-white) r g b / var(--opacity-heavy));
+    --scrollbar-thumb: rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    --scrollbar-thumb-hover: rgb(from var(--pure-white) r g b / var(--opacity-heavy));
   }
 
   .wings.is-visible {
@@ -584,7 +584,7 @@
     background: transparent;
     overflow: hidden;
     border-right: var(--spacing-pixel) solid
-      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   /* ── Header ────────────────────────────────────────────────────────── */
@@ -600,12 +600,12 @@
     padding: var(--spacing-4);
     background: color-mix(
       in srgb,
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-ghost)),
+      rgb(from var(--gunmetal) r g b / var(--opacity-ghost)),
       var(--signature-color) 8%
     );
     z-index: var(--surface-z-index);
     border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   .name {
@@ -641,7 +641,7 @@
 
   .name.edit span:empty::before {
     content: attr(data-placeholder);
-    color: var(--color-frisk);
+    color: var(--frisk);
     opacity: var(--opacity-muted);
     font-style: italic;
     pointer-events: none;
@@ -652,7 +652,7 @@
     margin: 0;
     margin-top: var(--spacing-pixel);
     padding: var(--spacing-1) var(--spacing-2);
-    color: var(--color-white);
+    color: var(--pure-white);
     font-family: var(--font-family-base);
     font-size: var(--font-size-base);
     line-height: var(--font-height-base);
@@ -675,7 +675,7 @@
 
   .description:empty::before {
     content: attr(data-placeholder);
-    color: var(--color-frisk);
+    color: var(--frisk);
     opacity: var(--opacity-muted);
     font-style: italic;
   }
@@ -705,11 +705,11 @@
     padding: var(--padding-standard);
     background: color-mix(
       in srgb,
-      rgb(from var(--color-gunmetal) r g b / var(--opacity-whisper)),
+      rgb(from var(--gunmetal) r g b / var(--opacity-whisper)),
       var(--signature-color) 10%
     );
     z-index: var(--overlay-z-index);
-    border-top: var(--spacing-pixel) solid rgb(from var(--color-white) r g b / var(--opacity-ghost));
+    border-top: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   .actions {
@@ -751,7 +751,7 @@
     border-radius: 0;
     border-right: none;
     border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--color-white) r g b / var(--opacity-ghost));
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   .root.is-mobile .header,
@@ -846,7 +846,7 @@
     font-size: var(--font-size-nano);
     font-weight: var(--font-weight-bold);
     opacity: var(--opacity-moderate);
-    color: var(--color-white);
+    color: var(--pure-white);
     letter-spacing: var(--font-spacing-loose);
   }
 
@@ -873,7 +873,7 @@
   .section-sub {
     margin: 0;
     font-size: var(--font-size-nano);
-    color: var(--color-white);
+    color: var(--pure-white);
     font-weight: var(--font-weight-bold);
     opacity: var(--opacity-muted);
     text-transform: uppercase;
@@ -938,7 +938,7 @@
   }
 
   .meta-value {
-    color: var(--color-white);
+    color: var(--pure-white);
   }
 
   :global(.action-btn) {
@@ -957,7 +957,7 @@
     font-size: var(--font-size-nano);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
-    color: var(--color-white);
+    color: var(--pure-white);
     opacity: var(--opacity-moderate);
   }
 
@@ -966,20 +966,20 @@
   }
 
   :global(.enhance-btn) {
-    color: var(--color-white);
+    color: var(--pure-white);
     border: none;
     outline: none;
     box-shadow: none;
     background: transparent;
     filter: drop-shadow(
       var(--spacing-0) var(--spacing-pixel) var(--spacing-2)
-        rgb(from var(--color-black) r g b / var(--opacity-substantial))
+        rgb(from var(--void-black) r g b / var(--opacity-substantial))
     );
   }
 
   :global(.enhance-btn:hover) {
     background: transparent;
-    color: var(--color-white);
+    color: var(--pure-white);
     transform: var(--scale-zoom);
   }
 

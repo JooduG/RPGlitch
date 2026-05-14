@@ -64,7 +64,7 @@
     background: radial-gradient(
       circle at center,
       rgb(from var(--background-gradient-4) r g b / var(--opacity-heavy)),
-      rgb(from var(--color-black) r g b / var(--opacity-substantial))
+      rgb(from var(--void-black) r g b / var(--opacity-substantial))
     );
     cursor: pointer;
     user-select: none;

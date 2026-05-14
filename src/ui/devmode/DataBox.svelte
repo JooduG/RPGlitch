@@ -40,12 +40,12 @@
 
   .data-header {
     padding: var(--spacing-2) var(--spacing-3);
-    background: rgb(from var(--color-white) r g b / 3%);
+    background: rgb(from var(--pure-white) r g b / 3%);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
-    color: var(--color-cyan);
+    color: var(--electric-cyan);
   }
 
   .data-content {
@@ -57,7 +57,7 @@
   }
 
   .data-content.is-code {
-    background: rgb(from var(--color-black) r g b / 10%);
+    background: rgb(from var(--void-black) r g b / 10%);
   }
 
   :global(.data-content pre) {

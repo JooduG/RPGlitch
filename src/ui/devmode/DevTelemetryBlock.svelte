@@ -170,8 +170,8 @@
                           --state-metric-offset: {Math.min(50, get_pct(val))}%;
                           --state-metric-span: {Math.abs(get_pct(val) - 50)}%;
                           --state-metric-color: {get_pct(val) > 50
-                          ? 'var(--color-cyan)'
-                          : 'var(--color-frozen)'}
+                          ? 'var(--electric-cyan)'
+                          : 'var(--frozen)'}
                         "
                       ></div>
                     </div>
@@ -196,8 +196,8 @@
                           --state-metric-offset: {Math.min(50, get_pct(val))}%;
                           --state-metric-span: {Math.abs(get_pct(val) - 50)}%;
                           --state-metric-color: {get_pct(val) > 50
-                          ? 'var(--color-cyan)'
-                          : 'var(--color-frozen)'}
+                          ? 'var(--electric-cyan)'
+                          : 'var(--frozen)'}
                         "
                       ></div>
                     </div>
@@ -273,21 +273,21 @@
 
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / var(--opacity-base));
+      box-shadow: 0 0 0 0 rgb(from var(--electric-cyan) r g b / var(--opacity-base));
     }
 
     70% {
-      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--color-cyan) r g b / var(--opacity-none));
+      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--electric-cyan) r g b / var(--opacity-none));
     }
 
     100% {
-      box-shadow: 0 0 0 0 rgb(from var(--color-cyan) r g b / var(--opacity-none));
+      box-shadow: 0 0 0 0 rgb(from var(--electric-cyan) r g b / var(--opacity-none));
     }
   }
 
   :global(.resonance-pulse) {
     animation: pulse-resonance 3s infinite var(--motion-elastic);
-    border-color: var(--color-cyan) !important;
+    border-color: var(--electric-cyan) !important;
   }
 
   .resonance-header {
@@ -297,7 +297,7 @@
   .resonance-title {
     display: block;
     font-size: var(--font-size-small);
-    color: var(--color-white);
+    color: var(--pure-white);
     font-weight: var(--font-weight-heavy);
     letter-spacing: var(--font-spacing-tight);
   }
@@ -309,8 +309,8 @@
   }
 
   .resonance-item {
-    background: rgb(from var(--color-cyan) r g b / var(--opacity-ghost)) !important;
-    border-color: rgb(from var(--color-cyan) r g b / var(--opacity-whisper)) !important;
+    background: rgb(from var(--electric-cyan) r g b / var(--opacity-ghost)) !important;
+    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper)) !important;
     animation: slide-in var(--duration-standard) var(--motion-elastic) both;
   }
 
@@ -370,7 +370,7 @@
 
   .sub-label {
     font-size: var(--font-size-nano);
-    color: var(--color-cyan);
+    color: var(--electric-cyan);
     opacity: var(--opacity-heavy);
     margin-bottom: var(--spacing-2);
     font-weight: var(--font-weight-heavy);
@@ -392,8 +392,8 @@
   .delta-item {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
-    color: var(--color-white);
-    background: rgb(from var(--color-black) r g b / var(--opacity-muted));
+    color: var(--pure-white);
+    background: rgb(from var(--void-black) r g b / var(--opacity-muted));
     padding: var(--spacing-2) var(--spacing-2);
     border-radius: var(--radius-sharp);
     white-space: nowrap;
@@ -401,13 +401,13 @@
   }
 
   .delta-item.is-positive {
-    border-color: rgb(from var(--color-cyan) r g b / var(--opacity-muted));
-    color: var(--color-cyan);
+    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-muted));
+    color: var(--electric-cyan);
   }
 
   .delta-item.is-negative {
-    border-color: rgb(from var(--color-frozen) r g b / var(--opacity-muted));
-    color: var(--color-frozen);
+    border-color: rgb(from var(--frozen) r g b / var(--opacity-muted));
+    color: var(--frozen);
   }
 
   .delta-text {
@@ -464,7 +464,7 @@
     top: 0;
     bottom: 0;
     width: var(--spacing-pixel);
-    background: rgb(from var(--color-white) r g b / var(--opacity-whisper));
+    background: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     z-index: var(--mid-z-index);
   }
 
@@ -472,7 +472,7 @@
     position: absolute;
     left: var(--state-metric-offset, 0%);
     width: var(--state-metric-span, 0%);
-    background: var(--state-metric-color, var(--color-cyan));
+    background: var(--state-metric-color, var(--electric-cyan));
     height: 100%;
     border-radius: var(--radius-full);
     transition: all var(--duration-standard);
@@ -480,7 +480,7 @@
 
   .metric-value {
     font-size: var(--font-size-nano);
-    color: var(--color-white);
+    color: var(--pure-white);
     min-width: var(--spacing-6);
     text-align: right;
     font-family: var(--font-family-mono);
@@ -512,21 +512,21 @@
     line-height: var(--font-height-s);
     padding: var(--spacing-1) var(--spacing-2);
     border-radius: var(--radius-sharp);
-    background: rgb(from var(--color-black) r g b / var(--opacity-whisper));
+    background: rgb(from var(--void-black) r g b / var(--opacity-whisper));
     border-left: var(--spacing-2) solid transparent;
   }
 
   .vector-item.future {
-    border-left-color: var(--color-cyan);
+    border-left-color: var(--electric-cyan);
   }
 
   .vector-item.past {
-    border-left-color: var(--color-frozen);
+    border-left-color: var(--frozen);
   }
 
   .vector-score {
     font-family: var(--font-family-mono);
-    color: var(--color-cyan);
+    color: var(--electric-cyan);
     font-weight: var(--font-weight-heavy);
     opacity: var(--opacity-substantial);
   }
@@ -563,8 +563,8 @@
     padding: var(--spacing-2) var(--spacing-2);
     background: var(--glass-base);
     border: var(--border-side);
-    border-color: rgb(from var(--color-cyan) r g b / var(--opacity-whisper));
-    color: var(--color-cyan);
+    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
+    color: var(--electric-cyan);
     border-radius: var(--radius-full);
     font-size: var(--font-size-nano);
     font-family: var(--font-family-mono);

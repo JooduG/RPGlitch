@@ -76,7 +76,7 @@
 
     .c-btn {
         background: var(--signature-color);
-        color: var(--color-black);
+        color: var(--void-black);
         padding: var(--padding-tight) var(--padding-standard);
         border-radius: var(--radius-sharp);
         transition: opacity var(--duration-fast) var(--ease-standard);

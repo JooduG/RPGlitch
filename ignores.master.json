@@ -85,7 +85,10 @@
       "**/pnpm-lock.yaml": true,
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
-      "/.env": false
+      "/.env": false,
+      ".gemini": true,
+      ".jules": true,
+      ".github": true
     }
   }
 }

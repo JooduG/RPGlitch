@@ -16,7 +16,7 @@ describe("Token Integrity", () => {
   });
 
   it("should contain core foundation tokens", () => {
-    const knownFoundations = ["--color-chalk", "--color-frozen", "--spacing-4"];
+    const knownFoundations = ["--chalk", "--frozen", "--spacing-4"];
     knownFoundations.forEach((token) => {
       expect(tokens.has(token)).toBe(true);
     });
@@ -24,7 +24,7 @@ describe("Token Integrity", () => {
 
   describe("validateLine", () => {
     it("should return null for valid single token", () => {
-      const line = "color: var(--color-chalk);";
+      const line = "color: var(--chalk);";
       expect(validateLine(line)).toBe(null);
     });
 
@@ -34,7 +34,7 @@ describe("Token Integrity", () => {
     });
 
     it("should handle var() with fallbacks", () => {
-      const line = "color: var(--color-chalk, #fff);";
+      const line = "color: var(--chalk, #fff);";
       expect(validateLine(line)).toBe(null);
     });
 
@@ -44,7 +44,7 @@ describe("Token Integrity", () => {
     });
 
     it("should return the first invalid token for mixed tokens", () => {
-      const line = "color: var(--color-chalk); background: var(--unknown-bg);";
+      const line = "color: var(--chalk); background: var(--unknown-bg);";
       expect(validateLine(line)).toBe("--unknown-bg");
     });
 

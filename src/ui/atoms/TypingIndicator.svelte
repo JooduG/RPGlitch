@@ -10,7 +10,7 @@
   let {
     // Design
     variant = "glass", // 'glass' | 'pill' | 'minimal'
-    signature_color = "var(--color-gunmetal)",
+    signature_color = "var(--gunmetal)",
     class: className = "",
 
     // State
@@ -79,7 +79,7 @@
   .dot {
     width: var(--spacing-2);
     height: var(--spacing-2);
-    background-color: var(--color-white);
+    background-color: var(--pure-white);
     border-radius: var(--radius-full);
     animation: typing-pulse 1.4s infinite ease-in-out both;
   }
