@@ -38,7 +38,7 @@ Verify that animations do not trigger layout thrashing. Use the browser performa
 
 Implement kinetic feedback for background operations and engine cognition.
 
-- **The Pulse Animation**: Use the standardized `pulse` animation for "Scanning" or "Enhancing" states (e.g., `animation: pulse var(--motion-l) infinite`).
+- **The Pulse Animation**: Use the standardized `pulse` animation for "Scanning" or "Enhancing" states (e.g., `animation: pulse var(--duration-pulse) infinite`).
 - **Processing Feedback**: Coordinate with `busy_fields` to trigger state-aware micro-animations.
 
 ## 📜 Mandatory Directives
