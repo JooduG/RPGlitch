@@ -8,7 +8,7 @@ Analyze the intended action against the following factors. Resolve conflicts in 
 
 ### 1.1 Passive Governance
 
-[Rules](./.agents/rules), mandatory prerequisites ([planning](./.agents/skills/planning/SKILL.md) and [test-driven-development](./.agents/skills/test/SKILL.md)), and constraints.
+[Rules](./.agents/rules), mandatory prerequisites ([planning](./.agents/skills/planning/SKILL.md) and [test-driven-development](./.agents/skills/test-driven-development/SKILL.md)), and constraints.
 
 ### 1.2 Order of operations
 
