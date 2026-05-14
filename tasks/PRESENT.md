@@ -13,14 +13,13 @@
 | `design-rebuild`             | Sovereign Design Rebuild   | P1       | ✅ Done    | Deconstruct and rebuild DESIGN.md, refactor bridges, and remediate technical debt. |
 | `signature-color-automation` | Signature Color Auto       | P1       | ✅ Done    | Automate palette generation from DESIGN.md foundations.                            |
 | `specialist-standardization` | Specialist Standardization | P1       | ✅ Done    | Move personas to skills and update activation protocols.                           |
-| `profile-rebalance`          | Profile Layout Rebalance   | P2       | ⏳ Pending | Stabilize and rebalance the Profile.svelte interface for a clean Nordic layout.    |
+| `profile-rebalance`          | Profile Layout Rebalance   | P2       | 🔄 Active  | Stabilize and rebalance the Profile.svelte interface for a clean Nordic layout.    |
 
-### 🛠️ Active Checklist (Track: specialist-standardization)
+### 🛠️ Active Checklist (Track: profile-rebalance)
 
-- [x] Refactor `GEMINI.md` to remove redundant persona descriptions.
-- [x] Update `/01-plan.md` and `/02-implement.md` with explicit skill activation.
-- [x] Audit and update all 30 `SKILL.md` files with the new persona header.
-- [x] Final verification of all links and protocols.
+- [ ] Phase 1: Audit `Profile.svelte` grid and wing dimensions.
+- [ ] Phase 2: Refactor 12x12 grid positions and "Bolted" architecture.
+- [ ] Phase 3: Final aesthetic polish and verification pass.
 
 ## 🧠 Pulse (History)
 

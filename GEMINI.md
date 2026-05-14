@@ -378,7 +378,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - [Skills](./.agents/skills/) for infrastructural expertise:
   - [Skill Router](./.agents/skills/using-agent-skills/): Intent Decoding, Complexity Triage & Skill Selection.
   - [Simulation](./.agents/skills/simulation/): Narrative Bridges & Game Logic.
-  - [Security & Hardening](./.agents/skills/security-and-hardening/): Adversarial Audit & Security.
+  - [Security](./.agents/skills/security/): Adversarial Audit & Security.
 
 ---
 
@@ -462,8 +462,8 @@ Use this reference to select the appropriate MCP reasoning framework based on th
 | **Research**     | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data`, `planning`              |
 | **Simulation**   | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local), `find-docs`, `deepwiki`, `data`         |
 | **Sensory**      | Vision, **Optics**, Audio, Design.                  | `designer`, `image-generation`, `audio`, `css`, `find-docs`, `deepwiki`, `data` |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security-and-hardening`, `find-docs`, `deepwiki`, `data`  |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security-and-hardening`                                   |
+| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`, `find-docs`, `deepwiki`, `data`               |
+| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`                                                |
 | **Resonance**    | Quality gates, template compliance, health.         | `/03-review` ↔ `quality`, `governance`                                          |
 | **Reasoning**    | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                                                  |
 | **Reframing**    | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                                                        |
