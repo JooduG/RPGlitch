@@ -182,7 +182,10 @@
 
   :global(.orchestrator .action.root.is-ready .label) {
     color: var(--emerald-green);
-    text-shadow: 0 0 var(--spacing-2) rgb(from var(--emerald-green) r g b / var(--opacity-muted));
+    /* stylelint-disable scale-unlimited/declaration-strict-value */
+    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
+      rgb(from var(--emerald-green) r g b / var(--opacity-muted));
+    /* stylelint-enable scale-unlimited/declaration-strict-value */
   }
 
   .content {

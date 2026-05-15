@@ -205,7 +205,7 @@
     on_confirm={handle_delete}
   />
 
-  <Modal variant="profile" on_close={handle_close}>
+  <Modal variant="profile" on_close={handle_close} is_pass_through={true}>
     <div
       class="root"
       class:is-editing={is_editing}

@@ -87,13 +87,13 @@ The `planning` skill operates as the engine for the **Conductor Framework**. It 
 
 Use these triggers to navigate the development lifecycle:
 
-| Trigger            | Purpose                                | Source                                                            |
-| :----------------- | :------------------------------------- | :---------------------------------------------------------------- |
-| **/00-status**     | Session Initialization & Monitoring    | [00-status.md](../../workflows/conductor/00-status.md)            |
-| **/01-plan**       | Tactical Planning & Eternal Foundation | [01-plan.md](../../workflows/conductor/01-plan.md)                |
-| **/02-implement**  | Incremental Tactical Implementation    | [02-implement.md](../../workflows/conductor/02-implement.md)      |
-| **/03-review**     | Quality Gate & Verification            | [03-review.md](../../workflows/conductor/03-review.md)            |
-| **/04-releasease** | releaseasep & Handoff (Perchance)      | [04-releasease.md](../../workflows/conductor/relreleaseasehip.md) |
+| Trigger           | Purpose                                | Source                                                       |
+| :---------------- | :------------------------------------- | :----------------------------------------------------------- |
+| **/00-status**    | Session Initialization & Monitoring    | [00-status.md](../../workflows/conductor/00-status.md)       |
+| **/01-plan**      | Tactical Planning & Eternal Foundation | [01-plan.md](../../workflows/conductor/01-plan.md)           |
+| **/02-implement** | Incremental Tactical Implementation    | [02-implement.md](../../workflows/conductor/02-implement.md) |
+| **/03-review**    | Quality Gate & Verification            | [03-review.md](../../workflows/conductor/03-review.md)       |
+| **/04-release**   | releaseasep & Handoff (Perchance)      | [04-release.md](../../workflows/conductor/04-release.md)     |
 
 ### 📐 Universal File Resolution Protocol
 

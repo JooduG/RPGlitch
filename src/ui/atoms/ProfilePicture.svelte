@@ -62,7 +62,7 @@
   // 1. Reactive State
   const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
   const media_url = $derived(entity?.profile_picture);
-  const signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
+  const signature_color = $derived(themeStore.get_signature_color(entity));
   const initials = $derived(placeholder_char || calculate_initials(name));
 
   // 2. Modifiers

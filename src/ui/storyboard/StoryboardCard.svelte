@@ -33,7 +33,7 @@
   // --- STATE & DERIVATIONS ---
 
   let is_empty = $derived(!entity);
-  let signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
+  let signature_color = $derived(themeStore.get_signature_color(entity));
 
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
 </script>
@@ -87,9 +87,9 @@
         onclick={on_view_profile}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="icon icon-solid">
+        <svg viewBox="0 0 24 24" class="icon icon-outline">
           <path
-            d="M20,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6A2,2 0 0,0 20,4M20,18H4V6H20V18M6,10H12V12H6V10M6,14H12V16H6V14M14,10H18V16H14V10Z"
+            d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
           />
         </svg>
       </Button>
@@ -107,8 +107,14 @@
     border-radius: var(--radius-standard);
     background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
-    transition: transform var(--duration-fast) var(--ease-standard);
     z-index: var(--surface-z-index);
+    transition:
+      transform var(--duration-fast) var(--ease-standard),
+      z-index var(--duration-none);
+  }
+
+  .root:hover {
+    z-index: var(--overlay-peak-z-index);
   }
 
   .root.is-fractal {
@@ -120,11 +126,12 @@
   .root::after {
     content: "";
     position: absolute;
-    inset: 0;
+    inset: var(--spacing-0);
     pointer-events: none;
     border-radius: inherit;
     border: var(--border-width-base) solid transparent;
-    box-shadow: inset 0 0 0 var(--spacing-pixel) transparent;
+    box-shadow: inset var(--spacing-0) var(--spacing-0) var(--spacing-0) var(--spacing-pixel)
+      transparent;
     transition:
       box-shadow var(--duration-standard) var(--ease-standard),
       border-color var(--duration-standard) var(--ease-standard);
@@ -133,21 +140,34 @@
 
   .root:hover::after {
     border-color: var(--signature-color, var(--gunmetal));
-    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color, var(--gunmetal));
+    box-shadow: inset var(--spacing-0) var(--spacing-0) var(--spacing-0) var(--spacing-pixel)
+      var(--signature-color, var(--gunmetal));
   }
 
   /* --- BODY --- */
   .root :global(.body) {
     z-index: var(--surface-z-index);
-    background: var(--signature-color, var(--gunmetal)) !important;
+    background-color: var(--signature-color) !important;
+    background-image: linear-gradient(
+      to bottom,
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost)),
+      transparent
+    );
     transition:
       filter var(--duration-standard) var(--ease-standard),
-      background var(--duration-standard) var(--ease-standard);
+      background-color var(--duration-standard) var(--ease-standard),
+      box-shadow var(--duration-standard) var(--ease-standard);
   }
 
   .root:hover :global(.body) {
-    background: var(--signature-color, var(--gunmetal)) !important;
-    filter: var(--brightness-glow);
+    background-color: var(--signature-color) !important;
+    filter: var(--brightness-glow) var(--contrast-tension);
+    /* stylelint-disable scale-unlimited/declaration-strict-value */
+    box-shadow:
+      inset var(--spacing-0) var(--spacing-0) var(--spacing-12)
+        rgb(from var(--signature-color) r g b / var(--opacity-substantial)),
+      var(--shadow-heavy);
+    /* stylelint-enable scale-unlimited/declaration-strict-value */
   }
 
   /* --- STATUS (Empty State) --- */
@@ -176,10 +196,6 @@
     stroke-width: 1.5;
   }
 
-  .icon-solid {
-    fill: currentcolor;
-  }
-
   .status .primary {
     font-family: var(--font-family-heading);
     font-size: var(--font-size-h6);
@@ -190,15 +206,15 @@
   /* --- HEADER (Info Overlay) --- */
   .header {
     position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 45%;
+    bottom: var(--spacing-0);
+    left: var(--spacing-0);
+    right: var(--spacing-0);
+    height: 100%;
     background: linear-gradient(
-      to top,
-      var(--background-base) 0%,
-      rgb(from var(--background-base) r g b / var(--opacity-substantial)) 60%,
-      transparent 100%
+      -15deg,
+      var(--background-base) 5%,
+      rgb(from var(--background-base) r g b / var(--opacity-muted)) 35%,
+      transparent 70%
     );
     display: flex;
     flex-direction: column;
@@ -208,11 +224,11 @@
     padding: var(--padding-loose) var(--padding-standard);
     z-index: var(--surface-peak-z-index);
     pointer-events: none;
-    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
+    border-radius: var(--spacing-0) var(--spacing-0) var(--radius-standard) var(--radius-standard);
   }
 
   .header .primary {
-    margin: 0;
+    margin: var(--spacing-0);
     font-family: var(--font-family-heading);
     color: var(--signature-color, var(--gunmetal));
     text-shadow: var(--shadow-font);
@@ -228,7 +244,7 @@
   }
 
   .header .secondary {
-    margin: var(--spacing-1) 0 0;
+    margin: var(--spacing-1) var(--spacing-0) var(--spacing-0);
     font-family: var(--font-family-base);
     font-size: var(--font-size-small);
     color: var(--pure-white);
@@ -246,9 +262,10 @@
     position: absolute;
     top: var(--spacing-2);
     right: var(--spacing-2);
-    z-index: var(--overlay-z-index);
+    z-index: var(--modal-z-index); /* Extremely high to ensure clickability over dynamic titles */
+    pointer-events: auto;
     visibility: hidden;
-    opacity: 0;
+    opacity: var(--opacity-none);
     transition:
       transform var(--duration-standard) var(--ease-standard),
       opacity var(--duration-standard) var(--ease-standard),

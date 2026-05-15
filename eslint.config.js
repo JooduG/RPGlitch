@@ -27,7 +27,7 @@ export default [
       "**/.git/**",
       "**/.gitignore",
       "**/.htmlhintignore",
-      "**/.jules/cache/**",
+      "**/cache/**",
       "**/.markdownlintignore",
       "**/.next/**",
       "**/.playwright-auth/**",

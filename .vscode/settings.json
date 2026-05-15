@@ -30,23 +30,14 @@
   ],
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "files.exclude": {
-    "**/.antigravityignore": true,
     "**/.DS_Store": true,
-    "**/.eslintcache": true,
-    "**/.gemini/[!s]*": true,
-    "**/.gemini/s[!e]*": true,
-    "**/.geminiignore": true,
-    "**/.gitignore": true,
     "**/.playwright-auth/**": true,
     "**/bun.lockb": true,
     "**/node_modules/**": true,
     "**/pnpm-lock.yaml": true,
     "**/Thumbs.db": true,
     "**/yarn.lock": true,
-    "/.env": false,
-    ".gemini": true,
-    ".jules": true,
-    ".github": true
+    "/.env": false
   },
   "github-actions.workflows.pinned.workflows": []
 }

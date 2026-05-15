@@ -245,6 +245,7 @@
   .header {
     grid-row: row-2;
     align-items: flex-end;
+    pointer-events: none;
   }
 
   .footer {

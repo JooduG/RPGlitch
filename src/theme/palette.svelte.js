@@ -131,7 +131,7 @@ class ThemeStore {
    * @param {string} [fallback='var(--gunmetal)'] - Neutral fallback for non-entity contexts.
    * @returns {string}
    */
-  get_signature_color(entity, fallback = "var(--gunmetal)") {
+  get_signature_color(entity, fallback = "var(--signature-color)") {
     if (!entity) return fallback;
 
     // 1. Resolve potential 'color' string (from raw input or entity property)

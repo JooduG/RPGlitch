@@ -15,6 +15,7 @@
     // State
     busy = false,
     blur = true, // Pass-through for Backdrop blur
+    is_pass_through = false, // Interaction pass-through
 
     // Design
     variant = "standard",
@@ -44,7 +45,7 @@
   The Modal content is nested directly within the Backdrop.
   Standardized Nomenclature: .root replaces .base for top-level alignment.
 -->
-<Backdrop onclick={on_close} {z_index} {busy} is_blurred={blur}>
+<Backdrop onclick={on_close} {z_index} {busy} is_blurred={blur} {is_pass_through}>
   <div
     {...rest}
     class="root glass-elevated {variant} {className}"

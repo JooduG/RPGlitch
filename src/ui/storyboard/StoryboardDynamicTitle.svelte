@@ -38,7 +38,7 @@
   // DERIVED DATA
   // ============================================
   /** @param {any} entity */
-  const get_color = (entity) => themeStore.get_signature_color(entity, "var(--gunmetal)");
+  const get_color = (entity) => themeStore.get_signature_color(entity);
 
   /**
    * Generates structured title parts with entity colors
@@ -130,61 +130,90 @@
   ondblclick={handle_reset}
 >
   {#if is_custom}
-    {custom_title}
+    <span class="text-shadow-outline">{custom_title}</span>
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
-        <span class="entity" style:--entity-color={part.color}>{part.text}</span>
+        <span
+          class="entity text-shadow-bloom"
+          style:--entity-color={part.color}
+          style:--signature-color={part.color}>{part.text}</span
+        >
       {:else}
-        {part.text}
+        <span class="prefix text-shadow-outline">{part.text}</span>
       {/if}
     {/each}
   {/if}
 </h1>
 
 <style>
-  @import "https://fonts.googleapis.com/css2?family=Satisfy&display=swap";
-
   .root {
-    /* Fluid size relative to column units */
-    font-size: clamp(var(--font-size-h3), var(--columns-2), var(--font-size-h1));
+    /* Layout & Alignment */
+    display: block;
+    width: 100%;
+    max-width: var(--columns-12);
+    margin: 0 auto;
+    padding: var(--spacing-2) var(--spacing-4);
+
+    /* Typography */
+    font-family: var(--font-family-cursive);
+    font-size: var(--font-size-h1);
+    font-weight: var(--font-weight-base);
     line-height: var(--font-height-short);
-    margin: var(--spacing-0);
-    font-family: Satisfy, cursive;
     letter-spacing: var(--font-spacing-tight);
+    text-align: center;
+    text-wrap: balance;
+    color: var(--pure-white);
+    box-shadow: var(--title-shadow-ambient);
+
+    /* Interactive */
     cursor: text;
+    user-select: text;
+    pointer-events: none; /* Allow interaction through to cards */
     transition:
       background var(--motion-standard),
       transform var(--motion-standard),
       box-shadow var(--motion-standard);
-    border-radius: var(--radius-standard);
-    padding: var(--spacing-1) var(--spacing-4);
-    text-wrap: balance;
-    max-width: var(--columns-10);
-    margin-inline: var(--spacing-0);
-    display: block;
-    text-align: center;
+
+    /* Positioning */
+    transform: translateY(calc(var(--spacing-12) * -1));
+    z-index: var(--overlay-z-index);
+  }
+
+  /* Re-enable pointer events for the actual text content */
+  .root > span {
+    pointer-events: auto;
   }
 
   .root:hover {
-    background: var(--glass-sunken);
-    transform: var(--hover-lift);
+    background: var(--glass-base);
+    border-radius: var(--radius-subtle);
   }
 
-  .root:focus-within {
+  .root:focus {
+    background: var(--glass-sunken);
     outline: none;
-    background: var(--glass-elevated);
     box-shadow: var(--title-shadow-focus);
+    border-radius: var(--radius-subtle);
+  }
+
+  .prefix,
+  .entity {
+    display: inline;
+    padding: 0 var(--spacing-1);
+  }
+
+  .text-shadow-outline {
+    text-shadow: 0 0 var(--spacing-4) var(--void-black);
   }
 
   .entity {
-    font-weight: inherit;
     color: var(--entity-color);
     text-shadow:
-      var(--shadow-font),
-      0 0 var(--spacing-1) var(--entity-color),
-      0 0 var(--spacing-pixel) var(--entity-color);
-    white-space: nowrap;
-    filter: drop-shadow(0 0 var(--spacing-pixel) var(--entity-color));
+      0 var(--spacing-pixel) var(--spacing-2px) var(--void-black),
+      0 0 var(--spacing-2) var(--entity-color);
+
+    /* Extra Bloom for entities */
+    filter: drop-shadow(0 0 var(--spacing-1) var(--void-black));
   }
 </style>

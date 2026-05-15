@@ -12,7 +12,7 @@
 **/.git/**
 **/.gitignore
 **/.htmlhintignore
-**/.jules/cache/**
+**/cache/**
 **/.markdownlintignore
 **/.next/**
 **/.playwright-auth/**
@@ -43,4 +43,3 @@
 **/.jules/**
 act_output.log
 gha-creds-*.json
-**/.gemini/**

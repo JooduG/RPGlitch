@@ -76,6 +76,7 @@ foundations:
     font-family-base: '"Inter", system-ui, -apple-system, sans-serif'
     font-family-heading: '"Ubuntu", sans-serif'
     font-family-mono: '"JetBrains Mono", monospace'
+    font-family-cursive: '"Satisfy", cursive'
     font-height-base: "1.5"
     font-height-short: "1.2"
     font-height-tall: "1.8"
@@ -233,7 +234,10 @@ semantics:
     padding-loose: var(--spacing-8)
     padding-standard: var(--spacing-4)
     padding-tight: var(--spacing-2)
+    spacing-0: 0
+    spacing-pixel: 1px
     spacing-1: calc(var(--spacing-unit) * 1)
+    spacing-2px: calc(var(--spacing-pixel) * 2)
     spacing-10: calc(var(--spacing-unit) * 10)
     spacing-12: calc(var(--spacing-unit) * 12)
     spacing-15: calc(var(--spacing-unit) * 15)
@@ -251,12 +255,13 @@ semantics:
     spacing-8: calc(var(--spacing-unit) * 8)
     spacing-9: calc(var(--spacing-unit) * 9)
   typography:
+    font-family-cursive: var(--font-family-cursive)
     font-height-s: var(--font-height-short)
     font-size-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
     font-size-h1: clamp(3rem, 5vw + 2rem, 6rem)
-    font-size-h2: clamp(2rem, 3vw + 1.5rem, 3.5rem)
-    font-size-h3: clamp(1.5rem, 2vw + 1.2rem, 2.5rem)
-    font-size-h4: clamp(1.25rem, 1.5vw + 1.1rem, 1.8rem)
+    font-size-h2: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem)
+    font-size-h3: clamp(2rem, 3vw + 1.6rem, 3.2rem)
+    font-size-h4: clamp(1.6rem, 2vw + 1.4rem, 2.4rem)
     font-size-h5: clamp(1.1rem, 1.2vw + 1rem, 1.5rem)
     font-size-h6: clamp(1rem, 1vw + 0.9rem, 1.25rem)
     font-size-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem)
@@ -330,7 +335,7 @@ organisms:
     swatch-dynamic-bg: var(--gunmetal)
     title-color-part: var(--frozen)
     title-glow-signature: 0 0 var(--spacing-5) var(--signature-color)
-    title-shadow-ambient: 0 0 var(--spacing-5)
+    title-shadow-ambient: 0 0 var(--spacing-5) var(--void-black)
     title-shadow-focus: 0 0 0 var(--spacing-pixel) var(--frisk)
     toggle-height: var(--font-size-h5)
     toggle-small-height: var(--spacing-4)
@@ -401,6 +406,10 @@ Sound effects must be clinical and minimalist. Audio is a feedback layer, never 
 ### Typography
 
 - `h1-h6`: Architectural weight, tightly tracked.
+- `.font-cursive`: The "Satisfy" font for cinematic/narrative emphasis.
+- `.font-heading`: The "Ubuntu" font for structural hierarchy.
+- `.font-mono`: The "JetBrains Mono" font for data and terminal output.
+- `.font-base`: The "Inter" font for standard reading.
 - `.data-output`: Monochromatic, spaced, terminal-style text.
 
 ---
@@ -423,10 +432,12 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 *::before,
 *::after {
   box-sizing: border-box;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-:global(html),
-:global(body) {
+html,
+body {
   margin: 0;
   padding: 0;
   width: 100%;
@@ -435,8 +446,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   font-family: var(--font-family-base);
   color: var(--font-color-base);
   background-color: var(--background-base);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  line-height: var(--font-height-base);
 }
 
 h1,
@@ -448,30 +458,143 @@ h6 {
   font-family: var(--font-family-heading);
   margin: 0;
   line-height: var(--font-height-short);
+  color: var(--pure-white);
+  letter-spacing: var(--font-spacing-tight);
 }
 
 h1 {
   font-size: var(--font-size-h1);
+  font-weight: var(--font-weight-heavy);
 }
 
 h2 {
   font-size: var(--font-size-h2);
+  font-weight: var(--font-weight-bold);
 }
 
 h3 {
   font-size: var(--font-size-h3);
+  font-weight: var(--font-weight-bold);
 }
 
 h4 {
   font-size: var(--font-size-h4);
+  font-weight: var(--font-weight-bold);
 }
 
 h5 {
   font-size: var(--font-size-h5);
+  font-weight: var(--font-weight-bold);
 }
 
 h6 {
   font-size: var(--font-size-h6);
+  font-weight: var(--font-weight-bold);
+}
+
+p,
+span,
+label,
+li,
+strong,
+em,
+small,
+blockquote,
+time,
+code,
+kbd,
+mark,
+q,
+cite,
+dfn,
+sub,
+sup,
+b,
+i,
+u {
+  font-family: inherit; /* Allow inheritance from parent (e.g. h1) */
+  margin: 0;
+  line-height: inherit;
+}
+
+/* Base text fallback */
+body p,
+body span:not(h1 span, h2 span, h3 span, h4 span, h5 span, h6 span),
+body label {
+  font-family: var(--font-family-base);
+}
+
+strong,
+b {
+  font-weight: var(--font-weight-bold);
+}
+
+em,
+i {
+  font-style: italic;
+}
+
+u {
+  text-decoration: underline;
+}
+
+sup,
+sub {
+  font-size: var(--font-size-nano);
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+sup {
+  top: -0.5em;
+}
+
+sub {
+  bottom: -0.25em;
+}
+
+small {
+  font-size: var(--font-size-small);
+}
+
+code {
+  font-family: var(--font-family-mono);
+  font-size: var(--font-size-small);
+  background: var(--glass-sunken);
+  padding: var(--spacing-pixel) var(--spacing-1);
+  border-radius: var(--radius-subtle);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--ease-standard);
+}
+
+button,
+input,
+optgroup,
+select,
+textarea {
+  font-family: inherit;
+  font-size: 100%;
+  line-height: inherit;
+  margin: 0;
+  color: inherit;
+}
+
+button {
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  outline: none;
 }
 
 .glass-sunken {
@@ -511,6 +634,24 @@ h6 {
 .interactable:active {
   transform: var(--click-sink);
   filter: var(--click-dim);
+}
+
+/* --- TYPOGRAPHY UTILITIES --- */
+
+.font-cursive {
+  font-family: var(--font-family-cursive) !important;
+}
+
+.font-heading {
+  font-family: var(--font-family-heading) !important;
+}
+
+.font-mono {
+  font-family: var(--font-family-mono) !important;
+}
+
+.font-base {
+  font-family: var(--font-family-base) !important;
 }
 
 /* --- ICONS --- */

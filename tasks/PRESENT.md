@@ -1,23 +1,26 @@
 # 🛰️ Present (The Dashboard)
 
-## 🚀 Active Mission: Storyboard Identity UI Refinement
+## 🚀 Active Mission: Storyboard Identity Refinement & UX Polish
 
-**Status**: 🔄 Active
-**Objective**: Enhance the Storyboard visual identity with premium clinical icons and precise, high-fidelity glow effects.
+**Status**: 🔄 In Progress
+**Objective**: Refine typography, legibility, and interaction z-indexes based on Protagonist feedback.
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track ID                     | Name                   | Priority | Status    | Objective                                                      |
-| :--------------------------- | :--------------------- | :------- | :-------- | :------------------------------------------------------------- |
-| `storyboard-identity-ui`     | Storyboard Identity UI | P0       | 🔄 Active | Replace icons and sharpen entity glows for clinical precision. |
-| `signature-color-decoupling` | Color Decoupling       | P0       | ✅ Done   | Decoupling signature colors from non-entity components.        |
-| `signature-color-hardening`  | Color Hardening        | P0       | ✅ Done   | Hardening ThemeStore to prevent white background anomalies.    |
+| Track ID                      | Name                   | Priority | Status    | Objective                                                      |
+| :---------------------------- | :--------------------- | :------- | :-------- | :------------------------------------------------------------- |
+| `storyboard-ux-polish`        | Storyboard UX Polish   | P0       | 🔄 Active | Fix Satisfy font inheritance, legibility shadows, and z-index. |
+| `storyboard-identity-ui`      | Storyboard Identity UI | P0       | ✅ Done   | Replace icons and sharpen entity glows for clinical precision. |
+| `storyboard-typography-remed` | Typography Remediation | P0       | ✅ Done   | Resolve cursive font token violations and Warden audit.        |
+| `signature-color-decoupling`  | Color Decoupling       | P0       | ✅ Done   | Decoupling signature colors from non-entity components.        |
+| `signature-color-hardening`   | Color Hardening        | P0       | ✅ Done   | Hardening ThemeStore to prevent white background anomalies.    |
 
-### 🛠️ Active Checklist (Track: signature-color-decoupling)
+### 🛠️ Active Checklist (Track: storyboard-ux-polish)
 
-- [x] Phase 1: Component Audit & Remediation
-- [x] Phase 2: Logic Refinement
-- [x] Phase 3: Visual Verification
+- [x] Phase 1: Typography & Utilities (Satisfy coverage + Global Resets)
+- [x] Phase 2: Design Sync & Proximity (Shadows/Legibility)
+- [/] Phase 3: Quality Gate Refinement (Allow 0, 100%)
+- [ ] Phase 4: Final Verification & Hardening+ Final Audit)
 
 ## 🧠 Pulse (History)
 

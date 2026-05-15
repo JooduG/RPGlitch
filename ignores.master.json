@@ -15,7 +15,7 @@
     "**/.git/**",
     "**/.gitignore",
     "**/.htmlhintignore",
-    "**/.jules/cache/**",
+    "**/cache/**",
     "**/.markdownlintignore",
     "**/.next/**",
     "**/.playwright-auth/**",
@@ -43,8 +43,6 @@
   ],
   "geminiignore": [
     "!**/.env",
-    "!**/.gemini/**",
-    "!**/.geminiignore",
     "!**/.git/**",
     "!**/index/**",
     "!**/mcp.json",
@@ -60,8 +58,7 @@
     ".secrets",
     "**/.jules/**",
     "act_output.log",
-    "gha-creds-*.json",
-    "**/.gemini/**"
+    "gha-creds-*.json"
   ],
   "linters": {
     "eslint": [],
@@ -72,23 +69,14 @@
   },
   "vscode": {
     "files.exclude": {
-      "**/.antigravityignore": true,
       "**/.DS_Store": true,
-      "**/.eslintcache": true,
-      "**/.gemini/[!s]*": true,
-      "**/.gemini/s[!e]*": true,
-      "**/.geminiignore": true,
-      "**/.gitignore": true,
       "**/.playwright-auth/**": true,
       "**/bun.lockb": true,
       "**/node_modules/**": true,
       "**/pnpm-lock.yaml": true,
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
-      "/.env": false,
-      ".gemini": true,
-      ".jules": true,
-      ".github": true
+      "/.env": false
     }
   }
 }

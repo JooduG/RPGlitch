@@ -1,5 +1,6 @@
 ---
-name: jules
+name: jules-fleet
+
 description: Orchestrates large-scale technical operations via the Jules extension. Use for project-wide refactoring, dependency upgrades, or fleet-level audits.
 persona:
   name: Sovereign Fleet Master

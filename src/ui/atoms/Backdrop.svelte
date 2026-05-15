@@ -13,6 +13,7 @@
     // State
     is_blurred = true,
     busy = false,
+    is_pass_through = false,
 
     // Design
     z_index = "var(--overlay-z-index)",
@@ -39,6 +40,7 @@
   class="root {className}"
   class:is-blurred={is_blurred}
   class:is-busy={busy}
+  class:is-pass-through={is_pass_through}
   style:z-index={z_index}
   transition:fade={{ duration }}
   use:use_actions={actions}
@@ -69,6 +71,15 @@
     cursor: pointer;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+    pointer-events: auto;
+  }
+
+  .root.is-pass-through {
+    pointer-events: none;
+  }
+
+  /* Children must re-enable pointer events if backdrop is pass-through */
+  .root.is-pass-through > :global(*) {
     pointer-events: auto;
   }
 
