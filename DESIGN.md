@@ -358,6 +358,15 @@ The interface is a high-end research terminal in a frozen facility.
 - **The Atmosphere**: Abyssal radial gradients, atmospheric noise (3%), and glassmorphic blurs.
 - **The Voice**: Cool, clinical, and precise.
 - **The Palette**: Gunmetal, Chalk, and Frozen tones.
+- **Adjectives**: Minimalist, Focused, Clinical, Abyssal, Frozen, Elegant.
+
+### 🖼️ Imagery Style (Sovereign Directive)
+
+All imagery in the RPGlitch ecosystem must adhere to the following stylistic constraints:
+
+- **Macro/Micro Focus**: Prefer zoomed-in, high-detail shots (e.g., macro photo of ice crystals, zoomed-in texture of natural fabrics).
+- **Color Consistency**: Images should reflect the Abyssal/Nordic palette. If a theme changes, images must be updated to match.
+- **Atmospheric**: Use images that feel quiet and atmospheric, avoiding gaudy or high-action content.
 
 ## 📐 The Chalk Regime (Laws)
 
@@ -376,6 +385,10 @@ Visual hierarchy is governed by the Z-Law. Components detach from the abyssal ba
 ### 4. Auditory Harmony
 
 Sound effects must be clinical and minimalist. Audio is a feedback layer, never an interruption.
+
+### 5. Textual Precision
+
+All interface copy must be clinical and concise. Use UI/UX keywords consistently (e.g., "navigation bar," "call-to-action button"). Avoid flowery language.
 
 ---
 
@@ -410,6 +423,20 @@ Sound effects must be clinical and minimalist. Audio is a feedback layer, never 
 - `.font-mono`: The "JetBrains Mono" font for data and terminal output.
 - `.font-base`: The "Inter" font for standard reading.
 - `.data-output`: Monochromatic, spaced, terminal-style text.
+
+---
+
+## 🖥️ Screen Specifications (Stitch Templates)
+
+Use the following H2/H3 structure for specific screen prompts to ensure the Stitch bridge parses them correctly.
+
+## [Component Name/Screen Title]
+
+### [Element ID / Functional Area]
+
+- **Description**: Semantic description of the element (e.g., "A pill-shaped primary button with whisper-soft shadows").
+- **Intent**: What this element should achieve (e.g., "Directs user to the research log").
+- **Tokens**: Reference specific Chalk Regime tokens.
 
 ---
 

@@ -153,7 +153,6 @@
     /* Layout & Alignment */
     z-index: var(--overlay-peak-z-index);
     display: block;
-    width: var(--columns-4);
     max-width: var(--columns-12);
     margin: 0 auto;
     padding: var(--spacing-2) var(--spacing-4);
