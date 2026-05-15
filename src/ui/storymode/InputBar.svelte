@@ -1,4 +1,6 @@
 <script>
+  import { runtime } from "@/state/runtime.svelte.js";
+  import { themeStore } from "@/theme/palette.svelte.js";
   /**
    * @file InputBar.svelte
    * ⌨️ THE COMMAND CONSOLE
@@ -31,6 +33,11 @@
 
   /** [R5] Auto-disable when engine is busy */
   let is_locked = $derived(disabled || simulationState.phase !== "idle");
+
+  /** The user's signature color for accenting the send button */
+  let signature_color = $derived(
+    themeStore.get_signature_color(runtime.active_user || app.selected_user, "var(--gunmetal)"),
+  );
 
   /**
    * Adjusts the height of the textarea based on its content.
@@ -78,7 +85,12 @@
   }
 </script>
 
-<GlassPill {is_focused} class="root {is_locked ? 'is-disabled' : ''}" data-testid="input-bar">
+<GlassPill
+  {is_focused}
+  class="root {is_locked ? 'is-disabled' : ''}"
+  data-testid="input-bar"
+  style="--signature-color: {signature_color};"
+>
   {#snippet left()}
     <Button
       variant="invisible"
@@ -173,7 +185,7 @@
   }
 
   :global(.is-send:not(:disabled)) {
-    color: var(--signature-color);
+    color: var(--signature-color, var(--gunmetal));
   }
 
   :global(.is-settings) {

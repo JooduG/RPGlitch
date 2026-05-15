@@ -115,22 +115,30 @@ function getCategory(name) {
   return "other";
 }
 
-const cssContent = fs.readFileSync(CSS_PATH, "utf8");
-const root = postcss.parse(cssContent);
-const others = [];
+// Logic to list tokens in 'other' category
+export const listOtherTokens = () => {
+  const cssContent = fs.readFileSync(CSS_PATH, "utf8");
+  const root = postcss.parse(cssContent);
+  const others = [];
 
-root.walkRules((rule) => {
-  if (rule.selector === ":root") {
-    rule.walkDecls((decl) => {
-      if (decl.prop.startsWith("--")) {
-        const name = decl.prop.slice(2);
-        if (getCategory(name) === "other") {
-          others.push(name);
+  root.walkRules((rule) => {
+    if (rule.selector === ":root") {
+      rule.walkDecls((decl) => {
+        if (decl.prop.startsWith("--")) {
+          const name = decl.prop.slice(2);
+          if (getCategory(name) === "other") {
+            others.push(name);
+          }
         }
-      }
-    });
-  }
-});
+      });
+    }
+  });
 
-console.log("Tokens in 'other' category:");
-console.log(JSON.stringify(others, null, 2));
+  return others;
+};
+
+// Main entry
+if (process.argv[1] && process.argv[1].endsWith("audit-other.js")) {
+  console.log("Tokens in 'other' category:");
+  console.log(JSON.stringify(listOtherTokens(), null, 2));
+}

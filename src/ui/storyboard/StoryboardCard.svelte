@@ -33,9 +33,7 @@
   // --- STATE & DERIVATIONS ---
 
   let is_empty = $derived(!entity);
-  let signature_color = $derived(
-    is_empty ? "var(--frisk)" : themeStore.get_signature_color(entity),
-  );
+  let signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
 
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
 </script>
@@ -91,7 +89,7 @@
       >
         <svg viewBox="0 0 24 24" class="icon icon-solid">
           <path
-            d="M12,9A3,3 0 0,0 9,12A3,3 0 0,0 12,15A3,3 0 0,0 15,12A3,3 0 0,0 12,9M12,17A5,5 0 0,1 7,12A5,5 0 0,1 12,7A5,5 0 0,1 17,12A5,5 0 0,1 12,17M12,4.5C7,4.5 2.73,7.61 1,12C2.73,16.39 7,19.5 12,19.5C17,19.5 21.27,16.39 23,12C21.27,7.61 17,4.5 12,4.5Z"
+            d="M20,4H4A2,2 0 0,0 2,6V18A2,2 0 0,0 4,20H20A2,2 0 0,0 22,18V6A2,2 0 0,0 20,4M20,18H4V6H20V18M6,10H12V12H6V10M6,14H12V16H6V14M14,10H18V16H14V10Z"
           />
         </svg>
       </Button>
@@ -134,13 +132,22 @@
   }
 
   .root:hover::after {
-    border-color: var(--signature-color);
-    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color);
+    border-color: var(--signature-color, var(--gunmetal));
+    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color, var(--gunmetal));
   }
 
   /* --- BODY --- */
   .root :global(.body) {
     z-index: var(--surface-z-index);
+    background: var(--signature-color, var(--gunmetal)) !important;
+    transition:
+      filter var(--duration-standard) var(--ease-standard),
+      background var(--duration-standard) var(--ease-standard);
+  }
+
+  .root:hover :global(.body) {
+    background: var(--signature-color, var(--gunmetal)) !important;
+    filter: var(--brightness-glow);
   }
 
   /* --- STATUS (Empty State) --- */
@@ -207,7 +214,7 @@
   .header .primary {
     margin: 0;
     font-family: var(--font-family-heading);
-    color: var(--signature-color);
+    color: var(--signature-color, var(--gunmetal));
     text-shadow: var(--shadow-font);
     font-size: var(--font-size-h4);
     line-height: var(--font-height-short);

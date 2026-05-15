@@ -1,31 +1,38 @@
 # 🛰️ Present (The Dashboard)
 
-## 🚀 Active Mission: Sovereign Design Rebuild
+## 🚀 Active Mission: Storyboard Identity UI Refinement
 
-**Status**: 🔄 In Progress
-**Objective**: Finalize the "Chalk Regime" architecture and remediate all remaining "Heresy" (hardcoded units) in the codebase.
+**Status**: 🔄 Active
+**Objective**: Enhance the Storyboard visual identity with premium clinical icons and precise, high-fidelity glow effects.
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track ID                     | Name                       | Priority | Status    | Objective                                                                          |
-| :--------------------------- | :------------------------- | :------- | :-------- | :--------------------------------------------------------------------------------- |
-| `color-refactor`             | Signature Color Rename     | P0       | ✅ Done   | Rename signature colors in DESIGN.md and sync across codebase.                     |
-| `design-rebuild`             | Sovereign Design Rebuild   | P1       | ✅ Done   | Deconstruct and rebuild DESIGN.md, refactor bridges, and remediate technical debt. |
-| `signature-color-automation` | Signature Color Auto       | P1       | ✅ Done   | Automate palette generation from DESIGN.md foundations.                            |
-| `specialist-standardization` | Specialist Standardization | P1       | ✅ Done   | Move personas to skills and update activation protocols.                           |
-| `profile-rebalance`          | Profile Layout Rebalance   | P2       | 🔄 Active | Stabilize and rebalance the Profile.svelte interface for a clean Nordic layout.    |
+| Track ID                     | Name                   | Priority | Status    | Objective                                                      |
+| :--------------------------- | :--------------------- | :------- | :-------- | :------------------------------------------------------------- |
+| `storyboard-identity-ui`     | Storyboard Identity UI | P0       | 🔄 Active | Replace icons and sharpen entity glows for clinical precision. |
+| `signature-color-decoupling` | Color Decoupling       | P0       | ✅ Done   | Decoupling signature colors from non-entity components.        |
+| `signature-color-hardening`  | Color Hardening        | P0       | ✅ Done   | Hardening ThemeStore to prevent white background anomalies.    |
 
-### 🛠️ Active Checklist (Track: profile-rebalance)
+### 🛠️ Active Checklist (Track: signature-color-decoupling)
 
-- [ ] Phase 1: Audit `Profile.svelte` grid and wing dimensions.
-- [ ] Phase 2: Refactor 12x12 grid positions and "Bolted" architecture.
-- [ ] Phase 3: Final aesthetic polish and verification pass.
+- [x] Phase 1: Component Audit & Remediation
+- [x] Phase 2: Logic Refinement
+- [x] Phase 3: Visual Verification
 
 ## 🧠 Pulse (History)
 
 | Timestamp (ISO 8601) | Task                                         | Skill Invoked          | Outcome   |
 | :------------------- | :------------------------------------------- | :--------------------- | :-------- |
-| 2026-05-14T17:26:00Z | Archive completed tracks                     | legislative + ship     | ✅ Done   |
+| 2026-05-15T02:00:00Z | Complete Storyboard Identity UI Refinement   | design + css           | ✅ Done   |
+| 2026-05-15T01:47:00Z | Refine Title Glow & Fix Card Hover           | css                    | ✅ Done   |
+| 2026-05-15T01:45:00Z | Invert glow in StoryboardDynamicTitle        | css                    | ✅ Done   |
+| 2026-05-15T01:40:00Z | Complete signature-color-decoupling track    | javascript + css       | ✅ Done   |
+| 2026-05-15T01:25:00Z | Complete signature-color-hardening track     | javascript + test      | ✅ Done   |
+| 2026-05-15T01:21:00Z | Initialize signature-color-hardening track   | planning               | ✅ Done   |
+| 2026-05-15T01:16:00Z | Complete profile-rebalance track             | css + quality          | ✅ Done   |
+| 2026-05-15T01:01:00Z | Initialize profile-rebalance track           | planning               | ✅ Done   |
+| 2026-05-15T01:00:00Z | Complete legislative-consolidation track     | legislative + audit    | ✅ Done   |
+| 2026-05-14T17:26:00Z | Archive completed tracks                     | legislative + release  | ✅ Done   |
 | 2026-05-14T17:25:00Z | Complete specialist-standardization track    | legislative + quality  | ✅ Done   |
 | 2026-05-14T17:15:00Z | Resume specialist-standardization track      | legislative + planning | 🔄 Active |
 | 2026-05-14T17:10:00Z | Initialize Track 5 Implementation            | legislative + planning | ✅ Done   |
@@ -42,4 +49,4 @@
 
 ---
 
-> 🎨 Tactics | `planning` | /00-status
+> ⚒️ Operations | `javascript` | /02-implement

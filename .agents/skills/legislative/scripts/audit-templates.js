@@ -2,15 +2,12 @@
  * 🕵️ audit-templates.js
  * The Sovereign Auditor: Ensures all rules and workflows are template-compliant and actionable.
  */
-import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { getTemplateStructure, validateAgainstStructure } from "./template-utils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
-const RULES_DIR = path.join(PROJECT_ROOT, ".agents", "rules");
-const WORKFLOWS_DIR = path.join(PROJECT_ROOT, ".agents", "workflows");
 
 /**
  * Creates a template-driven validation rule for a specific directory and template type.
@@ -42,31 +39,5 @@ const createTemplateRule = (id, type) => ({
   },
 });
 
-export const rule_rules = [createTemplateRule("RULE_TEMPLATE_ALIGNMENT", "RULE")];
-export const workflow_rules = [createTemplateRule("WORKFLOW_TEMPLATE_ALIGNMENT", "WORKFLOW")];
-
-/**
- * Standalone execution
- */
-const runAudit = (dir, rules, type) => {
-  if (!fs.existsSync(dir)) return;
-  const files = fs.readdirSync(dir).filter((f) => f.endsWith(".md") && !f.includes("template"));
-
-  console.log(`\n🔍 AUDITING ${type}S: ${dir}...`);
-  files.forEach((file) => {
-    const filePath = path.join(dir, file);
-    const content = fs.readFileSync(filePath, "utf-8");
-    const result = rules[0].validate(content, filePath);
-    if (!result.valid) {
-      console.log(`❌ ${file}:`);
-      result.errors.forEach((err) => console.log(`  ${err}`));
-    } else {
-      console.log(`✅ ${file} is compliant.`);
-    }
-  });
-};
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  runAudit(RULES_DIR, rule_rules, "RULE");
-  runAudit(WORKFLOWS_DIR, workflow_rules, "WORKFLOW");
-}
+export const ruleRules = [createTemplateRule("RULE_TEMPLATE_ALIGNMENT", "RULE")];
+export const workflowRules = [createTemplateRule("WORKFLOW_TEMPLATE_ALIGNMENT", "WORKFLOW")];

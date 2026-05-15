@@ -10,7 +10,7 @@ skills:
   supabase: .agents/skills/supabase/SKILL.md
   swarm: .agents/skills/swarm/SKILL.md
   design/code:
-    designer: .agents/skills/designer/SKILL.md
+    design: .agents/skills/design/SKILL.md
     css: .agents/skills/css/SKILL.md
     motion: .agents/skills/motion/SKILL.md
     audio: .agents/skills/audio/SKILL.md
@@ -22,12 +22,12 @@ skills:
   development:
     legislative: .agents/skills/legislative/SKILL.md
     find-docs: .agents/skills/find-docs/SKILL.md
-    ship: .agents/skills/ship/SKILL.md
+    release: .agents/skills/release/SKILL.md
     planning: .agents/skills/planning/SKILL.md
     context: .agents/skills/context/SKILL.md
     data: .agents/skills/data/SKILL.md
   QA:
-    quality: .agents/skills/quality/SKILL.md
+    review: .agents/skills/review/SKILL.md
     test: .agents/skills/test/SKILL.md
     devtools: .agents/skills/devtools/SKILL.md
     debug: .agents/skills/debug/SKILL.md
@@ -49,7 +49,7 @@ workflows:
   01-plan: .agents/workflows/conductor/01-plan.md
   02-implement: .agents/workflows/conductor/02-implement.md
   03-review: .agents/workflows/conductor/03-review.md
-  04-ship: .agents/workflows/conductor/04-ship.md
+  04-release: .agents/workflows/conductor/04-release.md
   reminders: .agents/workflows/nudges/
 
 # ⚖️ Core

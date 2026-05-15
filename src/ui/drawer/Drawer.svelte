@@ -110,7 +110,7 @@
         <!-- "Create New" card -->
         <div
           class="card--new glass-sunken interactable"
-          style="--signature-color: var(--frisk);"
+          style="--signature-color: var(--gunmetal);"
           role="button"
           tabindex="0"
           aria-label="Create new entity"
@@ -219,20 +219,13 @@
 
   .card--new .visual {
     flex: 1.5;
-    background: var(--glass-elevated);
+    background: var(--signature-color, var(--gunmetal));
     display: flex;
     align-items: center;
     justify-content: center;
     overflow: hidden;
     position: relative;
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-  }
-
-  /* Strip ProfilePicture's own background so .visual glass-sunken shows through */
-  .card--new .visual :global(.profile-picture),
-  .card--new .visual :global(.placeholder) {
-    background: transparent;
-    background-image: none;
   }
 
   .card--new .info {
@@ -251,7 +244,7 @@
     text-transform: uppercase;
     font-size: var(--font-size-base);
     letter-spacing: var(--font-spacing-loose);
-    color: var(--signature-color);
+    color: var(--signature-color, var(--gunmetal));
     text-align: center;
   }
 
@@ -261,7 +254,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--signature-color);
+    background: var(--signature-color, var(--gunmetal));
     opacity: 0;
     transition: opacity var(--motion-standard);
   }

@@ -9,12 +9,14 @@ This document summarizes key rules and best practices from the Google TypeScript
 
 > [!IMPORTANT]
 > When operating within this repository, local project rules supersede the generic guidelines in this document. In the event of a conflict, the authoritive [rules/](../../../../rules/) are absolute, like in these cases (but not limited to):
+>
 > 1. **Lexical & Workflow**: Naming conventions and process logic defined in [05-intelligence.md](../../../../../.agents/rules/05-intelligence.md) take precedence. (e.g., Use `snake_case` for variables and `kebab-case` for files regardless of generic language standards).
 > 2. **Aesthetics & UI**: Design tokens and visual laws defined in [04-aesthetics.md](../../../../../.agents/rules/04-aesthetics.md) take precedence. Never use raw CSS values (`px`, `#`, `rem`) when tokens are available.
 > 3. **Framework Logic**: If this project uses **Svelte**, all UI and state logic must adhere to [03-infrastructure.md](../../../../../.agents/rules/03-infrastructure.md).
 > 4. **General Precedence**: Any and all information found in [rules/](../../../../rules/) is master above the information found in this file.
 
 ## 1. Language Features
+
 - **Variable Declarations:** Always use `const` or `let`. **`var` is forbidden.** Use `const` by default.
 - **Modules:** Use ES6 modules (`import`/`export`). **Do not use `namespace`.**
 - **Exports:** Use named exports (`export {MyClass};`). **Do not use default exports.**
@@ -28,6 +30,7 @@ This document summarizes key rules and best practices from the Google TypeScript
 - **Type Assertions:** **Avoid type assertions (`x as SomeType`) and non-nullability assertions (`y!`)**. If you must use them, provide a clear justification.
 
 ## 2. Disallowed Features
+
 - **`any` Type:** **Avoid `any`**. Prefer `unknown` or a more specific type.
 - **Wrapper Objects:** Do not instantiate `String`, `Boolean`, or `Number` wrapper classes.
 - **Automatic Semicolon Insertion (ASI):** Do not rely on it. **Explicitly end all statements with a semicolon.**
@@ -35,12 +38,14 @@ This document summarizes key rules and best practices from the Google TypeScript
 - **`eval()` and `Function(...string)`:** Forbidden.
 
 ## 3. Naming
+
 - **`UpperCamelCase`:** For classes, interfaces, types, enums, and decorators.
 - **`lowerCamelCase`:** For variables, parameters, functions, methods, and properties.
 - **`CONSTANT_CASE`:** For global constant values, including enum values.
 - **`_` Prefix/Suffix:** **Do not use `_` as a prefix or suffix** for identifiers, including for private properties.
 
 ## 4. Type System
+
 - **Type Inference:** Rely on type inference for simple, obvious types. Be explicit for complex types.
 - **`undefined` and `null`:** Both are supported. Be consistent within your project.
 - **Optional vs. `|undefined`:** Prefer optional parameters and fields (`?`) over adding `|undefined` to the type.
@@ -48,8 +53,9 @@ This document summarizes key rules and best practices from the Google TypeScript
 - **`{}` Type:** **Do not use `{}`**. Prefer `unknown`, `Record<string, unknown>`, or `object`.
 
 ## 5. Comments and Documentation
+
 - **JSDoc:** Use `/** JSDoc */` for documentation, `//` for implementation comments.
 - **Redundancy:** **Do not declare types in `@param` or `@return` blocks** (e.g., `/** @param {string} user */`). This is redundant in TypeScript.
 - **Add Information:** Comments must add information, not just restate the code.
 
-*Source: [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)*
+_Source: [Google TypeScript Style Guide](https://google.github.io/styleguide/tsguide.html)_

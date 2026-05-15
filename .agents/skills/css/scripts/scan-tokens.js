@@ -32,6 +32,9 @@ function scan(dir) {
   });
 }
 
-console.log("Scanning project for hallucinated tokens...");
-scan(SRC_DIR);
-console.log("Scan complete.");
+// Main entry block for manual token scanning
+if (process.argv[1] && process.argv[1].endsWith("scan-tokens.js")) {
+  console.log("Scanning project for hallucinated tokens...");
+  scan(SRC_DIR);
+  console.log("Scan complete.");
+}

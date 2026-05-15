@@ -1,58 +1,32 @@
-# 🚀 Future (The Muscle)
+# 🚀 FUTURE: Storyboard Identity UI Refinement
 
 ## 🎯 Goal
 
-Standardize all 30 Specialist Skill Manuals (`SKILL.md`) with identity-centric persona headers and ensure full alignment with the Conductor workflow architecture.
+Enhance the Storyboard interface to meet the "Chalk Regime" standards of clinical precision. This involves replacing the legacy "eye" icon with a premium "ID Card" symbol and sharpening entity glow effects to eliminate visual "messiness" (kladdigt).
 
 ## 🔍 Research & Audit
 
-- [x] Audit all `SKILL.md` files for legacy formatting.
-- [x] Map all Personas from `GEMINI.md` to their respective Skills.
+- [x] Identify legacy icon in `StoryboardCard.svelte`.
+- [x] Audit `StoryboardDynamicTitle.svelte` glow intensity.
+- [x] Verify `StoryboardCard` hover background regression.
 
 ## ✅ Verification (TDD)
 
-- [ ] Verify each `SKILL.md` contains the standardized header.
-- [x] Run `npm run verify` to ensure no broken links or protocol violations.
+- [ ] New ID Card icon is visible and correctly colored.
+- [ ] Hover states on StoryboardCards do not cause background transparency.
+- [ ] Dynamic Title glow is sharp (radius < 8px) and restricted to signature text.
 
 ## 🛠️ Tasks
 
-- [x] **Phase 1: Foundation Refactor**
-  - [x] Refactor `GEMINI.md` to prune redundant persona descriptions.
-  - [x] Update `/01-plan.md` and `/02-implement.md` to mandate explicit skill activation.
-- [x] **Phase 2: Individual Skill Standardization (The Rollout)**
-  - [x] `api`
-  - [x] `audio`
-  - [x] `devtools`
-  - [x] `context`
-  - [x] `css`
-  - [x] `data`
-  - [x] `debugging`
-  - [x] `migration`
-  - [x] `designer`
-  - [x] `find-docs`
-  - [x] `git`
-  - [x] `legislative`
-  - [x] `image-generation`
-  - [x] `javascript`
-  - [x] `jules`
-  - [x] `motion`
-  - [x] `performance`
-  - [x] `planning`
-  - [x] `quality`
-  - [x] `security`
-  - [x] `ship`
-  - [x] `simulation`
-  - [x] `provenance`
-  - [x] `supabase-postgres-best-practices`
-  - [x] `svelte`
-  - [x] `swarm`
-  - [x] `test`
-  - [x] `ui`
-  - [x] `executive`
-- [x] **Phase 3: Final Verification & Audit**
-  - [x] Run full project verify.
-  - [x] Handoff to Ship.
+- [ ] **Phase 1: StoryboardCard Overhaul**
+  - [ ] Replace eye icon SVG with ID Card SVG.
+  - [ ] Fix hover background transparency logic.
+- [ ] **Phase 2: Dynamic Title Precision**
+  - [ ] Refine `text-shadow` in `StoryboardDynamicTitle.svelte`.
+  - [ ] Invert glow: Signature colors glow, white text stays sharp.
+- [ ] **Phase 3: Final Polish**
+  - [ ] Verify aesthetic alignment with DESIGN.md Nordic tokens.
 
 ---
 
-> ⚒️ Operations | `incremental-implementation` | /02-implement
+> 🎭 Strategy | `design` | /01-plan

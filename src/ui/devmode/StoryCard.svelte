@@ -33,7 +33,7 @@
   }
 
   let signature_color = $derived(
-    themeStore.get_signature_color({ signature_color: story.signature_color }),
+    themeStore.get_signature_color({ signature_color: story.signature_color }, "var(--gunmetal)"),
   );
 </script>
 

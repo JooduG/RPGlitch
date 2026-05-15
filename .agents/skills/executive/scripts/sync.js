@@ -9,15 +9,14 @@ const ROOT_DIR = process.cwd();
  * Reconciles ignore files based on ignores.master.json.
  */
 
-console.log("\n================================================================================");
-console.log("🎨  ORCHESTRATION: GLOBAL STATE SYNC");
-console.log("================================================================================\n");
-
-// 1. Sync eslint.config.js, .gitignore, .geminiignore, linter ignores, and vscode settings
 /**
- *
+ * Runs the ignore reconciliation process.
  */
-function syncIgnores() {
+export function syncIgnores() {
+  console.log("\n================================================================================");
+  console.log("🎨  ORCHESTRATION: GLOBAL STATE SYNC");
+  console.log("================================================================================\n");
+
   const masterIgnoresPath = path.join(ROOT_DIR, "ignores.master.json");
   if (!fs.existsSync(masterIgnoresPath)) {
     console.error("❌ ignores.master.json not found. Aborting sync.");
@@ -89,8 +88,13 @@ function syncIgnores() {
     fs.writeFileSync(vscodePath, JSON.stringify(settings, null, 2) + "\n");
     console.log("✅ Synced .vscode/settings.json");
   }
+
+  console.log(
+    "\n================================================================================\n",
+  );
 }
 
-syncIgnores();
-
-console.log("\n================================================================================\n");
+// Main entry check
+if (process.argv[1] && process.argv[1].endsWith("sync.js")) {
+  syncIgnores();
+}

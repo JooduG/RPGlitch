@@ -16,7 +16,7 @@
 
   // --- DERIVATIONS ---
   let name = $derived(entity?.name || "Unknown");
-  let signature_color = $derived(themeStore.get_signature_color(entity));
+  let signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
   let a11y_label = $derived(`View Profile: ${name}`);
 </script>
 
@@ -50,7 +50,7 @@
     height: 100%;
     position: relative;
     cursor: pointer;
-    background: var(--glass-sunken);
+    background: var(--entity-color, var(--gunmetal));
     border: none;
     padding: var(--spacing-0);
     display: flex;

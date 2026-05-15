@@ -5,7 +5,6 @@
 import fs from "fs";
 import ignore from "ignore";
 import path from "path";
-import { fileURLToPath } from "url";
 
 const ROOT_DIR = process.cwd();
 const TODO_FILE = path.join(ROOT_DIR, "tasks", "PRESENT.md");
@@ -132,10 +131,9 @@ export function syncBacklog() {
   fs.writeFileSync(TODO_FILE, content);
   console.log(`✅ Synchronized ${found.length} items to tasks/PRESENT.md`);
 }
-
-/**
- * CLI Execution
- */
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  syncBacklog();
+// Main entry check
+if (process.argv[1] && process.argv[1].endsWith("warden-project.js")) {
+  if (process.argv.includes("backlog")) {
+    syncBacklog();
+  }
 }

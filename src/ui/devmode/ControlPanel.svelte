@@ -132,147 +132,221 @@
 <Modal variant="standard" on_close={() => app.toggle_control_panel()} data-testid="control-panel">
   <!-- Top-Level Settings -->
   <header class="header">
-    <Toggle
-      label="CALL MODE"
-      bind:value={settings.call_mode}
-      onchange={() => app.save_settings()}
-    />
-    <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
+    <div class="settings-group">
+      <Toggle
+        label="CALL MODE"
+        bind:value={settings.call_mode}
+        onchange={() => app.save_settings()}
+      />
+      <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
+    </div>
   </header>
 
-  <!-- Contextual Body Blocks -->
-  {#if is_storyboard}
-    <section class="body">
-      <TextField
-        class="text-area"
-        is_edit={true}
-        placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
-        bind:value={prologue}
-      />
-    </section>
-  {/if}
-
-  {#if is_storymode}
-    <section class="actions">
-      <Button
-        label="GHOSTWRITE"
-        variant="primary"
-        size="small"
-        onclick={() => log_action("Ghostwrite")}
-      />
-      <Button label="PHOTO" variant="secondary" size="small" onclick={() => log_action("Photo")} />
-      <Button
-        label="MOCK PROLOGUE"
-        variant="invisible"
-        size="small"
-        onclick={() => run_mock("fractal")}
-      />
-      <Button label="MOCK TURN" variant="invisible" size="small" onclick={() => run_mock("ai")} />
-      <Button
-        label="END STORY"
-        variant="secondary"
-        size="small"
-        onclick={() => log_action("EndStory")}
-      />
-    </section>
-  {/if}
-
-  <!-- Stories Listing -->
-  <section class="body">
-    <h3 class="title">STORIES</h3>
-    {#if story_cache.length > 0}
-      <div class="list scrollbar">
-        {#each story_cache as story (story.id)}
-          <StoryCard {story} onclick={() => load_story(story.id)} />
-        {/each}
-      </div>
-    {:else}
-      <p class="status">No stories found in the archives.</p>
+  <div class="content-body">
+    <!-- Contextual Body Blocks -->
+    {#if is_storyboard}
+      <section class="section">
+        <TextField
+          class="text-area"
+          is_edit={true}
+          placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
+          bind:value={prologue}
+        />
+      </section>
     {/if}
-  </section>
+
+    {#if is_storymode}
+      <section class="section actions">
+        <div class="action-row">
+          <Button
+            label="GHOSTWRITE"
+            variant="primary"
+            size="small"
+            onclick={() => log_action("Ghostwrite")}
+          />
+          <Button
+            label="PHOTO"
+            variant="secondary"
+            size="small"
+            onclick={() => log_action("Photo")}
+          />
+        </div>
+        <div class="action-row secondary">
+          <Button
+            label="MOCK PROLOGUE"
+            variant="invisible"
+            size="small"
+            onclick={() => run_mock("fractal")}
+          />
+          <Button
+            label="MOCK TURN"
+            variant="invisible"
+            size="small"
+            onclick={() => run_mock("ai")}
+          />
+        </div>
+        <div class="action-row danger-zone">
+          <Button
+            label="END STORY"
+            variant="secondary"
+            size="small"
+            onclick={() => log_action("EndStory")}
+          />
+        </div>
+      </section>
+    {/if}
+
+    <!-- Stories Listing -->
+    <section class="section">
+      <h3 class="title">Archive</h3>
+      {#if story_cache.length > 0}
+        <div class="list scrollbar">
+          {#each story_cache as story (story.id)}
+            <StoryCard {story} onclick={() => load_story(story.id)} />
+          {/each}
+        </div>
+      {:else}
+        <p class="status">No stories found in the archives.</p>
+      {/if}
+    </section>
+  </div>
 
   <!-- Dangerous / Admin Actions -->
   <footer class="footer">
-    <div class="admin-settings">
-      <Toggle label="DEVMODE" bind:value={settings.dev_mode} onchange={() => app.save_settings()} />
-      <Toggle
-        label="GRID OVERLAY"
-        bind:value={settings.dev_grid_visible}
-        onchange={() => app.save_settings()}
-      />
+    <div class="admin-bar">
+      <div class="admin-settings">
+        <Toggle
+          label="DEVMODE"
+          bind:value={settings.dev_mode}
+          onchange={() => app.save_settings()}
+        />
+        <Toggle
+          label="GRID"
+          bind:value={settings.dev_grid_visible}
+          onchange={() => app.save_settings()}
+        />
+      </div>
+      <Button
+        variant="danger"
+        size="medium"
+        onclick={() => (is_confirming_reset = true)}
+        title="Wipe Memories"
+      >
+        <svg
+          class="icon-medium icon-outline"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <path d="M3 6h18" />
+          <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
+          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+        </svg>
+      </Button>
     </div>
-    <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)}>
-      <svg class="icon-small icon-outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-        <path d="M3 6h18" />
-        <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-        <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-      </svg>
-    </Button>
   </footer>
 </Modal>
 
 <style>
   .header {
+    padding: var(--padding-standard);
+  }
+
+  .settings-group {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: var(--gap-standard);
-    flex-wrap: wrap;
+    width: 100%;
   }
 
-  .actions {
+  .content-body {
     display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: var(--gap-standard);
+    flex-direction: column;
+    gap: var(--padding-loose);
+    width: 100%;
   }
 
-  .body {
+  .section {
     display: flex;
     flex-direction: column;
     gap: var(--gap-standard);
     width: 100%;
   }
 
+  .actions {
+    align-items: center;
+    gap: var(--gap-loose);
+  }
+
+  .action-row {
+    display: flex;
+    justify-content: center;
+    gap: var(--gap-standard);
+    width: 100%;
+  }
+
+  .action-row.secondary {
+    opacity: var(--opacity-heavy);
+  }
+
+  .action-row.danger-zone {
+    padding-top: var(--padding-tight);
+    border-top: var(--border-whisper);
+    width: 80%;
+  }
+
   .title {
-    padding: var(--padding-standard) var(--spacing-0) var(--spacing-0);
-    color: var(--font-color-base);
-    font-size: var(--font-size-h5);
-    letter-spacing: var(--font-spacing-loose);
-    text-align: center;
+    color: var(--font-color-muted);
+    font-size: var(--font-size-tiny);
+    letter-spacing: var(--font-spacing-wider);
+    text-align: left;
     text-transform: uppercase;
+    padding-bottom: var(--spacing-2);
+    border-bottom: var(--border-whisper);
   }
 
   .list {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-standard);
+    gap: var(--gap-tight);
     max-height: var(--dropdown-max-height);
     overflow-y: auto;
+    padding-right: var(--spacing-1);
   }
 
   .status {
-    padding: var(--spacing-0) var(--padding-standard) var(--padding-tight);
+    padding: var(--padding-standard);
     color: var(--font-color-muted);
     font-size: var(--font-size-small);
     font-style: italic;
     text-align: center;
     margin: var(--spacing-0);
+    background: var(--glass-sunken);
+    border-radius: var(--radius-subtle);
   }
 
   .footer {
+    padding: var(--padding-standard);
+  }
+
+  .admin-bar {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     gap: var(--gap-standard);
-    padding-top: var(--padding-standard);
+    width: 100%;
   }
 
   .admin-settings {
     display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-    gap: var(--gap-standard);
-    width: 100%;
+    gap: var(--gap-loose);
+  }
+
+  .icon-outline {
+    fill: none;
+    stroke: currentcolor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 </style>

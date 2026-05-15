@@ -87,13 +87,13 @@ The `planning` skill operates as the engine for the **Conductor Framework**. It 
 
 Use these triggers to navigate the development lifecycle:
 
-| Trigger           | Purpose                                | Source                                                       |
-| :---------------- | :------------------------------------- | :----------------------------------------------------------- |
-| **/00-status**    | Session Initialization & Monitoring    | [00-status.md](../../workflows/conductor/00-status.md)       |
-| **/01-plan**      | Tactical Planning & Eternal Foundation | [01-plan.md](../../workflows/conductor/01-plan.md)           |
-| **/02-implement** | Incremental Tactical Implementation    | [02-implement.md](../../workflows/conductor/02-implement.md) |
-| **/03-review**    | Quality Gate & Verification            | [03-review.md](../../workflows/conductor/03-review.md)       |
-| **/04-ship**      | Ship & Handoff (Perchance)             | [04-ship.md](../../workflows/conductor/04-ship.md)           |
+| Trigger            | Purpose                                | Source                                                            |
+| :----------------- | :------------------------------------- | :---------------------------------------------------------------- |
+| **/00-status**     | Session Initialization & Monitoring    | [00-status.md](../../workflows/conductor/00-status.md)            |
+| **/01-plan**       | Tactical Planning & Eternal Foundation | [01-plan.md](../../workflows/conductor/01-plan.md)                |
+| **/02-implement**  | Incremental Tactical Implementation    | [02-implement.md](../../workflows/conductor/02-implement.md)      |
+| **/03-review**     | Quality Gate & Verification            | [03-review.md](../../workflows/conductor/03-review.md)            |
+| **/04-releasease** | releaseasep & Handoff (Perchance)      | [04-releasease.md](../../workflows/conductor/relreleaseasehip.md) |
 
 ### 📐 Universal File Resolution Protocol
 
@@ -245,7 +245,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Provide a high-fidelity summary including ISO 8601 timestamp, active vector, and health status.
    - Highlight blockers or unverified increments.
 
-### SOP-13: Ship Synchronization & Deployment
+### SOP-13: releasease Synchronization & Deployment
 
 1. **Commit Audit**:
    - Verify all local changes for the track are captured in atomic commits.
@@ -254,7 +254,7 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Open a Pull Request via `gh pr create --fill`.
    - Link relevant issue IDs via `gh issue list`.
 3. **Deployment & Finalization**:
-   - Trigger Perchance deployment if applicable via the [Ship](../ship/SKILL.md) skill.
+   - Trigger Perchance deployment if applicable via the [release](../release/SKILL.md) skill.
    - Update the **Mission Board** (`tasks/PRESENT.md`) status to `[x]`.
    - Delete the local working branch after remote confirmation.
 

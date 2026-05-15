@@ -63,6 +63,16 @@ describe("ThemeStore Color Generation", () => {
       const result = get_signature(entity);
       expect(result).toMatch(/^var\(--[a-z0-9-]+\)$/);
     });
+    test("never returns non-vibrant or background colors for signatures", () => {
+      const problematic_seeds = ["test9", "test20", "admin", "system"];
+      for (const seed of problematic_seeds) {
+        const color = themeStore.get_deterministic_color(seed);
+        expect(color).not.toBe("var(--pure-white)");
+        expect(color).not.toBe("var(--void-black)");
+        expect(color).not.toBe("var(--chalk)");
+        expect(color).not.toMatch(/background-gradient/);
+      }
+    });
   });
   describe("Edge cases and robustness", () => {
     test.each([
@@ -77,6 +87,9 @@ describe("ThemeStore Color Generation", () => {
       const result = get_signature(input);
       // Falsy values for signature_color, etc., should fall through to deterministic generation.
       expect(result).toMatch(/^var\(--[a-z0-9-]+\)$/);
+    });
+    test("get_signature_label returns safe default for null entity", () => {
+      expect(themeStore.get_signature_label(null)).toBe("Electric Cyan");
     });
   });
 });

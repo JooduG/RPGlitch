@@ -71,9 +71,10 @@
   );
 
   let signature_color = $derived(
-    entity?.signature_color
-      ? themeStore.get_signature_color(entity)
-      : themeStore.get_deterministic_color(character_name || sender),
+    themeStore.get_signature_color(
+      entity,
+      sender === "system" ? "var(--frozen)" : "var(--gunmetal)",
+    ),
   );
 
   let parsed = $derived(parse_message(text));
@@ -230,7 +231,7 @@
       <div class="message-body">
         {#if busy && !text}
           <div class="thinking-wrapper">
-            <TypingIndicator variant="pill" signatureColor={signature_color} />
+            <TypingIndicator variant="pill" {signature_color} />
           </div>
         {:else}
           {#if app.settings.dev_mode}
@@ -267,7 +268,7 @@
 
           {#if busy && !has_display_text}
             <div class="thinking-wrapper">
-              <TypingIndicator variant="pill" signatureColor={signature_color} />
+              <TypingIndicator variant="pill" {signature_color} />
             </div>
           {/if}
         {/if}
@@ -396,7 +397,7 @@
 
   .message-bubble.is-focused .field-header {
     height: var(--spacing-9);
-    background: color-mix(in srgb, var(--signature-color), black 30%);
+    background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     overflow: visible;
@@ -452,7 +453,7 @@
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
-    color: color-mix(in srgb, var(--pure-white), var(--signature-color) 20%);
+    color: color-mix(in srgb, var(--pure-white), var(--signature-color, var(--gunmetal)) 20%);
     transition: all var(--duration-standard);
   }
 
@@ -482,9 +483,9 @@
   .message-content :global(strong),
   .message-content :global(b) {
     font-weight: var(--font-weight-heavy);
-    color: var(--signature-color);
+    color: var(--signature-color, var(--gunmetal));
     text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
-      rgb(from var(--signature-color) r g b / var(--opacity-muted));
+      rgb(from var(--signature-color, var(--gunmetal)) r g b / var(--opacity-muted));
   }
 
   /* High-Vis Narration */

@@ -1,5 +1,5 @@
 ---
-name: quality
+name: review
 description: Conducts multi-axis code review and simplification. Use before merging any change to ensure correctness, readability, and architectural purity.
 persona:
   name: Sovereign Auditor

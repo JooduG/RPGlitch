@@ -27,14 +27,14 @@ To reverse-engineer remote Stitch projects into the local spec:
 
 1. **Fetch**: Use `list_projects` and `get_screen` to pull the target Stitch metadata.
 2. **Translate**: Strip out all Tailwind classes. Convert them into descriptive semantic language ("pill-shaped", "whisper-soft shadows").
-3. **Map**: Align the extracted patterns with the **Designer**'s `CHALK_REGIME` tokens.
+3. **Map**: Align the extracted patterns with the **design**'s `CHALK_REGIME` tokens.
 4. **Write**: Output the final spec to the root `DESIGN.md`.
 
 ## 4. Generation Workflow
 
 When creating a new design specification:
 
-1. **Receive**: Receive the aesthetic truth from the **Designer**'s Persona.
+1. **Receive**: Receive the aesthetic truth from the **design**'s Persona.
 2. **Weave**: Format the spec into strict Markdown with clear H1/H2/H3 hierarchies.
 3. **Ground**: Write the final spec to the root `DESIGN.md`.
 

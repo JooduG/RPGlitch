@@ -1,6 +1,7 @@
 import fs from "fs";
 import path from "path";
 import yaml from "js-yaml";
+import { execSync } from "child_process";
 
 const CSS_PATH = process.env.CSS_PATH || path.join(process.cwd(), "src", "theme", "design.css");
 const DESIGN_MD_PATH = process.env.DESIGN_MD_PATH || path.join(process.cwd(), "DESIGN.md");
@@ -14,6 +15,21 @@ const JS_BRIDGE_PATH =
  * Generates design.css and tokens.js from the Sovereign Source (DESIGN.md).
  * Supports bidirectional synchronization.
  */
+
+/**
+ * Runs the project formatter to ensure generated files are clean.
+ */
+function formatGeneratedFiles() {
+  try {
+    console.log("💅 Formatting generated artifacts...");
+    // Only format the specific paths we touched to avoid project-wide lag
+    execSync(`npx prettier --write "${CSS_PATH}" "${DESIGN_MD_PATH}" "${JS_BRIDGE_PATH}"`, {
+      stdio: "ignore",
+    });
+  } catch {
+    console.warn("⚠️ Warning: Could not run formatter automatically.");
+  }
+}
 
 const CATEGORY_RULES = [
   { id: "depth", patterns: [/^z-index-/, /-z-index$/, /-z$/] },
@@ -350,6 +366,8 @@ function syncToCSS() {
   console.log("✅ Generated src/theme/design.css");
 
   generateJSBridge(data);
+
+  formatGeneratedFiles();
 }
 
 /**
@@ -443,12 +461,15 @@ function syncFromCSS() {
   console.log("✅ Updated DESIGN.md frontmatter.");
 
   generateJSBridge(newData);
+
+  formatGeneratedFiles();
 }
 
+// Main Entry Point
 /**
- * Main Entry Point
+ * Main Entry Point for CLI execution.
  */
-function main() {
+export function main() {
   const args = process.argv.slice(2);
   if (args.includes("--from-css")) {
     syncFromCSS();
@@ -459,4 +480,8 @@ function main() {
   console.log("✨ Synchronization Complete.");
 }
 
-main();
+if (process.argv[1] && process.argv[1].endsWith("sync-tokens.js")) {
+  main();
+}
+
+export { syncToCSS, syncFromCSS };

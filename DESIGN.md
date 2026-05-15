@@ -36,7 +36,7 @@ foundations:
   grid:
     column-units: "12"
     grid-height-max: clamp(25rem, calc(var(--golden-ratio) * 100vw), 100vh)
-    grid-width-max: clamp(50rem, calc(var(--golden-ratio) * 100vh), 1800px)
+    grid-width-max: clamp(50rem, calc(var(--golden-ratio) * 100vh), 100vw)
     grid-width-min: 20rem
     row-units: "12"
   kinetic:
@@ -148,7 +148,7 @@ semantics:
     blur-void: blur(var(--spacing-10))
     blur-whisper: blur(var(--spacing-1))
     brightness-dim: brightness(0.8)
-    brightness-glow: brightness(1.2)
+    brightness-glow: brightness(1.1)
     brightness-muted: brightness(0.3)
     contrast-tension: contrast(1.1)
     saturation-tension: saturate(1.2)
@@ -276,6 +276,7 @@ organisms:
     dev-header-bg-dormant: rgb(from var(--void-black) r g b / var(--opacity-muted))
     dev-header-height-active: var(--spacing-6)
     dev-header-height-dormant: var(--spacing-1)
+    header-signature: var(--signature-color)
     icon-large: var(--spacing-8)
     icon-medium: var(--spacing-5)
     icon-small: var(--spacing-4)

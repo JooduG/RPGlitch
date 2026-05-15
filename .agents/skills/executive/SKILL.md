@@ -26,14 +26,14 @@ Skills are not passive reference documents; they are **active engineering workfl
 
 ## When to Use
 
-- **Positive Triggers**: When a new task arrives, when switching development phases (Define → Plan → Build → Verify → Ship), or when complexity needs to be triaged.
+- **Positive Triggers**: When a new task arrives, when switching development phases (Define → Plan → Build → Verify → release), or when complexity needs to be triaged.
 - **Context Boundaries**: Must be consulted at the start of _every_ session and _every_ major task transition (Rule 01).
 - **EXCLUSIONS**: Do not use this for direct code implementation; use specific domain skills (e.g., `svelte`, `javascript`) instead.
 
 ## How It Works
 
 1. **Task Arrival**: Receive the user request and any metadata.
-2. **Phase Identification**: Map the request to a development phase (Define, Plan, Build, Verify, Ship).
+2. **Phase Identification**: Map the request to a development phase (Define, Plan, Build, Verify, release).
 3. **Complexity Triage**: Determine the tier (Level 1, 2, or 3) and set the active role (Operations, Tactics, Strategy).
 4. **Skill Selection**: Invoke the primary skill for the current phase using the Skill Discovery map.
 5. **Execution Protocol**: Declare the anchor, task, and exit criteria before beginning.
@@ -76,11 +76,11 @@ Use this map to route your current task to the appropriate specialized skill:
 
 - **Planning & Spec**: `planning`, `stitch`.
 - **Engineering**: `svelte`, `javascript`, `simulation`, `provenance`, `performance`, `migration`.
-- **Sensory & Design**: `designer`, `css`, `motion`, `audio`, `image-generation`, `ui`.
+- **Sensory & Design**: `design`, `css`, `motion`, `audio`, `image-generation`, `ui`.
 - **Governance**: `legislative`, `security`, `context`.
 - **Research & Context**: `find-docs`, `data`, `deepwiki`, `firecrawl`.
-- **Verification**: `test`, `devtools`, `debug`, `quality`.
-- **Delivery**: `git`, `ship`.
+- **Verification**: `test`, `devtools`, `debug`, `review`.
+- **Delivery**: `git`, `release`.
 
 ### Complexity Triage
 

@@ -10,7 +10,7 @@
   import Modal from "@atoms/Modal.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { PROFILE_SECTIONS, ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
+  import { PROFILE_SECTIONS } from "@/core/intelligence/entity-fragments.js";
   import { llm_service } from "@core/intelligence/llm-service.js";
   import { prompt_builder } from "@core/intelligence/prompt-builder.js";
   import { normalize } from "@data/content-normaliser.js";
@@ -18,13 +18,12 @@
   import DevWing from "@devmode/DevWing.svelte";
   import AudioWing from "@profile/AudioWing.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
+  import EntityHeader from "./EntityHeader.svelte";
   import VectorArray from "@profile/VectorArray.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
-  import { auto_resize } from "@utils/auto-resize.js";
-  import { fit_text } from "@utils/fit-text.js";
   import { SvelteSet } from "svelte/reactivity";
   import { fly } from "svelte/transition";
 
@@ -56,9 +55,7 @@
 
   // --- DERIVED ---
 
-  const signature_color = $derived(themeStore.get_signature_color(char));
-  const is_name_active = $derived(active_field?.key === "name");
-
+  const signature_color = $derived(themeStore.get_signature_color(char, "var(--gunmetal)"));
   // --- EFFECTS ---
 
   $effect(() => {
@@ -228,57 +225,13 @@
           <ProfilePicture entity={char} />
         </div>
 
-        <!-- ── Header ────────────────────────────────────────── -->
-        <header
-          class="header"
-          class:is-editing={is_editing}
-          class:is-mobile={app.viewport.mobile}
-          class:is-mini={app.viewport.mini}
-          data-testid="profile-header"
-        >
-          {#if is_editing}
-            <h1
-              class="name edit"
-              class:is-active={is_name_active}
-              use:tooltip={{ text: "Edit Entity Name" }}
-              aria-label="Edit Entity Name"
-            >
-              <span
-                contenteditable="true"
-                bind:innerText={char.name}
-                role="textbox"
-                tabindex="0"
-                data-placeholder={ENTITY_FRAGMENTS.name}
-                onfocus={() => (active_field = { key: "name", label: "Entity Name" })}
-              ></span>
-            </h1>
-          {:else}
-            <h1
-              class="name"
-              use:tooltip={{ text: "Entity Name" }}
-              aria-label="Entity Name"
-              use:fit_text={{ minSize: 40 }}
-            >
-              {char.name || ENTITY_FRAGMENTS.name}
-            </h1>
-          {/if}
-
-          {#if is_editing}
-            <textarea
-              class="description edit scrollbar"
-              use:tooltip={{ text: "Edit Entity Description" }}
-              placeholder={ENTITY_FRAGMENTS.description}
-              bind:value={char.description}
-              use:auto_resize
-              aria-label="Edit Entity Description"
-              onfocus={() => (active_field = null)}
-            ></textarea>
-          {:else}
-            <p class="description" data-placeholder={ENTITY_FRAGMENTS.description}>
-              {char.description || ""}
-            </p>
-          {/if}
-        </header>
+        <EntityHeader
+          bind:char
+          {is_editing}
+          bind:active_field
+          signature_color="var(--signature-color)"
+          className="header"
+        />
 
         <!-- ── Body ──────────────────────────────────────────── -->
         <div class="body scrollbar">
@@ -457,34 +410,8 @@
 
   .root {
     display: grid;
-    grid-template-columns:
-      [col-a] 1fr
-      [col-b] 1fr
-      [col-c] 1fr
-      [col-d] 1fr
-      [col-e] 1fr
-      [col-f] 1fr
-      [col-g] 1fr
-      [col-h] 1fr
-      [col-i] 1fr
-      [col-j] 1fr
-      [col-k] 1fr
-      [col-l] 1fr
-      [col-end];
-    grid-template-rows:
-      [row-1] 1fr
-      [row-2] 1fr
-      [row-3] 1fr
-      [row-4] 1fr
-      [row-5] 1fr
-      [row-6] 1fr
-      [row-7] 1fr
-      [row-8] 1fr
-      [row-9] 1fr
-      [row-10] 1fr
-      [row-11] 1fr
-      [row-12] 1fr
-      [row-end];
+    grid-template-columns: repeat(var(--column-units), 1fr);
+    grid-template-rows: repeat(var(--row-units), 1fr);
     width: var(--grid-width);
     height: var(--grid-height);
     margin: auto;
@@ -496,10 +423,11 @@
   /* ── Wings sidebar ─────────────────────────────────────────── */
 
   .wings {
-    grid-column: col-j / col-l; /* Anchor to columns 10-11 */
-    grid-row: row-3 / row-11;
-    width: 100%;
-    height: 100%;
+    position: absolute;
+    left: var(--columns-9);
+    top: var(--rows-2);
+    width: var(--columns-3);
+    height: var(--rows-8);
     opacity: 0;
     pointer-events: none;
     display: flex;
@@ -519,24 +447,20 @@
     overflow-y: auto;
   }
 
-  .root.is-editing .wings {
-    grid-column: col-i / col-l;
-  }
-
   /* ── Card (glassmorphic entity panel) ─────────────────────── */
 
   .card {
-    grid-column: col-d / col-j; /* Bolted position: Centered (3-6-3) */
-    grid-row: row-3 / row-11;
+    position: absolute;
+    left: var(--columns-3);
+    top: var(--rows-2);
+    width: var(--columns-6);
+    height: var(--rows-8);
     pointer-events: auto;
-    width: 100%;
-    height: 100%;
     background: var(--glass-elevated);
     backdrop-filter: var(--glass-elevated-blur);
     border-radius: var(--radius-standard);
     box-shadow: var(--shadow-heavy);
-    position: relative;
-    overflow: hidden;
+    overflow: visible; /* Allow wings to be seen when absolute */
     z-index: var(--overlay-z-index);
 
     /* Internal Bolted Grid */
@@ -545,10 +469,6 @@
     grid-template-rows: [header] auto [body] 1fr [footer] auto;
     gap: 0;
     transition: all var(--duration-standard) var(--ease-standard);
-  }
-
-  .root.is-editing .card {
-    grid-column: col-b / col-h;
   }
 
   /* ── Signature accent bar ──────────────────────────────────── */
@@ -581,103 +501,10 @@
     height: 100%;
     display: flex;
     flex-direction: column;
-    background: transparent;
+    background: var(--signature-color);
     overflow: hidden;
     border-right: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-  }
-
-  /* ── Header ────────────────────────────────────────────────────────── */
-
-  .header {
-    grid-column: 2;
-    grid-row: header;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
-    width: 100%;
-    padding: var(--spacing-4);
-    background: color-mix(
-      in srgb,
-      rgb(from var(--gunmetal) r g b / var(--opacity-ghost)),
-      var(--signature-color) 8%
-    );
-    z-index: var(--surface-z-index);
-    border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-  }
-
-  .name {
-    width: 100%;
-    margin: 0;
-    padding: var(--spacing-1);
-    color: var(--signature-color);
-    font-size: var(--font-size-h3);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: var(--font-spacing-tight);
-    text-shadow: var(--shadow-font);
-    text-align: left;
-    line-height: var(--font-height-short);
-    min-height: calc(var(--spacing-12) * 1.5);
-    outline: none;
-    background: transparent;
-    border: none;
-    display: flex;
-    align-items: center;
-    transition: all var(--duration-standard);
-  }
-
-  .name.edit {
-    cursor: text;
-    caret-color: var(--signature-color);
-  }
-
-  .name.edit span {
-    display: inline-block;
-    min-width: var(--spacing-pixel);
-    outline: none;
-  }
-
-  .name.edit span:empty::before {
-    content: attr(data-placeholder);
-    color: var(--frisk);
-    opacity: var(--opacity-muted);
-    font-style: italic;
-    pointer-events: none;
-  }
-
-  .description {
-    width: 100%;
-    margin: 0;
-    margin-top: var(--spacing-pixel);
-    padding: var(--spacing-1) var(--spacing-2);
-    color: var(--pure-white);
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-base);
-    line-height: var(--font-height-base);
-    opacity: 0.7;
-    white-space: pre-wrap;
-    transition: opacity var(--duration-fast);
-  }
-
-  .description.edit {
-    background: transparent;
-    border: none;
-    outline: none;
-    resize: none;
-    opacity: var(--opacity-heavy);
-  }
-
-  .description.edit:focus {
-    opacity: var(--opacity-solid);
-  }
-
-  .description:empty::before {
-    content: attr(data-placeholder);
-    color: var(--frisk);
-    opacity: var(--opacity-muted);
-    font-style: italic;
   }
 
   /* ── Body column (scrollable container) ───────────────────── */
@@ -689,11 +516,12 @@
     min-height: 0;
     display: flex;
     flex-direction: column;
+    padding: var(--spacing-4);
   }
 
   .content {
     flex: 1;
-    padding: var(--spacing-2) 0;
+    padding: 0;
   }
 
   /* ── Footer ────────────────────────────────────────────────────────── */
@@ -736,8 +564,10 @@
   }
 
   .root.is-mobile .card {
-    grid-column: auto;
-    grid-row: auto;
+    position: relative;
+    left: auto;
+    top: auto;
+    width: 100%;
     flex: 1 0 auto;
     border-radius: 0;
     display: flex;
@@ -747,23 +577,18 @@
 
   .root.is-mobile .avatar-column {
     flex: 0 0 auto;
-    aspect-ratio: var(--aspect-square);
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
     border-radius: 0;
     border-right: none;
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
-  .root.is-mobile .header,
   .root.is-mobile .body,
   .root.is-mobile .footer {
-    grid-column: auto;
-    grid-row: auto;
     width: 100%;
-  }
-
-  .root.is-mobile .header {
-    padding: var(--spacing-4);
   }
 
   .root.is-mobile .body {
@@ -772,8 +597,10 @@
   }
 
   .root.is-mobile .wings {
-    grid-column: auto;
-    grid-row: auto;
+    position: relative;
+    left: auto;
+    top: auto;
+    bottom: auto;
     width: 100%;
     max-height: 40vh;
     padding: var(--spacing-4);
@@ -782,13 +609,7 @@
     pointer-events: auto;
   }
 
-  .root.is-mini .header {
-    padding: var(--spacing-2);
-  }
-
-  .root.is-mini .name {
-    font-size: var(--font-size-h5);
-  }
+  /* Mini scale overrides */
 
   /* --- FRAGMENTS GRID --- */
 

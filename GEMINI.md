@@ -104,17 +104,17 @@ Every operational turn must conclude with a metadata block that signals the acti
 
 Below are the most common skills to be used in this step:
 
-- **[Designer](./.agents/skills/designer/SKILL.md)**
+- **[design](./.agents/skills/design/SKILL.md)**
 - **[Planning](./.agents/skills/planning/SKILL.md)**
 - **[API & Interface Design](./.agents/skills/api-design/SKILL.md)**
 - **[legislative](./.agents/skills/legislative/SKILL.md)**
-- **[Quality](./.agents/skills/quality/SKILL.md)**
-- **[Ship](./.agents/skills/ship/SKILL.md)**
+- **[review](./.agents/skills/review/SKILL.md)**
+- **[release](./.agents/skills/release/SKILL.md)**
 - **[Svelte Specialist](./.agents/skills/svelte/SKILL.md)**
 - **[Find Docs](./.agents/skills/find-docs/SKILL.md)**
 - **[Simulation Orchestration](./.agents/skills/simulation/SKILL.md)**
 
-### ✅ 6. Completeness & Quality Gate
+### ✅ 6. Completeness & review Gate
 
 Ensure that all requirements, constraints, options, and preferences are exhaustively incorporated.
 
@@ -455,23 +455,23 @@ We operate within the **Nordic Collection**.
 
 Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
 
-| **Area**         | **Purpose**                                         | **Related Skills**                                                              |
-| ---------------- | --------------------------------------------------- | ------------------------------------------------------------------------------- |
-| **Strategy**     | Product vision, blueprints, specs.                  | `planning`, `designer`, `find-docs`, `deepwiki`, `data`                         |
-| **Tactics**      | Task breakdown, implementation tracks.              | `planning`, `provenance`, `find-docs`, `deepwiki`, `data`                       |
-| **Research**     | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data`, `planning`              |
-| **Simulation**   | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local), `find-docs`, `deepwiki`, `data`         |
-| **Sensory**      | Vision, **Optics**, Audio, Design.                  | `designer`, `image-generation`, `audio`, `css`, `find-docs`, `deepwiki`, `data` |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`, `find-docs`, `deepwiki`, `data`                |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-ship` ↔ `ship`, `security`                                                 |
-| **Resonance**    | Quality gates, template compliance, health.         | `/03-review` ↔ `quality`, `legislative`                                         |
-| **Reasoning**    | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                                                  |
-| **Reframing**    | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                                                        |
-| **Diversity**    | Trade-offs, simulated expertise.                    | `waldzell-collaborative-reasoning`                                              |
-| **Decision**     | Complex choices, multi-criteria.                    | `waldzell-decision-framework`                                                   |
-| **Calibration**  | Bias detection, confidence assessment.              | `waldzell-metacognitive-monitoring`                                             |
-| **VCS**          | Reverts, branch management, history.                | `/revert` ↔ `git`                                                               |
-| **Verification** | Tests, audits, TDD cycles.                          | `/test` ↔ `test`, `quality`                                                     |
+| **Area**         | **Purpose**                                         | **Related Skills**                                                            |
+| ---------------- | --------------------------------------------------- | ----------------------------------------------------------------------------- |
+| **Strategy**     | Product vision, blueprints, specs.                  | `planning`, `design`, `find-docs`, `deepwiki`, `data`                         |
+| **Tactics**      | Task breakdown, implementation tracks.              | `planning`, `provenance`, `find-docs`, `deepwiki`, `data`                     |
+| **Research**     | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data`, `planning`            |
+| **Simulation**   | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local), `find-docs`, `deepwiki`, `data`       |
+| **Sensory**      | Vision, **Optics**, Audio, Design.                  | `design`, `image-generation`, `audio`, `css`, `find-docs`, `deepwiki`, `data` |
+| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-release` ↔ `release`, `security`, `find-docs`, `deepwiki`, `data`        |
+| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-release` ↔ `release`, `security`                                         |
+| **Resonance**    | review gates, template compliance, health.          | `/03-review` ↔ `review`, `legislative`                                        |
+| **Reasoning**    | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                                                |
+| **Reframing**    | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                                                      |
+| **Diversity**    | Trade-offs, simulated expertise.                    | `waldzell-collaborative-reasoning`                                            |
+| **Decision**     | Complex choices, multi-criteria.                    | `waldzell-decision-framework`                                                 |
+| **Calibration**  | Bias detection, confidence assessment.              | `waldzell-metacognitive-monitoring`                                           |
+| **VCS**          | Reverts, branch management, history.                | `/revert` ↔ `git`                                                             |
+| **Verification** | Tests, audits, TDD cycles.                          | `/test` ↔ `test`, `review`                                                    |
 
 ---
 
@@ -587,8 +587,8 @@ The following sovereign workflows are registered for agentic orchestration withi
 - **[/00-status](./.agents/workflows/conductor/00-status.md)**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
 - **[/01-plan](./.agents/workflows/conductor/01-plan.md)**: Tactical Planning & Specification. Generates track-specific blueprints.
 - **[/02-implement](./.agents/workflows/conductor/02-implement.md)**: Incremental Tactical Implementation. Drives the TDD loop.
-- **[/03-review](./.agents/workflows/conductor/03-review.md)**: Quality Gate & Verification. Reviews completed track work.
-- **[/04-ship](./.agents/workflows/conductor/04-ship.md)**: Ship & Handoff. Hardening and GitHub Deployment.
+- **[/03-review](./.agents/workflows/conductor/03-review.md)**: review Gate & Verification. Reviews completed track work.
+- **[/04-release](./.agents/workflows/conductor/04-release.md)**: release & Handoff. Hardening and GitHub Deployment.
 - **[/revert](./.agents/workflows/utility/revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
 - **[/test](./.agents/workflows/utility/test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
 - **[/classify](./.agents/workflows/utility/classify.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
@@ -714,7 +714,7 @@ We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codeb
 
 ---
 
-#### 3. Quality Assurance
+#### 3. review Assurance
 
 Ensure that no task track gets a `[x]` without a logical audit.
 

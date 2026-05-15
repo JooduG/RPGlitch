@@ -16,7 +16,7 @@ const SCRIPT_PATH = path.join(
   "sync-tokens.js",
 );
 
-describe("Design Token Sync", () => {
+describe("Design Token Sync", { timeout: 15000 }, () => {
   beforeEach(() => {
     if (!fs.existsSync(TEST_DIR)) {
       fs.mkdirSync(TEST_DIR, { recursive: true });

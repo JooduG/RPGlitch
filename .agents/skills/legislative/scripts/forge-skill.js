@@ -94,16 +94,20 @@ const createAsset = async (name, type = "skill", description = "") => {
 /**
  * 🚀 Main Dispatcher
  */
-const args = process.argv.slice(2);
-const command = args[0];
+if (process.argv[1] && process.argv[1].endsWith("forge-skill.js")) {
+  const args = process.argv.slice(2);
+  const command = args[0];
 
-if (command === "create") {
-  if (!args[1]) {
+  if (command === "create") {
+    if (!args[1]) {
+      console.log("Usage: node forge-skill.js create <name> [type] [description]");
+      process.exit(1);
+    }
+    createAsset(args[1], args[2], args[3]);
+  } else {
     console.log("Usage: node forge-skill.js create <name> [type] [description]");
-    process.exit(1);
+    console.log("Types: skill, rule, workflow");
   }
-  createAsset(args[1], args[2], args[3]);
-} else {
-  console.log("Usage: node forge-skill.js create <name> [type] [description]");
-  console.log("Types: skill, rule, workflow");
 }
+
+export { createAsset };

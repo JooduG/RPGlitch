@@ -15,6 +15,16 @@ import { PALETTE as DYNAMIC_PALETTE, PALETTE_VARS as DYNAMIC_PALETTE_VARS } from
 export const PALETTE = DYNAMIC_PALETTE;
 export const PALETTE_VARS = DYNAMIC_PALETTE_VARS;
 
+/**
+ * Filtered registry of vibrant colors suitable for entity signatures.
+ * Excludes backgrounds, neutrals, and non-vibrant utility colors.
+ */
+export const SIGNATURE_COLORS = Object.keys(PALETTE).filter(
+  (key) =>
+    !key.startsWith("Background") &&
+    !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black"].includes(key),
+);
+
 export const IMG_RESOLUTION = "512x768";
 
 export const PROFILE_PICTURE_PLACEHOLDERS = {
@@ -38,14 +48,10 @@ class ThemeStore {
    */
   get_deterministic_color(seed) {
     const final_seed = seed || "default";
-    let hash = 0;
-    for (let i = 0; i < final_seed.length; i++) {
-      hash = final_seed.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    const keys = Object.keys(PALETTE);
-    const hex = /** @type {string} */ (
-      /** @type {any} */ (PALETTE)[keys[Math.abs(hash) % keys.length]]
-    );
+    const hash = this._hash(final_seed);
+    const keys = SIGNATURE_COLORS;
+    const key = keys[Math.abs(hash) % keys.length];
+    const hex = /** @type {string} */ (/** @type {any} */ (PALETTE)[key]);
     return this.resolve_token(hex) || hex;
   }
 
@@ -87,7 +93,7 @@ class ThemeStore {
    * @returns {string}
    */
   get_signature_label(entity) {
-    if (!entity) return "";
+    if (!entity) return "Electric Cyan";
     const color = entity.signature_color;
 
     // 1. If it's already a valid label (UI default), use it
@@ -101,8 +107,8 @@ class ThemeStore {
 
     // 3. Fallback to deterministic label (Seed -> Name)
     const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",");
-    const hash = this._hash(seed || entity?.id || "");
-    const keys = Object.keys(PALETTE).filter((k) => k !== "default");
+    const hash = this._hash(seed || entity?.id || "default");
+    const keys = SIGNATURE_COLORS;
     return keys[Math.abs(hash) % keys.length];
   }
 
@@ -120,30 +126,42 @@ class ThemeStore {
   }
 
   /**
-   * Resolves the actual color value (Hex or Token) for an entity.
-   * @param {any} entity
+   * Resolves the actual color value (Hex or Token) for an entity or raw color string.
+   * @param {any} entity - The entity object or a raw color string/hex.
+   * @param {string} [fallback='var(--gunmetal)'] - Neutral fallback for non-entity contexts.
    * @returns {string}
    */
-  get_signature_color(entity) {
-    if (entity) {
-      const color = entity.signature_color;
-      if (color) {
-        // 1. Check mapped tokens
-        const token = this.resolve_token(color);
-        if (token) return token;
+  get_signature_color(entity, fallback = "var(--gunmetal)") {
+    if (!entity) return fallback;
 
-        // 2. Check named palette keys
-        if (/** @type {any} */ (PALETTE)[color]) {
-          const hex = /** @type {any} */ (PALETTE)[color];
-          return this.resolve_token(hex) || hex;
-        }
-        return color; // Fallback to raw hex
-      }
+    // 1. Resolve potential 'color' string (from raw input or entity property)
+    let color = null;
+    if (typeof entity === "string") {
+      color = entity;
+    } else if (typeof entity === "object" && entity.signature_color) {
+      color = entity.signature_color;
     }
 
-    // Fallback to deterministic color
-    const seed = [entity?.name || "", ...(entity?.tags || [])].filter(Boolean).join(",");
-    return this.get_deterministic_color(seed || entity?.id || "");
+    // 2. If we found a color string, try to resolve it against the palette
+    if (color) {
+      const token = this.resolve_token(color);
+      if (token) return token;
+
+      if (/** @type {any} */ (PALETTE)[color]) {
+        const hex = /** @type {any} */ (PALETTE)[color];
+        return this.resolve_token(hex) || hex;
+      }
+      return color; // Fallback to raw hex or the string itself
+    }
+
+    // 3. Strict guard for non-entities (must have identity if no explicit color)
+    if (typeof entity === "object" && !entity.id && !entity.name) {
+      return fallback;
+    }
+
+    // 4. Fallback to deterministic color for valid entities
+    const seed = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
+    return this.get_deterministic_color(seed || entity.id || "default");
   }
 
   /************************************************************************************

@@ -1,25 +1,27 @@
 /**
  * 🕵️ warden.js
  * The Sovereign Auditor Engine (The Reflex)
+ * Consolidated & Modular Quality Gate
  */
 import fs from "fs";
 import ignore from "ignore";
 import path from "path";
 import { safeStatSync } from "./safe-fs.js";
 
-// 1. Import Domain Rules (Updated Paths)
+// 1. Import Domain Rules
 import { cssRules, themeRules } from "../../css/scripts/audit-css.js";
 import { securityRules } from "../../security/scripts/audit-security.js";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
-import { scan_nomenclature } from "./audit-nomenclature.js";
-import { skill_rules } from "./audit-skills.js";
-import { rule_rules, workflow_rules } from "./audit-templates.js";
+import { nomenclatureRules } from "./audit-nomenclature.js";
+import { skillRules } from "./audit-skills.js";
+import { ruleRules, workflowRules } from "./audit-templates.js";
 import { projectRules } from "./warden-project.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
 const SKILLS_DIR = path.join(ROOT_DIR, ".agents/skills");
 const WORKFLOWS_DIR = path.join(ROOT_DIR, ".agents/workflows");
+const TASKS_DIR = path.join(ROOT_DIR, "tasks");
 
 // Load .gitignore
 const ig = ignore();
@@ -42,30 +44,35 @@ const SEVERITY_LEVELS = {
 };
 
 /**
- * 🕵️ MODULAR AUDITOR ENGINE (The Reflex)
+ * 🕵️ CONSOLIDATED AUDITOR ENGINE (The Reflex)
  */
-class Auditor {
-  /**
-   *
-   */
+export class Auditor {
   constructor() {
     this.results = [];
     this.stats = { scanned: 0, violations: 0 };
-    this.rules = {
+
+    // Standard Rule Buckets
+    this.pathRules = [];
+    this.extRules = {
       ".svelte": svelteRules,
       ".css": cssRules,
       ".js": [...securityRules, ...projectRules],
+      ".ts": [...securityRules],
       ".md": projectRules,
     };
-    this.is_skills_active = true;
-    this.is_rules_active = false; // Rules centralized in GEMINI.md
-    this.is_workflows_active = true;
-    this.is_project_active = true;
-    this.is_names_active = true;
+
+    // Global toggle states (for CLI filtering)
+    this.flags = {
+      names: true,
+      skills: true,
+      rules: false,
+      workflows: true,
+      project: true,
+    };
   }
 
   /**
-   *
+   * Primary entry point for directory scanning
    */
   scan(dir) {
     if (!fs.existsSync(dir)) return;
@@ -80,59 +87,74 @@ class Auditor {
       const stat = safeStatSync(fullPath);
       if (!stat) return;
 
-      if (stat.isDirectory()) {
+      const isDir = stat.isDirectory();
+      this.stats.scanned++;
+
+      // 1. Audit the Path/Nomenclature
+      if (this.flags.names) {
+        nomenclatureRules.forEach((rule) => {
+          if (rule.auditPath && !rule.auditPath(item, isDir, relPath)) {
+            this.reportViolation(rule, fullPath, 0, "[Nomenclature]");
+          }
+        });
+      }
+
+      // 2. Recurse or Audit File Content
+      if (isDir) {
         this.scan(fullPath);
       } else {
-        this.auditFile(fullPath);
+        this.auditFileContent(fullPath);
       }
     });
   }
 
   /**
-   *
+   * Audits file contents using extension-based and specialized rules
    */
-  auditFile(filePath) {
+  auditFileContent(filePath) {
     const ext = path.extname(filePath);
     const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 
-    if (relPath.includes("audit-") || relPath.endsWith("design.css")) return;
+    // Skip self and generated assets
+    if (relPath.includes("audit-") || relPath.endsWith("design.css") || relPath.includes(".bak."))
+      return;
 
-    let rules = [];
+    const rules = [];
 
-    // 1. Skill/Template Rules
-    if (
-      this.is_skills_active &&
-      relPath.startsWith(".agents/skills") &&
-      relPath.endsWith("SKILL.md")
-    ) {
-      rules.push(...skill_rules);
+    // 1. Specialized Template Rules
+    if (this.flags.skills && relPath.startsWith(".agents/skills") && relPath.endsWith("SKILL.md")) {
+      rules.push(...skillRules);
     }
-    if (this.is_rules_active && relPath.startsWith(".agents/rules") && relPath.endsWith(".md")) {
-      rules.push(...rule_rules);
+    if (this.flags.rules && relPath.startsWith(".agents/rules") && relPath.endsWith(".md")) {
+      rules.push(...ruleRules);
     }
     if (
-      this.is_workflows_active &&
+      this.flags.workflows &&
       relPath.startsWith(".agents/workflows") &&
       relPath.endsWith(".md")
     ) {
-      rules.push(...workflow_rules);
+      rules.push(...workflowRules);
     }
 
-    // 2. Extension-based rule matching
-    if (this.rules[ext]) {
-      rules.push(...this.rules[ext]);
+    // 2. Content-based Nomenclature (e.g. no 'var')
+    if (this.flags.names) {
+      rules.push(...nomenclatureRules.filter((r) => r.regex));
+    }
+
+    // 3. Extension-based rule matching
+    if (this.extRules[ext]) {
+      rules.push(...this.extRules[ext]);
     }
 
     if (rules.length === 0) return;
 
-    this.stats.scanned++;
     const content = fs.readFileSync(filePath, "utf-8");
     const lines = content.split("\n");
 
     rules.forEach((rule) => {
-      if (!this.is_project_active && projectRules.includes(rule)) return;
+      if (!this.flags.project && projectRules.includes(rule)) return;
 
-      // 1. Regex Match (Line-by-Line)
+      // Type A: Regex Match (Line-by-Line)
       if (rule.regex) {
         lines.forEach((line, i) => {
           if (rule.regex.test(line)) {
@@ -142,7 +164,7 @@ class Auditor {
         });
       }
 
-      // 2. Global Content Match (File-Wide)
+      // Type B: Global Content Match (File-Wide)
       if (rule.validate && !rule.regex) {
         const result = rule.validate(content, filePath);
         const isValid = typeof result === "object" ? result.valid : result;
@@ -156,7 +178,7 @@ class Auditor {
   }
 
   /**
-   *
+   * Reports a violation to the console and internal results list
    */
   reportViolation(rule, filePath, line, code, errors = []) {
     this.stats.violations++;
@@ -175,7 +197,7 @@ class Auditor {
     console.log(`${sev.color}[${sev.label}] ${relPath}${line ? `:${line}` : ""}${RESET}`);
     console.log(`  ${rule.message}`);
 
-    if (code && code !== "[File Structure]") {
+    if (code && code !== "[File Structure]" && code !== "[Nomenclature]") {
       console.log(`  Code: ${code.substring(0, 100).trim()}`);
     }
 
@@ -186,13 +208,15 @@ class Auditor {
   }
 
   /**
-   *
+   * Prints the audit summary and enforces the gate
    */
   summary() {
-    console.log("------------------------");
-    console.log(`📊 SCAN COMPLETE: ${this.stats.scanned} files verified.`);
+    console.log("--------------------------------------------------------------------------------");
+    console.log(`📊 SCAN COMPLETE: ${this.stats.scanned} items verified.`);
     console.log(`🔥 VIOLATIONS: ${this.stats.violations}`);
-    console.log("------------------------\n");
+    console.log(
+      "--------------------------------------------------------------------------------\n",
+    );
 
     if (this.results.some((r) => r.severity === "HERESY")) {
       console.log(`${RED}❌ REJECTED: Heresy detected in Sovereign logic. Gate closed.${RESET}`);
@@ -207,88 +231,17 @@ class Auditor {
  * 3. CLI Configuration lookup table
  */
 const FILTERS = {
-  "--names": {
-    names: true,
-    skills: false,
-    rules: false,
-    workflows: false,
-    project: false,
-    extRules: {},
-  },
-  "--svelte": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: false,
-    extRules: { ".svelte": svelteRules },
-  },
-  "--css": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: false,
-    extRules: { ".css": cssRules, ".svelte": cssRules },
-  },
-  "--theme": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: false,
-    extRules: { ".css": themeRules, ".svelte": themeRules },
-  },
-  "--security": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: false,
-    extRules: { ".js": securityRules },
-  },
-  "--skills": {
-    names: false,
-    skills: true,
-    rules: false,
-    workflows: false,
-    project: false,
-    extRules: {},
-  },
-  "--rules": {
-    names: false,
-    skills: false,
-    rules: true,
-    workflows: false,
-    project: false,
-    extRules: {},
-  },
-  "--workflows": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: true,
-    project: false,
-    extRules: {},
-  },
-  "--agent": {
-    names: false,
-    skills: true,
-    rules: true,
-    workflows: true,
-    project: false,
-    extRules: {},
-  },
-  "--project": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: false,
-    project: true,
-    extRules: { ".js": projectRules, ".md": projectRules },
-  },
+  "--names": { names: true, skills: false, workflows: false, project: false, extRules: {} },
+  "--svelte": { extRules: { ".svelte": svelteRules } },
+  "--css": { extRules: { ".css": cssRules, ".svelte": cssRules } },
+  "--theme": { extRules: { ".css": themeRules, ".svelte": themeRules } },
+  "--security": { extRules: { ".js": securityRules, ".ts": securityRules } },
+  "--skills": { names: false, skills: true, workflows: false, project: false, extRules: {} },
+  "--rules": { names: false, skills: false, rules: true, workflows: false, project: false },
+  "--workflows": { names: false, skills: false, workflows: true, project: false },
+  "--agent": { names: true, skills: true, rules: true, workflows: true, project: false },
+  "--project": { project: true, extRules: { ".js": projectRules, ".md": projectRules } },
   "--todo": {
-    names: false,
-    skills: false,
-    rules: false,
-    workflows: false,
-    project: false,
     extRules: {
       ".js": securityRules.filter((r) => r.id === "SECURITY_DEBUG_LOG"),
       ".svelte": svelteRules.filter((r) => r.id === "S_RUNE_DEBUG"),
@@ -296,61 +249,48 @@ const FILTERS = {
   },
 };
 
-const auditor = new Auditor();
-const args = process.argv.slice(2);
+/**
+ * Runs the audit CLI.
+ */
+export function runWarden() {
+  const auditor = new Auditor();
+  const args = process.argv.slice(2);
 
-console.log("\n================================================================================");
-console.log("🛡️  WARDEN: QUALITY GATE ENGINE");
-console.log("================================================================================\n");
+  console.log("\n================================================================================");
+  console.log("🛡️  WARDEN: CONSOLIDATED QUALITY GATE");
+  console.log("================================================================================\n");
 
-// Apply Filters if present
-const filterArgs = args.filter((arg) => FILTERS[arg]);
-if (filterArgs.length > 0) {
-  // If filters are provided, start from a clean state
-  auditor.rules = {};
-  auditor.is_skills_active = false;
-  auditor.is_rules_active = false;
-  auditor.is_workflows_active = false;
-  auditor.is_project_active = false;
-  auditor.is_names_active = false;
+  // Apply Filters if present
+  const filterArgs = args.filter((arg) => FILTERS[arg]);
+  if (filterArgs.length > 0) {
+    // Reset defaults if any filter is used
+    auditor.extRules = {};
+    auditor.flags = { names: false, skills: false, rules: false, workflows: false, project: false };
 
-  filterArgs.forEach((arg) => {
-    const f = FILTERS[arg];
-    console.log(`🎯 Filter: ${arg.substring(2).toUpperCase()} Rules Active`);
+    filterArgs.forEach((arg) => {
+      const f = FILTERS[arg];
+      console.log(`🎯 Filter: ${arg.substring(2).toUpperCase()} Active`);
 
-    // Merge Extension Rules
-    if (f.extRules) {
-      for (const [ext, rules] of Object.entries(f.extRules)) {
-        auditor.rules[ext] = [...(auditor.rules[ext] || []), ...rules];
+      if (f.extRules) {
+        for (const [ext, rules] of Object.entries(f.extRules)) {
+          auditor.extRules[ext] = [...(auditor.extRules[ext] || []), ...rules];
+        }
       }
-    }
 
-    // OR Boolean Flags
-    if (f.skills === true) auditor.is_skills_active = true;
-    if (f.rules === true) auditor.is_rules_active = true;
-    if (f.workflows === true) auditor.is_workflows_active = true;
-    if (f.project === true) auditor.is_project_active = true;
-    if (f.names === true) auditor.is_names_active = true;
-  });
-  console.log(""); // Spacing
-}
-
-// Primary Scan Paths
-[SRC_DIR, SKILLS_DIR, WORKFLOWS_DIR, path.join(ROOT_DIR, "tasks")].forEach((dir) =>
-  auditor.scan(dir),
-);
-
-// Nomenclature Scan
-if (auditor.is_names_active) {
-  const name_stats = { scanned: 0, violations: 0 };
-  [SRC_DIR, SKILLS_DIR, WORKFLOWS_DIR].forEach((dir) => {
-    scan_nomenclature(dir, name_stats, (id, sev, rel_path, msg) => {
-      auditor.stats.violations++;
-      const s = SEVERITY_LEVELS[sev] || SEVERITY_LEVELS.DEBT;
-      console.log(`${s.color}[${s.label}] ${rel_path}${RESET}\n  [${id}] ${msg}\n`);
+      Object.keys(auditor.flags).forEach((key) => {
+        if (f[key] !== undefined) auditor.flags[key] = f[key];
+      });
     });
-  });
-  auditor.stats.scanned += name_stats.scanned;
+    console.log("");
+  }
+
+  // Primary Scan Paths
+  [SRC_DIR, SKILLS_DIR, WORKFLOWS_DIR, TASKS_DIR].forEach((dir) => auditor.scan(dir));
+
+  auditor.summary();
 }
 
-auditor.summary();
+// Main entry check
+if (process.argv[1] && process.argv[1].endsWith("warden.js")) {
+  runWarden();
+}

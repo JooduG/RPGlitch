@@ -26,8 +26,8 @@ The `git-workflow-and-versioning` skill manages the lifecycle of code changes in
 
 ## When to Use
 
-- **Positive Triggers**: Making any code change, initializing a feature branch, resolving merge conflicts, or performing repository maintenance via the GitHub CLI (`gh`). Triggered by the `/04-ship` and `/revert` workflows.
-- **Ship Triggers**: Preparing a production build or stabilizing a version branch via `/04-ship`.
+- **Positive Triggers**: Making any code change, initializing a feature branch, resolving merge conflicts, or performing repository maintenance via the GitHub CLI (`gh`). Triggered by the `/04-release` and `/revert` workflows.
+- **release Triggers**: Preparing a production build or stabilizing a version branch via `/04-release`.
 - **EXCLUSIONS**: Do not use for local-only scratch scripts; handle those via the `tmp/` directory as defined in the `legislative` skill.
 
 ## How It Works

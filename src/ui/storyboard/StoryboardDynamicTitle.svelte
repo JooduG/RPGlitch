@@ -38,7 +38,7 @@
   // DERIVED DATA
   // ============================================
   /** @param {any} entity */
-  const get_color = (entity) => themeStore.get_signature_color(entity);
+  const get_color = (entity) => themeStore.get_signature_color(entity, "var(--gunmetal)");
 
   /**
    * Generates structured title parts with entity colors
@@ -162,7 +162,6 @@
     text-wrap: balance;
     max-width: var(--columns-10);
     margin-inline: var(--spacing-0);
-    text-shadow: var(--title-shadow-ambient);
     display: block;
     text-align: center;
   }
@@ -181,7 +180,11 @@
   .entity {
     font-weight: inherit;
     color: var(--entity-color);
-    text-shadow: var(--shadow-font);
+    text-shadow:
+      var(--shadow-font),
+      0 0 var(--spacing-1) var(--entity-color),
+      0 0 var(--spacing-pixel) var(--entity-color);
     white-space: nowrap;
+    filter: drop-shadow(0 0 var(--spacing-pixel) var(--entity-color));
   }
 </style>

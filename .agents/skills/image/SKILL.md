@@ -21,7 +21,7 @@ The `image-generation` skill manages the visual library of the RPGlitch Engine. 
 ### Strategic Context
 
 - **Nordic Consistency**: Maintain the subterranean research terminal vibe (Gunmetal, Chalk, Frozen tones).
-- **High-Fidelity Voids**: Never use generic placeholders. Every image must be a final, ship-quality asset.
+- **High-Fidelity Voids**: Never use generic placeholders. Every image must be a final, releasease-quality asset.
 - **Sovereign Registry**: Every asset must be tracked in the `ImageRegistry` to prevent aesthetic drift.
 
 ## When to Use

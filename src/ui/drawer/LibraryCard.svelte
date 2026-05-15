@@ -22,7 +22,7 @@
 
   // --- STATE ---
 
-  let signature_color = $derived(themeStore.get_signature_color(entity));
+  let signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
   let name = $derived(entity?.name || "Untitled");
   const MIN_SIZE_TOKEN = "var(--font-size-nano)";
 
@@ -91,7 +91,7 @@
   /* --- VISUAL (image area) --- */
   .visual {
     flex: 1.5;
-    background: transparent;
+    background: var(--signature-color, var(--gunmetal));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,7 +113,7 @@
   }
 
   .name {
-    color: var(--signature-color);
+    color: var(--signature-color, var(--gunmetal));
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-heavy);
     text-transform: uppercase;
@@ -137,7 +137,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--signature-color);
+    background: var(--signature-color, var(--gunmetal));
     opacity: 0.3;
     transition: opacity var(--motion-standard);
   }

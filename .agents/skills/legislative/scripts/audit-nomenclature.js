@@ -5,18 +5,7 @@ import { fileURLToPath } from "url";
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
 
-// Directories to never descend into
-const SKIP_DIRS = new Set([
-  "node_modules",
-  "dist",
-  ".git",
-  ".svelte-kit",
-  ".vite",
-  "archive",
-  ".antigravityignore",
-]);
-
-const SKIP_PREFIXES = ["@", "$"];
+// Casing Standards & Rule 06 — Modern Standards (No 'var')
 
 /**
  * Rule 05 — Casing Standards & Rule 06 — Modern Standards (No 'var')
@@ -25,7 +14,7 @@ const SKIP_PREFIXES = ["@", "$"];
 const RE_KEBAB = /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/;
 const RE_PASCAL = /^[A-Z][a-zA-Z0-9]+$/;
 const RE_ALL_CAPS = /^[A-Z][A-Z0-9_]*$/;
-const RE_VAR = /\bvar\s+[a-zA-Z_$][a-zA-Z0-9_$]*/g;
+const RE_VAR = /\bvar\s+[a-zA-Z_$][a-zA-Z0-9_$]*/;
 
 const STRIP_SUFFIXES = [
   ".template",
@@ -71,89 +60,51 @@ const findTestSubject = (filename, dir) => {
   return SUBJECT_EXTS.some((se) => fs.existsSync(path.join(dir, subjectStem + se)));
 };
 
-/**
- * 🕵️ Audit Logic
- */
-const checkItem = (name, isDir, relPath, report, parentDir = null) => {
-  if (SKIP_PREFIXES.some((p) => name.startsWith(p))) return;
+export const nomenclatureRules = [
+  {
+    id: "N-LANG-001",
+    severity: "DEBT",
+    message: "Svelte component must be PascalCase.",
+    auditPath: (name, isDir) => {
+      if (isDir || !name.endsWith(".svelte") || name.includes(".template.")) return true;
+      const base = getBase(name);
+      return RE_PASCAL.test(base);
+    },
+  },
+  {
+    id: "N-LANG-002",
+    severity: "DEBT",
+    message: "File must be kebab-case.",
+    auditPath: (name, isDir, relPath) => {
+      if (isDir || name.includes("RPGlitch") || name.startsWith("@") || name.startsWith("$"))
+        return true;
+      if (name.endsWith(".svelte") && !name.includes(".template.")) return true;
+      const base = getBase(name);
+      if (RE_ALL_CAPS.test(base)) return true;
 
-  if (isDir) {
-    if (!RE_KEBAB.test(name) && !RE_ALL_CAPS.test(name)) {
-      report(
-        "N-LANG-003",
-        "DEBT",
-        relPath + "/",
-        `Folder must be kebab-case or All-Caps abbreviation. Got: "${name}"`,
-      );
-    }
-    return;
-  }
+      const parentDir = path.dirname(path.join(PROJECT_ROOT, relPath));
+      if (findTestSubject(name, parentDir)) return true;
 
-  const base = getBase(name);
-  if (SKIP_PREFIXES.some((p) => base.startsWith(p))) return;
-  if (RE_ALL_CAPS.test(base)) return;
+      return RE_KEBAB.test(base);
+    },
+  },
+  {
+    id: "N-LANG-003",
+    severity: "DEBT",
+    message: "Folder must be kebab-case or All-Caps abbreviation.",
+    auditPath: (name, isDir) => {
+      if (!isDir || name.startsWith(".") || name.startsWith("@") || name.startsWith("$"))
+        return true;
+      return RE_KEBAB.test(name) || RE_ALL_CAPS.test(name);
+    },
+  },
+  {
+    id: "N-LANG-VAR",
+    severity: "HERESY",
+    message: "Forbidden usage of 'var' detected.",
+    regex: RE_VAR,
+    validate: (line, filePath) => filePath.match(/\.(js|ts|svelte)$/),
+  },
+];
 
-  if (name.endsWith(".svelte") && !name.includes(".template.")) {
-    if (!RE_PASCAL.test(base)) {
-      report("N-LANG-001", "DEBT", relPath, `Svelte component must be PascalCase. Got: "${base}"`);
-    }
-  } else if (!RE_KEBAB.test(base) && !base.includes("RPGlitch")) {
-    if (parentDir && findTestSubject(name, parentDir)) return;
-    report("N-LANG-002", "DEBT", relPath, `File must be kebab-case. Got: "${base}"`);
-  }
-
-  // Modernity Check (Rule 06): No 'var'
-  if (name.match(/\.(js|ts|svelte)$/)) {
-    const filePath = path.join(parentDir || PROJECT_ROOT, name);
-    try {
-      const content = fs.readFileSync(filePath, "utf-8");
-      const varMatches = content.match(RE_VAR);
-      if (varMatches) {
-        report(
-          "N-LANG-VAR",
-          "HERESY",
-          relPath,
-          `Forbidden usage of 'var' detected: ${varMatches.join(", ")}`,
-        );
-      }
-    } catch {
-      /* skip */
-    }
-  }
-};
-
-export const scan_nomenclature = (dir, stats, report) => {
-  if (!fs.existsSync(dir)) return;
-  const items = fs.readdirSync(dir);
-
-  for (const item of items) {
-    if (item.startsWith(".")) continue;
-    const fullPath = path.join(dir, item);
-    const relPath = path.relative(PROJECT_ROOT, fullPath).replace(/\\/g, "/");
-    const stat = fs.statSync(fullPath);
-
-    stats.scanned++;
-    if (stat.isDirectory()) {
-      if (SKIP_DIRS.has(item)) continue;
-      checkItem(item, true, relPath, report, dir);
-      scan_nomenclature(fullPath, stats, report);
-    } else {
-      checkItem(item, false, relPath, report, dir);
-    }
-  }
-};
-
-// Main entry
-if (process.argv[1] && process.argv[1].endsWith("audit-nomenclature.js")) {
-  const target = process.argv[2] ? path.resolve(process.argv[2]) : path.join(PROJECT_ROOT, "src");
-  const stats = { scanned: 0, violations: 0 };
-
-  console.log("\n🔤 NOMENCLATURE & MODERNITY AUDITOR");
-
-  scan_nomenclature(target, stats, (id, sev, relPath, msg) => {
-    stats.violations++;
-    console.log(`  [${sev}] ${relPath}: ${msg} (${id})`);
-  });
-
-  console.log(`\n📊 SCAN COMPLETE: ${stats.scanned} scanned, ${stats.violations} violations.\n`);
-}
+// Legacy directory walking and standalone execution removed. Logic is now driven by warden.js (The Reflex).

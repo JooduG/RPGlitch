@@ -5,13 +5,17 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { safeStatSync } from "./safe-fs.js";
 import { getTemplateStructure, validateAgainstStructure } from "./template-utils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const SKILLS_DIR = path.join(PROJECT_ROOT, ".agents", "skills");
 
-export const skill_rules = [
+/**
+ * 1. Auditor Rules (for warden.js)
+ */
+export const skillRules = [
   {
     id: "SKILL_TEMPLATE_ALIGNMENT",
     severity: "HERESY",
@@ -74,9 +78,10 @@ const auditSkill = (skillName, silent = false) => {
 
     // 2. Structural Exclusivity
     const allowedSubfolders = ["scripts", "references", "assets", "templates", "rules", "data"];
-    const currentSubfolders = fs
-      .readdirSync(skillPath)
-      .filter((f) => fs.statSync(path.join(skillPath, f)).isDirectory());
+    const currentSubfolders = fs.readdirSync(skillPath).filter((f) => {
+      const stat = safeStatSync(path.join(skillPath, f));
+      return stat && stat.isDirectory();
+    });
 
     currentSubfolders.forEach((dir) => {
       if (!allowedSubfolders.includes(dir) && !dir.startsWith(".")) {
@@ -116,35 +121,9 @@ const auditSkill = (skillName, silent = false) => {
     report.issues.reduce((acc, issue) => acc - issue.deduction, report.score),
   );
 
-  if (!silent) {
-    report.issues.forEach((i) => console.log(`  ${i.sev}: ${i.msg} (-${i.deduction})`));
-    const grade =
-      report.score >= 110 ? "A (Sovereign)" : report.score >= 90 ? "B (Executive)" : "C (Draft)";
-    console.log(`\n🏆 FINAL SCORE: ${report.score}/120 | GRADE: ${grade}`);
-  }
-
   return {
     valid: report.score >= 110,
     errors: report.issues.map((i) => `${i.sev}: ${i.msg} (-${i.deduction})`),
     score: report.score,
   };
 };
-
-// Main execution
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
-  const args = process.argv.slice(2);
-  if (args[0] === "audit") {
-    auditSkill(args[1] || "directives");
-  } else {
-    // Audit all skills
-    const skills = fs
-      .readdirSync(SKILLS_DIR)
-      .filter((f) => fs.statSync(path.join(SKILLS_DIR, f)).isDirectory());
-    let allClean = true;
-    skills.forEach((s) => {
-      const result = auditSkill(s);
-      if (!result.valid) allClean = false;
-    });
-    if (!allClean) process.exit(1);
-  }
-}

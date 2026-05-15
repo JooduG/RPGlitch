@@ -14,9 +14,6 @@
     entity = null,
     placeholder_char = null,
 
-    // State
-    busy = false,
-
     // Design
     class: className = "",
 
@@ -65,9 +62,7 @@
   // 1. Reactive State
   const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
   const media_url = $derived(entity?.profile_picture);
-  const signature_color = $derived(
-    entity ? themeStore.get_signature_color(entity) : "var(--gunmetal)",
-  );
+  const signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
   const initials = $derived(placeholder_char || calculate_initials(name));
 
   // 2. Modifiers
@@ -78,7 +73,6 @@
 <div
   {...rest}
   class="root {className}"
-  class:is-busy={busy}
   style="--signature-color: {signature_color}"
   use:use_actions={actions}
 >
@@ -108,13 +102,6 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-    transition: filter var(--duration-standard) var(--ease-standard);
-  }
-
-  .root.is-busy {
-    filter: var(--brightness-dim) grayscale(var(--opacity-heavy));
-    cursor: wait;
-    pointer-events: none;
   }
 
   .media {
@@ -122,7 +109,6 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    transition: filter var(--duration-standard) var(--ease-standard);
   }
 
   .media.no-bg {
@@ -146,14 +132,6 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background-color: var(--signature-color);
-
-    /* Atmospheric Depth: Radial Vignette */
-    background-image: radial-gradient(
-      circle at center,
-      transparent 0%,
-      rgb(from var(--background-base) r g b / var(--opacity-heavy)) 100%
-    );
   }
 
   /* The Watermark Initials */
