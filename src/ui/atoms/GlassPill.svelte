@@ -68,10 +68,11 @@
     position: relative;
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     gap: var(--spacing-1);
     z-index: var(--surface-z-index);
     pointer-events: auto;
+    width: var(--columns-4);
 
     /* --- Surface --- */
     border-radius: var(--radius-full);

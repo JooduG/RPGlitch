@@ -72,10 +72,11 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    justify-content: space-between;
 
     /* Dimensions grounded in Grid Foundation */
     width: clamp(var(--columns-3), 90vw, var(--modal-width-thin));
-    height: clamp(var(--rows-3), 90vw, var(--modal-height-base));
+    height: clamp(var(--rows-3), auto, var(--modal-height-base));
     padding: var(--padding-standard);
     gap: var(--gap-standard);
     border-radius: var(--radius-standard);
@@ -112,7 +113,7 @@
   .root.preview,
   .root.mini {
     max-width: var(--modal-width-thin);
-    padding: var(--padding-loose) var(--padding-standard) var(--padding-standard);
+    padding: var(--padding-standard);
   }
 
   /* Busy State Logic: Kinetic Grayout */

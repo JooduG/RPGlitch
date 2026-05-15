@@ -17,15 +17,16 @@
 
 ### 🛠️ Active Checklist (Track: storyboard-ux-polish)
 
-- [x] Phase 1: Typography & Utilities (Satisfy coverage + Global Resets)
-- [x] Phase 2: Design Sync & Proximity (Shadows/Legibility)
-- [/] Phase 3: Quality Gate Refinement (Allow 0, 100%)
-- [ ] Phase 4: Final Verification & Hardening+ Final Audit)
+- [x] Phase 1: Typography & Utilities (Satisfy coverage + Global Resets) <!-- { id: 1 } -->
+- [x] Phase 2: Design Sync & Proximity (Shadows/Legibility) <!-- { id: 2 } -->
+- [x] Phase 3: Quality Gate Refinement (Allow 0, 100% in stylelint) <!-- { id: 3 } -->
+- [x] Phase 4: Final Verification & Interaction Pass-through <!-- { id: 4 } -->
 
 ## 🧠 Pulse (History)
 
 | Timestamp (ISO 8601) | Task                                         | Skill Invoked          | Outcome   |
 | :------------------- | :------------------------------------------- | :--------------------- | :-------- |
+| 2026-05-15T14:18:00Z | Remediate DynamicTitle font regression       | css                    | ✅ Done   |
 | 2026-05-15T02:00:00Z | Complete Storyboard Identity UI Refinement   | design + css           | ✅ Done   |
 | 2026-05-15T01:47:00Z | Refine Title Glow & Fix Card Hover           | css                    | ✅ Done   |
 | 2026-05-15T01:45:00Z | Invert glow in StoryboardDynamicTitle        | css                    | ✅ Done   |

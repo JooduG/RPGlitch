@@ -78,16 +78,14 @@
   .header {
     display: flex;
     align-items: center;
-    gap: var(--spacing-3);
-    padding-bottom: var(--spacing-2);
   }
 
   .icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: var(--spacing-8);
-    height: var(--spacing-8);
+    width: var(--icon-small);
+    height: var(--icon-small);
     background: color-mix(in srgb, var(--frozen), transparent 85%);
     color: var(--frozen);
     border-radius: var(--radius-full);
@@ -105,6 +103,7 @@
     color: var(--font-color-base);
     letter-spacing: var(--font-spacing-tight);
     line-height: var(--font-height-short);
+    text-transform: uppercase;
   }
 
   .body {
@@ -114,7 +113,6 @@
 
   .message {
     margin: var(--spacing-0);
-    padding: var(--spacing-2) var(--spacing-0) var(--spacing-6);
     color: var(--font-color-muted);
     font-size: var(--font-size-base);
     line-height: var(--font-height-base);
@@ -124,9 +122,6 @@
   .actions {
     display: flex;
     justify-content: flex-end;
-    gap: var(--spacing-3);
-    margin-top: auto;
-    padding-top: var(--spacing-4);
-    border-top: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
+    gap: var(--gap-standard);
   }
 </style>

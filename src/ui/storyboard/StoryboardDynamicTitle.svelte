@@ -3,7 +3,8 @@
    * @file StoryboardDynamicTitle.svelte
    * THE DYNAMIC NARRATIVE HEADER
    * Logic:
-   * 1. Generates a randomized "cinematic" title based on selected entities.
+   * 1. Generates a randomized "cinematic" title- [x] Phase 3: Quality Gate Refinement (Allow 0, 100%)
+   * - [/] Phase 4: Final Verification & Interaction Pass-through
    * 2. Supports direct editing via contenteditable.
    * 3. Harmonized with Chalk Regime and Chess Grid.
    */
@@ -134,10 +135,8 @@
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
-        <span
-          class="entity text-shadow-bloom"
-          style:--entity-color={part.color}
-          style:--signature-color={part.color}>{part.text}</span
+        <span class="entity text-shadow-bloom" style:--signature-color={part.color}
+          >{part.text}</span
         >
       {:else}
         <span class="prefix text-shadow-outline">{part.text}</span>
@@ -147,37 +146,36 @@
 </h1>
 
 <style>
+  /* Ensure Satisfy loads even if index.html is bypassed */
+  @import "https://fonts.googleapis.com/css2?family=Satisfy&display=swap";
+
   .root {
     /* Layout & Alignment */
+    z-index: var(--overlay-peak-z-index);
     display: block;
-    width: 100%;
+    width: var(--columns-4);
     max-width: var(--columns-12);
     margin: 0 auto;
     padding: var(--spacing-2) var(--spacing-4);
 
     /* Typography */
-    font-family: var(--font-family-cursive);
-    font-size: var(--font-size-h1);
+    font-family: var(--font-family-cursive) !important;
+    font-size: var(--font-size-h2);
     font-weight: var(--font-weight-base);
-    line-height: var(--font-height-short);
+    line-height: var(--font-height-base);
     letter-spacing: var(--font-spacing-tight);
     text-align: center;
     text-wrap: balance;
-    color: var(--pure-white);
-    box-shadow: var(--title-shadow-ambient);
+    color: var(--frisk);
 
     /* Interactive */
     cursor: text;
-    user-select: text;
+    user-select: none;
     pointer-events: none; /* Allow interaction through to cards */
     transition:
       background var(--motion-standard),
       transform var(--motion-standard),
       box-shadow var(--motion-standard);
-
-    /* Positioning */
-    transform: translateY(calc(var(--spacing-12) * -1));
-    z-index: var(--overlay-z-index);
   }
 
   /* Re-enable pointer events for the actual text content */
@@ -201,19 +199,26 @@
   .entity {
     display: inline;
     padding: 0 var(--spacing-1);
-  }
-
-  .text-shadow-outline {
-    text-shadow: 0 0 var(--spacing-4) var(--void-black);
+    white-space: normal; /* Allow wrapping between prefix parts */
   }
 
   .entity {
-    color: var(--entity-color);
+    font-family: var(--font-family-cursive) !important;
+    color: var(--signature-color);
+    white-space: nowrap; /* Prevent breaking names across lines */
+  }
+
+  /* Specialized Shadow Patterns for Storyboard Legibility */
+  .text-shadow-outline {
     text-shadow:
       0 var(--spacing-pixel) var(--spacing-2px) var(--void-black),
-      0 0 var(--spacing-2) var(--entity-color);
+      0 0 var(--spacing-1) var(--void-black);
+  }
 
-    /* Extra Bloom for entities */
-    filter: drop-shadow(0 0 var(--spacing-1) var(--void-black));
+  .text-shadow-bloom {
+    text-shadow:
+      0 var(--spacing-pixel) var(--spacing-2px) var(--void-black),
+      0 0 var(--spacing-2) var(--signature-color),
+      0 0 var(--spacing-4) rgb(from var(--signature-color) r g b / var(--opacity-half));
   }
 </style>

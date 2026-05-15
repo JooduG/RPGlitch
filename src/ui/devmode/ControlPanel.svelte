@@ -149,7 +149,7 @@
         <TextField
           class="text-area"
           is_edit={true}
-          placeholder="(Optional) e.g., 'Start in media res', 'Describe the weather first'"
+          placeholder="Optional Prologue Instructions like 'Start in media res' or 'Describe the weather first'"
           bind:value={prologue}
         />
       </section>
@@ -198,7 +198,6 @@
 
     <!-- Stories Listing -->
     <section class="section">
-      <h3 class="title">Archive</h3>
       {#if story_cache.length > 0}
         <div class="list scrollbar">
           {#each story_cache as story (story.id)}
@@ -206,7 +205,7 @@
           {/each}
         </div>
       {:else}
-        <p class="status">No stories found in the archives.</p>
+        <p class="status">No stories yet..</p>
       {/if}
     </section>
   </div>
@@ -214,7 +213,7 @@
   <!-- Dangerous / Admin Actions -->
   <footer class="footer">
     <div class="admin-bar">
-      <div class="admin-settings">
+      <div class="settings-group">
         <Toggle
           label="DEVMODE"
           bind:value={settings.dev_mode}
@@ -247,23 +246,20 @@
 </Modal>
 
 <style>
-  .header {
-    padding: var(--padding-standard);
-  }
-
   .settings-group {
     display: flex;
+    width: 50%;
     justify-content: space-between;
     align-items: center;
-    gap: var(--gap-standard);
-    width: 100%;
   }
 
   .content-body {
     display: flex;
     flex-direction: column;
-    gap: var(--padding-loose);
+    gap: var(--gap-loose);
     width: 100%;
+    height: 100%;
+    justify-content: center;
   }
 
   .section {
@@ -295,16 +291,6 @@
     width: 80%;
   }
 
-  .title {
-    color: var(--font-color-muted);
-    font-size: var(--font-size-tiny);
-    letter-spacing: var(--font-spacing-wider);
-    text-align: left;
-    text-transform: uppercase;
-    padding-bottom: var(--spacing-2);
-    border-bottom: var(--border-whisper);
-  }
-
   .list {
     display: flex;
     flex-direction: column;
@@ -315,18 +301,16 @@
   }
 
   .status {
-    padding: var(--padding-standard);
     color: var(--font-color-muted);
     font-size: var(--font-size-small);
     font-style: italic;
     text-align: center;
+    align-content: center;
     margin: var(--spacing-0);
     background: var(--glass-sunken);
-    border-radius: var(--radius-subtle);
-  }
-
-  .footer {
-    padding: var(--padding-standard);
+    backdrop-filter: var(--glass-sunken-blur);
+    border-radius: var(--radius-standard);
+    min-height: var(--row);
   }
 
   .admin-bar {
@@ -335,11 +319,6 @@
     align-items: center;
     gap: var(--gap-standard);
     width: 100%;
-  }
-
-  .admin-settings {
-    display: flex;
-    gap: var(--gap-loose);
   }
 
   .icon-outline {

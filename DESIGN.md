@@ -131,24 +131,24 @@ semantics:
     danger-hover-shadow: 0 0 var(--spacing-4) rgb(from var(--crimson-red) r g b / var(--opacity-muted))
     glass-base: rgb(from var(--gunmetal) r g b / var(--opacity-muted))
     glass-base-blur: var(--blur-whisper)
-    glass-elevated: rgb(from var(--frozen) r g b / var(--opacity-ghost))
+    glass-elevated: rgb(from var(--frozen) r g b / var(--opacity-whisper))
     glass-elevated-blur: var(--blur-mist)
     glass-peak: rgb(from var(--pure-white) r g b / var(--opacity-muted))
     glass-peak-blur: var(--blur-void)
     glass-sunken: rgb(from var(--chalk) r g b / var(--opacity-muted))
     glass-sunken-blur: var(--blur-whisper)
     shadow-ambient: var(--shadow-ghost)
-    shadow-focus: var(--shadow-heavy)
-    shadow-font: 0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black)
-    shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px) rgb(from var(--void-black) r g b / var(--opacity-ghost))
+    shadow-focus: 0 0 var(--spacing-4) var(--void-black)
     shadow-heavy: 0 var(--spacing-2) var(--spacing-8) rgb(from var(--void-black) r g b / var(--opacity-muted))
     shadow-light: 0 var(--spacing-1) var(--spacing-3) rgb(from var(--void-black) r g b / var(--opacity-whisper))
+    shadow-font: 0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black)
+    shadow-ghost: 0 var(--spacing-pixel) var(--spacing-2px) rgb(from var(--void-black) r g b / var(--opacity-ghost))
     signature-glow: 0 0 var(--spacing-4) var(--signature-color)
   filters:
     blur-mist: blur(var(--spacing-4))
     blur-void: blur(var(--spacing-10))
     blur-whisper: blur(var(--spacing-1))
-    brightness-dim: brightness(0.8)
+    brightness-dim: brightness(0.9)
     brightness-glow: brightness(1.1)
     brightness-muted: brightness(0.3)
     contrast-tension: contrast(1.1)
@@ -255,7 +255,6 @@ semantics:
     spacing-8: calc(var(--spacing-unit) * 8)
     spacing-9: calc(var(--spacing-unit) * 9)
   typography:
-    font-family-cursive: var(--font-family-cursive)
     font-height-s: var(--font-height-short)
     font-size-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
     font-size-h1: clamp(3rem, 5vw + 2rem, 6rem)
@@ -459,6 +458,7 @@ h6 {
   margin: 0;
   line-height: var(--font-height-short);
   color: var(--pure-white);
+  text-shadow: var(--title-shadow-ambient);
   letter-spacing: var(--font-spacing-tight);
 }
 
@@ -517,10 +517,13 @@ u {
   line-height: inherit;
 }
 
-/* Base text fallback */
-body p,
-body span:not(h1 span, h2 span, h3 span, h4 span, h5 span, h6 span),
-body label {
+/* Base text fallback ONLY for top-level or specific containers */
+body > p,
+body > label,
+main p,
+main label,
+section p,
+section label {
   font-family: var(--font-family-base);
 }
 
@@ -652,6 +655,27 @@ select:focus {
 
 .font-base {
   font-family: var(--font-family-base) !important;
+}
+
+/* --- TEXT SHADOW UTILITIES --- */
+
+.text-shadow-outline {
+  text-shadow:
+    var(--spacing-2px) var(--spacing-2px) 0 var(--void-black),
+    calc(var(--spacing-2px) * -1) var(--spacing-2px) 0 var(--void-black),
+    var(--spacing-2px) calc(var(--spacing-2px) * -1) 0 var(--void-black),
+    calc(var(--spacing-2px) * -1) calc(var(--spacing-2px) * -1) 0 var(--void-black),
+    0 0 var(--spacing-4) var(--void-black);
+}
+
+.text-shadow-bloom {
+  text-shadow:
+    var(--spacing-2px) var(--spacing-2px) 0 var(--void-black),
+    calc(var(--spacing-2px) * -1) var(--spacing-2px) 0 var(--void-black),
+    var(--spacing-2px) calc(var(--spacing-2px) * -1) 0 var(--void-black),
+    calc(var(--spacing-2px) * -1) calc(var(--spacing-2px) * -1) 0 var(--void-black),
+    0 0 var(--spacing-2) var(--signature-color),
+    0 0 var(--spacing-6) rgb(from var(--signature-color) r g b / var(--opacity-half));
 }
 
 /* --- ICONS --- */

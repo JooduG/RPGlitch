@@ -1,9 +1,0 @@
-.test {
-  padding: 0;
-  margin: 100%;
-  left: 0%;
-  border: 1px solid var(--neon-pink);
-  text-shadow:
-    0 0 0 var(--void-black),
-    0 0 0 var(--void-black);
-}
