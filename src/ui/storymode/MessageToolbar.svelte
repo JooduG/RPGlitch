@@ -163,7 +163,7 @@
   .toolbar-actions {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
   }
 
   :global(.toolbar-btn) {
@@ -212,8 +212,8 @@
   .toolbar-footer {
     display: flex;
     justify-content: center;
-    padding-bottom: var(--spacing-2);
-    margin-top: var(--spacing-1);
+    padding-bottom: var(--padding-tight);
+    margin-top: var(--margin-nano);
   }
 
   .timestamp-label {

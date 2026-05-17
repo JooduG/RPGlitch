@@ -117,13 +117,20 @@
           <!-- 🏁 FOOTER -->
           <footer class="profile-footer">
             {#if state.is_editing}
+              <Button
+                variant="danger"
+                className="delete-btn"
+                onclick={() => (state.show_delete_confirm = true)}
+              >
+                Deleter
+              </Button>
               <Button variant="invisible" onclick={() => state.cancel()}>Cancel</Button>
               <Button variant="primary" onclick={() => state.save(entity_type)}
-                >Save Protocol</Button
+                >Save</Button
               >
             {:else}
               <Button variant="invisible" onclick={() => (state.is_editing = true)}
-                >Edit Profile</Button
+                >Edit</Button
               >
               <Button variant="primary" onclick={() => state.handle_close()}>Close</Button>
             {/if}
@@ -141,16 +148,6 @@
           {#if state.is_editing}
             <AudioWing profileState={state} />
             <VisualWing profileState={state} />
-
-            <div class="danger-zone">
-              <Button
-                variant="danger"
-                className="delete-btn"
-                onclick={() => (state.show_delete_confirm = true)}
-              >
-                Terminate Entity
-              </Button>
-            </div>
           {/if}
         </aside>
       {/if}
@@ -275,7 +272,7 @@
   .profile-container {
     grid-column: 4 / 10;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     height: 100%;
     overflow-y: auto;
     transition: grid-column var(--motion-standard);
@@ -340,7 +337,30 @@
     border-radius: var(--radius-sharp);
   }
 
-  /* .profile-fragments, .profile-side, and .profile-fields are now in design.css */
+  .profile-fragments {
+    display: grid;
+    grid-template-columns: var(--profile-fragment-column) 1fr;
+    gap: var(--gap-loose);
+    padding: var(--padding-section);
+    min-width: 0;
+  }
+
+  .profile-side {
+    text-align: left;
+    cursor: default;
+    transition: all var(--duration-standard);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .profile-fields {
+    display: grid;
+    gap: var(--gap-loose);
+    min-width: 0;
+    align-items: stretch;
+  }
 
   .label-wrapper {
     display: flex;

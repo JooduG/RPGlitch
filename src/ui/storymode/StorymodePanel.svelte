@@ -52,7 +52,7 @@
     cursor: pointer;
     background: var(--entity-color, var(--gunmetal));
     border: none;
-    padding: var(--spacing-0);
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;

@@ -140,10 +140,10 @@
     flex: 1;
     min-height: var(--dropdown-max-height);
     overflow: hidden auto;
-    padding: var(--padding-standard) var(--spacing-0);
+    padding: var(--padding-standard) 0;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-0);
+    gap: 0;
     scroll-behavior: smooth;
     width: 100%;
   }

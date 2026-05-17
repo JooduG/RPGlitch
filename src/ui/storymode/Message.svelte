@@ -404,7 +404,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-0) var(--padding-standard);
+    padding: 0 var(--padding-standard);
   }
 
   .header-status,
@@ -497,11 +497,11 @@
   }
 
   .message-content :global(p) {
-    margin: var(--spacing-0) var(--spacing-0) var(--margin-message) var(--spacing-0);
+    margin: 0 0 var(--margin-message) 0;
   }
 
   .message-content :global(p:last-child) {
-    margin-bottom: var(--spacing-0);
+    margin-bottom: 0;
   }
 
   .thinking-wrapper {
@@ -539,14 +539,14 @@
   }
 
   .attachments {
-    margin-bottom: var(--spacing-4);
+    margin-bottom: var(--margin-standard);
   }
 
   .message-row :global(.button.attachment-button) {
     padding: var(--padding-nano);
     min-height: 0;
     background: var(--glass-base);
-    margin: 0 0 var(--spacing-2) 0;
+    margin: 0 0 var(--margin-tight) 0;
     width: fit-content;
   }
 

@@ -692,19 +692,19 @@ select:focus {
 /* --- TYPOGRAPHY UTILITIES --- */
 
 .font-cursive {
-  font-family: var(--font-family-cursive) !important;
+  font-family: var(--font-family-cursive);
 }
 
 .font-heading {
-  font-family: var(--font-family-heading) !important;
+  font-family: var(--font-family-heading);
 }
 
 .font-mono {
-  font-family: var(--font-family-mono) !important;
+  font-family: var(--font-family-mono);
 }
 
 .font-base {
-  font-family: var(--font-family-base) !important;
+  font-family: var(--font-family-base);
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
@@ -775,32 +775,5 @@ select:focus {
 
 .no-scrollbar::-webkit-scrollbar {
   display: none;
-}
-
-/* --- PROFILE ORGANISM (T4 Realization) --- */
-
-.profile-fragments {
-  display: grid;
-  grid-template-columns: var(--profile-fragment-column) 1fr;
-  gap: var(--gap-loose);
-  padding: var(--padding-section);
-  min-width: 0;
-}
-
-.profile-side {
-  text-align: left;
-  cursor: default;
-  transition: all var(--duration-standard);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-}
-
-.profile-fields {
-  display: grid;
-  gap: var(--gap-loose);
-  min-width: 0;
-  align-items: stretch;
 }
 ```
