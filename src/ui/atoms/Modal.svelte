@@ -45,7 +45,14 @@
   The Modal content is nested directly within the Backdrop.
   Standardized Nomenclature: .root replaces .base for top-level alignment.
 -->
-<Backdrop onclick={on_close} {z_index} {busy} is_blurred={blur} {is_pass_through}>
+<Backdrop
+  onclick={on_close}
+  {z_index}
+  {busy}
+  is_blurred={blur}
+  {is_pass_through}
+  class="{variant}-backdrop"
+>
   <div
     {...rest}
     class="root glass-elevated {variant} {className}"
@@ -100,7 +107,8 @@
   /* Variant Specifics: Profile (Transparent Passthrough) */
   .root.profile {
     width: fit-content;
-    max-width: var(--grid-width-max);
+    height: 100vh;
+    max-width: none;
     background: transparent;
     backdrop-filter: none;
     border: none;

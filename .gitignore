@@ -37,6 +37,7 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
+**/svelte-devtools/**
 !**/rpglitch-left-panel.txt
 !**/templates/**
 .secrets

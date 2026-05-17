@@ -12,6 +12,8 @@
   let {
     // Data
     entity = null,
+    src = null,
+    alt = null,
     placeholder_char = null,
 
     // Design
@@ -31,7 +33,7 @@
   const calculate_initials = (str) => {
     if (!str) return "?";
     const words = str
-      .replace(/[^\p{L}\s]/gu, "")
+      .replace(/[^\p{L}\s]/gu, " ")
       .trim()
       .split(/\s+/);
     const stop_words = new Set([
@@ -60,8 +62,9 @@
   };
 
   // 1. Reactive State
+  let image_failed = $state(false);
   const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
-  const media_url = $derived(entity?.profile_picture);
+  const media_url = $derived(!image_failed && (src || entity?.profile_picture));
   const signature_color = $derived(themeStore.get_signature_color(entity));
   const initials = $derived(placeholder_char || calculate_initials(name));
 
@@ -76,20 +79,23 @@
   style="--signature-color: {signature_color}"
   use:use_actions={actions}
 >
+  <!-- 🧬 THE BASE: Massive Signature Placeholder -->
+  <div class="profile-placeholder" aria-hidden="true">
+    <div class="profile-initials" use:fit_text={{ minSize: "var(--font-size-nano)" }}>
+      {initials}
+    </div>
+  </div>
+
+  <!-- 🖼️ THE OVERLAY: Actual Media -->
   {#if media_url}
     <img
       src={media_url}
-      alt="{name} Profile"
+      alt={alt || `${name} Profile`}
       class="media"
       class:no-bg={is_no_bg}
       class:flipped={is_flipped}
+      onerror={() => (image_failed = true)}
     />
-  {:else}
-    <div class="status">
-      <div class="initials" use:fit_text={{ minSize: "var(--font-size-nano)" }}>
-        {initials}
-      </div>
-    </div>
   {/if}
 </div>
 
@@ -102,20 +108,24 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
+
+    /* Removed redundant background - placeholder handles depth */
   }
 
   .media {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
+    z-index: var(--z-index-10);
   }
 
   .media.no-bg {
     object-fit: contain;
     filter: drop-shadow(
-      0 var(--spacing-2) var(--spacing-4)
-        rgb(from var(--background-base) r g b / var(--opacity-heavy))
+      0 var(--spacing-2) var(--spacing-4) rgb(from var(--void-black) r g b / var(--opacity-heavy))
     );
   }
 
@@ -124,7 +134,7 @@
   }
 
   /* Placeholder State: Neural Nordic Depth */
-  .status {
+  .profile-placeholder {
     position: absolute;
     inset: 0;
     display: flex;
@@ -132,28 +142,36 @@
     justify-content: center;
     width: 100%;
     height: 100%;
+    background-color: var(--signature-color);
+    background-image: radial-gradient(
+      circle at 40% 40%,
+      transparent 0%,
+      rgb(from var(--void-black) r g b / var(--opacity-moderate)) 160%
+    );
+    z-index: var(--z-index-0);
   }
 
-  /* The Watermark Initials */
-  .initials {
+  /* The Watermark Initials: MASSIVE AESTHETIC */
+  .profile-initials {
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-heavy);
     color: var(--pure-white);
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
-    line-height: var(--font-height-short);
+    line-height: 0.7; /* Massive impact tight tracking */
     letter-spacing: var(--font-spacing-tight);
 
-    /* Punchy "Branded" Aesthetics - Boosted Presence */
-    opacity: var(--opacity-solid);
+    /* ❄️ Nordic Collection Depth */
+    opacity: var(--opacity-heavy);
+    mix-blend-mode: overlay;
 
-    /* Subtle Depth Shadow */
+    /* Subtle depth shimmer */
     filter: drop-shadow(
-      0 0 var(--spacing-8) rgb(from var(--pure-white) r g b / var(--opacity-whisper))
+      0 0 var(--spacing-4) rgb(from var(--pure-white) r g b / var(--opacity-whisper))
     );
 
-    /* Layout Hardening */
+    /* Massive Layout Construction */
     width: 100%;
     height: 100%;
     display: flex;
@@ -161,9 +179,7 @@
     justify-content: center;
     white-space: nowrap;
     text-align: center;
-    padding: 0;
-    font-size: var(
-      --profile-initials-size-base
-    ); /* Large starting size for fit_text to scale down from */
+    padding: var(--spacing-0);
+    font-size: var(--profile-initials-size-base);
   }
 </style>

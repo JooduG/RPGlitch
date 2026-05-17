@@ -65,8 +65,8 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: var(--spacing-4);
-    padding: var(--spacing-1) var(--spacing-0);
+    gap: var(--gap-loose);
+    padding: var(--padding-nano) 0;
 
     /* Interaction */
     cursor: pointer;
@@ -110,8 +110,8 @@
   /* Logic Kernel (Hidden Input) */
   input {
     position: absolute;
-    width: var(--spacing-0);
-    height: var(--spacing-0);
+    width: 0;
+    height: 0;
     opacity: var(--opacity-none);
     pointer-events: none;
   }
@@ -183,13 +183,12 @@
       )
     );
     /* stylelint-enable scss/operator-no-newline-after, scss/operator-no-unspaced */
-    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-1)
-      rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    box-shadow: 0 0 var(--spacing-1) rgb(from var(--pure-white) r g b / var(--opacity-muted));
   }
 
   /* Accessibility Focus */
   input:focus-visible + .track {
-    outline: var(--spacing-pixel) solid var(--frozen);
-    outline-offset: var(--spacing-pixel);
+    outline: var(--border-width-base) solid var(--frozen);
+    outline-offset: var(--border-width-base);
   }
 </style>

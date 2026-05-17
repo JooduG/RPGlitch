@@ -139,6 +139,15 @@
         onchange={() => app.save_settings()}
       />
       <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
+
+      <div class="status-bar">
+        <span class="badge" class:dev={app.env === "DEV"}>
+          ENV: {app.env}
+        </span>
+        <span class="badge" class:busy={app.sim_phase !== "idle"}>
+          SIM: {app.sim_phase.toUpperCase()}
+        </span>
+      </div>
     </div>
   </header>
 
@@ -224,33 +233,33 @@
           bind:value={settings.dev_grid_visible}
           onchange={() => app.save_settings()}
         />
-      </div>
-      <Button
-        variant="danger"
-        size="medium"
-        onclick={() => (is_confirming_reset = true)}
-        title="Wipe Memories"
-      >
-        <svg
-          class="icon-medium icon-outline"
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
+        <Button
+          variant="danger"
+          size="medium"
+          onclick={() => (is_confirming_reset = true)}
+          title="Wipe Memories"
         >
-          <path d="M3 6h18" />
-          <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-        </svg>
-      </Button>
+          <svg
+            class="icon-medium icon-outline"
+            xmlns="http://www.w3.org/2000/svg"
+            viewBox="0 0 24 24"
+          >
+            <path d="M3 6h18" />
+            <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
+            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+          </svg>
+        </Button>
+      </div>
     </div>
   </footer>
 </Modal>
 
 <style>
   .settings-group {
-    display: flex;
-    width: 50%;
-    justify-content: space-between;
+    width: 100%;
     align-items: center;
+    display: flex;
+    justify-content: space-between;
   }
 
   .content-body {
@@ -319,6 +328,45 @@
     align-items: center;
     gap: var(--gap-standard);
     width: 100%;
+  }
+
+  .status-bar {
+    display: flex;
+    gap: var(--spacing-1);
+  }
+
+  .badge {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-nano);
+    padding: var(--spacing-pixel) var(--spacing-1);
+    background: var(--glass-sunken);
+    color: var(--font-color-muted);
+    border: var(--border-whisper);
+    border-radius: var(--radius-subtle);
+    text-transform: uppercase;
+    letter-spacing: var(--font-spacing-loose);
+  }
+
+  .badge.dev {
+    color: var(--electric-cyan);
+    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-muted));
+  }
+
+  .badge.busy {
+    color: var(--pumpkin-amber);
+    border-color: rgb(from var(--pumpkin-amber) r g b / var(--opacity-muted));
+    animation: pulse var(--duration-standard) infinite ease-in-out;
+  }
+
+  @keyframes pulse {
+    0%,
+    100% {
+      opacity: 1;
+    }
+
+    50% {
+      opacity: 0.6;
+    }
   }
 
   .icon-outline {

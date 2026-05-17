@@ -37,4 +37,5 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
+**/svelte-devtools/**
 **/*.svelte

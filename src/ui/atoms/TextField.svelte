@@ -214,9 +214,9 @@
 
   .body {
     width: 100%;
-    min-height: var(--spacing-16);
-    max-height: var(--spacing-60); /* Specific functional limit */
-    padding: var(--spacing-4);
+    min-height: var(--row);
+    max-height: auto; /* Specific functional limit */
+    padding: var(--padding-standard);
     background: transparent;
     border: none;
     outline: none;
@@ -231,6 +231,7 @@
     overflow: hidden auto;
     position: relative;
     z-index: var(--surface-z-index);
+    text-wrap: balance;
   }
 
   .body[data-mode="edit"] {

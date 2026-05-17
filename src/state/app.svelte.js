@@ -110,6 +110,20 @@ export class AppStore {
     return runtime.round;
   }
   /**
+   * Environment detection for UI signaling.
+   * @returns {'DEV' | 'PROD'}
+   */
+  get env() {
+    return import.meta.env.DEV ? "DEV" : "PROD";
+  }
+  /**
+   * Current simulation phase.
+   * @returns {'idle' | 'generating' | 'locked'}
+   */
+  get sim_phase() {
+    return simulationState.phase;
+  }
+  /**
    *
    */
   set round(val) {

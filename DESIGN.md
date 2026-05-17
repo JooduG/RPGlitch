@@ -231,9 +231,24 @@ semantics:
     gap-loose: var(--spacing-4)
     gap-standard: var(--spacing-2)
     gap-tight: var(--spacing-1)
+    gap-nano: var(--spacing-pixel)
+    gap-moderate: var(--spacing-3)
+    gap-section: var(--spacing-12) var(--spacing-6)
     padding-loose: var(--spacing-8)
+    padding-moderate: var(--spacing-3)
     padding-standard: var(--spacing-4)
     padding-tight: var(--spacing-2)
+    padding-nano: var(--spacing-1)
+    padding-header: var(--spacing-10) var(--spacing-6) var(--spacing-6)
+    padding-action: var(--spacing-2) var(--spacing-4)
+    padding-action-small: var(--spacing-1) var(--spacing-3)
+    padding-section: var(--spacing-8) var(--spacing-6)
+    padding-message: var(--spacing-4) var(--spacing-6)
+    padding-message-side: var(--spacing-24)
+    margin-standard: var(--spacing-4)
+    margin-tight: var(--spacing-2)
+    margin-nano: var(--spacing-1)
+    margin-message: var(--spacing-3)
     spacing-0: 0
     spacing-pixel: 1px
     spacing-1: calc(var(--spacing-unit) * 1)
@@ -292,9 +307,16 @@ organisms:
     modal-width-thin: var(--columns-4)
     modal-width-wide: var(--columns-8)
     profile-fragment-column: var(--spacing-24)
-    profile-height: var(--columns-4)
+    profile-height: 100vh
     profile-initials-size-base: var(--spacing-40)
     profile-width: var(--columns-6)
+    profile-left-readonly: var(--columns-3)
+    profile-left-wings: var(--columns-1)
+    profile-wings-left: var(--columns-8)
+    profile-wings-width: var(--columns-3)
+    profile-gap-section: var(--spacing-6)
+    profile-padding-section: var(--spacing-6)
+    profile-padding-header: var(--spacing-8)
     scrollbar-thumb: var(--gunmetal)
     scrollbar-thumb-hover: var(--frisk)
     scrollbar-track: transparent
@@ -720,5 +742,64 @@ select:focus {
 .icon-large {
   width: var(--icon-large);
   height: var(--icon-large);
+}
+
+/* --- SCROLLBAR UTILITIES --- */
+.scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+.scrollbar::-webkit-scrollbar {
+  width: var(--scrollbar-width);
+}
+
+.scrollbar::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+.scrollbar::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+}
+
+.scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* --- PROFILE ORGANISM (T4 Realization) --- */
+
+.profile-fragments {
+  display: grid;
+  grid-template-columns: var(--profile-fragment-column) 1fr;
+  gap: var(--gap-loose);
+  padding: var(--padding-section);
+  min-width: 0;
+}
+
+.profile-side {
+  text-align: left;
+  cursor: default;
+  transition: all var(--duration-standard);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.profile-fields {
+  display: grid;
+  gap: var(--gap-loose);
+  min-width: 0;
+  align-items: stretch;
 }
 ```

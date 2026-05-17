@@ -140,7 +140,7 @@
     flex: 1;
     min-height: var(--dropdown-max-height);
     overflow: hidden auto;
-    padding: var(--spacing-4) var(--spacing-0);
+    padding: var(--padding-standard) var(--spacing-0);
     display: flex;
     flex-direction: column;
     gap: var(--spacing-0);
@@ -153,10 +153,10 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--spacing-12) var(--spacing-6);
+    padding: var(--gap-section);
     text-align: center;
     color: var(--font-color-muted);
-    gap: var(--spacing-4);
+    gap: var(--gap-loose);
     height: 100%;
   }
 

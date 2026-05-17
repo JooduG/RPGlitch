@@ -281,7 +281,7 @@
   .message-row {
     display: flex;
     width: 100%;
-    padding: var(--spacing-4) var(--spacing-24);
+    padding: var(--padding-standard) var(--padding-message-side);
     position: relative;
     transition: all var(--duration-fast);
   }
@@ -297,7 +297,7 @@
   .message-row.fractal-row,
   .message-row.centered-row {
     justify-content: center;
-    padding: var(--spacing-4) var(--spacing-24);
+    padding: var(--padding-standard) var(--padding-message-side);
   }
 
   .message-bubble {
@@ -344,7 +344,7 @@
     inset: var(--spacing-0);
     pointer-events: none;
     border-radius: inherit;
-    padding: var(--spacing-pixel);
+    padding: var(--gap-nano);
     background: linear-gradient(
       to bottom,
       color-mix(in srgb, transparent, var(--signature-color) 40%),
@@ -404,7 +404,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-0) var(--spacing-4);
+    padding: var(--spacing-0) var(--padding-standard);
   }
 
   .header-status,
@@ -424,7 +424,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-4);
+    gap: var(--gap-loose);
     overflow: hidden;
     font-family: var(--font-family-mono);
     text-transform: uppercase;
@@ -448,7 +448,7 @@
   .header-actions {
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
   }
 
   /* Ghost Icon Lighting */
@@ -464,7 +464,7 @@
 
   /* --- BODY LOGIC --- */
   .message-body {
-    padding: var(--spacing-4) var(--spacing-6);
+    padding: var(--padding-message);
     position: relative;
     z-index: var(--surface-z-index);
   }
@@ -497,7 +497,7 @@
   }
 
   .message-content :global(p) {
-    margin: var(--spacing-0) var(--spacing-0) var(--spacing-3) var(--spacing-0);
+    margin: var(--spacing-0) var(--spacing-0) var(--margin-message) var(--spacing-0);
   }
 
   .message-content :global(p:last-child) {
@@ -506,7 +506,7 @@
 
   .thinking-wrapper {
     display: flex;
-    padding: var(--spacing-3) 0;
+    padding: var(--padding-moderate) 0;
   }
 
   /* --- BUSY ANIMATION (The "Something") --- */
@@ -543,7 +543,7 @@
   }
 
   .message-row :global(.button.attachment-button) {
-    padding: var(--spacing-1);
+    padding: var(--padding-nano);
     min-height: 0;
     background: var(--glass-base);
     margin: 0 0 var(--spacing-2) 0;

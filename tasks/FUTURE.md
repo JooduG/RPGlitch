@@ -1,38 +1,25 @@
-# 🚀 FUTURE: Storyboard Identity Refinement & UX Polish
+# 🚀 FUTURE: Profile Grid Layout Implementation
 
 ## 🎯 Goal
 
-Refine the Storyboard UI to ensure 100% Satisfy font coverage in the title, improve legibility via text-shadows, elevate profile interaction z-indexes, and restore global typography utility classes.
-
-## 🔍 Research & Audit
-
-- [x] Audit `design.css` resets for font-family inheritance issues.
-- [x] Verify z-index collisions between `StoryboardDynamicTitle` and `StoryboardCard` profile buttons.
-- [x] Identify missing typography utility classes in `DESIGN.md`.
+Implement a state-aware 12-column grid layout for the Profile modal that adapts its position and width based on whether supplementary "Wings" are active.
 
 ## ✅ Verification (TDD)
 
-- [x] `Satisfy` font is applied to ALL parts of the dynamic title (Prefix & Entities).
-- [x] Profile buttons on Storyboard cards are clickable even when the title field overlaps.
-- [x] Title text remains legible on cards of the same color via shadow/outline.
-- [x] `.font-cursive`, `.font-heading`, `.font-mono` utility classes exist and work.
+- [x] Profile modal occupies columns 4-9 in Readonly mode.
+- [x] Profile modal occupies columns 2-7 when Wings are present (Dev/Edit mode).
+- [x] Wings stack in columns 9-11 when active.
+- [x] Breathing room enforced (Col 1, 8, 12 empty with wings; Col 1-3, 10-12 empty without).
+- [x] Modal fills 100vh and is internally scrollable.
+- [x] Chalk Regime compliance verified (0 Heresy).
 
 ## 🛠️ Tasks
 
-- [x] **Phase 1: Typography & Utilities**
-  - [x] Restore global typography utility classes in `DESIGN.md` (T4).
-  - [x] Fix `span` inheritance for cursive fonts in `design.css` / resets.
-- [x] **Phase 2: Legibility & Z-Index**
-  - [x] Add dark text-shadow to `StoryboardDynamicTitle` for contrast.
-  - [x] Elevate `StoryboardCard` profile action z-index and ensure pointer-events pass through.
-- [x] **Phase 3: Quality Gate Refinement**
-  - [x] Update Stylelint to allow `0`, `0%`, `100%`, `50%`.
-  - [x] Update Warden documentation.
-  - [x] Resolve complex `text-shadow` linting issues.
-- [x] **Phase 4: Interaction Pass-through**
-  - [x] Profile Modal backdrop pass-through.
-  - [x] Storyboard Card hover propagation.
+- [x] **Phase 1: Grid Logic Implementation**
+- [x] **Phase 2: Verticality & Scroll Hardening**
+- [x] **Phase 3: Breathing Space Verification**
+- [x] **Phase 4: Final Audit**
 
 ---
 
-> 🎨 Tactics | `design` | /01-plan
+> ⚒️ Operations | `css` | /02-implement

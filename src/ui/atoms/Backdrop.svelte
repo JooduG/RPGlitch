@@ -98,6 +98,10 @@
     backdrop-filter: var(--blur-mist) saturate(0.4) var(--brightness-dim);
   }
 
+  .root.profile-backdrop {
+    padding: 0;
+  }
+
   /* Busy State Logic: Kinetic Grayout */
   .root.is-busy {
     cursor: wait;

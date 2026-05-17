@@ -51,7 +51,8 @@ export default [
       "**/templates/**",
       "**/test-results/**",
       "**/yarn.lock",
-      "**/tmp/**"
+      "**/tmp/**",
+      "**/svelte-devtools/**"
     ],
     // @agent:ignore-end
   },

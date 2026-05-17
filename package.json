@@ -125,6 +125,7 @@
     "audit:templates": "node .agents/skills/legislative/scripts/warden.js --rules --workflows",
     "audit:warden": "node .agents/skills/legislative/scripts/warden.js",
     "build": "vite build",
+    "build:dev": "vite build --mode development",
     "check": "node .agents/skills/executive/scripts/summarize.js audit:warden lint test",
     "clean": "node .agents/skills/executive/scripts/summarize.js audit:security lint audit:backlog",
     "deploy": "npm run deploy:prepare && npm run deploy:auto",

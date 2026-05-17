@@ -8,7 +8,15 @@
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DataBox from "@devmode/DataBox.svelte";
 
-  let { char = $bindable(), is_editing } = $props();
+  /**
+   * @typedef {Object} Props
+   * @property {import('../profile/profile.svelte.js').ProfileState} profileState - The profile state controller
+   */
+
+  /** @type {Props} */
+  let { profileState } = $props();
+  const char = $derived(profileState.char);
+  const is_editing = $derived(profileState.is_editing);
 
   /**
    * Formats timestamps to a standard Swedish/ISO-adjacent format.

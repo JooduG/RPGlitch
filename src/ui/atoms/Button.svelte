@@ -71,8 +71,8 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-2);
-    padding: var(--spacing-2) var(--spacing-4);
+    gap: var(--gap-standard);
+    padding: var(--padding-action);
     min-height: var(--spacing-12);
     position: relative;
 
@@ -116,7 +116,7 @@
   /* --- Structural Modifiers --- */
   .root.is-small {
     min-height: var(--spacing-8);
-    padding: var(--spacing-1) var(--spacing-3);
+    padding: var(--padding-action-small);
     font-size: var(--font-size-tiny);
   }
 
@@ -176,8 +176,8 @@
 
   /* --- Operational States --- */
   .root:focus-visible {
-    outline: var(--spacing-pixel) solid var(--pure-white);
-    outline-offset: var(--spacing-pixel);
+    outline: var(--border-width-base) solid var(--pure-white);
+    outline-offset: var(--border-width-base);
   }
 
   .root:disabled {

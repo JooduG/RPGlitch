@@ -79,7 +79,7 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
     cursor: pointer;
   }
 
@@ -110,7 +110,7 @@
     font-weight: var(--font-weight-bold);
     transition: color var(--duration-standard) var(--ease-standard);
     user-select: none;
-    margin-bottom: var(--spacing-1);
+    margin-bottom: var(--margin-nano);
   }
 
   /* Hover state for label */
@@ -121,13 +121,13 @@
   input[type="range"] {
     display: block;
     width: 100%;
-    margin: var(--spacing-0);
+    margin: 0;
     height: var(--slider-thumb-size);
     background: transparent;
     appearance: none;
     outline: none;
     border: none;
-    padding: var(--spacing-0);
+    padding: 0;
     overflow: visible;
   }
 
@@ -144,7 +144,7 @@
       rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-end),
       rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
     );
-    box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
+    box-shadow: inset 0 var(--border-width-base) var(--border-width-base)
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-full);
     border: none;

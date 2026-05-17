@@ -12,19 +12,25 @@
   import { Audio } from "@media/audio-engine.svelte.js";
   import { portal } from "@utils/portal.js";
 
-  /** @type {{ char: any, is_editing: boolean }} */
-  let { char = $bindable(), is_editing } = $props();
+  /**
+   * @typedef {Object} Props
+   * @property {import('./profile.svelte.js').ProfileState} profileState - The profile state controller
+   */
+
+  /** @type {Props} */
+  let { profileState } = $props();
 
   // --- INITIALIZATION ---
 
   $effect(() => {
     /** Ensure the voice state object is initialized correctly. */
-    if (!char.voice) {
-      char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
+    if (!profileState.char) return;
+    if (!profileState.char.voice) {
+      profileState.char.voice = { uri: "", rate: 1.0, pitch: 1.0 };
     } else {
-      char.voice.uri ??= "";
-      char.voice.rate ??= 1.0;
-      char.voice.pitch ??= 1.0;
+      profileState.char.voice.uri ??= "";
+      profileState.char.voice.rate ??= 1.0;
+      profileState.char.voice.pitch ??= 1.0;
     }
   });
 
@@ -45,7 +51,9 @@
 
   // --- DERIVED ---
 
-  const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === char.voice.uri));
+  const selected_voice = $derived(
+    Audio.voice.voices.find((v) => v.uri === profileState.char?.voice?.uri),
+  );
   const is_natural = $derived(selected_voice?.name.includes("Natural"));
 
   /**
@@ -129,7 +137,7 @@
   <div class="header" bind:this={anchor_el}>
     <Button
       className="select {show_dropdown ? 'active' : ''}"
-      disabled={!is_editing}
+      disabled={!profileState.is_editing}
       onclick={() => (show_dropdown = !show_dropdown)}
       aria-label="Select Voice"
       aria-haspopup="listbox"
@@ -150,10 +158,10 @@
       {#each Audio.voice.voices as voice (voice.uri)}
         <Button
           role="option"
-          aria-selected={char.voice.uri === voice.uri}
-          className="option {char.voice.uri === voice.uri ? 'active' : ''}"
+          aria-selected={profileState.char?.voice?.uri === voice.uri}
+          className="option {profileState.char?.voice?.uri === voice.uri ? 'active' : ''}"
           onclick={() => {
-            if (is_editing) char.voice.uri = voice.uri;
+            if (profileState.is_editing) profileState.char.voice.uri = voice.uri;
             show_dropdown = false;
           }}
           variant="invisible"
@@ -175,7 +183,12 @@
       aria-label="Preview Voice"
       square
       disabled={!selected_voice}
-      onclick={() => Audio.voice.preview(char.voice.uri, char.voice.rate, char.voice.pitch)}
+      onclick={() =>
+        Audio.voice.preview(
+          profileState.char.voice.uri,
+          profileState.char.voice.rate,
+          profileState.char.voice.pitch,
+        )}
       variant="invisible"
     >
       <svg viewBox="0 0 24 24" class="icon-small">
@@ -192,8 +205,8 @@
       min={0.1}
       max={2.0}
       step={0.1}
-      bind:value={char.voice.rate}
-      disabled={!is_editing || !selected_voice}
+      bind:value={profileState.char.voice.rate}
+      disabled={!profileState.is_editing || !selected_voice}
       label="Rate"
       neutral={1.0}
     />
@@ -201,8 +214,8 @@
       min={0.1}
       max={2.0}
       step={0.1}
-      bind:value={char.voice.pitch}
-      disabled={!is_editing || !selected_voice || is_natural}
+      bind:value={profileState.char.voice.pitch}
+      disabled={!profileState.is_editing || !selected_voice || is_natural}
       label="Pitch"
       neutral={1.0}
     />
@@ -222,8 +235,8 @@
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(from var(--gunmetal) r g b / var(--opacity-base));
-    padding: var(--spacing-4);
-    gap: var(--spacing-4);
+    padding: var(--padding-standard);
+    gap: var(--gap-loose);
   }
 
   /* --- Layout --- */
@@ -232,7 +245,7 @@
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
     width: 100%;
     align-items: center;
   }
@@ -240,7 +253,7 @@
   .body {
     display: flex;
     flex-direction: row;
-    gap: var(--spacing-4);
+    gap: var(--gap-loose);
     width: 100%;
   }
 
@@ -273,7 +286,7 @@
 
   :global(.select) {
     width: 100%;
-    padding: 0 var(--spacing-4);
+    padding: 0 var(--padding-standard);
   }
 
   :global(.preview) {
@@ -321,14 +334,14 @@
 
   :global(.option) {
     width: 100%;
-    padding: var(--spacing-2) var(--spacing-3);
+    padding: var(--padding-tight) var(--padding-moderate);
     background: transparent;
     border: none;
     text-align: left;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
     border-radius: 0;
     min-height: 0;
   }
@@ -352,7 +365,7 @@
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);

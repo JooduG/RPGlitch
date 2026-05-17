@@ -15,10 +15,14 @@
   import { AestheticResolver } from "@media/optics.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS, themeStore } from "@theme/palette.svelte.js";
-  import { get_value, set_value } from "@utils/field-path.js";
 
-  /** @type {{ char: any, is_editing: boolean, busy_fields: Set<string>, active_field: any }} */
-  let { char = $bindable(), is_editing, busy_fields, active_field = $bindable() } = $props();
+  /**
+   * @typedef {Object} Props
+   * @property {import('./profile.svelte.js').ProfileState} profileState - The profile state controller
+   */
+
+  /** @type {Props} */
+  let { profileState } = $props();
 
   // --- CONSTANTS ---
 
@@ -28,12 +32,11 @@
 
   /**
    * Ensures the modifiers object exists with all required fields.
-   * Called bare (for synchronous init) and inside $effect (for reactive re-sync
-   * when `char` is swapped at runtime).
    */
   const sync_modifiers = () => {
-    if (!char.modifiers) {
-      char.modifiers = {
+    if (!profileState.char) return;
+    if (!profileState.char.modifiers) {
+      profileState.char.modifiers = {
         prompt: "",
         no_background: false,
         flipped: false,
@@ -42,11 +45,11 @@
       };
       return;
     }
-    char.modifiers.prompt ??= "";
-    char.modifiers.no_background ??= false;
-    char.modifiers.flipped ??= false;
-    char.modifiers.profile_picture_seed ??= 0;
-    char.modifiers.color_name ??= "";
+    profileState.char.modifiers.prompt ??= "";
+    profileState.char.modifiers.no_background ??= false;
+    profileState.char.modifiers.flipped ??= false;
+    profileState.char.modifiers.profile_picture_seed ??= 0;
+    profileState.char.modifiers.color_name ??= "";
   };
 
   sync_modifiers();
@@ -59,9 +62,11 @@
 
   // --- DERIVED ---
 
-  const is_prompt_busy = $derived(app.visual.isLoading || busy_fields.has("visual-prompt"));
+  const is_prompt_busy = $derived(
+    app.visual.isLoading || profileState.busy_fields.has("visual-prompt"),
+  );
 
-  const prompt_value = $derived((char.modifiers.prompt || "").trim());
+  const prompt_value = $derived((profileState.char?.modifiers?.prompt || "").trim());
 
   /** True when the prompt is freeform text (not a URL or data URI). */
   const has_prompt_text = $derived(
@@ -71,9 +76,10 @@
   );
 
   const is_creative_disabled = $derived(
-    !is_editing ||
-      (is_prompt_busy && (!active_field || active_field.key === "visual-prompt")) ||
-      (!active_field && has_prompt_text),
+    !profileState.is_editing ||
+      (is_prompt_busy &&
+        (!profileState.active_field || profileState.active_field.key === "visual-prompt")) ||
+      (!profileState.active_field && has_prompt_text),
   );
 
   // --- HANDLERS ---
@@ -83,30 +89,30 @@
    * when no prompt text is present.
    */
   async function handle_creative_action() {
-    const current_key = active_field?.key || "visual-prompt";
-    if (busy_fields.has(current_key)) return;
-    busy_fields.add(current_key);
+    const current_key = profileState.active_field?.key || "visual-prompt";
+    if (profileState.busy_fields.has(current_key)) return;
+    profileState.busy_fields.add(current_key);
 
     try {
       if (current_key === "visual-prompt") {
         if (!has_prompt_text) {
-          char.modifiers.prompt = AestheticResolver.extract(char);
+          profileState.char.modifiers.prompt = AestheticResolver.extract(profileState.char);
         } else {
-          const result = await app.visual.enhance(char.modifiers.prompt);
-          if (result) char.modifiers.prompt = result;
+          const result = await app.visual.enhance(profileState.char.modifiers.prompt);
+          if (result) profileState.char.modifiers.prompt = result;
         }
-      } else if (active_field) {
-        const val = get_value(char, current_key);
+      } else if (profileState.active_field) {
+        const val = profileState.get_safe_value(current_key);
         if (val) {
           const payload = prompt_builder.build_enhancement(current_key, val);
           const res = await llm_service.enhance(payload);
-          if (res) set_value(char, current_key, res);
+          if (res) profileState.set_field_value(current_key, res);
         }
       }
     } catch (err) {
       console.error("[VisualWing] Creative action failed:", err);
     } finally {
-      busy_fields.delete(current_key);
+      profileState.busy_fields.delete(current_key);
     }
   }
 
@@ -115,25 +121,25 @@
    * as a fallback for direct uploads.
    */
   async function handle_generate() {
-    if (busy_fields.has("visual-prompt")) return;
+    if (profileState.busy_fields.has("visual-prompt")) return;
 
     if (!has_prompt_text) {
       file_input?.click();
       return;
     }
 
-    busy_fields.add("visual-prompt");
+    profileState.busy_fields.add("visual-prompt");
     app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
 
     try {
       const url = await app.visual.generate(prompt_value, {
-        no_background: char.modifiers.no_background,
+        no_background: profileState.char.modifiers.no_background,
       });
-      if (url) char.profile_picture = url;
+      if (url) profileState.char.profile_picture = url;
     } catch (err) {
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
     } finally {
-      busy_fields.delete("visual-prompt");
+      profileState.busy_fields.delete("visual-prompt");
     }
   }
 
@@ -147,7 +153,7 @@
     try {
       await validateImage(file);
       const url = await app.visual.upload(file);
-      if (url) char.profile_picture = url;
+      if (url) profileState.char.profile_picture = url;
     } catch (err) {
       app.log(`Upload failed: ${/** @type {Error} */ (err).message}`, "error");
     }
@@ -161,12 +167,14 @@
       {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
       <Button
         square={true}
-        className="swatch {themeStore.get_signature_label(char) === name ? 'active' : ''}"
+        className="swatch {themeStore.get_signature_label(profileState.char) === name
+          ? 'active'
+          : ''}"
         style="--swatch-dynamic-bg: {color}; background-color: var(--swatch-dynamic-bg); --swatch-color: var(--swatch-dynamic-bg);"
         aria-label={name}
         actions={[tooltip]}
-        onclick={() => (char.signature_color = name)}
-        disabled={!is_editing}
+        onclick={() => (profileState.char.signature_color = name)}
+        disabled={!profileState.is_editing}
         variant="invisible"
       ></Button>
     {/each}
@@ -174,13 +182,15 @@
 
   <!-- Image Prompt -->
   <TextField
-    class="prompt-field {active_field?.key === 'visual-prompt' ? 'active' : ''}"
-    is_edit={is_editing}
+    class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
+    is_edit={profileState.is_editing}
     busy={is_prompt_busy}
-    bind:value={char.modifiers.prompt}
+    bind:value={profileState.char.modifiers.prompt}
     placeholder="Enter image prompt or paste a URL..."
-    disabled={!is_editing || is_prompt_busy}
-    onfocus={() => is_editing && (active_field = { key: "visual-prompt", label: "Image Prompt" })}
+    disabled={!profileState.is_editing || is_prompt_busy}
+    onfocus={() =>
+      profileState.is_editing &&
+      (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
   >
     {#snippet status()}
       {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
@@ -207,7 +217,7 @@
     {/snippet}
 
     {#snippet header_actions()}
-      {#if is_editing}
+      {#if profileState.is_editing}
         <div class="actions">
           <Button
             variant="invisible"
@@ -242,7 +252,7 @@
             className="action"
             actions={[tooltip]}
             onclick={handle_generate}
-            disabled={!is_editing || is_prompt_busy}
+            disabled={!profileState.is_editing || is_prompt_busy}
           >
             <svg viewBox="0 0 24 24" class="icon-small icon-outline">
               <path
@@ -261,10 +271,14 @@
   <div class="controls">
     <Toggle
       label="No Background"
-      bind:value={char.modifiers.no_background}
-      disabled={!is_editing}
+      bind:value={profileState.char.modifiers.no_background}
+      disabled={!profileState.is_editing}
     />
-    <Toggle label="Mirror Image" bind:value={char.modifiers.flipped} disabled={!is_editing} />
+    <Toggle
+      label="Mirror Image"
+      bind:value={profileState.char.modifiers.flipped}
+      disabled={!profileState.is_editing}
+    />
   </div>
 
   <input
@@ -289,8 +303,8 @@
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(from var(--gunmetal) r g b / var(--opacity-base));
-    padding: var(--spacing-4);
-    gap: var(--spacing-4);
+    padding: var(--padding-standard);
+    gap: var(--gap-loose);
   }
 
   /* --- Swatches --- */
@@ -298,7 +312,7 @@
   .swatches {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
     width: 100%;
   }
 
@@ -353,10 +367,10 @@
   :global(.prompt-field .status-bar) {
     display: flex;
     align-items: center;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
     color: var(--pure-white);
     background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    padding: var(--spacing-1) var(--spacing-3);
+    padding: var(--padding-action-small);
     border-radius: var(--radius-full);
     border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
   }
@@ -364,7 +378,7 @@
   :global(.prompt-field .status-content) {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 
   :global(.prompt-field .status-bar.is-error) {
@@ -389,7 +403,7 @@
   :global(.prompt-field .actions) {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 
   .upload {
@@ -401,7 +415,7 @@
   .controls {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 
   /* --- Animations --- */

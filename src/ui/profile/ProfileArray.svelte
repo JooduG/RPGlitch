@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/profile/VectorArray.svelte
+   * @file src/ui/profile/ProfileArray.svelte
    * THE VECTOR ARRAY INSTRUMENT
    * A high-fidelity list orchestrator for entity characteristics.
    * Part of the RPGlitch "Chalk Regime" UI collection.
@@ -8,7 +8,6 @@
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { generateUUID } from "@core/utils.js";
   import { quintOut } from "svelte/easing";
   import { slide } from "svelte/transition";
 
@@ -24,45 +23,20 @@
 
   /**
    * @typedef {Object} Props
-   * @property {any} char - The entity object being edited
-   * @property {string} path - The dot-path to the array in char
-   * @property {boolean} is_editing - Global editing state
-   * @property {Function} set_value - Utility to update char state
-   * @property {Function} get_value - Utility to read char state
+   * @property {import('./profile.svelte.js').ProfileState} state - The profile state controller
+   * @property {string} path - The dot-path to the array in state.char
    * @property {string} signature_color - The theme accent color
    * @property {string} [unit_label] - Display label for individual items
    */
 
   /** @type {Props} */
-  let {
-    char,
-    path,
-    is_editing,
-    set_value,
-    get_value,
-    signature_color,
-    unit_label = "Vector",
-  } = $props();
-
-  // --- FACTORY ---
-
-  /** @returns {VectorItem} */
-  function make_item() {
-    return {
-      id: generateUUID(),
-      timestamp: Date.now(),
-      text: "",
-      type: path,
-      base_weight: 5,
-      vector_tags: [],
-    };
-  }
+  let { state, path, signature_color, unit_label = "Vector" } = $props();
 
   // --- DERIVED STATE ---
 
   /** Normalized array of vector objects. */
   const items = $derived.by(() => {
-    const raw = get_value(char, path) || [];
+    const raw = state.get_safe_value(path) || [];
     const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
 
     return arr.map((val) => {
@@ -73,28 +47,12 @@
           vector_tags: val.vector_tags ?? [],
         };
       }
-      return { ...make_item(), text: String(val || "") };
+      // This case should be rare now as state.add_vector_item handles initialization
+      return { text: String(val || ""), base_weight: 5, vector_tags: [] };
     });
   });
 
   // --- HANDLERS ---
-
-  /**
-   * Patches a specific item and triggers state sync.
-   * @param {number} index
-   * @param {Partial<VectorItem>} patch
-   */
-  function patch_item(index, patch) {
-    const current = [...items];
-    current[index] = { ...current[index], ...patch };
-    set_value(char, path, current);
-  }
-
-  /** @param {number} i @param {number} delta */
-  function update_weight(i, delta) {
-    const weight = items[i]?.base_weight ?? 5;
-    patch_item(i, { base_weight: Math.min(10, Math.max(1, weight + delta)) });
-  }
 
   /** @param {number} i @param {string} raw */
   function update_tags(i, raw) {
@@ -102,21 +60,7 @@
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-    patch_item(i, { vector_tags });
-  }
-
-  /** @param {number} index */
-  function remove_item(index) {
-    set_value(
-      char,
-      path,
-      items.filter((_, i) => i !== index),
-    );
-  }
-
-  /** Expose add_item for external orchestration. */
-  export function add_item() {
-    set_value(char, path, [make_item(), ...items]);
+    state.patch_vector_item(path, i, { vector_tags });
   }
 </script>
 
@@ -124,27 +68,28 @@
   {#each items as item, i (item.id || i)}
     <div
       class="item"
-      class:is-editing={is_editing}
+      class:is-editing={state.is_editing}
       transition:slide={{ duration: 400, easing: quintOut }}
     >
       <TextField
-        is_edit={is_editing}
+        is_edit={state.is_editing}
         {signature_color}
+        no_background={true}
         value={item.text}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
-          patch_item(i, { text: e.currentTarget.value })}
+          state.patch_vector_item(path, i, { text: e.currentTarget.value })}
         placeholder="Enter {unit_label.toLowerCase()} detail..."
         weight={item.base_weight}
       >
         {#snippet status()}
           <div class="stepper" use:tooltip={{ text: "Influence weight of this vector" }}>
-            {#if is_editing}
+            {#if state.is_editing}
               <Button
                 variant="invisible"
                 size="small"
                 square
                 className="step down"
-                onclick={() => update_weight(i, -1)}
+                onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
                 <span class="step-char">&lt;</span>
@@ -153,13 +98,13 @@
 
             <span class="weight">{item.base_weight}</span>
 
-            {#if is_editing}
+            {#if state.is_editing}
               <Button
                 variant="invisible"
                 size="small"
                 square
                 className="step up"
-                onclick={() => update_weight(i, 1)}
+                onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
                 <span class="step-char">&gt;</span>
@@ -168,7 +113,7 @@
           </div>
 
           <div class="tags">
-            {#if is_editing}
+            {#if state.is_editing}
               <input
                 type="text"
                 class="tags-input"
@@ -185,7 +130,7 @@
         {/snippet}
 
         {#snippet header_actions()}
-          {#if is_editing}
+          {#if state.is_editing}
             <Button
               variant="invisible"
               size="small"
@@ -194,7 +139,7 @@
               tooltip="Remove {unit_label}"
               aria-label="Remove {unit_label}"
               className="delete"
-              onclick={() => remove_item(i)}
+              onclick={() => state.remove_vector_item(path, i)}
             >
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
                 <polyline points="3 6 5 6 21 6" stroke="var(--pure-white)"></polyline>
@@ -210,7 +155,7 @@
     </div>
   {/each}
 
-  {#if items.length === 0 && !is_editing}
+  {#if items.length === 0 && !state.is_editing}
     <div class="empty-state" in:slide>
       <span class="empty-msg">
         <svg
@@ -236,7 +181,7 @@
     width: 100%;
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
     position: relative;
   }
 
@@ -246,6 +191,10 @@
     transition: all var(--duration-fast);
     display: flex;
     align-items: flex-start;
+    background: var(--glass-sunken);
+    backdrop-filter: var(--glass-sunken-blur);
+    border-radius: var(--radius-subtle);
+    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   .item:hover {
@@ -338,7 +287,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
     overflow: hidden;
     height: 100%;
   }
@@ -370,7 +319,7 @@
   .tag {
     font-size: var(--font-size-tiny);
     background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    padding: var(--spacing-pixel) var(--spacing-2);
+    padding: var(--gap-nano) var(--padding-tight);
     border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-sharp);
     color: var(--pure-white);
@@ -405,7 +354,7 @@
   /* --- EMPTY STATE --- */
 
   .empty-state {
-    padding: var(--spacing-2) var(--spacing-3);
+    padding: var(--padding-tight) var(--padding-moderate);
     min-height: calc(var(--spacing-4) * 2.5);
     display: flex;
     align-items: center;
@@ -422,6 +371,6 @@
     user-select: none;
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 </style>
