@@ -262,6 +262,7 @@
   --gap-standard: var(--spacing-2);
   --gap-tight: var(--spacing-1);
   --margin-message: var(--spacing-3);
+  --margin-moderate: var(--spacing-3);
   --margin-nano: var(--spacing-1);
   --margin-standard: var(--spacing-4);
   --margin-tight: var(--spacing-2);

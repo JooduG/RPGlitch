@@ -245,10 +245,11 @@ semantics:
     padding-section: var(--spacing-8) var(--spacing-6)
     padding-message: var(--spacing-4) var(--spacing-6)
     padding-message-side: var(--spacing-24)
+    margin-message: var(--spacing-3)
+    margin-moderate: var(--spacing-3)
+    margin-nano: var(--spacing-1)
     margin-standard: var(--spacing-4)
     margin-tight: var(--spacing-2)
-    margin-nano: var(--spacing-1)
-    margin-message: var(--spacing-3)
     spacing-0: 0
     spacing-pixel: 1px
     spacing-1: calc(var(--spacing-unit) * 1)

@@ -39,8 +39,7 @@
     "**/templates/**",
     "**/test-results/**",
     "**/yarn.lock",
-    "**/tmp/**",
-    "**/svelte-devtools/**"
+    "**/tmp/**"
   ],
   "geminiignore": [
     "!**/.env",

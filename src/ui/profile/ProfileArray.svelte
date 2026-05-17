@@ -209,7 +209,7 @@
     place-items: center;
     min-width: var(--spacing-16);
     height: 100%;
-    margin-right: var(--spacing-3);
+    margin-right: var(--margin-moderate);
     user-select: none;
     align-self: center;
   }

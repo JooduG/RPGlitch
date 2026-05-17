@@ -306,7 +306,7 @@
 
   .profile-content {
     flex-grow: 1;
-    padding: var(--spacing-0);
+    padding: 0;
   }
 
   .profile-footer {
@@ -354,7 +354,7 @@
   }
 
   .section-label {
-    margin: var(--spacing-0);
+    margin: 0;
     font-size: var(--font-size-h5);
     font-weight: var(--font-weight-heavy);
     color: var(--signature-color);
@@ -400,7 +400,7 @@
   }
 
   .section-sub {
-    margin: var(--spacing-0);
+    margin: 0;
     font-size: var(--font-size-nano);
     color: var(--pure-white);
     font-weight: var(--font-weight-bold);
@@ -502,7 +502,7 @@
     text-align: center;
     border-bottom: var(--border-width-base) solid
       rgb(from var(--signature-color) r g b / var(--opacity-substantial));
-    padding-right: var(--spacing-0);
+    padding-right: 0;
     padding-bottom: var(--padding-tight);
     align-items: center;
   }

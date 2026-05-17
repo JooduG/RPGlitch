@@ -158,6 +158,7 @@ export const TOKENS = {
   "lemon-yellow": "#fde047",
   "lime-green": "#84cc16",
   "margin-message": "var(--spacing-3)",
+  "margin-moderate": "var(--spacing-3)",
   "margin-nano": "var(--spacing-1)",
   "margin-standard": "var(--spacing-4)",
   "margin-tight": "var(--spacing-2)",
