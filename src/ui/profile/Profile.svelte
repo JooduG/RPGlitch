@@ -125,13 +125,9 @@
                 Deleter
               </Button>
               <Button variant="invisible" onclick={() => state.cancel()}>Cancel</Button>
-              <Button variant="primary" onclick={() => state.save(entity_type)}
-                >Save</Button
-              >
+              <Button variant="primary" onclick={() => state.save(entity_type)}>Save</Button>
             {:else}
-              <Button variant="invisible" onclick={() => (state.is_editing = true)}
-                >Edit</Button
-              >
+              <Button variant="invisible" onclick={() => (state.is_editing = true)}>Edit</Button>
               <Button variant="primary" onclick={() => state.handle_close()}>Close</Button>
             {/if}
           </footer>

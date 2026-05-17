@@ -107,7 +107,7 @@
     font-size: var(--font-size-nano);
     color: var(--frozen);
     background: var(--void-black);
-    padding: var(--spacing-0) var(--spacing-1);
+    padding: 0 var(--padding-nano);
     opacity: var(--opacity-heavy);
   }
 

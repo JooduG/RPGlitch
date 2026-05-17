@@ -39,7 +39,7 @@
   }
 
   .data-header {
-    padding: var(--spacing-2) var(--spacing-3);
+    padding: var(--padding-tight) var(--padding-moderate);
     background: rgb(from var(--pure-white) r g b / 3%);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-heavy);
@@ -49,7 +49,7 @@
   }
 
   .data-content {
-    padding: var(--spacing-3);
+    padding: var(--padding-moderate);
     overflow: hidden auto;
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);

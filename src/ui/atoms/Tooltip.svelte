@@ -221,7 +221,7 @@
       if (rect.top < current_padding && tooltip_state.target) {
         arrow_flipped = true;
         const target_rect = tooltip_state.target.getBoundingClientRect();
-        flip_style = `top: calc(${target_rect.bottom}px + var(--spacing-2));`;
+        flip_style = `top: calc(${target_rect.bottom}px + var(--gap-standard));`;
         transform_override = `translateX(-50%) translateY(0%) translateX(${x_offset_px}px)`;
       } else {
         flip_style = "";
@@ -243,7 +243,7 @@
     bind:this={tooltip_el}
     class:ready
     style:left="{tooltip_state.x}px"
-    style:top="calc({tooltip_state.y}px - var(--spacing-2))"
+    style:top="calc({tooltip_state.y}px - var(--gap-standard))"
     style={flip_style}
     style:transform={transform_override}
     data-flipped={arrow_flipped}
@@ -287,7 +287,7 @@
     background: var(--glass-peak);
     backdrop-filter: var(--glass-peak-blur);
     color: var(--pure-white);
-    padding: var(--spacing-1) var(--spacing-2);
+    padding: var(--padding-nano) var(--padding-tight);
     border-radius: var(--radius-standard);
     border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
     font-size: var(--font-size-tiny);
@@ -304,11 +304,11 @@
   .tooltip-arrow {
     width: 0;
     height: 0;
-    border-left: var(--spacing-2) solid transparent;
-    border-right: var(--spacing-2) solid transparent;
-    border-top: var(--spacing-2) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    border-left: var(--gap-standard) solid transparent;
+    border-right: var(--gap-standard) solid transparent;
+    border-top: var(--gap-standard) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
     position: absolute;
-    bottom: calc(var(--spacing-2) * -1);
+    bottom: calc(var(--gap-standard) * -1);
     left: 50%;
     transform: translateX(-50%);
     z-index: var(--floor-z-index);
@@ -318,24 +318,25 @@
     content: "";
     position: absolute;
     bottom: var(--spacing-pixel);
-    left: calc(var(--spacing-2) * -1);
-    border-left: var(--spacing-2) solid transparent;
-    border-right: var(--spacing-2) solid transparent;
-    border-top: var(--spacing-2) solid var(--background-base);
+    left: calc(var(--gap-standard) * -1);
+    border-left: var(--gap-standard) solid transparent;
+    border-right: var(--gap-standard) solid transparent;
+    border-top: var(--gap-standard) solid var(--background-base);
     opacity: var(--opacity-heavy);
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow {
-    top: calc(var(--spacing-2) * -1);
+    top: calc(var(--gap-standard) * -1);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--spacing-2) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    border-bottom: var(--gap-standard) solid
+      rgb(from var(--pure-white) r g b / var(--opacity-muted));
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {
     top: var(--spacing-pixel);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--spacing-2) solid var(--background-base);
+    border-bottom: var(--gap-standard) solid var(--background-base);
   }
 </style>

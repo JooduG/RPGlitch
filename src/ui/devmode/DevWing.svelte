@@ -169,25 +169,25 @@
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(from var(--gunmetal) r g b / 45%);
-    padding: var(--spacing-4);
-    gap: var(--spacing-4);
+    padding: var(--padding-standard);
+    gap: var(--gap-loose);
   }
 
   .group {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
     width: 100%;
   }
 
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
   }
 
   .dynamic-box {
-    padding: var(--spacing-3);
+    padding: var(--padding-moderate);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -229,7 +229,7 @@
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-wider);
     color: var(--frisk);
-    margin-bottom: var(--spacing-1);
+    margin-bottom: var(--margin-nano);
     cursor: help;
     z-index: var(--mid-z-index);
   }
@@ -252,7 +252,7 @@
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
     text-align: center;
-    padding: var(--spacing-2) 0;
+    padding: var(--padding-tight) 0;
     outline: none;
     appearance: textfield;
   }
@@ -268,7 +268,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
-    padding: var(--spacing-2) 0;
+    padding: var(--padding-tight) 0;
   }
 
   .step-controls {
@@ -290,7 +290,7 @@
     background: transparent;
     border: none;
     color: var(--dev-accent-default);
-    padding: var(--spacing-2);
+    padding: var(--padding-tight);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -324,13 +324,13 @@
   .footer-meta {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
   }
 
   .meta-item {
     display: flex;
     justify-content: space-between;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);

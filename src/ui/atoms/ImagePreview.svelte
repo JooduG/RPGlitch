@@ -69,8 +69,8 @@
     max-width: 95vw;
     max-height: 95vh;
     width: auto;
-    padding: var(--spacing-4);
-    gap: var(--spacing-4); /* Parity with original margin-top */
+    padding: var(--padding-standard);
+    gap: var(--gap-loose); /* Parity with original margin-top */
     background: transparent;
     border: none;
     box-shadow: none;
@@ -89,7 +89,7 @@
   .label {
     color: var(--font-color-base);
     background: rgb(from var(--void-black) r g b / var(--opacity-muted));
-    padding: var(--spacing-3) var(--spacing-4);
+    padding: var(--padding-moderate) var(--padding-standard);
     border-radius: var(--radius-sharp);
     font-size: var(--font-size-base);
     text-align: center;

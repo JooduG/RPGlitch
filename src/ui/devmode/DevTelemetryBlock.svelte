@@ -265,7 +265,7 @@
   }
 
   .telemetry-block.is-standalone {
-    margin: var(--spacing-2) 0;
+    margin: var(--margin-tight) 0;
     max-width: 85%;
     margin-left: auto;
     margin-right: auto;
@@ -305,7 +305,7 @@
   .resonance-desc {
     font-size: var(--font-size-tiny);
     color: var(--font-color-muted);
-    margin: var(--spacing-1) 0 0 0;
+    margin: var(--margin-nano) 0 0 0;
   }
 
   .resonance-item {
@@ -351,8 +351,8 @@
   .telemetry-container {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-4);
-    padding: var(--spacing-1);
+    gap: var(--gap-loose);
+    padding: var(--padding-nano);
   }
 
   .telemetry-meta {
@@ -386,7 +386,7 @@
   .delta-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 
   .delta-item {
@@ -394,7 +394,7 @@
     font-size: var(--font-size-nano);
     color: var(--pure-white);
     background: rgb(from var(--void-black) r g b / var(--opacity-muted));
-    padding: var(--spacing-2) var(--spacing-2);
+    padding: var(--padding-tight);
     border-radius: var(--radius-sharp);
     white-space: nowrap;
     transition: all var(--duration-fast);
@@ -418,20 +418,20 @@
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-6);
+    gap: var(--profile-gap-section);
   }
 
   .dynamics-column {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
   }
 
   .metric-row {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
   }
 
   .metric-label {
@@ -445,7 +445,7 @@
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
   }
 
   .metric-track {
@@ -490,7 +490,7 @@
   .vector-fabric {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--spacing-6);
+    gap: var(--profile-gap-section);
     padding-top: var(--spacing-4);
   }
 
@@ -502,15 +502,15 @@
   .vector-list {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
   }
 
   .vector-item {
     display: flex;
-    gap: var(--spacing-3);
+    gap: var(--gap-moderate);
     font-size: var(--font-size-tiny);
     line-height: var(--font-height-s);
-    padding: var(--spacing-1) var(--spacing-2);
+    padding: var(--padding-nano) var(--padding-tight);
     border-radius: var(--radius-sharp);
     background: rgb(from var(--void-black) r g b / var(--opacity-whisper));
     border-left: var(--spacing-2) solid transparent;
@@ -556,11 +556,11 @@
   .pill-grid {
     display: flex;
     flex-wrap: wrap;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 
   .signal-pill {
-    padding: var(--spacing-2) var(--spacing-2);
+    padding: var(--padding-tight);
     background: var(--glass-base);
     border: var(--border-side);
     border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));

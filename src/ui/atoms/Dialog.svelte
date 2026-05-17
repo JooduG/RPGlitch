@@ -96,7 +96,7 @@
   }
 
   .title {
-    margin: var(--spacing-0);
+    margin: 0;
     font-family: var(--font-family-heading);
     font-size: var(--font-size-h6);
     font-weight: var(--font-weight-bold);
@@ -112,7 +112,7 @@
   }
 
   .message {
-    margin: var(--spacing-0);
+    margin: 0;
     color: var(--font-color-muted);
     font-size: var(--font-size-base);
     line-height: var(--font-height-base);

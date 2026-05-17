@@ -181,7 +181,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--spacing-0) var(--spacing-2);
+    padding: 0 var(--padding-tight);
     transition:
       height var(--duration-standard) var(--ease-elastic),
       top var(--duration-standard) var(--ease-elastic),
@@ -226,7 +226,7 @@
     line-height: var(--font-height-base);
     text-align: left;
     box-sizing: border-box;
-    margin: var(--spacing-0);
+    margin: 0;
     display: block;
     overflow: hidden auto;
     position: relative;
@@ -272,11 +272,11 @@
 
   .paragraph {
     width: 100%;
-    margin: var(--spacing-0);
+    margin: 0;
   }
 
   .paragraph[data-spaced="true"] {
-    margin-top: var(--spacing-4);
+    margin-top: var(--margin-standard);
   }
 
   .strong {

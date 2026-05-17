@@ -161,7 +161,7 @@
     background: transparent;
     border: none;
     color: var(--font-color-base);
-    padding: var(--spacing-2);
+    padding: var(--padding-tight);
     resize: none;
     outline: none;
     font-family: inherit;

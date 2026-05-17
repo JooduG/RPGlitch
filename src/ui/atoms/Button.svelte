@@ -115,14 +115,14 @@
 
   /* --- Structural Modifiers --- */
   .root.is-small {
-    min-height: var(--spacing-8);
+    min-height: var(--icon-large);
     padding: var(--padding-action-small);
     font-size: var(--font-size-tiny);
   }
 
   .root.is-square {
-    padding: var(--spacing-0);
-    min-height: var(--spacing-4);
+    padding: 0;
+    min-height: var(--padding-standard);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
   }
@@ -142,7 +142,7 @@
     inset: 0;
     z-index: var(--surface-z-index);
     border-radius: inherit;
-    padding: var(--spacing-0);
+    padding: 0;
     min-height: 0;
     width: 100%;
     height: 100%;

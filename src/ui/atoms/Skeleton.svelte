@@ -40,7 +40,7 @@
     border-radius: var(--radius-standard);
     overflow: hidden;
     position: relative;
-    min-height: var(--spacing-4);
+    min-height: var(--padding-standard);
 
     /* Hardware acceleration for shimmer */
     isolation: isolate;
@@ -67,7 +67,7 @@
 
   .root.text {
     height: var(--skeleton-text-height);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: var(--margin-tight);
     border-radius: var(--radius-subtle);
     width: var(--skeleton-text-width);
   }
@@ -76,7 +76,7 @@
   .root::after {
     content: "";
     position: absolute;
-    inset: var(--spacing-0);
+    inset: 0;
     transform: translateX(-100%);
     background: linear-gradient(
       var(--angle-right),

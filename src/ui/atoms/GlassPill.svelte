@@ -69,7 +69,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
     z-index: var(--surface-z-index);
     pointer-events: auto;
     width: var(--columns-4);
@@ -100,13 +100,13 @@
   /* --- Orientation Logic --- */
   .horizontal {
     flex-direction: row;
-    padding: var(--spacing-1) var(--spacing-2);
+    padding: var(--padding-nano) var(--padding-tight);
   }
 
   .vertical {
     flex-direction: column;
     width: max-content;
-    padding: var(--spacing-2) var(--spacing-1);
+    padding: var(--padding-tight) var(--padding-nano);
   }
 
   /* --- Focus States --- */

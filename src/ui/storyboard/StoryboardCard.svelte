@@ -228,7 +228,7 @@
   }
 
   .header .primary {
-    margin: var(--spacing-0);
+    margin: 0;
     font-family: var(--font-family-heading);
     color: var(--signature-color, var(--gunmetal));
     text-shadow: var(--shadow-font);
@@ -244,7 +244,7 @@
   }
 
   .header .secondary {
-    margin: var(--spacing-1) var(--spacing-0) var(--spacing-0);
+    margin: var(--margin-nano) 0 0;
     font-family: var(--font-family-base);
     font-size: var(--font-size-small);
     color: var(--pure-white);

@@ -41,7 +41,7 @@
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
     width: fit-content;
     border-radius: var(--radius-full);
     transition: all var(--duration-standard) var(--ease-elastic);
@@ -49,7 +49,7 @@
 
   /* ── Variant: glass (default — floating bubble) ──────── */
   .root.glass {
-    padding: var(--spacing-2) var(--spacing-8);
+    padding: var(--padding-tight) var(--padding-loose);
     background: var(--glass-elevated); /* Maps to glass-elevated foundation */
     backdrop-filter: var(--glass-elevated-blur);
     box-shadow: var(--shadow-ghost);
@@ -62,7 +62,7 @@
 
   /* ── Variant: pill (inline / chat) ───────────────────── */
   .root.pill {
-    padding: var(--spacing-2) var(--spacing-4);
+    padding: var(--padding-tight) var(--padding-standard);
     background: var(--state-activity-color);
     height: var(--spacing-12);
   }

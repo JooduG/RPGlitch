@@ -191,7 +191,7 @@
   .content {
     display: flex;
     align-items: center;
-    gap: var(--spacing-2);
+    gap: var(--gap-standard);
   }
 
   .label {

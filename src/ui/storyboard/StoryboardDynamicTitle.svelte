@@ -155,7 +155,7 @@
     display: block;
     max-width: var(--columns-12);
     margin: 0 auto;
-    padding: var(--spacing-2) var(--spacing-4);
+    padding: var(--padding-tight) var(--padding-standard);
 
     /* Typography */
     font-family: var(--font-family-cursive) !important;
@@ -197,7 +197,7 @@
   .prefix,
   .entity {
     display: inline;
-    padding: 0 var(--spacing-1);
+    padding: 0 var(--padding-nano);
     white-space: normal; /* Allow wrapping between prefix parts */
   }
 

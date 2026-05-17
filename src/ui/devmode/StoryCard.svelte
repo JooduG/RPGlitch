@@ -60,7 +60,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: var(--spacing-3);
+    padding: var(--padding-moderate);
     background: var(--glass-base);
     backdrop-filter: var(--blur-whisper);
 

@@ -125,7 +125,8 @@
   .media.no-bg {
     object-fit: contain;
     filter: drop-shadow(
-      0 var(--spacing-2) var(--spacing-4) rgb(from var(--void-black) r g b / var(--opacity-heavy))
+      0 var(--margin-tight) var(--margin-standard)
+        rgb(from var(--void-black) r g b / var(--opacity-heavy))
     );
   }
 
@@ -168,7 +169,7 @@
 
     /* Subtle depth shimmer */
     filter: drop-shadow(
-      0 0 var(--spacing-4) rgb(from var(--pure-white) r g b / var(--opacity-whisper))
+      0 0 var(--margin-standard) rgb(from var(--pure-white) r g b / var(--opacity-whisper))
     );
 
     /* Massive Layout Construction */
@@ -179,7 +180,7 @@
     justify-content: center;
     white-space: nowrap;
     text-align: center;
-    padding: var(--spacing-0);
+    padding: 0;
     font-size: var(--profile-initials-size-base);
   }
 </style>

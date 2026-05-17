@@ -315,7 +315,7 @@
     font-style: italic;
     text-align: center;
     align-content: center;
-    margin: var(--spacing-0);
+    margin: 0;
     background: var(--glass-sunken);
     backdrop-filter: var(--glass-sunken-blur);
     border-radius: var(--radius-standard);
@@ -332,13 +332,13 @@
 
   .status-bar {
     display: flex;
-    gap: var(--spacing-1);
+    gap: var(--gap-tight);
   }
 
   .badge {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
-    padding: var(--spacing-pixel) var(--spacing-1);
+    padding: var(--gap-nano) var(--padding-nano);
     background: var(--glass-sunken);
     color: var(--font-color-muted);
     border: var(--border-whisper);

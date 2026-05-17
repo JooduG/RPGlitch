@@ -40,8 +40,8 @@
 
 <svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />
 
-<!-- 
-  DOM FLATTENED: 
+<!--
+  DOM FLATTENED:
   The Modal content is nested directly within the Backdrop.
   Standardized Nomenclature: .root replaces .base for top-level alignment.
 -->
@@ -114,7 +114,7 @@
     border: none;
     box-shadow: none;
     overflow: visible;
-    padding: var(--spacing-0);
+    padding: 0;
   }
 
   /* Variant Specifics: Preview/Mini (Compact) */
