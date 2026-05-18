@@ -1,28 +1,24 @@
 # 🛰️ Present (The Dashboard)
 
-## 🚀 Active Mission: Semantic Spacing Migration & Chalk Regime Hardening
+## 🚀 Active Mission: Idle
 
-**Status**: 🔄 In Progress
-**Objective**: Eliminate "heretical" raw spacing units project-wide and enforce semantic token sovereignty.
+**Status**: 💤 Idle
+**Objective**: Awaiting next track initialization.
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track ID              | Name                | Priority | Status    | Objective                                                    |
-| :-------------------- | :------------------ | :------- | :-------- | :----------------------------------------------------------- |
-| `profile-grid-layout` | Profile Grid Layout | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality. |
-| `spacing-migration`   | Spacing Migration   | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.  |
-
-### 🛠️ Active Checklist (Track: spacing-migration)
-
-- [x] Phase 1: Profile & Core UI Cleanup <!-- { id: 1 } -->
-- [x] Phase 2: Storymode & Feed Cleanup <!-- { id: 2 } -->
-- [x] Phase 3: Atoms & Utilities Cleanup <!-- { id: 3 } -->
-- [x] Phase 4: Final Verification Audit <!-- { id: 4 } -->
+| Track ID                       | Name                          | Priority | Status    | Objective                                                    |
+| :----------------------------- | :---------------------------- | :------- | :-------- | :----------------------------------------------------------- |
+| `profile-grid-layout`          | Profile Grid Layout           | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality. |
+| `spacing-migration`            | Spacing Migration             | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.  |
+| `signature-color-consolidation` | Signature Color Consolidation | P0       | ✅ Done   | Consolidate signature color automation and logic hardening. |
 
 ## 🧠 Pulse (History)
 
 | Timestamp (ISO 8601) | Task                                                       | Skill Invoked          | Outcome   |
 | :------------------- | :--------------------------------------------------------- | :--------------------- | :-------- |
+| 2026-05-18T09:15:00Z | Consolidate signature-color-automation & signature-color-hardening tracks | legislative            | ✅ Done   |
+| 2026-05-18T09:05:00Z | Archive spacing-migration track and update Present state   | legislative            | ✅ Done   |
 | 2026-05-18T08:58:00Z | Complete spacing-migration track and run full verification | css + quality          | ✅ Done   |
 | 2026-05-18T08:49:00Z | Initialize spacing-migration track and tasks               | planning               | ✅ Done   |
 | 2026-05-17T14:21:00Z | Uninstall svelte-devtools gitlink and physical directories | legislative + quality  | ✅ Done   |
