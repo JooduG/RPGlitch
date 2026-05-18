@@ -34,14 +34,14 @@ The **Conductor** does not act in a vacuum. We must first verify the foundation.
 
 ### Phase 2: Mission Synchronization ([SOP-04](../../skills/planning/SKILL.md#L139))
 
-1.  **Mission Board Recovery**: Resolve the **Mission Board** (`tasks/PRESENT.md`) and active track plans. Identify the current operational focus via **[SOP-04: Track Discovery & Selection](../../skills/planning/SKILL.md#L139)**.
+1.  **Mission Board Recovery**: Resolve the **Roadmap** (`tasks/FUTURE.md`) and active track files. Identify the current operational focus via **[SOP-04: Track Discovery & Selection](../../skills/planning/SKILL.md#L139)**.
 2.  **Historical Forensics**: Recover architectural context and historical design decisions from Pinecone via the [Data](../../skills/data/SKILL.md) skill. This ensures you are building on the work of those who came before you.
-3.  **Skill Log Audit**: Synchronize the persistent **Skill Log** in `tasks/PRESENT.md` to ensure continuity across sessions.
+3.  **Skill Log Audit**: Synchronize the persistent **Skill Log (Pulse)** in `tasks/PRESENT.md` to ensure continuity across sessions.
 
 ### Phase 3: Baton Recovery (The Resumption)
 
 1.  **Context Extraction**: Review the immediate conversation context. Identify the "baton"—the specific task, state, and intent left by the previous session.
-2.  **State Restoration**: Align your reasoning chain with the last recorded step in the [PRESENT](../../../tasks/PRESENT.md).
+2.  **State Restoration**: Align your reasoning chain with the last recorded step in the **Roadmap** (`tasks/FUTURE.md`).
 3.  **Readiness Signal**: Announce: "Baton recovered. Ready to resume from [Last Known Step]. The engine is synchronized."
 
 ---
@@ -55,8 +55,8 @@ _Triggered after Boot or via `/status`._
 1.  **The Handshake**: Offer the user a detailed mission briefing. If accepted, execute **[SOP-12: Mission Status & Velocity Audit](../../skills/planning/SKILL.md#L219)**.
 2.  **Velocity Audit**: Provide a high-fidelity summary including:
     - **Temporal Anchor**: Current ISO 8601 timestamp.
-    - **Mission Progress**: Percentage of completed tasks `[x]` vs. total tasks in the active track's `FUTURE.md`.
-    - **Active Vector**: The specific task currently marked as `[~]`.
+    - **Mission Progress**: Percentage of completed tasks `[x]` vs. total tasks in the active track's `# FUTURE` section.
+    - **Active Vector**: The specific task currently marked as `[~]` in the track's `# PRESENT` section.
     - **Quality Health**: A summary of recent audits and any unverified increments.
     - **Remote Pulse**: Status of unlinked work or remote drift via `gh` CLI.
 

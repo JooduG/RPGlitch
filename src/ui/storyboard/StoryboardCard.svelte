@@ -211,10 +211,12 @@
     right: var(--spacing-0);
     height: 100%;
     background: linear-gradient(
-      -15deg,
-      var(--background-base) 5%,
-      rgb(from var(--background-base) r g b / var(--opacity-muted)) 35%,
-      transparent 70%
+      to top,
+      var(--background-base) 0%,
+      rgb(from var(--background-base) r g b / var(--opacity-intense)) 30%,
+      rgb(from var(--background-base) r g b / var(--opacity-heavy)) 55%,
+      rgb(from var(--background-base) r g b / var(--opacity-muted)) 80%,
+      transparent 100%
     );
     display: flex;
     flex-direction: column;
@@ -230,7 +232,7 @@
   .header .primary {
     margin: 0;
     font-family: var(--font-family-heading);
-    color: var(--signature-color, var(--gunmetal));
+    color: var(--signature-color, var(--frisk));
     text-shadow: var(--shadow-font);
     font-size: var(--font-size-h4);
     line-height: var(--font-height-short);

@@ -119,44 +119,50 @@ When initializing a new unit of work (Track):
 
 ### SOP-02: Artifact Scaffolding
 
-Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
+Every track MUST be a single markdown file in `tasks/tracks/<track_id>.md`. The file MUST contain:
 
-- `ETERNAL.md`: Technical Specification.
-- `FUTURE.md`: Hierarchical Implementation Plan.
-- `metadata.json`: Machine-readable state.
-- `PRESENT.md`: Navigation hub.
+1. **YAML Frontmatter**: Machine-readable metadata.
+2. **# ETERNAL**: Technical Specification (The "What" and "Why").
+3. **# FUTURE**: Hierarchical Implementation Plan (The "How").
+4. **# PRESENT**: Navigation & Pulse (Active task, Status, Forensic Record).
 
-- **Metadata**: Adhere to the `metadata.json` schema (id, type, status, timestamps).
-- **Mission Board**: Update `tasks/PRESENT.md` under `## 🚀 Active Mission`.
-- **Tracks Registry**: Update `tasks/PRESENT.md` under `## 🗺️ Roadmap (Tracks)`.
+### YAML Metadata Schema
 
-### SOP-04: Track Discovery & Selection
+```yaml
+---
+id: <track_id>
+type: <feature|bug|chore|refactor>
+status: <new|in-progress|completed|cancelled>
+created_at: YYYY-MM-DDTHH:MM:SSZ
+updated_at: YYYY-MM-DDTHH:MM:SSZ
+description: <Short description>
+---
+```
 
-1. **Source of Truth**: Read `tasks/PRESENT.md` and parse the `## 🗺️ Roadmap (Tracks)` section.
-2. **Discovery Logic**:
-   - Extract all pending tracks following the pattern `- [ ] Track: <Description> (ID: <track_id>)`.
-   - If no tracks are found, notify the user that the Mission Board is empty.
-3. **Selection Logic**:
-   - **Explicit Selection**: If a track name or ID was provided as an argument, perform a case-insensitive match against the extracted descriptions.
-   - **Implicit Selection**: If no argument was provided, automatically identify the first incomplete track (`[ ]`).
-   - **Confirmation**: Always use the `ask_user` tool to confirm the selected track before proceeding.
-4. **Validation**: Resolve the directory `tasks/tracks/<track_id>/` and verify that the core artifacts (`ETERNAL.md` and `FUTURE.md`) are present and readable.
+## SOP-03: Mission Board Sync
 
-### SOP-05: Task Lifecycle & Mission Control
+- **Mission Board**: Update `tasks/FUTURE.md` under `## 🚀 Active Mission`.
+- **Tracks Registry**: Update `tasks/FUTURE.md` under `## 🗺️ Roadmap (Tracks)`.
+- **Gap Analysis**: Update `tasks/PRESENT.md` to reflect how this track addresses current gaps.
+
+## SOP-04: Track Discovery & Selection
+
+1. **Source of Truth**: Read `tasks/FUTURE.md` and parse the `## 🗺️ Roadmap (Tracks)` section.
+2. **Discovery Logic**: Extract all pending tracks (`[ ]`).
+3. **Selection Logic**: Perform handshake with user via `ask_user`.
+4. **Validation**: Resolve the file `tasks/tracks/<track_id>.md` and verify all sections are present.
+
+## SOP-05: Task Lifecycle & Mission Control
 
 1. **Track Activation**:
-   - Update the status of the selected track in the **Mission Board** (`tasks/PRESENT.md`) from `[ ]` to `[~]`.
-   - Resolve the track's folder and read the **Specification** and **Implementation Plan**.
+   - Update `tasks/FUTURE.md` status from `[ ]` to `[~]`.
+   - Read the single track file `tasks/tracks/<track_id>.md`.
 2. **Incremental Execution**:
-   - **Task Selection**: Identify the next pending task in the track's `FUTURE.md`.
-   - **State Mutation**: Mark the active task as in-progress `[~]` in the `FUTURE.md`.
-   - **The TDD Loop**: Execute the task using the **Red-Green-Refactor** cycle. Use the [test](../test/SKILL.md) skill to verify correctness.
-   - **Completion**: Upon successful verification, commit the changes and update the task status in `FUTURE.md` to `[x] <sha>` using the 7-character commit hash.
-3. **Audit Trail**:
-   - **Skill Log**: Update the persistent Skill Log (Pulse) in `tasks/PRESENT.md` with the task description, the skill invoked, and the outcome.
-4. **Track Finalization**:
-   - Once all tasks in the local plan are complete, update the Mission Board entry to `[x]`.
-   - Create a `chore(conductor): Mark track '<track_id>' as complete` commit.
+   - **Task Selection**: Identify the next pending task in the track's `# FUTURE` section.
+   - **State Mutation**: Mark the active task as `[~]` in the track file's `# PRESENT` section.
+   - **The TDD Loop**: Implement -> Verify.
+   - **Completion**: Mark task as `[x] <sha>` in the track file's `# FUTURE` section and update `# PRESENT`.
+3. **Audit Trail**: Update `tasks/FUTURE.md` Pulse section.
 
 ### SOP-06: Governance & Documentation Sync
 
@@ -286,8 +292,8 @@ Every track folder (`tasks/tracks/<track_id>/`) MUST contain:
    - Provide velocity (Passed/Total).
    - Offer `npm run lint:fix` for style violations.
 3. **Forensics**:
-   - Apply [Debugging & Error Recovery](../debugging/SKILL.md) for failures.
-   - Apply **Defense-in-Depth Validation** ([GEMINI.md](../../../GEMINI.md#🛡️-06-compliance) §1.1).
+   - Apply [Debugging & Error Recovery](../debug/SKILL.md) for failures.
+   - Apply **Defense-in-Depth Validation** ([GEMINI.md](../../../GEMINI.md#️-06-compliance) §1.1).
 
 ## Verification Checklist
 

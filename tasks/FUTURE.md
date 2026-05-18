@@ -1,28 +1,25 @@
-# 🚀 FUTURE: Semantic Spacing Migration
+# 🚀 Future (The Roadmap)
 
-## 🎯 Goal
+> **Role**: Mission Board & Tracks Registry
+> **Last Synchronized**: 2026-05-18
 
-Eliminate "heretical" raw spacing unit usages (`var(--spacing-*)`) in CSS `gap`, `padding`, and `margin` declarations project-wide. Enforce the use of semantic tokens defined in `DESIGN.md`.
+This document tracks all major tracks for the project. Each track has its own detailed plan in its respective single-file artifact.
 
-## ✅ Verification (TDD)
+## 🚀 Active Mission
 
-- [x] Profile.svelte: 0 raw spacing in gap/padding/margin.
-- [x] StorymodeFeed.svelte: 0 raw spacing in gap/padding/margin.
-- [x] Message.svelte: 0 raw spacing in gap/padding/margin.
-- [x] Project-wide Audit: `grep -r "var(--spacing-[0-9])" src/ui` returns 0 hits for gap/padding/margin.
-- [x] Chalk Regime compliance verified (0 Heresy).
+- **Track**: `storyboard-card-bleed-remediation-2026-05-18`
+- **Objective**: Remediate signature color bleed and text legibility in storyboard cards.
+- **Link**: [tasks/tracks/storyboard-card-bleed-remediation-2026-05-18.md](./tracks/storyboard-card-bleed-remediation-2026-05-18.md)
 
-## 🛠️ Tasks
+## 🗺️ Roadmap (Tracks)
 
-- [x] **Phase 1: Profile & Core UI Cleanup** <!-- { id: 1 } -->
-  - [x] Refactor `Profile.svelte` and `VisualWing.svelte`. <!-- { id: 2 } -->
-- [x] **Phase 2: Storymode & Feed Cleanup** <!-- { id: 3 } -->
-  - [x] Refactor `StorymodeFeed.svelte` and `Message.svelte`. <!-- { id: 4 } -->
-- [x] **Phase 3: Atoms & Utilities Cleanup** <!-- { id: 5 } -->
-  - [x] Refactor `TextField.svelte`, `Button.svelte`, etc. <!-- { id: 6 } -->
-- [x] **Phase 4: Final Verification Audit** <!-- { id: 7 } -->
-  - [x] Run `npm run verify` and manual grep. <!-- { id: 8 } -->
+| Track ID                                       | Name                              | Priority | Status    | Objective                                                    |
+| :--------------------------------------------- | :-------------------------------- | :------- | :-------- | :----------------------------------------------------------- |
+| `storyboard-card-bleed-remediation-2026-05-18` | Storyboard Card Bleed Remediation | P0       | 🔄 Active | Fix signature color bleed and typography contrast.           |
+| `profile-grid-layout`                          | Profile Grid Layout               | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality. |
+| `spacing-migration`                            | Spacing Migration                 | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.  |
+| `signature-color-consolidation`                | Signature Color Consolidation     | P0       | ✅ Done   | Consolidate signature color automation and logic hardening.  |
 
 ---
 
-> 🎨 Tactics | `css` | /01-plan
+> 🎨 Tactics | `legislative` | /01-plan

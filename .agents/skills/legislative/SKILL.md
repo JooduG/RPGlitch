@@ -35,15 +35,16 @@ Records significant choices in `tasks/decisions/`.
 
 ### 2. Rule Maintenance
 
-Owns the integrity of the **[GEMINI.md](../../../GEMINI.md)**. Updates Laws (01-06) as new patterns emerge.
+Owns the integrity of the **[GEMINI.md](../../../GEMINI.md)**. Updates Laws (01-06) as new patterns emerge. Synchronizes the root **ETERNAL.md** (Vision) with architectural shifts.
 
-### 3. Repository Hygiene (The Basement)
+### 3. Task Management & Hygiene
 
-Ensures the repository root and `src/` remain free of "agent debris."
+Ensures the `tasks/` directory follows the Sovereign Hierarchy.
 
-- **The Basement (tmp/)**: All transient scripts (`.py`, `.js`), logs (`.txt`), and temporary payloads (`.json`) MUST reside in `tmp/`.
-- **Cleanup**: Scan for loose artifacts (`scratch/`, `temp/`) and consolidate into `tmp/` or delete if no longer needed.
-- **Boy Scout Rule**: Always leave the codebase cleaner than you found it.
+- **Gap Analysis (PRESENT.md)**: Describes implementation distance from the vision.
+- **Roadmap (FUTURE.md)**: Registry of all active and pending tracks.
+- **Tracks (tracks/\*.md)**: Consolidated single-file artifacts with metadata frontmatter.
+- **Cleanup**: Archives completed tracks by moving them to `.agents/archive/tracks/` and updating `tasks/FUTURE.md`.
 
 ## Usage
 

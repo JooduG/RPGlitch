@@ -49,7 +49,7 @@ _The final gate before the mission is archived._
 
 1.  **PR Initiation ([SOP-13](../../skills/planning/SKILL.md#L229))**: Open the Pull Request using the GitHub CLI (`gh pr create --fill`). This is a formal invitation for review. Ensure all relevant Issue IDs are linked so the "Digital Thread" remains intact.
 2.  **Deployment Bridge**: If the project requires a Perchance deployment, execute the bridge now via the [release](../../skills/release/SKILL.md) skill. Verify the live state matches the local "True" state.
-3.  **Mission Board Reconciliation ([SOP-03](../../skills/planning/SKILL.md#L118))**: Update the **Mission Board** (`tasks/PRESENT.md`) to reflect the `[x]` status. Attach the 7-char commit hash to the task entry to anchor the record.
+3.  **Mission Board Reconciliation ([SOP-03](../../skills/planning/SKILL.md#L118))**: Update the **Roadmap** (`tasks/FUTURE.md`) to reflect the `[x]` status. Attach the 7-char commit hash to the task entry to anchor the record.
 4.  **Local Purge**: Once the remote state is confirmed, delete the local working branch to maintain a lean, high-velocity workspace.
 
 ---

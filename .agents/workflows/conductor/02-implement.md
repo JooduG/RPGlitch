@@ -34,8 +34,8 @@ Activate the relevant specialist skill and invoke its persona to translate the C
 Before the first tool is called, we must ensure that the "Physics" of our environment are stable. This initialization phase is not merely a check; it is a synchronization of the agent's context with the project's foundational laws.
 
 1.  **Axiom Resolution**: Using the **[Universal File Resolution Protocol](../../skills/planning/SKILL.md#L99)**, we resolve the path to the **[GEMINI.md](../../../GEMINI.md)**. We verify that the laws of Foundation, Infrastructure, and Aesthetics are present and readable.
-2.  **Mission Registry**: We locate the **Mission Board** (`tasks/PRESENT.md`) to ensure we are operating within the current strategic timeline.
-3.  **Plan Verification**: You **MUST** locate the latest plan of action (e.g., `tasks/FUTURE.md`) and verify it corresponds to the active track. Do not act without a verified plan.
+2.  **Mission Registry**: We locate the **Roadmap** (`tasks/FUTURE.md`) and the **Gap Analysis** (`tasks/PRESENT.md`) to ensure we are operating within the current strategic timeline.
+3.  **Plan Verification**: You **MUST** locate the latest plan of action (the `# FUTURE` section of the active track file) and verify it corresponds to the active mission. Do not act without a verified plan.
 4.  **Critical Halt**: If the environment is fragmented or the rules are missing, the session must pause. Announce: _"Conductor environment unsynchronized. Initialization required via /setup-conductor."_ and HALT.
 
 ---
@@ -48,7 +48,7 @@ Implementation does not happen in a vacuum. It is a targeted strike against a sp
 
 ### The Clinical Scan
 
-We begin by parsing the **Mission Board** (`tasks/PRESENT.md`). We search for the next authorized objective—the first track marked with a pending `[ ]` status. This scan filters out the noise and identifies the exact narrative line we are meant to follow.
+We begin by parsing the **Roadmap** (`tasks/FUTURE.md`). We search for the next authorized objective—the first track marked with a pending `[ ]` status. This scan filters out the noise and identifies the exact narrative line we are meant to follow.
 
 ### The Signal Handshake
 
@@ -56,7 +56,7 @@ Once a track is identified, we do not proceed in silence. We invoke the `ask_use
 
 ### Artifact Integrity
 
-With the handshake complete, we resolve the track's physical artifacts: the `ETERNAL.md` (the "What") and the `FUTURE.md` (the "How"). We verify that these blueprints are mature and have been properly initialized. If the artifacts are missing, the cycle reverts to the planning phase.
+With the handshake complete, we resolve the track's physical artifact: `tasks/tracks/<track_id>.md`. We verify that this blueprint is mature and has been properly initialized. If the artifact is missing, the cycle reverts to the planning phase.
 
 Refer to **[SOP-04](../../skills/planning/SKILL.md#L123)** for the detailed discovery and selection mechanics.
 
@@ -70,7 +70,7 @@ The Implementation Grind is a rhythmic cycle of creation and verification. It fo
 
 ### Track Activation
 
-We mark the selected track as active `[~]` in the Mission Board. This "locks" our cognitive focus. We then load the implementation plan into memory, identifying the first pending task in the sequence.
+We mark the selected track as active `[~]` in the **Roadmap** (`tasks/FUTURE.md`). This "locks" our cognitive focus. We then load the implementation plan from the track's `# FUTURE` section, identifying the first pending task in the sequence.
 
 ### The TDD Cycle (Red-Green-Refactor)
 
@@ -82,7 +82,7 @@ The **Tactical Specialist** lives and dies by the test. For each task, we follow
 
 ### Forensic Recording
 
-As each task reaches its "Done" state, we update the `FUTURE.md` with the specific 7-character git SHA. We simultaneously update the persistent **Skill Log** in `tasks/PRESENT.md`, creating a durable record of our technical reasoning and tool usage.
+As each task reaches its "Done" state, we update the track's `# FUTURE` section with the specific 7-character git SHA. We simultaneously update the persistent **Skill Log (Pulse)** in `tasks/PRESENT.md`, creating a durable record of our technical reasoning and tool usage.
 
 Refer to **[SOP-05](../../skills/planning/SKILL.md#L134)** for the detailed lifecycle management protocol.
 
