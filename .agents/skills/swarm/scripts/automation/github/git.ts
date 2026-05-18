@@ -20,7 +20,7 @@ export interface GitRepoInfo {
  *
  * @example
  * const repo = await getGitRepoInfo();
- * console.log(repo.fullName); // "owner/repo"
+ * // repo.fullName -> "owner/repo"
  */
 export async function getGitRepoInfo(remoteName = "origin"): Promise<GitRepoInfo> {
   // Validate remoteName to prevent command injection

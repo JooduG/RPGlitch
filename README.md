@@ -125,12 +125,11 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 | `npm run swarm:merge`    | Consolidate output and perform the 80% Gate audit.     |
 
 > [!TIP]
-> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agents/workflows/swarm.md)** workflow.
+> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agents/workflows/utility/swarm.md)** workflow.
 
 ---
 
 ## 🗺️ Documentation & Rules
 
-- [Prime Directive](.agents/rules/01-foundation.md)
-- [Sovereign Rules](GEMINI.md)
+- [Sovereign Rules & Foundations](GEMINI.md)
 - [Automated Workflows](.agents/workflows)

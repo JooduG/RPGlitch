@@ -58,7 +58,7 @@ export async function get_swarm_dir(): Promise<string> {
       const selected_dir = path.join(swarm_base, latest);
 
       if (latest !== today) {
-        console.log(`  ℹ️  No swarm directory found for today (${today}). Using latest: ${latest}`);
+        console.info(`  ℹ️  No swarm directory found for today (${today}). Using latest: ${latest}`);
       }
       return selected_dir;
     }

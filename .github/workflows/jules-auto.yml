@@ -122,7 +122,7 @@ jobs:
         uses: "google-labs-code/jules-action@main"
         with:
           jules_api_key: "${{ secrets.JULES_API_KEY }}"
-          prompt: "Execute .agents/rules/06-compliance.md (Audit section). Target Critical/High vulnerabilities."
+          prompt: "Execute compliance checks from GEMINI.md (Compliance section / Rule 06). Target Critical/High vulnerabilities."
       - name: "📦 Relocate Artifacts"
         if: always()
         run: |
