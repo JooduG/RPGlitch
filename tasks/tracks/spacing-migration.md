@@ -14,15 +14,15 @@ Eliminate "heretical" raw spacing unit usages (`var(--spacing-*)`) in CSS `gap`,
 
 ## 🛠️ Tasks
 
-- [ ] **Phase 1: Profile & Core UI Cleanup**
-  - Refactor `Profile.svelte` and `VisualWing.svelte`.
-- [ ] **Phase 2: Storymode & Feed Cleanup**
-  - Refactor `StorymodeFeed.svelte` and `Message.svelte`.
-- [ ] **Phase 3: Atoms & Utilities Cleanup**
-  - Refactor `TextField.svelte`, `Button.svelte`, etc.
-- [ ] **Phase 4: Final Verification Audit**
-  - Run `npm run verify` and manual grep.
+- [ ] **Phase 1: Profile & Core UI Cleanup** <!-- { id: 1 } -->
+  - [ ] Refactor `Profile.svelte` and `VisualWing.svelte`. <!-- { id: 2 } -->
+- [ ] **Phase 2: Storymode & Feed Cleanup** <!-- { id: 3 } -->
+  - [ ] Refactor `StorymodeFeed.svelte` and `Message.svelte`. <!-- { id: 4 } -->
+- [ ] **Phase 3: Atoms & Utilities Cleanup** <!-- { id: 5 } -->
+  - [ ] Refactor `TextField.svelte`, `Button.svelte`, etc. <!-- { id: 6 } -->
+- [ ] **Phase 4: Final Verification Audit** <!-- { id: 7 } -->
+  - [ ] Run `npm run verify` and manual grep. <!-- { id: 8 } -->
 
 ---
 
-> ⚒️ Operations | `css` | /02-implement
+> 🎨 Tactics | `css` | /01-plan

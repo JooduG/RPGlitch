@@ -1,25 +1,28 @@
-# 🚀 FUTURE: Profile Grid Layout Implementation
+# 🚀 FUTURE: Semantic Spacing Migration
 
 ## 🎯 Goal
 
-Implement a state-aware 12-column grid layout for the Profile modal that adapts its position and width based on whether supplementary "Wings" are active.
+Eliminate "heretical" raw spacing unit usages (`var(--spacing-*)`) in CSS `gap`, `padding`, and `margin` declarations project-wide. Enforce the use of semantic tokens defined in `DESIGN.md`.
 
 ## ✅ Verification (TDD)
 
-- [x] Profile modal occupies columns 4-9 in Readonly mode.
-- [x] Profile modal occupies columns 2-7 when Wings are present (Dev/Edit mode).
-- [x] Wings stack in columns 9-11 when active.
-- [x] Breathing room enforced (Col 1, 8, 12 empty with wings; Col 1-3, 10-12 empty without).
-- [x] Modal fills 100vh and is internally scrollable.
-- [x] Chalk Regime compliance verified (0 Heresy).
+- [ ] Profile.svelte: 0 raw spacing in gap/padding/margin.
+- [ ] StorymodeFeed.svelte: 0 raw spacing in gap/padding/margin.
+- [ ] Message.svelte: 0 raw spacing in gap/padding/margin.
+- [ ] Project-wide Audit: `grep -r "var(--spacing-[0-9])" src/ui` returns 0 hits for gap/padding/margin.
+- [ ] Chalk Regime compliance verified (0 Heresy).
 
 ## 🛠️ Tasks
 
-- [x] **Phase 1: Grid Logic Implementation**
-- [x] **Phase 2: Verticality & Scroll Hardening**
-- [x] **Phase 3: Breathing Space Verification**
-- [x] **Phase 4: Final Audit**
+- [ ] **Phase 1: Profile & Core UI Cleanup** <!-- { id: 1 } -->
+  - [ ] Refactor `Profile.svelte` and `VisualWing.svelte`. <!-- { id: 2 } -->
+- [ ] **Phase 2: Storymode & Feed Cleanup** <!-- { id: 3 } -->
+  - [ ] Refactor `StorymodeFeed.svelte` and `Message.svelte`. <!-- { id: 4 } -->
+- [ ] **Phase 3: Atoms & Utilities Cleanup** <!-- { id: 5 } -->
+  - [ ] Refactor `TextField.svelte`, `Button.svelte`, etc. <!-- { id: 6 } -->
+- [ ] **Phase 4: Final Verification Audit** <!-- { id: 7 } -->
+  - [ ] Run `npm run verify` and manual grep. <!-- { id: 8 } -->
 
 ---
 
-> ⚒️ Operations | `css` | /02-implement
+> 🎨 Tactics | `css` | /01-plan
