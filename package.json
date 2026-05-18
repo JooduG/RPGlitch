@@ -165,6 +165,7 @@
     "express-rate-limit": "^8.5.0",
     "ip-address": "^10.1.1",
     "devalue": "^5.8.1",
-    "svelte": "^5.55.7"
+    "svelte": "^5.55.7",
+    "toad-cache": "3.7.0"
   }
 }
