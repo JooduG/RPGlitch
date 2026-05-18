@@ -1,14 +1,15 @@
 # 🛰️ Present (The Dashboard)
 
-## 🚀 Active Mission: Idle
+## 🚀 Active Mission: `storyboard-card-bleed-remediation-2026-05-18`
 
-**Status**: 💤 Idle
-**Objective**: Awaiting next track initialization.
+**Status**: 🔄 Active
+**Objective**: Remediate signature color bleed and text legibility in storyboard cards.
 
 ## 🗺️ Roadmap (Tracks)
 
 | Track ID                       | Name                          | Priority | Status    | Objective                                                    |
 | :----------------------------- | :---------------------------- | :------- | :-------- | :----------------------------------------------------------- |
+| `storyboard-card-bleed-remediation-2026-05-18` | Storyboard Card Bleed Remediation | P0       | 🔄 Active | Fix signature color bleed and typography contrast.           |
 | `profile-grid-layout`          | Profile Grid Layout           | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality. |
 | `spacing-migration`            | Spacing Migration             | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.  |
 | `signature-color-consolidation` | Signature Color Consolidation | P0       | ✅ Done   | Consolidate signature color automation and logic hardening. |
@@ -17,6 +18,7 @@
 
 | Timestamp (ISO 8601) | Task                                                       | Skill Invoked          | Outcome   |
 | :------------------- | :--------------------------------------------------------- | :--------------------- | :-------- |
+| 2026-05-18T09:37:00Z | Initialize storyboard-card-bleed-remediation track and specs | planning               | ✅ Done   |
 | 2026-05-18T09:21:00Z | Archive completed profile-rebalance & storyboard-typography-remediation tracks | legislative            | ✅ Done   |
 | 2026-05-18T09:15:00Z | Consolidate signature-color-automation & signature-color-hardening tracks | legislative            | ✅ Done   |
 | 2026-05-18T09:05:00Z | Archive spacing-migration track and update Present state   | legislative            | ✅ Done   |
