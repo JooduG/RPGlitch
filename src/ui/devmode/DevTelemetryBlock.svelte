@@ -273,11 +273,12 @@
 
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 rgb(from var(--electric-cyan) r g b / var(--opacity-base));
+      box-shadow: 0 0 0 0 rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
     }
 
     70% {
-      box-shadow: 0 0 0 var(--spacing-3) rgb(from var(--electric-cyan) r g b / var(--opacity-none));
+      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3)
+        rgb(from var(--electric-cyan) r g b / var(--opacity-none));
     }
 
     100% {
@@ -298,14 +299,14 @@
     display: block;
     font-size: var(--font-size-small);
     color: var(--pure-white);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     letter-spacing: var(--font-spacing-tight);
   }
 
   .resonance-desc {
     font-size: var(--font-size-tiny);
-    color: var(--font-color-muted);
-    margin: var(--margin-nano) 0 0 0;
+    color: var(--frozen);
+    margin: var(--margin-tight) 0 0 0;
   }
 
   .resonance-item {
@@ -351,30 +352,30 @@
   .telemetry-container {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-loose);
-    padding: var(--padding-nano);
+    gap: var(--gap-standard);
+    padding: var(--padding-tight);
   }
 
   .telemetry-meta {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: calc(-1 * var(--margin-moderate));
-    opacity: var(--opacity-half);
+    margin-bottom: calc(-1 * var(--margin-standard));
+    opacity: var(--opacity-whisper);
   }
 
   .telemetry-time {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
-    color: var(--font-color-muted);
+    color: var(--frozen);
   }
 
   .sub-label {
     font-size: var(--font-size-nano);
     color: var(--electric-cyan);
-    opacity: var(--opacity-heavy);
+    opacity: var(--opacity-whisper);
     margin-bottom: var(--margin-tight);
-    font-weight: var(--font-weight-heavy);
-    letter-spacing: var(--font-spacing-wide);
+    font-weight: var(--font-weight-bold);
+    letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
   }
 
@@ -393,7 +394,7 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     color: var(--pure-white);
-    background: rgb(from var(--void-black) r g b / var(--opacity-muted));
+    background: rgb(from var(--void-black) r g b / var(--opacity-whisper));
     padding: var(--padding-tight);
     border-radius: var(--radius-sharp);
     white-space: nowrap;
@@ -401,24 +402,24 @@
   }
 
   .delta-item.is-positive {
-    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-muted));
+    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
     color: var(--electric-cyan);
   }
 
   .delta-item.is-negative {
-    border-color: rgb(from var(--frozen) r g b / var(--opacity-muted));
+    border-color: rgb(from var(--frozen) r g b / var(--opacity-whisper));
     color: var(--frozen);
   }
 
   .delta-text {
-    opacity: var(--opacity-intense);
+    opacity: var(--opacity-solid);
   }
 
   /* Dynamics Grid */
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--profile-gap-section);
+    gap: var(--gap-standard);
   }
 
   .dynamics-column {
@@ -431,26 +432,26 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
   }
 
   .metric-label {
     font-size: var(--font-size-tiny);
-    color: var(--font-color-muted);
+    color: var(--frozen);
     text-transform: lowercase;
-    min-width: var(--spacing-20);
+    min-width: calc(var(--spacing-unit) * 20);
   }
 
   .metric-visual {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
   }
 
   .metric-track {
     flex: 1;
-    height: var(--spacing-1);
+    height: var(--spacing-unit);
     background: var(--glass-base);
     border-radius: var(--radius-full);
     position: relative;
@@ -465,7 +466,7 @@
     bottom: 0;
     width: var(--spacing-pixel);
     background: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-    z-index: var(--mid-z-index);
+    z-index: var(--z-index-elevated);
   }
 
   .metric-fill {
@@ -481,7 +482,7 @@
   .metric-value {
     font-size: var(--font-size-nano);
     color: var(--pure-white);
-    min-width: var(--spacing-6);
+    min-width: calc(var(--spacing-unit) * 6);
     text-align: right;
     font-family: var(--font-family-mono);
   }
@@ -490,7 +491,7 @@
   .vector-fabric {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--profile-gap-section);
+    gap: var(--gap-standard);
     padding-top: var(--padding-standard);
   }
 
@@ -507,13 +508,13 @@
 
   .vector-item {
     display: flex;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
     font-size: var(--font-size-tiny);
-    line-height: var(--font-height-s);
-    padding: var(--padding-nano) var(--padding-tight);
+    line-height: var(--font-height-base);
+    padding: var(--padding-tight) var(--padding-tight);
     border-radius: var(--radius-sharp);
     background: rgb(from var(--void-black) r g b / var(--opacity-whisper));
-    border-left: var(--spacing-2) solid transparent;
+    border-left: calc(var(--spacing-unit) * 2) solid transparent;
   }
 
   .vector-item.future {
@@ -527,12 +528,12 @@
   .vector-score {
     font-family: var(--font-family-mono);
     color: var(--electric-cyan);
-    font-weight: var(--font-weight-heavy);
-    opacity: var(--opacity-substantial);
+    font-weight: var(--font-weight-bold);
+    opacity: var(--opacity-whisper);
   }
 
   .vector-text {
-    color: var(--font-color-base);
+    color: var(--frisk);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -543,8 +544,8 @@
 
   .empty-hint {
     font-size: var(--font-size-nano);
-    color: var(--font-color-muted);
-    opacity: var(--opacity-muted);
+    color: var(--frozen);
+    opacity: var(--opacity-whisper);
     font-family: var(--font-family-mono);
   }
 
@@ -562,7 +563,7 @@
   .signal-pill {
     padding: var(--padding-tight);
     background: var(--glass-base);
-    border: var(--border-side);
+    border: var(--border-whisper);
     border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
     color: var(--electric-cyan);
     border-radius: var(--radius-full);

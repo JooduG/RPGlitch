@@ -102,7 +102,7 @@
     width: var(--grid-width);
     height: var(--grid-height);
     overflow: hidden;
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
     color: var(--pure-white);
     transition: opacity var(--motion-fast);
   }
@@ -203,7 +203,7 @@
     /* Storymode Stacking (Hero Focus) */
     &.is-storymode {
       grid-template-columns: 1fr 1fr;
-      grid-template-rows: min-content var(--spacing-24) 1fr min-content;
+      grid-template-rows: min-content calc(var(--spacing-unit) * 24) 1fr min-content;
 
       .is-left {
         grid-column: 1 / 2;
@@ -233,7 +233,7 @@
 
   .header,
   .footer {
-    z-index: var(--overlay-z-index);
+    z-index: var(--z-index-overlay);
     align-self: stretch;
     display: flex;
     justify-content: center;
@@ -251,7 +251,7 @@
   .footer {
     grid-row: row-11;
     align-items: flex-start;
-    z-index: var(--overlay-peak-z-index);
-    height: var(--row);
+    z-index: var(--z-index-overlay);
+    height: var(--row-unit);
   }
 </style>

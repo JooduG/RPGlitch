@@ -57,7 +57,7 @@
 
     .c-card {
         background: var(--glass-base);
-        border-radius: var(--radius-subtle);
+        border-radius: var(--radius-sharp);
         padding: var(--padding-standard);
         display: flex;
         flex-direction: column;
@@ -75,7 +75,7 @@
     }
 
     .c-btn {
-        background: var(--signature-color);
+        background: var(--electric-cyan);
         color: var(--void-black);
         padding: var(--padding-tight) var(--padding-standard);
         border-radius: var(--radius-sharp);
@@ -83,6 +83,6 @@
     }
 
     .c-btn:hover {
-        opacity: var(--opacity-intense);
+        opacity: var(--opacity-solid);
     }
 </style>

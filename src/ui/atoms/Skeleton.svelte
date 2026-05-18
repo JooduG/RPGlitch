@@ -35,7 +35,7 @@
   .root {
     /* Base Surface: Sunken placeholder logic */
     background: var(--glass-sunken);
-    backdrop-filter: var(--glass-sunken-blur);
+    backdrop-filter: var(--blur-whisper);
     border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-standard);
     overflow: hidden;
@@ -68,7 +68,7 @@
   .root.text {
     height: var(--skeleton-text-height);
     margin-bottom: var(--margin-tight);
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     width: var(--skeleton-text-width);
   }
 
@@ -79,17 +79,17 @@
     inset: 0;
     transform: translateX(-100%);
     background: linear-gradient(
-      var(--angle-right),
+      var(90deg),
       transparent 0%,
       rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 30%,
-      rgb(from var(--pure-white) r g b / var(--opacity-muted)) 50%,
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,
       rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 70%,
       transparent 100%
     );
     filter: var(--blur-mist);
-    animation: shimmer var(--duration-shimmer) var(--ease-standard) infinite;
+    animation: shimmer var(--duration-ambient) var(--ease-standard) infinite;
     pointer-events: none;
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
   }
 
   @keyframes shimmer {

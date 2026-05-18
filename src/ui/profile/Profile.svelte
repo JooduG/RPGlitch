@@ -4,26 +4,25 @@
    * 🧬 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
-  import Dialog from "@atoms/Dialog.svelte";
+  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@/core/intelligence/entity-fragments.js";
   import Button from "@atoms/Button.svelte";
+  import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { PROFILE_SECTIONS, ENTITY_FRAGMENTS } from "@/core/intelligence/entity-fragments.js";
   import DevWing from "@devmode/DevWing.svelte";
   import AudioWing from "@profile/AudioWing.svelte";
-  import VisualWing from "@profile/VisualWing.svelte";
   import ProfileArray from "@profile/ProfileArray.svelte";
-  import TextField from "@atoms/TextField.svelte";
+  import VisualWing from "@profile/VisualWing.svelte";
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@theme/palette.svelte.js";
   import { fly } from "svelte/transition";
-
   // State & Utilities
-  import { ProfileState } from "./profile.svelte.js";
+  import { auto_resize } from "@utils/auto-resize.js";
   import { click_outside } from "@utils/click-outside.js";
   import { fit_text } from "@utils/fit-text.js";
-  import { auto_resize } from "@utils/auto-resize.js";
+  import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -64,7 +63,7 @@
         class="profile-container no-scrollbar glass-elevated"
         class:readonly={!has_wings}
         class:has-wings={has_wings}
-        style="--signature-color: {signature_color};"
+        style="--electric-cyan: {signature_color};"
         use:click_outside={() => state.handle_close()}
       >
         <div class="avatar-section">
@@ -198,13 +197,13 @@
                 {state}
                 path={field.key}
                 unit_label={field.unitLabel}
-                signature_color="var(--signature-color)"
+                signature_color="var(--electric-cyan)"
               />
             {:else}
               <TextField
                 is_edit={state.is_editing}
                 syncId={section.label}
-                signature_color="var(--signature-color)"
+                signature_color="var(--electric-cyan)"
                 class="text-area custom-field {state.active_field?.key === field.key
                   ? 'active'
                   : ''}"
@@ -287,13 +286,13 @@
     display: flex;
     flex-direction: column;
     gap: var(--gap-standard);
-    padding: var(--padding-header) 0;
+    padding: var(--padding-standard) 0;
     overflow-y: auto;
   }
 
   .profile-header {
     flex-shrink: 0;
-    padding: var(--padding-header);
+    padding: var(--padding-standard);
     border-bottom: var(--border-whisper);
   }
 
@@ -327,8 +326,8 @@
   .id-badge {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    color: var(--font-color-muted);
-    padding: var(--padding-nano) var(--padding-tight);
+    color: var(--frozen);
+    padding: var(--padding-tight) var(--padding-tight);
     border: var(--border-whisper);
     border-radius: var(--radius-sharp);
   }
@@ -336,8 +335,8 @@
   .profile-fragments {
     display: grid;
     grid-template-columns: var(--profile-fragment-column) 1fr;
-    gap: var(--gap-loose);
-    padding: var(--padding-section);
+    gap: var(--gap-standard);
+    padding: var(--padding-standard);
     min-width: 0;
   }
 
@@ -353,7 +352,7 @@
 
   .profile-fields {
     display: grid;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
     min-width: 0;
     align-items: stretch;
   }
@@ -372,8 +371,8 @@
   .section-label {
     margin: 0;
     font-size: var(--font-size-h5);
-    font-weight: var(--font-weight-heavy);
-    color: var(--signature-color);
+    font-weight: var(--font-weight-bold);
+    color: var(--electric-cyan);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
     display: flex;
@@ -382,7 +381,7 @@
     gap: var(--gap-tight);
     transition: all var(--duration-standard);
     position: relative;
-    line-height: var(--font-height-short);
+    line-height: var(--font-height-base);
     letter-spacing: var(--font-spacing-loose);
   }
 
@@ -390,14 +389,14 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     font-weight: var(--font-weight-bold);
-    opacity: var(--opacity-moderate);
+    opacity: var(--opacity-whisper);
     color: var(--pure-white);
     letter-spacing: var(--font-spacing-loose);
   }
 
   .label-text {
     font-size: var(--font-size-h5);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
   }
 
   .add-hint {
@@ -406,13 +405,13 @@
     top: calc(100% + var(--gap-standard));
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
-    font-weight: var(--font-weight-heavy);
-    color: var(--signature-color);
-    opacity: var(--opacity-substantial);
+    font-weight: var(--font-weight-bold);
+    color: var(--electric-cyan);
+    opacity: var(--opacity-whisper);
     pointer-events: none;
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
-    text-shadow: 0 0 var(--spacing-2) var(--signature-color);
+    text-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--electric-cyan);
   }
 
   .section-sub {
@@ -420,7 +419,7 @@
     font-size: var(--font-size-nano);
     color: var(--pure-white);
     font-weight: var(--font-weight-bold);
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     text-shadow: var(--shadow-font);
@@ -449,22 +448,22 @@
 
   .field-label {
     font-size: var(--font-size-nano);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
-    color: var(--signature-color);
+    color: var(--electric-cyan);
     opacity: var(--opacity-solid);
     text-align: left;
     text-shadow: var(--shadow-font);
-    margin-bottom: var(--margin-nano);
+    margin-bottom: var(--margin-tight);
     width: 100%;
     letter-spacing: var(--font-spacing-loose);
-    padding-left: var(--padding-nano);
-    border-left: var(--border-width-base) solid var(--signature-color);
+    padding-left: var(--padding-tight);
+    border-left: var(--border-width-base) solid var(--electric-cyan);
   }
 
   :global(.action-btn) {
     flex: 1;
-    font-weight: var(--font-weight-heavy) !important;
+    font-weight: var(--font-weight-bold) !important;
     letter-spacing: var(--font-spacing-loose) !important;
     text-transform: uppercase !important;
   }
@@ -479,7 +478,7 @@
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     color: var(--pure-white);
-    opacity: var(--opacity-moderate);
+    opacity: var(--opacity-whisper);
     display: block;
     margin-top: var(--gap-tight);
   }
@@ -495,15 +494,15 @@
     box-shadow: none;
     background: transparent;
     filter: drop-shadow(
-      0 var(--spacing-pixel) var(--spacing-2)
-        rgb(from var(--void-black) r g b / var(--opacity-substantial))
+      0 var(--spacing-pixel) calc(var(--spacing-unit) * 2)
+        rgb(from var(--void-black) r g b / var(--opacity-whisper))
     );
   }
 
   :global(.enhance-btn:hover) {
     background: transparent;
     color: var(--pure-white);
-    transform: var(--scale-zoom);
+    transform: var(--scale-pulse);
   }
 
   /* --- RESPONSIVE OVERRIDES --- */
@@ -511,13 +510,13 @@
   .profile-fragments.is-mobile {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
   }
 
   .profile-modal.is-mobile .profile-side {
     text-align: center;
     border-bottom: var(--border-width-base) solid
-      rgb(from var(--signature-color) r g b / var(--opacity-substantial));
+      rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
     padding-right: 0;
     padding-bottom: var(--padding-tight);
     align-items: center;

@@ -135,9 +135,7 @@
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
-        <span class="entity text-shadow-bloom" style:--signature-color={part.color}
-          >{part.text}</span
-        >
+        <span class="entity text-shadow-bloom" style:--electric-cyan={part.color}>{part.text}</span>
       {:else}
         <span class="prefix text-shadow-outline">{part.text}</span>
       {/if}
@@ -151,14 +149,14 @@
 
   .root {
     /* Layout & Alignment */
-    z-index: var(--overlay-peak-z-index);
+    z-index: var(--z-index-overlay);
     display: block;
-    max-width: var(--columns-12);
+    max-width: calc(var(--column-unit) * 12);
     margin: 0 auto;
     padding: var(--padding-tight) var(--padding-standard);
 
     /* Typography */
-    font-family: var(--font-family-cursive) !important;
+    font-family: Satisfy, cursive !important;
     font-size: var(--font-size-h2);
     font-weight: var(--font-weight-base);
     line-height: var(--font-height-base);
@@ -184,40 +182,41 @@
 
   .root:hover {
     background: var(--glass-base);
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
   }
 
   .root:focus {
     background: var(--glass-sunken);
     outline: none;
     box-shadow: var(--title-shadow-focus);
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
   }
 
   .prefix,
   .entity {
     display: inline;
-    padding: 0 var(--padding-nano);
+    padding: 0 var(--padding-tight);
     white-space: normal; /* Allow wrapping between prefix parts */
   }
 
   .entity {
-    font-family: var(--font-family-cursive) !important;
-    color: var(--signature-color);
+    font-family: Satisfy, cursive !important;
+    color: var(--electric-cyan);
     white-space: nowrap; /* Prevent breaking names across lines */
   }
 
   /* Specialized Shadow Patterns for Storyboard Legibility */
   .text-shadow-outline {
     text-shadow:
-      0 var(--spacing-pixel) var(--spacing-2px) var(--void-black),
-      0 0 var(--spacing-1) var(--void-black);
+      0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
+      0 0 calc(var(--spacing-unit) * 1.5) var(--void-black);
   }
 
   .text-shadow-bloom {
     text-shadow:
-      0 var(--spacing-pixel) var(--spacing-2px) var(--void-black),
-      0 0 var(--spacing-2) var(--signature-color),
-      0 0 var(--spacing-4) rgb(from var(--signature-color) r g b / var(--opacity-half));
+      0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
+      0 0 calc(var(--spacing-unit) * 1.5) var(--electric-cyan),
+      0 0 calc(var(--spacing-unit) * 4)
+        rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
   }
 </style>

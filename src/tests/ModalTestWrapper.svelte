@@ -6,7 +6,7 @@
 <Modal {on_close} {variant}>
   <div
     data-testid="modal-content"
-    style="width: var(--spacing-8); height: var(--spacing-8); background: var(--crimson-red);"
+    style="width: calc(var(--spacing-unit) * 8); height: calc(var(--spacing-unit) * 8); background: var(--crimson-red);"
   >
     Test Content
   </div>

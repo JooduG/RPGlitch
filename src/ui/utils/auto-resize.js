@@ -25,7 +25,7 @@ export function auto_resize(node, options = {}) {
 
     frame = requestAnimationFrame(() => {
       // 0. Load tokens dynamically (Red Thread)
-      const buffer = resolve_px("--auto-resize-buffer", 2, node);
+      const buffer = resolve_px("--spacing-pixel", 2, node);
 
       // Skip if no change in content or width
       if (node.clientWidth === lastWidth && node.scrollHeight === lastScrollHeight) {

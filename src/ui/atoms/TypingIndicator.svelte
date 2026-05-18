@@ -49,22 +49,22 @@
 
   /* ── Variant: glass (default — floating bubble) ──────── */
   .root.glass {
-    padding: var(--padding-tight) var(--padding-loose);
+    padding: var(--padding-tight) var(--padding-standard);
     background: var(--glass-elevated); /* Maps to glass-elevated foundation */
-    backdrop-filter: var(--glass-elevated-blur);
+    backdrop-filter: var(--blur-mist);
     box-shadow: var(--shadow-ghost);
-    height: var(--spacing-10);
+    height: calc(var(--spacing-unit) * 10);
   }
 
   .root.glass .dot {
-    background-color: var(--font-color-base);
+    background-color: var(--frisk);
   }
 
   /* ── Variant: pill (inline / chat) ───────────────────── */
   .root.pill {
     padding: var(--padding-tight) var(--padding-standard);
     background: var(--state-activity-color);
-    height: var(--spacing-12);
+    height: calc(var(--spacing-unit) * 12);
   }
 
   /* ── Variant: minimal (bare dots) ────────────────────── */
@@ -77,8 +77,8 @@
 
   /* ── Dot ──────────────────────────────────────────────── */
   .dot {
-    width: var(--spacing-2);
-    height: var(--spacing-2);
+    width: calc(var(--spacing-unit) * 2);
+    height: calc(var(--spacing-unit) * 2);
     background-color: var(--pure-white);
     border-radius: var(--radius-full);
     animation: typing-pulse 1.4s infinite ease-in-out both;
@@ -94,7 +94,7 @@
 
   .root.is-busy {
     filter: var(--brightness-dim) grayscale(0.5);
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
   }
 
   /* ── Keyframes ────────────────────────────────────────── */

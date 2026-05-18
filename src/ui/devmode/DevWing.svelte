@@ -137,7 +137,7 @@
     <div class="raw-explorer">
       <details>
         <summary>View JSON Data</summary>
-        <DataBox maxHeight="var(--spacing-60)">
+        <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
           <pre>{JSON.stringify(char, null, 2)}</pre>
         </DataBox>
       </details>
@@ -170,7 +170,7 @@
     transition: all var(--duration-standard) var(--motion-elastic);
     background-color: rgb(from var(--gunmetal) r g b / 45%);
     padding: var(--padding-standard);
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
   }
 
   .group {
@@ -183,18 +183,18 @@
   .dynamics-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
   }
 
   .dynamic-box {
-    padding: var(--padding-moderate);
+    padding: var(--padding-standard);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: var(--spacing-16);
+    min-height: calc(var(--spacing-unit) * 16);
     background: var(--glass-sunken);
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     transition: all var(--duration-standard) var(--motion-elastic);
     position: relative;
     overflow: hidden;
@@ -206,7 +206,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: var(--spacing-2);
+    height: calc(var(--spacing-unit) * 2);
     background: var(--dev-accent-default);
     opacity: 0.2;
   }
@@ -215,23 +215,23 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    height: var(--spacing-2);
+    height: calc(var(--spacing-unit) * 2);
     width: var(--state-value, 0%);
     background: var(--dev-accent-default);
-    box-shadow: 0 0 var(--spacing-3) var(--dev-accent-default);
-    transition: width var(--duration-reflex) var(--motion-dissolve);
-    z-index: var(--mid-z-index);
+    box-shadow: 0 0 calc(var(--spacing-unit) * 3) var(--dev-accent-default);
+    transition: width var(--duration-fast) var(--motion-dissolve);
+    z-index: var(--z-index-elevated);
   }
 
   .dynamic-label {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
-    letter-spacing: var(--font-spacing-wider);
+    letter-spacing: var(--font-spacing-loose);
     color: var(--frisk);
-    margin-bottom: var(--margin-nano);
+    margin-bottom: var(--margin-tight);
     cursor: help;
-    z-index: var(--mid-z-index);
+    z-index: var(--z-index-elevated);
   }
 
   .value-container {
@@ -240,14 +240,14 @@
     justify-content: center;
     position: relative;
     width: 100%;
-    z-index: var(--mid-z-index);
+    z-index: var(--z-index-elevated);
   }
 
   .value-container input {
     width: 100%;
     background: transparent;
     border: none;
-    color: var(--font-color-base);
+    color: var(--frisk);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
@@ -264,7 +264,7 @@
   }
 
   .value-display {
-    color: var(--font-color-base);
+    color: var(--frisk);
     font-family: var(--font-family-mono);
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
@@ -273,7 +273,7 @@
 
   .step-controls {
     position: absolute;
-    right: -var(--spacing-2);
+    right: -calc(var(--spacing-unit) * 2);
     display: flex;
     flex-direction: column;
     gap: 0;
@@ -330,18 +330,18 @@
   .meta-item {
     display: flex;
     justify-content: space-between;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
   }
 
   .meta-item .tag {
-    color: var(--font-color-muted);
-    width: var(--spacing-16);
+    color: var(--frozen);
+    width: calc(var(--spacing-unit) * 16);
   }
 
   .meta-item .val {
-    color: var(--font-color-base);
+    color: var(--frisk);
   }
 </style>

@@ -25,8 +25,8 @@
   .data-box {
     width: 100%;
     background: var(--glass-sunken);
-    border: var(--border-bottom);
-    border-radius: var(--radius-subtle);
+    border: var(--border-ghost);
+    border-radius: var(--radius-sharp);
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -35,25 +35,25 @@
     transition: all var(--duration-standard);
     text-align: left;
     font-family: var(--font-family-mono);
-    opacity: var(--opacity-heavy);
+    opacity: var(--opacity-whisper);
   }
 
   .data-header {
-    padding: var(--padding-tight) var(--padding-moderate);
+    padding: var(--padding-tight) var(--padding-standard);
     background: rgb(from var(--pure-white) r g b / 3%);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     color: var(--electric-cyan);
   }
 
   .data-content {
-    padding: var(--padding-moderate);
+    padding: var(--padding-standard);
     overflow: hidden auto;
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);
-    color: var(--font-color-base);
+    color: var(--frisk);
   }
 
   .data-content.is-code {

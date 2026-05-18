@@ -12,17 +12,23 @@ const JS_BRIDGE_PATH =
  * 🎨 The Weaver (sync-tokens.js)
  * ----------------------------
  * The absolute synchronization engine for the Chalk Regime.
- * Generates design.css and tokens.js from the Sovereign Source (DESIGN.md).
+ * Generates design.css and tokens.js from the Sovereign Source (DESIGN.md)
+ * using the flattened, 5-category design system spec.
  * Supports bidirectional synchronization.
  */
+
+const ROOT_CATEGORIES = ["colors", "typography", "rounded", "spacing", "components"];
 
 /**
  * Runs the project formatter to ensure generated files are clean.
  */
 function formatGeneratedFiles() {
+  if (process.env.NODE_ENV === "test" || process.env.VITEST) {
+    console.log("💅 Skipping formatting in test environment.");
+    return;
+  }
   try {
     console.log("💅 Formatting generated artifacts...");
-    // Only format the specific paths we touched to avoid project-wide lag
     execSync(`npx prettier --write "${CSS_PATH}" "${DESIGN_MD_PATH}" "${JS_BRIDGE_PATH}"`, {
       stdio: "ignore",
     });
@@ -30,75 +36,6 @@ function formatGeneratedFiles() {
     console.warn("⚠️ Warning: Could not run formatter automatically.");
   }
 }
-
-const CATEGORY_RULES = [
-  { id: "depth", patterns: [/^z-index-/, /-z-index$/, /-z$/] },
-  {
-    id: "kinetic",
-    patterns: [
-      /^duration-/,
-      /^angle-/,
-      /^scale-/,
-      /^ease-/,
-      /^kinetic-/,
-      /^motion-/,
-      /^hover-/,
-      /^click-/,
-    ],
-  },
-  {
-    id: "grid",
-    patterns: [/^grid-/, /^column-/, /^columns-/, /^row-/, /^rows-/, /^column$/, /^row$/],
-  },
-  { id: "filters", patterns: [/^blur-/, /^brightness-/, /^contrast-/, /^saturation-/] },
-  { id: "effects", patterns: [/^noise-/, /-noise$/, /^noise-url$/] },
-  { id: "breakpoints", patterns: [/^breakpoint-/] },
-  { id: "opacity", patterns: [/^opacity-/] },
-  {
-    id: "components",
-    patterns: [
-      /^state-/,
-      /^toggle-/,
-      /^slider-/,
-      /^swatch-/,
-      /^icon-/,
-      /^avatar-/,
-      /^modal-/,
-      /^skeleton-/,
-      /^profile-/,
-      /^storyboard-/,
-      /^dev-/,
-      /^scrollbar-/,
-      /^title-/,
-      /swatch-/,
-    ],
-  },
-  {
-    id: "colors",
-    patterns: [/^color-/, /^background-/, /-color$/, /-color-/],
-  },
-  { id: "typography", patterns: [/^font-/] },
-  { id: "spacing", patterns: [/^spacing-/, /^gap-/, /^padding-/, /^auto-resize-buffer$/] },
-  { id: "rounded", patterns: [/^radius-/] },
-  { id: "borders", patterns: [/^border-/, /-border$/] },
-  {
-    id: "elevation",
-    patterns: [/^shadow-/, /-shadow$/, /-glow$/, /^glass-/, /^elevation-/, /-glow$/],
-  },
-  {
-    id: "layout",
-    patterns: [
-      /^width-/,
-      /^height-/,
-      /-width$/,
-      /-height$/,
-      /-size$/,
-      /-max$/,
-      /^aspect-square$/,
-      /^golden-ratio$/,
-    ],
-  },
-];
 
 /**
  * Parses DESIGN.md into data (frontmatter) and body.
@@ -130,64 +67,100 @@ function extractCSSBlocks(body) {
   return cssBlocks.join("\n\n");
 }
 
-const TIERS = ["foundations", "semantics", "organisms"];
+/**
+ * Categorizes a token into one of our 5 root categories.
+ * @param {string} name
+ * @param {string} value
+ * @returns {"colors" | "typography" | "rounded" | "spacing" | "components"}
+ */
+function getCategory(name, value) {
+  const cleanValue = String(value || "").trim();
+
+  // 1. Colors
+  if (
+    /^color-/.test(name) ||
+    /^background-/.test(name) ||
+    /-color$/.test(name) ||
+    /-color-/.test(name) ||
+    /gradient/.test(name) ||
+    cleanValue.startsWith("#") ||
+    cleanValue.startsWith("rgb") ||
+    cleanValue.startsWith("hsl")
+  ) {
+    return "colors";
+  }
+
+  // 2. Typography
+  if (/^font-/.test(name)) {
+    return "typography";
+  }
+
+  // 3. Rounded
+  if (/^radius-/.test(name) || /-radius$/.test(name)) {
+    return "rounded";
+  }
+
+  // 4. Spacing
+  if (
+    /^spacing-/.test(name) ||
+    /^gap-/.test(name) ||
+    /^padding-/.test(name) ||
+    /^margin-/.test(name) ||
+    /column/.test(name) ||
+    /row/.test(name) ||
+    /grid-width/.test(name) ||
+    /grid-height/.test(name) ||
+    name === "auto-resize-buffer"
+  ) {
+    return "spacing";
+  }
+
+  // 5. Components (Default / Everything else)
+  return "components";
+}
 
 /**
- * Categorizes a token based on CATEGORY_RULES and its value.
- * Maps to { tier, category }
+ * Recursively flattens any nested frontmatter structure and maps all key-value
+ * pairs into the 5 authoritative categories of the Chalk Regime.
  */
-function getCategoryAndTier(name, value) {
-  // 1. Identify category by pattern
-  let category = "other";
-  for (const rule of CATEGORY_RULES) {
-    if (rule.patterns.some((p) => p.test(name))) {
-      category = rule.id;
-      break;
+function flattenAndCategorize(data) {
+  const result = {
+    colors: {},
+    typography: {},
+    rounded: {},
+    spacing: {},
+    components: {},
+  };
+
+  /**
+   *
+   */
+  function traverse(obj, currentCategory = null) {
+    if (!obj || typeof obj !== "object") return;
+
+    for (const [key, value] of Object.entries(obj)) {
+      // Skip top-level metadata
+      if (obj === data && ["name", "version", "description"].includes(key)) {
+        continue;
+      }
+
+      // If it's one of the root categories at the top level, enforce that category
+      let category = currentCategory;
+      if (obj === data && ROOT_CATEGORIES.includes(key)) {
+        category = key;
+      }
+
+      if (value && typeof value === "object") {
+        traverse(value, category);
+      } else {
+        const resolvedCategory = category || getCategory(key, value);
+        result[resolvedCategory][key] = value;
+      }
     }
   }
 
-  // 1.1 Detect color by value if not caught by pattern (for prefix-less tokens)
-  if (
-    category === "other" &&
-    (value.startsWith("#") || value.startsWith("rgb") || value.startsWith("hsl"))
-  ) {
-    category = "colors";
-  }
-
-  // 2. Assign tier based on category and value
-  let tier = "foundations"; // Default
-
-  if (category === "components" || category === "organisms") {
-    tier = "organisms";
-    category = "components";
-  } else if (["borders", "effects", "elevation", "filters", "layout", "depth"].includes(category)) {
-    tier = "semantics";
-  } else if (category === "colors") {
-    // If it's a foundation color primitive (raw hex or named color without var)
-    if (value.startsWith("#") || !value.includes("var(")) tier = "foundations";
-    else tier = "semantics";
-  } else if (category === "spacing") {
-    if (/spacing-(unit|pixel|\d+px)/.test(name)) tier = "foundations";
-    else tier = "semantics";
-  } else if (category === "typography") {
-    if (/font-(family|weight|height-base|height-short|height-tall)/.test(name))
-      tier = "foundations";
-    else tier = "semantics";
-  } else if (category === "kinetic") {
-    if (/^(duration|ease)-/.test(name)) tier = "foundations";
-    else tier = "semantics";
-  } else if (category === "grid") {
-    if (/^(column-units|row-units|grid-width-min|grid-width-max|grid-height-max)/.test(name))
-      tier = "foundations";
-    else tier = "semantics";
-  } else if (category === "rounded") {
-    if (name === "radius-full") tier = "foundations";
-    else tier = "semantics";
-  } else if (category === "breakpoints" || category === "opacity") {
-    tier = "foundations";
-  }
-
-  return { tier, category };
+  traverse(data);
+  return result;
 }
 
 /**
@@ -202,54 +175,20 @@ function generateCSS(data, cssPatterns, metadata = {}) {
 :root {`;
 
   const preservedComments = metadata.comments || {};
-  const processedTokens = new Set();
 
-  TIERS.forEach((tier) => {
-    if (data[tier] && typeof data[tier] === "object") {
-      css += `\n  /* ==================== T${TIERS.indexOf(tier) + 1}: ${tier.toUpperCase()} ==================== */\n`;
-      Object.entries(data[tier]).forEach(([category, tokens]) => {
-        if (!tokens || typeof tokens !== "object") return;
-        css += `\n  /* --- ${category.toUpperCase()} --- */\n`;
-        Object.entries(tokens)
-          .sort()
-          .forEach(([name, value]) => {
-            processedTokens.add(name);
-            if (preservedComments[name]) {
-              css += `  /* ${preservedComments[name]} */\n`;
-            }
-            css += `  --${name}: ${value};\n`;
-          });
-      });
-    }
-  });
-
-  // Handle uncategorized tokens that might be in the root of the data
-  const otherTokens = {};
-  Object.entries(data).forEach(([key, value]) => {
-    if (!TIERS.includes(key) && !["name", "version", "description"].includes(key)) {
-      if (typeof value !== "object") {
-        otherTokens[key] = value;
-      } else {
-        Object.entries(value).forEach(([subKey, subValue]) => {
-          otherTokens[subKey] = subValue;
+  ROOT_CATEGORIES.forEach((category) => {
+    if (data[category] && typeof data[category] === "object") {
+      css += `\n  /* --- ${category.toUpperCase()} --- */\n`;
+      Object.entries(data[category])
+        .sort()
+        .forEach(([name, value]) => {
+          if (preservedComments[name]) {
+            css += `  /* ${preservedComments[name]} */\n`;
+          }
+          css += `  --${name}: ${value};\n`;
         });
-      }
     }
   });
-
-  if (Object.keys(otherTokens).length > 0) {
-    const remaining = Object.entries(otherTokens).filter(([name]) => !processedTokens.has(name));
-    if (remaining.length > 0) {
-      css += `\n  /* --- UNMAPPED --- */\n`;
-      remaining.sort().forEach(([name, value]) => {
-        processedTokens.add(name);
-        if (preservedComments[name]) {
-          css += `  /* ${preservedComments[name]} */\n`;
-        }
-        css += `  --${name}: ${value};\n`;
-      });
-    }
-  }
 
   css += `}\n\n`;
   css += cssPatterns;
@@ -266,38 +205,24 @@ function generateJSBridge(data) {
   const palette = {};
   const paletteVars = {};
 
-  // Flatten nested structure
-  TIERS.forEach((tier) => {
-    if (data[tier] && typeof data[tier] === "object") {
-      Object.entries(data[tier]).forEach(([category, categoryTokens]) => {
-        if (categoryTokens && typeof categoryTokens === "object") {
-          Object.assign(allTokens, categoryTokens);
+  ROOT_CATEGORIES.forEach((category) => {
+    if (data[category] && typeof data[category] === "object") {
+      Object.entries(data[category]).forEach(([name, value]) => {
+        allTokens[name] = value;
 
-          // Capture colors for palette constants
-          if (category === "colors") {
-            Object.entries(categoryTokens).forEach(([name, value]) => {
-              // Only include foundation colors (raw hex values)
-              if (value.startsWith("#")) {
-                const label = name
-                  .split("-")
-                  .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
-                  .join(" ");
-                palette[label] = value;
-                paletteVars[value] = `var(--${name})`;
-              }
-            });
+        // Capture colors for palette constants
+        if (category === "colors") {
+          // Only include foundation colors (raw hex values)
+          if (typeof value === "string" && value.startsWith("#")) {
+            const label = name
+              .split("-")
+              .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+              .join(" ");
+            palette[label] = value;
+            paletteVars[value] = `var(--${name})`;
           }
         }
       });
-    }
-  });
-
-  // Handle root tokens
-  Object.entries(data).forEach(([key, value]) => {
-    if (!TIERS.includes(key) && !["name", "version", "description"].includes(key)) {
-      if (typeof value !== "object") {
-        allTokens[key] = value;
-      }
     }
   });
 
@@ -337,7 +262,8 @@ function syncToCSS() {
   }
 
   const content = fs.readFileSync(DESIGN_MD_PATH, "utf8");
-  const { data, body } = parseDesignDoc(content);
+  const { data: rawData, body } = parseDesignDoc(content);
+  const data = flattenAndCategorize(rawData);
 
   // Try to extract comments from existing CSS to preserve them if possible
   const metadata = { comments: {} };
@@ -347,7 +273,7 @@ function syncToCSS() {
     let lastComment = null;
     lines.forEach((line) => {
       const commentMatch = line.match(/^\s*\/\* (.*?) \*\//);
-      if (commentMatch && !commentMatch[1].startsWith("---")) {
+      if (commentMatch && !commentMatch[1].includes("---") && !commentMatch[1].includes("===")) {
         lastComment = commentMatch[1];
       } else if (lastComment) {
         const tokenMatch = line.match(/^\s*--([\w-]+):/);
@@ -382,7 +308,7 @@ function syncFromCSS() {
   }
 
   const cssContent = fs.readFileSync(CSS_PATH, "utf8");
-  const tieredTokens = {};
+  const categoryTokens = {};
 
   // Extract tokens and comments from :root block
   const rootMatch = cssContent.match(/:root\s*\{([\s\S]*?)\}/);
@@ -406,10 +332,9 @@ function syncFromCSS() {
         }
         value = value.replace(/;$/, "").trim();
 
-        const { tier, category } = getCategoryAndTier(name, value);
-        if (!tieredTokens[tier]) tieredTokens[tier] = {};
-        if (!tieredTokens[tier][category]) tieredTokens[tier][category] = {};
-        tieredTokens[tier][category][name] = value;
+        const category = getCategory(name, value);
+        if (!categoryTokens[category]) categoryTokens[category] = {};
+        categoryTokens[category][name] = value;
       }
       currentLine++;
     }
@@ -423,20 +348,14 @@ function syncFromCSS() {
   // Update original data with new tokens
   const newData = { ...originalData };
 
-  // Rebuild the tiered structure
-  TIERS.forEach((tier) => {
-    if (tieredTokens[tier]) {
-      newData[tier] = {};
-      Object.keys(tieredTokens[tier])
+  // Rebuild the flat structure
+  ROOT_CATEGORIES.forEach((category) => {
+    if (categoryTokens[category]) {
+      newData[category] = {};
+      Object.keys(categoryTokens[category])
         .sort()
-        .forEach((category) => {
-          const sortedTokens = {};
-          Object.keys(tieredTokens[tier][category])
-            .sort()
-            .forEach((key) => {
-              sortedTokens[key] = tieredTokens[tier][category][key];
-            });
-          newData[tier][category] = sortedTokens;
+        .forEach((key) => {
+          newData[category][key] = categoryTokens[category][key];
         });
     }
   });
@@ -445,7 +364,7 @@ function syncFromCSS() {
   let yamlStr = yaml.dump(newData, {
     indent: 2,
     lineWidth: -1,
-    sortKeys: false, // Maintain tier order
+    sortKeys: false, // Maintain root order
     quotingType: '"',
     forceQuotes: false,
   });
@@ -465,7 +384,6 @@ function syncFromCSS() {
   formatGeneratedFiles();
 }
 
-// Main Entry Point
 /**
  * Main Entry Point for CLI execution.
  */

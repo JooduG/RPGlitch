@@ -16,7 +16,7 @@ describe("Token Integrity", () => {
   });
 
   it("should contain core foundation tokens", () => {
-    const knownFoundations = ["--chalk", "--frozen", "--spacing-4"];
+    const knownFoundations = ["--chalk", "--frozen", "--spacing-unit"];
     knownFoundations.forEach((token) => {
       expect(tokens.has(token)).toBe(true);
     });
@@ -29,7 +29,7 @@ describe("Token Integrity", () => {
     });
 
     it("should return null for multiple valid tokens", () => {
-      const line = "margin: var(--spacing-4) var(--spacing-8);";
+      const line = "margin: calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 8);";
       expect(validateLine(line)).toBe(null);
     });
 

@@ -262,7 +262,7 @@
 <style>
   .tooltip-portal {
     position: fixed;
-    z-index: var(--max-z-index);
+    z-index: var(--z-index-modal);
     pointer-events: none;
     will-change: transform, opacity;
     display: flex;
@@ -280,25 +280,25 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    filter: drop-shadow(var(--shadow-heavy));
+    filter: drop-shadow(var(--shadow-standard));
   }
 
   .tooltip-content {
     background: var(--glass-peak);
-    backdrop-filter: var(--glass-peak-blur);
+    backdrop-filter: var(--blur-void);
     color: var(--pure-white);
-    padding: var(--padding-nano) var(--padding-tight);
+    padding: var(--padding-tight) var(--padding-tight);
     border-radius: var(--radius-standard);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     font-size: var(--font-size-tiny);
     font-family: var(--font-family-base);
     text-transform: none;
     letter-spacing: normal;
     white-space: normal;
     width: max-content;
-    max-width: var(--spacing-60);
+    max-width: calc(var(--spacing-unit) * 60);
     text-align: center;
-    line-height: var(--font-height-short);
+    line-height: var(--font-height-base);
   }
 
   .tooltip-arrow {
@@ -306,12 +306,12 @@
     height: 0;
     border-left: var(--gap-standard) solid transparent;
     border-right: var(--gap-standard) solid transparent;
-    border-top: var(--gap-standard) solid rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    border-top: var(--gap-standard) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     position: absolute;
     bottom: calc(var(--gap-standard) * -1);
     left: 50%;
     transform: translateX(-50%);
-    z-index: var(--floor-z-index);
+    z-index: var(--z-index-base);
   }
 
   .tooltip-arrow::after {
@@ -321,8 +321,8 @@
     left: calc(var(--gap-standard) * -1);
     border-left: var(--gap-standard) solid transparent;
     border-right: var(--gap-standard) solid transparent;
-    border-top: var(--gap-standard) solid var(--background-base);
-    opacity: var(--opacity-heavy);
+    border-top: var(--gap-standard) solid var(--chalk);
+    opacity: var(--opacity-whisper);
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow {
@@ -330,13 +330,13 @@
     bottom: auto;
     border-top: none;
     border-bottom: var(--gap-standard) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-muted));
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
   }
 
   .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {
     top: var(--spacing-pixel);
     bottom: auto;
     border-top: none;
-    border-bottom: var(--gap-standard) solid var(--background-base);
+    border-bottom: var(--gap-standard) solid var(--chalk);
   }
 </style>

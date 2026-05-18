@@ -16,7 +16,7 @@
     is_pass_through = false,
 
     // Design
-    z_index = "var(--overlay-z-index)",
+    z_index = "var(--z-index-overlay)",
     class: className = "",
 
     // Slots/Snippets
@@ -60,13 +60,13 @@
     align-items: flex-start; /* Centering handled by margin:auto on children */
     justify-content: center;
     overflow-y: auto;
-    padding: var(--padding-backdrop);
+    padding: var(--padding-standard);
 
     /* Atmosphere: Abyssal Radial Gradient */
     background: radial-gradient(
       circle at center,
-      rgb(from var(--background-gradient-4) r g b / var(--opacity-heavy)),
-      rgb(from var(--void-black) r g b / var(--opacity-substantial))
+      rgb(from var(--background-gradient-4) r g b / var(--opacity-whisper)),
+      rgb(from var(--void-black) r g b / var(--opacity-whisper))
     );
     cursor: pointer;
     user-select: none;

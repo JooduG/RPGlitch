@@ -24,7 +24,7 @@
   class="root"
   class:is-left={side === "left"}
   class:is-right={side === "right"}
-  style:--entity-color={signature_color}
+  style:--electric-cyan={signature_color}
 >
   <button
     class="anchor interactable"
@@ -50,7 +50,7 @@
     height: 100%;
     position: relative;
     cursor: pointer;
-    background: var(--entity-color, var(--gunmetal));
+    background: var(--electric-cyan, var(--gunmetal));
     border: none;
     padding: 0;
     display: flex;
@@ -62,7 +62,7 @@
   }
 
   .anchor:hover {
-    transform: var(--hover-lift);
-    filter: var(--hover-glow);
+    transform: var(--scale-lift);
+    filter: var(--brightness-glow);
   }
 </style>

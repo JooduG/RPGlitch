@@ -71,6 +71,6 @@
     flex-shrink: 0;
     width: 100%;
     padding: 0;
-    z-index: var(--mid-z-index);
+    z-index: var(--z-index-elevated);
   }
 </style>

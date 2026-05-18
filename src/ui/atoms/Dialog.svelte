@@ -47,7 +47,7 @@
 <svelte:window onkeydown={(e) => open && !busy && e.key === "Enter" && handle_confirm()} />
 
 {#if open}
-  <Modal variant="mini" on_close={handle_cancel} z_index="var(--max-z-index)" {busy}>
+  <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-modal)" {busy}>
     <header class="header">
       {#if show_icon}
         <span class="icon" aria-hidden="true">i</span>
@@ -90,7 +90,7 @@
     color: var(--frozen);
     border-radius: var(--radius-full);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     flex-shrink: 0;
   }
@@ -100,9 +100,9 @@
     font-family: var(--font-family-heading);
     font-size: var(--font-size-h6);
     font-weight: var(--font-weight-bold);
-    color: var(--font-color-base);
+    color: var(--frisk);
     letter-spacing: var(--font-spacing-tight);
-    line-height: var(--font-height-short);
+    line-height: var(--font-height-base);
     text-transform: uppercase;
   }
 
@@ -113,7 +113,7 @@
 
   .message {
     margin: 0;
-    color: var(--font-color-muted);
+    color: var(--frozen);
     font-size: var(--font-size-base);
     line-height: var(--font-height-base);
     white-space: pre-wrap;

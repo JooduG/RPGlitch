@@ -133,7 +133,7 @@
       class:fractal-bubble={is_fractal}
       class:is-focused={isFocused || busy}
       class:is-busy={busy}
-      style="--signature-color: {signature_color};"
+      style="--electric-cyan: {signature_color};"
       tabindex="0"
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
@@ -281,7 +281,7 @@
   .message-row {
     display: flex;
     width: 100%;
-    padding: var(--padding-standard) var(--padding-message-side);
+    padding: var(--padding-standard) var(--padding-standard);
     position: relative;
     transition: all var(--duration-fast);
   }
@@ -297,7 +297,7 @@
   .message-row.fractal-row,
   .message-row.centered-row {
     justify-content: center;
-    padding: var(--padding-standard) var(--padding-message-side);
+    padding: var(--padding-standard) var(--padding-standard);
   }
 
   .message-bubble {
@@ -309,7 +309,7 @@
     position: relative;
     border-radius: var(--radius-standard);
     transition: all var(--duration-standard) var(--motion-elastic);
-    background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
+    background: color-mix(in srgb, var(--glass-sunken), var(--electric-cyan) 3%);
     border-color: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     overflow: hidden;
     outline: none;
@@ -332,8 +332,9 @@
 
   .message-bubble.is-focused {
     border-color: var(--pure-white);
-    box-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-6) var(--pure-white);
-    background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
+    box-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
+      calc(var(--spacing-unit) * 6) var(--pure-white);
+    background: color-mix(in srgb, var(--glass-sunken), var(--electric-cyan) 6%);
     overflow: visible;
   }
 
@@ -341,20 +342,23 @@
   .message-bubble::before {
     content: "";
     position: absolute;
-    inset: var(--spacing-0);
+    inset: calc(var(--spacing-unit) * 0);
     pointer-events: none;
     border-radius: inherit;
-    padding: var(--gap-nano);
+    padding: var(--gap-tight);
     background: linear-gradient(
       to bottom,
-      color-mix(in srgb, transparent, var(--signature-color) 40%),
+      color-mix(in srgb, transparent, var(--electric-cyan) 40%),
       transparent 40%
     );
     mask:
-      linear-gradient(var(--pure-white) var(--spacing-0) var(--spacing-0)) content-box,
-      linear-gradient(var(--pure-white) var(--spacing-0) var(--spacing-0));
+      linear-gradient(var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0))
+        content-box,
+      linear-gradient(
+        var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
+      );
     mask-composite: exclude;
-    opacity: var(--opacity-half);
+    opacity: var(--opacity-whisper);
     transition: opacity var(--duration-standard);
   }
 
@@ -362,8 +366,8 @@
     opacity: var(--opacity-solid);
     background: linear-gradient(
       to bottom,
-      var(--signature-color),
-      color-mix(in srgb, var(--signature-color), transparent 60%) 30%,
+      var(--electric-cyan),
+      color-mix(in srgb, var(--electric-cyan), transparent 60%) 30%,
       transparent 80%
     );
   }
@@ -381,23 +385,24 @@
   .field-header {
     height: var(--spacing-pixel);
     background: linear-gradient(
-      var(--angle-right),
+      var(90deg),
       transparent 0%,
-      var(--signature-color, var(--frozen)) 50%,
+      var(--electric-cyan, var(--frozen)) 50%,
       transparent 100%
     );
     transition: all var(--duration-standard) var(--motion-elastic);
     display: flex;
     flex-direction: column;
     position: relative;
-    top: var(--spacing-0);
-    border-radius: var(--radius-standard) var(--radius-standard) var(--spacing-0) var(--spacing-0);
-    z-index: var(--surface-peak-z-index);
+    top: calc(var(--spacing-unit) * 0);
+    border-radius: var(--radius-standard) var(--radius-standard) calc(var(--spacing-unit) * 0)
+      calc(var(--spacing-unit) * 0);
+    z-index: var(--z-index-surface);
   }
 
   .message-bubble.is-focused .field-header {
-    height: var(--spacing-9);
-    background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
+    height: calc(var(--spacing-unit) * 9);
+    background: color-mix(in srgb, var(--electric-cyan, var(--gunmetal)), black 30%);
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     overflow: visible;
@@ -410,21 +415,21 @@
   .header-status,
   .header-actions {
     opacity: var(--opacity-none);
-    transform: translateY(calc(var(--spacing-1) * -1));
+    transform: translateY(calc(var(--spacing-unit) * -1));
     transition: all var(--duration-fast);
   }
 
   .message-bubble.is-focused .header-status,
   .message-bubble.is-focused .header-actions {
     opacity: var(--opacity-solid);
-    transform: translateY(var(--spacing-0));
+    transform: translateY(calc(var(--spacing-unit) * 0));
   }
 
   .header-status {
     flex: 1;
     display: flex;
     align-items: center;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
     overflow: hidden;
     font-family: var(--font-family-mono);
     text-transform: uppercase;
@@ -433,16 +438,17 @@
 
   .entity-name {
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     color: var(--pure-white);
-    text-shadow: 0 0 var(--spacing-2) rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    text-shadow: 0 0 calc(var(--spacing-unit) * 2)
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     white-space: nowrap;
   }
 
   .timestamp {
     font-size: var(--font-size-nano);
     color: var(--pure-white);
-    opacity: var(--opacity-half);
+    opacity: var(--opacity-whisper);
   }
 
   .header-actions {
@@ -453,20 +459,20 @@
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
-    color: color-mix(in srgb, var(--pure-white), var(--signature-color, var(--gunmetal)) 20%);
+    color: color-mix(in srgb, var(--pure-white), var(--electric-cyan, var(--gunmetal)) 20%);
     transition: all var(--duration-standard);
   }
 
   .header-actions :global(.button:hover) {
     color: var(--pure-white);
-    transform: var(--scale-zoom);
+    transform: var(--scale-pulse);
   }
 
   /* --- BODY LOGIC --- */
   .message-body {
-    padding: var(--padding-message);
+    padding: var(--padding-standard);
     position: relative;
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
   }
 
   .message-content {
@@ -482,22 +488,23 @@
   /* Bold & Bright Dialogue */
   .message-content :global(strong),
   .message-content :global(b) {
-    font-weight: var(--font-weight-heavy);
-    color: var(--signature-color, var(--gunmetal));
-    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
-      rgb(from var(--signature-color, var(--gunmetal)) r g b / var(--opacity-muted));
+    font-weight: var(--font-weight-bold);
+    color: var(--electric-cyan, var(--gunmetal));
+    text-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
+      calc(var(--spacing-unit) * 2)
+      rgb(from var(--electric-cyan, var(--gunmetal)) r g b / var(--opacity-whisper));
   }
 
   /* High-Vis Narration */
   .message-content :global(em),
   .message-content :global(i) {
     font-style: italic;
-    opacity: var(--opacity-intense);
-    color: var(--font-color-muted);
+    opacity: var(--opacity-solid);
+    color: var(--frozen);
   }
 
   .message-content :global(p) {
-    margin: 0 0 var(--margin-message) 0;
+    margin: 0 0 var(--margin-standard) 0;
   }
 
   .message-content :global(p:last-child) {
@@ -506,7 +513,7 @@
 
   .thinking-wrapper {
     display: flex;
-    padding: var(--padding-moderate) 0;
+    padding: var(--padding-standard) 0;
   }
 
   /* --- BUSY ANIMATION (The "Something") --- */
@@ -517,24 +524,24 @@
   .message-bubble.is-busy .field-header::after {
     content: "";
     position: absolute;
-    inset: var(--spacing-0);
+    inset: calc(var(--spacing-unit) * 0);
     background: linear-gradient(
-      var(--angle-right),
+      var(90deg),
       transparent 0%,
       rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,
       transparent 100%
     );
     width: 100%;
-    animation: scan var(--duration-atmospheric) linear infinite;
+    animation: scan var(--duration-ambient) linear infinite;
   }
 
   @keyframes scan {
     from {
-      transform: translateX(-100%) skewX(var(--angle-skew));
+      transform: translateX(-100%) skewX(var(-20deg));
     }
 
     to {
-      transform: translateX(100%) skewX(var(--angle-skew));
+      transform: translateX(100%) skewX(var(-20deg));
     }
   }
 
@@ -543,7 +550,7 @@
   }
 
   .message-row :global(.button.attachment-button) {
-    padding: var(--padding-nano);
+    padding: var(--padding-tight);
     min-height: 0;
     background: var(--glass-base);
     margin: 0 0 var(--margin-tight) 0;

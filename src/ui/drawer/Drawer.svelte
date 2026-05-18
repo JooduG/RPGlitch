@@ -91,7 +91,7 @@
 <svelte:window onkeydown={handle_keydown} />
 
 {#if is_open}
-  <Backdrop onclick={() => app.close_drawer()} z_index="var(--modal-z-index)" />
+  <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
 
   <div
     class="drawer glass-elevated"
@@ -110,7 +110,7 @@
         <!-- "Create New" card -->
         <div
           class="card--new glass-sunken interactable"
-          style="--signature-color: var(--gunmetal);"
+          style="--electric-cyan: var(--gunmetal);"
           role="button"
           tabindex="0"
           aria-label="Create new entity"
@@ -160,19 +160,19 @@
     left: 50%;
     transform: translateX(-50%);
     width: 100%;
-    max-width: var(--columns-10);
-    max-height: var(--modal-height-base);
+    max-width: calc(var(--column-unit) * 10);
+    max-height: var(--modal-height-standard);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-    z-index: var(--modal-z-index);
+    z-index: var(--z-index-modal);
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    box-shadow: var(--shadow-heavy);
+    box-shadow: var(--shadow-standard);
   }
 
   /* --- HEADER --- */
   .header {
-    padding: var(--padding-standard) var(--padding-loose);
+    padding: var(--padding-standard) var(--padding-standard);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -181,7 +181,7 @@
   .header h4 {
     margin: 0;
     letter-spacing: var(--font-spacing-loose);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
   }
 
@@ -195,7 +195,7 @@
   /* --- GRID --- */
   .grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--column), 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(var(--column-unit), 1fr));
     justify-content: center;
     gap: var(--padding-standard);
     width: 100%;
@@ -219,7 +219,7 @@
 
   .card--new .visual {
     flex: 1.5;
-    background: var(--signature-color, var(--gunmetal));
+    background: var(--electric-cyan, var(--gunmetal));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -239,12 +239,12 @@
   }
 
   .card--new .label {
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     font-family: var(--font-family-heading);
     text-transform: uppercase;
     font-size: var(--font-size-base);
     letter-spacing: var(--font-spacing-loose);
-    color: var(--signature-color, var(--gunmetal));
+    color: var(--electric-cyan, var(--gunmetal));
     text-align: center;
   }
 
@@ -254,7 +254,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--signature-color, var(--gunmetal));
+    background: var(--electric-cyan, var(--gunmetal));
     opacity: 0;
     transition: opacity var(--motion-standard);
   }
@@ -269,19 +269,19 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--padding-standard) var(--padding-loose);
+    padding: var(--padding-standard) var(--padding-standard);
     text-align: center;
-    color: var(--font-color-muted);
+    color: var(--frozen);
   }
 
   .empty h4 {
     margin: 0;
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
   }
 
   .empty p {
-    opacity: var(--opacity-heavy);
-    margin-top: var(--padding-loose);
+    opacity: var(--opacity-whisper);
+    margin-top: var(--padding-standard);
   }
 
   /* --- RESPONSIVE --- */

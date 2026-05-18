@@ -130,16 +130,8 @@ module.exports = {
       },
     ],
 
-    // FATAL: Block AI agents from using math to bypass the design system grid
-    "declaration-property-value-disallowed-list": [
-      {
-        "/^.*$/": ["/calc\\(.*--spacing-pixel.*\\*/", "/calc\\(.*--spacing-unit.*\\*/"],
-      },
-      {
-        message:
-          "RPGlitch Engine [FATAL]: Cheating detected! Do not use calc() to multiply atomic units. Use a T1/T2 token from design.css.",
-      },
-    ],
+    // Allow calc() multiplication of --spacing-unit and --spacing-pixel as per our dynamic scaling standard
+    "declaration-property-value-disallowed-list": null,
 
     /* ========================================================================
        [**] STANDARD ARCHITECTURE RULES

@@ -89,7 +89,7 @@
   {is_focused}
   class="root {is_locked ? 'is-disabled' : ''}"
   data-testid="input-bar"
-  style="--signature-color: {signature_color};"
+  style="--electric-cyan: {signature_color};"
 >
   {#snippet left()}
     <Button
@@ -143,7 +143,7 @@
 
 <style>
   :global(.root[data-testid="input-bar"]) {
-    width: clamp(var(--grid-width-min), 100%, var(--breakpoint-mobile));
+    width: clamp(var(--breakpoint-mini), 100%, var(--breakpoint-mobile));
     margin-inline: auto;
     transition:
       opacity var(--duration-standard) var(--ease-standard),
@@ -151,7 +151,7 @@
   }
 
   :global(.root.is-disabled[data-testid="input-bar"]) {
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     filter: grayscale(1);
     pointer-events: none;
   }
@@ -160,7 +160,7 @@
     flex: 1;
     background: transparent;
     border: none;
-    color: var(--font-color-base);
+    color: var(--frisk);
     padding: var(--padding-tight);
     resize: none;
     outline: none;
@@ -173,8 +173,8 @@
   }
 
   .editor::placeholder {
-    color: var(--font-color-muted);
-    opacity: var(--opacity-muted);
+    color: var(--frozen);
+    opacity: var(--opacity-whisper);
   }
 
   /* --- SHARED KINETICS --- */
@@ -185,14 +185,14 @@
   }
 
   :global(.is-send:not(:disabled)) {
-    color: var(--signature-color, var(--gunmetal));
+    color: var(--electric-cyan, var(--gunmetal));
   }
 
   :global(.is-settings) {
-    color: var(--font-color-muted);
+    color: var(--frozen);
   }
 
   :global(.is-settings:hover) {
-    color: var(--font-color-base);
+    color: var(--frisk);
   }
 </style>

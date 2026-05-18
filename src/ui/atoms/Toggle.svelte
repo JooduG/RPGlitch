@@ -65,8 +65,8 @@
     position: relative;
     display: inline-flex;
     align-items: center;
-    gap: var(--gap-loose);
-    padding: var(--padding-nano) 0;
+    gap: var(--gap-standard);
+    padding: var(--padding-tight) 0;
 
     /* Interaction */
     cursor: pointer;
@@ -83,7 +83,7 @@
   /* --- MODIFIERS --- */
 
   .root.is-disabled {
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     cursor: default;
   }
 
@@ -122,7 +122,7 @@
     flex-shrink: 0;
     width: var(--state-toggle-width);
     height: var(--state-toggle-height);
-    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-muted));
+    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-whisper));
     backdrop-filter: var(--blur-whisper);
     border-radius: var(--radius-full);
     transition:
@@ -150,7 +150,7 @@
     font-family: var(--font-family-base);
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-bold);
-    color: var(--font-color-muted);
+    color: var(--frozen);
     letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     white-space: nowrap;
@@ -161,7 +161,7 @@
 
   /* Hover Interaction */
   .root:hover:not(.is-disabled) .track::before {
-    filter: var(--hover-glow);
+    filter: var(--brightness-glow);
   }
 
   .root:hover:not(.is-disabled) .label {
@@ -170,7 +170,7 @@
 
   /* Checked Appearance */
   input:checked + .track {
-    background-color: rgb(from var(--frozen) r g b / var(--opacity-heavy));
+    background-color: rgb(from var(--frozen) r g b / var(--opacity-whisper));
   }
 
   input:checked + .track::before {
@@ -183,7 +183,7 @@
       )
     );
     /* stylelint-enable scss/operator-no-newline-after, scss/operator-no-unspaced */
-    box-shadow: 0 0 var(--spacing-1) rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    box-shadow: 0 0 var(--spacing-unit) rgb(from var(--pure-white) r g b / var(--opacity-whisper));
   }
 
   /* Accessibility Focus */

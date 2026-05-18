@@ -76,7 +76,7 @@
 <div
   {...rest}
   class="root {className}"
-  style="--signature-color: {signature_color}"
+  style="--electric-cyan: {signature_color}"
   use:use_actions={actions}
 >
   <!-- 🧬 THE BASE: Massive Signature Placeholder -->
@@ -119,14 +119,14 @@
     height: 100%;
     object-fit: cover;
     display: block;
-    z-index: var(--z-index-10);
+    z-index: var(--z-index-surface);
   }
 
   .media.no-bg {
     object-fit: contain;
     filter: drop-shadow(
       0 var(--margin-tight) var(--margin-standard)
-        rgb(from var(--void-black) r g b / var(--opacity-heavy))
+        rgb(from var(--void-black) r g b / var(--opacity-whisper))
     );
   }
 
@@ -143,19 +143,19 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background-color: var(--signature-color);
+    background-color: var(--chalk);
     background-image: radial-gradient(
       circle at 40% 40%,
-      transparent 0%,
-      rgb(from var(--void-black) r g b / var(--opacity-moderate)) 160%
+      rgb(from var(--electric-cyan) r g b / var(--opacity-ghost)) 0%,
+      rgb(from var(--void-black) r g b / var(--opacity-whisper)) 100%
     );
-    z-index: var(--z-index-0);
+    z-index: var(--z-index-base);
   }
 
   /* The Watermark Initials: MASSIVE AESTHETIC */
   .profile-initials {
     font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     color: var(--pure-white);
     text-transform: uppercase;
     user-select: none;
@@ -164,7 +164,7 @@
     letter-spacing: var(--font-spacing-tight);
 
     /* ❄️ Nordic Collection Depth */
-    opacity: var(--opacity-heavy);
+    opacity: var(--opacity-whisper);
     mix-blend-mode: overlay;
 
     /* Subtle depth shimmer */

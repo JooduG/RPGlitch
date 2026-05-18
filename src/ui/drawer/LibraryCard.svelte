@@ -40,7 +40,7 @@
   class="card glass-elevated interactable"
   class:fractal={type === "fractal"}
   class:disabled
-  style="--signature-color: {signature_color};"
+  style="--electric-cyan: {signature_color};"
   role="button"
   tabindex="0"
   aria-label={disabled ? "Already selected" : `Select ${name}`}
@@ -83,7 +83,7 @@
   }
 
   .card.disabled {
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     filter: grayscale(1);
     pointer-events: none;
   }
@@ -91,7 +91,7 @@
   /* --- VISUAL (image area) --- */
   .visual {
     flex: 1.5;
-    background: var(--signature-color, var(--gunmetal));
+    background: var(--electric-cyan, var(--gunmetal));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,15 +113,15 @@
   }
 
   .name {
-    color: var(--signature-color, var(--gunmetal));
+    color: var(--electric-cyan, var(--gunmetal));
     font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     font-size: var(--font-size-small);
     letter-spacing: var(--font-spacing-loose);
     text-wrap: balance;
     display: block;
-    line-height: var(--font-height-short);
+    line-height: var(--font-height-base);
     max-height: 100%;
     overflow: hidden;
     margin: 0;
@@ -137,7 +137,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--signature-color, var(--gunmetal));
+    background: var(--electric-cyan, var(--gunmetal));
     opacity: 0.3;
     transition: opacity var(--motion-standard);
   }

@@ -70,7 +70,7 @@
     max-height: 95vh;
     width: auto;
     padding: var(--padding-standard);
-    gap: var(--gap-loose); /* Parity with original margin-top */
+    gap: var(--gap-standard); /* Parity with original margin-top */
     background: transparent;
     border: none;
     box-shadow: none;
@@ -81,20 +81,20 @@
     max-width: 90vw;
     max-height: 85vh;
     border-radius: var(--radius-sharp);
-    box-shadow: var(--shadow-heavy);
+    box-shadow: var(--shadow-standard);
     object-fit: contain;
     pointer-events: auto;
   }
 
   .label {
-    color: var(--font-color-base);
-    background: rgb(from var(--void-black) r g b / var(--opacity-muted));
-    padding: var(--padding-moderate) var(--padding-standard);
+    color: var(--frisk);
+    background: rgb(from var(--void-black) r g b / var(--opacity-whisper));
+    padding: var(--padding-standard) var(--padding-standard);
     border-radius: var(--radius-sharp);
     font-size: var(--font-size-base);
     text-align: center;
     max-width: 80%;
-    z-index: var(--mid-z-index);
-    box-shadow: var(--shadow-heavy);
+    z-index: var(--z-index-elevated);
+    box-shadow: var(--shadow-standard);
   }
 </style>

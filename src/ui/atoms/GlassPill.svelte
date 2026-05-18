@@ -70,9 +70,9 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--gap-tight);
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
     pointer-events: auto;
-    width: var(--columns-4);
+    width: calc(var(--column-unit) * 4);
 
     /* --- Surface --- */
     border-radius: var(--radius-full);
@@ -100,19 +100,19 @@
   /* --- Orientation Logic --- */
   .horizontal {
     flex-direction: row;
-    padding: var(--padding-nano) var(--padding-tight);
+    padding: var(--padding-tight) var(--padding-tight);
   }
 
   .vertical {
     flex-direction: column;
     width: max-content;
-    padding: var(--padding-tight) var(--padding-nano);
+    padding: var(--padding-tight) var(--padding-tight);
   }
 
   /* --- Focus States --- */
   .root.is-focused {
     border-color: var(--state-signature-color);
-    box-shadow: 0 0 var(--spacing-4)
+    box-shadow: 0 0 calc(var(--spacing-unit) * 4)
       color-mix(in srgb, var(--state-signature-color) 30%, transparent);
   }
 

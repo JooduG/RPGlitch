@@ -72,15 +72,15 @@
     align-items: center;
     justify-content: center;
     gap: var(--gap-standard);
-    padding: var(--padding-action);
-    min-height: var(--spacing-12);
+    padding: var(--padding-standard);
+    min-height: calc(var(--spacing-unit) * 12);
     position: relative;
 
     /* --- Typography --- */
     font-family: inherit;
     font-weight: var(--font-weight-bold);
     font-size: var(--font-size-small);
-    line-height: var(--font-height-short);
+    line-height: var(--font-height-base);
     text-decoration: none;
     user-select: none;
 
@@ -88,9 +88,9 @@
     cursor: pointer;
     pointer-events: auto;
     border: none;
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     background: transparent;
-    color: var(--font-color-base);
+    color: var(--frisk);
 
     /* --- Motion --- */
     transition:
@@ -116,7 +116,7 @@
   /* --- Structural Modifiers --- */
   .root.is-small {
     min-height: var(--icon-large);
-    padding: var(--padding-action-small);
+    padding: var(--padding-tight);
     font-size: var(--font-size-tiny);
   }
 
@@ -140,7 +140,7 @@
   .root.is-cover {
     position: absolute;
     inset: 0;
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
     border-radius: inherit;
     padding: 0;
     min-height: 0;
@@ -155,11 +155,11 @@
   .variant-primary {
     background: var(--pure-white);
     color: var(--chalk);
-    box-shadow: var(--shadow-heavy);
+    box-shadow: var(--shadow-standard);
   }
 
   .variant-secondary {
-    background: var(--signature-color, var(--frozen));
+    background: var(--electric-cyan, var(--frozen));
     color: var(--pure-white);
     box-shadow: var(--shadow-ghost);
   }
@@ -171,7 +171,7 @@
 
   .variant-invisible {
     background: transparent;
-    color: var(--font-color-muted);
+    color: var(--frozen);
   }
 
   /* --- Operational States --- */
@@ -181,7 +181,7 @@
   }
 
   .root:disabled {
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     filter: grayscale(var(--opacity-solid));
     pointer-events: none;
     transform: none;
@@ -189,7 +189,7 @@
   }
 
   .root:active:not(:disabled) {
-    transform: var(--click-sink);
+    transform: var(--scale-sink);
   }
 
   .root[data-kinetic="true"]:active:not(:disabled) {
@@ -197,20 +197,20 @@
   }
 
   .root:hover:not(:disabled) {
-    filter: var(--hover-glow);
+    filter: var(--brightness-glow);
   }
 
   .root.is-busy {
     cursor: wait;
-    filter: var(--brightness-dim) grayscale(var(--opacity-heavy));
+    filter: var(--brightness-dim) grayscale(var(--opacity-whisper));
     pointer-events: none;
   }
 
   /* --- Interaction Refinements --- */
   .variant-primary:hover:not(:disabled) {
-    filter: var(--hover-glow);
-    box-shadow: var(--shadow-heavy);
-    transform: var(--hover-lift);
+    filter: var(--brightness-glow);
+    box-shadow: var(--shadow-standard);
+    transform: var(--scale-lift);
   }
 
   .variant-primary[data-kinetic="true"]:hover:not(:disabled) {
@@ -218,7 +218,7 @@
   }
 
   .variant-secondary:hover:not(:disabled) {
-    box-shadow: var(--shadow-heavy);
+    box-shadow: var(--shadow-standard);
     border-color: var(--pure-white);
   }
 
@@ -231,7 +231,7 @@
   .variant-invisible:hover:not(:disabled) {
     background: transparent;
     color: var(--pure-white);
-    filter: var(--hover-glow);
+    filter: var(--brightness-glow);
   }
 
   /* --- Global Resets --- */

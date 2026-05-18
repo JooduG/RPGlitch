@@ -153,14 +153,14 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding: var(--gap-section);
+    padding: var(--padding-standard);
     text-align: center;
-    color: var(--font-color-muted);
-    gap: var(--gap-loose);
+    color: var(--frozen);
+    gap: var(--gap-standard);
     height: 100%;
   }
 
   .fallback p {
-    max-width: var(--columns-8);
+    max-width: calc(var(--column-unit) * 8);
   }
 </style>

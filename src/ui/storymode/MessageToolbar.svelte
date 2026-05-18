@@ -139,19 +139,19 @@
     opacity: var(--opacity-none);
     pointer-events: none;
     transition: opacity var(--duration-standard);
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
     height: max-content;
   }
 
   /* Anchor Right (AI/Fractal) */
   :global(.ai-row) .message-toolbar,
   :global(.fractal-row) .message-toolbar {
-    left: calc(100% + var(--spacing-3));
+    left: calc(100% + calc(var(--spacing-unit) * 3));
   }
 
   /* Anchor Left (User) */
   :global(.user-row) .message-toolbar {
-    right: calc(100% + var(--spacing-3));
+    right: calc(100% + calc(var(--spacing-unit) * 3));
   }
 
   /* Interaction: Reveal on row hover (handled via parent class or global style) */
@@ -169,7 +169,7 @@
   :global(.toolbar-btn) {
     background: transparent;
     border: none;
-    color: var(--font-color-muted);
+    color: var(--frozen);
     padding: 0; /* Let Button small/square handle dimensions */
     transition: all var(--duration-standard);
   }
@@ -213,14 +213,14 @@
     display: flex;
     justify-content: center;
     padding-bottom: var(--padding-tight);
-    margin-top: var(--margin-nano);
+    margin-top: var(--margin-tight);
   }
 
   .timestamp-label {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    color: var(--font-color-muted);
-    opacity: var(--opacity-muted);
+    color: var(--frozen);
+    opacity: var(--opacity-whisper);
     letter-spacing: var(--font-spacing-tight);
   }
 </style>

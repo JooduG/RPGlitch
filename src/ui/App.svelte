@@ -18,7 +18,7 @@
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
   let fractal_opacity = $derived(
-    app.view === "storymode" ? "var(--opacity-base)" : "var(--opacity-substantial)",
+    app.view === "storymode" ? "var(--opacity-whisper)" : "var(--opacity-whisper)",
   );
 
   // --- EFFECTS ---
@@ -78,11 +78,11 @@
     width: 100%;
     height: 100vh;
     overflow: hidden;
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
   }
 
   .root.is-tense {
-    animation: tremor var(--duration-tremor) infinite var(--ease-standard);
+    animation: tremor var(--duration-ambient) infinite var(--ease-standard);
     filter: var(--saturation-tension) var(--contrast-tension);
   }
 
@@ -93,8 +93,8 @@
     inset: 0;
     width: 100vw;
     height: 100vh;
-    z-index: var(--floor-z-index);
-    background-color: var(--background-base);
+    z-index: var(--z-index-base);
+    background-color: var(--chalk);
     overflow: hidden;
     pointer-events: none;
   }
@@ -140,12 +140,12 @@
 
     25% {
       transform: translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-offset))
-        var(--scale-tremor-high);
+        var(--scale-pulse);
     }
 
     50% {
       transform: translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-offset) * -1))
-        var(--scale-tremor-low);
+        var(--scale-pulse);
     }
 
     75% {
@@ -153,7 +153,7 @@
           calc(var(--kinetic-shimmy-offset) * -1),
           calc(var(--kinetic-shimmy-offset) * -1)
         )
-        var(--scale-tremor-mid);
+        var(--scale-pulse);
     }
   }
 </style>

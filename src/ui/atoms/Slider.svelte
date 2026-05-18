@@ -84,7 +84,7 @@
   }
 
   .root.is-disabled {
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     filter: grayscale(1);
     cursor: default;
   }
@@ -103,14 +103,14 @@
   .header {
     font-family: var(--font-family-base);
     font-size: var(--font-size-tiny);
-    color: var(--font-color-muted);
+    color: var(--frozen);
     text-transform: uppercase;
     text-align: left;
     letter-spacing: var(--font-spacing-loose);
     font-weight: var(--font-weight-bold);
     transition: color var(--duration-standard) var(--ease-standard);
     user-select: none;
-    margin-bottom: var(--margin-nano);
+    margin-bottom: var(--margin-tight);
   }
 
   /* Hover state for label */
@@ -137,12 +137,12 @@
     height: var(--slider-track-height);
     background: linear-gradient(
       to right,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-start),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 0%,
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-start),
       var(--slider-fill-color-start) var(--state-fill-start),
       var(--slider-fill-color-start) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 100%
     );
     box-shadow: inset 0 var(--border-width-base) var(--border-width-base)
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
@@ -155,12 +155,12 @@
     height: var(--slider-track-height);
     background: linear-gradient(
       to right,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-start),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 0%,
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-start),
       var(--slider-fill-color-start) var(--state-fill-start),
       var(--slider-fill-color-start) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-muted)) 100%
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-end),
+      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 100%
     );
     box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
@@ -208,11 +208,11 @@
   /* --- STATES --- */
 
   .root:hover:not(.is-disabled) input[type="range"]::-webkit-slider-thumb {
-    filter: var(--hover-glow);
+    filter: var(--brightness-glow);
   }
 
   .root:hover:not(.is-disabled) input[type="range"]::-moz-range-thumb {
-    filter: var(--hover-glow);
+    filter: var(--brightness-glow);
   }
 
   input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {
@@ -226,14 +226,14 @@
   input[type="range"]:disabled::-webkit-slider-thumb {
     appearance: none;
     background: var(--frozen);
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     box-shadow: none;
     border: none;
   }
 
   input[type="range"]:disabled::-moz-range-thumb {
     background: var(--frozen);
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
     box-shadow: none;
     border: none;
   }

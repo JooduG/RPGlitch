@@ -6,8 +6,8 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import Backdrop from "@atoms/Backdrop.svelte";
+  import { resolve_ms, resolve_px } from "@ui/utils/dom.js";
   import { use_actions } from "@ui/utils/use-actions.js";
-  import { resolve_px, resolve_ms } from "@ui/utils/dom.js";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
 
@@ -19,7 +19,7 @@
 
     // Design
     variant = "standard",
-    z_index = "var(--modal-z-index)",
+    z_index = "var(--z-index-modal)",
     class: className = "",
 
     // Handlers
@@ -82,8 +82,8 @@
     justify-content: space-between;
 
     /* Dimensions grounded in Grid Foundation */
-    width: clamp(var(--columns-3), 90vw, var(--modal-width-thin));
-    height: clamp(var(--rows-3), auto, var(--modal-height-base));
+    width: clamp(calc(var(--column-unit) * 3), 90vw, var(--modal-width-thin));
+    height: clamp(calc(var(--row-unit) * 3), auto, var(--modal-height-standard));
     padding: var(--padding-standard);
     gap: var(--gap-standard);
     border-radius: var(--radius-standard);
@@ -97,9 +97,9 @@
     content: "";
     position: absolute;
     inset: 0;
-    z-index: var(--deep-z-index);
+    z-index: var(--z-index-below);
     background-image: var(--noise-url);
-    opacity: var(--opacity-noise);
+    opacity: var(--opacity-ghost);
     mix-blend-mode: overlay;
     pointer-events: none;
   }

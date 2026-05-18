@@ -37,7 +37,7 @@
   );
 </script>
 
-<div class="story-item interactable" style="--signature-color: {signature_color}">
+<div class="story-item interactable" style="--electric-cyan: {signature_color}">
   <Button variant="invisible" cover={true} {onclick} />
 
   <div class="story-info">
@@ -51,7 +51,7 @@
       style="background-image: url({story.fractal_profile_picture})"
     ></div>
   {:else}
-    <div class="story-backdrop" style="background-color: var(--signature-color)"></div>
+    <div class="story-backdrop" style="background-color: var(--electric-cyan)"></div>
   {/if}
 </div>
 
@@ -60,7 +60,7 @@
     display: flex;
     align-items: center;
     justify-content: flex-start;
-    padding: var(--padding-moderate);
+    padding: var(--padding-standard);
     background: var(--glass-base);
     backdrop-filter: var(--blur-whisper);
 
@@ -69,7 +69,7 @@
 
     /* Accent bar via inset shadow to avoid corner clipping */
     box-shadow: var(--shadow-ambient);
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     cursor: pointer;
     transition: all var(--duration-standard) var(--ease-standard);
     text-align: left;
@@ -80,8 +80,8 @@
 
   .story-item:hover {
     background: var(--glass-elevated);
-    border-color: var(--signature-color);
-    box-shadow: var(--shadow-focus);
+    border-color: var(--electric-cyan);
+    box-shadow: var(--shadow-standard);
   }
 
   .story-backdrop {
@@ -90,7 +90,7 @@
     top: 0;
     bottom: 0;
     width: 70%;
-    z-index: var(--floor-z-index);
+    z-index: var(--z-index-base);
     pointer-events: none;
     opacity: var(--opacity-whisper);
     mask-image: linear-gradient(
@@ -101,25 +101,25 @@
     );
     transition:
       opacity var(--duration-fast),
-      width var(--duration-reflex);
+      width var(--duration-fast);
   }
 
   .story-backdrop.has-image {
     background-size: cover;
     background-position: center;
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
   }
 
   .story-item:hover .story-backdrop {
-    opacity: var(--opacity-base);
+    opacity: var(--opacity-whisper);
     width: 80%;
   }
 
   .story-info {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-nano);
-    z-index: var(--mid-z-index);
+    gap: var(--gap-tight);
+    z-index: var(--z-index-elevated);
     position: relative;
     padding-left: var(--padding-tight); /* Breath for the accent bar */
   }
@@ -132,6 +132,6 @@
 
   .story-meta {
     font-size: var(--font-size-tiny);
-    color: var(--font-color-base);
+    color: var(--frisk);
   }
 </style>

@@ -31,7 +31,7 @@ export const cssRules = [
     regex:
       /(?<!var\([^)]*)\b([1-9][0-9]*(\.[0-9]+)?|0\.[0-9]+)(px|rem|em)\b|#([0-9A-Fa-f]{3}){1,2}\b/,
     message:
-      "❌ Hardcoded unit or hex color detected. Use Tokens: var(--spacing-4), var(--chalk), etc.",
+      "❌ Hardcoded unit or hex color detected. Use Tokens: calc(var(--spacing-unit) * 4), var(--chalk), etc.",
     validate: (line) => {
       // Ignore comments
       if (line.trim().startsWith("/*") || line.trim().startsWith("*")) return false;

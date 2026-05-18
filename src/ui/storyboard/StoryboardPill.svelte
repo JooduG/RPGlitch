@@ -147,7 +147,7 @@
     justify-content: center;
     width: 100%;
     position: relative;
-    z-index: var(--surface-z-index);
+    z-index: var(--z-index-surface);
     pointer-events: auto;
     height: 100%;
   }
@@ -166,14 +166,14 @@
   :global(.orchestrator .root:hover:not(:disabled)) {
     background: transparent;
     color: var(--pure-white);
-    filter: var(--hover-glow);
+    filter: var(--brightness-glow);
   }
 
   :global(.orchestrator .action.root) {
-    height: var(--row);
-    width: var(--columns-2);
+    height: var(--row-unit);
+    width: calc(var(--column-unit) * 2);
     justify-content: center;
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-whisper);
   }
 
   :global(.orchestrator .action.root.is-ready) {
@@ -183,8 +183,8 @@
   :global(.orchestrator .action.root.is-ready .label) {
     color: var(--emerald-green);
     /* stylelint-disable scale-unlimited/declaration-strict-value */
-    text-shadow: var(--spacing-0) var(--spacing-0) var(--spacing-2)
-      rgb(from var(--emerald-green) r g b / var(--opacity-muted));
+    text-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
+      calc(var(--spacing-unit) * 2) rgb(from var(--emerald-green) r g b / var(--opacity-whisper));
     /* stylelint-enable scale-unlimited/declaration-strict-value */
   }
 
@@ -196,10 +196,10 @@
 
   .label {
     font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-heavy);
-    font-size: var(--font-size-h6);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-base);
     letter-spacing: var(--font-spacing-base);
-    color: var(--font-color-base);
+    color: var(--frisk);
     text-shadow: var(--shadow-font);
   }
 </style>

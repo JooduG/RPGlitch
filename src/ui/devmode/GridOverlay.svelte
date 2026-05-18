@@ -80,8 +80,8 @@
       [row-12] 1fr
       [row-end];
     pointer-events: none;
-    z-index: var(--z-index-max);
-    opacity: var(--opacity-muted);
+    z-index: var(--z-index-modal);
+    opacity: var(--opacity-whisper);
     border: var(--spacing-pixel) dashed var(--frozen);
   }
 
@@ -107,24 +107,24 @@
     font-size: var(--font-size-nano);
     color: var(--frozen);
     background: var(--void-black);
-    padding: 0 var(--padding-nano);
-    opacity: var(--opacity-heavy);
+    padding: 0 var(--padding-tight);
+    opacity: var(--opacity-whisper);
   }
 
   .col-label {
-    top: var(--spacing-2);
-    left: var(--spacing-2);
+    top: calc(var(--spacing-unit) * 2);
+    left: calc(var(--spacing-unit) * 2);
     text-transform: uppercase;
   }
 
   .row-label {
-    left: var(--spacing-2);
-    top: var(--spacing-2);
+    left: calc(var(--spacing-unit) * 2);
+    top: calc(var(--spacing-unit) * 2);
   }
 
   .point {
-    width: var(--spacing-1);
-    height: var(--spacing-1);
+    width: var(--spacing-unit);
+    height: var(--spacing-unit);
     background: var(--frozen);
     border-radius: var(--radius-full);
     transform: translate(-50%, -50%);

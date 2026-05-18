@@ -35,7 +35,7 @@ export function fit_text(node, options = {}) {
 
       // 0. Load tokens dynamically (Chalk Regime)
       const tolerance = resolve_number("--fit-text-tolerance", 1, node);
-      const default_line_height = "var(--fit-text-height, var(--font-height-short))";
+      const default_line_height = "var(--fit-text-height, var(--font-height-base))";
 
       // 4. Determine boundaries
       const minSize = resolve_px(

@@ -42,11 +42,11 @@ export function shimmy(node) {
         { transform: "translate(0, 0) rotate(0deg)" },
         {
           transform:
-            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(calc(var(--angle-shimmy) * -1))",
+            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(calc(var(30deg) * -1))",
         },
         {
           transform:
-            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(var(--angle-shimmy))",
+            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(var(30deg))",
         },
         { transform: "translate(0, 0) rotate(0deg)" },
       ],
@@ -105,15 +105,15 @@ export function pulse(node) {
       return_anim = null;
     }
 
-    const duration = resolve_ms("--duration-pulse", 1000, node);
+    const duration = resolve_ms("--duration-ambient", 1000, node);
 
     // Heartbeat thump: big beat -> small beat -> rest
     animation = node.animate(
       [
         { transform: "scale(1)", offset: 0 },
-        { transform: "var(--scale-pulse-max)", offset: 0.14 },
+        { transform: "var(--scale-pulse)", offset: 0.14 },
         { transform: "scale(1)", offset: 0.28 },
-        { transform: "var(--scale-pulse-mid)", offset: 0.42 },
+        { transform: "var(--scale-pulse)", offset: 0.42 },
         { transform: "scale(1)", offset: 0.7 },
         { transform: "scale(1)", offset: 1 },
       ],
@@ -178,7 +178,7 @@ export function spin(node) {
       const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
       animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--angle-spin))" }],
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(90deg))" }],
         {
           duration,
           easing,
@@ -237,7 +237,7 @@ export function roll(node) {
       const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
       animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(--angle-roll))" }],
+        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(360deg))" }],
         {
           duration,
           easing,

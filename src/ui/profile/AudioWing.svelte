@@ -234,9 +234,9 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-base));
+    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-whisper));
     padding: var(--padding-standard);
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
   }
 
   /* --- Layout --- */
@@ -253,7 +253,7 @@
   .body {
     display: flex;
     flex-direction: row;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
     width: 100%;
   }
 
@@ -264,7 +264,7 @@
     min-height: 0;
     background: var(--glass-sunken);
     border: none;
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     transition: all var(--duration-standard) var(--motion-elastic);
   }
 
@@ -273,7 +273,7 @@
     min-height: 0;
     background: var(--glass-sunken);
     border: none;
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     transition: all var(--duration-standard) var(--motion-elastic);
   }
 
@@ -300,13 +300,13 @@
     visibility: hidden;
     pointer-events: none;
     opacity: 0;
-    transform: translateY(calc(-1 * var(--spacing-2)));
+    transform: translateY(calc(-1 * calc(var(--spacing-unit) * 2)));
     position: fixed;
     overflow-y: auto;
-    z-index: var(--max-z-index);
+    z-index: var(--z-index-modal);
     background: var(--glass-peak);
     backdrop-filter: var(--blur-mist);
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     transition:
       opacity var(--duration-standard) ease,
       transform var(--duration-standard) var(--motion-elastic),
@@ -319,29 +319,29 @@
     visibility: visible;
     pointer-events: auto;
     opacity: 1;
-    transform: translateY(var(--spacing-2));
+    transform: translateY(calc(var(--spacing-unit) * 2));
   }
 
   .menu.is-dropup {
-    transform: translateY(var(--spacing-2));
+    transform: translateY(calc(var(--spacing-unit) * 2));
   }
 
   .menu.is-visible.is-dropup {
-    transform: translateY(calc(-1 * var(--spacing-2)));
+    transform: translateY(calc(-1 * calc(var(--spacing-unit) * 2)));
   }
 
   /* --- Menu Items --- */
 
   :global(.option) {
     width: 100%;
-    padding: var(--padding-tight) var(--padding-moderate);
+    padding: var(--padding-tight) var(--padding-standard);
     background: transparent;
     border: none;
     text-align: left;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
     border-radius: 0;
     min-height: 0;
   }
@@ -369,8 +369,8 @@
     font-size: var(--font-size-tiny);
     text-transform: uppercase;
     font-weight: var(--font-weight-bold);
-    color: var(--font-color-muted);
-    letter-spacing: var(--font-spacing-wide);
+    color: var(--frozen);
+    letter-spacing: var(--font-spacing-loose);
     line-height: 1;
     text-align: right;
     flex-shrink: 0;

@@ -256,7 +256,7 @@
   .content-body {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
     width: 100%;
     height: 100%;
     justify-content: center;
@@ -271,7 +271,7 @@
 
   .actions {
     align-items: center;
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
   }
 
   .action-row {
@@ -282,7 +282,7 @@
   }
 
   .action-row.secondary {
-    opacity: var(--opacity-heavy);
+    opacity: var(--opacity-whisper);
   }
 
   .action-row.danger-zone {
@@ -297,20 +297,20 @@
     gap: var(--gap-tight);
     max-height: var(--dropdown-max-height);
     overflow-y: auto;
-    padding-right: var(--padding-nano);
+    padding-right: var(--padding-tight);
   }
 
   .status {
-    color: var(--font-color-muted);
+    color: var(--frozen);
     font-size: var(--font-size-small);
     font-style: italic;
     text-align: center;
     align-content: center;
     margin: 0;
     background: var(--glass-sunken);
-    backdrop-filter: var(--glass-sunken-blur);
+    backdrop-filter: var(--blur-whisper);
     border-radius: var(--radius-standard);
-    min-height: var(--row);
+    min-height: var(--row-unit);
   }
 
   .admin-bar {

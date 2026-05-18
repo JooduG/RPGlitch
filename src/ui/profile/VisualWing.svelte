@@ -302,9 +302,9 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-base));
+    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-muted));
     padding: var(--padding-standard);
-    gap: var(--gap-loose);
+    gap: var(--gap-standard);
   }
 
   /* --- Swatches --- */
@@ -323,7 +323,7 @@
     padding: 0;
     min-width: 0;
     min-height: 0;
-    border-radius: var(--radius-subtle);
+    border-radius: var(--radius-sharp);
     cursor: pointer;
     transition:
       transform var(--duration-fast) var(--motion-dissolve),
@@ -334,21 +334,22 @@
   }
 
   .swatches :global(.swatch:hover:not(:disabled, .active)) {
-    z-index: var(--mid-z-index);
-    box-shadow: var(--shadow-heavy);
+    z-index: var(--z-index-elevated);
+    box-shadow: var(--shadow-standard);
     filter: brightness(1.15);
   }
 
   .swatches :global(.swatch.active) {
-    outline: var(--spacing-2px) solid rgb(from var(--pure-white) r g b / var(--opacity-moderate));
-    outline-offset: var(--spacing-2px);
-    --active-swatch-shadow:
+    outline: calc(var(--spacing-pixel) * 2) solid
+      rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    outline-offset: calc(var(--spacing-pixel) * 2);
+    --signature-glow:
       0 0 0 var(--spacing-pixel) rgb(from var(--pure-white) r g b / var(--opacity-whisper)) inset,
-      0 0 var(--spacing-3) var(--spacing-1) var(--swatch-color);
+      0 0 calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 1) var(--swatch-color);
 
-    box-shadow: var(--active-swatch-shadow);
+    box-shadow: var(--signature-glow);
     transform: scale(1.06);
-    z-index: var(--mid-z-index);
+    z-index: var(--z-index-elevated);
     cursor: default;
   }
 
@@ -359,7 +360,7 @@
 
   .swatches :global(.swatch:disabled) {
     cursor: default;
-    opacity: var(--opacity-base);
+    opacity: var(--opacity-muted);
   }
 
   /* --- Status & Actions --- */
@@ -367,10 +368,10 @@
   :global(.prompt-field .status-bar) {
     display: flex;
     align-items: center;
-    gap: var(--gap-moderate);
+    gap: var(--gap-standard);
     color: var(--pure-white);
     background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    padding: var(--padding-action-small);
+    padding: var(--padding-tight);
     border-radius: var(--radius-full);
     border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
   }
@@ -390,7 +391,7 @@
   :global(.prompt-field .tag) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-heavy);
+    font-weight: var(--font-weight-bold);
     letter-spacing: var(--font-spacing-loose);
     text-transform: uppercase;
     color: inherit;

@@ -13,13 +13,14 @@ This document tracks all major tracks for the project. Each track has its own de
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track ID                                       | Name                              | Priority | Status    | Objective                                                    |
-| :--------------------------------------------- | :-------------------------------- | :------- | :-------- | :----------------------------------------------------------- |
-| `storyboard-card-bleed-remediation-2026-05-18` | Storyboard Card Bleed Remediation | P0       | 🔄 Active | Fix signature color bleed and typography contrast.           |
-| `profile-grid-layout`                          | Profile Grid Layout               | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality. |
-| `spacing-migration`                            | Spacing Migration                 | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.  |
-| `signature-color-consolidation`                | Signature Color Consolidation     | P0       | ✅ Done   | Consolidate signature color automation and logic hardening.  |
+| Track ID                                       | Name                              | Priority | Status    | Objective                                                      |
+| :--------------------------------------------- | :-------------------------------- | :------- | :-------- | :------------------------------------------------------------- |
+| `storyboard-card-bleed-remediation-2026-05-18` | Storyboard Card Bleed Remediation | P0       | 🔄 Active | Fix signature color bleed and typography contrast.             |
+| `refactor-design-schema-2026-05-18`            | Refactor DESIGN.md Schema         | P0       | ✅ Done   | Refactor DESIGN.md to follow schema, flatten & migrate tokens. |
+| `profile-grid-layout`                          | Profile Grid Layout               | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality.   |
+| `spacing-migration`                            | Spacing Migration                 | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.    |
+| `signature-color-consolidation`                | Signature Color Consolidation     | P0       | ✅ Done   | Consolidate signature color automation and logic hardening.    |
 
 ---
 
-> 🎨 Tactics | `legislative` | /01-plan
+> ⚒️ Operations | `css` | /02-implement
