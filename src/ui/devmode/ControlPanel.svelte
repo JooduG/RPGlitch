@@ -139,15 +139,6 @@
         onchange={() => app.save_settings()}
       />
       <Toggle label="SOUND" bind:value={settings.sound} onchange={() => app.save_settings()} />
-
-      <div class="status-bar">
-        <span class="badge" class:dev={app.env === "DEV"}>
-          ENV: {app.env}
-        </span>
-        <span class="badge" class:busy={app.sim_phase !== "idle"}>
-          SIM: {app.sim_phase.toUpperCase()}
-        </span>
-      </div>
     </div>
   </header>
 
@@ -328,34 +319,6 @@
     align-items: center;
     gap: var(--gap-standard);
     width: 100%;
-  }
-
-  .status-bar {
-    display: flex;
-    gap: var(--gap-tight);
-  }
-
-  .badge {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-nano);
-    padding: var(--gap-nano) var(--padding-nano);
-    background: var(--glass-sunken);
-    color: var(--font-color-muted);
-    border: var(--border-whisper);
-    border-radius: var(--radius-subtle);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-  }
-
-  .badge.dev {
-    color: var(--electric-cyan);
-    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-muted));
-  }
-
-  .badge.busy {
-    color: var(--pumpkin-amber);
-    border-color: rgb(from var(--pumpkin-amber) r g b / var(--opacity-muted));
-    animation: pulse var(--duration-standard) infinite ease-in-out;
   }
 
   @keyframes pulse {
