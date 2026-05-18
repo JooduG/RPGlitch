@@ -60,7 +60,7 @@
     align-items: flex-start; /* Centering handled by margin:auto on children */
     justify-content: center;
     overflow-y: auto;
-    padding: var(--spacing-10) 0;
+    padding: var(--padding-backdrop);
 
     /* Atmosphere: Abyssal Radial Gradient */
     background: radial-gradient(

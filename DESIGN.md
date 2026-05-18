@@ -245,6 +245,7 @@ semantics:
     padding-section: var(--spacing-8) var(--spacing-6)
     padding-message: var(--spacing-4) var(--spacing-6)
     padding-message-side: var(--spacing-24)
+    padding-backdrop: var(--spacing-10) var(--spacing-0)
     margin-message: var(--spacing-3)
     margin-moderate: var(--spacing-3)
     margin-nano: var(--spacing-1)

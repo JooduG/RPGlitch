@@ -197,6 +197,7 @@ export const TOKENS = {
   "overlay-z-index": "var(--z-index-100)",
   "padding-action": "var(--spacing-2) var(--spacing-4)",
   "padding-action-small": "var(--spacing-1) var(--spacing-3)",
+  "padding-backdrop": "var(--spacing-10) var(--spacing-0)",
   "padding-header": "var(--spacing-10) var(--spacing-6) var(--spacing-6)",
   "padding-loose": "var(--spacing-8)",
   "padding-message": "var(--spacing-4) var(--spacing-6)",

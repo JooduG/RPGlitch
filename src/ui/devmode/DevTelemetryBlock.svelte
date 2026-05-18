@@ -260,7 +260,7 @@
 
 <style>
   .telemetry-block {
-    margin-bottom: var(--spacing-4);
+    margin-bottom: var(--margin-standard);
     animation: slide-in var(--duration-fast) var(--motion-elastic);
   }
 
@@ -291,7 +291,7 @@
   }
 
   .resonance-header {
-    margin-bottom: var(--spacing-4);
+    margin-bottom: var(--margin-standard);
   }
 
   .resonance-title {
@@ -358,7 +358,7 @@
   .telemetry-meta {
     display: flex;
     justify-content: flex-end;
-    margin-bottom: calc(-1 * var(--spacing-3));
+    margin-bottom: calc(-1 * var(--margin-moderate));
     opacity: var(--opacity-half);
   }
 
@@ -372,7 +372,7 @@
     font-size: var(--font-size-nano);
     color: var(--electric-cyan);
     opacity: var(--opacity-heavy);
-    margin-bottom: var(--spacing-2);
+    margin-bottom: var(--margin-tight);
     font-weight: var(--font-weight-heavy);
     letter-spacing: var(--font-spacing-wide);
     text-transform: uppercase;
@@ -380,7 +380,7 @@
 
   /* Deltas */
   .deltas-tray {
-    padding-bottom: var(--spacing-2);
+    padding-bottom: var(--padding-tight);
   }
 
   .delta-grid {
@@ -491,7 +491,7 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: var(--profile-gap-section);
-    padding-top: var(--spacing-4);
+    padding-top: var(--padding-standard);
   }
 
   .vector-column {
@@ -550,7 +550,7 @@
 
   /* Signals */
   .signals-tray {
-    padding-top: var(--spacing-4);
+    padding-top: var(--padding-standard);
   }
 
   .pill-grid {

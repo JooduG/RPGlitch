@@ -118,10 +118,10 @@
   .story-info {
     display: flex;
     flex-direction: column;
-    gap: var(--spacing-pixel);
+    gap: var(--gap-nano);
     z-index: var(--mid-z-index);
     position: relative;
-    padding-left: var(--spacing-2); /* Breath for the accent bar */
+    padding-left: var(--padding-tight); /* Breath for the accent bar */
   }
 
   .story-title {
