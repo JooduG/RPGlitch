@@ -37,7 +37,7 @@
   );
 </script>
 
-<div class="story-item interactable" style="--electric-cyan: {signature_color}">
+<div class="story-item interactable" style="--signature-color: {signature_color}">
   <Button variant="invisible" cover={true} {onclick} />
 
   <div class="story-info">
@@ -51,7 +51,7 @@
       style="background-image: url({story.fractal_profile_picture})"
     ></div>
   {:else}
-    <div class="story-backdrop" style="background-color: var(--electric-cyan)"></div>
+    <div class="story-backdrop" style="background-color: var(--signature-color)"></div>
   {/if}
 </div>
 
@@ -80,7 +80,7 @@
 
   .story-item:hover {
     background: var(--glass-elevated);
-    border-color: var(--electric-cyan);
+    border-color: var(--signature-color);
     box-shadow: var(--shadow-standard);
   }
 

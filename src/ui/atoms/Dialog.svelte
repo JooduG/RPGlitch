@@ -52,7 +52,7 @@
       {#if show_icon}
         <span class="icon" aria-hidden="true">i</span>
       {/if}
-      <h3 class="title">{title}</h3>
+      <h6 class="title">{title}</h6>
     </header>
 
     <div class="body">
@@ -96,13 +96,7 @@
   }
 
   .title {
-    margin: 0;
-    font-family: var(--font-family-heading);
-    font-size: var(--font-size-h6);
-    font-weight: var(--font-weight-bold);
     color: var(--frisk);
-    letter-spacing: var(--font-spacing-tight);
-    line-height: var(--font-height-base);
     text-transform: uppercase;
   }
 

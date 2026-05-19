@@ -34,12 +34,12 @@ colors:
   pumpkin-amber: "#fbbf24"
   pure-white: "#fff"
   royal-purple: "#a855f7"
-  signature-color: var(--electric-cyan)
+  signature-color: var(--frozen)
   slider-fill-color-end: var(--gunmetal)
   slider-fill-color-start: var(--frisk)
-  state-activity-color: var(--electric-cyan)
-  state-metric-color: var(--electric-cyan)
-  state-signature-color: var(--electric-cyan)
+  state-activity-color: var(--frozen)
+  state-metric-color: var(--frozen)
+  state-signature-color: var(--frozen)
   sunset-orange: "#f97316"
   swatch-color: var(--signature-color)
   title-color-part: var(--frozen)
@@ -95,7 +95,7 @@ spacing:
   spacing-pixel: 1px
   spacing-unit: 0.25rem
 components:
-  active-swatch-shadow: 0 0 calc(var(--spacing-unit) * 4) var(--electric-cyan)
+  active-swatch-shadow: 0 0 calc(var(--spacing-unit) * 4) var(--signature-color)
   aspect-square: 1 / 1
   avatar-medium-size: calc(var(--column-unit) * 2)
   blur-mist: blur(calc(var(--spacing-unit) * 4))
@@ -365,11 +365,17 @@ body {
 }
 
 h1,
+.h1,
 h2,
+.h2,
 h3,
+.h3,
 h4,
+.h4,
 h5,
-h6 {
+.h5,
+h6,
+.h6 {
   font-family: var(--font-family-heading);
   margin: 0;
   line-height: var(--font-height-base);
@@ -379,27 +385,33 @@ h6 {
   font-weight: var(--font-weight-bold);
 }
 
-h1 {
+h1,
+.h1 {
   font-size: var(--font-size-h1);
 }
 
-h2 {
+h2,
+.h2 {
   font-size: var(--font-size-h2);
 }
 
-h3 {
+h3,
+.h3 {
   font-size: var(--font-size-h3);
 }
 
-h4 {
+h4,
+.h4 {
   font-size: var(--font-size-h4);
 }
 
-h5 {
+h5,
+.h5 {
   font-size: var(--font-size-h5);
 }
 
-h6 {
+h6,
+.h6 {
   font-size: var(--font-size-h6);
 }
 

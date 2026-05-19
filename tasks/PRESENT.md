@@ -28,6 +28,15 @@ We are currently focusing on **Management Hygiene** and ensuring long-term UI st
 | Storyboard Cards | Remediated   | Fully resolved with vertical scrims and frisk titles. |
 | Persistence      | Dexie/Stores | Some stores still exist. Need 100% rune-based state.  |
 
+## 🗺️ Roadmap (Tracks)
+
+| Track Name                  | Priority | Status      | Description                                                |
+| :-------------------------- | :------- | :---------- | :--------------------------------------------------------- |
+| Sovereign Scaling Migration | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp. |
+| Storyboard Card Bleed Fix   | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                     |
+| Drawer Contrast Rebuild     | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                       |
+| Design System Refactor      | 🟢 Low   | [x] a1b2c3d | Final schema and token cleanup.                            |
+
 ## 🧠 Pulse (History)
 
 | Timestamp (ISO 8601) | Task                                                                           | Skill Invoked          | Outcome   |

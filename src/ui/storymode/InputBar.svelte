@@ -89,7 +89,7 @@
   {is_focused}
   class="root {is_locked ? 'is-disabled' : ''}"
   data-testid="input-bar"
-  style="--electric-cyan: {signature_color};"
+  style="--signature-color: {signature_color};"
 >
   {#snippet left()}
     <Button
@@ -185,7 +185,7 @@
   }
 
   :global(.is-send:not(:disabled)) {
-    color: var(--electric-cyan, var(--gunmetal));
+    color: var(--signature-color, var(--gunmetal));
   }
 
   :global(.is-settings) {

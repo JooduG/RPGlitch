@@ -45,7 +45,7 @@
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
-    color: var(--electric-cyan);
+    color: var(--frisk);
   }
 
   .data-content {

@@ -159,7 +159,7 @@
   }
 
   .variant-secondary {
-    background: var(--electric-cyan, var(--frozen));
+    background: var(--signature-color, var(--frozen));
     color: var(--pure-white);
     box-shadow: var(--shadow-ghost);
   }

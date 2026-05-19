@@ -89,7 +89,7 @@ describe("ThemeStore Color Generation", () => {
       expect(result).toMatch(/^var\(--[a-z0-9-]+\)$/);
     });
     test("get_signature_label returns safe default for null entity", () => {
-      expect(themeStore.get_signature_label(null)).toBe("Electric Cyan");
+      expect(themeStore.get_signature_label(null)).toBe("Frozen");
     });
   });
 });

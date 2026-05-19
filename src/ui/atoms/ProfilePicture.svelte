@@ -6,7 +6,6 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { themeStore } from "@theme/palette.svelte.js";
-  import { fit_text } from "@ui/utils/fit-text.js";
   import { use_actions } from "@ui/utils/use-actions.js";
 
   let {
@@ -81,7 +80,7 @@
 >
   <!-- 🧬 THE BASE: Massive Signature Placeholder -->
   <div class="profile-placeholder" aria-hidden="true">
-    <div class="profile-initials" use:fit_text={{ minSize: "var(--font-size-nano)" }}>
+    <div class="profile-initials">
       {initials}
     </div>
   </div>
@@ -108,8 +107,7 @@
     justify-content: center;
     overflow: hidden;
     position: relative;
-
-    /* Removed redundant background - placeholder handles depth */
+    container-type: size;
   }
 
   .media {
@@ -143,12 +141,25 @@
     justify-content: center;
     width: 100%;
     height: 100%;
-    background-color: var(--chalk);
-    background-image: radial-gradient(
-      circle at 50% 50%,
-      rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-muted)) 0%,
-      rgb(from var(--void-black) r g b / var(--opacity-solid)) 100%
-    );
+
+    /* 🎨 Signature Color Background: Primary Brand Surface */
+    background-color: var(--signature-color, var(--frozen));
+
+    /* 🌫️ Atmospheric Filter: Storyboard Alignment & Neural Depth */
+    background-image:
+      linear-gradient(
+        to top,
+        var(--chalk) 0%,
+        rgb(from var(--chalk) r g b / var(--opacity-solid)) 30%,
+        rgb(from var(--chalk) r g b / var(--opacity-muted)) 60%,
+        rgb(from var(--chalk) r g b / var(--opacity-ghost)) 80%,
+        transparent 100%
+      ),
+      radial-gradient(
+        circle at 50% 50%,
+        transparent 0%,
+        rgb(from var(--void-black) r g b / var(--opacity-muted)) 100%
+      );
     z-index: var(--z-index-base);
   }
 
@@ -156,20 +167,20 @@
   .profile-initials {
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-bold);
-    color: var(--signature-color, var(--electric-cyan));
+    color: var(--pure-white);
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
     line-height: 0.7; /* Massive impact tight tracking */
     letter-spacing: var(--font-spacing-tight);
 
-    /* ❄️ Nordic Collection Depth - Boosted Contrast */
-    opacity: 0.85;
+    /* ❄️ Nordic Collection Depth - High Contrast White */
+    opacity: 0.95;
 
-    /* Vibrant custom signature-colored drop-shadow & bloom */
+    /* Vibrant custom signature-colored bloom: The Glitch Aura */
     filter: drop-shadow(
       0 0 calc(var(--spacing-unit) * 4)
-        rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-muted))
+        rgb(from var(--signature-color, var(--frozen)) r g b / var(--opacity-muted))
     );
 
     /* Massive Layout Construction */
@@ -181,6 +192,6 @@
     white-space: nowrap;
     text-align: center;
     padding: 0;
-    font-size: var(--profile-initials-size-base);
+    font-size: clamp(var(--font-size-nano), 60cqi, var(--font-size-h1));
   }
 </style>

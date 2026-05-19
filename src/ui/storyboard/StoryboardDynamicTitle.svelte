@@ -122,7 +122,7 @@
   }
 </script>
 
-<h1
+<h2
   class="root"
   use:tooltip={{ text: "Double-click to re-roll title" }}
   contenteditable="true"
@@ -135,13 +135,15 @@
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
-        <span class="entity text-shadow-bloom" style:--electric-cyan={part.color}>{part.text}</span>
+        <span class="entity text-shadow-bloom" style:--signature-color={part.color}
+          >{part.text}</span
+        >
       {:else}
         <span class="prefix text-shadow-outline">{part.text}</span>
       {/if}
     {/each}
   {/if}
-</h1>
+</h2>
 
 <style>
   /* Ensure Satisfy loads even if index.html is bypassed */
@@ -151,19 +153,15 @@
     /* Layout & Alignment */
     z-index: var(--z-index-overlay);
     display: block;
-    max-width: calc(var(--column-unit) * 12);
-    margin: 0 auto;
+    max-width: 100vw;
     padding: var(--padding-tight) var(--padding-standard);
 
     /* Typography */
     font-family: Satisfy, cursive !important;
     font-size: var(--font-size-h2);
     font-weight: var(--font-weight-base);
-    line-height: var(--font-height-base);
-    letter-spacing: var(--font-spacing-tight);
     text-align: center;
     text-wrap: balance;
-    color: var(--frisk);
 
     /* Interactive */
     cursor: text;
@@ -182,14 +180,14 @@
 
   .root:hover {
     background: var(--glass-base);
-    border-radius: var(--radius-sharp);
+    border-radius: var(--radius-standard);
   }
 
   .root:focus {
     background: var(--glass-sunken);
     outline: none;
     box-shadow: var(--title-shadow-focus);
-    border-radius: var(--radius-sharp);
+    border-radius: var(--radius-standard);
   }
 
   .prefix,
@@ -201,7 +199,7 @@
 
   .entity {
     font-family: Satisfy, cursive !important;
-    color: var(--electric-cyan);
+    color: var(--signature-color);
     white-space: nowrap; /* Prevent breaking names across lines */
   }
 
@@ -215,8 +213,8 @@
   .text-shadow-bloom {
     text-shadow:
       0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
-      0 0 calc(var(--spacing-unit) * 1.5) var(--electric-cyan),
+      0 0 calc(var(--spacing-unit) * 1.5) var(--signature-color),
       0 0 calc(var(--spacing-unit) * 4)
-        rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
+        rgb(from var(--signature-color) r g b / var(--opacity-whisper));
   }
 </style>

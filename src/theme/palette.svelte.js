@@ -93,7 +93,7 @@ class ThemeStore {
    * @returns {string}
    */
   get_signature_label(entity) {
-    if (!entity) return "Electric Cyan";
+    if (!entity) return "Frozen";
     const color = entity.signature_color;
 
     // 1. If it's already a valid label (UI default), use it
@@ -131,7 +131,7 @@ class ThemeStore {
    * @param {string} [fallback='var(--gunmetal)'] - Neutral fallback for non-entity contexts.
    * @returns {string}
    */
-  get_signature_color(entity, fallback = "var(--electric-cyan)") {
+  get_signature_color(entity, fallback = "var(--frozen)") {
     if (!entity) return fallback;
 
     // 1. Resolve potential 'color' string (from raw input or entity property)

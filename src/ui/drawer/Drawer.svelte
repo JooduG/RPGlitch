@@ -110,7 +110,7 @@
         <!-- "Create New" card -->
         <div
           class="card--new glass-sunken interactable"
-          style="--signature-color: var(--electric-cyan);"
+          style="--signature-color: var(--frisk);"
           role="button"
           tabindex="0"
           aria-label="Create new entity"
@@ -166,7 +166,7 @@
     z-index: var(--z-index-modal);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    overflow: visible;
     box-shadow: var(--shadow-standard);
   }
 
@@ -188,7 +188,7 @@
   /* --- BODY --- */
   .body {
     flex: 1;
-    overflow-y: auto;
+    overflow-y: visible;
     padding: 0 var(--padding-standard) var(--padding-standard);
   }
 
@@ -231,7 +231,7 @@
 
   .card--new .visual {
     flex: 1.5;
-    background: var(--signature-color, var(--electric-cyan));
+    background: var(--signature-color, var(--frisk));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -256,9 +256,9 @@
     text-transform: uppercase;
     font-size: var(--font-size-base);
     letter-spacing: var(--font-spacing-loose);
-    color: var(--signature-color, var(--electric-cyan));
+    color: var(--signature-color, var(--frisk));
     text-shadow: 0 0 calc(var(--spacing-unit) * 2)
-      rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-muted));
+      rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-muted));
     text-align: center;
   }
 
@@ -268,7 +268,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--signature-color, var(--electric-cyan));
+    background: var(--signature-color, var(--frisk));
     opacity: 0;
     transition: opacity var(--motion-standard);
   }

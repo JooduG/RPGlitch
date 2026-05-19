@@ -10,7 +10,6 @@
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { themeStore } from "@theme/palette.svelte.js";
-  import { fit_text } from "@utils/fit-text.js";
 
   /**
    * @typedef {Object} Props
@@ -73,7 +72,7 @@
   {#if !is_empty}
     <!-- [HEADER] INFO OVERLAY -->
     <header class="header">
-      <h3 class="primary" use:fit_text={{ minSize: "var(--font-size-base)" }}>{entity.name}</h3>
+      <h4 class="primary">{entity.name}</h4>
       <p class="secondary">{entity.description || "No description provided."}</p>
     </header>
 
@@ -111,6 +110,7 @@
     transition:
       transform var(--duration-fast) var(--ease-standard),
       z-index var(--duration-none);
+    container-type: inline-size;
   }
 
   .root:hover {
@@ -139,10 +139,9 @@
   }
 
   .root:hover::after {
-    border-color: var(--signature-color, var(--electric-cyan));
+    border-color: var(--signature-color, var(--frisk));
     box-shadow: inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 0) var(--spacing-pixel)
-      var(--signature-color, var(--electric-cyan));
+      calc(var(--spacing-unit) * 0) var(--spacing-pixel) var(--signature-color, var(--frisk));
   }
 
   /* --- BODY --- */
@@ -162,13 +161,13 @@
 
   .root:hover :global(.body) {
     /* prettier-ignore */
-    background-color: rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-ghost)) !important;
+    background-color: rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-ghost)) !important;
     filter: var(--brightness-glow) var(--contrast-tension);
     /* stylelint-disable scale-unlimited/declaration-strict-value */
 
     /* prettier-ignore */
     box-shadow:
-      inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 12) rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-whisper)),
+      inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 12) rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-whisper)),
       var(--shadow-standard);
     /* stylelint-enable scale-unlimited/declaration-strict-value */
   }
@@ -213,6 +212,7 @@
     left: calc(var(--spacing-unit) * 0);
     right: calc(var(--spacing-unit) * 0);
     height: 60%;
+    min-width: 0; /* Stabilize for fit_text */
 
     /* prettier-ignore */
     background: linear-gradient(
@@ -236,19 +236,16 @@
   }
 
   .header .primary {
-    margin: 0;
-    font-family: var(--font-family-heading);
-    color: var(--signature-color, var(--electric-cyan));
+    color: var(--signature-color, var(--frisk));
     text-shadow: var(--shadow-font);
-    font-size: var(--font-size-h4);
-    line-height: var(--font-height-base);
-    letter-spacing: var(--font-spacing-tight);
     width: 100%;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
-    -webkit-box-orient: vertical;
+    min-width: 0;
+    line-height: 1;
     overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    flex-shrink: 0; /* Name wins scaling priority */
+    font-size: clamp(var(--font-size-base), 15cqi, var(--font-size-h1));
   }
 
   .header .secondary {
@@ -263,6 +260,7 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     opacity: var(--opacity-whisper);
+    min-height: 0;
   }
 
   /* --- ACTIONS (Toolbar) --- */

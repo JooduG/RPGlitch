@@ -24,7 +24,7 @@
   class="root"
   class:is-left={side === "left"}
   class:is-right={side === "right"}
-  style:--electric-cyan={signature_color}
+  style:--signature-color={signature_color}
 >
   <button
     class="anchor interactable"
@@ -50,7 +50,7 @@
     height: 100%;
     position: relative;
     cursor: pointer;
-    background: var(--electric-cyan, var(--gunmetal));
+    background: var(--signature-color, var(--gunmetal));
     border: none;
     padding: 0;
     display: flex;

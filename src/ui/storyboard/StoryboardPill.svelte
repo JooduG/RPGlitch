@@ -149,7 +149,7 @@
     position: relative;
     z-index: var(--z-index-surface);
     pointer-events: auto;
-    height: 100%;
+    height: clamp(calc(var(--row-unit) * 0.5), 75%, var(--row-unit));
   }
 
   :global(.orchestrator .flank.root),

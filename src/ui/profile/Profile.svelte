@@ -21,7 +21,6 @@
   // State & Utilities
   import { auto_resize } from "@utils/auto-resize.js";
   import { click_outside } from "@utils/click-outside.js";
-  import { fit_text } from "@utils/fit-text.js";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -63,7 +62,7 @@
         class="profile-container no-scrollbar glass-elevated"
         class:readonly={!has_wings}
         class:has-wings={has_wings}
-        style="--electric-cyan: {signature_color};"
+        style="--signature-color: {signature_color};"
         use:click_outside={() => state.handle_close()}
       >
         <div class="avatar-section">
@@ -90,9 +89,8 @@
                   >
                 </h1>
               {:else}
-                <h1 class="name" use:fit_text={{ maxSize: 32 }}>{state.char.name}</h1>
+                <h1 class="name">{state.char.name}</h1>
               {/if}
-              <div class="id-badge">{state.char.id}</div>
             </div>
 
             {#if state.is_editing}
@@ -157,9 +155,8 @@
     class:is-mini={app.viewport.mini}
     data-testid="profile-fragments"
   >
-    {#each PROFILE_SECTIONS as section, i (section.id)}
+    {#each PROFILE_SECTIONS as section (section.id)}
       {@const arrayField = section.fields.find((f) => f.type === "array")}
-      {@const sectionIndex = String(i + 1).padStart(2, "0")}
 
       <!-- SECTION LABEL (Left Column) -->
       <div
@@ -171,13 +168,12 @@
         role="presentation"
       >
         <div class="label-wrapper">
-          <h2 class="section-label">
-            <span class="label-prefix">[{sectionIndex}]</span>
-            <span class="label-text">{section.label}</span>
+          <h5 class="section-label">
+            {section.label}
             {#if state.is_editing && state.hovered_section === section.id && arrayField}
               <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>+ ADD</span>
             {/if}
-          </h2>
+          </h5>
           {#if section.sublabel}
             <p class="section-sub">{section.sublabel}</p>
           {/if}
@@ -197,13 +193,13 @@
                 {state}
                 path={field.key}
                 unit_label={field.unitLabel}
-                signature_color="var(--electric-cyan)"
+                signature_color="var(--frozen)"
               />
             {:else}
               <TextField
                 is_edit={state.is_editing}
                 syncId={section.label}
-                signature_color="var(--electric-cyan)"
+                signature_color="var(--frozen)"
                 class="text-area custom-field {state.active_field?.key === field.key
                   ? 'active'
                   : ''}"
@@ -253,6 +249,10 @@
 
 <style>
   .right {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
     justify-content: space-between;
   }
 
@@ -292,8 +292,35 @@
 
   .profile-header {
     flex-shrink: 0;
+    width: 100%;
+    min-width: 0;
+    min-height: calc(var(--font-size-h3) * 1.5);
     padding: var(--padding-standard);
     border-bottom: var(--border-whisper);
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+  }
+
+  .identity-info {
+    width: 100%;
+    min-width: 0;
+    flex-shrink: 0;
+  }
+
+  .name {
+    color: var(--signature-color);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: block;
+    font-size: clamp(var(--font-size-h3), 6vw, var(--font-size-h1));
+  }
+
+  .name.edit {
+    white-space: normal;
+    overflow: visible;
+    font-size: var(--font-size-h3) !important; /* Force stability in edit mode */
   }
 
   .profile-content {
@@ -321,15 +348,6 @@
     height: var(--avatar-medium-size);
     border-radius: var(--radius-standard);
     overflow: hidden;
-  }
-
-  .id-badge {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
-    color: var(--frozen);
-    padding: var(--padding-tight) var(--padding-tight);
-    border: var(--border-whisper);
-    border-radius: var(--radius-sharp);
   }
 
   .profile-fragments {
@@ -369,10 +387,7 @@
   }
 
   .section-label {
-    margin: 0;
-    font-size: var(--font-size-h5);
-    font-weight: var(--font-weight-bold);
-    color: var(--electric-cyan);
+    color: var(--signature-color);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
     display: flex;
@@ -381,22 +396,7 @@
     gap: var(--gap-tight);
     transition: all var(--duration-standard);
     position: relative;
-    line-height: var(--font-height-base);
     letter-spacing: var(--font-spacing-loose);
-  }
-
-  .label-prefix {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-nano);
-    font-weight: var(--font-weight-bold);
-    opacity: var(--opacity-whisper);
-    color: var(--pure-white);
-    letter-spacing: var(--font-spacing-loose);
-  }
-
-  .label-text {
-    font-size: var(--font-size-h5);
-    font-weight: var(--font-weight-bold);
   }
 
   .add-hint {
@@ -406,12 +406,12 @@
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     font-weight: var(--font-weight-bold);
-    color: var(--electric-cyan);
+    color: var(--signature-color);
     opacity: var(--opacity-whisper);
     pointer-events: none;
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
-    text-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--electric-cyan);
+    text-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--signature-color);
   }
 
   .section-sub {
@@ -450,7 +450,7 @@
     font-size: var(--font-size-nano);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
-    color: var(--electric-cyan);
+    color: var(--signature-color);
     opacity: var(--opacity-solid);
     text-align: left;
     text-shadow: var(--shadow-font);
@@ -458,18 +458,7 @@
     width: 100%;
     letter-spacing: var(--font-spacing-loose);
     padding-left: var(--padding-tight);
-    border-left: var(--border-width-base) solid var(--electric-cyan);
-  }
-
-  :global(.action-btn) {
-    flex: 1;
-    font-weight: var(--font-weight-bold) !important;
-    letter-spacing: var(--font-spacing-loose) !important;
-    text-transform: uppercase !important;
-  }
-
-  :global(.action-btn.edit-trigger) {
-    flex: 2;
+    border-left: var(--border-width-base) solid var(--signature-color);
   }
 
   .status {
@@ -516,7 +505,7 @@
   .profile-modal.is-mobile .profile-side {
     text-align: center;
     border-bottom: var(--border-width-base) solid
-      rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
+      rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     padding-right: 0;
     padding-bottom: var(--padding-tight);
     align-items: center;

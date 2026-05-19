@@ -133,7 +133,7 @@
       class:fractal-bubble={is_fractal}
       class:is-focused={isFocused || busy}
       class:is-busy={busy}
-      style="--electric-cyan: {signature_color};"
+      style="--signature-color: {signature_color};"
       tabindex="0"
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
@@ -309,7 +309,7 @@
     position: relative;
     border-radius: var(--radius-standard);
     transition: all var(--duration-standard) var(--motion-elastic);
-    background: color-mix(in srgb, var(--glass-sunken), var(--electric-cyan) 3%);
+    background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
     border-color: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     overflow: hidden;
     outline: none;
@@ -334,7 +334,7 @@
     border-color: var(--pure-white);
     box-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
       calc(var(--spacing-unit) * 6) var(--pure-white);
-    background: color-mix(in srgb, var(--glass-sunken), var(--electric-cyan) 6%);
+    background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
     overflow: visible;
   }
 
@@ -348,7 +348,7 @@
     padding: var(--gap-tight);
     background: linear-gradient(
       to bottom,
-      color-mix(in srgb, transparent, var(--electric-cyan) 40%),
+      color-mix(in srgb, transparent, var(--signature-color) 40%),
       transparent 40%
     );
     mask:
@@ -366,8 +366,8 @@
     opacity: var(--opacity-solid);
     background: linear-gradient(
       to bottom,
-      var(--electric-cyan),
-      color-mix(in srgb, var(--electric-cyan), transparent 60%) 30%,
+      var(--signature-color),
+      color-mix(in srgb, var(--signature-color), transparent 60%) 30%,
       transparent 80%
     );
   }
@@ -387,7 +387,7 @@
     background: linear-gradient(
       var(90deg),
       transparent 0%,
-      var(--electric-cyan, var(--frozen)) 50%,
+      var(--signature-color, var(--frozen)) 50%,
       transparent 100%
     );
     transition: all var(--duration-standard) var(--motion-elastic);
@@ -402,7 +402,7 @@
 
   .message-bubble.is-focused .field-header {
     height: calc(var(--spacing-unit) * 9);
-    background: color-mix(in srgb, var(--electric-cyan, var(--gunmetal)), black 30%);
+    background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     overflow: visible;
@@ -459,7 +459,7 @@
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
-    color: color-mix(in srgb, var(--pure-white), var(--electric-cyan, var(--gunmetal)) 20%);
+    color: color-mix(in srgb, var(--pure-white), var(--signature-color, var(--gunmetal)) 20%);
     transition: all var(--duration-standard);
   }
 
@@ -489,10 +489,10 @@
   .message-content :global(strong),
   .message-content :global(b) {
     font-weight: var(--font-weight-bold);
-    color: var(--electric-cyan, var(--gunmetal));
+    color: var(--signature-color, var(--gunmetal));
     text-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
       calc(var(--spacing-unit) * 2)
-      rgb(from var(--electric-cyan, var(--gunmetal)) r g b / var(--opacity-whisper));
+      rgb(from var(--signature-color, var(--gunmetal)) r g b / var(--opacity-whisper));
   }
 
   /* High-Vis Narration */

@@ -170,7 +170,7 @@
                           --state-metric-offset: {Math.min(50, get_pct(val))}%;
                           --state-metric-span: {Math.abs(get_pct(val) - 50)}%;
                           --state-metric-color: {get_pct(val) > 50
-                          ? 'var(--electric-cyan)'
+                          ? 'var(--signature-color)'
                           : 'var(--frozen)'}
                         "
                       ></div>
@@ -196,7 +196,7 @@
                           --state-metric-offset: {Math.min(50, get_pct(val))}%;
                           --state-metric-span: {Math.abs(get_pct(val) - 50)}%;
                           --state-metric-color: {get_pct(val) > 50
-                          ? 'var(--electric-cyan)'
+                          ? 'var(--signature-color)'
                           : 'var(--frozen)'}
                         "
                       ></div>
@@ -273,22 +273,22 @@
 
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
+      box-shadow: 0 0 0 0 rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     }
 
     70% {
       box-shadow: 0 0 0 calc(var(--spacing-unit) * 3)
-        rgb(from var(--electric-cyan) r g b / var(--opacity-none));
+        rgb(from var(--signature-color) r g b / var(--opacity-none));
     }
 
     100% {
-      box-shadow: 0 0 0 0 rgb(from var(--electric-cyan) r g b / var(--opacity-none));
+      box-shadow: 0 0 0 0 rgb(from var(--signature-color) r g b / var(--opacity-none));
     }
   }
 
   :global(.resonance-pulse) {
     animation: pulse-resonance 3s infinite var(--motion-elastic);
-    border-color: var(--electric-cyan) !important;
+    border-color: var(--signature-color) !important;
   }
 
   .resonance-header {
@@ -310,8 +310,8 @@
   }
 
   .resonance-item {
-    background: rgb(from var(--electric-cyan) r g b / var(--opacity-ghost)) !important;
-    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper)) !important;
+    background: rgb(from var(--signature-color) r g b / var(--opacity-ghost)) !important;
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper)) !important;
     animation: slide-in var(--duration-standard) var(--motion-elastic) both;
   }
 
@@ -371,7 +371,7 @@
 
   .sub-label {
     font-size: var(--font-size-nano);
-    color: var(--electric-cyan);
+    color: var(--signature-color);
     opacity: var(--opacity-whisper);
     margin-bottom: var(--margin-tight);
     font-weight: var(--font-weight-bold);
@@ -402,8 +402,8 @@
   }
 
   .delta-item.is-positive {
-    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
-    color: var(--electric-cyan);
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
+    color: var(--signature-color);
   }
 
   .delta-item.is-negative {
@@ -473,7 +473,7 @@
     position: absolute;
     left: var(--state-metric-offset, 0%);
     width: var(--state-metric-span, 0%);
-    background: var(--state-metric-color, var(--electric-cyan));
+    background: var(--state-metric-color, var(--signature-color));
     height: 100%;
     border-radius: var(--radius-full);
     transition: all var(--duration-standard);
@@ -518,7 +518,7 @@
   }
 
   .vector-item.future {
-    border-left-color: var(--electric-cyan);
+    border-left-color: var(--signature-color);
   }
 
   .vector-item.past {
@@ -527,7 +527,7 @@
 
   .vector-score {
     font-family: var(--font-family-mono);
-    color: var(--electric-cyan);
+    color: var(--signature-color);
     font-weight: var(--font-weight-bold);
     opacity: var(--opacity-whisper);
   }
@@ -564,8 +564,8 @@
     padding: var(--padding-tight);
     background: var(--glass-base);
     border: var(--border-whisper);
-    border-color: rgb(from var(--electric-cyan) r g b / var(--opacity-whisper));
-    color: var(--electric-cyan);
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
+    color: var(--signature-color);
     border-radius: var(--radius-full);
     font-size: var(--font-size-nano);
     font-family: var(--font-family-mono);

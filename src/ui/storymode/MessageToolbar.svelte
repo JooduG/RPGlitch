@@ -192,7 +192,7 @@
   }
 
   :global(.toolbar-btn.copy:hover) {
-    color: var(--electric-cyan);
+    color: var(--frisk);
   }
 
   :global(.toolbar-btn.delete:hover) {

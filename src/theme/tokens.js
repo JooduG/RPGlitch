@@ -4,7 +4,7 @@
  * ============================================================================ */
 
 export const TOKENS = {
-  "active-swatch-shadow": "0 0 calc(var(--spacing-unit) * 4) var(--electric-cyan)",
+  "active-swatch-shadow": "0 0 calc(var(--spacing-unit) * 4) var(--signature-color)",
   "aspect-square": "1 / 1",
   "auto-resize-buffer": "var(--spacing-pixel)",
   "avatar-medium-size": "calc(var(--column-unit) * 2)",
@@ -167,7 +167,7 @@ export const TOKENS = {
     "0 var(--spacing-pixel) var(--spacing-pixel)\nrgb(from var(--void-black) r g b / var(--opacity-ghost))",
   "shadow-standard":
     "0 var(--spacing-unit) calc(var(--spacing-unit) * 4)\nrgb(from var(--void-black) r g b / var(--opacity-whisper))",
-  "signature-color": "var(--electric-cyan)",
+  "signature-color": "var(--frozen)",
   "signature-glow": "0 0 calc(var(--spacing-unit) * 4) var(--signature-color)",
   "skeleton-card-min-height": "var(--storyboard-character-card-height)",
   "skeleton-hero-min-height": "calc(var(--spacing-unit) * 60)",
@@ -182,16 +182,16 @@ export const TOKENS = {
   "spacing-pixel": "1px",
   "spacing-unit": "0.25rem",
   "state-accent": "var(--frisk)",
-  "state-activity-color": "var(--electric-cyan)",
+  "state-activity-color": "var(--frozen)",
   "state-align": "center",
   "state-dev-accent": "var(--frisk)",
   "state-fill-end": "100%",
   "state-fill-start": "0%",
   "state-intensity": "0",
-  "state-metric-color": "var(--electric-cyan)",
+  "state-metric-color": "var(--frozen)",
   "state-metric-offset": "0%",
   "state-metric-span": "0%",
-  "state-signature-color": "var(--electric-cyan)",
+  "state-signature-color": "var(--frozen)",
   "state-toggle-height": "var(--toggle-height)",
   "state-toggle-thumb-offset": "var(--toggle-thumb-offset)",
   "state-toggle-thumb-size": "var(--toggle-thumb-size)",
