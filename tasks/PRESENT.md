@@ -16,22 +16,23 @@ This document describes the current distance between the existing engine state a
 ### Technical Soul
 
 - [~] **Svelte 5 Runes**: Major migration completed but some edge cases in UI components still use legacy-adjacent patterns.
-- [~] **Aesthetics**: Signature color automation is functional but typography contrast in cards (bleed) is a known issue.
+- [x] **Aesthetics**: Signature color automation is functional and typography contrast in cards (bleed) has been fully remediated and verified.
 
-## 2. Active Focus
+## 2.0 Active Focus
 
-We are currently focusing on **Management Hygiene** and **UI Contrast**.
+We are currently focusing on **Management Hygiene** and ensuring long-term UI stability.
 
 | Feature          | State        | Gap                                                  |
 | :--------------- | :----------- | :--------------------------------------------------- |
 | Task Management  | Folder-based | Fragmented context. Migrating to single-file tracks. |
-| Storyboard Cards | Color bleed  | Legibility issues. Need robust scrims.               |
+| Storyboard Cards | Remediated   | Fully resolved with vertical scrims and frisk titles.|
 | Persistence      | Dexie/Stores | Some stores still exist. Need 100% rune-based state. |
 
 ## 🧠 Pulse (History)
 
 | Timestamp (ISO 8601) | Task                                                                           | Skill Invoked          | Outcome   |
 | :------------------- | :----------------------------------------------------------------------------- | :--------------------- | :-------- |
+| 2026-05-18T20:55:00Z | Complete storyboard-card-bleed-remediation track and sync task records         | release + planning     | ✅ Done   |
 | 2026-05-18T15:10:00Z | Complete refactor-design-schema track and run full verification                | css + quality          | ✅ Done   |
 | 2026-05-18T09:37:00Z | Initialize storyboard-card-bleed-remediation track and specs                   | planning               | ✅ Done   |
 | 2026-05-18T09:21:00Z | Archive completed profile-rebalance & storyboard-typography-remediation tracks | legislative            | ✅ Done   |
