@@ -150,8 +150,9 @@
     flex-direction: column;
     position: relative;
     border-radius: var(--radius-standard);
-    background: var(--glass-sunken);
+    background: color-mix(in srgb, var(--state-dev-accent) 8%, var(--glass-sunken));
     backdrop-filter: var(--blur-whisper);
+    border: var(--spacing-pixel) solid color-mix(in srgb, var(--state-dev-accent) 20%, transparent);
     transition:
       border-color var(--duration-standard) var(--ease-standard),
       box-shadow var(--duration-standard) var(--ease-standard),
@@ -166,18 +167,20 @@
   }
 
   .root[data-expanded="true"] {
-    border-color: var(--pure-white);
-    box-shadow: var(--shadow-standard);
+    border-color: var(--state-dev-accent);
+    box-shadow: 0 0 calc(var(--spacing-unit) * 4)
+      color-mix(in srgb, var(--state-dev-accent) 30%, transparent);
   }
 
   .header {
-    height: var(--dev-header-height-dormant);
+    height: calc(var(--dev-header-height-dormant) * 1.5);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-    background: var(--dev-header-bg-dormant);
+    background: var(--state-dev-accent);
+    opacity: 0.6;
     box-shadow: 0 0 calc(var(--state-weight-intensity) * calc(var(--spacing-unit) * 2))
       var(--state-dev-accent);
     position: relative;
-    top: var(--spacing-pixel);
+    top: 0;
     z-index: var(--z-index-surface);
     display: flex;
     align-items: center;
@@ -185,7 +188,6 @@
     padding: 0 var(--padding-tight);
     transition:
       height var(--duration-standard) var(--ease-elastic),
-      top var(--duration-standard) var(--ease-elastic),
       opacity var(--duration-fast) var(--ease-standard),
       background var(--duration-standard) var(--ease-elastic),
       box-shadow var(--duration-standard) var(--ease-elastic);
@@ -194,10 +196,9 @@
 
   .root[data-expanded="true"] .header {
     height: var(--dev-header-height-active);
-    top: 0;
-    background: var(--dev-header-bg-active);
+    opacity: 1;
     box-shadow: 0 0 calc(var(--state-weight-intensity) * calc(var(--spacing-unit) * 4))
-      rgb(from var(--state-dev-accent) r g b / var(--opacity-whisper));
+      color-mix(in srgb, var(--state-dev-accent) 40%, transparent);
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }

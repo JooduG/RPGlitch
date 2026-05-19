@@ -66,15 +66,10 @@
 
 <div class="root" style="--accent-color: {signature_color}">
   {#each items as item, i (item.id || i)}
-    <div
-      class="item"
-      class:is-editing={state.is_editing}
-      transition:slide={{ duration: 400, easing: quintOut }}
-    >
+    <div transition:slide={{ duration: 400, easing: quintOut }}>
       <TextField
         is_edit={state.is_editing}
         {signature_color}
-        no_background={true}
         value={item.text}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
           state.patch_vector_item(path, i, { text: e.currentTarget.value })}
@@ -183,22 +178,6 @@
     flex-direction: column;
     gap: var(--gap-standard);
     position: relative;
-  }
-
-  .item {
-    position: relative;
-    width: 100%;
-    transition: all var(--duration-fast);
-    display: flex;
-    align-items: flex-start;
-    background: var(--glass-sunken);
-    backdrop-filter: var(--blur-whisper);
-    border-radius: var(--radius-sharp);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-  }
-
-  .item:hover {
-    z-index: var(--z-index-surface);
   }
 
   /* --- STEPPER --- */

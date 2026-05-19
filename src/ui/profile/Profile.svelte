@@ -193,16 +193,14 @@
                 {state}
                 path={field.key}
                 unit_label={field.unitLabel}
-                signature_color="var(--frozen)"
+                {signature_color}
               />
             {:else}
               <TextField
                 is_edit={state.is_editing}
                 syncId={section.label}
-                signature_color="var(--frozen)"
-                class="text-area custom-field {state.active_field?.key === field.key
-                  ? 'active'
-                  : ''}"
+                {signature_color}
+                class={state.active_field?.key === field.key ? "active" : ""}
                 placeholder={field.description}
                 value={state.get_safe_value(field.key)}
                 oninput={(/** @type {any} */ e) =>
@@ -470,10 +468,6 @@
     opacity: var(--opacity-whisper);
     display: block;
     margin-top: var(--gap-tight);
-  }
-
-  :global(.text-area.custom-field) {
-    height: 100%;
   }
 
   :global(.enhance-btn) {
