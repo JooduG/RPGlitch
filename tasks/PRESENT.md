@@ -22,11 +22,11 @@ This document describes the current distance between the existing engine state a
 
 We are currently focusing on **Management Hygiene** and ensuring long-term UI stability.
 
-| Feature          | State        | Gap                                                  |
-| :--------------- | :----------- | :--------------------------------------------------- |
-| Task Management  | Folder-based | Fragmented context. Migrating to single-file tracks. |
-| Storyboard Cards | Remediated   | Fully resolved with vertical scrims and frisk titles.|
-| Persistence      | Dexie/Stores | Some stores still exist. Need 100% rune-based state. |
+| Feature          | State        | Gap                                                   |
+| :--------------- | :----------- | :---------------------------------------------------- |
+| Task Management  | Folder-based | Fragmented context. Migrating to single-file tracks.  |
+| Storyboard Cards | Remediated   | Fully resolved with vertical scrims and frisk titles. |
+| Persistence      | Dexie/Stores | Some stores still exist. Need 100% rune-based state.  |
 
 ## 🧠 Pulse (History)
 

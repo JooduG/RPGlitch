@@ -42,11 +42,11 @@ export function shimmy(node) {
         { transform: "translate(0, 0) rotate(0deg)" },
         {
           transform:
-            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(calc(var(30deg) * -1))",
+            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(-30deg)",
         },
         {
           transform:
-            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(var(30deg))",
+            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(30deg)",
         },
         { transform: "translate(0, 0) rotate(0deg)" },
       ],
@@ -59,7 +59,6 @@ export function shimmy(node) {
   };
 
   const stop = () => {
-    delete node.dataset.kinetic;
     if (animation) {
       animation.cancel();
       animation = null;
@@ -135,11 +134,8 @@ export function pulse(node) {
       const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
       return_anim = node.animate([{ transform: "scale(1)" }], { duration, easing });
       return_anim.onfinish = () => {
-        delete node.dataset.kinetic;
         return_anim = null;
       };
-    } else if (!return_anim) {
-      delete node.dataset.kinetic;
     }
   };
 
@@ -177,14 +173,11 @@ export function spin(node) {
       const duration = resolve_ms("--duration-slow", 500, node);
       const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
 
-      animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(90deg))" }],
-        {
-          duration,
-          easing,
-          fill: "forwards",
-        },
-      );
+      animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
+        duration,
+        easing,
+        fill: "forwards",
+      });
     }
   };
 
@@ -194,11 +187,10 @@ export function spin(node) {
       animation.play();
       animation.onfinish = () => {
         if (animation && animation.playbackRate === -1) {
-          delete node.dataset.kinetic;
+          animation.cancel();
+          animation = null;
         }
       };
-    } else {
-      delete node.dataset.kinetic;
     }
   };
 
@@ -217,7 +209,7 @@ spin.is_kinetic = true;
 
 /**
  * Roll Action
- * A full 360 degree rotation with rollback.
+ * A full 360 degree rotation.
  * @param {HTMLElement} node
  */
 export function roll(node) {
@@ -230,36 +222,23 @@ export function roll(node) {
     node.dataset.kinetic = "true";
     const target = get_target(node);
     if (animation) {
-      animation.playbackRate = 1;
-      animation.play();
-    } else {
-      const duration = resolve_ms("--duration-slow", 500, node);
-      const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
-
-      animation = target.animate(
-        [{ transform: "rotate(0deg)" }, { transform: "rotate(var(360deg))" }],
-        {
-          duration,
-          easing,
-          fill: "forwards",
-        },
-      );
+      animation.cancel();
+      animation = null;
     }
+
+    const duration = resolve_ms("--duration-slow", 500, node);
+
+    animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
+      duration,
+      easing: "linear",
+      iterations: Infinity,
+    });
   };
 
   const stop = () => {
     if (animation) {
-      animation.playbackRate = -1;
-      animation.play();
-      animation.onfinish = () => {
-        if (animation && animation.playbackRate === -1) {
-          delete node.dataset.kinetic;
-          animation.cancel();
-          animation = null;
-        }
-      };
-    } else {
-      delete node.dataset.kinetic;
+      animation.cancel();
+      animation = null;
     }
   };
 
@@ -313,7 +292,6 @@ export function stab(node) {
   };
 
   const stop = () => {
-    delete node.dataset.kinetic;
     if (animation) {
       animation.cancel();
       animation = null;

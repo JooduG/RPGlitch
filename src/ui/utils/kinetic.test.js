@@ -40,7 +40,7 @@ describe("kinetic utilities", () => {
       action.destroy();
     });
 
-    it("starts return animation on stop and clears dataset on finish", () => {
+    it("starts return animation on stop and maintains dataset (managed by use-actions)", () => {
       const action = pulse(node);
       node.dispatchEvent(new MouseEvent("mouseenter"));
 
@@ -51,12 +51,12 @@ describe("kinetic utilities", () => {
       expect(node.animate).toHaveBeenCalledTimes(2);
       const returnAnim = /** @type {any} */ (node.animate).mock.results[1].value;
 
-      // Dataset should still be true while return anim is running
+      // Dataset should stay true (capability flag)
       expect(node.dataset.kinetic).toBe("true");
 
       // Trigger finish
-      returnAnim.onfinish();
-      expect(node.dataset.kinetic).toBeUndefined();
+      if (returnAnim.onfinish) returnAnim.onfinish();
+      expect(node.dataset.kinetic).toBe("true");
       action.destroy();
     });
 
