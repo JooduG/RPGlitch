@@ -20,11 +20,11 @@ This document describes the current distance between the existing engine state a
 
 ## 2.0 Active Focus
 
-We are currently focusing on **Management Hygiene** and ensuring long-term UI stability.
+We are currently focusing on **Profile Design Cleanup** and Chalk Regime alignment.
 
 | Feature          | State        | Gap                                                   |
 | :--------------- | :----------- | :---------------------------------------------------- |
-| Task Management  | Folder-based | Fragmented context. Migrating to single-file tracks.  |
+| Profile Layout   | Sovereign    | None. Scroll delegation, stacking & glows implemented. |
 | Storyboard Cards | Remediated   | Fully resolved with vertical scrims and frisk titles. |
 | Persistence      | Dexie/Stores | Some stores still exist. Need 100% rune-based state.  |
 
@@ -32,6 +32,7 @@ We are currently focusing on **Management Hygiene** and ensuring long-term UI st
 
 | Track Name                  | Priority | Status      | Description                                                |
 | :-------------------------- | :------- | :---------- | :--------------------------------------------------------- |
+| Profile Design Cleanup      | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.    |
 | Sovereign Scaling Migration | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp. |
 | Storyboard Card Bleed Fix   | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                     |
 | Drawer Contrast Rebuild     | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                       |
@@ -41,6 +42,8 @@ We are currently focusing on **Management Hygiene** and ensuring long-term UI st
 
 | Timestamp (ISO 8601) | Task                                                                           | Skill Invoked          | Outcome   |
 | :------------------- | :----------------------------------------------------------------------------- | :--------------------- | :-------- |
+| 2026-05-19T18:07:00Z | Complete profile-design-cleanup track and run full verification                | css + quality + svelte | ✅ Done   |
+| 2026-05-19T18:03:00Z | Initialize profile-design-cleanup-2026-05-19 planning phase and spec track    | planning + css         | ✅ Plan   |
 | 2026-05-19T17:56:00Z | Initialize session and execute status audit protocol                           | legislative + context  | ✅ Done   |
 | 2026-05-18T20:55:00Z | Complete storyboard-card-bleed-remediation track and sync task records         | release + planning     | ✅ Done   |
 | 2026-05-18T15:10:00Z | Complete refactor-design-schema track and run full verification                | css + quality          | ✅ Done   |

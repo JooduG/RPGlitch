@@ -7,14 +7,14 @@ This document tracks all major tracks for the project. Each track has its own de
 
 ## 🚀 Active Mission
 
-- **Track**: None
-- **Objective**: All P0 stabilization, design refactoring, and contrast remediation tracks are completed.
-- None
+- **Track**: `None`
+- **Objective**: All core active tracks fully resolved.
 
 ## 🗺️ Roadmap (Tracks)
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                             |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :-------------------------------------------------------------------- |
+| `profile-design-cleanup-2026-05-19`                 | Profile Design Cleanup                 | P0       | ✅ Done | Execute design cleanup of Profile.svelte in readonly and edit modes.  |
 | `drawer-and-avatar-contrast-remediation-2026-05-18` | Drawer and Avatar Contrast Remediation | P0       | ✅ Done | Fix contrast, desaturation, and legibility issues in drawer/initials. |
 | `storyboard-card-bleed-remediation-2026-05-18`      | Storyboard Card Bleed Remediation      | P0       | ✅ Done | Fix signature color bleed and typography contrast.                    |
 | `refactor-design-schema-2026-05-18`                 | Refactor DESIGN.md Schema              | P0       | ✅ Done | Refactor DESIGN.md to follow schema, flatten & migrate tokens.        |
