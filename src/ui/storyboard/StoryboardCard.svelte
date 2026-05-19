@@ -44,7 +44,7 @@
   class:is-empty={is_empty}
   class:interactable={!is_empty}
   use:tooltip={{ text: a11y_label }}
-  style:--electric-cyan={signature_color}
+  style:--signature-color={signature_color}
   aria-label={a11y_label}
   data-testid="storyboard-card"
 >
@@ -139,9 +139,10 @@
   }
 
   .root:hover::after {
-    border-color: var(--electric-cyan, var(--gunmetal));
+    border-color: var(--signature-color, var(--electric-cyan));
     box-shadow: inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 0) var(--spacing-pixel) var(--electric-cyan, var(--gunmetal));
+      calc(var(--spacing-unit) * 0) var(--spacing-pixel)
+      var(--signature-color, var(--electric-cyan));
   }
 
   /* --- BODY --- */
@@ -160,12 +161,14 @@
   }
 
   .root:hover :global(.body) {
-    background-color: rgb(from var(--electric-cyan) r g b / var(--opacity-ghost)) !important;
+    /* prettier-ignore */
+    background-color: rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-ghost)) !important;
     filter: var(--brightness-glow) var(--contrast-tension);
     /* stylelint-disable scale-unlimited/declaration-strict-value */
+
+    /* prettier-ignore */
     box-shadow:
-      inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-        calc(var(--spacing-unit) * 12) rgb(from var(--electric-cyan) r g b / var(--opacity-whisper)),
+      inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 12) rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-whisper)),
       var(--shadow-standard);
     /* stylelint-enable scale-unlimited/declaration-strict-value */
   }
@@ -209,13 +212,16 @@
     bottom: calc(var(--spacing-unit) * 0);
     left: calc(var(--spacing-unit) * 0);
     right: calc(var(--spacing-unit) * 0);
-    height: 100%;
+    height: 60%;
+
+    /* prettier-ignore */
     background: linear-gradient(
       to top,
       var(--chalk) 0%,
-      rgb(from var(--chalk) r g b / var(--opacity-solid)) 40%,
-      rgb(from var(--chalk) r g b / var(--opacity-muted)) 70%,
-      rgb(from var(--chalk) r g b / var(--opacity-whisper)) 100%
+      rgb(from var(--chalk) r g b / var(--opacity-solid)) 30%,
+      rgb(from var(--chalk) r g b / var(--opacity-muted)) 60%,
+      rgb(from var(--chalk) r g b / var(--opacity-ghost)) 80%,
+      transparent 100%
     );
     display: flex;
     flex-direction: column;
@@ -232,7 +238,7 @@
   .header .primary {
     margin: 0;
     font-family: var(--font-family-heading);
-    color: var(--frisk);
+    color: var(--signature-color, var(--electric-cyan));
     text-shadow: var(--shadow-font);
     font-size: var(--font-size-h4);
     line-height: var(--font-height-base);

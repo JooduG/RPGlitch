@@ -110,7 +110,7 @@
         <!-- "Create New" card -->
         <div
           class="card--new glass-sunken interactable"
-          style="--electric-cyan: var(--gunmetal);"
+          style="--signature-color: var(--electric-cyan);"
           role="button"
           tabindex="0"
           aria-label="Create new entity"
@@ -209,17 +209,29 @@
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    border: none;
+    border: var(--border-whisper);
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     padding: 0;
     background: transparent;
     cursor: pointer;
     border-radius: var(--radius-standard);
     overflow: hidden;
+    transition:
+      transform var(--duration-fast) var(--ease-standard),
+      filter var(--duration-fast) var(--ease-standard),
+      opacity var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+  }
+
+  .card--new:hover {
+    border-color: var(--signature-color);
+    box-shadow: var(--signature-glow);
   }
 
   .card--new .visual {
     flex: 1.5;
-    background: var(--electric-cyan, var(--gunmetal));
+    background: var(--signature-color, var(--electric-cyan));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -234,7 +246,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--glass-base);
+    background: var(--glass-sunken);
     border-radius: 0 0 var(--radius-standard) var(--radius-standard);
   }
 
@@ -244,7 +256,9 @@
     text-transform: uppercase;
     font-size: var(--font-size-base);
     letter-spacing: var(--font-spacing-loose);
-    color: var(--electric-cyan, var(--gunmetal));
+    color: var(--signature-color, var(--electric-cyan));
+    text-shadow: 0 0 calc(var(--spacing-unit) * 2)
+      rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-muted));
     text-align: center;
   }
 
@@ -254,7 +268,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--electric-cyan, var(--gunmetal));
+    background: var(--signature-color, var(--electric-cyan));
     opacity: 0;
     transition: opacity var(--motion-standard);
   }

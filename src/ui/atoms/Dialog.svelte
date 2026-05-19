@@ -47,7 +47,7 @@
 <svelte:window onkeydown={(e) => open && !busy && e.key === "Enter" && handle_confirm()} />
 
 {#if open}
-  <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-modal)" {busy}>
+  <Modal variant="mini" on_close={handle_cancel} z_index="var(--z-index-max)" {busy}>
     <header class="header">
       {#if show_icon}
         <span class="icon" aria-hidden="true">i</span>

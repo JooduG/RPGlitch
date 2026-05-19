@@ -22,7 +22,7 @@
 
   // --- STATE ---
 
-  let signature_color = $derived(themeStore.get_signature_color(entity, "var(--gunmetal)"));
+  let signature_color = $derived(themeStore.get_signature_color(entity));
   let name = $derived(entity?.name || "Untitled");
   const MIN_SIZE_TOKEN = "var(--font-size-nano)";
 
@@ -40,7 +40,7 @@
   class="card glass-elevated interactable"
   class:fractal={type === "fractal"}
   class:disabled
-  style="--electric-cyan: {signature_color};"
+  style="--signature-color: {signature_color};"
   role="button"
   tabindex="0"
   aria-label={disabled ? "Already selected" : `Select ${name}`}
@@ -75,23 +75,43 @@
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
-    border: none;
+    border: var(--border-whisper);
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     padding: 0;
     background: transparent;
     border-radius: var(--radius-standard);
     overflow: visible; /* Allow tooltips and highlights to bleed */
+    transition:
+      transform var(--duration-fast) var(--ease-standard),
+      filter var(--duration-fast) var(--ease-standard),
+      opacity var(--duration-fast) var(--ease-standard),
+      border-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
+  }
+
+  .card:hover:not(.disabled) {
+    border-color: var(--signature-color);
+    box-shadow: 0 0 calc(var(--spacing-unit) * 4)
+      rgb(from var(--signature-color) r g b / var(--opacity-whisper));
   }
 
   .card.disabled {
-    opacity: var(--opacity-whisper);
-    filter: grayscale(1);
     pointer-events: none;
+  }
+
+  .card.disabled .visual {
+    filter: saturate(0.5) brightness(0.9);
+    opacity: 0.8;
+  }
+
+  .card.disabled .name {
+    opacity: 0.8;
   }
 
   /* --- VISUAL (image area) --- */
   .visual {
     flex: 1.5;
-    background: var(--electric-cyan, var(--gunmetal));
+    background: var(--signature-color, var(--electric-cyan));
     display: flex;
     align-items: center;
     justify-content: center;
@@ -113,7 +133,7 @@
   }
 
   .name {
-    color: var(--electric-cyan, var(--gunmetal));
+    color: var(--signature-color, var(--electric-cyan));
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
@@ -137,7 +157,7 @@
     left: 0;
     right: 0;
     height: var(--gap-tight);
-    background: var(--electric-cyan, var(--gunmetal));
+    background: var(--signature-color, var(--electric-cyan));
     opacity: 0.3;
     transition: opacity var(--motion-standard);
   }

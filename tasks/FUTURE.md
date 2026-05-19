@@ -7,19 +7,18 @@ This document tracks all major tracks for the project. Each track has its own de
 
 ## 🚀 Active Mission
 
-- **Track**: `storyboard-card-bleed-remediation-2026-05-18`
-- **Objective**: Remediate signature color bleed and text legibility in storyboard cards.
-- **Link**: [tasks/tracks/storyboard-card-bleed-remediation-2026-05-18.md](./tracks/storyboard-card-bleed-remediation-2026-05-18.md)
+- None
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track ID                                       | Name                              | Priority | Status    | Objective                                                      |
-| :--------------------------------------------- | :-------------------------------- | :------- | :-------- | :------------------------------------------------------------- |
-| `storyboard-card-bleed-remediation-2026-05-18` | Storyboard Card Bleed Remediation | P0       | 🔄 Active | Fix signature color bleed and typography contrast.             |
-| `refactor-design-schema-2026-05-18`            | Refactor DESIGN.md Schema         | P0       | ✅ Done   | Refactor DESIGN.md to follow schema, flatten & migrate tokens. |
-| `profile-grid-layout`                          | Profile Grid Layout               | P0       | ✅ Done   | Implement state-aware 12-column grid layout and verticality.   |
-| `spacing-migration`                            | Spacing Migration                 | P0       | ✅ Done   | Project-wide migration from raw spacing to semantic tokens.    |
-| `signature-color-consolidation`                | Signature Color Consolidation     | P0       | ✅ Done   | Consolidate signature color automation and logic hardening.    |
+| Track ID                                            | Name                                   | Priority | Status  | Objective                                                             |
+| :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :-------------------------------------------------------------------- |
+| `drawer-and-avatar-contrast-remediation-2026-05-18` | Drawer and Avatar Contrast Remediation | P0       | ✅ Done | Fix contrast, desaturation, and legibility issues in drawer/initials. |
+| `storyboard-card-bleed-remediation-2026-05-18`      | Storyboard Card Bleed Remediation      | P0       | ✅ Done | Fix signature color bleed and typography contrast.                    |
+| `refactor-design-schema-2026-05-18`                 | Refactor DESIGN.md Schema              | P0       | ✅ Done | Refactor DESIGN.md to follow schema, flatten & migrate tokens.        |
+| `profile-grid-layout`                               | Profile Grid Layout                    | P0       | ✅ Done | Implement state-aware 12-column grid layout and verticality.          |
+| `spacing-migration`                                 | Spacing Migration                      | P0       | ✅ Done | Project-wide migration from raw spacing to semantic tokens.           |
+| `signature-color-consolidation`                     | Signature Color Consolidation          | P0       | ✅ Done | Consolidate signature color automation and logic hardening.           |
 
 ---
 

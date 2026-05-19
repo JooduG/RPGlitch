@@ -167,6 +167,7 @@ export const TOKENS = {
     "0 var(--spacing-pixel) var(--spacing-pixel)\nrgb(from var(--void-black) r g b / var(--opacity-ghost))",
   "shadow-standard":
     "0 var(--spacing-unit) calc(var(--spacing-unit) * 4)\nrgb(from var(--void-black) r g b / var(--opacity-whisper))",
+  "signature-color": "var(--electric-cyan)",
   "signature-glow": "0 0 calc(var(--spacing-unit) * 4) var(--signature-color)",
   "skeleton-card-min-height": "var(--storyboard-character-card-height)",
   "skeleton-hero-min-height": "calc(var(--spacing-unit) * 60)",

@@ -76,7 +76,7 @@
 <div
   {...rest}
   class="root {className}"
-  style="--electric-cyan: {signature_color}"
+  style="--signature-color: {signature_color};"
   use:use_actions={actions}
 >
   <!-- 🧬 THE BASE: Massive Signature Placeholder -->
@@ -145,9 +145,9 @@
     height: 100%;
     background-color: var(--chalk);
     background-image: radial-gradient(
-      circle at 40% 40%,
-      rgb(from var(--electric-cyan) r g b / var(--opacity-ghost)) 0%,
-      rgb(from var(--void-black) r g b / var(--opacity-whisper)) 100%
+      circle at 50% 50%,
+      rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-muted)) 0%,
+      rgb(from var(--void-black) r g b / var(--opacity-solid)) 100%
     );
     z-index: var(--z-index-base);
   }
@@ -156,20 +156,20 @@
   .profile-initials {
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-bold);
-    color: var(--pure-white);
+    color: var(--signature-color, var(--electric-cyan));
     text-transform: uppercase;
     user-select: none;
     pointer-events: none;
     line-height: 0.7; /* Massive impact tight tracking */
     letter-spacing: var(--font-spacing-tight);
 
-    /* ❄️ Nordic Collection Depth */
-    opacity: var(--opacity-whisper);
-    mix-blend-mode: overlay;
+    /* ❄️ Nordic Collection Depth - Boosted Contrast */
+    opacity: 0.85;
 
-    /* Subtle depth shimmer */
+    /* Vibrant custom signature-colored drop-shadow & bloom */
     filter: drop-shadow(
-      0 0 var(--margin-standard) rgb(from var(--pure-white) r g b / var(--opacity-whisper))
+      0 0 calc(var(--spacing-unit) * 4)
+        rgb(from var(--signature-color, var(--electric-cyan)) r g b / var(--opacity-muted))
     );
 
     /* Massive Layout Construction */
