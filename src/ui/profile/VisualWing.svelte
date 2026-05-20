@@ -62,6 +62,10 @@
 
   // --- DERIVED ---
 
+  const signature_color = $derived(
+    themeStore.get_signature_color(profileState.char, "var(--gunmetal)"),
+  );
+
   const is_prompt_busy = $derived(
     app.visual.isLoading || profileState.busy_fields.has("visual-prompt"),
   );
@@ -160,125 +164,141 @@
   }
 </script>
 
-<section class="wrapper glass-elevated">
-  <!-- Signature Color Swatches -->
-  <div class="swatches">
-    {#each SPECTRUM_COLORS as [name, hex] (name)}
-      {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
-      <Button
-        square={true}
-        className="swatch {themeStore.get_signature_label(profileState.char) === name
-          ? 'active'
-          : ''}"
-        style="--swatch-dynamic-bg: {color}; background-color: var(--swatch-dynamic-bg); --swatch-color: var(--swatch-dynamic-bg);"
-        aria-label={name}
-        actions={[tooltip]}
-        onclick={() => (profileState.char.signature_color = name)}
-        disabled={!profileState.is_editing}
-        variant="invisible"
-      ></Button>
-    {/each}
+<section class="wrapper glass-elevated" style="--signature-color: {signature_color};">
+  <!-- 🏷️ HEADER CHASSIS -->
+  <header class="wing-header">
+    <h4 class="wing-title text-shadow-bloom">Optics Chassis</h4>
+    <p class="wing-subtitle">Visual Identity & Manifestation</p>
+  </header>
+
+  <!-- 🎨 SIGNATURE SPECTRUM SECTION -->
+  <div class="wing-section">
+    <span class="section-label">Signature Spectrum</span>
+    <div class="swatches">
+      {#each SPECTRUM_COLORS as [name, hex] (name)}
+        {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
+        <Button
+          square={true}
+          className="swatch {themeStore.get_signature_label(profileState.char) === name
+            ? 'active'
+            : ''}"
+          style="--swatch-dynamic-bg: {color}; background-color: var(--swatch-dynamic-bg); --swatch-color: var(--swatch-dynamic-bg);"
+          aria-label={name}
+          actions={[tooltip]}
+          onclick={() => (profileState.char.signature_color = name)}
+          disabled={!profileState.is_editing}
+          variant="invisible"
+        ></Button>
+      {/each}
+    </div>
   </div>
 
-  <!-- Image Prompt -->
-  <TextField
-    class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
-    is_edit={profileState.is_editing}
-    busy={is_prompt_busy}
-    bind:value={profileState.char.modifiers.prompt}
-    placeholder="Enter image prompt or paste a URL..."
-    disabled={!profileState.is_editing || is_prompt_busy}
-    onfocus={() =>
-      profileState.is_editing &&
-      (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
-  >
-    {#snippet status()}
-      {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
-        <div
-          class="status-bar"
-          class:is-error={app.visual.error || app.visual.isOffline}
-          class:is-loading={is_prompt_busy}
-        >
-          <div class="status-content">
-            {#if app.visual.isOffline}
-              <span class="tag">OFFLINE</span>
-            {:else if app.visual.error}
-              <span class="tag">ERROR</span>
-              <span class="status-msg">{app.visual.error}</span>
-            {:else if app.visual.attempts > 0}
-              <span class="tag pulse">RETRYING</span>
-              <span class="status-msg">Attempt {app.visual.attempts}</span>
-            {:else}
-              <span class="tag pulse">GENERATING</span>
-            {/if}
+  <!-- 👁️ OPTICS VECTOR SECTION -->
+  <div class="wing-section">
+    <span class="section-label">Optics Vector</span>
+    <TextField
+      class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
+      is_edit={profileState.is_editing}
+      busy={is_prompt_busy}
+      bind:value={profileState.char.modifiers.prompt}
+      placeholder="Enter image prompt or paste a URL..."
+      disabled={!profileState.is_editing || is_prompt_busy}
+      {signature_color}
+      onfocus={() =>
+        profileState.is_editing &&
+        (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
+    >
+      {#snippet status()}
+        {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
+          <div
+            class="status-bar"
+            class:is-error={app.visual.error || app.visual.isOffline}
+            class:is-loading={is_prompt_busy}
+          >
+            <div class="status-content">
+              {#if app.visual.isOffline}
+                <span class="tag">OFFLINE</span>
+              {:else if app.visual.error}
+                <span class="tag">ERROR</span>
+                <span class="status-msg">{app.visual.error}</span>
+              {:else if app.visual.attempts > 0}
+                <span class="tag pulse">RETRYING</span>
+                <span class="status-msg">Attempt {app.visual.attempts}</span>
+              {:else}
+                <span class="tag pulse">GENERATING</span>
+              {/if}
+            </div>
           </div>
-        </div>
-      {/if}
-    {/snippet}
+        {/if}
+      {/snippet}
 
-    {#snippet header_actions()}
-      {#if profileState.is_editing}
-        <div class="actions">
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-            className="action"
-            actions={[tooltip]}
-            onclick={handle_creative_action}
-            disabled={is_creative_disabled}
-          >
-            {#if has_prompt_text}
+      {#snippet header_actions()}
+        {#if profileState.is_editing}
+          <div class="actions">
+            <Button
+              variant="invisible"
+              size="small"
+              square
+              aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
+              className="action"
+              actions={[tooltip]}
+              onclick={handle_creative_action}
+              disabled={is_creative_disabled}
+            >
+              {#if has_prompt_text}
+                <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
+                  ></path>
+                </svg>
+              {:else}
+                <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
+                  ></path>
+                  <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
+                  <line x1="12" y1="15" x2="12" y2="3" stroke="var(--pure-white)"></line>
+                </svg>
+              {/if}
+            </Button>
+
+            <Button
+              variant="invisible"
+              size="small"
+              square
+              aria-label="Generate Image"
+              className="action"
+              actions={[tooltip]}
+              onclick={handle_generate}
+              disabled={!profileState.is_editing || is_prompt_busy}
+            >
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
+                <path
+                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                  stroke="var(--pure-white)"
                 ></path>
+                <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
               </svg>
-            {:else}
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
-                ></path>
-                <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3" stroke="var(--pure-white)"></line>
-              </svg>
-            {/if}
-          </Button>
+            </Button>
+          </div>
+        {/if}
+      {/snippet}
+    </TextField>
+  </div>
 
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label="Generate Image"
-            className="action"
-            actions={[tooltip]}
-            onclick={handle_generate}
-            disabled={!profileState.is_editing || is_prompt_busy}
-          >
-            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-              <path
-                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                stroke="var(--pure-white)"
-              ></path>
-              <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
-            </svg>
-          </Button>
-        </div>
-      {/if}
-    {/snippet}
-  </TextField>
-
-  <!-- Image Controls -->
-  <div class="controls">
-    <Toggle
-      label="No Background"
-      bind:value={profileState.char.modifiers.no_background}
-      disabled={!profileState.is_editing}
-    />
-    <Toggle
-      label="Mirror Image"
-      bind:value={profileState.char.modifiers.flipped}
-      disabled={!profileState.is_editing}
-    />
+  <!-- ⚙️ RENDER MODIFIERS SECTION -->
+  <div class="wing-section">
+    <span class="section-label">Render Modifiers</span>
+    <div class="controls">
+      <Toggle
+        label="No Background"
+        bind:value={profileState.char.modifiers.no_background}
+        disabled={!profileState.is_editing}
+      />
+      <Toggle
+        label="Mirror Image"
+        bind:value={profileState.char.modifiers.flipped}
+        disabled={!profileState.is_editing}
+      />
+    </div>
   </div>
 
   <input
@@ -302,9 +322,60 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-muted));
     padding: var(--padding-standard);
     gap: var(--gap-standard);
+  }
+
+  /* --- Wing Header --- */
+
+  .wing-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+    padding-bottom: var(--padding-tight);
+    border-bottom: var(--border-width-base) solid
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+  }
+
+  .wing-title {
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-h4);
+    font-weight: var(--font-weight-bold);
+    color: var(--signature-color);
+    margin: 0;
+    letter-spacing: var(--font-spacing-tight);
+  }
+
+  .wing-subtitle {
+    font-size: var(--font-size-nano);
+    color: var(--pure-white);
+    opacity: var(--opacity-whisper);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* --- Wing Section --- */
+
+  .wing-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-standard);
+    width: 100%;
+  }
+
+  .section-label {
+    font-size: var(--font-size-nano);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    color: var(--signature-color);
+    opacity: var(--opacity-solid);
+    text-align: left;
+    text-shadow: var(--shadow-font);
+    margin-bottom: var(--margin-tight);
+    width: 100%;
+    letter-spacing: var(--font-spacing-loose);
+    padding-left: var(--padding-tight);
+    border-left: var(--border-width-base) solid var(--signature-color);
   }
 
   /* --- Swatches --- */
@@ -340,12 +411,12 @@
   }
 
   .swatches :global(.swatch.active) {
-    outline: calc(var(--spacing-pixel) * 2) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-muted));
+    outline: calc(var(--spacing-pixel) * 2) solid var(--signature-color);
     outline-offset: calc(var(--spacing-pixel) * 2);
     --signature-glow:
-      0 0 0 var(--spacing-pixel) rgb(from var(--pure-white) r g b / var(--opacity-whisper)) inset,
-      0 0 calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 1) var(--swatch-color);
+      0 0 0 var(--spacing-pixel) rgb(from var(--signature-color) r g b / var(--opacity-whisper))
+        inset,
+      0 0 calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 1) var(--signature-color);
 
     box-shadow: var(--signature-glow);
     transform: scale(1.06);
@@ -380,6 +451,7 @@
     display: flex;
     align-items: center;
     gap: var(--gap-standard);
+    box-sizing: border-box;
   }
 
   :global(.prompt-field .status-bar.is-error) {

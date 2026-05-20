@@ -38,6 +38,26 @@
 
   // --- HANDLERS ---
   // All handlers migrated to ProfileState
+
+  /** @param {MouseEvent} event */
+  function handle_click_outside(event) {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    // Ignore clicks if delete confirm dialog is active
+    if (state.show_delete_confirm) return;
+
+    // Ignore clicks inside the wings container (VisualWing, AudioWing, DevWing)
+    if (target.closest(".wings-container")) return;
+
+    // Ignore clicks inside dropdown menus or portaled elements from wings
+    if (target.closest(".menu") || target.closest(".tooltip-portal")) return;
+
+    // Ignore clicks inside other dialog/mini modals
+    if (target.closest(".mini-backdrop") || target.closest(".root.mini")) return;
+
+    state.handle_close();
+  }
 </script>
 
 {#if state.char?.id}
@@ -63,7 +83,7 @@
         class:readonly={!has_wings}
         class:has-wings={has_wings}
         style="--signature-color: {signature_color};"
-        use:click_outside={() => state.handle_close()}
+        use:click_outside={handle_click_outside}
       >
         <div class="avatar-section">
           <div class="avatar-wrapper">
@@ -325,7 +345,8 @@
     display: inline-block;
     width: 100%;
     padding: var(--padding-tight);
-    border: var(--border-width-base) solid color-mix(in srgb, var(--signature-color) 20%, transparent);
+    border: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 20%, transparent);
     border-radius: var(--radius-standard);
     background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
     transition:
@@ -370,7 +391,8 @@
     max-height: calc(var(--row-unit) * 4);
     padding: var(--padding-standard);
     background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
-    border: var(--border-width-base) solid color-mix(in srgb, var(--signature-color) 20%, transparent);
+    border: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 20%, transparent);
     border-radius: var(--radius-standard);
     color: var(--frisk);
     font-family: var(--font-family-base);
@@ -425,7 +447,8 @@
     height: var(--avatar-medium-size);
     border-radius: var(--radius-standard);
     overflow: hidden;
-    border: var(--border-width-base) solid color-mix(in srgb, var(--signature-color) 30%, transparent);
+    border: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
     transition:
       border-color var(--duration-standard) var(--ease-standard),
       box-shadow var(--duration-standard) var(--ease-standard);

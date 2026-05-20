@@ -10,6 +10,7 @@
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
   import { Audio } from "@media/audio-engine.svelte.js";
+  import { themeStore } from "@theme/palette.svelte.js";
   import { portal } from "@utils/portal.js";
 
   /**
@@ -50,6 +51,10 @@
   });
 
   // --- DERIVED ---
+
+  const signature_color = $derived(
+    themeStore.get_signature_color(profileState.char, "var(--gunmetal)"),
+  );
 
   const selected_voice = $derived(
     Audio.voice.voices.find((v) => v.uri === profileState.char?.voice?.uri),
@@ -133,92 +138,106 @@
   });
 </script>
 
-<section class="wing glass-elevated">
-  <div class="header" bind:this={anchor_el}>
-    <Button
-      className="select {show_dropdown ? 'active' : ''}"
-      disabled={!profileState.is_editing}
-      onclick={() => (show_dropdown = !show_dropdown)}
-      aria-label="Select Voice"
-      aria-haspopup="listbox"
-      aria-expanded={show_dropdown}
-      variant="invisible"
-    >
-      <span class="truncate">{format_name(selected_voice?.name || "Select Voice")}</span>
-    </Button>
+<section class="wing glass-elevated" style="--signature-color: {signature_color};">
+  <!-- 🏷️ HEADER CHASSIS -->
+  <header class="wing-header">
+    <h4 class="wing-title text-shadow-bloom">Sonic Resonance</h4>
+    <p class="wing-subtitle">Acoustic Signature & Pacing</p>
+  </header>
 
-    <div
-      use:portal
-      role="listbox"
-      class="menu"
-      class:is-visible={show_dropdown}
-      class:is-dropup={coords.is_dropup}
-      style={dropdown_style}
-    >
-      {#each Audio.voice.voices as voice (voice.uri)}
-        <Button
-          role="option"
-          aria-selected={profileState.char?.voice?.uri === voice.uri}
-          className="option {profileState.char?.voice?.uri === voice.uri ? 'active' : ''}"
-          onclick={() => {
-            if (profileState.is_editing) profileState.char.voice.uri = voice.uri;
-            show_dropdown = false;
-          }}
-          variant="invisible"
-        >
-          <span class="label">{format_name(voice.name, voice.region)}</span>
-          <div class="tags">
-            {#each format_region(voice.region) as part, j (voice.uri + j)}
-              <span>{part}</span>
-            {/each}
-          </div>
-        </Button>
-      {/each}
+  <!-- 🗣️ VOICE SELECTION SECTION -->
+  <div class="wing-section">
+    <span class="section-label">Voice Selection</span>
+    <div class="header" bind:this={anchor_el}>
+      <Button
+        className="select {show_dropdown ? 'active' : ''}"
+        disabled={!profileState.is_editing}
+        onclick={() => (show_dropdown = !show_dropdown)}
+        aria-label="Select Voice"
+        aria-haspopup="listbox"
+        aria-expanded={show_dropdown}
+        variant="invisible"
+      >
+        <span class="truncate">{format_name(selected_voice?.name || "Select Voice")}</span>
+      </Button>
+
+      <div
+        use:portal
+        role="listbox"
+        class="menu"
+        class:is-visible={show_dropdown}
+        class:is-dropup={coords.is_dropup}
+        style={dropdown_style}
+      >
+        {#each Audio.voice.voices as voice (voice.uri)}
+          <Button
+            role="option"
+            aria-selected={profileState.char?.voice?.uri === voice.uri}
+            className="option {profileState.char?.voice?.uri === voice.uri ? 'active' : ''}"
+            onclick={() => {
+              if (profileState.is_editing) profileState.char.voice.uri = voice.uri;
+              show_dropdown = false;
+            }}
+            variant="invisible"
+          >
+            <span class="label">{format_name(voice.name, voice.region)}</span>
+            <div class="tags">
+              {#each format_region(voice.region) as part, j (voice.uri + j)}
+                <span>{part}</span>
+              {/each}
+            </div>
+          </Button>
+        {/each}
+      </div>
+
+      <Button
+        className="preview"
+        actions={[tooltip]}
+        tooltip="Preview Voice"
+        aria-label="Preview Voice"
+        square
+        disabled={!selected_voice}
+        onclick={() =>
+          Audio.voice.preview(
+            profileState.char.voice.uri,
+            profileState.char.voice.rate,
+            profileState.char.voice.pitch,
+          )}
+        variant="invisible"
+      >
+        <svg viewBox="0 0 24 24" class="icon-small">
+          <path
+            fill="currentColor"
+            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+          />
+        </svg>
+      </Button>
     </div>
-
-    <Button
-      className="preview"
-      actions={[tooltip]}
-      tooltip="Preview Voice"
-      aria-label="Preview Voice"
-      square
-      disabled={!selected_voice}
-      onclick={() =>
-        Audio.voice.preview(
-          profileState.char.voice.uri,
-          profileState.char.voice.rate,
-          profileState.char.voice.pitch,
-        )}
-      variant="invisible"
-    >
-      <svg viewBox="0 0 24 24" class="icon-small">
-        <path
-          fill="currentColor"
-          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-        />
-      </svg>
-    </Button>
   </div>
 
-  <div class="body">
-    <Slider
-      min={0.1}
-      max={2.0}
-      step={0.1}
-      bind:value={profileState.char.voice.rate}
-      disabled={!profileState.is_editing || !selected_voice}
-      label="Rate"
-      neutral={1.0}
-    />
-    <Slider
-      min={0.1}
-      max={2.0}
-      step={0.1}
-      bind:value={profileState.char.voice.pitch}
-      disabled={!profileState.is_editing || !selected_voice || is_natural}
-      label="Pitch"
-      neutral={1.0}
-    />
+  <!-- 🎚️ PARAMETERS SECTION -->
+  <div class="wing-section">
+    <span class="section-label">Sonic Parameters</span>
+    <div class="body">
+      <Slider
+        min={0.1}
+        max={2.0}
+        step={0.1}
+        bind:value={profileState.char.voice.rate}
+        disabled={!profileState.is_editing || !selected_voice}
+        label="Rate"
+        neutral={1.0}
+      />
+      <Slider
+        min={0.1}
+        max={2.0}
+        step={0.1}
+        bind:value={profileState.char.voice.pitch}
+        disabled={!profileState.is_editing || !selected_voice || is_natural}
+        label="Pitch"
+        neutral={1.0}
+      />
+    </div>
   </div>
 </section>
 
@@ -234,9 +253,60 @@
     min-height: 0;
     position: relative;
     transition: all var(--duration-standard) var(--motion-elastic);
-    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-whisper));
     padding: var(--padding-standard);
     gap: var(--gap-standard);
+  }
+
+  /* --- Wing Header --- */
+
+  .wing-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-tight);
+    padding-bottom: var(--padding-tight);
+    border-bottom: var(--border-width-base) solid
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+  }
+
+  .wing-title {
+    font-family: var(--font-family-heading);
+    font-size: var(--font-size-h4);
+    font-weight: var(--font-weight-bold);
+    color: var(--signature-color);
+    margin: 0;
+    letter-spacing: var(--font-spacing-tight);
+  }
+
+  .wing-subtitle {
+    font-size: var(--font-size-nano);
+    color: var(--pure-white);
+    opacity: var(--opacity-whisper);
+    margin: 0;
+    font-style: italic;
+  }
+
+  /* --- Wing Section --- */
+
+  .wing-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--gap-standard);
+    width: 100%;
+  }
+
+  .section-label {
+    font-size: var(--font-size-nano);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    color: var(--signature-color);
+    opacity: var(--opacity-solid);
+    text-align: left;
+    text-shadow: var(--shadow-font);
+    margin-bottom: var(--margin-tight);
+    width: 100%;
+    letter-spacing: var(--font-spacing-loose);
+    padding-left: var(--padding-tight);
+    border-left: var(--border-width-base) solid var(--signature-color);
   }
 
   /* --- Layout --- */
@@ -255,33 +325,31 @@
     flex-direction: row;
     gap: var(--gap-standard);
     width: 100%;
+    --slider-fill-color-start: var(--signature-color);
   }
 
   /* --- Controls --- */
 
-  :global(.select) {
-    height: var(--icon-medium);
-    min-height: 0;
-    background: var(--glass-sunken);
-    border: none;
-    border-radius: var(--radius-sharp);
-    transition: all var(--duration-standard) var(--motion-elastic);
-  }
-
+  :global(.select),
   :global(.preview) {
     height: var(--icon-medium);
     min-height: 0;
-    background: var(--glass-sunken);
-    border: none;
+    background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
+    border: var(--spacing-pixel) solid color-mix(in srgb, var(--signature-color) 20%, transparent);
     border-radius: var(--radius-sharp);
     transition: all var(--duration-standard) var(--motion-elastic);
   }
 
   :global(.select:hover:not(:disabled)),
   :global(.preview:hover:not(:disabled)),
-  :global(.select.active) {
-    background: var(--glass-base);
-    filter: brightness(1.2);
+  :global(.select.active),
+  :global(.preview:focus-visible) {
+    background: color-mix(in srgb, var(--signature-color) 12%, var(--glass-base));
+    border-color: var(--signature-color);
+    box-shadow: 0 0 calc(var(--spacing-unit) * 3)
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
+    filter: brightness(1.15);
+    outline: none;
   }
 
   :global(.select) {
@@ -307,6 +375,8 @@
     background: var(--glass-peak);
     backdrop-filter: var(--blur-mist);
     border-radius: var(--radius-sharp);
+    border: var(--border-width-base) solid
+      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     transition:
       opacity var(--duration-standard) ease,
       transform var(--duration-standard) var(--motion-elastic),
@@ -344,11 +414,16 @@
     gap: var(--gap-standard);
     border-radius: 0;
     min-height: 0;
+    color: var(--frisk);
   }
 
-  :global(.option:hover),
-  :global(.option.active) {
+  :global(.option:hover) {
     background: var(--glass-sunken);
+  }
+
+  :global(.option.active) {
+    background: color-mix(in srgb, var(--signature-color) 12%, var(--glass-sunken));
+    color: var(--pure-white);
   }
 
   /* --- Labels & Tags --- */
