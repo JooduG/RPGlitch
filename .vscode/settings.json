@@ -21,7 +21,14 @@
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
     "high | medium | low",
-    "./tasks/PRESENT.md"
+    "./tasks/PRESENT.md",
+    "**/skills/**",
+    "**/GEMINI.md",
+    "**/GEMINI.md#*",
+    "**/rules/**",
+    "**/package.json",
+    "**/tasks/**",
+    "**/workflows/**"
   ],
   "markdown.validate.referenceLinks.enabled": "ignore",
   "stylelint.validate": [

@@ -14,7 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                        |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :------------------------------------------------------------------------------- |
-| `profile-class-simplification-2026-05-20`           | Profile Class Simplification           | P0       | ✅ Done | Refactor CSS classes, fix React-style `className` to Svelte `class`, harmonize.   |
+| `profile-class-simplification-2026-05-20`           | Profile Class Simplification           | P0       | ✅ Done | Refactor CSS classes, fix React-style `className` to Svelte `class`, harmonize.  |
 | `profile-avatar-layout-rebalance-2026-05-20`        | Profile Avatar Layout Rebalance        | P0       | ✅ Done | Rebalance profile avatar layout to fill the entire left column and remove hover. |
 | `profile-wings-design-cleanup-2026-05-19`           | Profile Wings Design Cleanup           | P0       | ✅ Done | Visual and Audio wings premium aesthetics refactor and design token integration. |
 | `profile-design-cleanup-2026-05-19`                 | Profile Design Cleanup                 | P0       | ✅ Done | Execute design cleanup of Profile.svelte in readonly and edit modes.             |

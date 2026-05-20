@@ -134,10 +134,7 @@
           <!-- 🏁 FOOTER -->
           <footer class="profile-footer">
             {#if state.is_editing}
-              <Button
-                variant="danger"
-                onclick={() => (state.show_delete_confirm = true)}
-              >
+              <Button variant="danger" onclick={() => (state.show_delete_confirm = true)}>
                 Deleter
               </Button>
               <Button variant="invisible" onclick={() => state.cancel()}>Cancel</Button>

@@ -4,8 +4,8 @@
 skills:
   master-skill-router: .agents/skills/executive/SKILL.md
   git: .agents/skills/git/SKILL.md
-  jules: .agents/skills/jules/SKILL.md
-  api-design: .agents/skills/api-design/SKILL.md
+  jules-fleet: .agents/skills/jules-fleet/SKILL.md
+  api: .agents/skills/api/SKILL.md
   provenance: .agents/skills/provenance/SKILL.md
   supabase: .agents/skills/supabase/SKILL.md
   swarm: .agents/skills/swarm/SKILL.md
@@ -16,7 +16,7 @@ skills:
     audio: .agents/skills/audio/SKILL.md
     ui: .agents/skills/ui/SKILL.md
     svelte: .agents/skills/svelte/SKILL.md
-    image-generation: .agents/skills/image-generation/SKILL.md
+    image: .agents/skills/image/SKILL.md
     javascript: .agents/skills/javascript/SKILL.md
     simulation: .agents/skills/simulation/SKILL.md
   development:
@@ -38,19 +38,24 @@ skills:
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
   utility:
-    code-simplify: .agents/workflows/utility/code-simplify.md
-    idea-generation: .agents/workflows/utility/idea-generation.md
-    refactor: .agents/workflows/utility/refactor.md
-    swarm: .agents/workflows/utility/swarm.md
-    revert: .agents/workflows/utility/revert.md
-    test: .agents/workflows/utility/test.md
-    classify: .agents/workflows/utility/classify.md
-  00-status: .agents/workflows/conductor/00-status.md
-  01-plan: .agents/workflows/conductor/01-plan.md
-  02-implement: .agents/workflows/conductor/02-implement.md
-  03-review: .agents/workflows/conductor/03-review.md
-  04-release: .agents/workflows/conductor/04-release.md
-  reminders: .agents/workflows/nudges/
+    code-simplify: .agents/workflows/code-simplify.md
+    idea-generation: .agents/workflows/idea-generation.md
+    refactor: .agents/workflows/refactor.md
+    swarm: .agents/workflows/swarm.md
+    revert: .agents/workflows/revert.md
+    test: .agents/workflows/test.md
+    classify: .agents/workflows/classify.md
+  rare:
+    rare-setup-conductor: .agents/workflows/rare-setup-conductor.md
+    rare-update-npm: .agents/workflows/rare-update-npm.md
+  00-status: .agents/workflows/00-status.md
+  01-plan: .agents/workflows/01-plan.md
+  02-implement: .agents/workflows/02-implement.md
+  03-review: .agents/workflows/03-review.md
+  04-release: .agents/workflows/04-release.md
+  reminders:
+    continue: .agents/workflows/continue.md
+    deconstruct: .agents/workflows/deconstruct.md
 
 # ⚖️ Core
 legislative:
@@ -71,12 +76,12 @@ src:
   core:
     index.html: src/index.html
     main.js: src/main.js
-    app.svelte: src/ui/app.svelte
+    app.svelte: src/ui/App.svelte
     design.css: src/theme/design.css
     engine: src/core/engine/
     intelligence: src/core/intelligence/
   ui:
-    layout: src/ui/layout.svelte
+    layout: src/ui/Layout.svelte
     atoms: src/ui/atoms/
     profile: src/ui/profile/
     storyboard: src/ui/storyboard/
