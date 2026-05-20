@@ -76,9 +76,9 @@ rounded:
 spacing:
   auto-resize-buffer: var(--spacing-pixel)
   column-unit: calc(var(--grid-width) / 12)
-  gap-loose: calc(var(--spacing-unit) * 4)
-  gap-standard: calc(var(--spacing-unit) * 2)
-  gap-tight: var(--spacing-unit)
+  gap-loose: calc(var(--spacing-unit) * 6)
+  gap-standard: calc(var(--spacing-unit) * 4)
+  gap-tight: calc(var(--spacing-unit) * 2)
   grid-height: clamp(20rem, 100vh, var(--grid-height-max))
   grid-height-max: clamp(25rem, calc(var(--golden-ratio) * 100vw), 100vh)
   grid-width: clamp(20rem, 100vw, var(--grid-width-max))
@@ -120,6 +120,7 @@ components:
   danger-hover-shadow: |-
     0 0 calc(var(--spacing-unit) * 4)
     rgb(from var(--crimson-red) r g b / var(--opacity-muted))
+  dev-accent: var(--electric-cyan)
   dev-accent-default: var(--frisk)
   dev-header-height-active: calc(var(--spacing-unit) * 6)
   dev-header-height-dormant: var(--spacing-unit)
@@ -135,8 +136,8 @@ components:
   ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
   golden-ratio: "1.618"
   icon-large: calc(var(--spacing-unit) * 8)
-  icon-medium: calc(var(--spacing-unit) * 4)
-  icon-small: calc(var(--spacing-unit) * 2)
+  icon-medium: calc(var(--spacing-unit) * 6)
+  icon-small: calc(var(--spacing-unit) * 4)
   kinetic-drag-threshold: "10"
   kinetic-momentum-friction: "0.95"
   kinetic-scroll-multiplier: "1.5"

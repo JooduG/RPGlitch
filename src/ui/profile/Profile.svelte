@@ -135,13 +135,13 @@
           <footer class="profile-footer">
             {#if state.is_editing}
               <Button variant="danger" onclick={() => (state.show_delete_confirm = true)}>
-                Deleter
+                Delete
               </Button>
-              <Button variant="invisible" onclick={() => state.cancel()}>Cancel</Button>
-              <Button variant="primary" onclick={() => state.save(entity_type)}>Save</Button>
+              <Button variant="secondary" onclick={() => state.cancel()}>Cancel</Button>
+              <Button variant="secondary" onclick={() => state.save(entity_type)}>Save</Button>
             {:else}
-              <Button variant="invisible" onclick={() => (state.is_editing = true)}>Edit</Button>
-              <Button variant="primary" onclick={() => state.handle_close()}>Close</Button>
+              <Button variant="secondary" onclick={() => (state.is_editing = true)}>Edit</Button>
+              <Button variant="secondary" onclick={() => state.handle_close()}>Close</Button>
             {/if}
           </footer>
         </div>
@@ -150,13 +150,12 @@
       <!-- 🦇 THE WINGS: Stacking on the right -->
       {#if has_wings}
         <aside class="wings-container no-scrollbar" transition:fly={{ x: 20, duration: 400 }}>
+          {#if state.is_editing}
+            <VisualWing profileState={state} />
+            <AudioWing profileState={state} />
+          {/if}
           {#if app.settings.dev_mode}
             <DevWing profileState={state} />
-          {/if}
-
-          {#if state.is_editing}
-            <AudioWing profileState={state} />
-            <VisualWing profileState={state} />
           {/if}
         </aside>
       {/if}
@@ -185,10 +184,10 @@
       >
         <div class="label-wrapper">
           <h5 class="section-label">
-            {section.label}
             {#if state.is_editing && state.hovered_section === section.id && arrayField}
-              <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>+ ADD</span>
+              <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>+ADD</span>
             {/if}
+            {section.label}
           </h5>
           {#if section.sublabel}
             <p class="section-sub">{section.sublabel}</p>
@@ -284,6 +283,8 @@
     height: 100%;
     overflow: hidden;
     transition: grid-column var(--motion-standard);
+    border: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
   }
 
   .profile-container.readonly {
@@ -298,8 +299,8 @@
     grid-column: 9 / 12;
     display: flex;
     flex-direction: column;
+    justify-content: center;
     gap: var(--gap-standard);
-    padding: var(--padding-standard) 0;
     overflow-y: auto;
   }
 
@@ -309,7 +310,8 @@
     min-width: 0;
     min-height: calc(var(--font-size-h3) * 1.5);
     padding: var(--padding-standard);
-    border-bottom: var(--border-whisper);
+    border-bottom: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
     display: flex;
     flex-direction: column;
     gap: var(--gap-tight);
@@ -319,15 +321,15 @@
     width: 100%;
     min-width: 0;
     flex-shrink: 0;
+    container-type: inline-size;
   }
 
   .name {
     color: var(--signature-color);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
     display: block;
-    font-size: clamp(var(--font-size-h3), 6vw, var(--font-size-h1));
+    font-size: clamp(var(--font-size-h3), 15cqi, var(--font-size-h1));
+    line-height: 1.1;
+    overflow-wrap: break-word;
   }
 
   .name.edit {
@@ -414,7 +416,8 @@
   .profile-footer {
     flex-shrink: 0;
     padding: var(--padding-standard);
-    border-top: var(--border-whisper);
+    border-top: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
     display: flex;
     justify-content: flex-end;
     gap: var(--gap-standard);
@@ -441,8 +444,9 @@
   .profile-fragments {
     display: grid;
     grid-template-columns: var(--profile-fragment-column) 1fr;
-    gap: var(--gap-standard);
+    gap: var(--gap-standard) var(--gap-tight);
     padding: var(--padding-standard);
+    padding-bottom: var(--padding-loose);
     min-width: 0;
   }
 
@@ -454,6 +458,8 @@
     flex-direction: column;
     justify-content: center;
     position: relative;
+    min-width: 0;
+    overflow: hidden;
   }
 
   .profile-fields {
@@ -466,8 +472,10 @@
   .label-wrapper {
     display: flex;
     flex-direction: column;
+    align-items: flex-end;
     gap: var(--gap-tight);
     width: 100%;
+    padding-right: var(--padding-tight);
   }
 
   .profile-side.interactive {
@@ -476,30 +484,33 @@
 
   .section-label {
     color: var(--signature-color);
+    font-size: var(--font-size-small);
+    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--gap-tight);
-    transition: all var(--duration-standard);
-    position: relative;
+    text-align: right;
     letter-spacing: var(--font-spacing-loose);
+    transition: color var(--duration-standard);
+    margin: 0;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--gap-tight);
   }
 
   .add-hint {
-    position: absolute;
-    left: 0;
-    top: calc(100% + var(--gap-standard));
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
     font-weight: var(--font-weight-bold);
-    color: var(--signature-color);
-    opacity: var(--opacity-whisper);
+    color: var(--pure-white);
+    opacity: var(--opacity-muted);
     pointer-events: none;
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
-    text-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--signature-color);
+    flex-shrink: 0;
   }
 
   .section-sub {
@@ -511,7 +522,7 @@
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     text-shadow: var(--shadow-font);
-    font-style: italic;
+    text-align: right;
   }
 
   .profile-fields[data-columns="2"] {
@@ -615,9 +626,6 @@
 
   .profile-modal.is-mobile .add-hint,
   .profile-modal.is-mini .add-hint {
-    position: relative;
-    right: auto;
-    top: auto;
-    margin-top: var(--gap-tight);
+    text-align: center;
   }
 </style>

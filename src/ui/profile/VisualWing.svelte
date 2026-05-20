@@ -26,7 +26,44 @@
 
   // --- CONSTANTS ---
 
-  const SPECTRUM_COLORS = Object.entries(PALETTE).filter(([name]) => name !== "default");
+  /** Names to exclude from the swatch grid (background gradients + chalk/neutral base tones). */
+  const EXCLUDED_SWATCHES = new Set([
+    "Background Gradient 1",
+    "Background Gradient 2",
+    "Background Gradient 3",
+    "Background Gradient 4",
+    "Chalk",
+    "Gunmetal",
+    "Frisk",
+    "Frozen",
+    "Pure White",
+    "Void Black",
+  ]);
+
+  /**
+   * Returns the HSL hue (0–360) for a hex color.
+   * Achromatic colors (neutrals) return 361 so they sort to the end.
+   * @param {string} hex
+   */
+  function hex_hue(hex) {
+    const h = hex.replace("#", "").padEnd(6, "0");
+    const r = parseInt(h.slice(0, 2), 16) / 255;
+    const g = parseInt(h.slice(2, 4), 16) / 255;
+    const b = parseInt(h.slice(4, 6), 16) / 255;
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    if (max === min) return 361;
+    const d = max - min;
+    let hue;
+    if (max === r) hue = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+    else if (max === g) hue = ((b - r) / d + 2) / 6;
+    else hue = ((r - g) / d + 4) / 6;
+    return hue * 360;
+  }
+
+  const SPECTRUM_COLORS = Object.entries(PALETTE)
+    .filter(([name]) => !EXCLUDED_SWATCHES.has(name))
+    .sort(([, a], [, b]) => hex_hue(a) - hex_hue(b));
 
   // --- INITIALIZATION ---
 
@@ -62,9 +99,7 @@
 
   // --- DERIVED ---
 
-  const signature_color = $derived(
-    themeStore.get_signature_color(profileState.char, "var(--gunmetal)"),
-  );
+  const current_label = $derived(themeStore.get_signature_label(profileState.char));
 
   const is_prompt_busy = $derived(
     app.visual.isLoading || profileState.busy_fields.has("visual-prompt"),
@@ -164,141 +199,129 @@
   }
 </script>
 
-<section class="wrapper glass-elevated" style="--signature-color: {signature_color};">
-  <!-- 🏷️ HEADER CHASSIS -->
-  <header class="wing-header">
-    <h4 class="wing-title text-shadow-bloom">Optics Chassis</h4>
-    <p class="wing-subtitle">Visual Identity & Manifestation</p>
-  </header>
-
-  <!-- 🎨 SIGNATURE SPECTRUM SECTION -->
-  <div class="wing-section">
-    <span class="section-label">Signature Spectrum</span>
-    <div class="swatches">
-      {#each SPECTRUM_COLORS as [name, hex] (name)}
-        {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
+<section class="wing glass-elevated">
+  <!-- 🎨 COLOR SWATCHES -->
+  <div class="swatches">
+    {#each SPECTRUM_COLORS as [name, hex] (name)}
+      {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
+      <div
+        class="swatch"
+        class:active={current_label === name}
+        style="--swatch-color: {color}; background-color: var(--swatch-color);"
+      >
         <Button
           square={true}
-          className="swatch {themeStore.get_signature_label(profileState.char) === name
-            ? 'active'
-            : ''}"
-          style="--swatch-dynamic-bg: {color}; background-color: var(--swatch-dynamic-bg); --swatch-color: var(--swatch-dynamic-bg);"
+          cover={true}
           aria-label={name}
           actions={[tooltip]}
           onclick={() => (profileState.char.signature_color = name)}
           disabled={!profileState.is_editing}
           variant="invisible"
         ></Button>
-      {/each}
-    </div>
+      </div>
+    {/each}
   </div>
 
-  <!-- 👁️ OPTICS VECTOR SECTION -->
-  <div class="wing-section">
-    <span class="section-label">Optics Vector</span>
-    <TextField
-      class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
-      is_edit={profileState.is_editing}
-      busy={is_prompt_busy}
-      bind:value={profileState.char.modifiers.prompt}
-      placeholder="Enter image prompt or paste a URL..."
-      disabled={!profileState.is_editing || is_prompt_busy}
-      {signature_color}
-      onfocus={() =>
-        profileState.is_editing &&
-        (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
-    >
-      {#snippet status()}
-        {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
-          <div
-            class="status-bar"
-            class:is-error={app.visual.error || app.visual.isOffline}
-            class:is-loading={is_prompt_busy}
+  <!-- 👁️ IMAGE PROMPT -->
+  <TextField
+    class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
+    is_edit={profileState.is_editing}
+    busy={is_prompt_busy}
+    bind:value={profileState.char.modifiers.prompt}
+    placeholder="Image prompt or URL..."
+    disabled={!profileState.is_editing || is_prompt_busy}
+    signature_color="var(--frozen)"
+    onfocus={() =>
+      profileState.is_editing &&
+      (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
+  >
+    {#snippet status()}
+      {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
+        <div
+          class="status-bar"
+          class:is-error={app.visual.error || app.visual.isOffline}
+          class:is-loading={is_prompt_busy}
+        >
+          <div class="status-content">
+            {#if app.visual.isOffline}
+              <span class="tag">OFFLINE</span>
+            {:else if app.visual.error}
+              <span class="tag">ERROR</span>
+              <span class="status-msg">{app.visual.error}</span>
+            {:else if app.visual.attempts > 0}
+              <span class="tag pulse">RETRYING</span>
+              <span class="status-msg">Attempt {app.visual.attempts}</span>
+            {:else}
+              <span class="tag pulse">GENERATING</span>
+            {/if}
+          </div>
+        </div>
+      {/if}
+    {/snippet}
+
+    {#snippet header_actions()}
+      {#if profileState.is_editing}
+        <div class="actions">
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
+            className="action"
+            actions={[tooltip]}
+            onclick={handle_creative_action}
+            disabled={is_creative_disabled}
           >
-            <div class="status-content">
-              {#if app.visual.isOffline}
-                <span class="tag">OFFLINE</span>
-              {:else if app.visual.error}
-                <span class="tag">ERROR</span>
-                <span class="status-msg">{app.visual.error}</span>
-              {:else if app.visual.attempts > 0}
-                <span class="tag pulse">RETRYING</span>
-                <span class="status-msg">Attempt {app.visual.attempts}</span>
-              {:else}
-                <span class="tag pulse">GENERATING</span>
-              {/if}
-            </div>
-          </div>
-        {/if}
-      {/snippet}
-
-      {#snippet header_actions()}
-        {#if profileState.is_editing}
-          <div class="actions">
-            <Button
-              variant="invisible"
-              size="small"
-              square
-              aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-              className="action"
-              actions={[tooltip]}
-              onclick={handle_creative_action}
-              disabled={is_creative_disabled}
-            >
-              {#if has_prompt_text}
-                <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
-                  ></path>
-                </svg>
-              {:else}
-                <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
-                  ></path>
-                  <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
-                  <line x1="12" y1="15" x2="12" y2="3" stroke="var(--pure-white)"></line>
-                </svg>
-              {/if}
-            </Button>
-
-            <Button
-              variant="invisible"
-              size="small"
-              square
-              aria-label="Generate Image"
-              className="action"
-              actions={[tooltip]}
-              onclick={handle_generate}
-              disabled={!profileState.is_editing || is_prompt_busy}
-            >
+            {#if has_prompt_text}
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <path
-                  d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                  stroke="var(--pure-white)"
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
                 ></path>
-                <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
               </svg>
-            </Button>
-          </div>
-        {/if}
-      {/snippet}
-    </TextField>
-  </div>
+            {:else}
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
+                ></path>
+                <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="var(--pure-white)"></line>
+              </svg>
+            {/if}
+          </Button>
 
-  <!-- ⚙️ RENDER MODIFIERS SECTION -->
-  <div class="wing-section">
-    <span class="section-label">Render Modifiers</span>
-    <div class="controls">
-      <Toggle
-        label="No Background"
-        bind:value={profileState.char.modifiers.no_background}
-        disabled={!profileState.is_editing}
-      />
-      <Toggle
-        label="Mirror Image"
-        bind:value={profileState.char.modifiers.flipped}
-        disabled={!profileState.is_editing}
-      />
-    </div>
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label="Generate Image"
+            className="action"
+            actions={[tooltip]}
+            onclick={handle_generate}
+            disabled={!profileState.is_editing || is_prompt_busy}
+          >
+            <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+              <path
+                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
+                stroke="var(--pure-white)"
+              ></path>
+              <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
+            </svg>
+          </Button>
+        </div>
+      {/if}
+    {/snippet}
+  </TextField>
+
+  <!-- ⚙️ RENDER TOGGLES -->
+  <div class="controls">
+    <Toggle
+      label="No Background"
+      bind:value={profileState.char.modifiers.no_background}
+      disabled={!profileState.is_editing}
+    />
+    <Toggle
+      label="Mirror Image"
+      bind:value={profileState.char.modifiers.flipped}
+      disabled={!profileState.is_editing}
+    />
   </div>
 
   <input
@@ -311,71 +334,15 @@
 </section>
 
 <style>
-  /* --- Wing Wrapper --- */
+  /* --- Wing Shell --- */
 
-  .wrapper {
+  .wing {
     width: 100%;
-    overflow: visible;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    transition: all var(--duration-standard) var(--motion-elastic);
+    gap: var(--gap-standard);
     padding: var(--padding-standard);
-    gap: var(--gap-standard);
-  }
-
-  /* --- Wing Header --- */
-
-  .wing-header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-    padding-bottom: var(--padding-tight);
-    border-bottom: var(--border-width-base) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-  }
-
-  .wing-title {
-    font-family: var(--font-family-heading);
-    font-size: var(--font-size-h4);
-    font-weight: var(--font-weight-bold);
-    color: var(--signature-color);
-    margin: 0;
-    letter-spacing: var(--font-spacing-tight);
-  }
-
-  .wing-subtitle {
-    font-size: var(--font-size-nano);
-    color: var(--pure-white);
-    opacity: var(--opacity-whisper);
-    margin: 0;
-    font-style: italic;
-  }
-
-  /* --- Wing Section --- */
-
-  .wing-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-
-  .section-label {
-    font-size: var(--font-size-nano);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    color: var(--signature-color);
-    opacity: var(--opacity-solid);
-    text-align: left;
-    text-shadow: var(--shadow-font);
-    margin-bottom: var(--margin-tight);
-    width: 100%;
-    letter-spacing: var(--font-spacing-loose);
-    padding-left: var(--padding-tight);
-    border-left: var(--border-width-base) solid var(--signature-color);
+    border-radius: var(--radius-standard);
   }
 
   /* --- Swatches --- */
@@ -383,55 +350,39 @@
   .swatches {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: var(--gap-standard);
-    width: 100%;
+    gap: var(--gap-tight);
   }
 
-  .swatches :global(.swatch) {
+  .swatch {
+    position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
-    border: 0;
-    padding: 0;
-    min-width: 0;
-    min-height: 0;
-    border-radius: var(--radius-sharp);
-    cursor: pointer;
+    border-radius: var(--radius-standard);
+    box-shadow: var(--shadow-ghost);
     transition:
       transform var(--duration-fast) var(--motion-dissolve),
       box-shadow var(--duration-fast) var(--motion-dissolve),
-      outline var(--duration-fast) var(--motion-dissolve),
       filter var(--duration-fast) var(--motion-dissolve);
-    box-shadow: var(--shadow-ghost);
   }
 
-  .swatches :global(.swatch:hover:not(:disabled, .active)) {
+  .swatch:hover:not(:has(button:disabled)) {
     z-index: var(--z-index-elevated);
     box-shadow: var(--shadow-standard);
     filter: brightness(1.15);
   }
 
-  .swatches :global(.swatch.active) {
-    outline: calc(var(--spacing-pixel) * 2) solid var(--signature-color);
+  .swatch.active {
+    outline: calc(var(--spacing-pixel) * 3) solid var(--pure-white);
     outline-offset: calc(var(--spacing-pixel) * 2);
-    --signature-glow:
-      0 0 0 var(--spacing-pixel) rgb(from var(--signature-color) r g b / var(--opacity-whisper))
-        inset,
-      0 0 calc(var(--spacing-unit) * 3) calc(var(--spacing-unit) * 1) var(--signature-color);
-
-    box-shadow: var(--signature-glow);
-    transform: scale(1.06);
+    box-shadow: 0 0 calc(var(--spacing-unit) * 5) var(--swatch-color);
+    transform: scale(1.14);
     z-index: var(--z-index-elevated);
     cursor: default;
+    filter: brightness(1.1);
   }
 
-  /* Suppress Button's internal hover filter when active */
-  .swatches :global(.swatch.active:hover) {
+  .swatch.active:hover {
     filter: none;
-  }
-
-  .swatches :global(.swatch:disabled) {
-    cursor: default;
-    opacity: var(--opacity-muted);
   }
 
   /* --- Status & Actions --- */
@@ -476,11 +427,7 @@
   :global(.prompt-field .actions) {
     display: flex;
     align-items: center;
-    gap: var(--gap-standard);
-  }
-
-  .upload {
-    display: none;
+    gap: var(--gap-tight);
   }
 
   /* --- Controls --- */
@@ -488,7 +435,11 @@
   .controls {
     display: flex;
     flex-direction: column;
-    gap: var(--gap-standard);
+    gap: var(--gap-tight);
+  }
+
+  .upload {
+    display: none;
   }
 
   /* --- Animations --- */

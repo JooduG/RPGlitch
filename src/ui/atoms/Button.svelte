@@ -68,12 +68,13 @@
    */
   .root {
     /* --- Layout --- */
+
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--gap-standard);
-    padding: var(--padding-standard);
-    min-height: calc(var(--spacing-unit) * 12);
+    padding: 0 var(--padding-standard);
+    height: calc(var(--spacing-unit) * 12);
     position: relative;
 
     /* --- Typography --- */
@@ -87,8 +88,8 @@
     /* --- Surface --- */
     cursor: pointer;
     pointer-events: auto;
-    border: none;
-    border-radius: var(--radius-sharp);
+    border: var(--border-width-base) solid transparent;
+    border-radius: var(--radius-standard);
     background: transparent;
     color: var(--frisk);
 
@@ -115,21 +116,20 @@
 
   /* --- Structural Modifiers --- */
   .root.is-small {
-    min-height: var(--icon-large);
-    padding: var(--padding-tight);
+    padding: 0 var(--padding-tight);
     font-size: var(--font-size-tiny);
   }
 
   .root.is-square {
-    padding: 0;
-    min-height: var(--padding-standard);
+    width: var(--icon-large);
+    height: calc(var(--spacing-unit) * 12);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
   }
 
   .root.is-square.is-small {
-    width: var(--icon-small);
-    height: var(--icon-small);
+    width: calc(var(--spacing-unit) * 8);
+    height: calc(var(--spacing-unit) * 8);
   }
 
   .root.is-full {

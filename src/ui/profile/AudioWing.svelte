@@ -10,7 +10,6 @@
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
   import { Audio } from "@media/audio-engine.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
   import { portal } from "@utils/portal.js";
 
   /**
@@ -51,10 +50,6 @@
   });
 
   // --- DERIVED ---
-
-  const signature_color = $derived(
-    themeStore.get_signature_color(profileState.char, "var(--gunmetal)"),
-  );
 
   const selected_voice = $derived(
     Audio.voice.voices.find((v) => v.uri === profileState.char?.voice?.uri),
@@ -138,305 +133,215 @@
   });
 </script>
 
-<section class="wing glass-elevated" style="--signature-color: {signature_color};">
-  <!-- 🏷️ HEADER CHASSIS -->
-  <header class="wing-header">
-    <h4 class="wing-title text-shadow-bloom">Sonic Resonance</h4>
-    <p class="wing-subtitle">Acoustic Signature & Pacing</p>
-  </header>
+<section class="root glass-elevated">
+  <!-- 🗣️ VOICE SELECTOR -->
+  <div class="controls" bind:this={anchor_el}>
+    <Button
+      class="trigger {show_dropdown ? 'active' : ''}"
+      disabled={!profileState.is_editing}
+      onclick={() => (show_dropdown = !show_dropdown)}
+      aria-label="Select Voice"
+      aria-haspopup="listbox"
+      aria-expanded={show_dropdown}
+      variant="secondary"
+      full_width
+    >
+      <span class="truncate">{format_name(selected_voice?.name || "Select Voice")}</span>
+    </Button>
 
-  <!-- 🗣️ VOICE SELECTION SECTION -->
-  <div class="wing-section">
-    <span class="section-label">Voice Selection</span>
-    <div class="header" bind:this={anchor_el}>
-      <Button
-        className="select {show_dropdown ? 'active' : ''}"
-        disabled={!profileState.is_editing}
-        onclick={() => (show_dropdown = !show_dropdown)}
-        aria-label="Select Voice"
-        aria-haspopup="listbox"
-        aria-expanded={show_dropdown}
-        variant="invisible"
-      >
-        <span class="truncate">{format_name(selected_voice?.name || "Select Voice")}</span>
-      </Button>
-
-      <div
-        use:portal
-        role="listbox"
-        class="menu"
-        class:is-visible={show_dropdown}
-        class:is-dropup={coords.is_dropup}
-        style={dropdown_style}
-      >
-        {#each Audio.voice.voices as voice (voice.uri)}
-          <Button
-            role="option"
-            aria-selected={profileState.char?.voice?.uri === voice.uri}
-            className="option {profileState.char?.voice?.uri === voice.uri ? 'active' : ''}"
-            onclick={() => {
-              if (profileState.is_editing) profileState.char.voice.uri = voice.uri;
-              show_dropdown = false;
-            }}
-            variant="invisible"
-          >
-            <span class="label">{format_name(voice.name, voice.region)}</span>
-            <div class="tags">
-              {#each format_region(voice.region) as part, j (voice.uri + j)}
-                <span>{part}</span>
-              {/each}
-            </div>
-          </Button>
-        {/each}
-      </div>
-
-      <Button
-        className="preview"
-        actions={[tooltip]}
-        tooltip="Preview Voice"
-        aria-label="Preview Voice"
-        square
-        disabled={!selected_voice}
-        onclick={() =>
-          Audio.voice.preview(
-            profileState.char.voice.uri,
-            profileState.char.voice.rate,
-            profileState.char.voice.pitch,
-          )}
-        variant="invisible"
-      >
-        <svg viewBox="0 0 24 24" class="icon-small">
-          <path
-            fill="currentColor"
-            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-          />
-        </svg>
-      </Button>
+    <div
+      use:portal
+      role="listbox"
+      class="menu glass-elevated"
+      class:is-visible={show_dropdown}
+      class:is-dropup={coords.is_dropup}
+      style={dropdown_style}
+    >
+      {#each Audio.voice.voices as voice (voice.uri)}
+        <Button
+          role="option"
+          aria-selected={profileState.char?.voice?.uri === voice.uri}
+          class="option {profileState.char?.voice?.uri === voice.uri ? 'active' : ''}"
+          onclick={() => {
+            if (profileState.is_editing) profileState.char.voice.uri = voice.uri;
+            show_dropdown = false;
+          }}
+          variant="invisible"
+          full_width
+        >
+          <span class="label">{format_name(voice.name, voice.region)}</span>
+          <div class="tags">
+            {#each format_region(voice.region) as part, j (voice.uri + j)}
+              <span>{part}</span>
+            {/each}
+          </div>
+        </Button>
+      {/each}
     </div>
+
+    <Button
+      class="preview"
+      actions={[tooltip]}
+      tooltip="Preview Voice"
+      aria-label="Preview Voice"
+      square
+      disabled={!selected_voice}
+      onclick={() =>
+        Audio.voice.preview(
+          profileState.char.voice.uri,
+          profileState.char.voice.rate,
+          profileState.char.voice.pitch,
+        )}
+      variant="secondary"
+    >
+      <svg viewBox="0 0 24 24" class="icon-small">
+        <path
+          fill="currentColor"
+          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+        />
+      </svg>
+    </Button>
   </div>
 
-  <!-- 🎚️ PARAMETERS SECTION -->
-  <div class="wing-section">
-    <span class="section-label">Sonic Parameters</span>
-    <div class="body">
-      <Slider
-        min={0.1}
-        max={2.0}
-        step={0.1}
-        bind:value={profileState.char.voice.rate}
-        disabled={!profileState.is_editing || !selected_voice}
-        label="Rate"
-        neutral={1.0}
-      />
-      <Slider
-        min={0.1}
-        max={2.0}
-        step={0.1}
-        bind:value={profileState.char.voice.pitch}
-        disabled={!profileState.is_editing || !selected_voice || is_natural}
-        label="Pitch"
-        neutral={1.0}
-      />
-    </div>
+  <!-- 🎚️ PARAMETERS -->
+  <div class="body">
+    <Slider
+      min={0.1}
+      max={2.0}
+      step={0.1}
+      bind:value={profileState.char.voice.rate}
+      disabled={!profileState.is_editing || !selected_voice}
+      label="Rate"
+      neutral={1.0}
+    />
+    <Slider
+      min={0.1}
+      max={2.0}
+      step={0.1}
+      bind:value={profileState.char.voice.pitch}
+      disabled={!profileState.is_editing || !selected_voice || is_natural}
+      label="Pitch"
+      neutral={1.0}
+    />
   </div>
 </section>
 
 <style>
-  /* --- Wing Shell --- */
+  /* --- ROOT SHELL --- */
 
-  .wing {
+  .root {
     width: 100%;
-    overflow: visible;
     display: flex;
     flex-direction: column;
-    flex: 1;
-    min-height: 0;
-    position: relative;
-    transition: all var(--duration-standard) var(--motion-elastic);
+    gap: var(--gap-standard);
     padding: var(--padding-standard);
-    gap: var(--gap-standard);
+    border-radius: var(--radius-standard);
   }
 
-  /* --- Wing Header --- */
+  /* --- CONTROLS ROW --- */
 
-  .wing-header {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-    padding-bottom: var(--padding-tight);
-    border-bottom: var(--border-width-base) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-  }
-
-  .wing-title {
-    font-family: var(--font-family-heading);
-    font-size: var(--font-size-h4);
-    font-weight: var(--font-weight-bold);
-    color: var(--signature-color);
-    margin: 0;
-    letter-spacing: var(--font-spacing-tight);
-  }
-
-  .wing-subtitle {
-    font-size: var(--font-size-nano);
-    color: var(--pure-white);
-    opacity: var(--opacity-whisper);
-    margin: 0;
-    font-style: italic;
-  }
-
-  /* --- Wing Section --- */
-
-  .wing-section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-
-  .section-label {
-    font-size: var(--font-size-nano);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    color: var(--signature-color);
-    opacity: var(--opacity-solid);
-    text-align: left;
-    text-shadow: var(--shadow-font);
-    margin-bottom: var(--margin-tight);
-    width: 100%;
-    letter-spacing: var(--font-spacing-loose);
-    padding-left: var(--padding-tight);
-    border-left: var(--border-width-base) solid var(--signature-color);
-  }
-
-  /* --- Layout --- */
-
-  .header {
+  .controls {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--gap-standard);
+    gap: var(--gap-tight);
     width: 100%;
-    align-items: center;
+    align-items: stretch;
   }
+
+  /* --- BODY ROW --- */
 
   .body {
     display: flex;
     flex-direction: row;
     gap: var(--gap-standard);
     width: 100%;
-    --slider-fill-color-start: var(--signature-color);
   }
 
-  /* --- Controls --- */
-
-  :global(.select),
-  :global(.preview) {
-    height: var(--icon-medium);
-    min-height: 0;
-    background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
-    border: var(--spacing-pixel) solid color-mix(in srgb, var(--signature-color) 20%, transparent);
-    border-radius: var(--radius-sharp);
-    transition: all var(--duration-standard) var(--motion-elastic);
-  }
-
-  :global(.select:hover:not(:disabled)),
-  :global(.preview:hover:not(:disabled)),
-  :global(.select.active),
-  :global(.preview:focus-visible) {
-    background: color-mix(in srgb, var(--signature-color) 12%, var(--glass-base));
-    border-color: var(--signature-color);
-    box-shadow: 0 0 calc(var(--spacing-unit) * 3)
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
-    filter: brightness(1.15);
-    outline: none;
-  }
-
-  :global(.select) {
-    width: 100%;
-    padding: 0 var(--padding-standard);
-  }
-
-  :global(.preview) {
-    width: var(--icon-medium);
-    padding: 0;
-  }
-
-  /* --- Menu --- */
+  /* --- DROPDOWN MENU --- */
 
   .menu {
     visibility: hidden;
     pointer-events: none;
     opacity: 0;
-    transform: translateY(calc(-1 * calc(var(--spacing-unit) * 2)));
+    transform: translateY(calc(-1 * var(--margin-tight)));
     position: fixed;
     overflow-y: auto;
     z-index: var(--z-index-modal);
-    background: var(--glass-peak);
-    backdrop-filter: var(--blur-mist);
-    border-radius: var(--radius-sharp);
-    border: var(--border-width-base) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    border-radius: var(--radius-standard);
+    border: var(--border-width-base) solid var(--border-whisper);
     transition:
-      opacity var(--duration-standard) ease,
-      transform var(--duration-standard) var(--motion-elastic),
+      opacity var(--duration-standard) var(--ease-standard),
+      transform var(--duration-standard) var(--ease-elastic),
       visibility var(--duration-standard);
     display: flex;
     flex-direction: column;
+    box-shadow: var(--shadow-standard);
   }
 
   .menu.is-visible {
     visibility: visible;
     pointer-events: auto;
     opacity: 1;
-    transform: translateY(calc(var(--spacing-unit) * 2));
+    transform: translateY(var(--margin-tight));
   }
 
   .menu.is-dropup {
-    transform: translateY(calc(var(--spacing-unit) * 2));
+    transform: translateY(var(--margin-tight));
   }
 
   .menu.is-visible.is-dropup {
-    transform: translateY(calc(-1 * calc(var(--spacing-unit) * 2)));
+    transform: translateY(calc(-1 * var(--margin-tight)));
   }
 
-  /* --- Menu Items --- */
+  /* --- TRIGGER --- */
 
-  :global(.option) {
-    width: 100%;
-    padding: var(--padding-tight) var(--padding-standard);
-    background: transparent;
-    border: none;
-    text-align: left;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: var(--gap-standard);
+  :global(.root.trigger.active) {
+    border-color: var(--pure-white);
+    box-shadow: var(--signature-glow);
+    filter: var(--brightness-glow);
+  }
+
+  /* --- MENU ITEMS --- */
+
+  :global(.root.option) {
     border-radius: 0;
-    min-height: 0;
+    text-align: left;
+    justify-content: space-between;
     color: var(--frisk);
+    border-bottom: var(--border-width-base) solid var(--border-whisper);
+    width: 100%;
+    flex: 1;
+    padding: var(--padding-tight) var(--padding-standard);
   }
 
-  :global(.option:hover) {
-    background: var(--glass-sunken);
+  :global(.root.option:last-child) {
+    border-bottom: none;
   }
 
-  :global(.option.active) {
-    background: color-mix(in srgb, var(--signature-color) 12%, var(--glass-sunken));
-    color: var(--pure-white);
+  :global(.root.option:hover:not(:disabled)) {
+    background: var(--glass-sunken) !important;
+    color: var(--pure-white) !important;
+    filter: var(--brightness-glow);
   }
 
-  /* --- Labels & Tags --- */
+  :global(.root.option.active) {
+    background: var(--glass-base) !important;
+    color: var(--pure-white) !important;
+    filter: var(--brightness-glow);
+  }
+
+  /* --- ELEMENTS --- */
 
   .truncate,
-  :global(.option .label) {
+  :global(.root.option .label) {
     white-space: nowrap;
     text-overflow: ellipsis;
     overflow: hidden;
     flex: 1;
   }
 
-  :global(.option .tags) {
+  :global(.root.option .tags) {
     display: flex;
     flex-flow: row wrap;
     justify-content: flex-end;
@@ -449,9 +354,5 @@
     line-height: 1;
     text-align: right;
     flex-shrink: 0;
-  }
-
-  :global(.option .tags span) {
-    white-space: nowrap;
   }
 </style>

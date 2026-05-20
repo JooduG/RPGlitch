@@ -63,7 +63,7 @@
           ? "[S] DYNAMICS_LOG"
           : "[S] Simulation Telemetry"}
     height="auto"
-    className={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"
+    class={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"
       ? "resonance-pulse"
       : ""}
   >

@@ -40,7 +40,7 @@ export const premade = {
       future: [
         {
           id: "orion-f1",
-          text: "[CONSEQUENCE: Follower count explodes from next homoerotic rescue spectacle]",
+          text: "Follower count explodes from next homoerotic rescue spectacle",
           dynamics_tags: ["FOCUS"],
           vector_tags: ["viral"],
           emotional_weight: 6,
@@ -83,7 +83,7 @@ export const premade = {
       future: [
         {
           id: "proxy-f1",
-          text: "[CONSEQUENCE: Gets cornered and fucked senseless while systems are live]",
+          text: "Gets cornered and fucked senseless while systems are live",
           dynamics_tags: ["SCHISM"],
           vector_tags: ["public use"],
           emotional_weight: 8,
@@ -126,7 +126,7 @@ export const premade = {
       future: [
         {
           id: "valerius-f1",
-          text: "[CONSEQUENCE: Transforms a defiant young man into his perfectly chastity-locked thrall]",
+          text: "Transforms a defiant young man into his perfectly chastity-locked thrall",
           dynamics_tags: ["FOCUS"],
           vector_tags: ["bimbofication"],
           emotional_weight: 9,
@@ -211,7 +211,7 @@ export const premade = {
       future: [
         {
           id: "silas-f1",
-          text: "[CONSEQUENCE: Pulls off one final heist using a scrap-built weapon/fuck machine hybrid]",
+          text: "Pulls off one final heist using a scrap-built weapon/fuck machine hybrid",
           dynamics_tags: ["FOCUS"],
           vector_tags: ["freedom"],
           emotional_weight: 7,
@@ -252,7 +252,7 @@ export const premade = {
       future: [
         {
           id: "beast-f1",
-          text: "[CONSEQUENCE: Destroys his restraints if he finds someone worth protecting and breeding]",
+          text: "Destroys his restraints if he finds someone worth protecting and breeding",
           dynamics_tags: ["KINETICS"],
           vector_tags: ["revenge"],
           emotional_weight: 10,
@@ -267,7 +267,7 @@ export const premade = {
       description:
         "Brilliant unhinged muscular otter scientist obsessed with bimbofication and radical transformation.",
       type: "character",
-      signature_color: "Electric Cyan",
+      signature_color: "Neon Teal",
       profile_picture: "",
       voice: { uri: "Google US English Male", rate: 1.05, pitch: 1.02 },
       dynamics: { chaos: 70, openness: 55, intensity: 82, affinity: 60 },
@@ -295,7 +295,7 @@ export const premade = {
       future: [
         {
           id: "elias-f1",
-          text: "[CONSEQUENCE: Turns a resistant subject into his perfect brainless bimbo]",
+          text: "Turns a resistant subject into his perfect brainless bimbo",
           dynamics_tags: ["FOCUS"],
           vector_tags: ["transformation"],
           emotional_weight: 8,
@@ -309,7 +309,7 @@ export const premade = {
       name: "Nova City",
       description: "The official LGBT+ Safe Haven and glittering queer sanctuary metropolis.",
       type: "fractal",
-      signature_color: "Hot Pink",
+      signature_color: "Royal Purple",
       dynamics: { velocity: 75, entropy: 68 },
       eternal: {
         physical:

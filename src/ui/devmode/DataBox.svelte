@@ -1,70 +1,80 @@
 <script>
   /**
-   * DATABOX ATOM
+   * @file src/ui/devmode/DataBox.svelte
+   * 📦 DATABOX ATOM
    * A standardized frosted container for informational blocks.
-   * Used for AI "Think" blocks, JSON Data, and System Logs.
+   * Part of the RPGlitch "Chalk Regime" UI collection.
    */
+
   let {
     label = "",
     isCode = true,
     height = "auto",
     maxHeight = "none",
-    className = "",
+    class: className = "",
     children,
   } = $props();
 </script>
 
-<div class="data-box {className}" style="--box-height: {height}; --box-max-height: {maxHeight}">
+<div class="root {className}" style="--box-height: {height}; --box-max-height: {maxHeight}">
   {#if label}
-    <header class="data-header">{label}</header>
+    <header class="header">{label}</header>
   {/if}
-  <div class="data-content scrollbar" class:is-code={isCode}>{@render children()}</div>
+  <div class="body scrollbar" class:is-code={isCode}>
+    {@render children()}
+  </div>
 </div>
 
 <style>
-  .data-box {
+  /* --- ROOT CHASSIS --- */
+
+  .root {
     width: 100%;
-    background: var(--glass-sunken);
-    border: var(--border-ghost);
-    border-radius: var(--radius-sharp);
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     height: var(--box-height);
     max-height: var(--box-max-height);
-    transition: all var(--duration-standard);
+    background: var(--glass-sunken);
+    border: var(--border-whisper);
+    border-radius: var(--radius-sharp);
+    overflow: hidden;
+    transition: all var(--duration-standard) var(--ease-standard);
     text-align: left;
     font-family: var(--font-family-mono);
-    opacity: var(--opacity-whisper);
   }
 
-  .data-header {
+  /* --- HEADER --- */
+
+  .header {
     padding: var(--padding-tight) var(--padding-standard);
-    background: rgb(from var(--pure-white) r g b / 3%);
+    background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     font-size: var(--font-size-tiny);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     color: var(--frisk);
+    border-bottom: var(--border-width-base) solid var(--border-whisper);
   }
 
-  .data-content {
+  /* --- BODY --- */
+
+  .body {
     padding: var(--padding-standard);
     overflow: hidden auto;
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);
     color: var(--frisk);
+    flex: 1;
   }
 
-  .data-content.is-code {
-    background: rgb(from var(--void-black) r g b / 10%);
+  .body.is-code {
+    background: rgb(from var(--void-black) r g b / var(--opacity-ghost));
   }
 
-  :global(.data-content pre) {
+  :global(.body pre) {
     margin: 0;
     white-space: pre-wrap;
     font-family: inherit;
     font-size: var(--font-size-tiny);
-    opacity: 0.9;
   }
 </style>
