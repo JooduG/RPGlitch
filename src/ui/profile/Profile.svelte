@@ -136,7 +136,6 @@
             {#if state.is_editing}
               <Button
                 variant="danger"
-                className="delete-btn"
                 onclick={() => (state.show_delete_confirm = true)}
               >
                 Deleter
@@ -241,7 +240,6 @@
                       size="small"
                       square={true}
                       aria-label="Enhance with AI"
-                      className="enhance-btn"
                       actions={[tooltip]}
                       disabled={state.busy_fields.has(field.key) ||
                         !state.get_safe_value(field.key)}
@@ -345,25 +343,6 @@
     display: inline-block;
     width: 100%;
     padding: var(--padding-tight);
-    border: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 20%, transparent);
-    border-radius: var(--radius-standard);
-    background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
-    transition:
-      border-color var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
-  }
-
-  .name.edit span:hover {
-    border-color: color-mix(in srgb, var(--signature-color) 40%, transparent);
-  }
-
-  .name.edit span:focus {
-    outline: none;
-    border-color: var(--signature-color);
-    box-shadow: var(--signature-glow);
-    background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
   }
 
   .name.edit span:empty::before {
@@ -390,35 +369,43 @@
     min-height: calc(var(--row-unit) * 1.5);
     max-height: calc(var(--row-unit) * 4);
     padding: var(--padding-standard);
-    background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
-    border: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 20%, transparent);
-    border-radius: var(--radius-standard);
     color: var(--frisk);
     font-family: var(--font-family-base);
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);
     resize: none;
-    transition:
-      border-color var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
-  }
-
-  textarea.description.edit:hover {
-    border-color: color-mix(in srgb, var(--signature-color) 40%, transparent);
-  }
-
-  textarea.description.edit:focus {
-    border-color: var(--signature-color);
-    box-shadow: var(--signature-glow);
-    background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
   }
 
   textarea.description.edit::placeholder {
     color: var(--frozen);
     font-style: italic;
     opacity: var(--opacity-whisper);
+  }
+
+  /* Shared Input Edit Styling */
+  .name.edit span,
+  textarea.description.edit {
+    background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
+    border: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 20%, transparent);
+    border-radius: var(--radius-standard);
+    transition:
+      border-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard),
+      background var(--duration-fast) var(--ease-standard);
+  }
+
+  .name.edit span:hover,
+  textarea.description.edit:hover {
+    border-color: color-mix(in srgb, var(--signature-color) 40%, transparent);
+  }
+
+  .name.edit span:focus,
+  textarea.description.edit:focus {
+    outline: none;
+    border-color: var(--signature-color);
+    box-shadow: var(--signature-glow);
+    background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
   }
 
   .profile-content {
@@ -438,25 +425,20 @@
 
   .avatar-section {
     display: flex;
-    align-items: center;
-    gap: var(--gap-standard);
+    align-items: stretch;
+    height: 100%;
+    width: var(--avatar-medium-size);
+    flex-shrink: 0;
   }
 
   .avatar-wrapper {
-    width: var(--avatar-medium-size);
-    height: var(--avatar-medium-size);
-    border-radius: var(--radius-standard);
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
     overflow: hidden;
-    border: var(--border-width-base) solid
+    border: none;
+    border-right: var(--border-width-base) solid
       color-mix(in srgb, var(--signature-color) 30%, transparent);
-    transition:
-      border-color var(--duration-standard) var(--ease-standard),
-      box-shadow var(--duration-standard) var(--ease-standard);
-  }
-
-  .avatar-wrapper:hover {
-    border-color: var(--signature-color);
-    box-shadow: var(--signature-glow);
   }
 
   .profile-fragments {
@@ -468,7 +450,7 @@
   }
 
   .profile-side {
-    text-align: left;
+    text-align: right;
     cursor: default;
     transition: all var(--duration-standard);
     display: flex;
@@ -561,13 +543,12 @@
     text-transform: uppercase;
     color: var(--signature-color);
     opacity: var(--opacity-solid);
-    text-align: left;
+    text-align: center;
     text-shadow: var(--shadow-font);
     margin-bottom: var(--margin-tight);
     width: 100%;
     letter-spacing: var(--font-spacing-loose);
     padding-left: var(--padding-tight);
-    border-left: var(--border-width-base) solid var(--signature-color);
   }
 
   .status {
@@ -579,24 +560,6 @@
     opacity: var(--opacity-whisper);
     display: block;
     margin-top: var(--gap-tight);
-  }
-
-  :global(.enhance-btn) {
-    color: var(--pure-white);
-    border: none;
-    outline: none;
-    box-shadow: none;
-    background: transparent;
-    filter: drop-shadow(
-      0 var(--spacing-pixel) calc(var(--spacing-unit) * 2)
-        rgb(from var(--void-black) r g b / var(--opacity-whisper))
-    );
-  }
-
-  :global(.enhance-btn:hover) {
-    background: transparent;
-    color: var(--pure-white);
-    transform: var(--scale-pulse);
   }
 
   /* --- RESPONSIVE OVERRIDES --- */
@@ -621,9 +584,21 @@
 
   .profile-modal.is-mobile .avatar-section,
   .profile-modal.is-mini .avatar-section {
+    width: auto;
+    height: auto;
+    align-items: center;
     justify-content: center;
     padding: var(--padding-standard) var(--padding-standard) 0 var(--padding-standard);
     flex-shrink: 0;
+  }
+
+  .profile-modal.is-mobile .avatar-wrapper,
+  .profile-modal.is-mini .avatar-wrapper {
+    width: var(--avatar-medium-size);
+    height: var(--avatar-medium-size);
+    border-radius: var(--radius-standard);
+    border: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
   }
 
   .profile-modal.is-mobile .profile-side,

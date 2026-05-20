@@ -83,7 +83,7 @@
                 variant="invisible"
                 size="small"
                 square
-                className="step down"
+                class="step down"
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
@@ -98,7 +98,7 @@
                 variant="invisible"
                 size="small"
                 square
-                className="step up"
+                class="step up"
                 onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
@@ -133,7 +133,7 @@
               actions={[tooltip]}
               tooltip="Remove {unit_label}"
               aria-label="Remove {unit_label}"
-              className="delete"
+              class="delete"
               onclick={() => state.remove_vector_item(path, i)}
             >
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
@@ -223,20 +223,7 @@
   }
 
   :global(.step) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-    background: none;
-    border: none;
-    color: var(--frozen);
-    font-size: var(--font-size-small);
-    cursor: pointer;
     opacity: 0;
-    transition: all var(--duration-fast);
-    z-index: var(--z-index-surface);
-    padding: 0;
   }
 
   :global(.textfield.is-expanded .header) :global(.step) {
@@ -246,8 +233,6 @@
   .stepper :global(.step:hover) {
     opacity: 1;
     color: var(--pure-white);
-    background: transparent;
-    filter: none;
   }
 
   :global(.step.down) {
@@ -256,10 +241,6 @@
 
   :global(.step.up) {
     grid-column: 3;
-  }
-
-  :global(.step:active) {
-    transform: scale(0.85);
   }
 
   /* --- TAGS --- */
@@ -312,24 +293,6 @@
     display: flex;
     align-items: center;
     height: calc(100% - var(--spacing-unit));
-  }
-
-  /* --- ACTIONS --- */
-
-  :global(.delete) {
-    color: var(--pure-white);
-    transition: all var(--duration-fast);
-    background: transparent;
-    filter: drop-shadow(
-      0 var(--spacing-pixel) var(--spacing-pixel)
-        rgb(from var(--void-black) r g b / var(--opacity-whisper))
-    );
-  }
-
-  :global(.delete:hover) {
-    color: var(--crimson-red);
-    background: transparent;
-    transform: scale(1.1);
   }
 
   /* --- EMPTY STATE --- */

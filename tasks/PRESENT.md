@@ -1,7 +1,7 @@
 # 🛰️ Present (The State)
 
 > **Role**: Gap Analysis & Maturity State
-> **Last Synchronized**: 2026-05-19
+> **Last Synchronized**: 2026-05-20
 
 This document describes the current distance between the existing engine state and the vision in `ETERNAL.md`.
 
@@ -32,6 +32,7 @@ All active profile design and wing cleanups have been completed. All UI structur
 
 | Track Name                  | Priority | Status      | Description                                                                        |
 | :-------------------------- | :------- | :---------- | :--------------------------------------------------------------------------------- |
+| Profile Class Simplification| 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.  |
 | Profile Wings Cleanup       | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio. |
 | Profile Design Cleanup      | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                            |
 | Sovereign Scaling Migration | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                         |
@@ -42,6 +43,8 @@ All active profile design and wing cleanups have been completed. All UI structur
 
 | Timestamp (ISO 8601) | Task                                                                                    | Skill Invoked           | Outcome   |
 | :------------------- | :-------------------------------------------------------------------------------------- | :---------------------- | :-------- |
+| 2026-05-20T14:00:00Z | Refactor Svelte CSS classes, fix React-style className props to class, and harmonize    | svelte + css + planning | ✅ Done   |
+| 2026-05-20T13:46:00Z | Rebalance profile avatar layout to fill the entire left column and remove hover effects | css + svelte            | ✅ Done   |
 | 2026-05-19T18:35:00Z | Complete profile-wings-design-cleanup track and run full verification                   | svelte + css + planning | ✅ Done   |
 | 2026-05-19T18:24:00Z | Transition profile-wings-design-cleanup track to active execution and begin refactoring | svelte + css + planning | 🔄 Active |
 | 2026-05-19T18:17:00Z | Initialize profile-wings-design-cleanup planning and draft plan                         | planning + css          | ✅ Plan   |
