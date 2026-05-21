@@ -96,7 +96,7 @@
       variant="invisible"
       size="small"
       square={true}
-      className="action-btn is-settings"
+      class="action-btn is-settings"
       onclick={() => app.toggle_control_panel()}
       aria-label="Settings"
       actions={[spin, tooltip]}
@@ -128,7 +128,7 @@
       variant="invisible"
       size="small"
       square={true}
-      className="action-btn is-send"
+      class="action-btn is-send"
       onclick={handle_send}
       disabled={!value.trim() || is_locked}
       aria-label="Send Message"
@@ -182,17 +182,16 @@
     transition:
       transform var(--duration-standard) var(--ease-elastic),
       color var(--duration-standard) var(--ease-standard);
+    color: var(--pure-white) !important;
+    opacity: 0.8;
   }
 
-  :global(.is-send:not(:disabled)) {
-    color: var(--signature-color, var(--gunmetal));
+  :global(.action-btn:hover:not(:disabled)) {
+    opacity: 1;
   }
 
-  :global(.is-settings) {
-    color: var(--frozen);
-  }
-
-  :global(.is-settings:hover) {
-    color: var(--frisk);
+  :global(.action-btn:disabled) {
+    color: var(--frozen) !important;
+    opacity: var(--opacity-ghost);
   }
 </style>

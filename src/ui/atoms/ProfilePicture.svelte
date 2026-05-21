@@ -144,22 +144,6 @@
 
     /* 🎨 Signature Color Background: Primary Brand Surface */
     background-color: var(--signature-color, var(--frozen));
-
-    /* 🌫️ Atmospheric Filter: Storyboard Alignment & Neural Depth */
-    background-image:
-      linear-gradient(
-        to top,
-        var(--chalk) 0%,
-        rgb(from var(--chalk) r g b / var(--opacity-solid)) 30%,
-        rgb(from var(--chalk) r g b / var(--opacity-muted)) 60%,
-        rgb(from var(--chalk) r g b / var(--opacity-ghost)) 80%,
-        transparent 100%
-      ),
-      radial-gradient(
-        circle at 50% 50%,
-        transparent 0%,
-        rgb(from var(--void-black) r g b / var(--opacity-muted)) 100%
-      );
     z-index: var(--z-index-base);
   }
 

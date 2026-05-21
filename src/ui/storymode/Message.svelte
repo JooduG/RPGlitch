@@ -251,7 +251,7 @@
               {#each attachments as src (src)}
                 <Button
                   variant="invisible"
-                  className="attachment-button"
+                  class="attachment-button"
                   onclick={() => app.open_image_preview(src)}
                   aria-label="View Attachment"
                   actions={[tooltip]}
@@ -333,8 +333,6 @@
   .message-bubble:focus-within,
   .message-bubble.is-focused {
     border-color: var(--pure-white);
-    box-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 6) var(--pure-white);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
     overflow: visible;
   }
@@ -410,6 +408,7 @@
       rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     overflow: visible;
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: space-between;
     padding: 0 var(--padding-standard);
@@ -462,16 +461,19 @@
     display: flex;
     align-items: center;
     gap: var(--gap-tight);
+    margin-left: auto;
   }
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
-    color: color-mix(in srgb, var(--pure-white), var(--signature-color, var(--gunmetal)) 20%);
+    color: var(--pure-white) !important;
+    opacity: 0.8;
     transition: all var(--duration-standard);
   }
 
-  .header-actions :global(.button:hover) {
-    color: var(--pure-white);
+  .header-actions :global(button:hover) {
+    color: var(--pure-white) !important;
+    opacity: 1;
     transform: var(--scale-pulse);
   }
 

@@ -146,6 +146,15 @@
   }
 
   /* Storymode Layout */
+  .stage.is-storymode {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .stage:not(.is-mobile).is-storymode .column {
+    grid-row: row-1 / row-end;
+  }
+
   .stage:not(.is-mobile).is-storymode .is-left {
     grid-column: col-a / col-c;
   }

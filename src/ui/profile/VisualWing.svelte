@@ -267,7 +267,7 @@
             size="small"
             square
             aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-            className="action"
+            class="action"
             actions={[tooltip]}
             onclick={handle_creative_action}
             disabled={is_creative_disabled}
@@ -292,7 +292,7 @@
             size="small"
             square
             aria-label="Generate Image"
-            className="action"
+            class="action"
             actions={[tooltip]}
             onclick={handle_generate}
             disabled={!profileState.is_editing || is_prompt_busy}
