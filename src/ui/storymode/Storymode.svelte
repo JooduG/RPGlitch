@@ -70,7 +70,7 @@
   .input-wrapper {
     flex-shrink: 0;
     width: 100%;
-    padding: 0;
+    padding: 0 0 var(--row-unit) 0;
     z-index: var(--z-index-elevated);
   }
 </style>

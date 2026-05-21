@@ -344,7 +344,7 @@
     inset: calc(var(--spacing-unit) * 0);
     pointer-events: none;
     border-radius: inherit;
-    padding: var(--gap-tight);
+    padding: var(--spacing-pixel);
     background: linear-gradient(
       to bottom,
       color-mix(in srgb, transparent, var(--signature-color) 40%),
@@ -475,6 +475,21 @@
     color: var(--pure-white) !important;
     opacity: 1;
     transform: var(--scale-pulse);
+  }
+
+  .header-actions :global(button svg) {
+    color: var(--pure-white) !important;
+  }
+
+  .header-actions :global(button svg *) {
+    stroke: var(--pure-white) !important;
+    fill: none;
+  }
+
+  .header-actions :global(button svg polygon),
+  .header-actions :global(button svg[fill="currentColor"]) {
+    fill: var(--pure-white) !important;
+    stroke: none !important;
   }
 
   /* --- BODY LOGIC --- */

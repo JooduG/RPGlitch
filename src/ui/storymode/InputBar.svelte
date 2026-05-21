@@ -148,6 +148,7 @@
     transition:
       opacity var(--duration-standard) var(--ease-standard),
       transform var(--duration-standard) var(--ease-standard);
+    min-height: clamp(calc(var(--row-unit) * 0.5), 75%, var(--row-unit));
   }
 
   :global(.root.is-disabled[data-testid="input-bar"]) {
@@ -186,6 +187,11 @@
     opacity: 0.8;
   }
 
+  :global(.action-btn) svg,
+  :global(.action-btn) svg path { 
+    fill: var(--pure-white) !important;
+  }
+
   :global(.action-btn:hover:not(:disabled)) {
     opacity: 1;
   }
@@ -193,5 +199,10 @@
   :global(.action-btn:disabled) {
     color: var(--frozen) !important;
     opacity: var(--opacity-ghost);
+  }
+
+  :global(.action-btn:disabled) svg,
+  :global(.action-btn:disabled) svg path {
+    fill: var(--frozen) !important;
   }
 </style>
