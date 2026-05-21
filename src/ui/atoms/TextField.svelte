@@ -152,7 +152,7 @@
     border-radius: var(--radius-standard);
     background: color-mix(in srgb, var(--state-dev-accent) 8%, var(--glass-sunken));
     backdrop-filter: var(--blur-whisper);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
+    border: var(--spacing-pixel) solid transparent;
     transition:
       border-color var(--duration-standard) var(--ease-standard),
       background var(--duration-standard) var(--ease-standard);
@@ -204,7 +204,7 @@
   }
 
   .root[data-expanded="true"] {
-    border-color: var(--pure-white);
+    border-color: transparent;
     box-shadow: none; /* Remove aggressive glow */
     background: color-mix(in srgb, var(--state-dev-accent) 12%, var(--glass-sunken));
     overflow: visible;
