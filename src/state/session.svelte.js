@@ -55,6 +55,9 @@ export class ReactiveSession {
         story_title,
       });
 
+      // 2. Synchronize Runtime State with the new session
+      await runtime.sync(story_id);
+
       // 3. Switch View (Immediate Feedback)
       app.set_view("storymode");
 

@@ -81,8 +81,8 @@
   async function run_mock(role) {
     const is_fractal = role === "fractal";
     const entity_name = is_fractal
-      ? runtime.active_fractal?.name || "Fractal"
-      : runtime.active_ai?.name || "AI";
+      ? app.selected_fractal?.name || runtime.active_fractal?.name || "Fractal"
+      : app.selected_ai?.name || runtime.active_ai?.name || "AI";
 
     const content = MOCK_CONTENT[role];
 
