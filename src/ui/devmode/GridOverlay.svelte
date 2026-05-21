@@ -49,7 +49,7 @@
     inset: 0;
     width: var(--grid-width);
     height: var(--grid-height);
-    margin-inline: auto;
+    margin: auto;
     display: grid;
     grid-template-columns:
       [col-a] 1fr

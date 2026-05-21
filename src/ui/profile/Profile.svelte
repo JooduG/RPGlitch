@@ -47,8 +47,8 @@
     // Ignore clicks if delete confirm dialog is active
     if (state.show_delete_confirm) return;
 
-    // Ignore clicks inside the wings container (VisualWing, AudioWing, DevWing)
-    if (target.closest(".wings-container")) return;
+    // Ignore clicks inside the actual wing panels (VisualWing, AudioWing, DevWing)
+    if (target.closest(".wings-container > *")) return;
 
     // Ignore clicks inside dropdown menus or portaled elements from wings
     if (target.closest(".menu") || target.closest(".tooltip-portal")) return;
@@ -271,8 +271,9 @@
   .profile-modal {
     display: grid;
     grid-template-columns: repeat(12, 1fr);
-    width: 100vw;
-    height: 100vh;
+    width: var(--grid-width);
+    height: var(--grid-height);
+    margin: auto;
     overflow: hidden;
   }
 

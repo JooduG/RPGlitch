@@ -121,7 +121,7 @@
   }
 
   .root.is-square {
-    width: var(--icon-large);
+    width: calc(var(--spacing-unit) * 12);
     height: calc(var(--spacing-unit) * 12);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;

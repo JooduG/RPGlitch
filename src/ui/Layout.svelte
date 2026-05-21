@@ -98,7 +98,7 @@
       [row-end];
     position: fixed;
     inset: 0;
-    margin-inline: auto;
+    margin: auto;
     width: var(--grid-width);
     height: var(--grid-height);
     overflow: hidden;

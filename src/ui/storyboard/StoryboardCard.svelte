@@ -81,12 +81,12 @@
       <Button
         class="item"
         actions={[[tooltip, { text: `View ${entity.name} Profile` }]]}
-        variant="invisible"
+        variant="primary"
         aria-label="View {entity.name} Profile"
         onclick={on_view_profile}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="icon icon-outline">
+        <svg viewBox="0 0 24 24" class="icon-small">
           <path
             d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
           />
@@ -289,26 +289,9 @@
     width: var(--icon-large);
     height: var(--icon-large);
     border-radius: var(--radius-full);
-    background: var(--pure-white);
-    backdrop-filter: var(--blur-mist);
-    color: var(--chalk);
+    padding: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition:
-      background var(--duration-standard) var(--ease-standard),
-      transform var(--duration-standard) var(--ease-elastic),
-      box-shadow var(--duration-standard) var(--ease-standard);
-  }
-
-  .actions :global(.item:hover) {
-    background: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-    transform: var(--scale-lift);
-    box-shadow: var(--shadow-standard);
-  }
-
-  .actions .icon {
-    width: var(--icon-large);
-    height: var(--icon-large);
   }
 </style>
