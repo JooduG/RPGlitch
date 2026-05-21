@@ -401,7 +401,7 @@
   .description-wrapper {
     background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
     border: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 20%, transparent);
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
     border-radius: var(--radius-standard);
     transition:
       border-color var(--duration-fast) var(--ease-standard),
@@ -441,7 +441,7 @@
   .name.edit span:focus,
   .description-wrapper[data-expanded="true"] {
     outline: none;
-    border-color: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    border-color: var(--pure-white);
     box-shadow: none; /* Remove aggressive glow */
     background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
   }
