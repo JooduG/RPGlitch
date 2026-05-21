@@ -45,6 +45,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                       | Skill Invoked           | Outcome   |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :---------------------- | :-------- |
+| 2026-05-21T18:56:00+02:00 | Polish Storymode UI: White filled icons, 1px gradient borders, and floating inputbar layout | svelte + css            | ✅ Done   |
 | 2026-05-21T18:35:00+02:00 | Complete Storymode UI Refactor & Visual Alignment execution track and verification        | svelte + css            | ✅ Done   |
 | 2026-05-21T18:13:00+02:00 | Refine click-outside handling in Profile.svelte to ignore clicks in wings-container        | css + svelte + debug    | ✅ Done   |
 | 2026-05-21T18:10:00+02:00 | Align devmode GridOverlay centering and profile modal columns with layout stage            | css + svelte + debug    | ✅ Done   |
