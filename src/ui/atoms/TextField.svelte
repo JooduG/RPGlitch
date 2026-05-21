@@ -155,9 +155,46 @@
     border: var(--spacing-pixel) solid color-mix(in srgb, var(--state-dev-accent) 20%, transparent);
     transition:
       border-color var(--duration-standard) var(--ease-standard),
-      box-shadow var(--duration-standard) var(--ease-standard),
       background var(--duration-standard) var(--ease-standard);
     overflow: hidden;
+  }
+
+  /* --- HOLOGRAPHIC BORDER LOGIC --- */
+  .root::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--spacing-unit) * 0);
+    pointer-events: none;
+    border-radius: inherit;
+    padding: var(--spacing-pixel);
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, transparent, var(--state-dev-accent) 40%),
+      transparent 40%
+    );
+    mask:
+      linear-gradient(var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0))
+        content-box,
+      linear-gradient(
+        var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
+      );
+    mask-composite: exclude;
+    opacity: var(--opacity-whisper);
+    transition: opacity var(--duration-standard);
+  }
+
+  .root[data-expanded="true"]::before {
+    opacity: var(--opacity-solid);
+    background: linear-gradient(
+      to bottom,
+      var(--state-dev-accent),
+      color-mix(in srgb, var(--state-dev-accent), transparent 60%) 30%,
+      transparent 80%
+    );
+  }
+
+  .root[data-no-bg="true"]::before {
+    display: none;
   }
 
   .root[data-no-bg="true"] {
@@ -167,9 +204,10 @@
   }
 
   .root[data-expanded="true"] {
-    border-color: var(--state-dev-accent);
-    box-shadow: 0 0 calc(var(--spacing-unit) * 4)
-      color-mix(in srgb, var(--state-dev-accent) 30%, transparent);
+    border-color: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    box-shadow: none; /* Remove aggressive glow */
+    background: color-mix(in srgb, var(--state-dev-accent) 12%, var(--glass-sunken));
+    overflow: visible;
   }
 
   .header {
@@ -177,8 +215,6 @@
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
     background: var(--state-dev-accent);
     opacity: 0.6;
-    box-shadow: 0 0 calc(var(--state-weight-intensity) * calc(var(--spacing-unit) * 2))
-      var(--state-dev-accent);
     position: relative;
     top: 0;
     z-index: var(--z-index-surface);
@@ -189,16 +225,13 @@
     transition:
       height var(--duration-standard) var(--ease-elastic),
       opacity var(--duration-fast) var(--ease-standard),
-      background var(--duration-standard) var(--ease-elastic),
-      box-shadow var(--duration-standard) var(--ease-elastic);
+      background var(--duration-standard) var(--ease-elastic);
     overflow: hidden;
   }
 
   .root[data-expanded="true"] .header {
     height: var(--dev-header-height-active);
     opacity: 1;
-    box-shadow: 0 0 calc(var(--state-weight-intensity) * calc(var(--spacing-unit) * 4))
-      color-mix(in srgb, var(--state-dev-accent) 40%, transparent);
     border-bottom: var(--spacing-pixel) solid
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
