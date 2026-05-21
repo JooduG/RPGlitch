@@ -114,13 +114,15 @@
             </div>
 
             {#if state.is_editing}
-              <textarea
-                class="description edit scrollbar"
-                placeholder={ENTITY_FRAGMENTS.description}
-                bind:value={state.char.description}
-                use:auto_resize
-                onfocus={() => state.set_active_field("description", "Description")}
-              ></textarea>
+              <div class="description-wrapper" data-expanded={state.active_field?.key === "description"}>
+                <textarea
+                  class="description edit scrollbar"
+                  placeholder={ENTITY_FRAGMENTS.description}
+                  bind:value={state.char.description}
+                  use:auto_resize
+                  onfocus={() => state.set_active_field("description", "Description")}
+                ></textarea>
+              </div>
             {:else if state.char.description}
               <p class="description">{state.char.description}</p>
             {/if}
@@ -364,6 +366,13 @@
     text-wrap: pretty;
   }
 
+  .description-wrapper {
+    width: 100%;
+    display: flex;
+    position: relative;
+    border-radius: var(--radius-standard);
+  }
+
   textarea.description.edit {
     width: 100%;
     min-height: calc(var(--row-unit) * 1.5);
@@ -374,6 +383,11 @@
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);
     resize: none;
+    background: transparent;
+    border: none;
+    outline: none;
+    margin: 0;
+    z-index: var(--z-index-surface);
   }
 
   textarea.description.edit::placeholder {
@@ -384,28 +398,63 @@
 
   /* Shared Input Edit Styling */
   .name.edit span,
-  textarea.description.edit {
+  .description-wrapper {
     background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
     border: var(--border-width-base) solid
       color-mix(in srgb, var(--signature-color) 20%, transparent);
     border-radius: var(--radius-standard);
     transition:
       border-color var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard),
       background var(--duration-fast) var(--ease-standard);
   }
 
+  /* --- HOLOGRAPHIC BORDER LOGIC --- */
+  .name.edit span::before,
+  .description-wrapper::before {
+    content: "";
+    position: absolute;
+    inset: calc(var(--spacing-unit) * 0);
+    pointer-events: none;
+    border-radius: inherit;
+    padding: var(--spacing-pixel);
+    background: linear-gradient(
+      to bottom,
+      color-mix(in srgb, transparent, var(--signature-color) 40%),
+      transparent 40%
+    );
+    mask:
+      linear-gradient(var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0))
+        content-box,
+      linear-gradient(
+        var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
+      );
+    mask-composite: exclude;
+    opacity: var(--opacity-whisper);
+    transition: opacity var(--duration-standard);
+  }
+
   .name.edit span:hover,
-  textarea.description.edit:hover {
+  .description-wrapper:hover {
     border-color: color-mix(in srgb, var(--signature-color) 40%, transparent);
   }
 
   .name.edit span:focus,
-  textarea.description.edit:focus {
+  .description-wrapper[data-expanded="true"] {
     outline: none;
-    border-color: var(--signature-color);
-    box-shadow: var(--signature-glow);
+    border-color: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    box-shadow: none; /* Remove aggressive glow */
     background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
+  }
+
+  .name.edit span:focus::before,
+  .description-wrapper[data-expanded="true"]::before {
+    opacity: var(--opacity-solid);
+    background: linear-gradient(
+      to bottom,
+      var(--signature-color),
+      color-mix(in srgb, var(--signature-color), transparent 60%) 30%,
+      transparent 80%
+    );
   }
 
   .profile-content {
