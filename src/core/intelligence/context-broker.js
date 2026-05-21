@@ -115,10 +115,12 @@ export const context_broker = {
       : "";
 
     // 1. Resolve Entities mapping (Role -> Data)
+    // We MUST use snapshot_entities to unwrap Svelte proxies before they reach the dynamics engine.
+    const clean = runtime.snapshot_entities;
     const entries = [
-      { role: "AI", data: runtime.active_ai },
-      { role: "USER", data: runtime.active_user },
-      { role: "FRACTAL", data: runtime.active_fractal },
+      { role: "AI", data: clean.AI },
+      { role: "USER", data: clean.USER },
+      { role: "FRACTAL", data: clean.FRACTAL },
     ];
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy

@@ -155,6 +155,18 @@ function createRuntimeStore() {
     get active_fractal() {
       return entity_state.active_fractal;
     },
+    /**
+     * Returns a non-reactive snapshot of the current entities.
+     * Crucial for passing data to non-Svelte logic (like the dynamics engine)
+     * to avoid math-on-proxy errors.
+     */
+    get snapshot_entities() {
+      return {
+        AI: $state.snapshot(entity_state.active_ai),
+        USER: $state.snapshot(entity_state.active_user),
+        FRACTAL: $state.snapshot(entity_state.active_fractal),
+      };
+    },
     get ai() {
       return ai_physics;
     },
