@@ -390,7 +390,8 @@
       var(--signature-color, var(--frozen)) 50%,
       transparent 100%
     );
-    transition: all var(--duration-standard) var(--motion-elastic);
+    border-bottom: var(--spacing-pixel) solid transparent;
+    transition: all var(--motion-elastic);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -404,8 +405,7 @@
   .message-bubble.is-focused .field-header {
     height: calc(var(--spacing-unit) * 9);
     background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
-    border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    border-bottom-color: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     overflow: visible;
     display: flex;
     flex-direction: row;
@@ -419,7 +419,7 @@
     opacity: var(--opacity-none);
     pointer-events: none;
     transform: translateY(calc(var(--spacing-unit) * -1));
-    transition: all var(--duration-fast);
+    transition: all var(--duration-fast) var(--ease-standard);
   }
 
   .message-bubble:focus-within .header-status,
@@ -429,6 +429,7 @@
     opacity: var(--opacity-solid);
     pointer-events: auto;
     transform: translateY(calc(var(--spacing-unit) * 0));
+    transition: all var(--duration-fast) var(--ease-standard) 200ms;
   }
 
   .header-status {
