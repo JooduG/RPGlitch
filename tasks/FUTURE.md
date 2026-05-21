@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                        |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :------------------------------------------------------------------------------- |
+| `prologue-fractal-identity-fix-2026-05-21`          | Prologue Fractal Identity Fix          | P0       | ✅ Done | Fix hydration race + sentinel masking causing fractal to display as ENVIRONMENT. |
 | `storymode-ui-refactor-2026-05-21`                  | Storymode UI Refactor & Visual Align   | P0       | ✅ Done | Refactor entire storymode UI tree, delete MessageToolbar, style active bubbles.  |
 | `profile-class-simplification-2026-05-20`           | Profile Class Simplification           | P0       | ✅ Done | Refactor CSS classes, fix React-style `className` to Svelte `class`, harmonize.  |
 | `profile-avatar-layout-rebalance-2026-05-20`        | Profile Avatar Layout Rebalance        | P0       | ✅ Done | Rebalance profile avatar layout to fill the entire left column and remove hover. |

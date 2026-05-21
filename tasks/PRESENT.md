@@ -1,7 +1,7 @@
 # 🛰️ Present (The State)
 
 > **Role**: Gap Analysis & Maturity State
-> **Last Synchronized**: 2026-05-21
+> **Last Synchronized**: 2026-05-21 (19:23 CEST)
 
 This document describes the current distance between the existing engine state and the vision in `ETERNAL.md`.
 
@@ -45,6 +45,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                       | Skill Invoked           | Outcome   |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :---------------------- | :-------- |
+| 2026-05-21T19:22:00+02:00 | Fix prologue fractal identity: resolve hydration race (session.svelte.js), sentinel masking (Message.svelte), mock priority (ControlPanel.svelte) | svelte + debug         | ✅ Done   |
 | 2026-05-21T19:00:00+02:00 | Debug and synchronize focus transition animation choreography (white divider and actions) in Message.svelte | svelte + css + debug    | ✅ Done   |
 | 2026-05-21T18:56:00+02:00 | Polish Storymode UI: White filled icons, 1px gradient borders, and floating inputbar layout | svelte + css            | ✅ Done   |
 | 2026-05-21T18:35:00+02:00 | Complete Storymode UI Refactor & Visual Alignment execution track and verification        | svelte + css            | ✅ Done   |
