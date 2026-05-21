@@ -1,6 +1,6 @@
 <script>
-  import { runtime } from "@/state/runtime.svelte.js";
-  import { themeStore } from "@/theme/palette.svelte.js";
+  import { runtime } from "@state/runtime.svelte.js";
+  import { themeStore } from "@theme/palette.svelte.js";
   /**
    * @file InputBar.svelte
    * ⌨️ THE COMMAND CONSOLE

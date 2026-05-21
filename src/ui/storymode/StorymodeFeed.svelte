@@ -136,7 +136,6 @@
 
 <style>
   .root {
-    flex: var(--opacity-solid); /* Use opacity-solid for 1 if needed, or just 1 */
     flex: 1;
     min-height: var(--dropdown-max-height);
     overflow: hidden auto;

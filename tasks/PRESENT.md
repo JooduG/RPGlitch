@@ -20,11 +20,11 @@ This document describes the current distance between the existing engine state a
 
 ## 2.0 Active Focus
 
-We are initiating the visual refinement and Svelte 5 refactoring track for the Storymode UI. The plan has been scoped in the `implementation_plan.md` artifact.
+We have completed the visual refinement and Svelte 5 refactoring track for the Storymode UI.
 
 | Feature          | State      | Gap                                                      |
 | :--------------- | :--------- | :------------------------------------------------------- |
-| Storymode UI     | Scoped     | visual parity with screenshot, unused MessageToolbar removal, and Svelte 5 runes refinement. |
+| Storymode UI     | Sovereign  | None. Refactored UI tree, inline toolbar, full pillars.  |
 | Profile Wings    | Sovereign  | None. Restructured layout, glassmorphism, dynamic fills. |
 | Profile Layout   | Sovereign  | None. Scroll delegation, stacking, glows, exclusions.    |
 | Storyboard Cards | Remediated | Fully resolved with vertical scrims and frisk titles.    |
@@ -44,6 +44,7 @@ We are initiating the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                       | Skill Invoked           | Outcome   |
 | :------------------------ | :----------------------------------------------------------------------------------------- | :---------------------- | :-------- |
+| 2026-05-21T18:35:00+02:00 | Initialize Storymode UI Refactor & Visual Alignment execution track       | svelte + css            | 🔄 Active |
 | 2026-05-21T18:13:00+02:00 | Refine click-outside handling in Profile.svelte to ignore clicks in wings-container        | css + svelte + debug    | ✅ Done   |
 | 2026-05-21T18:10:00+02:00 | Align devmode GridOverlay centering and profile modal columns with layout stage            | css + svelte + debug    | ✅ Done   |
 | 2026-05-21T17:58:00+02:00 | Debug and fix "Preview Voice" and "View Profile" component visual layout and aspect issues | css + svelte + debug    | ✅ Done   |

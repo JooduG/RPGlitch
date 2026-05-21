@@ -330,6 +330,7 @@
     border-bottom-left-radius: var(--radius-sharp);
   }
 
+  .message-bubble:focus-within,
   .message-bubble.is-focused {
     border-color: var(--pure-white);
     box-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
@@ -362,6 +363,7 @@
     transition: opacity var(--duration-standard);
   }
 
+  .message-bubble:focus-within::before,
   .message-bubble.is-focused::before {
     opacity: var(--opacity-solid);
     background: linear-gradient(
@@ -385,7 +387,7 @@
   .field-header {
     height: var(--spacing-pixel);
     background: linear-gradient(
-      var(90deg),
+      90deg,
       transparent 0%,
       var(--signature-color, var(--frozen)) 50%,
       transparent 100%
@@ -400,6 +402,7 @@
     z-index: var(--z-index-surface);
   }
 
+  .message-bubble:focus-within .field-header,
   .message-bubble.is-focused .field-header {
     height: calc(var(--spacing-unit) * 9);
     background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
@@ -415,13 +418,17 @@
   .header-status,
   .header-actions {
     opacity: var(--opacity-none);
+    pointer-events: none;
     transform: translateY(calc(var(--spacing-unit) * -1));
     transition: all var(--duration-fast);
   }
 
+  .message-bubble:focus-within .header-status,
+  .message-bubble:focus-within .header-actions,
   .message-bubble.is-focused .header-status,
   .message-bubble.is-focused .header-actions {
     opacity: var(--opacity-solid);
+    pointer-events: auto;
     transform: translateY(calc(var(--spacing-unit) * 0));
   }
 
@@ -526,7 +533,7 @@
     position: absolute;
     inset: calc(var(--spacing-unit) * 0);
     background: linear-gradient(
-      var(90deg),
+      90deg,
       transparent 0%,
       rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,
       transparent 100%
@@ -537,11 +544,11 @@
 
   @keyframes scan {
     from {
-      transform: translateX(-100%) skewX(var(-20deg));
+      transform: translateX(-100%) skewX(-20deg);
     }
 
     to {
-      transform: translateX(100%) skewX(var(-20deg));
+      transform: translateX(100%) skewX(-20deg);
     }
   }
 
