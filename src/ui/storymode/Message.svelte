@@ -66,9 +66,9 @@
       : is_ai
         ? runtime.active_ai || app.selected_ai
         : is_fractal
-          ? (runtime.active_fractal && runtime.active_fractal.id !== "active_fractal"
+          ? runtime.active_fractal && runtime.active_fractal.id !== "active_fractal"
             ? runtime.active_fractal
-            : app.selected_fractal || runtime.active_fractal)
+            : app.selected_fractal || runtime.active_fractal
           : null,
   );
 

@@ -84,7 +84,8 @@
 
   /* Subtle border line on the inner side of the panel */
   .is-left .panel-background {
-    border-right: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
+    border-right: var(--spacing-pixel) solid
+      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
   .is-right .panel-background {

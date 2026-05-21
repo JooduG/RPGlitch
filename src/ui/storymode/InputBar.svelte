@@ -188,7 +188,7 @@
   }
 
   :global(.action-btn) svg,
-  :global(.action-btn) svg path { 
+  :global(.action-btn) svg path {
     fill: var(--pure-white) !important;
   }
 

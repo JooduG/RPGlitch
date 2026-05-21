@@ -114,7 +114,10 @@
             </div>
 
             {#if state.is_editing}
-              <div class="description-wrapper" data-expanded={state.active_field?.key === "description"}>
+              <div
+                class="description-wrapper"
+                data-expanded={state.active_field?.key === "description"}
+              >
                 <textarea
                   class="description edit scrollbar"
                   placeholder={ENTITY_FRAGMENTS.description}
