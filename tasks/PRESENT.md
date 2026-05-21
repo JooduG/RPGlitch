@@ -20,10 +20,11 @@ This document describes the current distance between the existing engine state a
 
 ## 2.0 Active Focus
 
-All active profile design and wing cleanups have been completed. All UI structures are fully sovereign under the Chalk Regime design system.
+We are initiating the visual refinement and Svelte 5 refactoring track for the Storymode UI. The plan has been scoped in the `implementation_plan.md` artifact.
 
 | Feature          | State      | Gap                                                      |
 | :--------------- | :--------- | :------------------------------------------------------- |
+| Storymode UI     | Scoped     | visual parity with screenshot, unused MessageToolbar removal, and Svelte 5 runes refinement. |
 | Profile Wings    | Sovereign  | None. Restructured layout, glassmorphism, dynamic fills. |
 | Profile Layout   | Sovereign  | None. Scroll delegation, stacking, glows, exclusions.    |
 | Storyboard Cards | Remediated | Fully resolved with vertical scrims and frisk titles.    |
