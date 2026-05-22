@@ -80,6 +80,10 @@
     padding: var(--padding-standard);
     background: var(--glass-base);
     backdrop-filter: var(--blur-whisper);
+    background-clip: padding-box;
+
+    /* Force hardware acceleration layer to eliminate rounded corner bleed and subpixel leakage */
+    transform: translateZ(0);
 
     /* Standard 1px border all around for radius consistency */
     border: var(--border-muted);
