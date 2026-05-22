@@ -3,6 +3,7 @@
    * @file StoryCard.svelte
    * 📖 STORY MODULE
    * A high-fidelity atmospheric card representing a story archive.
+   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import Button from "@atoms/Button.svelte";
   import { themeStore } from "@theme/palette.svelte.js";
@@ -10,9 +11,10 @@
   /** @typedef {import('@data/repository.js').Story} Story */
   /** @type {{
    *    story: Story,
+   *    active?: boolean,
    *    onclick?: (e: MouseEvent) => void
    *  }} */
-  let { story, onclick = () => {} } = $props();
+  let { story, active = false, onclick = () => {} } = $props();
 
   /**
    * Formats timestamps to a standard Swedish/ISO-adjacent format.
@@ -37,26 +39,41 @@
   );
 </script>
 
-<div class="story-item interactable" style="--signature-color: {signature_color}">
+<div
+  class="root interactable"
+  class:is-active={active}
+  style="--signature-color: {signature_color}"
+>
   <Button variant="invisible" cover={true} {onclick} />
 
-  <div class="story-info">
-    <span class="story-title">{story.title}</span>
-    <span class="story-meta">{format_timestamp(story.lastPlayed)}</span>
+  <div class="body">
+    <span class="primary">{story.title}</span>
+    <span class="secondary">
+      {format_timestamp(story.lastPlayed)}{#if active} · ACTIVE{/if}
+    </span>
   </div>
 
   {#if story.fractal_profile_picture}
     <div
-      class="story-backdrop has-image"
+      class="backdrop has-image"
       style="background-image: url({story.fractal_profile_picture})"
     ></div>
   {:else}
-    <div class="story-backdrop" style="background-color: var(--signature-color)"></div>
+    <div class="backdrop" style="background-color: var(--signature-color)"></div>
   {/if}
 </div>
 
 <style>
-  .story-item {
+  /**
+   * ULTRA-LEAN NOMENCLATURE:
+   * .root - The story card container.
+   * .body - Inside metadata text area.
+   * .primary - Story title.
+   * .secondary - Timestamp & active badge.
+   * .backdrop - Aesthetic backdrop overlay.
+   */
+
+  .root {
     display: flex;
     align-items: center;
     justify-content: flex-start;
@@ -69,7 +86,7 @@
 
     /* Accent bar via inset shadow to avoid corner clipping */
     box-shadow: var(--shadow-ambient);
-    border-radius: var(--radius-sharp);
+    border-radius: var(--radius-standard);
     cursor: pointer;
     transition: all var(--duration-standard) var(--ease-standard);
     text-align: left;
@@ -78,13 +95,21 @@
     width: 100%;
   }
 
-  .story-item:hover {
+  .root:hover {
     background: var(--glass-elevated);
     border-color: var(--signature-color);
     box-shadow: var(--shadow-standard);
   }
 
-  .story-backdrop {
+  /* --- ACTIVE STATE HIGHLIGHT --- */
+  .root.is-active {
+    background: var(--glass-elevated);
+    border-color: var(--signature-color);
+    box-shadow: var(--signature-glow), var(--shadow-standard);
+  }
+
+  /* --- BACKDROP --- */
+  .backdrop {
     position: absolute;
     right: 0;
     top: 0;
@@ -104,34 +129,42 @@
       width var(--duration-fast);
   }
 
-  .story-backdrop.has-image {
+  .backdrop.has-image {
     background-size: cover;
     background-position: center;
     opacity: var(--opacity-whisper);
   }
 
-  .story-item:hover .story-backdrop {
-    opacity: var(--opacity-whisper);
+  .root:hover .backdrop,
+  .root.is-active .backdrop {
+    opacity: var(--opacity-muted);
     width: 80%;
   }
 
-  .story-info {
+  /* --- BODY & METADATA --- */
+  .body {
     display: flex;
     flex-direction: column;
     gap: var(--gap-tight);
     z-index: var(--z-index-elevated);
     position: relative;
     padding-left: var(--padding-tight); /* Breath for the accent bar */
+    pointer-events: none; /* Clicks pass through to the absolute Button layer */
   }
 
-  .story-title {
+  .primary {
     font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
     color: var(--pure-white);
   }
 
-  .story-meta {
+  .secondary {
     font-size: var(--font-size-tiny);
     color: var(--frisk);
+  }
+
+  .root.is-active .secondary {
+    color: var(--signature-color);
+    font-weight: var(--font-weight-bold);
   }
 </style>

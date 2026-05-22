@@ -201,7 +201,11 @@
       {#if story_cache.length > 0}
         <div class="list scrollbar">
           {#each story_cache as story (story.id)}
-            <StoryCard {story} onclick={() => load_story(story.id)} />
+            <StoryCard
+              {story}
+              active={runtime.story_id === String(story.id)}
+              onclick={() => load_story(story.id)}
+            />
           {/each}
         </div>
       {:else}
