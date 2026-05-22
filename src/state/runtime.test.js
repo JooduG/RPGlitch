@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { runtime } from "@state/runtime.svelte.js";
+import { app } from "@state/app.svelte.js";
 
 describe("Narrative Vector System", () => {
   beforeEach(() => {
@@ -46,5 +47,47 @@ describe("Narrative Vector System", () => {
   it("should handle completeVector on empty vectors safely", () => {
     runtime.complete_vector("FRACTAL");
     expect(runtime.active_fractal.future).toEqual([]);
+  });
+
+  describe("State Synchronization", () => {
+    it("should synchronize app-level selected entities on debug inject", () => {
+      const mockUser = {
+        id: "user-1",
+        name: "User One",
+        eternal: { non_physical: "", physical: "" },
+        present: { non_physical: "", physical: "" },
+        past: [],
+        future: [],
+        dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
+      };
+      const mockAi = {
+        id: "ai-1",
+        name: "AI One",
+        eternal: { non_physical: "", physical: "" },
+        present: { non_physical: "", physical: "" },
+        past: [],
+        future: [],
+        dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
+      };
+      const mockFractal = {
+        id: "fractal-1",
+        name: "Fractal One",
+        eternal: { non_physical: "", physical: "" },
+        present: { non_physical: "", physical: "" },
+        past: [],
+        future: [],
+        dynamics: { velocity: 50, entropy: 50 },
+      };
+
+      runtime._debug_inject({
+        user: mockUser,
+        ai: mockAi,
+        fractal: mockFractal,
+      });
+
+      expect(app.selected_user).toEqual(mockUser);
+      expect(app.selected_ai).toEqual(mockAi);
+      expect(app.selected_fractal).toEqual(mockFractal);
+    });
   });
 });

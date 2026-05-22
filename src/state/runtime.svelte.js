@@ -2,6 +2,7 @@ import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { SESSION_ID_KEY } from "@core/constants.js";
+import { app } from "@state/app.svelte.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
 // 2. Story / Narrative (story, story_id, simulation_log, turn, ready)
@@ -70,6 +71,17 @@ import { SESSION_ID_KEY } from "@core/constants.js";
  *
  */
 function createRuntimeStore() {
+  /**
+   * Coerces a story_id to match the Dexie `++id` auto-increment integer key type.
+   * The stories table uses numeric auto-increment keys, but session persistence
+   * and URL routing may store the ID as a string. This prevents silent lookup failures.
+   * @param {string | number | null} id
+   * @returns {string | number | null}
+   */
+  const coerce_story_key = (id) => {
+    if (typeof id === "string" && /^\d+$/.test(id)) return Number(id);
+    return id;
+  };
   /** @type {EntityState} */
   let entity_state = $state({
     character: {
@@ -128,7 +140,7 @@ function createRuntimeStore() {
       const _fractal = fractal_physics;
       if (simulation_state.is_ready && simulation_state.story_id) {
         db.stories
-          .update(simulation_state.story_id, {
+          .update(coerce_story_key(simulation_state.story_id), {
             round: _round,
             last_played: Date.now(),
             ai_dynamics: $state.snapshot(_ai),
@@ -304,7 +316,8 @@ function createRuntimeStore() {
         }
       }
       try {
-        const story = await db.stories.get(simulation_state.story_id);
+        const db_key = coerce_story_key(simulation_state.story_id);
+        const story = await db.stories.get(db_key);
         if (!story) return;
         const [user_data, ai_data, fractal_data] = await Promise.all([
           /** @type {Promise<SimulationEntity | null>} */ (
@@ -342,6 +355,12 @@ function createRuntimeStore() {
         if (story.entity_snapshots?.fractal?.dynamics && entity_state.active_fractal) {
           entity_state.active_fractal.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
         }
+
+        // Synchronize app selections for UI consistency in storymode
+        app.selected_ai = entity_state.active_ai;
+        app.selected_user = entity_state.active_user;
+        app.selected_fractal = entity_state.active_fractal;
+
         simulation_state.is_ready = true;
       } catch (err) {
         console.warn("[Data] Sync Failed:", err);
@@ -355,7 +374,7 @@ function createRuntimeStore() {
       if (!simulation_state.story_id) return;
       try {
         const target_round = typeof round === "number" ? round : 0;
-        await db.stories.update(simulation_state.story_id, {
+        await db.stories.update(coerce_story_key(simulation_state.story_id), {
           round: target_round,
           last_played: Date.now(),
           ai_dynamics: $state.snapshot(ai_physics),
@@ -431,12 +450,25 @@ function createRuntimeStore() {
      * @param {SimulationEntity} [mock_data.fractal]
      */
     _debug_inject: (mock_data) => {
-      if (mock_data.user) entity_state.active_user = mock_data.user;
-      if (mock_data.ai) entity_state.active_ai = mock_data.ai;
-      if (mock_data.fractal) entity_state.active_fractal = mock_data.fractal;
+      if (mock_data.user) {
+        entity_state.active_user = mock_data.user;
+        app.selected_user = mock_data.user;
+      }
+      if (mock_data.ai) {
+        entity_state.active_ai = mock_data.ai;
+        app.selected_ai = mock_data.ai;
+      }
+      if (mock_data.fractal) {
+        entity_state.active_fractal = mock_data.fractal;
+        app.selected_fractal = mock_data.fractal;
+      }
       simulation_state.is_ready = true;
-    },
+    }
   };
   return api;
 }
 export const runtime = createRuntimeStore();
+if (typeof window !== "undefined") {
+  window.runtime = runtime;
+}
+

@@ -301,7 +301,6 @@
     gap: var(--gap-tight);
     max-height: var(--dropdown-max-height);
     overflow-y: auto;
-    padding: 0 var(--padding-tight);
   }
 
   .status {

@@ -97,7 +97,6 @@
     position: relative;
     overflow: hidden;
     width: auto;
-    margin: 0 var(--margin-tight);
   }
 
   .root:hover {

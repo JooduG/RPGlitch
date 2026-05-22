@@ -128,6 +128,7 @@ declare global {
     webkitAudioContext: typeof AudioContext;
     RPGLITCH_CONFIG: JsonMap;
     app: unknown;
+    runtime: unknown;
     rpgApp: unknown;
     state: unknown;
     GameMaster: unknown;
