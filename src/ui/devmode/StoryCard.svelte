@@ -80,7 +80,7 @@
     padding: var(--padding-standard);
     background: var(--glass-base);
     backdrop-filter: var(--blur-whisper);
-    background-clip: padding-box;
+    background-clip: border-box;
 
     /* Force hardware acceleration layer to eliminate rounded corner bleed and subpixel leakage */
     transform: translateZ(0);
@@ -96,7 +96,8 @@
     text-align: left;
     position: relative;
     overflow: hidden;
-    width: 100%;
+    width: auto;
+    margin: 0 var(--margin-tight);
   }
 
   .root:hover {
@@ -122,6 +123,7 @@
     z-index: var(--z-index-base);
     pointer-events: none;
     opacity: var(--opacity-whisper);
+    border-radius: inherit;
     mask-image: linear-gradient(
       to left,
       var(--void-black) 0%,
