@@ -33,6 +33,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Track Name                   | Priority | Status      | Description                                                                        |
 | :--------------------------- | :------- | :---------- | :--------------------------------------------------------------------------------- |
+| DevMode StoryCard Refactor   | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS. |
 | Storymode UI Refactor        | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.   |
 | Profile Class Simplification | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.  |
 | Profile Wings Cleanup        | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio. |
@@ -45,6 +46,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                              | Skill Invoked           | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------- | :-------- |
+| 2026-05-22T20:02:00+02:00 | Refactor StoryCard and ControlPanel: fix clickability layering, border radius, active highlights, and Svelte 5 runes                              | svelte + css + test     | ✅ Done   |
 | 2026-05-21T19:22:00+02:00 | Fix prologue fractal identity: resolve hydration race (session.svelte.js), sentinel masking (Message.svelte), mock priority (ControlPanel.svelte) | svelte + debug          | ✅ Done   |
 | 2026-05-21T19:00:00+02:00 | Debug and synchronize focus transition animation choreography (white divider and actions) in Message.svelte                                       | svelte + css + debug    | ✅ Done   |
 | 2026-05-21T18:56:00+02:00 | Polish Storymode UI: White filled icons, 1px gradient borders, and floating inputbar layout                                                       | svelte + css            | ✅ Done   |

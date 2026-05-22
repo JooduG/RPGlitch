@@ -7,13 +7,14 @@ This document tracks all major tracks for the project. Each track has its own de
 
 ## 🚀 Active Mission
 
-- **Track**: `storymode-ui-refactor-2026-05-21` (Done)
-- **Objective**: Refactor Storymode UI to align with screenshot design, unify toolbars, and enforce Svelte 5 standard runes.
+- **Track**: None (Idle)
+- **Objective**: Pending next track allocation.
 
 ## 🗺️ Roadmap (Tracks)
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                        |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :------------------------------------------------------------------------------- |
+| `devmode-storycard-refactor-2026-05-22`             | DevMode StoryCard Refactor             | P0       | ✅ Done | Fix clickability layering, correct border radius, active story, and refactor CSS. |
 | `prologue-fractal-identity-fix-2026-05-21`          | Prologue Fractal Identity Fix          | P0       | ✅ Done | Fix hydration race + sentinel masking causing fractal to display as ENVIRONMENT. |
 | `storymode-ui-refactor-2026-05-21`                  | Storymode UI Refactor & Visual Align   | P0       | ✅ Done | Refactor entire storymode UI tree, delete MessageToolbar, style active bubbles.  |
 | `profile-class-simplification-2026-05-20`           | Profile Class Simplification           | P0       | ✅ Done | Refactor CSS classes, fix React-style `className` to Svelte `class`, harmonize.  |
