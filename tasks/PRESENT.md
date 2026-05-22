@@ -46,6 +46,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                              | Skill Invoked           | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------- | :-------- |
+| 2026-05-22T20:12:00+02:00 | Fix StoryCard subpixel rounded corner bleed and scrollbar clipping/hover shadow issues                            | svelte + css + test     | ✅ Done   |
 | 2026-05-22T20:02:00+02:00 | Refactor StoryCard and ControlPanel: fix clickability layering, border radius, active highlights, and Svelte 5 runes                              | svelte + css + test     | ✅ Done   |
 | 2026-05-21T19:22:00+02:00 | Fix prologue fractal identity: resolve hydration race (session.svelte.js), sentinel masking (Message.svelte), mock priority (ControlPanel.svelte) | svelte + debug          | ✅ Done   |
 | 2026-05-21T19:00:00+02:00 | Debug and synchronize focus transition animation choreography (white divider and actions) in Message.svelte                                       | svelte + css + debug    | ✅ Done   |
