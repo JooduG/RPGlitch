@@ -49,7 +49,8 @@
   <div class="body">
     <span class="primary">{story.title}</span>
     <span class="secondary">
-      {format_timestamp(story.lastPlayed)}{#if active} · ACTIVE{/if}
+      {format_timestamp(story.lastPlayed)}{#if active}
+        · ACTIVE{/if}
     </span>
   </div>
 

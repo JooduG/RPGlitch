@@ -463,7 +463,7 @@ function createRuntimeStore() {
         app.selected_fractal = mock_data.fractal;
       }
       simulation_state.is_ready = true;
-    }
+    },
   };
   return api;
 }
@@ -471,4 +471,3 @@ export const runtime = createRuntimeStore();
 if (typeof window !== "undefined") {
   window.runtime = runtime;
 }
-

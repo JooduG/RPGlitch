@@ -39,10 +39,10 @@ describe("StoryCard Component", () => {
   it("triggers onclick handler when clicked", async () => {
     const onclickSpy = vi.fn();
     const { container } = render(StoryCard, { story: mockStory, onclick: onclickSpy });
-    
+
     const button = container.querySelector("button");
     expect(button).not.toBeNull();
-    
+
     if (button) {
       await fireEvent.click(button);
       expect(onclickSpy).toHaveBeenCalledTimes(1);
