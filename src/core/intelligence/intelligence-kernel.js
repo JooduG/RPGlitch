@@ -41,21 +41,21 @@ export const gamemaster = {
     // Entropy / Reality Stability
     if (state.fractal?.dynamics?.entropy > 80) {
       bridges.push(
-        "CRITICAL: Structural reality is collapsing. Describe environmental glitches and non-linear decay.",
+        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches and non-linear decay directly into the background texture.",
       );
     }
 
     // AI Somatics
     if (state.ai?.dynamics?.intensity > 85) {
       bridges.push(
-        "CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.",
+        "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
       );
     }
 
     // Low Openness / Guarded
     if (state.ai?.dynamics?.openness < 20) {
       bridges.push(
-        "MECHANIC: The character is emotionally sealed. Deflect personal questions and maintain cold distance.",
+        "The character maintains cold distance, naturally deflecting personal inquiries within their dialogue.",
       );
     }
 
@@ -283,7 +283,11 @@ export const gamemaster = {
     const raw_messages = await session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
+    const { system } = prompt_builder.build_epilogue(
+      clean_entities,
+      current_dynamics,
+      recent_history,
+    );
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
     const response = await this.execute_with_retry(async () => {

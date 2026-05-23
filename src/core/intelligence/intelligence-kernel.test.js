@@ -185,7 +185,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const bridges = gamemaster.generate_narrative_bridges(state);
       expect(bridges).toContain(
-        "CRITICAL: Structural reality is collapsing. Describe environmental glitches and non-linear decay.",
+        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches and non-linear decay directly into the background texture.",
       );
     });
 
@@ -197,7 +197,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const bridges = gamemaster.generate_narrative_bridges(state);
       expect(bridges).toContain(
-        "CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.",
+        "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
       );
     });
 
@@ -209,7 +209,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const bridges = gamemaster.generate_narrative_bridges(state);
       expect(bridges).toContain(
-        "MECHANIC: The character is emotionally sealed. Deflect personal questions and maintain cold distance.",
+        "The character maintains cold distance, naturally deflecting personal inquiries within their dialogue.",
       );
     });
 
@@ -222,7 +222,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       const bridges = gamemaster.generate_narrative_bridges(state);
       expect(bridges).toEqual([
         "Existing signal.",
-        "CONDITION: The AI Character is hyper-adrenalized. Use short, sharp, sensory-heavy sentences.",
+        "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
       ]);
     });
   });

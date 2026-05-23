@@ -149,9 +149,10 @@ export const entities = {
    */
   async update(type, id, data) {
     try {
+      const cleanData = JSON.parse(JSON.stringify(data));
       const item = await db.entities.get(id);
       if (item && item.type === type) {
-        return db.entities.update(id, data);
+        return db.entities.update(id, cleanData);
       }
     } catch (err) {
       error(`Failed to update ${type} [${id}]:`, err);

@@ -69,7 +69,6 @@ import { temporal_engine } from "@core/intelligence/temporal-engine.js";
  * @property {any[]} [recent_history]
  */
 
-
 export const SYSTEM_PROMPTS = {
   /**
    * SIMULATION
@@ -98,6 +97,13 @@ export const SYSTEM_PROMPTS = {
 
     return `
 <SYSTEM role="${aiNameSafe}" round="${roundSafe}" objective="${objectiveSafe}">
+<EXECUTION_CHECKLIST>
+CRITICAL TURN-BY-TURN OPERATIONAL PROTOCOLS:
+1. Complete the environmental geometry and spatial alignment diagnostics inside the <think> block before writing any narrative text.
+2. Forbid all conversational commentary, metadata text wrappers, introductory filler, or assistant-style greetings.
+3. Adhere strictly to the active perspective rules, filtering the scene entirely through your assigned entity identity space.
+4. Advance the physical momentum of the scene immediately using concrete sensory physics, resistances, and active environmental complications.
+</EXECUTION_CHECKLIST>
 <YOUR_IDENTITY name="${aiNameSafe}">
 <PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
 <ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
@@ -114,7 +120,14 @@ export const SYSTEM_PROMPTS = {
 <FUTURE_VECTORS>${escapeXml(render_atom.future(fractal, 5))}</FUTURE_VECTORS>
 <PAST_MEMORIES>${escapeXml(render_atom.past(fractal, 5))}</PAST_MEMORIES>
 </FRACTAL>
-<NARRATIVE_STYLE>${signal_prompts.length > 0 ? signal_prompts.join("\n") : "Use default style vectors."}</NARRATIVE_STYLE>
+<NARRATIVE_STYLE>${
+      signal_prompts.length > 0
+        ? signal_prompts
+            .map((p) => p.trim())
+            .filter(Boolean)
+            .join("\n")
+        : "Use default style vectors."
+    }</NARRATIVE_STYLE>
 <PROTOCOLS>${prompt_builder.render_protocols(protocolSelection)}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You are ${aiNameSafe}. Respond to ${userNameSafe} in character.
@@ -148,6 +161,13 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written ex
 
     return `
 <SYSTEM role="${fractalNameSafe}" round="${roundSafe}" mode="PROLOGUE">
+<EXECUTION_CHECKLIST>
+CRITICAL TURN-BY-TURN OPERATIONAL PROTOCOLS:
+1. Complete the environmental geometry and spatial alignment diagnostics inside the <think> block before writing any narrative text.
+2. Forbid all conversational commentary, metadata text wrappers, introductory filler, or assistant-style greetings.
+3. Adhere strictly to the active perspective rules, filtering the scene entirely through your assigned entity identity space.
+4. Advance the physical momentum of the scene immediately using concrete sensory physics, resistances, and active environmental complications.
+</EXECUTION_CHECKLIST>
 <YOUR_IDENTITY name="${fractalNameSafe}">
 <ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
 <PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
@@ -211,7 +231,6 @@ ${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIE
 <TASK_INSTRUCTION>
 Close the scene. Resolve every active tension thread. Show  do not narrate  the
 weight of what just happened. Leave the world visibly changed. End on sensation, not summary.
-Weave a satisfying, lore-grounded resolution based on the final states, telemetries, and relationships of ${aiNameSafe}, ${userNameSafe}, and the ${fractalNameSafe} setting. Provide a final summary of the narrative arc and the fate of the entities involved.
 </TASK_INSTRUCTION>
 </SYSTEM>`.trim();
   },
@@ -468,15 +487,31 @@ export const prompt_builder = {
    */
   build_epilogue(entities, dynamics, recent_history = []) {
     const safeEntities = {
-      AI: entities?.AI || { name: "AI", fragments: { present: { non_physical: "" }, eternal: { non_physical: "" } } },
-      USER: entities?.USER || { name: "USER", fragments: { present: { non_physical: "" }, eternal: { non_physical: "" } } },
-      FRACTAL: entities?.FRACTAL || { name: "FRACTAL", fragments: { present: { non_physical: "" }, eternal: { non_physical: "" } } },
+      AI: entities?.AI || {
+        name: "AI",
+        fragments: { present: { non_physical: "" }, eternal: { non_physical: "" } },
+      },
+      USER: entities?.USER || {
+        name: "USER",
+        fragments: { present: { non_physical: "" }, eternal: { non_physical: "" } },
+      },
+      FRACTAL: entities?.FRACTAL || {
+        name: "FRACTAL",
+        fragments: { present: { non_physical: "" }, eternal: { non_physical: "" } },
+      },
     };
     const safeDynamics = {
       ai: dynamics?.ai || { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
       fractal: dynamics?.fractal || { velocity: 50, entropy: 50 },
     };
-    return { system: SYSTEM_PROMPTS.epilogue({ entities: safeEntities, dynamics: safeDynamics, recent_history }), messages: [] };
+    return {
+      system: SYSTEM_PROMPTS.epilogue({
+        entities: safeEntities,
+        dynamics: safeDynamics,
+        recent_history,
+      }),
+      messages: [],
+    };
   },
 
   /**

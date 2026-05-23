@@ -76,4 +76,106 @@ describe("context_broker.lexical_filter", () => {
     const result = context_broker.lexical_filter(data_points, objective);
     expect(result).toEqual(data_points);
   });
+
+  it("should assign hit = 1 to data points with layer 'eternal' (case-insensitive) even if they do not match objective keywords", () => {
+    const data_points = [
+      {
+        text: "Voice tic: stutter",
+        layer: "eternal",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Active plot point",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Unrelated baseline trait",
+        layer: "ETERNAL",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+    ];
+    const objective = "plot";
+    const result = context_broker.lexical_filter(data_points, objective);
+
+    // All elements are expected to get hit = 1 (either through layer 'eternal' or keyword match 'plot'),
+    // so they should all remain at the top and preserve their relative original order.
+    expect(result).toEqual(data_points);
+  });
+
+  it("should assign hit = 1 to 'eternal' data points and float them to the top alongside active keyword hits, above other non-matching points", () => {
+    const data_points = [
+      {
+        text: "Unrelated non-eternal trait",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Eternal voice tic",
+        layer: "eternal",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Plot keyword match",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Another unrelated non-eternal",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+    ];
+    const objective = "keyword";
+    const result = context_broker.lexical_filter(data_points, objective);
+
+    // Expected: "Eternal voice tic" (eternal -> hit=1) and "Plot keyword match" (matches "keyword" -> hit=1) should be at the top.
+    // The relative order of hit=1 elements is preserved: "Eternal voice tic", then "Plot keyword match".
+    // The relative order of hit=0 elements is preserved: "Unrelated non-eternal trait", then "Another unrelated non-eternal".
+    const expected = [
+      {
+        text: "Eternal voice tic",
+        layer: "eternal",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Plot keyword match",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Unrelated non-eternal trait",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+      {
+        text: "Another unrelated non-eternal",
+        layer: "present",
+        type: "fragment",
+        enhancer: "none",
+        section: "test",
+      },
+    ];
+    expect(result).toEqual(expected);
+  });
 });

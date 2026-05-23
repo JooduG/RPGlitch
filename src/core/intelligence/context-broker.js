@@ -315,7 +315,9 @@ export const context_broker = {
     return data_points
       .map((dp) => {
         const text = (dp?.text || "").toLowerCase();
-        const hit = keywords.some((/** @type {string} */ k) => text.includes(k));
+        const layer = (dp?.layer || "").toLowerCase();
+        const hit =
+          layer === "eternal" || keywords.some((/** @type {string} */ k) => text.includes(k));
         return { dp, hit: hit ? 1 : 0 };
       })
       .sort((a, b) => b.hit - a.hit)

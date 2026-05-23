@@ -43,6 +43,7 @@ describe("prompt_builder (Refactored)", () => {
     it("synthesize() injects core XML tags into simulation prompts", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
       expect(result.system).toContain("<SYSTEM");
+      expect(result.system).toContain("<EXECUTION_CHECKLIST>");
       expect(result.system).toContain("<YOUR_IDENTITY");
       expect(result.system).toContain("<USER_PERSONA");
     });
@@ -60,6 +61,7 @@ describe("prompt_builder (Refactored)", () => {
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, {});
       expect(result.system).toContain('mode="PROLOGUE"');
+      expect(result.system).toContain("<EXECUTION_CHECKLIST>");
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
     });
 
@@ -124,6 +126,7 @@ describe("prompt_builder (Refactored)", () => {
 
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
+      expect(result.system).toContain("<EXECUTION_CHECKLIST>");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
       expect(result.system).toContain('<USER_PERSONA name="Ghost">');
       expect(result.system).toContain('<FRACTAL name="Void">');
@@ -148,9 +151,27 @@ describe("prompt_builder (Refactored)", () => {
 
     it("build_epilogue() renders a contextually-hydrated closing sequence", () => {
       const entities = {
-        AI: { name: "Viper", fragments: { present: { non_physical: "Viper Present State" }, eternal: { non_physical: "Viper Core State" } } },
-        USER: { name: "Ghost", fragments: { present: { non_physical: "Ghost Current Mood" }, eternal: { non_physical: "Ghost Core Spirit" } } },
-        FRACTAL: { name: "Void", fragments: { present: { non_physical: "Void Collapsing" }, eternal: { non_physical: "Void Eternal Abyss" } } },
+        AI: {
+          name: "Viper",
+          fragments: {
+            present: { non_physical: "Viper Present State" },
+            eternal: { non_physical: "Viper Core State" },
+          },
+        },
+        USER: {
+          name: "Ghost",
+          fragments: {
+            present: { non_physical: "Ghost Current Mood" },
+            eternal: { non_physical: "Ghost Core Spirit" },
+          },
+        },
+        FRACTAL: {
+          name: "Void",
+          fragments: {
+            present: { non_physical: "Void Collapsing" },
+            eternal: { non_physical: "Void Eternal Abyss" },
+          },
+        },
       };
       const dynamics = {
         ai: { intensity: 95, openness: 10, chaos: 80, affinity: 45 },
@@ -160,17 +181,17 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_epilogue(entities, dynamics, recent_history);
 
-      expect(result.system).toContain("<SYSTEM role=\"NARRATOR\" mode=\"EPILOGUE\">");
+      expect(result.system).toContain('<SYSTEM role="NARRATOR" mode="EPILOGUE">');
       expect(result.system).toContain("<FINAL_STATE>");
-      expect(result.system).toContain("<ENTITY name=\"Viper\">");
+      expect(result.system).toContain('<ENTITY name="Viper">');
       expect(result.system).toContain("Viper Present State");
       expect(result.system).toContain("Intensity: 95 | Openness: 10 | Chaos: 80 | Affinity: 45");
-      expect(result.system).toContain("<ENTITY name=\"Ghost\">");
+      expect(result.system).toContain('<ENTITY name="Ghost">');
       expect(result.system).toContain("Ghost Current Mood");
-      expect(result.system).toContain("<ENTITY name=\"Void\">");
+      expect(result.system).toContain('<ENTITY name="Void">');
       expect(result.system).toContain("Void Collapsing");
       expect(result.system).toContain("Velocity: 85 | Entropy: 90");
-      expect(result.system).toContain("Weave a satisfying, lore-grounded resolution based on the final states, telemetries, and relationships of Viper, Ghost, and the Void setting.");
+      expect(result.system).toContain("End on sensation, not summary.");
     });
   });
 });
