@@ -5,7 +5,7 @@ import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
 let mockRound = 1;
 let mockAppState = {
-  state_anchor: ""
+  state_anchor: "",
 };
 
 // Mock runtime store dynamically using lazy getters to survive Vitest hoisted module evaluation
@@ -21,17 +21,17 @@ vi.mock("@state/runtime.svelte.js", () => ({
       return {
         get round() {
           return mockRound;
-        }
+        },
       };
-    }
-  }
+    },
+  },
 }));
 
 // Mock app store dynamically with a lazy getter pointing to our outer block-scoped variable
 vi.mock("@state/app.svelte.js", () => ({
   get app() {
     return mockAppState;
-  }
+  },
 }));
 
 // Mock temporal_engine to intercept resolution calls
@@ -46,7 +46,7 @@ describe("context_broker", () => {
     vi.clearAllMocks();
     mockRound = 1;
     mockAppState = {
-      state_anchor: ""
+      state_anchor: "",
     };
   });
 
@@ -117,9 +117,7 @@ describe("context_broker", () => {
 
     it("should not resolve vectors if keywords don't meet threshold", async () => {
       const entity = {
-        future: [
-          { id: "v1", text: "The grand master spoke." },
-        ],
+        future: [{ id: "v1", text: "The grand master spoke." }],
       };
       const log = "The Grand canyon is big.";
 
@@ -138,9 +136,9 @@ describe("context_broker", () => {
             id: "v_state",
             requires: { state_anchor: "active" },
             vector_tags: ["apple"],
-            text: "The state is active"
-          }
-        ]
+            text: "The state is active",
+          },
+        ],
       };
       // Log text contains the tag "apple", but requirement is state_anchor: "active" (which is inactive)
       await context_broker.manage_vector_lifecycle(entity, "I ate an apple");
@@ -156,9 +154,9 @@ describe("context_broker", () => {
             id: "v_state",
             requires: { state_anchor: "active" },
             vector_tags: ["apple"],
-            text: "The state is active"
-          }
-        ]
+            text: "The state is active",
+          },
+        ],
       };
       // Log text is empty, but requirement is met
       await context_broker.manage_vector_lifecycle(entity, "");
@@ -173,19 +171,19 @@ describe("context_broker", () => {
           {
             id: "v_chrono_req",
             requires: { round: 3 },
-            vector_tags: ["banana"]
+            vector_tags: ["banana"],
           },
           {
             id: "v_chrono_meta",
             meta: { round: 4 },
-            vector_tags: ["banana"]
+            vector_tags: ["banana"],
           },
           {
             id: "v_chrono_meta_thresh",
             meta: { round_threshold: 5 },
-            vector_tags: ["banana"]
-          }
-        ]
+            vector_tags: ["banana"],
+          },
+        ],
       };
 
       await context_broker.manage_vector_lifecycle(entity, "eating a banana");
@@ -199,13 +197,17 @@ describe("context_broker", () => {
           {
             id: "v_chrono_req_ok",
             requires: { round: 3 },
-            vector_tags: ["banana"]
-          }
-        ]
+            vector_tags: ["banana"],
+          },
+        ],
       };
 
       await context_broker.manage_vector_lifecycle(entity, "");
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED");
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(
+        entity,
+        "v_chrono_req_ok",
+        "AUTO_RESOLVED",
+      );
     });
 
     it("should fallback to legacy fuzzy matching when no requirements are defined", async () => {
@@ -214,9 +216,9 @@ describe("context_broker", () => {
           {
             id: "v_legacy",
             vector_tags: ["cherry"],
-            text: "Cherry cherry"
-          }
-        ]
+            text: "Cherry cherry",
+          },
+        ],
       };
 
       await context_broker.manage_vector_lifecycle(entity, "I love cherry.");

@@ -228,7 +228,8 @@ export const context_broker = {
 
     for (const vector of entity.future) {
       // 1. CHRONO VALIDATION
-      const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
+      const round_threshold =
+        vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
       if (round_threshold !== undefined && typeof round_threshold === "number") {
         if ((runtime.round ?? 0) < round_threshold) {
           continue; // immediately block resolution and continue to the next vector
@@ -236,7 +237,10 @@ export const context_broker = {
       }
 
       let is_resolved = false;
-      const has_requires = vector.requires && typeof vector.requires === "object" && Object.keys(vector.requires).length > 0;
+      const has_requires =
+        vector.requires &&
+        typeof vector.requires === "object" &&
+        Object.keys(vector.requires).length > 0;
 
       if (has_requires) {
         // 2. STATE EVALUATION
@@ -268,7 +272,8 @@ export const context_broker = {
         if (recent_log_text) {
           const log_lower = recent_log_text.toLowerCase();
           const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
-          const escape_regex = (/** @type {string} */ str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const escape_regex = (/** @type {string} */ str) =>
+            str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
           // Check strict vector tags
           if (Array.isArray(vector.vector_tags)) {

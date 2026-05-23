@@ -40,20 +40,20 @@ function validate_and_repair_response(response) {
   const result = { text: response || "", violated: false };
   try {
     let text = result.text;
-    
+
     // TAG CLOSURE PASS:
     const thinkOpener = /<think>/i;
     const thinkCloser = /<\/think>/i;
     if (thinkOpener.test(text) && !thinkCloser.test(text)) {
       text += "</think>";
     }
-    
+
     // CHINESE BLEED PARSING: Isolate narrative prose from think blocks
     const splitRegex = /(<\/think>|<think>)/i;
     const segments = text.split(splitRegex);
-    
+
     let inThinkBlock = false;
-    const processedSegments = segments.map(segment => {
+    const processedSegments = segments.map((segment) => {
       const lower = segment.toLowerCase();
       if (lower === "<think>") {
         inThinkBlock = true;
@@ -63,12 +63,12 @@ function validate_and_repair_response(response) {
         inThinkBlock = false;
         return segment;
       }
-      
+
       // If we are inside think block, do not strip Chinese characters
       if (inThinkBlock) {
         return segment;
       }
-      
+
       // PROSE STRIPPING: For text chunks determined to be outside the think tags
       const chineseRange = /[\u4e00-\u9fa5]/g;
       if (chineseRange.test(segment)) {
@@ -77,11 +77,11 @@ function validate_and_repair_response(response) {
       }
       return segment;
     });
-    
+
     if (result.violated) {
       app.log("SINO_LOGIC bleed intercepted", "warn");
     }
-    
+
     result.text = processedSegments.join("");
   } catch (err) {
     console.warn("[gamemaster] Validation check failed:", err);
