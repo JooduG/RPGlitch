@@ -73,6 +73,7 @@ export class ChronoStore {
       simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
       app.log("Echo recording temporal resonance...", "db");
       // 5. ANCHOR: Persist the timeline
+      runtime.round++;
       await runtime.save(runtime.round);
     } catch (err) {
       const error = /** @type {any} */ (err);

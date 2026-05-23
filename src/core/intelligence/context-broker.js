@@ -102,7 +102,7 @@ export const context_broker = {
    * @param {any[]} [simulation_log] - Recent message log.
    */
   async hydrate(input, type = "simulation", simulation_log = []) {
-    const round = runtime.round || 1;
+    const round = runtime.round ?? 1;
     const active_vector = runtime.active_vector("FRACTAL");
 
     // Check for empathy/trust flags in recent input to conditionalize SUSPICIOUS_COGNITION

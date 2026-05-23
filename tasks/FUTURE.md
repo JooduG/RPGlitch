@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                          |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :--------------------------------------------------------------------------------- |
+| `chrono-round-increment-2026-05-23`                | Chrono Round Increment Pacing          | P0       | ✅ Done | Step mutable round state counter forward before committing snapshot save.          |
 | `performance-anchor-preservation-2026-05-23`        | Performance Anchor Preservation        | P0       | ✅ Done | Let 'eternal' layer data points bypass keyword filter to prevent token starvation. |
 | `intelligence-polish-2026-05-23`                    | Intelligence Polish                    | P0       | ✅ Done | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues. |
 | `devmode-storycard-refactor-2026-05-22`             | DevMode StoryCard Refactor             | P0       | ✅ Done | Fix clickability layering, correct border radius, active story, and refactor CSS.  |
