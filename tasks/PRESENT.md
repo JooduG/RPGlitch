@@ -33,6 +33,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Track Name                   | Priority | Status      | Description                                                                        |
 | :--------------------------- | :------- | :---------- | :--------------------------------------------------------------------------------- |
+| Intelligence Polish          | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues. |
 | DevMode StoryCard Refactor   | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.  |
 | Storymode UI Refactor        | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.   |
 | Profile Class Simplification | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.  |
@@ -46,6 +47,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                              | Skill Invoked           | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------- | :-------- |
+| 2026-05-23T17:30:00+02:00 | Polish Intelligence Kernel: add Fractal temporal memories & vectors, implement dual-phase post-generation scanning, and hydrate epilogues         | svelte + test + planning | ✅ Done   |
 | 2026-05-22T20:20:00+02:00 | Fix active entities state synchronization in StorymodePanel and feed when loading stories from ControlPanel                                       | svelte + test           | ✅ Done   |
 | 2026-05-22T20:12:00+02:00 | Fix StoryCard subpixel rounded corner bleed and scrollbar clipping/hover shadow issues                                                            | svelte + css + test     | ✅ Done   |
 | 2026-05-22T20:02:00+02:00 | Refactor StoryCard and ControlPanel: fix clickability layering, border radius, active highlights, and Svelte 5 runes                              | svelte + css + test     | ✅ Done   |

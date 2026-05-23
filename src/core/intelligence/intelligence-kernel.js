@@ -194,17 +194,43 @@ export const gamemaster = {
         },
       );
     });
+    // 6.5. POST-GENERATION SCAN: Scan AI response to trigger further physics mutations
+    let final_meta = { ...meta };
+    try {
+      const post_payload = {
+        input: response || "",
+        entities: runtime.snapshot_entities,
+        round: runtime.round,
+      };
+      const post_snapshot = dynamics_engine.simulate(post_payload);
+
+      // Capture and log the dynamics delta for this post-generation pass
+      await this.capture_dynamics_delta(post_snapshot);
+
+      // Sync the post-generation settled physics to runtime
+      runtime.ai = post_snapshot.ai.dynamics;
+      runtime.fractal = post_snapshot.fractal.dynamics;
+
+      // Update metadata to be logged in database
+      final_meta.ai = post_snapshot.ai.dynamics;
+      final_meta.fractal = post_snapshot.fractal.dynamics;
+      final_meta.flags = post_snapshot.flags;
+      final_meta.signals = post_snapshot.signals;
+    } catch (post_err) {
+      console.warn("[gamemaster] Post-generation scan failed:", post_err);
+    }
+
     // 7. PERSISTENCE: Save the result
     const character_name =
       role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
 
     await session_driver.log_turn(response, character_name, role, {
-      dynamics: meta.ai,
-      fractal_dynamics: meta.fractal,
-      flags: meta.flags,
-      signal_prompts: meta.signal_prompts,
-      signals: meta.signals,
-      vectors: meta.vectors,
+      dynamics: final_meta.ai,
+      fractal_dynamics: final_meta.fractal,
+      flags: final_meta.flags,
+      signal_prompts: final_meta.signal_prompts,
+      signals: final_meta.signals,
+      vectors: final_meta.vectors,
       round: runtime.round,
       turn_type: "AI_TURN",
     });
@@ -246,10 +272,18 @@ export const gamemaster = {
   /**
    * EXECUTE EPILOGUE
    * Final summary or conclusion for a story.
-   * @param {string} _story_id
+   * @param {string} story_id
    */
-  async execute_epilogue(_story_id) {
-    const { system } = prompt_builder.build_epilogue();
+  async execute_epilogue(story_id) {
+    const clean_entities = runtime.snapshot_entities;
+    const current_dynamics = {
+      ai: runtime.ai || { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
+      fractal: runtime.fractal || { velocity: 50, entropy: 50 },
+    };
+    const raw_messages = await session_driver.load_log(story_id);
+    const recent_history = raw_messages.slice(-10);
+
+    const { system } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
     const response = await this.execute_with_retry(async () => {

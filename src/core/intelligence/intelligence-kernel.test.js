@@ -44,6 +44,14 @@ vi.mock("@state/runtime.svelte.js", () => ({
     round: 1,
     turn_type: "USER_TURN",
     add_vector: vi.fn(),
+    get snapshot_entities() {
+      return {
+        AI: { name: "Viper", dynamics: { intensity: 50 } },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void", dynamics: { entropy: 50 } },
+      };
+    },
+    update_entity: vi.fn(),
   },
 }));
 
@@ -145,13 +153,25 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(result.response).toBe("Identified.");
   });
 
-  it("execute_epilogue() executes a targeted epilogue completion", async () => {
+  it("execute_epilogue() executes a targeted epilogue completion with full context", async () => {
     vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "EPILOGUE", messages: [] });
     vi.mocked(llm_service.generate).mockResolvedValue("And so it ends.");
+    vi.mocked(session_driver.load_log).mockResolvedValue([{ text: "Scene start" }]);
 
     const result = await gamemaster.execute_epilogue("story-123");
 
-    expect(prompt_builder.build_epilogue).toHaveBeenCalled();
+    expect(prompt_builder.build_epilogue).toHaveBeenCalledWith(
+      expect.objectContaining({
+        AI: expect.objectContaining({ name: "Viper" }),
+        USER: expect.objectContaining({ name: "Ghost" }),
+        FRACTAL: expect.objectContaining({ name: "Void" }),
+      }),
+      expect.objectContaining({
+        ai: expect.objectContaining({ intensity: 50 }),
+        fractal: expect.objectContaining({ entropy: 50 }),
+      }),
+      expect.any(Array),
+    );
     expect(llm_service.generate).toHaveBeenCalled();
     expect(result).toBe("And so it ends.");
   });

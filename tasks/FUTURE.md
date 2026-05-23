@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                         |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :-------------------------------------------------------------------------------- |
+| `intelligence-polish-2026-05-23`                   | Intelligence Polish                    | P0       | ✅ Done | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.|
 | `devmode-storycard-refactor-2026-05-22`             | DevMode StoryCard Refactor             | P0       | ✅ Done | Fix clickability layering, correct border radius, active story, and refactor CSS. |
 | `prologue-fractal-identity-fix-2026-05-21`          | Prologue Fractal Identity Fix          | P0       | ✅ Done | Fix hydration race + sentinel masking causing fractal to display as ENVIRONMENT.  |
 | `storymode-ui-refactor-2026-05-21`                  | Storymode UI Refactor & Visual Align   | P0       | ✅ Done | Refactor entire storymode UI tree, delete MessageToolbar, style active bubbles.   |

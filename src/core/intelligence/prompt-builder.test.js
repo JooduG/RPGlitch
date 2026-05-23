@@ -132,6 +132,10 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<TASK_INSTRUCTION>");
       expect(result.system).toContain("<INPUT_COMMAND>Check the console.</INPUT_COMMAND>");
 
+      // FRACTAL TEMPORAL VECTOR VERIFICATION
+      expect(result.system).toContain("<FUTURE_VECTORS>");
+      expect(result.system).toContain("<PAST_MEMORIES>");
+
       // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();
       expect(result.meta.ai).toEqual(snapshot.ai.dynamics);
@@ -140,6 +144,33 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.meta?.vectors).toBeDefined();
       expect(result.meta?.vectors?.past).toBeInstanceOf(Array);
       expect(result.meta?.vectors?.future).toBeInstanceOf(Array);
+    });
+
+    it("build_epilogue() renders a contextually-hydrated closing sequence", () => {
+      const entities = {
+        AI: { name: "Viper", fragments: { present: { non_physical: "Viper Present State" }, eternal: { non_physical: "Viper Core State" } } },
+        USER: { name: "Ghost", fragments: { present: { non_physical: "Ghost Current Mood" }, eternal: { non_physical: "Ghost Core Spirit" } } },
+        FRACTAL: { name: "Void", fragments: { present: { non_physical: "Void Collapsing" }, eternal: { non_physical: "Void Eternal Abyss" } } },
+      };
+      const dynamics = {
+        ai: { intensity: 95, openness: 10, chaos: 80, affinity: 45 },
+        fractal: { velocity: 85, entropy: 90 },
+      };
+      const recent_history = [{ role: "user", content: "The end is near." }];
+
+      const result = prompt_builder.build_epilogue(entities, dynamics, recent_history);
+
+      expect(result.system).toContain("<SYSTEM role=\"NARRATOR\" mode=\"EPILOGUE\">");
+      expect(result.system).toContain("<FINAL_STATE>");
+      expect(result.system).toContain("<ENTITY name=\"Viper\">");
+      expect(result.system).toContain("Viper Present State");
+      expect(result.system).toContain("Intensity: 95 | Openness: 10 | Chaos: 80 | Affinity: 45");
+      expect(result.system).toContain("<ENTITY name=\"Ghost\">");
+      expect(result.system).toContain("Ghost Current Mood");
+      expect(result.system).toContain("<ENTITY name=\"Void\">");
+      expect(result.system).toContain("Void Collapsing");
+      expect(result.system).toContain("Velocity: 85 | Entropy: 90");
+      expect(result.system).toContain("Weave a satisfying, lore-grounded resolution based on the final states, telemetries, and relationships of Viper, Ghost, and the Void setting.");
     });
   });
 });
