@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                           |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :---------------------------------------------------------------------------------- |
+| `ui-reactivity-stabilization-2026-05-24`            | UI Reactivity & Intent Locking         | P0       | ✅ Done | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception. |
 | `protocol-library-compression-2026-05-24`           | Protocol Library Compression           | P0       | ✅ Done | Strip internal uppercase headers and trailing colons from PROTOCOL_LIBRARY strings. |
 | `chrono-round-increment-2026-05-23`                 | Chrono Round Increment Pacing          | P0       | ✅ Done | Step mutable round state counter forward before committing snapshot save.           |
 | `performance-anchor-preservation-2026-05-23`        | Performance Anchor Preservation        | P0       | ✅ Done | Let 'eternal' layer data points bypass keyword filter to prevent token starvation.  |

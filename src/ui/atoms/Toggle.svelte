@@ -13,6 +13,7 @@
    */
 
   import { use_actions } from "@ui/utils/use-actions.js";
+  import { controlState } from "@state/control.svelte.js";
 
   /** @type {Props} */
   let {
@@ -32,15 +33,17 @@
   const test_id = $derived(
     label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined,
   );
+
+  let is_disabled = $derived(disabled || controlState.intent_active);
 </script>
 
 <label
   class="root {className}"
-  class:is-disabled={disabled || busy}
+  class:is-disabled={is_disabled || busy}
   class:is-busy={busy}
   class:is-small={size === "small"}
   aria-busy={busy}
-  aria-disabled={disabled || busy}
+  aria-disabled={is_disabled || busy}
   {style}
   use:use_actions={actions}
 >
@@ -48,7 +51,7 @@
     type="checkbox"
     {...rest}
     bind:checked={value}
-    disabled={disabled || busy}
+    disabled={is_disabled || busy}
     {onchange}
     data-testid={test_id}
   />

@@ -16,7 +16,13 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     vi.spyOn(window, "confirm").mockReturnValue(true);
     // Reset Real State
     simulation_log.feed = [];
-    app.streaming = { active: false, content: "", node_id: null, role: "ai" };
+    app.streaming = {
+      active: false,
+      content: "",
+      node_id: null,
+      role: "ai",
+      abort_controller: null,
+    };
     app.selected_ai = { name: "TestAI" };
     simulationState.phase = "idle";
     simulationState.role = null;
@@ -43,7 +49,13 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     expect(screen.getByTestId("mock-message-thinking")).toBeDefined();
   });
   it("renders streaming content", async () => {
-    app.streaming = { active: true, content: "Streaming...", node_id: null, role: "ai" };
+    app.streaming = {
+      active: true,
+      content: "Streaming...",
+      node_id: null,
+      role: "ai",
+      abort_controller: null,
+    };
     render(StorymodeFeed);
     expect(screen.getByText("Streaming...")).toBeDefined();
   });

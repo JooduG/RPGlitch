@@ -4,7 +4,7 @@
  * Handles the linear flow of Hydration -> Simulation -> Synthesis.
  */
 
-import { context_broker } from "../../../../src/core/intelligence/context-broker.js";
+import { context_broker } from "../../../../src/core/intelligence/context-broker.svelte.js";
 import { dynamics_engine } from "../../../../src/core/intelligence/dynamics-engine.js";
 import { prompt_builder } from "../../../../src/core/intelligence/prompt-builder.js";
 import { premade } from "../../../../src/data/entity-premades.js";

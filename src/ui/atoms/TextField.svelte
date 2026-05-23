@@ -9,6 +9,7 @@
   import { parse_markdown } from "@ui/utils/markdown.js";
   import { use_actions } from "@ui/utils/use-actions.js";
   import { fade } from "svelte/transition";
+  import { controlState } from "@state/control.svelte.js";
 
   let {
     // Data
@@ -44,6 +45,7 @@
   let is_focused = $state(false);
 
   // --- DERIVED LOGIC ---
+  let is_disabled = $derived(disabled || controlState.intent_active);
   const paragraphs = $derived(parse_markdown(value));
   const is_expanded = $derived((is_focused || busy) && (!!header_actions || !!status));
   const intensity = $derived(weight / 10);
@@ -52,7 +54,7 @@
   // --- HANDLERS ---
   /** @param {FocusEvent} e */
   function handle_focus(e) {
-    if (disabled || busy) return;
+    if (is_disabled || busy) return;
     is_focused = true;
     onfocus?.(e);
   }
@@ -72,12 +74,12 @@
   data-expanded={is_expanded}
   data-busy={busy}
   data-no-bg={no_background}
-  data-disabled={disabled || busy}
+  data-disabled={is_disabled || busy}
   style="{style}; --state-dev-accent: {signature_color}; --state-weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
   use:use_actions={actions}
   aria-busy={busy}
-  aria-disabled={disabled || busy}
+  aria-disabled={is_disabled || busy}
 >
   <header class="header">
     {#if is_expanded}
@@ -103,7 +105,7 @@
       {placeholder}
       {oninput}
       onfocus={handle_focus}
-      disabled={disabled || busy}
+      disabled={is_disabled || busy}
       use:auto_resize={{ syncId }}
       data-sync-id={syncId}
     ></textarea>
@@ -114,7 +116,7 @@
       data-mode="readonly"
       data-sync-id={syncId}
       use:auto_resize={{ syncId }}
-      tabindex={disabled ? -1 : 0}
+      tabindex={is_disabled ? -1 : 0}
       onfocus={handle_focus}
       role="textbox"
       aria-readonly="true"

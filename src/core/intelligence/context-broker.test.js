@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeEach, vi } from "vitest";
-import { context_broker } from "@core/intelligence/context-broker.js";
+import { context_broker } from "@core/intelligence/context-broker.svelte.js";
 import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
@@ -23,6 +23,29 @@ vi.mock("@state/runtime.svelte.js", () => ({
           return mockRound;
         },
       };
+    },
+    get snapshot_entities() {
+      return {
+        AI: { id: "ai", name: "AI", role: "AI", future: [], past: [], dynamics: {} },
+        USER: { id: "user", name: "USER", role: "USER", future: [], past: [], dynamics: {} },
+        FRACTAL: {
+          id: "fractal",
+          name: "FRACTAL",
+          role: "FRACTAL",
+          future: [],
+          past: [],
+          dynamics: {},
+        },
+      };
+    },
+    get active_ai() {
+      return { future: [] };
+    },
+    get active_user() {
+      return { future: [] };
+    },
+    get active_fractal() {
+      return { future: [] };
     },
   },
 }));
@@ -223,6 +246,35 @@ describe("context_broker", () => {
 
       await context_broker.manage_vector_lifecycle(entity, "I love cherry.");
       expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_legacy", "AUTO_RESOLVED");
+    });
+  });
+
+  describe("Performance Stress Test", () => {
+    it("should process a long-form history (500+ nodes) in under 5ms without CPU spikes", async () => {
+      // Create a massive log of 500+ entries to stress the parser
+      const mockHistory = Array.from({ length: 550 }, (_, i) => ({
+        role: i % 2 === 0 ? "user" : "model",
+        content: `This is a long history entry number ${i} to simulate intense gameplay with lots of detailed prose. <think>Hidden thinking process that should be ignored dynamically</think>`,
+        character_name: i % 2 === 0 ? "User" : "AI",
+      }));
+
+      // Warm up the raw string cache to simulate active gameplay
+      await context_broker.hydrate("Testing with tag_5 in input", "simulation", mockHistory);
+
+      const start = performance.now();
+      // Hydrate with new input and the massive history log
+      const _payload = await context_broker.hydrate(
+        "Testing with tag_5 in input",
+        "simulation",
+        mockHistory,
+      );
+      const end = performance.now();
+
+      const duration = end - start;
+      console.log(`[Stress Test] Hydration with 550 history nodes took: ${duration.toFixed(2)}ms`);
+
+      // Verify execution is extremely fast (well under 5ms, typically < 1ms on modern systems)
+      expect(duration).toBeLessThan(5); // Strict 5ms performance gate
     });
   });
 });

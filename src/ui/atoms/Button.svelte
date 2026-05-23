@@ -7,6 +7,8 @@
    */
   import { use_actions } from "@ui/utils/use-actions.js";
 
+  import { controlState } from "@state/control.svelte.js";
+
   let {
     // Data
     label = "",
@@ -37,6 +39,14 @@
   export function focus() {
     element?.focus();
   }
+
+  const is_interrupt_btn = $derived(
+    label?.toLowerCase().includes("interrupt") ||
+      rest["aria-label"]?.toLowerCase().includes("interrupt") ||
+      className?.toLowerCase().includes("interrupt"),
+  );
+
+  let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
 </script>
 
 <button
@@ -50,8 +60,8 @@
   class:is-full={full_width}
   class:is-busy={busy}
   aria-busy={busy}
-  aria-disabled={disabled || busy}
-  disabled={disabled || busy}
+  aria-disabled={is_disabled || busy}
+  disabled={is_disabled || busy}
   use:use_actions={actions}
 >
   {#if children}

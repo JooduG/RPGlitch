@@ -31,22 +31,24 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track Name                   | Priority | Status      | Description                                                                        |
-| :--------------------------- | :------- | :---------- | :--------------------------------------------------------------------------------- |
-| Intelligence Polish          | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues. |
-| DevMode StoryCard Refactor   | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.  |
-| Storymode UI Refactor        | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.   |
-| Profile Class Simplification | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.  |
-| Profile Wings Cleanup        | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio. |
-| Profile Design Cleanup       | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                            |
-| Sovereign Scaling Migration  | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                         |
-| Storyboard Card Bleed Fix    | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                             |
-| Drawer Contrast Rebuild      | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                               |
+| Track Name                     | Priority | Status      | Description                                                                         |
+| :----------------------------- | :------- | :---------- | :---------------------------------------------------------------------------------- |
+| UI Reactivity & Intent Locking | 🔥 High  | [x] b7a935d | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception. |
+| Intelligence Polish            | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.  |
+| DevMode StoryCard Refactor     | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.   |
+| Storymode UI Refactor          | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.    |
+| Profile Class Simplification   | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.   |
+| Profile Wings Cleanup          | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.  |
+| Profile Design Cleanup         | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                             |
+| Sovereign Scaling Migration    | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                          |
+| Storyboard Card Bleed Fix      | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                              |
+| Drawer Contrast Rebuild        | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                                |
 
 ## 🧠 Pulse (History)
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                              | Skill Invoked            | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------- | :-------- |
+| 2026-05-24T01:28:00+02:00 | Stabilize UI Reactivity Layer & Implement Intent Locking: consolidate UI flags, add sub-ms intent lock & exception, verify with TDD tests.        | svelte + test + css      | ✅ Done   |
 | 2026-05-24T00:28:00+02:00 | Refactor PROTOCOL_LIBRARY for Layout Tag Stripping and Token Compression: strip internal uppercase headers and trailing colons from strings.      | javascript + test        | ✅ Done   |
 | 2026-05-24T00:01:00+02:00 | Implement Round Increment Pacing in Chrono Controller: step runtime.round forward before committing timeline snapshot.                            | javascript + test        | ✅ Done   |
 | 2026-05-23T23:59:00+02:00 | Fix Falsy Round Overwrite in Context Broker: replace loose logical OR check with strict null-coalescing check to preserve round 0.                | javascript + test        | ✅ Done   |

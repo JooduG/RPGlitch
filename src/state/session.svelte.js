@@ -4,6 +4,7 @@ import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import "@state/simulation-log.svelte.js";
 import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
+import { controlState } from "@state/control.svelte.js";
 
 /**
  * src/state/session.svelte.js
@@ -34,6 +35,7 @@ export class ReactiveSession {
   releaseLock() {
     this.isProcessing = false;
     app.simulation.loading = false;
+    controlState.set_intent_active(false); // Release Intent Lock
   }
 
   /**
@@ -42,6 +44,7 @@ export class ReactiveSession {
    */
   async start(selection) {
     if (this.isProcessing) return;
+    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     this.isProcessing = true;
     app.simulation.loading = true;
 
@@ -87,6 +90,7 @@ export class ReactiveSession {
    */
   async advance_turn(text) {
     if (this.isProcessing) return;
+    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     this.isProcessing = true;
     app.simulation.loading = true;
 
@@ -123,6 +127,7 @@ export class ReactiveSession {
    */
   async retry() {
     if (this.isProcessing) return;
+    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     this.isProcessing = true;
     app.simulation.loading = true;
 
@@ -144,6 +149,7 @@ export class ReactiveSession {
    */
   async continue() {
     if (this.isProcessing) return;
+    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     this.isProcessing = true;
     app.simulation.loading = true;
 

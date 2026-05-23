@@ -6,6 +6,7 @@ import { runtime } from "@state/runtime.svelte.js";
 import { simulation_log } from "@state/simulation-log.svelte.js";
 import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
 import { Engine } from "@core/engine/engine.js";
+import { controlState } from "@state/control.svelte.js";
 /**
  *
  */
@@ -23,22 +24,25 @@ export class ChronoStore {
    * @param {string|null} input
    */
   async advance_turn(input = null) {
-    if (app.simulation.loading) return; // Prevent double-clicks
+    if (app.simulation.loading || controlState.intent_active) return; // Prevent double-clicks
     const story_id = runtime.story_id;
     if (!story_id) {
       console.error("[Chrono] No active story found.");
       return;
     }
     // 1. STASIS: Lock the Universe
+    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     app.simulation.loading = true;
     simulationState.lock(); // Phase 1: System Lock
     app.log("Shield scanning causality and physics...", "system");
+
+    /** @type {any} */
+    let shieldContext = null;
+    let finalInput = input;
+
     try {
       // 2. OBSERVATION: Process Input & Physics (Shield)
       // We pass the current runtime character context to the Shield
-      /** @type {any} */
-      let shieldContext = null;
-      let finalInput = input;
       if (input && runtime.character) {
         // Pass Fractal State for Causality Checks
         shieldContext = await Shield.process(
@@ -56,41 +60,73 @@ export class ChronoStore {
           // We override the 'Action' to be a System Constraint.
           // This forces the AI to narrate the failure instead of the action.
           finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${shieldContext.causality.constraint}". Describe this failed attempt briefly and dryly.`;
-          // Visual Feedback (Glitch)
-          // app.simulation.status = "causality violation" // [R5] Removed detailed status
         }
       }
-      // 3. SYNTHESIS: Generate Narrative (Engine)
-      // simulationState.start_generation('ai') will be called by Engine.generate_ai_response
-      app.log(`LLM synthesizing turn ${app.round + 1}...`, "ai");
-      // The GM facade maps generateAiResponse -> Engine.generateAiResponse(story_id, options)
-      // We pass shieldContext in options if needed, including reflex deltas for thermodynamics.
-      await Engine.generate_ai_response(story_id, {
-        shieldContext,
-        input: finalInput ?? undefined,
-      });
-      // 4. ECHO: Commit to Resonance (Echo/Scholar)
-      simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
-      app.log("Echo recording temporal resonance...", "db");
-      // 5. ANCHOR: Persist the timeline
-      runtime.round++;
-      await runtime.save(runtime.round);
     } catch (err) {
       const error = /** @type {any} */ (err);
-      app.log(`Time Fracture: ${error.message}`, "error");
-      console.error("[Chrono] 💥 Time Fracture:", error);
-      // Push error to feed so user knows what happened
+      app.log(`Time Fracture during Shield: ${error.message}`, "error");
+      console.error("[Chrono] 💥 Shield Failure:", error);
       simulation_log.add({
         id: `err-${Date.now()}`,
         role: "system",
-        text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
+        text: `Simulation Error: ${error.message || "Shield Scan Failure"}`,
         timestamp: Date.now(),
       });
-    } finally {
-      // 5. RESURRECTION: Unlock the Universe
       app.simulation.loading = false;
       simulationState.unlock();
+      controlState.set_intent_active(false); // Release Intent Lock
+      return;
     }
+
+    // 3. SYNTHESIS: Generate Narrative (Engine) - Runs in background, non-blocking
+    app.log(`LLM synthesizing turn ${app.round + 1}...`, "ai");
+    const controller = new AbortController();
+    app.streaming.abort_controller = controller;
+
+    (async () => {
+      try {
+        await Engine.generate_ai_response(story_id, {
+          shieldContext,
+          input: finalInput ?? undefined,
+          signal: controller.signal,
+        });
+
+        // 4. ECHO: Commit to Resonance (Echo/Scholar) - Timeline Safety Lock
+        simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
+        app.log("Echo recording temporal resonance...", "db");
+
+        // 5. ANCHOR: Persist the timeline
+        runtime.round++;
+        await runtime.save(runtime.round);
+      } catch (err) {
+        const error = /** @type {any} */ (err);
+        if (error.name === "AbortError" || error.message?.includes("aborted")) {
+          app.log("Generation interrupted cleanly.", "system");
+        } else {
+          app.log(`Time Fracture: ${error.message}`, "error");
+          console.error("[Chrono] 💥 Time Fracture:", error);
+          // Push error to feed so user knows what happened
+          simulation_log.add({
+            id: `err-${Date.now()}`,
+            role: "system",
+            text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
+            timestamp: Date.now(),
+          });
+        }
+      } finally {
+        // Unified Cleanup Framework
+        if (app.streaming.abort_controller === controller) {
+          app.streaming.abort_controller = null;
+        }
+        app.streaming.active = false;
+        app.streaming.content = "";
+        app.streaming.node_id = null;
+        app.streaming.role = "ai";
+        app.simulation.loading = false;
+        simulationState.unlock();
+        controlState.set_intent_active(false); // Release Intent Lock
+      }
+    })();
   }
 }
 export const Chrono = new ChronoStore();

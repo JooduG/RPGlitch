@@ -14,7 +14,7 @@ import { generateUUID } from "@utils/helpers.js";
 import { resolve_px } from "@utils/dom.js";
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
 import { runtime } from "@state/runtime.svelte.js";
-import { simulationState } from "@state/status.svelte.js";
+import { simulationState, uiState } from "@state/status.svelte.js";
 
 /** @typedef {import('./control.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./control.svelte.js').DrawerState} DrawerState */
@@ -79,9 +79,14 @@ export class AppStore {
   // --- NARRATIVE CONFIG ---
   prologue = $state(""); // Starting directions/context
   /** @type {SimulationControl} */
-  simulation = $state({
-    loading: false, // STASIS: True when Chrono is processing
-  });
+  simulation = {
+    get loading() {
+      return uiState.loading;
+    },
+    set loading(val) {
+      uiState.set_loading(val);
+    },
+  };
   /** @type {FateSystem} */
   fate = $state({
     active: false,
@@ -288,12 +293,13 @@ export class AppStore {
     }
   };
   // --- LLM STREAMING ---
-  /** @type {{ active: boolean, content: string, node_id: string | null, role: "ai" | "user" | "fractal" | "system" | null }} */
+  /** @type {{ active: boolean, content: string, node_id: string | null, role: "ai" | "user" | "fractal" | "system" | null, abort_controller: AbortController | null }} */
   streaming = $state({
     active: false,
     content: "",
     node_id: null,
     role: "ai",
+    abort_controller: null,
   });
   /************************************************************************************
    * [SECTION: UI ACTIONS]
@@ -404,6 +410,15 @@ export class AppStore {
     this.streaming.active = false;
     this.streaming.node_id = null;
     this.streaming.role = "ai";
+  };
+  trigger_interrupt = () => {
+    if (this.streaming.abort_controller) {
+      try {
+        this.streaming.abort_controller.abort();
+      } catch (e) {
+        console.error("[AppStore] Failed to abort streaming:", e);
+      }
+    }
   };
   open_image_preview = (/** @type {any} */ src, caption = "") => {
     openImagePreview(src, caption);

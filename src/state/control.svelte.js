@@ -34,5 +34,24 @@
  * @property {any | null} selected - The specific fate vector currently under resolution.
  */
 
-// Exporting types for use in other modules
-export {};
+export class ControlStore {
+  #intent_active = $state(false);
+
+  get intent_active() {
+    return this.#intent_active;
+  }
+
+  set intent_active(value) {
+    this.#intent_active = value;
+  }
+
+  /**
+   * Sets the intent lock state.
+   * @param {boolean} active
+   */
+  set_intent_active(active) {
+    this.#intent_active = active;
+  }
+}
+
+export const controlState = new ControlStore();

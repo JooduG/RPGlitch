@@ -14,7 +14,7 @@
  * 2. Persistence  : Automatically logs turns to the Session database.
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
-import { context_broker } from "@core/intelligence/context-broker.js";
+import { context_broker } from "@core/intelligence/context-broker.svelte.js";
 import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
 import { prompt_builder } from "@core/intelligence/prompt-builder.js";
 import { llm_service } from "@core/intelligence/llm-service.js";

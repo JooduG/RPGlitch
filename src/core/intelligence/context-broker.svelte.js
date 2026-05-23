@@ -1,5 +1,5 @@
 /**
- * @file src/core/intelligence/context-broker.js
+ * @file src/core/intelligence/context-broker.svelte.js
  *
  * @typedef {import('../../state/runtime.svelte.js').SimulationEntity} SimulationEntity
  *
@@ -11,15 +11,14 @@
  * @property {string} [layer]
  * @property {number} [hit]
  *
- * €
  * 🔌 CONTEXT BROKER    The State Adapter & Document Assembler
- * €
  *
  * PURPOSE
  * context_broker is the "Secretary" of the Intelligence Kernel. It handles
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
+/* eslint-disable svelte/prefer-svelte-reactivity */
 import { runtime } from "@state/runtime.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { clean_text } from "@core/text-parser.js";
@@ -27,7 +26,8 @@ import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
 import { ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
 import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
-const LOG_CACHE = new WeakMap();
+const RAW_CACHE = new Map();
+const MAX_CACHE_SIZE = 1000;
 
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
@@ -38,11 +38,18 @@ const LOG_CACHE = new WeakMap();
  */
 function get_sanitized_text(msg) {
   if (!msg || typeof msg !== "object") return "";
-  if (LOG_CACHE.has(msg)) return LOG_CACHE.get(msg);
 
   const raw = msg.text || msg.content || "";
+  if (RAW_CACHE.has(raw)) return RAW_CACHE.get(raw);
+
   const sanitized = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-  LOG_CACHE.set(msg, sanitized);
+
+  if (RAW_CACHE.size >= MAX_CACHE_SIZE) {
+    const firstKey = RAW_CACHE.keys().next().value;
+    RAW_CACHE.delete(firstKey);
+  }
+
+  RAW_CACHE.set(raw, sanitized);
   return sanitized;
 }
 /**
@@ -89,10 +96,83 @@ function to_data_points(entity) {
   });
   return list.filter((f) => f.text.length > 0);
 }
+
+/**
+ * Extracts new input and the last logged turn text to avoid parsing full history.
+ * @param {string} input
+ * @param {any[]} simulation_log
+ * @returns {string}
+ */
+function get_new_content_input(input, simulation_log) {
+  const parts = [];
+  if (input && typeof input === "string") {
+    parts.push(input);
+  }
+  if (Array.isArray(simulation_log) && simulation_log.length > 0) {
+    const last_msg = simulation_log[simulation_log.length - 1];
+    const sanitized = get_sanitized_text(last_msg);
+    if (sanitized) {
+      parts.push(sanitized);
+    }
+  }
+  return parts.join(" ");
+}
+
+/************************************************************************************
+ * [SECTION: KNOWLEDGE CACHE]
+ ************************************************************************************/
+// Reactive local cache of active vectors.
+/** @type {{ AI: any[], USER: any[], FRACTAL: any[] }} */
+const KnowledgeCache = $state({
+  AI: [],
+  USER: [],
+  FRACTAL: [],
+});
+
+let lastAIKeys = "";
+let lastUserKeys = "";
+let lastFractalKeys = "";
+
+// Sync effect with explicit bouncer tracking on future vector sub-properties (length and IDs).
+$effect.root(() => {
+  $effect(() => {
+    const aiFuture = runtime.active_ai?.future ?? [];
+    const aiKeys = aiFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+
+    const userFuture = runtime.active_user?.future ?? [];
+    const userKeys = userFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+
+    const fractalFuture = runtime.active_fractal?.future ?? [];
+    const fractalKeys = fractalFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+
+    // Only assign and update active state subscribers when actual shifts happen
+    if (aiKeys !== lastAIKeys) {
+      KnowledgeCache.AI = aiFuture;
+      lastAIKeys = aiKeys;
+    }
+    if (userKeys !== lastUserKeys) {
+      KnowledgeCache.USER = userFuture;
+      lastUserKeys = userKeys;
+    }
+    if (fractalKeys !== lastFractalKeys) {
+      KnowledgeCache.FRACTAL = fractalFuture;
+      lastFractalKeys = fractalKeys;
+    }
+  });
+});
+
 /************************************************************************************
  * [SECTION: CONTEXT BROKER]
  ************************************************************************************/
 export const context_broker = {
+  /**
+   * O(1) getter for the KnowledgeCache.
+   * @returns {{ AI: any[]; USER: any[]; FRACTAL: any[]; }}
+   */
+  get_active_vectors() {
+    return KnowledgeCache;
+  },
+
   /**
    * HYDRATION PHASE
    * Pulls and resolves all necessary state for an intelligence turn.
@@ -104,19 +184,19 @@ export const context_broker = {
    */
   async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round ?? 1;
-    const active_vector = runtime.active_vector("FRACTAL");
+
+    // Use our O(1) Knowledge Cache getter to retrieve active vectors cleanly
+    const active_vectors = context_broker.get_active_vectors();
+    const active_vector = active_vectors.FRACTAL?.[0]?.text || "Continue the journey.";
 
     // Check for empathy/trust flags in recent input to conditionalize SUSPICIOUS_COGNITION
     const matches = dynamics_engine.dynamics_scan(input);
     const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
 
-    // Extract raw log text without truncation or owner headers for lifecycle matching (Optimized)
-    const full_log_text = Array.isArray(simulation_log)
-      ? simulation_log.map(get_sanitized_text).join(" ")
-      : "";
+    // Extract new content input for incremental lifecycle matching
+    const new_content = get_new_content_input(input, simulation_log);
 
     // 1. Resolve Entities mapping (Role -> Data)
-    // We MUST use snapshot_entities to unwrap Svelte proxies before they reach the dynamics engine.
     const clean = runtime.snapshot_entities;
     const entries = [
       { role: "AI", data: clean.AI },
@@ -126,7 +206,7 @@ export const context_broker = {
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy
     await Promise.all(
-      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, full_log_text)),
+      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, new_content)),
     ).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
 
     const entities = /** @type {Record<string, any>} */ ({});
@@ -210,8 +290,7 @@ export const context_broker = {
     return history
       .map((m) => {
         const owner = m.character_name || (m.role === "user" ? "User" : "AI");
-        const raw = m.content || "";
-        const stripped = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+        const stripped = get_sanitized_text(m);
         return `[${owner}]: ${clean_text(stripped, 500)}`;
       })
       .join("\n");

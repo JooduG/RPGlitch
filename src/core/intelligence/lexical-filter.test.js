@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { context_broker } from "@core/intelligence/context-broker.js";
+import { context_broker } from "@core/intelligence/context-broker.svelte.js";
 
 describe("context_broker.lexical_filter", () => {
   it("should return data_points as is if objective is null or empty", () => {

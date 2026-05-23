@@ -1,5 +1,7 @@
 <script>
   import { use_actions } from "@ui/utils/use-actions.js";
+  import { controlState } from "@state/control.svelte.js";
+
   /**
    * @typedef {Object} Props
    * @property {number} [value] - Current slider value.
@@ -45,20 +47,22 @@
   const test_id = $derived(
     label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider",
   );
+
+  let is_disabled = $derived(disabled || controlState.intent_active);
 </script>
 
 <label
   class="root {className}"
-  class:is-disabled={disabled || busy}
+  class:is-disabled={is_disabled || busy}
   class:is-busy={busy}
   style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"
   data-testid={test_id}
   aria-busy={busy}
-  aria-disabled={disabled || busy}
+  aria-disabled={is_disabled || busy}
   use:use_actions={actions}
 >
   <span class="header">
-    {label.toUpperCase()}: {busy ? "BUSY..." : disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
+    {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
   <input
     type="range"
@@ -67,7 +71,7 @@
     {max}
     {step}
     bind:value
-    disabled={disabled || busy}
+    disabled={is_disabled || busy}
     {onchange}
   />
 </label>
