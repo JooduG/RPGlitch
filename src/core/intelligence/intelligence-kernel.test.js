@@ -226,4 +226,111 @@ describe("gamemaster (Intelligence Kernel)", () => {
       ]);
     });
   });
+
+  describe("Post-Turn Validation Circuit-Breaker Integration", () => {
+    const mockPayload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: {
+        AI: { name: "Viper" },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void" },
+      },
+      simulation_log: "",
+      rawMessages: [],
+      meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
+    };
+
+    beforeEach(() => {
+      vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
+      vi.mocked(prompt_builder.synthesize).mockReturnValue({
+        system: "PROMPT",
+        meta: {
+          ai: {},
+          fractal: {},
+          flags: [],
+          signal_prompts: [],
+          signals: {},
+          vectors: { past: [], future: [] },
+        },
+      });
+    });
+
+    it("appends missing think block closure", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
+
+      const result = await gamemaster.execute_turn("story-123", {
+        input: "Hello",
+        role: "ai",
+      });
+
+      expect(result.response).toBe("<think>Analyzing user state</think>");
+      expect(session_driver.log_turn).toHaveBeenCalledWith(
+        "<think>Analyzing user state</think>",
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({
+          turn_type: "AI_TURN",
+        })
+      );
+    });
+
+    it("scrubs Chinese character bleed outside think block but keeps inside characters and spacing intact", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue(
+        "<think>thought block containing 中文</think> Normal spacing and some 中文 character bleed."
+      );
+
+      const result = await gamemaster.execute_turn("story-123", {
+        input: "Hello",
+        role: "ai",
+      });
+
+      expect(result.response).toBe(
+        "<think>thought block containing 中文</think> Normal spacing and some  character bleed."
+      );
+      expect(session_driver.log_turn).toHaveBeenCalledWith(
+        "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
+        expect.any(String),
+        expect.any(String),
+        expect.objectContaining({
+          sino_logic_violation: true,
+        })
+      );
+    });
+
+    it("handles normal English text and preserves spacing exactly", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue(
+        "No think block here.   Multiple   spaces   remain   intact."
+      );
+
+      const result = await gamemaster.execute_turn("story-123", {
+        input: "Hello",
+        role: "ai",
+      });
+
+      expect(result.response).toBe(
+        "No think block here.   Multiple   spaces   remain   intact."
+      );
+      expect(session_driver.log_turn).toHaveBeenCalledWith(
+        "No think block here.   Multiple   spaces   remain   intact.",
+        expect.any(String),
+        expect.any(String),
+        expect.not.objectContaining({
+          sino_logic_violation: true,
+        })
+      );
+    });
+
+    it("handles empty or blank parameters gracefully", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue("");
+
+      const result = await gamemaster.execute_turn("story-123", {
+        input: "Hello",
+        role: "ai",
+      });
+
+      expect(result.response).toBe("");
+    });
+  });
 });

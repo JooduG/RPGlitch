@@ -17,8 +17,8 @@ describe("prompt_builder (Refactored)", () => {
 
     it("render_protocols() should return bulleted list of defined protocols", () => {
       const result = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
-      expect(result).toContain("- MOMENTUM:");
-      expect(result).toContain("- HYGIENE:");
+      expect(result).toContain("- Advance scene parameters");
+      expect(result).toContain("- Start prose directly");
     });
   });
 
@@ -54,7 +54,7 @@ describe("prompt_builder (Refactored)", () => {
         meta: { is_suspicious: true },
       };
       const result = prompt_builder.synthesize(suspiciousPayload, mockSnapshot);
-      expect(result.system).toContain("SUSPICIOUS_COGNITION");
+      expect(result.system).toContain("Match low Openness to defensiveness");
     });
 
     it("synthesize() respects prologue mode", () => {

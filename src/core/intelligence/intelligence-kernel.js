@@ -29,6 +29,68 @@ import { session_driver } from "@core/engine/session-driver.svelte.js";
  * @typedef {import('@core/engine/engine.js').GenerationOptions} GenerationOptions
  */
 
+/**
+ * Synchronous post-turn validation and repair layer.
+ * Automatically closes truncated `<think>` blocks and strips Chinese characters from narrative prose
+ * without removing spaces, corrupting sentence formatting, or contaminating reactive global app proxies.
+ * @param {string} response
+ * @returns {{ text: string; violated: boolean }}
+ */
+function validate_and_repair_response(response) {
+  const result = { text: response || "", violated: false };
+  try {
+    let text = result.text;
+    
+    // TAG CLOSURE PASS:
+    const thinkOpener = /<think>/i;
+    const thinkCloser = /<\/think>/i;
+    if (thinkOpener.test(text) && !thinkCloser.test(text)) {
+      text += "</think>";
+    }
+    
+    // CHINESE BLEED PARSING: Isolate narrative prose from think blocks
+    const splitRegex = /(<\/think>|<think>)/i;
+    const segments = text.split(splitRegex);
+    
+    let inThinkBlock = false;
+    const processedSegments = segments.map(segment => {
+      const lower = segment.toLowerCase();
+      if (lower === "<think>") {
+        inThinkBlock = true;
+        return segment;
+      }
+      if (lower === "</think>") {
+        inThinkBlock = false;
+        return segment;
+      }
+      
+      // If we are inside think block, do not strip Chinese characters
+      if (inThinkBlock) {
+        return segment;
+      }
+      
+      // PROSE STRIPPING: For text chunks determined to be outside the think tags
+      const chineseRange = /[\u4e00-\u9fa5]/g;
+      if (chineseRange.test(segment)) {
+        result.violated = true;
+        return segment.replace(chineseRange, "");
+      }
+      return segment;
+    });
+    
+    if (result.violated) {
+      app.log("SINO_LOGIC bleed intercepted", "warn");
+    }
+    
+    result.text = processedSegments.join("");
+  } catch (err) {
+    console.warn("[gamemaster] Validation check failed:", err);
+    result.text = response || "";
+    result.violated = false;
+  }
+  return result;
+}
+
 export const gamemaster = {
   /**
    * THE MECHANICAL GATE
@@ -195,10 +257,13 @@ export const gamemaster = {
       );
     });
     // 6.5. POST-GENERATION SCAN: Scan AI response to trigger further physics mutations
+    /** @type {any} */
     let final_meta = { ...meta };
+    const validationResult = validate_and_repair_response(response || "");
+
     try {
       const post_payload = {
-        input: response || "",
+        input: validationResult.text,
         entities: runtime.snapshot_entities,
         round: runtime.round,
       };
@@ -224,7 +289,11 @@ export const gamemaster = {
     const character_name =
       role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
 
-    await session_driver.log_turn(response, character_name, role, {
+    if (validationResult.violated) {
+      final_meta.sino_logic_violation = true;
+    }
+
+    await session_driver.log_turn(validationResult.text, character_name, role, {
       dynamics: final_meta.ai,
       fractal_dynamics: final_meta.fractal,
       flags: final_meta.flags,
@@ -233,6 +302,7 @@ export const gamemaster = {
       vectors: final_meta.vectors,
       round: runtime.round,
       turn_type: "AI_TURN",
+      sino_logic_violation: final_meta.sino_logic_violation,
     });
     // 8. TRANSITION: Open the window for User
     runtime.turn_type = "USER_TURN";
@@ -240,7 +310,7 @@ export const gamemaster = {
     // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
     await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
 
-    return { response, meta };
+    return { response: validationResult.text, meta: final_meta };
   },
   /**
    * EXECUTE PROLOGUE

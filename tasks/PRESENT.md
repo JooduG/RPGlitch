@@ -47,7 +47,8 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                              | Skill Invoked            | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ | :----------------------- | :-------- |
-| 2026-05-24T00:01:00+02:00 | Implement Round Increment Pacing in Chrono Controller: step runtime.round forward before committing timeline snapshot. | javascript + test        | ✅ Done |
+| 2026-05-24T00:28:00+02:00 | Refactor PROTOCOL_LIBRARY for Layout Tag Stripping and Token Compression: strip internal uppercase headers and trailing colons from strings.      | javascript + test        | ✅ Done   |
+| 2026-05-24T00:01:00+02:00 | Implement Round Increment Pacing in Chrono Controller: step runtime.round forward before committing timeline snapshot.                             | javascript + test        | ✅ Done   |
 | 2026-05-23T23:59:00+02:00 | Fix Falsy Round Overwrite in Context Broker: replace loose logical OR check with strict null-coalescing check to preserve round 0. | javascript + test        | ✅ Done   |
 | 2026-05-23T23:33:00+02:00 | Implement Performance Anchor Preservation in Context Broker: let 'eternal' layer data points bypass keyword filter to prevent token starvation.   | javascript + test        | ✅ Done   |
 | 2026-05-23T23:25:00+02:00 | Sanitize epilogue prompt instruction to resolve summary contradiction and clean up narrative style template tag mapping in simulation prompt.     | javascript + test        | ✅ Done   |

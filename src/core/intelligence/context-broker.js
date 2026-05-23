@@ -21,6 +21,7 @@
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
 import { runtime } from "@state/runtime.svelte.js";
+import { app } from "@state/app.svelte.js";
 import { clean_text } from "@core/text-parser.js";
 import { dynamics_engine } from "@core/intelligence/dynamics-engine.js";
 import { ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
@@ -222,63 +223,96 @@ export const context_broker = {
    */
   async manage_vector_lifecycle(entity, recent_log_text) {
     if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
-    if (!recent_log_text) return;
-
-    const log_lower = recent_log_text.toLowerCase();
-
-    // Create a Set of lowercase words for O(1) lookup
-    const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
-
-    // Helper to safely escape strings for RegExp if needed
-    /** @param {string} str */
-    const escape_regex = (str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
     const vectors_to_resolve = [];
 
     for (const vector of entity.future) {
-      let is_resolved = false;
-
-      // 1. Check strict vector tags
-      if (Array.isArray(vector.vector_tags)) {
-        is_resolved = vector.vector_tags.some((/** @type {string} */ tag) => {
-          const t = tag.toLowerCase();
-          if (t.includes(" ")) {
-            // Multi-word tag: use escaped regex with word boundaries
-            try {
-              const regex = new RegExp(`\\b${escape_regex(t)}\\b`, "i");
-              return regex.test(recent_log_text);
-            } catch {
-              return log_lower.includes(t);
-            }
-          }
-          // Single word tag: fast O(1) lookup
-          return log_words.has(t);
-        });
+      // 1. CHRONO VALIDATION
+      const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
+      if (round_threshold !== undefined && typeof round_threshold === "number") {
+        if ((runtime.round ?? 0) < round_threshold) {
+          continue; // immediately block resolution and continue to the next vector
+        }
       }
 
-      // 2. Check significant keywords from the vector text if no tag match
-      if (!is_resolved && vector.text) {
-        // Extract deduplicated words > 4 chars
-        const words = vector.text
-          .toLowerCase()
-          .split(/[\s,.;:!?()"'[\]{}]+/)
-          .filter((/** @type {string} */ w) => w.length > 4);
+      let is_resolved = false;
+      const has_requires = vector.requires && typeof vector.requires === "object" && Object.keys(vector.requires).length > 0;
 
-        const keywords = Array.from(new Set(words));
+      if (has_requires) {
+        // 2. STATE EVALUATION
+        let state_checks_passed = true;
+        for (const [req_key, req_val] of Object.entries(vector.requires)) {
+          if (req_key === "round") continue; // Handled by Chrono Validation above
 
-        if (keywords.length > 0) {
-          // If at least 3 significant keywords (or all if < 3) are found, consider it matched
-          const match_threshold = Math.min(3, keywords.length);
-
-          let matched_count = 0;
-          for (const k of keywords) {
-            if (log_words.has(k)) {
-              matched_count++;
+          let actual_val = get_path_value(runtime, req_key);
+          if (actual_val === undefined || actual_val === "") {
+            if (runtime.simulation) {
+              actual_val = get_path_value(runtime.simulation, req_key);
             }
           }
+          if ((actual_val === undefined || actual_val === "") && app) {
+            actual_val = get_path_value(app, req_key);
+          }
 
-          if (matched_count >= match_threshold) {
-            is_resolved = true;
+          if (actual_val !== req_val) {
+            state_checks_passed = false;
+            break;
+          }
+        }
+
+        if (state_checks_passed) {
+          is_resolved = true;
+        }
+      } else {
+        // 3. FUZZY TEXT FALLBACK
+        if (recent_log_text) {
+          const log_lower = recent_log_text.toLowerCase();
+          const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
+          const escape_regex = (/** @type {string} */ str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+          // Check strict vector tags
+          if (Array.isArray(vector.vector_tags)) {
+            is_resolved = vector.vector_tags.some((/** @type {string} */ tag) => {
+              const t = tag.toLowerCase();
+              if (t.includes(" ")) {
+                // Multi-word tag: use escaped regex with word boundaries
+                try {
+                  const regex = new RegExp(`\\b${escape_regex(t)}\\b`, "i");
+                  return regex.test(recent_log_text);
+                } catch {
+                  return log_lower.includes(t);
+                }
+              }
+              // Single word tag: fast O(1) lookup
+              return log_words.has(t);
+            });
+          }
+
+          // Check significant keywords from the vector text if no tag match
+          if (!is_resolved && vector.text) {
+            // Extract deduplicated words > 4 chars
+            const words = vector.text
+              .toLowerCase()
+              .split(/[\s,.;:!?()"'[\]{}]+/)
+              .filter((/** @type {string} */ w) => w.length > 4);
+
+            const keywords = Array.from(new Set(words));
+
+            if (keywords.length > 0) {
+              // If at least 3 significant keywords (or all if < 3) are found, consider it matched
+              const match_threshold = Math.min(3, keywords.length);
+
+              let matched_count = 0;
+              for (const k of keywords) {
+                if (log_words.has(k)) {
+                  matched_count++;
+                }
+              }
+
+              if (matched_count >= match_threshold) {
+                is_resolved = true;
+              }
+            }
           }
         }
       }
