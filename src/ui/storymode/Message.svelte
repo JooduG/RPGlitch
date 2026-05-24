@@ -18,6 +18,7 @@
 
   /**
    * @typedef {Object} Props
+   * @property {string|number} [id=""]
    * @property {string} [text=""]
    * @property {string} [sender="system"]
    * @property {string} [character_name=""]
@@ -34,6 +35,7 @@
 
   /** @type {Props} */
   let {
+    id = "",
     text = "",
     sender = "system",
     character_name = "",
@@ -234,7 +236,14 @@
       </div>
 
       <div class="message-body">
-        {#if busy && !text}
+        {#if app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)}
+          <div class="message-content streaming-active">
+            <p>{app.streaming.text ?? app.streaming.content ?? ""}</p>
+            <div class="thinking-wrapper">
+              <TypingIndicator variant="pill" {signature_color} />
+            </div>
+          </div>
+        {:else if busy && !text}
           <div class="thinking-wrapper">
             <TypingIndicator variant="pill" {signature_color} />
           </div>

@@ -64,6 +64,18 @@ vi.mock("@state/runtime.svelte.js", () => ({
 vi.mock("@state/app.svelte.js", () => ({
   app: {
     log: vi.fn(),
+    start_stream: vi.fn(),
+    update_stream: vi.fn(),
+    end_stream: vi.fn(),
+    streaming: {
+      active: false,
+      content: "",
+      node_id: null,
+      role: "ai",
+      abort_controller: null,
+      text: "",
+      nodeId: null,
+    },
   },
 }));
 

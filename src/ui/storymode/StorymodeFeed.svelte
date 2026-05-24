@@ -99,6 +99,7 @@
 <div class="root scrollbar no-scrollbar" bind:this={scroll_ref}>
   {#each simulation_log.feed as entry, index (entry.id)}
     <Message
+      id={entry.id}
       text={entry.text}
       sender={map_role(entry.role)}
       character_name={entry.character_name ||
@@ -116,7 +117,8 @@
 
   {#if is_active_turn}
     <Message
-      text={app.streaming.content ?? ""}
+      id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"}
+      text={app.streaming.text ?? app.streaming.content ?? ""}
       sender={active_turn_role ?? "ai"}
       character_name={active_turn_name ?? ""}
       timestamp={new Date()}

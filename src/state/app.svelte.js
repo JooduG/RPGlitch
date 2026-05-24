@@ -293,11 +293,23 @@ export class AppStore {
     }
   };
   // --- LLM STREAMING ---
-  /** @type {{ active: boolean, content: string, node_id: string | null, role: "ai" | "user" | "fractal" | "system" | null, abort_controller: AbortController | null }} */
+  /** @type {{ active: boolean, content: string, text: string, node_id: string | null, nodeId: string | null, role: "ai" | "user" | "fractal" | "system" | null, abort_controller: AbortController | null }} */
   streaming = $state({
     active: false,
     content: "",
+    get text() {
+      return this.content;
+    },
+    set text(val) {
+      this.content = val;
+    },
     node_id: null,
+    get nodeId() {
+      return this.node_id;
+    },
+    set nodeId(val) {
+      this.node_id = val;
+    },
     role: "ai",
     abort_controller: null,
   });
@@ -400,15 +412,21 @@ export class AppStore {
   start_stream = (id, role = "ai") => {
     this.streaming.active = true;
     this.streaming.content = "";
+    this.streaming.text = "";
     this.streaming.node_id = id;
+    this.streaming.nodeId = id;
     this.streaming.role = role;
   };
   update_stream = (/** @type {string} */ chunk) => {
     this.streaming.content += chunk;
+    this.streaming.text = this.streaming.content;
   };
   end_stream = () => {
     this.streaming.active = false;
+    this.streaming.content = "";
+    this.streaming.text = "";
     this.streaming.node_id = null;
+    this.streaming.nodeId = null;
     this.streaming.role = "ai";
   };
   trigger_interrupt = () => {

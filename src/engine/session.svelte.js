@@ -119,7 +119,8 @@ export const session_driver = {
    * @param {string | number} id
    */
   delete_log_entry: async function (id) {
-    await db.simulation_log.delete(Number(id));
+    const key = isNaN(Number(id)) ? id : Number(id);
+    await db.simulation_log.delete(key);
     simulation_log.refresh();
   },
 
@@ -129,7 +130,8 @@ export const session_driver = {
    * @param {string} new_text
    */
   edit_log_entry: async function (id, new_text) {
-    await db.simulation_log.update(Number(id), { text: new_text });
+    const key = isNaN(Number(id)) ? id : Number(id);
+    await db.simulation_log.update(key, { text: new_text });
     simulation_log.refresh();
   },
 
@@ -143,7 +145,8 @@ export const session_driver = {
    */
   log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}) {
     const story_id = session_driver.require_active();
-    await db.simulation_log.add({
+    /** @type {any} */
+    const entry = {
       story_id,
       role,
       type: "text",
@@ -153,7 +156,11 @@ export const session_driver = {
       round: runtime.round,
       meta: $state.snapshot(meta),
       created_at: Date.now(),
-    });
+    };
+    if (meta && meta.id) {
+      entry.id = meta.id;
+    }
+    await db.simulation_log.add(entry);
     simulation_log.refresh();
   },
 

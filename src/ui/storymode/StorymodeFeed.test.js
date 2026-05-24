@@ -19,7 +19,9 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     app.streaming = {
       active: false,
       content: "",
+      text: "",
       node_id: null,
+      nodeId: null,
       role: "ai",
       abort_controller: null,
     };
@@ -52,7 +54,9 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     app.streaming = {
       active: true,
       content: "Streaming...",
+      text: "Streaming...",
       node_id: null,
+      nodeId: null,
       role: "ai",
       abort_controller: null,
     };

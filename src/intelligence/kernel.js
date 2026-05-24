@@ -25,6 +25,7 @@ import { db } from "@data/db.js";
 import { simulationState } from "@state/status.svelte.js";
 import { entities, serialize, prune } from "@data/repository.js";
 import { session_driver } from "@engine/session.svelte.js";
+import { generateUUID } from "@engine/utils.js";
 /**
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
  */
@@ -154,6 +155,8 @@ export const gamemaster = {
     const { input = "", role = "ai", ...llm_options } = options;
     simulationState.start_generation(role);
 
+    const nodeId = generateUUID();
+
     // 1. CHRONO: Round management
     // Round is managed by Session.send or explicit prologue start.
     // We ensure turn-type consistency here.
@@ -220,6 +223,7 @@ export const gamemaster = {
           system,
           messages: simulation_log,
           role,
+          node_id: nodeId,
         },
         {
           temperature,
@@ -274,6 +278,7 @@ export const gamemaster = {
     }
 
     await session_driver.log_turn(validationResult.text, character_name, role, {
+      id: nodeId,
       dynamics: final_meta.ai,
       fractal_dynamics: final_meta.fractal,
       flags: final_meta.flags,
@@ -284,6 +289,7 @@ export const gamemaster = {
       turn_type: "AI_TURN",
       sino_logic_violation: final_meta.sino_logic_violation,
     });
+    app.end_stream();
     // 8. TRANSITION: Open the window for User
     runtime.turn_type = "USER_TURN";
 
@@ -302,8 +308,13 @@ export const gamemaster = {
     const result = prompt_builder.synthesize(payload, {});
     if (!result.system) return null;
     app.log("gamemaster: Generating prologue...", "system");
+    const nodeId = generateUUID();
     const response = await this.execute_with_retry(async () => {
-      return await llm_service.generate({ system: result.system, role: "fractal" });
+      return await llm_service.generate({
+        system: result.system,
+        role: "fractal",
+        node_id: nodeId,
+      });
     });
     const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     // 1. Save Prologue
@@ -311,9 +322,11 @@ export const gamemaster = {
     runtime.round = 0;
     runtime.turn_type = "SYSTEM_TURN";
     await session_driver.log_turn(response, fractal_name, "fractal", {
+      id: nodeId,
       round: 0,
       turn_type: "SYSTEM_TURN",
     });
+    app.end_stream();
     app.log("gamemaster: Prologue established (Round 0).", "system");
     // 2. The Hook: Trigger immediate AI follow-up to open the scene.
     // Ensure we transition simulationState to 'ai' role for the hook.
@@ -340,10 +353,12 @@ export const gamemaster = {
     );
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
+    const nodeId = generateUUID();
     const response = await this.execute_with_retry(async () => {
-      return await llm_service.generate({ system, role: "ai" });
+      return await llm_service.generate({ system, role: "ai", node_id: nodeId });
     });
-    await session_driver.log_turn(response, "Narrator", "ai");
+    await session_driver.log_turn(response, "Narrator", "ai", { id: nodeId });
+    app.end_stream();
     return response;
   },
   /**

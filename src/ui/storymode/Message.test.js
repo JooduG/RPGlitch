@@ -11,6 +11,15 @@ vi.mock("@state/app.svelte.js", () => ({
     selected_ai: null,
     selected_fractal: null,
     open_image_preview: vi.fn(),
+    streaming: {
+      active: false,
+      content: "",
+      node_id: null,
+      role: "ai",
+      abort_controller: null,
+      text: "",
+      nodeId: null,
+    },
   },
 }));
 
