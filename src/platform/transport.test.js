@@ -121,6 +121,27 @@ describe("llm_service - generate", () => {
     expect(onTokenSpy).toHaveBeenLastCalledWith("Chunk2");
   });
 
+  it("should handle Perchance object payload for onChunk", async () => {
+    const mockResponse = "Chunk1Chunk2";
+    window.ai = vi.fn().mockImplementation(async (instruction, options) => {
+      options.onChunk({ textChunk: "Chunk1" });
+      options.onChunk({ textChunk: "Chunk2" });
+      return mockResponse;
+    });
+    const onTokenSpy = vi.fn();
+    const payload = { system: "", node_id: "test-node", messages: [] };
+    await llm_service.generate(payload, {
+      onToken: onTokenSpy,
+      silent: false,
+      raw: true,
+    });
+    expect(app.start_stream).toHaveBeenCalledWith("test-node", "ai");
+    expect(app.update_stream).toHaveBeenNthCalledWith(1, "Chunk1");
+    expect(app.update_stream).toHaveBeenNthCalledWith(2, "Chunk2");
+    expect(onTokenSpy).toHaveBeenCalledTimes(2);
+    expect(onTokenSpy).toHaveBeenLastCalledWith("Chunk2");
+  });
+
   it("should sanitize output by default", async () => {
     window.ai = vi.fn().mockResolvedValue("```\nHere is the response\n```");
     const payload = { messages: [] };

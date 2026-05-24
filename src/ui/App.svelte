@@ -12,7 +12,6 @@
   import Storymode from "@storymode/Storymode.svelte";
   import GridOverlay from "@devmode/GridOverlay.svelte";
   import Tooltip from "@atoms/Tooltip.svelte";
-  import { fade } from "svelte/transition";
 
   // --- DERIVED ---
 
@@ -33,14 +32,11 @@
   <div class="gradient"></div>
 
   <!-- Layer 2: Fractal Imagery -->
-  {#if fractal_url}
-    <div
-      class="fractal"
-      style:background-image="url('{fractal_url}')"
-      style:opacity={fractal_opacity}
-      transition:fade={{ duration: 2000 }}
-    ></div>
-  {/if}
+  <div
+    class="fractal"
+    style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
+    style:opacity={fractal_url ? fractal_opacity : 0}
+  ></div>
 </div>
 
 <main
@@ -48,7 +44,6 @@
   class:is-storyboard={app.view === "storyboard"}
   class:is-storymode={app.view === "storymode"}
   class:is-tense={app.tension > 0}
-  in:fade={{ duration: 800 }}
 >
   <ImagePreview />
 
@@ -79,6 +74,7 @@
     height: 100vh;
     overflow: hidden;
     z-index: var(--z-index-surface);
+    animation: fade-in 800ms var(--ease-standard) forwards;
   }
 
   .root.is-tense {
@@ -119,6 +115,9 @@
     background-position: center;
     filter: var(--blur-mist) var(--brightness-muted);
     will-change: opacity, filter;
+    transition:
+      opacity 2000ms ease-in-out,
+      filter 2000ms ease-in-out;
   }
 
   /* ── Global Overrides ─────────────────────────────────────── */
@@ -154,6 +153,16 @@
           calc(var(--kinetic-shimmy-offset) * -1)
         )
         var(--scale-pulse);
+    }
+  }
+
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+
+    to {
+      opacity: 1;
     }
   }
 </style>

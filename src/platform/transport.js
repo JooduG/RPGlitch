@@ -129,7 +129,11 @@ export const llm_service = {
       };
 
       // 4. Wire streaming to the app layer
-      const on_token = (/** @type {string} */ chunk) => {
+      /**
+       * @param {any} data
+       */
+      const on_chunk = (data) => {
+        const chunk = typeof data === "string" ? data : data?.textChunk || "";
         if (!options.silent) {
           if (!app.streaming.active) {
             /** @type {any} */
@@ -144,7 +148,8 @@ export const llm_service = {
       // 5. Execute
       let result = await window.ai(instruction, {
         ...gen_options,
-        onToken: on_token,
+        onToken: on_chunk,
+        onChunk: on_chunk,
       });
 
       // Stream is left active so orchestrator can gracefully hand off to permanent log

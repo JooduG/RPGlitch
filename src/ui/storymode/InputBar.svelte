@@ -10,7 +10,7 @@
   import Button from "@atoms/Button.svelte";
   import GlassPill from "@atoms/GlassPill.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { Engine } from "@engine/kernel.js";
+  import { session } from "@state/session.svelte.js";
   import { app } from "@state/app.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
   import { controlState } from "@state/control.svelte.js";
@@ -64,7 +64,7 @@
     adjust_height(); // Reset height
 
     try {
-      await Engine.send(text);
+      await session.send(text);
     } catch (e) {
       console.error("Failed to send message:", e);
       controlState.set_intent_active(false); // Release lock on error
