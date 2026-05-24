@@ -37,3 +37,4 @@
 **/test-results/**
 **/yarn.lock
 **/tmp/**
+**/modern-web-guidance/guides/**

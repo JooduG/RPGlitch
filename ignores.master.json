@@ -63,7 +63,7 @@
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],
-    "markdownlint": [],
+    "markdownlint": ["**/modern-web-guidance/guides/**"],
     "prettier": [],
     "stylelint": []
   },
