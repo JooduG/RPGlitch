@@ -153,79 +153,61 @@ export const gamemaster = {
    */
   async execute_turn(story_id, options = {}) {
     const { input = "", role = "ai", ...llm_options } = options;
-    simulationState.start_generation(role);
+    app.busy = true;
+    try {
+      simulationState.start_generation(role);
 
-    const nodeId = generateUUID();
+      const nodeId = generateUUID();
 
-    // 1. CHRONO: Round management
-    // Round is managed by Session.send or explicit prologue start.
-    // We ensure turn-type consistency here.
-    temporal_engine.ensure_momentum(runtime, app);
-    runtime.turn_type = "SYSTEM_TURN";
-    // 2. HYDRATION: Fetch history and hydrate context
-    const raw_messages = await session_driver.load_log(story_id);
-    const simulation_log = raw_messages
-      .filter((m) => !m.meta?.consolidated && m.role !== "system")
-      .map((m) => ({
-        role: m.role === "user" ? "user" : "model",
-        content: m.text || m.content || "",
-        character_name: m.character_name,
-      }));
-    const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
-    // 3. SIMULATION: Evaluate world physics snapshot prior to generation
-    const snapshot = dynamics_engine.simulate(payload);
+      // 1. CHRONO: Round management
+      // Round is managed by Session.send or explicit prologue start.
+      // We ensure turn-type consistency here.
+      temporal_engine.ensure_momentum(runtime, app);
+      runtime.turn_type = "SYSTEM_TURN";
+      // 2. HYDRATION: Fetch history and hydrate context
+      const raw_messages = await session_driver.load_log(story_id);
+      const simulation_log = raw_messages
+        .filter((m) => !m.meta?.consolidated && m.role !== "system")
+        .map((m) => ({
+          role: m.role === "user" ? "user" : "model",
+          content: m.text || m.content || "",
+          character_name: m.character_name,
+        }));
+      const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
+      // 3. SIMULATION: Evaluate world physics snapshot prior to generation
+      const snapshot = dynamics_engine.simulate(payload);
 
-    // 3.6. COMPRESSION LAYER
-    const compressed_entities = {
-      AI: serialize(payload.entities.AI),
-      USER: serialize(payload.entities.USER),
-      FRACTAL: serialize(payload.entities.FRACTAL),
-    };
-    /** @type {any} */ (snapshot).compressed_entities = compressed_entities;
-    /** @type {any} */ (snapshot).pruned_past = {
-      AI: prune(payload.entities.AI?.past, "past"),
-      USER: prune(payload.entities.USER?.past, "past"),
-      FRACTAL: prune(payload.entities.FRACTAL?.past, "past"),
-    };
-    /** @type {any} */ (snapshot).pruned_future = {
-      AI: prune(payload.entities.AI?.future, "future"),
-      USER: prune(payload.entities.USER?.future, "future"),
-      FRACTAL: prune(payload.entities.FRACTAL?.future, "future"),
-    };
+      // 3.6. COMPRESSION LAYER
+      const compressed_entities = {
+        AI: serialize(payload.entities.AI),
+        USER: serialize(payload.entities.USER),
+        FRACTAL: serialize(payload.entities.FRACTAL),
+      };
+      /** @type {any} */ (snapshot).compressed_entities = compressed_entities;
+      /** @type {any} */ (snapshot).pruned_past = {
+        AI: prune(payload.entities.AI?.past, "past"),
+        USER: prune(payload.entities.USER?.past, "past"),
+        FRACTAL: prune(payload.entities.FRACTAL?.past, "past"),
+      };
+      /** @type {any} */ (snapshot).pruned_future = {
+        AI: prune(payload.entities.AI?.future, "future"),
+        USER: prune(payload.entities.USER?.future, "future"),
+        FRACTAL: prune(payload.entities.FRACTAL?.future, "future"),
+      };
 
-    // 4. SYNTHESIS: Build the final prompt
-    const { system, meta } = prompt_builder.synthesize(payload, snapshot);
+      // 4. SYNTHESIS: Build the final prompt
+      const { system, meta } = prompt_builder.synthesize(payload, snapshot);
 
-    // 5. TRANSITION & LOGGING: Decoupled from dynamic metric mutations
-    app.log(
-      "gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
-      "system",
-    );
-    runtime.turn_type = "AI_TURN";
+      // 5. TRANSITION & LOGGING: Decoupled from dynamic metric mutations
+      app.log(
+        "gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
+        "system",
+      );
+      runtime.turn_type = "AI_TURN";
 
-    // 6. GENERATION: Call the model with retry logic
-    const response = await this.execute_with_retry(async () => {
-      const {
-        temperature,
-        top_p,
-        repetition_penalty,
-        max_tokens,
-        model,
-        onToken,
-        json,
-        signal,
-        silent,
-        raw,
-      } = llm_options;
-
-      return await llm_service.generate(
-        {
-          system,
-          messages: simulation_log,
-          role,
-          node_id: nodeId,
-        },
-        {
+      // 6. GENERATION: Call the model with retry logic
+      const response = await this.execute_with_retry(async () => {
+        const {
           temperature,
           top_p,
           repetition_penalty,
@@ -236,67 +218,94 @@ export const gamemaster = {
           signal,
           silent,
           raw,
-        },
-      );
-    });
+        } = llm_options;
 
-    // 6.5. POST-GENERATION PIPELINE: Isolated validation, physics, telemetry, and state sync
-    /** @type {any} */
-    let final_meta = { ...meta };
-    const validationResult = validate_and_repair_response(response || "");
+        return await llm_service.generate(
+          {
+            system,
+            messages: simulation_log,
+            role,
+            node_id: nodeId,
+          },
+          {
+            temperature,
+            top_p,
+            repetition_penalty,
+            max_tokens,
+            model,
+            onToken,
+            json,
+            signal,
+            silent,
+            raw,
+          },
+        );
+      });
 
-    try {
-      const post_payload = {
-        input: validationResult.text,
-        entities: runtime.snapshot_entities,
+      // 6.5. POST-GENERATION PIPELINE: Isolated validation, physics, telemetry, and state sync
+      /** @type {any} */
+      let final_meta = { ...meta };
+      const validationResult = validate_and_repair_response(response || "");
+
+      try {
+        const post_payload = {
+          input: validationResult.text,
+          entities: runtime.snapshot_entities,
+          round: runtime.round,
+        };
+        const post_snapshot = dynamics_engine.simulate(post_payload);
+
+        // Capture and log the dynamics delta for this post-generation pass exactly once
+        await this.capture_dynamics_delta(post_snapshot);
+
+        // Sync the post-generation settled physics to runtime exactly once
+        runtime.ai = post_snapshot.ai.dynamics;
+        runtime.fractal = post_snapshot.fractal.dynamics;
+
+        // Update metadata to be logged in database
+        final_meta.ai = post_snapshot.ai.dynamics;
+        final_meta.fractal = post_snapshot.fractal.dynamics;
+        final_meta.flags = post_snapshot.flags;
+        final_meta.signals = post_snapshot.signals;
+      } catch (post_err) {
+        console.warn("[gamemaster] Post-generation scan failed:", post_err);
+      }
+
+      // 7. PERSISTENCE: Save the result
+      const character_name =
+        role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
+
+      if (validationResult.violated) {
+        final_meta.sino_logic_violation = true;
+      }
+
+      await session_driver.log_turn(validationResult.text, character_name, role, {
+        id: nodeId,
+        dynamics: final_meta.ai,
+        fractal_dynamics: final_meta.fractal,
+        flags: final_meta.flags,
+        signal_prompts: final_meta.signal_prompts,
+        signals: final_meta.signals,
+        vectors: final_meta.vectors,
         round: runtime.round,
-      };
-      const post_snapshot = dynamics_engine.simulate(post_payload);
+        turn_type: "AI_TURN",
+        sino_logic_violation: final_meta.sino_logic_violation,
+      });
+      // 8. TRANSITION: Open the window for User
+      runtime.turn_type = "USER_TURN";
 
-      // Capture and log the dynamics delta for this post-generation pass exactly once
-      await this.capture_dynamics_delta(post_snapshot);
+      // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
+      await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
 
-      // Sync the post-generation settled physics to runtime exactly once
-      runtime.ai = post_snapshot.ai.dynamics;
-      runtime.fractal = post_snapshot.fractal.dynamics;
-
-      // Update metadata to be logged in database
-      final_meta.ai = post_snapshot.ai.dynamics;
-      final_meta.fractal = post_snapshot.fractal.dynamics;
-      final_meta.flags = post_snapshot.flags;
-      final_meta.signals = post_snapshot.signals;
-    } catch (post_err) {
-      console.warn("[gamemaster] Post-generation scan failed:", post_err);
+      return { response: validationResult.text, meta: final_meta };
+    } finally {
+      app.busy = false;
+      app.end_stream();
+      // CRITICAL OVERRIDE: Unlock engine stasis
+      if (typeof simulationState !== "undefined") {
+        simulationState.phase = "idle";
+      }
     }
-
-    // 7. PERSISTENCE: Save the result
-    const character_name =
-      role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
-
-    if (validationResult.violated) {
-      final_meta.sino_logic_violation = true;
-    }
-
-    await session_driver.log_turn(validationResult.text, character_name, role, {
-      id: nodeId,
-      dynamics: final_meta.ai,
-      fractal_dynamics: final_meta.fractal,
-      flags: final_meta.flags,
-      signal_prompts: final_meta.signal_prompts,
-      signals: final_meta.signals,
-      vectors: final_meta.vectors,
-      round: runtime.round,
-      turn_type: "AI_TURN",
-      sino_logic_violation: final_meta.sino_logic_violation,
-    });
-    app.end_stream();
-    // 8. TRANSITION: Open the window for User
-    runtime.turn_type = "USER_TURN";
-
-    // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
-    await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
-
-    return { response: validationResult.text, meta: final_meta };
   },
   /**
    * EXECUTE PROLOGUE
@@ -304,33 +313,42 @@ export const gamemaster = {
    * @param {string} story_id
    */
   async execute_prologue(story_id) {
-    const payload = await context_broker.hydrate("", "prologue");
-    const result = prompt_builder.synthesize(payload, {});
-    if (!result.system) return null;
-    app.log("gamemaster: Generating prologue...", "system");
-    const nodeId = generateUUID();
-    const response = await this.execute_with_retry(async () => {
-      return await llm_service.generate({
-        system: result.system,
-        role: "fractal",
-        node_id: nodeId,
+    app.busy = true;
+    try {
+      const payload = await context_broker.hydrate("", "prologue");
+      const result = prompt_builder.synthesize(payload, {});
+      if (!result.system) return null;
+      app.log("gamemaster: Generating prologue...", "system");
+      const nodeId = generateUUID();
+      const response = await this.execute_with_retry(async () => {
+        return await llm_service.generate({
+          system: result.system,
+          role: "fractal",
+          node_id: nodeId,
+        });
       });
-    });
-    const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
-    // 1. Save Prologue
-    // Prologue stays at Round 0
-    runtime.round = 0;
-    runtime.turn_type = "SYSTEM_TURN";
-    await session_driver.log_turn(response, fractal_name, "fractal", {
-      id: nodeId,
-      round: 0,
-      turn_type: "SYSTEM_TURN",
-    });
-    app.end_stream();
-    app.log("gamemaster: Prologue established (Round 0).", "system");
-    // 2. The Hook: Trigger immediate AI follow-up to open the scene.
-    // Ensure we transition simulationState to 'ai' role for the hook.
-    return await this.execute_turn(story_id, { role: "ai" });
+      const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
+      // 1. Save Prologue
+      // Prologue stays at Round 0
+      runtime.round = 0;
+      runtime.turn_type = "SYSTEM_TURN";
+      await session_driver.log_turn(response, fractal_name, "fractal", {
+        id: nodeId,
+        round: 0,
+        turn_type: "SYSTEM_TURN",
+      });
+      app.log("gamemaster: Prologue established (Round 0).", "system");
+      // 2. The Hook: Trigger immediate AI follow-up to open the scene.
+      // Ensure we transition simulationState to 'ai' role for the hook.
+      return await this.execute_turn(story_id, { role: "ai" });
+    } finally {
+      app.busy = false;
+      app.end_stream();
+      // CRITICAL OVERRIDE: Unlock engine stasis
+      if (typeof simulationState !== "undefined") {
+        simulationState.phase = "idle";
+      }
+    }
   },
   /**
    * EXECUTE EPILOGUE

@@ -16,7 +16,7 @@
   import StorymodePanel from "@storymode/StorymodePanel.svelte";
 
   // Derived
-  let is_thinking = $derived(simulationState.phase === "generating");
+  let is_thinking = $derived(simulationState.phase === "generating" || app.busy);
 
   // --- ON MOUNT ---
   $effect(() => {

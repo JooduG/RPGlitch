@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                                           |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :-------------------------------------------------------------------------------------------------- |
+| `reactivity-crash-fix-2026-05-24`                   | Reactivity & Turn Counter Fixes        | P0       | ✅ Done | Fix Svelte 5 proxy collisions, round coercion, and secure try-finally execution loops.              |
 | `image-upload-pipeline-2026-05-24`                  | Image Upload Pipeline                  | P0       | ✅ Done | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
 | `re-routing-optimization-2026-05-24`                | Re-Routing Optimization Sweep          | P0       | ✅ Done | Clean barrel patterns, replace deep imports in main.js and boot.js with folder gates.               |
 | `tab-context-coupling-2026-05-24`                   | Tab-Context Coupling                   | P0       | ✅ Done | Bind UI activeId (Chin) to ContextBroker; loadViewContext flushes+hibernates vectors.               |

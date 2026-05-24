@@ -96,7 +96,7 @@ export class ChronoStore {
         app.log("Echo recording temporal resonance...", "db");
 
         // 5. ANCHOR: Persist the timeline
-        runtime.round++;
+        runtime.round = Number(runtime.round || 0) + 1;
         await runtime.save(runtime.round);
       } catch (err) {
         const error = /** @type {any} */ (err);

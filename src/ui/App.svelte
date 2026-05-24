@@ -18,7 +18,7 @@
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
   let fractal_opacity = $derived(
-    app.view === "storymode" ? "var(--opacity-whisper)" : "var(--opacity-whisper)",
+    app.view === "storymode" ? "var(--opacity-muted)" : "var(--opacity-muted)",
   );
 
   // --- EFFECTS ---

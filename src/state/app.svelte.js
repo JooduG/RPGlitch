@@ -32,6 +32,33 @@ const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
   minute: "2-digit",
   second: "2-digit",
 });
+class StreamingState {
+  /** @type {boolean} */
+  active = $state(false);
+  /** @type {string} */
+  content = $state("");
+  /** @type {string | null} */
+  node_id = $state(null);
+  /** @type {"ai" | "user" | "fractal" | "system" | null} */
+  role = $state("ai");
+  /** @type {AbortController | null} */
+  abort_controller = $state(null);
+
+  get text() {
+    return this.content;
+  }
+  set text(val) {
+    this.content = val;
+  }
+
+  get nodeId() {
+    return this.node_id;
+  }
+  set nodeId(val) {
+    this.node_id = val;
+  }
+}
+
 /**
  *
  */
@@ -108,6 +135,12 @@ export class AppStore {
   });
   // --- SENSORY ENGINES ---
   visual = visual_engine;
+  get busy() {
+    return uiState.loading;
+  }
+  set busy(val) {
+    uiState.set_loading(val);
+  }
   /**
    *
    */
@@ -292,27 +325,7 @@ export class AppStore {
       };
     }
   };
-  // --- LLM STREAMING ---
-  /** @type {{ active: boolean, content: string, text: string, node_id: string | null, nodeId: string | null, role: "ai" | "user" | "fractal" | "system" | null, abort_controller: AbortController | null }} */
-  streaming = $state({
-    active: false,
-    content: "",
-    get text() {
-      return this.content;
-    },
-    set text(val) {
-      this.content = val;
-    },
-    node_id: null,
-    get nodeId() {
-      return this.node_id;
-    },
-    set nodeId(val) {
-      this.node_id = val;
-    },
-    role: "ai",
-    abort_controller: null,
-  });
+  streaming = new StreamingState();
   /************************************************************************************
    * [SECTION: UI ACTIONS]
    * ----------------------------------------------------------------------------------

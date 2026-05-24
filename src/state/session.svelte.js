@@ -26,7 +26,7 @@ export class ReactiveSession {
    * Centralized here to ensure atomicity.
    */
   incrementRound() {
-    runtime.round++;
+    runtime.round = Number(runtime.round || 0) + 1;
   }
 
   /**
