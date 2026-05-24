@@ -1,46 +1,41 @@
 {
   "compilerOptions": {
-    "moduleResolution": "bundler",
-    "target": "esnext",
-    "module": "esnext",
-    "lib": ["esnext", "dom", "dom.iterable"],
+    "allowArbitraryExtensions": true,
+    "allowJs": true,
     "baseUrl": ".",
+    "checkJs": true,
+    "lib": ["esnext", "dom", "dom.iterable"],
+    "module": "esnext",
+    "moduleResolution": "bundler",
     "paths": {
       "@/*": ["src/*"],
-      "@platform": ["src/platform/index.js"],
-      "@platform/*": ["src/platform/*"],
-      "@intelligence": ["src/intelligence/index.js"],
-      "@intelligence/*": ["src/intelligence/*"],
-      "@engine": ["src/engine/index.js"],
-      "@engine/*": ["src/engine/*"],
+      "@actions": ["src/ui/actions/index.js"],
+      "@actions/*": ["src/ui/actions/*"],
+      "@atoms/*": ["src/ui/atoms/*"],
+      "@components/*": ["src/ui/components/*"],
       "@data": ["src/data/index.js"],
       "@data/*": ["src/data/*"],
-      "@state": ["src/state/index.js"],
-      "@state/*": ["src/state/*"],
-      "@media": ["src/media/index.js"],
-      "@media/*": ["src/media/*"],
-      "@ui/*": ["src/ui/*"],
-      "@atoms/*": ["src/ui/atoms/*"],
-      "@actions/*": ["src/ui/actions/*"],
-      "@components/*": ["src/ui/components/*"],
       "@devmode/*": ["src/ui/devmode/*"],
       "@drawer/*": ["src/ui/drawer/*"],
+      "@engine": ["src/engine/index.js"],
+      "@engine/*": ["src/engine/*"],
+      "@intelligence": ["src/intelligence/index.js"],
+      "@intelligence/*": ["src/intelligence/*"],
+      "@media": ["src/media/index.js"],
+      "@media/*": ["src/media/*"],
+      "@platform": ["src/platform/index.js"],
+      "@platform/*": ["src/platform/*"],
       "@profile/*": ["src/ui/profile/*"],
+      "@state": ["src/state/index.js"],
+      "@state/*": ["src/state/*"],
       "@storyboard/*": ["src/ui/storyboard/*"],
-      "@storymode/*": ["src/ui/storymode/*"]
+      "@storymode/*": ["src/ui/storymode/*"],
+      "@ui/*": ["src/ui/*"]
     },
-    "checkJs": true,
-    "allowJs": true,
     "strict": true,
-    "allowArbitraryExtensions": true,
+    "target": "esnext",
     "verbatimModuleSyntax": true
   },
-  "include": [
-    "src/**/*",
-    "types.d.ts",
-    ".agents/skills/swarm/scripts/swarm-engine.js",
-    ".agents/skills/data/scripts/knowledge.js"
-  ],
   "exclude": [
     "**/.git/**",
     "**/archive/**",
@@ -69,5 +64,11 @@
     "scribbles.md",
     "test-results/",
     ".jules/"
+  ],
+  "include": [
+    "src/**/*",
+    "types.d.ts",
+    ".agents/skills/swarm/scripts/swarm-engine.js",
+    ".agents/skills/data/scripts/knowledge.js"
   ]
 }
