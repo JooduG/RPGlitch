@@ -95,6 +95,10 @@ export class ReactiveSession {
     app.simulation.loading = true;
 
     try {
+      // 1. ATOMIC CHRONO: Increment round before we send/generate to sync prompts & history
+      this.incrementRound();
+      app.log(`Simulation entering Round ${runtime.round}...`, "system");
+
       // PHASE 1: WARDEN (Observation)
       app.log("Security checking physics and causality...", "system");
 
@@ -105,11 +109,6 @@ export class ReactiveSession {
 
       // PHASE 3: ECHO (Affinity)
       app.log("Echo recording temporal affinity and syncing database...", "db");
-
-      // 1. ATOMIC CHRONO: Only increment once per successful interaction loop
-      // Deferred increment to prevent round desync on errors
-      this.incrementRound();
-      app.log(`Simulation entering Round ${runtime.round}...`, "system");
 
       // PHASE 4: PERSIST (Data)
       await runtime.save(runtime.round);

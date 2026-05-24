@@ -8,8 +8,6 @@
   import { entities as repository } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { kinetic_scroll } from "@ui/actions/kinetic.js";
-  import { quintOut } from "svelte/easing";
-  import { fly } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
@@ -99,7 +97,6 @@
     class:is-mini={app.viewport.mini}
     role="dialog"
     aria-labelledby="drawer-title"
-    transition:fly={{ y: "100%", duration: 500, easing: quintOut }}
   >
     <header class="header">
       <h4 id="drawer-title">{title}</h4>
@@ -168,6 +165,17 @@
     flex-direction: column;
     overflow: visible;
     box-shadow: var(--shadow-standard);
+    animation: slide-up 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  @keyframes slide-up {
+    from {
+      transform: translate(-50%, 100%);
+    }
+
+    to {
+      transform: translate(-50%, 0);
+    }
   }
 
   /* --- HEADER --- */

@@ -8,8 +8,6 @@
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { quintOut } from "svelte/easing";
-  import { slide } from "svelte/transition";
 
   /**
    * @typedef {Object} VectorItem
@@ -66,7 +64,7 @@
 
 <div class="root" style="--accent-color: {signature_color}">
   {#each items as item, i (item.id || i)}
-    <div transition:slide={{ duration: 400, easing: quintOut }}>
+    <div class="vector-item-wrapper">
       <TextField
         is_edit={state.is_editing}
         {signature_color}
@@ -151,7 +149,7 @@
   {/each}
 
   {#if items.length === 0 && !state.is_editing}
-    <div class="empty-state" in:slide>
+    <div class="empty-state">
       <span class="empty-msg">
         <svg
           viewBox="0 0 24 24"
@@ -171,6 +169,23 @@
 
 <style>
   /* --- LAYOUT --- */
+
+  .vector-item-wrapper,
+  .empty-state {
+    animation: slide-down-item 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  @keyframes slide-down-item {
+    from {
+      opacity: 0;
+      transform: translateY(calc(var(--spacing-unit) * -2.5));
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
 
   .root {
     width: 100%;

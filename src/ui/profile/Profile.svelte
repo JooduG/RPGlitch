@@ -17,7 +17,6 @@
   import VisualWing from "@profile/VisualWing.svelte";
   import { app } from "@state/app.svelte.js";
   import { themeStore } from "@media/palette.svelte.js";
-  import { fly } from "svelte/transition";
   // State & Utilities
   import { auto_resize } from "@ui/actions/resize.js";
   import { click_outside } from "@ui/actions/click-outside.js";
@@ -154,7 +153,7 @@
 
       <!-- 🦇 THE WINGS: Stacking on the right -->
       {#if has_wings}
-        <aside class="wings-container no-scrollbar" transition:fly={{ x: 20, duration: 400 }}>
+        <aside class="wings-container no-scrollbar">
           {#if state.is_editing}
             <VisualWing profileState={state} />
             <AudioWing profileState={state} />
@@ -190,7 +189,7 @@
         <div class="label-wrapper">
           <h5 class="section-label">
             {#if state.is_editing && state.hovered_section === section.id && arrayField}
-              <span class="add-hint" transition:fly={{ x: -10, duration: 300 }}>+ADD</span>
+              <span class="add-hint">+ADD</span>
             {/if}
             {section.label}
           </h5>
@@ -308,6 +307,19 @@
     justify-content: center;
     gap: var(--gap-standard);
     overflow-y: auto;
+    animation: slide-in-left 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+  }
+
+  @keyframes slide-in-left {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--spacing-unit) * 5));
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .profile-header {
@@ -564,6 +576,19 @@
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
     flex-shrink: 0;
+    animation: add-hint-fade 300ms ease-out forwards;
+  }
+
+  @keyframes add-hint-fade {
+    from {
+      opacity: 0;
+      transform: translateX(calc(var(--spacing-unit) * -2.5));
+    }
+
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
   }
 
   .section-sub {

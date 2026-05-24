@@ -338,6 +338,10 @@ export const gamemaster = {
         turn_type: "SYSTEM_TURN",
       });
       app.log("gamemaster: Prologue established (Round 0).", "system");
+
+      // Cleanly end the prologue fractal stream before initiating the AI follow-up hook
+      app.end_stream();
+
       // 2. The Hook: Trigger immediate AI follow-up to open the scene.
       // Ensure we transition simulationState to 'ai' role for the hook.
       return await this.execute_turn(story_id, { role: "ai" });
