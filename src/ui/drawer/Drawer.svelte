@@ -8,12 +8,17 @@
   import { entities as repository } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { kinetic_scroll } from "@ui/actions/kinetic.js";
+  import { resolve_ms } from "@ui/components/ui-helpers.js";
+  import { fly } from "svelte/transition";
+  import { quartOut } from "svelte/easing";
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import LibraryCard from "@drawer/LibraryCard.svelte";
 
   // --- STATE & DERIVATIONS ---
+
+  let duration = $derived(resolve_ms("--duration-slow", 400));
 
   let is_open = $derived(app.drawer.open);
 
@@ -97,6 +102,7 @@
     class:is-mini={app.viewport.mini}
     role="dialog"
     aria-labelledby="drawer-title"
+    transition:fly={{ y: 800, duration, easing: quartOut }}
   >
     <header class="header">
       <h4 id="drawer-title">{title}</h4>
@@ -154,8 +160,9 @@
   .drawer {
     position: fixed;
     bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 0;
+    right: 0;
+    margin-inline: auto;
     width: 100%;
     max-width: calc(var(--column-unit) * 10);
     max-height: var(--modal-height-standard);
@@ -165,17 +172,6 @@
     flex-direction: column;
     overflow: visible;
     box-shadow: var(--shadow-standard);
-    animation: slide-up 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
-  }
-
-  @keyframes slide-up {
-    from {
-      transform: translate(-50%, 100%);
-    }
-
-    to {
-      transform: translate(-50%, 0);
-    }
   }
 
   /* --- HEADER --- */
