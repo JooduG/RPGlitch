@@ -196,6 +196,14 @@
       profileState.busy_fields.delete("visual-prompt");
     }
   }
+
+  /**
+   * Prevents default behavior to maintain active focus states.
+   * @param {MouseEvent} e
+   */
+  function prevent_default(e) {
+    e.preventDefault();
+  }
 </script>
 
 <section class="wing glass-elevated">
@@ -269,6 +277,7 @@
             class="action"
             actions={[tooltip]}
             onclick={handle_creative_action}
+            onmousedown={prevent_default}
             disabled={is_creative_disabled}
           >
             {#if has_prompt_text}
@@ -294,6 +303,7 @@
             class="action"
             actions={[tooltip]}
             onclick={handle_generate}
+            onmousedown={prevent_default}
             disabled={!profileState.is_editing || is_prompt_busy}
           >
             <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
@@ -313,6 +323,7 @@
             class="action"
             actions={[tooltip]}
             onclick={handle_upload_portrait}
+            onmousedown={prevent_default}
             disabled={!profileState.is_editing || is_prompt_busy}
           >
             <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">

@@ -23,6 +23,10 @@ vi.mock("@data/repository.js", () => ({
   },
 }));
 
+vi.mock("@platform/security.js", () => ({
+  validateImage: vi.fn().mockResolvedValue(true),
+}));
+
 vi.mock("@data/db.js", () => ({
   db: {
     entities: {
@@ -170,17 +174,85 @@ describe("VisualEngine (Reactive)", () => {
       expect(window.pluginUpload).toHaveBeenCalled();
     });
 
-    it("should return null gracefully when pluginUpload is missing", async () => {
+    it("should return null gracefully when pluginUpload is missing and local picker cancels", async () => {
       // @ts-ignore
       const originalPluginUpload = window.pluginUpload;
       // @ts-ignore
       delete window.pluginUpload;
+
+      // Mock document.createElement to simulate cancellation
+      const originalCreateElement = document.createElement;
+      document.createElement = vi.fn().mockImplementation((tagName) => {
+        if (tagName === "input") {
+          const input = {
+            type: "",
+            accept: "",
+            oncancel: /** @type {Function | null} */ (null),
+            click: vi.fn(() => {
+              if (input.oncancel) input.oncancel();
+            }),
+          };
+          return input;
+        }
+        return originalCreateElement.call(document, tagName);
+      });
 
       const result = await visual_engine.upload();
 
       expect(result).toBeNull();
 
       // Restore
+      document.createElement = originalCreateElement;
+      // @ts-ignore
+      window.pluginUpload = originalPluginUpload;
+    });
+
+    it("should successfully upload an image via local fallback if pluginUpload is missing", async () => {
+      // @ts-ignore
+      const originalPluginUpload = window.pluginUpload;
+      // @ts-ignore
+      delete window.pluginUpload;
+
+      const mockDataUrl = "data:image/png;base64,local123";
+      const mockFile = new File(["dummy content"], "avatar.png", { type: "image/png" });
+
+      // Stub FileReader via vi.stubGlobal so globalThis.FileReader is intercepted
+      vi.stubGlobal(
+        "FileReader",
+        class MockFileReader {
+          onload = /** @type {any} */ (null);
+          onerror = /** @type {any} */ (null);
+          /** @param {File} _file */
+          readAsDataURL(_file) {
+            if (this.onload) this.onload({ target: { result: mockDataUrl } });
+          }
+        },
+      );
+
+      // Mock document.createElement to simulate selecting a file
+      const originalCreateElement = document.createElement.bind(document);
+      document.createElement = vi.fn().mockImplementation((tagName) => {
+        if (tagName === "input") {
+          return {
+            type: "",
+            accept: "",
+            onchange: /** @type {any} */ (null),
+            oncancel: /** @type {any} */ (null),
+            click() {
+              if (this.onchange) this.onchange({ target: { files: [mockFile] } });
+            },
+          };
+        }
+        return originalCreateElement(tagName);
+      });
+
+      const result = await visual_engine.upload();
+
+      expect(result).toBe(mockDataUrl);
+
+      // Restore
+      document.createElement = originalCreateElement;
+      vi.unstubAllGlobals(); // only FileReader was stubbed here
       // @ts-ignore
       window.pluginUpload = originalPluginUpload;
     });

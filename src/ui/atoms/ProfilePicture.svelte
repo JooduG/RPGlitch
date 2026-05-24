@@ -68,7 +68,6 @@
   const initials = $derived(placeholder_char || calculate_initials(name));
 
   // 2. Modifiers
-  const is_no_bg = $derived(entity?.modifiers?.no_background ?? false);
   const is_flipped = $derived(entity?.modifiers?.flipped ?? false);
 </script>
 
@@ -91,7 +90,6 @@
       src={media_url}
       alt={alt || `${name} Profile`}
       class="media"
-      class:no-bg={is_no_bg}
       class:flipped={is_flipped}
       onerror={() => (image_failed = true)}
     />

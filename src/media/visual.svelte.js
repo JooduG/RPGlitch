@@ -196,23 +196,69 @@ export class VisualEngine {
   }
 
   /**
-   * Triggers manual file upload using Perchance upload-plugin.
+   * Triggers manual file upload. Supports native Perchance upload-plugin when hosted,
+   * and falls back to a secure HTML5 local file picker with Zero-Trust image checks
+   * when running locally or offline.
    * @returns {Promise<string | null>}
    */
   async upload() {
     // @ts-ignore
-    if (!window.pluginUpload) return null;
-    return new Promise((resolve) => {
-      try {
-        // @ts-ignore
-        window.pluginUpload((dataUrl) => {
-          resolve(dataUrl || null);
-        });
-      } catch (err) {
-        console.error("[VisualEngine] Upload failure:", err);
-        resolve(null);
-      }
-    });
+    if (window.pluginUpload) {
+      return new Promise((resolve) => {
+        try {
+          // @ts-ignore
+          window.pluginUpload((dataUrl) => {
+            resolve(dataUrl || null);
+          });
+        } catch (err) {
+          console.error("[VisualEngine] Upload failure:", err);
+          resolve(null);
+        }
+      });
+    }
+
+    // Secure local fallback
+    try {
+      const { validateImage } = await import("@platform/security.js");
+      return new Promise((resolve) => {
+        const input = document.createElement("input");
+        input.type = "file";
+        input.accept = "image/*";
+
+        input.onchange = async (e) => {
+          const file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
+          if (!file) {
+            resolve(null);
+            return;
+          }
+
+          try {
+            await validateImage(file);
+            const reader = new globalThis.FileReader();
+            reader.onload = (event) => {
+              resolve(/** @type {string} */ (event.target?.result) || null);
+            };
+            reader.onerror = (err) => {
+              console.error("[VisualEngine] Local FileReader error:", err);
+              resolve(null);
+            };
+            reader.readAsDataURL(file);
+          } catch (err) {
+            console.error("[VisualEngine] Security validation failed:", err);
+            resolve(null);
+          }
+        };
+
+        input.oncancel = () => {
+          resolve(null);
+        };
+
+        input.click();
+      });
+    } catch (err) {
+      console.error("[VisualEngine] Local fallback initialisation failure:", err);
+      return null;
+    }
   }
 
   // --- Private Helpers ---
