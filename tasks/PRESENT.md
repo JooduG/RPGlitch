@@ -34,27 +34,30 @@ Enhancing story pacing and context window optimization.
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track Name                             | Priority | State       | Gap                                                                                                 |
-| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
-| UI Cleanup & Animation Purge           | 🔥 High  | [x] done    | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |
-| Memory Protocol & Consecutive Messages | 🔥 High  | [x] done    | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.     |
-| Reactivity & Turn Counter Fixes        | 🔥 High  | [x] 3a9c7d8 | Fix Svelte 5 proxy collisions, round coercion, etc.                                                 |
-| Image Upload Pipeline                  | 🔥 High  | [x] done    | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
-| UI Reactivity & Intent Locking         | 🔥 High  | [x] b7a935d | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                 |
-| Intelligence Polish                    | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                  |
-| DevMode StoryCard Refactor             | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.                   |
-| Storymode UI Refactor                  | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                    |
-| Profile Class Simplification           | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                   |
-| Profile Wings Cleanup                  | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                  |
-| Profile Design Cleanup                 | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                                             |
-| Sovereign Scaling Migration            | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                                          |
-| Storyboard Card Bleed Fix              | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                                              |
-| Drawer Contrast Rebuild                | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                                                |
+| Track Name                                     | Priority | State    | Gap                                                                                                 |
+| ---------------------------------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------- |
+| Architectural Flatness & Utility Consolidation | 🔥 High  | [x] done | Centralize helpers, flatten Storymode panels, and centralize reactive busy locks.                   |
+| UI Cleanup & Animation Purge                   | 🔥 High  | [x] done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |
+| Memory Protocol & Consecutive Messages         | 🔥 High  | [x] done | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.     |
+| Reactivity & Turn Counter Fixes                | 🔥 High  | [x] done | Fix Svelte 5 proxy collisions, round coercion, etc.                                                 |
+| Image Upload Pipeline                          | 🔥 High  | [x] done | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
+| UI Reactivity & Intent Locking                 | 🔥 High  | [x] done | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                 |
+| Intelligence Polish                            | 🔥 High  | [x] done | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                  |
+| DevMode StoryCard Refactor                     | 🔥 High  | [x] done | Fix clickability layering, correct border radius, active story, and refactor CSS.                   |
+| Storymode UI Refactor                          | 🔥 High  | [x] done | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                    |
+| Profile Class Simplification                   | 🔥 High  | [x] done | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                   |
+| Profile Wings Cleanup                          | 🔥 High  | [x] done | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                  |
+| Profile Design Cleanup                         | 🔥 High  | [x] done | Design cleanup of Profile.svelte, readonly & edit mode.                                             |
+| Spacing Migration                              | 🔥 High  | [x] done | Migrate from fit_text.js to CSS Container Queries & Clamp.                                          |
+| Storyboard Card Bleed Fix                      | 🟡 Med   | [x] done | Resolve text bleed in selection tarot.                                                              |
+| Drawer Contrast Rebuild                        | 🟡 Med   | [x] done | Contrast and visibility remediation.                                                                |
 
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601)      | Task                                                                                                                                                                                                            | Skill Invoked              | Outcome   |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------- |
+| 2026-05-24T19:46:00+02:00 | Complete Architectural Flatness & Utility Consolidation sweep: merge helpers, flatten storymode panels, converge state busy locks, and verify green build.                                                      | svelte + css + javascript  | ✅ Done   |
+| 2026-05-24T19:37:00+02:00 | Initialize Architectural Flatness & Utility Consolidation track, create implementation plan, and align task tracking.                                                                                           | planning + svelte + css    | ✅ Plan   |
 | 2026-05-24T19:15:00+02:00 | Complete UI Cleanup & Animation Purge track: remove tremor animations, TypingIndicator, tilt action, delete files, and run integrity checks.                                                                    | svelte + css + javascript  | ✅ Done   |
 | 2026-05-24T15:41:00+02:00 | Complete memory-protocol-consecutive-sender-fix-2026-05-24 track: collapse entire log before slicing, filter system messages, reset stasis indicator.                                                           | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T15:24:00+02:00 | Initialize memory-protocol-consecutive-sender-fix-2026-05-24 planning phase, create implementation plan.                                                                                                        | planning                   | ✅ Plan   |

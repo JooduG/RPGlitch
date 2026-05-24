@@ -10,7 +10,7 @@
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { app } from "@state/app.svelte.js";
   import { session } from "@state/session.svelte.js";
-  import { pickRandom } from "@ui/components/render-helpers.js";
+  import { pickRandom } from "@ui/components/ui-helpers.js";
   import { pulse, roll, shimmy } from "@ui/actions/kinetic.js";
 
   // --- ORCHESTRATION ---

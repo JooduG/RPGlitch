@@ -10,16 +10,15 @@ import { normalize } from "@data/normalizer.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
 import { visual_engine } from "@media/visual.svelte.js";
-import { generateUUID } from "@ui/components/render-helpers.js";
-import { resolve_px } from "@ui/components/dom-helpers.js";
+import { generateUUID, resolve_px } from "@ui/components/ui-helpers.js";
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState, uiState } from "@state/status.svelte.js";
 
-/** @typedef {import('./control.svelte.js').AppSettings} AppSettings */
-/** @typedef {import('./control.svelte.js').DrawerState} DrawerState */
-/** @typedef {import('./control.svelte.js').SimulationControl} SimulationControl */
-/** @typedef {import('./control.svelte.js').FateSystem} FateSystem */
+/** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
+/** @typedef {import('./status.svelte.js').DrawerState} DrawerState */
+/** @typedef {import('./status.svelte.js').SimulationControl} SimulationControl */
+/** @typedef {import('./status.svelte.js').FateSystem} FateSystem */
 
 /************************************************************************************
  * [SECTION: STATE DEFINITIONS]

@@ -5,7 +5,7 @@ import { runtime } from "@state/runtime.svelte.js";
 import { Engine } from "@engine/kernel.js";
 import { Shield } from "@platform/security.js";
 import { simulationState } from "@state/status.svelte.js";
-import { controlState } from "./control.svelte.js";
+import { controlState } from "./status.svelte.js";
 
 // Mock Security/Shield and Engine to avoid network requests and db access
 vi.mock("@platform/security.js", () => {

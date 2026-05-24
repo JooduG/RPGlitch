@@ -8,7 +8,7 @@ import { entities } from "@data/repository.js";
 import { db } from "@data/db.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState as simulation } from "@state/status.svelte.js";
-import { generateSecureSeed } from "@ui/components/render-helpers.js";
+import { generateSecureSeed } from "@ui/components/ui-helpers.js";
 import { ExponentialBackoffRetryer, CircuitBreaker } from "@media/resilience.js";
 import { getResolution, NEGATIVE_PROMPT } from "@media/optics.js";
 

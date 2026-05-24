@@ -6,7 +6,7 @@
  */
 import { PALETTE } from "@media/palette.svelte.js";
 import { Security } from "@platform/security.js";
-import { pickRandom } from "@ui/components/render-helpers.js";
+import { pickRandom } from "@ui/components/ui-helpers.js";
 const sanitize_html = Security.sanitize;
 export const STORAGE_VERSION = 3;
 /**

@@ -6,14 +6,15 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import Backdrop from "@atoms/Backdrop.svelte";
-  import { resolve_ms, resolve_px } from "@ui/components/dom-helpers.js";
+  import { resolve_ms, resolve_px } from "@ui/components/ui-helpers.js";
   import { use_actions } from "@ui/actions/use-actions.js";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
+  import { simulationState } from "@state/status.svelte.js";
 
   let {
     // State
-    busy = false,
+    busy = null, // Dynamic fallback
     blur = true, // Pass-through for Backdrop blur
     is_pass_through = false, // Interaction pass-through
 
@@ -32,6 +33,9 @@
     ...rest
   } = $props();
 
+  // Determine active busy state using the unified simulationState if busy is not explicitly passed
+  let is_busy = $derived(busy !== null ? busy : simulationState.busy);
+
   // The 'Fly' offset and durations are derived from design tokens.
   const offset = $derived(resolve_px("--spacing-5", 20));
   const duration_in = $derived(resolve_ms("--duration-standard", 350));
@@ -48,7 +52,7 @@
 <Backdrop
   onclick={on_close}
   {z_index}
-  {busy}
+  busy={is_busy}
   is_blurred={blur}
   {is_pass_through}
   class="{variant}-backdrop"
@@ -56,7 +60,7 @@
   <div
     {...rest}
     class="root glass-elevated {variant} {className}"
-    class:is-busy={busy}
+    class:is-busy={is_busy}
     role="dialog"
     aria-modal="true"
     tabindex="-1"

@@ -13,7 +13,6 @@
   import { session } from "@state/session.svelte.js";
   import { app } from "@state/app.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import { controlState } from "@state/control.svelte.js";
   import { spin, stab } from "@ui/actions/kinetic.js";
 
   /**
@@ -33,9 +32,7 @@
   let textarea = $state();
 
   /** [R5] Auto-disable when engine is busy */
-  let is_locked = $derived(
-    disabled || simulationState.phase !== "idle" || controlState.intent_active,
-  );
+  let is_locked = $derived(disabled || simulationState.busy);
 
   /** The user's signature color for accenting the send button */
   let signature_color = $derived(
@@ -59,7 +56,7 @@
     const text = value.trim();
     if (!text || is_locked) return;
 
-    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    simulationState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     value = ""; // Clear immediately for UX
     adjust_height(); // Reset height
 
@@ -67,7 +64,7 @@
       await session.send(text);
     } catch (e) {
       console.error("Failed to send message:", e);
-      controlState.set_intent_active(false); // Release lock on error
+      simulationState.set_intent_active(false); // Release lock on error
     }
   }
 

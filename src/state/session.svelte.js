@@ -3,8 +3,7 @@ import { session_driver } from "@engine/session.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import "@state/log.svelte.js";
-import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
-import { controlState } from "@state/control.svelte.js";
+import { simulationState, controlState } from "@state/status.svelte.js"; // [R5] Unified State
 
 /**
  * src/state/session.svelte.js

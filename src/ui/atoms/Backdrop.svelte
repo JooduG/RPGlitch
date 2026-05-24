@@ -7,7 +7,7 @@
    */
   import { use_actions } from "@ui/actions/use-actions.js";
   import { fade } from "svelte/transition";
-  import { resolve_ms } from "@ui/components/dom-helpers.js";
+  import { resolve_ms } from "@ui/components/ui-helpers.js";
 
   let {
     // State

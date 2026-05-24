@@ -157,7 +157,7 @@
 <script>
   import { portal } from "@ui/actions/portal.js";
   import { scale } from "svelte/transition";
-  import { resolve_px } from "@ui/components/dom-helpers.js";
+  import { resolve_px } from "@ui/components/ui-helpers.js";
 
   // --- RENDERER LOGIC ---
   /** @type {HTMLElement | null} */

@@ -15,7 +15,7 @@
   import StoryCard from "./StoryCard.svelte";
 
   /** @typedef {import('@data/repository.js').Story} Story */
-  /** @typedef {import('@state/control.svelte.js').AppSettings} AppSettings */
+  /** @typedef {import('@state/status.svelte.js').AppSettings} AppSettings */
   /** @typedef {'ai' | 'fractal'} MockRole */
 
   /**

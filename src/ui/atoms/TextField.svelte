@@ -9,7 +9,7 @@
   import { parse_markdown } from "@ui/components/markdown.js";
   import { use_actions } from "@ui/actions/use-actions.js";
   import { fade } from "svelte/transition";
-  import { controlState } from "@state/control.svelte.js";
+  import { controlState } from "@state/status.svelte.js";
 
   let {
     // Data

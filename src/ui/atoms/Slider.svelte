@@ -1,6 +1,6 @@
 <script>
   import { use_actions } from "@ui/actions/use-actions.js";
-  import { controlState } from "@state/control.svelte.js";
+  import { controlState } from "@state/status.svelte.js";
 
   /**
    * @typedef {Object} Props
