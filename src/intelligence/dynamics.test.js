@@ -39,7 +39,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       // 80 - 7.5 = 72.5 -> Round to 73
       expect(state.ai.dynamics.intensity).toBe(73);
       expect(
-        state.signal_prompts.some((/** @type {string} */ i) => i.includes("Pacing fast")),
+        state.signal_prompts.some((/** @type {string} */ i) => i.includes("high-adrenaline")),
       ).toBe(true);
       expect(state.signals.ADRENALINE).toBe(true);
     });

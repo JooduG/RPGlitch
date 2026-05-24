@@ -37,14 +37,15 @@
  * @property {string} scan
  * @property {any} [config]
  */
-
 export const DYNAMICS = [
-  // 🧪 AI SOMATICS (Passive Signals)
+  // 📈 INTENSITY METRIC (AI Somatics & Physics)
   {
     id: "ADRENALINE",
     trigger: "turn",
     filter: { above: { intensity: 70 } },
-    effect: { text: "Pacing fast. Short sentences. High-stakes urgency." },
+    effect: {
+      text: "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
+    },
   },
   {
     id: "SLOW_MOTION",
@@ -54,6 +55,14 @@ export const DYNAMICS = [
       text: "Pacing slow. Heavy fatigue. Deliberate, languid actions.",
     },
   },
+  {
+    id: "INTENSITY_AUTO_LOCK",
+    trigger: "turn",
+    filter: { above: { intensity: 90 } },
+    effect: { ai: { openness: -10 } },
+  },
+
+  // 🌪️ CHAOS METRIC (AI Somatics & Physics)
   {
     id: "HACK",
     trigger: "turn",
@@ -69,6 +78,14 @@ export const DYNAMICS = [
     effect: { text: "High clarity. Sharp recall. Stable environment." },
   },
   {
+    id: "CHAOS_AUTO_HEAT",
+    trigger: "turn",
+    filter: { above: { chaos: 90 } },
+    effect: { ai: { intensity: 10 } },
+  },
+
+  // 🔓 OPENNESS METRIC (AI Somatics & Physics)
+  {
     id: "VULNERABILITY",
     trigger: "turn",
     filter: { above: { openness: 70 } },
@@ -78,8 +95,18 @@ export const DYNAMICS = [
     id: "IRON_CURTAIN",
     trigger: "turn",
     filter: { below: { openness: 30 } },
-    effect: { text: "Cold deflection. Calculated silence. Guarded secrets." },
+    effect: {
+      text: "The character maintains cold distance, deflecting personal inquiries with calculated silence and guarded secrets.",
+    },
   },
+  {
+    id: "OPENNESS_AUTO_GLITCH",
+    trigger: "turn",
+    filter: { above: { openness: 90 } },
+    effect: { ai: { chaos: 15 } },
+  },
+
+  // 🤝 AFFINITY METRIC (AI Somatics & Physics)
   {
     id: "SYNCHRONY",
     trigger: "turn",
@@ -94,7 +121,14 @@ export const DYNAMICS = [
       text: "Repulsion. Hostile distance. Passive-aggressive friction.",
     },
   },
-  // 🌍 ENVIRONMENTAL FRACTAL (Passive Signals)
+  {
+    id: "AFFINITY_AUTO_OPEN",
+    trigger: "turn",
+    filter: { above: { affinity: 90 } },
+    effect: { ai: { openness: 5 } },
+  },
+
+  // 🚀 VELOCITY METRIC (World / Fractal Dynamics)
   {
     id: "HIGH_VELOCITY",
     trigger: "turn",
@@ -107,11 +141,15 @@ export const DYNAMICS = [
     filter: { below: { velocity: 30 } },
     effect: { text: "Environmental stasis. Time stretching." },
   },
+
+  // 📉 ENTROPY METRIC (World / Fractal Dynamics)
   {
     id: "HIGH_ENTROPY",
     trigger: "turn",
     filter: { above: { entropy: 70 } },
-    effect: { text: "Structural reality degrading. Hostile environment." },
+    effect: {
+      text: "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+    },
   },
   {
     id: "LOW_ENTROPY",
@@ -119,32 +157,8 @@ export const DYNAMICS = [
     filter: { below: { entropy: 30 } },
     effect: { text: "Structural harmony. Safe, predictable physics." },
   },
-  // ⚖️ PHYSICS LAWS (Ongoing Numerical Effects Each Turn)
-  {
-    id: "INTENSITY_AUTO_LOCK",
-    trigger: "turn",
-    filter: { above: { intensity: 90 } },
-    effect: { ai: { openness: -10 } },
-  },
-  {
-    id: "CHAOS_AUTO_HEAT",
-    trigger: "turn",
-    filter: { above: { chaos: 90 } },
-    effect: { ai: { intensity: 10 } },
-  },
-  {
-    id: "OPENNESS_AUTO_GLITCH",
-    trigger: "turn",
-    filter: { above: { openness: 90 } },
-    effect: { ai: { chaos: 15 } },
-  },
-  {
-    id: "AFFINITY_AUTO_OPEN",
-    trigger: "turn",
-    filter: { above: { affinity: 90 } },
-    effect: { ai: { openness: 5 } },
-  },
-  // ⚡ IMPULSES (Active Triggers)
+
+  // ⚡ ACTIVE IMPULSES (Active Triggers)
   {
     id: "SHARD",
     trigger: [
@@ -243,7 +257,7 @@ export const DYNAMICS = [
       fractal: { entropy: -5, velocity: -10 },
     },
   },
-  // REACTIONS (Conditional Active Triggers)
+  // ⚖️ REACTIONS (Conditional Active Triggers)
   {
     id: "SUSPICIOUS",
     trigger: [

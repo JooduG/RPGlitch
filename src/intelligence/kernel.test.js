@@ -4,6 +4,8 @@ import { context_broker } from "@intelligence/context.svelte.js";
 import { prompt_builder } from "@intelligence/prompts.js";
 import { llm_service } from "@platform/transport.js";
 import { session_driver } from "@engine/session.svelte.js";
+import { dynamics_engine } from "@intelligence/dynamics.js";
+import { runtime } from "@state/runtime.svelte.js";
 
 // Mock dependencies
 vi.mock("@intelligence/context.svelte.js", () => ({
@@ -181,57 +183,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(result).toBe("And so it ends.");
   });
 
-  describe("generate_narrative_bridges()", () => {
-    it("should generate narrative bridges for high entropy", () => {
-      const state = {
-        fractal: { dynamics: { entropy: 90 } },
-        signal_prompts: ["Ambient chill."],
-      };
-
-      const bridges = gamemaster.generate_narrative_bridges(state);
-      expect(bridges).toContain(
-        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches and non-linear decay directly into the background texture.",
-      );
-    });
-
-    it("should generate narrative bridges for high intensity", () => {
-      const state = {
-        ai: { dynamics: { intensity: 90 } },
-        signal_prompts: [],
-      };
-
-      const bridges = gamemaster.generate_narrative_bridges(state);
-      expect(bridges).toContain(
-        "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
-      );
-    });
-
-    it("should generate narrative bridges for low openness", () => {
-      const state = {
-        ai: { dynamics: { openness: 10 } },
-        signal_prompts: [],
-      };
-
-      const bridges = gamemaster.generate_narrative_bridges(state);
-      expect(bridges).toContain(
-        "The character maintains cold distance, naturally deflecting personal inquiries within their dialogue.",
-      );
-    });
-
-    it("should combine existing signal prompts with GM bridges", () => {
-      const state = {
-        ai: { dynamics: { intensity: 90 } },
-        signal_prompts: ["Existing signal."],
-      };
-
-      const bridges = gamemaster.generate_narrative_bridges(state);
-      expect(bridges).toEqual([
-        "Existing signal.",
-        "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
-      ]);
-    });
-  });
-
   describe("Post-Turn Validation Circuit-Breaker Integration", () => {
     const mockPayload = {
       input: "Hello",
@@ -335,6 +286,115 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       expect(result.response).toBe("");
+    });
+  });
+
+  describe("Asynchronous Validation Isolation & Telemetry Unification", () => {
+    const mockPayload = {
+      input: "shoot kill attack", // triggers VIOLENCE dynamics
+      type: "simulation",
+      round: 1,
+      entities: {
+        AI: { name: "Viper", dynamics: { intensity: 50 } },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void", dynamics: { entropy: 50 } },
+      },
+      view_id: "global",
+      simulation_log: "",
+      rawMessages: [],
+      meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
+    };
+
+    beforeEach(() => {
+      vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
+      vi.mocked(prompt_builder.synthesize).mockReturnValue({
+        system: "PROMPT",
+        meta: {
+          ai: { intensity: 50 },
+          fractal: { entropy: 50 },
+          flags: [],
+          signal_prompts: [],
+          signals: {},
+          vectors: { past: [], future: [] },
+        },
+      });
+      runtime.ai = { intensity: 50 };
+      runtime.fractal = { entropy: 50 };
+    });
+
+    it("verifies and repairs truncated text structural anomalies BEFORE updating physics engine metrics", async () => {
+      const simulateSpy = vi.spyOn(dynamics_engine, "simulate");
+      vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
+
+      await gamemaster.execute_turn("story-123", {
+        input: "shoot kill attack",
+        role: "ai",
+      });
+
+      // The first call is the pre-simulation: input is mockPayload (shoot kill attack)
+      // The second call is the post-simulation: input MUST be the repaired text
+      expect(simulateSpy).toHaveBeenCalledTimes(2);
+      const postSimulationCall = simulateSpy.mock.calls[1][0];
+      expect(postSimulationCall.input).toBe("<think>Analyzing user state</think>");
+
+      simulateSpy.mockRestore();
+    });
+
+    it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
+      const telemetrySpy = vi.spyOn(gamemaster, "capture_dynamics_delta");
+      vi.mocked(llm_service.generate).mockResolvedValue("Clean output response");
+
+      await gamemaster.execute_turn("story-123", {
+        input: "Hello",
+        role: "ai",
+      });
+
+      expect(telemetrySpy).toHaveBeenCalledTimes(1);
+      telemetrySpy.mockRestore();
+    });
+
+    it("leaves global runtime state dynamics completely untouched by pre-generation physics snapshots during generation", async () => {
+      // Setup dynamic metrics in pre-simulation that differ from start state
+      runtime.ai = { intensity: 50 };
+
+      // Inside generate, we assert that runtime has NOT been mutated by pre-generation physics
+      vi.mocked(llm_service.generate).mockImplementation(async () => {
+        expect(runtime.ai?.intensity).toBe(50);
+        return "shoot kill attack";
+      });
+
+      await gamemaster.execute_turn("story-123", {
+        input: "shoot kill attack", // pre-generation physics would shift intensity if synced early
+        role: "ai",
+      });
+
+      // After execution turn completes, it should be updated with the post-generation dynamics
+      expect(runtime.ai?.intensity).not.toBe(50);
+    });
+
+    it("injects HIGH_ENTROPY narrative bridge when entropy > 70 declaratively", async () => {
+      const payloadWithHighEntropy = {
+        ...mockPayload,
+        entities: {
+          ...mockPayload.entities,
+          FRACTAL: { name: "Void", dynamics: { entropy: 90 } },
+        },
+      };
+      vi.mocked(context_broker.hydrate).mockResolvedValue(payloadWithHighEntropy);
+
+      const synthesizeSpy = vi.mocked(prompt_builder.synthesize);
+      vi.mocked(llm_service.generate).mockResolvedValue("Clean output");
+
+      await gamemaster.execute_turn("story-123", {
+        input: "Hello",
+        role: "ai",
+      });
+
+      expect(synthesizeSpy).toHaveBeenCalled();
+      const snapshotPassed = synthesizeSpy.mock.calls[0][1];
+      expect(snapshotPassed.signal_prompts).toContain(
+        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+      );
     });
   });
 });

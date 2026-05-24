@@ -93,38 +93,6 @@ function validate_and_repair_response(response) {
 
 export const gamemaster = {
   /**
-   * THE MECHANICAL GATE
-   * Translates raw dynamical thresholds into narrative directives.
-   * @param {{ ai?: any; fractal?: any; flags?: string[]; signals?: Record<string, any>; signal_prompts: any; contributors?: Record<string, string[]>; key?: Record<string, any> | undefined; }} state
-   */
-  generate_narrative_bridges(state) {
-    const bridges = [...(state.signal_prompts || [])];
-
-    // Entropy / Reality Stability
-    if (state.fractal?.dynamics?.entropy > 80) {
-      bridges.push(
-        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches and non-linear decay directly into the background texture.",
-      );
-    }
-
-    // AI Somatics
-    if (state.ai?.dynamics?.intensity > 85) {
-      bridges.push(
-        "The pacing is high-adrenaline. Express this intensity strictly through short sentences and immediate sensory physics.",
-      );
-    }
-
-    // Low Openness / Guarded
-    if (state.ai?.dynamics?.openness < 20) {
-      bridges.push(
-        "The character maintains cold distance, naturally deflecting personal inquiries within their dialogue.",
-      );
-    }
-
-    return bridges;
-  },
-
-  /**
    * CAPTURE DYNAMICS DELTA
    * Detects changes in entity dynamics and logs a telemetry entry.
    * @param {{ ai: any; fractal: any; flags?: string[]; signals?: any; signal_prompts?: string[]; contributors?: any; key?: Record<string, any> | undefined; }} snapshot
@@ -201,15 +169,8 @@ export const gamemaster = {
         character_name: m.character_name,
       }));
     const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
-    // 3. SIMULATION: Resolve physics and behaviors
+    // 3. SIMULATION: Evaluate world physics snapshot prior to generation
     const snapshot = dynamics_engine.simulate(payload);
-
-    // 3.1 TELEMETRY: Capture deltas before runtime update
-    await this.capture_dynamics_delta(snapshot);
-
-    // 3.5. MECHANICAL GATE: Inject GM bridges
-    const gm_bridges = this.generate_narrative_bridges(snapshot);
-    snapshot.signal_prompts = [...(snapshot.signal_prompts || []), ...gm_bridges];
 
     // 3.6. COMPRESSION LAYER
     const compressed_entities = {
@@ -231,14 +192,14 @@ export const gamemaster = {
 
     // 4. SYNTHESIS: Build the final prompt
     const { system, meta } = prompt_builder.synthesize(payload, snapshot);
-    // 5. UPDATE: Synchronize runtime physics
-    runtime.ai = snapshot.ai.dynamics;
-    runtime.fractal = snapshot.fractal.dynamics;
-    runtime.turn_type = "AI_TURN";
+
+    // 5. TRANSITION & LOGGING: Decoupled from dynamic metric mutations
     app.log(
       "gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
       "system",
     );
+    runtime.turn_type = "AI_TURN";
+
     // 6. GENERATION: Call the model with retry logic
     const response = await this.execute_with_retry(async () => {
       const {
@@ -274,7 +235,8 @@ export const gamemaster = {
         },
       );
     });
-    // 6.5. POST-GENERATION SCAN: Scan AI response to trigger further physics mutations
+
+    // 6.5. POST-GENERATION PIPELINE: Isolated validation, physics, telemetry, and state sync
     /** @type {any} */
     let final_meta = { ...meta };
     const validationResult = validate_and_repair_response(response || "");
@@ -287,10 +249,10 @@ export const gamemaster = {
       };
       const post_snapshot = dynamics_engine.simulate(post_payload);
 
-      // Capture and log the dynamics delta for this post-generation pass
+      // Capture and log the dynamics delta for this post-generation pass exactly once
       await this.capture_dynamics_delta(post_snapshot);
 
-      // Sync the post-generation settled physics to runtime
+      // Sync the post-generation settled physics to runtime exactly once
       runtime.ai = post_snapshot.ai.dynamics;
       runtime.fractal = post_snapshot.fractal.dynamics;
 
