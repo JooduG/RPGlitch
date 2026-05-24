@@ -106,7 +106,7 @@
     "@playwright/test": "^1.58.2",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@testing-library/svelte": "^5.3.1",
-    "@types/node": "^25",
+    "@types/node": "^20.19.41",
     "@vitest/browser": "^4.1.2",
     "@vitest/browser-playwright": "^4.1.2",
     "@vitest/ui": "^4.1.2",

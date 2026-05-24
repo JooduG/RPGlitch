@@ -203,7 +203,7 @@ export class VisualEngine {
    */
   async upload() {
     // @ts-ignore
-    if (window.pluginUpload) {
+    if (typeof window.pluginUpload === 'function') {
       return new Promise((resolve) => {
         try {
           // @ts-ignore
