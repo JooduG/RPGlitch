@@ -2,7 +2,6 @@
 name: RPGlitch
 version: alpha
 colors:
-  background-base: var(--chalk)
   background-gradient-1: "#0b101a"
   background-gradient-2: "#14182b"
   background-gradient-3: "#1e1b38"
@@ -12,8 +11,6 @@ colors:
   crimson-red: "#ef4444"
   danger-color: var(--crimson-red)
   deep-indigo: "#818cf8"
-  dev-header-bg-active: rgb(from var(--frisk) r g b / var(--opacity-ghost))
-  dev-header-bg-dormant: rgb(from var(--void-black) r g b / var(--opacity-muted))
   electric-cyan: "#11aecc"
   emerald-green: "#10b981"
   font-color-base: var(--frisk)
@@ -115,7 +112,6 @@ components:
   brightness-dim: brightness(0.9)
   brightness-glow: brightness(1.1)
   brightness-muted: brightness(0.3)
-  contrast-tension: contrast(1.1)
   danger-glow: 0 0 calc(var(--spacing-unit) * 3) var(--crimson-red)
   danger-hover-shadow: |-
     0 0 calc(var(--spacing-unit) * 4)
@@ -141,8 +137,7 @@ components:
   kinetic-drag-threshold: "10"
   kinetic-momentum-friction: "0.95"
   kinetic-scroll-multiplier: "1.5"
-  kinetic-shimmy-offset: var(--kinetic-shimmy-tremor)
-  kinetic-shimmy-tremor: var(--spacing-pixel)
+  kinetic-shimmy-offset: var(--spacing-pixel)
   kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
   kinetic-slide-y: calc(var(--spacing-pixel) * 10)
   kinetic-stab-distance: var(--spacing-unit)
@@ -170,7 +165,6 @@ components:
   profile-width: calc(var(--column-unit) * 6)
   profile-wings-left: calc(var(--column-unit) * 8)
   profile-wings-width: calc(var(--column-unit) * 3)
-  saturation-tension: saturate(1.2)
   scale-lift: scale(1.02)
   scale-pulse: scale(1.05)
   scale-sink: scale(0.96)
@@ -337,7 +331,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 1. **The Source**: All changes start in **DESIGN.md**.
 2. **The Sync**: `npm run sync:design` triggers the Weaver to generate `design.css` and `tokens.js`.
 3. **The Audit**: `npm run audit:css` (The Warden) ensures 100% compliance across the codebase.
-4. **The Handoff**:
+4. **The Handoff**: Automatic build gate verification secures token compliance prior to deployment.
 
 ---
 

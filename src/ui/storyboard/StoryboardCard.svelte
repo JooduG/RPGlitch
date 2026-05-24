@@ -162,7 +162,7 @@
   .root:hover :global(.body) {
     /* prettier-ignore */
     background-color: rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-ghost)) !important;
-    filter: var(--brightness-glow) var(--contrast-tension);
+    filter: var(--brightness-glow);
     /* stylelint-disable scale-unlimited/declaration-strict-value */
 
     /* prettier-ignore */
