@@ -4,7 +4,6 @@
    * ❄️ THE SIMULATION MESSAGE
    * Renders parsed messages in a Unified Nordic Chassis.
    */
-  import TypingIndicator from "@atoms/TypingIndicator.svelte";
   import { parse_message } from "@intelligence/parser.js";
   import DataBox from "@devmode/DataBox.svelte";
   import { app } from "@state/app.svelte.js";
@@ -253,13 +252,6 @@
             {#if streaming_has_display_text}
               <div use:typewriter={streaming_display_text}></div>
             {/if}
-            <div class="thinking-wrapper">
-              <TypingIndicator variant="pill" {signature_color} />
-            </div>
-          </div>
-        {:else if busy && !text}
-          <div class="thinking-wrapper">
-            <TypingIndicator variant="pill" {signature_color} />
           </div>
         {:else}
           {#if app.settings.dev_mode}
@@ -292,12 +284,6 @@
 
           {#if has_display_text}
             <div class="message-content" use:safe_html={display_text}></div>
-          {/if}
-
-          {#if busy && !has_display_text}
-            <div class="thinking-wrapper">
-              <TypingIndicator variant="pill" {signature_color} />
-            </div>
           {/if}
         {/if}
       </div>
@@ -562,11 +548,6 @@
 
   .message-content :global(p:last-child) {
     margin-bottom: 0;
-  }
-
-  .thinking-wrapper {
-    display: flex;
-    padding: var(--padding-standard) 0;
   }
 
   /* --- BUSY ANIMATION (The "Something") --- */

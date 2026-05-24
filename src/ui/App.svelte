@@ -43,7 +43,6 @@
   class="root"
   class:is-storyboard={app.view === "storyboard"}
   class:is-storymode={app.view === "storymode"}
-  class:is-tense={app.tension > 0}
 >
   <ImagePreview />
 
@@ -75,11 +74,6 @@
     overflow: hidden;
     z-index: var(--z-index-surface);
     animation: fade-in 800ms var(--ease-standard) forwards;
-  }
-
-  .root.is-tense {
-    animation: tremor var(--duration-ambient) infinite var(--ease-standard);
-    filter: var(--saturation-tension) var(--contrast-tension);
   }
 
   /* ── Atmospheric Stage ─────────────────────────────────────── */
@@ -130,31 +124,6 @@
   }
 
   /* ── Kinetic Physics ──────────────────────────────────────── */
-
-  @keyframes tremor {
-    0%,
-    100% {
-      transform: translate(0, 0) scale(1);
-    }
-
-    25% {
-      transform: translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-offset))
-        var(--scale-pulse);
-    }
-
-    50% {
-      transform: translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-offset) * -1))
-        var(--scale-pulse);
-    }
-
-    75% {
-      transform: translate(
-          calc(var(--kinetic-shimmy-offset) * -1),
-          calc(var(--kinetic-shimmy-offset) * -1)
-        )
-        var(--scale-pulse);
-    }
-  }
 
   @keyframes fade-in {
     from {

@@ -36,6 +36,7 @@ Enhancing story pacing and context window optimization.
 
 | Track Name                             | Priority | State       | Gap                                                                                                 |
 | -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| UI Cleanup & Animation Purge           | 🔥 High  | [x] done    | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |
 | Memory Protocol & Consecutive Messages | 🔥 High  | [x] done    | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.     |
 | Reactivity & Turn Counter Fixes        | 🔥 High  | [x] 3a9c7d8 | Fix Svelte 5 proxy collisions, round coercion, etc.                                                 |
 | Image Upload Pipeline                  | 🔥 High  | [x] done    | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
@@ -54,6 +55,7 @@ Enhancing story pacing and context window optimization.
 
 | Reference (ISO 8601)      | Task                                                                                                                                                                                                            | Skill Invoked              | Outcome   |
 | ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------- |
+| 2026-05-24T19:15:00+02:00 | Complete UI Cleanup & Animation Purge track: remove tremor animations, TypingIndicator, tilt action, delete files, and run integrity checks.                                                                    | svelte + css + javascript  | ✅ Done   |
 | 2026-05-24T15:41:00+02:00 | Complete memory-protocol-consecutive-sender-fix-2026-05-24 track: collapse entire log before slicing, filter system messages, reset stasis indicator.                                                           | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T15:24:00+02:00 | Initialize memory-protocol-consecutive-sender-fix-2026-05-24 planning phase, create implementation plan.                                                                                                        | planning                   | ✅ Plan   |
 | 2026-05-24T10:52:00+02:00 | Complete follow-up stasis lock realignments: simulationState phase reset to idle inside finally blocks, hardened is_thinking derivation in Storymode.svelte.                                                    | svelte + test + javascript | ✅ Done   |

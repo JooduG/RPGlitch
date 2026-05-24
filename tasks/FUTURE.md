@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                                           |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :-------------------------------------------------------------------------------------------------- |
+| `ui-cleanup-animation-decommissioning-2026-05-24`   | UI Cleanup & Animation Purge           | P0       | ✅ Done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |
 | `memory-protocol-consecutive-sender-fix-2026-05-24` | Memory Protocol & Consecutive Messages | P0       | ✅ Done | Merge consecutive messages from same actor, filter system telemetry, clear loader bubble.           |
 | `reactivity-crash-fix-2026-05-24`                   | Reactivity & Turn Counter Fixes        | P0       | ✅ Done | Fix Svelte 5 proxy collisions, round coercion, and secure try-finally execution loops.              |
 | `image-upload-pipeline-2026-05-24`                  | Image Upload Pipeline                  | P0       | ✅ Done | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
