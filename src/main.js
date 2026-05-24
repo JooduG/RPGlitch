@@ -19,7 +19,7 @@ if (!win.rpgLists) {
   console.info("[Engine] Injected mock rpgLists for local dev.");
 }
 // 🚀 BOOTSTRAP
-import { AppBootstrap } from "@engine/boot.js";
+import { AppBootstrap } from "@engine";
 AppBootstrap.init().then(() => {
   console.info("[Engine] Entry point active. Handing off to Bootstrap.");
 });

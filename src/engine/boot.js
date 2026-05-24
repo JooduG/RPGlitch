@@ -1,10 +1,7 @@
-// src/core/bootstrap.js
-import { sanitizeToFragment } from "@platform/security.js";
-import { seed_premades } from "@data/repository.js";
-import { Audio } from "@media/audio.svelte.js";
-import { app } from "@state/app.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
-import App from "@ui/App.svelte";
+import { seed_premades } from "@data";
+import { App, Audio } from "@media";
+import { sanitizeToFragment } from "@platform";
+import { app, runtime } from "@state";
 import { mount } from "svelte";
 
 let has_initialized = false;

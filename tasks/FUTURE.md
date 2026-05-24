@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                            | Name                                   | Priority | Status  | Objective                                                                             |
 | :-------------------------------------------------- | :------------------------------------- | :------- | :------ | :------------------------------------------------------------------------------------ |
+| `re-routing-optimization-2026-05-24`                | Re-Routing Optimization Sweep          | P0       | ✅ Done | Clean barrel patterns, replace deep imports in main.js and boot.js with folder gates. |
 | `tab-context-coupling-2026-05-24`                   | Tab-Context Coupling                   | P0       | ✅ Done | Bind UI activeId (Chin) to ContextBroker; loadViewContext flushes+hibernates vectors. |
 | `ui-reactivity-stabilization-2026-05-24`            | UI Reactivity & Intent Locking         | P0       | ✅ Done | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.   |
 | `protocol-library-compression-2026-05-24`           | Protocol Library Compression           | P0       | ✅ Done | Strip internal uppercase headers and trailing colons from PROTOCOL_LIBRARY strings.   |
