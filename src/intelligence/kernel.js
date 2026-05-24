@@ -294,6 +294,10 @@ export const gamemaster = {
       // 8. TRANSITION: Open the window for User
       runtime.turn_type = "USER_TURN";
 
+      // Cleanly end the active generation stream before we trigger memory consolidation (which takes time)
+      app.end_stream();
+      simulationState.complete(); // Ensure typing indicator clears instantly before consolidate runs
+
       // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
       await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
 

@@ -15,6 +15,33 @@ describe("prompt_builder (Refactored)", () => {
       expect(result).toContain('role="FRACTAL"');
     });
 
+    it("render_history() should collapse consecutive messages of the same entity before slicing", () => {
+      const history = [
+        { role: "user", content: "Hello", character_name: "Ghost" },
+        { role: "user", content: "Are you there?", character_name: "Ghost" },
+        { role: "assistant", content: "Greetings", character_name: "Viper" },
+        { role: "assistant", content: "I am ready.", character_name: "Viper" },
+      ];
+      // When sliced with count = 2, it should output exactly 2 collapsed entries:
+      // entry 1: Ghost's collapsed message
+      // entry 2: Viper's collapsed message
+      const result = prompt_builder.render_history(history, 2);
+      expect(result).toContain('name="Ghost">Hello\n\nAre you there?</entry>');
+      expect(result).toContain('name="Viper">Greetings\n\nI am ready.</entry>');
+    });
+
+    it("render_history() should filter out system messages", () => {
+      const history = [
+        { role: "user", content: "Hello", character_name: "Ghost" },
+        { role: "system", content: "Vector Resolved: ..." },
+        { role: "assistant", content: "Greetings", character_name: "Viper" },
+      ];
+      const result = prompt_builder.render_history(history, 2);
+      expect(result).toContain('name="Ghost">Hello</entry>');
+      expect(result).toContain('name="Viper">Greetings</entry>');
+      expect(result).not.toContain("Vector Resolved");
+    });
+
     it("render_protocols() should return bulleted list of defined protocols", () => {
       const result = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
       expect(result).toContain("- Advance scene parameters");

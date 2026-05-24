@@ -176,17 +176,29 @@ export const llm_service = {
   },
   /**
    * Formats message history into a plain readable string for the instruction block.
+   * Collapses consecutive messages from the same character label into a single entry.
+   * Skips any system telemetry log entries to prevent prompt pollution.
    * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
    * @returns {string}
    */
-  _format_history: (messages) =>
-    messages
-      .map((m) => {
-        const label =
-          m.character_name ||
-          (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
-        const text = m.content || m.text || "";
-        return `[[${label}]]: ${text}`;
-      })
-      .join("\n\n"),
+  _format_history: (messages) => {
+    if (!Array.isArray(messages) || messages.length === 0) return "";
+    /** @type {any[]} */
+    const collapsed = [];
+    for (const m of messages) {
+      // Guard against system role telemetry leaks
+      if (m.role === "system") continue;
+
+      const label =
+        m.character_name ||
+        (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
+      const text = m.content || m.text || "";
+      if (collapsed.length > 0 && collapsed[collapsed.length - 1].label === label) {
+        collapsed[collapsed.length - 1].text += `\n\n${text}`;
+      } else {
+        collapsed.push({ label, text });
+      }
+    }
+    return collapsed.map((c) => `[[${c.label}]]: ${c.text}`).join("\n\n");
+  },
 };

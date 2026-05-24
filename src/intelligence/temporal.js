@@ -293,7 +293,8 @@ export const temporal_engine = {
       const story_id = Session.require_active();
       const messages = await Session.load_log(story_id);
       const unconsolidated = messages.filter(
-        (/** @type {{ meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated,
+        (/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) =>
+          !m.meta?.consolidated && m.role !== "system",
       );
 
       if (unconsolidated.length >= 12) {

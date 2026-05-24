@@ -457,14 +457,35 @@ export const prompt_builder = {
   render_history(simulation_log, count = 10, offset = 0) {
     if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
     if (Array.isArray(simulation_log)) {
-      const start = Math.max(0, simulation_log.length - (count + offset));
-      const end = Math.max(0, simulation_log.length - offset);
-      return simulation_log
-        .slice(start, end)
-        .map((m) => {
-          const role =
-            m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
-          return `    <entry role="${role}"${m.character_name ? ` name="${escapeXml(m.character_name)}"` : ""}>${escapeXml(strip_cognition_blocks(m.content))}</entry>`;
+      // 1. Collapse the ENTIRE history array first to merge consecutive turns
+      /** @type {any[]} */
+      const collapsed = [];
+      for (const m of simulation_log) {
+        if (m.role === "system") continue; // Extra safety guard
+
+        const role =
+          m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
+        const name = m.character_name || "";
+        const content = strip_cognition_blocks(m.content || m.text || "");
+        if (
+          collapsed.length > 0 &&
+          collapsed[collapsed.length - 1].role === role &&
+          collapsed[collapsed.length - 1].name === name
+        ) {
+          collapsed[collapsed.length - 1].content += `\n\n${content}`;
+        } else {
+          collapsed.push({ role, name, content });
+        }
+      }
+
+      // 2. Slice the final collapsed array to guarantee full context depth
+      const start = Math.max(0, collapsed.length - (count + offset));
+      const end = Math.max(0, collapsed.length - offset);
+      const sliced = collapsed.slice(start, end);
+
+      return sliced
+        .map((c) => {
+          return `    <entry role="${c.role}"${c.name ? ` name="${escapeXml(c.name)}"` : ""}>${escapeXml(c.content)}</entry>`;
         })
         .join("\n");
     }

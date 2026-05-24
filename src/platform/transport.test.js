@@ -75,16 +75,14 @@ describe("llm_service - generate", () => {
     window.ai = originalAi;
   });
 
-  it("should correctly format conversation history", () => {
+  it("should correctly format conversation history skipping system messages", () => {
     const messages = [
       { role: "user", text: "Hello" },
       { role: "ai", content: "Hi there", character_name: "Assistant" },
       { role: "system", content: "You are helpful." },
     ];
     const formatted = llm_service._format_history(messages);
-    expect(formatted).toBe(
-      "[[User]]: Hello\n\n[[Assistant]]: Hi there\n\n[[Character]]: You are helpful.",
-    );
+    expect(formatted).toBe("[[User]]: Hello\n\n[[Assistant]]: Hi there");
   });
 
   it("should call window.ai with correct instruction assembly", async () => {
@@ -182,5 +180,36 @@ describe("llm_service - generate", () => {
     const result = await llm_service.enhance(payload);
     expect(result).toBe("Enhanced response");
     expect(window.ai).toHaveBeenCalled();
+  });
+
+  describe("_format_history", () => {
+    it("should format normal alternating messages correctly", () => {
+      const messages = [
+        { role: "user", content: "hello", character_name: "Proxy" },
+        { role: "model", content: "howdy", character_name: "Orion" },
+      ];
+      const result = llm_service._format_history(messages);
+      expect(result).toBe("[[Proxy]]: hello\n\n[[Orion]]: howdy");
+    });
+
+    it("should collapse consecutive messages from the same sender", () => {
+      const messages = [
+        { role: "user", content: "hello", character_name: "Proxy" },
+        { role: "user", content: "are you there?", character_name: "Proxy" },
+        { role: "model", content: "howdy", character_name: "Orion" },
+      ];
+      const result = llm_service._format_history(messages);
+      expect(result).toBe("[[Proxy]]: hello\n\nare you there?\n\n[[Orion]]: howdy");
+    });
+
+    it("should skip any system messages", () => {
+      const messages = [
+        { role: "user", content: "hello", character_name: "Proxy" },
+        { role: "system", content: "system telemetry logged" },
+        { role: "model", content: "howdy", character_name: "Orion" },
+      ];
+      const result = llm_service._format_history(messages);
+      expect(result).toBe("[[Proxy]]: hello\n\n[[Orion]]: howdy");
+    });
   });
 });

@@ -20,13 +20,13 @@ This document describes the current distance between the existing engine state a
 
 ## 2.0 Active Focus
 
-Fixing the silent application crashes in LLM generation, turn counter arithmetic proxy issues, and input bar lockups.
+Enhancing story pacing and context window optimization.
 
 | Feature          | State      | Gap                                                      |
-| :--------------- | :--------- | :------------------------------------------------------- |
-| Reactivity Fixes | 🔄 Active  | Svelte 5 proxy collision in streaming state.             |
-| Turn Counter     | 🔄 Active  | Potential Symbol-to-number proxy coercion.               |
-| Input Bar        | 🔄 Active  | Locked UI on pipeline failures.                          |
+| ---------------- | ---------- | -------------------------------------------------------- |
+| Memory Protocol  | Sovereign  | None. RAG filters system logs, resets stasis cleanly.    |
+| Consecutive Msg  | Sovereign  | None. Collapses consecutive actors first, then slices.   |
+| System Telemetry | Sovereign  | None. Skip system roles during transport formatting.     |
 | Storymode UI     | Sovereign  | None. Refactored UI tree, inline toolbar, full pillars.  |
 | Profile Wings    | Sovereign  | None. Restructured layout, glassmorphism, dynamic fills. |
 | Profile Layout   | Sovereign  | None. Scroll delegation, stacking, glows, exclusions.    |
@@ -34,25 +34,28 @@ Fixing the silent application crashes in LLM generation, turn counter arithmetic
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track Name                      | Priority | Status      | Description                                                                                         |
-| :------------------------------ | :------- | :---------- | :-------------------------------------------------------------------------------------------------- |
-| Reactivity & Turn Counter Fixes | 🔥 High  | [x] 3a9c7d8 | Fix Svelte 5 proxy collisions, round coercion, and secure try-finally execution loops.              |
-| Image Upload Pipeline           | 🔥 High  | [x] done    | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
-| UI Reactivity & Intent Locking  | 🔥 High  | [x] b7a935d | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                 |
-| Intelligence Polish             | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                  |
-| DevMode StoryCard Refactor      | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.                   |
-| Storymode UI Refactor           | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                    |
-| Profile Class Simplification    | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                   |
-| Profile Wings Cleanup           | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                  |
-| Profile Design Cleanup          | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                                             |
-| Sovereign Scaling Migration     | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                                          |
-| Storyboard Card Bleed Fix       | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                                              |
-| Drawer Contrast Rebuild         | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                                                |
+| Track Name                             | Priority | State       | Gap                                                                                                 |
+| -------------------------------------- | -------- | ----------- | --------------------------------------------------------------------------------------------------- |
+| Memory Protocol & Consecutive Messages | 🔥 High  | [x] done    | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.     |
+| Reactivity & Turn Counter Fixes        | 🔥 High  | [x] 3a9c7d8 | Fix Svelte 5 proxy collisions, round coercion, etc.                                                 |
+| Image Upload Pipeline                  | 🔥 High  | [x] done    | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
+| UI Reactivity & Intent Locking         | 🔥 High  | [x] b7a935d | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                 |
+| Intelligence Polish                    | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                  |
+| DevMode StoryCard Refactor             | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.                   |
+| Storymode UI Refactor                  | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                    |
+| Profile Class Simplification           | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                   |
+| Profile Wings Cleanup                  | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                  |
+| Profile Design Cleanup                 | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                                             |
+| Sovereign Scaling Migration            | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                                          |
+| Storyboard Card Bleed Fix              | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                                              |
+| Drawer Contrast Rebuild                | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                                                |
 
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601)      | Task                                                                                                                                                                                                            | Skill Invoked              | Outcome   |
-| :------------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------- | :-------- |
+| ------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------- |
+| 2026-05-24T15:41:00+02:00 | Complete memory-protocol-consecutive-sender-fix-2026-05-24 track: collapse entire log before slicing, filter system messages, reset stasis indicator.                                                           | svelte + test + javascript | ✅ Done   |
+| 2026-05-24T15:24:00+02:00 | Initialize memory-protocol-consecutive-sender-fix-2026-05-24 planning phase, create implementation plan.                                                                                                        | planning                   | ✅ Plan   |
 | 2026-05-24T10:52:00+02:00 | Complete follow-up stasis lock realignments: simulationState phase reset to idle inside finally blocks, hardened is_thinking derivation in Storymode.svelte.                                                    | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T10:36:00+02:00 | Complete reactivity-crash-fix-2026-05-24 track: refactored streaming to StreamingState class, resolved IDE type mismatches with JSDoc, hardened round increment casts, wrapped loops in try-finally safeguards. | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T10:34:00+02:00 | Begin reactivity-crash-fix-2026-05-24 active implementation phase.                                                                                                                                              | svelte + test + javascript | 🔄 Active |
@@ -130,7 +133,5 @@ Fixing the silent application crashes in LLM generation, turn counter arithmetic
 | 2026-05-14T03:18:00Z      | Dashboard Refresh                                                                                                                                                                                               | legislative                | ✅ Done   |
 | 2026-05-14T02:24:00Z      | Refine Task Architecture                                                                                                                                                                                        | legislative                | ✅ Done   |
 | 2026-05-14T00:13:00Z      | Restart: Grand Rebuild                                                                                                                                                                                          | planning                   | ✅ Done   |
-
----
 
 > 🎨 Tactics | `planning` | /01-plan
