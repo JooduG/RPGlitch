@@ -26,7 +26,7 @@ The `svelte` skill is the primary workflow for building and maintaining the RPGl
 
 - **Runes Only**: Svelte 5 Runes are universal. Stores (`writable`, `readable`) and legacy syntax (`export let`, `$:`) are strictly forbidden.
 - **Bits UI Sovereignty**: MANDATORY use of Bits UI primitives for all complex interactive elements (Dialogs, Modals, Accordions) to ensure accessibility.
-- **Atomic Design**: Structure components into focused Atoms and Molecules to prevent logic bloat.
+- **Feature-Driven Architecture**: Components must be structured into focused, domain-driven feature directories (e.g., `src/ui/profile/` and `src/ui/storymode/`) to maintain high cohesion and prevent logic bloat.
 
 ## When to Use
 
@@ -41,11 +41,12 @@ The `svelte` skill is the primary workflow for building and maintaining the RPGl
 3. **Sensory Implementation**: Apply component-scoped styles using native CSS tokens (`var(--token)`) exclusively.
 4. **Validation**: Run the `svelte-autofixer` to certify Svelte 5 compliance and fix semantic issues.
 
-### Technical Constraints
+### Technical Constraints & State Management
 
 - **Reactivity Source**: State is the source of truth. Read from Runes; never attempt to "scrape" state from HTML elements or DOM properties.
+- **Feature-Bound State Flow**: Manage state and reactive data directly within feature scopes. For example, profile edit states live directly in `src/ui/profile/` and story mode rendering loops in `src/ui/storymode/`. Coordinate transitions via centralized runes (e.g., `src/state/status.svelte.js`).
 - **Composition**: Use Snippets (`{@render ...}`) and delegated events for composition. No `<slot />` or `createEventDispatcher`.
-- **Bits UI Primitives**: All interactive atoms must be grounded in Bits UI to ensure keyboard and screen-reader compliance.
+- **Bits UI Primitives**: All interactive feature-level components must be grounded in Bits UI to ensure keyboard and screen-reader compliance.
 
 ## Usage
 

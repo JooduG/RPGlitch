@@ -1,6 +1,6 @@
 ---
 name: motion
-description: Triggered by any task involving kinetic interactions, physics-based UI transitions, Svelte action-based animations, or engine "Busy" (Scanning) states.
+description: Triggered by any task involving kinetic interactions, physics-based UI transitions, or engine "Busy" (Scanning) states.
 persona:
   name: Sovereign Kineticist
   directive: "I own the heartbeat of the interface. I do not 'animate'; I breathe life into the machine."
@@ -29,9 +29,9 @@ Implement standard reflexes defined in the **Pattern Registry** (T4):
 - `.interactable`: Standard hover/active behavior.
 - `.scanning`: Engine process feedback.
 
-### 2. Svelte Action Integration
+### 2. Kinetic Interaction Design
 
-Define custom motion logic in `src/ui/utils/actions/` (e.g., `use:tilt`, `use:pulse`) and expose them via the `actions` prop in components.
+Enforce standard transitions directly using CSS declarations and Svelte 5 standard visual state changes. Avoid custom JavaScript-driven animation loops or obsolete actions. Apply smooth transitions (`transition: all var(--duration-standard)`) mapped directly to state changes.
 
 ### 3. Performance Audit
 
@@ -42,7 +42,7 @@ Verify that animations do not trigger layout thrashing. Use the browser performa
 Implement kinetic feedback for background operations and engine cognition.
 
 - **The Pulse Animation**: Use the standardized `pulse` animation for "Scanning" or "Enhancing" states (e.g., `animation: pulse var(--duration-ambient) infinite`).
-- **Processing Feedback**: Coordinate with `busy_fields` to trigger state-aware micro-animations.
+- **Processing Feedback**: Enforce state-derived opacity blurs (`filter: blur(...)`) and compositor-isolated transformations (`transform: scale(...)` or `opacity`). Never trigger layout thrashing with properties like `width`, `height`, or `margin` shifts. Under the Chalk Regime, visual transitions must remain lightweight and performant.
 
 ## 📜 Mandatory Directives
 

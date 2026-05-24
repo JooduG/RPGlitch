@@ -77,18 +77,18 @@ src:
     main.js: src/main.js
     app.svelte: src/ui/App.svelte
     design.css: src/media/design.css
-    engine: src/core/engine/
-    intelligence: src/core/intelligence/
+    engine: src/engine/
+    intelligence: src/intelligence/
   ui:
     layout: src/ui/Layout.svelte
     atoms: src/ui/atoms/
     profile: src/ui/profile/
     storyboard: src/ui/storyboard/
     storymode: src/ui/storymode/
-    utils: src/ui/utils/
+    utils: src/ui/components/
     drawer: src/ui/drawer/
     devmode: src/ui/devmode/
   data: src/data/
   state: src/state/
   media: src/media/
-  theme: src/theme/
+  theme: src/media/

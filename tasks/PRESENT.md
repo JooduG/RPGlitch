@@ -36,6 +36,7 @@ Enhancing story pacing and context window optimization.
 
 | Track Name                                     | Priority | State    | Gap                                                                                                 |
 | ---------------------------------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------- |
+| Agent System Alignment                         | 🔥 High  | [/] IP   | In progress. Aligning config layout mappings, svelte structural guidelines, and CSS token auditors. |
 | GlassPill & InputBar Refactor                  | 🔥 High  | [x] done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte. |
 | Architectural Flatness & Utility Consolidation | 🔥 High  | [x] done | Centralize helpers, flatten Storymode panels, and centralize reactive busy locks.                   |
 | UI Cleanup & Animation Purge                   | 🔥 High  | [x] done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |

@@ -23,6 +23,21 @@ function scan(dir) {
       const content = fs.readFileSync(fullPath, "utf-8");
       const lines = content.split("\n");
       lines.forEach((line, i) => {
+        // Enforce strict regular expression check to catch legacy spacing syntax
+        // whenever var(--spacing-[0-9]+) appears inside layout descriptors
+        const LEGACY_SPACING_REGEX =
+          /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i;
+        if (LEGACY_SPACING_REGEX.test(line)) {
+          console.error(
+            `\x1b[31m[HERESY] Legacy spacing syntax 'var(--spacing-[0-9])' detected in layout descriptor at ${path.relative(
+              ROOT_DIR,
+              fullPath,
+            )}:${i + 1}\x1b[0m`,
+          );
+          console.error(`  Line: ${line.trim()}`);
+          process.exit(1);
+        }
+
         const invalidToken = validateLine(line);
         if (invalidToken) {
           console.log(`[INVALID] ${path.relative(ROOT_DIR, fullPath)}:${i + 1} - ${invalidToken}`);
