@@ -6,7 +6,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import Button from "@atoms/Button.svelte";
-  import { themeStore } from "@theme/palette.svelte.js";
+  import { themeStore } from "@media/palette.svelte.js";
 
   /** @typedef {import('@data/repository.js').Story} Story */
   /** @type {{

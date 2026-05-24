@@ -5,9 +5,9 @@
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { auto_resize } from "@ui/utils/auto-resize.js";
-  import { parse_markdown } from "@ui/utils/markdown.js";
-  import { use_actions } from "@ui/utils/use-actions.js";
+  import { auto_resize } from "@ui/actions/resize.js";
+  import { parse_markdown } from "@ui/components/markdown.js";
+  import { use_actions } from "@ui/actions/use-actions.js";
   import { fade } from "svelte/transition";
   import { controlState } from "@state/control.svelte.js";
 

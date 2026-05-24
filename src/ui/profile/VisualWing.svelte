@@ -9,12 +9,12 @@
   import TextField from "@atoms/TextField.svelte";
   import Toggle from "@atoms/Toggle.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { llm_service } from "@core/intelligence/llm-service.js";
-  import { prompt_builder } from "@core/intelligence/prompt-builder.js";
-  import { validateImage } from "@core/security.js";
+  import { llm_service } from "@platform/transport.js";
+  import { prompt_builder } from "@intelligence/prompts.js";
+  import { validateImage } from "@platform/security.js";
   import { AestheticResolver } from "@media/optics.js";
   import { app } from "@state/app.svelte.js";
-  import { PALETTE, PALETTE_VARS, themeStore } from "@theme/palette.svelte.js";
+  import { PALETTE, PALETTE_VARS, themeStore } from "@media/palette.svelte.js";
 
   /**
    * @typedef {Object} Props

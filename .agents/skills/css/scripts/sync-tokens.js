@@ -3,10 +3,10 @@ import path from "path";
 import yaml from "js-yaml";
 import { execSync } from "child_process";
 
-const CSS_PATH = process.env.CSS_PATH || path.join(process.cwd(), "src", "theme", "design.css");
+const CSS_PATH = process.env.CSS_PATH || path.join(process.cwd(), "src", "media", "design.css");
 const DESIGN_MD_PATH = process.env.DESIGN_MD_PATH || path.join(process.cwd(), "DESIGN.md");
 const JS_BRIDGE_PATH =
-  process.env.JS_BRIDGE_PATH || path.join(process.cwd(), "src", "theme", "tokens.js");
+  process.env.JS_BRIDGE_PATH || path.join(process.cwd(), "src", "media", "tokens.js");
 
 /**
  * 🎨 The Weaver (sync-tokens.js)
@@ -168,7 +168,7 @@ function flattenAndCategorize(data) {
  */
 function generateCSS(data, cssPatterns, metadata = {}) {
   let css = `/* ============================================================================
- * [GENERATED] src/theme/design.css
+ * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
  * ============================================================================ */
 
@@ -235,7 +235,7 @@ function generateJSBridge(data) {
     });
 
   const content = `/* ============================================================================
- * [GENERATED] src/theme/tokens.js
+ * [GENERATED] src/media/tokens.js
  * DO NOT EDIT DIRECTLY. Sync via 'npm run sync:design'.
  * ============================================================================ */
 
@@ -247,7 +247,7 @@ export const PALETTE_VARS = ${JSON.stringify(paletteVars, null, 2)};
 `;
 
   fs.writeFileSync(JS_BRIDGE_PATH, content);
-  console.log("✅ Generated src/theme/tokens.js");
+  console.log("✅ Generated src/media/tokens.js");
 }
 
 /**
@@ -289,7 +289,7 @@ function syncToCSS() {
   const finalCSS = generateCSS(data, cssPatterns, metadata);
 
   fs.writeFileSync(CSS_PATH, finalCSS);
-  console.log("✅ Generated src/theme/design.css");
+  console.log("✅ Generated src/media/design.css");
 
   generateJSBridge(data);
 

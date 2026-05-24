@@ -14,7 +14,7 @@
   import StoryboardPill from "@storyboard/StoryboardPill.svelte";
   import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
   import { app } from "@state/app.svelte.js";
-  import { context_broker } from "@core/intelligence/context-broker.svelte.js";
+  import { context_broker } from "@intelligence/context.svelte.js";
 
   // --- EVENT BROADCAST: CONTEXT SWAP ---
 

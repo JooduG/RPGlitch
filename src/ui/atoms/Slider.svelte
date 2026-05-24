@@ -1,5 +1,5 @@
 <script>
-  import { use_actions } from "@ui/utils/use-actions.js";
+  import { use_actions } from "@ui/actions/use-actions.js";
   import { controlState } from "@state/control.svelte.js";
 
   /**

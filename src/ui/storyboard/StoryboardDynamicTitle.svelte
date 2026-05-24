@@ -9,9 +9,9 @@
    * 3. Harmonized with Chalk Regime and Chess Grid.
    */
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { pickRandom } from "@core/utils.js";
+  import { pickRandom } from "@engine/utils.js";
   import { app } from "@state/app.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
+  import { themeStore } from "@media/palette.svelte.js";
 
   // ============================================
   // LOCAL STATE

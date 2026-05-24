@@ -5,11 +5,11 @@
 import { SvelteSet } from "svelte/reactivity";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { normalize } from "@data/content-normaliser.js";
-import { llm_service } from "@core/intelligence/llm-service.js";
-import { prompt_builder } from "@core/intelligence/prompt-builder.js";
-import { get_value, set_value } from "@utils/field-path.js";
-import { generateUUID } from "@core/utils.js";
+import { normalize } from "@data/normalizer.js";
+import { llm_service } from "@platform/transport.js";
+import { prompt_builder } from "@intelligence/prompts.js";
+import { get_value, set_value } from "@ui/components/field-path.js";
+import { generateUUID } from "@engine/utils.js";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
 

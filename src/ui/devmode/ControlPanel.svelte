@@ -1,10 +1,10 @@
 <script>
-  import { session_driver } from "@core/engine/session-driver.svelte.js";
+  import { session_driver } from "@engine/session.svelte.js";
   import { db } from "@data/db.js";
   import { stories } from "@data/repository.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
-  import { simulation_log } from "@state/simulation-log.svelte.js";
+  import { simulation_log } from "@state/log.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
 
   import Button from "@atoms/Button.svelte";

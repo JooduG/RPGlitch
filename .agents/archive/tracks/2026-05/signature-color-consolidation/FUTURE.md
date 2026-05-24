@@ -4,7 +4,7 @@
 
 - [x] **Task 1.1**: Update `CATEGORY_RULES` in `.agents/skills/css/scripts/sync-tokens.js` to remove hardcoded color names. (Ref: `fc452b0a`)
 - [x] **Task 1.2**: Refactor `generateJSBridge` in `.agents/skills/css/scripts/sync-tokens.js` to dynamically build `PALETTE` and `PALETTE_VARS` from `data.foundations.colors`. (Ref: `fc452b0a`)
-- [x] **Task 1.3**: Run `npm run sync:design` and verify `src/theme/tokens.js` contains the new objects. (Ref: `fc452b0a`)
+- [x] **Task 1.3**: Run `npm run sync:design` and verify `src/media/tokens.js` contains the new objects. (Ref: `fc452b0a`)
 
 ## Phase 2: Theme Store Refactor & Hardening Whitelist
 

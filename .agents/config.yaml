@@ -76,7 +76,7 @@ src:
     index.html: src/index.html
     main.js: src/main.js
     app.svelte: src/ui/App.svelte
-    design.css: src/theme/design.css
+    design.css: src/media/design.css
     engine: src/core/engine/
     intelligence: src/core/intelligence/
   ui:

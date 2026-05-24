@@ -11,8 +11,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Resolve design.css path relative to this script:
-// .agents/skills/css/scripts/token-integrity.js -> ../../../../src/theme/design.css
-const DESIGN_CSS_PATH = path.resolve(__dirname, "../../../../src/theme/design.css");
+// .agents/skills/css/scripts/token-integrity.js -> ../../../../src/media/design.css
+const DESIGN_CSS_PATH = path.resolve(__dirname, "../../../../src/media/design.css");
 
 let cachedTokens = null;
 

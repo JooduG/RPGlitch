@@ -5,7 +5,7 @@
    * A standardized, layout-agnostic capsule for high-frequency actions.
    * RUTHLESSLY FLATTENED: Zero design drift.
    */
-  import { use_actions } from "@ui/utils/use-actions.js";
+  import { use_actions } from "@ui/actions/use-actions.js";
 
   /**
    * @typedef {Object} Props

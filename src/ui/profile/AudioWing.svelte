@@ -8,9 +8,9 @@
   import Button from "@atoms/Button.svelte";
   import Slider from "@atoms/Slider.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { DROPDOWN_MAX_HEIGHT } from "@core/constants.js";
-  import { Audio } from "@media/audio-engine.svelte.js";
-  import { portal } from "@utils/portal.js";
+  import { DROPDOWN_MAX_HEIGHT } from "@engine/constants.js";
+  import { Audio } from "@media/audio.svelte.js";
+  import { portal } from "@ui/actions/portal.js";
 
   /**
    * @typedef {Object} Props

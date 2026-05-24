@@ -3,9 +3,9 @@
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { PromptTemplates, AestheticResolver, getResolution } from "@media/optics.js";
-import { themeStore } from "@theme/palette.svelte.js";
+import { themeStore } from "@media/palette.svelte.js";
 
-vi.mock("@theme/palette.svelte.js", () => ({
+vi.mock("@media/palette.svelte.js", () => ({
   themeStore: {
     get_signature_label: vi.fn(),
   },

@@ -20,8 +20,8 @@ module.exports = {
     },
     {
       // THE CHALK REGIME EXEMPTION:
-      // We must allow raw values ONLY in the theme files where the tokens are born.
-      files: ["src/theme/**/*.css"],
+      // We must allow raw values ONLY in the media files where the tokens are born.
+      files: ["src/media/**/*.css"],
       rules: {
         "scale-unlimited/declaration-strict-value": null,
         "color-no-hex": null,

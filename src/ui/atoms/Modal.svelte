@@ -6,8 +6,8 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import Backdrop from "@atoms/Backdrop.svelte";
-  import { resolve_ms, resolve_px } from "@ui/utils/dom.js";
-  import { use_actions } from "@ui/utils/use-actions.js";
+  import { resolve_ms, resolve_px } from "@ui/components/dom-helpers.js";
+  import { use_actions } from "@ui/actions/use-actions.js";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
 

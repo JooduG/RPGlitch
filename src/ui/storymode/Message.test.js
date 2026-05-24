@@ -22,7 +22,7 @@ vi.mock("@state/runtime.svelte.js", () => ({
   },
 }));
 
-vi.mock("@theme/palette.svelte.js", () => ({
+vi.mock("@media/palette.svelte.js", () => ({
   themeStore: {
     get_signature_color: vi.fn(() => "mock-signature"),
     get_deterministic_color: vi.fn(() => "mock-deterministic"),

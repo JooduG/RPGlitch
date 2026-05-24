@@ -5,12 +5,12 @@
    * Renders parsed messages in a Unified Nordic Chassis.
    */
   import TypingIndicator from "@atoms/TypingIndicator.svelte";
-  import { parse_message } from "@core/text-parser.js";
+  import { parse_message } from "@intelligence/parser.js";
   import DataBox from "@devmode/DataBox.svelte";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
-  import { safe_html } from "@utils/safe-html.js";
+  import { themeStore } from "@media/palette.svelte.js";
+  import { safe_html } from "@ui/components/safe-html.js";
 
   import Button from "@atoms/Button.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";

@@ -9,7 +9,7 @@ This combines:
 
 ## Success Criteria
 
-1. **Dynamic Generation**: The Weaver automatically extracts all `foundations.colors` from `DESIGN.md` and generates `PALETTE` and `PALETTE_VARS` objects in `src/theme/tokens.js`.
+1. **Dynamic Generation**: The Weaver automatically extracts all `foundations.colors` from `DESIGN.md` and generates `PALETTE` and `PALETTE_VARS` objects in `src/media/tokens.js`.
 2. **Safe Registry Filtering**: `SIGNATURE_COLORS` dynamically filters out backgrounds, neutrals, and non-vibrant utility colors from the palette to define a safe whitelist.
 3. **Hardened Theme Store**: `ThemeStore.get_deterministic_color` hashes seed strings deterministically into the safe `SIGNATURE_COLORS` whitelist. `ThemeStore.get_signature_color` enforces a safe fallback for null, undefined, or empty-string inputs.
 4. **Zero Heresy**: Running `npm run audit:css` and unit tests (`npm run test:unit`) passes with 0 violations.

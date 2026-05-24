@@ -4,7 +4,7 @@
    * 🧬 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
-  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@/core/intelligence/entity-fragments.js";
+  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@intelligence/fragments.js";
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
@@ -16,11 +16,11 @@
   import ProfileArray from "@profile/ProfileArray.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
   import { app } from "@state/app.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
+  import { themeStore } from "@media/palette.svelte.js";
   import { fly } from "svelte/transition";
   // State & Utilities
-  import { auto_resize } from "@utils/auto-resize.js";
-  import { click_outside } from "@utils/click-outside.js";
+  import { auto_resize } from "@ui/actions/resize.js";
+  import { click_outside } from "@ui/actions/click-outside.js";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */

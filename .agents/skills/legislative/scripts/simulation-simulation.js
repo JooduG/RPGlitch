@@ -4,10 +4,10 @@
  * Handles the linear flow of Hydration -> Simulation -> Synthesis.
  */
 
-import { context_broker } from "../../../../src/core/intelligence/context-broker.svelte.js";
-import { dynamics_engine } from "../../../../src/core/intelligence/dynamics-engine.js";
-import { prompt_builder } from "../../../../src/core/intelligence/prompt-builder.js";
-import { premade } from "../../../../src/data/entity-premades.js";
+import { context_broker } from "../../../../src/intelligence/context.svelte.js";
+import { dynamics_engine } from "../../../../src/intelligence/dynamics.js";
+import { prompt_builder } from "../../../../src/intelligence/prompts.js";
+import { premade } from "../../../../src/data/premades.js";
 
 /**
  * HIGH-LEVEL ORCHESTRATOR

@@ -1,6 +1,6 @@
 import { app } from "@state/app.svelte.js";
 import { session } from "@state/session.svelte.js";
-import { simulation_log } from "@state/simulation-log.svelte.js";
+import { simulation_log } from "@state/log.svelte.js";
 import { simulationState } from "@state/status.svelte.js";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";

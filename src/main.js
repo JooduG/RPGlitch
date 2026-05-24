@@ -2,7 +2,7 @@
  * RPGlitch Main Entry Point (Vite)
  * Handles core library exposure and database initialization.
  */
-import "@theme/design.css";
+import "@media/design.css";
 import Dexie from "dexie";
 import DOMPurify from "dompurify";
 // 🚑 EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
@@ -19,7 +19,7 @@ if (!win.rpgLists) {
   console.info("[Engine] Injected mock rpgLists for local dev.");
 }
 // 🚀 BOOTSTRAP
-import { AppBootstrap } from "@core/bootstrap.js";
+import { AppBootstrap } from "@engine/boot.js";
 AppBootstrap.init().then(() => {
   console.info("[Engine] Entry point active. Handing off to Bootstrap.");
 });

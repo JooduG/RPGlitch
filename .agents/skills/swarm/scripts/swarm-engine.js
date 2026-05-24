@@ -76,7 +76,7 @@ if (typeof globalThis.$state === "undefined") {
   };
   globalThis.$effect = /** @type {any} */ (_effect);
 }
-const { llm_service } = await import("../../../../src/core/intelligence/llm-service.js");
+const { llm_service } = await import("../../../../src/platform/transport.js");
 const { jules } = await import("@google/jules-sdk");
 
 const execAsync = promisify(execCallback);

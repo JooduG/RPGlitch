@@ -28,7 +28,7 @@ When the Architect (User) requests a design change:
 
 1. **Update the Source**: Modify `DESIGN.md` (Frontmatter for tokens, Body for patterns).
 2. **Execute the Sync**: Run `scripts/sync-tokens.js` (or `npm run sync:design`).
-3. **Verify the Bridge**: Ensure `src/theme/design.css` and `tokens.js` are updated.
+3. **Verify the Bridge**: Ensure `src/media/design.css` and `tokens.js` are updated.
 
 ### 2. Sensory Dispatch
 
@@ -46,7 +46,7 @@ Build Svelte 5 components using **Snippets** and the **Pattern Registry** (T4). 
 
 ## 📜 Mandatory Directives
 
-- **Always Verify**: Read `src/theme/tokens.js` before delegating to Specialists.
+- **Always Verify**: Read `src/media/tokens.js` before delegating to Specialists.
 - **Inhibit Hallucination**: If a token doesn't exist, you must create it in `DESIGN.md` frontmatter.
 - **Technical Precision**: Use precise nomenclature (e.g., "T3 Organism Token" instead of "component color").
 

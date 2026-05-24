@@ -10,7 +10,7 @@
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { app } from "@state/app.svelte.js";
-  import { themeStore } from "@theme/palette.svelte.js";
+  import { themeStore } from "@media/palette.svelte.js";
 
   let { entity, side = "left" } = $props();
 

@@ -1,14 +1,14 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Chrono } from "@core/engine/chrono.svelte.js";
+import { Chrono } from "@engine/chrono.svelte.js";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
-import { Engine } from "@core/engine/engine.js";
-import { Shield } from "@core/security.js";
+import { Engine } from "@engine/kernel.js";
+import { Shield } from "@platform/security.js";
 import { simulationState } from "@state/status.svelte.js";
 import { controlState } from "./control.svelte.js";
 
 // Mock Security/Shield and Engine to avoid network requests and db access
-vi.mock("@core/security.js", () => {
+vi.mock("@platform/security.js", () => {
   const mockSecurity = {
     sanitize: (/** @type {any} */ val) => val,
     sanitizeToFragment: (/** @type {any} */ val) => val,
@@ -29,7 +29,7 @@ vi.mock("@core/security.js", () => {
   };
 });
 
-vi.mock("@core/engine/engine.js", () => ({
+vi.mock("@engine/kernel.js", () => ({
   Engine: {
     generate_ai_response: vi.fn(),
   },

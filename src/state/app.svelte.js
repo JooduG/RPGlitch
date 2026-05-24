@@ -4,14 +4,14 @@
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
  * ZERO NESTING - Flattened Schema only.
  */
-import { KV_SETTINGS_KEY } from "@core/constants.js";
-import { log as engineLog } from "@core/logger.svelte.js";
-import { normalize } from "@data/content-normaliser.js";
+import { KV_SETTINGS_KEY } from "@engine/constants.js";
+import { log as engineLog } from "@engine/logger.svelte.js";
+import { normalize } from "@data/normalizer.js";
 import { db } from "@data/db.js";
 import { entities } from "@data/repository.js";
-import { visual_engine } from "@media/visual-engine.svelte.js";
-import { generateUUID } from "@utils/helpers.js";
-import { resolve_px } from "@utils/dom.js";
+import { visual_engine } from "@media/visual.svelte.js";
+import { generateUUID } from "@ui/components/render-helpers.js";
+import { resolve_px } from "@ui/components/dom-helpers.js";
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
 import { runtime } from "@state/runtime.svelte.js";
 import { simulationState, uiState } from "@state/status.svelte.js";

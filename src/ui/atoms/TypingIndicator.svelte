@@ -5,7 +5,7 @@
    * Animated activity dots for entity "is typing" states.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { use_actions } from "@ui/utils/use-actions.js";
+  import { use_actions } from "@ui/actions/use-actions.js";
 
   let {
     // Design
