@@ -24,7 +24,7 @@ As the `audio` specialist, you are the master of the Engine's soundscape. You ar
 
 ### 1. Asset Registry Management
 
-All audio files must be stored in `src/media/audio/sfx/` and registered in the `AudioRegistry`. Never use hardcoded paths.
+All audio files must be stored in `src/media/` and registered in the `AudioRegistry`. Never use hardcoded paths.
 
 ### 2. Interaction Reflexes
 

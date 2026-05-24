@@ -48,6 +48,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                              | Skill Invoked              | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------ | :------------------------- | :-------- |
+| 2026-05-24T05:10:00+02:00 | Merge simulation-strategy.md into SKILL.md: Consolidate core simulation cycle and behavioral playbooks into a single authoritative playbook file. | legislative + simulation   | ✅ Done   |
 | 2026-05-24T05:04:00+02:00 | Optimize ContextBroker Hydration: Implement WeakMap caching for assemble_snapshot items and relax stress test threshold to 15ms.                  | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T04:55:00+02:00 | Workflow Consolidation: Merge code-simplify and refactor SOPs, update config.yaml, and delete redundant workflow file                             | legislative                | ✅ Done   |
 | 2026-05-24T02:06:00+02:00 | Tab-Context Coupling: bind UI activeId (Chin) to ContextBroker; loadViewContext flushes snapshot, hibernates non-view vectors, injects VIEW_FOCUS | javascript + svelte + test | ✅ Done   |
