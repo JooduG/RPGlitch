@@ -89,10 +89,11 @@ export class VisualEngine {
               seed: options.seed ?? generateSecureSeed(),
               width: options.width || res.width,
               height: options.height || res.height,
+              removeBackground: !!(options.removeBackground ?? options.no_background),
             });
 
-            return typeof data === "object" && data !== null && "dataUrl" in data
-              ? data.dataUrl
+            return typeof data === "object" && data !== null
+              ? data.dataUrl || data.url || data.image || data
               : data;
           },
           (/** @type {number} */ attempt) => {
@@ -195,13 +196,23 @@ export class VisualEngine {
   }
 
   /**
-   * @param {any} file
+   * Triggers manual file upload using Perchance upload-plugin.
+   * @returns {Promise<string | null>}
    */
-  async upload(file) {
+  async upload() {
     // @ts-ignore
     if (!window.pluginUpload) return null;
-    // @ts-ignore
-    return await window.pluginUpload(file);
+    return new Promise((resolve) => {
+      try {
+        // @ts-ignore
+        window.pluginUpload((dataUrl) => {
+          resolve(dataUrl || null);
+        });
+      } catch (err) {
+        console.error("[VisualEngine] Upload failure:", err);
+        resolve(null);
+      }
+    });
   }
 
   // --- Private Helpers ---

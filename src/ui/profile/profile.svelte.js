@@ -6,6 +6,7 @@ import { SvelteSet } from "svelte/reactivity";
 import { app } from "@state/app.svelte.js";
 import { runtime } from "@state/runtime.svelte.js";
 import { normalize } from "@data/normalizer.js";
+import { db } from "@data/db.js";
 import { llm_service } from "@platform/transport.js";
 import { prompt_builder } from "@intelligence/prompts.js";
 import { get_value, set_value } from "@ui/components/field-path.js";
@@ -29,6 +30,20 @@ export class ProfileState {
 
   constructor() {
     this.char = normalize(app.editing_entity || runtime.character);
+  }
+
+  /**
+   * Reactive accessor for background removal modifier.
+   * @type {boolean}
+   */
+  get noBackground() {
+    return !!this.char?.modifiers?.no_background;
+  }
+
+  set noBackground(val) {
+    if (this.char?.modifiers) {
+      this.char.modifiers.no_background = val;
+    }
   }
 
   /**
@@ -220,5 +235,24 @@ export class ProfileState {
     this.patch_vector_item(path, index, {
       base_weight: Math.min(10, Math.max(1, weight + delta)),
     });
+  }
+
+  /**
+   * Sets the character's profile picture and triggers immediate persistence.
+   * Includes metadata strip edge-case guard by trimming whitespace/newlines.
+   * @param {string} dataUrl
+   */
+  async setImage(dataUrl) {
+    if (!this.char || typeof dataUrl !== "string") return;
+    const cleanUrl = dataUrl.trim();
+    this.char.profile_picture = cleanUrl;
+    this.char.image = cleanUrl; // Fallback support
+
+    const id = this.char.id;
+    if (id) {
+      const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      await db.entities.update(id, { profile_picture: cleanUrl, updated_at: Date.now() });
+      await runtime.update_entity(type, id, { profile_picture: cleanUrl });
+    }
   }
 }

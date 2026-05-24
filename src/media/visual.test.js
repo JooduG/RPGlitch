@@ -70,6 +70,23 @@ describe("VisualEngine (Reactive)", () => {
     expect(visual_engine.error).toBe(null);
   });
 
+  it("should pass removeBackground parameter to plugin when no_background is true", async () => {
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue({
+      dataUrl: "data:image/png;base64,abc",
+    });
+
+    const result = await visual_engine.generate("A photorealistic portrait", {
+      no_background: true,
+    });
+
+    expect(result).toBe("data:image/png;base64,abc");
+    expect(/** @type {any} */ (window).pluginTextToImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        removeBackground: true,
+      }),
+    );
+  });
+
   it("should distinguish short prompts from UUIDs", async () => {
     vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue("image_url");
 
@@ -136,5 +153,47 @@ describe("VisualEngine (Reactive)", () => {
 
     expect(entities.get).toHaveBeenCalledWith("character", uuid);
     expect(result).toBe("Kai_Image_URL");
+  });
+
+  describe("upload()", () => {
+    it("should successfully upload an image using the perchance plugin", async () => {
+      const mockDataUrl = "data:image/png;base64,upload123";
+      // @ts-ignore
+      window.pluginUpload = vi.fn((callback) => {
+        callback(mockDataUrl);
+      });
+
+      const result = await visual_engine.upload();
+
+      expect(result).toBe(mockDataUrl);
+      // @ts-ignore
+      expect(window.pluginUpload).toHaveBeenCalled();
+    });
+
+    it("should return null gracefully when pluginUpload is missing", async () => {
+      // @ts-ignore
+      const originalPluginUpload = window.pluginUpload;
+      // @ts-ignore
+      delete window.pluginUpload;
+
+      const result = await visual_engine.upload();
+
+      expect(result).toBeNull();
+
+      // Restore
+      // @ts-ignore
+      window.pluginUpload = originalPluginUpload;
+    });
+
+    it("should return null gracefully when pluginUpload throws an exception", async () => {
+      // @ts-ignore
+      window.pluginUpload = vi.fn(() => {
+        throw new Error("File dialog cancelled or blocked");
+      });
+
+      const result = await visual_engine.upload();
+
+      expect(result).toBeNull();
+    });
   });
 });

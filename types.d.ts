@@ -26,11 +26,14 @@ declare global {
     seed?: number;
     width?: number;
     height?: number;
+    removeBackground?: boolean;
   }
 
   /** Result object for image generation plugins */
   interface T2IObject {
-    dataUrl: string;
+    dataUrl?: string;
+    url?: string;
+    image?: string;
   }
 
   /** Result type for image generation plugins */
@@ -50,6 +53,7 @@ declare global {
 
   /** Asset upload utility */
   function upload(data: unknown, options?: JsonMap): Promise<unknown>;
+  function upload(callback: (dataUrl: string | null | undefined) => void): void;
 
   /** Plugin asset upload alias */
   const pluginUpload: typeof upload;

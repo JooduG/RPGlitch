@@ -11,7 +11,6 @@
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { llm_service } from "@platform/transport.js";
   import { prompt_builder } from "@intelligence/prompts.js";
-  import { validateImage } from "@platform/security.js";
   import { AestheticResolver } from "@media/optics.js";
   import { app } from "@state/app.svelte.js";
   import { PALETTE, PALETTE_VARS, themeStore } from "@media/palette.svelte.js";
@@ -92,11 +91,6 @@
   sync_modifiers();
   $effect(sync_modifiers);
 
-  // --- STATE ---
-
-  /** @type {HTMLInputElement | undefined} */
-  let file_input = $state();
-
   // --- DERIVED ---
 
   const current_label = $derived(themeStore.get_signature_label(profileState.char));
@@ -156,14 +150,14 @@
   }
 
   /**
-   * Triggers image generation when a prompt exists, or opens the file picker
+   * Triggers image generation when a prompt exists, or opens the upload dialog
    * as a fallback for direct uploads.
    */
   async function handle_generate() {
     if (profileState.busy_fields.has("visual-prompt")) return;
 
     if (!has_prompt_text) {
-      file_input?.click();
+      await handle_upload_portrait();
       return;
     }
 
@@ -172,7 +166,7 @@
 
     try {
       const url = await app.visual.generate(prompt_value, {
-        no_background: profileState.char.modifiers.no_background,
+        no_background: profileState.noBackground,
       });
       if (url) profileState.char.profile_picture = url;
     } catch (err) {
@@ -183,18 +177,23 @@
   }
 
   /**
-   * Handles manual image upload with security validation.
-   * @param {Event & { currentTarget: HTMLInputElement }} e
+   * Handles manual image upload via Perchance upload plugin.
    */
-  async function handle_upload(e) {
-    const file = e.currentTarget.files?.[0];
-    if (!file) return;
+  async function handle_upload_portrait() {
+    if (profileState.busy_fields.has("visual-prompt")) return;
+    profileState.busy_fields.add("visual-prompt");
+    app.log("[VisualWing] Triggering manual image upload...", "system");
+
     try {
-      await validateImage(file);
-      const url = await app.visual.upload(file);
-      if (url) profileState.char.profile_picture = url;
+      const dataUrl = await app.visual.upload();
+      if (dataUrl) {
+        await profileState.setImage(dataUrl);
+        app.log("[VisualWing] Image upload succeeded and state persisted.", "system");
+      }
     } catch (err) {
       app.log(`Upload failed: ${/** @type {Error} */ (err).message}`, "error");
+    } finally {
+      profileState.busy_fields.delete("visual-prompt");
     }
   }
 </script>
@@ -305,6 +304,23 @@
               <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
             </svg>
           </Button>
+
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label="Upload Portrait"
+            class="action"
+            actions={[tooltip]}
+            onclick={handle_upload_portrait}
+            disabled={!profileState.is_editing || is_prompt_busy}
+          >
+            <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"></path>
+              <polyline points="17 8 12 3 7 8" stroke="var(--pure-white)"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15" stroke="var(--pure-white)"></line>
+            </svg>
+          </Button>
         </div>
       {/if}
     {/snippet}
@@ -314,7 +330,7 @@
   <div class="controls">
     <Toggle
       label="No Background"
-      bind:value={profileState.char.modifiers.no_background}
+      bind:value={profileState.noBackground}
       disabled={!profileState.is_editing}
     />
     <Toggle
@@ -323,14 +339,6 @@
       disabled={!profileState.is_editing}
     />
   </div>
-
-  <input
-    type="file"
-    accept="image/*"
-    class="upload"
-    bind:this={file_input}
-    onchange={handle_upload}
-  />
 </section>
 
 <style>
@@ -436,10 +444,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--gap-tight);
-  }
-
-  .upload {
-    display: none;
   }
 
   /* --- Animations --- */

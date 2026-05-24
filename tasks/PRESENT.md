@@ -31,18 +31,19 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track Name                     | Priority | Status      | Description                                                                         |
-| :----------------------------- | :------- | :---------- | :---------------------------------------------------------------------------------- |
-| UI Reactivity & Intent Locking | 🔥 High  | [x] b7a935d | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception. |
-| Intelligence Polish            | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.  |
-| DevMode StoryCard Refactor     | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.   |
-| Storymode UI Refactor          | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.    |
-| Profile Class Simplification   | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.   |
-| Profile Wings Cleanup          | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.  |
-| Profile Design Cleanup         | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                             |
-| Sovereign Scaling Migration    | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                          |
-| Storyboard Card Bleed Fix      | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                              |
-| Drawer Contrast Rebuild        | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                                |
+| Track Name                     | Priority | Status      | Description                                                                                         |
+| :----------------------------- | :------- | :---------- | :-------------------------------------------------------------------------------------------------- |
+| Image Upload Pipeline          | 🔥 High  | [x] done    | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
+| UI Reactivity & Intent Locking | 🔥 High  | [x] b7a935d | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                 |
+| Intelligence Polish            | 🔥 High  | [x] 3108c3e | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                  |
+| DevMode StoryCard Refactor     | 🔥 High  | [x] 58a40cd | Fix clickability layering, correct border radius, active story, and refactor CSS.                   |
+| Storymode UI Refactor          | 🔥 High  | [x] a6f25e4 | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                    |
+| Profile Class Simplification   | 🔥 High  | [x] d399662 | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                   |
+| Profile Wings Cleanup          | 🔥 High  | [x] 730177b | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                  |
+| Profile Design Cleanup         | 🔥 High  | [x] f6db918 | Design cleanup of Profile.svelte, readonly & edit mode.                                             |
+| Sovereign Scaling Migration    | 🔥 High  | [x] a7b8c9d | Migrate from fit_text.js to CSS Container Queries & Clamp.                                          |
+| Storyboard Card Bleed Fix      | 🟡 Med   | [x] b7a8c9d | Resolve text bleed in selection tarot.                                                              |
+| Drawer Contrast Rebuild        | 🟡 Med   | [x] d1e2f3g | Contrast and visibility remediation.                                                                |
 
 ## 🧠 Pulse (History)
 
