@@ -79,7 +79,7 @@
 >
   <!-- 🧬 THE BASE: Massive Signature Placeholder -->
   <div class="profile-placeholder" aria-hidden="true">
-    <div class="profile-initials">
+    <div class="profile-initials text-shadow-bloom">
       {initials}
     </div>
   </div>
@@ -161,7 +161,7 @@
 
     /* Vibrant custom signature-colored bloom: The Glitch Aura */
     filter: drop-shadow(
-      0 0 calc(var(--spacing-unit) * 4)
+      0 var(--margin-tight) var(--margin-standard)
         rgb(from var(--signature-color, var(--frozen)) r g b / var(--opacity-muted))
     );
 

@@ -27,24 +27,30 @@
   });
 </script>
 
-<div class="stage" aria-hidden="true">
-  <!-- Layer 1: The Nordic Gradient -->
-  <div class="gradient"></div>
-
-  <!-- Layer 2: Fractal Imagery -->
-  <div
-    class="fractal"
-    style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
-    style:opacity={fractal_url ? fractal_opacity : 0}
-  ></div>
-</div>
-
 <main
   class="root"
   class:is-storyboard={app.view === "storyboard"}
   class:is-storymode={app.view === "storymode"}
 >
+  <div class="stage" aria-hidden="true">
+    <!-- Layer 1: The Nordic Gradient -->
+    <div class="gradient"></div>
+
+    <!-- Layer 2: Fractal Imagery -->
+    <div
+      class="fractal"
+      style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
+      style:opacity={fractal_url ? fractal_opacity : 0}
+    ></div>
+  </div>
+
   <ImagePreview />
+
+  {#if app.view === "storyboard"}
+    <Storyboard />
+  {:else if app.view === "storymode"}
+    <Storymode />
+  {/if}
 
   {#if app.profile_open}
     <Profile entity_type={app.profile_target_type} />
@@ -52,12 +58,6 @@
 
   {#if app.control_panel_open}
     <ControlPanel />
-  {/if}
-
-  {#if app.view === "storyboard"}
-    <Storyboard />
-  {:else if app.view === "storymode"}
-    <Storymode />
   {/if}
 </main>
 

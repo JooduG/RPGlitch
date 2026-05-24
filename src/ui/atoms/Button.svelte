@@ -244,6 +244,51 @@
     filter: var(--brightness-glow);
   }
 
+  /* --- Flank Button Modifier --- */
+  .root.flank {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    transition:
+      transform var(--duration-standard) var(--ease-elastic),
+      color var(--duration-standard) var(--ease-standard),
+      opacity var(--duration-standard) var(--ease-standard) !important;
+    color: var(--pure-white) !important;
+    opacity: var(--opacity-muted);
+  }
+
+  .root.flank :global(svg),
+  .root.flank :global(svg path) {
+    fill: var(--pure-white) !important;
+    transition: fill var(--duration-standard) var(--ease-standard);
+  }
+
+  .root.flank:hover:not(:disabled) {
+    opacity: var(--opacity-solid) !important;
+    transform: var(--scale-lift) !important;
+  }
+
+  .root.flank:active:not(:disabled) {
+    transform: var(--scale-sink) !important;
+  }
+
+  .root.flank[data-kinetic="true"]:hover:not(:disabled),
+  .root.flank[data-kinetic="true"]:active:not(:disabled) {
+    transform: none !important;
+  }
+
+  .root.flank:disabled {
+    color: var(--frozen) !important;
+    opacity: var(--opacity-ghost) !important;
+    cursor: not-allowed;
+    transform: none !important;
+  }
+
+  .root.flank:disabled :global(svg),
+  .root.flank:disabled :global(svg path) {
+    fill: var(--frozen) !important;
+  }
+
   /* --- Global Resets --- */
   .root :global(.icon) {
     pointer-events: none;

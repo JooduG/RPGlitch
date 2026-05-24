@@ -14,6 +14,7 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                                  | Name                                           | Priority | Status  | Objective                                                                                           |
 | :-------------------------------------------------------- | :--------------------------------------------- | :------- | :------ | :-------------------------------------------------------------------------------------------------- |
+| `glasspill-inputbar-refactor-2026-05-24`                  | GlassPill & InputBar Refactor                  | P0       | ✅ Done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte. |
 | `architectural-flatness-utility-consolidation-2026-05-24` | Architectural Flatness & Utility Consolidation | P0       | ✅ Done | Centralize helpers, flatten Storymode panels, and centralize reactive busy locks.                   |
 | `ui-cleanup-animation-decommissioning-2026-05-24`         | UI Cleanup & Animation Purge                   | P0       | ✅ Done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |
 | `memory-protocol-consecutive-sender-fix-2026-05-24`       | Memory Protocol & Consecutive Messages         | P0       | ✅ Done | Merge consecutive messages from same actor, filter system telemetry, clear loader bubble.           |
