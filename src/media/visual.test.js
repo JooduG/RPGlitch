@@ -54,6 +54,7 @@ vi.mock("@state/status.svelte.js", () => ({
 describe("VisualEngine (Reactive)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    vi.useRealTimers();
     visual_engine.error = null;
     visual_engine.isLoading = false;
     visual_engine.breaker.state = "CLOSED";
@@ -114,6 +115,63 @@ describe("VisualEngine (Reactive)", () => {
 
     expect(visual_engine.attempts).toBe(2); // Retries 2 times (total 3 attempts)
     expect(visual_engine.breaker.failureCount).toBe(1); // One high-level failure reported to breaker
+  });
+
+  it("should handle timeout if text-to-image generator hangs indefinitely", async () => {
+    const originalMaxAttempts = visual_engine.retryer.maxAttempts;
+    visual_engine.retryer.maxAttempts = 1;
+    vi.useFakeTimers();
+
+    try {
+      vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockReturnValue(
+        new Promise(() => {}),
+      );
+
+      const generatePromise = visual_engine.generate("test prompt");
+      // Prevent unhandled promise rejection warnings in the event loop during timer advancement
+      generatePromise.catch(() => {});
+
+      await vi.advanceTimersByTimeAsync(45000);
+
+      await expect(generatePromise).rejects.toThrow("Image generation timed out");
+    } finally {
+      vi.useRealTimers();
+      visual_engine.retryer.maxAttempts = originalMaxAttempts;
+    }
+  });
+
+  it("should handle failure status in resolved object", async () => {
+    const originalMaxAttempts = visual_engine.retryer.maxAttempts;
+    visual_engine.retryer.maxAttempts = 1;
+
+    try {
+      vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue({
+        status: "fetch_failure",
+      });
+
+      await expect(visual_engine.generate("test prompt")).rejects.toThrow(
+        "Text-to-image failed: fetch_failure",
+      );
+    } finally {
+      visual_engine.retryer.maxAttempts = originalMaxAttempts;
+    }
+  });
+
+  it("should handle error field in resolved object", async () => {
+    const originalMaxAttempts = visual_engine.retryer.maxAttempts;
+    visual_engine.retryer.maxAttempts = 1;
+
+    try {
+      vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue({
+        error: "GPU temperature exceeded limit",
+      });
+
+      await expect(visual_engine.generate("test prompt")).rejects.toThrow(
+        "Text-to-image failed: GPU temperature exceeded limit",
+      );
+    } finally {
+      visual_engine.retryer.maxAttempts = originalMaxAttempts;
+    }
   });
 
   it("should enhance a prompt using Optics", async () => {

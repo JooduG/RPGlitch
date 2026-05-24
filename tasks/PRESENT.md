@@ -49,6 +49,7 @@ We have completed the visual refinement and Svelte 5 refactoring track for the S
 
 | Timestamp (ISO 8601)      | Task                                                                                                                                                                 | Skill Invoked              | Outcome   |
 | :------------------------ | :------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------- | :-------- |
+| 2026-05-24T09:25:00+02:00 | Fix Text-to-Image Hanging & Failure Recovery: Implement 45s promise timeout and robust error status checks, preventing UI busy state lockup.                         | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T06:01:00+02:00 | Re-Routing Optimization Sweep: Elevate boot imports to domain gateways, create src/media/index.js and src/data/index.js barrel files, verify with linters and tests. | svelte + test + javascript | ✅ Done   |
 | 2026-05-24T05:10:00+02:00 | Merge simulation-strategy.md into SKILL.md: Consolidate core simulation cycle and behavioral playbooks into a single authoritative playbook file.                    | legislative + simulation   | ✅ Done   |
 | 2026-05-24T05:04:00+02:00 | Optimize ContextBroker Hydration: Implement WeakMap caching for assemble_snapshot items and relax stress test threshold to 15ms.                                     | svelte + test + javascript | ✅ Done   |

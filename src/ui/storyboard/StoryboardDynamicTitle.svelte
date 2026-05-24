@@ -207,13 +207,13 @@
   .text-shadow-outline {
     text-shadow:
       0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
-      0 0 calc(var(--spacing-unit) * 1.5) var(--void-black);
+      0 0 var(--spacing-unit) var(--void-black);
   }
 
   .text-shadow-bloom {
     text-shadow:
       0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
-      0 0 calc(var(--spacing-unit) * 1.5) var(--signature-color),
+      0 0 var(--spacing-unit) var(--signature-color),
       0 0 calc(var(--spacing-unit) * 4)
         rgb(from var(--signature-color) r g b / var(--opacity-whisper));
   }

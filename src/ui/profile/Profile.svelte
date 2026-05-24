@@ -314,7 +314,7 @@
     flex-shrink: 0;
     width: 100%;
     min-width: 0;
-    min-height: calc(var(--font-size-h3) * 1.5);
+    min-height: var(--font-size-h3);
     padding: var(--padding-standard);
     border-bottom: var(--border-width-base) solid
       color-mix(in srgb, var(--signature-color) 30%, transparent);
@@ -336,6 +336,7 @@
     font-size: clamp(var(--font-size-h3), 15cqi, var(--font-size-h1));
     line-height: 1.1;
     overflow-wrap: break-word;
+    text-align: left;
   }
 
   .name.edit {
@@ -378,7 +379,7 @@
 
   textarea.description.edit {
     width: 100%;
-    min-height: calc(var(--row-unit) * 1.5);
+    min-height: var(--row-unit);
     max-height: calc(var(--row-unit) * 4);
     padding: var(--padding-standard);
     color: var(--frisk);

@@ -299,7 +299,7 @@
 
   .empty-state {
     padding: var(--padding-tight) var(--padding-standard);
-    min-height: calc(calc(var(--spacing-unit) * 4) * 2.5);
+    min-height: calc(var(--spacing-unit) * 12);
     display: flex;
     align-items: center;
   }

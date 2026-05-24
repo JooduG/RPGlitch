@@ -83,7 +83,7 @@ export class VisualEngine {
 
             const res = getResolution(options.mode);
             // @ts-ignore
-            const data = await window.pluginTextToImage({
+            const generatePromise = window.pluginTextToImage({
               prompt: finalPrompt,
               negativePrompt: NEGATIVE_PROMPT,
               seed: options.seed ?? generateSecureSeed(),
@@ -92,9 +92,33 @@ export class VisualEngine {
               removeBackground: !!(options.removeBackground ?? options.no_background),
             });
 
-            return typeof data === "object" && data !== null
-              ? data.dataUrl || data.url || data.image || data
-              : data;
+            let timeoutId;
+            const timeoutPromise = new Promise((_, reject) => {
+              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 45000);
+            });
+            // Catch rejection on the timeout promise itself to prevent unhandled promise rejection warnings
+            timeoutPromise.catch(() => {});
+
+            try {
+              const data = await Promise.race([generatePromise, timeoutPromise]);
+
+              if (typeof data === "object" && data !== null) {
+                if (data.status && data.status !== "success") {
+                  throw new Error(`Text-to-image failed: ${data.status}`);
+                }
+                if (data.error) {
+                  throw new Error(`Text-to-image failed: ${data.error}`);
+                }
+                const img = data.dataUrl || data.url || data.image;
+                if (!img) {
+                  throw new Error("Text-to-image failed: no image data returned");
+                }
+                return img;
+              }
+              return data;
+            } finally {
+              clearTimeout(timeoutId);
+            }
           },
           (/** @type {number} */ attempt) => {
             this.attempts = attempt;

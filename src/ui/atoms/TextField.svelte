@@ -213,7 +213,7 @@
   }
 
   .header {
-    height: calc(var(--dev-header-height-dormant) * 1.5);
+    height: var(--dev-header-height-dormant);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
     background: var(--state-dev-accent);
     opacity: 0.6;

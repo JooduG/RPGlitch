@@ -129,7 +129,7 @@
   --dev-accent: var(--electric-cyan);
   --dev-accent-default: var(--frisk);
   --dev-header-height-active: calc(var(--spacing-unit) * 6);
-  --dev-header-height-dormant: var(--spacing-unit);
+  --dev-header-height-dormant: calc(var(--spacing-unit) * 2);
   --dropdown-max-height: calc(var(--spacing-unit) * 80);
   --duration-ambient: 2000ms;
   --duration-fast: 150ms;
@@ -172,7 +172,7 @@
   --profile-height: 100vh;
   --profile-initials-size-base: calc(var(--spacing-unit) * 40);
   --profile-left-readonly: calc(var(--column-unit) * 3);
-  --profile-left-wings: calc(var(--column-unit) * 1);
+  --profile-left-wings: var(--column-unit);
   --profile-width: calc(var(--column-unit) * 6);
   --profile-wings-left: calc(var(--column-unit) * 8);
   --profile-wings-width: calc(var(--column-unit) * 3);
@@ -386,7 +386,7 @@ code {
   font-family: var(--font-family-mono);
   font-size: var(--font-size-small);
   background: var(--glass-sunken);
-  padding: var(--spacing-pixel) calc(var(--spacing-unit) * 1);
+  padding: var(--spacing-pixel) var(--spacing-unit);
   border-radius: var(--radius-sharp);
 }
 
