@@ -38,8 +38,7 @@ skills:
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
   utility:
-    code-simplify: .agents/workflows/code-simplify.md
-    idea-generation: .agents/workflows/idea-generation.md
+    generate-ideas: .agents/workflows/generate-ideas.md
     refactor: .agents/workflows/refactor.md
     swarm: .agents/workflows/swarm.md
     revert: .agents/workflows/revert.md

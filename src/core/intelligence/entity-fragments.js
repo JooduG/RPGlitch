@@ -72,7 +72,7 @@
  */
 export const ENTITY_FRAGMENTS = {
   name: "Name",
-  description: "Identity Summary  Summary of the entity's vibe and role.",
+  description: "Identity Summary  Summary of the entity's vibe and role.", // HUMAN EYES ONLY!!
   eternal: {
     label: "Eternal",
     sublabel: "Permanent Traits & Features", // UI only

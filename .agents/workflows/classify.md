@@ -1,5 +1,5 @@
 ---
-name: classify
+name: /classify
 description: Analyzes and categorizes tasks, issues, or requests with consistent reasoning.
 ---
 

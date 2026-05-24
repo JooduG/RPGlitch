@@ -1,5 +1,5 @@
 ---
-name: swarm
+name: /swarm
 description: Manual Swarm Orchestration. The human-initiated interface for deploying specialized sub-agents.
 risk: high
 source: AI

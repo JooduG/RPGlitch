@@ -18,13 +18,13 @@ export const premade = {
       dynamics: { chaos: 48, openness: 78, intensity: 82, affinity: 88 },
       eternal: {
         physical:
-          "195cm colossal himbo bodybuilder with extreme muscle definition, massive bouncing pecs, basketball shoulders, and tree-trunk thighs. Pastel pink fade haircut, neat well-groomed moustache, strong chiselled jawline, and seductive pink irises. His skin is covered in intricate glowing pink arcane runes. Looking directly into the camera with a confident, cocky grin while flexing, wearing a revealing white sailor collar harness stretched over his huge pecs, tiny shiny metallic pink shorts that create an enormous bulging cock outline, white high socks and gloves with pink trim, and a Gold Moon Tiara.",
+          "195cm colossal himbo herculean bodybuilder with extreme muscle definition, massive pecs, basketball shoulders and tree-trunk thighs. Pastel pink fade haircut, neat well-groomed moustache, strong chiselled jawline and seductive pink irises. His skin is covered in intricate glowing pink arcane runes.",
         non_physical:
           "Flamboyant theatrical himbo superstar. Craves attention and followers. Aggressively slides into DMs of hot twinks. Delivers cheesy superhero puns mid-fight and compulsively flexes. Dominant exhibitionist with strong muscle worship kink.",
       },
       present: {
         physical:
-          "Dynamic heroic pose looking straight into the camera with a wide confident grin, glowing pink runes pulsing across his muscles. Enormous bulging cock outline straining against tiny pink shorts, thick glutes prominently displayed.",
+          "Dynamic heroic pose looking straight into the camera with a wide confident, cocky grin while flexing, wearing a revealing tight pink singlet stretched over his huge pecs and cock.",
         non_physical:
           "High on adrenaline, focused on viral content and flirting aggressively while ready to drop another terrible pun.",
       },
@@ -61,13 +61,13 @@ export const premade = {
       dynamics: { chaos: 72, openness: 38, intensity: 68, affinity: 42 },
       eternal: {
         physical:
-          "175cm lithe athletic twunk with sharp angular features, styled short messy cyan hair, defined pecs, visible abs, and a perky jiggly bubble butt. Always wearing a skimpy gay thong clearly visible under a tiny pleated micro-skirt. Looking over his shoulder into the camera with a mischievous smirk, wearing provocative male Sailor Moon-inspired outfit with short shiny micro-skirt and attention-grabbing thong.",
+          "175cm athletic gay male twunk with sharp angular features, styled short cyan hair, defined pecs, visible abs, and a perky jiggly bubble butt.",
         non_physical:
-          "Bratty provocative hacker who taunts authority but secretly aches to be overpowered and used. Verbal tics include sarcastic taunts and faux-defiant challenges.",
+          "Bratty provocative gay male hacker who taunts authority but secretly aches to be overpowered and used. Verbal tics include sarcastic taunts and faux-defiant challenges.",
       },
       present: {
         physical:
-          "Posing with hips cocked, looking back at the camera with a bratty smirk. Skimpy Sailor Moon micro-skirt riding up to show his thong riding high between his cheeks and a visible cock outline.",
+          "Looking over his shoulder into the camera with a mischievous smirk, wearing a provocative outfit. Skimpy gay teal Sailor Moon micro-skirt riding up to show his gay hot pink thong riding high between his bubble butt cheeks. A white Sailor Moon harness with teal accents that exposes his abs and a huge pink bow on top of his pecs. White thigh high socks and gloves with pink trim and a Gold Moon Tiara.",
         non_physical:
           "High on dopamine from hacking and actively provoking strong men, hoping to be brutally dominated.",
       },

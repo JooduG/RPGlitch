@@ -110,9 +110,12 @@
     }
   }
 
-  const time_label = $derived(
-    timestamp.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false }),
-  );
+  // svelte-ignore state_referenced_locally
+  const time_label = timestamp.toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  });
 </script>
 
 {#if is_telemetry}

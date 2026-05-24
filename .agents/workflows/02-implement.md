@@ -1,5 +1,5 @@
 ---
-name: 02-implement
+name: /implement
 description: Executes the tasks defined in the specified track's plan
 ---
 

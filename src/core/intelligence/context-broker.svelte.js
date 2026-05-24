@@ -28,6 +28,7 @@ import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 
 const RAW_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;
+const SNAPSHOT_ITEM_CACHE = new WeakMap();
 
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
@@ -383,7 +384,7 @@ export const context_broker = {
       type,
       round,
       entities,
-      view_id: active_view_id,
+      view_id: type === "simulation" ? "global" : active_view_id,
       simulation_log: context_broker.assemble_snapshot(simulation_log),
       rawMessages: simulation_log,
       meta: {
@@ -401,9 +402,17 @@ export const context_broker = {
     if (!history.length) return null;
     return history
       .map((m) => {
+        if (m && typeof m === "object") {
+          const cached = SNAPSHOT_ITEM_CACHE.get(m);
+          if (cached !== undefined) return cached;
+        }
         const owner = m.character_name || (m.role === "user" ? "User" : "AI");
         const stripped = get_sanitized_text(m);
-        return `[${owner}]: ${clean_text(stripped, 500)}`;
+        const formatted = `[${owner}]: ${clean_text(stripped, 500)}`;
+        if (m && typeof m === "object") {
+          SNAPSHOT_ITEM_CACHE.set(m, formatted);
+        }
+        return formatted;
       })
       .join("\n");
   },

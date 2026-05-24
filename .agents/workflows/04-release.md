@@ -1,5 +1,5 @@
 ---
-name: 04-release
+name: /release
 description: Unified Release Protocol - Hardening, Synchronization, and GitHub Deployment.
 ---
 

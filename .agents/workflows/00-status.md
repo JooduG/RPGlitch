@@ -1,5 +1,5 @@
 ---
-name: 00-status
+name: /status
 description: Unified Controller for Session Initialization and Status Monitoring.
 ---
 

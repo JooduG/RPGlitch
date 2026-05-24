@@ -1,5 +1,5 @@
 ---
-name: test
+name: /test
 description: Unified Verification & Diagnostics - Running tests, audits, and health checks.
 ---
 

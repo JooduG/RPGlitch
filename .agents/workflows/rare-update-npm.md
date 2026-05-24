@@ -1,12 +1,12 @@
 ---
-name: update-npm-dependencies-check-updates
+name: /update-npm-dependencies-check-updates
 description: Interactively check and update outdated packages
 risk: low
 source: AI
 date_added: 2024-03-29
 ---
 
-# [/update-deps](./rare-update-npm.md) - Interactive Dependency Maintenance Loop
+# [/update-npm-dependencies-check-updates](./rare-update-npm.md) - Interactive Dependency Maintenance Loop
 
 ## Objectives: Phase CI/CD & AUTOMATION - Update
 

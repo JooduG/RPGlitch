@@ -1,5 +1,5 @@
 ---
-name: revert
+name: /revert
 description: Reverts previous work
 ---
 

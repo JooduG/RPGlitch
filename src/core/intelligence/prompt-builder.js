@@ -55,6 +55,7 @@ import { IMMUTABLE_CONSTRAINTS } from "@core/security.js";
  * @property {boolean} [meta.is_suspicious]
  * @property {any} [compressed_snapshot]
  * @property {string} [view_id]
+ * @property {string} [type]
  */
 
 /**
@@ -76,10 +77,6 @@ export const SYSTEM_PROMPTS = {
   /**
    * SIMULATION
    * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.simulation
-   */
-  /**
-   * SIMULATION
-   * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.simulation
    * @param {SimulationParams} params
    */
   simulation: ({
@@ -91,6 +88,7 @@ export const SYSTEM_PROMPTS = {
     meta,
     compressed_snapshot,
     view_id,
+    type,
   }) => {
     const ai = entities.AI;
     const user = entities.USER;
@@ -116,7 +114,11 @@ export const SYSTEM_PROMPTS = {
 
     // Derive a human-readable view label for the focus directive.
     const safeView =
-      typeof view_id === "string" && view_id && view_id !== "global" ? view_id : null;
+      type === "simulation"
+        ? null
+        : typeof view_id === "string" && view_id && view_id !== "global"
+          ? view_id
+          : null;
     const viewLabel = safeView ? safeView.charAt(0).toUpperCase() + safeView.slice(1) : null;
 
     return `
@@ -159,11 +161,6 @@ ${IMMUTABLE_CONSTRAINTS.map((/** @type {string} */ c) => `- ${escapeXml(c)}`).jo
 </SYSTEM>`.trim();
   },
 
-  /**
-   * PROLOGUE
-   * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.prologue
-   * PURPOSE: Initial scene setup and atmospheric resonance.
-   */
   /**
    * PROLOGUE
    * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.prologue
@@ -259,10 +256,6 @@ weight of what just happened. Leave the world visibly changed. End on sensation,
   /**
    * MEMORY PROTOCOL
    * PURPOSE: Consolidates turns into RAG-compatible vectors.
-   */
-  /**
-   * MEMORY PROTOCOL
-   * PURPOSE: Consolidates turns into RAG-compatible vectors.
    * @param {{ role: string, entity: SimulationEntity, history: any[] }} params
    */
   memory: ({ role, entity, history }) => {
@@ -286,9 +279,6 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 </MEMORY_PROTOCOL>`.trim();
   },
 
-  /**
-   * ENHANCEMENT PROMPT
-   */
   /**
    * ENHANCEMENT PROMPT
    * @param {{ label: string, directive: string, enhancer: string, content: string }} params
@@ -369,6 +359,7 @@ export const prompt_builder = {
       meta: payload.meta,
       compressed_snapshot: snapshot,
       view_id: payload.view_id,
+      type,
     });
 
     // Capture top vectors for telemetry

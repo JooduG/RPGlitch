@@ -1,5 +1,5 @@
 ---
-name: 01-plan
+name: /plan
 description: Plans a track, generates track-specific spec documents and updates the tracks file.
 ---
 

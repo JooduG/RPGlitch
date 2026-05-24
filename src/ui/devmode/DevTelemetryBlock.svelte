@@ -31,16 +31,19 @@
   /** @type {Props} */
   let { meta = {}, time = "" } = $props();
 
-  let ai = $derived(meta.ai || meta.dynamics || meta.snapshot?.ai || {});
-  let fractal = $derived(meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {});
-  let vectors = $derived({
+  // svelte-ignore state_referenced_locally
+  let ai = meta.ai || meta.dynamics || meta.snapshot?.ai || {};
+  // svelte-ignore state_referenced_locally
+  let fractal = meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {};
+  // svelte-ignore state_referenced_locally
+  let vectors = {
     past: meta.vectors?.past || [],
     future: meta.vectors?.future || [],
-  });
-  let signals = $derived(
-    Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {}),
-  );
-  let deltas = $derived(meta.deltas || []);
+  };
+  // svelte-ignore state_referenced_locally
+  let signals = Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {});
+  // svelte-ignore state_referenced_locally
+  let deltas = meta.deltas || [];
 
   /** @param {number} val */
   function get_pct(val) {

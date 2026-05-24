@@ -1,5 +1,5 @@
 ---
-name: setup-conductor
+name: /setup-conductor
 description: Scaffolds the project and sets up the Conductor environment
 ---
 
