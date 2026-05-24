@@ -122,12 +122,12 @@ function get_new_content_input(input, simulation_log) {
  * [SECTION: KNOWLEDGE CACHE]
  ************************************************************************************/
 // Reactive local cache of active vectors.
-/** @type {{ AI: any[], USER: any[], FRACTAL: any[] }} */
-const KnowledgeCache = $state({
-  AI: [],
-  USER: [],
-  FRACTAL: [],
-});
+/** @type {any[]} */
+let KnowledgeCache_AI = $state([]);
+/** @type {any[]} */
+let KnowledgeCache_USER = $state([]);
+/** @type {any[]} */
+let KnowledgeCache_FRACTAL = $state([]);
 
 let lastAIKeys = "";
 let lastUserKeys = "";
@@ -147,19 +147,32 @@ $effect.root(() => {
 
     // Only assign and update active state subscribers when actual shifts happen
     if (aiKeys !== lastAIKeys) {
-      KnowledgeCache.AI = aiFuture;
+      KnowledgeCache_AI = aiFuture;
       lastAIKeys = aiKeys;
     }
     if (userKeys !== lastUserKeys) {
-      KnowledgeCache.USER = userFuture;
+      KnowledgeCache_USER = userFuture;
       lastUserKeys = userKeys;
     }
     if (fractalKeys !== lastFractalKeys) {
-      KnowledgeCache.FRACTAL = fractalFuture;
+      KnowledgeCache_FRACTAL = fractalFuture;
       lastFractalKeys = fractalKeys;
     }
   });
 });
+
+/************************************************************************************
+ * [SECTION: VIEW CONTEXT]
+ ************************************************************************************/
+// Active view identifier — bound to the UI "Chin" (tab) via loadViewContext().
+let active_view_id = $state("global");
+
+/**
+ * Hibernate set: IDs of vectors suppressed for the current view.
+ * A vector not in this set is considered "Active" (visible to the kernel).
+ * @type {Set<string>}
+ */
+let hibernated_vector_ids = $state(new Set());
 
 /************************************************************************************
  * [SECTION: CONTEXT BROKER]
@@ -167,10 +180,108 @@ $effect.root(() => {
 export const context_broker = {
   /**
    * O(1) getter for the KnowledgeCache.
-   * @returns {{ AI: any[]; USER: any[]; FRACTAL: any[]; }}
    */
   get_active_vectors() {
-    return KnowledgeCache;
+    return {
+      get AI() {
+        return KnowledgeCache_AI;
+      },
+      get USER() {
+        return KnowledgeCache_USER;
+      },
+      get FRACTAL() {
+        return KnowledgeCache_FRACTAL;
+      },
+    };
+  },
+
+  /**
+   * VIEW CONTEXT LOADER — Zero-latency paging.
+   *
+   * Binds the active "Chin" (UI tab) to the Intelligence Kernel context.
+   * Instantly hibernates future vectors whose `vector_tags` do not match the
+   * new viewId, freeing context-window tokens without re-initializing the engine.
+   *
+   * Safety fallback: if any error occurs, reverts to `"global"` (all vectors
+   * visible) to guarantee the simulation never runs with a broken context.
+   *
+   * @param {string} viewId - The active view identifier (e.g. 'storyboard', 'combat', 'merchant').
+   */
+  loadViewContext(viewId) {
+    const safeView =
+      typeof viewId === "string" && viewId.trim() ? viewId.trim().toLowerCase() : "global";
+
+    // No-op guard — skip identical transitions.
+    if (safeView === active_view_id) return;
+
+    try {
+      active_view_id = safeView;
+
+      // Collect all known future vectors across entity caches.
+      const allVectors = [...KnowledgeCache_AI, ...KnowledgeCache_USER, ...KnowledgeCache_FRACTAL];
+
+      // A vector is "relevant" if:
+      //   a) the view is global (no filtering), OR
+      //   b) the vector has no tags (untagged = always visible), OR
+      //   c) it has a "global" tag, OR
+      //   d) one of its tags matches the active view.
+      const newHibernated = /** @type {Set<string>} */ (new Set());
+      for (const v of allVectors) {
+        const tags = Array.isArray(v.vector_tags) ? v.vector_tags : [];
+        const isRelevant =
+          safeView === "global" ||
+          tags.length === 0 ||
+          tags.some(
+            (/** @type {string} */ t) =>
+              t.toLowerCase() === "global" || t.toLowerCase() === safeView,
+          );
+        if (!isRelevant && v.id) {
+          newHibernated.add(v.id);
+        }
+      }
+
+      hibernated_vector_ids = newHibernated;
+    } catch (err) {
+      // Safety fallback: revert to Global Truth — all entities remain visible.
+      console.warn("[ContextBroker] loadViewContext failed. Reverting to Global Truth:", err);
+      active_view_id = "global";
+      hibernated_vector_ids = new Set();
+    }
+  },
+
+  /**
+   * Returns the currently active view identifier.
+   * @returns {string}
+   */
+  get_active_view_id() {
+    return active_view_id;
+  },
+
+  /**
+   * Checks whether a vector is currently hibernating (suppressed for the active view).
+   * @param {string} vectorId
+   * @returns {boolean}
+   */
+  is_hibernating(vectorId) {
+    return hibernated_vector_ids.has(vectorId);
+  },
+
+  /**
+   * Returns the set of active (non-hibernating) future vectors from the KnowledgeCache.
+   * Used by the hydration phase to build a filtered payload.
+   * @returns {{ AI: any[]; USER: any[]; FRACTAL: any[] }}
+   */
+  get_active_knowledge() {
+    if (active_view_id === "global" || hibernated_vector_ids.size === 0) {
+      return { AI: KnowledgeCache_AI, USER: KnowledgeCache_USER, FRACTAL: KnowledgeCache_FRACTAL };
+    }
+    const filter = (/** @type {any[]} */ cache) =>
+      cache.filter((v) => !v.id || !hibernated_vector_ids.has(v.id));
+    return {
+      AI: filter(KnowledgeCache_AI),
+      USER: filter(KnowledgeCache_USER),
+      FRACTAL: filter(KnowledgeCache_FRACTAL),
+    };
   },
 
   /**
@@ -272,6 +383,7 @@ export const context_broker = {
       type,
       round,
       entities,
+      view_id: active_view_id,
       simulation_log: context_broker.assemble_snapshot(simulation_log),
       rawMessages: simulation_log,
       meta: {

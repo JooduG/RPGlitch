@@ -18,11 +18,11 @@ describe("Narrative Vector System", () => {
 
   it("should add a vector to the background (echoes)", () => {
     runtime.add_vector("Find the key.", "FRACTAL");
-    expect(runtime.active_fractal.future).toHaveLength(1);
+    expect(runtime.active_fractal?.future).toHaveLength(1);
     expect(runtime.active_vectors("FRACTAL")[0].text).toBe("Find the key.");
 
     runtime.add_vector("Explore the cave.", "FRACTAL");
-    expect(runtime.active_fractal.future).toHaveLength(2);
+    expect(runtime.active_fractal?.future).toHaveLength(2);
     // "Find the key" is still index 0 because we pushed
     expect(runtime.active_vectors("FRACTAL")[0].text).toBe("Find the key.");
     expect(runtime.active_vectors("FRACTAL")[1].text).toBe("Explore the cave.");
@@ -41,12 +41,12 @@ describe("Narrative Vector System", () => {
     expect(runtime.active_vectors("FRACTAL")[0].text).toBe("Task A");
     runtime.complete_vector("FRACTAL");
     expect(runtime.active_vectors("FRACTAL")[0].text).toBe("Task B");
-    expect(runtime.active_fractal.future).toHaveLength(1);
+    expect(runtime.active_fractal?.future).toHaveLength(1);
   });
 
   it("should handle completeVector on empty vectors safely", () => {
     runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal.future).toEqual([]);
+    expect(runtime.active_fractal?.future).toEqual([]);
   });
 
   describe("State Synchronization", () => {

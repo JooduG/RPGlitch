@@ -40,6 +40,12 @@ export const checkRefusal = () => false;
  * @param {any} text
  */
 export const clean = (text) => (text ? text.trim() : "");
+export const IMMUTABLE_CONSTRAINTS = [
+  "Gravity is constant.",
+  "Characters cannot change their own inventory without permission.",
+  "Damage thresholds are binary.",
+];
+
 /**
  * Validates an image file for size, type, and magic numbers.
  * @param {File} file - The file to validate.
@@ -114,6 +120,7 @@ export const Security = {
   checkRefusal,
   clean,
   validateImage,
+  IMMUTABLE_CONSTRAINTS,
   /**
    * @param {any} _prompt
    * @param {any} [_options]

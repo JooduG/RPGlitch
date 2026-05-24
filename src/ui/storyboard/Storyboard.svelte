@@ -14,6 +14,17 @@
   import StoryboardPill from "@storyboard/StoryboardPill.svelte";
   import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
   import { app } from "@state/app.svelte.js";
+  import { context_broker } from "@core/intelligence/context-broker.svelte.js";
+
+  // --- EVENT BROADCAST: CONTEXT SWAP ---
+
+  /**
+   * Fires a `context-swap` signal to the ContextBroker whenever the active
+   * "Chin" (view/tab) changes. Zero-latency — no engine re-initialization.
+   */
+  $effect(() => {
+    context_broker.loadViewContext(app.view);
+  });
 
   // --- DERIVATIONS ---
 

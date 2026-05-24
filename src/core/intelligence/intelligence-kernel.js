@@ -23,7 +23,7 @@ import { app } from "@state/app.svelte.js";
 import { temporal_engine } from "@core/intelligence/temporal-engine.js";
 import { db } from "@data/db.js";
 import { simulationState } from "@state/status.svelte.js";
-import { entities } from "@data/repository.js";
+import { entities, serialize, prune } from "@data/repository.js";
 import { session_driver } from "@core/engine/session-driver.svelte.js";
 /**
  * @typedef {import('@core/engine/engine.js').GenerationOptions} GenerationOptions
@@ -210,6 +210,24 @@ export const gamemaster = {
     // 3.5. MECHANICAL GATE: Inject GM bridges
     const gm_bridges = this.generate_narrative_bridges(snapshot);
     snapshot.signal_prompts = [...(snapshot.signal_prompts || []), ...gm_bridges];
+
+    // 3.6. COMPRESSION LAYER
+    const compressed_entities = {
+      AI: serialize(payload.entities.AI),
+      USER: serialize(payload.entities.USER),
+      FRACTAL: serialize(payload.entities.FRACTAL),
+    };
+    /** @type {any} */ (snapshot).compressed_entities = compressed_entities;
+    /** @type {any} */ (snapshot).pruned_past = {
+      AI: prune(payload.entities.AI?.past, "past"),
+      USER: prune(payload.entities.USER?.past, "past"),
+      FRACTAL: prune(payload.entities.FRACTAL?.past, "past"),
+    };
+    /** @type {any} */ (snapshot).pruned_future = {
+      AI: prune(payload.entities.AI?.future, "future"),
+      USER: prune(payload.entities.USER?.future, "future"),
+      FRACTAL: prune(payload.entities.FRACTAL?.future, "future"),
+    };
 
     // 4. SYNTHESIS: Build the final prompt
     const { system, meta } = prompt_builder.synthesize(payload, snapshot);

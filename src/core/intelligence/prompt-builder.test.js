@@ -44,8 +44,8 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain("<EXECUTION_CHECKLIST>");
-      expect(result.system).toContain("<YOUR_IDENTITY");
-      expect(result.system).toContain("<USER_PERSONA");
+      expect(result.system).toContain("<COMPRESSED_STATE>");
+      expect(result.system).toContain('{"state"');
     });
 
     it("synthesize() injects SUSPICIOUS_COGNITION when meta.is_suspicious is true", () => {
@@ -127,17 +127,12 @@ describe("prompt_builder (Refactored)", () => {
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
       expect(result.system).toContain("<EXECUTION_CHECKLIST>");
-      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.system).toContain('<USER_PERSONA name="Ghost">');
-      expect(result.system).toContain('<FRACTAL name="Void">');
+      expect(result.system).toContain("<COMPRESSED_STATE>");
+      expect(result.system).toContain('{"state"');
       expect(result.system).toContain("STYLE: Grit");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).toContain("<TASK_INSTRUCTION>");
       expect(result.system).toContain("<INPUT_COMMAND>Check the console.</INPUT_COMMAND>");
-
-      // FRACTAL TEMPORAL VECTOR VERIFICATION
-      expect(result.system).toContain("<FUTURE_VECTORS>");
-      expect(result.system).toContain("<PAST_MEMORIES>");
 
       // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();

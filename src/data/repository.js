@@ -213,3 +213,54 @@ export const stories = {
     return db.stories.delete(id);
   },
 };
+
+// ============================================================================
+// 4. COMPRESSION (Memory & State Snapshots)
+// ============================================================================
+
+/**
+ * @param {any} entity
+ */
+export function serialize(entity) {
+  if (!entity) return null;
+  return {
+    id: entity.id,
+    n: entity.name,
+    p: entity.fragments?.present?.non_physical || "",
+    e: entity.fragments?.eternal?.non_physical || "",
+    m: typeof entity.mood === "number" ? entity.mood : undefined,
+    t: Array.isArray(entity.tags) ? entity.tags : undefined,
+  };
+}
+
+/**
+ * @param {any[]} vectors
+ * @param {'past'|'future'} type
+ */
+export function prune(vectors, type) {
+  if (!Array.isArray(vectors)) return [];
+  const limit = type === "past" ? 3 : 1;
+  return vectors
+    .slice(0, limit)
+    .map((/** @type {any} */ v) => v.text || v.content || v.summary || v);
+}
+
+/**
+ * @param {any} snapshot
+ */
+export function hydrate(snapshot) {
+  if (!snapshot) return null;
+  // Zero Data Loss: if it's already an entity, return as is
+  if (snapshot.fragments) return snapshot;
+
+  return {
+    id: snapshot.id,
+    name: snapshot.n || snapshot.name || "Unknown",
+    mood: snapshot.m,
+    tags: snapshot.t || [],
+    fragments: {
+      present: { non_physical: snapshot.p || "" },
+      eternal: { non_physical: snapshot.e || "" },
+    },
+  };
+}

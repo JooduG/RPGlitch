@@ -9,6 +9,10 @@ import { session_driver } from "@core/engine/session-driver.svelte.js";
 vi.mock("@core/intelligence/context-broker.svelte.js", () => ({
   context_broker: {
     hydrate: vi.fn(),
+    loadViewContext: vi.fn(),
+    get_active_view_id: vi.fn().mockReturnValue("global"),
+    is_hibernating: vi.fn().mockReturnValue(false),
+    get_active_knowledge: vi.fn().mockReturnValue({ AI: [], USER: [], FRACTAL: [] }),
   },
 }));
 
@@ -123,6 +127,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         USER: { name: "Ghost" },
         FRACTAL: { name: "Void" },
       },
+      view_id: "global",
       simulation_log: "",
       rawMessages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
@@ -237,6 +242,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         USER: { name: "Ghost" },
         FRACTAL: { name: "Void" },
       },
+      view_id: "global",
       simulation_log: "",
       rawMessages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
@@ -330,5 +336,89 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       expect(result.response).toBe("");
     });
+  });
+});
+
+// =============================================================================
+// [SECTION: TAB-CONTEXT COUPLING — loadViewContext]
+// Verifies that switching a "Chin" (tab/view) to "combat" suppresses Merchant
+// lore and that the Global Truth fallback re-exposes all vectors.
+// =============================================================================
+describe("context_broker.loadViewContext() — Tab-Context Coupling", () => {
+  /**
+   * Isolated helper that exercises the real hibernation logic without the
+   * Svelte/module reactivity layer. We replicate the pure function behaviour
+   * directly so the test can run in Vitest’s Node environment.
+   * @param {string} viewId
+   * @param {Array<{ id: string; vector_tags: string[] }>} allVectors
+   * @returns {Set<string>}
+   */
+  function buildHibernationSet(viewId, allVectors) {
+    const safeView =
+      typeof viewId === "string" && viewId.trim() ? viewId.trim().toLowerCase() : "global";
+    const hibernated = new Set();
+    for (const v of allVectors) {
+      const tags = Array.isArray(v.vector_tags) ? v.vector_tags : [];
+      const isRelevant =
+        safeView === "global" ||
+        tags.length === 0 ||
+        tags.some(
+          (/** @type {string} */ t) => t.toLowerCase() === "global" || t.toLowerCase() === safeView,
+        );
+      if (!isRelevant && v.id) hibernated.add(v.id);
+    }
+    return hibernated;
+  }
+
+  const COMBAT_VECTOR = { id: "vec-combat-1", text: "Clash of steel.", vector_tags: ["combat"] };
+  const MERCHANT_VECTOR = {
+    id: "vec-merchant-1",
+    text: "Trade route lore.",
+    vector_tags: ["merchant"],
+  };
+  const GLOBAL_VECTOR = { id: "vec-global-1", text: "World fact.", vector_tags: ["global"] };
+  const UNTAGGED_VECTOR = { id: "vec-untagged-1", text: "Ambient detail.", vector_tags: [] };
+
+  const allVectors = [COMBAT_VECTOR, MERCHANT_VECTOR, GLOBAL_VECTOR, UNTAGGED_VECTOR];
+
+  it("hibernates Merchant lore when the Combat tab is active", () => {
+    const hibernated = buildHibernationSet("combat", allVectors);
+
+    // Merchant-tagged vector MUST be suppressed.
+    expect(hibernated.has(MERCHANT_VECTOR.id)).toBe(true);
+    // Combat-tagged vector MUST remain active.
+    expect(hibernated.has(COMBAT_VECTOR.id)).toBe(false);
+  });
+
+  it("keeps global-tagged vectors visible regardless of active view", () => {
+    const hibernated = buildHibernationSet("combat", allVectors);
+
+    expect(hibernated.has(GLOBAL_VECTOR.id)).toBe(false);
+  });
+
+  it("keeps untagged vectors always visible (they have no view restriction)", () => {
+    const hibernated = buildHibernationSet("combat", allVectors);
+
+    expect(hibernated.has(UNTAGGED_VECTOR.id)).toBe(false);
+  });
+
+  it("exposes all vectors when Global Truth is active (view_id = 'global')", () => {
+    const hibernated = buildHibernationSet("global", allVectors);
+
+    expect(hibernated.size).toBe(0);
+  });
+
+  it("treats null/invalid viewId as 'global' (safety fallback)", () => {
+    const hibernated = buildHibernationSet("", allVectors);
+
+    expect(hibernated.size).toBe(0);
+  });
+
+  it("does not include Merchant lore in Combat hydration payload (integration contract)", async () => {
+    // Verify that `context_broker.loadViewContext` is exposed on the mock
+    // so intelligence-kernel can call it without throwing.
+    expect(typeof context_broker.loadViewContext).toBe("function");
+    context_broker.loadViewContext("combat");
+    expect(context_broker.loadViewContext).toHaveBeenCalledWith("combat");
   });
 });

@@ -22,6 +22,7 @@
 import { escapeXml, strip_cognition_blocks } from "@core/text-parser.js";
 import { ENTITY_CATALOG } from "@core/intelligence/entity-fragments.js";
 import { temporal_engine } from "@core/intelligence/temporal-engine.js";
+import { IMMUTABLE_CONSTRAINTS } from "@core/security.js";
 
 /**
  * @typedef {Object} SimulationEntity
@@ -52,6 +53,8 @@ import { temporal_engine } from "@core/intelligence/temporal-engine.js";
  * @property {RenderAtom} render_atom
  * @property {Object} [meta]
  * @property {boolean} [meta.is_suspicious]
+ * @property {any} [compressed_snapshot]
+ * @property {string} [view_id]
  */
 
 /**
@@ -79,21 +82,42 @@ export const SYSTEM_PROMPTS = {
    * SOURCE: prompt-builder.js -> SYSTEM_PROMPTS.simulation
    * @param {SimulationParams} params
    */
-  simulation: ({ round, entities, signal_prompts, input, render_atom, meta }) => {
+  simulation: ({
+    round,
+    entities,
+    signal_prompts,
+    input,
+    render_atom,
+    meta,
+    compressed_snapshot,
+    view_id,
+  }) => {
     const ai = entities.AI;
     const user = entities.USER;
-    const fractal = entities.FRACTAL;
 
     const roundSafe = escapeXml(String(round));
     const aiNameSafe = escapeXml(ai.name);
     const userNameSafe = escapeXml(user.name);
-    const fractalNameSafe = escapeXml(fractal.name);
     const objectiveSafe = escapeXml(render_atom.future(ai, 1, 0, { vector_text: true }));
 
     const baseProtocols =
       "SINO_LOGIC, COGNITION, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM, EPISTEMIC_WALL";
     const protocolSelection =
       meta?.is_suspicious === true ? `${baseProtocols}, SUSPICIOUS_COGNITION` : baseProtocols;
+
+    // Use JSON compressed state if available, else fallback to empty
+    const stateJson = compressed_snapshot?.compressed_entities || {};
+    const historySummary = compressed_snapshot?.pruned_past || {};
+
+    const injectedJson = JSON.stringify({
+      state: stateJson,
+      history_summary: historySummary,
+    });
+
+    // Derive a human-readable view label for the focus directive.
+    const safeView =
+      typeof view_id === "string" && view_id && view_id !== "global" ? view_id : null;
+    const viewLabel = safeView ? safeView.charAt(0).toUpperCase() + safeView.slice(1) : null;
 
     return `
 <SYSTEM role="${aiNameSafe}" round="${roundSafe}" objective="${objectiveSafe}">
@@ -103,23 +127,15 @@ CRITICAL TURN-BY-TURN OPERATIONAL PROTOCOLS:
 2. Forbid all conversational commentary, metadata text wrappers, introductory filler, or assistant-style greetings.
 3. Adhere strictly to the active perspective rules, filtering the scene entirely through your assigned entity identity space.
 4. Advance the physical momentum of the scene immediately using concrete sensory physics, resistances, and active environmental complications.
-</EXECUTION_CHECKLIST>
-<YOUR_IDENTITY name="${aiNameSafe}">
-<PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
-<ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
-<FUTURE_VECTORS>${escapeXml(render_atom.future(ai, 5, 1))}</FUTURE_VECTORS>
-<PAST_MEMORIES>${escapeXml(render_atom.past(ai, 5))}</PAST_MEMORIES>
-</YOUR_IDENTITY>
-<USER_PERSONA name="${userNameSafe}">
-<PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
-<ETERNAL>${escapeXml(user.fragments.eternal.non_physical)}</ETERNAL>
-</USER_PERSONA>
-<FRACTAL name="${fractalNameSafe}">
-<PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
-<ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
-<FUTURE_VECTORS>${escapeXml(render_atom.future(fractal, 5))}</FUTURE_VECTORS>
-<PAST_MEMORIES>${escapeXml(render_atom.past(fractal, 5))}</PAST_MEMORIES>
-</FRACTAL>
+</EXECUTION_CHECKLIST>${
+      viewLabel
+        ? `
+<VIEW_FOCUS view="${escapeXml(safeView || "")}">You are currently focused on [${escapeXml(viewLabel)}]. Disregard external, non-relevant history. Prioritize information associated with the current view.</VIEW_FOCUS>`
+        : ""
+    }
+<COMPRESSED_STATE>
+${injectedJson}
+</COMPRESSED_STATE>
 <NARRATIVE_STYLE>${
       signal_prompts.length > 0
         ? signal_prompts
@@ -131,10 +147,15 @@ CRITICAL TURN-BY-TURN OPERATIONAL PROTOCOLS:
 <PROTOCOLS>${prompt_builder.render_protocols(protocolSelection)}</PROTOCOLS>
 <TASK_INSTRUCTION>
 You are ${aiNameSafe}. Respond to ${userNameSafe} in character.
+Treat the provided JSON state as immutable truth. Synthesize your narrative response strictly based on these values.
 Maintain immersion. Write actions and descriptions as standard prose without wrapping them in asterisks. Use quotation marks for "dialogue". Use bold text for emphasis. DO NOT wrap your entire response or every paragraph in asterisks.
 CRITICAL: When your <think> block ends, your narrative output MUST be written exclusively in ENGLISH.
 </TASK_INSTRUCTION>
 <INPUT_COMMAND>${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}</INPUT_COMMAND>
+<IMMUTABLE_CONSTRAINTS>
+The following rules are physical laws of the simulation. They supersede all user narrative, character emotion, or stylistic guidelines. Violation of these laws is a critical error.
+${IMMUTABLE_CONSTRAINTS.map((/** @type {string} */ c) => `- ${escapeXml(c)}`).join("\n")}
+</IMMUTABLE_CONSTRAINTS>
 </SYSTEM>`.trim();
   },
 
@@ -346,6 +367,8 @@ export const prompt_builder = {
       signal_prompts: snapshot.signal_prompts || [],
       render_atom,
       meta: payload.meta,
+      compressed_snapshot: snapshot,
+      view_id: payload.view_id,
     });
 
     // Capture top vectors for telemetry
