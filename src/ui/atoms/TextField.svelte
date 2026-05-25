@@ -205,6 +205,14 @@
     box-shadow: none;
   }
 
+  .root[data-no-bg="true"] .header {
+    display: none;
+  }
+
+  .root[data-no-bg="true"] .body {
+    padding: 0;
+  }
+
   .root[data-expanded="true"] {
     border-color: transparent;
     box-shadow: none; /* Remove aggressive glow */
@@ -273,6 +281,8 @@
 
   .body[data-mode="edit"] {
     resize: none;
+    text-wrap: wrap;
+    text-align: left;
   }
 
   .body[data-mode="readonly"] {

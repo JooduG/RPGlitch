@@ -4,7 +4,11 @@
    * ❄️ THE SIMULATION MESSAGE
    * Renders parsed messages in a Unified Nordic Chassis.
    */
-  import { parse_message } from "@intelligence/parser.js";
+  import {
+    parse_message,
+    clean_image_prompts,
+    strip_cognition_blocks,
+  } from "@intelligence/parser.js";
   import DataBox from "@devmode/DataBox.svelte";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
@@ -93,6 +97,7 @@
 
   // Check if we have visible story text
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
+  let clean_markdown = $derived(clean_image_prompts(strip_cognition_blocks(text)).trim());
 
   // Stream parsing & formatting
   let streaming_parsed = $derived(
@@ -133,7 +138,7 @@
 
   $effect(() => {
     if (is_editing) {
-      local_text = text;
+      local_text = clean_markdown;
     }
   });
 
@@ -165,6 +170,7 @@
       class:fractal-bubble={is_fractal}
       class:is-focused={isFocused || busy}
       class:is-busy={busy}
+      class:is-editing={is_editing}
       style="--signature-color: {signature_color};"
       tabindex="0"
       onfocusin={handle_focus}
@@ -179,84 +185,139 @@
           <span class="timestamp">{time_label}</span>
         </div>
         <div class="header-actions">
-          {#if is_ai && is_last}
+          {#if is_editing}
             <Button
               variant="invisible"
               size="small"
               square={true}
-              aria-label="Continue"
+              aria-label="Save"
               actions={[tooltip]}
-              onclick={on_continue}
+              onclick={() => on_save?.(local_text)}
             >
-              <svg viewBox="0 0 24 24" class="icon-small"
-                ><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg
-              >
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                <polyline
+                  points="20 6 9 17 4 12"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></polyline>
+              </svg>
             </Button>
             <Button
               variant="invisible"
               size="small"
               square={true}
-              aria-label="Reroll"
+              aria-label="Cancel"
               actions={[tooltip]}
-              onclick={on_regenerate}
+              onclick={on_cancel}
             >
               <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-                <polyline points="23 4 23 10 17 10" stroke="currentColor"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor"></path>
+                <line
+                  x1="18"
+                  y1="6"
+                  x2="6"
+                  y2="18"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></line>
+                <line
+                  x1="6"
+                  y1="6"
+                  x2="18"
+                  y2="18"
+                  stroke="currentColor"
+                  fill="none"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                ></line>
+              </svg>
+            </Button>
+          {:else}
+            {#if is_ai && is_last}
+              <Button
+                variant="invisible"
+                size="small"
+                square={true}
+                aria-label="Continue"
+                actions={[tooltip]}
+                onclick={on_continue}
+              >
+                <svg viewBox="0 0 24 24" class="icon-small"
+                  ><polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon></svg
+                >
+              </Button>
+              <Button
+                variant="invisible"
+                size="small"
+                square={true}
+                aria-label="Reroll"
+                actions={[tooltip]}
+                onclick={on_regenerate}
+              >
+                <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                  <polyline points="23 4 23 10 17 10" stroke="currentColor"></polyline>
+                  <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor"></path>
+                </svg>
+              </Button>
+            {/if}
+            <Button
+              variant="invisible"
+              size="small"
+              square={true}
+              aria-label="Edit"
+              actions={[tooltip]}
+              onclick={on_edit}
+            >
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                <path
+                  d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
+                  stroke="currentColor"
+                ></path>
+                <path
+                  d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
+                  stroke="currentColor"
+                ></path>
+              </svg>
+            </Button>
+            <Button
+              variant="invisible"
+              size="small"
+              square={true}
+              aria-label="Copy"
+              actions={[tooltip]}
+              onclick={handle_copy}
+            >
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
+                <path
+                  d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
+                  stroke="currentColor"
+                ></path>
+              </svg>
+            </Button>
+            <Button
+              variant="invisible"
+              size="small"
+              square={true}
+              aria-label="Delete"
+              actions={[tooltip]}
+              onclick={on_delete}
+            >
+              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
+                <path
+                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                  stroke="currentColor"
+                ></path>
               </svg>
             </Button>
           {/if}
-          <Button
-            variant="invisible"
-            size="small"
-            square={true}
-            aria-label="Edit"
-            actions={[tooltip]}
-            onclick={on_edit}
-          >
-            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-              <path
-                d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
-                stroke="currentColor"
-              ></path>
-              <path
-                d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"
-                stroke="currentColor"
-              ></path>
-            </svg>
-          </Button>
-          <Button
-            variant="invisible"
-            size="small"
-            square={true}
-            aria-label="Copy"
-            actions={[tooltip]}
-            onclick={handle_copy}
-          >
-            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
-              <path
-                d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-                stroke="currentColor"
-              ></path>
-            </svg>
-          </Button>
-          <Button
-            variant="invisible"
-            size="small"
-            square={true}
-            aria-label="Delete"
-            actions={[tooltip]}
-            onclick={on_delete}
-          >
-            <svg viewBox="0 0 24 24" class="icon-small icon-outline">
-              <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
-              <path
-                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                stroke="currentColor"
-              ></path>
-            </svg>
-          </Button>
         </div>
       </div>
 
@@ -305,23 +366,9 @@
                 no_background={true}
                 placeholder="Edit message..."
               />
-              <div class="edit-actions">
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onclick={() => on_save?.(local_text)}
-                  label="Save"
-                />
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onclick={() => on_cancel?.()}
-                  label="Cancel"
-                />
-              </div>
             {:else}
               <TextField
-                value={text}
+                value={clean_markdown}
                 is_edit={false}
                 {signature_color}
                 no_background={true}
@@ -379,6 +426,10 @@
     max-width: 90%;
   }
 
+  .message-bubble.is-editing {
+    width: 100%;
+  }
+
   /* Soft Point Corner Directionality */
   .user-bubble {
     border-bottom-right-radius: var(--radius-sharp);
@@ -420,7 +471,8 @@
   }
 
   .message-bubble:focus-within::before,
-  .message-bubble.is-focused::before {
+  .message-bubble.is-focused::before,
+  .message-bubble.is-editing::before {
     opacity: var(--opacity-solid);
     background: linear-gradient(
       to bottom,
@@ -460,7 +512,8 @@
   }
 
   .message-bubble:focus-within .field-header,
-  .message-bubble.is-focused .field-header {
+  .message-bubble.is-focused .field-header,
+  .message-bubble.is-editing .field-header {
     height: calc(var(--spacing-unit) * 9);
     background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
     border-bottom-color: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
@@ -483,7 +536,9 @@
   .message-bubble:focus-within .header-status,
   .message-bubble:focus-within .header-actions,
   .message-bubble.is-focused .header-status,
-  .message-bubble.is-focused .header-actions {
+  .message-bubble.is-focused .header-actions,
+  .message-bubble.is-editing .header-status,
+  .message-bubble.is-editing .header-actions {
     opacity: var(--opacity-solid);
     pointer-events: auto;
     transform: translateY(calc(var(--spacing-unit) * 0));
@@ -644,12 +699,5 @@
     border-radius: var(--radius-sharp);
     box-shadow: var(--shadow-ghost);
     object-fit: cover;
-  }
-
-  .edit-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--gap-standard);
-    margin-top: var(--margin-standard);
   }
 </style>

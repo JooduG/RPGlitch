@@ -141,16 +141,30 @@ describe("Message.svelte", () => {
     // 2. Modifying textarea value should update the local text state
     await fireEvent.input(textarea, { target: { value: "Updated narrative text" } });
 
-    // 3. Save button must trigger on_save callback with the updated value
-    const saveBtn = screen.getByText("Save");
+    // 3. Save button (aria-label="Save") must trigger on_save callback with the updated value
+    const saveBtn = screen.getByLabelText("Save");
     expect(saveBtn).toBeTruthy();
     await fireEvent.click(saveBtn);
     expect(onSave).toHaveBeenCalledWith("Updated narrative text");
 
-    // 4. Cancel button must trigger on_cancel callback
-    const cancelBtn = screen.getByText("Cancel");
+    // 4. Cancel button (aria-label="Cancel") must trigger on_cancel callback
+    const cancelBtn = screen.getByLabelText("Cancel");
     expect(cancelBtn).toBeTruthy();
     await fireEvent.click(cancelBtn);
     expect(onCancel).toHaveBeenCalled();
+  });
+
+  it("should scrub think blocks from input field when entering edit mode", () => {
+    const { container } = render(Message, {
+      props: {
+        text: "<think>deep reasoning</think>\nFiltered narrative text",
+        sender: "ai",
+        is_editing: true,
+      },
+    });
+
+    const textarea = /** @type {HTMLTextAreaElement} */ (container.querySelector("textarea"));
+    expect(textarea).toBeTruthy();
+    expect(textarea.value).toBe("Filtered narrative text");
   });
 });
