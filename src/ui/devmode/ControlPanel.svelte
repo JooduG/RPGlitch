@@ -29,13 +29,14 @@
   /** @type {Props} */
   let { settings = $bindable(app.settings), prologue = $bindable(app.prologue) } = $props();
 
-  /** @type {Story[]} */
+  /** @type {any[]} */
   let story_cache = $state([]);
   let is_confirming_reset = $state(false);
 
   let is_storyboard = $derived(app.view === "storyboard");
   let is_storymode = $derived(app.view === "storymode");
 
+  /** @type {Record<string, string>} */
   const MOCK_CONTENT = {
     fractal: `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n[[ Cyber London ]] · [[ 21:30 ]] · [[ Acid Neon ]] \n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
     ai: `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteurekar sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`,

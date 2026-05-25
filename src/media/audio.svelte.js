@@ -10,6 +10,38 @@ import { SvelteSet } from "svelte/reactivity";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
+// Global Sandbox Interceptor: Deployed at the threshold to silence Perchance engine frame conflicts
+if (typeof window !== "undefined") {
+  window.addEventListener(
+    "error",
+    (e) => {
+      if (
+        e.message &&
+        (e.message.includes("Symbol") || e.message.includes("numActualScriptLines"))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    true,
+  );
+
+  window.addEventListener(
+    "unhandledrejection",
+    (e) => {
+      if (
+        e.reason &&
+        e.reason.message &&
+        (e.reason.message.includes("Symbol") || e.reason.message.includes("numActualScriptLines"))
+      ) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+    },
+    true,
+  );
+}
+
 /************************************************************************************
  * [SECTION: VOICE ENGINE]
  * Low-level wrapper for window.speechSynthesis with resilient queuing.
@@ -29,13 +61,14 @@ export class VoiceEngine {
   pitch = $state(1.0);
   enabled = $state(false); // Defaulting strictly to off
 
-  // --- PRIVATE ---
+  // --- PRIVATE TYPE MATRIX ---
   /** @type {SpeechSynthesis | null} */
   _synth = null;
   /** @type {SpeechSynthesisUtterance | null} */
   _utterance = null;
   /** @type {Array<{ text: string, voiceUri: string|null }>} */
   #queue = [];
+  /** @type {boolean} */
   #isProcessing = false;
 
   /**
@@ -58,7 +91,6 @@ export class VoiceEngine {
     if (!this._synth) return;
     let rawVoices = /** @type {SpeechSynthesis} */ (this._synth).getVoices();
 
-    // Reactive SvelteSet to track voice signatures and block structural duplicates cleanly
     const seenIdentities = new SvelteSet();
 
     this.voices = rawVoices
@@ -125,7 +157,6 @@ export class VoiceEngine {
       this.stop();
     }
 
-    // Scrub out complete or unclosed thought chunks alongside raw markdown layout tokens
     const speechReadyText = text
       .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<think>[\s\S]*/gi, "")
@@ -175,7 +206,6 @@ export class VoiceEngine {
       utterance.voice = voice._ref;
     }
 
-    // Read reactive values directly from the parent state right before play execution
     utterance.volume = this.volume;
     utterance.rate = this.rate;
     utterance.pitch = this.pitch;
@@ -214,7 +244,7 @@ export class VoiceEngine {
     };
 
     try {
-      this._synth.speak(utterance);
+      /** @type {SpeechSynthesis} */ (this._synth).speak(utterance);
     } catch (err) {
       console.warn("[AudioEngine] Native channel speech invocation failed:", err);
       advanceQueue(true);
@@ -264,7 +294,7 @@ export class VoiceEngine {
  * Tracks hardware context unlocking steps and raw master Gain Node attenuation processing.
  */
 class AudioEffectsEngine {
-  // --- PRIVATE STATE ---
+  // --- PRIVATE TYPED PROPERTIES ---
   /** @type {AudioContext | null} */
   #audioContext = null;
   /** @type {GainNode | null} */
@@ -273,8 +303,11 @@ class AudioEffectsEngine {
   #buffers = new Map();
   /** @type {Map<string, Promise<AudioBuffer>>} */
   #pendingBuffers = new Map();
+  /** @type {boolean} */
   #unlocked = false;
+  /** @type {number} */
   #lastPlayed = 0;
+  /** @type {number} */
   #threshold = 500; // debounce in ms
 
   // --- REACTIVE STATE ---
@@ -332,7 +365,10 @@ class AudioEffectsEngine {
    */
   setVolume(volume) {
     if (this.#gainNode && this.#audioContext) {
-      this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
+      /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(
+        volume,
+        /** @type {AudioContext} */ (this.#audioContext).currentTime,
+      );
     }
   }
 
@@ -365,16 +401,20 @@ class AudioEffectsEngine {
           /** @type {any} */ (window).webkitAudioContext;
         this.#audioContext = new AudioCtx();
 
-        // Build the physical GainNode junction to allow real-time volume fading
-        // @ts-ignore
-        this.#gainNode = this.#audioContext.createGain();
-        // @ts-ignore
-        this.#gainNode.gain.setValueAtTime(Audio.voice.volume, this.#audioContext.currentTime);
-        // @ts-ignore
-        this.#gainNode.connect(this.#audioContext.destination);
+        this.#gainNode = /** @type {AudioContext} */ (this.#audioContext).createGain();
+        /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(
+          Audio.voice.volume,
+          /** @type {AudioContext} */ (this.#audioContext).currentTime,
+        );
+        /** @type {GainNode} */ (this.#gainNode).connect(
+          /** @type {AudioContext} */ (this.#audioContext).destination,
+        );
       }
-      if (this.#audioContext && this.#audioContext.state === "suspended") {
-        await this.#audioContext.resume();
+      if (
+        this.#audioContext &&
+        /** @type {AudioContext} */ (this.#audioContext).state === "suspended"
+      ) {
+        await /** @type {AudioContext} */ (this.#audioContext).resume();
       }
       this.#unlocked = true;
     } catch (e) {
@@ -441,8 +481,7 @@ class AudioEffectsEngine {
       const source = /** @type {AudioContext} */ (this.#audioContext).createBufferSource();
       source.buffer = buffer || null;
 
-      // Connect the notification node to the central master volume gain mixer
-      source.connect(this.#gainNode);
+      source.connect(/** @type {GainNode} */ (this.#gainNode));
       source.start(0);
     } catch (e) {
       console.warn("[AudioEngine] Playback error:", e);
@@ -456,6 +495,7 @@ class AudioEffectsEngine {
  ************************************************************************************/
 export const Audio = new (class {
   #effects = new AudioEffectsEngine();
+  /** @type {Promise<void> | null} */
   #initPromise = null;
 
   voice = new VoiceEngine();
@@ -516,7 +556,7 @@ export const Audio = new (class {
    */
   async init() {
     if (this.#initPromise) return this.#initPromise;
-    this.#initPromise = /** @type {any} */ (this.#effects).initSettings();
+    this.#initPromise = this.#effects.initSettings();
     return this.#initPromise;
   }
 })();

@@ -400,8 +400,10 @@
                 placeholder="Edit message..."
               />
             {:else}
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              <div class="message-content">{@html display_text}</div>
+              <div class="message-content">
+                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+                {@html display_text}
+              </div>
             {/if}
           {/if}
         {/if}
