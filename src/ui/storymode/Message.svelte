@@ -14,6 +14,7 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { typewriter } from "@ui/actions/typewriter.js";
+  import { Audio } from "@media/audio.svelte.js";
 
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
@@ -111,7 +112,7 @@
   );
 
   /**
-   *
+   * Focus handler.
    */
   function handle_focus() {
     isFocused = true;
@@ -124,7 +125,7 @@
   }
 
   /**
-   *
+   * Clipboard utility.
    */
   async function handle_copy() {
     try {
@@ -132,6 +133,22 @@
     } catch (e) {
       console.error("Failed to copy text:", e);
     }
+  }
+
+  /**
+   * Isolates text payload and passes custom profile states dynamically to the engine.
+   */
+  function handle_speak() {
+    if (!clean_markdown) return;
+
+    if (entity && entity.voice) {
+      Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
+      Audio.voice.rate = entity.voice.rate ?? 1.0;
+      Audio.voice.pitch = entity.voice.pitch ?? 1.0;
+    }
+
+    // Force queue clearing since this represents an explicit user toggle gesture
+    Audio.voice.speak(clean_markdown, true);
   }
 
   let local_text = $state("");
@@ -266,6 +283,22 @@
                 </svg>
               </Button>
             {/if}
+            <Button
+              variant="invisible"
+              size="small"
+              square={true}
+              aria-label="Read Message"
+              actions={[tooltip]}
+              onclick={handle_speak}
+              disabled={!clean_markdown}
+            >
+              <svg viewBox="0 0 24 24" class="icon-small">
+                <path
+                  fill="currentColor"
+                  d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+                />
+              </svg>
+            </Button>
             <Button
               variant="invisible"
               size="small"
@@ -597,6 +630,7 @@
   }
 
   .header-actions :global(button svg polygon),
+  .header-actions :global(button svg path[fill="currentColor"]),
   .header-actions :global(button svg[fill="currentColor"]) {
     fill: var(--pure-white) !important;
     stroke: none !important;

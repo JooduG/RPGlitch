@@ -22,9 +22,9 @@ As the `audio` specialist, you are the master of the Engine's soundscape. You ar
 
 ## 🛠️ Operational Protocol
 
-### 1. Asset Registry Management
+### 1. Dynamic Asset Configuration
 
-All audio files must be stored in `src/media/` and registered in the `AudioRegistry`. Never use hardcoded paths.
+All sound effects must be resolved dynamically. Map configuration tags using `getRpgList('sounds')` utilizing key-value formatting parameters (`key=url`). Never hardcode local server paths directly into playback calls.
 
 ### 2. Interaction Reflexes
 
@@ -42,7 +42,7 @@ Always use Svelte 5 `$effect` to manage the `AudioContext` lifecycle, ensuring i
 
 ## ✅ Definition of Done
 
-- [ ] All assets registered in `AudioRegistry`.
+- [ ] All configuration keys mapped through `getRpgList('sounds')`.
 - [ ] Gesture protocol respected (no autoplay errors).
 - [ ] Sonic palette adheres to **Auditory Harmony**.
 

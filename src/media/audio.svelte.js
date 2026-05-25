@@ -1,20 +1,21 @@
 /**
- * src/media/audio-engine.svelte.js
+ * src/media/audio.svelte.js
  * [**] AUDIO ENGINE
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
 import { db } from "@data/db.js";
 import { getRpgList } from "@ui/components/ui-helpers.js";
+import { SvelteSet } from "svelte/reactivity";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
 /************************************************************************************
  * [SECTION: VOICE ENGINE]
- * Low-level wrapper for window.speechSynthesis.
+ * Low-level wrapper for window.speechSynthesis with resilient queuing.
  ************************************************************************************/
 /**
- *
+ * Handles vocal synthesis engine configuration and lifecycle management.
  */
 export class VoiceEngine {
   // --- REACTIVE STATE ---
@@ -26,15 +27,19 @@ export class VoiceEngine {
   volume = $state(1.0);
   rate = $state(1.0);
   pitch = $state(1.0);
+  enabled = $state(false); // Defaulting strictly to off
 
   // --- PRIVATE ---
   /** @type {SpeechSynthesis | null} */
   _synth = null;
   /** @type {SpeechSynthesisUtterance | null} */
   _utterance = null;
+  /** @type {Array<{ text: string, voiceUri: string|null, volume: number, rate: number, pitch: number }>} */
+  #queue = [];
+  #isProcessing = false;
 
   /**
-   *
+   * Initializes the speech synthesis interface and binds platform event triggers.
    */
   constructor() {
     if (typeof window !== "undefined") {
@@ -47,11 +52,15 @@ export class VoiceEngine {
   }
 
   /**
-   *
+   * Loads, filters, and filters out clone duplicates from the platform voice array.
    */
   _loadVoices() {
     if (!this._synth) return;
     let rawVoices = /** @type {SpeechSynthesis} */ (this._synth).getVoices();
+
+    // Reactive SvelteSet to track voice signatures and block structural duplicates cleanly
+    const seenIdentities = new SvelteSet();
+
     this.voices = rawVoices
       .filter((v) => v.lang.startsWith("en") || v.lang.startsWith("sv"))
       .map((v) => ({
@@ -64,6 +73,18 @@ export class VoiceEngine {
         supportsParams: !v.name.includes("Natural"),
         _ref: v,
       }))
+      .filter((v) => {
+        const cleanToken = v.name
+          .replace(/Microsoft|Google|Desktop|Mobile|Speech|Natural|Voice|Online/gi, "")
+          .replace(/\s+-\s+.*/g, "")
+          .trim();
+
+        const coreIdentifier = cleanToken.split(/\s+/)[0]?.toLowerCase() || v.name.toLowerCase();
+
+        if (seenIdentities.has(coreIdentifier)) return false;
+        seenIdentities.add(coreIdentifier);
+        return true;
+      })
       .sort((/** @type {any} */ a, /** @type {any} */ b) => {
         const regionSort = a.region.localeCompare(b.region);
         if (regionSort !== 0) return regionSort;
@@ -91,35 +112,114 @@ export class VoiceEngine {
   }
 
   /**
+   * Appends sanitized narrative segments to the custom engine execution queue.
    * @param {string} text
+   * @param {boolean} [clearQueue=true]
    */
-  speak(text) {
-    if (!this._synth || !text) return;
-    this.stop();
+  speak(text, clearQueue = true) {
+    if (!this._synth || !text || !this.enabled) return;
 
-    const voice = this.voices.find((v) => v.uri === this.selectedVoice) || this.voices[0];
-    if (!voice) {
-      console.warn("[AudioEngine] No voice available.");
+    if (clearQueue) {
+      this.stop();
+    }
+
+    // Cognition Isolation Shield: Scrub complete and streaming inner thought monologues completely
+    const speechReadyText = text
+      .replace(/<think>[\s\S]*?<\/think>/gi, "")
+      .replace(/<think>[\s\S]*/gi, "")
+      .replace(/[*_#`~]/g, "")
+      .replace(/\[\[(.*?)\]\]/g, "$1")
+      .replace(/<[^>]*>/g, "")
+      .trim();
+
+    if (!speechReadyText) return;
+
+    // Flooding Protection Filter: Prevent duplicate items from piling up during streaming transitions
+    if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === speechReadyText) {
       return;
     }
 
-    this.isSpeaking = true;
-    this._utterance = new SpeechSynthesisUtterance(text);
-    this._utterance.voice = voice._ref;
-    this._utterance.volume = this.volume;
-    this._utterance.rate = this.rate;
-    this._utterance.pitch = this.pitch;
+    // Secure target configuration parameters inside the immutable track segment entry
+    this.#queue.push({
+      text: speechReadyText,
+      voiceUri: this.selectedVoice,
+      volume: this.volume,
+      rate: this.rate,
+      pitch: this.pitch,
+    });
 
-    this._utterance.onend = () => {
+    if (!this.#isProcessing) {
+      this.#processQueue();
+    }
+  }
+
+  /**
+   * Processes the structured sequential speech array block-by-block.
+   */
+  #processQueue() {
+    if (!this._synth) return;
+
+    if (this.#queue.length === 0) {
+      this.#isProcessing = false;
       this.isSpeaking = false;
       this._utterance = null;
+      return;
+    }
+
+    this.#isProcessing = true;
+    this.isSpeaking = true;
+
+    const currentItem = this.#queue[0];
+    const utterance = new SpeechSynthesisUtterance(currentItem.text);
+    this._utterance = utterance;
+
+    const voice = this.voices.find((v) => v.uri === currentItem.voiceUri) || this.voices[0];
+    if (voice) {
+      utterance.voice = voice._ref;
+    }
+    utterance.volume = currentItem.volume;
+    utterance.rate = currentItem.rate;
+    utterance.pitch = currentItem.pitch;
+
+    let isSettled = false;
+
+    /**
+     * Advances the internal execution pointer safely.
+     * @param {boolean} wasInterrupted
+     */
+    const advanceQueue = (wasInterrupted) => {
+      if (isSettled) return;
+      isSettled = true;
+
+      this.#queue.shift();
+
+      const stepDelay = wasInterrupted ? 250 : 40;
+      setTimeout(() => this.#processQueue(), stepDelay);
     };
-    this._utterance.onerror = (/** @type {any} */ e) => {
-      console.warn("[AudioEngine] Synthesis error", e);
-      this.isSpeaking = false;
-      this._utterance = null;
+
+    utterance.onend = () => {
+      advanceQueue(false);
     };
-    /** @type {SpeechSynthesis} */ (this._synth).speak(this._utterance);
+
+    utterance.onerror = (/** @type {any} */ e) => {
+      const isInterrupted = e && (e.error === "interrupted" || e.error === "canceled");
+      if (isInterrupted) {
+        console.warn(
+          "[AudioEngine] System channel reset detected. Applying hardware backoff recovery delay.",
+          e,
+        );
+      } else {
+        console.warn("[AudioEngine] Managed synthesis track error:", e);
+      }
+      advanceQueue(isInterrupted);
+    };
+
+    try {
+      this._synth.speak(utterance);
+    } catch (err) {
+      console.warn("[AudioEngine] Native channel speech invocation failed:", err);
+      advanceQueue(true);
+    }
   }
 
   /**
@@ -144,9 +244,11 @@ export class VoiceEngine {
   }
 
   /**
-   *
+   * Cancels active audio playback streams immediately and flushes memory slots.
    */
   stop() {
+    this.#queue = [];
+    this.#isProcessing = false;
     if (this._synth) {
       /** @type {SpeechSynthesis} */ (this._synth).cancel();
     }
@@ -160,7 +262,7 @@ export class VoiceEngine {
  * Handles sound effects and browser AudioContext state.
  ************************************************************************************/
 /**
- *
+ * Tracks hardware context unlocking steps and raw effect pipeline processing.
  */
 class AudioEffectsEngine {
   // --- PRIVATE STATE ---
@@ -175,23 +277,27 @@ class AudioEffectsEngine {
   #threshold = 500; // debounce in ms
 
   // --- REACTIVE STATE ---
-  notifications_enabled = $state(true);
+  notifications_enabled = $state(false); // Defaulting strictly to off
 
   /**
-   *
+   * Initializes browser window interaction listeners.
    */
   constructor() {
     this.#initListeners();
   }
 
   /**
-   *
+   * Syncs internal configuration from client storage space.
    */
   async initSettings() {
     try {
       const entry = await db.audio_prefs.get(STORAGE_KEY);
       if (entry && entry.value) {
-        this.notifications_enabled = !!entry.value.notificationsEnabled;
+        this.notifications_enabled = entry.value.notificationsEnabled === true;
+        Audio.voice.enabled = entry.value.voiceEnabled === true;
+      } else {
+        this.notifications_enabled = false;
+        Audio.voice.enabled = false;
       }
     } catch (e) {
       console.warn("[AudioEngine] Failed to load settings:", e);
@@ -199,14 +305,16 @@ class AudioEffectsEngine {
   }
 
   /**
-   * @param {any} enabled
+   * Commits the expanded preference layout options back to client databases.
    */
-  async setNotifications(enabled) {
-    this.notifications_enabled = !!enabled;
+  async saveAllSettings() {
     try {
       await db.audio_prefs.put({
         key: STORAGE_KEY,
-        value: { notificationsEnabled: this.notifications_enabled },
+        value: {
+          notificationsEnabled: this.notifications_enabled,
+          voiceEnabled: Audio.voice.enabled,
+        },
       });
     } catch (e) {
       console.error("[AudioEngine] Failed to save settings:", e);
@@ -214,7 +322,7 @@ class AudioEffectsEngine {
   }
 
   /**
-   *
+   * Intercepts gestures to dynamically prime browser AudioContext properties.
    */
   #initListeners() {
     if (typeof window === "undefined") return;
@@ -231,7 +339,7 @@ class AudioEffectsEngine {
   }
 
   /**
-   *
+   * Awakens the suspended audio landscape context safely.
    */
   async unlock() {
     if (this.#unlocked) return;
@@ -280,7 +388,6 @@ class AudioEffectsEngine {
     try {
       let buffer = this.#buffers.get(key);
       if (!buffer) {
-        // Handle concurrent requests for the same key
         if (this.#pendingBuffers.has(key)) {
           buffer = await this.#pendingBuffers.get(key);
         } else {
@@ -329,16 +436,33 @@ export const Audio = new (class {
   voice = new VoiceEngine();
 
   /**
-   *
+   * Returns whether UI sensory sound feedback is enabled globally.
    */
   get notifications_enabled() {
     return this.#effects.notifications_enabled;
   }
+
   /**
-   *
+   * Modifies and saves settings changes into local databases.
    */
   set notifications_enabled(v) {
-    this.#effects.setNotifications(v);
+    this.#effects.notifications_enabled = !!v;
+    this.#effects.saveAllSettings();
+  }
+
+  /**
+   * Returns whether character voice synthesis features are enabled.
+   */
+  get voice_enabled() {
+    return this.voice.enabled;
+  }
+
+  /**
+   * Swaps character activation parameters and serializes the update.
+   */
+  set voice_enabled(v) {
+    this.voice.enabled = !!v;
+    this.#effects.saveAllSettings();
   }
 
   /**
@@ -349,7 +473,7 @@ export const Audio = new (class {
   }
 
   /**
-   *
+   * Pre-loads configurations and states safely before interface assembly.
    */
   async init() {
     if (this.#initPromise) return this.#initPromise;
