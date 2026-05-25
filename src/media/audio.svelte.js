@@ -115,15 +115,17 @@ export class VoiceEngine {
    * Appends sanitized narrative segments to the custom engine execution queue.
    * @param {string} text
    * @param {boolean} [clearQueue=true]
+   * @param {boolean} [force=false]
    */
-  speak(text, clearQueue = true) {
-    if (!this._synth || !text || !this.enabled) return;
+  speak(text, clearQueue = true, force = false) {
+    if (!this._synth || !text) return;
+    if (!this.enabled && !force) return; // Permit override bypass checks for button pings
 
     if (clearQueue) {
       this.stop();
     }
 
-    // Cognition Isolation Shield: Scrub complete and streaming inner thought monologues completely
+    // Scrub out complete or unclosed thought chunks alongside raw markdown layout tokens
     const speechReadyText = text
       .replace(/<think>[\s\S]*?<\/think>/gi, "")
       .replace(/<think>[\s\S]*/gi, "")
@@ -134,12 +136,10 @@ export class VoiceEngine {
 
     if (!speechReadyText) return;
 
-    // Flooding Protection Filter: Prevent duplicate items from piling up during streaming transitions
     if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === speechReadyText) {
       return;
     }
 
-    // Secure target configuration parameters inside the immutable track segment entry
     this.#queue.push({
       text: speechReadyText,
       voiceUri: this.selectedVoice,

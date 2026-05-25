@@ -136,7 +136,7 @@
   }
 
   /**
-   * Isolates text payload and passes custom profile states dynamically to the engine.
+   * Captures entity properties and passes a direct manual bypass switch to the engine.
    */
   function handle_speak() {
     if (!clean_markdown) return;
@@ -147,8 +147,7 @@
       Audio.voice.pitch = entity.voice.pitch ?? 1.0;
     }
 
-    // Force queue clearing since this represents an explicit user toggle gesture
-    Audio.voice.speak(clean_markdown, true);
+    Audio.voice.speak(clean_markdown, true, true);
   }
 
   let local_text = $state("");
@@ -192,7 +191,8 @@
       tabindex="0"
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
-      role="article"
+      role="region"
+      aria-label="Message Context"
     >
       <div class="header field-header">
         <div class="header-status">

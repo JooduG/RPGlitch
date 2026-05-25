@@ -6,7 +6,7 @@
    * 1. Renders the sequential story log entries.
    * 2. Manages auto-scroll and turn-state visualization.
    * 3. Integrated with Nordic Collection & Chess Grid.
-   * 4. Progressive sentence-by-sentence text-to-speech parsing.
+   * 4. Progressive sentence-by-sentence text-to-speech parsing with cognition shield filters.
    */
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
@@ -17,7 +17,7 @@
   import { simulationState } from "@state/status.svelte.js";
   import Message from "@storymode/Message.svelte";
   import { Audio } from "@media/audio.svelte.js";
-  import { strip_cognition_blocks, clean_image_prompts } from "@intelligence/parser.js";
+  import { clean_image_prompts } from "@intelligence/parser.js";
 
   // --- STATE ---
   /** @type {HTMLDivElement | null} */
@@ -47,11 +47,9 @@
 
   // Reactive Sound Cues & Sentence-by-Sentence Vocal Streaming Loop
   $effect(() => {
-    // 1. Hook the entry transition to reset the layout string lookbehind offset
     if (app.streaming.active && !was_streaming) {
       spoken_character_cursor = 0;
 
-      // Dynamic profile swap at the absolute start of transmission
       const activeRole = app.streaming.role;
       if (activeRole === "ai" || activeRole === "fractal") {
         const entity =
@@ -67,50 +65,46 @@
       }
     }
 
-    // 2. Continuous extraction parse layer during active streaming operations
     if (app.streaming.active) {
       const current_raw_text = app.streaming.text ?? app.streaming.content ?? "";
 
-      // Isolate text from the current index cursor location forward
-      const fresh_buffer = current_raw_text.slice(spoken_character_cursor);
+      const sanitized_stream_track = current_raw_text
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/<think>[\s\S]*/gi, "");
 
-      // Regular expression matching completed punctuation boundaries (. ! ?)
+      const fresh_buffer = sanitized_stream_track.slice(spoken_character_cursor);
+
       const sentence_regex = /[^.!?]+[.!?]+/g;
       let match;
       let highest_match_offset = 0;
 
       while ((match = sentence_regex.exec(fresh_buffer)) !== null) {
         const structural_sentence = match[0];
-
-        // Sanitize out image prompt markers and logical chain segments
-        const clean_sentence = clean_image_prompts(
-          strip_cognition_blocks(structural_sentence),
-        ).trim();
+        const clean_sentence = clean_image_prompts(structural_sentence).trim();
 
         if (clean_sentence) {
-          // Speak progressively by feeding statements safely into the browser queue
-          Audio.voice.speak(clean_sentence);
+          Audio.voice.speak(clean_sentence, false);
         }
 
         highest_match_offset = match.index + match[0].length;
       }
 
-      // Bump the pointer index forward matching verified blocks processed
       spoken_character_cursor += highest_match_offset;
     }
 
-    // 3. Close checking routine when generation completes
     if (!app.streaming.active && was_streaming) {
-      // Execute completion chime now that the transmission has come to a stop
       Audio.play("notification");
 
-      // Sweep up and speak any leftover text blocks lacking ending punctuation markers
       const current_raw_text = app.streaming.text ?? app.streaming.content ?? "";
-      const remaining_text = current_raw_text.slice(spoken_character_cursor);
-      const clean_remainder = clean_image_prompts(strip_cognition_blocks(remaining_text)).trim();
+      const sanitized_stream_track = current_raw_text
+        .replace(/<think>[\s\S]*?<\/think>/gi, "")
+        .replace(/<think>[\s\S]*/gi, "");
+
+      const remaining_text = sanitized_stream_track.slice(spoken_character_cursor);
+      const clean_remainder = clean_image_prompts(remaining_text).trim();
 
       if (clean_remainder) {
-        Audio.voice.speak(clean_remainder);
+        Audio.voice.speak(clean_remainder, false);
       }
     }
 
