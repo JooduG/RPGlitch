@@ -4,21 +4,21 @@
    * ❄️ THE SIMULATION MESSAGE
    * Renders parsed messages in a Unified Nordic Chassis.
    */
+  import DataBox from "@devmode/DataBox.svelte";
   import {
-    parse_message,
     clean_image_prompts,
+    parse_message,
     strip_cognition_blocks,
   } from "@intelligence/parser.js";
-  import DataBox from "@devmode/DataBox.svelte";
+  import { themeStore } from "@media/palette.svelte.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
-  import { themeStore } from "@media/palette.svelte.js";
   import { typewriter } from "@ui/actions/typewriter.js";
 
   import Button from "@atoms/Button.svelte";
+  import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
-  import TextField from "@atoms/TextField.svelte";
 
   /**
    * @typedef {Object} Props
@@ -386,7 +386,7 @@
   .message-row {
     display: flex;
     width: 100%;
-    padding: var(--padding-standard) var(--padding-standard);
+    padding: var(--padding-standard) calc(var(--column-unit) * 0.5);
     position: relative;
     transition: all var(--duration-fast);
   }
@@ -402,28 +402,28 @@
   .message-row.fractal-row,
   .message-row.centered-row {
     justify-content: center;
-    padding: var(--padding-standard) var(--padding-standard);
   }
 
   .message-bubble {
     width: fit-content;
-    min-width: var(--width-sidebar);
-    max-width: 50vw;
+    min-width: calc(var(--column-unit) * 3);
+    max-width: calc(var(--column-unit) * 5.5);
     display: flex;
     flex-direction: column;
     position: relative;
     border-radius: var(--radius-standard);
     transition: all var(--duration-standard) var(--motion-elastic);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
-    border-color: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
+    border-color: rgb(from var(--frisk) r g b / var(--opacity-ghost));
     overflow: hidden;
     outline: none;
     cursor: pointer;
   }
 
   .fractal-bubble {
-    width: var(--modal-width-wide);
-    max-width: 90%;
+    width: 100%;
+    min-width: calc(var(--column-unit) * 4);
+    max-width: calc(var(--column-unit) * 6);
   }
 
   .message-bubble.is-editing {
@@ -441,7 +441,7 @@
 
   .message-bubble:focus-within,
   .message-bubble.is-focused {
-    border-color: var(--pure-white);
+    border-color: var(--frisk);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 6%);
     overflow: visible;
   }
@@ -450,7 +450,7 @@
   .message-bubble::before {
     content: "";
     position: absolute;
-    inset: calc(var(--spacing-unit) * 0);
+    inset: 0;
     pointer-events: none;
     border-radius: inherit;
     padding: var(--spacing-pixel);
@@ -460,11 +460,8 @@
       transparent 40%
     );
     mask:
-      linear-gradient(var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0))
-        content-box,
-      linear-gradient(
-        var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      );
+      linear-gradient(var(--frisk) 0 0) content-box,
+      linear-gradient(var(--frisk) 0 0);
     mask-composite: exclude;
     opacity: var(--opacity-whisper);
     transition: opacity var(--duration-standard);
@@ -505,9 +502,8 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    top: calc(var(--spacing-unit) * 0);
-    border-radius: var(--radius-standard) var(--radius-standard) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 0);
+    top: 0;
+    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
     z-index: var(--z-index-surface);
   }
 
@@ -516,7 +512,7 @@
   .message-bubble.is-editing .field-header {
     height: calc(var(--spacing-unit) * 9);
     background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
-    border-bottom-color: rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    border-bottom-color: rgb(from var(--frisk) r g b / var(--opacity-whisper));
     overflow: visible;
     display: flex;
     flex-direction: row;
@@ -541,7 +537,7 @@
   .message-bubble.is-editing .header-actions {
     opacity: var(--opacity-solid);
     pointer-events: auto;
-    transform: translateY(calc(var(--spacing-unit) * 0));
+    transform: translateY(0);
     transition: all var(--duration-fast) var(--ease-standard) 200ms;
   }
 
@@ -628,8 +624,7 @@
   .message-content :global(b) {
     font-weight: var(--font-weight-bold);
     color: var(--signature-color, var(--gunmetal));
-    text-shadow: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 2)
+    text-shadow: 0 0 calc(var(--spacing-unit) * 2)
       rgb(from var(--signature-color, var(--gunmetal)) r g b / var(--opacity-whisper));
   }
 
@@ -657,11 +652,11 @@
   .message-bubble.is-busy .field-header::after {
     content: "";
     position: absolute;
-    inset: calc(var(--spacing-unit) * 0);
+    inset: 0;
     background: linear-gradient(
       90deg,
       transparent 0%,
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,
+      rgb(from var(--frisk) r g b / var(--opacity-whisper)) 50%,
       transparent 100%
     );
     width: 100%;

@@ -4,7 +4,6 @@
    * 🧬 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
-  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@intelligence/fragments.js";
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
@@ -12,14 +11,15 @@
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevWing from "@devmode/DevWing.svelte";
+  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@intelligence/fragments.js";
+  import { themeStore } from "@media/palette.svelte.js";
   import AudioWing from "@profile/AudioWing.svelte";
   import ProfileArray from "@profile/ProfileArray.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
   import { app } from "@state/app.svelte.js";
-  import { themeStore } from "@media/palette.svelte.js";
   // State & Utilities
-  import { auto_resize } from "@ui/actions/resize.js";
   import { click_outside } from "@ui/actions/click-outside.js";
+  import { auto_resize } from "@ui/actions/resize.js";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -428,7 +428,7 @@
   .description-wrapper::before {
     content: "";
     position: absolute;
-    inset: calc(var(--spacing-unit) * 0);
+    inset: 0;
     pointer-events: none;
     border-radius: inherit;
     padding: var(--spacing-pixel);
@@ -438,11 +438,8 @@
       transparent 40%
     );
     mask:
-      linear-gradient(var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0))
-        content-box,
-      linear-gradient(
-        var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      );
+      linear-gradient(var(--pure-white) 0 0) content-box,
+      linear-gradient(var(--pure-white) 0 0);
     mask-composite: exclude;
     opacity: var(--opacity-whisper);
     transition: opacity var(--duration-standard);

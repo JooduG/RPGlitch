@@ -5,11 +5,11 @@
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { auto_resize } from "@ui/actions/resize.js";
-  import { parse_markdown } from "@ui/components/markdown.js";
-  import { use_actions } from "@ui/actions/use-actions.js";
-  import { fade } from "svelte/transition";
   import { controlState } from "@state/status.svelte.js";
+  import { auto_resize } from "@ui/actions/resize.js";
+  import { use_actions } from "@ui/actions/use-actions.js";
+  import { parse_markdown } from "@ui/components/markdown.js";
+  import { fade } from "svelte/transition";
 
   let {
     // Data
@@ -151,7 +151,6 @@
     display: flex;
     flex-direction: column;
     position: relative;
-    border-radius: var(--radius-standard);
     background: color-mix(in srgb, var(--state-dev-accent) 8%, var(--glass-sunken));
     backdrop-filter: var(--blur-whisper);
     border: var(--spacing-pixel) solid transparent;
@@ -159,13 +158,14 @@
       border-color var(--duration-standard) var(--ease-standard),
       background var(--duration-standard) var(--ease-standard);
     overflow: hidden;
+    border-radius: var(--radius-standard);
   }
 
   /* --- HOLOGRAPHIC BORDER LOGIC --- */
   .root::before {
     content: "";
     position: absolute;
-    inset: calc(var(--spacing-unit) * 0);
+    inset: 0;
     pointer-events: none;
     border-radius: inherit;
     padding: var(--spacing-pixel);
@@ -175,11 +175,8 @@
       transparent 40%
     );
     mask:
-      linear-gradient(var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0))
-        content-box,
-      linear-gradient(
-        var(--pure-white) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      );
+      linear-gradient(var(--pure-white) 0 0) content-box,
+      linear-gradient(var(--pure-white) 0 0);
     mask-composite: exclude;
     opacity: var(--opacity-whisper);
     transition: opacity var(--duration-standard);

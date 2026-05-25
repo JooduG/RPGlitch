@@ -6,16 +6,16 @@
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
+  import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import Skeleton from "@atoms/Skeleton.svelte";
+  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { themeStore } from "@media/palette.svelte.js";
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { simulationState } from "@state/status.svelte.js";
-  import Layout from "@ui/Layout.svelte";
-  import Skeleton from "@atoms/Skeleton.svelte";
   import InputBar from "@storymode/InputBar.svelte";
   import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
-  import { themeStore } from "@media/palette.svelte.js";
+  import Layout from "@ui/Layout.svelte";
 
   // Derived
   let is_thinking = $derived(simulationState.phase === "generating" || app.busy);
@@ -141,7 +141,7 @@
   /* Full-bleed vertical atmospheric pillar: signature color top fading to abyssal black bottom */
   .panel-background {
     position: absolute;
-    inset: calc(var(--spacing-unit) * 0);
+    inset: 0;
     background: linear-gradient(
       to bottom,
       color-mix(in srgb, var(--signature-color), transparent 30%) 0%,

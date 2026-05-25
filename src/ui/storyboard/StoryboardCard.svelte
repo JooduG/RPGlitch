@@ -126,12 +126,11 @@
   .root::after {
     content: "";
     position: absolute;
-    inset: calc(var(--spacing-unit) * 0);
+    inset: 0;
     pointer-events: none;
     border-radius: inherit;
     border: var(--border-width-base) solid transparent;
-    box-shadow: inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 0) var(--spacing-pixel) transparent;
+    box-shadow: inset 0 0 0 var(--spacing-pixel) transparent;
     transition:
       box-shadow var(--duration-standard) var(--ease-standard),
       border-color var(--duration-standard) var(--ease-standard);
@@ -140,8 +139,7 @@
 
   .root:hover::after {
     border-color: var(--signature-color, var(--frisk));
-    box-shadow: inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      calc(var(--spacing-unit) * 0) var(--spacing-pixel) var(--signature-color, var(--frisk));
+    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color, var(--frisk));
   }
 
   /* --- BODY --- */
@@ -167,7 +165,7 @@
 
     /* prettier-ignore */
     box-shadow:
-      inset calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 12) rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-whisper)),
+      inset 0 0 calc(var(--spacing-unit) * 12) rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-whisper)),
       var(--shadow-standard);
     /* stylelint-enable scale-unlimited/declaration-strict-value */
   }
@@ -208,9 +206,9 @@
   /* --- HEADER (Info Overlay) --- */
   .header {
     position: absolute;
-    bottom: calc(var(--spacing-unit) * 0);
-    left: calc(var(--spacing-unit) * 0);
-    right: calc(var(--spacing-unit) * 0);
+    bottom: 0;
+    left: 0;
+    right: 0;
     height: 60%;
     min-width: 0; /* Stabilize for fit_text */
 
@@ -231,8 +229,7 @@
     padding: var(--padding-standard) var(--padding-standard);
     z-index: var(--z-index-surface);
     pointer-events: none;
-    border-radius: calc(var(--spacing-unit) * 0) calc(var(--spacing-unit) * 0)
-      var(--radius-standard) var(--radius-standard);
+    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
   }
 
   .header .primary {
