@@ -36,10 +36,10 @@
   // Determine active busy state using the unified simulationState if busy is not explicitly passed
   let is_busy = $derived(busy !== null ? busy : simulationState.busy);
 
-  // The 'Fly' offset and durations are derived from design tokens.
-  const offset = $derived(resolve_px("--spacing-5", 20));
-  const duration_in = $derived(resolve_ms("--duration-standard", 350));
-  const duration_out = $derived(resolve_ms("--duration-fast", 250));
+  // The 'Fly' offset and durations are resolved once from design tokens on initialization.
+  const offset = resolve_px("--spacing-5", 20);
+  const duration_in = resolve_ms("--duration-standard", 350);
+  const duration_out = resolve_ms("--duration-fast", 250);
 </script>
 
 <svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />

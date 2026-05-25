@@ -100,17 +100,6 @@
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
   let clean_markdown = $derived(clean_image_prompts(strip_cognition_blocks(text)).trim());
 
-  // Stream parsing & formatting
-  let streaming_parsed = $derived(
-    app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)
-      ? parse_message(app.streaming.text ?? app.streaming.content ?? "")
-      : null,
-  );
-  let streaming_display_text = $derived(streaming_parsed ? streaming_parsed.displayText : "");
-  let streaming_has_display_text = $derived(
-    !!(streaming_display_text && streaming_display_text !== "<p></p>"),
-  );
-
   /**
    * Focus handler.
    */
@@ -357,8 +346,8 @@
       <div class="message-body">
         {#if app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)}
           <div class="message-content streaming-active">
-            {#if streaming_has_display_text}
-              <div use:typewriter={streaming_display_text}></div>
+            {#if has_display_text}
+              <div use:typewriter={display_text}></div>
             {/if}
           </div>
         {:else}

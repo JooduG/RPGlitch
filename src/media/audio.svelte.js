@@ -15,12 +15,14 @@ if (typeof window !== "undefined") {
   window.addEventListener(
     "error",
     (e) => {
-      if (
-        e.message &&
-        (e.message.includes("Symbol") || e.message.includes("numActualScriptLines"))
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
+      try {
+        const msg = e.message ? String(e.message) : "";
+        if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      } catch {
+        // Fallback for objects that cannot be converted to string, such as raw symbols
       }
     },
     true,
@@ -29,13 +31,20 @@ if (typeof window !== "undefined") {
   window.addEventListener(
     "unhandledrejection",
     (e) => {
-      if (
-        e.reason &&
-        e.reason.message &&
-        (e.reason.message.includes("Symbol") || e.reason.message.includes("numActualScriptLines"))
-      ) {
-        e.preventDefault();
-        e.stopPropagation();
+      try {
+        const reason = e.reason;
+        const msg =
+          reason && typeof reason === "object" && reason.message
+            ? String(reason.message)
+            : reason
+              ? String(reason)
+              : "";
+        if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
+          e.preventDefault();
+          e.stopPropagation();
+        }
+      } catch {
+        // Fallback for unconvertible reasons
       }
     },
     true,

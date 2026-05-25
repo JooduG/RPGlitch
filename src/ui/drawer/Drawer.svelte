@@ -18,7 +18,7 @@
 
   // --- STATE & DERIVATIONS ---
 
-  let duration = $derived(resolve_ms("--duration-slow", 400));
+  const duration = resolve_ms("--duration-slow", 400);
 
   let is_open = $derived(app.drawer.open);
 
