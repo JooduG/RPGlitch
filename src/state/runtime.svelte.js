@@ -137,24 +137,38 @@ function createRuntimeStore() {
   let ai_physics = $state(null);
   /** @type {EntityDynamics | null} */
   let fractal_physics = $state(null);
-  $effect.root(() => {
-    $effect(() => {
-      const _round = simulation_round;
-      const _ai = ai_physics;
-      const _fractal = fractal_physics;
-      if (simulation_is_ready && simulation_story_id) {
-        db.stories
-          .update(coerce_story_key(simulation_story_id), {
-            round: _round,
-            last_played: Date.now(),
-            ai_dynamics: $state.snapshot(_ai),
-            fractal_dynamics: $state.snapshot(_fractal),
-          })
-          .catch((err) => console.error("[Data] Auto-save failed:", err));
-      }
-    });
-  });
+
+  /** @type {(() => void) | null} */
+  let runtime_cleanup = null;
+
   const api = {
+    // --- LIFECYCLE ---
+    init_effects() {
+      if (runtime_cleanup) return;
+      runtime_cleanup = $effect.root(() => {
+        $effect(() => {
+          const _round = simulation_round;
+          const _ai = ai_physics;
+          const _fractal = fractal_physics;
+          if (simulation_is_ready && simulation_story_id) {
+            db.stories
+              .update(coerce_story_key(simulation_story_id), {
+                round: _round,
+                last_played: Date.now(),
+                ai_dynamics: $state.snapshot(_ai),
+                fractal_dynamics: $state.snapshot(_fractal),
+              })
+              .catch((err) => console.error("[Data] Auto-save failed:", err));
+          }
+        });
+      });
+    },
+    teardown_effects() {
+      if (runtime_cleanup) {
+        runtime_cleanup();
+        runtime_cleanup = null;
+      }
+    },
     // --- GETTERS ---
     get character() {
       return character_state;
@@ -497,4 +511,5 @@ function createRuntimeStore() {
 export const runtime = createRuntimeStore();
 if (typeof window !== "undefined") {
   window.runtime = runtime;
+  runtime.init_effects();
 }

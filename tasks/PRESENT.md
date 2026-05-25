@@ -20,39 +20,40 @@ This document describes the current distance between the existing engine state a
 
 ## 2.0 Active Focus
 
-Enhancing story pacing and context window optimization.
+Implementing inline log entry editing directly inside the chat feed layout.
 
 | Feature          | State      | Gap                                                      |
 | ---------------- | ---------- | -------------------------------------------------------- |
+| Storymode UI     | Sovereign  | Inline log entry editing in-place in the scrolling feed. |
 | Memory Protocol  | Sovereign  | None. RAG filters system logs, resets stasis cleanly.    |
 | Consecutive Msg  | Sovereign  | None. Collapses consecutive actors first, then slices.   |
 | System Telemetry | Sovereign  | None. Skip system roles during transport formatting.     |
-| Storymode UI     | Sovereign  | None. Refactored UI tree, inline toolbar, full pillars.  |
 | Profile Wings    | Sovereign  | None. Restructured layout, glassmorphism, dynamic fills. |
 | Profile Layout   | Sovereign  | None. Scroll delegation, stacking, glows, exclusions.    |
 | Storyboard Cards | Remediated | Fully resolved with vertical scrims and frisk titles.    |
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track Name                                     | Priority | State    | Gap                                                                                                 |
-| ---------------------------------------------- | -------- | -------- | --------------------------------------------------------------------------------------------------- |
-| Agent System Alignment                         | 🔥 High  | [/] IP   | In progress. Aligning config layout mappings, svelte structural guidelines, and CSS token auditors. |
-| GlassPill & InputBar Refactor                  | 🔥 High  | [x] done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte. |
-| Architectural Flatness & Utility Consolidation | 🔥 High  | [x] done | Centralize helpers, flatten Storymode panels, and centralize reactive busy locks.                   |
-| UI Cleanup & Animation Purge                   | 🔥 High  | [x] done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.             |
-| Memory Protocol & Consecutive Messages         | 🔥 High  | [x] done | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.     |
-| Reactivity & Turn Counter Fixes                | 🔥 High  | [x] done | Fix Svelte 5 proxy collisions, round coercion, etc.                                                 |
-| Image Upload Pipeline                          | 🔥 High  | [x] done | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence. |
-| UI Reactivity & Intent Locking                 | 🔥 High  | [x] done | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                 |
-| Intelligence Polish                            | 🔥 High  | [x] done | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                  |
-| DevMode StoryCard Refactor                     | 🔥 High  | [x] done | Fix clickability layering, correct border radius, active story, and refactor CSS.                   |
-| Storymode UI Refactor                          | 🔥 High  | [x] done | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                    |
-| Profile Class Simplification                   | 🔥 High  | [x] done | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                   |
-| Profile Wings Cleanup                          | 🔥 High  | [x] done | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                  |
-| Profile Design Cleanup                         | 🔥 High  | [x] done | Design cleanup of Profile.svelte, readonly & edit mode.                                             |
-| Spacing Migration                              | 🔥 High  | [x] done | Migrate from fit_text.js to CSS Container Queries & Clamp.                                          |
-| Storyboard Card Bleed Fix                      | 🟡 Med   | [x] done | Resolve text bleed in selection tarot.                                                              |
-| Drawer Contrast Rebuild                        | 🟡 Med   | [x] done | Contrast and visibility remediation.                                                                |
+| Track Name                                     | Priority | State    | Gap                                                                                                  |
+| ---------------------------------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| Inline Log Entry Editing                       | 🔥 High  | [x] done | None. Swapped out prompts for in-place TextField editing with save/cancel buttons inside story feed. |
+| Agent System Alignment                         | 🔥 High  | [x] done | Complete alignment of configs, svelte rules, and CSS token auditing framework.                       |
+| GlassPill & InputBar Refactor                  | 🔥 High  | [x] done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte.  |
+| Architectural Flatness & Utility Consolidation | 🔥 High  | [x] done | Centralize helpers, flatten Storymode panels, and centralize reactive busy locks.                    |
+| UI Cleanup & Animation Purge                   | 🔥 High  | [x] done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.              |
+| Memory Protocol & Consecutive Messages         | 🔥 High  | [x] done | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.      |
+| Reactivity & Turn Counter Fixes                | 🔥 High  | [x] done | Fix Svelte 5 proxy collisions, round coercion, etc.                                                  |
+| Image Upload Pipeline                          | 🔥 High  | [x] done | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence.  |
+| UI Reactivity & Intent Locking                 | 🔥 High  | [x] done | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                  |
+| Intelligence Polish                            | 🔥 High  | [x] done | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                   |
+| DevMode StoryCard Refactor                     | 🔥 High  | [x] done | Fix clickability layering, correct border radius, active story, and refactor CSS.                    |
+| Storymode UI Refactor                          | 🔥 High  | [x] done | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                     |
+| Profile Class Simplification                   | 🔥 High  | [x] done | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                    |
+| Profile Wings Cleanup                          | 🔥 High  | [x] done | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                   |
+| Profile Design Cleanup                         | 🔥 High  | [x] done | Design cleanup of Profile.svelte, readonly & edit mode.                                              |
+| Spacing Migration                              | 🔥 High  | [x] done | Migrate from fit_text.js to CSS Container Queries & Clamp.                                           |
+| Storyboard Card Bleed Fix                      | 🟡 Med   | [x] done | Resolve text bleed in selection tarot.                                                               |
+| Drawer Contrast Rebuild                        | 🟡 Med   | [x] done | Contrast and visibility remediation.                                                                 |
 
 ## 🧠 Pulse (History)
 

@@ -1,13 +1,18 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, afterEach, describe, expect, it } from "vitest";
 import { runtime } from "@state/runtime.svelte.js";
 import { app } from "@state/app.svelte.js";
 
 describe("Narrative Vector System", () => {
   beforeEach(() => {
+    runtime.init_effects();
     // Reset state before each test
     runtime._debug_inject({
       fractal: /** @type {any} */ ({ id: "test-fractal", active: true, future: [] }),
     });
+  });
+
+  afterEach(() => {
+    runtime.teardown_effects();
   });
 
   it("should initialize with empty vectors", () => {

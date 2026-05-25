@@ -21,6 +21,8 @@
   let show_delete_confirm = $state(false);
   /** @type {string | number | null} */
   let delete_target_id = $state(null);
+  /** @type {number | null} */
+  let editing_index = $state(null);
 
   // --- DERIVATIONS ---
 
@@ -76,14 +78,17 @@
   }
 
   /** @param {number} index */
-  async function handle_edit(index) {
-    const entry = simulation_log.feed[index];
-    if (!entry?.id) return;
+  function handle_edit(index) {
+    editing_index = index;
+  }
 
-    const new_text = prompt("Edit log entry:", entry.text);
-    if (new_text !== null && new_text !== entry.text) {
-      await session.edit_log_entry(entry.id.toString(), new_text);
-    }
+  /**
+   * @param {string|number} id
+   * @param {string} updated_text
+   */
+  async function handle_save_edit(id, updated_text) {
+    await session.edit_log_entry(id.toString(), updated_text);
+    editing_index = null;
   }
 </script>
 
@@ -111,6 +116,11 @@
       on_regenerate={() => session.retry()}
       on_continue={() => session.continue()}
       on_edit={() => handle_edit(index)}
+      is_editing={index === editing_index}
+      on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
+      on_cancel={() => {
+        editing_index = null;
+      }}
       meta={entry.meta}
     />
   {/each}

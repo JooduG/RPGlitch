@@ -79,12 +79,42 @@ describe("StorymodeFeed Integration (Isolated)", () => {
   });
   it("handles message editing", async () => {
     const editSpy = vi.spyOn(session, "edit_log_entry").mockResolvedValue();
-    vi.spyOn(window, "prompt").mockReturnValue("New Text");
     simulation_log.add({ id: "msg-456", text: "To Edit", role: "user" });
     render(StorymodeFeed);
+
+    // 1. Click edit button to toggle editing mode
     const editBtn = screen.getByTestId("mock-edit");
     await fireEvent.click(editBtn);
-    expect(window.prompt).toHaveBeenCalledWith("Edit log entry:", "To Edit");
+
+    // 2. Locate input and edit text
+    const input = /** @type {HTMLInputElement} */ (screen.getByTestId("mock-edit-input"));
+    expect(input.value).toBe("To Edit");
+    await fireEvent.input(input, { target: { value: "New Text" } });
+
+    // 3. Click save button
+    const saveBtn = screen.getByTestId("mock-save");
+    await fireEvent.click(saveBtn);
+
     expect(editSpy).toHaveBeenCalledWith("msg-456", "New Text");
+  });
+
+  it("handles message edit cancellation", async () => {
+    simulation_log.add({ id: "msg-456", text: "To Edit", role: "user" });
+    render(StorymodeFeed);
+
+    // 1. Toggle editing mode
+    const editBtn = screen.getByTestId("mock-edit");
+    await fireEvent.click(editBtn);
+
+    // 2. Verify we are in edit mode
+    expect(screen.getByTestId("mock-edit-input")).toBeDefined();
+
+    // 3. Cancel editing
+    const cancelBtn = screen.getByTestId("mock-cancel");
+    await fireEvent.click(cancelBtn);
+
+    // 4. Verify we are back to read-only view
+    expect(screen.queryByTestId("mock-edit-input")).toBeNull();
+    expect(screen.getByText("To Edit")).toBeDefined();
   });
 });

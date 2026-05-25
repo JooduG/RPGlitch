@@ -9,12 +9,12 @@
   import { app } from "@state/app.svelte.js";
   import { runtime } from "@state/runtime.svelte.js";
   import { themeStore } from "@media/palette.svelte.js";
-  import { safe_html } from "@ui/components/safe-html.js";
   import { typewriter } from "@ui/actions/typewriter.js";
 
   import Button from "@atoms/Button.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
+  import TextField from "@atoms/TextField.svelte";
 
   /**
    * @typedef {Object} Props
@@ -31,6 +31,9 @@
    * @property {boolean} [is_last=false]
    * @property {boolean} [busy=false]
    * @property {Record<string, any>} [meta={}]
+   * @property {boolean} [is_editing=false]
+   * @property {(new_text: string) => any} [on_save]
+   * @property {() => any} [on_cancel]
    */
 
   /** @type {Props} */
@@ -48,6 +51,9 @@
     is_last = false,
     busy = false,
     meta = {},
+    is_editing = false,
+    on_save = undefined,
+    on_cancel = undefined,
   } = $props();
 
   let isFocused = $state(false);
@@ -122,6 +128,14 @@
       console.error("Failed to copy text:", e);
     }
   }
+
+  let local_text = $state("");
+
+  $effect(() => {
+    if (is_editing) {
+      local_text = text;
+    }
+  });
 
   // svelte-ignore state_referenced_locally
   const time_label = timestamp.toLocaleTimeString([], {
@@ -282,8 +296,38 @@
             </div>
           {/if}
 
-          {#if has_display_text}
-            <div class="message-content" use:safe_html={display_text}></div>
+          {#if is_editing || has_display_text}
+            {#if is_editing}
+              <TextField
+                bind:value={local_text}
+                is_edit={true}
+                {signature_color}
+                no_background={true}
+                placeholder="Edit message..."
+              />
+              <div class="edit-actions">
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onclick={() => on_save?.(local_text)}
+                  label="Save"
+                />
+                <Button
+                  variant="secondary"
+                  size="small"
+                  onclick={() => on_cancel?.()}
+                  label="Cancel"
+                />
+              </div>
+            {:else}
+              <TextField
+                value={text}
+                is_edit={false}
+                {signature_color}
+                no_background={true}
+                placeholder="Edit message..."
+              />
+            {/if}
           {/if}
         {/if}
       </div>
@@ -600,5 +644,12 @@
     border-radius: var(--radius-sharp);
     box-shadow: var(--shadow-ghost);
     object-fit: cover;
+  }
+
+  .edit-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--gap-standard);
+    margin-top: var(--margin-standard);
   }
 </style>

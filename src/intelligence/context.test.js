@@ -1,5 +1,9 @@
-import { describe, expect, it, beforeEach, vi } from "vitest";
-import { context_broker } from "@intelligence/context.svelte.js";
+import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
+import {
+  context_broker,
+  init_context_effects,
+  teardown_context_effects,
+} from "@intelligence/context.svelte.js";
 import { temporal_engine } from "@intelligence/temporal.js";
 
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
@@ -66,11 +70,16 @@ vi.mock("@intelligence/temporal.js", () => ({
 
 describe("context_broker", () => {
   beforeEach(() => {
+    init_context_effects();
     vi.clearAllMocks();
     mockRound = 1;
     mockAppState = {
       state_anchor: "",
     };
+  });
+
+  afterEach(() => {
+    teardown_context_effects();
   });
 
   it("hydrate() returns a valid payload for simulation", async () => {

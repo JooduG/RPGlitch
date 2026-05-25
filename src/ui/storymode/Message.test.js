@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/svelte";
+import { render, screen, fireEvent } from "@testing-library/svelte";
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import Message from "./Message.svelte";
 import { app } from "@state/app.svelte.js";
@@ -37,6 +37,12 @@ vi.mock("@media/palette.svelte.js", () => ({
     get_deterministic_color: vi.fn(() => "mock-deterministic"),
   },
 }));
+
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
 
 describe("Message.svelte", () => {
   beforeEach(() => {
@@ -112,5 +118,39 @@ describe("Message.svelte", () => {
     });
 
     expect(screen.queryByText("⚙️ DevMode: Reasoning")).toBeNull();
+  });
+
+  it("should render TextField in edit mode and functional Save/Cancel buttons when is_editing is true", async () => {
+    const onSave = vi.fn();
+    const onCancel = vi.fn();
+    const { container } = render(Message, {
+      props: {
+        text: "Initial narrative text",
+        sender: "user",
+        is_editing: true,
+        on_save: onSave,
+        on_cancel: onCancel,
+      },
+    });
+
+    // 1. Textarea of TextField must be rendered and initialized with 'Initial narrative text'
+    const textarea = /** @type {HTMLTextAreaElement} */ (container.querySelector("textarea"));
+    expect(textarea).toBeTruthy();
+    expect(textarea.value).toBe("Initial narrative text");
+
+    // 2. Modifying textarea value should update the local text state
+    await fireEvent.input(textarea, { target: { value: "Updated narrative text" } });
+
+    // 3. Save button must trigger on_save callback with the updated value
+    const saveBtn = screen.getByText("Save");
+    expect(saveBtn).toBeTruthy();
+    await fireEvent.click(saveBtn);
+    expect(onSave).toHaveBeenCalledWith("Updated narrative text");
+
+    // 4. Cancel button must trigger on_cancel callback
+    const cancelBtn = screen.getByText("Cancel");
+    expect(cancelBtn).toBeTruthy();
+    await fireEvent.click(cancelBtn);
+    expect(onCancel).toHaveBeenCalled();
   });
 });

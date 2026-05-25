@@ -134,33 +134,59 @@ let lastAIKeys = "";
 let lastUserKeys = "";
 let lastFractalKeys = "";
 
-// Sync effect with explicit bouncer tracking on future vector sub-properties (length and IDs).
-$effect.root(() => {
-  $effect(() => {
-    const aiFuture = runtime.active_ai?.future ?? [];
-    const aiKeys = aiFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+/** @type {(() => void) | null} */
+let context_cleanup = null;
 
-    const userFuture = runtime.active_user?.future ?? [];
-    const userKeys = userFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+/**
+ * Initializes context cache synchronization effects.
+ * @returns {void}
+ */
+export function init_context_effects() {
+  if (context_cleanup) return;
+  context_cleanup = $effect.root(() => {
+    $effect(() => {
+      const aiFuture = runtime.active_ai?.future ?? [];
+      const aiKeys = aiFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
 
-    const fractalFuture = runtime.active_fractal?.future ?? [];
-    const fractalKeys = fractalFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+      const userFuture = runtime.active_user?.future ?? [];
+      const userKeys = userFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
 
-    // Only assign and update active state subscribers when actual shifts happen
-    if (aiKeys !== lastAIKeys) {
-      KnowledgeCache_AI = aiFuture;
-      lastAIKeys = aiKeys;
-    }
-    if (userKeys !== lastUserKeys) {
-      KnowledgeCache_USER = userFuture;
-      lastUserKeys = userKeys;
-    }
-    if (fractalKeys !== lastFractalKeys) {
-      KnowledgeCache_FRACTAL = fractalFuture;
-      lastFractalKeys = fractalKeys;
-    }
+      const fractalFuture = runtime.active_fractal?.future ?? [];
+      const fractalKeys = fractalFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
+
+      // Only assign and update active state subscribers when actual shifts happen
+      if (aiKeys !== lastAIKeys) {
+        KnowledgeCache_AI = aiFuture;
+        lastAIKeys = aiKeys;
+      }
+      if (userKeys !== lastUserKeys) {
+        KnowledgeCache_USER = userFuture;
+        lastUserKeys = userKeys;
+      }
+      if (fractalKeys !== lastFractalKeys) {
+        KnowledgeCache_FRACTAL = fractalFuture;
+        lastFractalKeys = fractalKeys;
+      }
+    });
   });
-});
+}
+
+/**
+ * Tears down context cache synchronization effects and resets local state.
+ * @returns {void}
+ */
+export function teardown_context_effects() {
+  if (context_cleanup) {
+    context_cleanup();
+    context_cleanup = null;
+  }
+  KnowledgeCache_AI = [];
+  KnowledgeCache_USER = [];
+  KnowledgeCache_FRACTAL = [];
+  lastAIKeys = "";
+  lastUserKeys = "";
+  lastFractalKeys = "";
+}
 
 /************************************************************************************
  * [SECTION: VIEW CONTEXT]
@@ -563,3 +589,7 @@ export const context_broker = {
       .map((d) => d.dp);
   },
 };
+
+if (typeof window !== "undefined") {
+  init_context_effects();
+}
