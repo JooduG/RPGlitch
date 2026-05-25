@@ -34,7 +34,7 @@ export class VoiceEngine {
   _synth = null;
   /** @type {SpeechSynthesisUtterance | null} */
   _utterance = null;
-  /** @type {Array<{ text: string, voiceUri: string|null, volume: number, rate: number, pitch: number }>} */
+  /** @type {Array<{ text: string, voiceUri: string|null }>} */
   #queue = [];
   #isProcessing = false;
 
@@ -119,7 +119,7 @@ export class VoiceEngine {
    */
   speak(text, clearQueue = true, force = false) {
     if (!this._synth || !text) return;
-    if (!this.enabled && !force) return; // Permit override bypass checks for button pings
+    if (!this.enabled && !force) return;
 
     if (clearQueue) {
       this.stop();
@@ -143,9 +143,6 @@ export class VoiceEngine {
     this.#queue.push({
       text: speechReadyText,
       voiceUri: this.selectedVoice,
-      volume: this.volume,
-      rate: this.rate,
-      pitch: this.pitch,
     });
 
     if (!this.#isProcessing) {
@@ -177,9 +174,11 @@ export class VoiceEngine {
     if (voice) {
       utterance.voice = voice._ref;
     }
-    utterance.volume = currentItem.volume;
-    utterance.rate = currentItem.rate;
-    utterance.pitch = currentItem.pitch;
+
+    // Read reactive values directly from the parent state right before play execution
+    utterance.volume = this.volume;
+    utterance.rate = this.rate;
+    utterance.pitch = this.pitch;
 
     let isSettled = false;
 
@@ -262,12 +261,14 @@ export class VoiceEngine {
  * Handles sound effects and browser AudioContext state.
  ************************************************************************************/
 /**
- * Tracks hardware context unlocking steps and raw effect pipeline processing.
+ * Tracks hardware context unlocking steps and raw master Gain Node attenuation processing.
  */
 class AudioEffectsEngine {
   // --- PRIVATE STATE ---
   /** @type {AudioContext | null} */
   #audioContext = null;
+  /** @type {GainNode | null} */
+  #gainNode = null;
   /** @type {Map<string, AudioBuffer>} */
   #buffers = new Map();
   /** @type {Map<string, Promise<AudioBuffer>>} */
@@ -295,6 +296,9 @@ class AudioEffectsEngine {
       if (entry && entry.value) {
         this.notifications_enabled = entry.value.notificationsEnabled === true;
         Audio.voice.enabled = entry.value.voiceEnabled === true;
+        if (entry.value.masterVolume !== undefined) {
+          Audio.voice.volume = entry.value.masterVolume;
+        }
       } else {
         this.notifications_enabled = false;
         Audio.voice.enabled = false;
@@ -314,10 +318,21 @@ class AudioEffectsEngine {
         value: {
           notificationsEnabled: this.notifications_enabled,
           voiceEnabled: Audio.voice.enabled,
+          masterVolume: Audio.voice.volume,
         },
       });
     } catch (e) {
       console.error("[AudioEngine] Failed to save settings:", e);
+    }
+  }
+
+  /**
+   * Updates the volume multiplier parameter across active processing channels.
+   * @param {number} volume
+   */
+  setVolume(volume) {
+    if (this.#gainNode && this.#audioContext) {
+      this.#gainNode.gain.setValueAtTime(volume, this.#audioContext.currentTime);
     }
   }
 
@@ -349,6 +364,14 @@ class AudioEffectsEngine {
           /** @type {any} */ (window).AudioContext ||
           /** @type {any} */ (window).webkitAudioContext;
         this.#audioContext = new AudioCtx();
+
+        // Build the physical GainNode junction to allow real-time volume fading
+        // @ts-ignore
+        this.#gainNode = this.#audioContext.createGain();
+        // @ts-ignore
+        this.#gainNode.gain.setValueAtTime(Audio.voice.volume, this.#audioContext.currentTime);
+        // @ts-ignore
+        this.#gainNode.connect(this.#audioContext.destination);
       }
       if (this.#audioContext && this.#audioContext.state === "suspended") {
         await this.#audioContext.resume();
@@ -364,7 +387,7 @@ class AudioEffectsEngine {
    */
   async play(key) {
     if (key === "notification" && !this.notifications_enabled) return;
-    if (!this.#unlocked || !this.#audioContext) return;
+    if (!this.#unlocked || !this.#audioContext || !this.#gainNode) return;
 
     const now = Date.now();
     if (now - this.#lastPlayed < this.#threshold) return;
@@ -417,7 +440,9 @@ class AudioEffectsEngine {
       }
       const source = /** @type {AudioContext} */ (this.#audioContext).createBufferSource();
       source.buffer = buffer || null;
-      source.connect(/** @type {AudioContext} */ (this.#audioContext).destination);
+
+      // Connect the notification node to the central master volume gain mixer
+      source.connect(this.#gainNode);
       source.start(0);
     } catch (e) {
       console.warn("[AudioEngine] Playback error:", e);
@@ -434,6 +459,20 @@ export const Audio = new (class {
   #initPromise = null;
 
   voice = new VoiceEngine();
+
+  /**
+   * Unified master volume interface bridging both vocal streams and sound effect contexts.
+   */
+  get volume() {
+    return this.voice.volume;
+  }
+
+  set volume(v) {
+    const cleanVolume = Math.max(0, Math.min(1, Number(v)));
+    this.voice.volume = cleanVolume;
+    this.#effects.setVolume(cleanVolume);
+    this.#effects.saveAllSettings();
+  }
 
   /**
    * Returns whether UI sensory sound feedback is enabled globally.

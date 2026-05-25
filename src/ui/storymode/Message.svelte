@@ -400,13 +400,8 @@
                 placeholder="Edit message..."
               />
             {:else}
-              <TextField
-                value={clean_markdown}
-                is_edit={false}
-                {signature_color}
-                no_background={true}
-                placeholder="Edit message..."
-              />
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              <div class="message-content">{@html display_text}</div>
             {/if}
           {/if}
         {/if}

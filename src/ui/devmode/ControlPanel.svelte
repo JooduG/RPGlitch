@@ -13,6 +13,7 @@
   import Modal from "@atoms/Modal.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Toggle from "@atoms/Toggle.svelte";
+  import Slider from "@atoms/Slider.svelte";
   import StoryCard from "./StoryCard.svelte";
 
   /** @typedef {import('@data/repository.js').Story} Story */
@@ -37,7 +38,7 @@
 
   const MOCK_CONTENT = {
     fractal: `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n[[ Cyber London ]] · [[ 21:30 ]] · [[ Acid Neon ]] \n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
-    ai: `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteurীকার sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`,
+    ai: `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteurekar sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`,
   };
 
   /**
@@ -132,7 +133,7 @@
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()} data-testid="control-panel">
   <header class="header">
-    <div class="settings-group" style="gap: var(--gap-standard);">
+    <div class="settings-group" style="gap: var(--gap-standard); align-items: center;">
       <Toggle
         label="CALL MODE"
         bind:value={settings.call_mode}
@@ -146,6 +147,12 @@
           if (!Audio.voice_enabled) Audio.voice.stop();
         }}
       />
+      <div
+        class="volume-container"
+        style="width: calc(var(--column-unit) * 2); min-width: calc(var(--spacing-unit) * 25); margin-left: auto;"
+      >
+        <Slider label="VOLUME" bind:value={Audio.volume} min={0} max={1} step={0.1} />
+      </div>
     </div>
   </header>
 
