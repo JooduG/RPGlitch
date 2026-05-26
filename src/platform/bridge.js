@@ -8,7 +8,7 @@ class PerchanceBridge {
    *
    */
   constructor() {
-    this._mockMode = typeof window === "undefined" || !window.oc;
+    this._mockMode = typeof window === "undefined" || typeof window.oc !== 'object' || window.oc === null || window.oc instanceof Element || window.oc instanceof Node || (typeof HTMLCollection !== 'undefined' && window.oc instanceof HTMLCollection) || (typeof NodeList !== 'undefined' && window.oc instanceof NodeList);
     if (this._mockMode) {
       console.warn("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.");
     }
@@ -52,8 +52,11 @@ class PerchanceBridge {
       return;
     }
     try {
-      if (!window.oc.thread) {
+      if (typeof window.oc.thread !== 'object' || window.oc.thread === null || window.oc.thread instanceof Element || window.oc.thread instanceof Node || (typeof HTMLCollection !== 'undefined' && window.oc.thread instanceof HTMLCollection) || (typeof NodeList !== 'undefined' && window.oc.thread instanceof NodeList)) {
         throw new TypeError("window.oc.thread is undefined");
+      }
+      if (typeof window.oc.thread.on !== 'function') {
+        throw new TypeError("window.oc.thread.on is not a function");
       }
       window.oc.thread.on(event, callback);
     } catch (err) {

@@ -95,7 +95,7 @@ export const llm_service = {
    */
   generate: async (payload, options = {}) => {
     // [SAFETY] Guard against missing plugin in non-Perchance environments
-    if (typeof window === "undefined" || !window.ai) {
+    if (typeof window === "undefined" || typeof window.ai !== 'function') {
       const msg =
         "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
       if (!options.silent) console.error(msg);

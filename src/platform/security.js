@@ -9,14 +9,14 @@ import DOMPurify from "dompurify";
  */
 export const sanitize = (dirty) => {
   if (typeof window === "undefined") return dirty;
-  return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: false }); // String output
+  return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: false, SANITIZE_DOM: true }); // String output
 };
 /**
  * @param {any} dirty
  */
 export const sanitizeToFragment = (dirty) => {
   if (typeof window === "undefined") return dirty;
-  return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: true }); // DocumentFragment output
+  return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: true, SANITIZE_DOM: true }); // DocumentFragment output
 };
 /**
  * @param {any} str
