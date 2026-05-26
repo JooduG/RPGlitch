@@ -546,8 +546,8 @@ To maintain technical quality and historical continuity, the project follows a s
   - `[ ]`: Pending
   - `[~]`: In Progress (Active)
   - `[x] <sha>`: Completed (with 7-char commit hash)
-- **Archival Law**: Upon mission/track completion, the `tasks/FUTURE.md` MUST be moved to `.agents/archive/` (renamed to reflect the track, e.g., `archive/2026-05-14-design-rebuild.md`).
-- **Strict Hygiene**: `.agents/archive/` is the **ONLY** acceptable location for archived documentation. No other `archive/` folders are permitted.
+- **Archival Law**: Upon mission/track completion, the `tasks/FUTURE.md` MUST be moved to `~/.gemini/antigravity-ide/archive/` (renamed to reflect the track, e.g., `~/.gemini/antigravity-ide/archive/2026-05-14-design-rebuild.md`).
+- **Strict Hygiene**: `~/.gemini/antigravity-ide/archive/` is the **ONLY** acceptable location for archived documentation. No other `archive/` folders are permitted.
 
 ---
 
@@ -695,7 +695,7 @@ To prevent repository clutter and ensure a clean production environment:
 
 1. **Redirection**: ALL temporary diagnostic files, logs, or command outputs generated during a session MUST be placed in the `tmp/` directory at the root.
 2. **Naming**: Files should be descriptively named (e.g., `tmp/lint-audit.txt`) and are considered transient.
-3. **Archival Law**: `.agents/archive/` is the **SOLE** and **MANDATORY** location for all archived plans, research, and technical walkthroughs.
+3. **Archival Law**: `~/.gemini/antigravity-ide/archive/` is the **SOLE** and **MANDATORY** location for all archived plans, research, and technical walkthroughs.
 4. **Forbidden**: Creating `.txt`, `.log`, or `archive/` folders outside of the `.agents/` boundary is strictly prohibited.
 
 ---
