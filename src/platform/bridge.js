@@ -8,7 +8,7 @@ class PerchanceBridge {
    *
    */
   constructor() {
-    this._mockMode = typeof window === "undefined" || typeof window.oc !== 'object' || window.oc === null || window.oc instanceof Element || window.oc instanceof Node;
+    this._mockMode = typeof window === "undefined" || typeof window.oc !== 'object' || window.oc === null || window.oc instanceof Element || window.oc instanceof Node || (typeof HTMLCollection !== 'undefined' && window.oc instanceof HTMLCollection) || (typeof NodeList !== 'undefined' && window.oc instanceof NodeList);
     if (this._mockMode) {
       console.warn("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.");
     }
