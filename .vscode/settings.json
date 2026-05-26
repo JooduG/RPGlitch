@@ -4,14 +4,6 @@
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"
   },
-  "files.associations": {
-    "*.antigravityignore": "ignore",
-    "*.geminiignore": "ignore",
-    "*.htmlhintignore": "ignore",
-    "*.markdownlintignore": "ignore",
-    "*.prettierignore": "ignore",
-    "*.stylelintignore": "ignore"
-  },
   "html.validate.styles": false,
   "launch": {
     "compounds": [],
@@ -46,5 +38,4 @@
     "**/yarn.lock": true,
     "/.env": false
   },
-  "github-actions.workflows.pinned.workflows": []
 }
