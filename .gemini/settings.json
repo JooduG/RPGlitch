@@ -1,48 +1,7 @@
 {
-  "context": {
-    "fileFiltering": {}
-  },
-  "ide": {
-    "hasSeenNudge": true
-  },
   "general": {
-    "enablePromptCompletion": true,
     "plan": {
       "@": ["tasks/", "tasks/FUTURE.md", "tasks/PRESENT.md", "tasks/ETERNAL.md"]
-    },
-    "preferredEditor": "antigravity"
-  },
-  "tools": {
-    "enableHooks": true
-  },
-  "security": {
-    "auth": {
-      "selectedType": "oauth-personal"
-    },
-    "folderTrust": {
-      "featureEnabled": true
-    }
-  },
-  "ui": {
-    "accessibility": {},
-    "theme": "Atom One"
-  },
-  "skills": {
-    "disabled": [
-      "google-slides",
-      "google-sheets",
-      "google-docs",
-      "google-chat",
-      "google-calendar",
-      "gmail"
-    ]
-  },
-  "experimental": {
-    "gemmaModelRouter": {
-      "classifier": {
-        "host": "http://localhost:9379",
-        "model": "gemma3-1b-gpu-custom"
-      }
     }
   }
 }
