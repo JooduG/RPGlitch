@@ -52,7 +52,7 @@ class PerchanceBridge {
       return;
     }
     try {
-      if (typeof window.oc.thread !== 'object' || window.oc.thread === null || window.oc.thread instanceof Element || window.oc.thread instanceof Node) {
+      if (typeof window.oc.thread !== 'object' || window.oc.thread === null || window.oc.thread instanceof Element || window.oc.thread instanceof Node || (typeof HTMLCollection !== 'undefined' && window.oc.thread instanceof HTMLCollection) || (typeof NodeList !== 'undefined' && window.oc.thread instanceof NodeList)) {
         throw new TypeError("window.oc.thread is undefined");
       }
       if (typeof window.oc.thread.on !== 'function') {
