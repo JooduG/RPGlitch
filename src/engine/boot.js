@@ -1,5 +1,6 @@
 import { seed_premades } from "@data";
-import { App, Audio } from "@media";
+import { Audio } from "@media";
+import App from "@ui/App.svelte";
 import { sanitizeToFragment } from "@platform";
 import { app, runtime } from "@state";
 import { mount } from "svelte";

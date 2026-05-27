@@ -561,28 +561,6 @@ select:focus {
 }
 
 /* --- LEGACY FALLBACK SCROLLBAR UTILITIES --- */
-.scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-}
-
-.scrollbar::-webkit-scrollbar {
-  width: var(--scrollbar-width);
-}
-
-.scrollbar::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
-}
-
-.scrollbar::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: var(--radius-full);
-}
-
-.scrollbar::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
-}
-
 .no-scrollbar {
   scrollbar-width: none;
   -ms-overflow-style: none;

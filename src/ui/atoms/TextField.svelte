@@ -99,7 +99,7 @@
   {#if is_edit}
     <textarea
       {...rest}
-      class="body scrollbar"
+      class="body textarea-scroll-track"
       data-mode="edit"
       bind:value
       {placeholder}
@@ -289,6 +289,30 @@
     flex-direction: column;
     text-wrap: pretty;
     overflow: visible;
+  }
+
+  /* --- SCOPED SCROLL TRACK FOR TEXTAREA --- */
+  .textarea-scroll-track {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--radius-standard);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
   }
 
   .body::placeholder,

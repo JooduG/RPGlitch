@@ -124,7 +124,7 @@
                 data-expanded={state.active_field?.key === "description"}
               >
                 <textarea
-                  class="description edit scrollbar"
+                  class="description edit textarea-scroll-track"
                   placeholder={ENTITY_FRAGMENTS.description}
                   bind:value={state.char.description}
                   use:auto_resize
@@ -418,6 +418,30 @@
     color: var(--frozen);
     font-style: italic;
     opacity: var(--opacity-whisper);
+  }
+
+  /* --- SCOPED SCROLL TRACK FOR TEXTAREA --- */
+  .textarea-scroll-track {
+    scrollbar-width: thin;
+    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar {
+    width: var(--scrollbar-width);
+    height: var(--scrollbar-width);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar-track {
+    background: var(--scrollbar-track);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar-thumb {
+    background: var(--scrollbar-thumb);
+    border-radius: var(--radius-standard);
+  }
+
+  .textarea-scroll-track::-webkit-scrollbar-thumb:hover {
+    background: var(--scrollbar-thumb-hover);
   }
 
   /* Shared Input Edit Styling */

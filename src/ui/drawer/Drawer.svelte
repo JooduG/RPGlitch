@@ -107,7 +107,7 @@
       <h4 id="drawer-title">{title}</h4>
     </header>
 
-    <div class="body no-scrollbar" use:kinetic_scroll>
+    <div class="body" use:kinetic_scroll>
       <div class="grid">
         <!-- "Create New" card -->
         <div

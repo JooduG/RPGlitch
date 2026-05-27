@@ -6,6 +6,8 @@
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
 
+  import ScrollArea from "@atoms/ScrollArea.svelte";
+
   let {
     label = "",
     isCode = true,
@@ -20,9 +22,11 @@
   {#if label}
     <header class="header">{label}</header>
   {/if}
-  <div class="body scrollbar" class:is-code={isCode}>
-    {@render children()}
-  </div>
+  <ScrollArea class="databox-scroll">
+    <div class="body" class:is-code={isCode}>
+      {@render children()}
+    </div>
+  </ScrollArea>
 </div>
 
 <style>
@@ -58,13 +62,17 @@
 
   /* --- BODY --- */
 
+  :global(.databox-scroll) {
+    flex: 1;
+    overflow: hidden;
+  }
+
   .body {
     padding: var(--padding-standard);
-    overflow: hidden auto;
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);
     color: var(--frisk);
-    flex: 1;
+    min-height: 100%;
   }
 
   .body.is-code {
