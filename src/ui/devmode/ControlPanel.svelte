@@ -147,7 +147,7 @@
       />
       <div
         class="volume-container"
-        style="width: calc(var(--column-unit) * 2); min-width: calc(var(--spacing-unit) * 25); margin-left: auto;"
+        style="width: calc(var(--column-unit) * 2); min-width: calc(var(--spacing-unit) * 25);"
       >
         <Slider label="VOLUME" bind:value={Audio.volume} min={0} max={1} step={0.1} />
       </div>
@@ -265,7 +265,8 @@
     width: 100%;
     align-items: center;
     display: flex;
-    justify-content: space-between;
+    justify-content: space-around;
+    flex-wrap: wrap;
   }
 
   .content-body {

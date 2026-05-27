@@ -5,8 +5,8 @@
    * High-performance, multi-variant interaction layer.
    * Headless refactor powered by bits-ui/Button and Svelte 5.
    */
-  import { Button } from "bits-ui";
   import { controlState } from "@state";
+  import { Button } from "bits-ui";
 
   let {
     // Data
@@ -106,7 +106,6 @@
    */
   :global(.svelte-button) {
     /* --- Layout --- */
-
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -114,6 +113,7 @@
     padding: 0 var(--padding-standard);
     height: calc(var(--spacing-unit) * 12);
     position: relative;
+    box-shadow: var(--shadow-standard);
 
     /* --- Typography --- */
     font-family: inherit;
@@ -159,15 +159,15 @@
   }
 
   :global(.svelte-button.is-square) {
-    width: calc(var(--spacing-unit) * 12);
-    height: calc(var(--spacing-unit) * 12);
+    width: var(--icon-medium);
+    height: var(--icon-medium);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
   }
 
   :global(.svelte-button.is-square.is-small) {
-    width: calc(var(--spacing-unit) * 8);
-    height: calc(var(--spacing-unit) * 8);
+    width: var(--icon-small);
+    height: var(--icon-small);
   }
 
   :global(.svelte-button.is-full) {
@@ -191,20 +191,15 @@
 
   /* --- Thematic Variants --- */
   :global(.svelte-button.variant-primary) {
-    background: var(--pure-white);
-    color: var(--chalk);
-    box-shadow: var(--shadow-standard);
+    background: var(--frozen);
   }
 
   :global(.svelte-button.variant-secondary) {
     background: var(--signature-color, var(--frozen));
-    color: var(--pure-white);
-    box-shadow: var(--shadow-ghost);
   }
 
   :global(.svelte-button.variant-danger) {
-    background: transparent;
-    color: var(--crimson-red);
+    background: var(--frozen);
   }
 
   :global(.svelte-button.variant-invisible) {
@@ -246,9 +241,7 @@
 
   /* --- Interaction Refinements --- */
   :global(.svelte-button.variant-primary:hover:not(:disabled)) {
-    filter: var(--brightness-glow);
-    box-shadow: var(--shadow-standard);
-    transform: var(--scale-lift);
+    border-color: var(--frisk);
   }
 
   :global(.svelte-button.variant-primary[data-kinetic="true"]:hover:not(:disabled)) {
@@ -256,19 +249,19 @@
   }
 
   :global(.svelte-button.variant-secondary:hover:not(:disabled)) {
-    box-shadow: var(--shadow-standard);
-    border-color: var(--pure-white);
+    border-color: var(--frisk);
   }
 
   :global(.svelte-button.variant-danger:hover:not(:disabled)) {
     background: var(--crimson-red);
-    color: var(--pure-white);
+    color: var(--frisk);
     box-shadow: var(--danger-hover-shadow);
+    border-color: var(--frisk);
   }
 
   :global(.svelte-button.variant-invisible:hover:not(:disabled)) {
     background: transparent;
-    color: var(--pure-white);
+    color: var(--frisk);
     filter: var(--brightness-glow);
   }
 
@@ -281,13 +274,13 @@
       transform var(--duration-standard) var(--ease-elastic),
       color var(--duration-standard) var(--ease-standard),
       opacity var(--duration-standard) var(--ease-standard) !important;
-    color: var(--pure-white) !important;
+    color: var(--frisk) !important;
     opacity: var(--opacity-muted);
   }
 
   :global(.svelte-button.flank svg),
   :global(.svelte-button.flank svg path) {
-    fill: var(--pure-white) !important;
+    fill: var(--frisk) !important;
     transition: fill var(--duration-standard) var(--ease-standard);
   }
 

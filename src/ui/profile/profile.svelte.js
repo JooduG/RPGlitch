@@ -159,7 +159,8 @@ export class ProfileState {
     if (!value || this.busy_fields.has(key)) return;
     this.busy_fields.add(key);
     try {
-      const payload = prompt_builder.build_enhancement(key, value);
+      const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      const payload = prompt_builder.build_enhancement(key, value, this.char.name || "", type);
       const result = await llm_service.enhance(payload);
       if (result) set_value(this.char, key, result);
     } catch (err) {

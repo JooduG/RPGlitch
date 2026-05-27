@@ -7,7 +7,13 @@ export {
 } from "./context.svelte.js";
 export { temporal_engine } from "./temporal.js";
 export { dynamics_engine } from "./dynamics.js";
-export { ENTITY_FRAGMENTS, ENTITY_CATALOG, PROFILE_SECTIONS } from "./fragments.js";
+export {
+  ENTITY_FRAGMENTS,
+  ENTITY_CATALOG,
+  PROFILE_SECTIONS,
+  PROFILE_SECTIONS_BY_TYPE,
+  NAME_PREFIXES,
+} from "./fragments.js";
 export {
   strip_cognition_blocks,
   clean_image_prompts,

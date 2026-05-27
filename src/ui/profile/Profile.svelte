@@ -12,7 +12,7 @@
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevWing from "@devmode/DevWing.svelte";
-  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@intelligence";
+  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { themeStore } from "@media";
   import AudioWing from "@profile/AudioWing.svelte";
   import ProfileArray from "@profile/ProfileArray.svelte";
@@ -31,12 +31,49 @@
   // --- DERIVED ---
   const signature_color = $derived(themeStore.get_signature_color(state.char, "var(--gunmetal)"));
   const has_wings = $derived(state.is_editing || app.settings.dev_mode);
+  const active_sections = $derived(
+    PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character,
+  );
 
   // --- EFFECTS ---
   $effect(() => state.sync());
 
   // --- HANDLERS ---
   // All handlers migrated to ProfileState
+
+  /**
+   * Formats a name to be bottom-heavy if it consists of exactly 3 words.
+   * @param {string} rawName
+   * @returns {string}
+   */
+  function formatName(rawName) {
+    if (!rawName) return "";
+    const trimmed = rawName.trim();
+    const words = trimmed.split(/\s+/);
+    if (words.length !== 3) return trimmed;
+
+    const prefixes = [
+      "mr",
+      "mrs",
+      "ms",
+      "dr",
+      "prof",
+      "sir",
+      "lady",
+      "lord",
+      "the",
+      "mr.",
+      "mrs.",
+      "ms.",
+      "dr.",
+      "prof.",
+    ];
+
+    if (prefixes.includes(words[0].toLowerCase())) {
+      return `${words[0]} ${words[1]}\n${words[2]}`;
+    }
+    return `${words[0]}\n${words[1]} ${words[2]}`;
+  }
 
   /** @param {MouseEvent} event */
   function handle_click_outside(event) {
@@ -87,6 +124,7 @@
         class="profile-container no-scrollbar glass-elevated"
         class:readonly={!has_wings}
         class:has-wings={has_wings}
+        data-entity-type={entity_type}
         style="--signature-color: {signature_color};"
         use:click_outside={handle_click_outside}
       >
@@ -114,7 +152,7 @@
                   >
                 </h1>
               {:else}
-                <h1 class="name">{state.char.name}</h1>
+                <h1 class="name">{formatName(state.char.name)}</h1>
               {/if}
             </div>
 
@@ -146,14 +184,14 @@
           <!-- 🏁 FOOTER -->
           <footer class="profile-footer">
             {#if state.is_editing}
-              <Button variant="danger" onclick={() => (state.show_delete_confirm = true)}>
-                Delete
-              </Button>
-              <Button variant="secondary" onclick={() => state.cancel()}>Cancel</Button>
               <Button variant="secondary" onclick={() => state.save(entity_type)}>Save</Button>
+              <Button variant="danger" onclick={() => (state.show_delete_confirm = true)}
+                >Delete</Button
+              >
+              <Button variant="primary" onclick={() => state.cancel()}>Cancel</Button>
             {:else}
               <Button variant="secondary" onclick={() => (state.is_editing = true)}>Edit</Button>
-              <Button variant="secondary" onclick={() => state.handle_close()}>Close</Button>
+              <Button variant="primary" onclick={() => state.handle_close()}>Close</Button>
             {/if}
           </footer>
         </div>
@@ -182,8 +220,8 @@
     class:is-mini={app.viewport.mini}
     data-testid="profile-fragments"
   >
-    {#each PROFILE_SECTIONS as section (section.id)}
-      {@const arrayField = section.fields.find((f) => f.type === "array")}
+    {#each active_sections as section (section.id)}
+      {@const arrayField = section.fields.find((/** @type {any} */ f) => f.type === "array")}
 
       <!-- SECTION LABEL (Left Column) -->
       <div
@@ -195,15 +233,18 @@
         role="presentation"
       >
         <div class="label-wrapper">
-          <h5 class="section-label">
+          <h6 class="section-label">
             {#if state.is_editing && state.hovered_section === section.id && arrayField}
-              <span class="add-hint">+ADD</span>
+              <span class="add-hint">+</span>
             {/if}
-            {section.label}
-          </h5>
+            <span class="vertical-label-text">{section.label}</span>
+          </h6>
+          <!-- Legacy sublabels commented out for vertical experiment -->
+          <!--
           {#if section.sublabel}
             <p class="section-sub">{section.sublabel}</p>
           {/if}
+          -->
         </div>
       </div>
 
@@ -211,10 +252,6 @@
       <div class="profile-fields" data-columns={section.fields.length}>
         {#each section.fields as field (field.key)}
           <div class="group">
-            {#if field.label && (section.id === "eternal" || section.id === "present")}
-              <span class="field-label">{field.label}</span>
-            {/if}
-
             {#if field.type === "array"}
               <ProfileArray
                 {state}
@@ -223,7 +260,12 @@
                 {signature_color}
               />
             {:else}
+              {@const fieldId = `field-${field.key.replace(".", "-")}`}
+              {#if field.label && section.id === "eternal"}
+                <label class="field-label" for={fieldId}>{field.label}</label>
+              {/if}
               <TextField
+                id={fieldId}
                 is_edit={state.is_editing}
                 syncId={section.label}
                 {signature_color}
@@ -238,6 +280,8 @@
                 {#snippet status()}
                   {#if state.busy_fields.has(field.key)}
                     <span class="status pulse">ENHANCING</span>
+                  {:else if field.sublabel}
+                    <span class="status-msg">{field.sublabel}</span>
                   {/if}
                 {/snippet}
 
@@ -336,8 +380,6 @@
     min-width: 0;
     min-height: var(--font-size-h3);
     padding: var(--padding-standard);
-    border-bottom: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
     display: flex;
     flex-direction: column;
     gap: var(--gap-tight);
@@ -353,22 +395,33 @@
   .name {
     color: var(--signature-color);
     display: block;
-    font-size: clamp(var(--font-size-h3), 15cqi, var(--font-size-h1));
+    font-size: clamp(var(--font-size-h2), 20cqi, var(--font-size-h1) * 1.2);
     line-height: 1.1;
+    min-height: calc(var(--spacing-unit) * 20);
     overflow-wrap: break-word;
-    text-align: left;
+    text-align: right;
+    text-shadow: 0 var(--spacing-pixel) calc(var(--spacing-unit) * 2)
+      rgb(from var(--void-black) r g b / 0.5);
+    white-space: pre-wrap;
   }
 
   .name.edit {
     white-space: normal;
     overflow: visible;
-    font-size: var(--font-size-h3) !important; /* Force stability in edit mode */
+    font-size: clamp(
+      var(--font-size-h3),
+      15cqi,
+      var(--font-size-h2)
+    ) !important; /* Force stability in edit mode */
+
+    min-height: calc(var(--spacing-unit) * 20);
   }
 
   .name.edit span {
     display: inline-block;
     width: 100%;
     padding: var(--padding-tight);
+    text-align: left;
   }
 
   .name.edit span:empty::before {
@@ -385,9 +438,10 @@
     color: var(--frisk);
     opacity: var(--opacity-muted);
     margin: 0;
-    text-align: left;
+    text-align: right;
     white-space: pre-wrap;
-    text-wrap: pretty;
+    text-wrap: balance;
+    border-radius: var(--radius-standard);
   }
 
   .description-wrapper {
@@ -407,11 +461,13 @@
     font-size: var(--font-size-small);
     line-height: var(--font-height-base);
     resize: none;
+    text-align: left;
     background: transparent;
     border: none;
     outline: none;
     margin: 0;
     z-index: var(--z-index-surface);
+    text-wrap: auto;
   }
 
   textarea.description.edit::placeholder {
@@ -510,8 +566,6 @@
   .profile-footer {
     flex-shrink: 0;
     padding: var(--padding-standard);
-    border-top: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
     display: flex;
     justify-content: flex-end;
     gap: var(--gap-standard);
@@ -535,9 +589,44 @@
       color-mix(in srgb, var(--signature-color) 30%, transparent);
   }
 
+  .profile-container[data-entity-type="fractal"] {
+    flex-direction: column;
+    overflow-y: auto;
+  }
+
+  .profile-container[data-entity-type="fractal"] .avatar-section {
+    width: 100%;
+    height: calc(var(--row-unit) * 3);
+    min-height: calc(var(--spacing-unit) * 50);
+    flex-shrink: 0;
+  }
+
+  .profile-container[data-entity-type="fractal"] .avatar-wrapper {
+    border-right: none;
+    border-bottom: var(--border-width-base) solid
+      color-mix(in srgb, var(--signature-color) 30%, transparent);
+  }
+
+  .profile-container[data-entity-type="fractal"] .right {
+    height: auto;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-container[data-entity-type="fractal"] .profile-content {
+    height: auto;
+    overflow: visible;
+  }
+
+  .profile-container[data-entity-type="fractal"] :global(.scroll-area-readonly),
+  .profile-container[data-entity-type="fractal"] :global(.scroll-area-viewport) {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
   .profile-fragments {
     display: grid;
-    grid-template-columns: var(--profile-fragment-column) 1fr;
+    grid-template-columns: calc(var(--gap-standard) * 2) 1fr; /* Tightened left column */
     gap: var(--gap-standard) var(--gap-tight);
     padding: var(--padding-standard);
     padding-bottom: var(--padding-loose);
@@ -545,12 +634,13 @@
   }
 
   .profile-side {
-    text-align: right;
+    text-align: center;
     cursor: default;
     transition: all var(--duration-standard);
     display: flex;
     flex-direction: column;
     justify-content: center;
+    align-items: center;
     position: relative;
     min-width: 0;
     overflow: hidden;
@@ -566,10 +656,8 @@
   .label-wrapper {
     display: flex;
     flex-direction: column;
-    align-items: flex-end;
-    gap: var(--gap-tight);
+    align-items: center;
     width: 100%;
-    padding-right: var(--padding-tight);
   }
 
   .profile-side.interactive {
@@ -578,58 +666,48 @@
 
   .section-label {
     color: var(--signature-color);
-    font-size: var(--font-size-small);
-    font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     text-shadow: var(--shadow-font);
-    text-align: right;
+    text-align: center;
     letter-spacing: var(--font-spacing-loose);
     transition: color var(--duration-standard);
-    margin: 0;
-    overflow-wrap: break-word;
     hyphens: auto;
     display: flex;
-    flex-direction: row;
+    flex-direction: column; /* Stack + and label vertically */
     align-items: center;
-    justify-content: flex-end;
-    gap: var(--gap-tight);
+    justify-content: center;
+  }
+
+  .vertical-label-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    transform: rotate(180deg); /* Read bottom-to-top vertical orientation */
+    display: block;
   }
 
   .add-hint {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-nano);
+    font-size: var(--font-size-base); /* Upped size significantly for solid + */
     font-weight: var(--font-weight-bold);
     color: var(--pure-white);
-    opacity: var(--opacity-muted);
+    opacity: var(--opacity-solid);
     pointer-events: none;
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
     flex-shrink: 0;
-    animation: add-hint-fade 300ms ease-out forwards;
+    animation: add-hint-fade 250ms var(--ease-elastic) forwards;
   }
 
   @keyframes add-hint-fade {
     from {
       opacity: 0;
-      transform: translateX(calc(var(--spacing-unit) * -2.5));
+      transform: scale(0.6);
     }
 
     to {
       opacity: 1;
-      transform: translateX(0);
+      transform: scale(1);
     }
-  }
-
-  .section-sub {
-    margin: 0;
-    font-size: var(--font-size-nano);
-    color: var(--pure-white);
-    font-weight: var(--font-weight-bold);
-    opacity: var(--opacity-whisper);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    text-shadow: var(--shadow-font);
-    text-align: right;
   }
 
   .profile-fields[data-columns="2"] {
@@ -653,6 +731,7 @@
   }
 
   .field-label {
+    display: block;
     font-size: var(--font-size-nano);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
@@ -660,10 +739,8 @@
     opacity: var(--opacity-solid);
     text-align: center;
     text-shadow: var(--shadow-font);
-    margin-bottom: var(--margin-tight);
     width: 100%;
     letter-spacing: var(--font-spacing-loose);
-    padding-left: var(--padding-tight);
   }
 
   .status {
@@ -672,7 +749,7 @@
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
     color: var(--pure-white);
-    opacity: var(--opacity-whisper);
+    opacity: var(--opacity-solid);
     display: block;
     margin-top: var(--gap-tight);
   }

@@ -81,12 +81,12 @@
       <Button
         class="item"
         actions={[[tooltip, { text: `View ${entity.name} Profile` }]]}
-        variant="primary"
+        variant="secondary"
         aria-label="View {entity.name} Profile"
         onclick={on_view_profile}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="icon-small">
+        <svg viewBox="0 0 24 24" class="icon-medium">
           <path
             d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
           />
@@ -283,8 +283,8 @@
   }
 
   .actions :global(.item) {
-    width: var(--icon-large);
-    height: var(--icon-large);
+    width: var(--icon-giant);
+    height: var(--icon-giant);
     border-radius: var(--radius-full);
     padding: 0;
     display: flex;

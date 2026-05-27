@@ -562,13 +562,18 @@ export const prompt_builder = {
    * @param {string} field_id
    * @param {string} content
    * @param {string} [entity_name]
+   * @param {string} [entity_type]
    */
-  build_enhancement(field_id, content, entity_name = "") {
+  build_enhancement(field_id, content, entity_name = "", entity_type = "character") {
+    const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
+    const typeKey = `${resolvedType}.${field_id}`;
+
     /** @type {any} */
-    const meta = ENTITY_CATALOG[/** @type {keyof typeof ENTITY_CATALOG} */ (field_id)] || {
-      directive: "Expand and enrich the fragment.",
-      enhancer: "GENERAL",
-    };
+    const meta = ENTITY_CATALOG[typeKey] ||
+      ENTITY_CATALOG[field_id] || {
+        directive: "Expand and enrich the fragment.",
+        enhancer: "GENERAL",
+      };
 
     return {
       system: SYSTEM_PROMPTS.enhancement({

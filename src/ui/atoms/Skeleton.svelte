@@ -49,27 +49,27 @@
   /* Variant Harmonization */
   .root.card {
     border-radius: var(--radius-standard);
-    min-height: var(--skeleton-card-min-height);
+    min-height: var(--storyboard-character-card-height);
   }
 
   .root.hero {
     border-radius: var(--radius-standard);
-    min-height: var(--skeleton-hero-min-height);
+    min-height: var(--storyboard-fractal-card-height);
   }
 
   .root.profile-picture,
   .root.circle {
     border-radius: var(--radius-full);
     aspect-ratio: var(--aspect-square);
-    width: var(--icon-medium);
-    height: var(--icon-medium);
+    width: var(--icon-large);
+    height: var(--icon-large);
   }
 
   .root.text {
-    height: var(--skeleton-text-height);
+    height: var(--font-height-base);
     margin-bottom: var(--margin-tight);
     border-radius: var(--radius-sharp);
-    width: var(--skeleton-text-width);
+    width: 60%;
   }
 
   /* Shimmer Effect: The Nordic Fog */

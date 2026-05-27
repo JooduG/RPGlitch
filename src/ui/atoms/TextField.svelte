@@ -373,7 +373,7 @@
   :global(.status-msg) {
     font-family: var(--font-family-mono);
     font-size: var(--font-size-tiny);
-    opacity: var(--opacity-whisper);
+    opacity: var(--opacity-solid);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-base);
     color: var(--pure-white);

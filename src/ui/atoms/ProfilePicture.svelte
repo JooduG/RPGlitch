@@ -7,6 +7,7 @@
    */
   import { themeStore } from "@media";
   import { use_actions } from "@ui/actions";
+  import { NAME_PREFIXES } from "@intelligence";
 
   let {
     // Data
@@ -35,20 +36,7 @@
       .replace(/[^\p{L}\s]/gu, " ")
       .trim()
       .split(/\s+/);
-    const stop_words = new Set([
-      "the",
-      "a",
-      "an",
-      "of",
-      "in",
-      "and",
-      "or",
-      "for",
-      "to",
-      "at",
-      "by",
-      "with",
-    ]);
+    const stop_words = new Set(NAME_PREFIXES.map((w) => w.replace(/\.$/, "")));
     let filtered = words.filter((w) => !stop_words.has(w.toLowerCase()));
 
     return (

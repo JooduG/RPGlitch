@@ -18,12 +18,10 @@ describe("entity-fragments", () => {
     });
 
     it("should define fields for eternal and present sections", () => {
-      expect(ENTITY_FRAGMENTS.eternal.fields).toBeDefined();
-      expect(ENTITY_FRAGMENTS.present.fields).toBeDefined();
-      expect(ENTITY_FRAGMENTS.eternal.fields.non_physical).toBeDefined();
-      expect(ENTITY_FRAGMENTS.eternal.fields.physical).toBeDefined();
-      expect(ENTITY_FRAGMENTS.present.fields.non_physical).toBeDefined();
-      expect(ENTITY_FRAGMENTS.present.fields.physical).toBeDefined();
+      expect(ENTITY_FRAGMENTS.eternal.non_physical).toBeDefined();
+      expect(ENTITY_FRAGMENTS.eternal.physical).toBeDefined();
+      expect(ENTITY_FRAGMENTS.present.non_physical).toBeDefined();
+      expect(ENTITY_FRAGMENTS.present.physical).toBeDefined();
     });
 
     it("should define future and past as array-type sections", () => {
@@ -47,6 +45,16 @@ describe("entity-fragments", () => {
       expect(ENTITY_CATALOG["eternal.physical"]).toBeDefined();
       expect(ENTITY_CATALOG["present.non_physical"]).toBeDefined();
       expect(ENTITY_CATALOG["present.physical"]).toBeDefined();
+
+      // Polymorphic namespaces
+      expect(ENTITY_CATALOG["character.eternal.non_physical"]).toBeDefined();
+      expect(ENTITY_CATALOG["fractal.eternal.non_physical"]).toBeDefined();
+      expect(ENTITY_CATALOG["character.eternal.non_physical"].enhancer).toBe(
+        "CORE_COGNITIVE_ARCHITECT",
+      );
+      expect(ENTITY_CATALOG["fractal.eternal.non_physical"].enhancer).toBe(
+        "METAPHYISICAL_CHRONOMETER",
+      );
     });
 
     it("should contain top-level keys for array-type sections", () => {

@@ -132,8 +132,9 @@ components:
   ease-out: cubic-bezier(0, 0, 0.2, 1)
   ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
   golden-ratio: "1.618"
-  icon-large: calc(var(--spacing-unit) * 8)
-  icon-medium: calc(var(--spacing-unit) * 6)
+  icon-giant: calc(var(--spacing-unit) * 20)
+  icon-large: calc(var(--spacing-unit) * 12)
+  icon-medium: calc(var(--spacing-unit) * 8)
   icon-small: calc(var(--spacing-unit) * 4)
   kinetic-drag-threshold: "10"
   kinetic-momentum-friction: "0.95"
@@ -182,10 +183,6 @@ components:
     0 var(--spacing-unit) calc(var(--spacing-unit) * 4)
     rgb(from var(--void-black) r g b / var(--opacity-whisper))
   signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--signature-color)
-  skeleton-card-min-height: var(--storyboard-character-card-height)
-  skeleton-hero-min-height: calc(var(--spacing-unit) * 60)
-  skeleton-text-height: 1em
-  skeleton-text-width: 60%
   slider-thumb-shadow: 0 0 var(--spacing-unit) var(--pure-white), var(--shadow-ghost)
   slider-thumb-size: calc(var(--spacing-unit) * 2)
   slider-track-height: var(--spacing-unit)

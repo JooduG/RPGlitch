@@ -88,8 +88,7 @@
     background: var(--signature-color, var(--frozen));
     color: var(--pure-white);
     box-shadow: var(--shadow-ghost);
-    border: var(--border-width-base) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
+    border: transparent solid;
     padding: var(--padding-tight) var(--padding-standard);
     width: 100%;
     cursor: pointer;
@@ -108,8 +107,6 @@
 
   /* Trigger Active state mapping (bits-ui data state) */
   :global(.dropdown-trigger[data-state="open"]) {
-    border-color: var(--pure-white);
-    box-shadow: var(--signature-glow);
     filter: var(--brightness-glow);
   }
 
@@ -151,7 +148,7 @@
     overflow: hidden;
 
     /* Dimensions derived from Constants */
-    max-height: calc(var(--spacing-unit) * 80); /* DROPDOWN_MAX_HEIGHT */
+    max-height: calc(var(--row-unit) * 3); /* DROPDOWN_MAX_HEIGHT */
   }
 
   :global(.dropdown-viewport) {
@@ -196,7 +193,7 @@
   :global(.dropdown-item[data-state="checked"]),
   :global(.dropdown-item[aria-selected="true"]) {
     background: var(--glass-base) !important;
-    color: var(--pure-white) !important;
+    color: var(--frisk) !important;
     filter: var(--brightness-glow);
   }
 

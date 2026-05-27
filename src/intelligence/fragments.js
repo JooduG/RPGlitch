@@ -55,6 +55,38 @@
  * @property {EntitySection} future
  * @property {EntitySection} past
  */
+/**
+ * Shared entity name stop words and title prefixes for visual initials calculations
+ * and prefix-aware name formatting breaks.
+ */
+export const NAME_PREFIXES = [
+  "mr",
+  "mrs",
+  "ms",
+  "dr",
+  "prof",
+  "sir",
+  "lady",
+  "lord",
+  "the",
+  "a",
+  "an",
+  "of",
+  "in",
+  "and",
+  "or",
+  "for",
+  "to",
+  "at",
+  "by",
+  "with",
+  "mr.",
+  "mrs.",
+  "ms.",
+  "dr.",
+  "prof.",
+];
+
 /************************************************************************************
  * [SECTION: ENTITY FRAGMENTS]
  * ----------------------------------------------------------------------------------
@@ -72,40 +104,70 @@
  */
 export const ENTITY_FRAGMENTS = {
   name: "Name",
-  description: "Identity Summary  Summary of the entity's vibe and role.", // HUMAN EYES ONLY!!
+  description: "Summary of the entity's vibe and role.", // HUMAN EYES ONLY!!
   eternal: {
     label: "Eternal",
-    sublabel: "Permanent Traits & Features", // UI only
-    fields: {
-      non_physical: {
-        label: "Non-Physical",
+    non_physical: {
+      label: "Non-Physical",
+      character: {
+        sublabel: "Personality, Behaviour & Traits",
         directive:
-          "Define the entity's baseline psychological architecture or core essence in the **3rd-person affirmative**. Detail fundamental logic, identity markers, and its signature **Narrative Voice** or **Communication Patterns**. Include specific vocabulary, tone, and any desirable linguistic patterns or structural tics. This serves as the foundation for all reactive behavior; avoid narration.",
+          "Define the character's baseline psychological architecture or core essence in the **3rd-person affirmative**. Detail fundamental logic, identity markers, and its signature **Narrative Voice** or **Communication Patterns**. Include specific vocabulary, tone, and any desirable linguistic patterns or structural tics. This serves as the foundation for all reactive behavior; avoid narration.",
         enhancer: "CORE_COGNITIVE_ARCHITECT",
       },
-      physical: {
-        label: "Physical",
+      fractal: {
+        sublabel: "Environmental Physics & Core Laws",
         directive:
-          "Synthesize the entity's permanent visual fragments for image generation using the **3rd-person affirmative**. Focus on structural composition, material properties, and signature attire/geometry. Detail textures, permanent marks, and lighting-reactive surfaces. For indcreased realism include imperfections.",
+          "Define the fractal's baseline metaphysical rules, structural constants, and ambient physics in the **3rd-person affirmative**. Detail environmental gravity, temporal flow rates, and signature structural behaviors. This serves as the dominant environmental architecture; avoid narration.",
+        enhancer: "METAPHYISICAL_CHRONOMETER",
+      },
+    },
+    physical: {
+      label: "Physical",
+      character: {
+        sublabel: "Body & Form",
+        directive:
+          "Synthesize the character's permanent visual fragments for image generation using the **3rd-person affirmative**. Focus on structural composition, material properties, attire, and geometry. Detail textures, permanent marks, and lighting-reactive surfaces. For increased realism include imperfections.",
         enhancer: "BIOMETRIC_RENDER_ENGINE",
+      },
+      fractal: {
+        sublabel: "Topography, Geometries & Composition",
+        directive:
+          "Synthesize the permanent structural composition, architectural textures, and landscape features of the fractal for scene generation using the **3rd-person affirmative**. Detail materials, permanent geography, and architectural dimensions. For increased realism include imperfections.",
+        enhancer: "SPATIAL_GEOMETRIC_RENDERER",
       },
     },
   },
   present: {
     label: "Present",
-    sublabel: "Current State & Conditions", // UI only
-    fields: {
-      non_physical: {
-        label: "Non-Physical",
+    non_physical: {
+      label: "Non-Physical",
+      character: {
+        sublabel: "Current State of Mind",
         directive:
-          "Capture the entity's current internal volatility or state pressure. Detail mental processing focus, active cognitive triggers, and immediate emotional pressure. This drives reactive behavior in the current moment.",
+          "Capture the character's current internal volatility or state pressure. Detail mental processing focus, active cognitive triggers, and immediate emotional pressure. This drives reactive behavior in the current moment.",
         enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
       },
-      physical: {
-        label: "Physical",
+      fractal: {
+        sublabel: "Active Anomalies & Volatility",
         directive:
-          "Synthesize the entity's situational physical state for image generation. Focus on active coverage (attire/gear/plates), visible damage, posture, and environmental overlays (e.g., status effects, grime). Detail the immediate presence.",
+          "Capture the fractal's immediate atmospheric shifts, active anomalous events, state volatility, or ecological/structural changes. Detail immediate environmental and temporal pressure.",
+        enhancer: "ECOSYSTEM_VOLATILITY_ANALYZER",
+      },
+    },
+    physical: {
+      label: "Physical",
+      character: {
+        sublabel: "Outfit, Appearance & Conditions",
+        directive:
+          "Synthesize the character's situational physical state for image generation. Focus on active coverage (attire/gear/plates), visible damage, posture, and environmental overlays (e.g., status effects, grime). Detail the immediate presence.",
         enhancer: "SOMATIC_STATE_TRACKER",
+      },
+      fractal: {
+        sublabel: "Active Weather, Lighting & Overlays",
+        directive:
+          "Synthesize the immediate sensory layers active in the scene. Detail lighting composition, active precipitation or environmental overlays, and situational atmospheric geometry.",
+        enhancer: "ATMOSPHERIC_RENDER_ENGINE",
       },
     },
   },
@@ -126,7 +188,7 @@ export const ENTITY_FRAGMENTS = {
   },
   past: {
     label: "Past",
-    sublabel: "Memories & History", // UI only
+    sublabel: "Memories & Backstory", // UI only
     unit_label: "Memory",
     directive:
       "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
@@ -170,12 +232,24 @@ function build_entity_catalog() {
   const catalog = {};
   Object.entries(ENTITY_FRAGMENTS).forEach(([section_key, sectionObj]) => {
     if (typeof sectionObj === "string" || sectionObj === null) return;
-    const section = /** @type {EntitySection} */ (sectionObj);
-    // 1. Add sub-fields if they exist
+    const section = /** @type {any} */ (sectionObj);
+
+    // 1. Process array-type nested fields (if section has explicit fields property)
     if (section.fields) {
       Object.entries(section.fields).forEach(([field_key, field]) => {
         const id = `${section_key}.${field_key}`;
         const metadata = typeof field === "string" ? { description: field } : field;
+
+        ["character", "fractal"].forEach((type) => {
+          const typeKey = `${type}.${id}`;
+          catalog[typeKey] = {
+            ...metadata,
+            id: typeKey,
+            section_label: section.label,
+            layer_key: section_key.toUpperCase(),
+          };
+        });
+
         catalog[id] = {
           ...metadata,
           id,
@@ -183,10 +257,55 @@ function build_entity_catalog() {
           layer_key: section_key.toUpperCase(),
         };
       });
+    } else {
+      // 2. Process flattened fields directly on the section
+      const fieldKeys = Object.keys(section).filter(
+        (k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k),
+      );
+      fieldKeys.forEach((field_key) => {
+        const id = `${section_key}.${field_key}`;
+        const field = section[field_key];
+
+        ["character", "fractal"].forEach((type) => {
+          const leaf = field[type] || field;
+          const typeKey = `${type}.${id}`;
+          catalog[typeKey] = {
+            ...leaf,
+            id: typeKey,
+            section_label: section.label,
+            layer_key: section_key.toUpperCase(),
+          };
+        });
+
+        // Default fallback (character)
+        const leafDefault = field.character || field;
+        catalog[id] = {
+          ...leafDefault,
+          id,
+          section_label: section.label,
+          layer_key: section_key.toUpperCase(),
+        };
+      });
     }
-    // 2. Add the section itself if it's not purely a container for fields
-    // or if it has special metadata (like array types).
-    if (!section.fields || section.type === "array") {
+
+    // 3. Add the section itself if it's an array type or has no explicit sub-fields
+    const hasFields =
+      section.fields ||
+      Object.keys(section).some(
+        (k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k),
+      );
+    if (!hasFields || section.type === "array") {
+      ["character", "fractal"].forEach((type) => {
+        const typeKey = `${type}.${section_key}`;
+        catalog[typeKey] = {
+          ...section,
+          id: typeKey,
+          section_label: section.label,
+          unit_label: section.unit_label,
+          layer_key: section_key.toUpperCase(),
+        };
+      });
+
       catalog[section_key] = {
         ...section,
         id: section_key,
@@ -209,43 +328,75 @@ function build_entity_catalog() {
 export const ENTITY_CATALOG = build_entity_catalog();
 
 /**
- * Maps the ENTITY_FRAGMENTS into UI section objects.
- * Automatically respects the Twin-Cylinder (eternal/present) schema
- * and Vector Array configurations.
+ * Builds the profile sections layout dynamically based on entity type.
+ * Handles leaf-level polymorphism cleanly.
+ * @param {string} [entity_type]
  */
-export const PROFILE_SECTIONS = Object.entries(ENTITY_FRAGMENTS)
-  // Filter out top-level strings (like 'name' and 'description')
-  .filter(([_, section]) => typeof section !== "string" && section !== null)
-  .map(([sectionKey, sectionObj]) => {
-    const section = /** @type {EntitySection} */ (sectionObj);
-    const fields =
-      section.fields && section.type !== "array"
-        ? Object.entries(section.fields).map(([fieldKey, fieldVal]) => {
-            const field =
-              typeof fieldVal === "string" ? { label: fieldKey, description: fieldVal } : fieldVal;
-            return {
-              key: `${sectionKey}.${fieldKey}`, // e.g. "eternal.physical"
-              label: field.label || fieldKey,
-              description: field.directive || field.description || "",
-              enhancer: field.enhancer,
-              type: field.type,
-              unitLabel: field.unit_label || section.unit_label || "Vector",
-            };
-          })
-        : [
-            {
-              key: sectionKey, // e.g. "past" or "future"
-              label: section.label,
-              description: section.directive || "",
-              enhancer: section.enhancer,
-              type: section.type,
-              unitLabel: section.unit_label || "Vector",
-            },
-          ];
-    return {
-      id: sectionKey,
-      label: section.label,
-      sublabel: section.sublabel || null,
-      fields,
-    };
-  });
+export function build_profile_sections(entity_type = "character") {
+  const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
+
+  return (
+    Object.entries(ENTITY_FRAGMENTS)
+      // Filter out top-level strings (like 'name' and 'description')
+      .filter(([_, section]) => typeof section !== "string" && section !== null)
+      .map(([sectionKey, sectionObj]) => {
+        const section = /** @type {any} */ (sectionObj);
+        const fieldKeys = Object.keys(section).filter(
+          (k) =>
+            ![
+              "label",
+              "sublabel",
+              "type",
+              "unit_label",
+              "directive",
+              "enhancer",
+              "fields",
+            ].includes(k),
+        );
+
+        const fields =
+          fieldKeys.length > 0 && section.type !== "array"
+            ? fieldKeys.map((fieldKey) => {
+                const field = section[fieldKey];
+                // Resolve leaf-level character/fractal properties
+                const leaf = field[resolvedType] || field;
+                return {
+                  key: `${sectionKey}.${fieldKey}`, // e.g. "eternal.physical"
+                  label: field.label || fieldKey,
+                  sublabel: leaf.sublabel || null,
+                  description: leaf.directive || leaf.description || "",
+                  enhancer: leaf.enhancer,
+                  type: field.type,
+                  unitLabel: field.unit_label || section.unit_label || "Vector",
+                };
+              })
+            : [
+                {
+                  key: sectionKey, // e.g. "past" or "future"
+                  label: section.label,
+                  sublabel: section.sublabel || null,
+                  description: section.directive || "",
+                  enhancer: section.enhancer,
+                  type: section.type,
+                  unitLabel: section.unit_label || "Vector",
+                },
+              ];
+        return {
+          id: sectionKey,
+          label: section.label,
+          fields,
+        };
+      })
+  );
+}
+
+/**
+ * Twin-Cylinder dynamic profile sections map.
+ */
+export const PROFILE_SECTIONS_BY_TYPE = {
+  character: build_profile_sections("character"),
+  fractal: build_profile_sections("fractal"),
+};
+
+// Deprecated global array: Dynamically acts as character layout by default
+export const PROFILE_SECTIONS = PROFILE_SECTIONS_BY_TYPE.character;
