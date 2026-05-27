@@ -159,8 +159,8 @@
   }
 
   :global(.svelte-button.is-square) {
-    width: var(--icon-medium);
-    height: var(--icon-medium);
+    width: var(--icon-large);
+    height: var(--icon-large);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
   }

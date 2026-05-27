@@ -47,7 +47,7 @@
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || controlState.intent_active);
   const paragraphs = $derived(parse_markdown(value));
-  const is_expanded = $derived((is_focused || busy) && (!!header_actions || !!status));
+  const is_expanded = $derived((is_focused || busy || is_edit) && (!!header_actions || !!status));
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
