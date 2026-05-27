@@ -112,6 +112,7 @@
         <!-- "Create New" card -->
         <div
           class="card--new glass-sunken interactable"
+          class:is-fractal={drawer_type === "fractal"}
           style="--signature-color: var(--frisk);"
           role="button"
           tabindex="0"
@@ -205,11 +206,17 @@
     width: 100%;
   }
 
+  /* Support grid column spanning for landscape/fractal cards in library drawer */
+  .grid :global(.entity-card-root.is-fractal),
+  .card--new.is-fractal {
+    grid-column: span 2;
+  }
+
   /* --- NEW ENTITY CARD --- */
   .card--new {
     position: relative;
-    width: 100%;
-    aspect-ratio: 2 / 3;
+    width: calc(var(--storyboard-character-card-width) * 0.5);
+    height: calc(var(--storyboard-character-card-height) * 0.5);
     flex: 0 0 auto;
     display: flex;
     flex-direction: column;
@@ -221,11 +228,18 @@
     border-radius: var(--radius-standard);
     overflow: hidden;
     transition:
+      width var(--duration-standard) var(--ease-standard),
+      height var(--duration-standard) var(--ease-standard),
       transform var(--duration-fast) var(--ease-standard),
       filter var(--duration-fast) var(--ease-standard),
       opacity var(--duration-fast) var(--ease-standard),
       border-color var(--duration-fast) var(--ease-standard),
       box-shadow var(--duration-fast) var(--ease-standard);
+  }
+
+  .card--new.is-fractal {
+    width: calc(var(--storyboard-fractal-card-width) * 0.5);
+    height: calc(var(--storyboard-fractal-card-height) * 0.5);
   }
 
   .card--new:hover {
@@ -234,7 +248,8 @@
   }
 
   .card--new .visual {
-    flex: 1.5;
+    height: calc(100% - calc(var(--spacing-unit) * 8));
+    width: 100%;
     background: var(--signature-color, var(--frisk));
     display: flex;
     align-items: center;
@@ -245,7 +260,8 @@
   }
 
   .card--new .info {
-    flex: 0.6;
+    height: calc(var(--spacing-unit) * 8);
+    width: 100%;
     padding: var(--padding-tight);
     display: flex;
     align-items: center;
@@ -258,7 +274,7 @@
     font-weight: var(--font-weight-bold);
     font-family: var(--font-family-heading);
     text-transform: uppercase;
-    font-size: var(--font-size-base);
+    font-size: clamp(var(--font-size-nano), 12cqi, var(--font-size-small));
     letter-spacing: var(--font-spacing-loose);
     color: var(--signature-color, var(--frisk));
     text-shadow: 0 0 calc(var(--spacing-unit) * 2)

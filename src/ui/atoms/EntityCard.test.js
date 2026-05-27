@@ -30,7 +30,7 @@ describe("EntityCard Atom", () => {
     const card = /** @type {any} */ (container.querySelector(".card"));
     expect(card).toBeTruthy();
     expect(card.classList.contains("glass-elevated")).toBe(true);
-    expect(screen.getByText("Arthur Pendragon")).toBeTruthy();
+    expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
     expect(card.style.viewTransitionName).toBe("card-character-char-123");
   });
 
@@ -62,7 +62,7 @@ describe("EntityCard Atom", () => {
     const root = /** @type {any} */ (container.querySelector(".root"));
     expect(root).toBeTruthy();
     expect(root.classList.contains("interactable")).toBe(true);
-    expect(screen.getByText("Arthur Pendragon")).toBeTruthy();
+    expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
     expect(screen.getByText("The Once and Future King.")).toBeTruthy();
     expect(root.style.viewTransitionName).toBe("card-character-char-123");
   });
