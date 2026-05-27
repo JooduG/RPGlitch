@@ -164,7 +164,8 @@
     left: 0;
     right: 0;
     margin-inline: auto;
-    width: 100%;
+    width: fit-content;
+    min-width: calc(var(--column-unit) * 4);
     max-width: calc(var(--column-unit) * 10);
     max-height: var(--modal-height-standard);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
@@ -193,20 +194,17 @@
   /* --- BODY --- */
   .body {
     flex: 1;
-    overflow: auto hidden;
+    overflow: hidden auto;
     padding: 0 var(--padding-standard) var(--padding-standard);
-    display: flex;
-    align-items: center;
   }
 
-  /* --- GRID (single-row horizontal flex row) --- */
+  /* --- GRID (wrapping flex row) --- */
   .grid {
     display: flex;
-    flex-direction: row;
-    align-items: center;
+    flex-flow: row wrap;
+    align-content: flex-start;
     gap: var(--gap-standard);
-    flex-shrink: 0;
-    height: 100%;
+    width: 100%;
   }
 
   /* --- NEW ENTITY CARD --- */
