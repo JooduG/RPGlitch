@@ -1,7 +1,7 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { sanitize, llm_service } from "@platform/transport.js";
-import { app } from "@state/app.svelte.js";
-import { ERROR_MESSAGES } from "@engine/config.js";
+import { ERROR_MESSAGES } from "@engine";
+import { llm_service, sanitize_llm } from "@platform";
+import { app } from "@state";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock app state
 vi.mock("@state/app.svelte.js", () => {
@@ -15,34 +15,34 @@ vi.mock("@state/app.svelte.js", () => {
   };
 });
 
-describe("llm_service - sanitize", () => {
+describe("llm_service - sanitize_llm", () => {
   it("should remove outer quotes", () => {
-    expect(sanitize('"Hello World"')).toBe("Hello World");
-    expect(sanitize("'Hello World'")).toBe("Hello World");
+    expect(sanitize_llm('"Hello World"')).toBe("Hello World");
+    expect(sanitize_llm("'Hello World'")).toBe("Hello World");
   });
 
   it("should remove conversational fillers up to a colon", () => {
-    expect(sanitize("Sure: Hello World")).toBe("Hello World");
-    expect(sanitize("Certainly: Hello World")).toBe("Hello World");
-    expect(sanitize("I can help: Hello World")).toBe("Hello World");
-    expect(sanitize("here is the requested text: Hello World")).toBe("Hello World");
-    expect(sanitize("enhanced text:: Hello World")).toBe("Hello World");
-    expect(sanitize("the enhanced text: Hello World")).toBe("Hello World");
+    expect(sanitize_llm("Sure: Hello World")).toBe("Hello World");
+    expect(sanitize_llm("Certainly: Hello World")).toBe("Hello World");
+    expect(sanitize_llm("I can help: Hello World")).toBe("Hello World");
+    expect(sanitize_llm("here is the requested text: Hello World")).toBe("Hello World");
+    expect(sanitize_llm("enhanced text:: Hello World")).toBe("Hello World");
+    expect(sanitize_llm("the enhanced text: Hello World")).toBe("Hello World");
   });
 
   it("should remove code fences", () => {
-    expect(sanitize("```\nHello World\n```")).toBe("Hello World");
-    expect(sanitize("```javascript\nHello World\n```")).toBe("Hello World");
+    expect(sanitize_llm("```\nHello World\n```")).toBe("Hello World");
+    expect(sanitize_llm("```javascript\nHello World\n```")).toBe("Hello World");
   });
 
   it("should trim the result", () => {
-    expect(sanitize("  Hello World  ")).toBe("Hello World");
-    expect(sanitize("\nHello World\n")).toBe("Hello World");
+    expect(sanitize_llm("  Hello World  ")).toBe("Hello World");
+    expect(sanitize_llm("\nHello World\n")).toBe("Hello World");
   });
 
   it("should STRIP <think> blocks in llm response", () => {
     const input = "<think>I need to be mysterious.</think>Hello Ghost.";
-    expect(sanitize(input)).toBe("Hello Ghost.");
+    expect(sanitize_llm(input)).toBe("Hello Ghost.");
   });
 });
 
@@ -140,14 +140,14 @@ describe("llm_service - generate", () => {
     expect(onTokenSpy).toHaveBeenLastCalledWith("Chunk2");
   });
 
-  it("should sanitize output by default", async () => {
+  it("should sanitize_llm output by default", async () => {
     window.ai = vi.fn().mockResolvedValue("```\nHere is the response\n```");
     const payload = { messages: [] };
     const result = await llm_service.generate(payload, { silent: true });
     expect(result).toBe("Here is the response");
   });
 
-  it("should not sanitize output if options.raw is true", async () => {
+  it("should not sanitize_llm output if options.raw is true", async () => {
     window.ai = vi.fn().mockResolvedValue("```\nHere is the response\n```");
     const payload = { messages: [] };
     const result = await llm_service.generate(payload, {

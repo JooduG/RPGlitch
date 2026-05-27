@@ -3,8 +3,8 @@
  * @description Unit tests for the Dynamics Engine (RPGlitch Engine v2).
  * Verifies Physics triggers, Tone resolution, and Prompt assembly.
  */
+import { dynamics_engine } from "@intelligence";
 import { describe, expect, it } from "vitest";
-import { dynamics_engine } from "@intelligence/dynamics.js";
 describe("Dynamics Engine v2 (Refactored)", () => {
   describe("Mechanics: simulation_dynamics", () => {
     /** @returns {any} */

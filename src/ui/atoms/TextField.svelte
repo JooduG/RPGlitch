@@ -5,10 +5,10 @@
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { controlState } from "@state/status.svelte.js";
-  import { auto_resize } from "@ui/actions/resize.js";
-  import { use_actions } from "@ui/actions/use-actions.js";
-  import { parse_markdown } from "@ui/components/markdown.js";
+  import { controlState } from "@state";
+  import ScrollArea from "@atoms/ScrollArea.svelte";
+  import { auto_resize, use_actions } from "@ui/actions";
+  import { parse_markdown } from "@ui/components";
   import { fade } from "svelte/transition";
 
   let {
@@ -110,38 +110,40 @@
       data-sync-id={syncId}
     ></textarea>
   {:else}
-    <div
-      {...rest}
-      class="body scrollbar is-readonly"
-      data-mode="readonly"
-      data-sync-id={syncId}
-      use:auto_resize={{ syncId }}
-      tabindex={is_disabled ? -1 : 0}
-      onfocus={handle_focus}
-      role="textbox"
-      aria-readonly="true"
-      aria-placeholder={placeholder}
-    >
-      {#if paragraphs.length > 0}
-        {#each paragraphs as tokens, i (i)}
-          <p class="paragraph" data-spaced={i > 0}>
-            {#each tokens as token, j (j)}
-              {#if token.type === "text"}
-                {token.content}
-              {:else if token.type === "strong"}
-                <strong class="strong">{token.content}</strong>
-              {:else if token.type === "em"}
-                <em class="em">{token.content}</em>
-              {:else if token.type === "strong-em"}
-                <strong class="strong"><em class="em">{token.content}</em></strong>
-              {/if}
-            {/each}
-          </p>
-        {/each}
-      {:else}
-        <span class="placeholder">{placeholder}</span>
-      {/if}
-    </div>
+    <ScrollArea class="scroll-area-readonly">
+      <div
+        {...rest}
+        class="body is-readonly"
+        data-mode="readonly"
+        data-sync-id={syncId}
+        use:auto_resize={{ syncId }}
+        tabindex={is_disabled ? -1 : 0}
+        onfocus={handle_focus}
+        role="textbox"
+        aria-readonly="true"
+        aria-placeholder={placeholder}
+      >
+        {#if paragraphs.length > 0}
+          {#each paragraphs as tokens, i (i)}
+            <p class="paragraph" data-spaced={i > 0}>
+              {#each tokens as token, j (j)}
+                {#if token.type === "text"}
+                  {token.content}
+                {:else if token.type === "strong"}
+                  <strong class="strong">{token.content}</strong>
+                {:else if token.type === "em"}
+                  <em class="em">{token.content}</em>
+                {:else if token.type === "strong-em"}
+                  <strong class="strong"><em class="em">{token.content}</em></strong>
+                {/if}
+              {/each}
+            </p>
+          {/each}
+        {:else}
+          <span class="placeholder">{placeholder}</span>
+        {/if}
+      </div>
+    </ScrollArea>
   {/if}
 </div>
 
@@ -286,6 +288,7 @@
     display: flex;
     flex-direction: column;
     text-wrap: pretty;
+    overflow: visible;
   }
 
   .body::placeholder,
@@ -353,5 +356,10 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  :global(.scroll-area-readonly) {
+    width: 100%;
+    height: 100%;
   }
 </style>

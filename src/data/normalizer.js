@@ -4,10 +4,10 @@
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
-import { PALETTE } from "@media/palette.svelte.js";
-import { Security } from "@platform/security.js";
-import { pickRandom } from "@ui/components/ui-helpers.js";
-const sanitize_html = Security.sanitize;
+import { PALETTE } from "@media";
+import { Security } from "@platform";
+import { pickRandom } from "@ui/components";
+const sanitize_html = (/** @type {any} */ val) => Security.sanitize(val);
 export const STORAGE_VERSION = 3;
 /**
  * 🐣 ENTITY TEMPLATES

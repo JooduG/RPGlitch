@@ -9,11 +9,12 @@
    * @property {any[]} [actions] - Svelte actions.
    * @property {string} [class] - External styling.
    * @property {string} [style] - Inline styling.
-   * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
+   * @property {(e: Event) => void} [onchange] - Change callback.
    */
 
-  import { use_actions } from "@ui/actions/use-actions.js";
-  import { controlState } from "@state/status.svelte.js";
+  import { controlState } from "@state";
+  import { use_actions } from "@ui/actions";
+  import { Switch } from "bits-ui";
 
   /** @type {Props} */
   let {
@@ -47,15 +48,22 @@
   {style}
   use:use_actions={actions}
 >
-  <input
-    type="checkbox"
-    {...rest}
+  <Switch.Root
     bind:checked={value}
     disabled={is_disabled || busy}
-    {onchange}
-    data-testid={test_id}
-  />
-  <span class="track"></span>
+    onCheckedChange={() => onchange?.(new Event("change"))}
+    {...rest}
+  >
+    {#snippet child({ props })}
+      <button {...props} class="switch-root" data-testid={test_id}>
+        <Switch.Thumb>
+          {#snippet child({ props: thumbProps })}
+            <span {...thumbProps} class="switch-thumb"></span>
+          {/snippet}
+        </Switch.Thumb>
+      </button>
+    {/snippet}
+  </Switch.Root>
 
   {#if label}
     <span class="label">{label}</span>
@@ -110,17 +118,10 @@
 
   /* --- ELEMENTS --- */
 
-  /* Logic Kernel (Hidden Input) */
-  input {
-    position: absolute;
-    width: 0;
-    height: 0;
-    opacity: var(--opacity-none);
-    pointer-events: none;
-  }
-
-  /* The Track */
-  .track {
+  /* The Switch Root (button primitive) */
+  .switch-root {
+    all: unset;
+    box-sizing: border-box;
     position: relative;
     flex-shrink: 0;
     width: var(--state-toggle-width);
@@ -128,14 +129,14 @@
     background-color: rgb(from var(--gunmetal) r g b / var(--opacity-whisper));
     backdrop-filter: var(--blur-whisper);
     border-radius: var(--radius-full);
+    cursor: pointer;
     transition:
       background-color var(--duration-standard) var(--ease-standard),
       box-shadow var(--duration-standard) var(--ease-standard);
   }
 
-  /* The Thumb */
-  .track::before {
-    content: "";
+  /* The Switch Thumb */
+  .switch-thumb {
     position: absolute;
     top: var(--state-toggle-thumb-offset);
     left: var(--state-toggle-thumb-offset);
@@ -163,7 +164,7 @@
   /* --- STATES --- */
 
   /* Hover Interaction */
-  .root:hover:not(.is-disabled) .track::before {
+  .root:hover:not(.is-disabled) .switch-thumb {
     filter: var(--brightness-glow);
   }
 
@@ -172,11 +173,11 @@
   }
 
   /* Checked Appearance */
-  input:checked + .track {
+  .switch-root[data-state="checked"] {
     background-color: rgb(from var(--frozen) r g b / var(--opacity-whisper));
   }
 
-  input:checked + .track::before {
+  .switch-root[data-state="checked"] .switch-thumb {
     background-color: var(--pure-white);
     /* stylelint-disable scss/operator-no-newline-after, scss/operator-no-unspaced */
     transform: translateX(
@@ -190,7 +191,7 @@
   }
 
   /* Accessibility Focus */
-  input:focus-visible + .track {
+  .switch-root:focus-visible {
     outline: var(--border-width-base) solid var(--frozen);
     outline-offset: var(--border-width-base);
   }

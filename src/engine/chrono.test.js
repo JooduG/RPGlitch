@@ -1,10 +1,8 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { Engine } from "@engine";
+import { Shield } from "@platform";
+import { app, runtime, simulationState } from "@state";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { Chrono } from "./chrono.svelte.js";
-import { app } from "@state/app.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
-import { Engine } from "@engine/kernel.js";
-import { Shield } from "@platform/security.js";
-import { simulationState } from "@state/status.svelte.js";
 
 // Mock Security/Shield and Engine
 vi.mock("@platform/security.js", () => {

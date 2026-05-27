@@ -9,10 +9,8 @@
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import Skeleton from "@atoms/Skeleton.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { themeStore } from "@media/palette.svelte.js";
-  import { app } from "@state/app.svelte.js";
-  import { runtime } from "@state/runtime.svelte.js";
-  import { simulationState } from "@state/status.svelte.js";
+  import { themeStore } from "@media";
+  import { app, runtime, simulationState } from "@state";
   import InputBar from "@storymode/InputBar.svelte";
   import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
   import Layout from "@ui/Layout.svelte";

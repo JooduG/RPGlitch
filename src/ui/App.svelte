@@ -4,14 +4,14 @@
    * THE CORE SHELL
    * View-switching logic using storyboard and storymode terminology.
    */
-  import { app } from "@state/app.svelte.js";
   import ImagePreview from "@atoms/ImagePreview.svelte";
+  import Tooltip from "@atoms/Tooltip.svelte";
   import ControlPanel from "@devmode/ControlPanel.svelte";
+  import GridOverlay from "@devmode/GridOverlay.svelte";
   import Profile from "@profile/Profile.svelte";
+  import { app } from "@state";
   import Storyboard from "@storyboard/Storyboard.svelte";
   import Storymode from "@storymode/Storymode.svelte";
-  import GridOverlay from "@devmode/GridOverlay.svelte";
-  import Tooltip from "@atoms/Tooltip.svelte";
 
   // --- DERIVED ---
 

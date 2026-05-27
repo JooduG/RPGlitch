@@ -1,12 +1,8 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
-import { Shield } from "@platform/security.js";
-import { app } from "@state/app.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
-import { simulation_log } from "@state/log.svelte.js";
-import { simulationState } from "@state/status.svelte.js"; // [R5] Unified State
-import { Engine } from "@engine/kernel.js";
-import { controlState } from "@state/status.svelte.js";
+import { Engine } from "@engine";
+import { Shield } from "@platform";
+import { app, controlState, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State
 /**
  *
  */

@@ -18,6 +18,7 @@ export default [
       "*.log",
       "*.template",
       "*.tmp",
+      "**/*.lock",
       ".secrets",
       "**/.DS_Store",
       "**/.antigravityignore",

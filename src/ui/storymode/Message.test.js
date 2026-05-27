@@ -1,7 +1,7 @@
-import { render, screen, fireEvent } from "@testing-library/svelte";
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { app } from "@state";
+import { fireEvent, render, screen } from "@testing-library/svelte";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import Message from "./Message.svelte";
-import { app } from "@state/app.svelte.js";
 
 // Mock the dependencies
 vi.mock("@state/app.svelte.js", () => ({

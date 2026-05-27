@@ -5,16 +5,10 @@
    * Renders parsed messages in a Unified Nordic Chassis.
    */
   import DataBox from "@devmode/DataBox.svelte";
-  import {
-    clean_image_prompts,
-    parse_message,
-    strip_cognition_blocks,
-  } from "@intelligence/parser.js";
-  import { themeStore } from "@media/palette.svelte.js";
-  import { app } from "@state/app.svelte.js";
-  import { runtime } from "@state/runtime.svelte.js";
+  import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
+  import { Audio, themeStore } from "@media";
+  import { app, runtime } from "@state";
   import { typewriter } from "@ui/actions/typewriter.js";
-  import { Audio } from "@media/audio.svelte.js";
 
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";

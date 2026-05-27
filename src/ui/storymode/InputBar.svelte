@@ -1,6 +1,6 @@
 <script>
-  import { runtime } from "@state/runtime.svelte.js";
-  import { themeStore } from "@media/palette.svelte.js";
+  import { themeStore } from "@media";
+  import { runtime } from "@state";
   /**
    * @file InputBar.svelte
    * ⌨️ THE COMMAND CONSOLE
@@ -10,10 +10,8 @@
   import Button from "@atoms/Button.svelte";
   import GlassPill from "@atoms/GlassPill.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { session } from "@state/session.svelte.js";
-  import { app } from "@state/app.svelte.js";
-  import { simulationState } from "@state/status.svelte.js";
-  import { roll, stab } from "@ui/actions/kinetic.js";
+  import { app, session, simulationState } from "@state";
+  import { roll, stab } from "@ui/actions";
 
   /**
    * @typedef {Object} Props

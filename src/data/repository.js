@@ -8,9 +8,7 @@
  * @property {string} fractal_name
  * @property {string} signature_color
  */
-import { normalize, STORAGE_VERSION } from "@data/normalizer.js";
-import { db } from "@data/db.js";
-import { premade } from "@data/premades.js";
+import { db, normalize, premade, STORAGE_VERSION } from "@data";
 const error = console.error;
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)

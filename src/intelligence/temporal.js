@@ -11,12 +11,10 @@
  * - Future (Impulses): Prophecies, Curses, Dreams, Impending Doom, Plans.
  */
 
-import { CONFIG } from "@engine/config.js";
-import { dynamics_engine } from "@intelligence/dynamics.js";
-import { llm_service } from "@platform/transport.js";
-import { prompt_builder } from "@intelligence/prompts.js";
-import { simulation_log as log_store } from "@state/log.svelte.js";
-import { session_driver } from "@engine/session.svelte.js";
+import { CONFIG, session_driver } from "@engine";
+import { dynamics_engine, prompt_builder } from "@intelligence";
+import { llm_service } from "@platform";
+import { simulation_log as log_store } from "@state";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity

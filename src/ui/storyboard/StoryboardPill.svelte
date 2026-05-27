@@ -9,10 +9,9 @@
   import Button from "@atoms/Button.svelte";
   import GlassPill from "@atoms/GlassPill.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { app } from "@state/app.svelte.js";
-  import { session } from "@state/session.svelte.js";
-  import { pickRandom } from "@ui/components/ui-helpers.js";
-  import { pulse, roll, shimmy } from "@ui/actions/kinetic.js";
+  import { app, session } from "@state";
+  import { pulse, roll, shimmy } from "@ui/actions";
+  import { pickRandom } from "@ui/components";
 
   // --- ORCHESTRATION ---
 

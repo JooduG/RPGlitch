@@ -1,8 +1,7 @@
-import { temporal_engine } from "@intelligence/temporal.js";
-import { db } from "@data/db.js";
-import { entities } from "@data/repository.js";
-import { SESSION_ID_KEY } from "@engine/constants.js";
-import { app } from "@state/app.svelte.js";
+import { db, entities } from "@data";
+import { SESSION_ID_KEY } from "@engine";
+import { temporal_engine } from "@intelligence";
+import { app } from "@state";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
 // 2. Story / Narrative (story, story_id, simulation_log, turn, ready)

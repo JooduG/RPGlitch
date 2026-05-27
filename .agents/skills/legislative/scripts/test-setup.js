@@ -12,6 +12,15 @@ import { execute_jules } from "../../swarm/scripts/jules-provider.js";
 
 // Ensure window.ai exists to prevent reference errors in purified simulation code.
 // In development, we bridge it to our Node.js provider.
+// Mock ResizeObserver for bits-ui primitives in JSDOM
+if (!globalThis.ResizeObserver) {
+  globalThis.ResizeObserver = class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  };
+}
+
 if (typeof window !== "undefined") {
   // Mock Element.animate for Svelte transitions in JSDOM
   if (typeof Element !== "undefined" && !Element.prototype.animate) {

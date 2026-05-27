@@ -10,14 +10,11 @@
    */
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
-  import { app } from "@state/app.svelte.js";
-  import { runtime } from "@state/runtime.svelte.js";
-  import { session } from "@state/session.svelte.js";
-  import { simulation_log } from "@state/log.svelte.js";
-  import { simulationState } from "@state/status.svelte.js";
+  import ScrollArea from "@atoms/ScrollArea.svelte";
+  import { clean_image_prompts } from "@intelligence";
+  import { Audio } from "@media";
+  import { app, runtime, session, simulation_log, simulationState } from "@state";
   import Message from "@storymode/Message.svelte";
-  import { Audio } from "@media/audio.svelte.js";
-  import { clean_image_prompts } from "@intelligence/parser.js";
 
   // --- STATE ---
   /** @type {HTMLDivElement | null} */
@@ -37,7 +34,7 @@
   // Auto-scroll logic
   $effect(() => {
     if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
-      const el = scroll_ref;
+      const el = scroll_ref.querySelector(".scroll-area-viewport");
       // Frame-sync to ensure DOM layout is complete
       requestAnimationFrame(() => {
         if (el) el.scrollTop = el.scrollHeight;
@@ -175,61 +172,62 @@
   on_confirm={execute_delete}
 />
 
-<div class="root scrollbar no-scrollbar" bind:this={scroll_ref}>
-  {#each simulation_log.feed as entry, index (entry.id)}
-    <Message
-      id={entry.id}
-      text={entry.text}
-      sender={map_role(entry.role)}
-      character_name={entry.character_name ||
-        (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
-      timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
-      attachments={entry.attachments}
-      is_last={index === simulation_log.feed.length - 1}
-      on_delete={() => handle_delete(index)}
-      on_regenerate={() => session.retry()}
-      on_continue={() => session.continue()}
-      on_edit={() => handle_edit(index)}
-      is_editing={index === editing_index}
-      on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
-      on_cancel={() => {
-        editing_index = null;
-      }}
-      meta={entry.meta}
-    />
-  {/each}
+<div class="root" bind:this={scroll_ref}>
+  <ScrollArea style="height: 100%; width: 100%;">
+    {#each simulation_log.feed as entry, index (entry.id)}
+      <Message
+        id={entry.id}
+        text={entry.text}
+        sender={map_role(entry.role)}
+        character_name={entry.character_name ||
+          (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
+        timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
+        attachments={entry.attachments}
+        is_last={index === simulation_log.feed.length - 1}
+        on_delete={() => handle_delete(index)}
+        on_regenerate={() => session.retry()}
+        on_continue={() => session.continue()}
+        on_edit={() => handle_edit(index)}
+        is_editing={index === editing_index}
+        on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
+        on_cancel={() => {
+          editing_index = null;
+        }}
+        meta={entry.meta}
+      />
+    {/each}
 
-  {#if is_active_turn}
-    <Message
-      id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"}
-      text={app.streaming.text ?? app.streaming.content ?? ""}
-      sender={active_turn_role ?? "ai"}
-      character_name={active_turn_name ?? ""}
-      timestamp={new Date()}
-      is_last={true}
-      busy={true}
-    />
-  {:else if simulation_log.feed.length === 0}
-    <div class="fallback">
-      <p>
-        Establishing context stream... If the screen remains black, please check your network or AI
-        plugin settings.
-      </p>
-      <Button variant="primary" onclick={() => session.retry()} label="Retry Connection" />
-    </div>
-  {/if}
+    {#if is_active_turn}
+      <Message
+        id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"}
+        text={app.streaming.text ?? app.streaming.content ?? ""}
+        sender={active_turn_role ?? "ai"}
+        character_name={active_turn_name ?? ""}
+        timestamp={new Date()}
+        is_last={true}
+        busy={true}
+      />
+    {:else if simulation_log.feed.length === 0}
+      <div class="fallback">
+        <p>
+          Establishing context stream... If the screen remains black, please check your network or
+          AI plugin settings.
+        </p>
+        <Button variant="primary" onclick={() => session.retry()} label="Retry Connection" />
+      </div>
+    {/if}
+  </ScrollArea>
 </div>
 
 <style>
   .root {
     flex: 1;
     min-height: var(--dropdown-max-height);
-    overflow: hidden auto;
+    overflow: hidden;
     padding: var(--padding-standard) 0;
     display: flex;
     flex-direction: column;
     gap: 0;
-    scroll-behavior: smooth;
     width: 100%;
   }
 

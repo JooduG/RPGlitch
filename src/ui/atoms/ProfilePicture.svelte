@@ -5,8 +5,8 @@
    * Handles real images, placeholders, and watermark-style initials.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { themeStore } from "@media/palette.svelte.js";
-  import { use_actions } from "@ui/actions/use-actions.js";
+  import { themeStore } from "@media";
+  import { use_actions } from "@ui/actions";
 
   let {
     // Data

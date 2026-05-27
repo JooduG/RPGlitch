@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { clean_image_prompts, escapeXml, strip_cognition_blocks } from "@intelligence/parser.js";
+import { clean_image_prompts, escapeXml, strip_cognition_blocks } from "@intelligence";
+import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {
   it("should remove <think> blocks and trailing newlines", () => {

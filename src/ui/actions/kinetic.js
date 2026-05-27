@@ -5,7 +5,7 @@
  * RUTHLESSLY STANDARDIZED: Identical math system-wide.
  */
 
-import { resolve_ms, resolve_number, resolve_string } from "@ui/components/ui-helpers.js";
+import { resolve_ms, resolve_number, resolve_string } from "@ui/components";
 
 /* --- Kinetic Primitives --- */
 

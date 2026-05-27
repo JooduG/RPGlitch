@@ -1,7 +1,4 @@
 <script>
-  import { use_actions } from "@ui/actions/use-actions.js";
-  import { controlState } from "@state/status.svelte.js";
-
   /**
    * @typedef {Object} Props
    * @property {number} [value] - Current slider value.
@@ -17,6 +14,10 @@
    * @property {string} [style] - Inline styling.
    * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
    */
+
+  import { controlState } from "@state";
+  import { use_actions } from "@ui/actions";
+  import { Slider } from "bits-ui";
 
   /** @type {Props} */
   let {
@@ -35,7 +36,7 @@
     ...rest
   } = $props();
 
-  // Logic Calculations
+  // Logic Calculations for Nordic Gradient Track
   const center_val = $derived(neutral ?? (min + max) / 2);
   const val_pct = $derived(((value - min) / (max - min)) * 100);
   const center_pct = $derived(((center_val - min) / (max - min)) * 100);
@@ -49,6 +50,37 @@
   );
 
   let is_disabled = $derived(disabled || controlState.intent_active);
+
+  /**
+   * Adapts bits-ui number value to the backward compatible HTMLInputElement event structure.
+   * @param {number} val
+   */
+  function handle_value_change(val) {
+    value = val;
+
+    if (onchange) {
+      // Create a mock HTMLInputElement that supports standard .value and range configurations
+      const mockInput = Object.assign(document.createElement("input"), {
+        type: "range",
+        min: String(min),
+        max: String(max),
+        step: String(step),
+        value: String(val),
+      });
+
+      const event = new Event("change", { bubbles: true });
+      Object.defineProperty(event, "currentTarget", {
+        value: mockInput,
+        writable: false,
+      });
+      Object.defineProperty(event, "target", {
+        value: mockInput,
+        writable: false,
+      });
+
+      onchange(/** @type {any} */ (event));
+    }
+  }
 </script>
 
 <label
@@ -64,16 +96,32 @@
   <span class="header">
     {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
-  <input
-    type="range"
-    {...rest}
+
+  <Slider.Root
+    type="single"
+    {value}
+    onValueChange={handle_value_change}
     {min}
     {max}
     {step}
-    bind:value
     disabled={is_disabled || busy}
-    {onchange}
-  />
+    {...rest}
+  >
+    {#snippet child({ props })}
+      <div {...props} class="slider-root">
+        <span class="slider-track"></span>
+        <Slider.Thumb index={0}>
+          {#snippet child({ props: thumbProps })}
+            <span
+              {...thumbProps}
+              class="slider-thumb"
+              style="{thumbProps.style}; top: 50%; transform: translate(-50%, -50%);"
+            ></span>
+          {/snippet}
+        </Slider.Thumb>
+      </div>
+    {/snippet}
+  </Slider.Root>
 </label>
 
 <style>
@@ -122,21 +170,21 @@
     color: var(--pure-white);
   }
 
-  input[type="range"] {
-    display: block;
+  /* Interactive base layout area replacing transparent range input */
+  .slider-root {
+    display: flex;
+    align-items: center;
+    position: relative;
     width: 100%;
-    margin: 0;
     height: var(--slider-thumb-size);
-    background: transparent;
-    appearance: none;
-    outline: none;
-    border: none;
-    padding: 0;
-    overflow: visible;
+    touch-action: none;
+    user-select: none;
+    cursor: pointer;
   }
 
   /* Track Styling */
-  input[type="range"]::-webkit-slider-runnable-track {
+  .slider-track {
+    position: relative;
     width: 100%;
     height: var(--slider-track-height);
     background: linear-gradient(
@@ -154,55 +202,15 @@
     border: none;
   }
 
-  input[type="range"]::-moz-range-track {
-    width: 100%;
-    height: var(--slider-track-height);
-    background: linear-gradient(
-      to right,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 0%,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-start),
-      var(--slider-fill-color-start) var(--state-fill-start),
-      var(--slider-fill-color-start) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 100%
-    );
-    box-shadow: inset 0 var(--spacing-pixel) var(--spacing-pixel)
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    border-radius: var(--radius-full);
-    border: none;
-  }
-
   /* Thumb Styling */
-  input[type="range"]::-webkit-slider-thumb {
-    appearance: none;
+  .slider-thumb {
+    position: absolute;
     width: var(--slider-thumb-size);
     height: var(--slider-thumb-size);
     background: var(--pure-white);
     border-radius: var(--radius-full);
     cursor: pointer;
     box-shadow: var(--slider-thumb-shadow);
-    margin-top: calc(
-      (var(--slider-track-height) - var(--slider-thumb-size)) / 2
-    ); /* Centering on track */
-
-    border: none;
-    transition:
-      transform var(--duration-standard) var(--ease-elastic),
-      filter var(--duration-standard) var(--ease-standard);
-  }
-
-  input[type="range"]::-moz-range-thumb {
-    appearance: none;
-    width: var(--slider-thumb-size);
-    height: var(--slider-thumb-size);
-    background: var(--pure-white);
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    box-shadow: var(--slider-thumb-shadow);
-    margin-top: calc(
-      (var(--slider-track-height) - var(--slider-thumb-size)) / 2
-    ); /* Centering on track */
-
     border: none;
     transition:
       transform var(--duration-standard) var(--ease-elastic),
@@ -211,31 +219,15 @@
 
   /* --- STATES --- */
 
-  .root:hover:not(.is-disabled) input[type="range"]::-webkit-slider-thumb {
+  .root:hover:not(.is-disabled) .slider-thumb {
     filter: var(--brightness-glow);
   }
 
-  .root:hover:not(.is-disabled) input[type="range"]::-moz-range-thumb {
-    filter: var(--brightness-glow);
+  .slider-thumb:active:not(:disabled) {
+    transform: translate(-50%, -50%) var(--scale-lift) !important;
   }
 
-  input[type="range"]:active:not(:disabled)::-webkit-slider-thumb {
-    transform: var(--scale-lift);
-  }
-
-  input[type="range"]:active:not(:disabled)::-moz-range-thumb {
-    transform: var(--scale-lift);
-  }
-
-  input[type="range"]:disabled::-webkit-slider-thumb {
-    appearance: none;
-    background: var(--frozen);
-    opacity: var(--opacity-whisper);
-    box-shadow: none;
-    border: none;
-  }
-
-  input[type="range"]:disabled::-moz-range-thumb {
+  .root.is-disabled .slider-thumb {
     background: var(--frozen);
     opacity: var(--opacity-whisper);
     box-shadow: none;

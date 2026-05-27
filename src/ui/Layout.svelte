@@ -7,7 +7,7 @@
    * 2. Storyboard: Gutter(1), Side(2), Main(6), Side(2), Gutter(1).
    * 3. Storymode: Side(2), Main(8), Side(2) - Full Bleed.
    */
-  import { app } from "@state/app.svelte.js";
+  import { app } from "@state";
 
   let {
     header = undefined,

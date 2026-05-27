@@ -1,7 +1,6 @@
-import { gamemaster } from "@intelligence/kernel.js";
-import { app } from "@state/app.svelte.js";
-import { simulationState } from "@state/status.svelte.js";
-import { session_driver } from "@engine/session.svelte.js";
+import { session_driver } from "@engine";
+import { gamemaster } from "@intelligence";
+import { app, simulationState } from "@state";
 /**
  * @typedef {Object} GenerationOptions
  * @property {string} [role]

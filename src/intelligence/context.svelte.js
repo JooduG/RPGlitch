@@ -19,12 +19,8 @@
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
 /* eslint-disable svelte/prefer-svelte-reactivity */
-import { runtime } from "@state/runtime.svelte.js";
-import { app } from "@state/app.svelte.js";
-import { clean_text } from "@intelligence/parser.js";
-import { dynamics_engine } from "@intelligence/dynamics.js";
-import { ENTITY_CATALOG } from "@intelligence/fragments.js";
-import { temporal_engine } from "@intelligence/temporal.js";
+import { clean_text, dynamics_engine, ENTITY_CATALOG, temporal_engine } from "@intelligence";
+import { app, runtime } from "@state";
 
 const RAW_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;
@@ -145,13 +141,13 @@ export function init_context_effects() {
   if (context_cleanup) return;
   context_cleanup = $effect.root(() => {
     $effect(() => {
-      const aiFuture = runtime.active_ai?.future ?? [];
+      const aiFuture = runtime?.active_ai?.future ?? [];
       const aiKeys = aiFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
 
-      const userFuture = runtime.active_user?.future ?? [];
+      const userFuture = runtime?.active_user?.future ?? [];
       const userKeys = userFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
 
-      const fractalFuture = runtime.active_fractal?.future ?? [];
+      const fractalFuture = runtime?.active_fractal?.future ?? [];
       const fractalKeys = fractalFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
 
       // Only assign and update active state subscribers when actual shifts happen

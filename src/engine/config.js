@@ -3,7 +3,7 @@
  * ⚔️ The Single Source of Truth for Global Architecture.
  * Aligning with the Chalk Regime (Nordic Collection).
  */
-import { TOKENS } from "@media/tokens.js";
+import { TOKENS } from "@media";
 
 export const APP_VERSION = "0.3.0 (Chalk Regime)";
 
@@ -60,13 +60,17 @@ export const CONFIG = {
     ],
   },
 
-  // --- TOKENS (Bridge) ---
-  // Direct access to key theme tokens for JS-driven logic
   THEME: {
     // @ts-ignore
-    GRID_UNITS: parseInt(TOKENS["column-units"] || "12"),
-    ANIMATION_STANDARD: TOKENS["duration-standard"],
-    EASE_STANDARD: TOKENS["ease-standard"],
+    get GRID_UNITS() {
+      return parseInt(TOKENS["column-unit"] || "12");
+    },
+    get ANIMATION_STANDARD() {
+      return TOKENS["duration-standard"];
+    },
+    get EASE_STANDARD() {
+      return TOKENS["ease-standard"];
+    },
   },
 };
 

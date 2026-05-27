@@ -1,5 +1,5 @@
-import { session_driver } from "@engine/session.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
+import { session_driver } from "@engine";
+import { runtime } from "@state";
 /**
  * @typedef {Object} LogEntry
  * @property {string|number} [id]

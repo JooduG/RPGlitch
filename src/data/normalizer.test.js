@@ -1,14 +1,14 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
 import {
-  normalize,
   coerce_temporal_array,
   create_new,
+  ENTITY_TEMPLATES,
   format_premade,
   get_random_signature_key,
-  ENTITY_TEMPLATES,
+  normalize,
   STORAGE_VERSION,
-} from "@data/normalizer.js";
-import { Security } from "@platform/security.js";
+} from "@data";
+import { Security } from "@platform";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock Security.sanitize
 vi.mock("@platform/security.js", () => ({

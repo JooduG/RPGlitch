@@ -1,10 +1,10 @@
-import { describe, expect, it, beforeEach, afterEach, vi } from "vitest";
 import {
   context_broker,
   init_context_effects,
   teardown_context_effects,
-} from "@intelligence/context.svelte.js";
-import { temporal_engine } from "@intelligence/temporal.js";
+  temporal_engine,
+} from "@intelligence";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
 let mockRound = 1;

@@ -8,8 +8,8 @@
 export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
-import { themeStore } from "@media/palette.svelte.js";
 import { escapeXml } from "@intelligence/parser.js";
+import { themeStore } from "@media";
 
 /**
  * Resolves camera specs based on character context.

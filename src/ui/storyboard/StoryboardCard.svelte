@@ -9,7 +9,7 @@
   import Button from "@atoms/Button.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
-  import { themeStore } from "@media/palette.svelte.js";
+  import { themeStore } from "@media";
 
   /**
    * @typedef {Object} Props

@@ -1,4 +1,4 @@
-import { sanitizeToFragment } from "@platform/security.js";
+import { sanitizeToFragment } from "@platform";
 
 /**
  * Svelte Action: Safely types out sanitized HTML character-by-character.

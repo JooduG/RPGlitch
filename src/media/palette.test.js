@@ -2,7 +2,7 @@
  * Unit tests for ThemeStore and Color Generation logic
  * Ported from legacy entities.test.js
  */
-import { themeStore } from "@media/palette.svelte.js";
+import { themeStore } from "@media";
 import { describe, expect, test } from "vitest";
 describe("ThemeStore Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => themeStore.get_signature_color(e);

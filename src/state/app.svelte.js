@@ -4,16 +4,12 @@
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
  * ZERO NESTING - Flattened Schema only.
  */
-import { KV_SETTINGS_KEY } from "@engine/constants.js";
-import { log as engineLog } from "@engine/logger.svelte.js";
-import { normalize } from "@data/normalizer.js";
-import { db } from "@data/db.js";
-import { entities } from "@data/repository.js";
-import { visual_engine } from "@media/visual.svelte.js";
-import { generateUUID, resolve_px } from "@ui/components/ui-helpers.js";
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
-import { runtime } from "@state/runtime.svelte.js";
-import { simulationState, uiState } from "@state/status.svelte.js";
+import { db, entities, normalize } from "@data";
+import { log as engineLog, KV_SETTINGS_KEY } from "@engine";
+import { visual_engine } from "@media";
+import { runtime, simulationState, uiState } from "@state";
+import { generateUUID, resolve_px } from "@ui/components";
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./status.svelte.js').DrawerState} DrawerState */
@@ -133,7 +129,9 @@ export class AppStore {
     dev_grid_visible: false,
   });
   // --- SENSORY ENGINES ---
-  visual = visual_engine;
+  get visual() {
+    return visual_engine;
+  }
   get busy() {
     return uiState.loading;
   }
@@ -471,5 +469,5 @@ if (typeof window !== "undefined") {
   window.rpgApp = app;
   window.state = app;
   // @ts-ignore
-  window.visual = app.visual;
+  Object.defineProperty(window, "visual", { get: () => app.visual });
 }

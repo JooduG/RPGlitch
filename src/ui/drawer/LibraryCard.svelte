@@ -17,7 +17,7 @@
   let { entity, type = "ai", disabled = false, onclick, onViewProfile } = $props();
 
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import { themeStore } from "@media/palette.svelte.js";
+  import { themeStore } from "@media";
 
   // --- STATE ---
 

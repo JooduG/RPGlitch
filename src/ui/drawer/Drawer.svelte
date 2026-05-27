@@ -4,13 +4,12 @@
    * 🐣 THE ENTITY BIRTHPLACE
    * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
    */
-  import { create_new } from "@data/normalizer.js";
-  import { entities as repository } from "@data/repository.js";
-  import { app } from "@state/app.svelte.js";
-  import { kinetic_scroll } from "@ui/actions/kinetic.js";
-  import { resolve_ms } from "@ui/components/ui-helpers.js";
-  import { fly } from "svelte/transition";
+  import { create_new, entities as repository } from "@data";
+  import { app } from "@state";
+  import { kinetic_scroll } from "@ui/actions";
+  import { resolve_ms } from "@ui/components";
   import { quartOut } from "svelte/easing";
+  import { fly } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";

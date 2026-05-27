@@ -1,7 +1,7 @@
-import { describe, test, expect, vi, beforeEach } from "vitest";
+import * as repository from "@data";
 import { AppBootstrap, reset_bootstrap_guard } from "@engine/boot.js";
-import * as repository from "@data/repository.js";
-import { app } from "@state/app.svelte.js";
+import { app } from "@state";
+import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@state/app.svelte.js", () => ({
   app: {

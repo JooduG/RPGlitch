@@ -1,11 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Chrono } from "@engine/chrono.svelte.js";
-import { app } from "@state/app.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
-import { Engine } from "@engine/kernel.js";
-import { Shield } from "@platform/security.js";
-import { simulationState } from "@state/status.svelte.js";
-import { controlState } from "./status.svelte.js";
+import { Chrono, Engine } from "@engine";
+import { Shield } from "@platform";
+import { app, runtime, controlState, simulationState } from "@state";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock Security/Shield and Engine to avoid network requests and db access
 vi.mock("@platform/security.js", () => {

@@ -1,10 +1,7 @@
-import { app } from "@state/app.svelte.js";
-import { session } from "@state/session.svelte.js";
-import { simulation_log } from "@state/log.svelte.js";
-import { simulationState } from "@state/status.svelte.js";
+import { app, session, simulation_log, simulationState } from "@state";
+import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
 // Mock child components
 vi.mock("@storymode/Message.svelte", async () => {
   return await import("@/tests/MockMessage.svelte");
@@ -71,7 +68,7 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     await fireEvent.click(deleteBtn);
 
     // Click confirm in the Modal (Need to be specific as "Delete" appears twice)
-    const modal = screen.getByRole("dialog");
+    const modal = screen.queryByRole("dialog") || screen.getByRole("alertdialog");
     const confirmBtn = within(modal).getByText("Delete");
     await fireEvent.click(confirmBtn);
 

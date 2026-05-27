@@ -7,14 +7,14 @@
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
 
-  import Layout from "@ui/Layout.svelte";
-  import Drawer from "@drawer/Drawer.svelte";
   import Skeleton from "@atoms/Skeleton.svelte";
+  import Drawer from "@drawer/Drawer.svelte";
+  import { context_broker } from "@intelligence";
+  import { app } from "@state";
   import StoryboardCard from "@storyboard/StoryboardCard.svelte";
-  import StoryboardPill from "@storyboard/StoryboardPill.svelte";
   import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
-  import { app } from "@state/app.svelte.js";
-  import { context_broker } from "@intelligence/context.svelte.js";
+  import StoryboardPill from "@storyboard/StoryboardPill.svelte";
+  import Layout from "@ui/Layout.svelte";
 
   // --- EVENT BROADCAST: CONTEXT SWAP ---
 

@@ -1,9 +1,8 @@
 /**
  * src/media/optics.test.js
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { PromptTemplates, AestheticResolver, getResolution } from "@media/optics.js";
-import { themeStore } from "@media/palette.svelte.js";
+import { AestheticResolver, getResolution, PromptTemplates, themeStore } from "@media";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 vi.mock("@media/palette.svelte.js", () => ({
   themeStore: {

@@ -6,6 +6,7 @@
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
   import Button from "@atoms/Button.svelte";
+  import Meter from "@atoms/Meter.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DataBox from "@devmode/DataBox.svelte";
 
@@ -16,7 +17,6 @@
 
   /** @type {Props} */
   let { profileState } = $props();
-  const char = $derived(profileState.char);
   const is_editing = $derived(profileState.is_editing);
 
   /**
@@ -54,8 +54,9 @@
    */
   let active_dynamics = $derived.by(() => {
     const list = [];
-    if (char?.dynamics) {
-      for (const key of Object.keys(char.dynamics)) {
+    const entity = profileState.char;
+    if (entity?.dynamics) {
+      for (const key of Object.keys(entity.dynamics)) {
         list.push({
           source: "dynamics",
           key: key,
@@ -72,15 +73,22 @@
   <!-- 📈 DYNAMICS GRID -->
   <div class="body grid">
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
-      <div
-        class="card"
-        class:is-editable={is_editing}
-        style="--state-value: {char[dynamic.source][dynamic.key]}%"
-      >
+      <div class="card" class:is-editable={is_editing}>
         <span class="label" use:tooltip={dynamic.desc}>{dynamic.label}</span>
         <div class="value">
           {#if is_editing}
-            <input type="number" bind:value={char[dynamic.source][dynamic.key]} min="0" max="100" />
+            <input
+              type="number"
+              value={profileState.char[dynamic.source][dynamic.key]}
+              oninput={(e) => {
+                const val = Number(e.currentTarget.value);
+                if (!isNaN(val)) {
+                  profileState.char[dynamic.source][dynamic.key] = val;
+                }
+              }}
+              min="0"
+              max="100"
+            />
             <div class="actions">
               <Button
                 variant="secondary"
@@ -89,9 +97,9 @@
                 class="step"
                 actions={[[tooltip, "Increase"]]}
                 onclick={() =>
-                  (char[dynamic.source][dynamic.key] = Math.min(
+                  (profileState.char[dynamic.source][dynamic.key] = Math.min(
                     100,
-                    char[dynamic.source][dynamic.key] + 1,
+                    profileState.char[dynamic.source][dynamic.key] + 1,
                   ))}
                 aria-label="Increase"
               >
@@ -106,9 +114,9 @@
                 class="step"
                 actions={[[tooltip, "Decrease"]]}
                 onclick={() =>
-                  (char[dynamic.source][dynamic.key] = Math.max(
+                  (profileState.char[dynamic.source][dynamic.key] = Math.max(
                     0,
-                    char[dynamic.source][dynamic.key] - 1,
+                    profileState.char[dynamic.source][dynamic.key] - 1,
                   ))}
                 aria-label="Decrease"
               >
@@ -119,11 +127,18 @@
             </div>
           {:else}
             <span class="display">
-              {char[dynamic.source][dynamic.key]}%
+              {profileState.char[dynamic.source][dynamic.key]}%
             </span>
           {/if}
         </div>
-        <div class="meter"></div>
+        {#key is_editing}
+          <Meter
+            class="meter"
+            value={profileState.char[dynamic.source][dynamic.key]}
+            min={0}
+            max={100}
+          />
+        {/key}
       </div>
     {/each}
   </div>
@@ -133,7 +148,7 @@
     <details class="explorer">
       <summary>View JSON Data</summary>
       <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
-        <pre class="font-mono">{JSON.stringify(char, null, 2)}</pre>
+        <pre class="font-mono">{JSON.stringify(profileState.char, null, 2)}</pre>
       </DataBox>
     </details>
   </div>
@@ -142,11 +157,11 @@
   <footer class="footer">
     <div class="meta">
       <span class="tag">Born:</span>
-      <span class="val">{format_timestamp(char.created_at)}</span>
+      <span class="val">{format_timestamp(profileState.char.created_at)}</span>
     </div>
     <div class="meta">
       <span class="tag">Sync:</span>
-      <span class="val">{format_timestamp(char.updated_at)}</span>
+      <span class="val">{format_timestamp(profileState.char.updated_at)}</span>
     </div>
   </footer>
 </section>
@@ -220,16 +235,18 @@
     opacity: var(--opacity-ghost);
   }
 
-  .meter {
+  :global(.card .meter) {
     position: absolute;
     bottom: 0;
     left: 0;
-    height: var(--spacing-pixel);
-    width: var(--state-value, 0%);
-    background: var(--dev-accent);
-    box-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--dev-accent);
-    transition: width var(--duration-fast) var(--ease-standard);
+    height: var(--spacing-pixel) !important;
+    width: 100% !important;
     z-index: var(--z-index-surface);
+  }
+
+  :global(.card .meter .indicator) {
+    background: var(--dev-accent) !important;
+    box-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--dev-accent) !important;
   }
 
   .label {

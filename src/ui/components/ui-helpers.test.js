@@ -1,12 +1,12 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import {
-  resolve_px,
+  generateSecureSeed,
+  generateUUID,
   resolve_ms,
   resolve_number,
+  resolve_px,
   resolve_string,
-  generateUUID,
-  generateSecureSeed,
-} from "@ui/components/ui-helpers.js";
+} from "@ui/components";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {
   /** @type {HTMLElement} */

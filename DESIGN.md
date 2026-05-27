@@ -109,6 +109,7 @@ components:
   breakpoint-mini: 30rem
   breakpoint-mobile: 48rem
   breakpoint-tablet: 64rem
+  breakpoint-high-density: 120rem
   brightness-dim: brightness(0.9)
   brightness-glow: brightness(1.1)
   brightness-muted: brightness(0.3)
@@ -286,6 +287,19 @@ All interface copy must be clinical and concise. Use UI/UX keywords consistently
 ---
 
 ## 🧩 Pattern Registry (T4 Realization)
+
+### Headless Component Foundations
+
+The Chalk Regime UI layers have been migrated from raw DOM manipulations to standardized headless components powered by `bits-ui`. The layout aesthetics are strictly preserved using semantic selectors and data attributes mapped directly from the library engines:
+
+- **Tooltip Layer**: Powered by `bits-ui/Tooltip`. Container overlays query `.tooltip-container[data-side="bottom"]` and compile portalled tracking at `z-index: var(--z-index-max) !important` to ensure clearing modal context bounds cleanly.
+- **Modal Framework**: Driven by `bits-ui/Dialog`. Manages focus-trapping, portal distribution, and Escape-key dismissals natively. Transitions map via custom snippets into native `fly` / `scale` states.
+- **Alert Dialogs**: Reconfigured via `bits-ui/AlertDialog` for high-priority destructive validation steps (e.g., memory clearing). Enforces explicit semantic roles (`[role="alertdialog"]`) and handles button action traps safely.
+- **Switch Controls**: Unified under `bits-ui/Switch`. Targets `.switch-root` and `.switch-thumb` elements, utilizing `[data-state="checked"]` and pointer restrictions natively.
+- **Slider Ranges**: Migrated to `bits-ui/Slider`. Removes auxiliary overlay blocks, letting custom background gradients compute coordinates directly via root `--state-fill-start` and `--state-fill-end` variables.
+- **Button Primitives**: Replaced with `bits-ui/Button`. Implements custom global scopes (`.svelte-button`) with reactive string allocations to protect Svelte 5 compilation rules.
+- **Dropdown Viewports**: Reconfigured using `bits-ui/Select`, querying state changes via `[data-highlighted]` and `[data-state="checked"]` to match glassmorphic list rows.
+- **Scroll Layering**: Wrapped via `bits-ui/ScrollArea` over primary list feeds, textboxes (`data-mode="readonly"`), and panels to eliminate platform layout shifts.
 
 ### Structural Chassis
 
@@ -613,7 +627,56 @@ select:focus {
   height: var(--icon-large);
 }
 
-/* --- SCROLLBAR UTILITIES --- */
+/* --- SCROLL AREA PRIMITIVE MAPPINGS --- */
+
+.scroll-area-root {
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.scroll-area-viewport {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.scroll-area-track {
+  display: flex;
+  user-select: none;
+  touch-action: none;
+  padding: var(--spacing-pixel);
+  background: var(--glass-sunken);
+  transition: background var(--duration-fast);
+}
+
+.scroll-area-track[data-orientation="vertical"] {
+  width: var(--scrollbar-width);
+}
+
+.scroll-area-track[data-orientation="horizontal"] {
+  flex-direction: column;
+  height: var(--scrollbar-width);
+}
+
+.scroll-area-thumb {
+  flex: 1;
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-full);
+  position: relative;
+  opacity: var(--opacity-whisper);
+  transition:
+    opacity var(--duration-fast),
+    background var(--duration-fast);
+}
+
+.scroll-area-thumb:hover {
+  opacity: var(--opacity-solid);
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* --- LEGACY FALLBACK SCROLLBAR UTILITIES --- */
 .scrollbar {
   scrollbar-width: thin;
   scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);

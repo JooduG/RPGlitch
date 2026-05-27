@@ -5,10 +5,10 @@
  * lists and environments, and re-exporting stateless engine logic.
  */
 
-import { generateUUID, generateSecureSeed, pickRandom, debounce, clamp } from "@engine/utils.js";
+import { clamp, debounce, generateSecureSeed, generateUUID, pickRandom } from "@engine";
 
 // Re-export pure engine utilities
-export { generateUUID, generateSecureSeed, pickRandom, debounce, clamp };
+export { clamp, debounce, generateSecureSeed, generateUUID, pickRandom };
 
 /**
  * Prepares a CSS value for measurement, wrapping raw variables in var().

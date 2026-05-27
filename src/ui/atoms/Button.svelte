@@ -3,11 +3,10 @@
    * @file Button.svelte
    * 🕹️ SOTA ATOMIC BUTTON COMPONENT
    * High-performance, multi-variant interaction layer.
-   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
+   * Headless refactor powered by bits-ui/Button and Svelte 5.
    */
-  import { use_actions } from "@ui/actions/use-actions.js";
-
-  import { controlState } from "@state/status.svelte.js";
+  import { Button } from "bits-ui";
+  import { controlState } from "@state";
 
   let {
     // Data
@@ -32,8 +31,8 @@
     ...rest
   } = $props();
 
-  /** @type {HTMLButtonElement} */
-  let element;
+  /** @type {HTMLButtonElement|null} */
+  let element = $state(null);
 
   /** API: Focus the button */
   export function focus() {
@@ -47,36 +46,65 @@
   );
 
   let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
+
+  // Assemble classes dynamically to comply with Svelte 5 component rules.
+  // Add .svelte-button to allow safe global scoping of CSS for the bits-ui Button.Root component.
+  const button_class = $derived(
+    [
+      "root",
+      "svelte-button",
+      `variant-${variant}`,
+      className,
+      cover ? "is-cover" : "",
+      size === "small" ? "is-small" : "",
+      square ? "is-square" : "",
+      full_width ? "is-full" : "",
+      busy ? "is-busy" : "",
+    ]
+      .filter(Boolean)
+      .join(" "),
+  );
+
+  // Svelte 5 Action delegation: Apply Svelte actions dynamically when element reference becomes active
+  $effect(() => {
+    if (element && actions.length > 0) {
+      const active_actions = actions.map((act) => {
+        if (Array.isArray(act)) {
+          return act[0](element, act[1]);
+        } else {
+          return act(element);
+        }
+      });
+
+      return () => {
+        active_actions.forEach((res) => res?.destroy?.());
+      };
+    }
+  });
 </script>
 
-<button
-  bind:this={element}
+<Button.Root
+  bind:ref={element}
+  disabled={is_disabled || busy}
   type="button"
-  {...rest}
-  class="root variant-{variant} {className}"
-  class:is-cover={cover}
-  class:is-small={size === "small"}
-  class:is-square={square}
-  class:is-full={full_width}
-  class:is-busy={busy}
+  class={button_class}
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
-  disabled={is_disabled || busy}
-  use:use_actions={actions}
+  {...rest}
 >
   {#if children}
     {@render children()}
   {:else}
     {label}
   {/if}
-</button>
+</Button.Root>
 
 <style>
   /**
    * ULTRA-LEAN NOMENCLATURE:
-   * .root - Main interaction layer.
+   * .svelte-button - Main interaction layer (globally scoped to avoid Svelte template compilation limits).
    */
-  .root {
+  :global(.svelte-button) {
     /* --- Layout --- */
 
     display: inline-flex;
@@ -114,7 +142,7 @@
   }
 
   /* --- Kinetic Stabilization --- */
-  .root[data-kinetic="true"] {
+  :global(.svelte-button[data-kinetic="true"]) {
     /* Disable CSS transform transitions when WAAPI is active to prevent jitter */
     transition:
       background-color var(--duration-slow) var(--ease-elastic),
@@ -125,29 +153,29 @@
   }
 
   /* --- Structural Modifiers --- */
-  .root.is-small {
+  :global(.svelte-button.is-small) {
     padding: 0 var(--padding-tight);
     font-size: var(--font-size-tiny);
   }
 
-  .root.is-square {
+  :global(.svelte-button.is-square) {
     width: calc(var(--spacing-unit) * 12);
     height: calc(var(--spacing-unit) * 12);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
   }
 
-  .root.is-square.is-small {
+  :global(.svelte-button.is-square.is-small) {
     width: calc(var(--spacing-unit) * 8);
     height: calc(var(--spacing-unit) * 8);
   }
 
-  .root.is-full {
+  :global(.svelte-button.is-full) {
     width: 100%;
     flex: 1;
   }
 
-  .root.is-cover {
+  :global(.svelte-button.is-cover) {
     position: absolute;
     inset: 0;
     z-index: var(--z-index-surface);
@@ -162,35 +190,35 @@
   }
 
   /* --- Thematic Variants --- */
-  .variant-primary {
+  :global(.svelte-button.variant-primary) {
     background: var(--pure-white);
     color: var(--chalk);
     box-shadow: var(--shadow-standard);
   }
 
-  .variant-secondary {
+  :global(.svelte-button.variant-secondary) {
     background: var(--signature-color, var(--frozen));
     color: var(--pure-white);
     box-shadow: var(--shadow-ghost);
   }
 
-  .variant-danger {
+  :global(.svelte-button.variant-danger) {
     background: transparent;
     color: var(--crimson-red);
   }
 
-  .variant-invisible {
+  :global(.svelte-button.variant-invisible) {
     background: transparent;
     color: var(--frozen);
   }
 
   /* --- Operational States --- */
-  .root:focus-visible {
+  :global(.svelte-button:focus-visible) {
     outline: var(--border-width-base) solid var(--pure-white);
     outline-offset: var(--border-width-base);
   }
 
-  .root:disabled {
+  :global(.svelte-button:disabled) {
     opacity: var(--opacity-whisper);
     filter: grayscale(var(--opacity-solid));
     pointer-events: none;
@@ -198,54 +226,54 @@
     box-shadow: none;
   }
 
-  .root:active:not(:disabled) {
+  :global(.svelte-button:active:not(:disabled)) {
     transform: var(--scale-sink);
   }
 
-  .root[data-kinetic="true"]:active:not(:disabled) {
+  :global(.svelte-button[data-kinetic="true"]:active:not(:disabled)) {
     transform: none; /* Let kinetic engine handle the physics */
   }
 
-  .root:hover:not(:disabled) {
+  :global(.svelte-button:hover:not(:disabled)) {
     filter: var(--brightness-glow);
   }
 
-  .root.is-busy {
+  :global(.svelte-button.is-busy) {
     cursor: wait;
     filter: var(--brightness-dim) grayscale(var(--opacity-whisper));
     pointer-events: none;
   }
 
   /* --- Interaction Refinements --- */
-  .variant-primary:hover:not(:disabled) {
+  :global(.svelte-button.variant-primary:hover:not(:disabled)) {
     filter: var(--brightness-glow);
     box-shadow: var(--shadow-standard);
     transform: var(--scale-lift);
   }
 
-  .variant-primary[data-kinetic="true"]:hover:not(:disabled) {
+  :global(.svelte-button.variant-primary[data-kinetic="true"]:hover:not(:disabled)) {
     transform: none;
   }
 
-  .variant-secondary:hover:not(:disabled) {
+  :global(.svelte-button.variant-secondary:hover:not(:disabled)) {
     box-shadow: var(--shadow-standard);
     border-color: var(--pure-white);
   }
 
-  .variant-danger:hover:not(:disabled) {
+  :global(.svelte-button.variant-danger:hover:not(:disabled)) {
     background: var(--crimson-red);
     color: var(--pure-white);
     box-shadow: var(--danger-hover-shadow);
   }
 
-  .variant-invisible:hover:not(:disabled) {
+  :global(.svelte-button.variant-invisible:hover:not(:disabled)) {
     background: transparent;
     color: var(--pure-white);
     filter: var(--brightness-glow);
   }
 
   /* --- Flank Button Modifier --- */
-  .root.flank {
+  :global(.svelte-button.flank) {
     background: transparent !important;
     border: none !important;
     box-shadow: none !important;
@@ -257,40 +285,40 @@
     opacity: var(--opacity-muted);
   }
 
-  .root.flank :global(svg),
-  .root.flank :global(svg path) {
+  :global(.svelte-button.flank svg),
+  :global(.svelte-button.flank svg path) {
     fill: var(--pure-white) !important;
     transition: fill var(--duration-standard) var(--ease-standard);
   }
 
-  .root.flank:hover:not(:disabled) {
+  :global(.svelte-button.flank:hover:not(:disabled)) {
     opacity: var(--opacity-solid) !important;
     transform: var(--scale-lift) !important;
   }
 
-  .root.flank:active:not(:disabled) {
+  :global(.svelte-button.flank:active:not(:disabled)) {
     transform: var(--scale-sink) !important;
   }
 
-  .root.flank[data-kinetic="true"]:hover:not(:disabled),
-  .root.flank[data-kinetic="true"]:active:not(:disabled) {
+  :global(.svelte-button.flank[data-kinetic="true"]:hover:not(:disabled)),
+  :global(.svelte-button.flank[data-kinetic="true"]:active:not(:disabled)) {
     transform: none !important;
   }
 
-  .root.flank:disabled {
+  :global(.svelte-button.flank:disabled) {
     color: var(--frozen) !important;
     opacity: var(--opacity-ghost) !important;
     cursor: not-allowed;
     transform: none !important;
   }
 
-  .root.flank:disabled :global(svg),
-  .root.flank:disabled :global(svg path) {
+  :global(.svelte-button.flank:disabled svg),
+  :global(.svelte-button.flank:disabled svg path) {
     fill: var(--frozen) !important;
   }
 
   /* --- Global Resets --- */
-  .root :global(.icon) {
+  :global(.svelte-button .icon) {
     pointer-events: none;
   }
 </style>

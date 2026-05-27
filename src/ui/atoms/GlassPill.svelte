@@ -6,7 +6,7 @@
    * REFACTORED: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
-  import { use_actions } from "@ui/actions/use-actions.js";
+  import { use_actions } from "@ui/actions";
 
   /**
    * @typedef {Object} Props

@@ -1,6 +1,6 @@
 // 👑 ENGINE: The Silent Observer
 // Tracks the heartbeat of the engine without revealing it.
-import { app } from "./app.svelte.js";
+import { app } from "@state";
 
 /**
  * @typedef {Object} AppSettings

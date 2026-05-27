@@ -1,9 +1,6 @@
-import { Engine } from "@engine/kernel.js";
-import { session_driver } from "@engine/session.svelte.js";
-import { app } from "@state/app.svelte.js";
-import { runtime } from "@state/runtime.svelte.js";
+import { Engine, session_driver } from "@engine";
+import { app, controlState, runtime, simulationState } from "@state"; // [R5] Unified State
 import "@state/log.svelte.js";
-import { simulationState, controlState } from "@state/status.svelte.js"; // [R5] Unified State
 
 /**
  * src/state/session.svelte.js

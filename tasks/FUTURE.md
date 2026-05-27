@@ -7,13 +7,14 @@ This document tracks all major tracks for the project. Each track has its own de
 
 ## 🚀 Active Mission
 
-- **Track**: None (All P0 tracks completed)
-- **Objective**: Ready for next priority alignment from the Protagonist.
+- **Track**: `architectural-refactor-modal-dialog`
+- **Objective**: Migrate the custom Modal to bits-ui/Dialog.
 
 ## 🗺️ Roadmap (Tracks)
 
 | Track ID                                                  | Name                                           | Priority | Status  | Objective                                                                                           |
 | :-------------------------------------------------------- | :--------------------------------------------- | :------- | :------ | :-------------------------------------------------------------------------------------------------- |
+| `architectural-refactor-tooltip-system`                   | Architectural Refactor - Tooltip System        | P0       | ✅ Done | Migrate the custom tooltip system to bits-ui/Tooltip and clean up redundant calculations.           |
 | `inline-log-editing-2026-05-25`                           | Inline Log Entry Editing                       | P0       | ✅ Done | Implement inline log editing directly inside story feed via atomic TextField and in-place buttons.  |
 | `agent-system-alignment-2026-05-24`                       | Agent System Alignment                         | P0       | ✅ Done | Synchronize .agents config, motion & svelte guidelines, and harden token checkers.                  |
 | `glasspill-inputbar-refactor-2026-05-24`                  | GlassPill & InputBar Refactor                  | P0       | ✅ Done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte. |

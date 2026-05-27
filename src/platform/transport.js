@@ -18,9 +18,9 @@
  * LlmService has no opinion on prompt content. It injects no rules and knows
  * nothing about the narrative. It only sends and receives.
  */
-import { app } from "@state/app.svelte.js";
-import { ERROR_MESSAGES } from "@engine/config.js";
-import { strip_cognition_blocks } from "@intelligence/parser.js";
+import { ERROR_MESSAGES } from "@engine";
+import { strip_cognition_blocks } from "@intelligence";
+import { app } from "@state";
 /************************************************************************************
  * [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------
@@ -33,7 +33,7 @@ import { strip_cognition_blocks } from "@intelligence/parser.js";
  * @param {string} text
  * @returns {string}
  */
-export function sanitize(text) {
+export function sanitize_llm(text) {
   if (!text) return "";
 
   // 1. Strip deep-think blocks to prevent Context Window collapse
@@ -65,7 +65,7 @@ export const llm_service = {
     // Use raw: true so generate() returns unprocessed output
     // enhance() owns its own sanitization pass so it isn't double-stripped.
     const result = await this.generate(payload, { silent: true, raw: true });
-    return typeof result === "string" ? sanitize(result) : result;
+    return typeof result === "string" ? sanitize_llm(result) : result;
   },
   /**
    * CORE GENERATION
@@ -95,7 +95,7 @@ export const llm_service = {
    */
   generate: async (payload, options = {}) => {
     // [SAFETY] Guard against missing plugin in non-Perchance environments
-    if (typeof window === "undefined" || typeof window.ai !== 'function') {
+    if (typeof window === "undefined" || typeof window.ai !== "function") {
       const msg =
         "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
       if (!options.silent) console.error(msg);
@@ -156,7 +156,7 @@ export const llm_service = {
 
       // 6. Sanitize unless caller opted out with raw: true
       if (typeof result === "string" && !options.raw) {
-        result = sanitize(result);
+        result = sanitize_llm(result);
       }
       return result;
     } catch (err) {

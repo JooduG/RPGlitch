@@ -19,10 +19,8 @@
  *
  */
 
-import { escapeXml, strip_cognition_blocks } from "@intelligence/parser.js";
-import { ENTITY_CATALOG } from "@intelligence/fragments.js";
-import { temporal_engine } from "@intelligence/temporal.js";
-import { IMMUTABLE_CONSTRAINTS } from "@platform/security.js";
+import { ENTITY_CATALOG, escapeXml, strip_cognition_blocks, temporal_engine } from "@intelligence";
+import { IMMUTABLE_CONSTRAINTS } from "@platform";
 
 /**
  * @typedef {Object} SimulationEntity

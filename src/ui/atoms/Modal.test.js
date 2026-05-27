@@ -42,12 +42,12 @@ describe("Modal.svelte", () => {
   });
   test("variant-profile modal correctly passes clicks to modal-layout when clicking outside content", async () => {
     const on_close = vi.fn();
-    const { container } = render(ModalTestWrapper, {
+    render(ModalTestWrapper, {
       on_close,
       variant: "profile",
     });
-    // Find the backdrop which handles external clicks
-    const backdrop = container.querySelector(".root");
+    // Find the backdrop which handles external clicks (in the portal)
+    const backdrop = document.querySelector(".root");
     expect(backdrop).toBeTruthy();
     // Simulate click on the backdrop
     await fireEvent.click(/** @type {any} */ (backdrop));
@@ -56,15 +56,16 @@ describe("Modal.svelte", () => {
   });
   test("variant-profile modal closes when clicking explicitly on .modal background itself", async () => {
     const on_close = vi.fn();
-    const { container } = render(ModalTestWrapper, {
+    render(ModalTestWrapper, {
       on_close,
       variant: "profile",
     });
+
     // Find the modal content element
-    const modalContent = container.querySelector(".root.profile");
+    const modalContent = document.querySelector(".root.profile");
     expect(modalContent).toBeTruthy();
     // Find the backdrop
-    const backdrop = container.querySelector(".root");
+    const backdrop = document.querySelector(".root");
     expect(backdrop).toBeTruthy();
     // Clicking the backdrop should trigger on_close
     await fireEvent.click(/** @type {any} */ (backdrop));

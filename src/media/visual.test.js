@@ -1,10 +1,10 @@
 /**
  * src/media/visual-engine.test.js
  */
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { visual_engine } from "@media/visual.svelte.js";
-import { llm_service } from "@platform/transport.js";
-import { entities } from "@data/repository.js";
+import { entities } from "@data";
+import { visual_engine } from "@media";
+import { llm_service } from "@platform";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock Perchance global
 vi.stubGlobal("window", {
@@ -24,6 +24,9 @@ vi.mock("@data/repository.js", () => ({
 }));
 
 vi.mock("@platform/security.js", () => ({
+  Security: {
+    sanitize: vi.fn((html) => html),
+  },
   validateImage: vi.fn().mockResolvedValue(true),
 }));
 

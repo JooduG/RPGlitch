@@ -14,18 +14,11 @@
  * 2. Persistence  : Automatically logs turns to the Session database.
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
-import { context_broker } from "@intelligence/context.svelte.js";
-import { dynamics_engine } from "@intelligence/dynamics.js";
-import { prompt_builder } from "@intelligence/prompts.js";
-import { llm_service } from "@platform/transport.js";
-import { runtime } from "@state/runtime.svelte.js";
-import { app } from "@state/app.svelte.js";
-import { temporal_engine } from "@intelligence/temporal.js";
-import { db } from "@data/db.js";
-import { simulationState } from "@state/status.svelte.js";
-import { entities, serialize, prune } from "@data/repository.js";
-import { session_driver } from "@engine/session.svelte.js";
-import { generateUUID } from "@engine/utils.js";
+import { db, entities, prune, serialize } from "@data";
+import { generateUUID, session_driver } from "@engine";
+import { context_broker, dynamics_engine, prompt_builder, temporal_engine } from "@intelligence";
+import { llm_service } from "@platform";
+import { app, runtime, simulationState } from "@state";
 /**
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
  */

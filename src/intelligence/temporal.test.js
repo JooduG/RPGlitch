@@ -1,8 +1,7 @@
-import { describe, expect, it, vi, beforeEach, afterEach } from "vitest";
-import { temporal_engine } from "@intelligence/temporal.js";
-import { CONFIG } from "@engine/config.js";
-import { llm_service } from "@platform/transport.js";
-import { dynamics_engine } from "@intelligence/dynamics.js";
+import { CONFIG } from "@engine";
+import { dynamics_engine, temporal_engine } from "@intelligence";
+import { llm_service } from "@platform";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock dependencies
 vi.mock("@platform/transport.js", () => ({

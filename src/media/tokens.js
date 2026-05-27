@@ -23,6 +23,7 @@ export const TOKENS = {
   "box-height": "auto",
   "box-max-height": "calc(var(--spacing-unit) * 100)",
   "breakpoint-desktop": "80rem",
+  "breakpoint-high-density": "120rem",
   "breakpoint-mini": "30rem",
   "breakpoint-mobile": "48rem",
   "breakpoint-tablet": "64rem",

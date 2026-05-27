@@ -1,5 +1,5 @@
+import { Security } from "@platform";
 import { describe, expect, test, vi } from "vitest";
-import { Security } from "@platform/security.js";
 const sanitizeHtml = Security.sanitize;
 const sanitizeToFragment = Security.sanitizeToFragment;
 // Mock DOMPurify for sanitizeHtml tests

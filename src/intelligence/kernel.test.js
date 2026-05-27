@@ -1,11 +1,8 @@
-import { describe, expect, it, vi, beforeEach } from "vitest";
-import { gamemaster } from "@intelligence/kernel.js";
-import { context_broker } from "@intelligence/context.svelte.js";
-import { prompt_builder } from "@intelligence/prompts.js";
-import { llm_service } from "@platform/transport.js";
-import { session_driver } from "@engine/session.svelte.js";
-import { dynamics_engine } from "@intelligence/dynamics.js";
-import { runtime } from "@state/runtime.svelte.js";
+import { session_driver } from "@engine";
+import { context_broker, dynamics_engine, gamemaster, prompt_builder } from "@intelligence";
+import { llm_service } from "@platform";
+import { runtime } from "@state";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock dependencies
 vi.mock("@intelligence/context.svelte.js", () => ({

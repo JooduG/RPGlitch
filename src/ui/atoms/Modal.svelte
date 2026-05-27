@@ -3,14 +3,15 @@
    * @file Modal.svelte
    * 🖼️ THE VOID CONTAINER
    * A generic glassmorphic modal wrapper.
-   * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
+   * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import Backdrop from "@atoms/Backdrop.svelte";
-  import { resolve_ms, resolve_px } from "@ui/components/ui-helpers.js";
-  import { use_actions } from "@ui/actions/use-actions.js";
+  import { simulationState } from "@state";
+  import { use_actions } from "@ui/actions";
+  import { resolve_ms, resolve_px } from "@ui/components";
+  import { Dialog } from "bits-ui";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
-  import { simulationState } from "@state/status.svelte.js";
 
   let {
     // State
@@ -40,38 +41,67 @@
   const offset = resolve_px("--spacing-5", 20);
   const duration_in = resolve_ms("--duration-standard", 350);
   const duration_out = resolve_ms("--duration-fast", 250);
+
+  // Bind dialog open state
+  let open = $state(true);
+
+  // Trigger on_close only when open changes from true to false
+  $effect(() => {
+    if (!open) {
+      on_close();
+    }
+  });
 </script>
 
-<svelte:window onkeydown={(e) => e.key === "Escape" && on_close(e)} />
-
-<!--
-  DOM FLATTENED:
-  The Modal content is nested directly within the Backdrop.
-  Standardized Nomenclature: .root replaces .base for top-level alignment.
--->
-<Backdrop
-  onclick={on_close}
-  {z_index}
-  busy={is_busy}
-  is_blurred={blur}
-  {is_pass_through}
-  class="{variant}-backdrop"
->
-  <div
-    {...rest}
-    class="root glass-elevated {variant} {className}"
-    class:is-busy={is_busy}
-    role="dialog"
-    aria-modal="true"
-    tabindex="-1"
-    onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
-    in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
-    out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
-    use:use_actions={actions}
-  >
-    {@render children?.()}
-  </div>
-</Backdrop>
+<Dialog.Root bind:open>
+  <Dialog.Portal>
+    <Dialog.Overlay forceMount>
+      {#snippet child({ props: overlayProps, open: isOpen })}
+        {#if isOpen}
+          <Backdrop
+            {...overlayProps}
+            onclick={() => {
+              open = false;
+            }}
+            {z_index}
+            busy={is_busy}
+            is_blurred={blur}
+            {is_pass_through}
+            class="{variant}-backdrop"
+          >
+            <Dialog.Content
+              {...rest}
+              forceMount
+              onInteractOutside={(/** @type {any} */ e) => {
+                // Suppress bits-ui's built-in dismiss. The Backdrop's own onclick
+                // already handles the genuine close-on-click-outside gesture.
+                // Without this, portalled children (Select, Tooltip) that render
+                // outside the Dialog DOM tree would trigger an unwanted close.
+                e.preventDefault();
+              }}
+            >
+              {#snippet child({ props: contentProps, open: isContentOpen })}
+                {#if isContentOpen}
+                  <div
+                    {...contentProps}
+                    class="root glass-elevated {variant} {className}"
+                    class:is-busy={is_busy}
+                    onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
+                    in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
+                    out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
+                    use:use_actions={actions}
+                  >
+                    {@render children?.()}
+                  </div>
+                {/if}
+              {/snippet}
+            </Dialog.Content>
+          </Backdrop>
+        {/if}
+      {/snippet}
+    </Dialog.Overlay>
+  </Dialog.Portal>
+</Dialog.Root>
 
 <style>
   /**

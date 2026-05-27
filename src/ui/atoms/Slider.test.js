@@ -1,3 +1,14 @@
+// Polyfill ResizeObserver for JSDOM
+if (typeof window !== "undefined" && !window.ResizeObserver) {
+  class ResizeObserver {
+    observe() {}
+    unobserve() {}
+    disconnect() {}
+  }
+  window.ResizeObserver = ResizeObserver;
+  global.ResizeObserver = ResizeObserver;
+}
+
 import { render } from "@testing-library/svelte";
 import { expect, test, describe } from "vitest";
 import Slider from "./Slider.svelte";
@@ -10,19 +21,19 @@ describe("Slider Atom", () => {
 
   test("handles busy state correctly", () => {
     const { container, getByText } = render(Slider, { label: "Intensity", busy: true });
-    const input = /** @type {any} */ (container.querySelector("input"));
+    const control = /** @type {any} */ (container.querySelector('[role="slider"]'));
     const wrapper = /** @type {any} */ (container.querySelector(".root"));
 
-    expect(input.disabled).toBe(true);
+    expect(control.getAttribute("aria-disabled")).toBe("true");
     expect(wrapper.classList.contains("is-busy")).toBe(true);
     expect(getByText("INTENSITY: BUSY...")).toBeDefined();
   });
 
   test("handles disabled state correctly", () => {
     const { container, getByText } = render(Slider, { label: "Intensity", disabled: true });
-    const input = /** @type {any} */ (container.querySelector("input"));
+    const control = /** @type {any} */ (container.querySelector('[role="slider"]'));
 
-    expect(input.disabled).toBe(true);
+    expect(control.getAttribute("aria-disabled")).toBe("true");
     expect(getByText("INTENSITY: DISABLED")).toBeDefined();
   });
 
@@ -31,14 +42,14 @@ describe("Slider Atom", () => {
       style: "margin-top: 20px; color: red;",
     });
     const wrapper = /** @type {any} */ (container.querySelector(".root"));
-    const input = /** @type {any} */ (container.querySelector("input"));
+    const control = /** @type {any} */ (container.querySelector('[role="slider"]'));
     const style = wrapper.getAttribute("style");
 
     expect(style).toContain("margin-top: 20px");
     expect(style).toContain("color: red");
     expect(style).toContain("--state-fill-start");
 
-    expect(input.getAttribute("style")).toBeNull();
+    expect(control.getAttribute("style")).not.toContain("margin-top: 20px");
   });
 
   test("calculates dynamic fill tokens correctly", () => {

@@ -20,7 +20,7 @@ This document describes the current distance between the existing engine state a
 
 ## 2.0 Active Focus
 
-Implementing inline log entry editing directly inside the chat feed layout.
+Completed Architectural Refactor of the Tooltip System, migrating custom positioning to bits-ui/Tooltip and fully verifying green builds and quality gates.
 
 | Feature          | State      | Gap                                                      |
 | ---------------- | ---------- | -------------------------------------------------------- |

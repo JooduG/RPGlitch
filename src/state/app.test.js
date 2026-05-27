@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { app } from "@state/app.svelte.js";
+import { app } from "@state";
+import { beforeEach, describe, expect, it } from "vitest";
 describe("AppStore Telemetry", () => {
   beforeEach(() => {
     // Clear logs before each test

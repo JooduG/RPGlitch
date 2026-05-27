@@ -1,9 +1,13 @@
-import { describe, expect, test, vi, beforeEach } from "vitest";
+import * as security from "@platform";
 import { safe_html } from "@ui/components/safe-html.js";
-import * as security from "@platform/security.js";
-vi.mock("@platform/security.js", () => ({
-  sanitizeToFragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })),
-}));
+import { beforeEach, describe, expect, test, vi } from "vitest";
+vi.mock("@platform/security.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    .../** @type {any} */ (actual),
+    sanitizeToFragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })),
+  };
+});
 // We must use JSDOM environment in Vitest to use document.createElement
 // This happens automatically based on the vitest.config.js usually.
 describe("safe_html action", () => {

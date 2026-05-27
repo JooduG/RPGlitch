@@ -1,5 +1,5 @@
+import { prompt_builder } from "@intelligence";
 import { describe, expect, it } from "vitest";
-import { prompt_builder } from "@intelligence/prompts.js";
 
 describe("prompt_builder (Refactored)", () => {
   describe("Static Helpers", () => {

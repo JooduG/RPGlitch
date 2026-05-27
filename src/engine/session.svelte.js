@@ -1,7 +1,6 @@
-import { db } from "@data/db.js";
-import { runtime } from "@state/runtime.svelte.js";
-import { simulation_log } from "@state/log.svelte.js";
-import { SESSION_ID_KEY } from "@engine/constants.js";
+import { db } from "@data";
+import { SESSION_ID_KEY } from "@engine";
+import { runtime, simulation_log } from "@state";
 
 /**
  * SESSION (Simulation & Gamemaster)

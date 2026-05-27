@@ -3,7 +3,7 @@
    * @file Tooltip.svelte
    * @module TooltipSystem
    * Consolidated Tooltip Atom: State, Action, and Renderer.
-   * Flattened architecture for maximum efficiency and zero-bloat.
+   * Headless refactor powered by bits-ui/Tooltip and Svelte 5.
    */
 
   /**
@@ -11,8 +11,6 @@
    * @property {string | null} text - Current tooltip text
    * @property {HTMLElement | null} target - The element currently being hovered
    * @property {boolean} active - Visibility toggle
-   * @property {number} x - Horizontal position
-   * @property {number} y - Vertical position
    */
 
   /**
@@ -23,8 +21,6 @@
     text: null,
     target: null,
     active: false,
-    x: 0,
-    y: 0,
   });
 
   /** @type {number | null} */
@@ -40,27 +36,8 @@
     hide_tooltip();
 
     timer = window.setTimeout(() => {
-      let rect = target.getBoundingClientRect();
-
-      // Handle display: contents or elements with zero dimensions
-      // by falling back to children's bounding box via Range API
-      if (rect.width === 0 && rect.height === 0) {
-        try {
-          const range = document.createRange();
-          range.selectNodeContents(target);
-          const rangeRect = range.getBoundingClientRect();
-          if (rangeRect.width > 0 || rangeRect.height > 0) {
-            rect = rangeRect;
-          }
-        } catch {
-          // Fallback to target rect if range fails
-        }
-      }
-
       tooltip_state.text = text;
       tooltip_state.target = target;
-      tooltip_state.x = rect.left + rect.width / 2;
-      tooltip_state.y = rect.top;
       tooltip_state.active = true;
     }, 400); // Standard Nordic response (400ms)
   }
@@ -155,115 +132,50 @@
 </script>
 
 <script>
-  import { portal } from "@ui/actions/portal.js";
+  import { Tooltip } from "bits-ui";
   import { scale } from "svelte/transition";
-  import { resolve_px } from "@ui/components/ui-helpers.js";
-
-  // --- RENDERER LOGIC ---
-  /** @type {HTMLElement | null} */
-  let tooltip_el = $state(null);
-  let ready = $state(false);
-  let transform_override = $state("translateX(-50%) translateY(-100%)");
-  let flip_style = $state("");
-  let arrow_flipped = $state(false);
-
-  // Environmental tracking for reactivity to layout and scroll shifts
-  let scroll_version = $state(0);
-  let layout_version = $state(0);
-  let padding = $state(12);
-
-  $effect(() => {
-    const on_scroll = () => scroll_version++;
-    const on_layout = () => {
-      layout_version++;
-      scroll_version++; // Layout shift usually requires repositioning
-    };
-    window.addEventListener("resize", on_layout, { passive: true });
-    window.addEventListener("scroll", on_scroll, { passive: true, capture: true });
-    return () => {
-      window.removeEventListener("resize", on_layout);
-      window.removeEventListener("scroll", on_scroll, { capture: true });
-    };
-  });
-
-  $effect(() => {
-    if (tooltip_state.active) {
-      // 1. Resolve tokens only when needed (activation or layout shift)
-      // This prevents resolve_px (which triggers reflow) from running during scroll
-      layout_version;
-      padding = resolve_px("--spacing-3", 12, document.documentElement);
-    }
-  });
-
-  $effect(() => {
-    if (!tooltip_state.active) ready = false;
-  });
-
-  $effect(() => {
-    // 2. High-frequency positioning logic
-    scroll_version;
-
-    if (tooltip_state.active && tooltip_el) {
-      const rect = tooltip_el.getBoundingClientRect();
-
-      // Use cached padding to avoid resolve_px/reflow during scroll
-      const current_padding = padding;
-
-      let x_offset_px = 0;
-      arrow_flipped = false;
-
-      if (rect.right > window.innerWidth - current_padding) {
-        x_offset_px = -(rect.right - (window.innerWidth - current_padding));
-      } else if (rect.left < current_padding) {
-        x_offset_px = current_padding - rect.left;
-      }
-
-      if (rect.top < current_padding && tooltip_state.target) {
-        arrow_flipped = true;
-        const target_rect = tooltip_state.target.getBoundingClientRect();
-        flip_style = `top: calc(${target_rect.bottom}px + var(--gap-standard));`;
-        transform_override = `translateX(-50%) translateY(0%) translateX(${x_offset_px}px)`;
-      } else {
-        flip_style = "";
-        transform_override = `translateX(-50%) translateY(-100%) translateX(${x_offset_px}px)`;
-      }
-
-      requestAnimationFrame(() => {
-        ready = true;
-      });
-    }
-  });
 </script>
 
-{#if tooltip_state.active && tooltip_state.text}
-  <!-- GLOBAL RENDERER INSTANCE -->
-  <div
-    use:portal
-    class="tooltip-portal"
-    bind:this={tooltip_el}
-    class:ready
-    style:left="{tooltip_state.x}px"
-    style:top="calc({tooltip_state.y}px - var(--gap-standard))"
-    style={flip_style}
-    style:transform={transform_override}
-    data-flipped={arrow_flipped}
-  >
-    {#if ready}
-      <div class="tooltip-container" transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}>
-        <div class="tooltip-arrow"></div>
-        <div class="tooltip-content">
-          {tooltip_state.text}
-        </div>
-      </div>
-    {/if}
-  </div>
-{/if}
+<Tooltip.Provider delayDuration={0}>
+  <Tooltip.Root open={tooltip_state.active}>
+    <Tooltip.Portal>
+      {#if tooltip_state.target && tooltip_state.text}
+        <Tooltip.Content
+          customAnchor={tooltip_state.target}
+          side="top"
+          sideOffset={8}
+          align="center"
+          avoidCollisions={true}
+          strategy="fixed"
+          forceMount
+        >
+          {#snippet child({ wrapperProps, props, open })}
+            {#if open}
+              <div {...wrapperProps} class="tooltip-portal ready">
+                <div
+                  {...props}
+                  class="tooltip-container"
+                  transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
+                >
+                  <div class="tooltip-arrow"></div>
+                  <div class="tooltip-content">
+                    {tooltip_state.text}
+                  </div>
+                </div>
+              </div>
+            {/if}
+          {/snippet}
+        </Tooltip.Content>
+      {/if}
+    </Tooltip.Portal>
+  </Tooltip.Root>
+</Tooltip.Provider>
 
 <style>
   .tooltip-portal {
-    position: fixed;
-    z-index: var(--z-index-modal);
-    pointer-events: none;
+    position: fixed !important;
+    z-index: var(--z-index-max) !important;
+    pointer-events: none !important;
     will-change: transform, opacity;
     display: flex;
     flex-direction: column;
@@ -325,7 +237,7 @@
     opacity: var(--opacity-whisper);
   }
 
-  .tooltip-portal[data-flipped="true"] .tooltip-arrow {
+  .tooltip-container[data-side="bottom"] .tooltip-arrow {
     top: calc(var(--gap-standard) * -1);
     bottom: auto;
     border-top: none;
@@ -333,7 +245,7 @@
       rgb(from var(--pure-white) r g b / var(--opacity-whisper));
   }
 
-  .tooltip-portal[data-flipped="true"] .tooltip-arrow::after {
+  .tooltip-container[data-side="bottom"] .tooltip-arrow::after {
     top: var(--spacing-pixel);
     bottom: auto;
     border-top: none;

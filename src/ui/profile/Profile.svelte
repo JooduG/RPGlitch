@@ -8,18 +8,18 @@
   import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
+  import ScrollArea from "@atoms/ScrollArea.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevWing from "@devmode/DevWing.svelte";
-  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@intelligence/fragments.js";
-  import { themeStore } from "@media/palette.svelte.js";
+  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS } from "@intelligence";
+  import { themeStore } from "@media";
   import AudioWing from "@profile/AudioWing.svelte";
   import ProfileArray from "@profile/ProfileArray.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
-  import { app } from "@state/app.svelte.js";
+  import { app } from "@state";
   // State & Utilities
-  import { click_outside } from "@ui/actions/click-outside.js";
-  import { auto_resize } from "@ui/actions/resize.js";
+  import { auto_resize, click_outside } from "@ui/actions";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -50,7 +50,13 @@
     if (target.closest(".wings-container > *")) return;
 
     // Ignore clicks inside dropdown menus or portaled elements from wings
-    if (target.closest(".menu") || target.closest(".tooltip-portal")) return;
+    if (
+      target.closest(".menu") ||
+      target.closest(".dropdown-menu") ||
+      target.closest(".dropdown-portal-wrapper") ||
+      target.closest(".tooltip-portal")
+    )
+      return;
 
     // Ignore clicks inside other dialog/mini modals
     if (target.closest(".mini-backdrop") || target.closest(".root.mini")) return;
@@ -132,7 +138,9 @@
 
           <!-- 📜 CONTENT -->
           <main class="profile-content no-scrollbar">
-            {@render EntityBody()}
+            <ScrollArea style="height: 100%;">
+              {@render EntityBody()}
+            </ScrollArea>
           </main>
 
           <!-- 🏁 FOOTER -->
@@ -472,7 +480,7 @@
   .profile-content {
     flex-grow: 1;
     padding: 0;
-    overflow-y: auto;
+    overflow: hidden;
   }
 
   .profile-footer {

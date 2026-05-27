@@ -1,19 +1,16 @@
 <script>
-  import { session_driver } from "@engine/session.svelte.js";
-  import { db } from "@data/db.js";
-  import { stories } from "@data/repository.js";
-  import { app } from "@state/app.svelte.js";
-  import { runtime } from "@state/runtime.svelte.js";
-  import { simulation_log } from "@state/log.svelte.js";
-  import { simulationState } from "@state/status.svelte.js";
-  import { Audio } from "@media/audio.svelte.js";
+  import { db, stories } from "@data";
+  import { session_driver } from "@engine";
+  import { Audio } from "@media";
+  import { app, runtime, simulation_log, simulationState } from "@state";
 
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
   import Modal from "@atoms/Modal.svelte";
+  import ScrollArea from "@atoms/ScrollArea.svelte";
+  import Slider from "@atoms/Slider.svelte";
   import TextField from "@atoms/TextField.svelte";
   import Toggle from "@atoms/Toggle.svelte";
-  import Slider from "@atoms/Slider.svelte";
   import StoryCard from "./StoryCard.svelte";
 
   /** @typedef {import('@data/repository.js').Story} Story */
@@ -212,15 +209,17 @@
 
     <section class="section">
       {#if story_cache.length > 0}
-        <div class="list scrollbar">
-          {#each story_cache as story (story.id)}
-            <StoryCard
-              {story}
-              active={runtime.story_id === String(story.id)}
-              onclick={() => load_story(story.id)}
-            />
-          {/each}
-        </div>
+        <ScrollArea class="stories-scroll-area" style="max-height: var(--dropdown-max-height);">
+          <div class="list">
+            {#each story_cache as story (story.id)}
+              <StoryCard
+                {story}
+                active={runtime.story_id === String(story.id)}
+                onclick={() => load_story(story.id)}
+              />
+            {/each}
+          </div>
+        </ScrollArea>
       {:else}
         <p class="status">No stories yet..</p>
       {/if}
@@ -311,8 +310,6 @@
     display: flex;
     flex-direction: column;
     gap: var(--gap-tight);
-    max-height: var(--dropdown-max-height);
-    overflow-y: auto;
   }
 
   .status {
