@@ -171,7 +171,7 @@
     z-index: var(--z-index-modal);
     display: flex;
     flex-direction: column;
-    overflow: visible;
+    overflow: hidden;
     box-shadow: var(--shadow-standard);
   }
 
@@ -193,23 +193,20 @@
   /* --- BODY --- */
   .body {
     flex: 1;
-    overflow-y: visible;
+    overflow: auto hidden;
     padding: 0 var(--padding-standard) var(--padding-standard);
+    display: flex;
+    align-items: center;
   }
 
-  /* --- GRID --- */
+  /* --- GRID (single-row horizontal flex row) --- */
   .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(var(--column-unit), 1fr));
-    justify-content: center;
-    gap: var(--padding-standard);
-    width: 100%;
-  }
-
-  /* Support grid column spanning for landscape/fractal cards in library drawer */
-  .grid :global(.entity-card-root.is-fractal),
-  .card--new.is-fractal {
-    grid-column: span 2;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: var(--gap-standard);
+    flex-shrink: 0;
+    height: 100%;
   }
 
   /* --- NEW ENTITY CARD --- */
@@ -325,13 +322,11 @@
   }
 
   .drawer.is-mobile .grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--padding-standard);
+    gap: var(--gap-tight);
   }
 
   .drawer.is-mini .grid {
-    grid-template-columns: 1fr;
-    gap: var(--padding-standard);
+    gap: var(--gap-tight);
   }
 
   .drawer.is-mini .header {
