@@ -13,7 +13,7 @@
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import LibraryCard from "@drawer/LibraryCard.svelte";
+  import EntityCard from "@atoms/EntityCard.svelte";
 
   // --- STATE & DERIVATIONS ---
 
@@ -134,7 +134,8 @@
         </div>
 
         {#each entity_list as entity (entity.id)}
-          <LibraryCard
+          <EntityCard
+            variant="library"
             {entity}
             type={drawer_type ?? undefined}
             disabled={is_disabled(entity)}

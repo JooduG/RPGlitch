@@ -6,9 +6,6 @@
     {
       "path": "../Test",
     },
-    {
-      "path": "../../../.gemini",
-    },
   ],
   "settings": {
     "launch": {
