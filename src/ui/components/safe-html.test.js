@@ -1,5 +1,5 @@
+import { safe_html } from "@components";
 import * as security from "@platform";
-import { safe_html } from "@ui/components/safe-html.js";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 vi.mock("@platform/security.js", async (importOriginal) => {
   const actual = await importOriginal();

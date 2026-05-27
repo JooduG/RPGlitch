@@ -9,9 +9,9 @@
   import Button from "@atoms/Button.svelte";
   import GlassPill from "@atoms/GlassPill.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
+  import { pickRandom } from "@components";
+  import { pulse, roll, shimmy } from "@motion";
   import { app, session } from "@state";
-  import { pulse, roll, shimmy } from "@ui/actions";
-  import { pickRandom } from "@ui/components";
 
   // --- ORCHESTRATION ---
 

@@ -5,8 +5,8 @@
    * Standard shielding overlay for Modals, Drawers, and Panels.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { use_actions } from "@ui/actions";
-  import { resolve_ms } from "@ui/components";
+  import { resolve_ms } from "@components";
+  import { use_actions } from "@actions";
   import { fade } from "svelte/transition";
 
   let {

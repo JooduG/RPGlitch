@@ -6,9 +6,9 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import Backdrop from "@atoms/Backdrop.svelte";
+  import { resolve_ms, resolve_px } from "@components";
   import { simulationState } from "@state";
-  import { use_actions } from "@ui/actions";
-  import { resolve_ms, resolve_px } from "@ui/components";
+  import { use_actions } from "@actions";
   import { Dialog } from "bits-ui";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";

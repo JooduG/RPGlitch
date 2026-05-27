@@ -16,7 +16,7 @@
    */
 
   import { controlState } from "@state";
-  import { use_actions } from "@ui/actions";
+  import { use_actions } from "@actions";
   import { Slider } from "bits-ui";
 
   /** @type {Props} */

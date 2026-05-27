@@ -5,10 +5,10 @@
    * Standardizes Alert and Confirm into a single, sleek bits-ui/AlertDialog primitive.
    * RUTHLESSLY FLATTENED: Fully accessible, headless, Svelte 5 runes-powered.
    */
-  import { AlertDialog } from "bits-ui";
-  import Button from "@atoms/Button.svelte";
   import Backdrop from "@atoms/Backdrop.svelte";
-  import { resolve_ms, resolve_px } from "@ui/components";
+  import Button from "@atoms/Button.svelte";
+  import { resolve_ms, resolve_px } from "@components";
+  import { AlertDialog } from "bits-ui";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
 

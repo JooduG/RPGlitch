@@ -5,9 +5,9 @@
    * Handles real images, placeholders, and watermark-style initials.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { themeStore } from "@media";
-  import { use_actions } from "@ui/actions";
   import { NAME_PREFIXES } from "@intelligence";
+  import { themeStore } from "@media";
+  import { use_actions } from "@actions";
 
   let {
     // Data

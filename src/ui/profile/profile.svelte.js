@@ -2,12 +2,12 @@
  * @file src/ui/profile/profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
+import { get_value, set_value } from "@components";
 import { db, normalize } from "@data";
 import { generateUUID } from "@engine";
 import { prompt_builder } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
-import { get_value, set_value } from "@ui/components/field-path.js";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };

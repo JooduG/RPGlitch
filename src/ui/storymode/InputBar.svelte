@@ -11,7 +11,7 @@
   import GlassPill from "@atoms/GlassPill.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { app, session, simulationState } from "@state";
-  import { roll, stab } from "@ui/actions";
+  import { roll, stab } from "@motion";
 
   /**
    * @typedef {Object} Props

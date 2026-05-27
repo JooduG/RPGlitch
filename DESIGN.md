@@ -106,10 +106,10 @@ components:
   box-height: auto
   box-max-height: calc(var(--spacing-unit) * 100)
   breakpoint-desktop: 80rem
+  breakpoint-high-density: 120rem
   breakpoint-mini: 30rem
   breakpoint-mobile: 48rem
   breakpoint-tablet: 64rem
-  breakpoint-high-density: 120rem
   brightness-dim: brightness(0.9)
   brightness-glow: brightness(1.1)
   brightness-muted: brightness(0.3)
@@ -186,6 +186,10 @@ components:
   slider-thumb-shadow: 0 0 var(--spacing-unit) var(--pure-white), var(--shadow-ghost)
   slider-thumb-size: calc(var(--spacing-unit) * 2)
   slider-track-height: var(--spacing-unit)
+  spring-damping-default: "0.8"
+  spring-damping-elastic: "0.6"
+  spring-stiffness-default: "0.15"
+  spring-stiffness-elastic: "0.3"
   state-accent: var(--frisk)
   state-align: center
   state-dev-accent: var(--frisk)

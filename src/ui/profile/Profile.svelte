@@ -12,14 +12,14 @@
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevWing from "@devmode/DevWing.svelte";
-  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS_BY_TYPE, NAME_PREFIXES } from "@intelligence";
+  import { ENTITY_FRAGMENTS, NAME_PREFIXES, PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { themeStore } from "@media";
   import AudioWing from "@profile/AudioWing.svelte";
   import ProfileArray from "@profile/ProfileArray.svelte";
   import VisualWing from "@profile/VisualWing.svelte";
   import { app } from "@state";
   // State & Utilities
-  import { auto_resize, click_outside } from "@ui/actions";
+  import { auto_resize, click_outside } from "@actions";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */

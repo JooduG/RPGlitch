@@ -3,11 +3,11 @@
  * 🎨 VISUAL ENGINE (Reactive Class)
  * The sensory cortex orchestrator.
  */
+import { generateSecureSeed } from "@components";
 import { db, entities } from "@data";
 import { CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT } from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
-import { generateSecureSeed } from "@ui/components";
 
 /**
  *

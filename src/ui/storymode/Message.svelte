@@ -8,7 +8,7 @@
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, themeStore } from "@media";
   import { app, runtime } from "@state";
-  import { typewriter } from "@ui/actions/typewriter.js";
+  import { typewriter } from "@motion";
 
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";

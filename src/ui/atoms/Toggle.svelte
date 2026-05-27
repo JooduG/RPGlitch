@@ -13,7 +13,7 @@
    */
 
   import { controlState } from "@state";
-  import { use_actions } from "@ui/actions";
+  import { use_actions } from "@actions";
   import { Switch } from "bits-ui";
 
   /** @type {Props} */

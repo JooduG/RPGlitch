@@ -4,7 +4,7 @@
  * Optimized to prevent layout thrashing by batching DOM reads and writes.
  */
 
-import { resolve_px } from "@ui/components";
+import { resolve_px } from "@components";
 
 /**
  * Auto-resizes an element based on its content

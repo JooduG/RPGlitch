@@ -5,7 +5,7 @@ import {
   resolve_number,
   resolve_px,
   resolve_string,
-} from "@ui/components";
+} from "@components";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {

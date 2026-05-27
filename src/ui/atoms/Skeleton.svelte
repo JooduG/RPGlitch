@@ -5,7 +5,7 @@
    * A high-fidelity placeholder component designed for the Chalk Regime.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { use_actions } from "@ui/actions";
+  import { use_actions } from "@actions";
 
   let {
     // Design

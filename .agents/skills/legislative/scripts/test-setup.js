@@ -22,6 +22,20 @@ if (!globalThis.ResizeObserver) {
 }
 
 if (typeof window !== "undefined") {
+  // Mock matchMedia for Svelte 5 media query runes
+  if (!window.matchMedia) {
+    window.matchMedia = vi.fn().mockImplementation((query) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+  }
+
   // Mock Element.animate for Svelte transitions in JSDOM
   if (typeof Element !== "undefined" && !Element.prototype.animate) {
     Element.prototype.animate = vi.fn().mockReturnValue({

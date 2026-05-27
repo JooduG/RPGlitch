@@ -5,11 +5,11 @@
  * ZERO NESTING - Flattened Schema only.
  */
 import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
+import { generateUUID, resolve_px } from "@components";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, KV_SETTINGS_KEY } from "@engine";
 import { visual_engine } from "@media";
 import { runtime, simulationState, uiState } from "@state";
-import { generateUUID, resolve_px } from "@ui/components";
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./status.svelte.js').DrawerState} DrawerState */
