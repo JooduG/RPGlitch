@@ -1,80 +1,133 @@
 /**
- * @file kinetic.js
+ * @file kinetic.svelte.js
  * 🕹️ THE PHYSICS ENGINE
- * High-performance motion primitives using Web Animations API (WAAPI).
+ * High-performance motion primitives using Web Animations API (WAAPI) and spring physics.
  * RUTHLESSLY STANDARDIZED: Identical math system-wide.
  */
 
 import { resolve_ms, resolve_number, resolve_string } from "@components";
+import { motion, spring } from "./engine.svelte.js";
 
 /* --- Kinetic Primitives --- */
 
 /**
  * Helper to find appropriate animation target
  * @param {Element} node
- * @returns {Element}
+ * @returns {HTMLElement}
  */
-const get_target = (node) => node.querySelector("svg") || /** @type {HTMLElement} */ (node);
+const get_target = (node) => /** @type {HTMLElement} */ (node.querySelector("svg") || node);
 
 /**
- * Shimmy Action
- * A nervous high-frequency jitter (rotation + translation).
- * @param {HTMLElement} node
+ * Standardized manager for registering hover-triggered physical animations.
+ * Synchronizes with global motion engine intensity and prefers-reduced-motion.
+ *
+ * @param {HTMLElement} node - Element target.
+ * @param {object} config - Configuration options.
+ * @param {(target: HTMLElement, intensity: number) => Animation | null} config.animate - Trigger animation builder.
+ * @param {(target: HTMLElement, currentAnimation: Animation | null) => void} [config.onStop] - Stop animation hook.
+ * @returns {import('svelte/action').ActionReturn}
  */
-export function shimmy(node) {
-  /**
-   * @type {Animation | null}
-   */
+function createKineticAction(node, config) {
+  /** @type {Animation | null} */
   let animation = null;
+  let isHovered = false;
 
   const trigger = () => {
+    isHovered = true;
     node.dataset.kinetic = "true";
+
+    const intensity = motion.isReduced ? 0 : motion.intensity;
+    if (intensity === 0) return;
+
     const target = get_target(node);
     if (animation) {
       animation.cancel();
       animation = null;
     }
-
-    const duration = resolve_ms("--duration-slow", 500, node);
-
-    animation = target.animate(
-      [
-        { transform: "translate(0, 0) rotate(0deg)" },
-        {
-          transform:
-            "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(-30deg)",
-        },
-        {
-          transform:
-            "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(30deg)",
-        },
-        { transform: "translate(0, 0) rotate(0deg)" },
-      ],
-      {
-        duration,
-        easing: "linear",
-        iterations: Infinity,
-      },
-    );
+    animation = config.animate(target, intensity);
   };
 
   const stop = () => {
-    if (animation) {
+    isHovered = false;
+    const target = get_target(node);
+    if (config.onStop) {
+      config.onStop(target, animation);
+    } else if (animation) {
       animation.cancel();
-      animation = null;
     }
+    animation = null;
   };
+
+  // Svelte 5 Effect to handle dynamic intensity / reduced motion updates reactively
+  /** @type {any} */
+  let cleanupEffect;
+  if (typeof window !== "undefined") {
+    cleanupEffect = $effect.root(() => {
+      $effect(() => {
+        const intensity = motion.isReduced ? 0 : motion.intensity;
+        if (isHovered) {
+          if (intensity === 0) {
+            if (animation) {
+              animation.cancel();
+              animation = null;
+            }
+          } else if (animation) {
+            animation.playbackRate = intensity;
+          } else {
+            const target = get_target(node);
+            animation = config.animate(target, intensity);
+          }
+        }
+      });
+    });
+  }
 
   node.addEventListener("mouseenter", trigger);
   node.addEventListener("mouseleave", stop);
 
   return {
     destroy() {
-      stop();
+      if (animation) animation.cancel();
+      if (cleanupEffect) cleanupEffect();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", stop);
     },
   };
+}
+
+/**
+ * Shimmy Action
+ * A nervous high-frequency jitter (rotation + translation).
+ * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
+ */
+export function shimmy(node) {
+  return createKineticAction(node, {
+    animate: (target, intensity) => {
+      const baseDuration = resolve_ms("--duration-slow", 500, node);
+      const animation = target.animate(
+        [
+          { transform: "translate(0, 0) rotate(0deg)" },
+          {
+            transform:
+              "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(-30deg)",
+          },
+          {
+            transform:
+              "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(30deg)",
+          },
+          { transform: "translate(0, 0) rotate(0deg)" },
+        ],
+        {
+          duration: baseDuration,
+          easing: "linear",
+          iterations: Infinity,
+        },
+      );
+      animation.playbackRate = intensity;
+      return animation;
+    },
+  });
 }
 shimmy.is_kinetic = true;
 
@@ -82,124 +135,91 @@ shimmy.is_kinetic = true;
  * Pulse Action
  * A looping "Heartbeat" thump.
  * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
  */
 export function pulse(node) {
-  /**
-   * @type {Animation | null}
-   */
-  let animation = null;
-  /**
-   * @type {Animation | null}
-   */
+  /** @type {Animation | null} */
   let return_anim = null;
 
-  const trigger = () => {
-    node.dataset.kinetic = "true";
-    if (animation) {
-      animation.cancel();
-      animation = null;
-    }
-    if (return_anim) {
-      return_anim.cancel();
-      return_anim = null;
-    }
-
-    const duration = resolve_ms("--duration-ambient", 1000, node);
-
-    // Heartbeat thump: big beat -> small beat -> rest
-    animation = node.animate(
-      [
-        { transform: "scale(1)", offset: 0 },
-        { transform: "var(--scale-pulse)", offset: 0.14 },
-        { transform: "scale(1)", offset: 0.28 },
-        { transform: "var(--scale-pulse)", offset: 0.42 },
-        { transform: "scale(1)", offset: 0.7 },
-        { transform: "scale(1)", offset: 1 },
-      ],
-      {
-        duration,
-        easing: "ease-in-out",
-        iterations: Infinity,
-      },
-    );
-  };
-
-  const stop = () => {
-    if (animation) {
-      // Smooth return to 1
-      animation.cancel();
-      animation = null;
-
-      const duration = resolve_ms("--duration-fast", 250, node);
-      const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
-      return_anim = node.animate([{ transform: "scale(1)" }], { duration, easing });
-      return_anim.onfinish = () => {
+  return createKineticAction(node, {
+    animate: (target, intensity) => {
+      if (return_anim) {
+        return_anim.cancel();
         return_anim = null;
-      };
-    }
-  };
-
-  node.addEventListener("mouseenter", trigger);
-  node.addEventListener("mouseleave", stop);
-
-  return {
-    destroy() {
-      if (animation) animation.cancel();
-      node.removeEventListener("mouseenter", trigger);
-      node.removeEventListener("mouseleave", stop);
+      }
+      const baseDuration = resolve_ms("--duration-ambient", 1000, node);
+      const animation = target.animate(
+        [
+          { transform: "scale(1)", offset: 0 },
+          { transform: "var(--scale-pulse)", offset: 0.14 },
+          { transform: "scale(1)", offset: 0.28 },
+          { transform: "var(--scale-pulse)", offset: 0.42 },
+          { transform: "scale(1)", offset: 0.7 },
+          { transform: "scale(1)", offset: 1 },
+        ],
+        {
+          duration: baseDuration,
+          easing: "ease-in-out",
+          iterations: Infinity,
+        },
+      );
+      animation.playbackRate = intensity;
+      return animation;
     },
-  };
+    onStop: (target, currentAnimation) => {
+      if (currentAnimation) {
+        currentAnimation.cancel();
+        const duration = resolve_ms("--duration-fast", 250, node);
+        const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
+        return_anim = target.animate([{ transform: "scale(1)" }], { duration, easing });
+        return_anim.onfinish = () => {
+          return_anim = null;
+        };
+      }
+    },
+  });
 }
 pulse.is_kinetic = true;
 
 /**
  * Spin Action
- * A 90 degree rotation.
+ * A 90 degree rotation powered by spring physics.
  * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
  */
 export function spin(node) {
-  /**
-   * @type {Animation | null}
-   */
-  let animation = null;
+  const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
+  const damping = resolve_number("--spring-damping-default", 0.8, node);
+  const angleSpring = spring(0, { stiffness, damping });
+
+  const target = get_target(node);
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    const target = get_target(node);
-    if (animation) {
-      animation.playbackRate = 1;
-      animation.play();
-    } else {
-      const duration = resolve_ms("--duration-slow", 500, node);
-      const easing = resolve_string("--ease-elastic", "cubic-bezier(0.34, 1.56, 0.64, 1)", node);
-
-      animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(90deg)" }], {
-        duration,
-        easing,
-        fill: "forwards",
-      });
-    }
+    angleSpring.value = 90;
   };
 
   const stop = () => {
-    if (animation) {
-      animation.playbackRate = -1;
-      animation.play();
-      animation.onfinish = () => {
-        if (animation && animation.playbackRate === -1) {
-          animation.cancel();
-          animation = null;
-        }
-      };
-    }
+    angleSpring.value = 0;
   };
+
+  /** @type {any} */
+  let cleanupEffect;
+  if (typeof window !== "undefined") {
+    cleanupEffect = $effect.root(() => {
+      $effect(() => {
+        const val = angleSpring.value;
+        target.style.transform = `rotate(${val}deg)`;
+      });
+    });
+  }
 
   node.addEventListener("mouseenter", trigger);
   node.addEventListener("mouseleave", stop);
 
   return {
     destroy() {
-      if (animation) animation.cancel();
+      if (cleanupEffect) cleanupEffect();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", stop);
     },
@@ -209,45 +229,43 @@ spin.is_kinetic = true;
 
 /**
  * Roll Action
- * A full 360 degree rotation.
+ * A full 360 degree rotation powered by spring physics.
  * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
  */
 export function roll(node) {
-  /**
-   * @type {Animation | null}
-   */
-  let animation = null;
+  const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
+  const damping = resolve_number("--spring-damping-default", 0.8, node);
+  const angleSpring = spring(0, { stiffness, damping });
+
+  const target = get_target(node);
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    const target = get_target(node);
-    if (animation) {
-      animation.cancel();
-      animation = null;
-    }
-
-    const duration = resolve_ms("--duration-slow", 500, node);
-
-    animation = target.animate([{ transform: "rotate(0deg)" }, { transform: "rotate(360deg)" }], {
-      duration,
-      easing: "linear",
-      iterations: Infinity,
-    });
+    angleSpring.value = 360;
   };
 
   const stop = () => {
-    if (animation) {
-      animation.cancel();
-      animation = null;
-    }
+    angleSpring.value = 0;
   };
+
+  /** @type {any} */
+  let cleanupEffect;
+  if (typeof window !== "undefined") {
+    cleanupEffect = $effect.root(() => {
+      $effect(() => {
+        const val = angleSpring.value;
+        target.style.transform = `rotate(${val}deg)`;
+      });
+    });
+  }
 
   node.addEventListener("mouseenter", trigger);
   node.addEventListener("mouseleave", stop);
 
   return {
     destroy() {
-      if (animation) animation.cancel();
+      if (cleanupEffect) cleanupEffect();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", stop);
     },
@@ -259,55 +277,29 @@ roll.is_kinetic = true;
  * Stab Action
  * A quick horizontal thrust.
  * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
  */
 export function stab(node) {
-  /**
-   * @type {Animation | null}
-   */
-  let animation = null;
-
-  const trigger = () => {
-    node.dataset.kinetic = "true";
-    if (animation) {
-      animation.cancel();
-      animation = null;
-    }
-    const target = get_target(node);
-
-    const duration = resolve_ms("--duration-slow", 500, node);
-    const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
-
-    animation = target.animate(
-      [
-        { transform: "translateX(0)", offset: 0 },
-        { transform: "translateX(var(--kinetic-stab-distance))", offset: 0.2 },
-        { transform: "translateX(0)", offset: 1 },
-      ],
-      {
-        duration,
-        easing,
-        iterations: Infinity,
-      },
-    );
-  };
-
-  const stop = () => {
-    if (animation) {
-      animation.cancel();
-      animation = null;
-    }
-  };
-
-  node.addEventListener("mouseenter", trigger);
-  node.addEventListener("mouseleave", stop);
-
-  return {
-    destroy() {
-      stop();
-      node.removeEventListener("mouseenter", trigger);
-      node.removeEventListener("mouseleave", stop);
+  return createKineticAction(node, {
+    animate: (target, intensity) => {
+      const baseDuration = resolve_ms("--duration-slow", 500, node);
+      const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
+      const animation = target.animate(
+        [
+          { transform: "translateX(0)", offset: 0 },
+          { transform: "translateX(var(--kinetic-stab-distance))", offset: 0.2 },
+          { transform: "translateX(0)", offset: 1 },
+        ],
+        {
+          duration: baseDuration,
+          easing,
+          iterations: Infinity,
+        },
+      );
+      animation.playbackRate = intensity;
+      return animation;
     },
-  };
+  });
 }
 stab.is_kinetic = true;
 
@@ -315,6 +307,7 @@ stab.is_kinetic = true;
  * Kinetic Scroll Action
  * Enables drag-to-scroll with momentum.
  * @param {HTMLElement} node
+ * @returns {import('svelte/action').ActionReturn}
  */
 export function kinetic_scroll(node) {
   let is_down = false;
@@ -323,9 +316,7 @@ export function kinetic_scroll(node) {
   let velocity = 0;
   let last_y = 0;
   let last_time = 0;
-  /**
-   * @type {number | null}
-   */
+  /** @type {number | null} */
   let raf_id = null;
 
   const on_down = (/** @type {any} */ e) => {
@@ -345,15 +336,23 @@ export function kinetic_scroll(node) {
   };
 
   const apply_momentum = () => {
-    if (is_down || Math.abs(velocity) < 0.1) return;
-    const friction = resolve_number("--kinetic-momentum-friction", 0.95, node);
-    node.scrollTop -= velocity * 10;
+    const intensity = motion.isReduced ? 0 : motion.intensity;
+    if (is_down || Math.abs(velocity) < 0.1 || intensity === 0) return;
+
+    const baseFriction = resolve_number("--kinetic-momentum-friction", 0.95, node);
+    // Decays faster with reduced intensity
+    const friction = baseFriction * intensity;
+
+    node.scrollTop -= velocity * 10 * intensity;
     velocity *= friction;
     raf_id = requestAnimationFrame(apply_momentum);
   };
 
   const on_move = (/** @type {any} */ e) => {
     if (!is_down) return;
+
+    const intensity = motion.isReduced ? 0 : motion.intensity;
+    if (intensity === 0) return;
 
     const multiplier = resolve_number("--kinetic-scroll-multiplier", 1.5, node);
     const threshold = resolve_number("--kinetic-drag-threshold", 10, node);

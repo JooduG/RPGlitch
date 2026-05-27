@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { pulse } from "./kinetic.js";
+import { pulse } from "./kinetic.svelte.js";
 
 describe("kinetic utilities", () => {
   /** @type {HTMLElement} */
@@ -27,7 +27,7 @@ describe("kinetic utilities", () => {
       node.dispatchEvent(new MouseEvent("mouseenter"));
       expect(node.dataset.kinetic).toBe("true");
       expect(node.animate).toHaveBeenCalled();
-      action.destroy();
+      action.destroy?.();
     });
 
     it("cancels existing animation on trigger", () => {
@@ -37,7 +37,7 @@ describe("kinetic utilities", () => {
 
       node.dispatchEvent(new MouseEvent("mouseenter"));
       expect(firstAnim.cancel).toHaveBeenCalled();
-      action.destroy();
+      action.destroy?.();
     });
 
     it("starts return animation on stop and maintains dataset (managed by use-actions)", () => {
@@ -57,7 +57,7 @@ describe("kinetic utilities", () => {
       // Trigger finish
       if (returnAnim.onfinish) returnAnim.onfinish();
       expect(node.dataset.kinetic).toBe("true");
-      action.destroy();
+      action.destroy?.();
     });
 
     it("handles trigger while return animation is running (race condition fix)", () => {
@@ -81,7 +81,7 @@ describe("kinetic utilities", () => {
       // but our code should have cleared the reference or the listener shouldn't fire if cancelled)
       // Even if it fires, it should have been the reference from the previous call.
 
-      action.destroy();
+      action.destroy?.();
     });
   });
 });

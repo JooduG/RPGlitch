@@ -332,7 +332,13 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
-    this.view = view;
+    if (typeof document !== "undefined" && document.startViewTransition) {
+      document.startViewTransition(() => {
+        this.view = view;
+      });
+    } else {
+      this.view = view;
+    }
   };
   open_drawer = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
     this.drawer.type = type;

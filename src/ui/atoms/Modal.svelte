@@ -6,12 +6,9 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import Backdrop from "@atoms/Backdrop.svelte";
-  import { resolve_ms, resolve_px } from "@components";
   import { simulationState } from "@state";
   import { use_actions } from "@actions";
   import { Dialog } from "bits-ui";
-  import { quartOut } from "svelte/easing";
-  import { fly, scale } from "svelte/transition";
 
   let {
     // State
@@ -37,13 +34,23 @@
   // Determine active busy state using the unified simulationState if busy is not explicitly passed
   let is_busy = $derived(busy !== null ? busy : simulationState.busy);
 
-  // The 'Fly' offset and durations are resolved once from design tokens on initialization.
-  const offset = resolve_px("--spacing-5", 20);
-  const duration_in = resolve_ms("--duration-standard", 350);
-  const duration_out = resolve_ms("--duration-fast", 250);
-
   // Bind dialog open state
   let open = $state(true);
+
+  // Synchronize open and activeOpen state using document.startViewTransition
+  let activeOpen = $state(false);
+
+  $effect(() => {
+    if (open !== activeOpen) {
+      if (typeof document !== "undefined" && document.startViewTransition) {
+        document.startViewTransition(() => {
+          activeOpen = open;
+        });
+      } else {
+        activeOpen = open;
+      }
+    }
+  });
 
   // Trigger on_close only when open changes from true to false
   $effect(() => {
@@ -56,8 +63,8 @@
 <Dialog.Root bind:open>
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
-      {#snippet child({ props: overlayProps, open: isOpen })}
-        {#if isOpen}
+      {#snippet child({ props: overlayProps })}
+        {#if activeOpen}
           <Backdrop
             {...overlayProps}
             onclick={() => {
@@ -80,15 +87,13 @@
                 e.preventDefault();
               }}
             >
-              {#snippet child({ props: contentProps, open: isContentOpen })}
-                {#if isContentOpen}
+              {#snippet child({ props: contentProps })}
+                {#if activeOpen}
                   <div
                     {...contentProps}
                     class="root glass-elevated {variant} {className}"
                     class:is-busy={is_busy}
                     onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
-                    in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
-                    out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
                     use:use_actions={actions}
                   >
                     {@render children?.()}
@@ -114,6 +119,7 @@
     flex-direction: column;
     overflow: hidden;
     justify-content: space-between;
+    view-transition-name: modal-container;
 
     /* Dimensions grounded in Grid Foundation */
     width: clamp(calc(var(--column-unit) * 3), 90vw, var(--modal-width-thin));

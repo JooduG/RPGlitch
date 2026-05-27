@@ -10,6 +10,7 @@
   import GridOverlay from "@devmode/GridOverlay.svelte";
   import Profile from "@profile/Profile.svelte";
   import { app } from "@state";
+  import { motion } from "@motion";
   import Storyboard from "@storyboard/Storyboard.svelte";
   import Storymode from "@storymode/Storymode.svelte";
 
@@ -42,6 +43,9 @@
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
     ></div>
+
+    <!-- Layer 3: Noise Overlay -->
+    <div class="noise-overlay" data-motion-reduced={motion.isReduced}></div>
   </div>
 
   <ImagePreview />

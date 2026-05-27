@@ -686,4 +686,117 @@ select:focus {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
+/* --- VIEW TRANSITIONS & NOISE ANIMATIONS (Phase 4) --- */
+
+@keyframes noise-breathing {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+
+  10% {
+    transform: translate(-0.5%, -0.5%);
+  }
+
+  20% {
+    transform: translate(-1%, 0.5%);
+  }
+
+  30% {
+    transform: translate(0.5%, -1%);
+  }
+
+  40% {
+    transform: translate(-0.5%, 1.5%);
+  }
+
+  50% {
+    transform: translate(-1%, 0.5%);
+  }
+
+  60% {
+    transform: translate(1.5%, -0.5%);
+  }
+
+  70% {
+    transform: translate(0.5%, 1%);
+  }
+
+  80% {
+    transform: translate(-0.5%, 0.5%);
+  }
+
+  90% {
+    transform: translate(1%, -1%);
+  }
+}
+
+.noise-overlay {
+  position: fixed;
+  inset: -20px;
+  background-image: var(--noise-url);
+  opacity: var(--opacity-ghost);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  z-index: var(--z-index-max);
+  animation: noise-breathing 0.2s steps(4) infinite;
+}
+
+[data-motion-reduced="true"] .noise-overlay {
+  animation-play-state: paused !important;
+}
+
+/* Custom view transition handling */
+::view-transition-old(modal-container) {
+  animation:
+    250ms var(--ease-in) both fade-out,
+    250ms var(--ease-in) both scale-down;
+}
+
+::view-transition-new(modal-container) {
+  animation:
+    350ms var(--ease-out) both fade-in,
+    350ms var(--ease-elastic) both slide-up;
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-down {
+  from {
+    transform: scale(1);
+  }
+
+  to {
+    transform: scale(0.95);
+  }
+}
+
+@keyframes slide-up {
+  from {
+    transform: translateY(20px);
+  }
+
+  to {
+    transform: translateY(0);
+  }
+}
 ```
