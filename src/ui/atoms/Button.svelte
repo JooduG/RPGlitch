@@ -205,6 +205,7 @@
   :global(.svelte-button.variant-invisible) {
     background: transparent;
     color: var(--frozen);
+    box-shadow: none;
   }
 
   /* --- Operational States --- */

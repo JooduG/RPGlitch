@@ -12,7 +12,7 @@
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import DevWing from "@devmode/DevWing.svelte";
-  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
+  import { ENTITY_FRAGMENTS, PROFILE_SECTIONS_BY_TYPE, NAME_PREFIXES } from "@intelligence";
   import { themeStore } from "@media";
   import AudioWing from "@profile/AudioWing.svelte";
   import ProfileArray from "@profile/ProfileArray.svelte";
@@ -52,22 +52,7 @@
     const words = trimmed.split(/\s+/);
     if (words.length !== 3) return trimmed;
 
-    const prefixes = [
-      "mr",
-      "mrs",
-      "ms",
-      "dr",
-      "prof",
-      "sir",
-      "lady",
-      "lord",
-      "the",
-      "mr.",
-      "mrs.",
-      "ms.",
-      "dr.",
-      "prof.",
-    ];
+    const prefixes = NAME_PREFIXES;
 
     if (prefixes.includes(words[0].toLowerCase())) {
       return `${words[0]} ${words[1]}\n${words[2]}`;
@@ -227,6 +212,7 @@
       <div
         class="profile-side"
         class:interactive={state.is_editing && arrayField}
+        data-section={section.id}
         onclick={() => arrayField && state.add_vector_item(arrayField.key)}
         onmouseenter={() => (state.hovered_section = section.id)}
         onmouseleave={() => (state.hovered_section = null)}
@@ -319,6 +305,7 @@
   .right {
     flex: 1;
     min-width: 0;
+    min-height: 0;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -338,7 +325,7 @@
     display: flex;
     flex-direction: row;
     height: 100%;
-    overflow: hidden;
+    overflow: auto;
     transition: grid-column var(--motion-standard);
     border: var(--border-width-base) solid
       color-mix(in srgb, var(--signature-color) 30%, transparent);
@@ -560,7 +547,7 @@
   .profile-content {
     flex-grow: 1;
     padding: 0;
-    overflow: hidden;
+    overflow: visible;
   }
 
   .profile-footer {
@@ -577,6 +564,9 @@
     height: 100%;
     width: var(--avatar-medium-size);
     flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: var(--z-index-surface);
   }
 
   .avatar-wrapper {
@@ -754,6 +744,11 @@
     margin-top: var(--gap-tight);
   }
 
+  /* Push down the vertical eternal label on desktop to center relative to the textfield (offsetting by half the header height) */
+  .profile-modal:not(.is-mobile, .is-mini) .profile-side[data-section="eternal"] .label-wrapper {
+    transform: translateY(var(--padding-standard));
+  }
+
   /* --- RESPONSIVE OVERRIDES --- */
 
   .profile-fragments.is-mobile,
@@ -766,12 +761,38 @@
   .profile-modal.is-mobile .profile-container,
   .profile-modal.is-mini .profile-container {
     flex-direction: column;
+  }
+
+  /* Fractal scrolls organically as a single page */
+  .profile-modal.is-mobile .profile-container[data-entity-type="fractal"],
+  .profile-modal.is-mini .profile-container[data-entity-type="fractal"] {
     overflow-y: auto;
   }
 
-  .profile-modal.is-mobile .profile-content,
-  .profile-modal.is-mini .profile-content {
+  .profile-modal.is-mobile .profile-container[data-entity-type="fractal"] .profile-content,
+  .profile-modal.is-mini .profile-container[data-entity-type="fractal"] .profile-content {
     overflow-y: visible;
+  }
+
+  /* Character profile remains fixed with internal scrolling */
+  .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]),
+  .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) {
+    overflow: visible;
+    height: 100%;
+  }
+
+  .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]) .right,
+  .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) .right {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]) .profile-content,
+  .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) .profile-content {
+    flex-grow: 1;
+    overflow: visible;
   }
 
   .profile-modal.is-mobile .avatar-section,
