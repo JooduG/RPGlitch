@@ -22,6 +22,7 @@
     busy = false,
     disabled = false,
     weight = 0, // 0-10 for line prominence and atmospheric glow
+    always_expanded = false,
 
     // Design
     no_background = false,
@@ -47,7 +48,9 @@
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || controlState.intent_active);
   const paragraphs = $derived(parse_markdown(value));
-  const is_expanded = $derived((is_focused || busy || is_edit) && (!!header_actions || !!status));
+  const is_expanded = $derived(
+    (is_focused || busy || always_expanded) && (!!header_actions || !!status),
+  );
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
@@ -245,15 +248,24 @@
       rgb(from var(--pure-white) r g b / var(--opacity-ghost));
   }
 
-  .status,
+  .status {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    min-width: 0;
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    margin-right: var(--gap-standard);
+  }
+
   .actions {
     display: flex;
     align-items: center;
     height: 100%;
-  }
-
-  .actions {
     margin-left: auto;
+    flex-shrink: 0;
   }
 
   .body {

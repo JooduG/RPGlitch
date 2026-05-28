@@ -34,13 +34,13 @@
     onclick = undefined,
     on_select = undefined,
     onViewProfile = undefined,
-    on_view_profile = undefined
+    on_view_profile = undefined,
   } = $props();
 
   // --- DERIVATIONS & COMPATIBILITY ---
   let is_empty = $derived(!entity);
   let signature_color = $derived(
-    themeStore.get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)")
+    themeStore.get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)"),
   );
   let name = $derived(entity?.name || "Untitled");
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
@@ -67,12 +67,14 @@
   class:is-panel={variant === "panel"}
   class:is-library={variant === "library"}
   class:disabled
-  use:tooltip={{ text: variant === "library" ? (disabled ? "Already selected" : `Select ${name}`) : a11y_label }}
+  use:tooltip={{
+    text: variant === "library" ? (disabled ? "Already selected" : `Select ${name}`) : a11y_label,
+  }}
   style:--signature-color={signature_color}
   style:view-transition-name={entity ? `card-${entity.type || type}-${entity.id}` : undefined}
   role="button"
   tabindex={disabled ? -1 : 0}
-  aria-label={disabled ? "Already selected" : (variant === "library" ? `Select ${name}` : a11y_label)}
+  aria-label={disabled ? "Already selected" : variant === "library" ? `Select ${name}` : a11y_label}
   onclick={handle_select}
   oncontextmenu={(/** @type {MouseEvent} */ e) => {
     e.preventDefault();

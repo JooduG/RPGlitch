@@ -163,6 +163,7 @@
     height: var(--icon-large);
     aspect-ratio: var(--aspect-square);
     flex-shrink: 0;
+    padding: 0;
   }
 
   :global(.svelte-button.is-square.is-small) {

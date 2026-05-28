@@ -196,7 +196,7 @@ export const TOKENS = {
   "state-value": "0%",
   "state-weight": "0",
   "state-weight-intensity": "0",
-  "storyboard-character-card-height": "calc(var(--row-unit) * 6)",
+  "storyboard-character-card-height": "calc(var(--row-unit) * 5)",
   "storyboard-character-card-width": "calc(var(--column-unit) * 2)",
   "storyboard-fractal-card-height": "calc(var(--row-unit) * 4)",
   "storyboard-fractal-card-width": "calc(var(--column-unit) * 4)",

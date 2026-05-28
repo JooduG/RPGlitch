@@ -490,6 +490,7 @@
   /* Shared Input Edit Styling */
   .name.edit span,
   .description-wrapper {
+    position: relative;
     background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
     border: var(--border-width-base) solid transparent;
     border-radius: var(--radius-standard);
@@ -518,11 +519,6 @@
     mask-composite: exclude;
     opacity: var(--opacity-whisper);
     transition: opacity var(--duration-standard);
-  }
-
-  .name.edit span:hover,
-  .description-wrapper:hover {
-    border-color: color-mix(in srgb, var(--signature-color) 40%, transparent);
   }
 
   .name.edit span:focus,
@@ -556,6 +552,13 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--gap-standard);
+  }
+
+  .profile-modal.is-mobile .profile-footer,
+  .profile-modal.is-mini .profile-footer {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
   }
 
   .avatar-section {
