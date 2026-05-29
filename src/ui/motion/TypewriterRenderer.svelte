@@ -2,6 +2,7 @@
   import { sanitizeToFragment } from "@platform";
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
+  import { safe_html } from "@components";
 
   /**
    * @typedef {Object} Props
@@ -124,6 +125,5 @@
 </script>
 
 <div class="typewriter-container" style="content-visibility: auto;">
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html slicedHtml}
+  <div use:safe_html={slicedHtml}></div>
 </div>

@@ -10,6 +10,7 @@
   import { app, runtime } from "@state";
   import { typewriter } from "@motion";
 
+  import { safe_html } from "@components";
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
@@ -383,10 +384,7 @@
                 placeholder="Edit message..."
               />
             {:else}
-              <div class="message-content">
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html display_text}
-              </div>
+              <div class="message-content" use:safe_html={display_text}></div>
             {/if}
           {/if}
         {/if}
