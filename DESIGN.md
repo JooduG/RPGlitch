@@ -209,6 +209,7 @@ components:
   storyboard-character-card-width: calc(var(--column-unit) * 2)
   storyboard-fractal-card-height: calc(var(--row-unit) * 4)
   storyboard-fractal-card-width: calc(var(--column-unit) * 4)
+  card-title-max-height: 2.4em
   swatch-dynamic-bg: var(--gunmetal)
   title-glow-signature: 0 0 calc(var(--spacing-unit) * 5) var(--signature-color)
   title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--void-black)

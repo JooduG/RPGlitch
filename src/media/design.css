@@ -120,6 +120,7 @@
   --brightness-dim: brightness(0.9);
   --brightness-glow: brightness(1.1);
   --brightness-muted: brightness(0.3);
+  --card-title-max-height: 2.4em;
   --danger-glow: 0 0 calc(var(--spacing-unit) * 3) var(--crimson-red);
   --danger-hover-shadow: 0 0 calc(var(--spacing-unit) * 4)
     rgb(from var(--crimson-red) r g b / var(--opacity-muted));

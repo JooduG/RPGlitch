@@ -30,6 +30,7 @@ export const TOKENS = {
   "brightness-dim": "brightness(0.9)",
   "brightness-glow": "brightness(1.1)",
   "brightness-muted": "brightness(0.3)",
+  "card-title-max-height": "2.4em",
   chalk: "#222326",
   "column-unit": "calc(var(--grid-width) / 12)",
   "coral-rose": "#fb7185",

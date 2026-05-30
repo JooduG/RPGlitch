@@ -35,6 +35,7 @@ if (!Element.prototype.animate) {
 }
 import { render, fireEvent, cleanup } from "@testing-library/svelte";
 import { test, expect, vi, describe, afterEach } from "vitest";
+import { tick } from "svelte";
 import ModalTestWrapper from "@/tests/ModalTestWrapper.svelte";
 describe("Modal.svelte", () => {
   afterEach(() => {
@@ -46,6 +47,8 @@ describe("Modal.svelte", () => {
       on_close,
       variant: "profile",
     });
+    await tick();
+    await tick();
     // Find the backdrop which handles external clicks (in the portal)
     const backdrop = document.querySelector(".root");
     expect(backdrop).toBeTruthy();
@@ -60,6 +63,8 @@ describe("Modal.svelte", () => {
       on_close,
       variant: "profile",
     });
+    await tick();
+    await tick();
 
     // Find the modal content element
     const modalContent = document.querySelector(".root.profile");
@@ -78,6 +83,8 @@ describe("Modal.svelte", () => {
       on_close,
       variant: "profile",
     });
+    await tick();
+    await tick();
     const content = getByTestId("modal-content");
     await fireEvent.click(content);
     expect(on_close).not.toHaveBeenCalled();

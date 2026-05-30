@@ -68,13 +68,26 @@
   class:is-library={variant === "library"}
   class:disabled
   use:tooltip={{
-    text: variant === "library" ? (disabled ? "Already selected" : `Select ${name}`) : a11y_label,
+    text:
+      variant === "library"
+        ? is_empty
+          ? "Create New"
+          : disabled
+            ? "Already selected"
+            : `Select ${name}`
+        : a11y_label,
   }}
   style:--signature-color={signature_color}
   style:view-transition-name={entity ? `card-${entity.type || type}-${entity.id}` : undefined}
   role="button"
   tabindex={disabled ? -1 : 0}
-  aria-label={disabled ? "Already selected" : variant === "library" ? `Select ${name}` : a11y_label}
+  aria-label={variant === "library"
+    ? is_empty
+      ? "Create New"
+      : disabled
+        ? "Already selected"
+        : `Select ${name}`
+    : a11y_label}
   onclick={handle_select}
   oncontextmenu={(/** @type {MouseEvent} */ e) => {
     e.preventDefault();
@@ -89,40 +102,39 @@
     }
   }}
 >
-  <!-- [CONTENT LAYER: ProfilePicture] -->
-  <div class="visual-container" class:is-hidden={is_empty}>
-    <ProfilePicture {entity} />
+  <!-- [CONTENT LAYER: ProfilePicture or Empty State SVG Icon] -->
+  <div class="visual-container">
+    {#if !is_empty}
+      <ProfilePicture {entity} />
+    {:else}
+      <div class="status">
+        {#if variant === "library"}
+          <svg viewBox="0 0 24 24" class="icon icon-outline">
+            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+          </svg>
+        {:else if type === "fractal"}
+          <svg viewBox="0 0 24 24" class="icon icon-outline">
+            <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
+          </svg>
+        {:else}
+          <svg viewBox="0 0 24 24" class="icon icon-outline">
+            <path
+              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+            />
+          </svg>
+        {/if}
+      </div>
+    {/if}
   </div>
 
-  <!-- [PLACEHOLDER LAYER: Empty Slot Placeholder] -->
-  <div class="placeholder-container" class:is-hidden={!is_empty}>
-    <div class="status">
-      {#if type === "fractal"}
-        <svg viewBox="0 0 24 24" class="icon icon-outline">
-          <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
-        </svg>
-      {:else}
-        <svg viewBox="0 0 24 24" class="icon icon-outline">
-          <path
-            d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-          />
-        </svg>
-      {/if}
-      <span class="primary">{role_label}</span>
-    </div>
+  <!-- [TEXT HUD LAYER: Unified bottom overlay] -->
+  <div class="card-hud-panel">
+    <span class="primary-title">{is_empty ? role_label || "Create New" : entity?.name || name}</span
+    >
+    {#if !is_empty}
+      <p class="secondary-desc">{entity?.description || "No description provided."}</p>
+    {/if}
   </div>
-
-  <!-- [LIBRARY LAYER: Info bar overlay] -->
-  <div class="info-overlay">
-    <span class="name">{name}</span>
-    <div class="bar"></div>
-  </div>
-
-  <!-- [METADATA PANEL: Header Info overlay] -->
-  <header class="entity-metadata-panel">
-    <h4 class="primary">{entity?.name || name}</h4>
-    <p class="secondary">{entity?.description || "No description provided."}</p>
-  </header>
 
   <!-- [ACTIONS TOOLBAR] -->
   <nav class="actions-toolbar">
@@ -148,28 +160,9 @@
 
 <style>
   .entity-card-root {
-    /* 1. Default Character Bounds (2x6 Portrait) */
+    /* 1. Base Proportional Dimensions derived directly from central Design Tokens */
     width: var(--storyboard-character-card-width);
     height: var(--storyboard-character-card-height);
-
-    /* 2. Fractal Anomaly Proportions (4x4 Landscape) */
-    &.is-fractal {
-      width: var(--storyboard-fractal-card-width);
-      height: var(--storyboard-fractal-card-height);
-    }
-
-    /* 3. Library Drawer Downscaling (0.5x Scale) */
-    &.is-library {
-      width: calc(var(--storyboard-character-card-width) * 0.5);
-      height: calc(var(--storyboard-character-card-height) * 0.5);
-
-      &.is-fractal {
-        width: calc(var(--storyboard-fractal-card-width) * 0.5);
-        height: calc(var(--storyboard-fractal-card-height) * 0.5);
-      }
-    }
-
-    /* 4. Base Sizing chassis */
     position: relative;
     overflow: hidden;
     border-radius: var(--radius-standard);
@@ -181,10 +174,28 @@
       width var(--duration-standard) var(--ease-standard),
       height var(--duration-standard) var(--ease-standard),
       transform var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard);
+      border-color var(--duration-fast) var(--ease-standard),
+      box-shadow var(--duration-fast) var(--ease-standard);
     container-type: inline-size;
     box-shadow: var(--shadow-ghost);
     outline: none;
+
+    /* 2. Overrides for Fractal Anomaly Proportions derived directly from central Design Tokens */
+    &.is-fractal {
+      width: var(--storyboard-fractal-card-width);
+      height: var(--storyboard-fractal-card-height);
+    }
+
+    /* 3. Layout Context Sizing Rules */
+    &.is-library {
+      width: calc(var(--storyboard-character-card-width) * 0.5);
+      height: calc(var(--storyboard-character-card-height) * 0.5);
+    }
+
+    &.is-library.is-fractal {
+      width: calc(var(--storyboard-fractal-card-width) * 0.5);
+      height: calc(var(--storyboard-fractal-card-height) * 0.5);
+    }
   }
 
   .entity-card-root:hover:not(.disabled) {
@@ -193,9 +204,23 @@
       rgb(from var(--signature-color) r g b / var(--opacity-whisper));
   }
 
+  .entity-card-root.is-empty {
+    border-style: dashed;
+    opacity: 0.6;
+  }
+
   .entity-card-root.disabled {
-    pointer-events: none;
-    opacity: 0.5;
+    pointer-events: none !important;
+    filter: grayscale(1) brightness(0.7) opacity(0.5) !important;
+    transform: none !important;
+    box-shadow: none !important;
+    border-color: var(--border-whisper) !important;
+
+    /* Prevent any interior layer modifiers from bleeding through */
+    &::after {
+      box-shadow: none !important;
+      border-color: transparent !important;
+    }
   }
 
   /* Structural Highlight (The Edge) */
@@ -230,45 +255,22 @@
     pointer-events: auto;
   }
 
-  .visual-container.is-hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
   .visual-container :global(img),
   .visual-container :global(.avatar-wrapper),
   .visual-container :global(.profile-picture) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .is-library .visual-container {
-    height: calc(100% - calc(var(--spacing-unit) * 8));
-    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
   }
 
   /* --- PLACEHOLDER LAYER --- */
-  .placeholder-container {
+  .status {
     position: absolute;
     inset: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: opacity var(--duration-standard) var(--ease-standard);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .placeholder-container.is-hidden {
-    opacity: 0;
-    pointer-events: none;
-  }
-
-  .status {
-    display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: var(--gap-standard);
     color: var(--pure-white);
     opacity: var(--opacity-whisper);
@@ -290,84 +292,19 @@
     stroke-width: 1.5;
   }
 
-  .status .primary {
-    font-family: var(--font-family-heading);
-    font-size: var(--font-size-h6);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-  }
-
-  .info-overlay {
+  .card-hud-panel {
     position: absolute;
     bottom: 0;
     left: 0;
     right: 0;
-    height: calc(var(--spacing-unit) * 8);
-    padding: var(--padding-tight);
-    display: none;
-    align-items: center;
-    background: var(--glass-base);
-    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
-    overflow: hidden;
-    min-width: 0;
-  }
-
-  .is-library .info-overlay {
-    display: flex;
-  }
-
-  .info-overlay .name {
-    color: var(--signature-color, var(--frisk));
-    font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    line-height: 1;
-    max-height: 100%;
-    margin: 0;
-    padding: 0;
-    text-align: center;
-    width: 100%;
-    flex-shrink: 0;
-    font-size: clamp(var(--font-size-nano), 12cqi, var(--font-size-small));
-  }
-
-  .info-overlay .bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: var(--gap-tight);
-    background: var(--signature-color, var(--frisk));
-    opacity: 0.3;
-    transition: opacity var(--motion-standard);
-  }
-
-  .entity-card-root:hover .bar {
-    opacity: 1;
-  }
-
-  /* --- METADATA PANEL --- */
-  .entity-metadata-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 60%;
-    min-width: 0;
     background: linear-gradient(
       to top,
       var(--chalk) 0%,
-      rgb(from var(--chalk) r g b / var(--opacity-solid)) 30%,
-      rgb(from var(--chalk) r g b / var(--opacity-muted)) 60%,
-      rgb(from var(--chalk) r g b / var(--opacity-ghost)) 80%,
+      rgb(from var(--chalk) r g b / var(--opacity-solid)) 40%,
+      rgb(from var(--chalk) r g b / var(--opacity-muted)) 75%,
       transparent 100%
     );
-    display: none;
+    display: flex;
     flex-direction: column;
     justify-content: flex-end;
     align-items: center;
@@ -375,39 +312,97 @@
     padding: var(--padding-standard);
     z-index: var(--z-index-surface);
     pointer-events: none;
-    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
+
+    /* Shared base height rules */
+    height: 60%;
+    transition:
+      height var(--duration-standard) var(--ease-standard),
+      opacity var(--duration-standard) var(--ease-standard),
+      visibility var(--duration-standard) var(--ease-standard);
+    opacity: 1;
+    visibility: visible;
+    overflow: hidden; /* Force strict containment */
   }
 
-  .is-panel .entity-metadata-panel {
-    display: flex;
-  }
-
-  .entity-metadata-panel .primary {
+  /* Typographic fields inside the unified HUD panel */
+  .card-hud-panel .primary-title {
     color: var(--signature-color, var(--frisk));
     text-shadow: var(--shadow-font);
-    width: 100%;
-    min-width: 0;
-    line-height: 1;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block;
-    flex-shrink: 0;
+    font-family: var(--font-family-heading);
+    font-weight: var(--font-weight-bold);
+    text-transform: uppercase;
+    letter-spacing: var(--font-spacing-loose);
     font-size: clamp(var(--font-size-base), 15cqi, var(--font-size-h1));
-  }
-
-  .entity-metadata-panel .secondary {
-    margin: var(--margin-tight) 0 0;
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-small);
-    color: var(--pure-white);
-    line-height: var(--font-height-base);
+    white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    opacity: var(--opacity-whisper);
-    min-height: 0;
+    overflow-wrap: break-word;
+
+    /* Use relative em to scale perfectly with fluid cqi font sizes */
+    line-height: 1.2;
+    max-height: var(--card-title-max-height);
+    text-align: center;
+    width: 100%;
+  }
+
+  .card-hud-panel .secondary-desc {
+    margin-top: var(--margin-tight);
+    font-family: var(--font-family-base);
+    font-size: var(--font-size-small);
+    color: var(--pure-white);
+    line-height: var(--font-height-base);
+    opacity: var(--opacity-whisper) !important;
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    overflow-wrap: break-word;
+
+    /* Performant layout hide animations */
+    max-height: calc(var(--spacing-unit) * 12);
+    transition:
+      max-height var(--duration-standard) var(--ease-standard),
+      opacity var(--duration-standard) var(--ease-standard);
+  }
+
+  /* --- CONTEXTUAL VARIANT MULTIPLIERS --- */
+  .entity-card-root.is-fractal .card-hud-panel {
+    height: auto !important;
+    min-height: 40%;
+    padding-top: var(--padding-standard) !important;
+    background: linear-gradient(
+      to top,
+      var(--chalk) 0%,
+      rgb(from var(--chalk) r g b / var(--opacity-solid)) 60%,
+      transparent 100%
+    ) !important;
+  }
+
+  .is-library .card-hud-panel {
+    height: 35%;
+  }
+
+  .is-library:not(.is-empty) .card-hud-panel {
+    display: flex;
+  }
+
+  .entity-card-root.is-empty .card-hud-panel {
+    display: none !important;
+  }
+
+  .is-library .secondary-desc {
+    max-height: 0 !important;
+    opacity: 0 !important;
+    margin: 0 !important;
+  }
+
+  .is-library .primary-title {
+    font-size: clamp(var(--font-size-nano), 12cqi, var(--font-size-small)) !important;
   }
 
   /* --- ACTIONS TOOLBAR --- */

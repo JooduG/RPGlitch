@@ -196,12 +196,8 @@
   }
 
   .tooltip-content {
-    background: var(--glass-peak);
-    backdrop-filter: var(--blur-void);
-    color: var(--pure-white);
     padding: var(--padding-tight) var(--padding-tight);
     border-radius: var(--radius-standard);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
     font-size: var(--font-size-tiny);
     font-family: var(--font-family-base);
     text-transform: none;
@@ -211,6 +207,20 @@
     max-width: calc(var(--spacing-unit) * 60);
     text-align: center;
     line-height: var(--font-height-base);
+  }
+
+  .tooltip-panel,
+  [role="tooltip"],
+  .tooltip-content {
+    background: rgb(from var(--chalk) r g b / 0.98) !important;
+    border: var(--border-width-base) solid var(--signature-color, var(--frisk)) !important;
+    box-shadow: var(--shadow-standard) !important;
+    color: var(--pure-white) !important;
+
+    /* Force Hardware Compositor Layer Separation */
+    isolation: isolate;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .tooltip-arrow {

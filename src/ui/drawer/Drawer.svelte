@@ -12,7 +12,6 @@
   import { fly } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import EntityCard from "@atoms/EntityCard.svelte";
 
   // --- STATE & DERIVATIONS ---
@@ -110,29 +109,12 @@
     <div class="body" use:kinetic_scroll>
       <div class="grid">
         <!-- "Create New" card -->
-        <div
-          class="card--new glass-sunken interactable"
-          class:is-fractal={drawer_type === "fractal"}
-          style="--signature-color: var(--frisk);"
-          role="button"
-          tabindex="0"
-          aria-label="Create new entity"
+        <EntityCard
+          variant="library"
+          type={drawer_type ?? undefined}
+          role_label="Create New"
           onclick={handle_create_new}
-          onkeydown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              handle_create_new();
-            }
-          }}
-        >
-          <div class="visual">
-            <ProfilePicture placeholder_char="?" />
-          </div>
-          <div class="info">
-            <span class="label">Create New</span>
-          </div>
-          <div class="bar"></div>
-        </div>
+        />
 
         {#each entity_list as entity (entity.id)}
           <EntityCard
@@ -205,91 +187,6 @@
     align-content: flex-start;
     gap: var(--gap-standard);
     width: 100%;
-  }
-
-  /* --- NEW ENTITY CARD --- */
-  .card--new {
-    position: relative;
-    width: calc(var(--storyboard-character-card-width) * 0.5);
-    height: calc(var(--storyboard-character-card-height) * 0.5);
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    border: var(--border-whisper);
-    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
-    padding: 0;
-    background: transparent;
-    cursor: pointer;
-    border-radius: var(--radius-standard);
-    overflow: hidden;
-    transition:
-      width var(--duration-standard) var(--ease-standard),
-      height var(--duration-standard) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard),
-      filter var(--duration-fast) var(--ease-standard),
-      opacity var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard);
-  }
-
-  .card--new.is-fractal {
-    width: calc(var(--storyboard-fractal-card-width) * 0.5);
-    height: calc(var(--storyboard-fractal-card-height) * 0.5);
-  }
-
-  .card--new:hover {
-    border-color: var(--signature-color);
-    box-shadow: var(--signature-glow);
-  }
-
-  .card--new .visual {
-    height: calc(100% - calc(var(--spacing-unit) * 8));
-    width: 100%;
-    background: var(--signature-color, var(--frisk));
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-  }
-
-  .card--new .info {
-    height: calc(var(--spacing-unit) * 8);
-    width: 100%;
-    padding: var(--padding-tight);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--glass-sunken);
-    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
-  }
-
-  .card--new .label {
-    font-weight: var(--font-weight-bold);
-    font-family: var(--font-family-heading);
-    text-transform: uppercase;
-    font-size: clamp(var(--font-size-nano), 12cqi, var(--font-size-small));
-    letter-spacing: var(--font-spacing-loose);
-    color: var(--signature-color, var(--frisk));
-    text-shadow: 0 0 calc(var(--spacing-unit) * 2)
-      rgb(from var(--signature-color, var(--frisk)) r g b / var(--opacity-muted));
-    text-align: center;
-  }
-
-  .card--new .bar {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: var(--gap-tight);
-    background: var(--signature-color, var(--frisk));
-    opacity: 0;
-    transition: opacity var(--motion-standard);
-  }
-
-  .card--new:hover .bar {
-    opacity: 1;
   }
 
   /* --- EMPTY STATE --- */
