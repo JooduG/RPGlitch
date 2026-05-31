@@ -40,6 +40,7 @@ function parseMarkdownDoc() {
  */
 function flattenFrontmatter(data) {
   const result = Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}]));
+
   /**
    * Recursively walks the frontmatter tree, routing leaf values into their category bucket.
    * @param {Record<string, unknown>} obj
@@ -47,16 +48,20 @@ function flattenFrontmatter(data) {
    */
   function traverse(obj, activeCategory = null) {
     if (!obj || typeof obj !== "object") return;
-    for (const [key, value] of Object.entries(obj)) {
-      if (obj === data && ["name", "version", "description"].includes(key)) continue;
-      let category = obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : activeCategory;
+
+    Object.entries(obj).forEach(([key, value]) => {
+      if (obj === data && ["name", "version", "description"].includes(key)) return;
+
+      const category =
+        obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : activeCategory;
+
       if (value && typeof value === "object") {
         traverse(value, category);
       } else {
         const targetCategory = category || getCategory(key, value);
         result[targetCategory][key] = value;
       }
-    }
+    });
   }
   traverse(data);
   return result;
@@ -67,25 +72,25 @@ function flattenFrontmatter(data) {
  * @param {Record<string, Record<string, string>>} flatData - Per-category token map.
  */
 function buildJsBridge(flatData) {
-  const tokens = {};
-  const palette = {};
-  const paletteVars = {};
-
-  AUTHORITATIVE_CATEGORIES.forEach((category) => {
-    Object.entries(flatData[category] || {})
-      .sort()
-      .forEach(([name, value]) => {
-        tokens[name] = value;
-        if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
-          const label = name
-            .split("-")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
-          palette[label] = value;
-          paletteVars[value] = `var(--${name})`;
-        }
-      });
-  });
+  const { tokens, palette, paletteVars } = AUTHORITATIVE_CATEGORIES.reduce(
+    (acc, category) => {
+      Object.entries(flatData[category] || {})
+        .sort()
+        .forEach(([name, value]) => {
+          acc.tokens[name] = value;
+          if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
+            const label = name
+              .split("-")
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join(" ");
+            acc.palette[label] = value;
+            acc.paletteVars[value] = `var(--${name})`;
+          }
+        });
+      return acc;
+    },
+    { tokens: {}, palette: {}, paletteVars: {} },
+  );
 
   const output = `/* ============================================================================
  * [GENERATED] src/media/tokens.js
@@ -109,25 +114,28 @@ export function syncToCss() {
   const flatData = flattenFrontmatter(data);
   const preservedComments = parseDefinedTokens();
 
-  let cssOutput = `/* ============================================================================
+  const cssHeader = `/* ============================================================================
  * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
  * ============================================================================ */\n\n:root {`;
 
-  AUTHORITATIVE_CATEGORIES.forEach((category) => {
-    cssOutput += `\n  /* --- ${category.toUpperCase()} --- */\n`;
-    Object.entries(flatData[category])
+  const cssProperties = AUTHORITATIVE_CATEGORIES.map((category) => {
+    const categoryHeader = `\n  /* --- ${category.toUpperCase()} --- */\n`;
+    const properties = Object.entries(flatData[category])
       .sort()
-      .forEach(([name, value]) => {
+      .map(([name, value]) => {
         const cached = preservedComments.get(`--${name}`);
-        if (cached?.comment) cssOutput += `  /* ${cached.comment} */\n`;
-        cssOutput += `  --${name}: ${value};\n`;
-      });
-  });
+        const commentStr = cached?.comment ? `  /* ${cached.comment} */\n` : "";
+        return `${commentStr}  --${name}: ${value};`;
+      })
+      .join("\n");
 
-  cssOutput += `}\n\n`;
+    return categoryHeader + properties;
+  }).join("\n");
+
   const cssBlocks = [...body.matchAll(/```css([\s\S]*?)```/g)].map((m) => m[1].trim()).join("\n\n");
-  cssOutput += cssBlocks + (cssBlocks ? "\n" : "");
+
+  const cssOutput = `${cssHeader}${cssProperties}\n}\n\n${cssBlocks}${cssBlocks ? "\n" : ""}`;
 
   fs.writeFileSync(PATHS.designCss, cssOutput);
   buildJsBridge(flatData);
@@ -139,24 +147,30 @@ export function syncToCss() {
  */
 export function syncFromCss() {
   const definedTokens = parseDefinedTokens();
-  const categoryTokens = Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}]));
 
-  for (const [rawName, { value }] of definedTokens.entries()) {
-    const name = rawName.slice(2);
-    const category = getCategory(name, value);
-    categoryTokens[category][name] = value;
-  }
+  const categoryTokens = Array.from(definedTokens.entries()).reduce(
+    (acc, [rawName, { value }]) => {
+      const name = rawName.slice(2);
+      const category = getCategory(name, value);
+      acc[category][name] = value;
+      return acc;
+    },
+    Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}])),
+  );
 
   const { data: oldData, body } = parseMarkdownDoc();
-  const newData = { ...oldData };
 
-  AUTHORITATIVE_CATEGORIES.forEach((cat) => {
-    newData[cat] = Object.keys(categoryTokens[cat]).length
-      ? Object.fromEntries(Object.entries(categoryTokens[cat]).sort())
-      : undefined;
-  });
+  const newData = AUTHORITATIVE_CATEGORIES.reduce(
+    (acc, cat) => {
+      acc[cat] = Object.keys(categoryTokens[cat]).length
+        ? Object.fromEntries(Object.entries(categoryTokens[cat]).sort())
+        : undefined;
+      return acc;
+    },
+    { ...oldData },
+  );
 
-  let yamlStr = yaml
+  const yamlStr = yaml
     .dump(newData, { indent: 2, lineWidth: -1, sortKeys: false, quotingType: '"' })
     .replace(/: '(#.*?)'/g, ': "$1"')
     .replace(/: '(\d+px)'/g, ': "$1"')

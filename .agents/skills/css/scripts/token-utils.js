@@ -66,39 +66,48 @@ export function getCategory(name, value = "") {
  * @returns {Map<string, {value: string, comment: string|null}>} Map of token name -> value and comment.
  */
 export function parseDefinedTokens() {
-  const tokens = new Map();
-  if (!fs.existsSync(PATHS.designCss)) return tokens;
+  if (!fs.existsSync(PATHS.designCss)) return new Map();
 
   const css = fs.readFileSync(PATHS.designCss, "utf8");
-  const lines = css.split("\n");
-  let lastComment = null;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const commentMatch = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
-    if (commentMatch && !commentMatch[1].includes("---") && !commentMatch[1].includes("===")) {
-      lastComment = commentMatch[1];
-      continue;
-    }
-
-    const tokenMatch = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
-    if (tokenMatch) {
-      const name = tokenMatch[1];
-      let value = tokenMatch[2].replace(/;$/, "").trim();
-
-      if (!line.trim().endsWith(";")) {
-        while (i + 1 < lines.length && !value.endsWith(";")) {
-          i++;
-          value += "\n" + lines[i].trim();
-        }
-        value = value.replace(/;$/, "").trim();
+  // Extract block comments and token definitions
+  const entries = css.split("\n").reduce(
+    (acc, line, i, lines) => {
+      const commentMatch = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
+      if (commentMatch && !commentMatch[1].includes("---") && !commentMatch[1].includes("===")) {
+        return { ...acc, lastComment: commentMatch[1] };
       }
 
-      tokens.set(name, { value, comment: lastComment });
-      lastComment = null;
-    }
-  }
-  return tokens;
+      const tokenMatch = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
+      if (tokenMatch) {
+        const name = tokenMatch[1];
+        let value = tokenMatch[2].replace(/;$/, "").trim();
+
+        // Handle multi-line values
+        if (!line.trim().endsWith(";")) {
+          const rest = lines.slice(i + 1);
+          const endIndex = rest.findIndex((l) => l.trim().endsWith(";"));
+          if (endIndex !== -1) {
+            value +=
+              "\n" +
+              rest
+                .slice(0, endIndex + 1)
+                .map((l) => l.trim())
+                .join("\n");
+            value = value.replace(/;$/, "").trim();
+          }
+        }
+
+        acc.tokens.set(name, { value, comment: acc.lastComment });
+        return { ...acc, lastComment: null };
+      }
+
+      return acc;
+    },
+    { tokens: new Map(), lastComment: null },
+  ).tokens;
+
+  return entries;
 }
 
 /**
@@ -108,20 +117,22 @@ export function parseDefinedTokens() {
  * @returns {string[]} Absolute paths to all matched files.
  */
 export function getSourceFiles(dir, extensions = [".svelte", ".js", ".css", ".html"]) {
-  let results = [];
-  if (!fs.existsSync(dir)) return results;
+  if (!fs.existsSync(dir)) return [];
 
-  const list = fs.readdirSync(dir);
-  for (const file of list) {
-    if (file === "node_modules" || file === ".git") continue;
+  return fs.readdirSync(dir).reduce((results, file) => {
+    if (file === "node_modules" || file === ".git") return results;
+
     const filePath = path.join(dir, file);
     const stat = fs.statSync(filePath);
 
     if (stat?.isDirectory()) {
-      results.push(...getSourceFiles(filePath, extensions));
-    } else if (extensions.includes(path.extname(file))) {
-      results.push(filePath);
+      return [...results, ...getSourceFiles(filePath, extensions)];
     }
-  }
-  return results;
+
+    if (extensions.includes(path.extname(file))) {
+      return [...results, filePath];
+    }
+
+    return results;
+  }, []);
 }
