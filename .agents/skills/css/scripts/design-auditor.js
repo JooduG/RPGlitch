@@ -148,7 +148,7 @@ export function findUnusedTokens() {
   const contents = source_files.map((f) => fs.readFileSync(f, "utf8"));
 
   return Array.from(definedMap.keys()).filter((token) => {
-    const regex = new RegExp(`${token}\\b`);
+    const regex = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);
     return !contents.some((text) => regex.test(text));
   });
 }
