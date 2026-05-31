@@ -40,23 +40,32 @@ function parseMarkdownDoc() {
  */
 function flattenFrontmatter(data) {
   const result = Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}]));
+
   /**
    * Recursively walks the frontmatter tree, routing leaf values into their category bucket.
    * @param {Record<string, unknown>} obj
-   * @param {string|null} activeCategory
+   * @param {string|null} active_category
    */
-  function traverse(obj, activeCategory = null) {
+  function traverse(obj, active_category = null) {
     if (!obj || typeof obj !== "object") return;
-    for (const [key, value] of Object.entries(obj)) {
-      if (obj === data && ["name", "version", "description"].includes(key)) continue;
-      let category = obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : activeCategory;
+
+    Object.entries(obj).forEach(([key, value]) => {
+      if (obj === data && ["name", "version", "description"].includes(key)) return;
+
+      const category =
+        obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : active_category;
+
       if (value && typeof value === "object") {
         traverse(value, category);
       } else {
-        const targetCategory = category || getCategory(key, value);
-        result[targetCategory][key] = value;
+        const target_category = category || getCategory(key, value);
+        if (result[target_category]) {
+          result[target_category][key] = value;
+        } else {
+          console.error(`[ERROR] Unknown category "${target_category}" for token "${key}"`);
+        }
       }
-    }
+    });
   }
   traverse(data);
   return result;
@@ -64,28 +73,28 @@ function flattenFrontmatter(data) {
 
 /**
  * Serializes the flat token data into src/media/tokens.js (TOKENS, PALETTE, PALETTE_VARS).
- * @param {Record<string, Record<string, string>>} flatData - Per-category token map.
+ * @param {Record<string, Record<string, string>>} flat_data - Per-category token map.
  */
-function buildJsBridge(flatData) {
-  const tokens = {};
-  const palette = {};
-  const paletteVars = {};
-
-  AUTHORITATIVE_CATEGORIES.forEach((category) => {
-    Object.entries(flatData[category] || {})
-      .sort()
-      .forEach(([name, value]) => {
-        tokens[name] = value;
-        if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
-          const label = name
-            .split("-")
-            .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-            .join(" ");
-          palette[label] = value;
-          paletteVars[value] = `var(--${name})`;
-        }
-      });
-  });
+function buildJsBridge(flat_data) {
+  const { tokens, palette, palette_vars } = AUTHORITATIVE_CATEGORIES.reduce(
+    (acc, category) => {
+      Object.entries(flat_data[category] || {})
+        .sort()
+        .forEach(([name, value]) => {
+          acc.tokens[name] = value;
+          if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
+            const label = name
+              .split("-")
+              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+              .join(" ");
+            acc.palette[label] = value;
+            acc.palette_vars[value] = `var(--${name})`;
+          }
+        });
+      return acc;
+    },
+    { tokens: {}, palette: {}, palette_vars: {} },
+  );
 
   const output = `/* ============================================================================
  * [GENERATED] src/media/tokens.js
@@ -96,7 +105,7 @@ export const TOKENS = ${JSON.stringify(tokens, null, 2)};
 
 export const PALETTE = ${JSON.stringify(palette, null, 2)};
 
-export const PALETTE_VARS = ${JSON.stringify(paletteVars, null, 2)};\n`;
+export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};\n`;
 
   fs.writeFileSync(PATHS.jsBridge, output);
 }
@@ -106,31 +115,39 @@ export const PALETTE_VARS = ${JSON.stringify(paletteVars, null, 2)};\n`;
  */
 export function syncToCss() {
   const { data, body } = parseMarkdownDoc();
-  const flatData = flattenFrontmatter(data);
-  const preservedComments = parseDefinedTokens();
+  const flat_data = flattenFrontmatter(data);
+  const preserved_comments = parseDefinedTokens();
 
-  let cssOutput = `/* ============================================================================
+  const css_header = `/* ============================================================================
  * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
  * ============================================================================ */\n\n:root {`;
 
-  AUTHORITATIVE_CATEGORIES.forEach((category) => {
-    cssOutput += `\n  /* --- ${category.toUpperCase()} --- */\n`;
-    Object.entries(flatData[category])
-      .sort()
-      .forEach(([name, value]) => {
-        const cached = preservedComments.get(`--${name}`);
-        if (cached?.comment) cssOutput += `  /* ${cached.comment} */\n`;
-        cssOutput += `  --${name}: ${value};\n`;
-      });
-  });
+  const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
+    const category_header = `  /* --- ${category.toUpperCase()} --- */`;
+    const entries = Object.entries(flat_data[category]).sort();
+    if (entries.length === 0) {
+      return category_header;
+    }
+    const properties = entries
+      .map(([name, value]) => {
+        const cached = preserved_comments.get(`--${name}`);
+        const comment_str = cached?.comment ? `  /* ${cached.comment} */\n` : "";
+        return `${comment_str}  --${name}: ${value};`;
+      })
+      .join("\n");
 
-  cssOutput += `}\n\n`;
-  const cssBlocks = [...body.matchAll(/```css([\s\S]*?)```/g)].map((m) => m[1].trim()).join("\n\n");
-  cssOutput += cssBlocks + (cssBlocks ? "\n" : "");
+    return `${category_header}\n${properties}`;
+  }).join("\n\n");
 
-  fs.writeFileSync(PATHS.designCss, cssOutput);
-  buildJsBridge(flatData);
+  const css_blocks = [...body.matchAll(/```css([\s\S]*?)```/g)]
+    .map((m) => m[1].trim())
+    .join("\n\n");
+
+  const css_output = `${css_header}\n${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
+
+  fs.writeFileSync(PATHS.designCss, css_output);
+  buildJsBridge(flat_data);
   runFormatter();
 }
 
@@ -139,31 +156,41 @@ export function syncToCss() {
  */
 export function syncFromCss() {
   const definedTokens = parseDefinedTokens();
-  const categoryTokens = Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}]));
 
-  for (const [rawName, { value }] of definedTokens.entries()) {
-    const name = rawName.slice(2);
-    const category = getCategory(name, value);
-    categoryTokens[category][name] = value;
-  }
+  const category_tokens = Array.from(definedTokens.entries()).reduce(
+    (acc, [raw_name, { value }]) => {
+      const name = raw_name.slice(2);
+      const category = getCategory(name, value);
+      if (acc[category]) {
+        acc[category][name] = value;
+      } else {
+        console.error(`[ERROR] Unknown category "${category}" for token "${name}"`);
+      }
+      return acc;
+    },
+    Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}])),
+  );
 
-  const { data: oldData, body } = parseMarkdownDoc();
-  const newData = { ...oldData };
+  const { data: old_data, body } = parseMarkdownDoc();
 
-  AUTHORITATIVE_CATEGORIES.forEach((cat) => {
-    newData[cat] = Object.keys(categoryTokens[cat]).length
-      ? Object.fromEntries(Object.entries(categoryTokens[cat]).sort())
-      : undefined;
-  });
+  const new_data = AUTHORITATIVE_CATEGORIES.reduce(
+    (acc, cat) => {
+      acc[cat] = Object.keys(category_tokens[cat]).length
+        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort())
+        : undefined;
+      return acc;
+    },
+    { ...old_data },
+  );
 
-  let yamlStr = yaml
-    .dump(newData, { indent: 2, lineWidth: -1, sortKeys: false, quotingType: '"' })
+  const yaml_str = yaml
+    .dump(new_data, { indent: 2, lineWidth: -1, sortKeys: false, quotingType: '"' })
     .replace(/: '(#.*?)'/g, ': "$1"')
     .replace(/: '(\d+px)'/g, ': "$1"')
     .replace(/: '(\d+)'/g, ': "$1"');
 
-  fs.writeFileSync(PATHS.designMd, `---\n${yamlStr}---\n\n${body}`);
-  buildJsBridge(categoryTokens);
+  fs.writeFileSync(PATHS.designMd, `---\n${yaml_str}---\n\n${body}`);
+  buildJsBridge(category_tokens);
   runFormatter();
 }
 

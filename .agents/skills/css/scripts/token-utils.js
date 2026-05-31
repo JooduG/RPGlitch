@@ -71,20 +71,20 @@ export function parseDefinedTokens() {
 
   const css = fs.readFileSync(PATHS.designCss, "utf8");
   const lines = css.split("\n");
-  let lastComment = null;
+  let last_comment = null;
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i];
-    const commentMatch = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
-    if (commentMatch && !commentMatch[1].includes("---") && !commentMatch[1].includes("===")) {
-      lastComment = commentMatch[1];
+    const comment_match = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
+    if (comment_match && !comment_match[1].includes("---") && !comment_match[1].includes("===")) {
+      last_comment = comment_match[1];
       continue;
     }
 
-    const tokenMatch = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
-    if (tokenMatch) {
-      const name = tokenMatch[1];
-      let value = tokenMatch[2].replace(/;$/, "").trim();
+    const token_match = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
+    if (token_match) {
+      const name = token_match[1];
+      let value = token_match[2].replace(/;$/, "").trim();
 
       if (!line.trim().endsWith(";")) {
         while (i + 1 < lines.length && !value.endsWith(";")) {
@@ -94,10 +94,11 @@ export function parseDefinedTokens() {
         value = value.replace(/;$/, "").trim();
       }
 
-      tokens.set(name, { value, comment: lastComment });
-      lastComment = null;
+      tokens.set(name, { value, comment: last_comment });
+      last_comment = null;
     }
   }
+
   return tokens;
 }
 
@@ -108,20 +109,20 @@ export function parseDefinedTokens() {
  * @returns {string[]} Absolute paths to all matched files.
  */
 export function getSourceFiles(dir, extensions = [".svelte", ".js", ".css", ".html"]) {
-  let results = [];
-  if (!fs.existsSync(dir)) return results;
+  if (!fs.existsSync(dir)) return [];
 
-  const list = fs.readdirSync(dir);
-  for (const file of list) {
-    if (file === "node_modules" || file === ".git") continue;
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
+  return fs.readdirSync(dir).reduce((results, file) => {
+    if (file === "node_modules" || file === ".git") return results;
+
+    const file_path = path.join(dir, file);
+    const stat = fs.statSync(file_path);
 
     if (stat?.isDirectory()) {
-      results.push(...getSourceFiles(filePath, extensions));
+      results.push(...getSourceFiles(file_path, extensions));
     } else if (extensions.includes(path.extname(file))) {
-      results.push(filePath);
+      results.push(file_path);
     }
-  }
-  return results;
+
+    return results;
+  }, []);
 }

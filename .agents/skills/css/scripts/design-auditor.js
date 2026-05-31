@@ -89,45 +89,50 @@ const COMPILING_LINT_RULES = [
  */
 export function auditCodebaseTokens() {
   const definedMap = parseDefinedTokens();
-  const sourceFiles = getSourceFiles(PATHS.src);
-  let validationFailures = 0;
+  const source_files = getSourceFiles(PATHS.src).filter(
+    (file) => file !== PATHS.designCss && file !== PATHS.jsBridge,
+  );
 
-  sourceFiles.forEach((file) => {
-    const relPath = path.relative(PATHS.root, file);
-    if (file === PATHS.designCss || file === PATHS.jsBridge) return;
+  let total_failures = 0;
 
+  for (const file of source_files) {
+    const rel_path = path.relative(PATHS.root, file);
     const lines = fs.readFileSync(file, "utf8").split("\n");
-    /** @type {boolean} True for .test.js files — fixtures use intentional mock vars */
-    const isTestFile = file.endsWith(".test.js") || file.endsWith(".test.ts");
+    const is_test_file = file.endsWith(".test.js") || file.endsWith(".test.ts");
 
-    lines.forEach((line, index) => {
-      COMPILING_LINT_RULES.forEach((rule) => {
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+
+      // 1. Lint Rule Checks
+      for (const rule of COMPILING_LINT_RULES) {
         if (rule.regex.test(line) && (typeof rule.validate !== "function" || rule.validate(line))) {
           console.error(
-            `\x1b[31m[${rule.severity}] ${relPath}:${index + 1} - ${rule.message}\x1b[0m`,
+            `\x1b[31m[${rule.severity}] ${rel_path}:${index + 1} - ${rule.message}\x1b[0m`
           );
-          if (rule.severity === "HERESY") validationFailures++;
-        }
-      });
-
-      // 2. Token Invalidation Check — skip test files (fixtures use intentional mock vars) and JSDoc lines
-      const isJsDocLine = /^\s*\*/.test(line) || /^\s*\/\*\*/.test(line);
-      if (!isTestFile && !isJsDocLine) {
-        const varMatches = [...line.matchAll(/var\((--[a-zA-Z0-9_-]+)/g)];
-        varMatches.forEach((match) => {
-          const tokenName = match[1];
-          if (!definedMap.has(tokenName)) {
-            console.error(
-              `\x1b[31m[HERESY] ${relPath}:${index + 1} - Hallucinated variable reference: ${tokenName}\x1b[0m`,
-            );
-            validationFailures++;
+          if (rule.severity === "HERESY") {
+            total_failures++;
           }
-        });
+        }
       }
-    });
-  });
 
-  return validationFailures;
+      // 2. Token Invalidation Check
+      const is_comment_or_doc = /^\s*(\/\/|\*|\/\*)/.test(line);
+      if (!is_test_file && !is_comment_or_doc) {
+        const var_matches = [...line.matchAll(/var\((--[a-zA-Z0-9_-]+)/g)];
+        for (const match of var_matches) {
+          const token_name = match[1];
+          if (!definedMap.has(token_name)) {
+            console.error(
+              `\x1b[31m[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}\x1b[0m`
+            );
+            total_failures++;
+          }
+        }
+      }
+    }
+  }
+
+  return total_failures;
 }
 
 /**
@@ -136,25 +141,23 @@ export function auditCodebaseTokens() {
  */
 export function findUnusedTokens() {
   const definedMap = parseDefinedTokens();
-  const sourceFiles = getSourceFiles(PATHS.src).filter(
+  const source_files = getSourceFiles(PATHS.src).filter(
     (f) => f !== PATHS.designCss && f !== PATHS.jsBridge,
   );
-  const contents = sourceFiles.map((f) => fs.readFileSync(f, "utf8"));
-  const unused = [];
 
-  for (const token of definedMap.keys()) {
-    const regex = new RegExp(`${token}\\b`, "g");
-    const active = contents.some((text) => regex.test(text));
-    if (!active) unused.push(token);
-  }
-  return unused;
+  const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
+
+  return Array.from(definedMap.keys()).filter((token) => {
+    const regex = new RegExp(`(?<![a-zA-Z0-9_-])\${token}(?![a-zA-Z0-9_-])`);
+    return !regex.test(combined_content);
+  });
 }
 
 if (
   process.argv[1] &&
   process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/css/scripts/design-auditor.js")
 ) {
-  const coreFailures = auditCodebaseTokens();
+  const core_failures = auditCodebaseTokens();
   findUnusedTokens();
-  if (coreFailures > 0) process.exit(1);
+  if (core_failures > 0) process.exit(1);
 }
