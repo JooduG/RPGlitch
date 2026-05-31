@@ -76,7 +76,7 @@ export class VisualEngine {
         return await this.retryer.retry(
           async () => {
             // @ts-ignore
-            if (!window.pluginTextToImage) throw new Error("Image plugin missing");
+            if (typeof window.pluginTextToImage !== "function") throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
             // @ts-ignore
@@ -224,7 +224,7 @@ export class VisualEngine {
    */
   async upload() {
     // @ts-ignore
-    if (window.pluginUpload) {
+    if (typeof window.pluginUpload === "function") {
       return new Promise((resolve) => {
         try {
           // @ts-ignore
