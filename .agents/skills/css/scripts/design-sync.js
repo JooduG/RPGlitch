@@ -105,7 +105,7 @@ export const TOKENS = ${JSON.stringify(tokens, null, 2)};
 
 export const PALETTE = ${JSON.stringify(palette, null, 2)};
 
-export const PALETTE_VARS = ${JSON.stringify(paletteVars, null, 2)};\n`;
+export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};\n`;
 
   fs.writeFileSync(PATHS.jsBridge, output);
 }
