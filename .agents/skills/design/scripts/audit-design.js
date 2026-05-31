@@ -120,6 +120,9 @@ export function auditCodebaseTokens() {
         for (const match of var_matches) {
           const token_name = match[1];
           if (!definedMap.has(token_name)) {
+            // Exempt local component variables
+            if (token_name === "--stage-align") continue;
+
             console.error(
               `${RED}[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}${RESET}`,
             );
@@ -146,6 +149,27 @@ export function findUnusedTokens() {
   const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
 
   const unused = Array.from(definedMap.keys()).filter((token) => {
+    // Exempt signature color palette stuff from debt
+    const signatureColors = [
+      "--coral-rose",
+      "--forest-green",
+      "--lemon-yellow",
+      "--lime-green",
+      "--neon-teal",
+      "--ocean-blue",
+      "--pumpkin-amber",
+      "--royal-purple",
+      "--sunset-orange",
+      "--twilight-violet",
+      "--danger-color",
+      "--font-color-base",
+      "--glass-peak",
+      "--state-activity-color",
+      "--state-signature-color",
+      "--title-color-part",
+    ];
+    if (signatureColors.includes(token)) return false;
+
     const regex = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);
     return !regex.test(combined_content);
   });

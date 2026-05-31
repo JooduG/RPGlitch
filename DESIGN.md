@@ -44,7 +44,6 @@ colors:
   void-black: "#000"
 typography:
   font-family-base: '"Inter", system-ui, -apple-system, sans-serif'
-  font-family-cursive: '"Satisfy", cursive'
   font-family-heading: '"Ubuntu", sans-serif'
   font-family-mono: '"JetBrains Mono", monospace'
   font-height-base: "1.5"
@@ -86,9 +85,7 @@ spacing:
   padding-loose: calc(var(--spacing-unit) * 8)
   padding-standard: calc(var(--spacing-unit) * 4)
   padding-tight: calc(var(--spacing-unit) * 2)
-  profile-fragment-column: calc(var(--spacing-unit) * 24)
   row-unit: calc(var(--grid-height) / 12)
-  spacing-0: "0"
   spacing-pixel: 1px
   spacing-unit: 0.25rem
 components:
@@ -160,13 +157,6 @@ components:
   opacity-none: "0"
   opacity-solid: "1"
   opacity-whisper: "0.3"
-  profile-height: 100vh
-  profile-initials-size-base: calc(var(--spacing-unit) * 40)
-  profile-left-readonly: calc(var(--column-unit) * 3)
-  profile-left-wings: var(--column-unit)
-  profile-width: calc(var(--column-unit) * 6)
-  profile-wings-left: calc(var(--column-unit) * 8)
-  profile-wings-width: calc(var(--column-unit) * 3)
   scale-lift: scale(1.02)
   scale-pulse: scale(1.05)
   scale-sink: scale(0.96)
@@ -187,9 +177,7 @@ components:
   slider-thumb-size: calc(var(--spacing-unit) * 2)
   slider-track-height: var(--spacing-unit)
   spring-damping-default: "0.8"
-  spring-damping-elastic: "0.6"
   spring-stiffness-default: "0.15"
-  spring-stiffness-elastic: "0.3"
   state-accent: var(--frisk)
   state-align: center
   state-dev-accent: var(--frisk)
@@ -223,7 +211,6 @@ components:
   toggle-thumb-size: calc(var(--spacing-unit) * 4)
   toggle-width: calc(var(--spacing-unit) * 14)
   width-sidebar: calc(var(--column-unit) * 2)
-  wing-width: calc(var(--column-unit) * 2)
   z-index-base: "0"
   z-index-below: "-1"
   z-index-elevated: "50"
@@ -319,7 +306,6 @@ The Chalk Regime UI layers have been migrated from raw DOM manipulations to stan
 ### Typography
 
 - `h1-h6`: Architectural weight, tightly tracked.
-- `.font-cursive`: The "Satisfy" font for cinematic/narrative emphasis.
 - `.font-heading`: The "Ubuntu" font for structural hierarchy.
 - `.font-mono`: The "JetBrains Mono" font for data and terminal output.
 - `.font-base`: The "Inter" font for standard reading.
@@ -575,10 +561,6 @@ select:focus {
 }
 
 /* --- TYPOGRAPHY UTILITIES --- */
-
-.font-cursive {
-  font-family: var(--font-family-cursive);
-}
 
 .font-heading {
   font-family: var(--font-family-heading);

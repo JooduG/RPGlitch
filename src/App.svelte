@@ -1,22 +1,22 @@
-﻿<script>
+<script>
   /**
    * @file App.svelte
    * THE CORE SHELL
-   * View-switching logic using storyboard and storymode terminology.
+   * Central view orchestration shell executing view-switching logic natively.
    */
-  import { ImagePreview, Tooltip, GridOverlay } from "@atoms";
+  import { ImagePreview, Tooltip } from "@atoms";
   import { Profile, Storyboard, Storymode, ControlPanel } from "@organisms";
   import { app } from "@state";
   import { motion } from "@motion";
 
-  // --- DERIVED ---
+  // --- DERIVED RUNES ---
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
   let fractal_opacity = $derived(
     app.view === "storymode" ? "var(--opacity-muted)" : "var(--opacity-muted)",
   );
 
-  // --- EFFECTS ---
+  // --- LIFECYCLE EFFECTS ---
 
   $effect(() => {
     app.load_entities();
@@ -29,17 +29,14 @@
   class:is-storymode={app.view === "storymode"}
 >
   <div class="stage" aria-hidden="true">
-    <!-- Layer 1: The Nordic Gradient -->
     <div class="gradient"></div>
 
-    <!-- Layer 2: Fractal Imagery -->
     <div
       class="fractal"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
     ></div>
 
-    <!-- Layer 3: Noise Overlay -->
     <div class="noise-overlay" data-motion-reduced={motion.isReduced}></div>
   </div>
 
@@ -61,10 +58,31 @@
 </main>
 
 <Tooltip />
-<GridOverlay />
+
+{#if app.settings.dev_grid_visible}
+  <div class="global-dev-grid" class:is-storymode={app.view === "storymode"} aria-hidden="true">
+    {#each ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"] as col (col)}
+      <div class="col" style:grid-column="col-{col}">
+        <span class="label is-col">{col}</span>
+      </div>
+    {/each}
+    <div class="col is-end" style:grid-column="col-end">
+      <span class="label is-col">END</span>
+    </div>
+
+    {#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as row (row)}
+      <div class="row" style:grid-row="row-{row}">
+        <span class="label is-row">{row}</span>
+      </div>
+    {/each}
+    <div class="row is-end" style:grid-row="row-end">
+      <span class="label is-row">END</span>
+    </div>
+  </div>
+{/if}
 
 <style>
-  /* â”€â”€ Core Shell (Ultra-Lean Layout) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Core Shell (Ultra-Lean Stage Matrix) ────────────────────── */
 
   .root {
     position: relative;
@@ -72,10 +90,10 @@
     height: 100vh;
     overflow: hidden;
     z-index: var(--z-index-surface);
-    animation: fade-in 800ms var(--ease-standard) forwards;
+    animation: fade-in var(--duration-slow) var(--ease-standard) forwards;
   }
 
-  /* â”€â”€ Atmospheric Stage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Atmospheric Stage Configuration ────────────────────────── */
 
   .stage {
     position: fixed;
@@ -109,11 +127,11 @@
     filter: var(--blur-mist) var(--brightness-muted);
     will-change: opacity, filter;
     transition:
-      opacity 2000ms ease-in-out,
-      filter 2000ms ease-in-out;
+      opacity var(--duration-ambient) ease-in-out,
+      filter var(--duration-ambient) ease-in-out;
   }
 
-  /* â”€â”€ Global Overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Global Document Resets ─────────────────────────────────── */
 
   :global(html),
   :global(body) {
@@ -122,7 +140,7 @@
     height: 100%;
   }
 
-  /* â”€â”€ Kinetic Physics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
+  /* ── Kinetic Physics Realization ────────────────────────────── */
 
   @keyframes fade-in {
     from {
@@ -132,5 +150,73 @@
     to {
       opacity: 1;
     }
+  }
+
+  /* ── Diagnostic Global Grid ─────────────────────────────────── */
+
+  .global-dev-grid {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    width: var(--grid-width);
+    height: var(--grid-height);
+    display: grid;
+    grid-template-columns:
+      [col-a] 1fr [col-b] 1fr [col-c] 1fr [col-d] 1fr [col-e] 1fr [col-f] 1fr
+      [col-g] 1fr [col-h] 1fr [col-i] 1fr [col-j] 1fr [col-k] 1fr [col-l] 1fr [col-end];
+    grid-template-rows:
+      [row-1] 1fr [row-2] 1fr [row-3] 1fr [row-4] 1fr [row-5] 1fr [row-6] 1fr
+      [row-7] 1fr [row-8] 1fr [row-9] 1fr [row-10] 1fr [row-11] 1fr [row-12] 1fr [row-end];
+    pointer-events: none;
+    z-index: var(--z-index-max) !important;
+    opacity: var(--opacity-whisper);
+    border: var(--spacing-pixel) dashed var(--frozen);
+    background-image: radial-gradient(
+      circle at 0 0,
+      var(--frozen) calc(var(--spacing-unit) / 2),
+      transparent calc(var(--spacing-unit) / 2 + var(--spacing-pixel))
+    );
+    background-size: calc(100% / 12) calc(100% / 12);
+    background-repeat: repeat;
+  }
+
+  .global-dev-grid.is-storymode {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .global-dev-grid .col {
+    border-left: var(--spacing-pixel) solid var(--frozen);
+    height: 100%;
+    grid-row: 1 / -1;
+    position: relative;
+  }
+
+  .global-dev-grid .row {
+    border-top: var(--spacing-pixel) solid var(--frozen);
+    width: 100%;
+    grid-column: 1 / -1;
+    position: relative;
+  }
+
+  .global-dev-grid .label {
+    position: absolute;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-nano);
+    color: var(--frozen);
+    background: var(--void-black);
+    padding: 0 var(--padding-tight);
+    opacity: var(--opacity-whisper);
+  }
+
+  .global-dev-grid .label.is-col {
+    top: calc(var(--spacing-unit) * 2);
+    left: calc(var(--spacing-unit) * 2);
+    text-transform: uppercase;
+  }
+
+  .global-dev-grid .label.is-row {
+    left: calc(var(--spacing-unit) * 2);
+    top: calc(var(--spacing-unit) * 2);
   }
 </style>

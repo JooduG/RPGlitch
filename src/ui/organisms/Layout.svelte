@@ -1,11 +1,8 @@
 <script>
   /**
    * @file Layout.svelte
-   * THE UNIVERSAL 12-COLUMN STAGE
-   * Logic:
-   * 1. 12 Columns total (repeat(12, 1fr)).
-   * 2. Storyboard: Gutter(1), Side(2), Main(6), Side(2), Gutter(1).
-   * 3. Storymode: Side(2), Main(8), Side(2) - Full Bleed.
+   * THE UNIVERSAL 12-COLUMN STAGE & VISUALIZER CHASSIS
+   * Architectural Unification of Stage Layout and Diagnostic Grid Overlay.
    */
   import { app } from "@state";
 
@@ -22,7 +19,7 @@
 </script>
 
 <div
-  class="stage"
+  class="wrapper"
   class:is-transparent={transparent}
   class:is-storymode={mode === "storymode"}
   class:is-mobile={app.viewport.mobile}
@@ -35,22 +32,19 @@
     </header>
   {/if}
 
-  <!-- Track 1: Left Column -->
-  <aside class="column is-side is-left">
+  <aside class="sidebar is-left">
     {#if left}
       {@render left()}
     {/if}
   </aside>
 
-  <!-- Track 2: Main Column -->
-  <main class="column is-main">
+  <main class="body">
     {#if center}
       {@render center()}
     {/if}
   </main>
 
-  <!-- Track 3: Right Column -->
-  <aside class="column is-side is-right">
+  <aside class="sidebar is-right">
     {#if right}
       {@render right()}
     {/if}
@@ -64,9 +58,9 @@
 </div>
 
 <style>
-  /* ── The 12-Column Stage ────────────────────────────────────── */
+  /* ── Structural Chassis (Universal Stage) ────────────────────── */
 
-  .stage {
+  .wrapper {
     display: grid;
     grid-template-columns:
       [col-a] 1fr
@@ -107,19 +101,20 @@
     transition: opacity var(--motion-fast);
   }
 
-  .stage.is-transparent {
+  .wrapper.is-transparent {
     background: transparent;
   }
 
-  /* ── Layout Physics (Desktop) ───────────────────────────────── */
+  /* ── Layout Physics (Desktop Focus) ─────────────────────────── */
 
-  .column {
+  .sidebar,
+  .body {
     position: relative;
     height: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: var(--state-align, center);
+    align-items: var(--stage-align, center);
     transition:
       opacity var(--motion-fast),
       transform var(--motion-fast);
@@ -127,61 +122,63 @@
     grid-row: row-2 / row-12;
   }
 
-  /* Storyboard Layout */
-  .stage:not(.is-mobile, .is-storymode) .is-left {
+  /* Storyboard Layout Config */
+  .wrapper:not(.is-mobile, .is-storymode) .is-left {
     grid-column: col-b / col-d;
   }
 
-  .stage:not(.is-mobile, .is-storymode) .is-main {
+  .wrapper:not(.is-mobile, .is-storymode) .body {
     grid-column: col-d / col-j;
   }
 
-  .stage:not(.is-mobile, .is-storymode) .is-right {
+  .wrapper:not(.is-mobile, .is-storymode) .is-right {
     grid-column: col-j / col-l;
   }
 
-  .stage:not(.is-mobile, .is-storymode) .header,
-  .stage:not(.is-mobile, .is-storymode) .footer {
+  .wrapper:not(.is-mobile, .is-storymode) .header,
+  .wrapper:not(.is-mobile, .is-storymode) .footer {
     grid-column: col-b / col-l;
   }
 
-  /* Storymode Layout */
-  .stage.is-storymode {
+  /* Storymode Layout Config */
+  .wrapper.is-storymode {
     width: 100vw;
     height: 100vh;
   }
 
-  .stage:not(.is-mobile).is-storymode .column {
+  .wrapper:not(.is-mobile).is-storymode .sidebar,
+  .wrapper:not(.is-mobile).is-storymode .body {
     grid-row: row-1 / row-end;
   }
 
-  .stage:not(.is-mobile).is-storymode .is-left {
+  .wrapper:not(.is-mobile).is-storymode .is-left {
     grid-column: col-a / col-c;
   }
 
-  .stage:not(.is-mobile).is-storymode .is-main {
+  .wrapper:not(.is-mobile).is-storymode .body {
     grid-column: col-c / col-k;
   }
 
-  .stage:not(.is-mobile).is-storymode .is-right {
+  .wrapper:not(.is-mobile).is-storymode .is-right {
     grid-column: col-k / col-end;
   }
 
-  .stage:not(.is-mobile).is-storymode .header,
-  .stage:not(.is-mobile).is-storymode .footer {
+  .wrapper:not(.is-mobile).is-storymode .header,
+  .wrapper:not(.is-mobile).is-storymode .footer {
     grid-column: col-a / col-end;
   }
 
-  /* ── Mobile Stacking ────────────────────────────────────────── */
+  /* ── Mobile Stacking Realization ────────────────────────────── */
 
-  .stage.is-mobile {
+  .wrapper.is-mobile {
     grid-template-columns: 1fr;
     grid-template-rows: min-content auto auto auto min-content;
     overflow-y: auto;
 
     .header,
     .footer,
-    .column {
+    .sidebar,
+    .body {
       grid-column: 1 / -1;
       position: relative;
       height: auto;
@@ -197,7 +194,7 @@
       grid-row: 2;
     }
 
-    .is-main {
+    .body {
       grid-row: 3;
     }
 
@@ -209,7 +206,7 @@
       grid-row: 5;
     }
 
-    /* Storymode Stacking (Hero Focus) */
+    /* Storymode Stacking (Hero Blueprint) */
     &.is-storymode {
       grid-template-columns: 1fr 1fr;
       grid-template-rows: min-content calc(var(--spacing-unit) * 24) 1fr min-content;
@@ -227,7 +224,7 @@
         height: 100%;
       }
 
-      .is-main {
+      .body {
         grid-row: 3;
         overflow: auto;
       }
@@ -238,7 +235,7 @@
     }
   }
 
-  /* ── Overlays (Header/Footer) ──────────────────────────────── */
+  /* ── Interface Boundary Overlays ────────────────────────────── */
 
   .header,
   .footer {
@@ -260,7 +257,6 @@
   .footer {
     grid-row: row-11;
     align-items: flex-start;
-    z-index: var(--z-index-overlay);
     height: var(--row-unit);
   }
 </style>
