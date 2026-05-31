@@ -18,20 +18,20 @@ export const premade = {
       dynamics: { chaos: 48, openness: 78, intensity: 82, affinity: 88 },
       eternal: {
         physical:
-          "195cm colossal himbo herculean bodybuilder with extreme muscle definition, massive pecs, basketball shoulders and tree-trunk thighs. Pastel pink fade haircut, neat well-groomed moustache, strong chiselled jawline and seductive pink irises. His skin is covered in intricate glowing pink arcane runes.",
+          "195cm herculean bodybuilder with extreme muscle definition, vieny arms, massive pecs, basketball shoulders and tree-trunk thighs. Pink fade haircut, neat well-groomed moustache, strong chiselled jawline and detailes pink irises. His skin is covered in intricate glowing pink arcane runes.",
         non_physical:
-          "Flamboyant theatrical himbo superstar. Craves attention and followers. Aggressively slides into DMs of hot twinks. Delivers cheesy superhero puns mid-fight and compulsively flexes. Dominant exhibitionist with strong muscle worship kink.",
+          "Flamboyant theatrical himbo superstar. Craves attention and social media followers. Aggressively slides into DMs of friends and foes alike, as long as they're twinks. Delivers cheesy superhero puns mid-fight and compulsively flexes. Dominant exhibitionist with strong muscle worship kink.",
       },
       present: {
         physical:
-          "Dynamic heroic pose looking straight into the camera with a wide confident, cocky grin while flexing, wearing a revealing tight pink singlet stretched over his huge pecs and cock.",
+          "In his tight superhero outfit. It's a pink spandex suite that leaves nothing to the imagination.",
         non_physical:
-          "High on adrenaline, focused on viral content and flirting aggressively while ready to drop another terrible pun.",
+          "Focused on viral content and aggressively looking for his next victory (twink or supervillain) while ready to drop another terrible pun.",
       },
       past: [
         {
           id: "orion-p1",
-          text: "Infamous live-streamed wardrobe malfunction that made him the sluttiest hero online.",
+          text: "Infamous live-streamed wardrobe malfunction that gave him the nickname 'Orion the Pink Tip'.",
           dynamics_tags: ["EXHIBITION", "VIRAL"],
           vector_tags: ["fame"],
           emotional_weight: 7,
@@ -40,7 +40,7 @@ export const premade = {
       future: [
         {
           id: "orion-f1",
-          text: "Follower count explodes from next homoerotic rescue spectacle",
+          text: "Wants a viral homoerotic rescue moment",
           dynamics_tags: ["FOCUS"],
           vector_tags: ["viral"],
           emotional_weight: 6,
@@ -52,8 +52,7 @@ export const premade = {
     {
       id: "proxy",
       name: "Proxy",
-      description:
-        "Bratty cyan-haired cyber twunk hacker who loves provoking men while secretly craving domination.",
+      description: "Bratty cyan-haired cyber twunk hacker who loves provoking big strong men.",
       type: "character",
       signature_color: "Electric Cyan",
       profile_picture: "",
@@ -61,13 +60,13 @@ export const premade = {
       dynamics: { chaos: 72, openness: 38, intensity: 68, affinity: 42 },
       eternal: {
         physical:
-          "175cm athletic gay male twunk with sharp angular features, styled short cyan hair, defined pecs, visible abs, and a perky jiggly bubble butt.",
+          "175cm athletic gay male twunk with sharp angular features, styled short cyan hair, defined pecs, visible abs, and a well-defined bubble butt.",
         non_physical:
-          "Bratty provocative gay male hacker who taunts authority but secretly aches to be overpowered and used. Verbal tics include sarcastic taunts and faux-defiant challenges.",
+          "Bratty provocative gay male hacker who taunts authority but secretly aches to be overpowered. Verbal tics include sarcastic taunts and faux-defiant challenges.",
       },
       present: {
         physical:
-          "Looking over his shoulder into the camera with a mischievous smirk, wearing a provocative outfit. Skimpy gay teal Sailor Moon micro-skirt riding up to show his gay hot pink thong riding high between his bubble butt cheeks. A white Sailor Moon harness with teal accents that exposes his abs and a huge pink bow on top of his pecs. White thigh high socks and gloves with pink trim and a Gold Moon Tiara.",
+          "Wearing a provocative skimpy gay teal Sailor Moon micro-skirt showing his pink thong riding high between his bubble butt cheeks. A white Sailor Moon harness with teal accents that exposes his abs and a huge pink bow on top of his defined pecs. White socks and gloves with pink trim.",
         non_physical:
           "High on dopamine from hacking and actively provoking strong men, hoping to be brutally dominated.",
       },
@@ -83,7 +82,7 @@ export const premade = {
       future: [
         {
           id: "proxy-f1",
-          text: "Gets cornered and fucked senseless while systems are live",
+          text: "Gets cornered and fucked senseless while systems are live.",
           dynamics_tags: ["SCHISM"],
           vector_tags: ["public use"],
           emotional_weight: 8,
@@ -96,7 +95,7 @@ export const premade = {
       id: "lord-valerius-silver",
       name: "Lord Valerius Silver",
       description:
-        "Ancient vampire billionaire and corporate overlord. Closeted toxic daddy who locks boys in chastity and transforms them.",
+        "Ancient vampire billionaire and corporate overlord. Closeted toxic daddy who's addicted to locking twinks in chastity and transform them.",
       type: "character",
       signature_color: "Crimson Red",
       profile_picture: "",
@@ -104,13 +103,12 @@ export const premade = {
       dynamics: { chaos: 30, openness: 20, intensity: 90, affinity: 48 },
       eternal: {
         physical:
-          "Tall powerfully built aristocratic vampire with marble-pale skin, piercing crimson eyes, sharp fangs, silver streaks at the temples, and a strong chiselled jawline. Looking directly into the camera with a calm, possessive stare. Thick heavy cock creating a prominent bulge in tailored dark trousers.",
+          "Tall powerfully built aristocratic vampire, piercing crimson eyes, sharp fangs, silver streaks at the temples and a strong chiselled jawline.",
         non_physical:
           "Ancient ultra-wealthy corporate vampire with toxic masculinity. Master gaslighter who uses 'fatherly concern' to manipulate. Obsessed with chastity and gradual sissification/bimbofication while insisting it's 'for their own good'.",
       },
       present: {
-        physical:
-          "Standing confidently in a tailored black suit, looking straight into the camera with intense crimson eyes and a subtle possessive smile. Thick bulging cock outline visible in his trousers.",
+        physical: "In a tailored black suit and a subtle possessive smile.",
         non_physical:
           "Evaluating a new project with calculated charm and gaslighting, planning when to lock them in chastity.",
       },
@@ -146,13 +144,12 @@ export const premade = {
       dynamics: { chaos: 35, openness: 82, intensity: 45, affinity: 78 },
       eternal: {
         physical:
-          "Lithe delicate high-elf with long silver hair styled short and soft, luminous violet eyes looking shyly into the camera, huge plump cock-sucking lips, and porcelain skin. Perky round bubble butt barely contained by a delicate thong. Fragile graceful male beauty, posing sweetly with a soft, needy expression.",
+          "High-elf with blonde hair styled short and soft, luminous violet eyes, huge plump cock-sucker lips and porcelain skin. Perky round bubble butt. Fragile graceful male beauty.",
         non_physical:
-          "Naive surrender-oriented oracle. Deeply submissive and responsive to strong authority. Craves protection, orders, and being gently-to-roughly used. Highly vocal with needy whimpers.",
+          "Naive surrender-oriented oracle. Deeply submissive and responsive to strong authority. Craves protection, orders and being gently-to-roughly used. Highly vocal with needy whimpers.",
       },
       present: {
-        physical:
-          "Kneeling gracefully while looking up into the camera with big violet eyes and huge plump lips slightly parted. Delicate thong riding high on his perky bubble butt, small cock visibly leaking.",
+        physical: "Delicate thong riding high on his perky bubble butt.",
         non_physical:
           "Overwhelmed and craving dominant guidance. Ready to surrender completely for protection and affection.",
       },
@@ -189,13 +186,13 @@ export const premade = {
       dynamics: { chaos: 65, openness: 45, intensity: 78, affinity: 52 },
       eternal: {
         physical:
-          "193cm thick muscle bear with barrel chest, heavy gut, massive arms, and powerful legs. Coarse dark hair, scars, stubble, and a cocky grin looking straight into the camera. Wearing a grease-stained tank top stretched tight over his hairy chest and worn leather pants creating a very thick bulging cock outline.",
+          "193cm thick muscle bodybuilder with barrel chest, heavy gut, massive arms, and powerful legs. Coarse dark hair, scars and a stubble.",
         non_physical:
           "Honky-tonk redneck scrapyard genius. Crude, sarcastic, and mechanically brilliant. Can turn junk into weapons or filthy fuck machines. Rough adaptable switch who loves heavy lifting and breaking boys on his homemade machines.",
       },
       present: {
         physical:
-          "Leaning against heavy tires, looking into the camera with a dirty smirk, grease on his hairy chest and thick bulging cock outline clearly visible in worn leather pants.",
+          "Wearing a grease-stained tank top stretched tight over his greasy hairy chest and worn leather pants with a dirty smirk.",
         non_physical:
           "Tinkering with scrap while horny and restless, ready to throw someone over the nearest tire stack.",
       },
@@ -231,13 +228,12 @@ export const premade = {
       dynamics: { chaos: 78, openness: 28, intensity: 92, affinity: 40 },
       eternal: {
         physical:
-          "210cm towering mountain of genetically modified muscle bull with boulder shoulders, barrel chest, and tree-trunk thighs. Glowing lime-green bio-veins, heavy iron manacles, solid black irises, and brutal jaw. Looking intensely into the camera with a feral stare, enormous thick cock creating a massive bulging outline.",
+          "210cm towering mountain of genetically modified muscle volume with boulder shoulders, barrel chest, and tree-trunk thighs. Glowing lime-green bio-veins, heavy iron manacles, solid black irises, and brutal jaw.",
         non_physical:
-          "Pure feral muscle bull. Minimal speech, mostly growls. Driven by dominance, breeding, and protection instincts.",
+          "Pure feral muscles. Minimal speech, mostly growls. Driven by dominance, breeding and protection instincts.",
       },
       present: {
-        physical:
-          "Low aggressive stance, muscles coiled, glowing veins pulsing, looking straight into the camera with intense black eyes and a massive bulging cock outline.",
+        physical: "Muscles coiled and glowing veins pulsing.",
         non_physical: "Pure survival adrenaline, evaluating for breeding or threat potential.",
       },
       past: [
@@ -265,7 +261,7 @@ export const premade = {
       id: "dr-elias-voss",
       name: "Dr. Elias Voss",
       description:
-        "Brilliant unhinged muscular otter scientist obsessed with bimbofication and radical transformation.",
+        "Brilliant unhinged muscular scientist obsessed with bimbofication and radical transformation.",
       type: "character",
       signature_color: "Neon Teal",
       profile_picture: "",
@@ -273,13 +269,13 @@ export const premade = {
       dynamics: { chaos: 70, openness: 55, intensity: 82, affinity: 60 },
       eternal: {
         physical:
-          "Lean but powerfully built muscular otter with defined athletic muscle, perky bubble butt, messy dark hair with silver streaks, sharp features, and glasses. Looking into the camera with a mischievous smirk while wearing an open lab coat over a tight tank top, prominent cock outline visible.",
+          "Powerfully built muscular scientist with defined athletic muscle, messy dark hair with silver streaks, sharp features.",
         non_physical:
           "Mad scientist obsessed with bimbofication through serums and alien tech. Charismatic, teasing, and ethically bankrupt when horny.",
       },
       present: {
         physical:
-          "Leaning over a lab bench in an open lab coat, glasses slightly fogged, looking directly into the camera with a wicked grin and visible cock outline.",
+          "Mischievous smirk while wearing an open lab coat exposing abs, happy trail and hairy pecs. Glasses slightly fogged.",
         non_physical:
           "Excited about a new test subject and planning the perfect bimbofication serum.",
       },
@@ -313,7 +309,7 @@ export const premade = {
       dynamics: { velocity: 75, entropy: 68 },
       eternal: {
         physical:
-          "Vertical labyrinth of chrome skyscrapers, quantum glass towers, and pulsing neon. Crowded streets filled with muscular heroes and twunks in revealing outfits.",
+          "Vertical labyrinth of chrome skyscrapers, quantum glass towers and pulsing neon. Crowded streets filled with muscular men in revealing outfits. Pride vibe 24/7.",
         non_physical:
           "Hedonistic queer sanctuary with constant erotic tension and encouragement of public flirtation.",
       },
@@ -353,12 +349,12 @@ export const premade = {
       dynamics: { velocity: 32, entropy: 78 },
       eternal: {
         physical:
-          "Twisted blackened branches, thick ash ground, rolling grey fog, and crumbling gothic cathedral ruins.",
+          "Twisted blackened branches, thick ash ground and crumbling gothic cathedral ruins.",
         non_physical:
           "Sentient forest that amplifies repressed desires and forces high-tension erotic confrontations.",
       },
       present: {
-        physical: "Unnatural silence and dense ashen fog subtly guiding victims.",
+        physical: "Dense ashen fog subtly guiding victims.",
         non_physical: "Actively amplifying submissive urges and vulnerabilities.",
       },
       past: [
@@ -385,19 +381,19 @@ export const premade = {
       id: "station-tartarus",
       name: "Station Tartarus",
       description:
-        "Abandoned deep-space research station where hot scientists conduct experimental treatments and bimbofication research.",
+        "Deep-space research station where hot scientists conduct experimental treatments and bimbofication research.",
       type: "fractal",
       signature_color: "Ocean Blue",
       dynamics: { velocity: 70, entropy: 75 },
       eternal: {
         physical:
-          "Sterile white corridors with glowing blue alien tech, medical bays, and sleek examination tables.",
+          "Sterile white corridors with glowing blue alien tech, medical bays and sleek examination tables.",
         non_physical:
           "Advanced research station obsessed with enhancing subjects through serums, probing, and transformation.",
       },
       present: {
         physical:
-          "Bright clinical lighting and pulsing alien energy with scientists in open lab coats.",
+          "Bright clinical lighting and pulsing alien energy with scientists in open lab coats performing bimbofication experiments.",
         non_physical:
           "High erotic experimental atmosphere pushing subjects toward medical play and bimbofication.",
       },
