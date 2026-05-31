@@ -16,7 +16,7 @@ function designTokenSync() {
     buildStart() {
       try {
         console.log("🎨 Syncing design tokens...");
-        execSync("node ./.agents/skills/css/scripts/sync-tokens.js", { stdio: "inherit" });
+        execSync("node ./.agents/skills/css/scripts/design-sync.js", { stdio: "inherit" });
       } catch (err) {
         console.error("❌ Design token sync failed:", err.message);
       }
@@ -25,7 +25,7 @@ function designTokenSync() {
       if (file.endsWith("DESIGN.md")) {
         try {
           console.log("🎨 DESIGN.md changed, resyncing tokens...");
-          execSync("node ./.agents/skills/css/scripts/sync-tokens.js", { stdio: "inherit" });
+          execSync("node ./.agents/skills/css/scripts/design-sync.js", { stdio: "inherit" });
           // Optionally trigger a full reload or just let Vite handle the CSS update
         } catch (err) {
           console.error("❌ Design token sync failed:", err.message);
