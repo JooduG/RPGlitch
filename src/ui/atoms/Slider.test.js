@@ -1,5 +1,5 @@
 // Polyfill ResizeObserver for JSDOM
-if (typeof window !== "undefined" && !window.ResizeObserver) {
+if (typeof window !== "undefined" && typeof window.ResizeObserver !== "function") {
   class ResizeObserver {
     observe() {}
     unobserve() {}
