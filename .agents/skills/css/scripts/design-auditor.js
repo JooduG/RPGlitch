@@ -145,11 +145,11 @@ export function findUnusedTokens() {
     (f) => f !== PATHS.designCss && f !== PATHS.jsBridge,
   );
 
-  const contents = source_files.map((f) => fs.readFileSync(f, "utf8"));
+  const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
 
   return Array.from(definedMap.keys()).filter((token) => {
-    const regex = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);
-    return !contents.some((text) => regex.test(text));
+    const regex = new RegExp(`(?<![a-zA-Z0-9_-])\${token}(?![a-zA-Z0-9_-])`);
+    return !regex.test(combined_content);
   });
 }
 
