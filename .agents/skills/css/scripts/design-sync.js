@@ -61,6 +61,8 @@ function flattenFrontmatter(data) {
         const target_category = category || getCategory(key, value);
         if (result[target_category]) {
           result[target_category][key] = value;
+        } else {
+          console.error(`[ERROR] Unknown category "${target_category}" for token "${key}"`);
         }
       }
     });
@@ -161,6 +163,8 @@ export function syncFromCss() {
       const category = getCategory(name, value);
       if (acc[category]) {
         acc[category][name] = value;
+      } else {
+        console.error(`[ERROR] Unknown category "${category}" for token "${name}"`);
       }
       return acc;
     },
