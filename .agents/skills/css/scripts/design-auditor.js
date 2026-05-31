@@ -116,9 +116,9 @@ export function auditCodebaseTokens() {
       }
 
       // 2. Token Invalidation Check
-      const is_js_doc_line = /^\s*\*/.test(line) || /^\s*\/\*\*/.test(line);
-      if (!is_test_file && !is_js_doc_line) {
-        const var_matches = [...line.matchAll(/var\((--[a-zA-Z0-9_-]+)/g)];
+      // 2. Token Invalidation Check
+      const is_comment_or_doc = /^\s*(\/\/|\*|\/\*)/.test(line);
+      if (!is_test_file && !is_comment_or_doc) {
         for (const match of var_matches) {
           const token_name = match[1];
           if (!definedMap.has(token_name)) {
