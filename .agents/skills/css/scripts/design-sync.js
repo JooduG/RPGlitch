@@ -176,7 +176,7 @@ export function syncFromCss() {
   const new_data = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, cat) => {
       acc[cat] = Object.keys(category_tokens[cat]).length
-        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort())
+        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort(([a], [b]) => a.localeCompare(b)))
         : undefined;
       return acc;
     },
