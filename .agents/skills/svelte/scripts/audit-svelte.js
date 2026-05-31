@@ -17,24 +17,44 @@ const YELLOW = "\x1b[33m";
 const RESET = "\x1b[0m";
 const GREEN = "\x1b[32m";
 
-const securityRules = [
+const svelteRules = [
   {
-    id: "SECURITY_DEBUG_LOG",
-    severity: "DEBT",
-    regex: /console\.log\(|alert\(|debugger;/,
-    message: "⚠️ Debug statement detected. Please purge before commit.",
-    validate: (line, filePath) => {
-      return !filePath.endsWith(".test.js") && !filePath.includes("/scripts/");
-    },
+    id: "SVELTE_LEGACY_PROPS",
+    severity: "HERESY",
+    regex: /export\s+let\s+\w+/,
+    message: "CRITICAL: 'export let' is deprecated. Use '$props()'.",
   },
   {
-    id: "SECURITY_SECRET_LEAK",
+    id: "SVELTE_LEGACY_REACTIVE",
     severity: "HERESY",
-    // Look for assignments/keys that look like secrets. Avoid matching generic "key" or "token".
-    regex: /\b(api_?key|auth_?token|secret_?key|password)\b\s*[:=]\s*["'][^"']{8,}/i,
+    regex: /\$:/,
+    message: "CRITICAL: '$:' reactive declarations are deprecated. Use '$derived' or '$effect'.",
+  },
+  {
+    id: "SVELTE_LEGACY_DISPATCHER",
+    severity: "HERESY",
+    regex: /createEventDispatcher/,
+    message: "CRITICAL: 'createEventDispatcher' is deprecated. Use callback props.",
+  },
+  {
+    id: "SVELTE_LEGACY_SLOT",
+    severity: "ADVICE",
+    regex: /<slot/,
+    message: "WARNING: '<slot>' is deprecated. Use snippets '{@render ...}'.",
+  },
+  {
+    id: "SVELTE_BANNED_PROPS",
+    severity: "HERESY",
+    regex: /\$\$props|\$\$restProps/,
     message:
-      "🚨 Potential Secret Leak! Verify that variables are environment-bound and NOT hardcoded.",
-    validate: (line) => !line.includes("process.env"),
+      "CRITICAL: '$$props' is banned. Destructure '$props()' for better performance and clarity.",
+  },
+  {
+    id: "SVELTE_LEGACY_STORES",
+    severity: "HERESY",
+    // Use a negative lookbehind to ensure we don't match $derived, etc.
+    regex: /(?<!\$)\b(writable|readable|derived)\(/,
+    message: "CRITICAL: Svelte 4 stores are redundant. Use '$state()' and '$derived()' runes.",
   },
 ];
 
@@ -66,7 +86,7 @@ function scan(dir) {
       scan(fullPath);
     } else {
       const ext = path.extname(fullPath);
-      if (ext === ".js" || ext === ".ts") {
+      if (ext === ".svelte") {
         scanned++;
         auditFile(fullPath);
       }
@@ -84,7 +104,7 @@ function auditFile(filePath) {
 
   if (relPath.includes("audit-") || relPath.includes(".bak.")) return;
 
-  securityRules.forEach((rule) => {
+  svelteRules.forEach((rule) => {
     lines.forEach((line, i) => {
       if (rule.regex.test(line)) {
         if (rule.validate && !rule.validate(line, filePath)) return;
@@ -102,18 +122,18 @@ function auditFile(filePath) {
 }
 
 console.log("\n================================================================================");
-console.log("🛡️  AUDIT: SECURITY RULES");
+console.log("🔥 AUDIT: SVELTE 5 RUNES");
 console.log("================================================================================\n");
 
 scan(SRC_DIR);
 
 console.log("--------------------------------------------------------------------------------");
-console.log(`📊 SCAN COMPLETE: ${scanned} javascript/typescript assets verified.`);
+console.log(`📊 SCAN COMPLETE: ${scanned} svelte files verified.`);
 console.log(`🔥 VIOLATIONS: ${violations}`);
 console.log("--------------------------------------------------------------------------------\n");
 
 if (hasHeresy) {
-  console.log(`${RED}❌ REJECTED: Security Heresy detected. Gate closed.${RESET}`);
+  console.log(`${RED}❌ REJECTED: Heresy detected in Svelte 5 logic. Gate closed.${RESET}`);
   process.exit(1);
 } else {
   console.log(`${GREEN}✅ RESONANT: All protocols align. Proceeding.${RESET}`);

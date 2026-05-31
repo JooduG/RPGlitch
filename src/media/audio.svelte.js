@@ -408,6 +408,10 @@ class AudioEffectsEngine {
         const AudioCtx =
           /** @type {any} */ (window).AudioContext ||
           /** @type {any} */ (window).webkitAudioContext;
+        if (!AudioCtx) {
+          console.warn("[AudioEngine] AudioContext not supported in this environment.");
+          return;
+        }
         this.#audioContext = new AudioCtx();
 
         this.#gainNode = /** @type {AudioContext} */ (this.#audioContext).createGain();

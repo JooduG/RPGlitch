@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import yaml from "js-yaml";
 import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
@@ -62,42 +63,45 @@ export function getCategory(name, value = "") {
 }
 
 /**
- * Parses design.css and extracts all defined custom properties with their adjacent context comments.
- * @returns {Map<string, {value: string, comment: string|null}>} Map of token name -> value and comment.
+ * Parses DESIGN.md and extracts all defined custom properties from the YAML frontmatter.
+ * @returns {Map<string, {value: string}>} Map of token name -> { value }
  */
 export function parseDefinedTokens() {
   const tokens = new Map();
-  if (!fs.existsSync(PATHS.designCss)) return tokens;
+  if (!fs.existsSync(PATHS.designMd)) return tokens;
 
-  const css = fs.readFileSync(PATHS.designCss, "utf8");
-  const lines = css.split("\n");
-  let last_comment = null;
+  const content = fs.readFileSync(PATHS.designMd, "utf8");
+  const parts = content.split(/^---$/m);
+  if (parts.length < 3) return tokens;
 
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i];
-    const comment_match = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
-    if (comment_match && !comment_match[1].includes("---") && !comment_match[1].includes("===")) {
-      last_comment = comment_match[1];
-      continue;
-    }
-
-    const token_match = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
-    if (token_match) {
-      const name = token_match[1];
-      let value = token_match[2].replace(/;$/, "").trim();
-
-      if (!line.trim().endsWith(";")) {
-        while (i + 1 < lines.length && !value.endsWith(";")) {
-          i++;
-          value += "\n" + lines[i].trim();
-        }
-        value = value.replace(/;$/, "").trim();
-      }
-
-      tokens.set(name, { value, comment: last_comment });
-      last_comment = null;
-    }
+  let data = {};
+  try {
+    data = yaml.load(parts[1]) || {};
+  } catch (error) {
+    console.error(`[ERROR] Failed to parse DESIGN.md YAML frontmatter: ${error.message}`);
+    return tokens;
   }
+
+  /**
+   * Recursively walks the frontmatter tree to collect all leaf token values.
+   * @param {Record<string, unknown>} obj - The current node in the token tree.
+   */
+  function traverse(obj) {
+    if (!obj || typeof obj !== "object") return;
+    Object.entries(obj).forEach(([key, value]) => {
+      if (value && typeof value === "object") {
+        traverse(value);
+      } else {
+        tokens.set(`--${key}`, { value: String(value) });
+      }
+    });
+  }
+
+  AUTHORITATIVE_CATEGORIES.forEach((cat) => {
+    if (data[cat]) {
+      traverse(data[cat]);
+    }
+  });
 
   return tokens;
 }

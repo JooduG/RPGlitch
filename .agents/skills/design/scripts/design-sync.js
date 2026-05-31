@@ -1,16 +1,16 @@
 import fs from "fs";
 import yaml from "js-yaml";
 import { execSync } from "child_process";
-import { PATHS, AUTHORITATIVE_CATEGORIES, getCategory, parseDefinedTokens } from "./token-utils.js";
+import { PATHS, AUTHORITATIVE_CATEGORIES, getCategory } from "./token-utils.js";
 
 /**
- * Runs Prettier over the three generated design artifacts.
+ * Runs Prettier over the generated design artifacts.
  * Skipped automatically during test runs via VITEST env flag.
  */
 function runFormatter() {
   if (process.env.NODE_ENV === "test" || process.env.VITEST) return;
   try {
-    execSync(`npx prettier --write "${PATHS.designCss}" "${PATHS.designMd}" "${PATHS.jsBridge}"`, {
+    execSync(`npx prettier --write "${PATHS.designCss}" "${PATHS.jsBridge}"`, {
       stdio: "ignore",
     });
   } catch {
@@ -98,7 +98,7 @@ function buildJsBridge(flat_data) {
 
   const output = `/* ============================================================================
  * [GENERATED] src/media/tokens.js
- * DO NOT EDIT DIRECTLY. Sync via 'npm run sync:design'.
+ * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md.
  * ============================================================================ */
 
 export const TOKENS = ${JSON.stringify(tokens, null, 2)};
@@ -116,7 +116,6 @@ export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};\n`;
 export function syncToCss() {
   const { data, body } = parseMarkdownDoc();
   const flat_data = flattenFrontmatter(data);
-  const preserved_comments = parseDefinedTokens();
 
   const css_header = `/* ============================================================================
  * [GENERATED] src/media/design.css
@@ -129,13 +128,7 @@ export function syncToCss() {
     if (entries.length === 0) {
       return category_header;
     }
-    const properties = entries
-      .map(([name, value]) => {
-        const cached = preserved_comments.get(`--${name}`);
-        const comment_str = cached?.comment ? `  /* ${cached.comment} */\n` : "";
-        return `${comment_str}  --${name}: ${value};`;
-      })
-      .join("\n");
+    const properties = entries.map(([name, value]) => `  --${name}: ${value};`).join("\n");
 
     return `${category_header}\n${properties}`;
   }).join("\n\n");
@@ -151,52 +144,9 @@ export function syncToCss() {
   runFormatter();
 }
 
-/**
- * Reverse sync: reads design.css custom properties and back-populates DESIGN.md frontmatter.
- */
-export function syncFromCss() {
-  const definedTokens = parseDefinedTokens();
-
-  const category_tokens = Array.from(definedTokens.entries()).reduce(
-    (acc, [raw_name, { value }]) => {
-      const name = raw_name.slice(2);
-      const category = getCategory(name, value);
-      if (acc[category]) {
-        acc[category][name] = value;
-      } else {
-        console.error(`[ERROR] Unknown category "${category}" for token "${name}"`);
-      }
-      return acc;
-    },
-    Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}])),
-  );
-
-  const { data: old_data, body } = parseMarkdownDoc();
-
-  const new_data = AUTHORITATIVE_CATEGORIES.reduce(
-    (acc, cat) => {
-      acc[cat] = Object.keys(category_tokens[cat]).length
-        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort())
-        : undefined;
-      return acc;
-    },
-    { ...old_data },
-  );
-
-  const yaml_str = yaml
-    .dump(new_data, { indent: 2, lineWidth: -1, sortKeys: false, quotingType: '"' })
-    .replace(/: '(#.*?)'/g, ': "$1"')
-    .replace(/: '(\d+px)'/g, ': "$1"')
-    .replace(/: '(\d+)'/g, ': "$1"');
-
-  fs.writeFileSync(PATHS.designMd, `---\n${yaml_str}---\n\n${body}`);
-  buildJsBridge(category_tokens);
-  runFormatter();
-}
-
 if (
   process.argv[1] &&
-  process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/css/scripts/design-sync.js")
+  process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/design-sync.js")
 ) {
-  process.argv.includes("--from-css") ? syncFromCss() : syncToCss();
+  syncToCss();
 }

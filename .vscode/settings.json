@@ -23,10 +23,7 @@
     "**/workflows/**"
   ],
   "markdown.validate.referenceLinks.enabled": "ignore",
-  "stylelint.validate": [
-    "css",
-    "svelte"
-  ],
+  "stylelint.validate": ["css", "svelte"],
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "files.exclude": {
     "**/.DS_Store": true,

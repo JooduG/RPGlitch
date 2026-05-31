@@ -160,11 +160,9 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 > 🎨 Tactics | `planning` | /01-plan
 
 ## 🧹 Backlog (Automated)
-
 <!-- BACKLOG_START -->
+Last Swept: 2026-05-31 12:00
 
-Last Swept: 2026-05-31 06:43
-
-- [ ] **.agents/skills/legislative/scripts/rules.js:272**: /,
-- [ ] **.agents/skills/legislative/scripts/rules.js:274**: ) found. Ensure it is registered in tasks/PRESENT.md.",
+- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
+- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
 <!-- BACKLOG_END -->

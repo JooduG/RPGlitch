@@ -1,6 +1,6 @@
 /* ============================================================================
  * [GENERATED] src/media/tokens.js
- * DO NOT EDIT DIRECTLY. Sync via 'npm run sync:design'.
+ * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md.
  * ============================================================================ */
 
 export const TOKENS = {

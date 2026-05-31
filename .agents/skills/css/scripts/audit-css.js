@@ -17,24 +17,31 @@ const YELLOW = "\x1b[33m";
 const RESET = "\x1b[0m";
 const GREEN = "\x1b[32m";
 
-const securityRules = [
+const cssRules = [
   {
-    id: "SECURITY_DEBUG_LOG",
-    severity: "DEBT",
-    regex: /console\.log\(|alert\(|debugger;/,
-    message: "⚠️ Debug statement detected. Please purge before commit.",
-    validate: (line, filePath) => {
-      return !filePath.endsWith(".test.js") && !filePath.includes("/scripts/");
-    },
+    id: "RAW_COLOR",
+    severity: "HERESY",
+    regex: /#([0-9A-Fa-f]{3}){1,2}\b|\brgba?\(|\bhsla?\(/i,
+    message: "❌ Hardcoded color detected. Use Tokens: var(--chalk), etc.",
+    validate: (line) =>
+      !line.includes("url(") &&
+      !line.includes("var(") &&
+      !line.includes("hex_to_rgb") &&
+      !line.trim().startsWith("/*") &&
+      !line.trim().startsWith("*"),
   },
   {
-    id: "SECURITY_SECRET_LEAK",
+    id: "PIXEL_BORDER",
+    severity: "ADVICE",
+    regex: /border:\s*[1-9]px/,
+    message: "❌ Pixel border detected. Use depth markers like shadows.",
+  },
+  {
+    id: "LEGACY_SPACING_SYNTAX",
     severity: "HERESY",
-    // Look for assignments/keys that look like secrets. Avoid matching generic "key" or "token".
-    regex: /\b(api_?key|auth_?token|secret_?key|password)\b\s*[:=]\s*["'][^"']{8,}/i,
-    message:
-      "🚨 Potential Secret Leak! Verify that variables are environment-bound and NOT hardcoded.",
-    validate: (line) => !line.includes("process.env"),
+    regex:
+      /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
+    message: "Legacy hardcoded spacing scale used inside structural descriptors. Update rules.",
   },
 ];
 
@@ -66,7 +73,7 @@ function scan(dir) {
       scan(fullPath);
     } else {
       const ext = path.extname(fullPath);
-      if (ext === ".js" || ext === ".ts") {
+      if (ext === ".css" || ext === ".svelte") {
         scanned++;
         auditFile(fullPath);
       }
@@ -82,9 +89,10 @@ function auditFile(filePath) {
   const lines = content.split("\n");
   const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 
-  if (relPath.includes("audit-") || relPath.includes(".bak.")) return;
+  if (relPath.includes("audit-") || relPath.endsWith("design.css") || relPath.includes(".bak."))
+    return;
 
-  securityRules.forEach((rule) => {
+  cssRules.forEach((rule) => {
     lines.forEach((line, i) => {
       if (rule.regex.test(line)) {
         if (rule.validate && !rule.validate(line, filePath)) return;
@@ -102,18 +110,18 @@ function auditFile(filePath) {
 }
 
 console.log("\n================================================================================");
-console.log("🛡️  AUDIT: SECURITY RULES");
+console.log("🎨 AUDIT: CSS RULES");
 console.log("================================================================================\n");
 
 scan(SRC_DIR);
 
 console.log("--------------------------------------------------------------------------------");
-console.log(`📊 SCAN COMPLETE: ${scanned} javascript/typescript assets verified.`);
+console.log(`📊 SCAN COMPLETE: ${scanned} styling files verified.`);
 console.log(`🔥 VIOLATIONS: ${violations}`);
 console.log("--------------------------------------------------------------------------------\n");
 
 if (hasHeresy) {
-  console.log(`${RED}❌ REJECTED: Security Heresy detected. Gate closed.${RESET}`);
+  console.log(`${RED}❌ REJECTED: Heresy detected in styling. Gate closed.${RESET}`);
   process.exit(1);
 } else {
   console.log(`${GREEN}✅ RESONANT: All protocols align. Proceeding.${RESET}`);

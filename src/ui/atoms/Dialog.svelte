@@ -48,7 +48,6 @@
   const offset = resolve_px("--spacing-5", 20);
   const duration_in = resolve_ms("--duration-standard", 350);
   const duration_out = resolve_ms("--duration-fast", 250);
-  const show_icon = $derived(type === "alert");
 </script>
 
 <AlertDialog.Root bind:open>
@@ -75,7 +74,7 @@
                     out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
                   >
                     <header class="header">
-                      {#if show_icon}
+                      {#if type === "alert"}
                         <span class="icon" aria-hidden="true">i</span>
                       {/if}
                       <AlertDialog.Title class="title-el">

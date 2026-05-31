@@ -41,12 +41,16 @@ describe("Design System Orchestration Engine", () => {
       fs.rmSync(tmpDir, { recursive: true, force: true });
     });
 
-    it("should parse CSS definitions and generate correct Markdown frontmatter rules", () => {
-      const mockCss = `:root {\n  /* --- COLORS --- */\n  --color-obsidian: #0b0c10;\n}`;
-      fs.writeFileSync(tmpCss, mockCss);
-      fs.writeFileSync(tmpMd, "# Architecture Specs\n");
+    it("should parse Markdown frontmatter and generate correct CSS definitions", () => {
+      const mockMd = `---
+colors:
+  color-obsidian: "#0b0c10"
+---
+# Architecture Specs
+`;
+      fs.writeFileSync(tmpMd, mockMd);
 
-      execSync(`node ${SCRIPT_SYNC} --from-css`, {
+      execSync(`node ${SCRIPT_SYNC}`, {
         env: {
           ...process.env,
           DESIGN_MD_PATH: tmpMd,
@@ -56,9 +60,8 @@ describe("Design System Orchestration Engine", () => {
         },
       });
 
-      const finalMd = fs.readFileSync(tmpMd, "utf8");
-      expect(finalMd).toContain("colors:");
-      expect(finalMd).toContain('color-obsidian: "#0b0c10"');
+      const finalCss = fs.readFileSync(tmpCss, "utf8");
+      expect(finalCss).toContain("--color-obsidian: #0b0c10;");
     });
   });
 });
