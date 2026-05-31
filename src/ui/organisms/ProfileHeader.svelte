@@ -52,8 +52,6 @@
 </script>
 
 <header class="profile-header {className}" data-testid="profile-header">
-  <span class="meta-tag">ENTITY CONFIGURATION</span>
-
   <div class="identity-info">
     {#if is_editing}
       <div class="editor-wrapper">
@@ -115,7 +113,7 @@
   .name {
     color: var(--signature-color);
     display: block;
-    min-height: calc(var(--spacing-unit) * 12);
+    line-height: 1.1;
     text-align: right;
     text-shadow: 0 var(--spacing-pixel) calc(var(--spacing-unit) * 2)
       rgb(from var(--void-black) r g b / var(--opacity-muted));

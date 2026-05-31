@@ -6,11 +6,11 @@
    */
   import { tick } from "svelte";
 
-  let { text = "", class: className = "" } = $props();
+  let { text = "", class: className = "", max_size = 96 } = $props();
 
   let container = $state();
   let content = $state();
-  let font_size = $state(48);
+  let font_size = $state(96);
 
   /**
    * @param {ResizeObserverEntry[]} [entries]
@@ -23,7 +23,7 @@
     if (container.clientWidth === 0) return;
 
     // Reset to maximum limit
-    font_size = 48;
+    font_size = max_size;
     await tick();
 
     let loops = 0;
@@ -48,17 +48,16 @@
     return () => observer.disconnect();
   });
 
-  // Observe text changes
+  // Observe text and max_size changes
   $effect(() => {
     text;
+    max_size;
     calculate_fit();
   });
 </script>
 
 <div bind:this={container} class="root {className}">
-  <span bind:this={content} class="text-content" style:font-size="{font_size}px">
-    {text}
-  </span>
+  <span bind:this={content} class="text-content" style:font-size="{font_size}px">{text}</span>
 </div>
 
 <style>
@@ -79,5 +78,6 @@
     white-space: pre-wrap;
     overflow-wrap: break-word;
     text-align: inherit;
+    line-height: 1.1;
   }
 </style>
