@@ -44,22 +44,22 @@ function flattenFrontmatter(data) {
   /**
    * Recursively walks the frontmatter tree, routing leaf values into their category bucket.
    * @param {Record<string, unknown>} obj
-   * @param {string|null} activeCategory
+   * @param {string|null} active_category
    */
-  function traverse(obj, activeCategory = null) {
+  function traverse(obj, active_category = null) {
     if (!obj || typeof obj !== "object") return;
 
     Object.entries(obj).forEach(([key, value]) => {
       if (obj === data && ["name", "version", "description"].includes(key)) return;
 
       const category =
-        obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : activeCategory;
+        obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : active_category;
 
       if (value && typeof value === "object") {
         traverse(value, category);
       } else {
-        const targetCategory = category || getCategory(key, value);
-        result[targetCategory][key] = value;
+        const target_category = category || getCategory(key, value);
+        result[target_category][key] = value;
       }
     });
   }
@@ -69,12 +69,12 @@ function flattenFrontmatter(data) {
 
 /**
  * Serializes the flat token data into src/media/tokens.js (TOKENS, PALETTE, PALETTE_VARS).
- * @param {Record<string, Record<string, string>>} flatData - Per-category token map.
+ * @param {Record<string, Record<string, string>>} flat_data - Per-category token map.
  */
-function buildJsBridge(flatData) {
+function buildJsBridge(flat_data) {
   const { tokens, palette, paletteVars } = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, category) => {
-      Object.entries(flatData[category] || {})
+      Object.entries(flat_data[category] || {})
         .sort()
         .forEach(([name, value]) => {
           acc.tokens[name] = value;
@@ -111,34 +111,36 @@ export const PALETTE_VARS = ${JSON.stringify(paletteVars, null, 2)};\n`;
  */
 export function syncToCss() {
   const { data, body } = parseMarkdownDoc();
-  const flatData = flattenFrontmatter(data);
-  const preservedComments = parseDefinedTokens();
+  const flat_data = flattenFrontmatter(data);
+  const preserved_comments = parseDefinedTokens();
 
-  const cssHeader = `/* ============================================================================
+  const css_header = `/* ============================================================================
  * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
  * ============================================================================ */\n\n:root {`;
 
-  const cssProperties = AUTHORITATIVE_CATEGORIES.map((category) => {
-    const categoryHeader = `\n  /* --- ${category.toUpperCase()} --- */\n`;
-    const properties = Object.entries(flatData[category])
+  const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
+    const category_header = `\n  /* --- ${category.toUpperCase()} --- */\n`;
+    const properties = Object.entries(flat_data[category])
       .sort()
       .map(([name, value]) => {
-        const cached = preservedComments.get(`--${name}`);
-        const commentStr = cached?.comment ? `  /* ${cached.comment} */\n` : "";
-        return `${commentStr}  --${name}: ${value};`;
+        const cached = preserved_comments.get(`--${name}`);
+        const comment_str = cached?.comment ? `  /* ${cached.comment} */\n` : "";
+        return `${comment_str}  --${name}: ${value};`;
       })
       .join("\n");
 
-    return categoryHeader + properties;
+    return category_header + properties;
   }).join("\n");
 
-  const cssBlocks = [...body.matchAll(/```css([\s\S]*?)```/g)].map((m) => m[1].trim()).join("\n\n");
+  const css_blocks = [...body.matchAll(/```css([\s\S]*?)```/g)]
+    .map((m) => m[1].trim())
+    .join("\n\n");
 
-  const cssOutput = `${cssHeader}${cssProperties}\n}\n\n${cssBlocks}${cssBlocks ? "\n" : ""}`;
+  const css_output = `${css_header}${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
 
-  fs.writeFileSync(PATHS.designCss, cssOutput);
-  buildJsBridge(flatData);
+  fs.writeFileSync(PATHS.designCss, css_output);
+  buildJsBridge(flat_data);
   runFormatter();
 }
 
@@ -148,7 +150,7 @@ export function syncToCss() {
 export function syncFromCss() {
   const definedTokens = parseDefinedTokens();
 
-  const categoryTokens = Array.from(definedTokens.entries()).reduce(
+  const category_tokens = Array.from(definedTokens.entries()).reduce(
     (acc, [rawName, { value }]) => {
       const name = rawName.slice(2);
       const category = getCategory(name, value);
@@ -158,26 +160,26 @@ export function syncFromCss() {
     Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}])),
   );
 
-  const { data: oldData, body } = parseMarkdownDoc();
+  const { data: old_data, body } = parseMarkdownDoc();
 
-  const newData = AUTHORITATIVE_CATEGORIES.reduce(
+  const new_data = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, cat) => {
-      acc[cat] = Object.keys(categoryTokens[cat]).length
-        ? Object.fromEntries(Object.entries(categoryTokens[cat]).sort())
+      acc[cat] = Object.keys(category_tokens[cat]).length
+        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort())
         : undefined;
       return acc;
     },
-    { ...oldData },
+    { ...old_data },
   );
 
-  const yamlStr = yaml
-    .dump(newData, { indent: 2, lineWidth: -1, sortKeys: false, quotingType: '"' })
+  const yaml_str = yaml
+    .dump(new_data, { indent: 2, lineWidth: -1, sortKeys: false, quotingType: '"' })
     .replace(/: '(#.*?)'/g, ': "$1"')
     .replace(/: '(\d+px)'/g, ': "$1"')
     .replace(/: '(\d+)'/g, ': "$1"');
 
-  fs.writeFileSync(PATHS.designMd, `---\n${yamlStr}---\n\n${body}`);
-  buildJsBridge(categoryTokens);
+  fs.writeFileSync(PATHS.designMd, `---\n${yaml_str}---\n\n${body}`);
+  buildJsBridge(category_tokens);
   runFormatter();
 }
 

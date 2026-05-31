@@ -89,26 +89,26 @@ const COMPILING_LINT_RULES = [
  */
 export function auditCodebaseTokens() {
   const definedMap = parseDefinedTokens();
-  const sourceFiles = getSourceFiles(PATHS.src).filter(
+  const source_files = getSourceFiles(PATHS.src).filter(
     (file) => file !== PATHS.designCss && file !== PATHS.jsBridge,
   );
 
-  return sourceFiles.reduce((totalFailures, file) => {
-    const relPath = path.relative(PATHS.root, file);
+  return source_files.reduce((total_failures, file) => {
+    const rel_path = path.relative(PATHS.root, file);
     const lines = fs.readFileSync(file, "utf8").split("\n");
-    const isTestFile = file.endsWith(".test.js") || file.endsWith(".test.ts");
+    const is_test_file = file.endsWith(".test.js") || file.endsWith(".test.ts");
 
     return (
-      totalFailures +
-      lines.reduce((fileFailures, line, index) => {
+      total_failures +
+      lines.reduce((file_failures, line, index) => {
         // 1. Lint Rule Checks
-        const lintFailures = COMPILING_LINT_RULES.reduce((acc, rule) => {
+        const lint_failures = COMPILING_LINT_RULES.reduce((acc, rule) => {
           if (
             rule.regex.test(line) &&
             (typeof rule.validate !== "function" || rule.validate(line))
           ) {
             console.error(
-              `\x1b[31m[${rule.severity}] ${relPath}:${index + 1} - ${rule.message}\x1b[0m`,
+              `\x1b[31m[${rule.severity}] ${rel_path}:${index + 1} - ${rule.message}\x1b[0m`,
             );
             return acc + (rule.severity === "HERESY" ? 1 : 0);
           }
@@ -116,14 +116,14 @@ export function auditCodebaseTokens() {
         }, 0);
 
         // 2. Token Invalidation Check
-        const isJsDocLine = /^\s*\*/.test(line) || /^\s*\/\*\*/.test(line);
-        const invalidTokenFailures =
-          !isTestFile && !isJsDocLine
+        const is_js_doc_line = /^\s*\*/.test(line) || /^\s*\/\*\*/.test(line);
+        const invalid_token_failures =
+          !is_test_file && !is_js_doc_line
             ? [...line.matchAll(/var\((--[a-zA-Z0-9_-]+)/g)].reduce((acc, match) => {
-                const tokenName = match[1];
-                if (!definedMap.has(tokenName)) {
+                const token_name = match[1];
+                if (!definedMap.has(token_name)) {
                   console.error(
-                    `\x1b[31m[HERESY] ${relPath}:${index + 1} - Hallucinated variable reference: ${tokenName}\x1b[0m`,
+                    `\x1b[31m[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}\x1b[0m`,
                   );
                   return acc + 1;
                 }
@@ -131,7 +131,7 @@ export function auditCodebaseTokens() {
               }, 0)
             : 0;
 
-        return fileFailures + lintFailures + invalidTokenFailures;
+        return file_failures + lint_failures + invalid_token_failures;
       }, 0)
     );
   }, 0);
@@ -143,11 +143,11 @@ export function auditCodebaseTokens() {
  */
 export function findUnusedTokens() {
   const definedMap = parseDefinedTokens();
-  const sourceFiles = getSourceFiles(PATHS.src).filter(
+  const source_files = getSourceFiles(PATHS.src).filter(
     (f) => f !== PATHS.designCss && f !== PATHS.jsBridge,
   );
 
-  const contents = sourceFiles.map((f) => fs.readFileSync(f, "utf8"));
+  const contents = source_files.map((f) => fs.readFileSync(f, "utf8"));
 
   return Array.from(definedMap.keys()).filter((token) => {
     const regex = new RegExp(`${token}\\b`, "g");
@@ -159,7 +159,7 @@ if (
   process.argv[1] &&
   process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/css/scripts/design-auditor.js")
 ) {
-  const coreFailures = auditCodebaseTokens();
+  const core_failures = auditCodebaseTokens();
   findUnusedTokens();
-  if (coreFailures > 0) process.exit(1);
+  if (core_failures > 0) process.exit(1);
 }

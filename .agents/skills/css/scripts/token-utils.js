@@ -70,41 +70,50 @@ export function parseDefinedTokens() {
 
   const css = fs.readFileSync(PATHS.designCss, "utf8");
 
-  // Extract block comments and token definitions
   const entries = css.split("\n").reduce(
     (acc, line, i, lines) => {
-      const commentMatch = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
-      if (commentMatch && !commentMatch[1].includes("---") && !commentMatch[1].includes("===")) {
-        return { ...acc, lastComment: commentMatch[1] };
+      if (acc.skip_until !== null) {
+        if (i <= acc.skip_until) {
+          return acc;
+        }
+        acc.skip_until = null;
       }
 
-      const tokenMatch = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
-      if (tokenMatch) {
-        const name = tokenMatch[1];
-        let value = tokenMatch[2].replace(/;$/, "").trim();
+      const comment_match = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
+      if (comment_match && !comment_match[1].includes("---") && !comment_match[1].includes("===")) {
+        acc.last_comment = comment_match[1];
+        return acc;
+      }
+
+      const token_match = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
+      if (token_match) {
+        const name = token_match[1];
+        let value = token_match[2].replace(/;$/, "").trim();
 
         // Handle multi-line values
         if (!line.trim().endsWith(";")) {
           const rest = lines.slice(i + 1);
-          const endIndex = rest.findIndex((l) => l.trim().endsWith(";"));
-          if (endIndex !== -1) {
+          const end_index = rest.findIndex((l) => l.trim().endsWith(";"));
+          if (end_index !== -1) {
             value +=
               "\n" +
               rest
-                .slice(0, endIndex + 1)
+                .slice(0, end_index + 1)
                 .map((l) => l.trim())
                 .join("\n");
             value = value.replace(/;$/, "").trim();
+            acc.skip_until = i + 1 + end_index;
           }
         }
 
-        acc.tokens.set(name, { value, comment: acc.lastComment });
-        return { ...acc, lastComment: null };
+        acc.tokens.set(name, { value, comment: acc.last_comment });
+        acc.last_comment = null;
+        return acc;
       }
 
       return acc;
     },
-    { tokens: new Map(), lastComment: null },
+    { tokens: new Map(), last_comment: null, skip_until: null },
   ).tokens;
 
   return entries;
@@ -122,15 +131,13 @@ export function getSourceFiles(dir, extensions = [".svelte", ".js", ".css", ".ht
   return fs.readdirSync(dir).reduce((results, file) => {
     if (file === "node_modules" || file === ".git") return results;
 
-    const filePath = path.join(dir, file);
-    const stat = fs.statSync(filePath);
+    const file_path = path.join(dir, file);
+    const stat = fs.statSync(file_path);
 
     if (stat?.isDirectory()) {
-      return [...results, ...getSourceFiles(filePath, extensions)];
-    }
-
-    if (extensions.includes(path.extname(file))) {
-      return [...results, filePath];
+      results.push(...getSourceFiles(file_path, extensions));
+    } else if (extensions.includes(path.extname(file))) {
+      results.push(file_path);
     }
 
     return results;
