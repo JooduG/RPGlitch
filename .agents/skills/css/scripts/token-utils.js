@@ -111,10 +111,8 @@ export function parseDefinedTokens() {
     if (file === "node_modules" || file === ".git") return results;
 
     const file_path = path.join(dir, file);
-    const stat = fs.statSync(file_path);
-
     if (stat?.isDirectory()) {
-      return results.concat(getSourceFiles(file_path, extensions));
+      getSourceFiles(file_path, extensions).forEach((f) => results.push(f));
     } else if (extensions.includes(path.extname(file))) {
       results.push(file_path);
     }
