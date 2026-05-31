@@ -118,7 +118,7 @@ export function getSourceFiles(dir, extensions = [".svelte", ".js", ".css", ".ht
     const stat = fs.statSync(file_path);
 
     if (stat?.isDirectory()) {
-      getSourceFiles(file_path, extensions).forEach((f) => results.push(f));
+      results.push(...getSourceFiles(file_path, extensions));
     } else if (extensions.includes(path.extname(file))) {
       results.push(file_path);
     }
