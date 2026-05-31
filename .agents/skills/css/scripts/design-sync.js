@@ -154,9 +154,7 @@ export function syncFromCss() {
     (acc, [rawName, { value }]) => {
       const name = rawName.slice(2);
       const category = getCategory(name, value);
-      if (acc[category]) {
-        acc[category][name] = value;
-      }
+      acc[category][name] = value;
       return acc;
     },
     Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}])),
