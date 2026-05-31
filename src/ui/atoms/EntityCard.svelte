@@ -6,6 +6,7 @@
    * Standard: Ultra-Lean DOM, Svelte 5 `$props`, and Chalk Regime Enforcement.
    */
 
+  import { tick } from "svelte";
   import ProfilePicture from "@atoms/ProfilePicture.svelte";
   import Button from "@atoms/Button.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
@@ -37,6 +38,10 @@
     on_view_profile = undefined,
   } = $props();
 
+  // --- STATE RUNES ---
+  let is_pressing = $state(false);
+  let is_launching = $state(false);
+
   // --- DERIVATIONS & COMPATIBILITY ---
   let is_empty = $derived(!entity);
   let signature_color = $derived(
@@ -54,7 +59,22 @@
    */
   function handle_select() {
     if (!disabled) {
-      select_handler();
+      if (variant === "library") {
+        is_launching = true;
+        setTimeout(async () => {
+          if (typeof document !== "undefined" && document.startViewTransition) {
+            document.startViewTransition(async () => {
+              select_handler();
+              await tick();
+            });
+          } else {
+            select_handler();
+          }
+          is_launching = false;
+        }, 200);
+      } else {
+        select_handler();
+      }
     }
   }
 </script>
@@ -66,6 +86,8 @@
   class:is-slot={variant === "slot"}
   class:is-panel={variant === "panel"}
   class:is-library={variant === "library"}
+  class:is-pressing={is_pressing}
+  class:is-launching={is_launching}
   class:disabled
   use:tooltip={{
     text:
@@ -74,11 +96,13 @@
           ? "Create New"
           : disabled
             ? "Already selected"
-            : `Select ${name}`
+            : "Select " + name
         : a11y_label,
   }}
   style:--signature-color={signature_color}
-  style:view-transition-name={entity ? `card-${entity.type || type}-${entity.id}` : undefined}
+  style:view-transition-name={entity && !(variant === "library" && disabled)
+    ? "card-" + (entity.type || type) + "-" + entity.id
+    : undefined}
   role="button"
   tabindex={disabled ? -1 : 0}
   aria-label={variant === "library"
@@ -86,9 +110,16 @@
       ? "Create New"
       : disabled
         ? "Already selected"
-        : `Select ${name}`
+        : "Select " + name
     : a11y_label}
   onclick={handle_select}
+  onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
+  onpointerup={() => {
+    is_pressing = false;
+  }}
+  onpointerleave={() => {
+    is_pressing = false;
+  }}
   oncontextmenu={(/** @type {MouseEvent} */ e) => {
     e.preventDefault();
     if (variant === "library" || variant === "panel") {
@@ -214,12 +245,18 @@
     filter: grayscale(1) brightness(0.7) opacity(0.5) !important;
     transform: none !important;
     box-shadow: none !important;
-    border-color: var(--border-whisper) !important;
+    border-style: dashed !important;
+    border-color: rgb(from var(--pure-white) r g b / 0.15) !important;
+    background: transparent !important;
 
     /* Prevent any interior layer modifiers from bleeding through */
     &::after {
       box-shadow: none !important;
       border-color: transparent !important;
+    }
+
+    .visual-container {
+      filter: grayscale(1) opacity(0.2) !important;
     }
   }
 
@@ -440,5 +477,46 @@
     display: flex;
     align-items: center;
     justify-content: center;
+  }
+
+  /* 1. Tension Build-Up (Absorbing the Touch) */
+  .entity-card-root.is-pressing {
+    transform: scale(0.96) !important;
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-solid)) !important;
+  }
+
+  .entity-card-root.is-pressing .bar {
+    opacity: 0.1 !important; /* Dims the signature light bar */
+  }
+
+  /* 2. The Launch Reveal (Ejecting from the Server Rack Matrix) */
+  .entity-card-root.is-launching {
+    z-index: var(--z-index-overlay) !important;
+    animation: rack-pull-eject 200ms var(--ease-elastic) forwards;
+  }
+
+  /* --- KINETIC HARDWARE KEYFRAMES --- */
+  @keyframes rack-pull-eject {
+    0% {
+      transform: scale(0.96) translateY(0);
+      box-shadow: var(--shadow-ghost);
+    }
+
+    40% {
+      /* Pop outward on Z-axis with an intentional vertical jump shift */
+      transform: scale(1.04) translateY(calc(var(--spacing-unit) * -3));
+      filter: brightness(1.15);
+    }
+
+    100% {
+      transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
+
+      /* Cast a deep, sharp, high-contrast industrial drop shadow below the element */
+      box-shadow:
+        0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6)
+          rgb(from var(--chalk) r g b / 0.5),
+        0 0 calc(var(--spacing-unit) * 4)
+          rgb(from var(--signature-color) r g b / var(--opacity-whisper));
+    }
   }
 </style>

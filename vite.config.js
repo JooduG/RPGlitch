@@ -61,7 +61,6 @@ export default defineConfig(({ command, mode }) => {
         "@motion": path.resolve(__dirname, "./src/ui/motion"),
         "@components": path.resolve(__dirname, "./src/ui/components"),
         "@devmode": path.resolve(__dirname, "./src/ui/devmode"),
-        "@drawer": path.resolve(__dirname, "./src/ui/drawer"),
         "@profile": path.resolve(__dirname, "./src/ui/profile"),
         "@storyboard": path.resolve(__dirname, "./src/ui/storyboard"),
         "@storymode": path.resolve(__dirname, "./src/ui/storymode"),

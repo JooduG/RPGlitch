@@ -4,19 +4,14 @@
    * 🐣 THE ENTITY BIRTHPLACE
    * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
    */
-  import { resolve_ms } from "@components";
   import { create_new, entities as repository } from "@data";
-  import { kinetic_scroll } from "@motion";
+  import { kinetic_scroll, motion, spring } from "@motion";
   import { app } from "@state";
-  import { quartOut } from "svelte/easing";
-  import { fly } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import EntityCard from "@atoms/EntityCard.svelte";
 
   // --- STATE & DERIVATIONS ---
-
-  const duration = resolve_ms("--duration-slow", 400);
 
   let is_open = $derived(app.drawer.open);
 
@@ -42,6 +37,21 @@
   };
 
   let title = $derived((drawer_type ? TITLES[drawer_type] : null) ?? "Select Entity");
+
+  // --- SVELTE 5 SPRING PHYSICS ---
+
+  const offset_spring = spring(800, {
+    stiffness: 0.12,
+    damping: 0.75,
+  });
+
+  $effect(() => {
+    if (app.drawer.open) {
+      offset_spring.value = 0;
+    } else {
+      offset_spring.value = 800;
+    }
+  });
 
   // --- GUARDS ---
 
@@ -93,50 +103,51 @@
 
 {#if is_open}
   <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
+{/if}
 
-  <div
-    class="drawer glass-elevated"
-    class:is-mobile={app.viewport.mobile}
-    class:is-mini={app.viewport.mini}
-    role="dialog"
-    aria-labelledby="drawer-title"
-    transition:fly={{ y: 800, duration, easing: quartOut }}
-  >
-    <header class="header">
-      <h4 id="drawer-title">{title}</h4>
-    </header>
+<div
+  class="drawer glass-elevated"
+  class:is-mobile={app.viewport.mobile}
+  class:is-mini={app.viewport.mini}
+  class:is-retracted={offset_spring.value > 795}
+  role="dialog"
+  aria-labelledby="drawer-title"
+  style:transform={motion.isReduced ? "none" : `translateY(${offset_spring.value}px)`}
+>
+  <header class="header">
+    <h4 id="drawer-title">{title}</h4>
+  </header>
 
-    <div class="body" use:kinetic_scroll>
-      <div class="grid">
-        <!-- "Create New" card -->
+  <div class="body" use:kinetic_scroll>
+    <div class="grid">
+      <!-- "Create New" card -->
+      <EntityCard
+        variant="library"
+        type={drawer_type ?? undefined}
+        role_label="Create New"
+        onclick={handle_create_new}
+      />
+
+      {#each entity_list as entity (entity.id)}
         <EntityCard
           variant="library"
+          {entity}
           type={drawer_type ?? undefined}
-          role_label="Create New"
-          onclick={handle_create_new}
+          disabled={is_disabled(entity)}
+          onclick={() => handle_select(entity)}
+          onViewProfile={() => app.open_profile(entity)}
         />
-
-        {#each entity_list as entity (entity.id)}
-          <EntityCard
-            variant="library"
-            {entity}
-            type={drawer_type ?? undefined}
-            disabled={is_disabled(entity)}
-            onclick={() => handle_select(entity)}
-            onViewProfile={() => app.open_profile(entity)}
-          />
-        {/each}
-      </div>
-
-      {#if entity_list.length === 0}
-        <div class="empty">
-          <h4>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h4>
-          <p>Click "Create New" to initialize one.</p>
-        </div>
-      {/if}
+      {/each}
     </div>
+
+    {#if entity_list.length === 0}
+      <div class="empty">
+        <h4>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h4>
+        <p>Click "Create New" to initialize one.</p>
+      </div>
+    {/if}
   </div>
-{/if}
+</div>
 
 <style>
   /* --- SHELL --- */
@@ -156,6 +167,11 @@
     flex-direction: column;
     overflow: hidden;
     box-shadow: var(--shadow-standard);
+  }
+
+  .drawer.is-retracted {
+    visibility: hidden !important;
+    pointer-events: none !important;
   }
 
   /* --- HEADER --- */

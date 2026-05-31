@@ -8,7 +8,7 @@
    */
 
   import Skeleton from "@atoms/Skeleton.svelte";
-  import Drawer from "@drawer/Drawer.svelte";
+  import Drawer from "@atoms/Drawer.svelte";
   import { context_broker } from "@intelligence";
   import { app } from "@state";
   import EntityCard from "@atoms/EntityCard.svelte";

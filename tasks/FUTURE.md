@@ -14,6 +14,8 @@ This document tracks all major tracks for the project. Each track has its own de
 
 | Track ID                                                  | Name                                           | Priority | Status  | Objective                                                                                           |
 | :-------------------------------------------------------- | :--------------------------------------------- | :------- | :------ | :-------------------------------------------------------------------------------------------------- |
+| `inertial-rack-pull-selection-motion-phase-a-2026-05-31`  | Inertial Rack-Pull Selection Motion (Phase A)  | P0       | ✅ Done | Implement press compression tension, rack eject animation, and view transitions in EntityCard.      |
+| `drawer-relocation-motion-engine-upgrade-2026-05-31`      | Drawer Relocation & Motion Engine Upgrade      | P0       | ✅ Done | Relocate Drawer component to atoms, transition from fly statement to Svelte 5 physics spring.       |
 | `architectural-refactor-tooltip-system`                   | Architectural Refactor - Tooltip System        | P0       | ✅ Done | Migrate the custom tooltip system to bits-ui/Tooltip and clean up redundant calculations.           |
 | `inline-log-editing-2026-05-25`                           | Inline Log Entry Editing                       | P0       | ✅ Done | Implement inline log editing directly inside story feed via atomic TextField and in-place buttons.  |
 | `agent-system-alignment-2026-05-24`                       | Agent System Alignment                         | P0       | ✅ Done | Synchronize .agents config, motion & svelte guidelines, and harden token checkers.                  |

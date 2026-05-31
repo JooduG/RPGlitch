@@ -68,6 +68,7 @@ describe("EntityCard Atom", () => {
   });
 
   test("handles interactions correctly in 'library' variant", async () => {
+    vi.useFakeTimers();
     const onclick = vi.fn();
     const onViewProfile = vi.fn();
 
@@ -82,10 +83,12 @@ describe("EntityCard Atom", () => {
 
     const card = /** @type {any} */ (container.querySelector(".card"));
     await fireEvent.click(card);
+    vi.advanceTimersByTime(200);
     expect(onclick).toHaveBeenCalled();
 
     await fireEvent.contextMenu(card);
     expect(onViewProfile).toHaveBeenCalled();
+    vi.useRealTimers();
   });
 
   test("handles interactions correctly in 'panel' variant", async () => {

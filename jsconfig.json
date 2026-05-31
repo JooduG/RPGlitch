@@ -19,7 +19,6 @@
       "@data": ["src/data/index.js"],
       "@data/*": ["src/data/*"],
       "@devmode/*": ["src/ui/devmode/*"],
-      "@drawer/*": ["src/ui/drawer/*"],
       "@engine": ["src/engine/index.js"],
       "@engine/*": ["src/engine/*"],
       "@intelligence": ["src/intelligence/index.js"],
