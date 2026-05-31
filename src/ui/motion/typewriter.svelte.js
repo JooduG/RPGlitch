@@ -1,11 +1,10 @@
 import { mount, unmount } from "svelte";
-import TypewriterRenderer from "./TypewriterRenderer.svelte";
+import Typewriter from "./Typewriter.svelte";
 
 /**
  * @file typewriter.svelte.js
  * 📝 COGNITIVE TEXT STREAMER ACTION
- * Safely types out sanitized HTML character-by-character.
- * Preserves structural markup layout frames while reactively processing text token buffers.
+ * Interfaces element nodes with our consolidated Typewriter engine.
  */
 
 /**
@@ -13,15 +12,14 @@ import TypewriterRenderer from "./TypewriterRenderer.svelte";
  * Preserves all HTML tags intact and only truncates text nodes reactively.
  *
  * @param {HTMLElement} node - The element anchor mapping the text insertion phase.
- * @param {string | null | undefined} content - The prospective raw HTML source input.
- * @returns {import('svelte/action').ActionReturn<string | null | undefined>}
+ * @param {string | null | undefined} initialHtml
  */
-export function typewriter(node, content) {
-  // Create state proxy wrapper to pass safely into the mounted compiler architecture
-  const props = $state({ targetHtml: content ?? "" });
+export function typewriter(node, initialHtml = "") {
+  // We use Svelte's mount API to instanciate the renderer inside the node
+  // The state proxy passes the active chunk down recursively
+  const props = $state({ targetHtml: initialHtml || "" });
 
-  // Mount the renderer component directly into the localized action shadow layer
-  const component = mount(TypewriterRenderer, {
+  const component = mount(Typewriter, {
     target: node,
     props: props,
   });
@@ -29,9 +27,8 @@ export function typewriter(node, content) {
   return {
     /**
      * Reactively streams updated text blocks down into the token buffer loop.
-     * @param {string | null | undefined} new_content
      */
-    update(new_content) {
+    update: function (/** @type {string | null | undefined} */ new_content) {
       props.targetHtml = new_content ?? "";
     },
 

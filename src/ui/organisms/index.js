@@ -7,4 +7,5 @@ export { default as StorymodeFeed } from "./StorymodeFeed.svelte";
 export { default as ControlPanel } from "./ControlPanel.svelte";
 export { default as Drawer } from "./Drawer.svelte";
 export { default as Layout } from "./Layout.svelte";
+export { default as ProfileHeader } from "./ProfileHeader.svelte";
 export * from "./profile.svelte.js";

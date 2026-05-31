@@ -1,17 +1,16 @@
-﻿<script>
+<script>
   /**
-   * @file src/ui/profile/Profile.svelte
-   * ðŸ§¬ ENTITY EDITOR â€” Primary orchestrator for viewing and editing entities.
-   * Chalk Regime UI Â· Flat DOM Â· Bolted Architecture
+   * @file src/ui/organisms/Profile.svelte
+   * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
+   * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
   import { Button, Modal, ProfilePicture, ScrollArea, TextField, tooltip } from "@atoms";
-  import { ENTITY_FRAGMENTS, NAME_PREFIXES, PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
+  import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { themeStore } from "@media";
   import { AudioWing, VisualWing, DevWing, Dialog } from "@molecules";
-  import { ProfileArray } from "@organisms";
+  import { ProfileArray, ProfileHeader } from "@organisms";
   import { app } from "@state";
-  // State & Utilities
-  import { auto_resize, click_outside } from "@actions";
+  import { click_outside } from "@actions";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -30,40 +29,13 @@
   // --- EFFECTS ---
   $effect(() => state.sync());
 
-  // --- HANDLERS ---
-  // All handlers migrated to ProfileState
-
-  /**
-   * Formats a name to be bottom-heavy if it consists of exactly 3 words.
-   * @param {string} rawName
-   * @returns {string}
-   */
-  function formatName(rawName) {
-    if (!rawName) return "";
-    const trimmed = rawName.trim();
-    const words = trimmed.split(/\s+/);
-    if (words.length !== 3) return trimmed;
-
-    const prefixes = NAME_PREFIXES;
-
-    if (prefixes.includes(words[0].toLowerCase())) {
-      return `${words[0]} ${words[1]}\n${words[2]}`;
-    }
-    return `${words[0]}\n${words[1]} ${words[2]}`;
-  }
-
   /** @param {MouseEvent} event */
   function handle_click_outside(event) {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    // Ignore clicks if delete confirm dialog is active
     if (state.show_delete_confirm) return;
-
-    // Ignore clicks inside the actual wing panels (VisualWing, AudioWing, DevWing)
     if (target.closest(".wings-container > *")) return;
-
-    // Ignore clicks inside dropdown menus or portaled elements from wings
     if (
       target.closest(".menu") ||
       target.closest(".dropdown-menu") ||
@@ -71,8 +43,6 @@
       target.closest(".tooltip-portal")
     )
       return;
-
-    // Ignore clicks inside other dialog/mini modals
     if (target.closest(".mini-backdrop") || target.closest(".root.mini")) return;
 
     state.handle_close();
@@ -96,13 +66,12 @@
       class:is-mini={app.viewport.mini}
       role="presentation"
     >
-      <!-- ðŸ§¬ THE CORE: Profile Container -->
       <div
         class="profile-container no-scrollbar glass-elevated"
         class:readonly={!has_wings}
         class:has-wings={has_wings}
         data-entity-type={entity_type}
-        style="--signature-color: {signature_color};"
+        style:--signature-color={signature_color}
         use:click_outside={handle_click_outside}
       >
         <div class="avatar-section">
@@ -112,53 +81,21 @@
         </div>
 
         <div class="right">
-          <!-- ðŸ·ï¸ HEADER -->
-          <header class="profile-header">
-            <div class="identity-info">
-              {#if state.is_editing}
-                <h1 class="name edit" class:is-active={state.active_field?.key === "name"}>
-                  <span
-                    contenteditable="true"
-                    bind:innerText={state.char.name}
-                    role="textbox"
-                    tabindex="0"
-                    aria-label="Entity Name"
-                    data-placeholder={ENTITY_FRAGMENTS.name}
-                    onfocus={() => state.set_active_field("name", "Entity Name")}
-                    >{state.char.name}</span
-                  >
-                </h1>
-              {:else}
-                <h1 class="name">{formatName(state.char.name)}</h1>
-              {/if}
-            </div>
+          <ProfileHeader
+            bind:name={state.char.name}
+            bind:description={state.char.description}
+            is_editing={state.is_editing}
+            active_field={state.active_field?.key}
+            on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) =>
+              state.set_active_field(key, label)}
+          />
 
-            {#if state.is_editing}
-              <div
-                class="description-wrapper"
-                data-expanded={state.active_field?.key === "description"}
-              >
-                <textarea
-                  class="description edit textarea-scroll-track"
-                  placeholder={ENTITY_FRAGMENTS.description}
-                  bind:value={state.char.description}
-                  use:auto_resize
-                  onfocus={() => state.set_active_field("description", "Description")}
-                ></textarea>
-              </div>
-            {:else if state.char.description}
-              <p class="description">{state.char.description}</p>
-            {/if}
-          </header>
-
-          <!-- ðŸ“œ CONTENT -->
           <main class="profile-content no-scrollbar">
-            <ScrollArea style="height: 100%;">
+            <ScrollArea style="height: var(--state-fill-end);">
               {@render EntityBody()}
             </ScrollArea>
           </main>
 
-          <!-- ðŸ FOOTER -->
           <footer class="profile-footer">
             {#if state.is_editing}
               <Button variant="secondary" onclick={() => state.save(entity_type)}>Save</Button>
@@ -174,7 +111,6 @@
         </div>
       </div>
 
-      <!-- ðŸ¦‡ THE WINGS: Stacking on the right -->
       {#if has_wings}
         <aside class="wings-container no-scrollbar">
           {#if state.is_editing}
@@ -200,7 +136,6 @@
     {#each active_sections as section (section.id)}
       {@const arrayField = section.fields.find((/** @type {any} */ f) => f.type === "array")}
 
-      <!-- SECTION LABEL (Left Column) -->
       <div
         class="profile-side"
         class:interactive={state.is_editing && arrayField}
@@ -217,16 +152,9 @@
             {/if}
             <span class="vertical-label-text">{section.label}</span>
           </h6>
-          <!-- Legacy sublabels commented out for vertical experiment -->
-          <!--
-          {#if section.sublabel}
-            <p class="section-sub">{section.sublabel}</p>
-          {/if}
-          -->
         </div>
       </div>
 
-      <!-- SECTION FIELDS (Right Column) -->
       <div class="profile-fields" data-columns={section.fields.length}>
         {#each section.fields as field (field.key)}
           <div class="group">
@@ -316,7 +244,7 @@
     grid-column: 4 / 10;
     display: flex;
     flex-direction: row;
-    height: 100%;
+    height: var(--state-fill-end);
     overflow: auto;
     transition: grid-column var(--motion-standard);
     border: var(--border-width-base) solid
@@ -338,198 +266,19 @@
     justify-content: center;
     gap: var(--gap-standard);
     overflow-y: auto;
-    animation: slide-in-left 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
+    animation: slide-in-left var(--motion-elastic);
   }
 
   @keyframes slide-in-left {
-    from {
-      opacity: 0;
+    0% {
+      opacity: var(--opacity-none);
       transform: translateX(calc(var(--spacing-unit) * 5));
     }
 
-    to {
-      opacity: 1;
+    100% {
+      opacity: var(--opacity-solid);
       transform: translateX(0);
     }
-  }
-
-  .profile-header {
-    flex-shrink: 0;
-    width: 100%;
-    min-width: 0;
-    min-height: var(--font-size-h3);
-    padding: var(--padding-standard);
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-  }
-
-  .identity-info {
-    width: 100%;
-    min-width: 0;
-    flex-shrink: 0;
-    container-type: inline-size;
-  }
-
-  .name {
-    color: var(--signature-color);
-    display: block;
-    font-size: clamp(var(--font-size-h2), 20cqi, var(--font-size-h1) * 1.2);
-    line-height: 1.1;
-    min-height: calc(var(--spacing-unit) * 20);
-    overflow-wrap: break-word;
-    text-align: right;
-    text-shadow: 0 var(--spacing-pixel) calc(var(--spacing-unit) * 2)
-      rgb(from var(--void-black) r g b / 0.5);
-    white-space: pre-wrap;
-  }
-
-  .name.edit {
-    white-space: normal;
-    overflow: visible;
-    font-size: clamp(
-      var(--font-size-h3),
-      15cqi,
-      var(--font-size-h2)
-    ) !important; /* Force stability in edit mode */
-
-    min-height: calc(var(--spacing-unit) * 20);
-  }
-
-  .name.edit span {
-    display: inline-block;
-    width: 100%;
-    padding: var(--padding-tight);
-    text-align: left;
-  }
-
-  .name.edit span:empty::before {
-    content: attr(data-placeholder);
-    color: var(--frozen);
-    font-style: italic;
-    opacity: var(--opacity-whisper);
-    pointer-events: none;
-  }
-
-  .description {
-    font-size: var(--font-size-small);
-    line-height: var(--font-height-base);
-    color: var(--frisk);
-    opacity: var(--opacity-muted);
-    margin: 0;
-    text-align: right;
-    white-space: pre-wrap;
-    text-wrap: balance;
-    border-radius: var(--radius-standard);
-  }
-
-  .description-wrapper {
-    width: 100%;
-    display: flex;
-    position: relative;
-    border-radius: var(--radius-standard);
-  }
-
-  textarea.description.edit {
-    width: 100%;
-    min-height: var(--row-unit);
-    max-height: calc(var(--row-unit) * 4);
-    padding: var(--padding-standard);
-    color: var(--frisk);
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-small);
-    line-height: var(--font-height-base);
-    resize: none;
-    text-align: left;
-    background: transparent;
-    border: none;
-    outline: none;
-    margin: 0;
-    z-index: var(--z-index-surface);
-    text-wrap: auto;
-  }
-
-  textarea.description.edit::placeholder {
-    color: var(--frozen);
-    font-style: italic;
-    opacity: var(--opacity-whisper);
-  }
-
-  /* --- SCOPED SCROLL TRACK FOR TEXTAREA --- */
-  .textarea-scroll-track {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar {
-    width: var(--scrollbar-width);
-    height: var(--scrollbar-width);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: var(--radius-standard);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-  }
-
-  /* Shared Input Edit Styling */
-  .name.edit span,
-  .description-wrapper {
-    position: relative;
-    background: color-mix(in srgb, var(--signature-color) 4%, var(--glass-sunken));
-    border: var(--border-width-base) solid transparent;
-    border-radius: var(--radius-standard);
-    transition:
-      border-color var(--duration-fast) var(--ease-standard),
-      background var(--duration-fast) var(--ease-standard);
-  }
-
-  /* --- HOLOGRAPHIC BORDER LOGIC --- */
-  .name.edit span::before,
-  .description-wrapper::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    padding: var(--spacing-pixel);
-    background: linear-gradient(
-      to bottom,
-      color-mix(in srgb, transparent, var(--signature-color) 40%),
-      transparent 40%
-    );
-    mask:
-      linear-gradient(var(--pure-white) 0 0) content-box,
-      linear-gradient(var(--pure-white) 0 0);
-    mask-composite: exclude;
-    opacity: var(--opacity-whisper);
-    transition: opacity var(--duration-standard);
-  }
-
-  .name.edit span:focus,
-  .description-wrapper[data-expanded="true"] {
-    outline: none;
-    border-color: transparent;
-    box-shadow: none; /* Remove aggressive glow */
-    background: color-mix(in srgb, var(--signature-color) 8%, var(--glass-sunken));
-  }
-
-  .name.edit span:focus::before,
-  .description-wrapper[data-expanded="true"]::before {
-    opacity: var(--opacity-solid);
-    background: linear-gradient(
-      to bottom,
-      var(--signature-color),
-      color-mix(in srgb, var(--signature-color), transparent 60%) 30%,
-      transparent 80%
-    );
   }
 
   .profile-content {
@@ -550,13 +299,13 @@
   .profile-modal.is-mini .profile-footer {
     flex-direction: column;
     align-items: stretch;
-    width: 100%;
+    width: var(--state-fill-end);
   }
 
   .avatar-section {
     display: flex;
     align-items: stretch;
-    height: 100%;
+    height: var(--state-fill-end);
     width: var(--avatar-medium-size);
     flex-shrink: 0;
     position: sticky;
@@ -565,8 +314,8 @@
   }
 
   .avatar-wrapper {
-    width: 100%;
-    height: 100%;
+    width: var(--state-fill-end);
+    height: var(--state-fill-end);
     border-radius: 0;
     overflow: hidden;
     border: none;
@@ -580,7 +329,7 @@
   }
 
   .profile-container[data-entity-type="fractal"] .avatar-section {
-    width: 100%;
+    width: var(--state-fill-end);
     height: calc(var(--row-unit) * 3);
     min-height: calc(var(--spacing-unit) * 50);
     flex-shrink: 0;
@@ -611,7 +360,7 @@
 
   .profile-fragments {
     display: grid;
-    grid-template-columns: calc(var(--gap-standard) * 2) 1fr; /* Tightened left column */
+    grid-template-columns: calc(var(--gap-standard) * 2) 1fr;
     gap: var(--gap-standard) var(--gap-tight);
     padding: var(--padding-standard);
     padding-bottom: var(--padding-loose);
@@ -642,7 +391,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100%;
+    width: var(--state-fill-end);
   }
 
   .profile-side.interactive {
@@ -658,7 +407,7 @@
     transition: color var(--duration-standard);
     hyphens: auto;
     display: flex;
-    flex-direction: column; /* Stack + and label vertically */
+    flex-direction: column;
     align-items: center;
     justify-content: center;
   }
@@ -666,13 +415,13 @@
   .vertical-label-text {
     writing-mode: vertical-rl;
     text-orientation: mixed;
-    transform: rotate(180deg); /* Read bottom-to-top vertical orientation */
+    transform: rotate(180deg);
     display: block;
   }
 
   .add-hint {
     font-family: var(--font-family-mono);
-    font-size: var(--font-size-base); /* Upped size significantly for solid + */
+    font-size: var(--font-size-base);
     font-weight: var(--font-weight-bold);
     color: var(--pure-white);
     opacity: var(--opacity-solid);
@@ -680,17 +429,17 @@
     letter-spacing: var(--font-spacing-loose);
     white-space: nowrap;
     flex-shrink: 0;
-    animation: add-hint-fade 250ms var(--ease-elastic) forwards;
+    animation: add-hint-fade var(--motion-elastic);
   }
 
   @keyframes add-hint-fade {
-    from {
-      opacity: 0;
+    0% {
+      opacity: var(--opacity-none);
       transform: scale(0.6);
     }
 
-    to {
-      opacity: 1;
+    100% {
+      opacity: var(--opacity-solid);
       transform: scale(1);
     }
   }
@@ -705,8 +454,8 @@
 
   .group {
     position: relative;
-    width: 100%;
-    height: 100%;
+    width: var(--state-fill-end);
+    height: var(--state-fill-end);
     display: flex;
     flex-direction: column;
     gap: var(--gap-tight);
@@ -724,7 +473,7 @@
     opacity: var(--opacity-solid);
     text-align: center;
     text-shadow: var(--shadow-font);
-    width: 100%;
+    width: var(--state-fill-end);
     letter-spacing: var(--font-spacing-loose);
   }
 
@@ -739,13 +488,11 @@
     margin-top: var(--gap-tight);
   }
 
-  /* Push down the vertical eternal label on desktop to center relative to the textfield (offsetting by half the header height) */
   .profile-modal:not(.is-mobile, .is-mini) .profile-side[data-section="eternal"] .label-wrapper {
     transform: translateY(var(--padding-standard));
   }
 
   /* --- RESPONSIVE OVERRIDES --- */
-
   .profile-fragments.is-mobile,
   .profile-fragments.is-mini {
     display: flex;
@@ -758,7 +505,6 @@
     flex-direction: column;
   }
 
-  /* Fractal scrolls organically as a single page */
   .profile-modal.is-mobile .profile-container[data-entity-type="fractal"],
   .profile-modal.is-mini .profile-container[data-entity-type="fractal"] {
     overflow-y: auto;
@@ -769,11 +515,10 @@
     overflow-y: visible;
   }
 
-  /* Character profile remains fixed with internal scrolling */
   .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]),
   .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) {
     overflow: visible;
-    height: 100%;
+    height: var(--state-fill-end);
   }
 
   .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]) .right,
