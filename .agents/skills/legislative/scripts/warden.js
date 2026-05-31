@@ -6,16 +6,13 @@
 import fs from "fs";
 import ignore from "ignore";
 import path from "path";
-import { safeStatSync } from "./safe-fs.js";
+import { safeStatSync } from "./utils.js";
 
 // 1. Import Domain Rules
 import { cssRules, themeRules } from "../../css/scripts/design-auditor.js";
 import { securityRules } from "../../security/scripts/audit-security.js";
 import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
-import { nomenclatureRules } from "./audit-nomenclature.js";
-import { skillRules } from "./audit-skills.js";
-import { ruleRules, workflowRules } from "./audit-templates.js";
-import { projectRules } from "./warden-project.js";
+import { nomenclatureRules, skillRules, ruleRules, workflowRules, projectRules } from "./rules.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -250,11 +247,99 @@ const FILTERS = {
 };
 
 /**
+ * 2. Backlog Synchronization (/OOC)
+ */
+function scanForTodo(dir, items_found = []) {
+  if (!fs.existsSync(dir)) return items_found;
+  const items = fs.readdirSync(dir);
+
+  for (const item of items) {
+    const fullPath = path.join(dir, item);
+    const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
+
+    if (ig.ignores(relPath)) continue;
+
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      scanForTodo(fullPath, items_found);
+    } else if (stat.isFile() && /\.(js|ts|svelte|md|txt)$/.test(item)) {
+      if (item === "warden.js" || item === "audit-security.js" || item === "SKILL.md")
+        continue;
+
+      const content = fs.readFileSync(fullPath, "utf8");
+      const lines = content.split("\n");
+      lines.forEach((line, index) => {
+        if (line.includes("#TODO-AI") && !line.includes('line.includes("#TODO-AI")')) {
+          const relPath = path.relative(ROOT_DIR, fullPath).replace(/\\/g, "/");
+          const taskMatch = line.match(/#TODO-AI:?\s*(.*)$/);
+          const taskDesc = taskMatch ? taskMatch[1].trim() : "Unspecified debt";
+          items_found.push(`- [ ] **${relPath}:${index + 1}**: ${taskDesc}`);
+        }
+      });
+    }
+  }
+  return items_found;
+}
+
+export function syncBacklog() {
+  const TODO_FILE = path.join(ROOT_DIR, "tasks", "PRESENT.md");
+  console.log("🧹 Scanning for #TODO-AI tags...");
+  const found = scanForTodo(ROOT_DIR);
+
+  if (found.length === 0) {
+    console.log("✅ No new AI debt found.");
+    return;
+  }
+
+  if (!fs.existsSync(TODO_FILE)) {
+    console.warn("⚠️ tasks/PRESENT.md not found. Creating it...");
+    fs.mkdirSync(path.dirname(TODO_FILE), { recursive: true });
+    fs.writeFileSync(TODO_FILE, "# Project Tasks\n\n");
+  }
+
+  let content = fs.readFileSync(TODO_FILE, "utf-8");
+  const backlogHeader = "## 🧹 Backlog (Automated)";
+  const markerStart = "<!-- BACKLOG_START -->";
+  const markerEnd = "<!-- BACKLOG_END -->";
+  const lastSwept = `*Last Swept: ${new Date().toISOString().replace(/T/, " ").replace(/\..+/, "")}*`;
+
+  const newBacklogContent = `${markerStart}\n${lastSwept}\n\n${found.join("\n")}\n${markerEnd}`;
+
+  const sectionRegex = new RegExp(
+    `${backlogHeader.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}[\\s\\S]*?${markerEnd}`,
+    "g",
+  );
+
+  if (content.includes(backlogHeader)) {
+    // Replace existing backlog section(s)
+    if (content.match(sectionRegex)) {
+      content = content.replace(sectionRegex, () => `${backlogHeader}\n${newBacklogContent}`);
+    } else {
+      // Legacy transition: Insert markers after existing header
+      content = content.replace(backlogHeader, () => `${backlogHeader}\n${newBacklogContent}`);
+    }
+  } else {
+    // Append to end
+    content = content.trim() + `\n\n${backlogHeader}\n${newBacklogContent}\n`;
+  }
+
+  fs.writeFileSync(TODO_FILE, content);
+  console.log(`✅ Synchronized ${found.length} items to tasks/PRESENT.md`);
+}
+
+/**
  * Runs the audit CLI.
  */
 export function runWarden() {
-  const auditor = new Auditor();
   const args = process.argv.slice(2);
+
+  if (args.includes("--backlog") || args.includes("backlog")) {
+    syncBacklog();
+    return;
+  }
+
+  const auditor = new Auditor();
 
   console.log("\n================================================================================");
   console.log("🛡️  WARDEN: CONSOLIDATED QUALITY GATE");

@@ -158,3 +158,11 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 | 2026-05-14T00:13:00Z      | Restart: Grand Rebuild                                                                                                                                                                                          | planning                   | ✅ Done   |
 
 > 🎨 Tactics | `planning` | /01-plan
+
+## 🧹 Backlog (Automated)
+<!-- BACKLOG_START -->
+*Last Swept: 2026-05-31 06:43:56*
+
+- [ ] **.agents/skills/legislative/scripts/rules.js:272**: /,
+- [ ] **.agents/skills/legislative/scripts/rules.js:274**: ) found. Ensure it is registered in tasks/PRESENT.md.",
+<!-- BACKLOG_END -->

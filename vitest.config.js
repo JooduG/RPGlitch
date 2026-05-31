@@ -43,6 +43,6 @@ export default defineConfig({
     exclude: ["**/node_modules/**", "**/dist/**", "**/.git/**"],
 
     // Test setup hook (Path corrected to .agents)
-    setupFiles: [".agents/skills/legislative/scripts/test-setup.js"],
+    setupFiles: [".agents/skills/simulation/scripts/test-setup.js"],
   },
 });
