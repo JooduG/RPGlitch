@@ -1,22 +1,16 @@
 <script>
   /**
    * @file Storymode.svelte
-   * ❄️ THE MAIN STAGE
+   * â„ï¸ THE MAIN STAGE
    * Container for the active game session, simulation log, and side panels.
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import Skeleton from "@atoms/Skeleton.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { ProfilePicture, Skeleton, tooltip } from "@atoms";
   import { themeStore } from "@media";
-  import { app, runtime, simulationState } from "@state";
-  import InputBar from "@storymode/InputBar.svelte";
-  import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
-  import Layout from "@ui/Layout.svelte";
-
-  // Derived
-  let is_thinking = $derived(simulationState.phase === "generating" || app.busy);
+  import { app, runtime } from "@state";
+  import { StorymodeFeed, Layout } from "@organisms";
+  import { UnifiedConsole } from "@molecules";
 
   // --- ON MOUNT ---
   $effect(() => {
@@ -58,7 +52,7 @@
       {:else}
         <StorymodeFeed />
         <div class="input-wrapper">
-          <InputBar disabled={is_thinking} />
+          <UnifiedConsole />
         </div>
       {/if}
     </div>

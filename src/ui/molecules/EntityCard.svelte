@@ -1,15 +1,13 @@
-<script>
+﻿<script>
   /**
    * @file EntityCard.svelte
-   * 🃏 THE UNIFIED TAROT
+   * ðŸƒ THE UNIFIED TAROT
    * Highly flexible consolidated card component supporting drawer library and storyboard slot/panel variants.
    * Standard: Ultra-Lean DOM, Svelte 5 `$props`, and Chalk Regime Enforcement.
    */
 
   import { tick } from "svelte";
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import Button from "@atoms/Button.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { ProfilePicture, Button, tooltip } from "@atoms";
   import { themeStore } from "@media";
   import { motion } from "@motion";
 
@@ -391,7 +389,7 @@
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
 
-    /* 🛡️ Impactful, fluid typography scale for full-sized Storyboard cards */
+    /* ðŸ›¡ï¸ Impactful, fluid typography scale for full-sized Storyboard cards */
     font-size: clamp(var(--font-size-base), 12cqi, var(--font-size-h2)) !important;
     white-space: normal;
     display: -webkit-box;

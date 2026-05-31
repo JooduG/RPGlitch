@@ -1,5 +1,5 @@
-<script>
-  import Button from "@atoms/Button.svelte";
+﻿<script>
+  import { Button } from "@atoms";
   let {
     text,
     busy,

@@ -1,4 +1,4 @@
-<script>
+﻿<script>
   /**
    * @file StoryboardDynamicTitle.svelte
    * THE DYNAMIC NARRATIVE HEADER
@@ -8,7 +8,7 @@
    * 2. Supports direct editing via contenteditable.
    * 3. Harmonized with Chalk Regime and Chess Grid.
    */
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { tooltip } from "@atoms";
   import { pickRandom } from "@engine";
   import { themeStore } from "@media";
   import { app } from "@state";

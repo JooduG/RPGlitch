@@ -1,14 +1,11 @@
-<script>
+﻿<script>
   /**
    * @file src/ui/profile/VisualWing.svelte
-   * ❄️ THE ENTITY SHOWCASE ENGINE
+   * â„ï¸ THE ENTITY SHOWCASE ENGINE
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import Button from "@atoms/Button.svelte";
-  import TextField from "@atoms/TextField.svelte";
-  import Toggle from "@atoms/Toggle.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { Button, TextField, Toggle, tooltip } from "@atoms";
   import { prompt_builder } from "@intelligence";
   import { AestheticResolver, PALETTE, PALETTE_VARS, themeStore } from "@media";
   import { llm_service } from "@platform";
@@ -16,7 +13,7 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('./profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/profile.svelte.js').ProfileState} profileState - The profile state controller
    */
 
   /** @type {Props} */
@@ -39,7 +36,7 @@
   ]);
 
   /**
-   * Returns the HSL hue (0–360) for a hex color.
+   * Returns the HSL hue (0â€“360) for a hex color.
    * Achromatic colors (neutrals) return 361 so they sort to the end.
    * @param {string} hex
    */
@@ -206,7 +203,7 @@
 </script>
 
 <section class="wing glass-elevated">
-  <!-- 🎨 COLOR SWATCHES -->
+  <!-- ðŸŽ¨ COLOR SWATCHES -->
   <div class="swatches">
     {#each SPECTRUM_COLORS as [name, hex] (name)}
       {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
@@ -228,7 +225,7 @@
     {/each}
   </div>
 
-  <!-- 👁️ IMAGE PROMPT -->
+  <!-- ðŸ‘ï¸ IMAGE PROMPT -->
   <TextField
     class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
     is_edit={profileState.is_editing}
@@ -336,7 +333,7 @@
     {/snippet}
   </TextField>
 
-  <!-- ⚙️ RENDER TOGGLES -->
+  <!-- âš™ï¸ RENDER TOGGLES -->
   <div class="controls">
     <Toggle
       label="No Background"

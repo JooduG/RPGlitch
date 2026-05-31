@@ -1,18 +1,13 @@
-<script>
+﻿<script>
   /**
    * @file App.svelte
    * THE CORE SHELL
    * View-switching logic using storyboard and storymode terminology.
    */
-  import ImagePreview from "@atoms/ImagePreview.svelte";
-  import Tooltip from "@atoms/Tooltip.svelte";
-  import ControlPanel from "@devmode/ControlPanel.svelte";
-  import GridOverlay from "@devmode/GridOverlay.svelte";
-  import Profile from "@profile/Profile.svelte";
+  import { ImagePreview, Tooltip, GridOverlay } from "@atoms";
+  import { Profile, Storyboard, Storymode, ControlPanel } from "@organisms";
   import { app } from "@state";
   import { motion } from "@motion";
-  import Storyboard from "@storyboard/Storyboard.svelte";
-  import Storymode from "@storymode/Storymode.svelte";
 
   // --- DERIVED ---
 
@@ -69,7 +64,7 @@
 <GridOverlay />
 
 <style>
-  /* ── Core Shell (Ultra-Lean Layout) ────────────────────────── */
+  /* â”€â”€ Core Shell (Ultra-Lean Layout) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   .root {
     position: relative;
@@ -80,7 +75,7 @@
     animation: fade-in 800ms var(--ease-standard) forwards;
   }
 
-  /* ── Atmospheric Stage ─────────────────────────────────────── */
+  /* â”€â”€ Atmospheric Stage â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   .stage {
     position: fixed;
@@ -118,7 +113,7 @@
       filter 2000ms ease-in-out;
   }
 
-  /* ── Global Overrides ─────────────────────────────────────── */
+  /* â”€â”€ Global Overrides â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   :global(html),
   :global(body) {
@@ -127,7 +122,7 @@
     height: 100%;
   }
 
-  /* ── Kinetic Physics ──────────────────────────────────────── */
+  /* â”€â”€ Kinetic Physics â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 
   @keyframes fade-in {
     from {

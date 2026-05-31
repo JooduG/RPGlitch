@@ -1,10 +1,10 @@
-/**
+﻿/**
  * src/state/app.svelte.js
  * UI: Interface State (Simulation & Gamemaster)
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
  * ZERO NESTING - Flattened Schema only.
  */
-import { closeImagePreview, openImagePreview } from "@atoms/ImagePreview.svelte";
+import { closeImagePreview, openImagePreview } from "@atoms";
 import { generateUUID, resolve_px } from "@components";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, KV_SETTINGS_KEY } from "@engine";

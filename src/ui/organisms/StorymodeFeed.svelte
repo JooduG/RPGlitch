@@ -1,4 +1,4 @@
-<script>
+﻿<script>
   /**
    * @file StorymodeFeed.svelte
    * @description THE NARRATIVE CONDUIT
@@ -9,14 +9,12 @@
    * 4. Progressive sentence-by-sentence text-to-speech parsing with cognition shield filters.
    */
   import { tick } from "svelte";
-  import Button from "@atoms/Button.svelte";
-  import Dialog from "@atoms/Dialog.svelte";
-  import ScrollArea from "@atoms/ScrollArea.svelte";
+  import { Button, ScrollArea } from "@atoms";
   import { clean_image_prompts } from "@intelligence";
   import { Audio } from "@media";
   import { app, runtime, session, simulation_log, simulationState } from "@state";
   import { motion } from "@motion";
-  import Message from "@storymode/Message.svelte";
+  import { Message, Dialog } from "@molecules";
 
   // --- STATE ---
   /** @type {HTMLDivElement | null} */

@@ -1,7 +1,7 @@
-<script>
+﻿<script>
   /**
    * @file Drawer.svelte
-   * 🐣 THE ENTITY BIRTHPLACE
+   * ðŸ£ THE ENTITY BIRTHPLACE
    * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
    * Standard: Fluid coordinate-free physics, pure percentage translation rules.
    */
@@ -10,8 +10,8 @@
   import { app } from "@state";
   import { fade } from "svelte/transition";
 
-  import Backdrop from "@atoms/Backdrop.svelte";
-  import EntityCard from "@atoms/EntityCard.svelte";
+  import { Backdrop } from "@atoms";
+  import { EntityCard } from "@molecules";
 
   // --- STATE & DERIVATIONS ---
 

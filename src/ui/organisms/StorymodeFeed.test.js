@@ -1,9 +1,9 @@
 import { app, session, simulation_log, simulationState } from "@state";
-import StorymodeFeed from "@storymode/StorymodeFeed.svelte";
+import { StorymodeFeed } from "@organisms";
 import { cleanup, fireEvent, render, screen, within } from "@testing-library/svelte";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 // Mock child components
-vi.mock("@storymode/Message.svelte", async () => {
+vi.mock("@molecules/Message.svelte", async () => {
   return await import("@/tests/MockMessage.svelte");
 });
 describe("StorymodeFeed Integration (Isolated)", () => {
@@ -27,10 +27,9 @@ describe("StorymodeFeed Integration (Isolated)", () => {
     simulationState.role = null;
   });
   it("renders empty state when no messages", () => {
-    render(StorymodeFeed);
-    expect(screen.getByText(/Establishing context stream/i)).toBeDefined();
-    // Check for Retry Button
-    expect(screen.getByText("Retry Connection")).toBeDefined();
+    const { getByText } = render(StorymodeFeed);
+    expect(getByText(/Establishing context stream/i)).toBeDefined();
+    expect(getByText("Retry Connection")).toBeDefined();
   });
   it("renders messages using MockMessage", async () => {
     simulation_log.add({
@@ -39,13 +38,13 @@ describe("StorymodeFeed Integration (Isolated)", () => {
       role: "user",
       timestamp: new Date(),
     });
-    render(StorymodeFeed);
-    expect(screen.getByText("Hello Mock")).toBeDefined();
+    const { getByText } = render(StorymodeFeed);
+    expect(getByText("Hello Mock")).toBeDefined();
   });
   it("renders thinking state", async () => {
     simulationState.phase = "generating";
-    render(StorymodeFeed);
-    expect(screen.getByTestId("mock-message-thinking")).toBeDefined();
+    const { getByTestId } = render(StorymodeFeed);
+    expect(getByTestId("mock-message-thinking")).toBeDefined();
   });
   it("renders streaming content", async () => {
     app.streaming = {
@@ -57,8 +56,8 @@ describe("StorymodeFeed Integration (Isolated)", () => {
       role: "ai",
       abort_controller: null,
     };
-    render(StorymodeFeed);
-    expect(screen.getByText("Streaming...")).toBeDefined();
+    const { getByText } = render(StorymodeFeed);
+    expect(getByText("Streaming...")).toBeDefined();
   });
   it("handles message deletion", async () => {
     const deleteSpy = vi.spyOn(session, "delete_log_entry").mockResolvedValue();

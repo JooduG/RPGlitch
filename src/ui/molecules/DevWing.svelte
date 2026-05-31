@@ -1,18 +1,15 @@
-<script>
+﻿<script>
   /**
    * @file src/ui/devmode/DevWing.svelte
-   * ⚙️ DYNAMIC DEVELOPER CONSOLE
+   * âš™ï¸ DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import Button from "@atoms/Button.svelte";
-  import Meter from "@atoms/Meter.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
-  import DataBox from "@devmode/DataBox.svelte";
+  import { Button, Meter, tooltip, DataBox } from "@atoms";
 
   /**
    * @typedef {Object} Props
-   * @property {import('../profile/profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/profile.svelte.js').ProfileState} profileState - The profile state controller
    */
 
   /** @type {Props} */
@@ -70,7 +67,7 @@
 </script>
 
 <section class="root glass-elevated">
-  <!-- 📈 DYNAMICS GRID -->
+  <!-- ðŸ“ˆ DYNAMICS GRID -->
   <div class="body grid">
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
       <div class="card" class:is-editable={is_editing}>
@@ -143,7 +140,7 @@
     {/each}
   </div>
 
-  <!-- 📂 RAW EXPLORER -->
+  <!-- ðŸ“‚ RAW EXPLORER -->
   <div class="body">
     <details class="explorer">
       <summary>View JSON Data</summary>
@@ -153,7 +150,7 @@
     </details>
   </div>
 
-  <!-- 🏷️ META FOOTER -->
+  <!-- ðŸ·ï¸ META FOOTER -->
   <footer class="footer">
     <div class="meta">
       <span class="tag">Born:</span>

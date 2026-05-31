@@ -1,12 +1,11 @@
-<script>
+﻿<script>
   /**
    * @file Dialog.svelte
-   * 🛡️ THE UNIFIED SYSTEM DIALOG
+   * ðŸ›¡ï¸ THE UNIFIED SYSTEM DIALOG
    * Standardizes Alert and Confirm into a single, sleek bits-ui/AlertDialog primitive.
    * RUTHLESSLY FLATTENED: Fully accessible, headless, Svelte 5 runes-powered.
    */
-  import Backdrop from "@atoms/Backdrop.svelte";
-  import Button from "@atoms/Button.svelte";
+  import { Backdrop, Button } from "@atoms";
   import { resolve_ms, resolve_px } from "@components";
   import { AlertDialog } from "bits-ui";
   import { quartOut } from "svelte/easing";

@@ -1,11 +1,11 @@
-<script>
+﻿<script>
   /**
    * @file TextField.svelte
-   * 🕹️ SOTA ATOMIC TEXT INSTRUMENT
+   * ðŸ•¹ï¸ SOTA ATOMIC TEXT INSTRUMENT
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import ScrollArea from "@atoms/ScrollArea.svelte";
+  import { ScrollArea } from "@atoms";
   import { parse_markdown } from "@components";
   import { controlState } from "@state";
   import { auto_resize, use_actions } from "@actions";

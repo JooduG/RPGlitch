@@ -1,13 +1,11 @@
-<script>
+﻿<script>
   /**
    * @file src/ui/profile/ProfileArray.svelte
    * THE VECTOR ARRAY INSTRUMENT
    * A high-fidelity list orchestrator for entity characteristics.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import Button from "@atoms/Button.svelte";
-  import TextField from "@atoms/TextField.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { Button, TextField, tooltip } from "@atoms";
 
   /**
    * @typedef {Object} VectorItem

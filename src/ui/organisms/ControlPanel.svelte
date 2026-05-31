@@ -1,17 +1,11 @@
-<script>
+﻿<script>
   import { db, stories } from "@data";
   import { session_driver } from "@engine";
   import { Audio } from "@media";
   import { app, runtime, simulation_log, simulationState } from "@state";
 
-  import Button from "@atoms/Button.svelte";
-  import Dialog from "@atoms/Dialog.svelte";
-  import Modal from "@atoms/Modal.svelte";
-  import ScrollArea from "@atoms/ScrollArea.svelte";
-  import Slider from "@atoms/Slider.svelte";
-  import TextField from "@atoms/TextField.svelte";
-  import Toggle from "@atoms/Toggle.svelte";
-  import StoryCard from "./StoryCard.svelte";
+  import { Button, Modal, ScrollArea, Slider, TextField, Toggle } from "@atoms";
+  import { StoryCard, Dialog } from "@molecules";
 
   /** @typedef {import('@data/repository.js').Story} Story */
   /** @typedef {import('@state/status.svelte.js').AppSettings} AppSettings */
@@ -35,7 +29,7 @@
 
   /** @type {Record<string, string>} */
   const MOCK_CONTENT = {
-    fractal: `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n[[ Cyber London ]] · [[ 21:30 ]] · [[ Acid Neon ]] \n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
+    fractal: `<think>The simulation layer shifts. Applying high-altitude atmospheric metrics to the local shard.</think>\n\n[[ Cyber London ]] Â· [[ 21:30 ]] Â· [[ Acid Neon ]] \n\nLorem ipsum dolor sit amet, **consectetur** adipiscing elit. *Sed do eiusmod* tempor incididunt ut labore et dolore magna aliqua.\n\nUt enim ad minim veniam, quis nostrud **exercitation** ullamco laboris nisi ut aliquip ex ea commodo consequat.`,
     ai: `<think>Subject is entering the dead-zone. Adjusting internal optics for low-light tracking.</think>\n\n"Listen, champ," *voice drops to conspiratorial whisper*, "Duis aute irure dolor in **reprehenderit** in voluptate velit esse cillum dolore eu fugiat nulla pariatur."\n\n*Excepteurekar sint occaecat* cupidatat non proident. Sunt in culpa qui officia **deserunt** mollit anim id est laborum.`,
   };
 

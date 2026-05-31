@@ -1,20 +1,17 @@
 <script>
   /**
    * @file Message.svelte
-   * ❄️ THE SIMULATION MESSAGE
+   * â„ï¸ THE SIMULATION MESSAGE
    * Renders parsed messages in a Unified Nordic Chassis.
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
-  import DataBox from "@devmode/DataBox.svelte";
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, themeStore } from "@media";
   import { app, runtime } from "@state";
   import { motion, typewriter } from "@motion";
 
-  import Button from "@atoms/Button.svelte";
-  import TextField from "@atoms/TextField.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
-  import DevTelemetryBlock from "@devmode/DevTelemetryBlock.svelte";
+  import { Button, TextField, tooltip, DataBox } from "@atoms";
+  import { DevTelemetryBlock } from "@molecules";
 
   /**
    * @typedef {Object} Props

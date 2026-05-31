@@ -16,7 +16,7 @@ function designTokenSync() {
     buildStart() {
       try {
         console.log("🎨 Syncing design tokens...");
-        execSync("node ./.agents/skills/css/scripts/design-sync.js", { stdio: "inherit" });
+        execSync("node ./.agents/skills/design/scripts/design-sync.js", { stdio: "inherit" });
       } catch (err) {
         console.error("❌ Design token sync failed:", err.message);
       }
@@ -25,7 +25,7 @@ function designTokenSync() {
       if (file.endsWith("DESIGN.md")) {
         try {
           console.log("🎨 DESIGN.md changed, resyncing tokens...");
-          execSync("node ./.agents/skills/css/scripts/design-sync.js", { stdio: "inherit" });
+          execSync("node ./.agents/skills/design/scripts/design-sync.js", { stdio: "inherit" });
           // Optionally trigger a full reload or just let Vite handle the CSS update
         } catch (err) {
           console.error("❌ Design token sync failed:", err.message);
@@ -60,10 +60,8 @@ export default defineConfig(({ command, mode }) => {
         "@actions": path.resolve(__dirname, "./src/ui/actions"),
         "@motion": path.resolve(__dirname, "./src/ui/motion"),
         "@components": path.resolve(__dirname, "./src/ui/components"),
-        "@devmode": path.resolve(__dirname, "./src/ui/devmode"),
-        "@profile": path.resolve(__dirname, "./src/ui/profile"),
-        "@storyboard": path.resolve(__dirname, "./src/ui/storyboard"),
-        "@storymode": path.resolve(__dirname, "./src/ui/storymode"),
+        "@organisms": path.resolve(__dirname, "./src/ui/organisms"),
+        "@molecules": path.resolve(__dirname, "./src/ui/molecules"),
       },
       // Force Vite to prioritize Svelte and modern JS
       extensions: [".svelte", ".js", ".ts", ".mjs"],

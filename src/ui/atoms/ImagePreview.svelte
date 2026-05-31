@@ -1,6 +1,6 @@
-<script module>
+﻿<script module>
   /**
-   * 🖼️ ImagePreview - State-driven Lightbox Kernel
+   * ðŸ–¼ï¸ ImagePreview - State-driven Lightbox Kernel
    * Managed via Svelte 5 Global Module State.
    */
 
@@ -42,7 +42,7 @@
 </script>
 
 <script>
-  import Modal from "@atoms/Modal.svelte";
+  import { Modal } from "@atoms";
 </script>
 
 {#if state.active}
@@ -57,7 +57,7 @@
 
 <style>
   /**
-   * 📐 DOM Flattening & Nomenclature Harmonization
+   * ðŸ“ DOM Flattening & Nomenclature Harmonization
    * We target the Modal's content container directly to eliminate redundant layers.
    * Generic, semantic class names: .visual, .label.
    */

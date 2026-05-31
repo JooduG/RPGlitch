@@ -1,10 +1,10 @@
-<script>
+﻿<script>
   /**
    * @file DevTelemetryBlock.svelte
-   * 📡 THE TELEMETRY MODULE
+   * ðŸ“¡ THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
-  import DataBox from "@devmode/DataBox.svelte";
+  import { DataBox } from "@atoms";
 
   /**
    * @typedef {Object} TelemetryMeta

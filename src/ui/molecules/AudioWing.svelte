@@ -1,19 +1,16 @@
-<script>
+﻿<script>
   /**
    * @file src/ui/profile/AudioWing.svelte
-   * 🔊 THE SONIC IDENTITY
+   * ðŸ”Š THE SONIC IDENTITY
    * Manages character voice selection and parameters.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import Button from "@atoms/Button.svelte";
-  import Dropdown from "@atoms/Dropdown.svelte";
-  import Slider from "@atoms/Slider.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
+  import { Button, Dropdown, Slider, tooltip } from "@atoms";
   import { Audio } from "@media";
 
   /**
    * @typedef {Object} Props
-   * @property {import('./profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/profile.svelte.js').ProfileState} profileState - The profile state controller
    */
 
   /** @type {Props} */
@@ -69,7 +66,7 @@
 </script>
 
 <section class="root glass-elevated">
-  <!-- 🗣️ VOICE SELECTOR -->
+  <!-- ðŸ—£ï¸ VOICE SELECTOR -->
   <div class="controls">
     <Dropdown
       bind:value={profileState.char.voice.uri}
@@ -102,7 +99,7 @@
     </Button>
   </div>
 
-  <!-- 🎚️ PARAMETERS -->
+  <!-- ðŸŽšï¸ PARAMETERS -->
   <div class="body">
     <Slider
       min={0.1}

@@ -1,12 +1,12 @@
-<script>
+﻿<script>
   /**
    * @file src/ui/devmode/DataBox.svelte
-   * 📦 DATABOX ATOM
+   * ðŸ“¦ DATABOX ATOM
    * A standardized frosted container for informational blocks.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
 
-  import ScrollArea from "@atoms/ScrollArea.svelte";
+  import { ScrollArea } from "@atoms";
 
   let {
     label = "",

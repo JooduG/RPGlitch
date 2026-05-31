@@ -1,11 +1,11 @@
-<script>
+﻿<script>
   /**
    * @file Modal.svelte
-   * 🖼️ THE VOID CONTAINER
+   * ðŸ–¼ï¸ THE VOID CONTAINER
    * A generic glassmorphic modal wrapper.
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
-  import Backdrop from "@atoms/Backdrop.svelte";
+  import { Backdrop } from "@atoms";
   import { simulationState } from "@state";
   import { use_actions } from "@actions";
   import { Dialog } from "bits-ui";

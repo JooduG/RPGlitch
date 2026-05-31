@@ -7,20 +7,17 @@
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
 
-  import Skeleton from "@atoms/Skeleton.svelte";
-  import Drawer from "@atoms/Drawer.svelte";
+  import { Skeleton } from "@atoms";
   import { context_broker } from "@intelligence";
   import { app } from "@state";
-  import EntityCard from "@atoms/EntityCard.svelte";
-  import StoryboardDynamicTitle from "@storyboard/StoryboardDynamicTitle.svelte";
-  import StoryboardPill from "@storyboard/StoryboardPill.svelte";
-  import Layout from "@ui/Layout.svelte";
+  import { StoryboardDynamicTitle, Drawer, Layout } from "@organisms";
+  import { UnifiedConsole, EntityCard } from "@molecules";
 
   // --- EVENT BROADCAST: CONTEXT SWAP ---
 
   /**
    * Fires a `context-swap` signal to the ContextBroker whenever the active
-   * "Chin" (view/tab) changes. Zero-latency — no engine re-initialization.
+   * "Chin" (view/tab) changes. Zero-latency â€” no engine re-initialization.
    */
   $effect(() => {
     context_broker.loadViewContext(app.view);
@@ -94,7 +91,7 @@
 
   {#snippet footer()}
     {#if app.entities_loaded}
-      <StoryboardPill />
+      <UnifiedConsole />
     {/if}
   {/snippet}
 </Layout>

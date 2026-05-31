@@ -20,10 +20,8 @@ export default defineConfig({
       "@actions": path.resolve(__dirname, "./src/ui/actions"),
       "@motion": path.resolve(__dirname, "./src/ui/motion"),
       "@components": path.resolve(__dirname, "./src/ui/components"),
-      "@devmode": path.resolve(__dirname, "./src/ui/devmode"),
-      "@profile": path.resolve(__dirname, "./src/ui/profile"),
-      "@storyboard": path.resolve(__dirname, "./src/ui/storyboard"),
-      "@storymode": path.resolve(__dirname, "./src/ui/storymode"),
+      "@molecules": path.resolve(__dirname, "./src/ui/molecules"),
+      "@organisms": path.resolve(__dirname, "./src/ui/organisms"),
     },
   },
   test: {

@@ -1,11 +1,11 @@
-<script>
+﻿<script>
   /**
    * @file StoryCard.svelte
-   * 📖 STORY MODULE
+   * ðŸ“– STORY MODULE
    * A high-fidelity atmospheric card representing a story archive.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import Button from "@atoms/Button.svelte";
+  import { Button } from "@atoms";
   import { themeStore } from "@media";
 
   /** @typedef {import('@data/repository.js').Story} Story */
@@ -50,7 +50,7 @@
     <span class="primary">{story.title}</span>
     <span class="secondary">
       {format_timestamp(story.lastPlayed)}{#if active}
-        · ACTIVE{/if}
+        Â· ACTIVE{/if}
     </span>
   </div>
 

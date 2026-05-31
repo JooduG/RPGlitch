@@ -1,22 +1,14 @@
-<script>
+﻿<script>
   /**
    * @file src/ui/profile/Profile.svelte
-   * 🧬 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
-   * Chalk Regime UI · Flat DOM · Bolted Architecture
+   * ðŸ§¬ ENTITY EDITOR â€” Primary orchestrator for viewing and editing entities.
+   * Chalk Regime UI Â· Flat DOM Â· Bolted Architecture
    */
-  import Button from "@atoms/Button.svelte";
-  import Dialog from "@atoms/Dialog.svelte";
-  import Modal from "@atoms/Modal.svelte";
-  import ProfilePicture from "@atoms/ProfilePicture.svelte";
-  import ScrollArea from "@atoms/ScrollArea.svelte";
-  import TextField from "@atoms/TextField.svelte";
-  import { tooltip } from "@atoms/Tooltip.svelte";
-  import DevWing from "@devmode/DevWing.svelte";
+  import { Button, Modal, ProfilePicture, ScrollArea, TextField, tooltip } from "@atoms";
   import { ENTITY_FRAGMENTS, NAME_PREFIXES, PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { themeStore } from "@media";
-  import AudioWing from "@profile/AudioWing.svelte";
-  import ProfileArray from "@profile/ProfileArray.svelte";
-  import VisualWing from "@profile/VisualWing.svelte";
+  import { AudioWing, VisualWing, DevWing, Dialog } from "@molecules";
+  import { ProfileArray } from "@organisms";
   import { app } from "@state";
   // State & Utilities
   import { auto_resize, click_outside } from "@actions";
@@ -104,7 +96,7 @@
       class:is-mini={app.viewport.mini}
       role="presentation"
     >
-      <!-- 🧬 THE CORE: Profile Container -->
+      <!-- ðŸ§¬ THE CORE: Profile Container -->
       <div
         class="profile-container no-scrollbar glass-elevated"
         class:readonly={!has_wings}
@@ -120,7 +112,7 @@
         </div>
 
         <div class="right">
-          <!-- 🏷️ HEADER -->
+          <!-- ðŸ·ï¸ HEADER -->
           <header class="profile-header">
             <div class="identity-info">
               {#if state.is_editing}
@@ -159,14 +151,14 @@
             {/if}
           </header>
 
-          <!-- 📜 CONTENT -->
+          <!-- ðŸ“œ CONTENT -->
           <main class="profile-content no-scrollbar">
             <ScrollArea style="height: 100%;">
               {@render EntityBody()}
             </ScrollArea>
           </main>
 
-          <!-- 🏁 FOOTER -->
+          <!-- ðŸ FOOTER -->
           <footer class="profile-footer">
             {#if state.is_editing}
               <Button variant="secondary" onclick={() => state.save(entity_type)}>Save</Button>
@@ -182,7 +174,7 @@
         </div>
       </div>
 
-      <!-- 🦇 THE WINGS: Stacking on the right -->
+      <!-- ðŸ¦‡ THE WINGS: Stacking on the right -->
       {#if has_wings}
         <aside class="wings-container no-scrollbar">
           {#if state.is_editing}

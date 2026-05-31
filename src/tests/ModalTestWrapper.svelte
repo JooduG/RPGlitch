@@ -1,5 +1,5 @@
-<script>
-  import Modal from "@atoms/Modal.svelte";
+﻿<script>
+  import { Modal } from "@atoms";
   const { on_close, variant } = $props();
 </script>
 
