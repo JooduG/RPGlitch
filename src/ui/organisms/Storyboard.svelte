@@ -10,7 +10,7 @@
   import { Skeleton } from "@atoms";
   import { context_broker } from "@intelligence";
   import { app } from "@state";
-  import { StoryboardDynamicTitle, Drawer, Layout } from "@organisms";
+  import { StoryboardDynamicTitle, CardHand, Layout } from "@organisms";
   import { UnifiedConsole, EntityCard } from "@molecules";
 
   // --- EVENT BROADCAST: CONTEXT SWAP ---
@@ -97,5 +97,5 @@
 </Layout>
 
 {#if app.entities_loaded}
-  <Drawer />
+  <CardHand />
 {/if}

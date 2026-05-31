@@ -5,7 +5,7 @@ export { default as StoryboardDynamicTitle } from "./StoryboardDynamicTitle.svel
 export { default as Storymode } from "./Storymode.svelte";
 export { default as StorymodeFeed } from "./StorymodeFeed.svelte";
 export { default as ControlPanel } from "./ControlPanel.svelte";
-export { default as Drawer } from "./Drawer.svelte";
+export { default as CardHand } from "./CardHand.svelte";
 export { default as Layout } from "./Layout.svelte";
 export { default as ProfileHeader } from "./ProfileHeader.svelte";
 export * from "./profile.svelte.js";

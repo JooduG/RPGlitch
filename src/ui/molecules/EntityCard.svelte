@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file EntityCard.svelte
    * ðŸƒ THE UNIFIED TAROT
@@ -112,16 +112,6 @@
   class:is-pressing={is_pressing}
   class:is-launching={is_launching}
   class:disabled
-  use:tooltip={{
-    text:
-      variant === "library"
-        ? is_empty
-          ? "Create New"
-          : disabled
-            ? "Already selected"
-            : "Select " + name
-        : a11y_label,
-  }}
   style:--signature-color={signature_color}
   style:view-transition-name={entity && !(variant === "library" && disabled)
     ? "card-" + (entity.type || type) + "-" + entity.id
@@ -184,7 +174,7 @@
   <div class="card-hud-panel">
     <span class="primary-title">{is_empty ? role_label || "Create New" : entity?.name || name}</span
     >
-    {#if !is_empty}
+    {#if !is_empty && variant !== "library"}
       <p class="secondary-desc">{entity?.description || "No description provided."}</p>
     {/if}
   </div>
