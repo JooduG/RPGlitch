@@ -11,7 +11,9 @@ import { safeStatSync } from "./utils.js";
 // 1. Import Domain Rules
 import { cssRules, themeRules } from "../../css/scripts/design-auditor.js";
 import { securityRules } from "../../security/scripts/audit-security.js";
-import { svelteRules } from "../../svelte/scripts/audit-svelte.js";
+import os from "os";
+const sveltePath = path.join(os.homedir(), ".gemini/config/skills/svelte/scripts/audit-svelte.js");
+const { svelteRules } = await import("file://" + sveltePath.replace(/\\/g, "/"));
 import { nomenclatureRules, skillRules, ruleRules, workflowRules, projectRules } from "./rules.js";
 
 const ROOT_DIR = process.cwd();
@@ -264,7 +266,12 @@ function scanForTodo(dir, items_found = []) {
     if (stat.isDirectory()) {
       scanForTodo(fullPath, items_found);
     } else if (stat.isFile() && /\.(js|ts|svelte|md|txt)$/.test(item)) {
-      if (item === "warden.js" || item === "audit-security.js" || item === "SKILL.md" || item === "rules.js")
+      if (
+        item === "warden.js" ||
+        item === "audit-security.js" ||
+        item === "SKILL.md" ||
+        item === "rules.js"
+      )
         continue;
 
       const content = fs.readFileSync(fullPath, "utf8");
@@ -281,7 +288,9 @@ function scanForTodo(dir, items_found = []) {
   }
   return items_found;
 }
-
+/**
+ * Synchronizes the #TODO-AI backlog into the tasks/PRESENT.md file.
+ */
 export function syncBacklog() {
   const TODO_FILE = path.join(ROOT_DIR, "tasks", "PRESENT.md");
   console.log("🧹 Scanning for #TODO-AI tags...");
@@ -302,7 +311,7 @@ export function syncBacklog() {
   const backlogHeader = "## 🧹 Backlog (Automated)";
   const markerStart = "<!-- BACKLOG_START -->";
   const markerEnd = "<!-- BACKLOG_END -->";
-  const lastSwept = `*Last Swept: ${new Date().toISOString().replace(/T/, " ").replace(/\..+/, "")}*`;
+  const lastSwept = `Last Swept: ${new Date().toISOString().replace(/T/, " ").substring(0, 16)}`;
 
   const newBacklogContent = `${markerStart}\n${lastSwept}\n\n${found.join("\n")}\n${markerEnd}`;
 

@@ -13,7 +13,7 @@ This document tracks all major tracks for the project. Each track has its own de
 ## 🗺️ Roadmap (Tracks)
 
 | Track ID                                                  | Name                                           | Priority | Status  | Objective                                                                                               |
-| :-------------------------------------------------------- | :--------------------------------------------- | :------- | :------ | :------------------------------------------------------------------------------------------------------ |
+| --------------------------------------------------------- | ---------------------------------------------- | -------- | ------- | ------------------------------------------------------------------------------------------------------- |
 | `view-transition-collision-overflow-clipping-2026-05-31`  | View Transition Collision & Overflow Clipping  | P0       | ✅ Done | Fix identity token collisions, prevent layout boundary clipping, and stabilize typography bounds.       |
 | `sensory-layer-layout-continuity-polish-sweep-2026-05-31` | Sensory Layer Layout & Continuity Polish Sweep | P0       | ✅ Done | Refactor layouts/transitions inside EntityCard and Drawer, unhide empty cards and secure launch timing. |
 | `inertial-rack-pull-selection-motion-phase-a-2026-05-31`  | Inertial Rack-Pull Selection Motion (Phase A)  | P0       | ✅ Done | Implement press compression tension, rack eject animation, and view transitions in EntityCard.          |

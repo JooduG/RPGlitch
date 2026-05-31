@@ -3,11 +3,6 @@
 # 🧠 Skills (Capabilities)
 skills:
   master-skill-router: .agents/skills/executive/SKILL.md
-  git: .agents/skills/git/SKILL.md
-  jules-fleet: .agents/skills/jules-fleet/SKILL.md
-  api: .agents/skills/api/SKILL.md
-  provenance: .agents/skills/provenance/SKILL.md
-  supabase: .agents/skills/supabase/SKILL.md
   swarm: .agents/skills/swarm/SKILL.md
   design/code:
     design: .agents/skills/design/SKILL.md
@@ -15,24 +10,11 @@ skills:
     motion: .agents/skills/motion/SKILL.md
     audio: .agents/skills/audio/SKILL.md
     ui: .agents/skills/ui/SKILL.md
-    svelte: .agents/skills/svelte/SKILL.md
-    image: .agents/skills/image/SKILL.md
-    javascript: .agents/skills/javascript/SKILL.md
     simulation: .agents/skills/simulation/SKILL.md
   development:
     legislative: .agents/skills/legislative/SKILL.md
-    find-docs: .agents/skills/find-docs/SKILL.md
     release: .agents/skills/release/SKILL.md
-    planning: .agents/skills/planning/SKILL.md
-    context: .agents/skills/context/SKILL.md
-    data: .agents/skills/data/SKILL.md
   QA:
-    review: .agents/skills/review/SKILL.md
-    test: .agents/skills/test/SKILL.md
-    devtools: .agents/skills/devtools/SKILL.md
-    debug: .agents/skills/debug/SKILL.md
-    migration: .agents/skills/migration/SKILL.md
-    performance: .agents/skills/performance/SKILL.md
     security: .agents/skills/security/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)

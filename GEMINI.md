@@ -70,15 +70,15 @@ When external facts are needed. Coordinate specialized MCPs for deep inquiry via
 When Cognitive Structuring is necessary. Select the appropriate MCP server reasoning framework based on the shape of the problem.
 
 - **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**?
-  - Trigger `mcp-sequentialthinking-tools`.
+- Trigger `mcp-sequentialthinking-tools`.
 - Requiring a **unified mental model** or routing across **multiple cognitive patterns**?
-  - Trigger `waldzell-clear-thought`.
+- Trigger `waldzell-clear-thought`.
 - Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**?
-  - Trigger `waldzell-collaborative-reasoning`.
+- Trigger `waldzell-collaborative-reasoning`.
 - Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**?
-  - Trigger `waldzell-decision-framework`.
+- Trigger `waldzell-decision-framework`.
 - High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**?
-  - Trigger `waldzell-metacognitive-monitoring`.
+- Trigger `waldzell-metacognitive-monitoring`.
 
 ### ⚖️ 4. Evaluation & Adaptability
 
@@ -126,12 +126,12 @@ Ensure that all requirements, constraints, options, and preferences are exhausti
 - [ ] **Local CI Verification**: Pass `npm run verify` locally.
 - [ ] **Chalk Regime Verification**: I have scanned my generated code and confirm there are ZERO raw `px`, `rem`, or `#` values, and ZERO hallucinated CSS variables.
 - [ ] All **Rules** have been respected.
-  - [ ] [Foundation](#️-01-foundation)
-  - [ ] [Simulation](#️-02-simulation)
-  - [ ] [Infrastructure](#️-03-infrastructure)
-  - [ ] [Aesthetics](#️-04-aesthetics)
-  - [ ] [Intelligence](#️-05-intelligence)
-  - [ ] [Compliance](#️-06-compliance)
+- [ ] [Foundation](#️-01-foundation)
+- [ ] [Simulation](#️-02-simulation)
+- [ ] [Infrastructure](#️-03-infrastructure)
+- [ ] [Aesthetics](#️-04-aesthetics)
+- [ ] [Intelligence](#️-05-intelligence)
+- [ ] [Compliance](#️-06-compliance)
 
 ### ⏳ 7. Persistence, Patience & Circuit Breakers
 
@@ -252,19 +252,22 @@ A **Round** is the macro-state of the simulation. It increments only when the us
 Turns are micro-states within a Round. They execute a sequential logic flow with asynchronous overlapping.
 
 1. **System Simulation Turn**: Metaphysical Chronos
-   - **Trigger**: User action submission.
-   - **State**: UI disabled; lock system.
-   - **Logic**: Physics, state mutations, and sanitization run synchronously.
-   - **Exit**: Packages the mutated world state into a kernel for the AI.
+
+- **Trigger**: User action submission.
+- **State**: UI disabled; lock system.
+- **Logic**: Physics, state mutations, and sanitization run synchronously.
+- **Exit**: Packages the mutated world state into a kernel for the AI.
 
 2. **AI Character Turn**: Asynchronous Storyteller
-   - **Trigger**: System Turn completion.
-   - **Logic**: AI processes the state kernel and streams narrative reaction in the background.
-   - **Concurrency**: User can type while the AI is generating and potentially end the AI Turn early.
+
+- **Trigger**: System Turn completion.
+- **Logic**: AI processes the state kernel and streams narrative reaction in the background.
+- **Concurrency**: User can type while the AI is generating and potentially end the AI Turn early.
 
 3. **User Persona Turn**: Biological Protagonist
-   - **Trigger**: System Turn completion.
-   - **State**: UI released; input enabled.
+
+- **Trigger**: System Turn completion.
+- **State**: UI released; input enabled.
 
 ---
 
@@ -284,7 +287,7 @@ RPGlitch is a **Local-First Reactive Monolith** (PWA).
 
 Every interaction follows a strict reactive loop propagated by Runes:
 
-1.  **Input** -> 2. **Sanity** (Security) -> 3. **Execution** (Core Engine) -> 4. **Persistence** (Data) -> 5. **Expression** (UI/Sensory).
+1. **Input** -> 2. **Sanity** (Security) -> 3. **Execution** (Core Engine) -> 4. **Persistence** (Data) -> 5. **Expression** (UI/Sensory).
 
 ---
 
@@ -345,10 +348,10 @@ The following hierarchy and protocols govern all **AI Characters** within the si
 - **Restraint**: Simulation AI MUST NOT utilize narrator-voice. It MUST NEVER speak, think, or act on behalf of the user. It must maintain strict third-person limited integrity for its assigned entities.
 - **Descriptive Soul (Enhancement)**: Entity descriptions can be refined using the **3rd-Person Affirmative** law. Describe presence, not absence. No first-person or narrative prose.
 - **Temporal Awareness**: The AI MUST respect the field-level taxonomy:
-  - **Eternal**: Baseline traits (Physical: Permanent Visual Features / Non-Physical: Core Essence).
-  - **Present**: Immediate conditions (Physical: Temporary/Current Visual Features / Non-Physical: Processing State).
-  - **Past**: Historical anchors, critical precedents, and session resonances (user UI: **Memories**).
-  - **Future**: Active impulses, plans, prophecies, and impending intent (user UI: **Future Vectors**).
+- **Eternal**: Baseline traits (Physical: Permanent Visual Features / Non-Physical: Core Essence).
+- **Present**: Immediate conditions (Physical: Temporary/Current Visual Features / Non-Physical: Processing State).
+- **Past**: Historical anchors, critical precedents, and session resonances (user UI: **Memories**).
+- **Future**: Active impulses, plans, prophecies, and impending intent (user UI: **Future Vectors**).
 - **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.
 - **Atmospheric Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The **[Simulation](./.agents/skills/simulation/)** skill bridges mechanics and prose.
 
@@ -369,16 +372,16 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Persistence**: Dexie.js (IndexedDB).
 - **Security**: Validation & Physics via **DOMPurify** sanitization boundaries ([Compliance](#️-06-compliance)).
 - **[Simulation](#️-02-simulation)** building blocks:
-  - [Core](./src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
-  - [Data](./src/data/): Persistence (Dexie) & Entity Repositories.
-  - [State](./src/state/): Reactive Runes (`$state`).
-  - [Theme](./src/theme/): The Chalk Regime (Tokens, Global Styles).
-  - [UI](./src/ui/): Atomic Design (Svelte 5 components).
-  - [Media](./src/media/): Internal Sensory Assets ([Visuals](./.agents/skills/image-generation/), [Audio](./.agents/skills/audio/)).
+- [Core](./src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
+- [Data](./src/data/): Persistence (Dexie) & Entity Repositories.
+- [State](./src/state/): Reactive Runes (`$state`).
+- [Theme](./src/theme/): The Chalk Regime (Tokens, Global Styles).
+- [UI](./src/ui/): Atomic Design (Svelte 5 components).
+- [Media](./src/media/): Internal Sensory Assets ([Visuals](./.agents/skills/image-generation/), [Audio](./.agents/skills/audio/)).
 - [Skills](./.agents/skills/) for infrastructural expertise:
-  - [Skill Router](./.agents/skills/executive/): Intent Decoding, Complexity Triage & Skill Selection.
-  - [Simulation](./.agents/skills/simulation/): Narrative Bridges & Game Logic.
-  - [Security](./.agents/skills/security/): Adversarial Audit & Security.
+- [Skill Router](./.agents/skills/executive/): Intent Decoding, Complexity Triage & Skill Selection.
+- [Simulation](./.agents/skills/simulation/): Narrative Bridges & Game Logic.
+- [Security](./.agents/skills/security/): Adversarial Audit & Security.
 
 ---
 
@@ -498,7 +501,7 @@ To prevent cognitive drift, nomenclature is absolute.
 - **question_snake**: Booleans (e.g., `is_active`, `has_token`).
 - **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
 - **User-Facing**: All user-facing labels, nomenclature, and typography are governed by [Aesthetics](#️-04-aesthetics) rule and [DESIGN.md](./DESIGN.md).
-- **Localization**: Metric/SI only. ISO 8601. Europe/Stockholm (GMT+2 CEST).
+- **Localization**: Metric/SI only. Swedish Standard (YYYY-MM-DD HH:MM). Europe/Stockholm (GMT+2 CEST).
 
 ##### **The RPGlitch Lexicon**
 
@@ -520,7 +523,7 @@ To prevent cognitive drift, nomenclature is absolute.
 - **Devmode**: Developer workspace.
 - **GH CLI**: (`gh`) The primary interface for GitHub lifecycle management. Mandatory for Issue/PR/Workflow operations.
 - **Lean Agent**: A performance configuration maintaining < 50 active MCP tools to ensure context window integrity.
-- **Localization**: Metric/SI only. ISO 8601. Europe/Stockholm (GMT+2 CEST).
+- **Localization**: Metric/SI only. Swedish Standard (YYYY-MM-DD HH:MM). Europe/Stockholm (GMT+2 CEST).
 
 ---
 
@@ -543,9 +546,9 @@ To maintain technical quality and historical continuity, the project follows a s
 ##### **Task Lifecycle & Archival**
 
 - **Status Protocol**: Tasks in the blueprint must follow a strict lifecycle:
-  - `[ ]`: Pending
-  - `[~]`: In Progress (Active)
-  - `[x] <sha>`: Completed (with 7-char commit hash)
+- `[ ]`: Pending
+- `[~]`: In Progress (Active)
+- `[x] <sha>`: Completed (with 7-char commit hash)
 - **Archival Law**: Upon mission/track completion, the `tasks/FUTURE.md` MUST be moved to `~/.gemini/antigravity-ide/archive/` (renamed to reflect the track, e.g., `~/.gemini/antigravity-ide/archive/2026-05-14-design-rebuild.md`).
 - **Strict Hygiene**: `~/.gemini/antigravity-ide/archive/` is the **ONLY** acceptable location for archived documentation. No other `archive/` folders are permitted.
 
@@ -652,9 +655,9 @@ A durable table updated whenever a skill is invoked or a task transitions state.
 ```markdown
 ## 🧠 Pulse (History)
 
-| Timestamp (ISO 8601)   | Task                   | Skill Invoked | Outcome     |
-| ---------------------- | ---------------------- | ------------- | ----------- |
-| 2026-04-12T12:00+02:00 | Fix round counter race | debug         | ✅ Resolved |
+| Timestamp (Swedish) | Task                   | Skill Invoked | Outcome     |
+| ------------------- | ---------------------- | ------------- | ----------- |
+| 2026-04-12 12:00    | Fix round counter race | debug         | ✅ Resolved |
 ```
 
 **Mandate**: Update the Pulse (History) in `tasks/PRESENT.md`:
@@ -722,7 +725,7 @@ Ensure that no task track gets a `[x]` without a logical audit.
 - **The Proving Grounds**:
 
 | Layer       | Framework     | Requirement                                           |
-| :---------- | :------------ | :---------------------------------------------------- |
+| ----------- | ------------- | ----------------------------------------------------- |
 | **Reflex**  | Lint/Prettier | Zero warnings/errors allowed in `src/`.               |
 | **Logic**   | `Vitest`      | State verification for all engine mutations.          |
 | **Sensory** | `Playwright`  | Visual/Functional verification for critical UI paths. |
