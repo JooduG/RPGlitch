@@ -15,6 +15,21 @@ if (!fs.existsSync(TEMPLATES_DIR)) {
 }
 
 /**
+ * 🌊 Safe Filesystem Utilities
+ */
+export function safeStatSync(filePath) {
+  try {
+    return fs.statSync(filePath);
+  } catch (e) {
+    if (["ENAMETOOLONG", "ENOENT", "EACCES", "ELOOP"].includes(e.code)) {
+      console.warn(`Skipping ${filePath} due to ${e.code}`);
+      return null;
+    }
+    throw e;
+  }
+}
+
+/**
  * 🌊 Template Utilities (The Sovereign Blueprint)
  * Shared logic for template-driven auditing.
  */

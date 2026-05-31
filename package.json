@@ -6,7 +6,7 @@
     "audit": "node .agents/skills/executive/scripts/summarize.js audit:src audit:dev",
     "audit:agent": "node .agents/skills/legislative/scripts/warden.js --agent",
     "audit:api": "npm run audit:warden",
-    "audit:backlog": "node .agents/skills/legislative/scripts/warden-project.js backlog",
+    "audit:backlog": "node .agents/skills/legislative/scripts/warden.js backlog",
     "audit:css": "node .agents/skills/legislative/scripts/warden.js --css",
     "audit:design": "node .agents/skills/css/scripts/design-auditor.js",
     "audit:dev": "node .agents/skills/executive/scripts/summarize.js audit:nomenclature audit:backlog audit:agent",
