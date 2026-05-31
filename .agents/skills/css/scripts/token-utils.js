@@ -96,23 +96,14 @@ export function parseDefinedTokens() {
 
       tokens.set(name, { value, comment: last_comment });
       last_comment = null;
-    }
-  }
-
-  return tokens;
-}
-
-/**
- * Recursively collects all source files under a directory matching given extensions.
- * @param {string} dir - Absolute path to the directory to sweep.
- * @param {string[]} [extensions] - File extensions to include.
- * @returns {string[]} Absolute paths to all matched files.
   return fs.readdirSync(dir).reduce((results, file) => {
     if (file === "node_modules" || file === ".git") return results;
 
     const file_path = path.join(dir, file);
+    const stat = fs.statSync(file_path);
+
     if (stat?.isDirectory()) {
-      getSourceFiles(file_path, extensions).forEach((f) => results.push(f));
+      results.push(...getSourceFiles(file_path, extensions));
     } else if (extensions.includes(path.extname(file))) {
       results.push(file_path);
     }
