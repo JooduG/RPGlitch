@@ -79,7 +79,7 @@ function buildJsBridge(flat_data) {
   const { tokens, palette, palette_vars } = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, category) => {
       Object.entries(flat_data[category] || {})
-        .sort()
+        .sort(([a], [b]) => a.localeCompare(b))
         .forEach(([name, value]) => {
           acc.tokens[name] = value;
           if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
