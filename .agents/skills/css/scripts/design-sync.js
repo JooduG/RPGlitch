@@ -59,7 +59,9 @@ function flattenFrontmatter(data) {
         traverse(value, category);
       } else {
         const target_category = category || getCategory(key, value);
-        result[target_category][key] = value;
+        if (result[target_category]) {
+          result[target_category][key] = value;
+        }
       }
     });
   }
