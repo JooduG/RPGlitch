@@ -76,7 +76,7 @@ function flattenFrontmatter(data) {
  * @param {Record<string, Record<string, string>>} flat_data - Per-category token map.
  */
 function buildJsBridge(flat_data) {
-  const { tokens, palette, paletteVars } = AUTHORITATIVE_CATEGORIES.reduce(
+  const { tokens, palette, palette_vars } = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, category) => {
       Object.entries(flat_data[category] || {})
         .sort()
@@ -88,12 +88,12 @@ function buildJsBridge(flat_data) {
               .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
               .join(" ");
             acc.palette[label] = value;
-            acc.paletteVars[value] = `var(--${name})`;
+            acc.palette_vars[value] = `var(--${name})`;
           }
         });
       return acc;
     },
-    { tokens: {}, palette: {}, paletteVars: {} },
+    { tokens: {}, palette: {}, palette_vars: {} },
   );
 
   const output = `/* ============================================================================
