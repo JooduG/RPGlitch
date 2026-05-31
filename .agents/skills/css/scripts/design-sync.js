@@ -79,7 +79,7 @@ function buildJsBridge(flat_data) {
   const { tokens, palette, palette_vars } = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, category) => {
       Object.entries(flat_data[category] || {})
-        .sort((a, b) => a[0].localeCompare(b[0]))
+        .sort()
         .forEach(([name, value]) => {
           acc.tokens[name] = value;
           if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
@@ -125,7 +125,7 @@ export function syncToCss() {
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;
-    const entries = Object.entries(flat_data[category]).sort((a, b) => a[0].localeCompare(b[0]));
+    const entries = Object.entries(flat_data[category]).sort();
     if (entries.length === 0) {
       return category_header;
     }
@@ -161,12 +161,10 @@ export function syncFromCss() {
     (acc, [rawName, { value }]) => {
       const name = rawName.slice(2);
       const category = getCategory(name, value);
-  const category_tokens = Array.from(definedTokens.entries()).reduce(
-    (acc, [rawName, { value }]) => {
-      const name = rawName.slice(2);
-      const category = getCategory(name, value);
       if (acc[category]) {
         acc[category][name] = value;
+      } else {
+        console.error(`[ERROR] Unknown category "${category}" for token "${name}"`);
       }
       return acc;
     },
@@ -178,7 +176,7 @@ export function syncFromCss() {
   const new_data = AUTHORITATIVE_CATEGORIES.reduce(
     (acc, cat) => {
       acc[cat] = Object.keys(category_tokens[cat]).length
-        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort((a, b) => a[0].localeCompare(b[0])))
+        ? Object.fromEntries(Object.entries(category_tokens[cat]).sort())
         : undefined;
       return acc;
     },
