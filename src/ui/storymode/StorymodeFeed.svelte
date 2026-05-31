@@ -1,19 +1,21 @@
 <script>
   /**
    * @file StorymodeFeed.svelte
-   * THE NARRATIVE CONDUIT
+   * @description THE NARRATIVE CONDUIT
    * Logic:
    * 1. Renders the sequential story log entries.
    * 2. Manages auto-scroll and turn-state visualization.
    * 3. Integrated with Nordic Collection & Chess Grid.
    * 4. Progressive sentence-by-sentence text-to-speech parsing with cognition shield filters.
    */
+  import { tick } from "svelte";
   import Button from "@atoms/Button.svelte";
   import Dialog from "@atoms/Dialog.svelte";
   import ScrollArea from "@atoms/ScrollArea.svelte";
   import { clean_image_prompts } from "@intelligence";
   import { Audio } from "@media";
   import { app, runtime, session, simulation_log, simulationState } from "@state";
+  import { motion } from "@motion";
   import Message from "@storymode/Message.svelte";
 
   // --- STATE ---
@@ -30,17 +32,6 @@
   let spoken_character_cursor = $state(0);
 
   // --- DERIVATIONS ---
-
-  // Auto-scroll logic
-  $effect(() => {
-    if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
-      const el = scroll_ref.querySelector(".scroll-area-viewport");
-      // Frame-sync to ensure DOM layout is complete
-      requestAnimationFrame(() => {
-        if (el) el.scrollTop = el.scrollHeight;
-      });
-    }
-  });
 
   // Reactive Sound Cues & Sentence-by-Sentence Vocal Streaming Loop
   $effect(() => {
@@ -111,6 +102,7 @@
   /**
    * Helper to map DB roles to UI sender archetypes
    * @param {string} role
+   * @returns {string}
    */
   function map_role(role) {
     if (role === "assistant" || role === "ai") return "ai";
@@ -127,9 +119,33 @@
     return "";
   });
 
+  // Advanced Kinetic Viewport Auto-Scroll Controller
+  $effect(() => {
+    if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
+      const el = scroll_ref.querySelector(".scroll-area-viewport");
+      if (!el) return;
+
+      // Unwind layout calculations safely inside framework execution ticks
+      tick().then(() => {
+        if (motion.isReduced || typeof el.scrollTo !== "function") {
+          el.scrollTop = el.scrollHeight;
+        } else {
+          el.scrollTo({
+            top: el.scrollHeight,
+            behavior: "smooth",
+          });
+        }
+      });
+    }
+  });
+
   // --- ACTIONS ---
 
-  /** @param {number} index */
+  /**
+   * Triggers the deletion confirmation lifecycle gate for a historic entry.
+   * @param {number} index
+   * @returns {Promise<void>}
+   */
   async function handle_delete(index) {
     const entry = simulation_log.feed[index];
     if (entry?.id) {
@@ -139,7 +155,8 @@
   }
 
   /**
-   *
+   * Excutes the true database erasure operation via session stream handlers.
+   * @returns {Promise<void>}
    */
   async function execute_delete() {
     if (delete_target_id) {
@@ -148,14 +165,20 @@
     }
   }
 
-  /** @param {number} index */
+  /**
+   * Activates editing state limits for a designated stream log index.
+   * @param {number} index
+   * @returns {void}
+   */
   function handle_edit(index) {
     editing_index = index;
   }
 
   /**
+   * Persists client text modifications down across state protocols.
    * @param {string|number} id
    * @param {string} updated_text
+   * @returns {Promise<void>}
    */
   async function handle_save_edit(id, updated_text) {
     await session.edit_log_entry(id.toString(), updated_text);
@@ -221,14 +244,14 @@
 
 <style>
   .root {
-    flex: 1;
-    min-height: var(--dropdown-max-height);
-    overflow: hidden;
-    padding: var(--padding-standard) 0;
     display: flex;
+    flex: 1;
     flex-direction: column;
     gap: 0;
     width: 100%;
+    min-height: var(--dropdown-max-height);
+    overflow: hidden;
+    padding: var(--padding-standard) 0;
   }
 
   .fallback {
@@ -236,11 +259,11 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: var(--gap-standard);
+    height: 100%;
     padding: var(--padding-standard);
     text-align: center;
     color: var(--frozen);
-    gap: var(--gap-standard);
-    height: 100%;
   }
 
   .fallback p {

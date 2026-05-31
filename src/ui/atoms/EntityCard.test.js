@@ -9,6 +9,12 @@ vi.mock("@media/palette.svelte.js", () => ({
   },
 }));
 
+vi.mock("@motion", () => ({
+  motion: {
+    isReduced: true,
+  },
+}));
+
 describe("EntityCard Atom", () => {
   const mockEntity = {
     id: "char-123",

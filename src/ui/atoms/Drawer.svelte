@@ -3,10 +3,12 @@
    * @file Drawer.svelte
    * 🐣 THE ENTITY BIRTHPLACE
    * Slide-up sheet for selecting or creating entities (AI, User, or Fractal).
+   * Standard: Fluid coordinate-free physics, pure percentage translation rules.
    */
   import { create_new, entities as repository } from "@data";
   import { kinetic_scroll, motion, spring } from "@motion";
   import { app } from "@state";
+  import { fade } from "svelte/transition";
 
   import Backdrop from "@atoms/Backdrop.svelte";
   import EntityCard from "@atoms/EntityCard.svelte";
@@ -40,7 +42,8 @@
 
   // --- SVELTE 5 SPRING PHYSICS ---
 
-  const offset_spring = spring(800, {
+  // Refactored to operate on 0-100 percentage parameters
+  const offset_spring = spring(100, {
     stiffness: 0.12,
     damping: 0.75,
   });
@@ -49,19 +52,27 @@
     if (app.drawer.open) {
       offset_spring.value = 0;
     } else {
-      offset_spring.value = 800;
+      offset_spring.value = 100;
     }
   });
 
-  // --- GUARDS ---
-
   /**
-   * Prevents the same entity from being used for both User and AI roles.
-   * @param {any} entity
+   * Evaluates if a given entity should be disabled to prevent transition collisions.
+   * @param {any} entity - The entity to check.
+   * @returns {boolean} True if the entity is already selected.
    */
   function is_disabled(entity) {
-    if (drawer_type === "ai" && app.selected_user?.id === entity.id) return true;
-    if (drawer_type === "user" && app.selected_ai?.id === entity.id) return true;
+    if (!entity) return false;
+
+    if (drawer_type === "ai") {
+      return app.selected_ai?.id === entity.id || app.selected_user?.id === entity.id;
+    }
+    if (drawer_type === "user") {
+      return app.selected_user?.id === entity.id || app.selected_ai?.id === entity.id;
+    }
+    if (drawer_type === "fractal") {
+      return app.selected_fractal?.id === entity.id;
+    }
     return false;
   }
 
@@ -102,17 +113,19 @@
 <svelte:window onkeydown={handle_keydown} />
 
 {#if is_open}
-  <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
+  <div transition:fade={{ duration: 200 }}>
+    <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
+  </div>
 {/if}
 
 <div
   class="drawer glass-elevated"
   class:is-mobile={app.viewport.mobile}
   class:is-mini={app.viewport.mini}
-  class:is-retracted={offset_spring.value > 795}
+  class:is-retracted={offset_spring.value > 99.5}
   role="dialog"
   aria-labelledby="drawer-title"
-  style:transform={motion.isReduced ? "none" : `translateY(${offset_spring.value}px)`}
+  style:transform={motion.isReduced ? "none" : `translateY(${offset_spring.value}%)`}
 >
   <header class="header">
     <h4 id="drawer-title">{title}</h4>
@@ -120,7 +133,6 @@
 
   <div class="body" use:kinetic_scroll>
     <div class="grid">
-      <!-- "Create New" card -->
       <EntityCard
         variant="library"
         type={drawer_type ?? undefined}
@@ -158,8 +170,8 @@
     right: 0;
     margin-inline: auto;
     width: fit-content;
-    min-width: calc(var(--column-unit) * 4);
-    max-width: calc(var(--column-unit) * 10);
+    min-width: var(--modal-width-thin);
+    max-width: var(--modal-width-wide);
     max-height: var(--modal-height-standard);
     border-radius: var(--radius-standard) var(--radius-standard) 0 0;
     z-index: var(--z-index-modal);
@@ -176,7 +188,7 @@
 
   /* --- HEADER --- */
   .header {
-    padding: var(--padding-standard) var(--padding-standard);
+    padding: var(--padding-standard) var(--padding-standard) 0 var(--padding-standard);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -193,7 +205,8 @@
   .body {
     flex: 1;
     overflow: hidden auto;
-    padding: 0 var(--padding-standard) var(--padding-standard);
+    padding: var(--padding-standard);
+    margin-top: calc(var(--padding-standard) * -1);
   }
 
   /* --- GRID (wrapping flex row) --- */
@@ -203,6 +216,7 @@
     align-content: flex-start;
     gap: var(--gap-standard);
     width: 100%;
+    padding-top: var(--padding-standard);
   }
 
   /* --- EMPTY STATE --- */

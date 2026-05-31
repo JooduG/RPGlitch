@@ -11,6 +11,7 @@
   import Button from "@atoms/Button.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
   import { themeStore } from "@media";
+  import { motion } from "@motion";
 
   /**
    * @typedef {Object} Props
@@ -55,26 +56,50 @@
   let view_profile_handler = $derived(on_view_profile || onViewProfile || (() => {}));
 
   /**
+   * Helper to perform the actual entity selection, wrapped inside document.startViewTransition if available.
+   */
+  function trigger_selection() {
+    if (!is_launching) return;
+    if (typeof document !== "undefined" && document.startViewTransition) {
+      document.startViewTransition(async () => {
+        select_handler();
+        await tick();
+        is_launching = false;
+      });
+    } else {
+      select_handler();
+      is_launching = false;
+    }
+  }
+
+  /**
    * Selection handler representing card selection gestures (click / Enter key / Space key).
+   * Bypasses the macro-task macro timeouts by offloading synchronization entirely to framework cycles.
    */
   function handle_select() {
     if (!disabled) {
-      if (variant === "library") {
+      if (variant === "library" && !motion.isReduced) {
+        // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
-        setTimeout(async () => {
-          if (typeof document !== "undefined" && document.startViewTransition) {
-            document.startViewTransition(async () => {
-              select_handler();
-              await tick();
-            });
-          } else {
-            select_handler();
-          }
-          is_launching = false;
+        // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after 200ms
+        setTimeout(() => {
+          trigger_selection();
         }, 200);
       } else {
+        // Direct layout injection if motion suppression is active or not in library layout tracking
         select_handler();
       }
+    }
+  }
+
+  /**
+   * Event listener bound directly to compositor keyframes.
+   * Guarantees view transitions execute on the exact frame the component reaches peak momentum.
+   * @param {AnimationEvent} e
+   */
+  function handle_animation_end(e) {
+    if (e.animationName === "rack-pull-eject" && is_launching) {
+      trigger_selection();
     }
   }
 </script>
@@ -113,6 +138,7 @@
         : "Select " + name
     : a11y_label}
   onclick={handle_select}
+  onanimationend={handle_animation_end}
   onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
   onpointerup={() => {
     is_pressing = false;
@@ -133,7 +159,6 @@
     }
   }}
 >
-  <!-- [CONTENT LAYER: ProfilePicture or Empty State SVG Icon] -->
   <div class="visual-container">
     {#if !is_empty}
       <ProfilePicture {entity} />
@@ -158,7 +183,6 @@
     {/if}
   </div>
 
-  <!-- [TEXT HUD LAYER: Unified bottom overlay] -->
   <div class="card-hud-panel">
     <span class="primary-title">{is_empty ? role_label || "Create New" : entity?.name || name}</span
     >
@@ -167,7 +191,6 @@
     {/if}
   </div>
 
-  <!-- [ACTIONS TOOLBAR] -->
   <nav class="actions-toolbar">
     <Button
       class="item"
@@ -195,7 +218,7 @@
     width: var(--storyboard-character-card-width);
     height: var(--storyboard-character-card-height);
     position: relative;
-    overflow: hidden;
+    overflow: visible;
     border-radius: var(--radius-standard);
     background: var(--glass-elevated);
     backdrop-filter: var(--blur-mist);
@@ -236,7 +259,6 @@
   }
 
   .entity-card-root.is-empty {
-    border-style: dashed;
     opacity: 0.6;
   }
 
@@ -245,7 +267,6 @@
     filter: grayscale(1) brightness(0.7) opacity(0.5) !important;
     transform: none !important;
     box-shadow: none !important;
-    border-style: dashed !important;
     border-color: rgb(from var(--pure-white) r g b / 0.15) !important;
     background: transparent !important;
 
@@ -339,7 +360,7 @@
       var(--chalk) 0%,
       rgb(from var(--chalk) r g b / var(--opacity-solid)) 40%,
       rgb(from var(--chalk) r g b / var(--opacity-muted)) 75%,
-      transparent 100%
+      transparent 100
     );
     display: flex;
     flex-direction: column;
@@ -349,6 +370,7 @@
     padding: var(--padding-standard);
     z-index: var(--z-index-surface);
     pointer-events: none;
+    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
 
     /* Shared base height rules */
     height: 60%;
@@ -358,31 +380,39 @@
       visibility var(--duration-standard) var(--ease-standard);
     opacity: 1;
     visibility: visible;
-    overflow: hidden; /* Force strict containment */
+    overflow: hidden;
   }
 
-  /* Typographic fields inside the unified HUD panel */
   .card-hud-panel .primary-title {
-    color: var(--signature-color, var(--frisk));
+    color: var(--signature-color, var(--frisk)) !important;
     text-shadow: var(--shadow-font);
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-bold);
     text-transform: uppercase;
     letter-spacing: var(--font-spacing-loose);
-    font-size: clamp(var(--font-size-base), 15cqi, var(--font-size-h1));
+
+    /* 🛡️ Impactful, fluid typography scale for full-sized Storyboard cards */
+    font-size: clamp(var(--font-size-base), 12cqi, var(--font-size-h2)) !important;
     white-space: normal;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: break-word;
-
-    /* Use relative em to scale perfectly with fluid cqi font sizes */
-    line-height: 1.2;
-    max-height: var(--card-title-max-height);
+    line-height: 1.15 !important;
     text-align: center;
     width: 100%;
+  }
+
+  .entity-card-root.is-empty .card-hud-panel .primary-title {
+    color: var(--pure-white) !important;
+    opacity: var(--opacity-whisper);
+    transition: opacity var(--duration-standard) var(--ease-standard);
+  }
+
+  .entity-card-root.is-empty:hover .card-hud-panel .primary-title {
+    opacity: var(--opacity-solid);
   }
 
   .card-hud-panel .secondary-desc {
@@ -390,18 +420,18 @@
     font-family: var(--font-family-base);
     font-size: var(--font-size-small);
     color: var(--pure-white);
+    text-shadow: var(--shadow-font);
     line-height: var(--font-height-base);
-    opacity: var(--opacity-whisper) !important;
     white-space: normal;
     display: -webkit-box;
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: break-word;
 
-    /* Performant layout hide animations */
-    max-height: calc(var(--spacing-unit) * 12);
+    /* Performant layout hide animations - 18 spacing units provides sufficient vertical budget to fit 3 lines without clipping ellipses */
+    max-height: calc(var(--spacing-unit) * 18);
     transition:
       max-height var(--duration-standard) var(--ease-standard),
       opacity var(--duration-standard) var(--ease-standard);
@@ -416,20 +446,14 @@
       to top,
       var(--chalk) 0%,
       rgb(from var(--chalk) r g b / var(--opacity-solid)) 60%,
-      transparent 100%
+      transparent 100
     ) !important;
   }
 
   .is-library .card-hud-panel {
-    height: 35%;
-  }
-
-  .is-library:not(.is-empty) .card-hud-panel {
-    display: flex;
-  }
-
-  .entity-card-root.is-empty .card-hud-panel {
-    display: none !important;
+    display: flex !important;
+    height: 40% !important;
+    padding: var(--padding-tight) var(--padding-standard) !important;
   }
 
   .is-library .secondary-desc {
@@ -439,7 +463,9 @@
   }
 
   .is-library .primary-title {
-    font-size: clamp(var(--font-size-nano), 12cqi, var(--font-size-small)) !important;
+    font-size: var(--font-size-small) !important;
+    letter-spacing: var(--font-spacing-base) !important;
+    line-height: 1.2 !important;
   }
 
   /* --- ACTIONS TOOLBAR --- */
@@ -485,10 +511,6 @@
     border-color: rgb(from var(--signature-color) r g b / var(--opacity-solid)) !important;
   }
 
-  .entity-card-root.is-pressing .bar {
-    opacity: 0.1 !important; /* Dims the signature light bar */
-  }
-
   /* 2. The Launch Reveal (Ejecting from the Server Rack Matrix) */
   .entity-card-root.is-launching {
     z-index: var(--z-index-overlay) !important;
@@ -503,15 +525,12 @@
     }
 
     40% {
-      /* Pop outward on Z-axis with an intentional vertical jump shift */
       transform: scale(1.04) translateY(calc(var(--spacing-unit) * -3));
       filter: brightness(1.15);
     }
 
     100% {
       transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
-
-      /* Cast a deep, sharp, high-contrast industrial drop shadow below the element */
       box-shadow:
         0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6)
           rgb(from var(--chalk) r g b / 0.5),

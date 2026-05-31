@@ -2,7 +2,7 @@
  * @file kinetic.svelte.js
  * 🕹️ THE PHYSICS ENGINE
  * High-performance motion primitives using Web Animations API (WAAPI) and spring physics.
- * RUTHLESSLY STANDARDIZED: Identical math system-wide.
+ * RUTHLESSLY STANDARDIZED: Fully type-safe, pure Svelte 5 reactive tracking.
  */
 
 import { resolve_ms, resolve_number, resolve_string } from "@components";
@@ -59,8 +59,8 @@ function createKineticAction(node, config) {
   };
 
   // Svelte 5 Effect to handle dynamic intensity / reduced motion updates reactively
-  /** @type {any} */
-  let cleanupEffect;
+  /** @type {(() => void) | null} */
+  let cleanupEffect = null;
   if (typeof window !== "undefined") {
     cleanupEffect = $effect.root(() => {
       $effect(() => {
@@ -203,8 +203,8 @@ export function spin(node) {
     angleSpring.value = 0;
   };
 
-  /** @type {any} */
-  let cleanupEffect;
+  /** @type {(() => void) | null} */
+  let cleanupEffect = null;
   if (typeof window !== "undefined") {
     cleanupEffect = $effect.root(() => {
       $effect(() => {
@@ -249,8 +249,8 @@ export function roll(node) {
     angleSpring.value = 0;
   };
 
-  /** @type {any} */
-  let cleanupEffect;
+  /** @type {(() => void) | null} */
+  let cleanupEffect = null;
   if (typeof window !== "undefined") {
     cleanupEffect = $effect.root(() => {
       $effect(() => {
@@ -319,15 +319,17 @@ export function kinetic_scroll(node) {
   /** @type {number | null} */
   let raf_id = null;
 
-  const on_down = (/** @type {any} */ e) => {
+  /** @param {MouseEvent & TouchEvent} e */
+  const on_down = (e) => {
     is_down = true;
-    const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+    const touch = e.touches ? e.touches[0] : null;
+    const page_y = touch ? touch.pageY : e.pageY;
     start_y = page_y - node.offsetTop;
     scroll_top = node.scrollTop;
     velocity = 0;
     last_y = page_y;
     last_time = Date.now();
-    if (raf_id) cancelAnimationFrame(raf_id);
+    if (raf_id !== null) cancelAnimationFrame(raf_id);
   };
 
   const on_up = () => {
@@ -340,7 +342,6 @@ export function kinetic_scroll(node) {
     if (is_down || Math.abs(velocity) < 0.1 || intensity === 0) return;
 
     const baseFriction = resolve_number("--kinetic-momentum-friction", 0.95, node);
-    // Decays faster with reduced intensity
     const friction = baseFriction * intensity;
 
     node.scrollTop -= velocity * 10 * intensity;
@@ -348,7 +349,8 @@ export function kinetic_scroll(node) {
     raf_id = requestAnimationFrame(apply_momentum);
   };
 
-  const on_move = (/** @type {any} */ e) => {
+  /** @param {MouseEvent & TouchEvent} e */
+  const on_move = (e) => {
     if (!is_down) return;
 
     const intensity = motion.isReduced ? 0 : motion.intensity;
@@ -357,7 +359,8 @@ export function kinetic_scroll(node) {
     const multiplier = resolve_number("--kinetic-scroll-multiplier", 1.5, node);
     const threshold = resolve_number("--kinetic-drag-threshold", 10, node);
 
-    const page_y = e.pageY || (e.touches ? e.touches[0].pageY : 0);
+    const touch = e.touches ? e.touches[0] : null;
+    const page_y = touch ? touch.pageY : e.pageY;
     const y = page_y - node.offsetTop;
     const walk = (y - start_y) * multiplier;
 
@@ -374,25 +377,25 @@ export function kinetic_scroll(node) {
     last_time = now;
   };
 
-  node.addEventListener("mousedown", on_down);
+  node.addEventListener("mousedown", /** @type {EventListener} */ (on_down));
   node.addEventListener("mouseleave", on_up);
   node.addEventListener("mouseup", on_up);
-  node.addEventListener("mousemove", on_move);
+  node.addEventListener("mousemove", /** @type {EventListener} */ (on_move));
 
-  node.addEventListener("touchstart", on_down, { passive: true });
+  node.addEventListener("touchstart", /** @type {EventListener} */ (on_down), { passive: true });
   node.addEventListener("touchend", on_up);
-  node.addEventListener("touchmove", on_move, { passive: false });
+  node.addEventListener("touchmove", /** @type {EventListener} */ (on_move), { passive: false });
 
   return {
     destroy() {
-      if (raf_id) cancelAnimationFrame(raf_id);
-      node.removeEventListener("mousedown", on_down);
+      if (raf_id !== null) cancelAnimationFrame(raf_id);
+      node.removeEventListener("mousedown", /** @type {EventListener} */ (on_down));
       node.removeEventListener("mouseleave", on_up);
       node.removeEventListener("mouseup", on_up);
-      node.removeEventListener("mousemove", on_move);
-      node.removeEventListener("touchstart", on_down);
+      node.removeEventListener("mousemove", /** @type {EventListener} */ (on_move));
+      node.removeEventListener("touchstart", /** @type {EventListener} */ (on_down));
       node.removeEventListener("touchend", on_up);
-      node.removeEventListener("touchmove", on_move);
+      node.removeEventListener("touchmove", /** @type {EventListener} */ (on_move));
     },
   };
 }

@@ -1,5 +1,10 @@
 <script>
-  import { sanitizeToFragment } from "@platform";
+  /**
+   * @file TypewriterRenderer.svelte
+   * 📝 COGNITIVE TEXT STREAMER ELEMENT
+   * Deconstructs HTML text layers into reactive token buffers.
+   * Eliminates direct DOM tree mutations and manual text node truncation algorithms.
+   */
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
 
@@ -11,36 +16,84 @@
   /** @type {Props} */
   let { targetHtml = "" } = $props();
 
+  /** @type {number} */
   let currentLength = $state(0);
 
-  // Calculate total plain-text length of targetHtml reactively
-  let totalLength = $derived.by(() => {
-    const fragment = sanitizeToFragment(targetHtml);
-    return get_text_length(fragment);
+  /**
+   * Parse text input stream into reactive structural token buffers.
+   * Isolates structural layout elements from text characters to allow optimized paint cycles.
+   */
+  let tokenBuffer = $derived.by(() => {
+    const tokens = [];
+    const regex = /(<[^>]+>|[^<]+)/g;
+    let match;
+
+    while ((match = regex.exec(targetHtml)) !== null) {
+      const val = match[0];
+      if (val.startsWith("<")) {
+        tokens.push({ type: "tag", value: val });
+      } else {
+        for (const char of val) {
+          tokens.push({ type: "text", value: char });
+        }
+      }
+    }
+    return tokens;
   });
 
-  // Calculate the sliced HTML based on currentLength reactively
+  // Calculate total plain-text characters reactively from the computed token buffer
+  let totalLength = $derived(tokenBuffer.filter((t) => t.type === "text").length);
+
+  // Reconstruct structural markup up to current plain-text length limits
   let slicedHtml = $derived.by(() => {
-    const fragment = sanitizeToFragment(targetHtml);
-    truncate_to_length(fragment, Math.floor(currentLength));
+    let output = "";
+    let textCount = 0;
+    const targetCount = Math.floor(currentLength);
+    /** @type {string[]} */
+    const openTags = [];
 
-    // Convert fragment back to HTML string safely
-    const container = document.createElement("div");
-    container.appendChild(fragment);
-    return container.innerHTML;
+    for (const token of tokenBuffer) {
+      if (token.type === "tag") {
+        const tag = token.value;
+        if (tag.startsWith("</")) {
+          openTags.pop();
+          output += tag;
+        } else if (tag.startsWith("<") && !tag.endsWith("/>") && !tag.startsWith("<!")) {
+          const nameMatch = tag.match(/<([a-zA-Z0-9:-]+)/);
+          if (nameMatch) openTags.push(nameMatch[1]);
+          output += tag;
+        } else {
+          output += tag;
+        }
+      } else {
+        if (textCount < targetCount) {
+          output += token.value;
+          textCount++;
+        } else {
+          break;
+        }
+      }
+    }
+
+    // Auto-close any unclosed tags to guarantee layout safety frames
+    for (let i = openTags.length - 1; i >= 0; i--) {
+      output += `</${openTags[i]}>`;
+    }
+
+    return output;
   });
 
-  // Calculate the typewriter speed reactively
+  // Calculate typewriter acceleration pacing metrics deterministically
   let speed = $derived.by(() => {
     const remaining = totalLength - currentLength;
     let baseSpeed = 0.04; // ~40 chars/sec base
     if (remaining > 150) {
-      baseSpeed = 0.2; // 200 chars/sec
+      baseSpeed = 0.2; // 200 chars/sec acceleration mapping
     } else if (remaining > 50) {
-      baseSpeed = 0.1; // 100 chars/sec
+      baseSpeed = 0.1; // 100 chars/sec acceleration mapping
     }
 
-    // Scale with global motion intensity and voice rate
+    // Scale with global motion intensity and voice rate metrics
     const intensity = motion.isReduced ? 0 : motion.intensity;
     const voiceRateFactor = Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
     return baseSpeed * intensity * voiceRateFactor;
@@ -49,78 +102,31 @@
   // Keep track of voice pacing reactively
   $effect(() => {
     if (Audio.voice.enabled && Audio.voice.isSpeaking) {
-      // Audio.voice speaks in synchronization with text streams
+      // Audio.voice telemetry synchronization hooks mapped here
     }
   });
 
-  // Run the typing progress loop reactively
+  // Run typing progress loops smoothly via framework interval gates instead of raw animation frames
   $effect(() => {
     if (currentLength < totalLength) {
       let lastTime = performance.now();
-      let active = true;
 
-      const tick = (/** @type {number} */ now) => {
-        if (!active) return;
+      const intervalId = setInterval(() => {
+        const now = performance.now();
         const elapsed = now - lastTime;
         lastTime = now;
 
         currentLength = Math.min(totalLength, currentLength + elapsed * speed);
-        if (currentLength < totalLength) {
-          requestAnimationFrame(tick);
+        if (currentLength >= totalLength) {
+          clearInterval(intervalId);
         }
-      };
+      }, 16); // High-frequency framework polling interval
 
-      requestAnimationFrame(tick);
       return () => {
-        active = false;
+        clearInterval(intervalId);
       };
     }
   });
-
-  /**
-   * @param {DocumentFragment} fragment
-   */
-  function get_text_length(fragment) {
-    let length = 0;
-    const walk = (/** @type {Node} */ n) => {
-      if (n.nodeType === Node.TEXT_NODE) {
-        length += n.textContent?.length ?? 0;
-      } else {
-        for (let i = 0; i < n.childNodes.length; i++) {
-          walk(n.childNodes[i]);
-        }
-      }
-    };
-    walk(fragment);
-    return length;
-  }
-
-  /**
-   * @param {Node} n
-   * @param {number} targetLength
-   */
-  function truncate_to_length(n, targetLength) {
-    let count = 0;
-    const walk = (/** @type {Node} */ current) => {
-      if (current.nodeType === Node.TEXT_NODE) {
-        const text = current.textContent ?? "";
-        const len = text.length;
-        if (count + len <= targetLength) {
-          count += len;
-        } else if (count >= targetLength) {
-          current.textContent = "";
-        } else {
-          current.textContent = text.substring(0, targetLength - count);
-          count = targetLength;
-        }
-      } else {
-        for (let i = 0; i < current.childNodes.length; i++) {
-          walk(current.childNodes[i]);
-        }
-      }
-    };
-    walk(n);
-  }
 </script>
 
 <div class="typewriter-container" style="content-visibility: auto;">

@@ -1,12 +1,12 @@
 <script>
-  import { themeStore } from "@media";
-  import { runtime } from "@state";
   /**
    * @file InputBar.svelte
    * ⌨️ THE COMMAND CONSOLE
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
+  import { themeStore } from "@media";
+  import { runtime } from "@state";
   import Button from "@atoms/Button.svelte";
   import GlassPill from "@atoms/GlassPill.svelte";
   import { tooltip } from "@atoms/Tooltip.svelte";
@@ -40,6 +40,7 @@
   /**
    * Adjusts the height of the textarea based on its content.
    * Uses raw scrollHeight for precise content tracking.
+   * @returns {void}
    */
   function adjust_height() {
     if (!textarea) return;
@@ -49,6 +50,7 @@
 
   /**
    * Dispatches the current input to the Engine.
+   * @returns {Promise<void>}
    */
   async function handle_send() {
     const text = value.trim();
@@ -69,6 +71,7 @@
   /**
    * Handles keyboard shortcuts (Enter to send).
    * @param {KeyboardEvent} e
+   * @returns {void}
    */
   function handle_keydown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
@@ -79,6 +82,7 @@
 
   /**
    * Triggers height adjustment on input.
+   * @returns {void}
    */
   function handle_input() {
     adjust_height();
@@ -144,6 +148,7 @@
    * ULTRA-LEAN NOMENCLATURE:
    * .editor - Inner textarea entry console.
    */
+
   .editor {
     flex: 1;
     background: transparent;

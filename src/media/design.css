@@ -150,12 +150,12 @@
   --kinetic-shimmy-y: calc(var(--spacing-pixel) / 2);
   --kinetic-slide-y: calc(var(--spacing-pixel) * 10);
   --kinetic-stab-distance: var(--spacing-unit);
-  --modal-height-short: calc(var(--row-unit) * 4);
+  --modal-height-short: calc(var(--row-unit) * 3);
   --modal-height-standard: calc(var(--row-unit) * 6);
-  --modal-height-tall: calc(var(--row-unit) * 8);
+  --modal-height-tall: calc(var(--row-unit) * 9);
   --modal-width-base: calc(var(--column-unit) * 6);
-  --modal-width-thin: calc(var(--column-unit) * 4);
-  --modal-width-wide: calc(var(--column-unit) * 8);
+  --modal-width-thin: calc(var(--column-unit) * 3);
+  --modal-width-wide: calc(var(--column-unit) * 9);
   --motion-dissolve: opacity var(--duration-standard) var(--ease-standard);
   --motion-elastic: var(--duration-slow) var(--ease-elastic);
   --motion-fast: var(--duration-fast) var(--ease-standard);
@@ -177,6 +177,7 @@
   --scale-lift: scale(1.02);
   --scale-pulse: scale(1.05);
   --scale-sink: scale(0.96);
+  --scan-animation: scan var(--duration-ambient) linear infinite;
   --scrollbar-thumb: var(--gunmetal);
   --scrollbar-thumb-hover: var(--frisk);
   --scrollbar-track: transparent;

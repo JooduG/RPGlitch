@@ -3,12 +3,13 @@
    * @file Message.svelte
    * ❄️ THE SIMULATION MESSAGE
    * Renders parsed messages in a Unified Nordic Chassis.
+   * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import DataBox from "@devmode/DataBox.svelte";
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, themeStore } from "@media";
   import { app, runtime } from "@state";
-  import { typewriter } from "@motion";
+  import { motion, typewriter } from "@motion";
 
   import Button from "@atoms/Button.svelte";
   import TextField from "@atoms/TextField.svelte";
@@ -55,8 +56,11 @@
     on_cancel = undefined,
   } = $props();
 
+  // --- STATE RUNES ---
   let isFocused = $state(false);
+  let local_text = $state("");
 
+  // --- DERIVATIONS & RECONCILIATIONS ---
   let is_user = $derived(sender === "user");
   let is_ai = $derived(sender === "ai");
   let is_fractal = $derived(sender === "fractal");
@@ -90,25 +94,40 @@
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
 
-  // Check if we have visible story text
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
   let clean_markdown = $derived(clean_image_prompts(strip_cognition_blocks(text)).trim());
 
+  let time_label = $derived(
+    timestamp.toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    }),
+  );
+
+  // --- ACTIONS & UTILITIES ---
+
   /**
-   * Focus handler.
+   * Focus activation event pipeline handler.
+   * @returns {void}
    */
   function handle_focus() {
     isFocused = true;
   }
 
-  /** @param {FocusEvent & { currentTarget: HTMLElement, relatedTarget: EventTarget | null }} e */
+  /**
+   * Handles focus eviction gestures from the message bubble tree block boundaries.
+   * @param {FocusEvent & { currentTarget: HTMLElement, relatedTarget: EventTarget | null }} e
+   * @returns {void}
+   */
   function handle_focus_out(e) {
     if (e.relatedTarget && e.currentTarget.contains(/** @type {Node} */ (e.relatedTarget))) return;
     isFocused = false;
   }
 
   /**
-   * Clipboard utility.
+   * Invokes system-level clipboard streaming write sequences for text chunks.
+   * @returns {Promise<void>}
    */
   async function handle_copy() {
     try {
@@ -119,7 +138,8 @@
   }
 
   /**
-   * Captures entity properties and passes a direct manual bypass switch to the engine.
+   * Orchestrates audio speech synthesis sequences matching character audio profile configurations.
+   * @returns {void}
    */
   function handle_speak() {
     if (!clean_markdown) return;
@@ -133,19 +153,10 @@
     Audio.voice.speak(clean_markdown, true, true);
   }
 
-  let local_text = $state("");
-
   $effect(() => {
     if (is_editing) {
       local_text = clean_markdown;
     }
-  });
-
-  // svelte-ignore state_referenced_locally
-  const time_label = timestamp.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
   });
 </script>
 
@@ -170,7 +181,9 @@
       class:is-focused={isFocused || busy}
       class:is-busy={busy}
       class:is-editing={is_editing}
-      style="--signature-color: {signature_color};"
+      style="--signature-color: {signature_color}; --scan-animation: {motion.isReduced
+        ? 'none'
+        : 'scan var(--duration-ambient) linear infinite'};"
       tabindex="0"
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
@@ -425,8 +438,9 @@
     flex-direction: column;
     position: relative;
     border-radius: var(--radius-standard);
-    transition: all var(--duration-standard) var(--motion-elastic);
+    transition: all var(--duration-standard) var(--ease-standard);
     background: color-mix(in srgb, var(--glass-sunken), var(--signature-color) 3%);
+    border: var(--border-whisper);
     border-color: rgb(from var(--frisk) r g b / var(--opacity-ghost));
     overflow: hidden;
     outline: none;
@@ -511,7 +525,10 @@
       transparent 100%
     );
     border-bottom: var(--spacing-pixel) solid transparent;
-    transition: all var(--motion-elastic);
+    transition:
+      height var(--duration-standard) var(--ease-standard),
+      background var(--duration-standard) var(--ease-standard),
+      border var(--duration-standard) var(--ease-standard);
     display: flex;
     flex-direction: column;
     position: relative;
@@ -525,6 +542,7 @@
   .message-bubble.is-editing .field-header {
     height: calc(var(--spacing-unit) * 9);
     background: color-mix(in srgb, var(--signature-color, var(--gunmetal)), black 30%);
+    border-bottom: var(--border-whisper);
     border-bottom-color: rgb(from var(--frisk) r g b / var(--opacity-whisper));
     overflow: visible;
     display: flex;
@@ -539,7 +557,9 @@
     opacity: var(--opacity-none);
     pointer-events: none;
     transform: translateY(calc(var(--spacing-unit) * -1));
-    transition: all var(--duration-fast) var(--ease-standard);
+    transition:
+      opacity var(--duration-fast) var(--ease-standard),
+      transform var(--duration-fast) var(--ease-standard);
   }
 
   .message-bubble:focus-within .header-status,
@@ -551,7 +571,9 @@
     opacity: var(--opacity-solid);
     pointer-events: auto;
     transform: translateY(0);
-    transition: all var(--duration-fast) var(--ease-standard) 200ms;
+    transition:
+      opacity var(--duration-fast) var(--ease-standard) 200ms,
+      transform var(--duration-fast) var(--ease-standard) 200ms;
   }
 
   .header-status {
@@ -591,7 +613,9 @@
   .header-actions :global(button) {
     color: var(--pure-white) !important;
     opacity: 0.8;
-    transition: all var(--duration-standard);
+    transition:
+      opacity var(--duration-standard) var(--ease-standard),
+      transform var(--duration-standard) var(--ease-standard);
   }
 
   .header-actions :global(button:hover) {
@@ -667,14 +691,14 @@
     content: "";
     position: absolute;
     inset: 0;
+    width: 100%;
     background: linear-gradient(
       90deg,
       transparent 0%,
       rgb(from var(--frisk) r g b / var(--opacity-whisper)) 50%,
       transparent 100%
     );
-    width: 100%;
-    animation: scan var(--duration-ambient) linear infinite;
+    animation: var(--scan-animation);
   }
 
   @keyframes scan {
