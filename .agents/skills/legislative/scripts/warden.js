@@ -264,7 +264,7 @@ function scanForTodo(dir, items_found = []) {
     if (stat.isDirectory()) {
       scanForTodo(fullPath, items_found);
     } else if (stat.isFile() && /\.(js|ts|svelte|md|txt)$/.test(item)) {
-      if (item === "warden.js" || item === "audit-security.js" || item === "SKILL.md")
+      if (item === "warden.js" || item === "audit-security.js" || item === "SKILL.md" || item === "rules.js")
         continue;
 
       const content = fs.readFileSync(fullPath, "utf8");
