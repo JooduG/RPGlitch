@@ -93,48 +93,46 @@ export function auditCodebaseTokens() {
     (file) => file !== PATHS.designCss && file !== PATHS.jsBridge,
   );
 
-  return source_files.reduce((total_failures, file) => {
+  let total_failures = 0;
+
+  for (const file of source_files) {
     const rel_path = path.relative(PATHS.root, file);
     const lines = fs.readFileSync(file, "utf8").split("\n");
     const is_test_file = file.endsWith(".test.js") || file.endsWith(".test.ts");
 
-    return (
-      total_failures +
-      lines.reduce((file_failures, line, index) => {
-        // 1. Lint Rule Checks
-        const lint_failures = COMPILING_LINT_RULES.reduce((acc, rule) => {
-          if (
-            rule.regex.test(line) &&
-            (typeof rule.validate !== "function" || rule.validate(line))
-          ) {
-            console.error(
-              `\x1b[31m[${rule.severity}] ${rel_path}:${index + 1} - ${rule.message}\x1b[0m`,
-            );
-            return acc + (rule.severity === "HERESY" ? 1 : 0);
+    for (let index = 0; index < lines.length; index++) {
+      const line = lines[index];
+
+      // 1. Lint Rule Checks
+      for (const rule of COMPILING_LINT_RULES) {
+        if (rule.regex.test(line) && (typeof rule.validate !== "function" || rule.validate(line))) {
+          console.error(
+            `\x1b[31m[${rule.severity}] ${rel_path}:${index + 1} - ${rule.message}\x1b[0m`
+          );
+          if (rule.severity === "HERESY") {
+            total_failures++;
           }
-          return acc;
-        }, 0);
+        }
+      }
 
-        // 2. Token Invalidation Check
-        const is_js_doc_line = /^\s*\*/.test(line) || /^\s*\/\*\*/.test(line);
-        const invalid_token_failures =
-          !is_test_file && !is_js_doc_line
-            ? [...line.matchAll(/var\((--[a-zA-Z0-9_-]+)/g)].reduce((acc, match) => {
-                const token_name = match[1];
-                if (!definedMap.has(token_name)) {
-                  console.error(
-                    `\x1b[31m[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}\x1b[0m`,
-                  );
-                  return acc + 1;
-                }
-                return acc;
-              }, 0)
-            : 0;
+      // 2. Token Invalidation Check
+      const is_js_doc_line = /^\s*\*/.test(line) || /^\s*\/\*\*/.test(line);
+      if (!is_test_file && !is_js_doc_line) {
+        const var_matches = [...line.matchAll(/var\((--[a-zA-Z0-9_-]+)/g)];
+        for (const match of var_matches) {
+          const token_name = match[1];
+          if (!definedMap.has(token_name)) {
+            console.error(
+              `\x1b[31m[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}\x1b[0m`
+            );
+            total_failures++;
+          }
+        }
+      }
+    }
+  }
 
-        return file_failures + lint_failures + invalid_token_failures;
-      }, 0)
-    );
-  }, 0);
+  return total_failures;
 }
 
 /**

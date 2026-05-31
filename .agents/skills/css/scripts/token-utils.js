@@ -66,57 +66,40 @@ export function getCategory(name, value = "") {
  * @returns {Map<string, {value: string, comment: string|null}>} Map of token name -> value and comment.
  */
 export function parseDefinedTokens() {
-  if (!fs.existsSync(PATHS.designCss)) return new Map();
+  const tokens = new Map();
+  if (!fs.existsSync(PATHS.designCss)) return tokens;
 
   const css = fs.readFileSync(PATHS.designCss, "utf8");
+  const lines = css.split("\n");
+  let last_comment = null;
 
-  const entries = css.split("\n").reduce(
-    (acc, line, i, lines) => {
-      if (acc.skip_until !== null) {
-        if (i <= acc.skip_until) {
-          return acc;
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    const comment_match = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
+    if (comment_match && !comment_match[1].includes("---") && !comment_match[1].includes("===")) {
+      last_comment = comment_match[1];
+      continue;
+    }
+
+    const token_match = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
+    if (token_match) {
+      const name = token_match[1];
+      let value = token_match[2].replace(/;$/, "").trim();
+
+      if (!line.trim().endsWith(";")) {
+        while (i + 1 < lines.length && !value.endsWith(";")) {
+          i++;
+          value += "\n" + lines[i].trim();
         }
-        acc.skip_until = null;
+        value = value.replace(/;$/, "").trim();
       }
 
-      const comment_match = line.match(/^\s*\/\*\s*(.*?)\s*\*\//);
-      if (comment_match && !comment_match[1].includes("---") && !comment_match[1].includes("===")) {
-        acc.last_comment = comment_match[1];
-        return acc;
-      }
+      tokens.set(name, { value, comment: last_comment });
+      last_comment = null;
+    }
+  }
 
-      const token_match = line.match(/^\s*(--[a-zA-Z0-9_-]+)\s*:\s*(.*?)\s*;?$/);
-      if (token_match) {
-        const name = token_match[1];
-        let value = token_match[2].replace(/;$/, "").trim();
-
-        // Handle multi-line values
-        if (!line.trim().endsWith(";")) {
-          const rest = lines.slice(i + 1);
-          const end_index = rest.findIndex((l) => l.trim().endsWith(";"));
-          if (end_index !== -1) {
-            value +=
-              "\n" +
-              rest
-                .slice(0, end_index + 1)
-                .map((l) => l.trim())
-                .join("\n");
-            value = value.replace(/;$/, "").trim();
-            acc.skip_until = i + 1 + end_index;
-          }
-        }
-
-        acc.tokens.set(name, { value, comment: acc.last_comment });
-        acc.last_comment = null;
-        return acc;
-      }
-
-      return acc;
-    },
-    { tokens: new Map(), last_comment: null, skip_until: null },
-  ).tokens;
-
-  return entries;
+  return tokens;
 }
 
 /**

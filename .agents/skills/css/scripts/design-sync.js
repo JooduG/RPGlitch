@@ -122,9 +122,12 @@ export function syncToCss() {
  * ============================================================================ */\n\n:root {`;
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
-    const category_header = `\n  /* --- ${category.toUpperCase()} --- */\n`;
-    const properties = Object.entries(flat_data[category])
-      .sort()
+    const category_header = `  /* --- ${category.toUpperCase()} --- */`;
+    const entries = Object.entries(flat_data[category]).sort();
+    if (entries.length === 0) {
+      return category_header;
+    }
+    const properties = entries
       .map(([name, value]) => {
         const cached = preserved_comments.get(`--${name}`);
         const comment_str = cached?.comment ? `  /* ${cached.comment} */\n` : "";
@@ -132,14 +135,14 @@ export function syncToCss() {
       })
       .join("\n");
 
-    return category_header + properties;
-  }).join("\n");
+    return `${category_header}\n${properties}`;
+  }).join("\n\n");
 
   const css_blocks = [...body.matchAll(/```css([\s\S]*?)```/g)]
     .map((m) => m[1].trim())
     .join("\n\n");
 
-  const css_output = `${css_header}${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
+  const css_output = `${css_header}\n${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
 
   fs.writeFileSync(PATHS.designCss, css_output);
   buildJsBridge(flat_data);
@@ -156,7 +159,9 @@ export function syncFromCss() {
     (acc, [rawName, { value }]) => {
       const name = rawName.slice(2);
       const category = getCategory(name, value);
-      acc[category][name] = value;
+      if (acc[category]) {
+        acc[category][name] = value;
+      }
       return acc;
     },
     Object.fromEntries(AUTHORITATIVE_CATEGORIES.map((cat) => [cat, {}])),
