@@ -161,10 +161,12 @@ export function syncFromCss() {
     (acc, [rawName, { value }]) => {
       const name = rawName.slice(2);
       const category = getCategory(name, value);
+  const category_tokens = Array.from(definedTokens.entries()).reduce(
+    (acc, [rawName, { value }]) => {
+      const name = rawName.slice(2);
+      const category = getCategory(name, value);
       if (acc[category]) {
         acc[category][name] = value;
-      } else {
-        console.error(`[ERROR] Unknown category "${category}" for token "${name}"`);
       }
       return acc;
     },
