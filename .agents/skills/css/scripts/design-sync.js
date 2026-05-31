@@ -125,7 +125,7 @@ export function syncToCss() {
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;
-    const entries = Object.entries(flat_data[category]).sort();
+    const entries = Object.entries(flat_data[category]).sort(([a], [b]) => a.localeCompare(b));
     if (entries.length === 0) {
       return category_header;
     }
