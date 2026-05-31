@@ -164,7 +164,7 @@ export function syncFromCss() {
       if (acc[category]) {
         acc[category][name] = value;
       } else {
-        console.error(`[ERROR] Unknown category \"${category}\" for token \"${name}\"�lank`);
+        console.error(`[ERROR] Unknown category "${category}" for token "${name}"`);
       }
       return acc;
     },
