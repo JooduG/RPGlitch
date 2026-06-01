@@ -21,17 +21,19 @@
 
   // Core candidate source stream distribution
   let entity_list = $derived(
-    drawer_type === "ai"
-      ? app.ai_list
-      : drawer_type === "user"
-        ? app.user_list
-        : drawer_type === "fractal"
-          ? app.fractal_list
-          : [],
+    /** @type {any[]} */ (
+      drawer_type === "ai"
+        ? app.ai_list
+        : drawer_type === "user"
+          ? app.user_list
+          : drawer_type === "fractal"
+            ? app.fractal_list
+            : []
+    ).filter((/** @type {any} */ entity) => !is_disabled(entity)),
   );
 
   const total_cards = $derived(entity_list.length);
-  const factory_angle = $derived(-((total_cards / 2) * (total_cards > 6 ? 3 : 4) + 4));
+  const factory_angle = $derived(-((total_cards / 2) * (total_cards > 6 ? 2.5 : 3) + 3));
 
   /** @type {Record<string, string>} */
   const TITLES = {
@@ -156,7 +158,7 @@
       </div>
 
       {#each entity_list as entity, idx (entity.id)}
-        {@const dynamic_angle = (idx - (total_cards - 1) / 2) * (total_cards > 6 ? 3 : 4)}
+        {@const dynamic_angle = (idx - (total_cards - 1) / 2) * (total_cards > 6 ? 2.5 : 3)}
         {@const is_hovered = hovered_index === idx}
 
         <div
@@ -237,9 +239,7 @@
   /* --- ARC SELECTION DECK TRAY --- */
   .deck-fan {
     position: relative;
-    display: flex;
-    justify-content: center;
-    align-items: flex-end;
+    display: block;
     width: 100%;
     max-width: var(--grid-width-max);
     height: calc(var(--row-unit) * 3.5);
@@ -252,9 +252,10 @@
     position: absolute;
     pointer-events: auto;
     bottom: 0;
+    left: 50%;
     width: calc(var(--column-unit) * 0.85);
     height: calc(var(--row-unit) * 2.8);
-    margin-inline: calc(var(--spacing-unit) * -10);
+    margin-left: calc(var(--column-unit) * -0.425);
     transform-origin: center calc(100% + calc(var(--row-unit) * 25));
   }
 
@@ -281,6 +282,7 @@
     position: relative;
     border-radius: var(--radius-standard);
     z-index: var(--z-index-surface);
+    will-change: transform;
     transition:
       transform var(--duration-fast) var(--ease-standard),
       filter var(--duration-fast) var(--ease-standard),
@@ -290,11 +292,6 @@
 
   .card-wrapper.interactable-node:hover {
     z-index: var(--z-index-max) !important;
-  }
-
-  .card-visual.is-raised {
-    box-shadow: 0 calc(var(--spacing-unit) * 5) calc(var(--spacing-unit) * 10)
-      rgb(from var(--void-black) r g b / var(--opacity-muted));
   }
 
   .card-wrapper.factory-node:hover {

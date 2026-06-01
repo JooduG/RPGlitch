@@ -40,6 +40,15 @@
   // --- STATE RUNES ---
   let is_pressing = $state(false);
   let is_launching = $state(false);
+  let launch_triggered = false;
+  /** @type {any} */
+  let fallback_timeout = null;
+
+  $effect(() => {
+    return () => {
+      if (fallback_timeout) clearTimeout(fallback_timeout);
+    };
+  });
 
   // --- DERIVATIONS & COMPATIBILITY ---
   let is_empty = $derived(!entity);
@@ -57,16 +66,20 @@
    * Helper to perform the actual entity selection, wrapped inside document.startViewTransition if available.
    */
   function trigger_selection() {
-    if (!is_launching) return;
+    if (launch_triggered || !is_launching) return;
+    launch_triggered = true;
+
     if (typeof document !== "undefined" && document.startViewTransition) {
       document.startViewTransition(async () => {
         select_handler();
         await tick();
         is_launching = false;
+        launch_triggered = false;
       });
     } else {
       select_handler();
       is_launching = false;
+      launch_triggered = false;
     }
   }
 
@@ -80,7 +93,8 @@
         // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
         // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after 200ms
-        setTimeout(() => {
+        if (fallback_timeout) clearTimeout(fallback_timeout);
+        fallback_timeout = setTimeout(() => {
           trigger_selection();
         }, 200);
       } else {
@@ -113,7 +127,7 @@
   class:is-launching={is_launching}
   class:disabled
   style:--signature-color={signature_color}
-  style:view-transition-name={entity && !(variant === "library" && disabled)
+  style:view-transition-name={entity && (variant !== "library" || is_launching)
     ? "card-" + (entity.type || type) + "-" + entity.id
     : undefined}
   role="button"
@@ -232,11 +246,13 @@
     &.is-library {
       width: calc(var(--storyboard-character-card-width) * 0.5);
       height: calc(var(--storyboard-character-card-height) * 0.5);
+      backdrop-filter: none !important; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
     }
 
     &.is-library.is-fractal {
       width: calc(var(--storyboard-fractal-card-width) * 0.5);
       height: calc(var(--storyboard-fractal-card-height) * 0.5);
+      backdrop-filter: none !important; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
     }
   }
 

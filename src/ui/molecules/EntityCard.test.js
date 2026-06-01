@@ -1,5 +1,6 @@
 import { fireEvent, render, screen } from "@testing-library/svelte";
 import { expect, test, describe, vi } from "vitest";
+import { tick } from "svelte";
 import EntityCard from "./EntityCard.svelte";
 
 // Mock the dependencies
@@ -11,7 +12,7 @@ vi.mock("@media/palette.svelte.js", () => ({
 
 vi.mock("@motion", () => ({
   motion: {
-    isReduced: true,
+    isReduced: false,
   },
 }));
 
@@ -37,7 +38,7 @@ describe("EntityCard Atom", () => {
     expect(card).toBeTruthy();
     expect(card.classList.contains("glass-elevated")).toBe(true);
     expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
-    expect(card.style.viewTransitionName).toBe("card-character-char-123");
+    expect(card.style.viewTransitionName).toBe("");
   });
 
   test("renders variant='slot' (empty placeholder) correctly", () => {
@@ -89,6 +90,8 @@ describe("EntityCard Atom", () => {
 
     const card = /** @type {any} */ (container.querySelector(".card"));
     await fireEvent.click(card);
+    await tick();
+    expect(card.style.viewTransitionName).toBe("card-character-char-123");
     vi.advanceTimersByTime(200);
     expect(onclick).toHaveBeenCalled();
 
