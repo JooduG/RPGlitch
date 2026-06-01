@@ -116,7 +116,7 @@
     "octokit": "^4.1.0",
     "paneforge": "^1.0.2",
     "runed": "^0.37.1",
-    "uuid": "^14.0.0"
+    "uuid": "^11.1.1"
   },
   "devDependencies": {
     "@eslint/compat": "^2.0.3",
@@ -126,7 +126,7 @@
     "@playwright/test": "^1.58.2",
     "@sveltejs/vite-plugin-svelte": "^5.1.1",
     "@testing-library/svelte": "^5.3.1",
-    "@types/node": "^25",
+    "@types/node": "^25.9.1",
     "@vitest/browser": "^4.1.2",
     "@vitest/browser-playwright": "^4.1.2",
     "@vitest/ui": "^4.1.2",
@@ -186,6 +186,6 @@
     "lodash-es": "^4.17.21",
     "svelte": "^5.55.7",
     "toad-cache": "3.7.0",
-    "uuid": "^14.0.0"
+    "uuid": "^11.1.1"
   }
 }

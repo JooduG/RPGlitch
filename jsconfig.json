@@ -5,6 +5,7 @@
     "baseUrl": ".",
     "checkJs": true,
     "lib": ["esnext", "dom", "dom.iterable"],
+    "types": ["node"],
     "module": "esnext",
     "moduleResolution": "bundler",
     "paths": {

@@ -69,7 +69,7 @@
     if (launch_triggered || !is_launching) return;
     launch_triggered = true;
 
-    if (typeof document !== "undefined" && document.startViewTransition) {
+    if (typeof document !== "undefined" && typeof document.startViewTransition === 'function') {
       document.startViewTransition(async () => {
         is_launching = false; // Remove view-transition-name from old element before capture
         select_handler();
