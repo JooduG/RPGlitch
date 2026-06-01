@@ -71,14 +71,14 @@
 
     if (typeof document !== "undefined" && document.startViewTransition) {
       document.startViewTransition(async () => {
+        is_launching = false; // Remove view-transition-name from old element before capture
         select_handler();
         await tick();
-        is_launching = false;
         launch_triggered = false;
       });
     } else {
-      select_handler();
       is_launching = false;
+      select_handler();
       launch_triggered = false;
     }
   }
