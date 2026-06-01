@@ -71,7 +71,7 @@ describe("EntityCard Atom", () => {
     expect(root.classList.contains("interactable")).toBe(true);
     expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
     expect(screen.getByText("The Once and Future King.")).toBeTruthy();
-    expect(root.style.viewTransitionName).toBe("card-character-char-123");
+    expect(root.style.viewTransitionName).toBe("card-slot-ai");
   });
 
   test("handles interactions correctly in 'library' variant", async () => {
@@ -91,7 +91,7 @@ describe("EntityCard Atom", () => {
     const card = /** @type {any} */ (container.querySelector(".card"));
     await fireEvent.click(card);
     await tick();
-    expect(card.style.viewTransitionName).toBe("card-character-char-123");
+    expect(card.style.viewTransitionName).toBe("card-slot-ai");
     vi.advanceTimersByTime(200);
     expect(onclick).toHaveBeenCalled();
 

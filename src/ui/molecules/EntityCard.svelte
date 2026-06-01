@@ -10,6 +10,7 @@
   import { ProfilePicture, Button, tooltip } from "@atoms";
   import { themeStore } from "@media";
   import { motion } from "@motion";
+  import { app } from "@state";
 
   /**
    * @typedef {Object} Props
@@ -40,7 +41,29 @@
   // --- STATE RUNES ---
   let is_pressing = $state(false);
   let is_launching = $state(false);
-  let launch_triggered = false;
+  let launch_triggered = $state(false);
+
+  // --- TRANSITION LOGIC ---
+  const transition_name = $derived.by(() => {
+    if (!entity) return undefined;
+
+    // 1. Launching Library Card: Takes ownership of the slot's transition name to morph into the panel.
+    if (variant === "library" && is_launching) {
+      return "card-slot-" + type;
+    }
+
+    // 2. Panel/Slot Card: Holds the transition name normally.
+    // However, if the drawer is actively open to select a NEW entity for THIS specific slot,
+    // we yield (remove) the name from the old panel card to avoid duplicates with the launching card.
+    if (variant !== "library") {
+      if (app.drawer.open && app.drawer.type === type) {
+        return undefined;
+      }
+      return "card-slot-" + type;
+    }
+
+    return undefined;
+  });
   /** @type {any} */
   let fallback_timeout = null;
 
@@ -127,9 +150,7 @@
   class:is-launching={is_launching}
   class:disabled
   style:--signature-color={signature_color}
-  style:view-transition-name={entity && (variant !== "library" || is_launching)
-    ? "card-" + (entity.type || type) + "-" + entity.id
-    : undefined}
+  style:view-transition-name={transition_name}
   role="button"
   tabindex={disabled ? -1 : 0}
   aria-label={variant === "library"
