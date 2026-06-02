@@ -24,6 +24,8 @@
 
 ## PAST (Forensic Log)
 
-| Step | Action | SHA | Outcome |
-|------|--------|-----|---------|
-| — | Track initialized | — | — |
+| Step | Action                             | SHA | Outcome |
+| ---- | ---------------------------------- | --- | ------- |
+| —    | Track initialized                  | —   | —       |
+| 1    | Centralized guard implementation   | —   | Green   |
+| 2    | Perchance duplicate name collision | —   | Fixed   |

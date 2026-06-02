@@ -11,6 +11,7 @@
   import { ProfilePicture, Button, tooltip } from "@atoms";
   import { themeStore } from "@media";
   import { motion } from "@motion";
+  import { app } from "@state";
 
   /**
    * @typedef {Object} Props
@@ -52,8 +53,12 @@
       return "card-slot-" + type;
     }
 
-    // 2. Panel/Slot Card: Holds the transition name normally.
+    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when the drawer is open for this specific type
+    // to guarantee zero duplicate transition name errors during snapshot capture.
     if (variant !== "library") {
+      if (app.drawer.open && app.drawer.type === type) {
+        return undefined;
+      }
       return "card-slot-" + type;
     }
 
@@ -93,16 +98,27 @@
       const targetName = "card-slot-" + type;
       const elements = document.querySelectorAll(".entity-card-root");
       elements.forEach((/** @type {any} */ el) => {
+        const styleAttr = el.getAttribute("style") || "";
+        const hasTransitionName = styleAttr.includes("view-transition-name");
         const currentName = (
           el.style.getPropertyValue("view-transition-name") ||
           el.style.viewTransitionName ||
           ""
         ).trim();
-        if (
-          (currentName === targetName || currentName === `"${targetName}"`) &&
-          !el.classList.contains("is-launching")
-        ) {
+
+        const isMatch =
+          currentName === targetName ||
+          currentName === `"${targetName}"` ||
+          (hasTransitionName && styleAttr.includes(targetName));
+
+        if (isMatch && !el.classList.contains("is-launching")) {
           el.style.removeProperty("view-transition-name");
+          // Bulletproof fallback: manually strip the property from the style attribute directly
+          const cleanedStyle = styleAttr
+            .split(";")
+            .filter((/** @type {string} */ part) => !part.trim().startsWith("view-transition-name"))
+            .join(";");
+          el.setAttribute("style", cleanedStyle);
         }
       });
     } catch (err) {

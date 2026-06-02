@@ -4,37 +4,37 @@
  * Ensures serialized execution and graceful fallback under concurrency.
  */
 
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // NOTE: We must mock the module under test before importing it,
 // as the guard uses a module-level singleton state object.
 /** @type {(cb: () => void | Promise<void>) => void} */
 let guardedTransition;
 
-describe('transition-guard', () => {
+describe("transition-guard", () => {
   beforeEach(async () => {
     // Reset module registry to get a fresh singleton each test
     vi.resetModules();
     // @ts-ignore - IDE struggles to resolve this module in the dynamic import
-    const mod = await import('./transition-guard.js');
+    const mod = await import("./transition-guard.js");
     guardedTransition = mod.guardedTransition;
     // Reset mocks on document — cast via any to bypass TS non-optional property check
     /** @type {any} */ (document).startViewTransition = undefined;
   });
 
-  describe('when document.startViewTransition is NOT available', () => {
-    it('calls the callback synchronously without animation', () => {
+  describe("when document.startViewTransition is NOT available", () => {
+    it("calls the callback synchronously without animation", () => {
       const cb = vi.fn();
       guardedTransition(cb);
       expect(cb).toHaveBeenCalledTimes(1);
     });
 
-    it('does not throw', () => {
+    it("does not throw", () => {
       expect(() => guardedTransition(() => {})).not.toThrow();
     });
   });
 
-  describe('when document.startViewTransition IS available', () => {
+  describe("when document.startViewTransition IS available", () => {
     /** @type {() => void} */
     let resolveTransition;
     /** @type {any} */
@@ -59,14 +59,14 @@ describe('transition-guard', () => {
       });
     });
 
-    it('calls document.startViewTransition with the callback', async () => {
+    it("calls document.startViewTransition with the callback", async () => {
       const cb = vi.fn();
       guardedTransition(cb);
       await vi.waitFor(() => expect(cb).toHaveBeenCalledTimes(1));
       expect(document.startViewTransition).toHaveBeenCalledTimes(1);
     });
 
-    it('sets active=true while transition runs, active=false after finished resolves', async () => {
+    it("sets active=true while transition runs, active=false after finished resolves", async () => {
       const cb = vi.fn();
       guardedTransition(cb);
 
@@ -89,7 +89,7 @@ describe('transition-guard', () => {
       });
     });
 
-    it('releases the active lock after the transition\'s finished promise settles', async () => {
+    it("releases the active lock after the transition's finished promise settles", async () => {
       // Use a deferred promise so we control exactly when the transition finishes
       /** @type {() => void} */
       let resolveFinished = () => {};

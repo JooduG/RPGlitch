@@ -31,7 +31,7 @@ const state = { active: false };
  */
 export function guardedTransition(callback) {
   // Graceful fallback: no API or already active → run synchronously, no error
-  if (typeof document === 'undefined' || !document.startViewTransition || state.active) {
+  if (typeof document === "undefined" || !document.startViewTransition || state.active) {
     callback();
     return;
   }
