@@ -123,13 +123,16 @@
       console.warn("[ViewTransition] DOM pre-flight sweep failed:", err);
     }
 
-    guardedTransition(async () => {
-      is_launching = false; // Remove view-transition-name from old element before capture
-      if (root_el) root_el.style.removeProperty("view-transition-name"); // Bulletproof DOM strip
-      select_handler();
-      await tick();
-      launch_triggered = false;
-    });
+    guardedTransition(
+      async () => {
+        is_launching = false; // Remove view-transition-name from old element before capture
+        if (root_el) root_el.style.removeProperty("view-transition-name"); // Bulletproof DOM strip
+        select_handler();
+        await tick();
+        launch_triggered = false;
+      },
+      { className: "is-swapping-card" },
+    );
   }
 
   /**

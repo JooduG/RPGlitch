@@ -27,9 +27,10 @@ const state = { active: false };
  * animation, no error).
  *
  * @param {() => void | Promise<void>} callback - The DOM mutation to animate.
+ * @param {{ className?: string }} [options] - Optional configuration for the transition.
  * @returns {void}
  */
-export function guardedTransition(callback) {
+export function guardedTransition(callback, options = {}) {
   // Graceful fallback: no API or already active → run synchronously, no error
   if (typeof document === "undefined" || !document.startViewTransition || state.active) {
     callback();
@@ -37,6 +38,10 @@ export function guardedTransition(callback) {
   }
 
   state.active = true;
+
+  if (options.className) {
+    document.documentElement.classList.add(options.className);
+  }
 
   const transition = document.startViewTransition(async () => {
     try {
@@ -51,6 +56,9 @@ export function guardedTransition(callback) {
   // finished may reject if the browser aborts the transition (AbortError) —
   // we suppress that too, as it is a normal browser lifecycle event.
   transition.finished.finally(() => {
+    if (options.className) {
+      document.documentElement.classList.remove(options.className);
+    }
     state.active = false;
   });
 

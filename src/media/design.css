@@ -684,9 +684,9 @@ select:focus {
 }
 
 /* --- Outgoing Card: Decay Vector back to Deck --- */
-::view-transition-old(card-slot-ai),
-::view-transition-old(card-slot-user),
-::view-transition-old(card-slot-fractal) {
+:root.is-swapping-card ::view-transition-old(card-slot-ai),
+:root.is-swapping-card ::view-transition-old(card-slot-user),
+:root.is-swapping-card ::view-transition-old(card-slot-fractal) {
   animation: card-swap-decay var(--duration-standard, 400ms) cubic-bezier(0.25, 1, 0.5, 1) forwards;
   mix-blend-mode: normal;
   height: 100%;
@@ -694,9 +694,9 @@ select:focus {
 }
 
 /* --- Incoming Card: Ascent Vector into Slot --- */
-::view-transition-new(card-slot-ai),
-::view-transition-new(card-slot-user),
-::view-transition-new(card-slot-fractal) {
+:root.is-swapping-card ::view-transition-new(card-slot-ai),
+:root.is-swapping-card ::view-transition-new(card-slot-user),
+:root.is-swapping-card ::view-transition-new(card-slot-fractal) {
   animation: card-swap-ascent var(--duration-standard, 400ms) cubic-bezier(0.25, 1, 0.5, 1) forwards;
   mix-blend-mode: normal;
   height: 100%;
