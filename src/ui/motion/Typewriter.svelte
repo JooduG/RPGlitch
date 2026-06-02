@@ -6,6 +6,7 @@
    */
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
+  import { safe_html } from "@components";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -229,9 +230,7 @@
   class:is-inline={as === "span"}
   style="content-visibility: auto;"
 >
-  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html slicedHtml}
-
+  <span use:safe_html={slicedHtml}></span>
   {#if shouldShowCursor}
     <span class="cursor" class:is-blinking={blinkCursor}>
       {cursorGlyph}

@@ -12,6 +12,7 @@
 
   import { Button, TextField, tooltip, DataBox } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
+  import { safe_html } from "@components";
 
   /**
    * @typedef {Object} Props
@@ -393,9 +394,7 @@
                 placeholder="Edit message..."
               />
             {:else}
-              <div class="message-content">
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html display_text}
+              <div class="message-content" use:safe_html={display_text}>
               </div>
             {/if}
           {/if}
