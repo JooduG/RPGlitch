@@ -38,21 +38,27 @@ export function guardedTransition(callback) {
 
   state.active = true;
 
-  const transition = document.startViewTransition(async () => {
-    try {
-      await callback();
-    } catch {
-      // Suppress callback errors — the guard's contract is DOM mutation safety,
-      // not error propagation. The lock is released via finished.finally().
-    }
-  });
+  try {
+    const transition = document.startViewTransition(async () => {
+      try {
+        await callback();
+      } catch {
+        // Suppress callback errors — the guard's contract is DOM mutation safety,
+        // not error propagation. The lock is released via finished.finally().
+      }
+    });
 
-  // Always release the lock when the transition settles, regardless of outcome.
-  // finished may reject if the browser aborts the transition (AbortError) —
-  // we suppress that too, as it is a normal browser lifecycle event.
-  transition.finished.finally(() => {
+    // Always release the lock when the transition settles, regardless of outcome.
+    // finished may reject if the browser aborts the transition (AbortError) —
+    // we suppress that too, as it is a normal browser lifecycle event.
+    transition.finished.finally(() => {
+      state.active = false;
+    });
+    // Suppress any rejection from finished to prevent unhandled rejection warnings
+    transition.finished.catch(() => {});
+  } catch (err) {
     state.active = false;
-  });
-  // Suppress any rejection from finished to prevent unhandled rejection warnings
-  transition.finished.catch(() => {});
+    // Fallback to running callback synchronously if startViewTransition itself failed synchronously
+    callback();
+  }
 }
