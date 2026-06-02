@@ -6,7 +6,7 @@
    */
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
-  import { sanitizeToFragment } from "@platform";
+  import { sanitize } from "@platform";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -46,13 +46,7 @@
   const hasMultipleWords = $derived(wordsToAnimate.length > 1);
   const currentWordHtml = $derived(wordsToAnimate[currentWordIndex] ?? "");
 
-  const sanitizedWordHtml = $derived.by(() => {
-    const raw = wordsToAnimate[currentWordIndex] ?? "";
-    const fragment = sanitizeToFragment(raw);
-    const temp = document.createElement("div");
-    temp.appendChild(fragment);
-    return temp.innerHTML;
-  });
+  const sanitizedWordHtml = $derived(sanitize(wordsToAnimate[currentWordIndex] ?? ""));
 
   /**
    * Parse active text input stream into structural tag/text tokens.
@@ -240,6 +234,7 @@
 >
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html slicedHtml}
+
   {#if shouldShowCursor}
     <span class="cursor" class:is-blinking={blinkCursor}>
       {cursorGlyph}

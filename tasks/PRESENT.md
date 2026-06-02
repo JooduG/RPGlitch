@@ -59,6 +59,8 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 
 | Reference (ISO 8601) | Task                                                                                                                                                                                                                       | Skill Invoked              | Outcome   |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------- |
+| 2026-06-02 15:21     | Solve view transition name duplication inside Svelte DOM by reactively suppressing card transition-names while selection drawer is open, and hardening pre-flight sweep with style-attr string matching.                   | svelte + css + test        | ✅ Done   |
+| 2026-06-02 15:09     | Complete view-transition-guard-2026-06-02 track: serialize startViewTransition into centralized singleton guard to fix InvalidStateError collisions. | javascript + test          | ✅ Done   |
 | 2026-05-31 19:40     | Redesign ProfileHeader.svelte style & logic to align perfectly with Image 1 (idle, right-aligned, mixed case, pre-wrap formatName break) and Image 2 (edit, left-aligned, glowing signature focus, auto-focus name_input). | svelte + css + quality     | ✅ Done   |
 | 2026-05-31 07:07     | Move check-unused-tokens.js to agents/ folder, fix JSDoc/TS index and array implicit warnings, and run clean verification suite.                                                                                           | javascript + css           | ✅ Done   |
 | 2026-05-31 07:05     | Create self-contained check-unused-tokens.js tool to find all unused design tokens from design.css across the src/ codebase.                                                                                               | javascript + css           | ✅ Done   |
@@ -162,7 +164,7 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-Last Swept: 2026-06-02 13:30
+Last Swept: 2026-06-02 14:15
 
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
