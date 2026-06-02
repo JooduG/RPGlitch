@@ -15,7 +15,6 @@
  * The active lock is always released via finished.finally(), ensuring no leak
  * even if the callback throws or the transition is aborted by the browser.
  */
-import { tick } from "svelte";
 
 /** @type {{ active: boolean }} */
 const state = { active: false };
