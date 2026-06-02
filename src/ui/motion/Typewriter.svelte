@@ -6,7 +6,6 @@
    */
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
-  import { sanitize } from "@platform";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -46,8 +45,6 @@
   const hasMultipleWords = $derived(wordsToAnimate.length > 1);
   const currentWordHtml = $derived(wordsToAnimate[currentWordIndex] ?? "");
 
-  const sanitizedWordHtml = $derived(sanitize(wordsToAnimate[currentWordIndex] ?? ""));
-
   /**
    * Parse active text input stream into structural tag/text tokens.
    * Protects code layout from fracturing mid-way through formatting strings.
@@ -57,7 +54,7 @@
     const regex = /(<[^>]+>|[^<]+)/g;
     let match;
 
-    while ((match = regex.exec(sanitizedWordHtml)) !== null) {
+    while ((match = regex.exec(currentWordHtml)) !== null) {
       const val = match[0];
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });

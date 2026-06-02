@@ -92,6 +92,39 @@
     if (launch_triggered || !is_launching) return;
     launch_triggered = true;
 
+    // Manually strip view-transition-name from any existing panel/slot cards of this type in the DOM
+    // to guarantee zero duplicate transition name errors during snapshot capture.
+    try {
+      const targetName = "card-slot-" + type;
+      const elements = document.querySelectorAll(".entity-card-root");
+      elements.forEach((/** @type {any} */ el) => {
+        const styleAttr = el.getAttribute("style") || "";
+        const hasTransitionName = styleAttr.includes("view-transition-name");
+        const currentName = (
+          el.style.getPropertyValue("view-transition-name") ||
+          el.style.viewTransitionName ||
+          ""
+        ).trim();
+
+        const isMatch =
+          currentName === targetName ||
+          currentName === `"${targetName}"` ||
+          (hasTransitionName && styleAttr.includes(targetName));
+
+        if (isMatch && !el.classList.contains("is-launching")) {
+          el.style.removeProperty("view-transition-name");
+          // Bulletproof fallback: manually strip the property from the style attribute directly
+          const cleanedStyle = styleAttr
+            .split(";")
+            .filter((/** @type {string} */ part) => !part.trim().startsWith("view-transition-name"))
+            .join(";");
+          el.setAttribute("style", cleanedStyle);
+        }
+      });
+    } catch (err) {
+      console.warn("[ViewTransition] DOM pre-flight sweep failed:", err);
+    }
+
     guardedTransition(async () => {
       is_launching = false; // Remove view-transition-name from old element before capture
       select_handler();
