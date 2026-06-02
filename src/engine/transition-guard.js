@@ -53,6 +53,10 @@ export function guardedTransition(callback) {
   transition.finished.finally(() => {
     state.active = false;
   });
-  // Suppress any rejection from finished to prevent unhandled rejection warnings
+
+  // Suppress any rejection from the transition lifecycle promises
+  // to prevent unhandled promise rejection warnings in the browser console.
   transition.finished.catch(() => {});
+  transition.ready.catch(() => {});
+  transition.updateCallbackDone.catch(() => {});
 }

@@ -44,6 +44,9 @@
   let is_launching = $state(false);
   let launch_triggered = $state(false);
 
+  /** @type {HTMLElement | null} */
+  let root_el = $state(null);
+
   // --- TRANSITION LOGIC ---
   const transition_name = $derived.by(() => {
     if (!entity) return undefined;
@@ -111,7 +114,7 @@
           currentName === `"${targetName}"` ||
           (hasTransitionName && styleAttr.includes(targetName));
 
-        if (isMatch && !el.classList.contains("is-launching")) {
+        if (isMatch && el !== root_el) {
           el.style.removeProperty("view-transition-name");
           // Bulletproof fallback: manually strip the property from the style attribute directly
           const cleanedStyle = styleAttr
@@ -127,6 +130,7 @@
 
     guardedTransition(async () => {
       is_launching = false; // Remove view-transition-name from old element before capture
+      if (root_el) root_el.style.removeProperty("view-transition-name"); // Bulletproof DOM strip
       select_handler();
       await tick();
       launch_triggered = false;
@@ -167,6 +171,7 @@
 </script>
 
 <div
+  bind:this={root_el}
   class="entity-card-root interactable card root glass-elevated"
   class:is-empty={is_empty}
   class:is-fractal={type === "fractal"}
