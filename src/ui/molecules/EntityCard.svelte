@@ -49,23 +49,18 @@
 
   // --- TRANSITION LOGIC ---
   const transition_name = $derived.by(() => {
-    if (!entity) return undefined;
-
     // 1. Launching Library Card: Takes ownership of the slot's transition name to morph into the panel.
-    if (variant === "library" && is_launching) {
-      return "card-slot-" + type;
+    if (variant === "library") {
+      return is_launching ? "card-slot-" + type : undefined;
     }
 
     // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when the drawer is open for this specific type
     // to guarantee zero duplicate transition name errors during snapshot capture.
-    if (variant !== "library") {
-      if (app.drawer.open && app.drawer.type === type) {
-        return undefined;
-      }
-      return "card-slot-" + type;
+    if (app.drawer.open && app.drawer.type === type) {
+      return undefined;
     }
 
-    return undefined;
+    return "card-slot-" + type;
   });
   /** @type {any} */
   let fallback_timeout = null;
@@ -146,11 +141,11 @@
       if (variant === "library" && !motion.isReduced) {
         // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
-        // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after 200ms
+        // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after animation duration
         if (fallback_timeout) clearTimeout(fallback_timeout);
         fallback_timeout = setTimeout(() => {
           trigger_selection();
-        }, 200);
+        }, 300);
       } else {
         // Direct layout injection if motion suppression is active or not in library layout tracking
         select_handler();
@@ -172,7 +167,7 @@
 
 <div
   bind:this={root_el}
-  class="entity-card-root interactable card root glass-elevated"
+  class="entity-card-root interactable glass-elevated"
   class:is-empty={is_empty}
   class:is-fractal={type === "fractal"}
   class:is-slot={variant === "slot"}
@@ -214,27 +209,23 @@
     }
   }}
 >
-  <div class="visual-container">
+  <div class="visual-container" class:is-placeholder={is_empty}>
     {#if !is_empty}
       <ProfilePicture {entity} />
+    {:else if variant === "library"}
+      <svg viewBox="0 0 24 24" class="icon icon-outline">
+        <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
+      </svg>
+    {:else if type === "fractal"}
+      <svg viewBox="0 0 24 24" class="icon icon-outline">
+        <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
+      </svg>
     {:else}
-      <div class="status">
-        {#if variant === "library"}
-          <svg viewBox="0 0 24 24" class="icon icon-outline">
-            <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
-          </svg>
-        {:else if type === "fractal"}
-          <svg viewBox="0 0 24 24" class="icon icon-outline">
-            <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
-          </svg>
-        {:else}
-          <svg viewBox="0 0 24 24" class="icon icon-outline">
-            <path
-              d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-            />
-          </svg>
-        {/if}
-      </div>
+      <svg viewBox="0 0 24 24" class="icon icon-outline">
+        <path
+          d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
+        />
+      </svg>
     {/if}
   </div>
 
@@ -379,9 +370,7 @@
   }
 
   /* --- PLACEHOLDER LAYER --- */
-  .status {
-    position: absolute;
-    inset: 0;
+  .visual-container.is-placeholder {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -389,14 +378,13 @@
     gap: var(--gap-standard);
     color: var(--pure-white);
     opacity: var(--opacity-whisper);
-    transition: opacity var(--duration-standard) var(--ease-standard);
   }
 
-  .entity-card-root:hover .status {
+  .entity-card-root:hover .visual-container.is-placeholder {
     opacity: var(--opacity-solid);
   }
 
-  .status .icon {
+  .visual-container.is-placeholder .icon {
     width: calc(var(--spacing-unit) * 20);
     height: calc(var(--spacing-unit) * 20);
   }
@@ -571,7 +559,7 @@
   /* 2. The Launch Reveal (Ejecting from the Server Rack Matrix) */
   .entity-card-root.is-launching {
     z-index: var(--z-index-overlay) !important;
-    animation: rack-pull-eject 200ms var(--ease-elastic) forwards;
+    animation: rack-pull-eject var(--duration-standard) var(--ease-elastic) forwards;
   }
 
   /* --- KINETIC HARDWARE KEYFRAMES --- */

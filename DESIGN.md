@@ -789,4 +789,24 @@ select:focus {
     transform: translateY(0);
   }
 }
+
+::view-transition-group(card-slot-ai),
+::view-transition-group(card-slot-user),
+::view-transition-group(card-slot-fractal) {
+  animation-duration: var(--duration-standard, 350ms);
+  animation-timing-function: var(--ease-standard, cubic-bezier(0.25, 1, 0.5, 1));
+  will-change: transform, opacity;
+}
+
+::view-transition-old(card-slot-ai),
+::view-transition-old(card-slot-user),
+::view-transition-old(card-slot-fractal),
+::view-transition-new(card-slot-ai),
+::view-transition-new(card-slot-user),
+::view-transition-new(card-slot-fractal) {
+  animation: none;
+  mix-blend-mode: normal;
+  height: 100%;
+  width: 100%;
+}
 ```

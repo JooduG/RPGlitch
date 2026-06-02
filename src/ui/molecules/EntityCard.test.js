@@ -35,7 +35,7 @@ describe("EntityCard Atom", () => {
       },
     });
 
-    const card = /** @type {any} */ (container.querySelector(".card"));
+    const card = /** @type {any} */ (container.querySelector(".entity-card-root"));
     expect(card).toBeTruthy();
     expect(card.classList.contains("glass-elevated")).toBe(true);
     expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
@@ -51,11 +51,11 @@ describe("EntityCard Atom", () => {
       },
     });
 
-    const root = /** @type {any} */ (container.querySelector(".root"));
+    const root = /** @type {any} */ (container.querySelector(".entity-card-root"));
     expect(root).toBeTruthy();
     expect(root.classList.contains("is-empty")).toBe(true);
     expect(screen.getByText("Narrator Role")).toBeTruthy();
-    expect(root.style.viewTransitionName).toBe("");
+    expect(root.style.viewTransitionName).toBe("card-slot-ai");
   });
 
   test("renders variant='panel' (filled storyboard card) correctly", () => {
@@ -67,7 +67,7 @@ describe("EntityCard Atom", () => {
       },
     });
 
-    const root = /** @type {any} */ (container.querySelector(".root"));
+    const root = /** @type {any} */ (container.querySelector(".entity-card-root"));
     expect(root).toBeTruthy();
     expect(root.classList.contains("interactable")).toBe(true);
     expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
@@ -88,7 +88,7 @@ describe("EntityCard Atom", () => {
       },
     });
 
-    const root = /** @type {any} */ (container.querySelector(".root"));
+    const root = /** @type {any} */ (container.querySelector(".entity-card-root"));
     expect(root).toBeTruthy();
     expect(root.style.viewTransitionName).toBe("");
 
@@ -102,7 +102,7 @@ describe("EntityCard Atom", () => {
         type: "ai",
       },
     });
-    const root2 = /** @type {any} */ (container2.querySelector(".root"));
+    const root2 = /** @type {any} */ (container2.querySelector(".entity-card-root"));
     expect(root2.style.viewTransitionName).toBe("card-slot-ai");
 
     // Clean up
@@ -124,11 +124,11 @@ describe("EntityCard Atom", () => {
       },
     });
 
-    const card = /** @type {any} */ (container.querySelector(".card"));
+    const card = /** @type {any} */ (container.querySelector(".entity-card-root"));
     await fireEvent.click(card);
     await tick();
     expect(card.style.viewTransitionName).toBe("card-slot-ai");
-    vi.advanceTimersByTime(200);
+    vi.advanceTimersByTime(300);
     expect(onclick).toHaveBeenCalled();
 
     await fireEvent.contextMenu(card);
