@@ -675,22 +675,66 @@ select:focus {
   }
 }
 
+/* --- Decoupled Target Groups --- */
 ::view-transition-group(card-slot-ai),
 ::view-transition-group(card-slot-user),
 ::view-transition-group(card-slot-fractal) {
-  animation-duration: var(--duration-standard, 350ms);
-  animation-timing-function: var(--ease-standard, cubic-bezier(0.25, 1, 0.5, 1));
-  will-change: transform, opacity;
+  animation-duration: var(--duration-standard, 400ms);
+  animation-timing-function: cubic-bezier(0.25, 1, 0.5, 1); /* Precise mechanical ease */
 }
 
+/* --- Outgoing Card: Decay Vector back to Deck --- */
 ::view-transition-old(card-slot-ai),
 ::view-transition-old(card-slot-user),
-::view-transition-old(card-slot-fractal),
-::view-transition-new(card-slot-ai),
-::view-transition-new(card-slot-user),
-::view-transition-new(card-slot-fractal) {
-  animation: none;
+::view-transition-old(card-slot-fractal) {
+  animation: card-swap-decay var(--duration-standard, 400ms) cubic-bezier(0.25, 1, 0.5, 1) forwards;
   mix-blend-mode: normal;
   height: 100%;
   width: 100%;
+}
+
+/* --- Incoming Card: Ascent Vector into Slot --- */
+::view-transition-new(card-slot-ai),
+::view-transition-new(card-slot-user),
+::view-transition-new(card-slot-fractal) {
+  animation: card-swap-ascent var(--duration-standard, 400ms) cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  mix-blend-mode: normal;
+  height: 100%;
+  width: 100%;
+}
+
+/* --- Kinetic Keyframe Arrays --- */
+@keyframes card-swap-decay {
+  0% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
+  40% {
+    filter: brightness(0.8);
+  }
+  100% {
+    /* Translate downward toward the orbital hand workspace with a slight tilt */
+    transform: translateY(calc(var(--row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
+    opacity: 0;
+    filter: brightness(0.4) blur(2px);
+  }
+}
+
+@keyframes card-swap-ascent {
+  0% {
+    /* Emerge from the lower deck coordinates slightly scaled down */
+    transform: translateY(calc(var(--row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
+    opacity: 0;
+    filter: brightness(1.5) blur(4px);
+  }
+  50% {
+    opacity: 1;
+    filter: blur(0px);
+  }
+  100% {
+    transform: translateY(0) scale(1) rotate(0deg);
+    opacity: 1;
+    filter: brightness(1);
+  }
 }

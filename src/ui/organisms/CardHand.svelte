@@ -6,9 +6,8 @@
    * Standard: Fine-grained Svelte 5 Reactivity & Kinetic Geometry.
    */
   import { create_new, entities as repository } from "@data";
-  import { motion, spring } from "@motion";
+  import { motion } from "@motion";
   import { app } from "@state";
-  import { fade } from "svelte/transition";
   import { Backdrop } from "@atoms";
   import { EntityCard } from "@molecules";
 
@@ -18,6 +17,28 @@
 
   /** @type {number | null} */
   let hovered_index = $state(null);
+
+  // Deferral state for symmetric unmount
+  let render_active = $state(false);
+  let is_visible = $state(false);
+
+  $effect(() => {
+    if (is_open) {
+      render_active = true;
+      // Allow DOM to render `.deck-overlay` at its starting translated state
+      // before adding `.is-visible` to trigger the CSS transition
+      requestAnimationFrame(() => {
+        is_visible = true;
+      });
+    } else if (render_active) {
+      is_visible = false;
+      // Use standard layout duration (300ms) for deterministic unmount
+      const timer = setTimeout(() => {
+        render_active = false;
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  });
 
   // Core candidate source stream distribution
   let entity_list = $derived(
@@ -43,21 +64,6 @@
   };
 
   let title = $derived((drawer_type ? TITLES[drawer_type] : null) ?? "Select Entity");
-
-  // --- KINETIC SPRING ENGINE ---
-  // Tracks smooth vertical entry/exit animations on a 0-100 percentage scale
-  const hand_spring = spring(100, {
-    stiffness: 0.1,
-    damping: 0.72,
-  });
-
-  $effect(() => {
-    if (is_open) {
-      hand_spring.value = 0;
-    } else {
-      hand_spring.value = 100;
-    }
-  });
 
   // --- MUTUAL EXCLUSION SAFETY BARRIERS ---
   /**
@@ -117,15 +123,18 @@
 <svelte:window onkeydown={handle_keydown} />
 
 {#if is_open}
-  <div transition:fade={{ duration: 250 }}>
-    <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
-  </div>
+  <!-- Svelte handles Backdrop outro natively. Removing redundant wrapper div. -->
+  <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
+{/if}
 
+{#if render_active}
   <div
     class="deck-overlay"
+    class:is-visible={is_visible}
+    class:is-exiting={!is_visible}
+    class:is-reduced={motion.isReduced}
     role="dialog"
     aria-labelledby="hand-title"
-    style:transform={motion.isReduced ? "none" : `translateY(${hand_spring.value}%)`}
   >
     <header class="deck-header">
       <h4 id="hand-title">{title}</h4>
@@ -217,6 +226,28 @@
     pointer-events: none;
     padding-bottom: calc(var(--row-unit) * 0.1);
     overflow: hidden;
+
+    /* Symmetric Out-Transition Initial State */
+    transform: translateY(100%);
+    opacity: 0;
+    transition:
+      transform var(--duration-standard) var(--ease-standard),
+      opacity var(--duration-standard) var(--ease-standard);
+  }
+
+  .deck-overlay.is-visible {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  .deck-overlay.is-exiting {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+
+  .deck-overlay.is-reduced {
+    transition: opacity var(--duration-standard) var(--ease-standard) !important;
+    transform: translateY(0) !important;
   }
 
   /* --- SYSTEM CONSOLE TEXT MODULE --- */
