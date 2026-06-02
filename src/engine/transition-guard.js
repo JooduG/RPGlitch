@@ -17,7 +17,7 @@
  */
 
 /** @type {{ active: boolean }} */
-const state = { active: false };
+const state = { is_active: false };
 
 /**
  * Safely wraps document.startViewTransition with a single-flight guard.
