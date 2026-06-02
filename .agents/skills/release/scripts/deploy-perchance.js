@@ -39,7 +39,7 @@ const CONFIG = {
     PROJECT_ROOT,
     ".agents",
     "skills",
-    "release",
+    "delivery",
     "assets",
     "RPGlitch-left-panel.txt",
   ),

@@ -1,4 +1,4 @@
-/**
+﻿/**
  * src/state/app.svelte.js
  * UI: Interface State (Simulation & Gamemaster)
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
@@ -7,7 +7,7 @@
 import { closeImagePreview, openImagePreview } from "@atoms";
 import { generateUUID, resolve_px } from "@components";
 import { db, entities, normalize } from "@data";
-import { log as engineLog, KV_SETTINGS_KEY, guardedTransition } from "@engine";
+import { log as engineLog, KV_SETTINGS_KEY } from "@engine";
 import { visual_engine } from "@media";
 import { runtime, simulationState, uiState } from "@state";
 
@@ -332,9 +332,13 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
-    guardedTransition(() => {
+    if (typeof document !== "undefined" && document.startViewTransition) {
+      document.startViewTransition(() => {
+        this.view = view;
+      });
+    } else {
       this.view = view;
-    });
+    }
   };
   open_drawer = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
     this.drawer.type = type;

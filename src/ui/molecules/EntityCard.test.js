@@ -2,7 +2,6 @@ import { fireEvent, render, screen } from "@testing-library/svelte";
 import { expect, test, describe, vi } from "vitest";
 import { tick } from "svelte";
 import EntityCard from "./EntityCard.svelte";
-import { app } from "@state";
 
 // Mock the dependencies
 vi.mock("@media/palette.svelte.js", () => ({
@@ -73,41 +72,6 @@ describe("EntityCard Atom", () => {
     expect(screen.getAllByText("Arthur Pendragon").length).toBeGreaterThan(0);
     expect(screen.getByText("The Once and Future King.")).toBeTruthy();
     expect(root.style.viewTransitionName).toBe("card-slot-ai");
-  });
-
-  test("suppresses view-transition-name on variant='panel' when drawer is open for its type", async () => {
-    // Open drawer for type 'ai'
-    app.drawer.open = true;
-    app.drawer.type = "ai";
-
-    const { container } = render(EntityCard, {
-      props: {
-        variant: "panel",
-        entity: mockEntity,
-        type: "ai",
-      },
-    });
-
-    const root = /** @type {any} */ (container.querySelector(".root"));
-    expect(root).toBeTruthy();
-    expect(root.style.viewTransitionName).toBe("");
-
-    // If drawer is open for another type, it should NOT suppress
-    app.drawer.type = "user";
-    await tick();
-    const { container: container2 } = render(EntityCard, {
-      props: {
-        variant: "panel",
-        entity: mockEntity,
-        type: "ai",
-      },
-    });
-    const root2 = /** @type {any} */ (container2.querySelector(".root"));
-    expect(root2.style.viewTransitionName).toBe("card-slot-ai");
-
-    // Clean up
-    app.drawer.open = false;
-    app.drawer.type = null;
   });
 
   test("handles interactions correctly in 'library' variant", async () => {

@@ -7,4 +7,3 @@ export { SESSION_ID_KEY, KV_SETTINGS_KEY } from "./constants.js";
 export { generateUUID, generateSecureSeed, pickRandom, clamp, debounce } from "./utils.js";
 export * as logger from "./logger.svelte.js";
 export { log } from "./logger.svelte.js";
-export { guardedTransition } from "./transition-guard.js";

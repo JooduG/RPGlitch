@@ -1,4 +1,4 @@
-<script>
+﻿<script>
   /**
    * @file Modal.svelte
    * ðŸ–¼ï¸ THE VOID CONTAINER
@@ -8,7 +8,6 @@
   import { Backdrop } from "@atoms";
   import { simulationState } from "@state";
   import { use_actions } from "@actions";
-  import { guardedTransition } from "@engine";
   import { Dialog } from "bits-ui";
 
   let {
@@ -43,9 +42,13 @@
 
   $effect(() => {
     if (open !== activeOpen) {
-      guardedTransition(() => {
+      if (typeof document !== "undefined" && document.startViewTransition) {
+        document.startViewTransition(() => {
+          activeOpen = open;
+        });
+      } else {
         activeOpen = open;
-      });
+      }
     }
   });
 

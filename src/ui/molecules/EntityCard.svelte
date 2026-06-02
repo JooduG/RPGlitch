@@ -7,7 +7,6 @@
    */
 
   import { tick } from "svelte";
-  import { guardedTransition } from "@engine";
   import { ProfilePicture, Button, tooltip } from "@atoms";
   import { themeStore } from "@media";
   import { motion } from "@motion";
@@ -53,8 +52,9 @@
       return "card-slot-" + type;
     }
 
-    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when the drawer is open for this specific type
-    // to guarantee zero duplicate transition name errors during snapshot capture.
+    // 2. Panel/Slot Card: Holds the transition name normally.
+    // However, if the drawer is actively open to select a NEW entity for THIS specific slot,
+    // we yield (remove) the name from the old panel card to avoid duplicates with the launching card.
     if (variant !== "library") {
       if (app.drawer.open && app.drawer.type === type) {
         return undefined;
@@ -86,51 +86,24 @@
   let view_profile_handler = $derived(on_view_profile || onViewProfile || (() => {}));
 
   /**
-   * Helper to perform the actual entity selection, wrapped inside guardedTransition.
+   * Helper to perform the actual entity selection, wrapped inside document.startViewTransition if available.
    */
   function trigger_selection() {
     if (launch_triggered || !is_launching) return;
     launch_triggered = true;
 
-    // Manually strip view-transition-name from any existing panel/slot cards of this type in the DOM
-    // to guarantee zero duplicate transition name errors during snapshot capture.
-    try {
-      const targetName = "card-slot-" + type;
-      const elements = document.querySelectorAll(".entity-card-root");
-      elements.forEach((/** @type {any} */ el) => {
-        const styleAttr = el.getAttribute("style") || "";
-        const hasTransitionName = styleAttr.includes("view-transition-name");
-        const currentName = (
-          el.style.getPropertyValue("view-transition-name") ||
-          el.style.viewTransitionName ||
-          ""
-        ).trim();
-
-        const isMatch =
-          currentName === targetName ||
-          currentName === `"${targetName}"` ||
-          (hasTransitionName && styleAttr.includes(targetName));
-
-        if (isMatch && !el.classList.contains("is-launching")) {
-          el.style.removeProperty("view-transition-name");
-          // Bulletproof fallback: manually strip the property from the style attribute directly
-          const cleanedStyle = styleAttr
-            .split(";")
-            .filter((/** @type {string} */ part) => !part.trim().startsWith("view-transition-name"))
-            .join(";");
-          el.setAttribute("style", cleanedStyle);
-        }
+    if (typeof document !== "undefined" && document.startViewTransition) {
+      document.startViewTransition(async () => {
+        is_launching = false; // Remove view-transition-name from old element before capture
+        select_handler();
+        await tick();
+        launch_triggered = false;
       });
-    } catch (err) {
-      console.warn("[ViewTransition] DOM pre-flight sweep failed:", err);
-    }
-
-    guardedTransition(async () => {
-      is_launching = false; // Remove view-transition-name from old element before capture
+    } else {
+      is_launching = false;
       select_handler();
-      await tick();
       launch_triggered = false;
-    });
+    }
   }
 
   /**
