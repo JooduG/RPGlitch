@@ -164,7 +164,7 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-Last Swept: 2026-06-02 15:14
+Last Swept: 2026-06-02 15:47
 
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
