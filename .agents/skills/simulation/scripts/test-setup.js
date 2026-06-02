@@ -75,3 +75,18 @@ export const mock_llm_success = (text) => {
     vi.mocked(window.ai).mockResolvedValue(text);
   }
 };
+
+// --- CLEANUP & TEARDOWN --- //
+import { afterAll } from "vitest";
+
+afterAll(async () => {
+  try {
+    // Dynamically import to avoid breaking test environments that don't need it
+    const { db } = await import("../../../../src/data/db.js");
+    if (db && typeof db.close === "function") {
+      db.close();
+    }
+  } catch {
+    // Ignore if db.js is unresolvable or fails to load during teardown
+  }
+});

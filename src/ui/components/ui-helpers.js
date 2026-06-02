@@ -184,7 +184,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
   // 1. Try direct parse for simple ms/s values or raw numbers
   const match = trimmed.match(/^([-.\d]+)(ms|s)?$/);
   if (match && !trimmed.includes("var") && !trimmed.includes("calc")) {
-    const [_, val, unit] = match;
+    const [, val, unit] = match;
     const numeric = parseFloat(val);
     if (!unit) {
       // CSS durations (except 0) require a unit.
@@ -198,7 +198,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
   if (direct) {
     const compMatch = direct.match(/^([-.\d]+)(s|ms)?$/);
     if (compMatch && !direct.includes("calc") && !direct.includes("var")) {
-      const [_, val, unit] = compMatch;
+      const [, val, unit] = compMatch;
       const numeric = parseFloat(val);
       if (!unit) return numeric === 0 ? 0 : fallback;
       return unit === "ms" ? numeric : numeric * 1000;
@@ -218,7 +218,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
 
     const compMatch = computed.match(/([-.\d]+)(s|ms)/);
     if (compMatch) {
-      const [_, val, unit] = compMatch;
+      const [, val, unit] = compMatch;
       return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
     }
   }

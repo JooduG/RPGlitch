@@ -25,7 +25,7 @@ describe("dom utilities", () => {
 
     // JSDOM HACK: JSDOM's getComputedStyle doesn't resolve var(), rem, or calc()
     // We mock the computed style resolution for the measurement element if we're in JSDOM
-    if (navigator.userAgent.includes("jsdom")) {
+    if (typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom")) {
       const originalGetComputedStyle = window.getComputedStyle;
 
       /**
@@ -183,7 +183,7 @@ describe("dom utilities", () => {
       contextEl.style.setProperty("--base", "10px");
       contextEl.style.setProperty("--gap", "5px");
       // JSDOM mock logic update for this specific test
-      if (navigator.userAgent.includes("jsdom")) {
+      if (typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom")) {
         vi.spyOn(window, "getComputedStyle").mockImplementation((/** @type {any} */ el) => {
           if (el.style?.zIndex === "-9999") {
             return /** @type {any} */ ({

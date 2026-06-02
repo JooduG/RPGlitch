@@ -36,6 +36,7 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 
 | Track Name                                     | Priority | State    | Gap                                                                                                  |
 | ---------------------------------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------- |
+| Vite 8 Migration                               | 🔥 High  | [x] done | Rolldown bundler migration and single-file build generation.                                         |
 | Inline Log Entry Editing                       | 🔥 High  | [x] done | None. Swapped out prompts for in-place TextField editing with save/cancel buttons inside story feed. |
 | Agent System Alignment                         | 🔥 High  | [x] done | Complete alignment of configs, svelte rules, and CSS token auditing framework.                       |
 | GlassPill & InputBar Refactor                  | 🔥 High  | [x] done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte.  |
@@ -59,6 +60,7 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 
 | Reference (ISO 8601) | Task                                                                                                                                                                                                                       | Skill Invoked              | Outcome   |
 | -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------- |
+| 2026-06-02 16:30     | Initialize refactor-vite-8 track and planning.                                                                                                                                                                             | planning                   | ✅ Plan   |
 | 2026-06-02 15:34     | Finalize View Transition Fixes: Bind DOM node to strictly strip transition names from components involved in multi-clicks, and catch aborted transition promises.                                                          | svelte + javascript + test | ✅ Done   |
 | 2026-06-02 15:21     | Solve view transition name duplication inside Svelte DOM by reactively suppressing card transition-names while selection drawer is open, and hardening pre-flight sweep with style-attr string matching.                   | svelte + css + test        | ✅ Done   |
 | 2026-06-02 15:09     | Complete view-transition-guard-2026-06-02 track: serialize startViewTransition into centralized singleton guard to fix InvalidStateError collisions.                                                                       | javascript + test          | ✅ Done   |
@@ -165,7 +167,7 @@ Completed Architectural Refactor of the Tooltip System, migrating custom positio
 
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-Last Swept: 2026-06-02 14:24
+Last Swept: 2026-06-02 18:58
 
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");

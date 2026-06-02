@@ -19,14 +19,4 @@ export default {
     // rather than generating external stylesheet files that are hard to copy-paste.
     css: "injected",
   },
-
-  vitePlugin: {
-    // Svelte Inspector: Hold Alt + X in the browser to click any UI element
-    // and instantly open the exact line of code in VS Code.
-    inspector: {
-      toggleKeyCombo: "alt-x",
-      showToggleButton: "always",
-      toggleButtonPos: "bottom-right",
-    },
-  },
 };

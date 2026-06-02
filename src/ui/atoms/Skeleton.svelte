@@ -79,7 +79,7 @@
     inset: 0;
     transform: translateX(-100%);
     background: linear-gradient(
-      var(90deg),
+      90deg,
       transparent 0%,
       rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 30%,
       rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,

@@ -41,9 +41,12 @@ export default defineConfig(({ command, mode }) => {
   return {
     // Root must point to where index.html lives
     root: "src",
-    plugins: [designTokenSync(), svelte(), !isDev && viteSingleFile(), devtoolsJson()].filter(
-      Boolean,
-    ),
+    plugins: [
+      designTokenSync(),
+      svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }),
+      !isDev && viteSingleFile(),
+      devtoolsJson(),
+    ].filter(Boolean),
     resolve: {
       // Top-Level Domain Aliasing
       // Restricting aliases to major folders forces better structural boundaries.
@@ -91,13 +94,20 @@ export default defineConfig(({ command, mode }) => {
       port: 4001,
       strictPort: false, // Fail if port 4000 is taken, rather than silently jumping to 4001
       open: true, // Automatically open embedded browser on boot
-      watch: {
-        // Ensure DESIGN.md is watched even though it's outside the src root
-        ignored: ["!**/DESIGN.md"],
-      },
+      watch:
+        mode === "test"
+          ? null
+          : {
+              // Ensure DESIGN.md is watched even though it's outside the src root
+              ignored: ["!**/DESIGN.md"],
+            },
     },
     preview: {
       port: 8080,
+    },
+    test: {
+      pool: "forks",
+      teardownTimeout: 1000,
     },
   };
 });
