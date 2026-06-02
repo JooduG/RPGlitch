@@ -50,9 +50,9 @@ export function guardedTransition(callback) {
   // Always release the lock when the transition settles, regardless of outcome.
   // finished may reject if the browser aborts the transition (AbortError) —
   // we suppress that too, as it is a normal browser lifecycle event.
-  transition.finished.finally(() => {
-    state.active = false;
-  });
-  // Suppress any rejection from finished to prevent unhandled rejection warnings
-  transition.finished.catch(() => {});
+  transition.finished
+    .finally(() => {
+      state.active = false;
+    })
+    .catch(() => {});
 }
