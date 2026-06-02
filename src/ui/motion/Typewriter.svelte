@@ -6,7 +6,7 @@
    */
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
-  import { safe_html } from "@components";
+  import { sanitizeToFragment } from "@platform";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -46,6 +46,14 @@
   const hasMultipleWords = $derived(wordsToAnimate.length > 1);
   const currentWordHtml = $derived(wordsToAnimate[currentWordIndex] ?? "");
 
+  const sanitizedWordHtml = $derived.by(() => {
+    const raw = wordsToAnimate[currentWordIndex] ?? "";
+    const fragment = sanitizeToFragment(raw);
+    const temp = document.createElement("div");
+    temp.appendChild(fragment);
+    return temp.innerHTML;
+  });
+
   /**
    * Parse active text input stream into structural tag/text tokens.
    * Protects code layout from fracturing mid-way through formatting strings.
@@ -55,7 +63,7 @@
     const regex = /(<[^>]+>|[^<]+)/g;
     let match;
 
-    while ((match = regex.exec(currentWordHtml)) !== null) {
+    while ((match = regex.exec(sanitizedWordHtml)) !== null) {
       const val = match[0];
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });
@@ -230,7 +238,8 @@
   class:is-inline={as === "span"}
   style="content-visibility: auto;"
 >
-  <span use:safe_html={slicedHtml}></span>
+  <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+  {@html slicedHtml}
   {#if shouldShowCursor}
     <span class="cursor" class:is-blinking={blinkCursor}>
       {cursorGlyph}
