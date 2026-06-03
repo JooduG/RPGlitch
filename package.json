@@ -42,7 +42,7 @@
     "test": "run-s test:unit test:design",
     "test:unit": "vitest run",
     "test:ui": "vitest --ui",
-    "test:design": "vitest run .agents/skills/design/scripts/design.test.js",
+    "test:design": "vitest run .agents/skills/design/scripts/design-sync.test.js",
     "// --- DATA & KNOWLEDGE --- //": "",
     "knowledge": "run-p --aggregate-output knowledge:archive knowledge:select knowledge:upsert",
     "knowledge:archive": "npm run tool:knowledge -- archive",

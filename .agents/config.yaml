@@ -2,51 +2,82 @@
 
 # 🧠 Skills (Capabilities)
 skills:
-  master-skill-router: .agents/skills/executive/SKILL.md
-  swarm: .agents/skills/swarm/SKILL.md
-  design/code:
+  global_dir: C:/Users/johng/.gemini/config/skills
+
+  orchestration_and_governance:
+    master-skill-router: .agents/skills/executive/SKILL.md
+    swarm: .agents/skills/swarm/SKILL.md
+    legislative: .agents/skills/legislative/SKILL.md
+    security: .agents/skills/security/SKILL.md
+    simulation: .agents/skills/simulation/SKILL.md
+    context: C:/Users/johng/.gemini/config/skills/context/SKILL.md
+    planning: C:/Users/johng/.gemini/config/skills/planning/SKILL.md
+
+  core_web_languages:
+    javascript: C:/Users/johng/.gemini/config/skills/javascript/SKILL.md
+    typescript: C:/Users/johng/.gemini/config/skills/typescript/SKILL.md
+    html: C:/Users/johng/.gemini/config/skills/html/SKILL.md
+    modern-web-guidance: C:/Users/johng/.gemini/config/skills/modern-web-guidance/SKILL.md
+
+  engineering_and_architecture:
+    api: C:/Users/johng/.gemini/config/skills/api/SKILL.md
+    migration: C:/Users/johng/.gemini/config/skills/migration/SKILL.md
+    performance: C:/Users/johng/.gemini/config/skills/performance/SKILL.md
+
+  design_and_sensory:
     design: .agents/skills/design/SKILL.md
     css: .agents/skills/css/SKILL.md
     motion: .agents/skills/motion/SKILL.md
     audio: .agents/skills/audio/SKILL.md
     ui: .agents/skills/ui/SKILL.md
-    simulation: .agents/skills/simulation/SKILL.md
-  development:
-    legislative: .agents/skills/legislative/SKILL.md
+    image-generation: C:/Users/johng/.gemini/config/skills/image/SKILL.md
+
+  verification_and_qa:
+    test: C:/Users/johng/.gemini/config/skills/test/SKILL.md
+    debug: C:/Users/johng/.gemini/config/skills/debug/SKILL.md
+    devtools: C:/Users/johng/.gemini/config/skills/devtools/SKILL.md
+    review: C:/Users/johng/.gemini/config/skills/review/SKILL.md
+    provenance: C:/Users/johng/.gemini/config/skills/provenance/SKILL.md
+
+  delivery_and_workflow:
     release: .agents/skills/release/SKILL.md
-  QA:
-    security: .agents/skills/security/SKILL.md
+    git: C:/Users/johng/.gemini/config/skills/git/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
 workflows:
+  global_dir: C:/Users/johng/.gemini/config/global_workflows
+
+  core_lifecycle:
+    00-status: C:/Users/johng/.gemini/config/global_workflows/00-status.md
+    01-plan: C:/Users/johng/.gemini/config/global_workflows/01-plan.md
+    02-implement: C:/Users/johng/.gemini/config/global_workflows/02-implement.md
+    03-review: C:/Users/johng/.gemini/config/global_workflows/03-review.md
+    04-release: C:/Users/johng/.gemini/config/global_workflows/04-release.md
+
   utility:
-    generate-ideas: .agents/workflows/generate-ideas.md
-    refactor: .agents/workflows/refactor.md
+    generate-ideas: C:/Users/johng/.gemini/config/global_workflows/generate-ideas.md
+    refactor: C:/Users/johng/.gemini/config/global_workflows/refactor.md
     swarm: .agents/workflows/swarm.md
-    revert: .agents/workflows/revert.md
-    test: .agents/workflows/test.md
-    classify: .agents/workflows/classify.md
-  rare:
-    rare-setup-conductor: .agents/workflows/rare-setup-conductor.md
-    rare-update-npm: .agents/workflows/rare-update-npm.md
-  00-status: .agents/workflows/00-status.md
-  01-plan: .agents/workflows/01-plan.md
-  02-implement: .agents/workflows/02-implement.md
-  03-review: .agents/workflows/03-review.md
-  04-release: .agents/workflows/04-release.md
+    revert: C:/Users/johng/.gemini/config/global_workflows/revert.md
+    test: C:/Users/johng/.gemini/config/global_workflows/test.md
+    classify: C:/Users/johng/.gemini/config/global_workflows/classify.md
+
   reminders:
-    continue: .agents/workflows/continue.md
-    deconstruct: .agents/workflows/deconstruct.md
+    continue: C:/Users/johng/.gemini/config/global_workflows/continue.md
+    deconstruct: C:/Users/johng/.gemini/config/global_workflows/deconstruct.md
+
+  rare:
+    rare-setup-conductor: C:/Users/johng/.gemini/config/global_workflows/rare-setup-conductor.md
+    rare-update-npm: C:/Users/johng/.gemini/config/global_workflows/rare-update-npm.md
 
 # ⚖️ Core
 legislative:
   amendments: GEMINI.md
   design_system: DESIGN.md
-  audit_level: C3
   memory:
     future: tasks/FUTURE.md
     eternal: tasks/ETERNAL.md
-    past: .agents/archive/
+    past: C:/Users/johng/.gemini/antigravity-ide/archive/
     present:
       current: tasks/PRESENT.md
       temporary: tmp/
@@ -57,20 +88,23 @@ src:
   core:
     index.html: src/index.html
     main.js: src/main.js
-    app.svelte: src/ui/App.svelte
+    app.svelte: src/App.svelte
+    # WARNING: Do NOT manually edit design.css!
+    # It is auto-generated via src/media/tokens.js from the source of truth: DESIGN.md
     design.css: src/media/design.css
-    engine: src/engine/
-    intelligence: src/intelligence/
+  engine: src/engine/
+  intelligence: src/intelligence/
+  platform: src/platform/
   ui:
-    layout: src/ui/Layout.svelte
+    actions: src/ui/actions/
     atoms: src/ui/atoms/
-    profile: src/ui/profile/
-    storyboard: src/ui/storyboard/
-    storymode: src/ui/storymode/
-    utils: src/ui/components/
-    drawer: src/ui/drawer/
-    devmode: src/ui/devmode/
+    components: src/ui/components/
+    molecules: src/ui/molecules/
+    motion: src/ui/motion/
+    organisms: src/ui/organisms/
   data: src/data/
   state: src/state/
   media: src/media/
-  theme: src/media/
+  # Note: The majority of unit tests are colocated next to the files they test.
+  # The src/tests/ folder is strictly for minor utilities and global test setup.
+  tests: src/tests/

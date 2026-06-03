@@ -39,8 +39,16 @@ Ready for new assignments. May structural refactoring (Vite 8, Centralized Motio
 
 ## 🧠 Pulse (History)
 
-| Reference (ISO 8601) | Task                                                                       | Skill Invoked | Outcome |
-| -------------------- | -------------------------------------------------------------------------- | ------------- | ------- |
-| 2026-06-03 17:30     | Archival of May tracks and initialization of the June clean slate.         | legislative   | ✅ Done |
+| Reference (ISO 8601) | Task                                                               | Skill Invoked | Outcome |
+| -------------------- | ------------------------------------------------------------------ | ------------- | ------- |
+| 2026-06-03 17:30     | Archival of May tracks and initialization of the June clean slate. | legislative   | ✅ Done |
 
 > 🎨 Tactics | `planning` | /01-plan
+
+## 🧹 Backlog (Automated)
+<!-- BACKLOG_START -->
+Last Swept: 2026-06-03 16:19
+
+- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
+- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
+<!-- BACKLOG_END -->

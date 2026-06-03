@@ -38,9 +38,9 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/executive/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 
-- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/02-implement](./.agents/workflows/conductor/02-implement.md)_.
-- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan](./.agents/workflows/conductor/01-plan.md)_ -> **Level 1**.
-- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/01-plan](./.agents/workflows/conductor/01-plan.md)_ -> **Level 2**.
+- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/02-implement]_.
+- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan]_ -> **Level 1**.
+- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/01-plan]_ -> **Level 2**.
 
 #### 2.3 Risk & Level Mapping
 
@@ -229,7 +229,7 @@ RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first 
 
 - **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics defined in _the [Aesthetics](#️-04-aesthetics) rule_ ensure imagination remains central.
 - **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
-- **Recursive Intelligence**: Logic is a pillar. The [Engine](./src/core/engine/) orchestrates input, [Security](./src/core/security.js) enforces physics, and [Data](./src/data/) ensures memory.
+- **Recursive Intelligence**: Logic is a pillar. The [Engine](./src/engine/) orchestrates input, Security enforces physics, and [Data](./src/data/) ensures memory.
 
 ##### Strategic Objectives
 
@@ -372,12 +372,12 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Persistence**: Dexie.js (IndexedDB).
 - **Security**: Validation & Physics via **DOMPurify** sanitization boundaries ([Compliance](#️-06-compliance)).
 - **[Simulation](#️-02-simulation)** building blocks:
-- [Core](./src/core/): Logic & Round Orchestration (DynamicsEngine, Intelligence Kernel).
+- [Engine](./src/engine/): Logic & Round Orchestration (DynamicsEngine).
+- [Intelligence](./src/intelligence/): The AI Kernel.
 - [Data](./src/data/): Persistence (Dexie) & Entity Repositories.
 - [State](./src/state/): Reactive Runes (`$state`).
-- [Theme](./src/theme/): The Chalk Regime (Tokens, Global Styles).
 - [UI](./src/ui/): Atomic Design (Svelte 5 components).
-- [Media](./src/media/): Internal Sensory Assets ([Visuals](./.agents/skills/image-generation/), [Audio](./.agents/skills/audio/)).
+- [Media](./src/media/): Internal Sensory Assets, and the Chalk Regime (Tokens, Global Styles).
 - [Skills](./.agents/skills/) for infrastructural expertise:
 - [Skill Router](./.agents/skills/executive/): Intent Decoding, Complexity Triage & Skill Selection.
 - [Simulation](./.agents/skills/simulation/): Narrative Bridges & Game Logic.
@@ -587,15 +587,15 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 The following sovereign workflows are registered for agentic orchestration within the Conductor framework.
 
-- **[/00-status](./.agents/workflows/conductor/00-status.md)**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
-- **[/01-plan](./.agents/workflows/conductor/01-plan.md)**: Tactical Planning & Specification. Generates track-specific blueprints.
-- **[/02-implement](./.agents/workflows/conductor/02-implement.md)**: Incremental Tactical Implementation. Drives the TDD loop.
-- **[/03-review](./.agents/workflows/conductor/03-review.md)**: review Gate & Verification. Reviews completed track work.
-- **[/04-release](./.agents/workflows/conductor/04-release.md)**: release & Handoff. Hardening and GitHub Deployment.
-- **[/revert](./.agents/workflows/utility/revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
-- **[/test](./.agents/workflows/utility/test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
-- **[/classify](./.agents/workflows/utility/classify.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
-- **[/swarm](./.agents/workflows/utility/swarm.md)**: Manual Swarm Orchestration.
+- **[/00-status]**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
+- **[/01-plan]**: Tactical Planning & Specification. Generates track-specific blueprints.
+- **[/02-implement]**: Incremental Tactical Implementation. Drives the TDD loop.
+- **[/03-review]**: review Gate & Verification. Reviews completed track work.
+- **[/04-release]**: release & Handoff. Hardening and GitHub Deployment.
+- **[/revert]**: Git-aware State Reconciliation. Reverts logical units of work.
+- **[/test]**: Unified Verification & Diagnostics. Runs tests and audits.
+- **[/classify]**: Cognitive Classification & Sorting. Categorizes tasks and issues.
+- **[/swarm](./.agents/workflows/swarm.md)**: Manual Swarm Orchestration.
 
 ---
 

@@ -55,12 +55,13 @@ The system architecture prioritizes offline-first resilience and agentic automat
 
 ### Folder Structure
 
-- `src/core/` : Logic, Engine, Intelligence, and Security.
+- `src/engine/` : Logic and Round Orchestration.
+- `src/intelligence/` : AI Kernel and Narrative Processing.
+- `src/platform/` : Environment integrations.
 - `src/data/` : Database, Repository, and Persistence.
 - `src/state/` : Reactive State Bridges.
-- `src/ui/` : Interface Components.
-- `src/theme/` : SCSS Design System.
-- `src/media/` : Visuals, Audio, and Sensory Layer.
+- `src/ui/` : Atomic Interface Components (actions, atoms, molecules, organisms, motion).
+- `src/media/` : Visuals, Audio, CSS Design System, and Sensory Layer.
 
 ### Tech Stack
 
@@ -125,7 +126,7 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 | `npm run swarm:merge`    | Consolidate output and perform the 80% Gate audit.     |
 
 > [!TIP]
-> For a detailed walkthrough of manual swarm coordination, see the **[/07-swarm](.agents/workflows/utility/swarm.md)** workflow.
+> For a detailed walkthrough of manual swarm coordination, see the **[/swarm](.agents/workflows/swarm.md)** workflow.
 
 ---
 
