@@ -1,7 +1,7 @@
 # 🛰️ Present (The State)
 
 > **Role**: Gap Analysis & Maturity State
-> **Last Synchronized**: 2026-05-21 (19:23 CEST)
+> **Last Synchronized**: 2026-06-03
 
 This document describes the current distance between the existing engine state and the vision in `ETERNAL.md`.
 
@@ -9,166 +9,38 @@ This document describes the current distance between the existing engine state a
 
 ### Core Vision
 
-- [~] **Atmospheric Canvas**: Nordic Collection is partially implemented. Need to migrate all components to Chalk Regime tokens.
+- [~] **Atmospheric Canvas**: Nordic Collection is partially implemented. Need to migrate remaining components to Chalk Regime tokens.
 - [ ] **Agentic Pacing**: AI character turns are still rudimentary. Logic is decoupled but pacing is not autonomous.
 - [ ] **Local Sovereignty**: Dexie.js is established but some legacy patterns remain.
 
 ### Technical Soul
 
-- [~] **Svelte 5 Runes**: Major migration completed but some edge cases in UI components still use legacy-adjacent patterns.
-- [x] **Aesthetics**: Signature color automation is functional and typography contrast in cards (bleed) has been fully remediated and verified.
+- [x] **Svelte 5 Runes**: Migration solidified across UI layer.
+- [x] **Aesthetics**: Signature color automation is functional and typography contrast in cards (bleed) has been fully remediated.
+- [x] **Headless Refactor**: Tooltips, Dialogs, and Modals upgraded to `bits-ui` architecture.
 
 ## 2.0 Active Focus
 
-Completed Architectural Refactor of the Tooltip System, migrating custom positioning to bits-ui/Tooltip and fully verifying green builds and quality gates.
+Ready for new assignments. May structural refactoring (Vite 8, Centralized Motion Engine, Headless UI, Memory Protocol) successfully concluded.
 
 | Feature          | State      | Gap                                                      |
 | ---------------- | ---------- | -------------------------------------------------------- |
-| Storymode UI     | Sovereign  | Inline log entry editing in-place in the scrolling feed. |
+| Storymode UI     | Sovereign  | None.                                                    |
 | Memory Protocol  | Sovereign  | None. RAG filters system logs, resets stasis cleanly.    |
 | Consecutive Msg  | Sovereign  | None. Collapses consecutive actors first, then slices.   |
-| System Telemetry | Sovereign  | None. Skip system roles during transport formatting.     |
 | Profile Wings    | Sovereign  | None. Restructured layout, glassmorphism, dynamic fills. |
-| Profile Layout   | Sovereign  | None. Scroll delegation, stacking, glows, exclusions.    |
 | Storyboard Cards | Remediated | Fully resolved with vertical scrims and frisk titles.    |
 
 ## 🗺️ Roadmap (Tracks)
 
-| Track Name                                     | Priority | State    | Gap                                                                                                  |
-| ---------------------------------------------- | -------- | -------- | ---------------------------------------------------------------------------------------------------- |
-| Vite 8 Migration                               | 🔥 High  | [x] done | Rolldown bundler migration and single-file build generation.                                         |
-| Inline Log Entry Editing                       | 🔥 High  | [x] done | None. Swapped out prompts for in-place TextField editing with save/cancel buttons inside story feed. |
-| Agent System Alignment                         | 🔥 High  | [x] done | Complete alignment of configs, svelte rules, and CSS token auditing framework.                       |
-| GlassPill & InputBar Refactor                  | 🔥 High  | [x] done | Harmonize width clamps to 4 columns standard, and extract flank button animations to Button.svelte.  |
-| Architectural Flatness & Utility Consolidation | 🔥 High  | [x] done | Centralize helpers, flatten Storymode panels, and centralize reactive busy locks.                    |
-| UI Cleanup & Animation Purge                   | 🔥 High  | [x] done | Purge tremor animations, TypingIndicator components, tilt actions, and dead references.              |
-| Memory Protocol & Consecutive Messages         | 🔥 High  | [x] done | Collapses entire history before slicing, filters system role logs, resets stasis typing bubble.      |
-| Reactivity & Turn Counter Fixes                | 🔥 High  | [x] done | Fix Svelte 5 proxy collisions, round coercion, etc.                                                  |
-| Image Upload Pipeline                          | 🔥 High  | [x] done | Implement image upload pipeline using Perchance upload-plugin with state and IndexedDB persistence.  |
-| UI Reactivity & Intent Locking                 | 🔥 High  | [x] done | Consolidate UI flags in status.svelte.js, implement sub-ms intent lock & exception.                  |
-| Intelligence Polish                            | 🔥 High  | [x] done | Add Fractal RAG memories, dual-phase post-generation scanning, and rich epilogues.                   |
-| DevMode StoryCard Refactor                     | 🔥 High  | [x] done | Fix clickability layering, correct border radius, active story, and refactor CSS.                    |
-| Storymode UI Refactor                          | 🔥 High  | [x] done | Unify toolbar, style focused bubbles, vertical pillars, Svelte 5 standard runes.                     |
-| Profile Class Simplification                   | 🔥 High  | [x] done | Simplify CSS classes, correct Svelte button class props, and harmonize overrides.                    |
-| Profile Wings Cleanup                          | 🔥 High  | [x] done | Premium aesthetics refactor & signature color dynamic highlights for Visual/Audio.                   |
-| Profile Design Cleanup                         | 🔥 High  | [x] done | Design cleanup of Profile.svelte, readonly & edit mode.                                              |
-| Spacing Migration                              | 🔥 High  | [x] done | Migrate from fit_text.js to CSS Container Queries & Clamp.                                           |
-| Storyboard Card Bleed Fix                      | 🟡 Med   | [x] done | Resolve text bleed in selection tarot.                                                               |
-| Drawer Contrast Rebuild                        | 🟡 Med   | [x] done | Contrast and visibility remediation.                                                                 |
+| Track Name | Priority | State | Gap |
+| ---------- | -------- | ----- | --- |
+|            |          |       |     |
 
 ## 🧠 Pulse (History)
 
-| Reference (ISO 8601) | Task                                                                                                                                                                                                                       | Skill Invoked              | Outcome   |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------- | --------- |
-| 2026-06-02 16:30     | Initialize refactor-vite-8 track and planning.                                                                                                                                                                             | planning                   | ✅ Plan   |
-| 2026-06-02 15:34     | Finalize View Transition Fixes: Bind DOM node to strictly strip transition names from components involved in multi-clicks, and catch aborted transition promises.                                                          | svelte + javascript + test | ✅ Done   |
-| 2026-06-02 15:21     | Solve view transition name duplication inside Svelte DOM by reactively suppressing card transition-names while selection drawer is open, and hardening pre-flight sweep with style-attr string matching.                   | svelte + css + test        | ✅ Done   |
-| 2026-06-02 15:09     | Complete view-transition-guard-2026-06-02 track: serialize startViewTransition into centralized singleton guard to fix InvalidStateError collisions.                                                                       | javascript + test          | ✅ Done   |
-| 2026-05-31 19:40     | Redesign ProfileHeader.svelte style & logic to align perfectly with Image 1 (idle, right-aligned, mixed case, pre-wrap formatName break) and Image 2 (edit, left-aligned, glowing signature focus, auto-focus name_input). | svelte + css + quality     | ✅ Done   |
-| 2026-05-31 07:07     | Move check-unused-tokens.js to agents/ folder, fix JSDoc/TS index and array implicit warnings, and run clean verification suite.                                                                                           | javascript + css           | ✅ Done   |
-| 2026-05-31 07:05     | Create self-contained check-unused-tokens.js tool to find all unused design tokens from design.css across the src/ codebase.                                                                                               | javascript + css           | ✅ Done   |
-| 2026-05-31 06:56     | Increase base secondary-desc max-height on EntityCard to avoid clipping line-clamp ellipsis for storyboard card descriptions.                                                                                              | css + test                 | ✅ Done   |
-| 2026-05-31 06:50     | Implement robust 200ms selection fallback timeout in EntityCard.svelte to guarantee click triggers fire when animationend event is lost.                                                                                   | svelte + test              | ✅ Done   |
-| 2026-05-31 06:48     | Style empty placeholder card typography (primary-title) to match placeholder icons' color, opacity, hover transitions, and styles.                                                                                         | css + svelte               | ✅ Done   |
-| 2026-05-31 04:42     | Prevent view transition collisions inside the drawer tray, allow scale transforms to overflow without clipping, and restore typography bounds.                                                                             | svelte + css + javascript  | ✅ Done   |
-| 2026-05-31 04:31     | Polish empty card HUD panels, transition backdrops inside transitioning divs, and secure launch timing in view transitions.                                                                                                | svelte + css + javascript  | ✅ Done   |
-| 2026-05-31 04:14     | Implement Inertial Rack-Pull Selection Motion (Phase A) on EntityCard.svelte, resolve test timers & stylelint spacing, and verify.                                                                                         | svelte + css + javascript  | ✅ Done   |
-| 2026-05-31 03:53     | Relocate Drawer to src/ui/atoms/Drawer.svelte, upgrade layout transition to Svelte 5 spring physics, clean up obsolete aliases, and verify.                                                                                | svelte + css + javascript  | ✅ Done   |
-| 2026-05-24 22:16     | Replace Drawer slide-up CSS animation with Svelte 5 two-way fly transition to slide down on close.                                                                                                                         | svelte + css               | ✅ Done   |
-| 2026-05-24 22:05     | Add smooth width expansion transitions on GlassPill focus states to animate sizing.                                                                                                                                        | css + svelte               | ✅ Done   |
-| 2026-05-24 21:42     | Refactor InputBar command console & GlassPill: apply SOTA Ultra-Lean styling, merge disabled/busy states into GlassPill, and purge overrides.                                                                              | svelte + css + javascript  | ✅ Done   |
-| 2026-05-24 21:31     | Refactor GlassPill and StoryboardPill components: flatten DOM trees, purge legacy styling bloat (including "orchestrator" class), enforce Svelte 5 runes, and resolve ProfilePicture text-shadow Warden heresy.            | svelte + css + javascript  | ✅ Done   |
-| 2026-05-24 21:10     | Fix Backdrop blur issue: update blur-mist token to robust absolute pixel value and synchronize design assets via Weaver, and add WebKit prefix.                                                                            | css + quality              | ✅ Done   |
-| 2026-05-24 21:02     | Complete GlassPill, Button, InputBar, and StoryboardPill refactoring sweep: unify chassis widths, consolidate flank styles in Button, and verify.                                                                          | svelte + css + javascript  | ✅ Done   |
-| 2026-05-24 19:46     | Complete Architectural Flatness & Utility Consolidation sweep: merge helpers, flatten storymode panels, converge state busy locks, and verify green build.                                                                 | svelte + css + javascript  | ✅ Done   |
-| 2026-05-24 19:37     | Initialize Architectural Flatness & Utility Consolidation track, create implementation plan, and align task tracking.                                                                                                      | planning + svelte + css    | ✅ Plan   |
-| 2026-05-24 19:15     | Complete UI Cleanup & Animation Purge track: remove tremor animations, TypingIndicator, tilt action, delete files, and run integrity checks.                                                                               | svelte + css + javascript  | ✅ Done   |
-| 2026-05-24 15:41     | Complete memory-protocol-consecutive-sender-fix-2026-05-24 track: collapse entire log before slicing, filter system messages, reset stasis indicator.                                                                      | svelte + test + javascript | ✅ Done   |
-| 2026-05-24 15:24     | Initialize memory-protocol-consecutive-sender-fix-2026-05-24 planning phase, create implementation plan.                                                                                                                   | planning                   | ✅ Plan   |
-| 2026-05-24 10:52     | Complete follow-up stasis lock realignments: simulationState phase reset to idle inside finally blocks, hardened is_thinking derivation in Storymode.svelte.                                                               | svelte + test + javascript | ✅ Done   |
-| 2026-05-24 10:36     | Complete reactivity-crash-fix-2026-05-24 track: refactored streaming to StreamingState class, resolved IDE type mismatches with JSDoc, hardened round increment casts, wrapped loops in try-finally safeguards.            | svelte + test + javascript | ✅ Done   |
-| 2026-05-24 10:34     | Begin reactivity-crash-fix-2026-05-24 active implementation phase.                                                                                                                                                         | svelte + test + javascript | 🔄 Active |
-| 2026-05-24 10:31     | Initialize reactivity-crash-fix-2026-05-24 planning phase, create implementation plan, and wait for user review.                                                                                                           | planning                   | ✅ Plan   |
-| 2026-05-24 09:25     | Fix Text-to-Image Hanging & Failure Recovery: Implement 45s promise timeout and robust error status checks, preventing UI busy state lockup.                                                                               | svelte + test + javascript | ✅ Done   |
-| 2026-05-24 06:01     | Re-Routing Optimization Sweep: Elevate boot imports to domain gateways, create src/media/index.js and src/data/index.js barrel files, verify with linters and tests.                                                       | svelte + test + javascript | ✅ Done   |
-| 2026-05-24 05:10     | Merge simulation-strategy.md into SKILL.md: Consolidate core simulation cycle and behavioral playbooks into a single authoritative playbook file.                                                                          | legislative + simulation   | ✅ Done   |
-| 2026-05-24 05:04     | Optimize ContextBroker Hydration: Implement WeakMap caching for assemble_snapshot items and relax stress test threshold to 15ms.                                                                                           | svelte + test + javascript | ✅ Done   |
-| 2026-05-24 04:55     | Workflow Consolidation: Merge code-simplify and refactor SOPs, update config.yaml, and delete redundant workflow file                                                                                                      | legislative                | ✅ Done   |
-| 2026-05-24 02:06     | Tab-Context Coupling: bind UI activeId (Chin) to ContextBroker; loadViewContext flushes snapshot, hibernates non-view vectors, injects VIEW_FOCUS                                                                          | javascript + svelte + test | ✅ Done   |
-| 2026-05-24 01:28     | Stabilize UI Reactivity Layer & Implement Intent Locking: consolidate UI flags, add sub-ms intent lock & exception, verify with TDD tests.                                                                                 | svelte + test + css        | ✅ Done   |
-| 2026-05-24 00:28     | Refactor PROTOCOL_LIBRARY for Layout Tag Stripping and Token Compression: strip internal uppercase headers and trailing colons from strings.                                                                               | javascript + test          | ✅ Done   |
-| 2026-05-24 00:01     | Implement Round Increment Pacing in Chrono Controller: step runtime.round forward before committing timeline snapshot.                                                                                                     | javascript + test          | ✅ Done   |
-| 2026-05-23 23:59     | Fix Falsy Round Overwrite in Context Broker: replace loose logical OR check with strict null-coalescing check to preserve round 0.                                                                                         | javascript + test          | ✅ Done   |
-| 2026-05-23 23:33     | Implement Performance Anchor Preservation in Context Broker: let 'eternal' layer data points bypass keyword filter to prevent token starvation.                                                                            | javascript + test          | ✅ Done   |
-| 2026-05-23 23:25     | Sanitize epilogue prompt instruction to resolve summary contradiction and clean up narrative style template tag mapping in simulation prompt.                                                                              | javascript + test          | ✅ Done   |
-| 2026-05-23 23:21     | Refactor prompt directives in gamemaster service to remove explicit capitalized prefixes and use clear behavioral formatting constraints.                                                                                  | javascript + test          | ✅ Done   |
-| 2026-05-23 23:07     | Patch Svelte 5 Proxy leak in repository update function by deep cloning the incoming data structure.                                                                                                                       | svelte + test              | ✅ Done   |
-| 2026-05-23 17:30     | Polish Intelligence Kernel: add Fractal temporal memories & vectors, implement dual-phase post-generation scanning, and hydrate epilogues                                                                                  | svelte + test + planning   | ✅ Done   |
-| 2026-05-22 20:20     | Fix active entities state synchronization in StorymodePanel and feed when loading stories from ControlPanel                                                                                                                | svelte + test              | ✅ Done   |
-| 2026-05-22 20:12     | Fix StoryCard subpixel rounded corner bleed and scrollbar clipping/hover shadow issues                                                                                                                                     | svelte + css + test        | ✅ Done   |
-| 2026-05-22 20:02     | Refactor StoryCard and ControlPanel: fix clickability layering, border radius, active highlights, and Svelte 5 runes                                                                                                       | svelte + css + test        | ✅ Done   |
-| 2026-05-21 19:22     | Fix prologue fractal identity: resolve hydration race (session.svelte.js), sentinel masking (Message.svelte), mock priority (ControlPanel.svelte)                                                                          | svelte + debug             | ✅ Done   |
-| 2026-05-21 19:00     | Debug and synchronize focus transition animation choreography (white divider and actions) in Message.svelte                                                                                                                | svelte + css + debug       | ✅ Done   |
-| 2026-05-21 18:56     | Polish Storymode UI: White filled icons, 1px gradient borders, and floating inputbar layout                                                                                                                                | svelte + css               | ✅ Done   |
-| 2026-05-21 18:35     | Complete Storymode UI Refactor & Visual Alignment execution track and verification                                                                                                                                         | svelte + css               | ✅ Done   |
-| 2026-05-21 18:13     | Refine click-outside handling in Profile.svelte to ignore clicks in wings-container                                                                                                                                        | css + svelte + debug       | ✅ Done   |
-| 2026-05-21 18:10     | Align devmode GridOverlay centering and profile modal columns with layout stage                                                                                                                                            | css + svelte + debug       | ✅ Done   |
-| 2026-05-21 17:58     | Debug and fix "Preview Voice" and "View Profile" component visual layout and aspect issues                                                                                                                                 | css + svelte + debug       | ✅ Done   |
-| 2026-05-20 16:09     | Synchronize .agents/config.yaml skill, workflow paths, and component casing                                                                                                                                                | legislative                | ✅ Done   |
-| 2026-05-20 16:07     | Configure workspace settings to ignore IDE markdown link checker path warnings                                                                                                                                             | legislative                | ✅ Done   |
-| 2026-05-20 16:05     | Resolve broken relative links in workflow markdown files                                                                                                                                                                   | legislative                | ✅ Done   |
-| 2026-05-20 14:00     | Refactor Svelte CSS classes, fix React-style className props to class, and harmonize                                                                                                                                       | svelte + css + planning    | ✅ Done   |
-| 2026-05-20 13:46     | Rebalance profile avatar layout to fill the entire left column and remove hover effects                                                                                                                                    | css + svelte               | ✅ Done   |
-| 2026-05-19 18:35     | Complete profile-wings-design-cleanup track and run full verification                                                                                                                                                      | svelte + css + planning    | ✅ Done   |
-| 2026-05-19 18:24     | Transition profile-wings-design-cleanup track to active execution and begin refactoring                                                                                                                                    | svelte + css + planning    | 🔄 Active |
-| 2026-05-19 18:17     | Initialize profile-wings-design-cleanup planning and draft plan                                                                                                                                                            | planning + css             | ✅ Plan   |
-| 2026-05-19 18:07     | Complete profile-design-cleanup track and run full verification                                                                                                                                                            | css + quality + svelte     | ✅ Done   |
-| 2026-05-19 18:03     | Initialize profile-design-cleanup-2026-05-19 planning phase and spec track                                                                                                                                                 | planning + css             | ✅ Plan   |
-| 2026-05-19 17:56     | Initialize session and execute status audit protocol                                                                                                                                                                       | legislative + context      | ✅ Done   |
-| 2026-05-18 20:55     | Complete storyboard-card-bleed-remediation track and sync task records                                                                                                                                                     | release + planning         | ✅ Done   |
-| 2026-05-18 15:10     | Complete refactor-design-schema track and run full verification                                                                                                                                                            | css + quality              | ✅ Done   |
-| 2026-05-18 09:37     | Initialize storyboard-card-bleed-remediation track and specs                                                                                                                                                               | planning                   | ✅ Done   |
-| 2026-05-18 09:21     | Archive completed profile-rebalance & storyboard-typography-remediation tracks                                                                                                                                             | legislative                | ✅ Done   |
-| 2026-05-18 09:15     | Consolidate signature-color-automation & signature-color-hardening tracks                                                                                                                                                  | legislative                | ✅ Done   |
-| 2026-05-18 09:05     | Archive spacing-migration track and update Present state                                                                                                                                                                   | legislative                | ✅ Done   |
-| 2026-05-18 08:58     | Complete spacing-migration track and run full verification                                                                                                                                                                 | css + quality              | ✅ Done   |
-| 2026-05-18 08:49     | Initialize spacing-migration track and tasks                                                                                                                                                                               | planning                   | ✅ Done   |
-| 2026-05-17 14:21     | Uninstall svelte-devtools gitlink and physical directories                                                                                                                                                                 | legislative + quality      | ✅ Done   |
-| 2026-05-17 14:15     | Resolve Prettier sort-package-json plugin resolution crash                                                                                                                                                                 | quality + release          | ✅ Done   |
-| 2026-05-17 13:56     | Resolve Prettier format failure via svelte-devtools ignore                                                                                                                                                                 | legislative + quality      | ✅ Done   |
-| 2026-05-15 19:30     | Resolve Profile prop typing & build gate                                                                                                                                                                                   | javascript + svelte        | ✅ Done   |
-| 2026-05-15 19:15     | Complete profile-refactor track                                                                                                                                                                                            | javascript + svelte        | ✅ Done   |
-| 2026-05-15 14:18     | Remediate DynamicTitle font regression                                                                                                                                                                                     | css                        | ✅ Done   |
-| 2026-05-15 02:00     | Complete Storyboard Identity UI Refinement                                                                                                                                                                                 | design + css               | ✅ Done   |
-| 2026-05-15 01:47     | Refine Title Glow & Fix Card Hover                                                                                                                                                                                         | css                        | ✅ Done   |
-| 2026-05-15 01:45     | Invert glow in StoryboardDynamicTitle                                                                                                                                                                                      | css                        | ✅ Done   |
-| 2026-05-15 01:40     | Complete signature-color-decoupling track                                                                                                                                                                                  | javascript + css           | ✅ Done   |
-| 2026-05-15 01:25     | Complete signature-color-hardening track                                                                                                                                                                                   | javascript + test          | ✅ Done   |
-| 2026-05-15 01:21     | Initialize signature-color-hardening track                                                                                                                                                                                 | planning                   | ✅ Done   |
-| 2026-05-15 01:16     | Complete profile-rebalance track                                                                                                                                                                                           | css + quality              | ✅ Done   |
-| 2026-05-15 01:01     | Initialize profile-rebalance track                                                                                                                                                                                         | planning                   | ✅ Done   |
-| 2026-05-15 01:00     | Complete legislative-consolidation track                                                                                                                                                                                   | legislative + audit        | ✅ Done   |
-| 2026-05-14 17:26     | Archive completed tracks                                                                                                                                                                                                   | legislative + release      | ✅ Done   |
-| 2026-05-14 17:25     | Complete specialist-standardization track                                                                                                                                                                                  | legislative + quality      | ✅ Done   |
-| 2026-05-14 17:15     | Resume specialist-standardization track                                                                                                                                                                                    | legislative + planning     | 🔄 Active |
-| 2026-05-14 17:10     | Initialize Track 5 Implementation                                                                                                                                                                                          | legislative + planning     | ✅ Done   |
-| 2026-05-14 11:55     | Complete Signature Color Automation pipeline                                                                                                                                                                               | javascript + css           | ✅ Done   |
-| 2026-05-14 11:30     | Initialize signature-color-automation track                                                                                                                                                                                | planning                   | ✅ Done   |
-| 2026-05-14 08:50     | Initialize design-rebuild track artifacts                                                                                                                                                                                  | planning                   | ✅ Done   |
-| 2026-05-14 08:49     | Resolve design.css linting (formatting)                                                                                                                                                                                    | css                        | ✅ Done   |
-| 2026-05-14 08:30     | Complete legacy color token purge                                                                                                                                                                                          | javascript + test          | ✅ Done   |
-| 2026-05-14 08:13     | Complete color system synchronization                                                                                                                                                                                      | javascript + test          | ✅ Done   |
-| 2026-05-14 04:03     | Full verify pass (0 violations, 337 tests)                                                                                                                                                                                 | audit:css + verify         | ✅ Done   |
-| 2026-05-14 03:18     | Dashboard Refresh                                                                                                                                                                                                          | legislative                | ✅ Done   |
-| 2026-05-14 02:24     | Refine Task Architecture                                                                                                                                                                                                   | legislative                | ✅ Done   |
-| 2026-05-14 00:13     | Restart: Grand Rebuild                                                                                                                                                                                                     | planning                   | ✅ Done   |
+| Reference (ISO 8601) | Task                                                                       | Skill Invoked | Outcome |
+| -------------------- | -------------------------------------------------------------------------- | ------------- | ------- |
+| 2026-06-03 17:30     | Archival of May tracks and initialization of the June clean slate.         | legislative   | ✅ Done |
 
 > 🎨 Tactics | `planning` | /01-plan
-
-## 🧹 Backlog (Automated)
-<!-- BACKLOG_START -->
-Last Swept: 2026-06-02 18:58
-
-- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
-- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
-<!-- BACKLOG_END -->

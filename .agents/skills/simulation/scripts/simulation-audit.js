@@ -1,5 +1,5 @@
 /**
- * @file simulation-simulation.js
+ * @file simulation-audit.js
  * 🏎️ THE DRIVETRAIN: Core Simulation Execution Harness.
  * Handles the linear flow of Hydration -> Simulation -> Synthesis.
  */
@@ -13,7 +13,7 @@ import { premade } from "../../../../src/data/premades.js";
  * HIGH-LEVEL ORCHESTRATOR
  * Designed to be imported by audit scripts or agentic tasks.
  */
-export const SimulationSimulation = {
+export const SimulationAudit = {
   /**
    * Executes a complete intelligence cycle.
    * @param {string} input - The user prompt/action.

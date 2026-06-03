@@ -46,6 +46,18 @@ Ensures the `tasks/` directory follows the Sovereign Hierarchy.
 - **Tracks (tracks/\*.md)**: Consolidated single-file artifacts with metadata frontmatter.
 - **Cleanup**: Archives completed tracks by moving them to `.agents/archive/tracks/` and updating `tasks/FUTURE.md`.
 
+### 4. Skill Sub-Folder Taxonomy
+
+Enforces a strict folder structure for all skill directories (both global and local). The following sub-folders are permitted:
+
+- `scripts/`: Helper scripts and utilities.
+- `examples/`: Reference implementations and usage patterns.
+- `templates/`: Boilerplate or starting templates.
+- `assets/`: Media, icons, and visual assets.
+- `data/`: Additional documentation, references, and static data the skill may need.
+
+**FORBIDDEN**: The names `references` or `resources` are strictly outlawed in favor of `data` and `assets` to perfectly match the environment's custom folder icons.
+
 ## Usage
 
 ```bash

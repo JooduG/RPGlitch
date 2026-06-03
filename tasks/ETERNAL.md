@@ -19,8 +19,11 @@ The engine aims to provide a seamless, minimalist interface for deep narrative i
 
 - **Framework**: Svelte 5 (Runes exclusively).
 - **Persistence**: Dexie.js (IndexedDB).
-- **Build**: Vite 6 (Single-file).
+- **Build**: Vite 8 / Rolldown (Single-file).
 - **Aesthetics**: Vanilla CSS (Nordic Collection).
+- **UI Architecture**: Headless components (`bits-ui`) paired with Svelte 5 for interactive layers (Dialogs, Modals, Tooltips).
+- **Motion**: Centralized View Transition logic via strictly guarded singletons.
+- **Intelligence**: Context Broker orchestrates Fractal RAG memory, bridging `firecrawl-mcp` and other protocols into the kernel.
 
 ## 3. Product Dream
 
