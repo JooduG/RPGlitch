@@ -15,6 +15,7 @@ import Typewriter from "./Typewriter.svelte";
  * @param {string | null | undefined} initialHtml
  */
 export function typewriter(node, initialHtml = "") {
+  let destroyed = false;
   // We use Svelte's mount API to instanciate the renderer inside the node
   // The state proxy passes the active chunk down recursively
   const props = $state({ targetHtml: initialHtml || "" });
@@ -29,6 +30,7 @@ export function typewriter(node, initialHtml = "") {
      * Reactively streams updated text blocks down into the token buffer loop.
      */
     update: function (/** @type {string | null | undefined} */ new_content) {
+      if (destroyed) return;
       props.targetHtml = new_content ?? "";
     },
 
@@ -36,6 +38,7 @@ export function typewriter(node, initialHtml = "") {
      * Unmounts rendering nodes and evicts tracking scopes to avoid memory leaks.
      */
     destroy() {
+      destroyed = true;
       unmount(component);
     },
   };

@@ -29,7 +29,11 @@
       {@const name = entity?.name || "Unknown"}
       {@const signature_color = themeStore.get_signature_color(entity, "var(--gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
-      <article class="panel-root is-left" style:--signature-color={signature_color}>
+      <article
+        class="panel-root is-left"
+        style:--signature-color={signature_color}
+        style="view-transition-name: entity-morph-ai;"
+      >
         <button
           class="panel-anchor interactable"
           use:tooltip={{ text: a11y_label }}
@@ -66,7 +70,11 @@
       {@const name = entity?.name || "Unknown"}
       {@const signature_color = themeStore.get_signature_color(entity, "var(--gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
-      <article class="panel-root is-right" style:--signature-color={signature_color}>
+      <article
+        class="panel-root is-right"
+        style:--signature-color={signature_color}
+        style="view-transition-name: entity-morph-user;"
+      >
         <button
           class="panel-anchor interactable"
           use:tooltip={{ text: a11y_label }}

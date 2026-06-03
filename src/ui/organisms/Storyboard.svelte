@@ -23,49 +23,26 @@
     context_broker.loadViewContext(app.view);
   });
 
-  // --- DERIVATIONS ---
-
-  /**
-   * Card configuration for DRY slot rendering
-   */
-  const slots = $derived({
-    ai: {
-      type: "ai",
-      entity: app.selected_ai,
-      label: "AI Character",
-      width: "var(--storyboard-character-card-width)",
-      height: "var(--storyboard-character-card-height)",
-    },
-    fractal: {
-      type: "fractal",
-      entity: app.selected_fractal,
-      label: "Fractal",
-      width: "var(--storyboard-fractal-card-width)",
-      height: "var(--storyboard-fractal-card-height)",
-    },
-    user: {
-      type: "user",
-      entity: app.selected_user,
-      label: "User Persona",
-      width: "var(--storyboard-character-card-width)",
-      height: "var(--storyboard-character-card-height)",
-    },
-  });
+  // --- SNIPPETS ---
 </script>
 
 {#snippet Slot(
-  /** @type {{ type: any; entity: any; label: any; width: any; height: any; }} */ config,
+  /** @type {"ai" | "user" | "fractal"} */ type,
+  /** @type {any} */ entity,
+  /** @type {string} */ label,
+  /** @type {string} */ width,
+  /** @type {string} */ height,
 )}
   {#if !app.entities_loaded}
-    <Skeleton variant="card" width={config.width} height={config.height} />
+    <Skeleton variant="card" {width} {height} />
   {:else}
     <EntityCard
-      variant={config.entity ? "panel" : "slot"}
-      type={config.type}
-      entity={config.entity}
-      role_label={config.label}
-      on_select={() => app.open_drawer(config.type)}
-      on_view_profile={() => app.toggle_profile(true, config.entity)}
+      variant={entity ? "panel" : "slot"}
+      {type}
+      {entity}
+      role_label={label}
+      on_select={() => app.open_drawer(type)}
+      on_view_profile={() => app.toggle_profile(true, entity)}
     />
   {/if}
 {/snippet}
@@ -78,15 +55,48 @@
   {/snippet}
 
   {#snippet left()}
-    {@render Slot(slots.ai)}
+    <div
+      class="storyboard-card-ai"
+      style="view-transition-name: entity-morph-ai; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;"
+    >
+      {@render Slot(
+        "ai",
+        app.selected_ai,
+        "AI Character",
+        "var(--storyboard-character-card-width)",
+        "var(--storyboard-character-card-height)",
+      )}
+    </div>
   {/snippet}
 
   {#snippet center()}
-    {@render Slot(slots.fractal)}
+    <div
+      class="storyboard-card-fractal"
+      style="view-transition-name: entity-morph-fractal; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;"
+    >
+      {@render Slot(
+        "fractal",
+        app.selected_fractal,
+        "Fractal",
+        "var(--storyboard-fractal-card-width)",
+        "var(--storyboard-fractal-card-height)",
+      )}
+    </div>
   {/snippet}
 
   {#snippet right()}
-    {@render Slot(slots.user)}
+    <div
+      class="storyboard-card-user"
+      style="view-transition-name: entity-morph-user; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;"
+    >
+      {@render Slot(
+        "user",
+        app.selected_user,
+        "User Persona",
+        "var(--storyboard-character-card-width)",
+        "var(--storyboard-character-card-height)",
+      )}
+    </div>
   {/snippet}
 
   {#snippet footer()}

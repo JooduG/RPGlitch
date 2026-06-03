@@ -710,9 +710,11 @@ select:focus {
     opacity: 1;
     filter: brightness(1);
   }
+
   40% {
     filter: brightness(0.8);
   }
+
   100% {
     /* Translate downward toward the orbital hand workspace with a slight tilt */
     transform: translateY(calc(var(--row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
@@ -728,13 +730,76 @@ select:focus {
     opacity: 0;
     filter: brightness(1.5) blur(4px);
   }
+
   50% {
     opacity: 1;
-    filter: blur(0px);
+    filter: blur(0);
   }
+
   100% {
     transform: translateY(0) scale(1) rotate(0deg);
     opacity: 1;
     filter: brightness(1);
+  }
+}
+
+/* --- Staged Decompression Row Morphing --- */
+.panel-root,
+.pill-chassis {
+  contain: layout; /* Constrain geometry recalculations during morphing */
+}
+
+/* Enforce uniform mechanical interpolation rates */
+::view-transition-group(entity-morph-ai),
+::view-transition-group(entity-morph-user),
+::view-transition-group(entity-morph-fractal) {
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-standard);
+}
+
+/* Instruct the browser to crossfade elements smoothly without layout pops */
+::view-transition-old(entity-morph-ai),
+::view-transition-new(entity-morph-ai),
+::view-transition-old(entity-morph-user),
+::view-transition-new(entity-morph-user) {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* --- Suppress Wrapper Interference During Deck Swaps --- */
+:root.is-swapping-card .storyboard-card-ai,
+:root.is-swapping-card .storyboard-card-user,
+:root.is-swapping-card .storyboard-card-fractal {
+  view-transition-name: none !important;
+}
+
+/* --- Fluid Aspect and Sizing Transformations for Fractal Blooming --- */
+::view-transition-old(entity-morph-fractal),
+::view-transition-new(entity-morph-fractal) {
+  mix-blend-mode: normal;
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}
+
+/* --- Processing Noise Velocity Scaling --- */
+.noise-overlay.is-generating {
+  opacity: calc(var(--opacity-whisper) + 0.1);
+  animation-duration: 0.08s !important; /* Overdriven step speed cycle */
+}
+
+/* --- Center Axis Delayed Fade-In Rule --- */
+::view-transition-new(console-center-axis) {
+  animation: 300ms ease-out delayed-fade-in both;
+}
+
+@keyframes delayed-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
   }
 }

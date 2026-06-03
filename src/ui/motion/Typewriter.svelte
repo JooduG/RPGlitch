@@ -4,6 +4,7 @@
    * 📝 UNIFIED KINETIC TEXT ENGINE
    * Combines HTML token-safe parsing with multi-word cycling phase loops.
    */
+  import { untrack } from "svelte";
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
 
@@ -129,9 +130,9 @@
 
       // Inherited smart-acceleration matrix for chat streams
       const remaining = totalLength - currentCharIndex;
-      let baseSpeed = 0.04;
-      if (remaining > 150) baseSpeed = 0.2;
-      else if (remaining > 50) baseSpeed = 0.1;
+      let baseSpeed = 0.02;
+      if (remaining > 150) baseSpeed = 0.06;
+      else if (remaining > 50) baseSpeed = 0.04;
 
       const intensity = motion.isReduced ? 0 : motion.intensity;
       const voiceRateFactor =
@@ -148,78 +149,92 @@
   });
 
   // Clear timeline counters cleanly whenever content data strings alter
+  let lastText = "";
   $effect(() => {
-    const _dependencyTrigger = wordsToAnimate.join("||");
-    currentCharIndex = 0;
-    currentWordIndex = 0;
-    phase = "typing";
-    pauseAccumulator = 0;
-    initialDelayElapsed = 0;
+    const currentText = wordsToAnimate.join("||");
+
+    // Strip HTML tags to accurately detect text appends during markdown streaming updates
+    const cleanCurrent = currentText.replace(/<[^>]*>/g, "");
+    const cleanLast = lastText.replace(/<[^>]*>/g, "");
+    const isAppend = cleanLast && cleanCurrent.startsWith(cleanLast);
+
+    if (!isAppend) {
+      currentCharIndex = 0;
+      currentWordIndex = 0;
+      phase = "typing";
+      pauseAccumulator = 0;
+      initialDelayElapsed = 0;
+    }
+
+    lastText = currentText;
   });
+
+  let isMounted = true;
 
   // High-frequency physics interval loop processing frame updates
   $effect(() => {
-    if (wordsToAnimate.length === 0) return;
-
     let lastTime = performance.now();
 
     const intervalId = setInterval(() => {
-      const now = performance.now();
-      const elapsed = now - lastTime;
-      lastTime = now;
+      untrack(() => {
+        if (!isMounted) return;
+        const words = wordsToAnimate;
+        if (words.length === 0) return;
 
-      // Handle the initial start delay prop safely before writing characters
-      if (
-        currentCharIndex === 0 &&
-        phase === "typing" &&
-        delay > 0 &&
-        initialDelayElapsed < delay
-      ) {
-        initialDelayElapsed += elapsed;
-        return;
-      }
+        const now = performance.now();
+        const elapsed = now - lastTime;
+        lastTime = now;
 
-      if (phase === "typing") {
-        if (currentCharIndex < totalLength) {
-          currentCharIndex = Math.min(totalLength, currentCharIndex + elapsed * activeSpeed);
-        } else {
-          if (hasMultipleWords || loop) {
-            phase = "pause";
-            pauseAccumulator = 0;
-          } else {
-            clearInterval(intervalId);
-          }
+        // Handle the initial start delay prop safely before writing characters
+        if (
+          currentCharIndex === 0 &&
+          phase === "typing" &&
+          delay > 0 &&
+          initialDelayElapsed < delay
+        ) {
+          initialDelayElapsed += elapsed;
+          return;
         }
-      } else if (phase === "pause") {
-        pauseAccumulator += elapsed;
-        if (pauseAccumulator >= pauseDelay) {
-          if (hasMultipleWords || loop) {
-            phase = "deleting";
+
+        if (phase === "typing") {
+          if (currentCharIndex < totalLength) {
+            currentCharIndex = Math.min(totalLength, currentCharIndex + elapsed * activeSpeed);
           } else {
-            clearInterval(intervalId);
-          }
-        }
-      } else if (phase === "deleting") {
-        if (currentCharIndex > 0) {
-          currentCharIndex = Math.max(0, currentCharIndex - elapsed * activeSpeed);
-        } else {
-          const nextIndex = currentWordIndex + 1;
-          if (nextIndex >= wordsToAnimate.length) {
-            if (loop) {
-              currentWordIndex = 0;
-              phase = "typing";
-            } else {
-              clearInterval(intervalId);
+            if (hasMultipleWords || loop) {
+              phase = "pause";
+              pauseAccumulator = 0;
             }
+          }
+        } else if (phase === "pause") {
+          pauseAccumulator += elapsed;
+          if (pauseAccumulator >= pauseDelay) {
+            if (hasMultipleWords || loop) {
+              phase = "deleting";
+            }
+          }
+        } else if (phase === "deleting") {
+          if (currentCharIndex > 0) {
+            currentCharIndex = Math.max(0, currentCharIndex - elapsed * activeSpeed);
           } else {
-            currentWordIndex = nextIndex;
-            phase = "typing";
+            const nextIndex = currentWordIndex + 1;
+            if (nextIndex >= words.length) {
+              if (loop) {
+                currentWordIndex = 0;
+                phase = "typing";
+              }
+            } else {
+              currentWordIndex = nextIndex;
+              phase = "typing";
+            }
           }
         }
-      }
+      });
     }, 16);
 
-    return () => clearInterval(intervalId);
+    return () => {
+      isMounted = false;
+      clearInterval(intervalId);
+    };
   });
 </script>
 

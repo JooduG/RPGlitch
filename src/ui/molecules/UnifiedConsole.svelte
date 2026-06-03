@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file UnifiedConsole.svelte
    * ðŸŽ›ï¸ THE SOVEREIGN CORE CONSOLE
@@ -9,10 +9,9 @@
   import { runtime, app, session, simulationState } from "@state";
   import { Button, tooltip } from "@atoms";
   import { pickRandom } from "@components";
-  import { pulse, roll, shimmy, stab } from "@motion";
+  import { pulse, roll, shimmy, stab, motion } from "@motion";
 
   // --- CORE VIEW ENGINE STATE ---
-  let current_view = $derived(app.view); // 'storyboard' | 'storymode'
   let ready_to_begin = $derived(app.is_ready);
 
   let label_text = $derived(
@@ -73,11 +72,20 @@
           user: app.selected_user || { id: "dev_user", name: "Dev User" },
           fractal: app.selected_fractal || { id: "dev_fractal", name: "Dev Fractal" },
         };
+        motion.intensity = 0.4;
+        app.set_view("storymode");
         await session.start(selection);
         return;
       }
 
       if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
+
+      // Compress global kinetic speed to induce analytical resistance
+      motion.intensity = 0.4;
+
+      // Swap boundaries safely through the single-flight transition guard
+      app.set_view("storymode");
+
       await session.start({
         ai: app.selected_ai,
         user: app.selected_user,
@@ -127,7 +135,7 @@
 
   // Focus preservation routine across narrative quantum transitions
   $effect(() => {
-    if (current_view === "storymode" && textarea) {
+    if (app.view === "storymode" && textarea) {
       textarea.focus();
     }
   });
@@ -135,14 +143,14 @@
 
 <div
   class="root pill-chassis glass-elevated"
-  class:is-storyboard={current_view === "storyboard"}
-  class:is-storymode={current_view === "storymode"}
-  class:is-focused={is_focused && current_view === "storymode"}
+  class:is-storyboard={app.view === "storyboard"}
+  class:is-storymode={app.view === "storymode"}
+  class:is-focused={is_focused && app.view === "storymode"}
   class:is-busy={is_locked}
-  style:--signature-color={current_view === "storymode" ? signature_color : undefined}
+  style:--signature-color={app.view === "storymode" ? signature_color : undefined}
   data-testid="unified-console"
 >
-  {#if current_view === "storyboard"}
+  {#if app.view === "storyboard"}
     <Button
       class="flank-btn"
       variant="invisible"

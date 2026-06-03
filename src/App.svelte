@@ -21,6 +21,13 @@
   $effect(() => {
     app.load_entities();
   });
+
+  // Centralized State Reset: Restores engine physics velocity when streaming begins
+  $effect(() => {
+    if (app.streaming.active) {
+      motion.intensity = 1.0;
+    }
+  });
 </script>
 
 <main
@@ -35,9 +42,14 @@
       class="fractal"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
+      style:view-transition-name={app.view === "storymode" ? "entity-morph-fractal" : undefined}
     ></div>
 
-    <div class="noise-overlay" data-motion-reduced={motion.isReduced}></div>
+    <div
+      class="noise-overlay"
+      class:is-generating={app.sim_phase === "generating"}
+      data-motion-reduced={motion.isReduced}
+    ></div>
   </div>
 
   <ImagePreview />

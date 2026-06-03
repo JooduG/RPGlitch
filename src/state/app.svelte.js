@@ -158,6 +158,12 @@ export class AppStore {
   get sim_phase() {
     return simulationState.phase;
   }
+  get isProcessing() {
+    return simulationState.phase === "generating" || this.streaming.active;
+  }
+  get voiceSuppressed() {
+    return simulationState.phase === "generating" && !this.streaming.active;
+  }
   /**
    *
    */
