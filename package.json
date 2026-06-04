@@ -109,6 +109,7 @@
     "dompurify": "^3.4.7",
     "dotenv": "^17.4.2",
     "find-up": "^7.0.0",
+    "firecrawl-fastmcp": "^1.0.5",
     "firecrawl-mcp": "^3.20.2",
     "ignore": "^7.0.5",
     "markdown-it": "^14.2.0",
@@ -179,7 +180,7 @@
     "devalue": "^5.8.1",
     "express-rate-limit": "^8.5.0",
     "firecrawl-fastmcp": {
-      "@modelcontextprotocol/sdk": "1.0.1"
+      "@modelcontextprotocol/sdk": "^1.29.0"
     },
     "hono": "^4.12.16",
     "ip-address": "^10.1.1",
