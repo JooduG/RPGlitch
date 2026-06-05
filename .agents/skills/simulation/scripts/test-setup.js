@@ -21,6 +21,18 @@ if (!globalThis.ResizeObserver) {
   };
 }
 
+// Mock document for bits-ui primitives in JSDOM environments where document might not be immediately available
+if (typeof globalThis.document === "undefined") {
+  globalThis.document = {
+    body: {
+      setAttribute: () => {},
+      style: {
+        removeProperty: () => {},
+      },
+    },
+  };
+}
+
 if (typeof window !== "undefined") {
   // Mock matchMedia for Svelte 5 media query runes
   if (!window.matchMedia) {
