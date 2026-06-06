@@ -178,9 +178,6 @@
     "axios": "^1.15.1",
     "devalue": "^5.8.1",
     "express-rate-limit": "^8.5.0",
-    "firecrawl-fastmcp": {
-      "@modelcontextprotocol/sdk": "^1.29.0"
-    },
     "hono": "^4.12.16",
     "ip-address": "^10.1.1",
     "lodash": "^4.17.21",

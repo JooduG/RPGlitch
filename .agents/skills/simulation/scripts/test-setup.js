@@ -23,14 +23,26 @@ if (!globalThis.ResizeObserver) {
 
 // Mock document for bits-ui primitives in JSDOM environments where document might not be immediately available
 if (typeof globalThis.document === "undefined") {
-  globalThis.document = {
-    body: {
-      setAttribute: () => {},
-      style: {
-        removeProperty: () => {},
+  const createSafeMock = () => {
+    const target = () => {};
+    return new Proxy(target, {
+      get: (t, prop) => {
+        if (prop === "style") {
+          return new Proxy({}, {
+            get: (styleTarget, styleProp) => {
+              if (typeof styleTarget[styleProp] === "function") {
+                return styleTarget[styleProp].bind(styleTarget);
+              }
+              return styleTarget[styleProp] || (() => {});
+            }
+          });
+        }
+        return createSafeMock();
       },
-    },
+      set: () => true,
+    });
   };
+  globalThis.document = createSafeMock();
 }
 
 if (typeof window !== "undefined") {
