@@ -47,7 +47,7 @@ Ready for new assignments. May structural refactoring (Vite 8, Centralized Motio
 
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-Last Swept: 2026-06-06 15:05
+Last Swept: 2026-06-06 15:13
 
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
 - [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
