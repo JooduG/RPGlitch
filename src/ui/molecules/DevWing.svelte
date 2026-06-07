@@ -67,7 +67,7 @@
 </script>
 
 <section class="root glass-elevated">
-  <!-- ðŸ“ˆ DYNAMICS GRID -->
+  <!-- DYNAMICS GRID -->
   <div class="body grid">
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
       <div class="card" class:is-editable={is_editing}>
@@ -140,7 +140,7 @@
     {/each}
   </div>
 
-  <!-- ðŸ“‚ RAW EXPLORER -->
+  <!-- RAW EXPLORER -->
   <div class="body">
     <details class="explorer">
       <summary>View JSON Data</summary>
@@ -150,7 +150,7 @@
     </details>
   </div>
 
-  <!-- ðŸ·ï¸ META FOOTER -->
+  <!-- META FOOTER -->
   <footer class="footer">
     <div class="meta">
       <span class="tag">Born:</span>

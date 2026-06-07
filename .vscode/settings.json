@@ -1,15 +1,13 @@
 {
-  "css.validate": true,
+  "css.validate": false,
+  "html.validate.styles": false,
+  "stylelint.validate": ["css", "svelte"],
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit",
     "source.fixAll.stylelint": "explicit"
   },
-  "html.validate.styles": false,
-  "launch": {
-    "compounds": [],
-    "configurations": []
-  },
   "markdown.validate.enabled": true,
+  "markdown.validate.referenceLinks.enabled": "ignore",
   "markdown.validate.ignoredLinks": [
     "always_on | on_change | manual",
     "high | medium | low",
@@ -22,9 +20,7 @@
     "**/tasks/**",
     "**/workflows/**"
   ],
-  "markdown.validate.referenceLinks.enabled": "ignore",
-  "stylelint.validate": ["css", "svelte"],
-  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
     "**/.DS_Store": true,
     "**/.playwright-auth/**": true,

@@ -66,7 +66,7 @@
 </script>
 
 <section class="root glass-elevated">
-  <!-- ðŸ—£ï¸ VOICE SELECTOR -->
+  <!-- VOICE SELECTOR -->
   <div class="controls">
     <Dropdown
       bind:value={profileState.char.voice.uri}
@@ -99,7 +99,7 @@
     </Button>
   </div>
 
-  <!-- ðŸŽšï¸ PARAMETERS -->
+  <!-- PARAMETERS -->
   <div class="body">
     <Slider
       min={0.1}
