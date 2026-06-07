@@ -146,7 +146,9 @@ export function syncToCss() {
 
 if (
   process.argv[1] &&
-  process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/design-sync.js")
+  process.argv[1]
+    .replace(/\\/g, "/")
+    .endsWith(".agents/skills/local-dispatcher/scripts/design-sync.js")
 ) {
   syncToCss();
 }

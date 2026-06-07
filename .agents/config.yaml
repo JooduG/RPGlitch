@@ -6,18 +6,20 @@ skills:
 
   orchestration_and_governance:
     master-skill-router: .agents/skills/executive/SKILL.md
-    swarm: .agents/skills/swarm/SKILL.md
+    swarm: C:/Users/johng/.gemini/config/skills/swarm/SKILL.md
     legislative: .agents/skills/legislative/SKILL.md
-    security: .agents/skills/security/SKILL.md
+    security: C:/Users/johng/.gemini/config/skills/security/SKILL.md
     simulation: .agents/skills/simulation/SKILL.md
     context: C:/Users/johng/.gemini/config/skills/context/SKILL.md
     planning: C:/Users/johng/.gemini/config/skills/planning/SKILL.md
+    developer-database: C:/Users/johng/.gemini/config/skills/developer-database/SKILL.md
 
   core_web_languages:
     javascript: C:/Users/johng/.gemini/config/skills/javascript/SKILL.md
     typescript: C:/Users/johng/.gemini/config/skills/typescript/SKILL.md
     html: C:/Users/johng/.gemini/config/skills/html/SKILL.md
     modern-web-guidance: C:/Users/johng/.gemini/config/skills/modern-web-guidance/SKILL.md
+    svelte: C:/Users/johng/.gemini/config/skills/svelte/SKILL.md
 
   engineering_and_architecture:
     api: C:/Users/johng/.gemini/config/skills/api/SKILL.md
@@ -31,6 +33,7 @@ skills:
     audio: .agents/skills/audio/SKILL.md
     ui: .agents/skills/ui/SKILL.md
     image-generation: C:/Users/johng/.gemini/config/skills/image/SKILL.md
+    ai-text-generation: C:/Users/johng/.gemini/config/skills/text/SKILL.md
 
   verification_and_qa:
     test: C:/Users/johng/.gemini/config/skills/test/SKILL.md
@@ -57,7 +60,7 @@ workflows:
   utility:
     generate-ideas: C:/Users/johng/.gemini/config/global_workflows/generate-ideas.md
     refactor: C:/Users/johng/.gemini/config/global_workflows/refactor.md
-    swarm: .agents/workflows/swarm.md
+    swarm: C:/Users/johng/.gemini/config/global_workflows/swarm.md
     revert: C:/Users/johng/.gemini/config/global_workflows/revert.md
     test: C:/Users/johng/.gemini/config/global_workflows/test.md
     classify: C:/Users/johng/.gemini/config/global_workflows/classify.md
@@ -72,6 +75,7 @@ workflows:
 
 # ⚖️ Core
 legislative:
+  constitution: C:/Users/johng/.gemini/GEMINI.md
   amendments: GEMINI.md
   design_system: DESIGN.md
   memory:

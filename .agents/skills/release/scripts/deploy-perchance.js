@@ -6,7 +6,7 @@
  * Automates deployment of the RPGlitch Vite build to the Perchance platform
  * via Playwright browser automation and CodeMirror 6 EditorView API injection.
  *
- * Usage: node .agents/skills/devops/scripts/deploy_perchance.js
+ * Usage: node .agents/skills/release/scripts/deploy-perchance.js
  * Env:   PERCHANCE_URL, PERCHANCE_USERNAME, PERCHANCE_KEY (from .env)
  *
  * Architecture:

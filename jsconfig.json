@@ -69,10 +69,5 @@
     "test-results/",
     ".jules/"
   ],
-  "include": [
-    "src/**/*",
-    "types.d.ts",
-    ".agents/skills/swarm/scripts/swarm-engine.js",
-    ".agents/skills/data/scripts/knowledge.js"
-  ]
+  "include": ["src/**/*", "types.d.ts"]
 }

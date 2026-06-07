@@ -181,7 +181,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Build Tool**: Vite 6 (LTS) (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
 - **Persistence**: Dexie.js (IndexedDB).
-- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see [global GEMINI.md compliance](file:///C:/Users/johng/.gemini/GEMINI.md#️-06-compliance)).
+- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see [global GEMINI.md compliance](file:///C:/Users/johng/.gemini/GEMINI.md#06-compliance)).
 - **Simulation** building blocks:
   - [Engine](./src/engine): Logic & Round Orchestration (DynamicsEngine).
   - [Intelligence](./src/intelligence): The AI Kernel.
@@ -190,9 +190,9 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [UI](./src/ui): Atomic Design (Svelte 5 components).
   - [Media](./src/media): Internal Sensory Assets, and the Chalk Regime (Tokens, Global Styles).
 - **Skills** directory (`.agents/skills/`) for infrastructural expertise:
-  - [Skill Router](./.agents/skills/executive): Intent Decoding, Complexity Triage & Skill Selection.
-  - [Simulation](./.agents/skills/simulation): Narrative Bridges & Game Logic.
-  - [Security](file:///C:/Users/johng/.gemini/config/skills/security/SKILL.md): Adversarial Audit & Security.
+  - [Skill Router](./.agents/skills/local-dispatcher/SKILL.md): Local Skill Routing & Domain Orchestration.
+  - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
+  - [Security](./.agents/skills/security/SKILL.md): Adversarial Audit & Security.
 
 ---
 
@@ -288,4 +288,4 @@ We operate within the **Nordic Collection**.
 > **CRITICAL DISTINCTION**:
 >
 > - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Data](file:///C:/Users/johng/.gemini/config/skills/developer-database/SKILL.md) skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Developer Database](file:///C:/Users/johng/.gemini/config/skills/developer-database/SKILL.md) skill.

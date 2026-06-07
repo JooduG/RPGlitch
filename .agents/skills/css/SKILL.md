@@ -94,4 +94,4 @@ The `css` skill maintains several scripts for token integrity:
 ### Resources
 
 - **[DESIGN.md](../../../DESIGN.md)**: The Sovereign Source.
-- **[Aesthetics](../../../GEMINI.md#️-04-aesthetics)**: The High Law.
+- **[Aesthetics](../../../GEMINI.md#04-aesthetics)**: The High Law.

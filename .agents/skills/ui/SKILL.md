@@ -68,7 +68,7 @@ Implement protocols for handling background processing and providing immediate v
 ### Resources
 
 - **[DESIGN.md](../../../DESIGN.md)**: The Sovereign Source.
-- **[Aesthetics](../../../GEMINI.md#️-04-aesthetics)**: The High Law.
+- **[Aesthetics](../../../GEMINI.md#04-aesthetics)**: The High Law.
 
 ---
 

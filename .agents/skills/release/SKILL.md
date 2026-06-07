@@ -16,7 +16,7 @@ As the `release` specialist, you are the master of deployment and the final qual
 
 ## Overview
 
-The `delivery` skill is responsible for the final stage of the simulation cycle. It ensures that no change reaches production without passing strict quality gates and that the transition to Perchance is seamless and safe.
+The `release` skill is responsible for the final stage of the simulation cycle. It ensures that no change reaches production without passing strict quality gates and that the transition to Perchance is seamless and safe.
 
 ### Strategic Context
 
@@ -55,7 +55,7 @@ Execute the `deploy-perchance.js` script to automate the production update.
 npm run verify
 
 # CROSS THE BRIDGE (release to production)
-node .agents/skills/delivery/scripts/deploy-perchance.js
+node .agents/skills/release/scripts/deploy-perchance.js
 ```
 
 ## Verification Checklist

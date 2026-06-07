@@ -51,4 +51,4 @@ Always use Svelte 5 `$effect` to manage the `AudioContext` lifecycle, ensuring i
 ### Resources
 
 - **[DESIGN.md](../../../DESIGN.md)**: The Sovereign Source.
-- **[Aesthetics](../../../GEMINI.md#️-04-aesthetics)**: The High Law.
+- **[Aesthetics](../../../GEMINI.md#04-aesthetics)**: The High Law.
