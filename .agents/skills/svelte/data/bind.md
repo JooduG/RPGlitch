@@ -8,9 +8,7 @@ You can also use `bind:property={get, set}`, where `get` and `set` are functions
 
 In the case of readonly bindings like [dimension bindings](https://svelte.dev/docs/svelte/bind#Dimensions), the `get` value should be `null`:
 
-```svelte
+````svelte
 <div bind:clientWidth={null, redraw} bind:clientHeight={null, redraw}>...</div>
-```
-
-> [!NOTE]
-> Function bindings are available in Svelte 5.9.0 and newer.
+``` > [!NOTE] > Function bindings are available in Svelte 5.9.0 and newer.
+````

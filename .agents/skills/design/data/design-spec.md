@@ -474,7 +474,7 @@ Check your effective registry:
 npm config get registry
 ```
 
-For a normal install from the internet it should be `https://registry.npmjs.org/`. After fixing config, retry with `npm cache clean --force` if a stale 404 was cached.
+For a normal install from the internet it should be `<https://registry.npmjs.org/>`. After fixing config, retry with `npm cache clean --force` if a stale 404 was cached.
 
 All commands accept a file path or `-` for stdin. Output defaults to JSON.
 
@@ -600,3 +600,7 @@ DESIGN.md tokens are inspired by the [W3C Design Token Format](https://www.desig
 - **Tailwind v3 config (JSON)** — `npx @google/design.md export --format json-tailwind DESIGN.md` — emits a `theme.extend` JSON object for `tailwind.config.js`. `--format tailwind` is a backwards-compatible alias.
 - **Tailwind v4 theme (CSS)** — `npx @google/design.md export --format css-tailwind DESIGN.md` — emits a CSS `@theme { ... }` block using Tailwind v4's CSS-variable token namespaces (`--color-*`, `--font-*`, `--text-*`, `--leading-*`, `--tracking-*`, `--font-weight-*`, `--radius-*`, `--spacing-*`).
 - **DTCG tokens.json** ([W3C Design Tokens Format Module](https://tr.designtokens.org/format/)) — `npx @google/design.md export --format dtcg DESIGN.md`
+
+```
+
+```

@@ -110,3 +110,7 @@ Before any UI change is marked [DONE], it must survive the **Adversarial Audit**
 - [ ] Components implement explicit Error Boundaries (Fallout UI).
 - [ ] State is encapsulated with zero lateral leakage between entity profiles.
 - [ ] Sensory bridges (Audio/Visual) are gated by direct user interaction state.
+
+```
+
+```

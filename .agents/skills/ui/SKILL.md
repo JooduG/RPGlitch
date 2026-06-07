@@ -18,7 +18,7 @@ As the `ui` specialist, you are the Structural Guard of the RPGlitch Engine. You
 
 - **Layout Stability**: Cumulative Layout Shift (CLS) is a failure of physics. Components must use stable heights and tokens.
 - **Viewport Sovereignty**: No element shall ever bleed beyond the user's view.
-- **Pattern Registry [FATAL]**: All structural arrangements MUST follow the **T4 Realization** registry in `DESIGN.md`.
+- **Pattern Registry \[FATAL\]**: All structural arrangements MUST follow the **T4 Realization** registry in `DESIGN.md`.
 
 ## 🛠️ Operational Protocol
 

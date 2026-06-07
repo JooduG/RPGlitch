@@ -8,7 +8,7 @@
 
 Analyze the intended action against the following factors. Resolve conflicts in _order of importance_.
 
-[Consolidated Rules](#️-01-foundation), mandatory prerequisites ([Planning](./.agents/skills/planning/SKILL.md) and [Test-Driven Development](./.agents/skills/test/SKILL.md)), and constraints.
+[Consolidated Rules](#️-01-foundation), mandatory prerequisites ([Planning](./../../../.gemini/config/skills/planning/SKILL.md) and [Test-Driven Development](./../../../.gemini/config/skills/test/SKILL.md)), and constraints.
 
 #### 1.2 Order of Operations
 
@@ -24,7 +24,7 @@ User preferences.
 
 #### 1.5 Intent Decoding
 
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [Planning](./.agents/skills/planning/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/executive/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
+Is the user's intent completely clear? If not, _Halt_ execution and invoke the [Planning](./../../../.gemini/config/skills/planning/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/executive/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
 
 ### 🧠 2. Hypothesis Generation & Triage
 
@@ -38,9 +38,9 @@ Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
 
 Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/executive/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
 
-- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/02-implement]_.
-- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan]_ -> **Level 1**.
-- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/01-plan]_ -> **Level 2**.
+- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/01-plan](./../../../../johng/.gemini/config/global_workflows/02-implement.md)_.
+- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan](./../../../../johng/.gemini/config/global_workflows/01-plan.md)_ -> **Level 1**.
+- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/01-plan](./../../../../johng/.gemini/config/global_workflows/01-plan.md)_ -> **Level 2**.
 
 #### 2.3 Risk & Level Mapping
 
@@ -58,8 +58,8 @@ For **Medium** and **High-Risk** tasks, you must validate your hypothesis before
 
 When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agents/skills/executive/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
 
-- **[Data](./.agents/skills/data/SKILL.md)**: Dual-layer memory system (Pinecone/Supabase).
-- **[Find Docs](./.agents/skills/find-docs/SKILL.md)**: Up-to-date documentation and library patterns (Context7).
+- **[Data](./.agents/skills/developer-database/SKILL.md)**: Dual-layer memory system (Pinecone/Supabase).
+- **[Find Docs](./../../../.gemini/config/skills/provenance/SKILL.md)**: Up-to-date documentation and library patterns (Context7).
 - **[Svelte](./.agents/skills/svelte/SKILL.md)**: Official Svelte 5 logic and code verification.
 - **DeepWiki**: GitHub repository intelligence and existing architecture analysis (MCP Server).
 - **FireCrawl**: Web scraping and data extraction (MCP Server).
@@ -94,7 +94,7 @@ If the _logic shifts_ drastically during testing -> _update the [FUTURE](./tasks
 
 ### ⚙️ 5. The Execution & Grounding Sequence
 
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Planning](./.agents/skills/planning/SKILL.md) and verified via [Test-Driven Development](./.agents/skills/test/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
+Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Planning](./../../../.gemini/config/skills/planning/SKILL.md) and verified via [Test-Driven Development](./../../../.gemini/config/skills/test/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
 
 Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Turn Signal](#turn-signal-inline--end-of-every-response).
 
@@ -105,13 +105,13 @@ Every operational turn must conclude with a metadata block that signals the acti
 Below are the most common skills to be used in this step:
 
 - **[design](./.agents/skills/design/SKILL.md)**
-- **[Planning](./.agents/skills/planning/SKILL.md)**
-- **[API & Interface Design](./.agents/skills/api-design/SKILL.md)**
+- **[Planning](./../../../.gemini/config/skills/planning/SKILL.md)**
+- **[API & Interface Design](./../../../.gemini/config/skills/api/SKILL.md)**
 - **[legislative](./.agents/skills/legislative/SKILL.md)**
-- **[review](./.agents/skills/review/SKILL.md)**
+- **[review](./../../../.gemini/config/skills/review/SKILL.md)**
 - **[release](./.agents/skills/release/SKILL.md)**
 - **[Svelte Specialist](./.agents/skills/svelte/SKILL.md)**
-- **[Find Docs](./.agents/skills/find-docs/SKILL.md)**
+- **[Find Docs](./../../../.gemini/config/skills/provenance/SKILL.md)**
 - **[Simulation Orchestration](./.agents/skills/simulation/SKILL.md)**
 
 ### ✅ 6. Completeness & review Gate
@@ -587,15 +587,17 @@ Any tool output that is truncated (e.g. `(...N more results not shown)`) represe
 
 The following sovereign workflows are registered for agentic orchestration within the Conductor framework.
 
-- **[/00-status]**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
-- **[/01-plan]**: Tactical Planning & Specification. Generates track-specific blueprints.
-- **[/02-implement]**: Incremental Tactical Implementation. Drives the TDD loop.
-- **[/03-review]**: review Gate & Verification. Reviews completed track work.
-- **[/04-release]**: release & Handoff. Hardening and GitHub Deployment.
-- **[/revert]**: Git-aware State Reconciliation. Reverts logical units of work.
-- **[/test]**: Unified Verification & Diagnostics. Runs tests and audits.
-- **[/classify]**: Cognitive Classification & Sorting. Categorizes tasks and issues.
+- **[/00-status](./../../../../johng/.gemini/config/global_workflows/00-status.md)**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
+- **[/01-plan](./../../../../johng/.gemini/config/global_workflows/01-plan.md)**: Tactical Planning & Specification. Generates track-specific blueprints.
+- **[/02-implement](./../../../../johng/.gemini/config/global_workflows/02-implement.md)**: Incremental Tactical Implementation. Drives the TDD loop.
+- **[/03-review](./../../../../johng/.gemini/config/global_workflows/03-review.md)**: review Gate & Verification. Reviews completed track work.
+- **[/04-release](./../../../../johng/.gemini/config/global_workflows/04-release.md)**: release & Handoff. Hardening and GitHub Deployment.
+- **[/revert](./../../../../johng/.gemini/config/global_workflows/revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
+- **[/test](./../../../../johng/.gemini/config/global_workflows/test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
+- **[/classify](./../../../../johng/.gemini/config/global_workflows/classify.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
 - **[/swarm](./.agents/workflows/swarm.md)**: Manual Swarm Orchestration.
+
+/_hej_/
 
 ---
 
@@ -605,9 +607,9 @@ The following sovereign workflows are registered for agentic orchestration withi
 > **CRITICAL DISTINCTION**:
 >
 > - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Data](./.agents/skills/data/SKILL.md) skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Data](./.agents/skills/developer-database/SKILL.md) skill.
 
-Agents MUST utilize the dual-layer memory system via the [Data](./.agents/skills/data/SKILL.md) skill to maintain technical precision and historical continuity.
+Agents MUST utilize the dual-layer memory system via the [Data](./.agents/skills/developer-database/SKILL.md) skill to maintain technical precision and historical continuity.
 
 ##### **Working Memory (Pinecone)**
 
@@ -633,13 +635,13 @@ Operational metadata is emitted at two layers:
 
 A single lean line emitted at the end of each response. No tables, no lists.
 
-```
+```text
 > [Role emoji] [Role] | `[active-skill]` | [/workflow]
 ```
 
 **Examples:**
 
-```
+```text
 > ⚒️ Operations | `incremental-implementation` | /02-implement
 > 🎨 Tactics | `planning` | /01-plan
 > 🎭 Strategy | `planning` | /01-plan

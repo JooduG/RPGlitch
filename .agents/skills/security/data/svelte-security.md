@@ -123,3 +123,7 @@ RPGlitch operates in a Perchance environment. We maintain safety through a stric
 - [ ] Components use `$props` validation (Layer 1 Defense).
 - [ ] No `bind:value` on global engine runes.
 - [ ] `flushSync()` used only where transition-state verification is mandatory.
+
+```
+
+```

@@ -42,3 +42,7 @@ select count(*), state from pg_stat_activity group by state;
 ```
 
 Reference: [Database Connections](https://supabase.com/docs/guides/platform/performance#connection-management)
+
+```
+
+```

@@ -29,6 +29,7 @@
     "**/pnpm-lock.yaml": true,
     "**/Thumbs.db": true,
     "**/yarn.lock": true,
-    "/.env": false
+    "**/.env": false,
+    "**/src/**/index.js": true
   }
 }

@@ -245,7 +245,7 @@ All imagery in the RPGlitch ecosystem must adhere to the following stylistic con
 
 ## 📐 The Chalk Regime (Laws)
 
-### 1. Token Sovereignty [FATAL CONSTRAINT]
+### 1. Token Sovereignty **FATAL CONSTRAINT**
 
 The system operates within a closed-loop token architecture. Writing raw pixel values (`px`), rems (`rem`), ems (`em`), or hex codes (`#`) in any implementation file is strictly forbidden (**Heresy**).
 
@@ -317,6 +317,7 @@ The Chalk Regime UI layers have been migrated from raw DOM manipulations to stan
 
 Use the following H2/H3 structure for specific screen prompts to ensure the Stitch bridge parses them correctly.
 
+```text
 ## [Component Name/Screen Title]
 
 ### [Element ID / Functional Area]
@@ -324,6 +325,7 @@ Use the following H2/H3 structure for specific screen prompts to ensure the Stit
 - **Description**: Semantic description of the element (e.g., "A pill-shaped primary button with whisper-soft shadows").
 - **Intent**: What this element should achieve (e.g., "Directs user to the research log").
 - **Tokens**: Reference specific Chalk Regime tokens.
+```
 
 ---
 

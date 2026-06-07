@@ -127,3 +127,11 @@ npm run verify
 - **Ambiguity**: If a task maps to multiple skills, favor the "Strategy" skills (`specification`/`planning`) first to resolve intent.
 - **Token Debt**: If memory is degrading, use `context` to prune active context.
 - **Hallucination**: If a skill mention doesn't exist in `.agents/skills/`, it is invalid. Stick to the Directory Listing.
+
+```
+
+```
+
+```
+
+```

@@ -1,4 +1,3 @@
-!**/.env.example
 *.bak
 *.log
 *.template
@@ -6,19 +5,13 @@
 **/*.lock
 .secrets
 **/.DS_Store
-**/.antigravityignore
 **/.env*
 **/.eslintcache
-**/.geminiignore
 **/.git/**
-**/.gitignore
-**/.htmlhintignore
 **/cache/**
-**/.markdownlintignore
 **/.next/**
 **/.playwright-auth/**
-**/.prettierignore
-**/.stylelintignore
+*ignore
 **/.turbo/**
 **/Thumbs.db
 **/__snapshots__/**

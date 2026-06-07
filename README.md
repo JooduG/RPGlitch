@@ -29,7 +29,7 @@ Here is the anatomy of a single Round:
 
 ### Visualizing the Lifecycle
 
-```mermaid
+````mermaid
 flowchart LR
  Start((Message Sent)) --> Sys[SYSTEM_TURN<br>UI Locked<br>Engine Calculates]
 
@@ -47,8 +47,7 @@ flowchart LR
  style AI fill:#264653,stroke:#fff,stroke-width:2px,color:#fff
  style User fill:#264653,stroke:#fff,stroke-width:2px,color:#fff
  style Next fill:#2a9d8f,stroke:#fff,stroke-width:2px,color:#fff
-```
-
+```text
 ## 🏗️ Architecture & Technology Stack
 
 The system architecture prioritizes offline-first resilience and agentic automation, utilizing a Zero-Trust Security model to sanitize the runtime environment.
@@ -134,3 +133,4 @@ RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in p
 
 - [Sovereign Rules & Foundations](GEMINI.md)
 - [Automated Workflows](.agents/workflows)
+````

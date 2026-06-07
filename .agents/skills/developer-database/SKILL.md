@@ -22,15 +22,15 @@ As the `developer-database` specialist, you are the keeper of the engine's colle
 
 _Technical specifications and community-proven patterns._
 
-- **Svelte 5 Sovereignty**: Official Svelte 5 logic (Runes, State, Migration) [Source: Svelte 5 Stable Documentation] — **[INGESTED]**
-- **Library Intelligence**: Best practices for core dependencies (Bits UI, Dexie.js) — **[INGESTED]**
+- **Svelte 5 Sovereignty**: Official Svelte 5 logic (Runes, State, Migration) \[Source: Svelte 5 Stable Documentation\] — **\[INGESTED\]**
+- **Library Intelligence**: Best practices for core dependencies (Bits UI, Dexie.js) — **\[INGESTED\]**
 
 ### 📁 Namespace: `knowledge-base.meta`
 
 _The agentic constitution and behavioral directives._
 
-- **Project Blueprint**: Macro-architectural mapping of the project (Core, UI, Data, Intelligence layers) — **[INGESTED]**
-- **Behavioral References**: Prompting Matrix, Warden Security SOPs, and Trace Guidelines — **[PENDING INGESTION]**
+- **Project Blueprint**: Macro-architectural mapping of the project (Core, UI, Data, Intelligence layers) — **\[INGESTED\]**
+- **Behavioral References**: Prompting Matrix, Warden Security SOPs, and Trace Guidelines — **\[PENDING INGESTION\]**
 
 ### 🛡️ Retention & Retrieval Policy
 

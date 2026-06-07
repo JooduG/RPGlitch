@@ -13,7 +13,6 @@ export default [
   {
     // @agent:ignore-start
     ignores: [
-      "!**/.env.example",
       "*.bak",
       "*.log",
       "*.template",
@@ -21,19 +20,13 @@ export default [
       "**/*.lock",
       ".secrets",
       "**/.DS_Store",
-      "**/.antigravityignore",
       "**/.env*",
       "**/.eslintcache",
-      "**/.geminiignore",
       "**/.git/**",
-      "**/.gitignore",
-      "**/.htmlhintignore",
       "**/cache/**",
-      "**/.markdownlintignore",
       "**/.next/**",
       "**/.playwright-auth/**",
-      "**/.prettierignore",
-      "**/.stylelintignore",
+      "*ignore",
       "**/.turbo/**",
       "**/Thumbs.db",
       "**/__snapshots__/**",
