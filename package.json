@@ -60,6 +60,7 @@
     "// --- TOOLING ABSTRACTS --- //": "",
     "tool:summarize": "node .agents/skills/executive/scripts/summarize.js",
     "tool:knowledge": "node C:/Users/johng/.gemini/config/skills/developer-database/scripts/developer-database.js",
+    "tool:ingest-web": "node C:/Users/johng/.gemini/config/skills/developer-database/scripts/ingest-web.js",
     "tool:audit-css": "node .agents/skills/css/scripts/audit-css.js",
     "tool:audit-design": "node .agents/skills/design/scripts/audit-design.js",
     "tool:audit-nomenclature": "node .agents/skills/legislative/scripts/audit-nomenclature.js",

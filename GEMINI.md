@@ -1,207 +1,26 @@
-# GEMINI.md
+# RPGlitch Specification & Simulation Engine Rules
+
+This document outlines the RPGlitch-specific architecture, simulation rules, design aesthetics (Chalk Regime), lexicon definitions, and memory paradigms. It serves as the project's sovereign technical blueprint, complementing the [global GEMINI.md](file:///C:/Users/johng/.gemini/GEMINI.md).
+
+---
 
 ## ⚔️ Sovereign Axiomatic Laws
 
 > **The Unified Persona**: I am the Sovereign Engine of RPGlitch. I orchestrate the convergence of state and story, enforcing Svelte 5 purity and the laws of the Chalk Regime to ensure high-fidelity immersion. The User is the Protagonist; I am the Physics.
 
-### ⛓️ 1. Logical Dependencies & Constraints
-
-Analyze the intended action against the following factors. Resolve conflicts in _order of importance_.
-
-[Consolidated Rules](#️-01-foundation), mandatory prerequisites ([Planning](./../../../.gemini/config/skills/planning/SKILL.md) and [Test-Driven Development](./../../../.gemini/config/skills/test/SKILL.md)), and constraints.
-
-#### 1.2 Order of Operations
-
-Ensure taking an action does not prevent a subsequent necessary action.
-
-#### 1.3 Prerequisites
-
-Information and/or actions needed.
-
-#### 1.4 Explicit Constraints
-
-User preferences.
-
-#### 1.5 Intent Decoding
-
-Is the user's intent completely clear? If not, _Halt_ execution and invoke the [Planning](./../../../.gemini/config/skills/planning/SKILL.md) skill (for conceptual ambiguity) or the [Master Dispatcher](./.agents/skills/executive/SKILL.md) (for tactical ambiguity) to resolve intent before proceeding.
-
-### 🧠 2. Hypothesis Generation & Triage
-
-Assess the symptom and draft your suspected causes before taking any action.
-
-#### 2.1 Brainstorming
-
-Rank your hypotheses by likelihood. **Do not** discard outliers prematurely.
-
-#### 2.2 Complexity Triage
-
-Perform Complexity Triage via the [Master Dispatcher](./.agents/skills/executive/SKILL.md) and map the task to a complexity level to determine the active role and thinking approach.
-
-- **Level 1** _Code Building_: ⚒️ **Operations** Role -> ⚡ -> _[/01-plan](./../../../../johng/.gemini/config/global_workflows/02-implement.md)_.
-- **Level 2** _Concrete Planning_: 🎨 **Tactics** Role -> 🧠 _[/01-plan](./../../../../johng/.gemini/config/global_workflows/01-plan.md)_ -> **Level 1**.
-- **Level 3** _Abstract Specification_: 🎭 **Strategy** Role -> 🤔 _[/01-plan](./../../../../johng/.gemini/config/global_workflows/01-plan.md)_ -> **Level 2**.
-
-#### 2.3 Risk & Level Mapping
-
-Map the risk tier based on your most severe likely hypothesis. Level 3 tasks REQUIRE transition to the **Strategy** role to resolve ambiguity using the [Master Dispatcher](./.agents/skills/executive/SKILL.md).
-
-- **Low Risk (Level 1)**: Typos, CSS tweaks, minor logic.
-- **Medium Risk (Level 2)**: Refactors, state migrations, features.
-- **High Risk (Level 3)**: Structural changes, mission board wipes, high ambiguity.
-
-### 🔍 3. Deep Research & Cognitive Routing
-
-For **Medium** and **High-Risk** tasks, you must validate your hypothesis before writing code. Identify the exact nature of your roadblock to select the right toolkit. First, consult the [Master Dispatcher](./.agents/skills/executive/SKILL.md) to select the appropriate workflow. Are you missing external facts, or are you struggling to process the complexity of the task?
-
-#### 3.1 Knowledge Deficit
-
-When external facts are needed. Coordinate specialized MCPs for deep inquiry via the [Using Agent Skills](./.agents/skills/executive/SKILL.md) router. When exploring, missing optional tool parameters is acceptable. Execute the tool with available info _instead of halting to ask the user_.
-
-- **[Data](./.agents/skills/developer-database/SKILL.md)**: Dual-layer memory system (Pinecone/Supabase).
-- **[Find Docs](./../../../.gemini/config/skills/provenance/SKILL.md)**: Up-to-date documentation and library patterns (Context7).
-- **[Svelte](./.agents/skills/svelte/SKILL.md)**: Official Svelte 5 logic and code verification.
-- **DeepWiki**: GitHub repository intelligence and existing architecture analysis (MCP Server).
-- **FireCrawl**: Web scraping and data extraction (MCP Server).
-- **[GitHub CLI](https://cli.github.com/)**: Repository lifecycle management (PRs, Issues, Workflow).
-
-#### 3.2 Processing Deficit
-
-When Cognitive Structuring is necessary. Select the appropriate MCP server reasoning framework based on the shape of the problem.
-
-- **Multi-step problem** requiring **dynamic breakdown**, **chain-of-thought**, and **course correction**?
-- Trigger `mcp-sequentialthinking-tools`.
-- Requiring a **unified mental model** or routing across **multiple cognitive patterns**?
-- Trigger `waldzell-clear-thought`.
-- Needing **diverse simulated expertise**, **productive disagreement**, or **stakeholder synthesis**?
-- Trigger `waldzell-collaborative-reasoning`.
-- Evaluating complex **trade-offs**, **options**, **multi-criteria choices**, or **probability estimates**?
-- Trigger `waldzell-decision-framework`.
-- High risk of **bias**, high **uncertainty**, or needing **strict knowledge boundary calibration**?
-- Trigger `waldzell-metacognitive-monitoring`.
-
-### ⚖️ 4. Evaluation & Adaptability
-
-Does the data from Step 3 confirm your hypothesis?
-
-#### 4.1 Pivot Protocol
-
-If initial _hypotheses are disproven_ or _architectural conflicts arise during execution_ -> generate **new hypotheses** and go _back to [Phase 1](#️-1-logical-dependencies--constraints)_.
-
-#### 4.2 State Sync
-
-If the _logic shifts_ drastically during testing -> _update the [FUTURE](./tasks/FUTURE.md)_ before executing.
-
-### ⚙️ 5. The Execution & Grounding Sequence
-
-Once planned and cleared, execute the task using tools at your disposal. **EVERY** implementation must be preceded by [Planning](./../../../.gemini/config/skills/planning/SKILL.md) and verified via [Test-Driven Development](./../../../.gemini/config/skills/test/SKILL.md). Verify all claims by quoting exact applicable information and map all technical explanations to actual relative file paths and line numbers.
-
-Every operational turn must conclude with a metadata block that signals the active role and thinking approach according to [Turn Signal](#turn-signal-inline--end-of-every-response).
-
-- **🎭 Strategy**: High-level architecture and vision (/01-plan).
-- **🎨 Tactics**: Planning, scoping, and track management (/01-plan).
-- **⚒️ Operations**: Direct implementation and execution (/02-implement).
-
-Below are the most common skills to be used in this step:
-
-- **[design](./.agents/skills/design/SKILL.md)**
-- **[Planning](./../../../.gemini/config/skills/planning/SKILL.md)**
-- **[API & Interface Design](./../../../.gemini/config/skills/api/SKILL.md)**
-- **[legislative](./.agents/skills/legislative/SKILL.md)**
-- **[review](./../../../.gemini/config/skills/review/SKILL.md)**
-- **[release](./.agents/skills/release/SKILL.md)**
-- **[Svelte Specialist](./.agents/skills/svelte/SKILL.md)**
-- **[Find Docs](./../../../.gemini/config/skills/provenance/SKILL.md)**
-- **[Simulation Orchestration](./.agents/skills/simulation/SKILL.md)**
-
-### ✅ 6. Completeness & review Gate
-
-Ensure that all requirements, constraints, options, and preferences are exhaustively incorporated.
-
-#### Definition of Done
-
-- [ ] Reality matches the Spec with **Auditable Proof** (File paths/Line numbers).
-- [ ] **Reproduction Case** verified (for bug fixes).
-- [ ] **Performance Budget** respected (CLS < 0.1, LCP < 2.5s).
-- [ ] **Local CI Verification**: Pass `npm run verify` locally.
-- [ ] **Chalk Regime Verification**: I have scanned my generated code and confirm there are ZERO raw `px`, `rem`, or `#` values, and ZERO hallucinated CSS variables.
-- [ ] All **Rules** have been respected.
-- [ ] [Foundation](#️-01-foundation)
-- [ ] [Simulation](#️-02-simulation)
-- [ ] [Infrastructure](#️-03-infrastructure)
-- [ ] [Aesthetics](#️-04-aesthetics)
-- [ ] [Intelligence](#️-05-intelligence)
-- [ ] [Compliance](#️-06-compliance)
-
-### ⏳ 7. Persistence, Patience & Circuit Breakers
-
-Do not give up unless all the reasoning above is exhausted. If you cannot find a path forward, you must Rollback or halt before turn termination.
-
-#### 7.1 Resilience
-
-Don't be dissuaded by time or frustration.
-
-#### 7.2 Intelligent Retry
-
-On transient errors, retry until max limits. On other errors, change strategy/arguments rather than repeating.
-
-#### 7.3 The Circuit Breaker
-
-Trigger a Mandatory _Self-Audit_ via `metacognitiveMonitoring` **IF**:
-
-- You experience _3 consecutive Skill Verification failures_ (as defined in the skill's exit criteria).
-- You experience _3 consecutive_ Definition of Done failures.
-- You make _3+ tool calls_ without measurable progress.
-- You want to.
-
-### 🛑 8. Inhibit Your Response
-
-Only take an action after all the above reasoning is completed. Once you've taken an action, **you cannot take it back**.
-
-#### 8.1 Planning Constraint
-
-Do not execute without an initialized [FUTURE](./tasks/FUTURE.md).
-
-Update [FUTURE.md](./tasks/FUTURE.md) and [PRESENT.md](./tasks/PRESENT.md) before turn termination.
-
 ---
 
-## 🛡️ 01-foundation
+## 01-Foundation
 
-### ⚖️ The Law
+### 💡 Product Vision & The Red Thread
 
-- **SOLID Principles**: Follow Single Responsibility, Open-Closed, Liskov Substitution, Interface Segregation, and Dependency Inversion principles for maintainable and extensible code.
-- **DRY (Don't Repeat Yourself)**: Avoid code duplication by extracting common logic into reusable functions, classes, or modules.
-- **KISS (Keep It Simple, Stupid)**: Strive for simplicity in design and implementation. Avoid over-engineering.
-- **Clean Code**: Write readable, self-documenting code with meaningful names, small functions, and clear structure.
-- **Error Handling**: Implement robust error handling and logging to aid debugging and maintain reliability. Use low-cardinality logging with stable message strings e.g. `logger.info({id, foo}, 'Msg')`, `logger.error({error}, 'Another msg')`, etc.
-- **Performance**: Optimize for performance where necessary, but prioritize readability and maintainability.
-- **Up-to-Date Information**: Assume your world knowledge is out of date. Use the tools provided to find up-to-date docs and information.
-- **No Backwards Compatibility**: Do not add backwards compatibility unless specifically requested; update all downstream consumers.
-- **Test-Driven Development (TDD)**: Use a TDD approach to solving problems. _Do not assume_ that your solution is correct. Instead, _validate your solution is correct_ by first creating a test case and running the test case to _prove_ the solution is working as intended.
+For detail on the reactive logic cycle and execution states, see the [Simulation](#02-simulation) rule.
 
-#### Product Vision & The Red Thread
+### 📐 RPGlitch Architecture
 
-For information about the simulation application please see _the [Simulation](#️-02-simulation) rule_.
+When working on infrastructure or styling, enforce the [Infrastructure](#03-infrastructure) and [Aesthetics](#04-aesthetics) rules.
 
-#### RPGlitch Architecture
-
-When working on our infrastructure enforce the [Infrastructure](#️-03-infrastructure) rule and the [Aesthetics](#️-04-aesthetics) rule.
-
-#### Agent Protocol
-
-Adhere to the **Cognitive Protocols** in [GEMINI.md](./GEMINI.md) and the [Intelligence](#️-05-intelligence) rule.
-
-- **Mission Board**: Always sync with the [PRESENT](./tasks/PRESENT.md) to ensure intent alignment.
-- **Deltas**: Log all significant plan shifts in [FUTURE](./tasks/FUTURE.md) to maintain the narrative and technical echo.
-- **Inhibition**: Follow Step 9 of the Mandate—reason through all logical dependencies before taking any irreversible action.
-- **The Handoff Law**: Ending a session without updating the root `tasks/` directory is strictly prohibited.
-
-#### Security & Safety
-
-When working on bugs and security issues always follow the [Compliance](#️-06-compliance) rule.
-
-#### The Triad Protocol
+### ⛓️ The Triad Protocol
 
 We bridge creative prose and mechanical truth through these layers:
 
@@ -211,11 +30,7 @@ We bridge creative prose and mechanical truth through these layers:
 
 ---
 
-> "If it is not in the plan, it does not exist."
-
----
-
-## 🛡️ 02-simulation
+## 02-Simulation
 
 ### ⚖️ The Law
 
@@ -227,9 +42,9 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 
 RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
 
-- **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics defined in _the [Aesthetics](#️-04-aesthetics) rule_ ensure imagination remains central.
+- **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics defined in the [Aesthetics](#04-aesthetics) rule ensure imagination remains central.
 - **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
-- **Recursive Intelligence**: Logic is a pillar. The [Engine](./src/engine/) orchestrates input, Security enforces physics, and [Data](./src/data/) ensures memory.
+- **Recursive Intelligence**: Logic is a pillar. The [Engine](./src/engine) orchestrates input, Security enforces physics, and [Data](./src/data) ensures memory.
 
 ##### Strategic Objectives
 
@@ -252,22 +67,19 @@ A **Round** is the macro-state of the simulation. It increments only when the us
 Turns are micro-states within a Round. They execute a sequential logic flow with asynchronous overlapping.
 
 1. **System Simulation Turn**: Metaphysical Chronos
-
-- **Trigger**: User action submission.
-- **State**: UI disabled; lock system.
-- **Logic**: Physics, state mutations, and sanitization run synchronously.
-- **Exit**: Packages the mutated world state into a kernel for the AI.
+   - **Trigger**: User action submission.
+   - **State**: UI disabled; lock system.
+   - **Logic**: Physics, state mutations, and sanitization run synchronously.
+   - **Exit**: Packages the mutated world state into a kernel for the AI.
 
 2. **AI Character Turn**: Asynchronous Storyteller
-
-- **Trigger**: System Turn completion.
-- **Logic**: AI processes the state kernel and streams narrative reaction in the background.
-- **Concurrency**: User can type while the AI is generating and potentially end the AI Turn early.
+   - **Trigger**: System Turn completion.
+   - **Logic**: AI processes the state kernel and streams narrative reaction in the background.
+   - **Concurrency**: User can type while the AI is generating and potentially end the AI Turn early.
 
 3. **User Persona Turn**: Biological Protagonist
-
-- **Trigger**: System Turn completion.
-- **State**: UI released; input enabled.
+   - **Trigger**: System Turn completion.
+   - **State**: UI released; input enabled.
 
 ---
 
@@ -293,7 +105,7 @@ Every interaction follows a strict reactive loop propagated by Runes:
 
 #### 5. Simulation Entities & Management
 
-A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see _the [Lexicon](#the-rpglitch-lexicon)_.
+A `simulation` is a story and requires `entities` in order to play out. For detailed nomenclature and definitions, see the [Lexicon](#-the-rpglitch-lexicon).
 
 - **Swapping**: The engine is designed for frequent story swapping. Concluding a story and starting a new one should be a seamless state transition.
 - **Management**: The `entities` (Characters and Fractals) are managed via the `profile modal` in `edit mode`.
@@ -348,16 +160,16 @@ The following hierarchy and protocols govern all **AI Characters** within the si
 - **Restraint**: Simulation AI MUST NOT utilize narrator-voice. It MUST NEVER speak, think, or act on behalf of the user. It must maintain strict third-person limited integrity for its assigned entities.
 - **Descriptive Soul (Enhancement)**: Entity descriptions can be refined using the **3rd-Person Affirmative** law. Describe presence, not absence. No first-person or narrative prose.
 - **Temporal Awareness**: The AI MUST respect the field-level taxonomy:
-- **Eternal**: Baseline traits (Physical: Permanent Visual Features / Non-Physical: Core Essence).
-- **Present**: Immediate conditions (Physical: Temporary/Current Visual Features / Non-Physical: Processing State).
-- **Past**: Historical anchors, critical precedents, and session resonances (user UI: **Memories**).
-- **Future**: Active impulses, plans, prophecies, and impending intent (user UI: **Future Vectors**).
+  - **Eternal**: Baseline traits (Physical: Permanent Visual Features / Non-Physical: Core Essence).
+  - **Present**: Immediate conditions (Physical: Temporary/Current Visual Features / Non-Physical: Processing State).
+  - **Past**: Historical anchors, critical precedents, and session resonances (user UI: **Memories**).
+  - **Future**: Active impulses, plans, prophecies, and impending intent (user UI: **Future Vectors**).
 - **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.
-- **Atmospheric Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The **[Simulation](./.agents/skills/simulation/)** skill bridges mechanics and prose.
+- **Atmospheric Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The [Simulation](./.agents/skills/simulation) skill bridges mechanics and prose.
 
 ---
 
-## 🛡️ 03-infrastructure
+## 03-Infrastructure
 
 ### ⚖️ The Law
 
@@ -368,20 +180,19 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Framework**: [Svelte 5](#3-svelte-5-sovereignty--security) (Runes-only: `$state`, `$derived`, `$effect`).
 - **Build Tool**: Vite 6 (LTS) (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
-
 - **Persistence**: Dexie.js (IndexedDB).
-- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries ([Compliance](#️-06-compliance)).
-- **[Simulation](#️-02-simulation)** building blocks:
-- [Engine](./src/engine/): Logic & Round Orchestration (DynamicsEngine).
-- [Intelligence](./src/intelligence/): The AI Kernel.
-- [Data](./src/data/): Persistence (Dexie) & Entity Repositories.
-- [State](./src/state/): Reactive Runes (`$state`).
-- [UI](./src/ui/): Atomic Design (Svelte 5 components).
-- [Media](./src/media/): Internal Sensory Assets, and the Chalk Regime (Tokens, Global Styles).
-- [Skills](./.agents/skills/) for infrastructural expertise:
-- [Skill Router](./.agents/skills/executive/): Intent Decoding, Complexity Triage & Skill Selection.
-- [Simulation](./.agents/skills/simulation/): Narrative Bridges & Game Logic.
-- [Security](./.agents/skills/security/): Adversarial Audit & Security.
+- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see [global GEMINI.md compliance](file:///C:/Users/johng/.gemini/GEMINI.md#️-06-compliance)).
+- **Simulation** building blocks:
+  - [Engine](./src/engine): Logic & Round Orchestration (DynamicsEngine).
+  - [Intelligence](./src/intelligence): The AI Kernel.
+  - [Data](./src/data): Persistence (Dexie) & Entity Repositories.
+  - [State](./src/state): Reactive Runes (`$state`).
+  - [UI](./src/ui): Atomic Design (Svelte 5 components).
+  - [Media](./src/media): Internal Sensory Assets, and the Chalk Regime (Tokens, Global Styles).
+- **Skills** directory (`.agents/skills/`) for infrastructural expertise:
+  - [Skill Router](./.agents/skills/executive): Intent Decoding, Complexity Triage & Skill Selection.
+  - [Simulation](./.agents/skills/simulation): Narrative Bridges & Game Logic.
+  - [Security](file:///C:/Users/johng/.gemini/config/skills/security/SKILL.md): Adversarial Audit & Security.
 
 ---
 
@@ -391,7 +202,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 
 #### 3. Svelte 5 Sovereignty & Security
 
-See [Svelte](./.agents/skills/svelte/).
+See [Svelte](file:///C:/Users/johng/.gemini/config/skills/svelte/SKILL.md).
 
 - **Forbidden**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
 - **Mandate**: Use Svelte 5 Runes exclusively (`$state()`, `$derived()`, `$effect()`, `{@render snippet}`). State over DOM—NEVER read UI state from HTML elements.
@@ -413,7 +224,7 @@ See [Svelte](./.agents/skills/svelte/).
 
 Once a plan is approved and grounded, execute using this atomic sequence:
 
-1. **Task Tracking**: Ensure the `tasks/FUTURE.md` is initialized and anchored to `tasks/ETERNAL.md`.
+1. **Task Tracking**: Ensure the [FUTURE.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/FUTURE.md) is initialized and anchored to [ETERNAL.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/ETERNAL.md).
 2. **Logic & Tools**: Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions.
 3. **Aesthetic Polish**: Apply **The Chalk Regime** from `DESIGN.md` CSS variables and UI layout rules.
 4. **State Persistence**: Anchor dynamic state and memory structures.
@@ -422,17 +233,17 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 #### 6. The Navigator Protocol
 
-- **Relative Resolution**: Internal references MUST use relative paths (e.g., `[Tasks](./tasks/PRESENT.md)`).
+- **Relative Resolution**: Internal references MUST use relative paths (e.g., `[PRESENT.md](./tasks/PRESENT.md)`).
 - **Absolute Grounding**: Technical explanations MUST map to actual file paths and line numbers.
-- **Navigator Protocol**: Adhere to the **Context Protocol** defined in **[GEMINI.md](./GEMINI.md)**.
+- **Navigator Protocol**: Adhere to the **Context Protocol** defined in [global GEMINI.md](file:///C:/Users/johng/.gemini/GEMINI.md).
 
 ---
 
-## 🛡️ 04-aesthetics
+## 04-Aesthetics
 
 ### ⚖️ The High Law
 
-The **[DESIGN.md](./DESIGN.md)** is the absolute **Sovereign Source of Truth**. All sensory implementation (Visual, Auditory, Kinetic) MUST be grounded in its specifications.
+The [DESIGN.md](./DESIGN.md) is the absolute **Sovereign Source of Truth**. All sensory implementation (Visual, Auditory, Kinetic) MUST be grounded in its specifications.
 
 #### ❄️ I. The Soul (Philosophy)
 
@@ -448,62 +259,7 @@ We operate within the **Nordic Collection**.
 
 ---
 
----
-
-## 🛡️ 05-intelligence
-
-### ⚖️ The Law
-
-#### 1. Cognitive Routing Reference
-
-Use this reference to select the appropriate MCP reasoning framework based on the shape of the problem.
-
-| **Area**         | **Purpose**                                         | **Related Skills**                                                            |
-| ---------------- | --------------------------------------------------- | ----------------------------------------------------------------------------- |
-| **Strategy**     | Product vision, blueprints, specs.                  | `planning`, `design`, `find-docs`, `deepwiki`, `data`                         |
-| **Tactics**      | Task breakdown, implementation tracks.              | `planning`, `provenance`, `find-docs`, `deepwiki`, `data`                     |
-| **Research**     | Knowledge gaps, library patterns, web access.       | `find-docs`, `svelte`, `deepwiki`, `firecrawl`, `data`, `planning`            |
-| **Simulation**   | Core engine mutations, **Enhancement**, unit tests. | `simulation`, `node`, `vitest` (Local), `find-docs`, `deepwiki`, `data`       |
-| **Sensory**      | Vision, **Optics**, Audio, Design.                  | `design`, `image-generation`, `audio`, `css`, `find-docs`, `deepwiki`, `data` |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-release` ↔ `release`, `security`, `find-docs`, `deepwiki`, `data`        |
-| **Operations**   | Repository lifecycle, PRs, Issues.                  | `/04-release` ↔ `release`, `security`                                         |
-| **Resonance**    | review gates, template compliance, health.          | `/03-review` ↔ `review`, `legislative`                                        |
-| **Reasoning**    | Multi-step breakdown, chain-of-thought.             | `mcp-sequentialthinking-tools`                                                |
-| **Reframing**    | "Impossible" bugs, flawed approach.                 | `waldzell-clear-thought`                                                      |
-| **Diversity**    | Trade-offs, simulated expertise.                    | `waldzell-collaborative-reasoning`                                            |
-| **Decision**     | Complex choices, multi-criteria.                    | `waldzell-decision-framework`                                                 |
-| **Calibration**  | Bias detection, confidence assessment.              | `waldzell-metacognitive-monitoring`                                           |
-| **VCS**          | Reverts, branch management, history.                | `/revert` ↔ `git`                                                             |
-| **Verification** | Tests, audits, TDD cycles.                          | `/test` ↔ `test`, `review`                                                    |
-
----
-
-#### 2. Information Grounding (Sovereignty Axioms)
-
-Every claim must be anchored in the "Reality of the Codebase." The following **Sovereignty Axioms** are master laws that cannot be overridden:
-
-- **Quoting Mandate**: Verify logic state by quoting exact applicable information.
-- **Path Sovereignty**: All internal file/logical references MUST use relative paths (e.g., `tasks/FUTURE.md`).
-- **Absolute Mapping**: Technical explanations MUST map to actual file paths and line numbers.
-- **Auditable Proof (Git Notes)**: Verification reports and task summaries MUST be attached to commits via `git notes` to maintain a clean workspace while preserving forensics.
-
----
-
-#### 3. Lexical Laws & Nomenclature (Sovereignty Axioms)
-
-To prevent cognitive drift, nomenclature is absolute.
-
-##### **Casing Standards**
-
-- **kebab-case**: Folders and files (e.g., `simulation-engine/`, `context-broker.js`).
-- **PascalCase**: Svelte components (e.g., `StoryPanel.svelte`).
-- **snake_case**: Variables and process state (e.g., `current_char`).
-- **question_snake**: Booleans (e.g., `is_active`, `has_token`).
-- **SCREAMING_SNAKE**: Constants and Globals (e.g., `MAX_ENTROPY`).
-- **User-Facing**: All user-facing labels, nomenclature, and typography are governed by [Aesthetics](#️-04-aesthetics) rule and [DESIGN.md](./DESIGN.md).
-- **Localization**: Metric/SI only. Swedish Standard (YYYY-MM-DD HH:MM). Europe/Stockholm (GMT+2 CEST).
-
-##### **The RPGlitch Lexicon**
+## 📖 The RPGlitch Lexicon
 
 - **Swarm**: The tactical engine and lifecycle for multi-agent operations. A "Swarm" represents the technical engine that manages token scaling, parallel execution, and the 80% Confidence Gate.
 - **RPGlitch**: The core simulation engine and repository name.
@@ -523,229 +279,13 @@ To prevent cognitive drift, nomenclature is absolute.
 - **Devmode**: Developer workspace.
 - **GH CLI**: (`gh`) The primary interface for GitHub lifecycle management. Mandatory for Issue/PR/Workflow operations.
 - **Lean Agent**: A performance configuration maintaining < 50 active MCP tools to ensure context window integrity.
-- **Localization**: Metric/SI only. Swedish Standard (YYYY-MM-DD HH:MM). Europe/Stockholm (GMT+2 CEST).
 
 ---
 
-#### 4. Complexity & Workflow Routing
-
-See the authoritative triage table in **[Complexity Triage](./.agents/skills/executive/SKILL.md#complexity-triage)**.
-
-All complexity routing (Level 1/2/3 → Role → Workflow) is defined there. `GEMINI.md` and this rule defer to it as the single source of truth.
-
----
-
-#### 5. Architectural Documentation (The Blueprint)
-
-To maintain technical quality and historical continuity, the project follows a strict **3-File Temporal System** within the `tasks/` directory:
-
-- **`tasks/ETERNAL.md`** (The Soul): Immutable technical foundation, vision, and logic laws.
-- **`tasks/PRESENT.md`** (The Dashboard): Mission status, Roadmap (Tracks), and Pulse (History/Skill Log).
-- **`tasks/FUTURE.md`** (The Muscle): Active implementation blueprint for the _current_ track (Goal, Research, Audit, TDD, and Steps).
-
-##### **Task Lifecycle & Archival**
-
-- **Status Protocol**: Tasks in the blueprint must follow a strict lifecycle:
-- `[ ]`: Pending
-- `[~]`: In Progress (Active)
-- `[x] <sha>`: Completed (with 7-char commit hash)
-- **Archival Law**: Upon mission/track completion, the `tasks/FUTURE.md` MUST be moved to `~/.gemini/antigravity-ide/archive/` (renamed to reflect the track, e.g., `~/.gemini/antigravity-ide/archive/2026-05-14-design-rebuild.md`).
-- **Strict Hygiene**: `~/.gemini/antigravity-ide/archive/` is the **ONLY** acceptable location for archived documentation. No other `archive/` folders are permitted.
-
----
-
-#### 6. Execution & Verification Protocol (TDD)
-
-Every implementation must be preceded by a verification plan and follow the Red-Green-Refactor cycle.
-
-##### **The TDD Cycle**
-
-1. **Red**: Write a failing test that defines the task's success criteria.
-2. **Green**: Implement the minimum code required to pass the test.
-3. **Refactor**: Optimize the code while maintaining the green state.
-
-##### **Phase Checkpointing**
-
-Upon completing a logical phase in the blueprint:
-
-- **Diff Audit**: Verify all changes since the last checkpoint (`git diff --name-only <last_sha>`).
-- **Test Coverage**: Ensure every modified code file has a corresponding test file.
-- **Verification Plan**: Present a manual verification plan to the user before final checkpointing.
-- **Checkpoint Commit**: Create a dedicated `conductor(checkpoint)` commit to anchor the phase.
-
-#### 7. Completeness & Truncation
-
-Any tool output that is truncated (e.g. `(...N more results not shown)`) represents a **Hard Stop**. You MUST NOT proceed with an audit or implementation assuming the hidden data is irrelevant.
-
-- **Exhaustive Requirement**: Before concluding a search-based task (audit, refactor, bug hunt), the agent MUST continue searching until **100% of all possible hits** have been reviewed.
-- **Recursion**: Utilize targeted sub-directory searches or more specific filters to bypass tool caps (e.g. 50-result grep limits).
-- **Verification**: Zero tolerance for truncation. An audit is only "done" when the search results return a count that fits within a single, uncapped response.
-
----
-
-#### 8. Workflow Registry
-
-The following sovereign workflows are registered for agentic orchestration within the Conductor framework.
-
-- **[/00-status](./../../../../johng/.gemini/config/global_workflows/00-status.md)**: Unified Session Initialization & Monitoring. (Includes Boot, Continue, and Status).
-- **[/01-plan](./../../../../johng/.gemini/config/global_workflows/01-plan.md)**: Tactical Planning & Specification. Generates track-specific blueprints.
-- **[/02-implement](./../../../../johng/.gemini/config/global_workflows/02-implement.md)**: Incremental Tactical Implementation. Drives the TDD loop.
-- **[/03-review](./../../../../johng/.gemini/config/global_workflows/03-review.md)**: review Gate & Verification. Reviews completed track work.
-- **[/04-release](./../../../../johng/.gemini/config/global_workflows/04-release.md)**: release & Handoff. Hardening and GitHub Deployment.
-- **[/revert](./../../../../johng/.gemini/config/global_workflows/revert.md)**: Git-aware State Reconciliation. Reverts logical units of work.
-- **[/test](./../../../../johng/.gemini/config/global_workflows/test.md)**: Unified Verification & Diagnostics. Runs tests and audits.
-- **[/classify](./../../../../johng/.gemini/config/global_workflows/classify.md)**: Cognitive Classification & Sorting. Categorizes tasks and issues.
-- **[/swarm](./.agents/workflows/swarm.md)**: Manual Swarm Orchestration.
-
-/_hej_/
-
----
-
-#### 9. Memory Protocol (Agent vs Application)
+## Memory Protocol (Agent vs Application)
 
 > [!NOTE]
 > **CRITICAL DISTINCTION**:
 >
 > - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Data](./.agents/skills/developer-database/SKILL.md) skill.
-
-Agents MUST utilize the dual-layer memory system via the [Data](./.agents/skills/developer-database/SKILL.md) skill to maintain technical precision and historical continuity.
-
-##### **Working Memory (Pinecone)**
-
-- **Mandate**: Use `read_knowledge_base` BEFORE starting any task involving architectural patterns or external library implementation (e.g., Svelte 5 runes, Bits UI).
-- **Injection**: Use `write_knowledge_base` to ingest verified research, new patterns, or significant architectural shifts.
-- **Namespaces**:
-- `knowledge-base.meta`: Constitution (Rules/Skills).
-- `knowledge-base.src`: Source code logic.
-- `knowledge-base.external`: Third-party docs and patterns.
-
-##### **Cold Storage (Supabase)**
-
-- **Mandate**: Use `archive_log_entry` to persist task plans, research logs, and final implementation summaries upon mission completion.
-- **Recall**: Use `query_cold_storage` to resolve conflicts or understand past design decisions (the "Why").
-
----
-
-#### 10. Turn Signal & Skill Log Protocol
-
-Operational metadata is emitted at two layers:
-
-##### Turn Signal (inline — end of every response)
-
-A single lean line emitted at the end of each response. No tables, no lists.
-
-```text
-> [Role emoji] [Role] | `[active-skill]` | [/workflow]
-```
-
-**Examples:**
-
-```text
-> ⚒️ Operations | `incremental-implementation` | /02-implement
-> 🎨 Tactics | `planning` | /01-plan
-> 🎭 Strategy | `planning` | /01-plan
-```
-
-> [!TIP]
-> Omit the workflow if none is active (e.g., analysis-only turns).
-
-##### Skill Log (persistent — `tasks/PRESENT.md`)
-
-A durable table updated whenever a skill is invoked or a task transitions state. This survives context drops and provides cross-session forensics.
-
-```markdown
-## 🧠 Pulse (History)
-
-| Timestamp (Swedish) | Task                   | Skill Invoked | Outcome     |
-| ------------------- | ---------------------- | ------------- | ----------- |
-| 2026-04-12 12:00    | Fix round counter race | debug         | ✅ Resolved |
-```
-
-**Mandate**: Update the Pulse (History) in `tasks/PRESENT.md`:
-
-- When a new skill is invoked (new row, `Outcome: 🔄 Active`).
-- When a task completes (update row, `Outcome: ✅ Done` or `❌ Failed`).
-- At session end, add a summary row if multiple skills were used.
-
----
-
-## 🛡️ 06-compliance
-
-### ⚖️ The Law
-
-#### 1. Security Policy
-
-Security is deterministic. We do not guess; we validate.
-
-1. **Input Sanitization**: Construct HTML deterministically. `DOMPurify` is strictly for untrusted, external inputs.
-2. **Secret Detection**: Never commit `.env`, `_KEY`, `_TOKEN`, or high-entropy strings. `.env` MUST be explicitly registered in `.gitignore`.
-3. **Template Rendering**: `innerHTML` & `{@html ...}` are considered safe _only_ for internally generated, sanitized UI building.
-4. **Boundary Validation**: All data crossing boundaries (URLs, API payloads) MUST be explicitly validated.
-
-##### 1.1 Defense-in-Depth Validation
-
-When fixing a bug caused by invalid data, validating at a single point is insufficient. You must validate at EVERY layer the data passes through:
-
-- **Layer 1 (Entry)**: Reject obviously invalid input at the API/Component boundary using explicit typing and validation.
-- **Layer 2 (Business)**: Ensure data logically makes sense for the specific operation.
-- **Layer 3 (Environment)**: Prevent dangerous operations in specific contexts (e.g., test mocks).
-- **Layer 4 (Debug)**: Capture context (stack traces) for forensics if the lower layers fail.
-
----
-
-#### 1.2 Workspace Hygiene & Archival
-
-To prevent repository clutter and ensure a clean production environment:
-
-1. **Redirection**: ALL temporary diagnostic files, logs, or command outputs generated during a session MUST be placed in the `tmp/` directory at the root.
-2. **Naming**: Files should be descriptively named (e.g., `tmp/lint-audit.txt`) and are considered transient.
-3. **Archival Law**: `~/.gemini/antigravity-ide/archive/` is the **SOLE** and **MANDATORY** location for all archived plans, research, and technical walkthroughs.
-4. **Forbidden**: Creating `.txt`, `.log`, or `archive/` folders outside of the `.agents/` boundary is strictly prohibited.
-
----
-
-#### 2. Automated Defense (The Warden)
-
-Before any task is marked complete, the ecosystem must survive these automated sweeps.
-
-##### 2.1 The Warden Protocol
-
-We do not leave messes. Adhere to the **Boy Scout Rule**: Always leave the codebase cleaner than you found it.
-
-- **Nomenclature**: Maintain consistent naming as defined in the **RPGlitch Lexicon**.
-- **Technical Debt**: Tag unresolved scope or bugs with `TODO-AI`.
-- **Hygiene**: Use the `warden` to audit security and project health. `npm run verify` is mandatory for any deployment checkpoint.
-
----
-
-#### 3. review Assurance
-
-Ensure that no task track gets a `[x]` without a logical audit.
-
-- **Mandatory Reasoning**: Every transmission should echo the **[GEMINI.md](./GEMINI.md)** reasoning pipeline.
-- **The Proving Grounds**:
-
-| Layer       | Framework     | Requirement                                           |
-| ----------- | ------------- | ----------------------------------------------------- |
-| **Reflex**  | Lint/Prettier | Zero warnings/errors allowed in `src/`.               |
-| **Logic**   | `Vitest`      | State verification for all engine mutations.          |
-| **Sensory** | `Playwright`  | Visual/Functional verification for critical UI paths. |
-
----
-
-#### 4. Code Purity
-
-Code must be chemically pure. We do not tolerate "Vibe Slop" or AI-isms in code or commentary.
-
-- **Tone Hardening**: Avoid flowery AI tropes ("testament", "delve"). Use precise, atomic statements.
-- **Naming Protocol**: Refer to [Lexical Laws](#3-lexical-laws--nomenclature-sovereignty-axioms).
-
----
-
-#### 5. Constitutional Authority
-
-In the event of an architectural or logical conflict, **[GEMINI.md](./GEMINI.md)** serves as the high-level arbiter.
-
-- **Conflict Resolution**: Follow Step 7.1 of the Global Mandate. Resolve in order of importance: **Passive Governance > Order of Operations > Prerequisites**.
-- **Inhibition**: Follow Step 9. Never act without explicit reasoning and verification.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Data](file:///C:/Users/johng/.gemini/config/skills/developer-database/SKILL.md) skill.
