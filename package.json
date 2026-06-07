@@ -70,11 +70,11 @@
     "tool:audit-design": "node .agents/skills/design/scripts/audit-design.js",
     "tool:audit-nomenclature": "node .agents/skills/legislative/scripts/audit-nomenclature.js",
     "tool:audit-security": "node .agents/skills/security/scripts/audit-security.js",
-    "tool:audit-svelte": "node .agents/skills/svelte/scripts/audit-svelte.js",
+    "tool:audit-svelte": "node .agents/skills/ui/scripts/audit-svelte.js",
     "tool:audit-templates": "node .agents/skills/legislative/scripts/audit-templates.js",
     "tool:sync-backlog": "node .agents/skills/legislative/scripts/sync-backlog.js",
     "tool:forge-skill": "node .agents/skills/legislative/scripts/forge-skill.js",
-    "tool:forge-svelte": "node .agents/skills/svelte/scripts/forge-svelte.js",
+    "tool:forge-svelte": "node .agents/skills/ui/scripts/forge-svelte.js",
     "tool:sync-design": "node .agents/skills/design/scripts/design-sync.js",
     "tool:audit-design-spec": "node .agents/skills/design/scripts/audit-design-spec.js",
     "tool:sync-ignores": "node .agents/skills/executive/scripts/sync.js"
