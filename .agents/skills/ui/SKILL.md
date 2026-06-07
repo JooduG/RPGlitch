@@ -75,5 +75,6 @@ Implement protocols for handling background processing and providing immediate v
 ## 📐 RPGlitch UI Directory Conventions
 
 To maintain project-specific layout organization, adhere to the following routing and directory rules:
+
 - **Feature-Driven Architecture**: Components must be structured into focused, domain-driven feature directories (e.g., `src/ui/profile/` and `src/ui/storymode/`) to prevent UI logic bloat.
 - **Centralized State Flow**: Coordinate state transitions and shared UI reactivity via centralized runes (e.g., `src/state/status.svelte.js`).

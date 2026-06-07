@@ -8,7 +8,6 @@
  */
 
 import { vi } from "vitest";
-import { execute_jules } from "../../swarm/scripts/jules-provider.js";
 
 // Ensure window.ai exists to prevent reference errors in purified simulation code.
 // In development, we bridge it to our Node.js provider.
@@ -59,10 +58,9 @@ if (typeof window !== "undefined") {
     });
   }
 
-  window.ai = vi.fn(async (instruction, options = {}) => {
-    // Adapter: convert Perchance-style window.ai call to our Jules provider
+  window.ai = vi.fn(async (_instruction, _options = {}) => {
     // Note: This only runs during tests.
-    return execute_jules({ system: instruction }, options);
+    return "[Simulated AI Response]";
   });
 }
 
