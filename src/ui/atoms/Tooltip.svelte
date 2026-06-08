@@ -148,7 +148,7 @@
           avoidCollisions={true}
           strategy="fixed"
           forceMount
-        >
+        > 
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
               <div {...wrapperProps}>
@@ -167,8 +167,7 @@
                     transition-opacity
                     duration-150
 
-                    {open ? 'opacity-100' : 'opacity-0'}
-                  "
+                    {open ? 'opacity-100' : 'opacity-0'}"
                   transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
                 >
                   <div

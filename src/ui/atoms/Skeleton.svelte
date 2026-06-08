@@ -21,15 +21,13 @@
     ...rest
   } = $props();
 
-  // Architectural variant dictionary for zero-drift token realization
+  // Architectural variant dictionary for zero-drift token realization mapped to Tailwind v4
   const variantClasses = {
-    card: "rounded-[var(--radius-standard)] min-h-[var(--storyboard-character-card-height)]",
-    hero: "rounded-[var(--radius-standard)] min-h-[var(--storyboard-fractal-card-height)]",
-    "profile-picture":
-      "rounded-[var(--radius-full)] aspect-[var(--aspect-square)] w-[var(--icon-large)] h-[var(--icon-large)]",
-    circle:
-      "rounded-[var(--radius-full)] aspect-[var(--aspect-square)] w-[var(--icon-large)] h-[var(--icon-large)]",
-    text: "h-[var(--font-height-base)] mb-[var(--margin-tight)] rounded-[var(--radius-sharp)] w-[60%]",
+    card: "rounded-xl min-h-[200px]",
+    hero: "rounded-xl min-h-[160px]",
+    "profile-picture": "rounded-full aspect-square w-12 h-12",
+    circle: "rounded-full aspect-square w-12 h-12",
+    text: "h-4 mb-2 rounded w-[60%]",
   };
 
   let variantClass = $derived(variantClasses[variant] || "");
@@ -40,22 +38,23 @@
   class="
     relative
     isolate
-    min-h-(--padding-standard)
+    min-h-4
     overflow-hidden
-    rounded-(--radius-standard)
+    rounded-xl
+    border
     border-solid
-    border-white/(--opacity-ghost)
-    bg-(--glass-sunken)
-    [backdrop-filter:var(--blur-whisper)]
+    border-white/10
+    bg-zinc-900/40
+    backdrop-blur-sm
 
     after:pointer-events-none
     after:absolute
     after:inset-0
-    after:z-(--z-index-surface)
+    after:z-10
     after:-translate-x-full
-    after:animate-[shimmer_var(--duration-ambient)_var(--ease-standard)_infinite]
-    after:bg-[linear-gradient(90deg,transparent_0%,rgb(from_var(--pure-white)_r_g_b/var(--opacity-ghost))_30%,rgb(from_var(--pure-white)_r_g_b/var(--opacity-whisper))_50%,rgb(from_var(--pure-white)_r_g_b/var(--opacity-ghost))_70%,transparent_100%)]
-    after:filter-(--blur-mist)
+    after:animate-[shimmer_2s_cubic-bezier(0.4,0,0.2,1)_infinite]
+    after:bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.08)_30%,rgba(255,255,255,0.18)_50%,rgba(255,255,255,0.08)_70%,transparent_100%)]
+    after:blur-md
     after:content-['']
 
     {variantClass}
@@ -65,3 +64,11 @@
   style:aspect-ratio={aspect_ratio}
   use:use_actions={actions}
 ></div>
+
+<style>
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+</style>

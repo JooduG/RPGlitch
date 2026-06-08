@@ -3,7 +3,7 @@
   "singleQuote": false,
   "trailingComma": "all",
   "printWidth": 100,
-  "endOfLine": "auto",
+  "endOfLine": "lf",
   "plugins": [
     "prettier-plugin-svelte",
     "prettier-plugin-markdown-html",

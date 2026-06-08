@@ -2,9 +2,11 @@
   "css.validate": false,
   "html.validate.styles": false,
   "stylelint.validate": ["css", "svelte"],
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-    "source.fixAll.eslint": "explicit",
-    "source.fixAll.stylelint": "explicit"
+    "source.fixAll.eslint": "always",
+    "source.fixAll.stylelint": "always"
   },
   "markdown.validate.enabled": true,
   "markdown.validate.referenceLinks.enabled": "ignore",
