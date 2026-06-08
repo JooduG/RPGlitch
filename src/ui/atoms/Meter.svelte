@@ -27,7 +27,16 @@
   });
 </script>
 
-<Meter.Root {value} {min} {max} class="root svelte-meter {className}" {style} {...rest}>
+<Meter.Root
+  {value}
+  {min}
+  {max}
+  class="
+    root svelte-meter
+    {className}"
+  {style}
+  {...rest}
+>
   <div class="indicator" style="width: {percentage}%;"></div>
 </Meter.Root>
 

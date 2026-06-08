@@ -84,7 +84,8 @@
 </script>
 
 <label
-  class="root{className}"
+  class="
+    root{className}"
   class:is-disabled={is_disabled || busy}
   class:is-busy={busy}
   style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"

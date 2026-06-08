@@ -37,7 +37,9 @@
 -->
 <div
   {...rest}
-  class="root {className}"
+  class="
+    root
+    {className}"
   class:is-blurred={is_blurred}
   class:is-busy={busy}
   class:is-pass-through={is_pass_through}

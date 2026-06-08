@@ -51,7 +51,12 @@
   });
 </script>
 
-<header class="profile-header {className}" data-testid="profile-header">
+<header
+  class="
+    profile-header
+    {className}"
+  data-testid="profile-header"
+>
   <div class="identity-info">
     {#if is_editing}
       <div class="editor-wrapper">
