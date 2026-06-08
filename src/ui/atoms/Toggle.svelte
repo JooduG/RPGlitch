@@ -98,7 +98,7 @@
 
           focus-visible:outline
           focus-visible:outline-offset-1
-          focus-visible:outline-[var(--font-color-muted)]
+          focus-visible:outline-[#555d66]
 
           data-[state=checked]:bg-[var(--signature-color,var(--frozen))]/30
 

@@ -125,21 +125,21 @@
     ? `
       bg-[var(--signature-color,var(--frozen))]
 
-      hover:border-[var(--font-color-base)]
+      hover:border-[#f2f7fa]
     `
     : ''}
     {variant === 'secondary'
     ? `
       bg-[var(--signature-color,var(--frozen))]
 
-      hover:border-[var(--font-color-base)]
+      hover:border-[#f2f7fa]
     `
     : ''}
     {variant === 'danger'
     ? `
       bg-[var(--signature-color,var(--frozen))]
 
-      hover:border-[var(--font-color-base)]
+      hover:border-[#f2f7fa]
       hover:bg-[#ef4444]
       hover:text-[var(--font-color-base)]
       hover:shadow-[0_0_16px_rgba(239,68,68,0.6)]
@@ -234,11 +234,11 @@
 
       data-[kinetic=true]:active:scale-100
 
-      [&_svg]:fill-[var(--font-color-base)]
+      [&_svg]:fill-[#f2f7fa]
       [&_svg]:transition-colors
       [&_svg]:duration-300
 
-      [&_svg]:disabled:fill-[var(--font-color-muted)]
+      [&_svg]:disabled:fill-[#555d66]
     `
     : ''}
     {className}"

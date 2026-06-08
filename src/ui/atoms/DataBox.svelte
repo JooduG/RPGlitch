@@ -24,7 +24,7 @@
     w-full
     flex-col
     overflow-hidden
-    rounded-[var(--radius-sharp)]
+    rounded-sm
     border
     border-solid
     border-white/10

@@ -40,7 +40,7 @@
       border-transparent
       bg-[var(--signature-color,var(--frozen))]
       px-[var(--padding-standard)]
-      py-2
+      py-[var(--padding-tight)]
       text-left
       font-sans
       text-[var(--font-size-base)]
@@ -134,7 +134,7 @@
                         border-solid
                         border-white/10
                         px-[var(--padding-standard)]
-                        py-2
+                        py-[var(--padding-tight)]
                         text-left
                         font-sans
                         text-[var(--font-size-base)]
