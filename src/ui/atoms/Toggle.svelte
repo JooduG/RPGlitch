@@ -90,7 +90,7 @@
           shrink-0
           cursor-pointer
           rounded-full
-          bg-[#222326]/30
+          bg-(--chalk)/30
           backdrop-blur-sm
           transition-[background-color,box-shadow]
 
@@ -100,9 +100,9 @@
 
           focus-visible:outline-offset-1
 
-          focus-visible:outline-[#555d66]
+          focus-visible:outline-(--frozen)
 
-          data-[state=checked]:bg-[#555d66]/30
+          data-[state=checked]:bg-(--frozen)/30
 
           {size === 'small'
           ? `
@@ -122,14 +122,14 @@
               class="
                 absolute
                 rounded-full
-                bg-[#f2f7fa]
+                bg-(--frisk)
                 transition-[transform,background-color]
                 duration-300
                 ease-[cubic-bezier(0.34,1.56,0.64,1)]
 
                 group-hover/toggle:brightness-110!
 
-                group-data-[state=checked]:bg-white
+                group-data-[state=checked]:bg-(--pure-white)
                 group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)]
 
                 {size === 'small'
@@ -162,7 +162,7 @@
       font-extrabold
       tracking-widest
       whitespace-nowrap
-      text-[#555d66]
+      text-(--frozen)
       uppercase
       transition-colors
       duration-300

@@ -85,7 +85,7 @@
       w-full
       items-center
       justify-center
-      bg-(--signature-color,#555d66)
+      bg-(--signature-color,var(--frozen))
     "
     aria-hidden="true"
   >
@@ -109,7 +109,7 @@
         text-(--frisk)
         uppercase
         opacity-95
-        filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]
+        filter-[drop-shadow(0_8px_16px_from_var(--signature-color,var(--frozen))_r_g_b/0.6)]
         select-none
       "
     >
@@ -145,6 +145,6 @@
       1px -1px 0 #000,
       -1px -1px 0 #000,
       0 0 8px var(--signature-color, #555d66),
-      0 0 24px rgba(from var(--signature-color, #555d66) r g b / 0.6);
+      0 0 24px from var(--signature-color, var(--frozen)) r g b / 0.6;
   }
 </style>

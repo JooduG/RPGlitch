@@ -217,7 +217,7 @@
         w-full
         resize-none
         scrollbar-thin
-        scrollbar-thumb-[#363840]
+        scrollbar-thumb-(--gunmetal)
         scrollbar-track-transparent
         overflow-x-hidden
         overflow-y-auto
@@ -229,11 +229,11 @@
         text-sm
         leading-normal
         text-wrap
-        text-[#f2f7fa]
+        text-(--frisk)
         outline-none
 
         placeholder:font-normal
-        placeholder:text-[#555d66]/30
+        placeholder:text-(--frozen)/30
         placeholder:italic
 
         focus:outline-none
@@ -242,9 +242,9 @@
         [&::-webkit-scrollbar]:w-2
 
         [&::-webkit-scrollbar-thumb]:rounded-xl
-        [&::-webkit-scrollbar-thumb]:bg-[#363840]
+        [&::-webkit-scrollbar-thumb]:bg-(--gunmetal)
 
-        [&::-webkit-scrollbar-thumb:hover]:bg-[#f2f7fa]
+        [&::-webkit-scrollbar-thumb:hover]:bg-(--frisk)
 
         [&::-webkit-scrollbar-track]:bg-transparent
 
@@ -280,7 +280,7 @@
           text-sm
           leading-normal
           text-pretty
-          text-[#f2f7fa]
+          text-(--frisk)
           outline-none
 
           focus:outline-none
@@ -343,7 +343,7 @@
           <span
             class="
               font-normal
-              text-[#555d66]/30
+              text-(--frozen)/30
               italic
             ">{placeholder}</span
           >

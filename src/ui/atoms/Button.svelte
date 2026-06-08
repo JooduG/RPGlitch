@@ -89,7 +89,7 @@
     text-sm
     leading-normal
     font-extrabold
-    text-[#f2f7fa]
+    text-(--frisk)
     no-underline
     shadow-(--shadow-standard)
     select-none
@@ -98,7 +98,7 @@
     focus-visible:outline
     focus-visible:outline-offset-1
 
-    focus-visible:outline-white
+    focus-visible:outline-(--pure-white)
     active:scale-[0.96]
     disabled:pointer-events-none
     disabled:transform-none
@@ -123,31 +123,31 @@
     : ''}
     {variant === 'primary'
     ? `
-      bg-[#555d66]
+      bg-(--frozen)
 
-      hover:border-[#f2f7fa]
+      hover:border-(--frisk)
     `
     : ''}
     {variant === 'secondary'
-    ? 'bg-(--signature-color,#555d66) hover:border-[#f2f7fa]'
+    ? 'bg-(--signature-color,var(--frozen)) hover:border-(--frisk)'
     : ''} {variant === 'danger'
     ? `
-      bg-[#555d66]
+      bg-(--frozen)
 
-      hover:border-[#f2f7fa]
-      hover:bg-[#ef4444]
-      hover:text-[#f2f7fa]
+      hover:border-(--frisk)
+      hover:bg-(--crimson-red)
+      hover:text-(--frisk)
       hover:shadow-(--danger-glow)
     `
     : ''}
     {variant === 'invisible'
     ? `
       bg-transparent
-      text-[#555d66]
+      text-(--frozen)
       shadow-none
 
       hover:bg-transparent
-      hover:text-[#f2f7fa]
+      hover:text-(--frisk)
       hover:brightness-110
     `
     : ''}
@@ -208,7 +208,7 @@
     ? `
       border-none
       bg-transparent
-      text-[#f2f7fa]
+      text-(--frisk)
       opacity-60
       shadow-none
       transition-[transform,color,opacity]
@@ -222,18 +222,18 @@
       disabled:transform-none
       disabled:cursor-not-allowed
 
-      disabled:text-[#555d66]
+      disabled:text-(--frozen)
 
       disabled:opacity-10
 
       data-[kinetic=true]:hover:scale-100
 
       data-[kinetic=true]:active:scale-100
-      [&_svg]:fill-[#f2f7fa]
+      [&_svg]:fill-(--frisk)
       [&_svg]:transition-colors
       [&_svg]:duration-300
 
-      [&_svg]:disabled:fill-[#555d66]
+      [&_svg]:disabled:fill-(--frozen)
     `
     : ''}
     {className}"

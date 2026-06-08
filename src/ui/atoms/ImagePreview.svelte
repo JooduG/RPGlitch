@@ -88,7 +88,7 @@
         p-4
         text-center
         text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)]
-        text-[#f2f7fa]
+        text-(--frisk)
         shadow-(--shadow-standard)
       "
       >

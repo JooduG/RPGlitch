@@ -51,7 +51,7 @@
         text-xs
         font-extrabold
         tracking-wider
-        text-[#f2f7fa]
+        text-(--frisk)
         uppercase
       "
     >
@@ -70,7 +70,7 @@
         p-4
         text-sm
         leading-normal
-        text-[#f2f7fa]
+        text-(--frisk)
 
         [&_pre]:m-0
         [&_pre]:font-[inherit]

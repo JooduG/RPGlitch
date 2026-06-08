@@ -38,7 +38,7 @@
       border
       border-solid
       border-transparent
-      bg-(--signature-color,#555d66)
+      bg-(--signature-color,var(--frozen))
       px-4
       py-2
       text-left
@@ -138,7 +138,7 @@
                         text-left
                         font-sans
                         text-sm
-                        text-[#f2f7fa]
+                        text-(--frisk)
                         transition-all
                         duration-150
                         ease-in-out
@@ -189,7 +189,7 @@
                             leading-none
                             font-extrabold
                             tracking-wider
-                            text-[#555d66]
+                            text-(--frozen)
                             uppercase
                           "
                         >

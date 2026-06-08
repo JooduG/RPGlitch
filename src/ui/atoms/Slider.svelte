@@ -124,7 +124,7 @@
     text-xs
     font-extrabold
     tracking-wider
-    text-[#555d66]
+    text-(--frozen)
     uppercase
     transition-colors
     duration-300
@@ -190,12 +190,12 @@
 
                 {is_disabled
                 ? `
-                  bg-[#555d66]
+                  bg-(--frozen)
                   opacity-30
                   shadow-none
                 `
                 : `
-                  bg-white
+                  bg-(--pure-white)
                   shadow-[0_2px_8px_rgba(0,0,0,0.4)]
 
                   group-hover/slider:brightness-110!
