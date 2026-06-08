@@ -171,7 +171,10 @@
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
-      class="message-bubble field-chassis"
+      class="
+        message-bubble
+        field-chassis
+      "
       class:user-bubble={is_user}
       class:ai-bubble={is_ai}
       class:fractal-bubble={is_fractal}
@@ -187,7 +190,12 @@
       role="region"
       aria-label="Message Context"
     >
-      <div class="header field-header">
+      <div
+        class="
+          header
+          field-header
+        "
+      >
         <div class="header-status">
           <span class="entity-name"
             >{entity?.name || character_name || (is_fractal ? "Fractal" : sender)}</span
@@ -204,7 +212,13 @@
               actions={[tooltip]}
               onclick={() => on_save?.(local_text)}
             >
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+              >
                 <polyline
                   points="20 6 9 17 4 12"
                   stroke="currentColor"
@@ -223,7 +237,13 @@
               actions={[tooltip]}
               onclick={on_cancel}
             >
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+              >
                 <line
                   x1="18"
                   y1="6"
@@ -270,7 +290,13 @@
                 actions={[tooltip]}
                 onclick={on_regenerate}
               >
-                <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                <svg
+                  viewBox="0 0 24 24"
+                  class="
+                    icon-small
+                    icon-outline
+                  "
+                >
                   <polyline points="23 4 23 10 17 10" stroke="currentColor"></polyline>
                   <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor"></path>
                 </svg>
@@ -300,7 +326,13 @@
               actions={[tooltip]}
               onclick={on_edit}
             >
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+              >
                 <path
                   d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
                   stroke="currentColor"
@@ -319,7 +351,13 @@
               actions={[tooltip]}
               onclick={handle_copy}
             >
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+              >
                 <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor"></rect>
                 <path
                   d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
@@ -335,7 +373,13 @@
               actions={[tooltip]}
               onclick={on_delete}
             >
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+              >
                 <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
                 <path
                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -349,7 +393,12 @@
 
       <div class="message-body">
         {#if app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)}
-          <div class="message-content streaming-active">
+          <div
+            class="
+              message-content
+              streaming-active
+            "
+          >
             {#if has_display_text}
               <div use:typewriter={display_text}></div>
             {/if}

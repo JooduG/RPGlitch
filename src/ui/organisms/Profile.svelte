@@ -67,7 +67,11 @@
       role="presentation"
     >
       <div
-        class="profile-container no-scrollbar glass-elevated"
+        class="
+          profile-container
+          no-scrollbar
+          glass-elevated
+        "
         class:readonly={!has_wings}
         class:has-wings={has_wings}
         data-entity-type={entity_type}
@@ -90,7 +94,12 @@
               state.set_active_field(key, label)}
           />
 
-          <main class="profile-content no-scrollbar">
+          <main
+            class="
+              profile-content
+              no-scrollbar
+            "
+          >
             <ScrollArea style="height: var(--state-fill-end);">
               {@render EntityBody()}
             </ScrollArea>
@@ -112,7 +121,12 @@
       </div>
 
       {#if has_wings}
-        <aside class="wings-container no-scrollbar">
+        <aside
+          class="
+            wings-container
+            no-scrollbar
+          "
+        >
           {#if state.is_editing}
             <VisualWing profileState={state} />
             <AudioWing profileState={state} />
@@ -185,7 +199,12 @@
               >
                 {#snippet status()}
                   {#if state.busy_fields.has(field.key)}
-                    <span class="status pulse">ENHANCING</span>
+                    <span
+                      class="
+                        status
+                        pulse
+                      ">ENHANCING</span
+                    >
                   {:else if field.sublabel}
                     <span class="status-msg">{field.sublabel}</span>
                   {/if}
@@ -203,7 +222,13 @@
                         !state.get_safe_value(field.key)}
                       onclick={() => state.enhance(field.key, state.get_safe_value(field.key))}
                     >
-                      <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+                      <svg
+                        viewBox="0 0 24 24"
+                        class="
+                          icon-small
+                          icon-outline
+                        "
+                      >
                         <path
                           d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
                           fill="var(--pure-white)"

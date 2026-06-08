@@ -79,42 +79,27 @@ export default defineConfig([
     },
   },
 
-  // 5. Monorepo Scoping for Specialized Tailwind Rules
+  // 5. Advanced Tailwind Configuration & Local Parser Binding
   {
-    files: ["packages/website/**/*.{js,jsx,cjs,mjs,ts,tsx}"],
-    settings: {
-      "better-tailwindcss": {
-        cwd: "./packages/website",
-      },
-    },
-  },
-  {
-    files: ["packages/app/**/*.{js,jsx,cjs,mjs,ts,tsx}"],
-    settings: {
-      "better-tailwindcss": {
-        cwd: "./packages/app",
-      },
-    },
-  },
-
-  // 6. Advanced Tailwind Configuration & Svelte Parser Correction
-  {
-    ...eslintPluginBetterTailwindcss.configs.recommended,
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte,html}"],
-  },
-  {
-    files: ["**/*.svelte"],
+    plugins: {
+      "better-tailwindcss": eslintPluginBetterTailwindcss,
+    },
     settings: {
       "better-tailwindcss": {
+        cwd: "./",
         entryPoint: "src/media/design.css",
       },
     },
+  },
+  {
+    files: ["**/*.svelte"],
     languageOptions: {
       parser: svelteParser,
     },
   },
 
-  // 7. Official Svelte Rules & Compiler Integration
+  // 6. Official Svelte Rules & Compiler Integration
   ...svelte.configs["flat/recommended"].map((config) => {
     const newConfig = { ...config, files: config.files || ["**/*.svelte"] };
     if (newConfig.rules) {
@@ -132,7 +117,7 @@ export default defineConfig([
     },
   },
 
-  // 8. Peace Treaty: Code Scope Overrides & Penalty Downgrades
+  // 7. Code Scope Overrides & Penalty Downgrades
   {
     files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte,html}"],
     rules: {
@@ -142,6 +127,14 @@ export default defineConfig([
       "no-unused-vars": "warn",
       "no-undef": "warn",
       "better-tailwindcss/no-unknown-classes": "warn",
+      "better-tailwindcss/enforce-consistent-line-wrapping": [
+        "warn",
+        {
+          classesPerLine: 1,
+          group: "emptyLine",
+          strictness: "loose",
+        },
+      ],
     },
   },
 ]);

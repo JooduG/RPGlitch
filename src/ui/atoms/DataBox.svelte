@@ -21,6 +21,7 @@
 <div
   class="
     root
+
     {className}"
   style="--box-height: {height}; --box-max-height: {maxHeight}"
 >

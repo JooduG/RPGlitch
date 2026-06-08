@@ -32,7 +32,9 @@
   {min}
   {max}
   class="
-    root svelte-meter
+    root
+    svelte-meter
+
     {className}"
   {style}
   {...rest}

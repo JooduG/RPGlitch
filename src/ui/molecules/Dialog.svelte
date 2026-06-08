@@ -67,7 +67,11 @@
                 {#if isContentOpen}
                   <div
                     {...contentProps}
-                    class="root glass-elevated mini"
+                    class="
+                      root
+                      glass-elevated
+                      mini
+                    "
                     class:is-busy={busy}
                     in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
                     out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}

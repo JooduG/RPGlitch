@@ -32,7 +32,12 @@
     </header>
   {/if}
 
-  <aside class="sidebar is-left">
+  <aside
+    class="
+      sidebar
+      is-left
+    "
+  >
     {#if left}
       {@render left()}
     {/if}
@@ -44,7 +49,12 @@
     {/if}
   </main>
 
-  <aside class="sidebar is-right">
+  <aside
+    class="
+      sidebar
+      is-right
+    "
+  >
     {#if right}
       {@render right()}
     {/if}

@@ -202,7 +202,12 @@
   }
 </script>
 
-<section class="wing glass-elevated">
+<section
+  class="
+    wing
+    glass-elevated
+  "
+>
   <!-- ðŸŽ¨ COLOR SWATCHES -->
   <div class="swatches">
     {#each SPECTRUM_COLORS as [name, hex] (name)}
@@ -229,6 +234,7 @@
   <TextField
     class="
       prompt-field
+
       {profileState.active_field?.key === 'visual-prompt' ? `active` : ''}"
     is_edit={profileState.is_editing}
     busy={is_prompt_busy}
@@ -254,10 +260,20 @@
               <span class="tag">ERROR</span>
               <span class="status-msg">{app.visual.error}</span>
             {:else if app.visual.attempts > 0}
-              <span class="tag pulse">RETRYING</span>
+              <span
+                class="
+                  tag
+                  pulse
+                ">RETRYING</span
+              >
               <span class="status-msg">Attempt {app.visual.attempts}</span>
             {:else}
-              <span class="tag pulse">GENERATING</span>
+              <span
+                class="
+                  tag
+                  pulse
+                ">GENERATING</span
+              >
             {/if}
           </div>
         </div>
@@ -279,12 +295,25 @@
             disabled={is_creative_disabled}
           >
             {#if has_prompt_text}
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+              >
                 <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
                 ></path>
               </svg>
             {:else}
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+                fill="none"
+              >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
                 ></path>
                 <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
@@ -304,7 +333,14 @@
             onmousedown={prevent_default}
             disabled={!profileState.is_editing || is_prompt_busy}
           >
-            <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+            <svg
+              viewBox="0 0 24 24"
+              class="
+                icon-small
+                icon-outline
+              "
+              fill="none"
+            >
               <path
                 d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
                 stroke="var(--pure-white)"
@@ -324,7 +360,14 @@
             onmousedown={prevent_default}
             disabled={!profileState.is_editing || is_prompt_busy}
           >
-            <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+            <svg
+              viewBox="0 0 24 24"
+              class="
+                icon-small
+                icon-outline
+              "
+              fill="none"
+            >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"></path>
               <polyline points="17 8 12 3 7 8" stroke="var(--pure-white)"></polyline>
               <line x1="12" y1="3" x2="12" y2="15" stroke="var(--pure-white)"></line>

@@ -90,7 +90,9 @@
                   <div
                     {...contentProps}
                     class="
-                      root glass-elevated
+                      root
+                      glass-elevated
+
                       {variant}
                       {className}"
                     class:is-busy={is_busy}

@@ -60,6 +60,7 @@
   bind:this={container}
   class="
     root
+
     {className}"
 >
   <span bind:this={content} class="text-content" style:font-size="{font_size}px">{text}</span>

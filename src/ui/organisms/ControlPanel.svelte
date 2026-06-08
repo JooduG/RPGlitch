@@ -161,7 +161,12 @@
     {/if}
 
     {#if is_storymode}
-      <section class="section actions">
+      <section
+        class="
+          section
+          actions
+        "
+      >
         <div class="action-row">
           <Button
             label="GHOSTWRITE"
@@ -176,7 +181,12 @@
             onclick={() => log_action("Photo")}
           />
         </div>
-        <div class="action-row secondary">
+        <div
+          class="
+            action-row
+            secondary
+          "
+        >
           <Button
             label="MOCK PROLOGUE"
             variant="invisible"
@@ -190,7 +200,12 @@
             onclick={() => run_mock("ai")}
           />
         </div>
-        <div class="action-row danger-zone">
+        <div
+          class="
+            action-row
+            danger-zone
+          "
+        >
           <Button
             label="END STORY"
             variant="secondary"
@@ -240,7 +255,10 @@
           title="Wipe Memories"
         >
           <svg
-            class="icon-medium icon-outline"
+            class="
+              icon-medium
+              icon-outline
+            "
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
           >

@@ -40,7 +40,10 @@
 </script>
 
 <div
-  class="root interactable"
+  class="
+    root
+    interactable
+  "
   class:is-active={active}
   style="--signature-color: {signature_color}"
 >
@@ -56,7 +59,10 @@
 
   {#if story.fractal_profile_picture}
     <div
-      class="backdrop has-image"
+      class="
+        backdrop
+        has-image
+      "
       style="background-image: url({story.fractal_profile_picture})"
     ></div>
   {:else}

@@ -63,13 +63,19 @@
   {...rest}
   class="
     root
+
     {className}"
   style="--signature-color: {signature_color};"
   use:use_actions={actions}
 >
   <!-- 🧬 THE BASE: Massive Signature Placeholder -->
   <div class="profile-placeholder" aria-hidden="true">
-    <div class="profile-initials text-shadow-bloom">
+    <div
+      class="
+        profile-initials
+        text-shadow-bloom
+      "
+    >
       {initials}
     </div>
   </div>

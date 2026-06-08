@@ -30,12 +30,18 @@
       {@const signature_color = themeStore.get_signature_color(entity, "var(--gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
       <article
-        class="panel-root is-left"
+        class="
+          panel-root
+          is-left
+        "
         style:--signature-color={signature_color}
         style="view-transition-name: entity-morph-ai;"
       >
         <button
-          class="panel-anchor interactable"
+          class="
+            panel-anchor
+            interactable
+          "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
           aria-label={a11y_label}
@@ -71,12 +77,18 @@
       {@const signature_color = themeStore.get_signature_color(entity, "var(--gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
       <article
-        class="panel-root is-right"
+        class="
+          panel-root
+          is-right
+        "
         style:--signature-color={signature_color}
         style="view-transition-name: entity-morph-user;"
       >
         <button
-          class="panel-anchor interactable"
+          class="
+            panel-anchor
+            interactable
+          "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
           aria-label={a11y_label}

@@ -135,11 +135,20 @@
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
-        <span class="entity text-shadow-bloom" style:--signature-color={part.color}
-          >{part.text}</span
+        <span
+          class="
+            entity
+            text-shadow-bloom
+          "
+          style:--signature-color={part.color}>{part.text}</span
         >
       {:else}
-        <span class="prefix text-shadow-outline">{part.text}</span>
+        <span
+          class="
+            prefix
+            text-shadow-outline
+          ">{part.text}</span
+        >
       {/if}
     {/each}
   {/if}

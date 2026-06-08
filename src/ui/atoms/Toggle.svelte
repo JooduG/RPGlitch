@@ -41,6 +41,7 @@
 <label
   class="
     root
+
     {className}"
   class:is-disabled={is_disabled || busy}
   class:is-busy={busy}

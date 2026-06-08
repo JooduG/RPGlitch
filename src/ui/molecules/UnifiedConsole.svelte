@@ -142,7 +142,11 @@
 </script>
 
 <div
-  class="root pill-chassis glass-elevated"
+  class="
+    root
+    pill-chassis
+    glass-elevated
+  "
   class:is-storyboard={app.view === "storyboard"}
   class:is-storymode={app.view === "storymode"}
   class:is-focused={is_focused && app.view === "storymode"}
@@ -170,6 +174,7 @@
     <Button
       class="
         action-btn
+
         {ready_to_begin ? 'is-ready' : ''}"
       variant="invisible"
       busy={!ready_to_begin}

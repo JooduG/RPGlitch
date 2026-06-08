@@ -79,7 +79,10 @@
                 variant="invisible"
                 size="small"
                 square
-                class="step down"
+                class="
+                  step
+                  down
+                "
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
@@ -94,7 +97,10 @@
                 variant="invisible"
                 size="small"
                 square
-                class="step up"
+                class="
+                  step
+                  up
+                "
                 onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
@@ -132,7 +138,14 @@
               class="delete"
               onclick={() => state.remove_vector_item(path, i)}
             >
-              <svg viewBox="0 0 24 24" class="icon-small icon-outline" fill="none">
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                  icon-small
+                  icon-outline
+                "
+                fill="none"
+              >
                 <polyline points="3 6 5 6 21 6" stroke="var(--pure-white)"></polyline>
                 <path
                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"

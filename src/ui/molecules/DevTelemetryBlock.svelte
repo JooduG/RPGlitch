@@ -79,18 +79,34 @@
 
       {#if meta.type === "MEMORY_FORMATION"}
         <!-- [#] WEAVED STATE (Memory Consolidation) -->
-        <div class="resonance-state weaved">
+        <div
+          class="
+            resonance-state
+            weaved
+          "
+        >
           <div class="resonance-header">
             <span class="resonance-title">Consolidating Temporal Echoes</span>
             <p class="resonance-desc">Merging active impulses into persistent memory vectors.</p>
           </div>
 
           <div class="vector-fabric">
-            <div class="vector-column full-width">
+            <div
+              class="
+                vector-column
+                full-width
+              "
+            >
               <header class="sub-label">NEWLY_WEAVED_MEMORIES</header>
               <div class="vector-list">
                 {#each vectors.past as v (v.id || v.text)}
-                  <div class="vector-item past resonance-item">
+                  <div
+                    class="
+                      vector-item
+                      past
+                      resonance-item
+                    "
+                  >
                     <span class="vector-score">WEAVED</span>
                     <span class="vector-text">{v.text}</span>
                   </div>
@@ -103,7 +119,12 @@
         </div>
       {:else if meta.type === "VECTOR_RESOLUTION"}
         <!-- [A] ANCHORED STATE (Vector Engine) -->
-        <div class="resonance-state anchored">
+        <div
+          class="
+            resonance-state
+            anchored
+          "
+        >
           <div class="resonance-header">
             <span class="resonance-title">Aligning Future Intent</span>
             <p class="resonance-desc">Resolving state deltas into directed narrative vectors.</p>
@@ -114,7 +135,13 @@
               <header class="sub-label">RESOLVED_IMPULSES</header>
               <div class="vector-list">
                 {#each vectors.future.slice(0, 5) as v (v.id || v.text)}
-                  <div class="vector-item future resonance-item">
+                  <div
+                    class="
+                      vector-item
+                      future
+                      resonance-item
+                    "
+                  >
                     <span class="vector-score">ANCHOR</span>
                     <span class="vector-text">{v.text}</span>
                   </div>
@@ -128,7 +155,12 @@
               <header class="sub-label">ACTIVE_CONTEXT</header>
               <div class="vector-list">
                 {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
-                  <div class="vector-item past">
+                  <div
+                    class="
+                      vector-item
+                      past
+                    "
+                  >
                     <span class="vector-score">{v._relevance?.toFixed(1) || v.base_weight}</span>
                     <span class="vector-text">{v.text}</span>
                   </div>
@@ -219,7 +251,12 @@
               <header class="sub-label">ACTIVE_IMPULSES (FUTURE)</header>
               <div class="vector-list">
                 {#each vectors.future.slice(0, 3) as v (v.id || v.text)}
-                  <div class="vector-item future">
+                  <div
+                    class="
+                      vector-item
+                      future
+                    "
+                  >
                     <span class="vector-score">{v._relevance?.toFixed(1) || v.base_weight}</span>
                     <span class="vector-text">{v.text}</span>
                   </div>
@@ -233,7 +270,12 @@
               <header class="sub-label">HISTORICAL_ANCHORS (PAST)</header>
               <div class="vector-list">
                 {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
-                  <div class="vector-item past">
+                  <div
+                    class="
+                      vector-item
+                      past
+                    "
+                  >
                     <span class="vector-score">{v._relevance?.toFixed(1) || v.base_weight}</span>
                     <span class="vector-text">{v.text}</span>
                   </div>

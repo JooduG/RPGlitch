@@ -65,7 +65,12 @@
   );
 </script>
 
-<section class="root glass-elevated">
+<section
+  class="
+    root
+    glass-elevated
+  "
+>
   <!-- VOICE SELECTOR -->
   <div class="controls">
     <Dropdown

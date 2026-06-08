@@ -54,6 +54,7 @@
 <header
   class="
     profile-header
+
     {className}"
   data-testid="profile-header"
 >
@@ -77,7 +78,11 @@
   {#if is_editing}
     <div class="description-wrapper" data-expanded={active_field === "description"}>
       <textarea
-        class="description edit textarea-scroll-track"
+        class="
+          description
+          edit
+          textarea-scroll-track
+        "
         placeholder={ENTITY_FRAGMENTS.description}
         bind:value={description}
         use:auto_resize

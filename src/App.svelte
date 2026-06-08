@@ -75,20 +75,52 @@
   <div class="global-dev-grid" class:is-storymode={app.view === "storymode"} aria-hidden="true">
     {#each ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"] as col (col)}
       <div class="col" style:grid-column="col-{col}">
-        <span class="label is-col">{col}</span>
+        <span
+          class="
+            label
+            is-col
+          ">{col}</span
+        >
       </div>
     {/each}
-    <div class="col is-end" style:grid-column="col-end">
-      <span class="label is-col">END</span>
+    <div
+      class="
+        col
+        is-end
+      "
+      style:grid-column="col-end"
+    >
+      <span
+        class="
+          label
+          is-col
+        ">END</span
+      >
     </div>
 
     {#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as row (row)}
       <div class="row" style:grid-row="row-{row}">
-        <span class="label is-row">{row}</span>
+        <span
+          class="
+            label
+            is-row
+          ">{row}</span
+        >
       </div>
     {/each}
-    <div class="row is-end" style:grid-row="row-end">
-      <span class="label is-row">END</span>
+    <div
+      class="
+        row
+        is-end
+      "
+      style:grid-row="row-end"
+    >
+      <span
+        class="
+          label
+          is-row
+        ">END</span
+      >
     </div>
   </div>
 {/if}

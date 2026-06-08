@@ -20,84 +20,48 @@
 
     ...rest
   } = $props();
+
+  // Architectural variant dictionary for zero-drift token realization
+  const variantClasses = {
+    card: "rounded-[var(--radius-standard)] min-h-[var(--storyboard-character-card-height)]",
+    hero: "rounded-[var(--radius-standard)] min-h-[var(--storyboard-fractal-card-height)]",
+    "profile-picture":
+      "rounded-[var(--radius-full)] aspect-[var(--aspect-square)] w-[var(--icon-large)] h-[var(--icon-large)]",
+    circle:
+      "rounded-[var(--radius-full)] aspect-[var(--aspect-square)] w-[var(--icon-large)] h-[var(--icon-large)]",
+    text: "h-[var(--font-height-base)] mb-[var(--margin-tight)] rounded-[var(--radius-sharp)] w-[60%]",
+  };
+
+  let variantClass = $derived(variantClasses[variant] || "");
 </script>
 
 <div
   {...rest}
   class="
-    root
-    {variant}
+    relative
+    isolate
+    min-h-(--padding-standard)
+    overflow-hidden
+    rounded-(--radius-standard)
+    border-solid
+    border-white/(--opacity-ghost)
+    bg-(--glass-sunken)
+    [backdrop-filter:var(--blur-whisper)]
+
+    after:pointer-events-none
+    after:absolute
+    after:inset-0
+    after:z-(--z-index-surface)
+    after:-translate-x-full
+    after:animate-[shimmer_var(--duration-ambient)_var(--ease-standard)_infinite]
+    after:bg-[linear-gradient(90deg,transparent_0%,rgb(from_var(--pure-white)_r_g_b/var(--opacity-ghost))_30%,rgb(from_var(--pure-white)_r_g_b/var(--opacity-whisper))_50%,rgb(from_var(--pure-white)_r_g_b/var(--opacity-ghost))_70%,transparent_100%)]
+    after:filter-(--blur-mist)
+    after:content-['']
+
+    {variantClass}
     {className}"
   style:width
   style:height
   style:aspect-ratio={aspect_ratio}
   use:use_actions={actions}
 ></div>
-
-<style>
-  .root {
-    /* Base Surface: Sunken placeholder logic */
-    background: var(--glass-sunken);
-    backdrop-filter: var(--blur-whisper);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    border-radius: var(--radius-standard);
-    overflow: hidden;
-    position: relative;
-    min-height: var(--padding-standard);
-
-    /* Hardware acceleration for shimmer */
-    isolation: isolate;
-  }
-
-  /* Variant Harmonization */
-  .root.card {
-    border-radius: var(--radius-standard);
-    min-height: var(--storyboard-character-card-height);
-  }
-
-  .root.hero {
-    border-radius: var(--radius-standard);
-    min-height: var(--storyboard-fractal-card-height);
-  }
-
-  .root.profile-picture,
-  .root.circle {
-    border-radius: var(--radius-full);
-    aspect-ratio: var(--aspect-square);
-    width: var(--icon-large);
-    height: var(--icon-large);
-  }
-
-  .root.text {
-    height: var(--font-height-base);
-    margin-bottom: var(--margin-tight);
-    border-radius: var(--radius-sharp);
-    width: 60%;
-  }
-
-  /* Shimmer Effect: The Nordic Fog */
-  .root::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    transform: translateX(-100%);
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 30%,
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper)) 50%,
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost)) 70%,
-      transparent 100%
-    );
-    filter: var(--blur-mist);
-    animation: shimmer var(--duration-ambient) var(--ease-standard) infinite;
-    pointer-events: none;
-    z-index: var(--z-index-surface);
-  }
-
-  @keyframes shimmer {
-    100% {
-      transform: translateX(100%);
-    }
-  }
-</style>

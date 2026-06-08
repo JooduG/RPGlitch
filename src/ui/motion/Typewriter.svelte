@@ -242,6 +242,7 @@
   this={as}
   class="
     root
+
     {className}"
   class:is-inline={as === "span"}
   style="content-visibility: auto;"

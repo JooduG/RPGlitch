@@ -142,7 +142,10 @@
 
     <div class="deck-fan" style:--total-count={total_cards}>
       <div
-        class="card-wrapper factory-node"
+        class="
+          card-wrapper
+          factory-node
+        "
         role="presentation"
         style:transform="rotate({factory_angle}deg) translateY(0)"
         style:z-index="0"
@@ -171,7 +174,10 @@
         {@const is_hovered = hovered_index === idx}
 
         <div
-          class="card-wrapper interactable-node"
+          class="
+            card-wrapper
+            interactable-node
+          "
           role="presentation"
           style:transform="rotate({dynamic_angle}deg) translateY(0)"
           style:z-index={idx + 1}

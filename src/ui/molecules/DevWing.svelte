@@ -66,9 +66,19 @@
   });
 </script>
 
-<section class="root glass-elevated">
+<section
+  class="
+    root
+    glass-elevated
+  "
+>
   <!-- DYNAMICS GRID -->
-  <div class="body grid">
+  <div
+    class="
+      body
+      grid
+    "
+  >
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
       <div class="card" class:is-editable={is_editing}>
         <span class="label" use:tooltip={dynamic.desc}>{dynamic.label}</span>

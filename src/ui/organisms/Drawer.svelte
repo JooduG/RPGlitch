@@ -119,7 +119,10 @@
 {/if}
 
 <div
-  class="drawer glass-elevated"
+  class="
+    drawer
+    glass-elevated
+  "
   class:is-mobile={app.viewport.mobile}
   class:is-mini={app.viewport.mini}
   class:is-retracted={offset_spring.value > 99.5}

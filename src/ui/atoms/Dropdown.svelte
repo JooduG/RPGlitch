@@ -41,7 +41,10 @@
           <div {...wrapperProps} class="dropdown-portal-wrapper">
             <div
               {...props}
-              class="dropdown-menu glass-elevated"
+              class="
+                dropdown-menu
+                glass-elevated
+              "
               transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
             >
               <Select.Viewport class="dropdown-viewport">

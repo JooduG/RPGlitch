@@ -74,6 +74,7 @@
 <div
   class="
     root
+
     {className}"
   class:is-expanded={is_expanded}
   data-expanded={is_expanded}
@@ -104,7 +105,10 @@
   {#if is_edit}
     <textarea
       {...rest}
-      class="body textarea-scroll-track"
+      class="
+        body
+        textarea-scroll-track
+      "
       data-mode="edit"
       bind:value
       {placeholder}
@@ -118,7 +122,10 @@
     <ScrollArea class="scroll-area-readonly">
       <div
         {...rest}
-        class="body is-readonly"
+        class="
+          body
+          is-readonly
+        "
         data-mode="readonly"
         data-sync-id={syncId}
         use:auto_resize={{ syncId }}
