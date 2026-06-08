@@ -106,7 +106,7 @@
         font-bold
         tracking-tight
         text-nowrap
-        text-white
+        text-(--frisk)
         uppercase
         opacity-95
         filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]

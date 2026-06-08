@@ -45,7 +45,7 @@
       font-sans
       text-sm
       font-extrabold
-      text-white
+      text-(--frisk)
       transition-all
       duration-150
       ease-in-out
@@ -108,8 +108,8 @@
                 rounded-xl
                 border
                 border-solid
-                border-white/10
-                shadow-[0_4px_16px_rgba(0,0,0,0.3)]
+                border-(--border-ghost)
+                shadow-(--shadow-standard)
               "
               transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
             >
@@ -132,7 +132,7 @@
                         rounded-none
                         border-b
                         border-solid
-                        border-white/10
+                        border-(--border-ghost)
                         px-4
                         py-2
                         text-left
@@ -149,21 +149,21 @@
 
                         focus:outline-none
 
-                        aria-selected:bg-zinc-800/60
+                        aria-selected:glass-base
 
                         data-disabled:pointer-events-none
                         data-disabled:cursor-not-allowed
                         data-disabled:opacity-30
                         data-disabled:grayscale
 
-                        data-highlighted:bg-zinc-900/40
-                        data-highlighted:text-white
+                        data-highlighted:glass-sunken
+                        data-highlighted:text-(--frisk)
                         data-highlighted:brightness-110
                         data-highlighted:backdrop-blur-sm
 
-                        data-[selected=true]:bg-zinc-800/60
+                        data-[selected=true]:glass-base
 
-                        data-[state=checked]:bg-zinc-800/60
+                        data-[state=checked]:glass-base
                       "
                       value={item.value}
                       label={item.label}

@@ -131,7 +131,7 @@
     ease-in-out
     select-none
 
-    {!is_disabled ? 'group-hover/slider:text-white!' : ''}
+    {!is_disabled ? 'group-hover/slider:text-(--frisk)!' : ''}
   "
   >
     {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}

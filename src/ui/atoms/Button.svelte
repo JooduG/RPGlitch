@@ -91,7 +91,7 @@
     font-extrabold
     text-[#f2f7fa]
     no-underline
-    shadow-[0_4px_16px_rgba(0,0,0,0.3)]
+    shadow-(--shadow-standard)
     select-none
 
     hover:brightness-110
@@ -137,7 +137,7 @@
       hover:border-[#f2f7fa]
       hover:bg-[#ef4444]
       hover:text-[#f2f7fa]
-      hover:shadow-[0_0_16px_rgba(239,68,68,0.6)]
+      hover:shadow-(--danger-glow)
     `
     : ''}
     {variant === 'invisible'

@@ -43,8 +43,8 @@
     rounded-xl
     border
     border-solid
-    border-white/10
-    bg-zinc-900/40
+    border-(--border-ghost)
+    glass-sunken
     backdrop-blur-sm
 
     after:pointer-events-none

@@ -27,8 +27,8 @@
     rounded-sm
     border
     border-solid
-    border-white/10
-    bg-zinc-900/40
+    border-(--border-ghost)
+    glass-sunken
     text-left
     font-mono
     backdrop-blur-sm
@@ -44,8 +44,8 @@
       class="
         border-b
         border-solid
-        border-white/10
-        bg-white/10
+        border-(--border-ghost)
+        glass-sunken
         px-4
         py-1
         text-xs
@@ -77,7 +77,7 @@
         [&_pre]:text-xs
         [&_pre]:whitespace-pre-wrap
 
-        {isCode ? `bg-black/10` : ''}"
+        {isCode ? `glass-sunken` : ''}"
     >
       {@render children()}
     </div>

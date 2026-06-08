@@ -166,7 +166,7 @@
       ease-[cubic-bezier(0.34,1.56,0.64,1)]
 
       {no_background ? 'hidden!' : ''}
-      {!is_expanded ? 'h-2' : 'h-6 border-b border-solid border-white/10 opacity-100!'}"
+      {!is_expanded ? 'h-2' : 'h-6 border-b border-solid border-(--border-ghost) opacity-100!'}"
   >
     {#if is_expanded}
       {#if status}
@@ -312,7 +312,7 @@
                   <strong
                     class="
                       font-extrabold
-                      text-white
+                      text-(--frisk)
                     ">{token.content}</strong
                   >
                 {:else if token.type === "em"}
@@ -326,7 +326,7 @@
                   <strong
                     class="
                       font-extrabold
-                      text-white
+                      text-(--frisk)
                     "
                     ><em
                       class="

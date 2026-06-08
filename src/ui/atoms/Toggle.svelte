@@ -168,7 +168,7 @@
       duration-300
       ease-in-out
 
-      group-hover/toggle:text-white!
+      group-hover/toggle:text-(--frisk)!
     "
     >
       {label}

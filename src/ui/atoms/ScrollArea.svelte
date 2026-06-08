@@ -43,7 +43,7 @@
       z-50
       flex
       touch-none
-      bg-zinc-900/40
+      glass-sunken
       p-px
       backdrop-blur-sm
       transition-colors
