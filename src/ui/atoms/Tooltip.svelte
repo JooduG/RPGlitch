@@ -149,16 +149,34 @@
           strategy="fixed"
           forceMount
         >
-          {#snippet child({ wrapperProps, props, open })}
+          {#snippet child({ wrapperProps, props, open, side })}
             {#if open}
-              <div {...wrapperProps} class="tooltip-portal ready">
+              <div
+                {...wrapperProps}
+                class="pointer-events-none fixed z-999 flex flex-col items-center transition-opacity duration-150 will-change-[transform,opacity] {open
+                  ? 'opacity-100'
+                  : 'opacity-0'}"
+              >
                 <div
                   {...props}
-                  class="tooltip-container"
+                  class="drop-shadow-lg relative flex flex-col items-center"
                   transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
                 >
-                  <div class="tooltip-arrow"></div>
-                  <div class="tooltip-content">
+                  <div
+                    class="w-0 h-0 absolute left-1/2 z-0 -translate-x-1/2 {side === 'bottom'
+                      ? 'border-b-slate-400 top-[-8px] border-x-8 border-b-8 border-x-transparent'
+                      : 'border-t-slate-400 bottom-[-8px] border-x-8 border-t-8 border-x-transparent'}"
+                  >
+                    <div
+                      class="w-0 h-0 absolute left-1/2 -translate-x-1/2 {side === 'bottom'
+                        ? 'border-b-slate-900 top-px border-x-8 border-b-8 border-x-transparent'
+                        : 'border-t-slate-900 bottom-px border-x-8 border-t-8 border-x-transparent'}"
+                    ></div>
+                  </div>
+
+                  <div
+                    class="px-2 py-1.5 bg-slate-900/98 border-slate-400 rounded-md text-slate-100 text-xs font-sans tracking-normal leading-normal isolate w-max max-w-[240px] transform-gpu border text-center whitespace-normal normal-case backface-hidden"
+                  >
                     {tooltip_state.text}
                   </div>
                 </div>
@@ -170,95 +188,3 @@
     </Tooltip.Portal>
   </Tooltip.Root>
 </Tooltip.Provider>
-
-<style>
-  .tooltip-portal {
-    position: fixed !important;
-    z-index: var(--z-index-max) !important;
-    pointer-events: none !important;
-    will-change: transform, opacity;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    opacity: 0;
-  }
-
-  .tooltip-portal.ready {
-    opacity: 1;
-  }
-
-  .tooltip-container {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    filter: drop-shadow(var(--shadow-standard));
-  }
-
-  .tooltip-content {
-    padding: var(--padding-tight) var(--padding-tight);
-    border-radius: var(--radius-standard);
-    font-size: var(--font-size-tiny);
-    font-family: var(--font-family-base);
-    text-transform: none;
-    letter-spacing: normal;
-    white-space: normal;
-    width: max-content;
-    max-width: calc(var(--spacing-unit) * 60);
-    text-align: center;
-    line-height: var(--font-height-base);
-  }
-
-  .tooltip-panel,
-  [role="tooltip"],
-  .tooltip-content {
-    background: rgb(from var(--chalk) r g b / 0.98) !important;
-    border: var(--border-width-base) solid var(--signature-color, var(--frisk)) !important;
-    box-shadow: var(--shadow-standard) !important;
-    color: var(--pure-white) !important;
-
-    /* Force Hardware Compositor Layer Separation */
-    isolation: isolate;
-    transform: translateZ(0);
-    backface-visibility: hidden;
-  }
-
-  .tooltip-arrow {
-    width: 0;
-    height: 0;
-    border-left: var(--gap-standard) solid transparent;
-    border-right: var(--gap-standard) solid transparent;
-    border-top: var(--gap-standard) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-    position: absolute;
-    bottom: calc(var(--gap-standard) * -1);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: var(--z-index-base);
-  }
-
-  .tooltip-arrow::after {
-    content: "";
-    position: absolute;
-    bottom: var(--spacing-pixel);
-    left: calc(var(--gap-standard) * -1);
-    border-left: var(--gap-standard) solid transparent;
-    border-right: var(--gap-standard) solid transparent;
-    border-top: var(--gap-standard) solid var(--chalk);
-    opacity: var(--opacity-whisper);
-  }
-
-  .tooltip-container[data-side="bottom"] .tooltip-arrow {
-    top: calc(var(--gap-standard) * -1);
-    bottom: auto;
-    border-top: none;
-    border-bottom: var(--gap-standard) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-  }
-
-  .tooltip-container[data-side="bottom"] .tooltip-arrow::after {
-    top: var(--spacing-pixel);
-    bottom: auto;
-    border-top: none;
-    border-bottom: var(--gap-standard) solid var(--chalk);
-  }
-</style>

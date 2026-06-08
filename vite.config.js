@@ -1,4 +1,5 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
+import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "child_process";
 import path from "path";
 import { defineConfig } from "vite";
@@ -16,7 +17,9 @@ function designTokenSync() {
     buildStart() {
       try {
         console.log("🎨 Syncing design tokens...");
-        execSync("node ./.agents/skills/design/scripts/design-sync.js", { stdio: "inherit" });
+        execSync("node ./.agents/skills/local-dispatcher/scripts/design-sync.js", {
+          stdio: "inherit",
+        });
       } catch (err) {
         console.error("❌ Design token sync failed:", err.message);
       }
@@ -25,7 +28,9 @@ function designTokenSync() {
       if (file.endsWith("DESIGN.md")) {
         try {
           console.log("🎨 DESIGN.md changed, resyncing tokens...");
-          execSync("node ./.agents/skills/design/scripts/design-sync.js", { stdio: "inherit" });
+          execSync("node ./.agents/skills/local-dispatcher/scripts/design-sync.js", {
+            stdio: "inherit",
+          });
           // Optionally trigger a full reload or just let Vite handle the CSS update
         } catch (err) {
           console.error("❌ Design token sync failed:", err.message);
@@ -43,6 +48,7 @@ export default defineConfig(({ command, mode }) => {
     root: "src",
     plugins: [
       designTokenSync(),
+      tailwindcss(),
       svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }),
       !isDev && viteSingleFile(),
       devtoolsJson(),

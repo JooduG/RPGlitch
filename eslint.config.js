@@ -6,7 +6,9 @@ import svelte from "eslint-plugin-svelte";
 import unusedImports from "eslint-plugin-unused-imports";
 import globals from "globals";
 import { fileURLToPath } from "node:url";
+
 const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
+
 /** @type {import('eslint').Linter.Config[]} */
 export default [
   includeIgnoreFile(gitignorePath),
@@ -54,10 +56,7 @@ export default [
   prettier,
   ...svelte.configs.prettier,
   {
-    plugins: {
-      jsdoc,
-      "unused-imports": unusedImports,
-    },
+    plugins: { jsdoc, "unused-imports": unusedImports },
     languageOptions: {
       globals: {
         ...globals.browser,
@@ -79,8 +78,8 @@ export default [
     },
     rules: {
       /* ========================================================================
-			   [**] 1. THE RUNE REGIME (SVELTE 5)
-			   ======================================================================== */
+      			   [**] 1. THE RUNE REGIME (SVELTE 5)
+      			   ======================================================================== */
       // Vi litar på kompilatorn för export let, men blockerar legacy hooks.
       "no-restricted-imports": [
         "error",
@@ -100,16 +99,17 @@ export default [
           ],
         },
       ],
+
       /* ========================================================================
-			   [**] 2. TYPE SAFETY (MUFFLED TO WARN)
-			   ======================================================================== */
+      			   [**] 2. TYPE SAFETY (MUFFLED TO WARN)
+      			   ======================================================================== */
       "jsdoc/require-jsdoc": "warn",
       "jsdoc/require-param-type": "warn",
       "jsdoc/require-returns-type": "warn",
       "jsdoc/valid-types": "warn",
       /* ========================================================================
-			   [**] 3. GARBAGE COLLECTION (ACTIVE)
-			   ======================================================================== */
+      			   [**] 3. GARBAGE COLLECTION (ACTIVE)
+      			   ======================================================================== */
       "no-unused-vars": "off",
       "unused-imports/no-unused-imports": "error",
       "unused-imports/no-unused-vars": [
@@ -121,13 +121,15 @@ export default [
           argsIgnorePattern: "^_",
         },
       ],
+
       /* ========================================================================
-			   [**] 4. UTILITY
-			   ======================================================================== */
+      			   [**] 4. UTILITY
+      			   ======================================================================== */
       "no-console": "off",
       "no-undef": "error",
     },
   },
+
   {
     files: ["**/*.svelte", "**/*.svelte.js"],
     languageOptions: {

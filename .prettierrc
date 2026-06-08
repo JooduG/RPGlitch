@@ -4,7 +4,11 @@
   "trailingComma": "all",
   "printWidth": 100,
   "endOfLine": "auto",
-  "plugins": ["prettier-plugin-svelte", "prettier-plugin-sort-package-json"],
+  "plugins": [
+    "prettier-plugin-svelte",
+    "prettier-plugin-sort-package-json",
+    "prettier-plugin-tailwindcss"
+  ],
   "svelteSortOrder": "options-scripts-markup-styles",
   "svelteAllowShorthand": true,
   "svelteIndentScriptAndStyle": true,
@@ -15,5 +19,6 @@
         "parser": "svelte"
       }
     }
-  ]
+  ],
+  "tailwindStylesheet": "./src/media/design.css"
 }

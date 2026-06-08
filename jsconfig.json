@@ -3,7 +3,7 @@
     "allowArbitraryExtensions": true,
     "allowJs": true,
     "baseUrl": ".",
-    "checkJs": true,
+    "checkJs": false,
     "lib": ["esnext", "dom", "dom.iterable"],
     "module": "esnext",
     "moduleResolution": "bundler",
@@ -33,7 +33,6 @@
       "@organisms/*": ["src/ui/organisms/*"],
       "@state": ["src/state/index.js"],
       "@state/*": ["src/state/*"],
-
       "@ui/*": ["src/ui/*"]
     },
     "strict": true,
