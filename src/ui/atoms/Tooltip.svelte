@@ -164,8 +164,8 @@
                 >
                   <div
                     class="absolute left-1/2 z-0 h-0 w-0 -translate-x-1/2 {side === 'bottom'
-                      ? 'top-[-8px] border-x-8 border-b-8 border-x-transparent border-b-slate-400'
-                      : 'bottom-[-8px] border-x-8 border-t-8 border-x-transparent border-t-slate-400'}"
+                      ? '-top-2 border-x-8 border-b-8 border-x-transparent border-b-slate-400'
+                      : '-bottom-2 border-x-8 border-t-8 border-x-transparent border-t-slate-400'}"
                   >
                     <div
                       class="absolute left-1/2 h-0 w-0 -translate-x-1/2 {side === 'bottom'
@@ -175,7 +175,7 @@
                   </div>
 
                   <div
-                    class="isolate w-max max-w-[240px] transform-gpu rounded-md border border-slate-400 bg-slate-900/98 px-2 py-1.5 text-center font-sans text-xs leading-normal tracking-normal whitespace-normal text-slate-100 normal-case backface-hidden"
+                    class="isolate w-max max-w-60 transform-gpu rounded-md border border-slate-400 bg-slate-900/98 px-2 py-1.5 text-center font-sans text-xs leading-normal tracking-normal whitespace-normal text-slate-100 normal-case backface-hidden"
                   >
                     {tooltip_state.text}
                   </div>
