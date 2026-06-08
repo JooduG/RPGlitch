@@ -1,6 +1,6 @@
 ﻿<script module>
   /**
-   * ðŸ–¼ï¸ ImagePreview - State-driven Lightbox Kernel
+   * 🖼️ ImagePreview - State-driven Lightbox Kernel
    * Managed via Svelte 5 Global Module State.
    */
 
@@ -46,55 +46,54 @@
 </script>
 
 {#if state.active}
-  <Modal variant="preview" on_close={closeImagePreview}>
-    <img class="visual" src={state.src} alt={state.caption || "Preview"} />
+  <Modal
+    variant="preview"
+    on_close={closeImagePreview}
+    class="
+      flex
+      max-h-[95vh]
+      w-auto
+      max-w-[95vw]
+      flex-col
+      items-center
+      justify-center
+      gap-4
+      overflow-visible
+      border-none
+      bg-transparent
+      p-4
+      shadow-none
+    "
+  >
+    <img
+      class="
+        pointer-events-auto
+        max-h-[85vh]
+        max-w-[90vw]
+        rounded
+        object-contain
+        shadow-[0_4px_16px_rgba(0,0,0,0.3)]
+      "
+      src={state.src}
+      alt={state.caption || "Preview"}
+    />
 
     {#if state.caption}
-      <div class="label">{state.caption}</div>
+      <div
+        class="
+        z-50
+        max-w-[80%]
+        rounded
+        bg-black/30
+        p-4
+        text-center
+        text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)]
+        text-[#f2f7fa]
+        shadow-[0_4px_16px_rgba(0,0,0,0.3)]
+      "
+      >
+        {state.caption}
+      </div>
     {/if}
   </Modal>
 {/if}
-
-<style>
-  /**
-   * ðŸ“ DOM Flattening & Nomenclature Harmonization
-   * We target the Modal's content container directly to eliminate redundant layers.
-   * Generic, semantic class names: .visual, .label.
-   */
-  :global(.base.preview) {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    max-width: 95vw;
-    max-height: 95vh;
-    width: auto;
-    padding: var(--padding-standard);
-    gap: var(--gap-standard); /* Parity with original margin-top */
-    background: transparent;
-    border: none;
-    box-shadow: none;
-    overflow: visible;
-  }
-
-  .visual {
-    max-width: 90vw;
-    max-height: 85vh;
-    border-radius: var(--radius-sharp);
-    box-shadow: var(--shadow-standard);
-    object-fit: contain;
-    pointer-events: auto;
-  }
-
-  .label {
-    color: var(--frisk);
-    background: rgb(from var(--void-black) r g b / var(--opacity-whisper));
-    padding: var(--padding-standard) var(--padding-standard);
-    border-radius: var(--radius-sharp);
-    font-size: var(--font-size-base);
-    text-align: center;
-    max-width: 80%;
-    z-index: var(--z-index-elevated);
-    box-shadow: var(--shadow-standard);
-  }
-</style>

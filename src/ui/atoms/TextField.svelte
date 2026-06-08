@@ -1,7 +1,7 @@
 ﻿<script>
   /**
    * @file TextField.svelte
-   * ðŸ•¹ï¸ SOTA ATOMIC TEXT INSTRUMENT
+   * 🕹️ SOTA ATOMIC TEXT INSTRUMENT
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
@@ -26,7 +26,7 @@
 
     // Design
     no_background = false,
-    signature_color = "var(--frozen)",
+    signature_color = "#555d66",
     class: className = "",
     style = "",
 
@@ -73,10 +73,71 @@
 
 <div
   class="
-    root
+    relative
+    flex
+    w-full
+    flex-col
+    overflow-hidden
+    rounded-xl
+    border
+    border-solid
+    border-transparent
+    transition-[border-color,background]
+    duration-300
+    ease-in-out
 
+    before:pointer-events-none
+    before:absolute
+    before:inset-0
+    before:rounded-[inherit]
+    before:mask-exclude
+    before:p-px
+    before:transition-opacity
+    before:duration-300
+    before:content-['']
+    before:[mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
+
+    {is_expanded ? '' : ''}
+    {no_background
+    ? `
+      border-none!
+      bg-transparent!
+      shadow-none!
+
+      before:hidden!
+    `
+    : ''}
+    {!is_expanded
+    ? `
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgba(34,35,38,0.6))]
+
+      before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--state-dev-accent)_40%),transparent_40%)]
+      before:opacity-30
+    `
+    : `
+      overflow-visible!
+      border-transparent
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgba(34,35,38,0.6))]
+
+      before:bg-[linear-gradient(to_bottom,var(--state-dev-accent),color-mix(in_srgb,var(--state-dev-accent),transparent_60%)_30%,transparent_80%)]
+      before:opacity-100
+    `}
+    {is_disabled || busy
+    ? `
+      cursor-not-allowed
+      opacity-30
+    `
+    : ''}
+    {busy
+    ? `
+      cursor-wait
+      brightness-90
+      grayscale-50
+
+      *:pointer-events-none
+    `
+    : ''}
     {className}"
-  class:is-expanded={is_expanded}
   data-expanded={is_expanded}
   data-busy={busy}
   data-no-bg={no_background}
@@ -87,15 +148,56 @@
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
 >
-  <header class="header">
+  <header
+    class="
+      relative
+      top-0
+      z-10
+      flex
+      items-center
+      justify-between
+      overflow-hidden
+      rounded-[12px_12px_0_0]
+      bg-(--state-dev-accent)
+      px-2
+      opacity-60
+      transition-[height,opacity,background]
+      duration-300
+      ease-[cubic-bezier(0.34,1.56,0.64,1)]
+
+      {no_background ? 'hidden!' : ''}
+      {!is_expanded ? 'h-2' : 'h-6 border-b border-solid border-white/10 opacity-100!'}"
+  >
     {#if is_expanded}
       {#if status}
-        <div class="status" in:fade={{ duration: 200, delay: 0 }}>
+        <div
+          class="
+            mr-4
+            flex
+            h-full
+            min-w-0
+            flex-1
+            items-center
+            overflow-hidden
+            text-ellipsis
+            whitespace-nowrap
+          "
+          in:fade={{ duration: 200, delay: 0 }}
+        >
           {@render status()}
         </div>
       {/if}
       {#if header_actions}
-        <div class="actions" in:fade={{ duration: 200, delay: 50 }}>
+        <div
+          class="
+            ml-auto
+            flex
+            h-full
+            shrink-0
+            items-center
+          "
+          in:fade={{ duration: 200, delay: 50 }}
+        >
           {@render header_actions()}
         </div>
       {/if}
@@ -106,9 +208,47 @@
     <textarea
       {...rest}
       class="
-        body
-        textarea-scroll-track
-      "
+        relative
+        z-10
+        m-0
+        box-border
+        block
+        min-h-[48px]
+        w-full
+        resize-none
+        scrollbar-thin
+        scrollbar-thumb-[#363840]
+        scrollbar-track-transparent
+        overflow-x-hidden
+        overflow-y-auto
+        border-none
+        bg-transparent
+        p-4
+        text-left
+        font-sans
+        text-sm
+        leading-normal
+        text-wrap
+        text-[#f2f7fa]
+        outline-none
+
+        placeholder:font-normal
+        placeholder:text-[#555d66]/30
+        placeholder:italic
+
+        focus:outline-none
+
+        [&::-webkit-scrollbar]:h-2
+        [&::-webkit-scrollbar]:w-2
+
+        [&::-webkit-scrollbar-thumb]:rounded-xl
+        [&::-webkit-scrollbar-thumb]:bg-[#363840]
+
+        [&::-webkit-scrollbar-thumb:hover]:bg-[#f2f7fa]
+
+        [&::-webkit-scrollbar-track]:bg-transparent
+
+        {busy ? 'cursor-wait' : ''}"
       data-mode="edit"
       bind:value
       {placeholder}
@@ -119,13 +259,33 @@
       data-sync-id={syncId}
     ></textarea>
   {:else}
-    <ScrollArea class="scroll-area-readonly">
+    <ScrollArea>
       <div
         {...rest}
         class="
-          body
-          is-readonly
-        "
+          relative
+          z-10
+          m-0
+          box-border
+          flex
+          min-h-[48px]
+          w-full
+          flex-col
+          overflow-visible
+          border-none
+          bg-transparent
+          p-4
+          text-left
+          font-sans
+          text-sm
+          leading-normal
+          text-pretty
+          text-[#f2f7fa]
+          outline-none
+
+          focus:outline-none
+
+          {busy ? 'cursor-wait' : ''}"
         data-mode="readonly"
         data-sync-id={syncId}
         use:auto_resize={{ syncId }}
@@ -137,274 +297,58 @@
       >
         {#if paragraphs.length > 0}
           {#each paragraphs as tokens, i (i)}
-            <p class="paragraph" data-spaced={i > 0}>
+            <p
+              class="
+                m-0
+                w-full
+
+                {i > 0 ? 'mt-4' : ''}"
+              data-spaced={i > 0}
+            >
               {#each tokens as token, j (j)}
                 {#if token.type === "text"}
                   {token.content}
                 {:else if token.type === "strong"}
-                  <strong class="strong">{token.content}</strong>
+                  <strong
+                    class="
+                      font-extrabold
+                      text-white
+                    ">{token.content}</strong
+                  >
                 {:else if token.type === "em"}
-                  <em class="em">{token.content}</em>
+                  <em
+                    class="
+                      italic
+                      opacity-30
+                    ">{token.content}</em
+                  >
                 {:else if token.type === "strong-em"}
-                  <strong class="strong"><em class="em">{token.content}</em></strong>
+                  <strong
+                    class="
+                      font-extrabold
+                      text-white
+                    "
+                    ><em
+                      class="
+                        italic
+                        opacity-30
+                      ">{token.content}</em
+                    ></strong
+                  >
                 {/if}
               {/each}
             </p>
           {/each}
         {:else}
-          <span class="placeholder">{placeholder}</span>
+          <span
+            class="
+              font-normal
+              text-[#555d66]/30
+              italic
+            ">{placeholder}</span
+          >
         {/if}
       </div>
     </ScrollArea>
   {/if}
 </div>
-
-<style>
-  .root {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    background: color-mix(in srgb, var(--state-dev-accent) 8%, var(--glass-sunken));
-    backdrop-filter: var(--blur-whisper);
-    border: var(--spacing-pixel) solid transparent;
-    transition:
-      border-color var(--duration-standard) var(--ease-standard),
-      background var(--duration-standard) var(--ease-standard);
-    overflow: hidden;
-    border-radius: var(--radius-standard);
-  }
-
-  /* --- HOLOGRAPHIC BORDER LOGIC --- */
-  .root::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    padding: var(--spacing-pixel);
-    background: linear-gradient(
-      to bottom,
-      color-mix(in srgb, transparent, var(--state-dev-accent) 40%),
-      transparent 40%
-    );
-    mask:
-      linear-gradient(var(--pure-white) 0 0) content-box,
-      linear-gradient(var(--pure-white) 0 0);
-    mask-composite: exclude;
-    opacity: var(--opacity-whisper);
-    transition: opacity var(--duration-standard);
-  }
-
-  .root[data-expanded="true"]::before {
-    opacity: var(--opacity-solid);
-    background: linear-gradient(
-      to bottom,
-      var(--state-dev-accent),
-      color-mix(in srgb, var(--state-dev-accent), transparent 60%) 30%,
-      transparent 80%
-    );
-  }
-
-  .root[data-no-bg="true"]::before {
-    display: none;
-  }
-
-  .root[data-no-bg="true"] {
-    background: transparent;
-    border: none;
-    box-shadow: none;
-  }
-
-  .root[data-no-bg="true"] .header {
-    display: none;
-  }
-
-  .root[data-no-bg="true"] .body {
-    padding: 0;
-  }
-
-  .root[data-expanded="true"] {
-    border-color: transparent;
-    box-shadow: none; /* Remove aggressive glow */
-    background: color-mix(in srgb, var(--state-dev-accent) 12%, var(--glass-sunken));
-    overflow: visible;
-  }
-
-  .header {
-    height: var(--dev-header-height-dormant);
-    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-    background: var(--state-dev-accent);
-    opacity: 0.6;
-    position: relative;
-    top: 0;
-    z-index: var(--z-index-surface);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 var(--padding-tight);
-    transition:
-      height var(--duration-standard) var(--ease-elastic),
-      opacity var(--duration-fast) var(--ease-standard),
-      background var(--duration-standard) var(--ease-elastic);
-    overflow: hidden;
-  }
-
-  .root[data-expanded="true"] .header {
-    height: var(--dev-header-height-active);
-    opacity: 1;
-    border-bottom: var(--spacing-pixel) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-  }
-
-  .status {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    min-width: 0;
-    flex: 1;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    margin-right: var(--gap-standard);
-  }
-
-  .actions {
-    display: flex;
-    align-items: center;
-    height: 100%;
-    margin-left: auto;
-    flex-shrink: 0;
-  }
-
-  .body {
-    width: 100%;
-    min-height: var(--row-unit);
-    max-height: auto; /* Specific functional limit */
-    padding: var(--padding-standard);
-    background: transparent;
-    border: none;
-    outline: none;
-    color: var(--frisk);
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-small);
-    line-height: var(--font-height-base);
-    text-align: left;
-    box-sizing: border-box;
-    margin: 0;
-    display: block;
-    overflow: hidden auto;
-    position: relative;
-    z-index: var(--z-index-surface);
-    text-wrap: balance;
-  }
-
-  .body[data-mode="edit"] {
-    resize: none;
-    text-wrap: wrap;
-    text-align: left;
-  }
-
-  .body[data-mode="readonly"] {
-    display: flex;
-    flex-direction: column;
-    text-wrap: pretty;
-    overflow: visible;
-  }
-
-  /* --- SCOPED SCROLL TRACK FOR TEXTAREA --- */
-  .textarea-scroll-track {
-    scrollbar-width: thin;
-    scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar {
-    width: var(--scrollbar-width);
-    height: var(--scrollbar-width);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar-track {
-    background: var(--scrollbar-track);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar-thumb {
-    background: var(--scrollbar-thumb);
-    border-radius: var(--radius-standard);
-  }
-
-  .textarea-scroll-track::-webkit-scrollbar-thumb:hover {
-    background: var(--scrollbar-thumb-hover);
-  }
-
-  .body::placeholder,
-  .placeholder {
-    color: var(--frozen);
-    font-style: italic;
-    font-weight: var(--font-weight-base);
-    opacity: var(--opacity-whisper);
-  }
-
-  .root[data-disabled="true"] {
-    opacity: var(--opacity-whisper);
-    cursor: not-allowed;
-  }
-
-  .root[data-busy="true"],
-  .root[data-busy="true"] .body {
-    cursor: wait;
-  }
-
-  .root[data-busy="true"] {
-    filter: var(--brightness-dim) grayscale(0.5);
-  }
-
-  .root[data-busy="true"] > * {
-    pointer-events: none;
-  }
-
-  .paragraph {
-    width: 100%;
-    margin: 0;
-  }
-
-  .paragraph[data-spaced="true"] {
-    margin-top: var(--margin-standard);
-  }
-
-  .strong {
-    font-weight: var(--font-weight-bold);
-    color: var(--pure-white);
-  }
-
-  .em {
-    font-style: italic;
-    opacity: var(--opacity-whisper);
-  }
-
-  /* Global child overrides for injected snippet content */
-  :global(.status-tag) {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: var(--font-spacing-loose);
-    text-transform: uppercase;
-    color: var(--pure-white);
-  }
-
-  :global(.status-msg) {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
-    opacity: var(--opacity-solid);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-base);
-    color: var(--pure-white);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  :global(.scroll-area-readonly) {
-    width: 100%;
-    height: 100%;
-  }
-</style>

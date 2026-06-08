@@ -62,114 +62,89 @@
 <div
   {...rest}
   class="
-    root
+    @container-size
+    relative
+    flex
+    h-full
+    w-full
+    items-center
+    justify-center
+    overflow-hidden
 
     {className}"
   style="--signature-color: {signature_color};"
   use:use_actions={actions}
 >
-  <!-- 🧬 THE BASE: Massive Signature Placeholder -->
-  <div class="profile-placeholder" aria-hidden="true">
+  <div
+    class="
+      absolute
+      inset-0
+      z-0
+      flex
+      h-full
+      w-full
+      items-center
+      justify-center
+      bg-(--signature-color,#555d66)
+    "
+    aria-hidden="true"
+  >
     <div
       class="
-        profile-initials
         text-shadow-bloom
+        pointer-events-none
+        flex
+        h-full
+        w-full
+        items-center
+        justify-center
+        p-0
+        text-center
+        font-['Ubuntu']
+        text-[clamp(0.6rem,60cqi,6rem)]
+        leading-[0.7]
+        font-bold
+        tracking-tight
+        text-nowrap
+        text-white
+        uppercase
+        opacity-95
+        filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]
+        select-none
       "
     >
       {initials}
     </div>
   </div>
 
-  <!-- 🖼️ THE OVERLAY: Actual Media -->
   {#if media_url}
     <img
       src={media_url}
       alt={alt || `${name} Profile`}
-      class="media"
-      class:flipped={is_flipped}
+      class="
+        absolute
+        inset-0
+        z-10
+        block
+        h-full
+        w-full
+        object-cover
+
+        {is_flipped ? '-scale-x-100' : ''}"
       onerror={() => (image_failed = true)}
     />
   {/if}
 </div>
 
 <style>
-  .root {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    position: relative;
-    container-type: size;
-  }
-
-  .media {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    z-index: var(--z-index-surface);
-  }
-
-  .media.no-bg {
-    object-fit: contain;
-    filter: drop-shadow(
-      0 var(--margin-tight) var(--margin-standard)
-        rgb(from var(--void-black) r g b / var(--opacity-whisper))
-    );
-  }
-
-  .media.flipped {
-    transform: scaleX(-1);
-  }
-
-  /* Placeholder State: Neural Nordic Depth */
-  .profile-placeholder {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 100%;
-
-    /* 🎨 Signature Color Background: Primary Brand Surface */
-    background-color: var(--signature-color, var(--frozen));
-    z-index: var(--z-index-base);
-  }
-
-  /* The Watermark Initials: MASSIVE AESTHETIC */
-  .profile-initials {
-    font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-bold);
-    color: var(--pure-white);
-    text-transform: uppercase;
-    user-select: none;
-    pointer-events: none;
-    line-height: 0.7; /* Massive impact tight tracking */
-    letter-spacing: var(--font-spacing-tight);
-
-    /* ❄️ Nordic Collection Depth - High Contrast White */
-    opacity: 0.95;
-
-    /* Vibrant custom signature-colored bloom: The Glitch Aura */
-    filter: drop-shadow(
-      0 var(--margin-tight) var(--margin-standard)
-        rgb(from var(--signature-color, var(--frozen)) r g b / var(--opacity-muted))
-    );
-
-    /* Massive Layout Construction */
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-    text-align: center;
-    padding: 0;
-    font-size: clamp(var(--font-size-nano), 60cqi, var(--font-size-h1));
+  /* Retaining an ultra-lean style target solely for the intricate multi-layered text bloom */
+  .text-shadow-bloom {
+    text-shadow:
+      1px 1px 0 #000,
+      -1px 1px 0 #000,
+      1px -1px 0 #000,
+      -1px -1px 0 #000,
+      0 0 8px var(--signature-color, #555d66),
+      0 0 24px rgba(from var(--signature-color, #555d66) r g b / 0.6);
   }
 </style>

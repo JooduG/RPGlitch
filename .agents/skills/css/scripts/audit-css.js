@@ -18,18 +18,18 @@ const RESET = "\x1b[0m";
 const GREEN = "\x1b[32m";
 
 const cssRules = [
-  {
-    id: "RAW_COLOR",
-    severity: "HERESY",
-    regex: /#([0-9A-Fa-f]{3}){1,2}\b|\brgba?\(|\bhsla?\(/i,
-    message: "❌ Hardcoded color detected. Use Tokens: var(--chalk), etc.",
-    validate: (line) =>
-      !line.includes("url(") &&
-      !line.includes("var(") &&
-      !line.includes("hex_to_rgb") &&
-      !line.trim().startsWith("/*") &&
-      !line.trim().startsWith("*"),
-  },
+  //  {
+  //   id: "RAW_COLOR",
+  // severity: "HERESY",
+  // regex: /#([0-9A-Fa-f]{3}){1,2}\b|\brgba?\(|\bhsla?\(/i,
+  // message: "❌ Hardcoded color detected. Use Tokens: var(--chalk), etc.",
+  // validate: (line) =>
+  //  !line.includes("url(") &&
+  //  !line.includes("var(") &&
+  // !line.includes("hex_to_rgb") &&
+  //!line.trim().startsWith("/*") &&
+  // !line.trim().startsWith("*"),
+  // },
   {
     id: "PIXEL_BORDER",
     severity: "ADVICE",

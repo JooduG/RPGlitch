@@ -1,7 +1,7 @@
 <script>
   /**
    * @file Modal.svelte
-   * ðŸ–¼ï¸ THE VOID CONTAINER
+   * 🖼️ THE VOID CONTAINER
    * A generic glassmorphic modal wrapper.
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
@@ -19,7 +19,7 @@
 
     // Design
     variant = "standard",
-    z_index = "var(--z-index-modal)",
+    z_index = "200",
     class: className = "",
 
     // Handlers
@@ -71,8 +71,7 @@
             busy={is_busy}
             is_blurred={blur}
             {is_pass_through}
-            class="{variant}-backdrop
-            "
+            class={variant}
           >
             <Dialog.Content
               {...rest}
@@ -90,12 +89,54 @@
                   <div
                     {...contentProps}
                     class="
-                      root
-                      glass-elevated
+                      pointer-events-auto
+                      relative
+                      flex
+                      h-[clamp(12rem,auto,40rem)]
+                      w-[clamp(16rem,90vw,28rem)]
+                      cursor-default
+                      flex-col
+                      justify-between
+                      gap-4
+                      overflow-hidden
+                      rounded-xl
+                      p-4
+                      transition-[filter]
+                      duration-300
+                      [view-transition-name:modal-container]
 
                       {variant}
+                      {variant !== 'profile'
+                      ? `
+                        before:pointer-events-none
+                        before:absolute
+                        before:inset-0
+                        before:z-[-1]
+                        before:bg-(--noise-url)
+                        before:opacity-10
+                        before:mix-blend-overlay
+                        before:content-[\\'\\']
+                      `
+                      : `
+                        h-screen
+                        w-fit
+                        max-w-none
+                        overflow-visible!
+                        border-none!
+                        bg-transparent
+                        p-0
+                        shadow-none!
+                        backdrop-blur-none!
+                      `}
+                      {variant === 'preview' || variant === 'mini' ? 'max-w-md' : ''} {is_busy
+                      ? `
+                        pointer-events-none
+                        cursor-wait
+                        brightness-90
+                        grayscale-50
+                      `
+                      : ''}
                       {className}"
-                    class:is-busy={is_busy}
                     onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
                     use:use_actions={actions}
                   >
@@ -110,67 +151,3 @@
     </Dialog.Overlay>
   </Dialog.Portal>
 </Dialog.Root>
-
-<style>
-  /**
-   * ULTRA-LEAN NOMENCLATURE:
-   * .root - The core modal container.
-   */
-  .root {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    justify-content: space-between;
-    view-transition-name: modal-container;
-
-    /* Dimensions grounded in Grid Foundation */
-    width: clamp(calc(var(--column-unit) * 3), 90vw, var(--modal-width-thin));
-    height: clamp(calc(var(--row-unit) * 3), auto, var(--modal-height-standard));
-    padding: var(--padding-standard);
-    gap: var(--gap-standard);
-    border-radius: var(--radius-standard);
-    cursor: default;
-    pointer-events: auto;
-    transition: filter var(--duration-standard);
-  }
-
-  /* Nordic Collection Noise Texture */
-  .root:not(.profile)::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: var(--z-index-below);
-    background-image: var(--noise-url);
-    opacity: var(--opacity-ghost);
-    mix-blend-mode: overlay;
-    pointer-events: none;
-  }
-
-  /* Variant Specifics: Profile (Transparent Passthrough) */
-  .root.profile {
-    width: fit-content;
-    height: 100vh;
-    max-width: none;
-    background: transparent;
-    backdrop-filter: none;
-    border: none;
-    box-shadow: none;
-    overflow: visible;
-    padding: 0;
-  }
-
-  /* Variant Specifics: Preview/Mini (Compact) */
-  .root.preview,
-  .root.mini {
-    max-width: var(--modal-width-thin);
-    padding: var(--padding-standard);
-  }
-
-  /* Busy State Logic: Kinetic Grayout */
-  .root.is-busy {
-    cursor: wait;
-    filter: var(--brightness-dim) grayscale(0.5);
-    pointer-events: none;
-  }
-</style>

@@ -59,31 +59,27 @@
 <div
   bind:this={container}
   class="
-    root
+    @container
+    block
+    h-full
+    w-full
+    overflow-hidden
 
     {className}"
 >
-  <span bind:this={content} class="text-content" style:font-size="{font_size}px">{text}</span>
+  <span
+    bind:this={content}
+    class="
+      block
+      font-[inherit]
+      leading-[1.1]
+      font-extrabold
+      wrap-break-word
+      whitespace-pre-wrap
+      text-inherit
+    "
+    style:font-size="{font_size}px"
+  >
+    {text}
+  </span>
 </div>
-
-<style>
-  .root {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-
-    /* Maintain layout container constraints */
-    container-type: inline-size;
-  }
-
-  .text-content {
-    display: block;
-    font-family: inherit;
-    font-weight: var(--font-weight-bold);
-    white-space: pre-wrap;
-    overflow-wrap: break-word;
-    text-align: inherit;
-    line-height: 1.1;
-  }
-</style>

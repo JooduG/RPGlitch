@@ -40,12 +40,35 @@
 
 <label
   class="
-    root
+    group/toggle
+    relative
+    inline-flex
+    cursor-pointer
+    items-center
+    gap-4
+    py-1
+    transition-opacity
+    duration-300
+    ease-in-out
+    select-none
 
+    {is_disabled || busy
+    ? `
+      cursor-default!
+      opacity-30
+    `
+    : ''}
+    {busy
+    ? `
+      cursor-wait!
+      brightness-90
+      grayscale-50
+
+      *:pointer-events-none
+    `
+    : ''}
+    {size === 'small'}
     {className}"
-  class:is-disabled={is_disabled || busy}
-  class:is-busy={busy}
-  class:is-small={size === "small"}
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
   {style}
@@ -58,10 +81,73 @@
     {...rest}
   >
     {#snippet child({ props })}
-      <button {...props} class="switch-root" data-testid={test_id}>
+      <button
+        {...props}
+        class="
+          group
+          relative
+          box-border
+          shrink-0
+          cursor-pointer
+          rounded-full
+          bg-[#222326]/30
+          backdrop-blur-sm
+          transition-[background-color,box-shadow]
+
+          duration-300
+          ease-in-out
+          focus-visible:outline
+
+          focus-visible:outline-offset-1
+
+          focus-visible:outline-[#555d66]
+
+          data-[state=checked]:bg-[#555d66]/30
+
+          {size === 'small'
+          ? `
+            h-4
+            w-7
+          `
+          : `
+            h-6
+            w-10
+          `}"
+        data-testid={test_id}
+      >
         <Switch.Thumb>
           {#snippet child({ props: thumbProps })}
-            <span {...thumbProps} class="switch-thumb"></span>
+            <span
+              {...thumbProps}
+              class="
+                absolute
+                rounded-full
+                bg-[#f2f7fa]
+                transition-[transform,background-color]
+                duration-300
+                ease-[cubic-bezier(0.34,1.56,0.64,1)]
+
+                group-hover/toggle:brightness-110!
+
+                group-data-[state=checked]:bg-white
+                group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)]
+
+                {size === 'small'
+                ? `
+                  top-[2px]
+                  left-[2px]
+                  size-3
+
+                  group-data-[state=checked]:translate-x-3
+                `
+                : `
+                  top-[4px]
+                  left-[4px]
+                  size-4
+
+                  group-data-[state=checked]:translate-x-4
+                `}"
+            ></span>
           {/snippet}
         </Switch.Thumb>
       </button>
@@ -69,133 +155,23 @@
   </Switch.Root>
 
   {#if label}
-    <span class="label">{label}</span>
+    <span
+      class="
+      font-sans
+      text-xs
+      font-extrabold
+      tracking-widest
+      whitespace-nowrap
+      text-[#555d66]
+      uppercase
+      transition-colors
+      duration-300
+      ease-in-out
+
+      group-hover/toggle:text-white!
+    "
+    >
+      {label}
+    </span>
   {/if}
 </label>
-
-<style>
-  .root {
-    /* Layout */
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: var(--gap-standard);
-    padding: var(--padding-tight) 0;
-
-    /* Interaction */
-    cursor: pointer;
-    user-select: none;
-    transition: opacity var(--duration-standard) var(--ease-standard);
-
-    /* Internal Geometry (Chalk Regime Mapping) */
-    --state-toggle-width: var(--toggle-width);
-    --state-toggle-height: var(--toggle-height);
-    --state-toggle-thumb-size: var(--toggle-thumb-size);
-    --state-toggle-thumb-offset: var(--toggle-thumb-offset);
-  }
-
-  /* --- MODIFIERS --- */
-
-  .root.is-disabled {
-    opacity: var(--opacity-whisper);
-    cursor: default;
-  }
-
-  .root.is-busy {
-    cursor: wait;
-    filter: var(--brightness-dim) grayscale(0.5);
-  }
-
-  .root.is-busy > * {
-    pointer-events: none;
-  }
-
-  .root.is-small {
-    --state-toggle-width: var(--toggle-small-width);
-    --state-toggle-height: var(--toggle-small-height);
-    --state-toggle-thumb-size: var(--toggle-small-thumb-size);
-    --state-toggle-thumb-offset: calc(
-      (var(--toggle-small-height) - var(--toggle-small-thumb-size)) / 2
-    );
-  }
-
-  /* --- ELEMENTS --- */
-
-  /* The Switch Root (button primitive) */
-  .switch-root {
-    all: unset;
-    box-sizing: border-box;
-    position: relative;
-    flex-shrink: 0;
-    width: var(--state-toggle-width);
-    height: var(--state-toggle-height);
-    background-color: rgb(from var(--gunmetal) r g b / var(--opacity-whisper));
-    backdrop-filter: var(--blur-whisper);
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    transition:
-      background-color var(--duration-standard) var(--ease-standard),
-      box-shadow var(--duration-standard) var(--ease-standard);
-  }
-
-  /* The Switch Thumb */
-  .switch-thumb {
-    position: absolute;
-    top: var(--state-toggle-thumb-offset);
-    left: var(--state-toggle-thumb-offset);
-    width: var(--state-toggle-thumb-size);
-    height: var(--state-toggle-thumb-size);
-    background-color: var(--frisk);
-    border-radius: var(--radius-full);
-    transition:
-      transform var(--duration-standard) var(--ease-elastic),
-      background-color var(--duration-standard) var(--ease-standard);
-  }
-
-  /* Label Styling */
-  .label {
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-bold);
-    color: var(--frozen);
-    letter-spacing: var(--font-spacing-loose);
-    text-transform: uppercase;
-    white-space: nowrap;
-    transition: color var(--duration-standard) var(--ease-standard);
-  }
-
-  /* --- STATES --- */
-
-  /* Hover Interaction */
-  .root:hover:not(.is-disabled) .switch-thumb {
-    filter: var(--brightness-glow);
-  }
-
-  .root:hover:not(.is-disabled) .label {
-    color: var(--pure-white);
-  }
-
-  /* Checked Appearance */
-  .switch-root[data-state="checked"] {
-    background-color: rgb(from var(--frozen) r g b / var(--opacity-whisper));
-  }
-
-  .switch-root[data-state="checked"] .switch-thumb {
-    background-color: var(--pure-white);
-    /* stylelint-disable scss/operator-no-newline-after, scss/operator-no-unspaced */
-    transform: translateX(
-      calc(
-        var(--state-toggle-width) - var(--state-toggle-thumb-size) -
-          (var(--state-toggle-thumb-offset) * 2)
-      )
-    );
-    /* stylelint-enable scss/operator-no-newline-after, scss/operator-no-unspaced */
-    box-shadow: 0 0 var(--spacing-unit) rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-  }
-
-  /* Accessibility Focus */
-  .switch-root:focus-visible {
-    outline: var(--border-width-base) solid var(--frozen);
-    outline-offset: var(--border-width-base);
-  }
-</style>

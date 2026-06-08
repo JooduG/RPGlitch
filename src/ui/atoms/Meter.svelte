@@ -32,28 +32,23 @@
   {min}
   {max}
   class="
-    root
-    svelte-meter
+    relative
+    w-full
+    overflow-hidden
 
     {className}"
   {style}
   {...rest}
 >
-  <div class="indicator" style="width: {percentage}%;"></div>
+  <div
+    class="
+      h-full
+      bg-(--signature-color,var(--dev-accent,#555d66))
+      shadow-[0_0_8px_var(--signature-color,var(--dev-accent,#555d66))]
+      transition-[width]
+      duration-150
+      ease-in-out
+    "
+    style="width: {percentage}%;"
+  ></div>
 </Meter.Root>
-
-<style>
-  :global(.svelte-meter) {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-  }
-
-  :global(.svelte-meter .indicator) {
-    height: 100%;
-    background: var(--signature-color, var(--dev-accent, var(--frozen)));
-    box-shadow: 0 0 calc(var(--spacing-unit) * 2)
-      var(--signature-color, var(--dev-accent, var(--frozen)));
-    transition: width var(--duration-fast) var(--ease-standard);
-  }
-</style>

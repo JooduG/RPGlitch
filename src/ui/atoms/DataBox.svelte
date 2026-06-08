@@ -1,7 +1,7 @@
 ﻿<script>
   /**
    * @file src/ui/devmode/DataBox.svelte
-   * ðŸ“¦ DATABOX ATOM
+   * 📦 DATABOX ATOM
    * A standardized frosted container for informational blocks.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
@@ -20,75 +20,66 @@
 
 <div
   class="
-    root
+    flex
+    w-full
+    flex-col
+    overflow-hidden
+    rounded-sm
+    border
+    border-solid
+    border-white/10
+    bg-zinc-900/40
+    text-left
+    font-mono
+    backdrop-blur-sm
+    transition-all
+    duration-300
+    ease-in-out
 
     {className}"
-  style="--box-height: {height}; --box-max-height: {maxHeight}"
+  style="height: {height}; max-height: {maxHeight}"
 >
   {#if label}
-    <header class="header">{label}</header>
+    <header
+      class="
+        border-b
+        border-solid
+        border-white/10
+        bg-white/10
+        px-4
+        py-1
+        text-xs
+        font-extrabold
+        tracking-wider
+        text-[#f2f7fa]
+        uppercase
+      "
+    >
+      {label}
+    </header>
   {/if}
-  <ScrollArea class="databox-scroll">
-    <div class="body" class:is-code={isCode}>
+  <ScrollArea
+    class="
+      flex-1
+      overflow-hidden
+    "
+  >
+    <div
+      class="
+        min-h-full
+        p-4
+        text-sm
+        leading-normal
+        text-[#f2f7fa]
+
+        [&_pre]:m-0
+        [&_pre]:font-[inherit]
+        [&_pre]:text-xs
+        [&_pre]:whitespace-pre-wrap
+
+        {isCode ? `bg-black/10` : ''}"
+    >
       {@render children()}
     </div>
   </ScrollArea>
 </div>
-
-<style>
-  /* --- ROOT CHASSIS --- */
-
-  .root {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    height: var(--box-height);
-    max-height: var(--box-max-height);
-    background: var(--glass-sunken);
-    border: var(--border-whisper);
-    border-radius: var(--radius-sharp);
-    overflow: hidden;
-    transition: all var(--duration-standard) var(--ease-standard);
-    text-align: left;
-    font-family: var(--font-family-mono);
-  }
-
-  /* --- HEADER --- */
-
-  .header {
-    padding: var(--padding-tight) var(--padding-standard);
-    background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    color: var(--frisk);
-    border-bottom: var(--border-width-base) solid var(--border-whisper);
-  }
-
-  /* --- BODY --- */
-
-  :global(.databox-scroll) {
-    flex: 1;
-    overflow: hidden;
-  }
-
-  .body {
-    padding: var(--padding-standard);
-    font-size: var(--font-size-small);
-    line-height: var(--font-height-base);
-    color: var(--frisk);
-    min-height: 100%;
-  }
-
-  .body.is-code {
-    background: rgb(from var(--void-black) r g b / var(--opacity-ghost));
-  }
-
-  :global(.body pre) {
-    margin: 0;
-    white-space: pre-wrap;
-    font-family: inherit;
-    font-size: var(--font-size-tiny);
-  }
-</style>

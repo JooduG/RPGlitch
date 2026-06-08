@@ -85,16 +85,55 @@
 
 <label
   class="
-    root{className}"
-  class:is-disabled={is_disabled || busy}
-  class:is-busy={busy}
+    group/slider
+    relative
+    flex
+    w-full
+    cursor-pointer
+    flex-col
+    justify-center
+    gap-1
+
+    {is_disabled || busy
+    ? `
+      opacity-30
+      grayscale
+    `
+    : ''}
+    {busy
+    ? `
+      cursor-wait
+      brightness-90
+      grayscale-50
+
+      *:pointer-events-none
+    `
+    : ''}
+    {className}"
   style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"
   data-testid={test_id}
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
   use:use_actions={actions}
 >
-  <span class="header">
+  <span
+    class="
+    mb-1
+    text-left
+    font-mono
+    text-xs
+    font-extrabold
+    tracking-wider
+    text-[#555d66]
+    uppercase
+    transition-colors
+    duration-300
+    ease-in-out
+    select-none
+
+    {!is_disabled ? 'group-hover/slider:text-white!' : ''}
+  "
+  >
     {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
 
@@ -109,13 +148,61 @@
     {...rest}
   >
     {#snippet child({ props })}
-      <div {...props} class="slider-root">
-        <span class="slider-track"></span>
+      <div
+        {...props}
+        class="
+        relative
+        flex
+        h-4
+        w-full
+        cursor-pointer
+        touch-none
+        items-center
+        select-none
+      "
+      >
+        <span
+          class="
+          relative
+          h-1
+          w-full
+          rounded-full
+          border-none
+          bg-[linear-gradient(to_right,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_0%,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_100%)]
+          shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]
+        "
+        ></span>
         <Slider.Thumb index={0}>
           {#snippet child({ props: thumbProps })}
             <span
               {...thumbProps}
-              class="slider-thumb"
+              class="
+                absolute
+                h-4
+                w-4
+                scale-100
+                cursor-pointer
+                rounded-full
+                border-none
+                transition-[transform,filter]
+                duration-300
+                ease-in-out
+
+                {is_disabled
+                ? `
+                  bg-[#555d66]
+                  opacity-30
+                  shadow-none
+                `
+                : `
+                  bg-white
+                  shadow-[0_2px_8px_rgba(0,0,0,0.4)]
+
+                  group-hover/slider:brightness-110!
+
+                  active:scale-110
+                `}
+              "
               style="{thumbProps.style}; top: 50%; transform: translate(-50%, -50%);"
             ></span>
           {/snippet}
@@ -124,114 +211,3 @@
     {/snippet}
   </Slider.Root>
 </label>
-
-<style>
-  .root {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    position: relative;
-    width: 100%;
-    gap: var(--gap-tight);
-    cursor: pointer;
-  }
-
-  .root.is-disabled {
-    opacity: var(--opacity-whisper);
-    filter: grayscale(1);
-    cursor: default;
-  }
-
-  .root.is-busy {
-    cursor: wait;
-    filter: var(--brightness-dim) grayscale(0.5);
-  }
-
-  .root.is-busy > * {
-    pointer-events: none;
-  }
-
-  /* --- ELEMENTS --- */
-
-  .header {
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-tiny);
-    color: var(--frozen);
-    text-transform: uppercase;
-    text-align: left;
-    letter-spacing: var(--font-spacing-loose);
-    font-weight: var(--font-weight-bold);
-    transition: color var(--duration-standard) var(--ease-standard);
-    user-select: none;
-    margin-bottom: var(--margin-tight);
-  }
-
-  /* Hover state for label */
-  .root:hover:not(.is-disabled) .header {
-    color: var(--pure-white);
-  }
-
-  /* Interactive base layout area replacing transparent range input */
-  .slider-root {
-    display: flex;
-    align-items: center;
-    position: relative;
-    width: 100%;
-    height: var(--slider-thumb-size);
-    touch-action: none;
-    user-select: none;
-    cursor: pointer;
-  }
-
-  /* Track Styling */
-  .slider-track {
-    position: relative;
-    width: 100%;
-    height: var(--slider-track-height);
-    background: linear-gradient(
-      to right,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 0%,
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-start),
-      var(--slider-fill-color-start) var(--state-fill-start),
-      var(--slider-fill-color-start) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) var(--state-fill-end),
-      rgb(from var(--slider-fill-color-end) r g b / var(--opacity-whisper)) 100%
-    );
-    box-shadow: inset 0 var(--border-width-base) var(--border-width-base)
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    border-radius: var(--radius-full);
-    border: none;
-  }
-
-  /* Thumb Styling */
-  .slider-thumb {
-    position: absolute;
-    width: var(--slider-thumb-size);
-    height: var(--slider-thumb-size);
-    background: var(--pure-white);
-    border-radius: var(--radius-full);
-    cursor: pointer;
-    box-shadow: var(--slider-thumb-shadow);
-    border: none;
-    transition:
-      transform var(--duration-standard) var(--ease-elastic),
-      filter var(--duration-standard) var(--ease-standard);
-  }
-
-  /* --- STATES --- */
-
-  .root:hover:not(.is-disabled) .slider-thumb {
-    filter: var(--brightness-glow);
-  }
-
-  .slider-thumb:active:not(:disabled) {
-    transform: translate(-50%, -50%) var(--scale-lift);
-  }
-
-  .root.is-disabled .slider-thumb {
-    background: var(--frozen);
-    opacity: var(--opacity-whisper);
-    box-shadow: none;
-    border: none;
-  }
-</style>

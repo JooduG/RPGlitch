@@ -148,7 +148,7 @@
           avoidCollisions={true}
           strategy="fixed"
           forceMount
-        > 
+        >
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
               <div {...wrapperProps}>
