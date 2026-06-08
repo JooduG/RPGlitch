@@ -60,8 +60,8 @@
       class="
         relative
         flex-1
-        rounded-xl
-        bg-[#555d66]
+        rounded-[var(--radius-standard)]
+        bg-[var(--signature-color,var(--frozen))]
         opacity-30
         transition-opacity
         duration-150

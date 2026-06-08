@@ -57,11 +57,11 @@
       flex-col
       items-center
       justify-center
-      gap-4
+      gap-[var(--gap-standard)]
       overflow-visible
       border-none
       bg-transparent
-      p-4
+      p-[var(--padding-standard)]
       shadow-none
     "
   >
@@ -81,16 +81,16 @@
     {#if state.caption}
       <div
         class="
-        z-50
-        max-w-[80%]
-        rounded
-        bg-black/30
-        p-4
-        text-center
-        text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)]
-        text-[#f2f7fa]
-        shadow-[0_4px_16px_rgba(0,0,0,0.3)]
-      "
+          z-50
+          max-w-[80%]
+          rounded
+          bg-black/30
+          p-[var(--padding-standard)]
+          text-center
+          text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)]
+          text-[var(--font-color-base)]
+          shadow-[0_4px_16px_rgba(0,0,0,0.3)]
+        "
       >
         {state.caption}
       </div>

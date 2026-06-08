@@ -33,17 +33,17 @@
       cursor-pointer
       items-center
       justify-between
-      gap-2
-      rounded-xl
+      gap-[var(--gap-tight)]
+      rounded-[var(--radius-standard)]
       border
       border-solid
       border-transparent
-      bg-(--signature-color,#555d66)
-      px-4
+      bg-[var(--signature-color,var(--frozen))]
+      px-[var(--padding-standard)]
       py-2
       text-left
       font-sans
-      text-sm
+      text-[var(--font-size-base)]
       font-extrabold
       text-white
       transition-all
@@ -105,7 +105,7 @@
                 max-h-36
                 flex-col
                 overflow-hidden
-                rounded-xl
+                rounded-[var(--radius-standard)]
                 border
                 border-solid
                 border-white/10
@@ -128,17 +128,17 @@
                         cursor-pointer
                         items-center
                         justify-between
-                        gap-4
+                        gap-[var(--gap-standard)]
                         rounded-none
                         border-b
                         border-solid
                         border-white/10
-                        px-4
+                        px-[var(--padding-standard)]
                         py-2
                         text-left
                         font-sans
-                        text-sm
-                        text-[#f2f7fa]
+                        text-[var(--font-size-base)]
+                        text-[var(--font-color-base)]
                         transition-all
                         duration-150
                         ease-in-out
@@ -183,13 +183,13 @@
                             flex-row
                             flex-wrap
                             justify-end
-                            gap-2
+                            gap-[var(--gap-tight)]
                             text-right
-                            text-xs
+                            text-[var(--font-size-small)]
                             leading-none
                             font-extrabold
                             tracking-wider
-                            text-[#555d66]
+                            text-[var(--font-color-muted)]
                             uppercase
                           "
                         >

@@ -78,7 +78,7 @@
     w-full
     flex-col
     overflow-hidden
-    rounded-xl
+    rounded-[var(--radius-standard)]
     border
     border-solid
     border-transparent
@@ -158,8 +158,8 @@
       justify-between
       overflow-hidden
       rounded-[12px_12px_0_0]
-      bg-(--state-dev-accent)
-      px-2
+      bg-[var(--state-dev-accent)]
+      px-[var(--padding-tight)]
       opacity-60
       transition-[height,opacity,background]
       duration-300
@@ -217,23 +217,23 @@
         w-full
         resize-none
         scrollbar-thin
-        scrollbar-thumb-[#363840]
+        scrollbar-thumb-[var(--gunmetal)]
         scrollbar-track-transparent
         overflow-x-hidden
         overflow-y-auto
         border-none
         bg-transparent
-        p-4
+        p-[var(--padding-standard)]
         text-left
         font-sans
-        text-sm
+        text-[var(--font-size-base)]
         leading-normal
         text-wrap
-        text-[#f2f7fa]
+        text-[var(--font-color-base)]
         outline-none
 
         placeholder:font-normal
-        placeholder:text-[#555d66]/30
+        placeholder:text-[var(--font-color-muted)]/30
         placeholder:italic
 
         focus:outline-none
@@ -241,10 +241,10 @@
         [&::-webkit-scrollbar]:h-2
         [&::-webkit-scrollbar]:w-2
 
-        [&::-webkit-scrollbar-thumb]:rounded-xl
-        [&::-webkit-scrollbar-thumb]:bg-[#363840]
+        [&::-webkit-scrollbar-thumb]:rounded-[var(--radius-standard)]
+        [&::-webkit-scrollbar-thumb]:bg-[var(--gunmetal)]
 
-        [&::-webkit-scrollbar-thumb:hover]:bg-[#f2f7fa]
+        [&::-webkit-scrollbar-thumb:hover]:bg-[var(--frisk)]
 
         [&::-webkit-scrollbar-track]:bg-transparent
 
@@ -274,13 +274,13 @@
           overflow-visible
           border-none
           bg-transparent
-          p-4
+          p-[var(--padding-standard)]
           text-left
           font-sans
-          text-sm
+          text-[var(--font-size-base)]
           leading-normal
           text-pretty
-          text-[#f2f7fa]
+          text-[var(--font-color-base)]
           outline-none
 
           focus:outline-none
@@ -343,7 +343,7 @@
           <span
             class="
               font-normal
-              text-[#555d66]/30
+              text-[var(--font-color-muted)]/30
               italic
             ">{placeholder}</span
           >

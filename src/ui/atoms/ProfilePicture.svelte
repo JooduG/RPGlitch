@@ -85,7 +85,7 @@
       w-full
       items-center
       justify-center
-      bg-(--signature-color,#555d66)
+      bg-[var(--signature-color,var(--frozen))]
     "
     aria-hidden="true"
   >

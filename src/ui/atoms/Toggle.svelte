@@ -45,8 +45,8 @@
     inline-flex
     cursor-pointer
     items-center
-    gap-4
-    py-1
+    gap-[var(--gap-standard)]
+    py-[var(--padding-tight)]
     transition-opacity
     duration-300
     ease-in-out
@@ -89,20 +89,18 @@
           box-border
           shrink-0
           cursor-pointer
-          rounded-full
+          rounded-[var(--radius-full)]
           bg-[#222326]/30
           backdrop-blur-sm
           transition-[background-color,box-shadow]
-
           duration-300
           ease-in-out
+
           focus-visible:outline
-
           focus-visible:outline-offset-1
+          focus-visible:outline-[var(--font-color-muted)]
 
-          focus-visible:outline-[#555d66]
-
-          data-[state=checked]:bg-[#555d66]/30
+          data-[state=checked]:bg-[var(--signature-color,var(--frozen))]/30
 
           {size === 'small'
           ? `
@@ -121,8 +119,8 @@
               {...thumbProps}
               class="
                 absolute
-                rounded-full
-                bg-[#f2f7fa]
+                rounded-[var(--radius-full)]
+                bg-[var(--frisk)]
                 transition-[transform,background-color]
                 duration-300
                 ease-[cubic-bezier(0.34,1.56,0.64,1)]
@@ -157,19 +155,19 @@
   {#if label}
     <span
       class="
-      font-sans
-      text-xs
-      font-extrabold
-      tracking-widest
-      whitespace-nowrap
-      text-[#555d66]
-      uppercase
-      transition-colors
-      duration-300
-      ease-in-out
+        font-sans
+        text-[var(--font-size-small)]
+        font-extrabold
+        tracking-widest
+        whitespace-nowrap
+        text-[var(--font-color-muted)]
+        uppercase
+        transition-colors
+        duration-300
+        ease-in-out
 
-      group-hover/toggle:text-white!
-    "
+        group-hover/toggle:text-white!
+      "
     >
       {label}
     </span>

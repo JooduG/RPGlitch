@@ -221,16 +221,17 @@
                       transform-gpu
                       rounded-md
                       border
-                      border-slate-400
-                      bg-slate-900/98
-                      px-2
-                      py-1.5
+                      border-white/10
+                      bg-zinc-900/98
+                      px-[var(--padding-tight)]
+                      py-[1.5px]
                       text-center
                       font-sans
-                      text-xs/normal
+                      text-[var(--font-size-small)]
+                      leading-normal
                       tracking-normal
                       whitespace-normal
-                      text-slate-100
+                      text-[var(--font-color-base)]
                       normal-case
                       backface-hidden
                     "

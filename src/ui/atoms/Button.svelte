@@ -78,34 +78,34 @@
     cursor-pointer
     items-center
     justify-center
-    gap-4
+    gap-[var(--gap-standard)]
     rounded-[16px]
     border
     border-solid
     border-transparent
     bg-transparent
-    px-4
+    px-[var(--padding-standard)]
     font-[inherit]
-    text-sm
+    text-[var(--font-size-base)]
     leading-normal
     font-extrabold
-    text-[#f2f7fa]
+    text-[var(--font-color-base)]
     no-underline
     shadow-[0_4px_16px_rgba(0,0,0,0.3)]
     select-none
 
     hover:brightness-110
+
     focus-visible:outline
     focus-visible:outline-offset-1
-
     focus-visible:outline-white
+
     active:scale-[0.96]
+
     disabled:pointer-events-none
     disabled:transform-none
     disabled:opacity-30
-
     disabled:shadow-none
-
     disabled:grayscale
 
     data-[kinetic=true]:active:scale-100
@@ -123,38 +123,43 @@
     : ''}
     {variant === 'primary'
     ? `
-      bg-[#555d66]
+      bg-[var(--signature-color,var(--frozen))]
 
-      hover:border-[#f2f7fa]
+      hover:border-[var(--font-color-base)]
     `
     : ''}
     {variant === 'secondary'
-    ? 'bg-(--signature-color,#555d66) hover:border-[#f2f7fa]'
-    : ''} {variant === 'danger'
     ? `
-      bg-[#555d66]
+      bg-[var(--signature-color,var(--frozen))]
 
-      hover:border-[#f2f7fa]
+      hover:border-[var(--font-color-base)]
+    `
+    : ''}
+    {variant === 'danger'
+    ? `
+      bg-[var(--signature-color,var(--frozen))]
+
+      hover:border-[var(--font-color-base)]
       hover:bg-[#ef4444]
-      hover:text-[#f2f7fa]
+      hover:text-[var(--font-color-base)]
       hover:shadow-[0_0_16px_rgba(239,68,68,0.6)]
     `
     : ''}
     {variant === 'invisible'
     ? `
       bg-transparent
-      text-[#555d66]
+      text-[var(--font-color-muted)]
       shadow-none
 
       hover:bg-transparent
-      hover:text-[#f2f7fa]
+      hover:text-[var(--font-color-base)]
       hover:brightness-110
     `
     : ''}
     {size === 'small'
     ? `
-      px-2
-      text-xs
+      px-[var(--padding-tight)]
+      text-[var(--font-size-small)]
     `
     : ''}
     {square
@@ -171,9 +176,9 @@
     `
     : square
       ? `
-      h-12
-      w-12
-    `
+        h-12
+        w-12
+      `
       : ''}
     {full_width
     ? `
@@ -208,7 +213,7 @@
     ? `
       border-none
       bg-transparent
-      text-[#f2f7fa]
+      text-[var(--font-color-base)]
       opacity-60
       shadow-none
       transition-[transform,color,opacity]
@@ -217,23 +222,23 @@
 
       hover:scale-[1.02]
       hover:opacity-100
+
       active:scale-[0.96]
 
       disabled:transform-none
       disabled:cursor-not-allowed
-
-      disabled:text-[#555d66]
-
+      disabled:text-[var(--font-color-muted)]
       disabled:opacity-10
 
       data-[kinetic=true]:hover:scale-100
 
       data-[kinetic=true]:active:scale-100
-      [&_svg]:fill-[#f2f7fa]
+
+      [&_svg]:fill-[var(--font-color-base)]
       [&_svg]:transition-colors
       [&_svg]:duration-300
 
-      [&_svg]:disabled:fill-[#555d66]
+      [&_svg]:disabled:fill-[var(--font-color-muted)]
     `
     : ''}
     {className}"

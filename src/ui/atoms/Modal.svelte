@@ -97,10 +97,10 @@
                       cursor-default
                       flex-col
                       justify-between
-                      gap-4
+                      gap-[var(--gap-standard)]
                       overflow-hidden
-                      rounded-xl
-                      p-4
+                      rounded-[var(--radius-standard)]
+                      p-[var(--padding-standard)]
                       transition-[filter]
                       duration-300
                       [view-transition-name:modal-container]

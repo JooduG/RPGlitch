@@ -24,7 +24,7 @@
     w-full
     flex-col
     overflow-hidden
-    rounded-sm
+    rounded-[var(--radius-sharp)]
     border
     border-solid
     border-white/10
@@ -46,12 +46,12 @@
         border-solid
         border-white/10
         bg-white/10
-        px-4
-        py-1
-        text-xs
+        px-[var(--padding-standard)]
+        py-[var(--padding-tight)]
+        text-[var(--font-size-small)]
         font-extrabold
         tracking-wider
-        text-[#f2f7fa]
+        text-[var(--font-color-base)]
         uppercase
       "
     >
@@ -67,14 +67,14 @@
     <div
       class="
         min-h-full
-        p-4
-        text-sm
+        p-[var(--padding-standard)]
+        text-[var(--font-size-base)]
         leading-normal
-        text-[#f2f7fa]
+        text-[var(--font-color-base)]
 
         [&_pre]:m-0
         [&_pre]:font-[inherit]
-        [&_pre]:text-xs
+        [&_pre]:text-[var(--font-size-small)]
         [&_pre]:whitespace-pre-wrap
 
         {isCode ? `bg-black/10` : ''}"

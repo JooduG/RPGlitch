@@ -118,21 +118,21 @@
 >
   <span
     class="
-    mb-1
-    text-left
-    font-mono
-    text-xs
-    font-extrabold
-    tracking-wider
-    text-[#555d66]
-    uppercase
-    transition-colors
-    duration-300
-    ease-in-out
-    select-none
+      mb-1
+      text-left
+      font-mono
+      text-[var(--font-size-small)]
+      font-extrabold
+      tracking-wider
+      text-[var(--font-color-muted)]
+      uppercase
+      transition-colors
+      duration-300
+      ease-in-out
+      select-none
 
-    {!is_disabled ? 'group-hover/slider:text-white!' : ''}
-  "
+      {!is_disabled ? 'group-hover/slider:text-white!' : ''}
+    "
   >
     {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
@@ -151,26 +151,26 @@
       <div
         {...props}
         class="
-        relative
-        flex
-        h-4
-        w-full
-        cursor-pointer
-        touch-none
-        items-center
-        select-none
-      "
+          relative
+          flex
+          h-4
+          w-full
+          cursor-pointer
+          touch-none
+          items-center
+          select-none
+        "
       >
         <span
           class="
-          relative
-          h-1
-          w-full
-          rounded-full
-          border-none
-          bg-[linear-gradient(to_right,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_0%,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_100%)]
-          shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]
-        "
+            relative
+            h-1
+            w-full
+            rounded-[var(--radius-full)]
+            border-none
+            bg-[linear-gradient(to_right,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_0%,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_100%)]
+            shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]
+          "
         ></span>
         <Slider.Thumb index={0}>
           {#snippet child({ props: thumbProps })}
@@ -182,7 +182,7 @@
                 w-4
                 scale-100
                 cursor-pointer
-                rounded-full
+                rounded-[var(--radius-full)]
                 border-none
                 transition-[transform,filter]
                 duration-300
@@ -190,7 +190,7 @@
 
                 {is_disabled
                 ? `
-                  bg-[#555d66]
+                  bg-[var(--signature-color,var(--frozen))]
                   opacity-30
                   shadow-none
                 `

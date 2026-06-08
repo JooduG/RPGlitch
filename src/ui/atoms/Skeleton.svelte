@@ -23,10 +23,10 @@
 
   // Architectural variant dictionary for zero-drift token realization mapped to Tailwind v4
   const variantClasses = {
-    card: "rounded-xl min-h-[200px]",
-    hero: "rounded-xl min-h-[160px]",
-    "profile-picture": "rounded-full aspect-square w-12 h-12",
-    circle: "rounded-full aspect-square w-12 h-12",
+    card: "rounded-[var(--radius-standard)] min-h-[200px]",
+    hero: "rounded-[var(--radius-standard)] min-h-[160px]",
+    "profile-picture": "rounded-[var(--radius-full)] aspect-square w-12 h-12",
+    circle: "rounded-[var(--radius-full)] aspect-square w-12 h-12",
     text: "h-4 mb-2 rounded w-[60%]",
   };
 
@@ -40,7 +40,7 @@
     isolate
     min-h-4
     overflow-hidden
-    rounded-xl
+    rounded-[var(--radius-standard)]
     border
     border-solid
     border-white/10

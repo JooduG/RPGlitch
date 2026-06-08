@@ -43,8 +43,8 @@
   <div
     class="
       h-full
-      bg-(--signature-color,var(--dev-accent,#555d66))
-      shadow-[0_0_8px_var(--signature-color,var(--dev-accent,#555d66))]
+      bg-[var(--signature-color,var(--dev-accent,var(--frozen)))]
+      shadow-[0_0_8px_var(--signature-color,var(--dev-accent,var(--frozen)))]
       transition-[width]
       duration-150
       ease-in-out
