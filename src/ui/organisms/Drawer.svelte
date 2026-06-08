@@ -182,8 +182,8 @@
   }
 
   .drawer.is-retracted {
-    visibility: hidden !important;
-    pointer-events: none !important;
+    visibility: hidden;
+    pointer-events: none;
   }
 
   /* --- HEADER --- */
