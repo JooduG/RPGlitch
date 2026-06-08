@@ -164,18 +164,18 @@
                 >
                   <div
                     class="absolute left-1/2 z-0 h-0 w-0 -translate-x-1/2 {side === 'bottom'
-                      ? '-top-2 border-x-8 border-b-8 border-x-transparent border-b-slate-400'
-                      : '-bottom-2 border-x-8 border-t-8 border-x-transparent border-t-slate-400'}"
+                      ? '-top-2 border-x-8 border-b-8 border-x-transparent border-b-[var(--frozen)]'
+                      : '-bottom-2 border-x-8 border-t-8 border-x-transparent border-t-[var(--frozen)]'}"
                   >
                     <div
                       class="absolute left-1/2 h-0 w-0 -translate-x-1/2 {side === 'bottom'
-                        ? 'top-px border-x-8 border-b-8 border-x-transparent border-b-slate-900'
-                        : 'bottom-px border-x-8 border-t-8 border-x-transparent border-t-slate-900'}"
+                        ? 'top-px border-x-8 border-b-8 border-x-transparent border-b-[var(--chalk)]'
+                        : 'bottom-px border-x-8 border-t-8 border-x-transparent border-t-[var(--chalk)]'}"
                     ></div>
                   </div>
 
                   <div
-                    class="isolate w-max max-w-60 transform-gpu rounded-md border border-slate-400 bg-slate-900/98 px-2 py-1.5 text-center font-sans text-xs leading-normal tracking-normal whitespace-normal text-slate-100 normal-case backface-hidden"
+                    class="isolate w-max max-w-60 transform-gpu rounded-md border border-[var(--frozen)] bg-[var(--chalk)]/98 px-2 py-1.5 text-center font-sans text-xs leading-normal tracking-normal whitespace-normal text-[var(--frisk)] normal-case backface-hidden"
                   >
                     {tooltip_state.text}
                   </div>
