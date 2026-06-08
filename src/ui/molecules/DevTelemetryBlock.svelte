@@ -291,7 +291,7 @@
 
   :global(.resonance-pulse) {
     animation: pulse-resonance 3s infinite var(--motion-elastic);
-    border-color: var(--signature-color) !important;
+    border-color: var(--signature-color);
   }
 
   .resonance-header {
@@ -313,8 +313,8 @@
   }
 
   .resonance-item {
-    background: rgb(from var(--signature-color) r g b / var(--opacity-ghost)) !important;
-    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper)) !important;
+    background: rgb(from var(--signature-color) r g b / var(--opacity-ghost));
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     animation: slide-in var(--duration-standard) var(--motion-elastic) both;
   }
 

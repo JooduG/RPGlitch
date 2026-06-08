@@ -8,9 +8,9 @@
    */
   import { ProfilePicture, Skeleton, tooltip } from "@atoms";
   import { themeStore } from "@media";
-  import { app, runtime } from "@state";
-  import { StorymodeFeed, Layout } from "@organisms";
   import { UnifiedConsole } from "@molecules";
+  import { Layout, StorymodeFeed } from "@organisms";
+  import { app, runtime } from "@state";
 
   // --- ON MOUNT ---
   $effect(() => {
@@ -173,7 +173,7 @@
 
   /* Target ProfilePicture custom class to make background transparent so our panel background shows through */
   :global(.panel-pic .profile-placeholder) {
-    background-color: transparent !important;
-    background-image: none !important;
+    background-color: transparent;
+    background-image: none;
   }
 </style>

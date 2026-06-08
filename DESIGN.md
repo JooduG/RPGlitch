@@ -282,7 +282,7 @@ All interface copy must be clinical and concise. Use UI/UX keywords consistently
 
 The Chalk Regime UI layers have been migrated from raw DOM manipulations to standardized headless components powered by `bits-ui`. The layout aesthetics are strictly preserved using semantic selectors and data attributes mapped directly from the library engines:
 
-- **Tooltip Layer**: Powered by `bits-ui/Tooltip`. Container overlays query `.tooltip-container[data-side="bottom"]` and compile portalled tracking at `z-index: var(--z-index-max) !important` to ensure clearing modal context bounds cleanly.
+- **Tooltip Layer**: Powered by `bits-ui/Tooltip`. Container overlays query `.tooltip-container[data-side="bottom"]` and compile portalled tracking at `z-index: var(--z-index-max)` to ensure clearing modal context bounds cleanly.
 - **Modal Framework**: Driven by `bits-ui/Dialog`. Manages focus-trapping, portal distribution, and Escape-key dismissals natively. Transitions map via custom snippets into native `fly` / `scale` states.
 - **Alert Dialogs**: Reconfigured via `bits-ui/AlertDialog` for high-priority destructive validation steps (e.g., memory clearing). Enforces explicit semantic roles (`[role="alertdialog"]`) and handles button action traps safely.
 - **Switch Controls**: Unified under `bits-ui/Switch`. Targets `.switch-root` and `.switch-thumb` elements, utilizing `[data-state="checked"]` and pointer restrictions natively.
@@ -736,7 +736,7 @@ select:focus {
 }
 
 [data-motion-reduced="true"] .noise-overlay {
-  animation-play-state: paused !important;
+  animation-play-state: paused;
 }
 
 /* Custom view transition handling */
@@ -888,7 +888,7 @@ select:focus {
 :root.is-swapping-card .storyboard-card-ai,
 :root.is-swapping-card .storyboard-card-user,
 :root.is-swapping-card .storyboard-card-fractal {
-  view-transition-name: none !important;
+  view-transition-name: none;
 }
 
 /* --- Fluid Aspect and Sizing Transformations for Fractal Blooming --- */
@@ -903,7 +903,7 @@ select:focus {
 /* --- Processing Noise Velocity Scaling --- */
 .noise-overlay.is-generating {
   opacity: calc(var(--opacity-whisper) + 0.1);
-  animation-duration: 0.08s !important; /* Overdriven step speed cycle */
+  animation-duration: 0.08s; /* Overdriven step speed cycle */
 }
 
 /* --- Center Axis Delayed Fade-In Rule --- */

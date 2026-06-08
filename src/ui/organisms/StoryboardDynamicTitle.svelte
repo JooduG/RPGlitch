@@ -157,7 +157,7 @@
     padding: var(--padding-tight) var(--padding-standard);
 
     /* Typography */
-    font-family: Satisfy, cursive !important;
+    font-family: Satisfy, cursive;
     font-size: var(--font-size-h2);
     font-weight: var(--font-weight-base);
     text-align: center;
@@ -198,7 +198,7 @@
   }
 
   .entity {
-    font-family: Satisfy, cursive !important;
+    font-family: Satisfy, cursive;
     color: var(--signature-color);
     white-space: nowrap; /* Prevent breaking names across lines */
   }

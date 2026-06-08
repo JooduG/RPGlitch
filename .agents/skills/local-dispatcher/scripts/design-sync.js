@@ -120,7 +120,7 @@ export function syncToCss() {
   const css_header = `/* ============================================================================
  * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
- * ============================================================================ */\n\n:root {`;
+ * ============================================================================ */\n\n@import "tailwindcss";\n\n:root {`;
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;

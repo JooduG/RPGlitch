@@ -269,47 +269,47 @@
 
   /* --- Flank Button Modifier --- */
   :global(.svelte-button.flank) {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
+    background: transparent;
+    border: none;
+    box-shadow: none;
     transition:
       transform var(--duration-standard) var(--ease-elastic),
       color var(--duration-standard) var(--ease-standard),
-      opacity var(--duration-standard) var(--ease-standard) !important;
-    color: var(--frisk) !important;
+      opacity var(--duration-standard) var(--ease-standard);
+    color: var(--frisk);
     opacity: var(--opacity-muted);
   }
 
   :global(.svelte-button.flank svg),
   :global(.svelte-button.flank svg path) {
-    fill: var(--frisk) !important;
+    fill: var(--frisk);
     transition: fill var(--duration-standard) var(--ease-standard);
   }
 
   :global(.svelte-button.flank:hover:not(:disabled)) {
-    opacity: var(--opacity-solid) !important;
-    transform: var(--scale-lift) !important;
+    opacity: var(--opacity-solid);
+    transform: var(--scale-lift);
   }
 
   :global(.svelte-button.flank:active:not(:disabled)) {
-    transform: var(--scale-sink) !important;
+    transform: var(--scale-sink);
   }
 
   :global(.svelte-button.flank[data-kinetic="true"]:hover:not(:disabled)),
   :global(.svelte-button.flank[data-kinetic="true"]:active:not(:disabled)) {
-    transform: none !important;
+    transform: none;
   }
 
   :global(.svelte-button.flank:disabled) {
-    color: var(--frozen) !important;
-    opacity: var(--opacity-ghost) !important;
+    color: var(--frozen);
+    opacity: var(--opacity-ghost);
     cursor: not-allowed;
-    transform: none !important;
+    transform: none;
   }
 
   :global(.svelte-button.flank:disabled svg),
   :global(.svelte-button.flank:disabled svg path) {
-    fill: var(--frozen) !important;
+    fill: var(--frozen);
   }
 
   /* --- Global Resets --- */

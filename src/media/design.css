@@ -3,6 +3,8 @@
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
  * ============================================================================ */
 
+@import "tailwindcss";
+
 :root {
   /* --- COLORS --- */
   --background-gradient-1: #0b101a;
@@ -619,7 +621,7 @@ select:focus {
 }
 
 [data-motion-reduced="true"] .noise-overlay {
-  animation-play-state: paused !important;
+  animation-play-state: paused;
 }
 
 /* Custom view transition handling */
@@ -771,7 +773,7 @@ select:focus {
 :root.is-swapping-card .storyboard-card-ai,
 :root.is-swapping-card .storyboard-card-user,
 :root.is-swapping-card .storyboard-card-fractal {
-  view-transition-name: none !important;
+  view-transition-name: none;
 }
 
 /* --- Fluid Aspect and Sizing Transformations for Fractal Blooming --- */
@@ -786,7 +788,7 @@ select:focus {
 /* --- Processing Noise Velocity Scaling --- */
 .noise-overlay.is-generating {
   opacity: calc(var(--opacity-whisper) + 0.1);
-  animation-duration: 0.08s !important; /* Overdriven step speed cycle */
+  animation-duration: 0.08s; /* Overdriven step speed cycle */
 }
 
 /* --- Center Axis Delayed Fade-In Rule --- */

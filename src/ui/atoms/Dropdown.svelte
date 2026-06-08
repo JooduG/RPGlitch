@@ -4,8 +4,8 @@
    * ðŸ’§ THE CHALK REGIME SELECT PRIMITIVE
    * Standalone dropdown select atom using bits-ui/Select and Svelte 5.
    */
-  import { Select } from "bits-ui";
   import { ScrollArea } from "@atoms";
+  import { Select } from "bits-ui";
   import { scale } from "svelte/transition";
 
   let {
@@ -134,7 +134,7 @@
 
   :global(.dropdown-portal-wrapper) {
     /* Supreme z-index overlay to prevent collision under modal backdrops */
-    z-index: var(--z-index-max) !important;
+    z-index: var(--z-index-max);
   }
 
   /* --- DROPDOWN MENU --- */
@@ -159,7 +159,7 @@
   /* --- MENU ITEMS --- */
 
   :global(.dropdown-item) {
-    display: flex !important;
+    display: flex;
     align-items: center;
     justify-content: space-between;
     gap: var(--gap-standard);
@@ -183,8 +183,8 @@
 
   /* Hover / Highlighted (using bits-ui data attributes) */
   :global(.dropdown-item[data-highlighted]) {
-    background: var(--glass-sunken) !important;
-    color: var(--pure-white) !important;
+    background: var(--glass-sunken);
+    color: var(--pure-white);
     filter: var(--brightness-glow);
   }
 
@@ -192,8 +192,8 @@
   :global(.dropdown-item[data-selected="true"]),
   :global(.dropdown-item[data-state="checked"]),
   :global(.dropdown-item[aria-selected="true"]) {
-    background: var(--glass-base) !important;
-    color: var(--frisk) !important;
+    background: var(--glass-base);
+    color: var(--frisk);
     filter: var(--brightness-glow);
   }
 

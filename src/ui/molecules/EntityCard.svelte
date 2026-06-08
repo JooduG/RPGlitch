@@ -6,12 +6,12 @@
    * Standard: Ultra-Lean DOM, Svelte 5 `$props`, and Chalk Regime Enforcement.
    */
 
-  import { tick } from "svelte";
+  import { Button, ProfilePicture, tooltip } from "@atoms";
   import { guardedTransition } from "@engine";
-  import { ProfilePicture, Button, tooltip } from "@atoms";
   import { themeStore } from "@media";
   import { motion } from "@motion";
   import { app } from "@state";
+  import { tick } from "svelte";
 
   /**
    * @typedef {Object} Props
@@ -293,13 +293,13 @@
     &.is-library {
       width: calc(var(--storyboard-character-card-width) * 0.5);
       height: calc(var(--storyboard-character-card-height) * 0.5);
-      backdrop-filter: none !important; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
+      backdrop-filter: none; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
     }
 
     &.is-library.is-fractal {
       width: calc(var(--storyboard-fractal-card-width) * 0.5);
       height: calc(var(--storyboard-fractal-card-height) * 0.5);
-      backdrop-filter: none !important; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
+      backdrop-filter: none; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
     }
   }
 
@@ -314,21 +314,21 @@
   }
 
   .entity-card-root.disabled {
-    pointer-events: none !important;
-    filter: grayscale(1) brightness(0.7) opacity(0.5) !important;
-    transform: none !important;
-    box-shadow: none !important;
-    border-color: rgb(from var(--pure-white) r g b / 0.15) !important;
-    background: transparent !important;
+    pointer-events: none;
+    filter: grayscale(1) brightness(0.7) opacity(0.5);
+    transform: none;
+    box-shadow: none;
+    border-color: rgb(from var(--pure-white) r g b / 0.15);
+    background: transparent;
 
     /* Prevent any interior layer modifiers from bleeding through */
     &::after {
-      box-shadow: none !important;
-      border-color: transparent !important;
+      box-shadow: none;
+      border-color: transparent;
     }
 
     .visual-container {
-      filter: grayscale(1) opacity(0.2) !important;
+      filter: grayscale(1) opacity(0.2);
     }
   }
 
@@ -367,9 +367,9 @@
   .visual-container :global(img),
   .visual-container :global(.avatar-wrapper),
   .visual-container :global(.profile-picture) {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   /* --- PLACEHOLDER LAYER --- */
@@ -432,7 +432,7 @@
   }
 
   .card-hud-panel .primary-title {
-    color: var(--signature-color, var(--frisk)) !important;
+    color: var(--signature-color, var(--frisk));
     text-shadow: var(--shadow-font);
     font-family: var(--font-family-heading);
     font-weight: var(--font-weight-bold);
@@ -440,7 +440,7 @@
     letter-spacing: var(--font-spacing-loose);
 
     /* ðŸ›¡ï¸ Impactful, fluid typography scale for full-sized Storyboard cards */
-    font-size: clamp(var(--font-size-base), 12cqi, var(--font-size-h2)) !important;
+    font-size: clamp(var(--font-size-base), 12cqi, var(--font-size-h2));
     white-space: normal;
     display: -webkit-box;
     -webkit-line-clamp: 3;
@@ -448,13 +448,13 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
     overflow-wrap: break-word;
-    line-height: 1.15 !important;
+    line-height: 1.15;
     text-align: center;
     width: 100%;
   }
 
   .entity-card-root.is-empty .card-hud-panel .primary-title {
-    color: var(--pure-white) !important;
+    color: var(--pure-white);
     opacity: var(--opacity-whisper);
     transition: opacity var(--duration-standard) var(--ease-standard);
   }
@@ -487,33 +487,33 @@
 
   /* --- CONTEXTUAL VARIANT MULTIPLIERS --- */
   .entity-card-root.is-fractal .card-hud-panel {
-    height: auto !important;
+    height: auto;
     min-height: 40%;
-    padding-top: var(--padding-standard) !important;
+    padding-top: var(--padding-standard);
     background: linear-gradient(
       to top,
       var(--chalk) 0%,
       rgb(from var(--chalk) r g b / var(--opacity-solid)) 60%,
       transparent 100
-    ) !important;
+    );
   }
 
   .is-library .card-hud-panel {
-    display: flex !important;
-    height: 40% !important;
-    padding: var(--padding-tight) var(--padding-standard) !important;
+    display: flex;
+    height: 40%;
+    padding: var(--padding-tight) var(--padding-standard);
   }
 
   .is-library .secondary-desc {
-    max-height: 0 !important;
-    opacity: 0 !important;
-    margin: 0 !important;
+    max-height: 0;
+    opacity: 0;
+    margin: 0;
   }
 
   .is-library .primary-title {
-    font-size: var(--font-size-small) !important;
-    letter-spacing: var(--font-spacing-base) !important;
-    line-height: 1.2 !important;
+    font-size: var(--font-size-small);
+    letter-spacing: var(--font-spacing-base);
+    line-height: 1.2;
   }
 
   /* --- ACTIONS TOOLBAR --- */
@@ -555,13 +555,13 @@
 
   /* 1. Tension Build-Up (Absorbing the Touch) */
   .entity-card-root.is-pressing {
-    transform: scale(0.96) !important;
-    border-color: rgb(from var(--signature-color) r g b / var(--opacity-solid)) !important;
+    transform: scale(0.96);
+    border-color: rgb(from var(--signature-color) r g b / var(--opacity-solid));
   }
 
   /* 2. The Launch Reveal (Ejecting from the Server Rack Matrix) */
   .entity-card-root.is-launching {
-    z-index: var(--z-index-overlay) !important;
+    z-index: var(--z-index-overlay);
     animation: rack-pull-eject var(--duration-standard) var(--ease-elastic) forwards;
   }
 

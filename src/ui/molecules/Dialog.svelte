@@ -158,7 +158,7 @@
     transition: filter var(--duration-standard);
 
     /* Extreme z-index overlay to prevent collision under parent modal layers */
-    z-index: var(--z-index-max) !important;
+    z-index: var(--z-index-max);
   }
 
   /* Nordic Collection Noise Texture */

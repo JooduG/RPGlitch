@@ -5,9 +5,9 @@
    * Central view orchestration shell executing view-switching logic natively.
    */
   import { ImagePreview, Tooltip } from "@atoms";
-  import { Profile, Storyboard, Storymode, ControlPanel } from "@organisms";
-  import { app } from "@state";
   import { motion } from "@motion";
+  import { ControlPanel, Profile, Storyboard, Storymode } from "@organisms";
+  import { app } from "@state";
 
   // --- DERIVED RUNES ---
 
@@ -180,7 +180,7 @@
       [row-1] 1fr [row-2] 1fr [row-3] 1fr [row-4] 1fr [row-5] 1fr [row-6] 1fr
       [row-7] 1fr [row-8] 1fr [row-9] 1fr [row-10] 1fr [row-11] 1fr [row-12] 1fr [row-end];
     pointer-events: none;
-    z-index: var(--z-index-max) !important;
+    z-index: var(--z-index-max);
     opacity: var(--opacity-whisper);
     border: var(--spacing-pixel) dashed var(--frozen);
     background-image: radial-gradient(

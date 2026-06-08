@@ -20,7 +20,7 @@ module.exports = {
     },
     {
       // THE CHALK REGIME EXEMPTION:
-      // We must allow raw values ONLY in the media files where the tokens are born.
+      // Raw values allowed in media files (token birthplace) and Tailwind entry.
       files: ["src/media/**/*.css"],
       rules: {
         "scale-unlimited/declaration-strict-value": null,
@@ -124,6 +124,9 @@ module.exports = {
           "l",
           "/",
           ",",
+          // TAILWIND MIGRATION: Allow plain positive integers for z-index overrides
+          // needed when fighting bits-ui inline style specificity (e.g. z-index: 999).
+          "/^[1-9][0-9]*$/",
         ],
         message:
           "RPGlitch Engine [FATAL]: Raw values hallucinated! You MUST use a variable from design.css (e.g., var(--spacing-4)). Halt and read the tokens file.",

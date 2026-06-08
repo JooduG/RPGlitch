@@ -7,10 +7,10 @@
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, themeStore } from "@media";
-  import { app, runtime } from "@state";
   import { motion, typewriter } from "@motion";
+  import { app, runtime } from "@state";
 
-  import { Button, TextField, tooltip, DataBox } from "@atoms";
+  import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
 
   /**
@@ -608,7 +608,7 @@
 
   /* Ghost Icon Lighting */
   .header-actions :global(button) {
-    color: var(--pure-white) !important;
+    color: var(--pure-white);
     opacity: 0.8;
     transition:
       opacity var(--duration-standard) var(--ease-standard),
@@ -616,25 +616,25 @@
   }
 
   .header-actions :global(button:hover) {
-    color: var(--pure-white) !important;
+    color: var(--pure-white);
     opacity: 1;
     transform: var(--scale-pulse);
   }
 
   .header-actions :global(button svg) {
-    color: var(--pure-white) !important;
+    color: var(--pure-white);
   }
 
   .header-actions :global(button svg *) {
-    stroke: var(--pure-white) !important;
+    stroke: var(--pure-white);
     fill: none;
   }
 
   .header-actions :global(button svg polygon),
   .header-actions :global(button svg path[fill="currentColor"]),
   .header-actions :global(button svg[fill="currentColor"]) {
-    fill: var(--pure-white) !important;
-    stroke: none !important;
+    fill: var(--pure-white);
+    stroke: none;
   }
 
   /* --- BODY LOGIC --- */

@@ -2,7 +2,6 @@
  * RPGlitch Main Entry Point (Vite)
  * Handles core library exposure and database initialization.
  */
-import "@media/tailwind.css";
 import "@media/design.css";
 import Dexie from "dexie";
 import DOMPurify from "dompurify";

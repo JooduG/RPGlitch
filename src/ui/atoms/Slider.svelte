@@ -15,8 +15,8 @@
    * @property {(e: Event & { currentTarget: HTMLInputElement }) => void} [onchange] - Change callback.
    */
 
-  import { controlState } from "@state";
   import { use_actions } from "@actions";
+  import { controlState } from "@state";
   import { Slider } from "bits-ui";
 
   /** @type {Props} */
@@ -84,7 +84,7 @@
 </script>
 
 <label
-  class="root {className}"
+  class="root{className}"
   class:is-disabled={is_disabled || busy}
   class:is-busy={busy}
   style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"
@@ -224,7 +224,7 @@
   }
 
   .slider-thumb:active:not(:disabled) {
-    transform: translate(-50%, -50%) var(--scale-lift) !important;
+    transform: translate(-50%, -50%) var(--scale-lift);
   }
 
   .root.is-disabled .slider-thumb {

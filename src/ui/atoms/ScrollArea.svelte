@@ -55,7 +55,7 @@
     padding: var(--spacing-pixel);
     background: var(--glass-sunken);
     transition: background var(--duration-fast);
-    z-index: var(--z-index-elevated) !important;
+    z-index: var(--z-index-elevated);
   }
 
   :global(.scroll-area-track[data-orientation="vertical"]) {

@@ -5,11 +5,11 @@
    * Replaces the legacy slide-up drawer with an immersive, orbital card-fan engine.
    * Standard: Fine-grained Svelte 5 Reactivity & Kinetic Geometry.
    */
+  import { Backdrop } from "@atoms";
   import { create_new, entities as repository } from "@data";
+  import { EntityCard } from "@molecules";
   import { motion } from "@motion";
   import { app } from "@state";
-  import { Backdrop } from "@atoms";
-  import { EntityCard } from "@molecules";
 
   // --- RUNES & CORE VIEW ENGINE CONNECTIONS ---
   let is_open = $derived(app.drawer.open);
@@ -246,8 +246,8 @@
   }
 
   .deck-overlay.is-reduced {
-    transition: opacity var(--duration-standard) var(--ease-standard) !important;
-    transform: translateY(0) !important;
+    transition: opacity var(--duration-standard) var(--ease-standard);
+    transform: translateY(0);
   }
 
   /* --- SYSTEM CONSOLE TEXT MODULE --- */
@@ -322,11 +322,11 @@
   }
 
   .card-wrapper.interactable-node:hover {
-    z-index: var(--z-index-max) !important;
+    z-index: var(--z-index-max);
   }
 
   .card-wrapper.factory-node:hover {
-    z-index: var(--z-index-max) !important;
+    z-index: var(--z-index-max);
   }
 
   /* --- EXCLUSION BOUNDARY FILTER SHARDS --- */

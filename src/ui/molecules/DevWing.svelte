@@ -5,7 +5,7 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import { Button, Meter, tooltip, DataBox } from "@atoms";
+  import { Button, DataBox, Meter, tooltip } from "@atoms";
 
   /**
    * @typedef {Object} Props
@@ -236,14 +236,14 @@
     position: absolute;
     bottom: 0;
     left: 0;
-    height: var(--spacing-pixel) !important;
-    width: 100% !important;
+    height: var(--spacing-pixel);
+    width: 100%;
     z-index: var(--z-index-surface);
   }
 
   :global(.card .meter .indicator) {
-    background: var(--dev-accent) !important;
-    box-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--dev-accent) !important;
+    background: var(--dev-accent);
+    box-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--dev-accent);
   }
 
   .label {

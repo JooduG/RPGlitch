@@ -7,7 +7,9 @@
   "plugins": [
     "prettier-plugin-svelte",
     "prettier-plugin-sort-package-json",
-    "prettier-plugin-tailwindcss"
+    "prettier-plugin-tailwindcss",
+    "prettier-plugin-classnames",
+    "prettier-plugin-merge"
   ],
   "svelteSortOrder": "options-scripts-markup-styles",
   "svelteAllowShorthand": true,
