@@ -6,6 +6,7 @@
   "endOfLine": "auto",
   "plugins": [
     "prettier-plugin-svelte",
+    "prettier-plugin-markdown-html",
     "prettier-plugin-sort-package-json",
     "prettier-plugin-tailwindcss"
   ],
@@ -20,5 +21,6 @@
       }
     }
   ],
-  "tailwindStylesheet": "./src/media/design.css"
+  "tailwindStylesheet": "./src/media/design.css",
+  "tailwindPreserveWhitespace": true
 }

@@ -149,33 +149,63 @@
           strategy="fixed"
           forceMount
         >
-          {#snippet child({ wrapperProps, props, open, side })}
+          {#snippet child({ wrapperProps, props, open })}
             {#if open}
               <div
                 {...wrapperProps}
-                class="pointer-events-none fixed z-999 flex flex-col items-center transition-opacity duration-150 will-change-[transform,opacity] {open
-                  ? 'opacity-100'
-                  : 'opacity-0'}"
+                class="
+                  pointer-events-none fixed z-999 flex flex-col items-center
+                  transition-opacity duration-150
+                  will-change-[transform,opacity]
+                  {open ? 'opacity-100' : 'opacity-0'}"
               >
                 <div
                   {...props}
-                  class="drop-shadow-lg relative flex flex-col items-center"
+                  class="{props.class}
+                    group relative flex flex-col items-center drop-shadow-lg
+                  "
                   transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
                 >
                   <div
-                    class="w-0 h-0 absolute left-1/2 z-0 -translate-x-1/2 {side === 'bottom'
-                      ? 'border-b-slate-400 top-[-8px] border-x-8 border-b-8 border-x-transparent'
-                      : 'border-t-slate-400 bottom-[-8px] border-x-8 border-t-8 border-x-transparent'}"
+                    class="
+                      absolute left-1/2 z-0 size-0 -translate-x-1/2
+                      group-data-[side=bottom]:top-[-8px]
+                      group-data-[side=bottom]:border-x-8
+                      group-data-[side=bottom]:border-b-8
+                      group-data-[side=bottom]:border-x-transparent
+                      group-data-[side=bottom]:border-b-slate-400
+                      group-data-[side=top]:bottom-[-8px]
+                      group-data-[side=top]:border-x-8
+                      group-data-[side=top]:border-t-8
+                      group-data-[side=top]:border-x-transparent
+                      group-data-[side=top]:border-t-slate-400
+                    "
                   >
                     <div
-                      class="w-0 h-0 absolute left-1/2 -translate-x-1/2 {side === 'bottom'
-                        ? 'border-b-slate-900 top-px border-x-8 border-b-8 border-x-transparent'
-                        : 'border-t-slate-900 bottom-px border-x-8 border-t-8 border-x-transparent'}"
+                      class="
+                        absolute left-1/2 size-0 -translate-x-1/2
+                        group-data-[side=bottom]:top-px
+                        group-data-[side=bottom]:border-x-8
+                        group-data-[side=bottom]:border-b-8
+                        group-data-[side=bottom]:border-x-transparent
+                        group-data-[side=bottom]:border-b-slate-900
+                        group-data-[side=top]:bottom-px
+                        group-data-[side=top]:border-x-8
+                        group-data-[side=top]:border-t-8
+                        group-data-[side=top]:border-x-transparent
+                        group-data-[side=top]:border-t-slate-900
+                      "
                     ></div>
                   </div>
 
                   <div
-                    class="px-2 py-1.5 bg-slate-900/98 border-slate-400 rounded-md text-slate-100 text-xs font-sans tracking-normal leading-normal isolate w-max max-w-[240px] transform-gpu border text-center whitespace-normal normal-case backface-hidden"
+                    class="
+                      isolate w-max max-w-[240px] transform-gpu rounded-md
+                      border border-slate-400 bg-slate-900/98 px-2 py-1.5
+                      text-center font-sans text-xs/normal tracking-normal
+                      whitespace-normal text-slate-100 normal-case
+                      backface-hidden
+                    "
                   >
                     {tooltip_state.text}
                   </div>
