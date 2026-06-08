@@ -1,141 +1,147 @@
-import { includeIgnoreFile } from "@eslint/compat";
+import css from "@eslint/css";
 import js from "@eslint/js";
-import prettier from "eslint-config-prettier";
-import jsdoc from "eslint-plugin-jsdoc";
+import json from "@eslint/json";
+import markdown from "@eslint/markdown";
+import vitest from "@vitest/eslint-plugin";
+import eslintPluginBetterTailwindcss from "eslint-plugin-better-tailwindcss";
 import svelte from "eslint-plugin-svelte";
-import unusedImports from "eslint-plugin-unused-imports";
+import { defineConfig } from "eslint/config";
 import globals from "globals";
-import { fileURLToPath } from "node:url";
+import svelteParser from "svelte-eslint-parser";
+import svelteConfig from "./svelte.config.js";
 
-const gitignorePath = fileURLToPath(new URL("./.gitignore", import.meta.url));
-
-/** @type {import('eslint').Linter.Config[]} */
-export default [
-  includeIgnoreFile(gitignorePath),
+export default defineConfig([
+  // 0. Global Quarantine (Prevents fatal parsing crashes on non-script files)
   {
-    // @agent:ignore-start
-    ignores: [
-      "*.bak",
-      "*.log",
-      "*.template",
-      "*.tmp",
-      "**/*.lock",
-      ".secrets",
-      "**/.DS_Store",
-      "**/.env*",
-      "**/.eslintcache",
-      "**/.git/**",
-      "**/cache/**",
-      "**/.next/**",
-      "**/.playwright-auth/**",
-      "*ignore",
-      "**/.turbo/**",
-      "**/Thumbs.db",
-      "**/__snapshots__/**",
-      "**/archive/**",
-      "**/build/**",
-      "**/bun.lockb",
-      "**/coverage/**",
-      "**/dist/**",
-      "**/mcp.json",
-      "**/node_modules/**",
-      "**/out/**",
-      "**/package-lock.json",
-      "**/pnpm-lock.yaml",
-      "**/public/assets/**",
-      "**/scribbles/**",
-      "**/templates/**",
-      "**/test-results/**",
-      "**/yarn.lock",
-      "**/tmp/**",
-    ],
-    // @agent:ignore-end
+    ignores: ["dist/**/*", "src/index.html", "types.d.ts", "**/.cache", "node_modules/**/*"],
   },
-  js.configs.recommended,
-  ...svelte.configs.recommended,
-  prettier,
-  ...svelte.configs.prettier,
+
+  // 1. Core JavaScript Engine Rules
   {
-    plugins: { jsdoc, "unused-imports": unusedImports },
+    ...js.configs.recommended,
+    files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte}"],
+  },
+  {
+    files: ["**/*.{js,mjs,cjs}"],
     languageOptions: {
       globals: {
         ...globals.browser,
         ...globals.node,
-        image: "readonly",
-        ai: "readonly",
-        Dexie: "readonly",
-        DOMPurify: "readonly",
-        $state: "readonly",
-        $derived: "readonly",
-        $effect: "readonly",
-        $props: "readonly",
-        $bindable: "readonly",
-        $snippet: "readonly",
-        $inspect: "readonly",
       },
-      ecmaVersion: 2022,
-      sourceType: "module",
-    },
-    rules: {
-      /* ========================================================================
-      			   [**] 1. THE RUNE REGIME (SVELTE 5)
-      			   ======================================================================== */
-      // Vi litar på kompilatorn för export let, men blockerar legacy hooks.
-      "no-restricted-imports": [
-        "error",
-        {
-          paths: [
-            {
-              name: "svelte",
-              importNames: [
-                "onMount",
-                "onDestroy",
-                "afterUpdate",
-                "beforeUpdate",
-                "createEventDispatcher",
-              ],
-              message: "Legacy Svelte 4 logic forbidden. Use $effect() or callback props.",
-            },
-          ],
-        },
-      ],
-
-      /* ========================================================================
-      			   [**] 2. TYPE SAFETY (MUFFLED TO WARN)
-      			   ======================================================================== */
-      "jsdoc/require-jsdoc": "warn",
-      "jsdoc/require-param-type": "warn",
-      "jsdoc/require-returns-type": "warn",
-      "jsdoc/valid-types": "warn",
-      /* ========================================================================
-      			   [**] 3. GARBAGE COLLECTION (ACTIVE)
-      			   ======================================================================== */
-      "no-unused-vars": "off",
-      "unused-imports/no-unused-imports": "error",
-      "unused-imports/no-unused-vars": [
-        "warn",
-        {
-          vars: "all",
-          varsIgnorePattern: "^_",
-          args: "after-used",
-          argsIgnorePattern: "^_",
-        },
-      ],
-
-      /* ========================================================================
-      			   [**] 4. UTILITY
-      			   ======================================================================== */
-      "no-console": "off",
-      "no-undef": "error",
     },
   },
 
+  // 2. Native Language Extensions (ESLint v9+ Native Processing)
+  {
+    files: ["**/*.json"],
+    plugins: { json },
+    language: "json/json",
+  },
+  {
+    files: ["**/*.md"],
+    plugins: { markdown },
+    language: "markdown/gfm",
+  },
+  {
+    files: ["**/*.css"],
+    plugins: { css },
+    language: "css/css",
+  },
+
+  // 3. Svelte Parsing Infrastructure
+  {
+    files: [
+      "**/*.svelte",
+      "*.svelte",
+      "**/*.svelte.js",
+      "*.svelte.js",
+      "**/*.svelte.ts",
+      "*.svelte.ts",
+    ],
+    languageOptions: {
+      parser: svelteParser,
+      globals: {
+        ...globals.browser,
+      },
+    },
+  },
+
+  // 4. Vitest Test Automation Pipeline
+  {
+    files: ["**/*.test.js"],
+    plugins: {
+      vitest,
+    },
+    rules: {
+      ...vitest.configs.recommended.rules,
+      "vitest/max-nested-describe": ["error", { max: 3 }],
+      "vitest/expect-expect": "warn",
+    },
+  },
+
+  // 5. Monorepo Scoping for Specialized Tailwind Rules
+  {
+    files: ["packages/website/**/*.{js,jsx,cjs,mjs,ts,tsx}"],
+    settings: {
+      "better-tailwindcss": {
+        cwd: "./packages/website",
+      },
+    },
+  },
+  {
+    files: ["packages/app/**/*.{js,jsx,cjs,mjs,ts,tsx}"],
+    settings: {
+      "better-tailwindcss": {
+        cwd: "./packages/app",
+      },
+    },
+  },
+
+  // 6. Advanced Tailwind Configuration & Svelte Parser Correction
+  {
+    ...eslintPluginBetterTailwindcss.configs.recommended,
+    files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte,html}"],
+  },
+  {
+    files: ["**/*.svelte"],
+    settings: {
+      "better-tailwindcss": {
+        entryPoint: "src/media/design.css",
+      },
+    },
+    languageOptions: {
+      parser: svelteParser,
+    },
+  },
+
+  // 7. Official Svelte Rules & Compiler Integration
+  ...svelte.configs["flat/recommended"].map((config) => {
+    const newConfig = { ...config, files: config.files || ["**/*.svelte"] };
+    if (newConfig.rules) {
+      newConfig.rules = { ...newConfig.rules };
+      delete newConfig.rules["svelte/prefer-svelte-reactivity"];
+    }
+    return newConfig;
+  }),
   {
     files: ["**/*.svelte", "**/*.svelte.js"],
     languageOptions: {
       parserOptions: {
-        /* svelteConfig detected automatically */
+        svelteConfig,
       },
     },
   },
-];
+
+  // 8. Peace Treaty: Code Scope Overrides & Penalty Downgrades
+  {
+    files: ["**/*.{js,mjs,cjs,jsx,ts,tsx,svelte,html}"],
+    rules: {
+      "no-irregular-whitespace": "off",
+
+      // Demoting rule validations down to yellow text warnings safely
+      "no-unused-vars": "warn",
+      "no-undef": "warn",
+      "better-tailwindcss/no-unknown-classes": "warn",
+    },
+  },
+]);

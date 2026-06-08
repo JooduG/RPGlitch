@@ -18,7 +18,12 @@
   } = $props();
 </script>
 
-<div class="root {className}" style="--box-height: {height}; --box-max-height: {maxHeight}">
+<div
+  class="
+    root
+    {className}"
+  style="--box-height: {height}; --box-max-height: {maxHeight}"
+>
   {#if label}
     <header class="header">{label}</header>
   {/if}

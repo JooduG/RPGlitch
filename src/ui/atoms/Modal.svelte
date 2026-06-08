@@ -71,7 +71,8 @@
             busy={is_busy}
             is_blurred={blur}
             {is_pass_through}
-            class="{variant}-backdrop"
+            class="{variant}-backdrop
+            "
           >
             <Dialog.Content
               {...rest}
@@ -88,7 +89,10 @@
                 {#if activeOpen}
                   <div
                     {...contentProps}
-                    class="root glass-elevated {variant} {className}"
+                    class="
+                      root glass-elevated
+                      {variant}
+                      {className}"
                     class:is-busy={is_busy}
                     onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
                     use:use_actions={actions}

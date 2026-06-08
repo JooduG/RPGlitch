@@ -227,7 +227,9 @@
 
   <!-- ðŸ‘ï¸ IMAGE PROMPT -->
   <TextField
-    class="prompt-field {profileState.active_field?.key === 'visual-prompt' ? 'active' : ''}"
+    class="
+      prompt-field
+      {profileState.active_field?.key === 'visual-prompt' ? `active` : ''}"
     is_edit={profileState.is_editing}
     busy={is_prompt_busy}
     bind:value={profileState.char.modifiers.prompt}

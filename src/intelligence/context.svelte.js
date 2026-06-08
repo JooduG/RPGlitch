@@ -18,7 +18,6 @@
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-/* eslint-disable svelte/prefer-svelte-reactivity */
 import { clean_text, dynamics_engine, ENTITY_CATALOG, temporal_engine } from "@intelligence";
 import { app, runtime } from "@state";
 

@@ -168,7 +168,9 @@
     </Button>
 
     <Button
-      class="action-btn {ready_to_begin ? 'is-ready' : ''}"
+      class="
+        action-btn
+        {ready_to_begin ? 'is-ready' : ''}"
       variant="invisible"
       busy={!ready_to_begin}
       onclick={storyboard.begin}

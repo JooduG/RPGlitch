@@ -72,7 +72,9 @@
 </script>
 
 <div
-  class="root {className}"
+  class="
+    root
+    {className}"
   class:is-expanded={is_expanded}
   data-expanded={is_expanded}
   data-busy={busy}

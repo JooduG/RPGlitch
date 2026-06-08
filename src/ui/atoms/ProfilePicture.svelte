@@ -61,7 +61,9 @@
 
 <div
   {...rest}
-  class="root {className}"
+  class="
+    root
+    {className}"
   style="--signature-color: {signature_color};"
   use:use_actions={actions}
 >

@@ -24,7 +24,10 @@
 
 <div
   {...rest}
-  class="root {variant} {className}"
+  class="
+    root
+    {variant}
+    {className}"
   style:width
   style:height
   style:aspect-ratio={aspect_ratio}
