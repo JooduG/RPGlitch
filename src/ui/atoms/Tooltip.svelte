@@ -159,23 +159,23 @@
               >
                 <div
                   {...props}
-                  class="relative flex flex-col items-center drop-shadow-lg"
+                  class="drop-shadow-lg relative flex flex-col items-center"
                   transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
                 >
                   <div
-                    class="absolute left-1/2 z-0 h-0 w-0 -translate-x-1/2 {side === 'bottom'
-                      ? 'top-[calc(var(--spacing-unit)*-2)] border-x-[calc(var(--spacing-unit)*2)] border-b-[calc(var(--spacing-unit)*2)] border-x-transparent border-b-[var(--frozen)]'
-                      : 'bottom-[calc(var(--spacing-unit)*-2)] border-x-[calc(var(--spacing-unit)*2)] border-t-[calc(var(--spacing-unit)*2)] border-x-transparent border-t-[var(--frozen)]'}"
+                    class="w-0 h-0 absolute left-1/2 z-0 -translate-x-1/2 {side === 'bottom'
+                      ? 'border-b-slate-400 top-[-8px] border-x-8 border-b-8 border-x-transparent'
+                      : 'border-t-slate-400 bottom-[-8px] border-x-8 border-t-8 border-x-transparent'}"
                   >
                     <div
-                      class="absolute left-1/2 h-0 w-0 -translate-x-1/2 {side === 'bottom'
-                        ? 'top-[var(--spacing-pixel)] border-x-[calc(var(--spacing-unit)*2)] border-b-[calc(var(--spacing-unit)*2)] border-x-transparent border-b-[var(--chalk)]'
-                        : 'bottom-[var(--spacing-pixel)] border-x-[calc(var(--spacing-unit)*2)] border-t-[calc(var(--spacing-unit)*2)] border-x-transparent border-t-[var(--chalk)]'}"
+                      class="w-0 h-0 absolute left-1/2 -translate-x-1/2 {side === 'bottom'
+                        ? 'border-b-slate-900 top-px border-x-8 border-b-8 border-x-transparent'
+                        : 'border-t-slate-900 bottom-px border-x-8 border-t-8 border-x-transparent'}"
                     ></div>
                   </div>
 
                   <div
-                    class="isolate w-max max-w-60 transform-gpu rounded-md border border-[var(--frozen)] bg-[rgb(from_var(--chalk)_r_g_b_/_0.98)] px-2 py-1.5 text-center font-sans text-xs leading-normal tracking-normal whitespace-normal text-[var(--frisk)] normal-case backface-hidden"
+                    class="px-2 py-1.5 bg-slate-900/98 border-slate-400 rounded-md text-slate-100 text-xs font-sans tracking-normal leading-normal isolate w-max max-w-[240px] transform-gpu border text-center whitespace-normal normal-case backface-hidden"
                   >
                     {tooltip_state.text}
                   </div>
