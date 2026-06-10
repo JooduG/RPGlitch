@@ -44,6 +44,17 @@
   const fill_start = $derived(Math.min(val_pct, center_pct));
   const fill_end = $derived(Math.max(val_pct, center_pct));
 
+  // Thumb is w-4 (16px). bits-ui constrains thumb so its center tracks:
+  // position = calc(pct% * (100% - 16px) / 100% + 8px)
+  // We invert that: css_pct = (pct / 100) * (1 - 16/track_px) * 100 + 8/track_px * 100
+  // Since we can't read track_px reactively, we emit the calc() string directly.
+  const fill_start_css = $derived(
+    `calc(${fill_start} * (100% - 16px) / 100 + ${fill_start === 0 ? "0px" : `${fill_start / 100} * 16px`})`,
+  );
+  const fill_end_css = $derived(
+    `calc(${fill_end} * (100% - 16px) / 100 + ${fill_end / 100} * 16px)`,
+  );
+
   // Diagnostic identifier
   const test_id = $derived(
     label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider",
@@ -110,7 +121,7 @@
     `
     : ''}
     {className}"
-  style="{style}; --state-fill-start: {fill_start}%; --state-fill-end: {fill_end}%;"
+  style="{style}; --state-fill-start: {fill_start_css}; --state-fill-end: {fill_end_css};"
   data-testid={test_id}
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
@@ -202,8 +213,10 @@
                   shadow-none
                 `
                 : `
-                  bg-white
+                  bg-slate-50
                   shadow-[0_2px_8px_rgba(0,0,0,0.4)]
+
+                  active:scale-[1.1]
                 `}
               "
               style="{thumbProps.style}; top: 50%; transform: translate(-50%, -50%);"

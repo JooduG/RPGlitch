@@ -95,7 +95,7 @@
     shadow-black/20
     select-none
 
-    hover:brightness-110
+    hover:brightness-125
 
     focus-visible:outline
     focus-visible:outline-offset-1
@@ -128,7 +128,7 @@
     ? 'bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125'
     : ''}
     {variant === 'invisible'
-    ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-110'
+    ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125'
     : ''}
     {size === 'small' ? 'px-2 text-xs' : ''}
     {square ? 'aspect-square shrink-0 p-0' : ''}
@@ -139,7 +139,7 @@
     : ''}
     {busy ? 'pointer-events-none cursor-wait brightness-90 grayscale-30' : ''}
     {is_flank
-    ? 'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-300 ease-out hover:scale-[1.02] hover:opacity-100 active:scale-[0.96] disabled:transform-none disabled:cursor-not-allowed disabled:text-slate-600 disabled:opacity-10 data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-300 [&_svg]:disabled:fill-slate-600'
+    ? 'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-300 ease-out hover:scale-[1.02] hover:opacity-100 active:scale-[0.96] disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-300 [&_svg]:disabled:fill-slate-600'
     : ''}
     {className}"
   aria-busy={busy}

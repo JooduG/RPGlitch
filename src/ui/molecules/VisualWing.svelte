@@ -233,15 +233,14 @@
           transition-all
           duration-(--duration-fast)
           ease-(--motion-dissolve)
-
           has-[:not(:disabled)]:hover:z-20
           has-[:not(:disabled)]:hover:shadow-(--shadow-standard)
-          has-[:not(:disabled)]:hover:brightness-115
-
+          has-[:not(:disabled)]:hover:brightness-125
+          has-[:not(:disabled)]:active:scale-[0.96]
           {current_label === name
           ? `
-            z-20
-            scale-[1.14]
+            z-25
+            scale-[1.1]
             cursor-default
             [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
             outline-[calc(var(--spacing-pixel)*3)]
@@ -249,8 +248,6 @@
             outline-white
             brightness-110
             outline-solid
-
-            hover:brightness-100!
           `
           : ''}"
         style="--swatch-color: {color}; background-color: var(--swatch-color);"

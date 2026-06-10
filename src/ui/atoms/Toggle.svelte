@@ -92,13 +92,14 @@
           rounded-full
           bg-neutral-900/60
           backdrop-blur-sm
-          transition-[background-color,box-shadow,filter]
+          transition-[background-color,box-shadow,filter,transform]
           duration-300
           ease-in-out
           group-hover/toggle:brightness-125
           focus-visible:outline
           focus-visible:outline-offset-1
           focus-visible:outline-slate-600
+          active:scale-[0.96]
 
           data-[state=checked]:bg-(--signature-color,#555d66)
           data-[state=checked]:group-hover/toggle:brightness-125
