@@ -539,7 +539,7 @@ select:focus {
 
 .interactable:active {
   transform: var(--scale-sink);
-  filter: var(--brightness-dim);
+  filter: brightness(var(--brightness-dim));
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
