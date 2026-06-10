@@ -222,7 +222,7 @@
       hover:border-(--signature-color)
       hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
 
-      hover:after:border-[var(--signature-color,var(--color-slate-50))]
+      hover:after:border-(--signature-color,var(--color-slate-50))
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
     `}
     {is_empty && !disabled ? 'opacity-60' : ''}

@@ -124,7 +124,7 @@
         z-0
         w-[70%]
         rounded-[inherit]
-        [mask-image:linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
+        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
         bg-cover
         bg-center
         opacity-15
@@ -155,7 +155,7 @@
         z-0
         w-[70%]
         rounded-[inherit]
-        [mask-image:linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
+        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
         opacity-15
         transition-all
         duration-150

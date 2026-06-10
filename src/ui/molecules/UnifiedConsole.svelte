@@ -172,7 +172,7 @@
     {is_focused && app.view === 'storymode'
     ? `
       w-[calc(var(--column-unit)*6)]
-      border-[var(--signature-color,var(--color-slate-600))]
+      border-(--signature-color,var(--color-slate-600))
       shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
     `
     : 'w-[calc(var(--column-unit)*4)]'}

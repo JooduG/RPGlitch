@@ -191,7 +191,7 @@
         before:absolute
         before:inset-0
         before:rounded-[inherit]
-        before:[mask-composite:exclude]
+        before:mask-exclude
         before:p-px
         before:transition-opacity
         before:duration-300

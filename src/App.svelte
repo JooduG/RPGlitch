@@ -41,7 +41,7 @@
     <div data-bg="gradient"></div>
 
     <div
-      class="absolute inset-0 bg-cover bg-center [filter:var(--blur-mist)_var(--brightness-muted)] transition-all duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
+      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_var(--brightness-muted)] transition-all duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
       style:view-transition-name={app.view === "storymode" ? "entity-morph-fractal" : undefined}

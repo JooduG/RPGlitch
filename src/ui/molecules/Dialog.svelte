@@ -96,7 +96,7 @@
                       before:opacity-10
                       before:mix-blend-overlay
 
-                      sm:w-[var(--modal-width-thin)]
+                      sm:w-(--modal-width-thin)
 
                       {busy
                       ? `
