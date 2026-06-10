@@ -125,8 +125,8 @@
         before:absolute
         before:inset-0
         before:rounded-[inherit]
-        before:mask-exclude
-        before:p-(--spacing-pixel)
+        before:[mask-composite:exclude]
+        before:p-[var(--spacing-pixel)]
         before:opacity-(--opacity-whisper)
         before:transition-opacity
         before:duration-(--duration-standard)

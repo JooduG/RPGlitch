@@ -243,7 +243,7 @@
             z-20
             scale-110
             cursor-default
-            shadow-[0_0_1.25rem_var(--swatch-color)]
+            shadow-[0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
             outline
             outline-offset-2
             outline-white

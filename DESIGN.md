@@ -107,9 +107,9 @@ components:
   breakpoint-mini: 30rem
   breakpoint-mobile: 48rem
   breakpoint-tablet: 64rem
-  brightness-dim: brightness(0.9)
-  brightness-glow: brightness(1.1)
-  brightness-muted: brightness(0.3)
+  brightness-dim: "0.9"
+  brightness-glow: "1.1"
+  brightness-muted: "0.3"
   danger-glow: 0 0 calc(var(--spacing-unit) * 3) var(--crimson-red)
   danger-hover-shadow: |-
     0 0 calc(var(--spacing-unit) * 4)
@@ -157,9 +157,9 @@ components:
   opacity-none: "0"
   opacity-solid: "1"
   opacity-whisper: "0.3"
-  scale-lift: scale(1.02)
-  scale-pulse: scale(1.05)
-  scale-sink: scale(0.96)
+  scale-lift: "1.02"
+  scale-pulse: "1.05"
+  scale-sink: "0.96"
   scrollbar-thumb: var(--gunmetal)
   scrollbar-thumb-hover: var(--frisk)
   scrollbar-track: transparent

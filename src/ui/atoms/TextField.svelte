@@ -90,7 +90,7 @@
     before:absolute
     before:inset-0
     before:rounded-[inherit]
-    before:mask-exclude
+    before:[mask-composite:exclude]
     before:p-px
     before:transition-opacity
     before:duration-300

@@ -123,7 +123,7 @@
           row-2
           h-full
           items-center
-          bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),#000)]
+          bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--void-black))]
         `
         : `
           inset-auto

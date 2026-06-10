@@ -105,7 +105,7 @@
                 size="small"
                 square
                 class="
-                  col-1
+                  col-start-1
                 "
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
@@ -127,7 +127,7 @@
               class="
                 pointer-events-none
                 z-20
-                col-2
+                col-start-2
                 flex
                 h-full
                 min-w-3
@@ -147,7 +147,7 @@
                 size="small"
                 square
                 class="
-                  col-3
+                  col-start-3
                   text-slate-400
                   opacity-0
                   transition-colors

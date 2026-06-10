@@ -878,7 +878,8 @@
     }
 
     70% {
-      box-shadow: 0 0 0 12px color-mix(in srgb, var(--signature-color) 0%, transparent);
+      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3)
+        color-mix(in srgb, var(--signature-color) 0%, transparent);
     }
 
     100% {
@@ -889,7 +890,7 @@
   @keyframes slide-in {
     from {
       opacity: 0;
-      transform: translateY(8px);
+      transform: translateY(var(--kinetic-slide-y));
     }
 
     to {

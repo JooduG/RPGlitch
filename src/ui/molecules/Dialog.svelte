@@ -70,7 +70,7 @@
                     class="
                       pointer-events-auto
                       relative
-                      z-9999
+                      z-(--z-index-max)
                       flex
                       min-h-48
                       w-[90vw]
@@ -96,7 +96,7 @@
                       before:opacity-10
                       before:mix-blend-overlay
 
-                      sm:w-[24rem]
+                      sm:w-[var(--modal-width-thin)]
 
                       {busy
                       ? `

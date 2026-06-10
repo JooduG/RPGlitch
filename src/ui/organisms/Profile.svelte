@@ -110,7 +110,7 @@
             {entity_type === 'fractal'
             ? `
               h-12
-              min-h-50
+              min-h-[calc(var(--spacing-unit)*50)]
               w-full
             `
             : `

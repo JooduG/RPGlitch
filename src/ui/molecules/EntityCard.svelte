@@ -198,10 +198,10 @@
     after:transition-all
     after:duration-300
     after:ease-in-out
-    hover:transform-(--scale-lift)
-    hover:filter-(--brightness-glow)
-    active:transform-(--scale-sink)
-    active:filter-(--brightness-dim)
+    hover:scale-(--scale-lift)
+    hover:brightness-(--brightness-glow)
+    active:scale-(--scale-sink)
+    active:brightness-(--brightness-dim)
 
     {disabled
     ? `
@@ -220,9 +220,9 @@
     `
     : `
       hover:border-(--signature-color)
-      hover:shadow-[0_0_1rem_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
+      hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
 
-      hover:after:border-(--signature-color,var(--color-slate-50))
+      hover:after:border-[var(--signature-color,var(--color-slate-50))]
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
     `}
     {is_empty && !disabled ? 'opacity-60' : ''}
@@ -411,7 +411,7 @@
           tracking-normal
         `
         : `
-          text-[clamp(1rem,12cqi,1.5rem)]
+          text-[clamp(var(--font-size-base),12cqi,var(--font-size-h2))]
           leading-tight
           tracking-widest
         `}

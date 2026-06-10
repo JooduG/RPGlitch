@@ -64,7 +64,7 @@
     ? `
       border-(--signature-color)
       bg-white/10
-      shadow-[0_0_15px_color-mix(in_srgb,var(--signature-color)_30%,transparent),0_4px_6px_-1px_rgba(0,0,0,0.1)]
+      shadow-[var(--signature-glow),var(--shadow-standard)]
     `
     : `
       border-white/5
@@ -124,7 +124,7 @@
         z-0
         w-[70%]
         rounded-[inherit]
-        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
+        [mask-image:linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
         bg-cover
         bg-center
         opacity-15
@@ -155,7 +155,7 @@
         z-0
         w-[70%]
         rounded-[inherit]
-        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
+        [mask-image:linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
         opacity-15
         transition-all
         duration-150

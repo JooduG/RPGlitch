@@ -55,8 +55,8 @@
             transition-all
             duration-300
 
-            hover:transform-(--scale-lift)
-            hover:filter-(--brightness-glow)
+            hover:scale-(--scale-lift)
+            hover:brightness-(--brightness-glow)
           "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
@@ -147,8 +147,8 @@
             transition-all
             duration-300
 
-            hover:transform-(--scale-lift)
-            hover:filter-(--brightness-glow)
+            hover:scale-(--scale-lift)
+            hover:brightness-(--brightness-glow)
           "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
