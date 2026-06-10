@@ -120,8 +120,9 @@ export function auditCodebaseTokens() {
         for (const match of var_matches) {
           const token_name = match[1];
           if (!definedMap.has(token_name)) {
-            // Exempt local component variables
+            // Exempt local component variables and standard Tailwind variables
             if (token_name === "--stage-align") continue;
+            if (token_name.startsWith("--color-")) continue;
 
             console.error(
               `${RED}[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}${RESET}`,

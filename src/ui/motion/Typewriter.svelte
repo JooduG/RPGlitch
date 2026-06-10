@@ -241,43 +241,28 @@
 <svelte:element
   this={as}
   class="
-    root
-
+    font-[inherit]
+    leading-normal
+    tracking-normal
+    {as === 'span' ? 'inline-block' : 'block'}
     {className}"
-  class:is-inline={as === "span"}
   style="content-visibility: auto;"
 >
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
   {@html slicedHtml}
 
   {#if shouldShowCursor}
-    <span class="cursor" class:is-blinking={blinkCursor}>
+    <span
+      class="ml-0.5 inline-block text-(--signature-color) {blinkCursor
+        ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]'
+        : ''}"
+    >
       {cursorGlyph}
     </span>
   {/if}
 </svelte:element>
 
 <style>
-  .root {
-    font-family: inherit;
-    letter-spacing: var(--font-spacing-base, 0);
-    line-height: var(--font-height-base, 1.5);
-  }
-
-  .root.is-inline {
-    display: inline-block;
-  }
-
-  .cursor {
-    display: inline-block;
-    margin-left: calc(var(--spacing-pixel) * 2);
-    color: var(--signature-color, var(--deep-indigo));
-  }
-
-  .cursor.is-blinking {
-    animation: blink var(--duration-slow, 500ms) step-end infinite;
-  }
-
   @keyframes blink {
     0%,
     100% {

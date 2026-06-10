@@ -408,26 +408,6 @@ select:focus {
   outline: none;
 }
 
-.glass-sunken {
-  background: var(--glass-sunken);
-  backdrop-filter: var(--blur-whisper);
-}
-
-.glass-base {
-  background: var(--glass-base);
-  backdrop-filter: var(--blur-whisper);
-}
-
-.glass-elevated {
-  background: var(--glass-elevated);
-  backdrop-filter: var(--blur-mist);
-}
-
-.glass-peak {
-  background: var(--glass-peak);
-  backdrop-filter: var(--blur-void);
-}
-
 .interactable {
   cursor: pointer;
   user-select: none;
@@ -445,20 +425,6 @@ select:focus {
 .interactable:active {
   transform: var(--scale-sink);
   filter: var(--brightness-dim);
-}
-
-/* --- TYPOGRAPHY UTILITIES --- */
-
-.font-heading {
-  font-family: var(--font-family-heading);
-}
-
-.font-mono {
-  font-family: var(--font-family-mono);
-}
-
-.font-base {
-  font-family: var(--font-family-base);
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
@@ -480,23 +446,6 @@ select:focus {
     calc(var(--spacing-pixel) * -1) calc(var(--spacing-pixel) * -1) 0 var(--void-black),
     0 0 calc(var(--spacing-unit) * 2) var(--signature-color),
     0 0 calc(var(--spacing-unit) * 6) rgb(from var(--signature-color) r g b / var(--opacity-muted));
-}
-
-/* --- ICONS --- */
-
-.icon-small {
-  width: var(--icon-small);
-  height: var(--icon-small);
-}
-
-.icon-medium {
-  width: var(--icon-medium);
-  height: var(--icon-medium);
-}
-
-.icon-large {
-  width: var(--icon-large);
-  height: var(--icon-large);
 }
 
 .icon-outline {

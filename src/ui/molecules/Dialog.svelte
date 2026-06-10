@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file Dialog.svelte
    * ðŸ›¡ï¸ THE UNIFIED SYSTEM DIALOG
@@ -60,7 +60,7 @@
             z_index="var(--z-index-max)"
             {busy}
             is_blurred={true}
-            class="mini-backdrop"
+            data-backdrop="mini"
           >
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps, open: isContentOpen })}
@@ -68,28 +68,120 @@
                   <div
                     {...contentProps}
                     class="
-                      root
-                      glass-elevated
-                      mini
-                    "
-                    class:is-busy={busy}
+                      pointer-events-auto
+                      relative
+                      z-9999
+                      flex
+                      min-h-48
+                      w-[90vw]
+                      cursor-default
+                      flex-col
+                      justify-between
+                      gap-4
+                      overflow-hidden
+                      rounded-md
+                      border
+                      border-white/5
+                      bg-black/25
+                      p-4
+                      backdrop-blur-sm
+                      transition-[filter]
+                      duration-300
+
+                      before:pointer-events-none
+                      before:absolute
+                      before:inset-0
+                      before:-z-10
+                      before:bg-(image:--noise-url)
+                      before:opacity-10
+                      before:mix-blend-overlay
+
+                      sm:w-[24rem]
+
+                      {busy
+                      ? `
+                        pointer-events-none
+                        cursor-wait
+                        brightness-75
+                        grayscale
+                      `
+                      : ''}"
                     in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
                     out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
                   >
-                    <header class="header">
+                    <header
+                      class="
+                      flex
+                      items-center
+                      gap-2
+                    "
+                    >
                       {#if type === "alert"}
-                        <span class="icon" aria-hidden="true">i</span>
+                        <span
+                          class="
+                            flex
+                            h-6
+                            w-6
+                            shrink-0
+                            items-center
+                            justify-center
+                            rounded-full
+                            bg-slate-600/15
+                            text-[10px]
+                            font-bold
+                            text-slate-600
+                            uppercase
+                          "
+                          aria-hidden="true">i</span
+                        >
                       {/if}
-                      <AlertDialog.Title class="title-el">
-                        <h6 class="title">{title}</h6>
+                      <AlertDialog.Title
+                        class="
+                        m-0
+                        block
+                        p-0
+                      "
+                      >
+                        <h6
+                          class="
+                          m-0
+                          text-slate-50
+                          uppercase
+                        "
+                        >
+                          {title}
+                        </h6>
                       </AlertDialog.Title>
                     </header>
 
-                    <AlertDialog.Description class="body">
-                      <p class="message">{message}</p>
+                    <AlertDialog.Description
+                      class="
+                      m-0
+                      min-h-0
+                      flex-1
+                      p-0
+                    "
+                    >
+                      <p
+                        class="
+                        m-0
+                        text-base
+                        leading-relaxed
+                        whitespace-pre-wrap
+                        text-slate-600
+                      "
+                      >
+                        {message}
+                      </p>
                     </AlertDialog.Description>
 
-                    <footer class="actions">
+                    <footer
+                      class="
+                      flex
+                      justify-end
+                      gap-4
+                    "
+                    >
                       {#if type === "confirm"}
                         <AlertDialog.Cancel>
                           {#snippet child({ props: cancelProps })}
@@ -137,104 +229,3 @@
     </AlertDialog.Overlay>
   </AlertDialog.Portal>
 </AlertDialog.Root>
-
-<style>
-  /**
-   * ULTRA-LEAN NOMENCLATURE:
-   * .root - The core dialog container.
-   * .header, .title, .body, .message, .actions - Structural regions.
-   */
-  .root {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    justify-content: space-between;
-
-    /* Dimensions grounded in Grid Foundation */
-    width: clamp(calc(var(--column-unit) * 3), 90vw, var(--modal-width-thin));
-    height: clamp(calc(var(--row-unit) * 3), auto, var(--modal-height-standard));
-    padding: var(--padding-standard);
-    gap: var(--gap-standard);
-    border-radius: var(--radius-standard);
-    cursor: default;
-    pointer-events: auto;
-    transition: filter var(--duration-standard);
-
-    /* Extreme z-index overlay to prevent collision under parent modal layers */
-    z-index: var(--z-index-max);
-  }
-
-  /* Nordic Collection Noise Texture */
-  .root::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: var(--z-index-below);
-    background-image: var(--noise-url);
-    opacity: var(--opacity-ghost);
-    mix-blend-mode: overlay;
-    pointer-events: none;
-  }
-
-  .header {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-tight);
-  }
-
-  :global(.title-el) {
-    display: block;
-    margin: 0;
-    padding: 0;
-  }
-
-  .icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: var(--icon-small);
-    height: var(--icon-small);
-    background: color-mix(in srgb, var(--frozen), transparent 85%);
-    color: var(--frozen);
-    border-radius: var(--radius-full);
-    font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    flex-shrink: 0;
-  }
-
-  .title {
-    color: var(--frisk);
-    text-transform: uppercase;
-    margin: 0;
-  }
-
-  .body {
-    flex: 1;
-    min-height: 0;
-    margin: 0;
-    padding: 0;
-  }
-
-  .message {
-    margin: 0;
-    color: var(--frozen);
-    font-size: var(--font-size-base);
-    line-height: var(--font-height-base);
-    white-space: pre-wrap;
-  }
-
-  .actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--gap-standard);
-  }
-
-  /* Busy State Logic: Kinetic Grayout */
-  .root.is-busy {
-    cursor: wait;
-    filter: var(--brightness-dim) grayscale(0.5);
-    pointer-events: none;
-  }
-</style>

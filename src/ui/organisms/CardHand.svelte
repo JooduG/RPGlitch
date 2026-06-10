@@ -124,38 +124,133 @@
 
 {#if is_open}
   <!-- Svelte handles Backdrop outro natively. Removing redundant wrapper div. -->
-  <Backdrop onclick={() => app.close_drawer()} z_index="var(--z-index-modal)" />
+  <Backdrop onclick={() => app.close_drawer()} z_index="50" />
 {/if}
 
 {#if render_active}
   <div
-    class="deck-overlay"
-    class:is-visible={is_visible}
-    class:is-exiting={!is_visible}
-    class:is-reduced={motion.isReduced}
+    class="
+      pointer-events-none
+      fixed
+      right-0
+      bottom-0
+      left-0
+      z-50
+      flex
+      h-screen
+      w-screen
+      flex-col
+      items-center
+      justify-end
+      overflow-hidden
+      pb-[calc(var(--row-unit)*0.1)]
+      transition-all
+      duration-300
+      ease-in-out
+
+      {is_visible
+      ? `
+        translate-y-0
+        opacity-100
+      `
+      : `
+        translate-y-full
+        opacity-0
+      `}
+      {motion.isReduced
+      ? `
+        translate-y-0
+        transition-opacity!
+        duration-300!
+      `
+      : ''}"
     role="dialog"
     aria-labelledby="hand-title"
   >
-    <header class="deck-header">
-      <h4 id="hand-title">{title}</h4>
+    <header
+      class="
+      pointer-events-auto
+      z-20
+      -mb-4
+      text-center
+    "
+    >
+      <h4
+        id="hand-title"
+        class="
+          m-0
+          font-bold
+          tracking-widest
+          text-slate-600
+          uppercase
+          text-shadow-(--title-shadow-ambient)
+        "
+      >
+        {title}
+      </h4>
     </header>
 
-    <div class="deck-fan" style:--total-count={total_cards}>
+    <div
+      class="
+        relative
+        block
+        h-[calc(var(--row-unit)*3.5)]
+        w-full
+        max-w-(--grid-width-max)
+        origin-bottom
+        pb-[calc(var(--row-unit)*0.2)]
+      "
+      style:--total-count={total_cards}
+    >
       <div
         class="
-          card-wrapper
-          factory-node
+          pointer-events-auto
+          absolute
+          bottom-0
+          left-1/2
+          ml-[calc(-0.425*var(--column-unit))]
+          h-[calc(var(--row-unit)*2.8)]
+          w-[calc(var(--column-unit)*0.85)]
+
+          hover:z-50!
         "
         role="presentation"
         style:transform="rotate({factory_angle}deg) translateY(0)"
+        style:transform-origin="center calc(100% + calc(var(--row-unit) * 25))"
         style:z-index="0"
         onmouseenter={() => (hovered_index = -1)}
         onmouseleave={() => (hovered_index = null)}
       >
-        <button class="hitbox" aria-label="Create New" onclick={handle_create_new}></button>
+        <button
+          class="
+            absolute
+            inset-0
+            z-0
+            h-full
+            w-full
+            cursor-pointer
+            border-none
+            bg-none
+            opacity-0
+
+            disabled:pointer-events-none
+            disabled:cursor-default
+          "
+          aria-label="Create New"
+          onclick={handle_create_new}
+        ></button>
         <div
-          class="card-visual"
-          class:is-raised={hovered_index === -1}
+          class="
+            relative
+            z-10
+            h-full
+            w-full
+            rounded-md
+            transition-all
+            duration-300
+            ease-in-out
+            will-change-transform
+          "
           style:transform={hovered_index === -1
             ? `rotate(${-factory_angle}deg) translateY(calc(var(--row-unit) * -0.6)) scale(1.08)`
             : "none"}
@@ -175,27 +270,71 @@
 
         <div
           class="
-            card-wrapper
-            interactable-node
+            pointer-events-auto
+            absolute
+            bottom-0
+            left-1/2
+            ml-[calc(-0.425*var(--column-unit))]
+            h-[calc(var(--row-unit)*2.8)]
+            w-[calc(var(--column-unit)*0.85)]
+
+            hover:z-50!
           "
           role="presentation"
           style:transform="rotate({dynamic_angle}deg) translateY(0)"
+          style:transform-origin="center calc(100% + calc(var(--row-unit) * 25))"
           style:z-index={idx + 1}
           onmouseenter={() => (hovered_index = idx)}
           onmouseleave={() => (hovered_index = null)}
         >
           <button
-            class="hitbox"
+            class="
+              absolute
+              inset-0
+              z-0
+              h-full
+              w-full
+              cursor-pointer
+              border-none
+              bg-none
+              opacity-0
+
+              disabled:pointer-events-none
+              disabled:cursor-default
+            "
             aria-label="Select {entity.name}"
             onclick={() => handle_select(entity)}
             disabled={is_disabled(entity)}
           ></button>
 
           <div
-            class="card-visual"
-            class:is-raised={is_hovered}
-            class:is-dimmed={hovered_index !== null && !is_hovered}
-            class:is-allocated={is_disabled(entity)}
+            class="
+              relative
+              z-10
+              h-full
+              w-full
+              rounded-md
+              transition-all
+              duration-300
+              ease-in-out
+              will-change-transform
+
+              {is_disabled(entity)
+              ? `
+                pointer-events-none
+                opacity-30
+                brightness-[0.2]
+                grayscale-[0.9]
+              `
+              : ''}
+              {hovered_index !== null && !is_hovered && !is_disabled(entity)
+              ? `
+                opacity-50
+                blur-[1px]
+                brightness-[0.35]
+                grayscale-[0.4]
+              `
+              : ''}"
             style:transform={is_hovered
               ? `rotate(${-dynamic_angle}deg) translateY(calc(var(--row-unit) * -0.85)) scale(1.18)`
               : "none"}
@@ -214,136 +353,3 @@
     </div>
   </div>
 {/if}
-
-<style>
-  /* --- SYSTEM BOUNDING FRAME OVERLAY --- */
-  .deck-overlay {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    z-index: var(--z-index-modal);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end;
-    width: 100vw;
-    height: 100vh;
-    pointer-events: none;
-    padding-bottom: calc(var(--row-unit) * 0.1);
-    overflow: hidden;
-
-    /* Symmetric Out-Transition Initial State */
-    transform: translateY(100%);
-    opacity: 0;
-    transition:
-      transform var(--duration-standard) var(--ease-standard),
-      opacity var(--duration-standard) var(--ease-standard);
-  }
-
-  .deck-overlay.is-visible {
-    transform: translateY(0);
-    opacity: 1;
-  }
-
-  .deck-overlay.is-exiting {
-    transform: translateY(100%);
-    opacity: 0;
-  }
-
-  .deck-overlay.is-reduced {
-    transition: opacity var(--duration-standard) var(--ease-standard);
-    transform: translateY(0);
-  }
-
-  /* --- SYSTEM CONSOLE TEXT MODULE --- */
-  .deck-header {
-    pointer-events: auto;
-    margin-bottom: calc(var(--spacing-unit) * -4);
-    text-align: center;
-    z-index: calc(var(--z-index-surface) + 10);
-  }
-
-  .deck-header h4 {
-    margin: 0;
-    letter-spacing: var(--font-spacing-loose);
-    font-weight: var(--font-weight-bold);
-    color: var(--frozen);
-    text-shadow: var(--title-shadow-ambient);
-    text-transform: uppercase;
-  }
-
-  /* --- ARC SELECTION DECK TRAY --- */
-  .deck-fan {
-    position: relative;
-    display: block;
-    width: 100%;
-    max-width: var(--grid-width-max);
-    height: calc(var(--row-unit) * 3.5);
-    transform-origin: bottom center;
-    padding-bottom: calc(var(--row-unit) * 0.2);
-  }
-
-  /* --- ARBITRARY TRANSFORM SHIELDS --- */
-  .card-wrapper {
-    position: absolute;
-    pointer-events: auto;
-    bottom: 0;
-    left: 50%;
-    width: calc(var(--column-unit) * 0.85);
-    height: calc(var(--row-unit) * 2.8);
-    margin-left: calc(var(--column-unit) * -0.425);
-    transform-origin: center calc(100% + calc(var(--row-unit) * 25));
-  }
-
-  .hitbox {
-    position: absolute;
-    inset: 0;
-    width: 100%;
-    height: 100%;
-    opacity: 0;
-    cursor: pointer;
-    z-index: var(--z-index-base);
-    border: none;
-    background: none;
-  }
-
-  .hitbox:disabled {
-    cursor: default;
-    pointer-events: none;
-  }
-
-  .card-visual {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    border-radius: var(--radius-standard);
-    z-index: var(--z-index-surface);
-    will-change: transform;
-    transition:
-      transform var(--duration-fast) var(--ease-standard),
-      filter var(--duration-fast) var(--ease-standard),
-      opacity var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard);
-  }
-
-  .card-wrapper.interactable-node:hover {
-    z-index: var(--z-index-max);
-  }
-
-  .card-wrapper.factory-node:hover {
-    z-index: var(--z-index-max);
-  }
-
-  /* --- EXCLUSION BOUNDARY FILTER SHARDS --- */
-  .card-visual.is-dimmed {
-    filter: brightness(0.35) grayscale(0.4) blur(1px);
-    opacity: 0.5;
-  }
-
-  .card-visual.is-allocated {
-    filter: brightness(0.2) grayscale(0.9);
-    opacity: 0.3;
-    pointer-events: none;
-  }
-</style>

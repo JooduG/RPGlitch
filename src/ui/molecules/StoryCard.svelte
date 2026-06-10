@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file StoryCard.svelte
    * ðŸ“– STORY MODULE
@@ -41,142 +41,137 @@
 
 <div
   class="
-    root
-    interactable
+    group
+    relative
+    flex
+    w-auto
+    transform-[translateZ(0)]
+    cursor-pointer
+    items-center
+    justify-start
+    overflow-hidden
+    rounded-md
+    border
+    bg-black/15
+    p-4
+    text-left
+    backdrop-blur-sm
+    transition-all
+    duration-300
+    ease-in-out
+
+    {active
+    ? `
+      border-(--signature-color)
+      bg-white/10
+      shadow-[0_0_15px_color-mix(in_srgb,var(--signature-color)_30%,transparent),0_4px_6px_-1px_rgba(0,0,0,0.1)]
+    `
+    : `
+      border-white/5
+      shadow-sm
+
+      hover:border-(--signature-color)
+      hover:bg-white/10
+      hover:shadow-md
+    `}
   "
-  class:is-active={active}
   style="--signature-color: {signature_color}"
 >
   <Button variant="invisible" cover={true} {onclick} />
 
-  <div class="body">
-    <span class="primary">{story.title}</span>
-    <span class="secondary">
+  <div
+    class="
+    pointer-events-none
+    relative
+    z-10
+    flex
+    flex-col
+    gap-1
+    pl-2
+  "
+  >
+    <span
+      class="
+      text-base
+      font-bold
+      text-slate-50
+    ">{story.title}</span
+    >
+    <span
+      class="
+      text-xs
+
+      {active
+        ? `
+        font-bold
+        text-(--signature-color)
+      `
+        : 'text-slate-50'}"
+    >
       {format_timestamp(story.lastPlayed)}{#if active}
-        Â· ACTIVE{/if}
+        · ACTIVE{/if}
     </span>
   </div>
 
   {#if story.fractal_profile_picture}
     <div
       class="
-        backdrop
-        has-image
+        pointer-events-none
+        absolute
+        top-0
+        right-0
+        bottom-0
+        z-0
+        w-[70%]
+        rounded-[inherit]
+        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
+        bg-cover
+        bg-center
+        opacity-15
+        transition-all
+        duration-150
+        ease-in-out
+
+        group-hover:w-[80%]
+        group-hover:opacity-30
+
+        {active
+        ? `
+          w-[80%]
+          opacity-30
+        `
+        : ''}
       "
       style="background-image: url({story.fractal_profile_picture})"
     ></div>
   {:else}
-    <div class="backdrop" style="background-color: var(--signature-color)"></div>
+    <div
+      class="
+        pointer-events-none
+        absolute
+        top-0
+        right-0
+        bottom-0
+        z-0
+        w-[70%]
+        rounded-[inherit]
+        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
+        opacity-15
+        transition-all
+        duration-150
+        ease-in-out
+
+        group-hover:w-[80%]
+        group-hover:opacity-30
+
+        {active
+        ? `
+          w-[80%]
+          opacity-30
+        `
+        : ''}
+      "
+      style="background-color: var(--signature-color)"
+    ></div>
   {/if}
 </div>
-
-<style>
-  /**
-   * ULTRA-LEAN NOMENCLATURE:
-   * .root - The story card container.
-   * .body - Inside metadata text area.
-   * .primary - Story title.
-   * .secondary - Timestamp & active badge.
-   * .backdrop - Aesthetic backdrop overlay.
-   */
-
-  .root {
-    display: flex;
-    align-items: center;
-    justify-content: flex-start;
-    padding: var(--padding-standard);
-    background: var(--glass-base);
-    backdrop-filter: var(--blur-whisper);
-    background-clip: border-box;
-
-    /* Force hardware acceleration layer to eliminate rounded corner bleed and subpixel leakage */
-    transform: translateZ(0);
-
-    /* Standard 1px border all around for radius consistency */
-    border: var(--border-muted);
-
-    /* Accent bar via inset shadow to avoid corner clipping */
-    box-shadow: var(--shadow-ambient);
-    border-radius: var(--radius-standard);
-    cursor: pointer;
-    transition: all var(--duration-standard) var(--ease-standard);
-    text-align: left;
-    position: relative;
-    overflow: hidden;
-    width: auto;
-  }
-
-  .root:hover {
-    background: var(--glass-elevated);
-    border-color: var(--signature-color);
-    box-shadow: var(--shadow-standard);
-  }
-
-  /* --- ACTIVE STATE HIGHLIGHT --- */
-  .root.is-active {
-    background: var(--glass-elevated);
-    border-color: var(--signature-color);
-    box-shadow: var(--signature-glow), var(--shadow-standard);
-  }
-
-  /* --- BACKDROP --- */
-  .backdrop {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 70%;
-    z-index: var(--z-index-base);
-    pointer-events: none;
-    opacity: var(--opacity-whisper);
-    border-radius: inherit;
-    mask-image: linear-gradient(
-      to left,
-      var(--void-black) 0%,
-      var(--void-black) 20%,
-      transparent 100%
-    );
-    transition:
-      opacity var(--duration-fast),
-      width var(--duration-fast);
-  }
-
-  .backdrop.has-image {
-    background-size: cover;
-    background-position: center;
-    opacity: var(--opacity-whisper);
-  }
-
-  .root:hover .backdrop,
-  .root.is-active .backdrop {
-    opacity: var(--opacity-muted);
-    width: 80%;
-  }
-
-  /* --- BODY & METADATA --- */
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-    z-index: var(--z-index-elevated);
-    position: relative;
-    padding-left: var(--padding-tight); /* Breath for the accent bar */
-    pointer-events: none; /* Clicks pass through to the absolute Button layer */
-  }
-
-  .primary {
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    color: var(--pure-white);
-  }
-
-  .secondary {
-    font-size: var(--font-size-tiny);
-    color: var(--frisk);
-  }
-
-  .root.is-active .secondary {
-    color: var(--signature-color);
-    font-weight: var(--font-weight-bold);
-  }
-</style>

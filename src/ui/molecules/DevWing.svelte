@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/devmode/DevWing.svelte
    * âš™ï¸ DYNAMIC DEVELOPER CONSOLE
@@ -68,24 +68,123 @@
 
 <section
   class="
-    root
-    glass-elevated
+    flex
+    w-full
+    flex-col
+    gap-4
+    rounded-md
+    border
+    border-white/5
+    bg-black/25
+    p-4
+    shadow-md
+    backdrop-blur-sm
+    [--dev-accent:var(--color-cyan-400)]
   "
 >
   <!-- DYNAMICS GRID -->
   <div
     class="
-      body
       grid
+      grid-cols-2
+      gap-4
     "
   >
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
-      <div class="card" class:is-editable={is_editing}>
-        <span class="label" use:tooltip={dynamic.desc}>{dynamic.label}</span>
-        <div class="value">
+      <div
+        class="
+          group
+          relative
+          flex
+          min-h-16
+          flex-col
+          items-center
+          justify-center
+          overflow-hidden
+          rounded-sm
+          border
+          border-transparent
+          bg-black/40
+          p-4
+          transition-all
+          duration-300
+          ease-in-out
+          select-none
+
+          after:absolute
+          after:right-0
+          after:bottom-0
+          after:left-0
+          after:h-px
+          after:bg-cyan-400
+          after:opacity-10
+
+          {is_editing
+          ? `
+            cursor-pointer
+
+            focus-within:z-10
+            focus-within:border-cyan-400
+            focus-within:bg-black/15
+            focus-within:shadow-md
+
+            hover:z-10
+            hover:border-cyan-400
+            hover:bg-black/15
+            hover:shadow-md
+          `
+          : ''}
+        "
+        data-editable={is_editing}
+      >
+        <span
+          class="
+            z-10
+            mb-2
+            cursor-help
+            text-[10px]
+            font-(--font-family-mono)
+            tracking-widest
+            text-cyan-400
+            uppercase
+            transition-[filter]
+            duration-150
+            ease-in-out
+
+            group-hover:brightness-125
+          "
+          use:tooltip={dynamic.desc}>{dynamic.label}</span
+        >
+        <div
+          class="
+            relative
+            z-10
+            flex
+            w-full
+            items-center
+            justify-center
+          "
+        >
           {#if is_editing}
             <input
               type="number"
+              class="
+                w-full
+                appearance-none
+                bg-transparent
+                py-1
+                text-center
+                text-base
+                font-(--font-family-mono)
+                text-slate-50
+                outline-none
+
+                [&::-webkit-inner-spin-button]:m-0
+                [&::-webkit-inner-spin-button]:appearance-none
+
+                [&::-webkit-outer-spin-button]:m-0
+                [&::-webkit-outer-spin-button]:appearance-none
+              "
               value={profileState.char[dynamic.source][dynamic.key]}
               oninput={(e) => {
                 const val = Number(e.currentTarget.value);
@@ -96,12 +195,34 @@
               min="0"
               max="100"
             />
-            <div class="actions">
+            <div
+              class="
+                pointer-events-none
+                absolute
+                -right-4
+                z-20
+                flex
+                translate-x-2
+                flex-col
+                gap-px
+                opacity-0
+                transition-all
+                duration-150
+                ease-in-out
+
+                group-focus-within:pointer-events-auto
+                group-focus-within:translate-x-0
+                group-focus-within:opacity-100
+
+                group-hover:pointer-events-auto
+                group-hover:translate-x-0
+                group-hover:opacity-100
+              "
+            >
               <Button
                 variant="secondary"
                 size="small"
                 square
-                class="step"
                 actions={[[tooltip, "Increase"]]}
                 onclick={() =>
                   (profileState.char[dynamic.source][dynamic.key] = Math.min(
@@ -110,7 +231,7 @@
                   ))}
                 aria-label="Increase"
               >
-                <svg viewBox="0 0 24 24" class="icon-small"
+                <svg viewBox="0 0 24 24" class="size-(--icon-small)"
                   ><path d="M7 14l5-5 5 5H7z" fill="currentColor" /></svg
                 >
               </Button>
@@ -118,7 +239,6 @@
                 variant="secondary"
                 size="small"
                 square
-                class="step"
                 actions={[[tooltip, "Decrease"]]}
                 onclick={() =>
                   (profileState.char[dynamic.source][dynamic.key] = Math.max(
@@ -127,20 +247,34 @@
                   ))}
                 aria-label="Decrease"
               >
-                <svg viewBox="0 0 24 24" class="icon-small"
+                <svg viewBox="0 0 24 24" class="size-(--icon-small)"
                   ><path d="M7 10l5 5 5-5H7z" fill="currentColor" /></svg
                 >
               </Button>
             </div>
           {:else}
-            <span class="display">
+            <span
+              class="
+                py-1
+                text-base
+                font-(--font-family-mono)
+                text-slate-50
+              "
+            >
               {profileState.char[dynamic.source][dynamic.key]}%
             </span>
           {/if}
         </div>
         {#key is_editing}
           <Meter
-            class="meter"
+            class="
+              absolute
+              bottom-0
+              left-0
+              z-0
+              h-px
+              w-full
+            "
             value={profileState.char[dynamic.source][dynamic.key]}
             min={0}
             max={100}
@@ -151,230 +285,85 @@
   </div>
 
   <!-- RAW EXPLORER -->
-  <div class="body">
-    <details class="explorer">
-      <summary>View JSON Data</summary>
+  <div
+    class="
+      flex
+      w-full
+      flex-col
+      gap-2
+    "
+  >
+    <details>
+      <summary
+        class="
+          cursor-pointer
+          text-[10px]
+          font-(--font-family-mono)
+          tracking-widest
+          text-cyan-400
+          uppercase
+          transition-[filter]
+          duration-150
+          ease-in-out
+
+          hover:brightness-125
+        ">View JSON Data</summary
+      >
       <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
-        <pre class="font-mono">{JSON.stringify(profileState.char, null, 2)}</pre>
+        <pre class="font-(--font-family-mono)">{JSON.stringify(profileState.char, null, 2)}</pre>
       </DataBox>
     </details>
   </div>
 
   <!-- META FOOTER -->
-  <footer class="footer">
-    <div class="meta">
-      <span class="tag">Born:</span>
-      <span class="val">{format_timestamp(profileState.char.created_at)}</span>
+  <footer
+    class="
+      mt-2
+      flex
+      flex-col
+      gap-2
+      border-t
+      border-white/5
+      pt-2
+    "
+  >
+    <div
+      class="
+        flex
+        justify-between
+        gap-4
+        text-[10px]
+        font-(--font-family-mono)
+        tracking-widest
+        uppercase
+      "
+    >
+      <span
+        class="
+          text-cyan-400
+          opacity-60
+        ">Born:</span
+      >
+      <span class="text-slate-50">{format_timestamp(profileState.char.created_at)}</span>
     </div>
-    <div class="meta">
-      <span class="tag">Sync:</span>
-      <span class="val">{format_timestamp(profileState.char.updated_at)}</span>
+    <div
+      class="
+        flex
+        justify-between
+        gap-4
+        text-[10px]
+        font-(--font-family-mono)
+        tracking-widest
+        uppercase
+      "
+    >
+      <span
+        class="
+          text-cyan-400
+          opacity-60
+        ">Sync:</span
+      >
+      <span class="text-slate-50">{format_timestamp(profileState.char.updated_at)}</span>
     </div>
   </footer>
 </section>
-
-<style>
-  /* --- ROOT SHELL --- */
-
-  .root {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    padding: var(--padding-standard);
-    border-radius: var(--radius-standard);
-    --dev-accent: var(--electric-cyan);
-  }
-
-  /* --- BODY BLOCKS --- */
-
-  .body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-    width: 100%;
-  }
-
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: var(--gap-standard);
-  }
-
-  /* --- DYNAMIC CARDS --- */
-
-  .card {
-    padding: var(--padding-standard);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: calc(var(--spacing-unit) * 16);
-    background: var(--glass-sunken);
-    border-radius: var(--radius-sharp);
-    transition: all var(--duration-standard) var(--ease-elastic);
-    position: relative;
-    overflow: hidden;
-    border: var(--border-width-base) solid transparent;
-    user-select: none;
-  }
-
-  .card.is-editable {
-    cursor: pointer;
-  }
-
-  .card.is-editable:hover,
-  .card.is-editable:focus-within {
-    background: var(--glass-base);
-    border-color: var(--dev-accent);
-    box-shadow: var(--shadow-standard);
-    z-index: var(--z-index-elevated);
-  }
-
-  .card::after {
-    content: "";
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: var(--spacing-pixel);
-    background: var(--dev-accent);
-    opacity: var(--opacity-ghost);
-  }
-
-  :global(.card .meter) {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: var(--spacing-pixel);
-    width: 100%;
-    z-index: var(--z-index-surface);
-  }
-
-  :global(.card .meter .indicator) {
-    background: var(--dev-accent);
-    box-shadow: 0 0 calc(var(--spacing-unit) * 2) var(--dev-accent);
-  }
-
-  .label {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    color: var(--dev-accent);
-    margin-bottom: var(--margin-tight);
-    cursor: help;
-    transition: filter var(--duration-fast) var(--ease-standard);
-    z-index: var(--z-index-surface);
-  }
-
-  .card.is-editable:hover .label {
-    filter: brightness(1.2);
-  }
-
-  /* --- VALUE CONTROLS --- */
-
-  .value {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    width: 100%;
-    z-index: var(--z-index-surface);
-  }
-
-  .value input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--frisk);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    text-align: center;
-    padding: var(--padding-tight) 0;
-    outline: none;
-    appearance: textfield;
-  }
-
-  .value input::-webkit-outer-spin-button,
-  .value input::-webkit-inner-spin-button {
-    appearance: none;
-    margin: 0;
-  }
-
-  .display {
-    color: var(--frisk);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    padding: var(--padding-tight) 0;
-  }
-
-  .actions {
-    position: absolute;
-    right: calc(-1 * var(--padding-standard));
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-pixel);
-    opacity: 0;
-    transition:
-      opacity var(--duration-fast) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-elastic);
-    transform: translateX(var(--margin-tight));
-    z-index: var(--z-index-elevated);
-    pointer-events: none;
-  }
-
-  .card.is-editable:hover .actions,
-  .card.is-editable:focus-within .actions {
-    opacity: 1;
-    transform: translateX(0);
-    pointer-events: auto;
-  }
-
-  /* --- EXPLORER --- */
-
-  .explorer summary {
-    font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-bold);
-    color: var(--dev-accent);
-    text-transform: uppercase;
-    cursor: pointer;
-    letter-spacing: var(--font-spacing-loose);
-    transition: filter var(--duration-fast) var(--ease-standard);
-  }
-
-  .explorer summary:hover {
-    filter: brightness(1.2);
-  }
-
-  /* --- FOOTER --- */
-
-  .footer {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-    padding-top: var(--padding-tight);
-    border-top: var(--border-width-base) solid var(--border-whisper);
-  }
-
-  .meta {
-    display: flex;
-    justify-content: space-between;
-    gap: var(--gap-standard);
-    font-size: var(--font-size-tiny);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    font-family: var(--font-family-mono);
-  }
-
-  .meta .tag {
-    opacity: var(--opacity-muted);
-    color: var(--dev-accent);
-  }
-
-  .meta .val {
-    color: var(--frisk);
-  }
-</style>

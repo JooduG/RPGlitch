@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { db, stories } from "@data";
   import { session_driver } from "@engine";
   import { Audio } from "@media";
@@ -124,8 +124,17 @@
 />
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()} data-testid="control-panel">
-  <header class="header">
-    <div class="settings-group" style="gap: var(--gap-standard); align-items: center;">
+  <header>
+    <div
+      class="
+      flex
+      w-full
+      flex-wrap
+      items-center
+      justify-around
+      gap-4
+    "
+    >
       <Toggle
         label="CALL MODE"
         bind:value={settings.call_mode}
@@ -139,20 +148,32 @@
           if (!Audio.voice_enabled) Audio.voice.stop();
         }}
       />
-      <div
-        class="volume-container"
-        style="width: calc(var(--column-unit) * 2); min-width: calc(var(--spacing-unit) * 25);"
-      >
+      <div style="width: calc(var(--column-unit) * 2); min-width: calc(var(--spacing-unit) * 25);">
         <Slider label="VOLUME" bind:value={Audio.volume} min={0} max={1} step={0.1} />
       </div>
     </div>
   </header>
 
-  <div class="content-body">
+  <div
+    class="
+    flex
+    h-full
+    w-full
+    flex-col
+    justify-center
+    gap-4
+  "
+  >
     {#if is_storyboard}
-      <section class="section">
+      <section
+        class="
+        flex
+        w-full
+        flex-col
+        gap-4
+      "
+      >
         <TextField
-          class="text-area"
           is_edit={true}
           placeholder="Optional Prologue Instructions like 'Start in media res' or 'Describe the weather first'"
           bind:value={prologue}
@@ -163,11 +184,21 @@
     {#if is_storymode}
       <section
         class="
-          section
-          actions
-        "
+        flex
+        w-full
+        flex-col
+        items-center
+        gap-4
+      "
       >
-        <div class="action-row">
+        <div
+          class="
+          flex
+          w-full
+          justify-center
+          gap-4
+        "
+        >
           <Button
             label="GHOSTWRITE"
             variant="primary"
@@ -183,9 +214,12 @@
         </div>
         <div
           class="
-            action-row
-            secondary
-          "
+          flex
+          w-full
+          justify-center
+          gap-4
+          opacity-30
+        "
         >
           <Button
             label="MOCK PROLOGUE"
@@ -202,9 +236,14 @@
         </div>
         <div
           class="
-            action-row
-            danger-zone
-          "
+          flex
+          w-[80%]
+          justify-center
+          gap-4
+          border-t
+          border-white/15
+          pt-2
+        "
         >
           <Button
             label="END STORY"
@@ -216,10 +255,23 @@
       </section>
     {/if}
 
-    <section class="section">
+    <section
+      class="
+      flex
+      w-full
+      flex-col
+      gap-4
+    "
+    >
       {#if story_cache.length > 0}
-        <ScrollArea class="stories-scroll-area" style="max-height: var(--dropdown-max-height);">
-          <div class="list">
+        <ScrollArea style="max-height: var(--dropdown-max-height);">
+          <div
+            class="
+            flex
+            flex-col
+            gap-2
+          "
+          >
             {#each story_cache as story (story.id)}
               <StoryCard
                 {story}
@@ -230,14 +282,46 @@
           </div>
         </ScrollArea>
       {:else}
-        <p class="status">No stories yet..</p>
+        <p
+          class="
+            m-0
+            min-h-(--row-unit)
+            content-center
+            rounded-md
+            bg-black/15
+            text-center
+            text-sm
+            text-slate-600
+            italic
+            backdrop-blur-sm
+          "
+        >
+          No stories yet..
+        </p>
       {/if}
     </section>
   </div>
 
-  <footer class="footer">
-    <div class="admin-bar">
-      <div class="settings-group">
+  <footer>
+    <div
+      class="
+      flex
+      w-full
+      items-center
+      justify-between
+      gap-4
+    "
+    >
+      <div
+        class="
+        flex
+        w-full
+        flex-wrap
+        items-center
+        justify-around
+        gap-4
+      "
+      >
         <Toggle
           label="DEVMODE"
           bind:value={settings.dev_mode}
@@ -256,8 +340,12 @@
         >
           <svg
             class="
-              icon-medium
-              icon-outline
+              size-(--icon-medium)
+              fill-none
+              stroke-current
+              stroke-2
+              [stroke-linecap:round]
+              [stroke-linejoin:round]
             "
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
@@ -271,97 +359,3 @@
     </div>
   </footer>
 </Modal>
-
-<style>
-  .settings-group {
-    width: 100%;
-    align-items: center;
-    display: flex;
-    justify-content: space-around;
-    flex-wrap: wrap;
-  }
-
-  .content-body {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    width: 100%;
-    height: 100%;
-    justify-content: center;
-  }
-
-  .section {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-
-  .actions {
-    align-items: center;
-    gap: var(--gap-standard);
-  }
-
-  .action-row {
-    display: flex;
-    justify-content: center;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-
-  .action-row.secondary {
-    opacity: var(--opacity-whisper);
-  }
-
-  .action-row.danger-zone {
-    padding-top: var(--padding-tight);
-    border-top: var(--border-whisper);
-    width: 80%;
-  }
-
-  .list {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-  }
-
-  .status {
-    color: var(--frozen);
-    font-size: var(--font-size-small);
-    font-style: italic;
-    text-align: center;
-    align-content: center;
-    margin: 0;
-    background: var(--glass-sunken);
-    backdrop-filter: var(--blur-whisper);
-    border-radius: var(--radius-standard);
-    min-height: var(--row-unit);
-  }
-
-  .admin-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-
-  @keyframes pulse {
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.6;
-    }
-  }
-
-  .icon-outline {
-    fill: none;
-    stroke: currentcolor;
-    stroke-width: 2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-</style>

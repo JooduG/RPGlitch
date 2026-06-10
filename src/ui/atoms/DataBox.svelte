@@ -30,7 +30,7 @@
     border-white/10
     bg-zinc-900/40
     text-left
-    font-mono
+    font-(--font-family-mono)
     backdrop-blur-sm
     transition-all
     duration-300

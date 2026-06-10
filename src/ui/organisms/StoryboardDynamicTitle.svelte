@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file StoryboardDynamicTitle.svelte
    * THE DYNAMIC NARRATIVE HEADER
@@ -123,7 +123,33 @@
 </script>
 
 <h2
-  class="root"
+  class="
+    pointer-events-none
+    z-40
+    block
+    max-w-[100vw]
+    cursor-text
+    px-4
+    py-2
+    text-center
+    font-['Satisfy',cursive]
+    text-3xl
+    font-normal
+    text-balance
+    transition-all
+    duration-300
+    select-none
+
+    hover:rounded-md
+    hover:bg-white/5
+
+    focus:rounded-md
+    focus:bg-black/20
+    focus:shadow-md
+    focus:outline-none
+
+    [&>span]:pointer-events-auto
+  "
   use:tooltip={{ text: "Double-click to re-roll title" }}
   contenteditable="true"
   aria-label="Story Title"
@@ -131,99 +157,34 @@
   ondblclick={handle_reset}
 >
   {#if is_custom}
-    <span class="text-shadow-outline">{custom_title}</span>
+    <span
+      class="[text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]"
+      >{custom_title}</span
+    >
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
         <span
           class="
-            entity
-            text-shadow-bloom
+            inline
+            px-2
+            font-['Satisfy',cursive]
+            whitespace-nowrap
+            text-(--signature-color)
+            [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
           "
           style:--signature-color={part.color}>{part.text}</span
         >
       {:else}
         <span
           class="
-            prefix
-            text-shadow-outline
-          ">{part.text}</span
+          inline
+          px-2
+          whitespace-normal
+          [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]
+        ">{part.text}</span
         >
       {/if}
     {/each}
   {/if}
 </h2>
-
-<style>
-  /* Ensure Satisfy loads even if index.html is bypassed */
-  @import "https://fonts.googleapis.com/css2?family=Satisfy&display=swap";
-
-  .root {
-    /* Layout & Alignment */
-    z-index: var(--z-index-overlay);
-    display: block;
-    max-width: 100vw;
-    padding: var(--padding-tight) var(--padding-standard);
-
-    /* Typography */
-    font-family: Satisfy, cursive;
-    font-size: var(--font-size-h2);
-    font-weight: var(--font-weight-base);
-    text-align: center;
-    text-wrap: balance;
-
-    /* Interactive */
-    cursor: text;
-    user-select: none;
-    pointer-events: none; /* Allow interaction through to cards */
-    transition:
-      background var(--motion-standard),
-      transform var(--motion-standard),
-      box-shadow var(--motion-standard);
-  }
-
-  /* Re-enable pointer events for the actual text content */
-  .root > span {
-    pointer-events: auto;
-  }
-
-  .root:hover {
-    background: var(--glass-base);
-    border-radius: var(--radius-standard);
-  }
-
-  .root:focus {
-    background: var(--glass-sunken);
-    outline: none;
-    box-shadow: var(--title-shadow-focus);
-    border-radius: var(--radius-standard);
-  }
-
-  .prefix,
-  .entity {
-    display: inline;
-    padding: 0 var(--padding-tight);
-    white-space: normal; /* Allow wrapping between prefix parts */
-  }
-
-  .entity {
-    font-family: Satisfy, cursive;
-    color: var(--signature-color);
-    white-space: nowrap; /* Prevent breaking names across lines */
-  }
-
-  /* Specialized Shadow Patterns for Storyboard Legibility */
-  .text-shadow-outline {
-    text-shadow:
-      0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
-      0 0 var(--spacing-unit) var(--void-black);
-  }
-
-  .text-shadow-bloom {
-    text-shadow:
-      0 var(--spacing-pixel) var(--spacing-pixel) var(--void-black),
-      0 0 var(--spacing-unit) var(--signature-color),
-      0 0 calc(var(--spacing-unit) * 4)
-        rgb(from var(--signature-color) r g b / var(--opacity-whisper));
-  }
-</style>

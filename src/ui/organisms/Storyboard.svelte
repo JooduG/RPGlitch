@@ -17,7 +17,7 @@
 
   /**
    * Fires a `context-swap` signal to the ContextBroker whenever the active
-   * "Chin" (view/tab) changes. Zero-latency â€” no engine re-initialization.
+   * "Chin" (view/tab) changes. Zero-latency — no engine re-initialization.
    */
   $effect(() => {
     context_broker.loadViewContext(app.view);
@@ -56,8 +56,14 @@
 
   {#snippet left()}
     <div
-      class="storyboard-card-ai"
-      style="view-transition-name: entity-morph-ai; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;"
+      class="
+        flex
+        h-full
+        w-full
+        items-center
+        justify-center
+        [view-transition-name:entity-morph-ai]
+      "
     >
       {@render Slot(
         "ai",
@@ -71,8 +77,14 @@
 
   {#snippet center()}
     <div
-      class="storyboard-card-fractal"
-      style="view-transition-name: entity-morph-fractal; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;"
+      class="
+        flex
+        h-full
+        w-full
+        items-center
+        justify-center
+        [view-transition-name:entity-morph-fractal]
+      "
     >
       {@render Slot(
         "fractal",
@@ -86,8 +98,14 @@
 
   {#snippet right()}
     <div
-      class="storyboard-card-user"
-      style="view-transition-name: entity-morph-user; display: flex; align-items: center; justify-content: center; height: 100%; width: 100%;"
+      class="
+        flex
+        h-full
+        w-full
+        items-center
+        justify-center
+        [view-transition-name:entity-morph-user]
+      "
     >
       {@render Slot(
         "user",

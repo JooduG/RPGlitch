@@ -1,8 +1,8 @@
 <script>
   /**
    * @file src/ui/organisms/Profile.svelte
-   * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
-   * Chalk Regime UI · Flat DOM · Bolted Architecture
+   * ðŸ§ª ENTITY EDITOR â€” Primary orchestrator for viewing and editing entities.
+   * Chalk Regime UI Â· Flat DOM Â· Bolted Architecture
    */
   import { click_outside } from "@actions";
   import { Button, Modal, ProfilePicture, ScrollArea, TextField, tooltip } from "@atoms";
@@ -43,7 +43,7 @@
       target.closest(".tooltip-portal")
     )
       return;
-    if (target.closest(".mini-backdrop") || target.closest(".root.mini")) return;
+    if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
 
     state.handle_close();
   }
@@ -61,30 +61,119 @@
 
   <Modal variant="profile" on_close={() => state.handle_close()} is_pass_through={true}>
     <div
-      class="profile-modal"
-      class:is-mobile={app.viewport.mobile}
-      class:is-mini={app.viewport.mini}
+      class="
+        m-auto
+        grid
+        h-(--grid-height)
+        w-(--grid-width)
+        grid-cols-12
+        overflow-hidden"
+      data-mobile={app.viewport.mobile}
+      data-mini={app.viewport.mini}
       role="presentation"
     >
       <div
         class="
-          profile-container
-          no-scrollbar
-          glass-elevated
+          {has_wings ? 'col-[2/8]' : 'col-[4/10]'}
+
+          flex
+          h-full
+          scrollbar-none overflow-auto
+          border-solid
+          border-[color-mix(in_srgb,var(--signature-color)_30%,transparent)]
+          bg-(--glass-elevated)
+          [backdrop-filter:var(--blur-mist)]
+          transition-all
+          duration-300
+          [&::-webkit-scrollbar]:hidden
+
+          {entity_type === 'fractal' ? 'flex-col' : 'flex-row'}
+          {app.viewport.mobile || app.viewport.mini
+          ? `
+            col-span-full
+            flex-col
+          `
+          : ''}
         "
-        class:readonly={!has_wings}
-        class:has-wings={has_wings}
-        data-entity-type={entity_type}
         style:--signature-color={signature_color}
         use:click_outside={handle_click_outside}
       >
-        <div class="avatar-section">
-          <div class="avatar-wrapper">
+        <div
+          class="
+            sticky
+            top-0
+            z-20
+            flex
+            shrink-0
+            items-stretch
+
+            {entity_type === 'fractal'
+            ? `
+              h-12
+              min-h-50
+              w-full
+            `
+            : `
+              h-full
+              w-(--avatar-medium-size)
+            `}
+            {app.viewport.mobile || app.viewport.mini
+            ? `
+              h-auto
+              w-auto
+              items-center
+              justify-center
+              p-4
+            `
+            : ''}
+          "
+        >
+          <div
+            class="
+              overflow-hidden
+              border-solid
+              border-[color-mix(in_srgb,var(--signature-color)_30%,transparent)]
+
+              {entity_type === 'fractal'
+              ? `
+                h-full
+                w-full
+                rounded-none
+                border-0
+                border-b
+              `
+              : `
+                h-full
+                w-full
+                rounded-none
+                border-0
+                border-r
+              `}
+              {app.viewport.mobile || app.viewport.mini
+              ? `
+                h-(--avatar-medium-size)
+                w-(--avatar-medium-size)
+                rounded-md
+                border-(--border-width-base)
+              `
+              : ''}
+            "
+          >
             <ProfilePicture entity={state.char} />
           </div>
         </div>
 
-        <div class="right">
+        <div
+          class="
+            flex
+            min-w-0
+            flex-1
+            flex-col
+            justify-between
+
+            {entity_type === 'fractal' ? 'h-auto' : 'min-h-0'}
+          "
+        >
           <ProfileHeader
             bind:name={state.char.name}
             bind:description={state.char.description}
@@ -96,16 +185,44 @@
 
           <main
             class="
-              profile-content
-              no-scrollbar
+              grow
+              p-0
+
+              {entity_type === 'fractal'
+              ? `
+                h-auto
+                overflow-visible
+              `
+              : 'overflow-visible'}
+
+              scrollbar-none [&::-webkit-scrollbar]:hidden
             "
           >
-            <ScrollArea style="height: var(--state-fill-end);">
+            <ScrollArea
+              style={entity_type === "fractal"
+                ? "height: auto; overflow: visible;"
+                : "height: 100%;"}
+            >
               {@render EntityBody()}
             </ScrollArea>
           </main>
 
-          <footer class="profile-footer">
+          <footer
+            class="
+              flex
+              shrink-0
+              gap-4
+              p-4
+
+              {app.viewport.mobile || app.viewport.mini
+              ? `
+                w-full
+                flex-col
+                items-stretch
+              `
+              : 'justify-end'}
+            "
+          >
             {#if state.is_editing}
               <Button variant="secondary" onclick={() => state.save(entity_type)}>Save</Button>
               <Button variant="danger" onclick={() => (state.show_delete_confirm = true)}
@@ -123,8 +240,14 @@
       {#if has_wings}
         <aside
           class="
-            wings-container
-            no-scrollbar
+            col-[9/12] flex
+            animate-[slide-in-left_var(--motion-elastic)]
+            scrollbar-none
+            flex-col
+            justify-center
+            gap-4
+            overflow-y-auto
+            [&::-webkit-scrollbar]:hidden
           "
         >
           {#if state.is_editing}
@@ -142,36 +265,142 @@
 
 {#snippet EntityBody()}
   <div
-    class="profile-fragments"
-    class:is-mobile={app.viewport.mobile}
-    class:is-mini={app.viewport.mini}
+    class="
+      min-w-0
+      p-4
+      pb-8
+
+      {app.viewport.mobile || app.viewport.mini
+      ? `
+        flex
+        flex-col
+        gap-4
+      `
+      : `
+        grid
+        grid-cols-[2rem_1fr]
+        gap-x-2
+        gap-y-4
+      `}
+    "
     data-testid="profile-fragments"
   >
     {#each active_sections as section (section.id)}
       {@const arrayField = section.fields.find((/** @type {any} */ f) => f.type === "array")}
 
       <div
-        class="profile-side"
-        class:interactive={state.is_editing && arrayField}
+        class="
+          relative
+          flex
+          min-w-0
+          flex-col
+          items-center
+          justify-center
+          overflow-hidden
+          text-center
+          transition-all
+          duration-300
+
+          {state.is_editing && arrayField ? 'cursor-pointer' : 'cursor-default'}
+          {app.viewport.mobile || app.viewport.mini
+          ? `
+            border-b
+            border-[color-mix(in_srgb,var(--signature-color)_30%,transparent)]
+            pr-0
+            pb-2
+          `
+          : ''}
+        "
         data-section={section.id}
         onclick={() => arrayField && state.add_vector_item(arrayField.key)}
         onmouseenter={() => (state.hovered_section = section.id)}
         onmouseleave={() => (state.hovered_section = null)}
         role="presentation"
       >
-        <div class="label-wrapper">
-          <h6 class="section-label">
+        <div
+          class="
+            flex
+            w-full
+            flex-col
+            items-center
+
+            {section.id === 'eternal' && !(app.viewport.mobile || app.viewport.mini)
+            ? 'translate-y-4'
+            : ''}
+          "
+        >
+          <h6
+            class="
+              m-0
+              flex
+              flex-col
+              items-center
+              justify-center
+              text-center
+              tracking-widest
+              text-(--signature-color)
+              uppercase
+              drop-shadow-md
+              transition-colors
+              duration-300
+            "
+          >
             {#if state.is_editing && state.hovered_section === section.id && arrayField}
-              <span class="add-hint">+</span>
+              <span
+                class="
+                  pointer-events-none
+                  shrink-0
+                  animate-[add-hint-fade_var(--motion-elastic)]
+                  text-base
+                  font-(--font-family-mono)
+                  tracking-widest
+                  whitespace-nowrap
+                  text-white
+
+                  {app.viewport.mobile || app.viewport.mini ? 'text-center' : ''}
+                ">+</span
+              >
             {/if}
-            <span class="vertical-label-text">{section.label}</span>
+            <span
+              class="
+                {app.viewport.mobile || app.viewport.mini
+                ? ''
+                : `
+                  block
+                  rotate-180
+                  [text-orientation:mixed]
+                  [writing-mode:vertical-rl]
+                `}
+              ">{section.label}</span
+            >
           </h6>
         </div>
       </div>
 
-      <div class="profile-fields" data-columns={section.fields.length}>
+      <div
+        class="
+          grid
+          min-w-0
+          items-stretch
+          gap-4
+
+          {section.fields.length === 2 ? 'grid-cols-2' : 'grid-cols-1'}
+        "
+      >
         {#each section.fields as field (field.key)}
-          <div class="group">
+          <div
+            class="
+              relative
+              flex
+              h-full
+              w-full
+              min-w-0
+              flex-col
+              items-stretch
+              justify-stretch
+              gap-2
+            "
+          >
             {#if field.type === "array"}
               <ProfileArray
                 {state}
@@ -182,14 +411,27 @@
             {:else}
               {@const fieldId = `field-${field.key.replace(".", "-")}`}
               {#if field.label && section.id === "eternal"}
-                <label class="field-label" for={fieldId}>{field.label}</label>
+                <label
+                  class="
+                    block
+                    w-full
+                    text-center
+                    text-[10px]
+                    font-bold
+                    tracking-widest
+                    text-(--signature-color)
+                    uppercase
+                    drop-shadow-md
+                  "
+                  for={fieldId}>{field.label}</label
+                >
               {/if}
               <TextField
                 id={fieldId}
                 is_edit={state.is_editing}
                 syncId={section.label}
                 {signature_color}
-                class={state.active_field?.key === field.key ? "active" : ""}
+                data-active={state.active_field?.key === field.key}
                 placeholder={field.description}
                 value={state.get_safe_value(field.key)}
                 oninput={(/** @type {any} */ e) =>
@@ -201,12 +443,21 @@
                   {#if state.busy_fields.has(field.key)}
                     <span
                       class="
-                        status
-                        pulse
+                        mt-2
+                        block
+                        animate-pulse
+                        text-[10px]
+                        font-(--font-family-mono)
+                        tracking-widest
+                        text-white
+                        uppercase
                       ">ENHANCING</span
                     >
                   {:else if field.sublabel}
-                    <span class="status-msg">{field.sublabel}</span>
+                    <span
+                      class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80"
+                      >{field.sublabel}</span
+                    >
                   {/if}
                 {/snippet}
 
@@ -225,8 +476,12 @@
                       <svg
                         viewBox="0 0 24 24"
                         class="
-                          icon-small
-                          icon-outline
+                          size-(--icon-small)
+                          fill-none
+                          stroke-current
+                          stroke-2
+                          [stroke-linecap:round]
+                          [stroke-linejoin:round]
                         "
                       >
                         <path
@@ -247,53 +502,6 @@
 {/snippet}
 
 <style>
-  .right {
-    flex: 1;
-    min-width: 0;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-  }
-
-  .profile-modal {
-    display: grid;
-    grid-template-columns: repeat(12, 1fr);
-    width: var(--grid-width);
-    height: var(--grid-height);
-    margin: auto;
-    overflow: hidden;
-  }
-
-  .profile-container {
-    grid-column: 4 / 10;
-    display: flex;
-    flex-direction: row;
-    height: var(--state-fill-end);
-    overflow: auto;
-    transition: grid-column var(--motion-standard);
-    border: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
-  }
-
-  .profile-container.readonly {
-    grid-column: 4 / 10;
-  }
-
-  .profile-container.has-wings {
-    grid-column: 2 / 8;
-  }
-
-  .wings-container {
-    grid-column: 9 / 12;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    gap: var(--gap-standard);
-    overflow-y: auto;
-    animation: slide-in-left var(--motion-elastic);
-  }
-
   @keyframes slide-in-left {
     0% {
       opacity: var(--opacity-none);
@@ -306,157 +514,6 @@
     }
   }
 
-  .profile-content {
-    flex-grow: 1;
-    padding: 0;
-    overflow: visible;
-  }
-
-  .profile-footer {
-    flex-shrink: 0;
-    padding: var(--padding-standard);
-    display: flex;
-    justify-content: flex-end;
-    gap: var(--gap-standard);
-  }
-
-  .profile-modal.is-mobile .profile-footer,
-  .profile-modal.is-mini .profile-footer {
-    flex-direction: column;
-    align-items: stretch;
-    width: var(--state-fill-end);
-  }
-
-  .avatar-section {
-    display: flex;
-    align-items: stretch;
-    height: var(--state-fill-end);
-    width: var(--avatar-medium-size);
-    flex-shrink: 0;
-    position: sticky;
-    top: 0;
-    z-index: var(--z-index-surface);
-  }
-
-  .avatar-wrapper {
-    width: var(--state-fill-end);
-    height: var(--state-fill-end);
-    border-radius: 0;
-    overflow: hidden;
-    border: none;
-    border-right: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
-  }
-
-  .profile-container[data-entity-type="fractal"] {
-    flex-direction: column;
-    overflow-y: auto;
-  }
-
-  .profile-container[data-entity-type="fractal"] .avatar-section {
-    width: var(--state-fill-end);
-    height: calc(var(--row-unit) * 3);
-    min-height: calc(var(--spacing-unit) * 50);
-    flex-shrink: 0;
-  }
-
-  .profile-container[data-entity-type="fractal"] .avatar-wrapper {
-    border-right: none;
-    border-bottom: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
-  }
-
-  .profile-container[data-entity-type="fractal"] .right {
-    height: auto;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .profile-container[data-entity-type="fractal"] .profile-content {
-    height: auto;
-    overflow: visible;
-  }
-
-  .profile-container[data-entity-type="fractal"] :global(.scroll-area-readonly),
-  .profile-container[data-entity-type="fractal"] :global(.scroll-area-viewport) {
-    height: auto;
-    overflow: visible;
-  }
-
-  .profile-fragments {
-    display: grid;
-    grid-template-columns: calc(var(--gap-standard) * 2) 1fr;
-    gap: var(--gap-standard) var(--gap-tight);
-    padding: var(--padding-standard);
-    padding-bottom: var(--padding-loose);
-    min-width: 0;
-  }
-
-  .profile-side {
-    text-align: center;
-    cursor: default;
-    transition: all var(--duration-standard);
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    min-width: 0;
-    overflow: hidden;
-  }
-
-  .profile-fields {
-    display: grid;
-    gap: var(--gap-standard);
-    min-width: 0;
-    align-items: stretch;
-  }
-
-  .label-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: var(--state-fill-end);
-  }
-
-  .profile-side.interactive {
-    cursor: pointer;
-  }
-
-  .section-label {
-    color: var(--signature-color);
-    text-transform: uppercase;
-    text-shadow: var(--shadow-font);
-    text-align: center;
-    letter-spacing: var(--font-spacing-loose);
-    transition: color var(--duration-standard);
-    hyphens: auto;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .vertical-label-text {
-    writing-mode: vertical-rl;
-    text-orientation: mixed;
-    transform: rotate(180deg);
-    display: block;
-  }
-
-  .add-hint {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-base);
-    font-weight: var(--font-weight-bold);
-    color: var(--pure-white);
-    opacity: var(--opacity-solid);
-    pointer-events: none;
-    letter-spacing: var(--font-spacing-loose);
-    white-space: nowrap;
-    flex-shrink: 0;
-    animation: add-hint-fade var(--motion-elastic);
-  }
-
   @keyframes add-hint-fade {
     0% {
       opacity: var(--opacity-none);
@@ -467,135 +524,5 @@
       opacity: var(--opacity-solid);
       transform: scale(1);
     }
-  }
-
-  .profile-fields[data-columns="2"] {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .profile-fields[data-columns="1"] {
-    grid-template-columns: 1fr;
-  }
-
-  .group {
-    position: relative;
-    width: var(--state-fill-end);
-    height: var(--state-fill-end);
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-    min-width: 0;
-    justify-content: stretch;
-    align-items: stretch;
-  }
-
-  .field-label {
-    display: block;
-    font-size: var(--font-size-nano);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    color: var(--signature-color);
-    opacity: var(--opacity-solid);
-    text-align: center;
-    text-shadow: var(--shadow-font);
-    width: var(--state-fill-end);
-    letter-spacing: var(--font-spacing-loose);
-  }
-
-  .status {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-nano);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    color: var(--pure-white);
-    opacity: var(--opacity-solid);
-    display: block;
-    margin-top: var(--gap-tight);
-  }
-
-  .profile-modal:not(.is-mobile, .is-mini) .profile-side[data-section="eternal"] .label-wrapper {
-    transform: translateY(var(--padding-standard));
-  }
-
-  /* --- RESPONSIVE OVERRIDES --- */
-  .profile-fragments.is-mobile,
-  .profile-fragments.is-mini {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-  }
-
-  .profile-modal.is-mobile .profile-container,
-  .profile-modal.is-mini .profile-container {
-    flex-direction: column;
-  }
-
-  .profile-modal.is-mobile .profile-container[data-entity-type="fractal"],
-  .profile-modal.is-mini .profile-container[data-entity-type="fractal"] {
-    overflow-y: auto;
-  }
-
-  .profile-modal.is-mobile .profile-container[data-entity-type="fractal"] .profile-content,
-  .profile-modal.is-mini .profile-container[data-entity-type="fractal"] .profile-content {
-    overflow-y: visible;
-  }
-
-  .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]),
-  .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) {
-    overflow: visible;
-    height: var(--state-fill-end);
-  }
-
-  .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]) .right,
-  .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) .right {
-    flex: 1;
-    min-height: 0;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .profile-modal.is-mobile .profile-container:not([data-entity-type="fractal"]) .profile-content,
-  .profile-modal.is-mini .profile-container:not([data-entity-type="fractal"]) .profile-content {
-    flex-grow: 1;
-    overflow: visible;
-  }
-
-  .profile-modal.is-mobile .avatar-section,
-  .profile-modal.is-mini .avatar-section {
-    width: auto;
-    height: auto;
-    align-items: center;
-    justify-content: center;
-    padding: var(--padding-standard) var(--padding-standard) 0 var(--padding-standard);
-    flex-shrink: 0;
-  }
-
-  .profile-modal.is-mobile .avatar-wrapper,
-  .profile-modal.is-mini .avatar-wrapper {
-    width: var(--avatar-medium-size);
-    height: var(--avatar-medium-size);
-    border-radius: var(--radius-standard);
-    border: var(--border-width-base) solid
-      color-mix(in srgb, var(--signature-color) 30%, transparent);
-  }
-
-  .profile-modal.is-mobile .profile-side,
-  .profile-modal.is-mini .profile-side {
-    text-align: center;
-    border-bottom: var(--border-width-base) solid
-      rgb(from var(--signature-color) r g b / var(--opacity-whisper));
-    padding-right: 0;
-    padding-bottom: var(--padding-tight);
-    align-items: center;
-  }
-
-  .profile-modal.is-mobile .section-label,
-  .profile-modal.is-mini .section-label {
-    align-items: center;
-  }
-
-  .profile-modal.is-mobile .add-hint,
-  .profile-modal.is-mini .add-hint {
-    text-align: center;
   }
 </style>
