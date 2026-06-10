@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file Dropdown.svelte
    * 💧 THE CHALK REGIME SELECT PRIMITIVE
@@ -94,7 +94,7 @@
   </Select.Trigger>
 
   <Select.Portal>
-    <Select.Content class="z-9999" sideOffset={8} forceMount>
+    <Select.Content class="z-(--z-index-max)" sideOffset={8} forceMount>
       {#snippet child({ wrapperProps, props, open })}
         {#if open}
           <div {...wrapperProps}>

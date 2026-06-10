@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/profile/VisualWing.svelte
    * â„ï¸ THE ENTITY SHOWCASE ENGINE
@@ -204,17 +204,54 @@
 
 <section
   class="
-    wing
-    glass-elevated
-  "
+  flex w-full
+  flex-col
+  gap-4
+  rounded-md
+  bg-(--glass-elevated)
+  p-4
+  [backdrop-filter:var(--blur-mist)]
+"
 >
   <!-- ðŸŽ¨ COLOR SWATCHES -->
-  <div class="swatches">
+  <div
+    class="
+    grid
+    grid-cols-5
+    gap-2
+  "
+  >
     {#each SPECTRUM_COLORS as [name, hex] (name)}
       {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
       <div
-        class="swatch"
-        class:active={current_label === name}
+        class="
+          relative
+          aspect-square
+          w-full
+          rounded-md
+          shadow-sm
+          transition-all
+          duration-300
+          ease-in-out
+
+          has-[:not(:disabled)]:hover:z-20
+          has-[:not(:disabled)]:hover:shadow-md
+          has-[:not(:disabled)]:hover:brightness-110
+
+          {current_label === name
+          ? `
+            z-20
+            scale-110
+            cursor-default
+            shadow-[0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
+            outline
+            outline-offset-2
+            outline-white
+            brightness-110
+
+            hover:brightness-100!
+          `
+          : ''}"
         style="--swatch-color: {color}; background-color: var(--swatch-color);"
       >
         <Button
@@ -230,12 +267,9 @@
     {/each}
   </div>
 
-  <!-- ðŸ‘ï¸ IMAGE PROMPT -->
+  <!-- ðŸ‘ ï¸  IMAGE PROMPT -->
   <TextField
-    class="
-      prompt-field
-
-      {profileState.active_field?.key === 'visual-prompt' ? `active` : ''}"
+    data-active={profileState.active_field?.key === "visual-prompt" ? true : undefined}
     is_edit={profileState.is_editing}
     busy={is_prompt_busy}
     bind:value={profileState.char.modifiers.prompt}
@@ -249,29 +283,83 @@
     {#snippet status()}
       {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
         <div
-          class="status-bar"
-          class:is-error={app.visual.error || app.visual.isOffline}
-          class:is-loading={is_prompt_busy}
+          class="
+            flex
+            items-center
+            gap-4
+            rounded-full
+            border
+            p-2
+
+            {app.visual.error || app.visual.isOffline
+            ? `
+              border-red-500/15
+              bg-red-500/15
+              text-red-500
+            `
+            : `
+              border-white/15
+              bg-white/5
+              text-slate-50
+            `}"
+          data-loading={is_prompt_busy}
         >
-          <div class="status-content">
+          <div
+            class="
+            box-border
+            flex
+            items-center
+            gap-4
+          "
+          >
             {#if app.visual.isOffline}
-              <span class="tag">OFFLINE</span>
+              <span
+                class="
+                  text-[0.625rem]
+                  font-(--font-family-mono)
+                  tracking-widest
+                  text-inherit
+                  uppercase
+                ">OFFLINE</span
+              >
             {:else if app.visual.error}
-              <span class="tag">ERROR</span>
-              <span class="status-msg">{app.visual.error}</span>
+              <span
+                class="
+                  text-[0.625rem]
+                  font-(--font-family-mono)
+                  tracking-widest
+                  text-inherit
+                  uppercase
+                ">ERROR</span
+              >
+              <span
+                class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80"
+                >{app.visual.error}</span
+              >
             {:else if app.visual.attempts > 0}
               <span
                 class="
-                  tag
-                  pulse
+                  animate-pulse
+                  text-[0.625rem]
+                  font-(--font-family-mono)
+                  tracking-widest
+                  text-inherit
+                  uppercase
                 ">RETRYING</span
               >
-              <span class="status-msg">Attempt {app.visual.attempts}</span>
+              <span
+                class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80"
+                >Attempt {app.visual.attempts}</span
+              >
             {:else}
               <span
                 class="
-                  tag
-                  pulse
+                  animate-pulse
+                  text-[0.625rem]
+                  font-(--font-family-mono)
+                  tracking-widest
+                  text-inherit
+                  uppercase
                 ">GENERATING</span
               >
             {/if}
@@ -282,13 +370,18 @@
 
     {#snippet header_actions()}
       {#if profileState.is_editing}
-        <div class="actions">
+        <div
+          class="
+          flex
+          items-center
+          gap-2
+        "
+        >
           <Button
             variant="invisible"
             size="small"
             square
             aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-            class="action"
             actions={[tooltip]}
             onclick={handle_creative_action}
             onmousedown={prevent_default}
@@ -298,9 +391,8 @@
               <svg
                 viewBox="0 0 24 24"
                 class="
-                  icon-small
-                  icon-outline
-                "
+                size-(--icon-small)
+              "
               >
                 <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
                 ></path>
@@ -309,9 +401,8 @@
               <svg
                 viewBox="0 0 24 24"
                 class="
-                  icon-small
-                  icon-outline
-                "
+                size-(--icon-small)
+              "
                 fill="none"
               >
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
@@ -327,7 +418,6 @@
             size="small"
             square
             aria-label="Generate Image"
-            class="action"
             actions={[tooltip]}
             onclick={handle_generate}
             onmousedown={prevent_default}
@@ -336,9 +426,8 @@
             <svg
               viewBox="0 0 24 24"
               class="
-                icon-small
-                icon-outline
-              "
+              size-(--icon-small)
+            "
               fill="none"
             >
               <path
@@ -354,7 +443,6 @@
             size="small"
             square
             aria-label="Upload Portrait"
-            class="action"
             actions={[tooltip]}
             onclick={handle_upload_portrait}
             onmousedown={prevent_default}
@@ -363,9 +451,8 @@
             <svg
               viewBox="0 0 24 24"
               class="
-                icon-small
-                icon-outline
-              "
+              size-(--icon-small)
+            "
               fill="none"
             >
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"></path>
@@ -378,8 +465,14 @@
     {/snippet}
   </TextField>
 
-  <!-- âš™ï¸ RENDER TOGGLES -->
-  <div class="controls">
+  <!-- âš™ï¸  RENDER TOGGLES -->
+  <div
+    class="
+    flex
+    flex-col
+    gap-2
+  "
+  >
     <Toggle
       label="No Background"
       bind:value={profileState.noBackground}
@@ -392,122 +485,3 @@
     />
   </div>
 </section>
-
-<style>
-  /* --- Wing Shell --- */
-
-  .wing {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    padding: var(--padding-standard);
-    border-radius: var(--radius-standard);
-  }
-
-  /* --- Swatches --- */
-
-  .swatches {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
-    gap: var(--gap-tight);
-  }
-
-  .swatch {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    border-radius: var(--radius-standard);
-    box-shadow: var(--shadow-ghost);
-    transition:
-      transform var(--duration-fast) var(--motion-dissolve),
-      box-shadow var(--duration-fast) var(--motion-dissolve),
-      filter var(--duration-fast) var(--motion-dissolve);
-  }
-
-  .swatch:hover:not(:has(button:disabled)) {
-    z-index: var(--z-index-elevated);
-    box-shadow: var(--shadow-standard);
-    filter: brightness(1.15);
-  }
-
-  .swatch.active {
-    outline: calc(var(--spacing-pixel) * 3) solid var(--pure-white);
-    outline-offset: calc(var(--spacing-pixel) * 2);
-    box-shadow: 0 0 calc(var(--spacing-unit) * 5) var(--swatch-color);
-    transform: scale(1.14);
-    z-index: var(--z-index-elevated);
-    cursor: default;
-    filter: brightness(1.1);
-  }
-
-  .swatch.active:hover {
-    filter: none;
-  }
-
-  /* --- Status & Actions --- */
-
-  :global(.prompt-field .status-bar) {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-standard);
-    color: var(--pure-white);
-    background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    padding: var(--padding-tight);
-    border-radius: var(--radius-full);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-whisper));
-  }
-
-  :global(.prompt-field .status-content) {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-standard);
-    box-sizing: border-box;
-  }
-
-  :global(.prompt-field .status-bar.is-error) {
-    color: var(--crimson-red);
-    background: rgb(from var(--crimson-red) r g b / var(--opacity-whisper));
-    border-color: rgb(from var(--crimson-red) r g b / var(--opacity-whisper));
-  }
-
-  :global(.prompt-field .tag) {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
-    font-weight: var(--font-weight-bold);
-    letter-spacing: var(--font-spacing-loose);
-    text-transform: uppercase;
-    color: inherit;
-  }
-
-  :global(.prompt-field .tag.pulse) {
-    animation: pulse-tag 1.4s ease-in-out infinite;
-  }
-
-  :global(.prompt-field .actions) {
-    display: flex;
-    align-items: center;
-    gap: var(--gap-tight);
-  }
-
-  /* --- Controls --- */
-
-  .controls {
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-tight);
-  }
-
-  /* --- Animations --- */
-
-  @keyframes pulse-tag {
-    0%,
-    100% {
-      opacity: 1;
-    }
-
-    50% {
-      opacity: 0.4;
-    }
-  }
-</style>

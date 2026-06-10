@@ -107,9 +107,9 @@ components:
   breakpoint-mini: 30rem
   breakpoint-mobile: 48rem
   breakpoint-tablet: 64rem
-  brightness-dim: brightness(0.9)
-  brightness-glow: brightness(1.1)
-  brightness-muted: brightness(0.3)
+  brightness-dim: "0.9"
+  brightness-glow: "1.1"
+  brightness-muted: "0.3"
   danger-glow: 0 0 calc(var(--spacing-unit) * 3) var(--crimson-red)
   danger-hover-shadow: |-
     0 0 calc(var(--spacing-unit) * 4)
@@ -157,9 +157,9 @@ components:
   opacity-none: "0"
   opacity-solid: "1"
   opacity-whisper: "0.3"
-  scale-lift: scale(1.02)
-  scale-pulse: scale(1.05)
-  scale-sink: scale(0.96)
+  scale-lift: "1.02"
+  scale-pulse: "1.05"
+  scale-sink: "0.96"
   scrollbar-thumb: var(--gunmetal)
   scrollbar-thumb-hover: var(--frisk)
   scrollbar-track: transparent
@@ -245,9 +245,9 @@ All imagery in the RPGlitch ecosystem must adhere to the following stylistic con
 
 ## 📐 The Chalk Regime (Laws)
 
-### 1. Token Sovereignty **FATAL CONSTRAINT**
+### 1. Token Sovereignty & IDE Alignment
 
-The system operates within a closed-loop token architecture. Writing raw pixel values (`px`), rems (`rem`), ems (`em`), or hex codes (`#`) in any implementation file is strictly forbidden (**Heresy**).
+The system operates within a closed-loop token architecture. While using raw values is generally discouraged, **Tailwind CSS v4 IDE IntelliSense suggestions take absolute priority**. Do not enforce strict arbitrary properties if the IDE suggests a valid shorthand (e.g., `mask-exclude`).
 
 ### 2. Kinetic Physics (The Grounded Law)
 
@@ -523,26 +523,6 @@ select:focus {
   outline: none;
 }
 
-.glass-sunken {
-  background: var(--glass-sunken);
-  backdrop-filter: var(--blur-whisper);
-}
-
-.glass-base {
-  background: var(--glass-base);
-  backdrop-filter: var(--blur-whisper);
-}
-
-.glass-elevated {
-  background: var(--glass-elevated);
-  backdrop-filter: var(--blur-mist);
-}
-
-.glass-peak {
-  background: var(--glass-peak);
-  backdrop-filter: var(--blur-void);
-}
-
 .interactable {
   cursor: pointer;
   user-select: none;
@@ -559,21 +539,7 @@ select:focus {
 
 .interactable:active {
   transform: var(--scale-sink);
-  filter: var(--brightness-dim);
-}
-
-/* --- TYPOGRAPHY UTILITIES --- */
-
-.font-heading {
-  font-family: var(--font-family-heading);
-}
-
-.font-mono {
-  font-family: var(--font-family-mono);
-}
-
-.font-base {
-  font-family: var(--font-family-base);
+  filter: brightness(var(--brightness-dim));
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
@@ -595,23 +561,6 @@ select:focus {
     calc(var(--spacing-pixel) * -1) calc(var(--spacing-pixel) * -1) 0 var(--void-black),
     0 0 calc(var(--spacing-unit) * 2) var(--signature-color),
     0 0 calc(var(--spacing-unit) * 6) rgb(from var(--signature-color) r g b / var(--opacity-muted));
-}
-
-/* --- ICONS --- */
-
-.icon-small {
-  width: var(--icon-small);
-  height: var(--icon-small);
-}
-
-.icon-medium {
-  width: var(--icon-medium);
-  height: var(--icon-medium);
-}
-
-.icon-large {
-  width: var(--icon-large);
-  height: var(--icon-large);
 }
 
 .icon-outline {

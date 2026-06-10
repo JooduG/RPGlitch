@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/profile/AudioWing.svelte
    * ðŸ”Š THE SONIC IDENTITY
@@ -67,12 +67,29 @@
 
 <section
   class="
-    root
-    glass-elevated
+    flex
+    w-full
+    flex-col
+    gap-4
+    rounded-md
+    border
+    border-white/5
+    bg-black/25
+    p-4
+    shadow-md
+    backdrop-blur-sm
   "
 >
   <!-- VOICE SELECTOR -->
-  <div class="controls">
+  <div
+    class="
+    grid
+    w-full
+    grid-cols-[minmax(0,1fr)_auto]
+    items-stretch
+    gap-2
+  "
+  >
     <Dropdown
       bind:value={profileState.char.voice.uri}
       items={dropdown_items}
@@ -81,7 +98,6 @@
     />
 
     <Button
-      class="preview"
       actions={[tooltip]}
       tooltip="Preview Voice"
       aria-label="Preview Voice"
@@ -95,7 +111,7 @@
         )}
       variant="secondary"
     >
-      <svg viewBox="0 0 24 24" class="icon-small">
+      <svg viewBox="0 0 24 24" class="size-(--icon-small)">
         <path
           fill="currentColor"
           d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
@@ -105,7 +121,14 @@
   </div>
 
   <!-- PARAMETERS -->
-  <div class="body">
+  <div
+    class="
+    flex
+    w-full
+    flex-row
+    gap-4
+  "
+  >
     <Slider
       min={0.1}
       max={2.0}
@@ -126,35 +149,3 @@
     />
   </div>
 </section>
-
-<style>
-  /* --- ROOT SHELL --- */
-
-  .root {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    padding: var(--padding-standard);
-    border-radius: var(--radius-standard);
-  }
-
-  /* --- CONTROLS ROW --- */
-
-  .controls {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: var(--gap-tight);
-    width: 100%;
-    align-items: stretch;
-  }
-
-  /* --- BODY ROW --- */
-
-  .body {
-    display: flex;
-    flex-direction: row;
-    gap: var(--gap-standard);
-    width: 100%;
-  }
-</style>

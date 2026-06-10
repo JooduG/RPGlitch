@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file StorymodeFeed.svelte
    * @description THE NARRATIVE CONDUIT
@@ -193,7 +193,20 @@
   on_confirm={execute_delete}
 />
 
-<div class="root" bind:this={scroll_ref}>
+<div
+  class="
+    flex
+    min-h-(--dropdown-max-height)
+    w-full
+    flex-1
+    flex-col
+    gap-0
+    overflow-hidden
+    px-0
+    py-4
+  "
+  bind:this={scroll_ref}
+>
   <ScrollArea style="height: 100%; width: 100%;">
     {#each simulation_log.feed as entry, index (entry.id)}
       <Message
@@ -229,7 +242,21 @@
         busy={true}
       />
     {:else if simulation_log.feed.length === 0}
-      <div class="fallback">
+      <div
+        class="
+          flex
+          h-full
+          flex-col
+          items-center
+          justify-center
+          gap-4
+          p-4
+          text-center
+          text-slate-600
+
+          [&>p]:max-w-[calc(var(--column-unit)*8)]
+        "
+      >
         <p>
           Establishing context stream... If the screen remains black, please check your network or
           AI plugin settings.
@@ -239,32 +266,3 @@
     {/if}
   </ScrollArea>
 </div>
-
-<style>
-  .root {
-    display: flex;
-    flex: 1;
-    flex-direction: column;
-    gap: 0;
-    width: 100%;
-    min-height: var(--dropdown-max-height);
-    overflow: hidden;
-    padding: var(--padding-standard) 0;
-  }
-
-  .fallback {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--gap-standard);
-    height: 100%;
-    padding: var(--padding-standard);
-    text-align: center;
-    color: var(--frozen);
-  }
-
-  .fallback p {
-    max-width: calc(var(--column-unit) * 8);
-  }
-</style>

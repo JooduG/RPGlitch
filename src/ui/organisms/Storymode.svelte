@@ -31,24 +31,53 @@
       {@const a11y_label = `View Profile: ${name}`}
       <article
         class="
-          panel-root
-          is-left
+          pointer-events-auto
+          relative
+          h-full
+          w-full
+          overflow-hidden
         "
         style:--signature-color={signature_color}
         style="view-transition-name: entity-morph-ai;"
       >
         <button
           class="
-            panel-anchor
-            interactable
+            relative
+            flex
+            h-full
+            w-full
+            cursor-pointer
+            items-center
+            justify-center
+            border-none
+            bg-transparent
+            p-0
+            transition-all
+            duration-300
+
+            hover:scale-(--scale-lift)
+            hover:brightness-(--brightness-glow)
           "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
           aria-label={a11y_label}
         >
-          <div class="panel-background"></div>
-          <div class="panel-content">
-            <ProfilePicture {entity} class="panel-pic" />
+          <div
+            class="
+              absolute
+              inset-0
+              z-0
+              border-r
+              border-solid
+              border-white/10
+              bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color),transparent_30%)_0%,color-mix(in_srgb,var(--void-black),var(--signature-color)_5%)_50%,var(--void-black)_100%)]
+            "
+          ></div>
+          <div class="relative z-20 flex h-full w-full items-center justify-center">
+            <ProfilePicture
+              {entity}
+              class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!"
+            />
           </div>
         </button>
       </article>
@@ -56,12 +85,28 @@
   {/snippet}
 
   {#snippet center()}
-    <div class="root">
+    <div
+      class="
+      relative
+      flex
+      h-full
+      w-full
+      flex-col
+      overflow-hidden
+    "
+    >
       {#if !app.entities_loaded}
         <Skeleton variant="card" width="100%" height="100%" />
       {:else}
         <StorymodeFeed />
-        <div class="input-wrapper">
+        <div
+          class="
+          z-30
+          w-full
+          shrink-0
+          pb-(--row-unit)
+        "
+        >
           <UnifiedConsole />
         </div>
       {/if}
@@ -78,114 +123,56 @@
       {@const a11y_label = `View Profile: ${name}`}
       <article
         class="
-          panel-root
-          is-right
+          pointer-events-auto
+          relative
+          h-full
+          w-full
+          overflow-hidden
         "
         style:--signature-color={signature_color}
         style="view-transition-name: entity-morph-user;"
       >
         <button
           class="
-            panel-anchor
-            interactable
+            relative
+            flex
+            h-full
+            w-full
+            cursor-pointer
+            items-center
+            justify-center
+            border-none
+            bg-transparent
+            p-0
+            transition-all
+            duration-300
+
+            hover:scale-(--scale-lift)
+            hover:brightness-(--brightness-glow)
           "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
           aria-label={a11y_label}
         >
-          <div class="panel-background"></div>
-          <div class="panel-content">
-            <ProfilePicture {entity} class="panel-pic" />
+          <div
+            class="
+              absolute
+              inset-0
+              z-0
+              border-l
+              border-solid
+              border-white/10
+              bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color),transparent_30%)_0%,color-mix(in_srgb,var(--void-black),var(--signature-color)_5%)_50%,var(--void-black)_100%)]
+            "
+          ></div>
+          <div class="relative z-20 flex h-full w-full items-center justify-center">
+            <ProfilePicture
+              {entity}
+              class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!"
+            />
           </div>
         </button>
       </article>
     {/if}
   {/snippet}
 </Layout>
-
-<style>
-  .root {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .input-wrapper {
-    flex-shrink: 0;
-    width: 100%;
-    padding: 0 0 var(--row-unit) 0;
-    z-index: var(--z-index-elevated);
-  }
-
-  /* Atmospheric side panel styles absorbed from StorymodePanel */
-  .panel-root {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: hidden;
-    pointer-events: auto;
-  }
-
-  .panel-anchor {
-    width: 100%;
-    height: 100%;
-    position: relative;
-    cursor: pointer;
-    background: transparent;
-    border: none;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition:
-      transform var(--motion-standard),
-      filter var(--motion-standard);
-  }
-
-  .panel-anchor:hover {
-    transform: var(--scale-lift);
-    filter: var(--brightness-glow);
-  }
-
-  /* Full-bleed vertical atmospheric pillar: signature color top fading to abyssal black bottom */
-  .panel-background {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(
-      to bottom,
-      color-mix(in srgb, var(--signature-color), transparent 30%) 0%,
-      color-mix(in srgb, var(--void-black), var(--signature-color) 5%) 50%,
-      var(--void-black) 100%
-    );
-    z-index: var(--z-index-base);
-  }
-
-  /* Subtle border line on the inner side of the panel */
-  .is-left .panel-background {
-    border-right: var(--spacing-pixel) solid
-      rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-  }
-
-  .is-right .panel-background {
-    border-left: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-  }
-
-  .panel-content {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: var(--z-index-surface);
-  }
-
-  /* Target ProfilePicture custom class to make background transparent so our panel background shows through */
-  :global(.panel-pic .profile-placeholder) {
-    background-color: transparent;
-    background-image: none;
-  }
-</style>

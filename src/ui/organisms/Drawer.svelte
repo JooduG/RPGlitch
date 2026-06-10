@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file Drawer.svelte
    * ðŸ£ THE ENTITY BIRTHPLACE
@@ -120,22 +120,89 @@
 
 <div
   class="
-    drawer
-    glass-elevated
-  "
-  class:is-mobile={app.viewport.mobile}
-  class:is-mini={app.viewport.mini}
-  class:is-retracted={offset_spring.value > 99.5}
+    fixed inset-x-0
+    bottom-0
+    z-50
+    mx-auto
+    flex
+    max-h-(--modal-height-standard)
+    w-fit
+    max-w-(--modal-width-wide)
+    min-w-(--modal-width-thin)
+    flex-col
+    overflow-hidden
+    rounded-t-md
+    bg-(--glass-elevated)
+    shadow-md
+    [backdrop-filter:var(--blur-mist)]
+
+    {offset_spring.value > 99.5
+    ? `
+      pointer-events-none
+      invisible
+    `
+    : ''}
+    {app.viewport.mobile ? 'max-w-[100vw]' : ''}"
   role="dialog"
   aria-labelledby="drawer-title"
   style:transform={motion.isReduced ? "none" : `translateY(${offset_spring.value}%)`}
 >
-  <header class="header">
-    <h4 id="drawer-title">{title}</h4>
+  <header
+    class="{app.viewport.mini
+      ? 'p-4'
+      : `
+    px-4
+    pt-4
+    pb-0
+  `}
+
+    flex
+    items-center
+    justify-between
+  "
+  >
+    <h4
+      id="drawer-title"
+      class="
+      m-0
+      font-bold
+      tracking-widest
+      uppercase
+    "
+    >
+      {title}
+    </h4>
   </header>
 
-  <div class="body" use:kinetic_scroll>
-    <div class="grid">
+  <div
+    class="
+      flex-1
+      overflow-x-hidden
+      overflow-y-auto
+
+      {app.viewport.mini
+      ? `
+        px-4
+        pt-0
+        pb-4
+      `
+      : 'p-4'}
+
+      -mt-4
+    "
+    use:kinetic_scroll
+  >
+    <div
+      class="
+        flex
+        w-full
+        flex-row
+        flex-wrap
+        content-start
+        pt-4
+
+        {app.viewport.mobile || app.viewport.mini ? 'gap-2' : 'gap-4'}"
+    >
       <EntityCard
         variant="library"
         type={drawer_type ?? undefined}
@@ -156,112 +223,34 @@
     </div>
 
     {#if entity_list.length === 0}
-      <div class="empty">
-        <h4>No {drawer_type === "fractal" ? "Realities" : "Entities"} Found</h4>
-        <p>Click "Create New" to initialize one.</p>
+      <div
+        class="
+        flex
+        flex-col
+        items-center
+        justify-center
+        p-4
+        text-center
+        text-slate-600
+      "
+      >
+        <h4
+          class="
+          m-0
+          font-bold
+        "
+        >
+          No {drawer_type === "fractal" ? "Realities" : "Entities"} Found
+        </h4>
+        <p
+          class="
+          mt-4
+          opacity-30
+        "
+        >
+          Click "Create New" to initialize one.
+        </p>
       </div>
     {/if}
   </div>
 </div>
-
-<style>
-  /* --- SHELL --- */
-  .drawer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin-inline: auto;
-    width: fit-content;
-    min-width: var(--modal-width-thin);
-    max-width: var(--modal-width-wide);
-    max-height: var(--modal-height-standard);
-    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-    z-index: var(--z-index-modal);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    box-shadow: var(--shadow-standard);
-  }
-
-  .drawer.is-retracted {
-    visibility: hidden;
-    pointer-events: none;
-  }
-
-  /* --- HEADER --- */
-  .header {
-    padding: var(--padding-standard) var(--padding-standard) 0 var(--padding-standard);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .header h4 {
-    margin: 0;
-    letter-spacing: var(--font-spacing-loose);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-  }
-
-  /* --- BODY --- */
-  .body {
-    flex: 1;
-    overflow: hidden auto;
-    padding: var(--padding-standard);
-    margin-top: calc(var(--padding-standard) * -1);
-  }
-
-  /* --- GRID (wrapping flex row) --- */
-  .grid {
-    display: flex;
-    flex-flow: row wrap;
-    align-content: flex-start;
-    gap: var(--gap-standard);
-    width: 100%;
-    padding-top: var(--padding-standard);
-  }
-
-  /* --- EMPTY STATE --- */
-  .empty {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: var(--padding-standard) var(--padding-standard);
-    text-align: center;
-    color: var(--frozen);
-  }
-
-  .empty h4 {
-    margin: 0;
-    font-weight: var(--font-weight-bold);
-  }
-
-  .empty p {
-    opacity: var(--opacity-whisper);
-    margin-top: var(--padding-standard);
-  }
-
-  /* --- RESPONSIVE --- */
-  .drawer.is-mobile {
-    max-width: 100vw;
-    border-radius: var(--radius-standard) var(--radius-standard) 0 0;
-  }
-
-  .drawer.is-mobile .grid {
-    gap: var(--gap-tight);
-  }
-
-  .drawer.is-mini .grid {
-    gap: var(--gap-tight);
-  }
-
-  .drawer.is-mini .header {
-    padding: var(--padding-standard);
-  }
-
-  .drawer.is-mini .body {
-    padding: 0 var(--padding-standard) var(--padding-standard);
-  }
-</style>

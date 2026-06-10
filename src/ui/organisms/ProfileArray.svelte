@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/profile/ProfileArray.svelte
    * THE VECTOR ARRAY INSTRUMENT
@@ -60,9 +60,22 @@
   }
 </script>
 
-<div class="root" style="--accent-color: {signature_color}">
+<div
+  class="
+    relative
+  flex
+  w-full
+  flex-col
+  gap-4
+"
+  style="--accent-color: {signature_color}"
+>
   {#each items as item, i (item.id || i)}
-    <div class="vector-item-wrapper">
+    <div
+      class="
+      animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]
+    "
+    >
       <TextField
         is_edit={state.is_editing}
         {signature_color}
@@ -73,24 +86,60 @@
         weight={item.base_weight}
       >
         {#snippet status()}
-          <div class="stepper" use:tooltip={{ text: "Influence weight of this vector" }}>
+          <div
+            class="
+              mr-4
+              grid
+              h-full
+              min-w-16
+              grid-cols-[1.5rem_2rem_1.5rem]
+              place-items-center
+              self-center
+              select-none
+            "
+            use:tooltip={{ text: "Influence weight of this vector" }}
+          >
             {#if state.is_editing}
               <Button
                 variant="invisible"
                 size="small"
                 square
                 class="
-                  step
-                  down
+                  col-start-1
                 "
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
-                <span class="step-char">&lt;</span>
+                <span
+                  class="
+                    flex
+                    items-center
+                    justify-center
+                    text-sm
+                    leading-none
+                    font-(--font-family-mono)
+                  ">&lt;</span
+                >
               </Button>
             {/if}
 
-            <span class="weight">{item.base_weight}</span>
+            <span
+              class="
+                pointer-events-none
+                z-20
+                col-start-2
+                flex
+                h-full
+                min-w-3
+                items-center
+                justify-center
+                text-center
+                text-sm
+                leading-none
+                font-(--font-family-mono)
+                text-white
+              ">{item.base_weight}</span
+            >
 
             {#if state.is_editing}
               <Button
@@ -98,29 +147,91 @@
                 size="small"
                 square
                 class="
-                  step
-                  up
+                  col-start-3
+                  text-slate-400
+                  opacity-0
+                  transition-colors
+                  duration-200
+                  group-[.is-expanded]/textfield:opacity-90
+                  hover:text-(--pure-white)!
+                  hover:opacity-100!
                 "
                 onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
-                <span class="step-char">&gt;</span>
+                <span
+                  class="
+                    flex
+                    items-center
+                    justify-center
+                    text-sm
+                    leading-none
+                    font-(--font-family-mono)
+                  ">&gt;</span
+                >
               </Button>
             {/if}
           </div>
 
-          <div class="tags">
+          <div
+            class="
+            flex
+            h-full
+            flex-1
+            items-center
+            gap-2
+            overflow-hidden
+          "
+          >
             {#if state.is_editing}
               <input
                 type="text"
-                class="tags-input"
+                class="
+                  w-full
+                  border-none
+                  bg-transparent
+                  p-0
+                  text-[10px]
+                  font-(--font-family-mono)
+                  tracking-widest
+                  text-white
+                  uppercase
+                  opacity-80
+                  transition-opacity
+                  duration-200
+                  outline-none
+
+                  placeholder:text-white
+                  placeholder:opacity-30
+
+                  focus:opacity-100
+                "
                 value={item.vector_tags.join(", ")}
                 placeholder="TAGS (COMMA SEPARATED)..."
                 onchange={(e) => update_tags(i, e.currentTarget.value)}
               />
             {:else}
               {#each item.vector_tags as tag (tag)}
-                <span class="tag">{tag}</span>
+                <span
+                  class="
+                    flex
+                    h-[calc(100%-0.25rem)]
+                    items-center
+                    rounded-sm
+                    border
+                    border-white/10
+                    bg-white/10
+                    px-2
+                    py-1
+                    text-[10px]
+                    tracking-widest
+                    whitespace-nowrap
+                    text-white
+                    uppercase
+                    opacity-90
+                    drop-shadow-md
+                  ">{tag}</span
+                >
               {/each}
             {/if}
           </div>
@@ -135,14 +246,17 @@
               actions={[tooltip]}
               tooltip="Remove {unit_label}"
               aria-label="Remove {unit_label}"
-              class="delete"
               onclick={() => state.remove_vector_item(path, i)}
             >
               <svg
                 viewBox="0 0 24 24"
                 class="
-                  icon-small
-                  icon-outline
+                  size-(--icon-small)
+                  fill-none
+                  stroke-current
+                  stroke-2
+                  [stroke-linecap:round]
+                  [stroke-linejoin:round]
                 "
                 fill="none"
               >
@@ -160,11 +274,37 @@
   {/each}
 
   {#if items.length === 0 && !state.is_editing}
-    <div class="empty-state">
-      <span class="empty-msg">
+    <div
+      class="
+        flex
+        min-h-12
+        animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]
+        items-center
+        px-4
+        py-2
+      "
+    >
+      <span
+        class="
+          pointer-events-none
+          flex
+          items-center
+          gap-4
+          text-[10px]
+          font-(--font-family-mono)
+          tracking-widest
+          text-slate-50
+          uppercase
+          opacity-30
+          select-none
+        "
+      >
         <svg
           viewBox="0 0 24 24"
-          class="icon-small"
+          class="
+            h-[10px]
+            w-[10px]
+          "
           style="width: var(--font-size-small); height: var(--font-size-small);"
         >
           <path
@@ -179,13 +319,6 @@
 </div>
 
 <style>
-  /* --- LAYOUT --- */
-
-  .vector-item-wrapper,
-  .empty-state {
-    animation: slide-down-item 400ms cubic-bezier(0.23, 1, 0.32, 1) forwards;
-  }
-
   @keyframes slide-down-item {
     from {
       opacity: 0;
@@ -196,151 +329,5 @@
       opacity: 1;
       transform: translateY(0);
     }
-  }
-
-  .root {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: var(--gap-standard);
-    position: relative;
-  }
-
-  /* --- STEPPER --- */
-
-  .stepper {
-    display: grid;
-    grid-template-columns: calc(var(--spacing-unit) * 6) calc(var(--spacing-unit) * 8) calc(
-        var(--spacing-unit) * 6
-      );
-    place-items: center;
-    min-width: calc(var(--spacing-unit) * 16);
-    height: 100%;
-    margin-right: var(--margin-standard);
-    user-select: none;
-    align-self: center;
-  }
-
-  .weight {
-    grid-column: 2;
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-small);
-    font-weight: var(--font-weight-bold);
-    color: var(--pure-white);
-    min-width: calc(var(--spacing-unit) * 3);
-    text-align: center;
-    pointer-events: none;
-    z-index: var(--z-index-surface);
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-  }
-
-  .step-char {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-small);
-    font-weight: var(--font-weight-bold);
-    line-height: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  :global(.step) {
-    opacity: 0;
-  }
-
-  :global(.textfield.is-expanded .header) :global(.step) {
-    opacity: 0.9;
-  }
-
-  .stepper :global(.step:hover) {
-    opacity: 1;
-    color: var(--pure-white);
-  }
-
-  :global(.step.down) {
-    grid-column: 1;
-  }
-
-  :global(.step.up) {
-    grid-column: 3;
-  }
-
-  /* --- TAGS --- */
-
-  .tags {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    gap: var(--gap-tight);
-    overflow: hidden;
-    height: 100%;
-  }
-
-  .tags-input {
-    width: 100%;
-    background: transparent;
-    border: none;
-    color: var(--pure-white);
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-tiny);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    padding: 0;
-    outline: none;
-    opacity: 0.8;
-    transition: opacity var(--duration-fast);
-  }
-
-  .tags-input:focus {
-    opacity: 1;
-  }
-
-  .tags-input::placeholder {
-    color: var(--pure-white);
-    opacity: 0.3;
-  }
-
-  .tag {
-    font-size: var(--font-size-tiny);
-    background: rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    padding: var(--gap-tight) var(--padding-tight);
-    border: var(--spacing-pixel) solid rgb(from var(--pure-white) r g b / var(--opacity-ghost));
-    border-radius: var(--radius-sharp);
-    color: var(--pure-white);
-    opacity: 0.9;
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-    white-space: nowrap;
-    text-shadow: var(--shadow-font);
-    display: flex;
-    align-items: center;
-    height: calc(100% - var(--spacing-unit));
-  }
-
-  /* --- EMPTY STATE --- */
-
-  .empty-state {
-    padding: var(--padding-tight) var(--padding-standard);
-    min-height: calc(var(--spacing-unit) * 12);
-    display: flex;
-    align-items: center;
-  }
-
-  .empty-msg {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-nano);
-    color: var(--frisk);
-    opacity: var(--opacity-whisper);
-    letter-spacing: var(--font-spacing-loose);
-    text-transform: uppercase;
-    pointer-events: none;
-    user-select: none;
-    display: flex;
-    align-items: center;
-    gap: var(--gap-standard);
   }
 </style>

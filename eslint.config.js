@@ -123,18 +123,22 @@ export default defineConfig([
     rules: {
       "no-irregular-whitespace": "off",
 
-      // Demoting rule validations down to yellow text warnings safely
-      "no-unused-vars": "warn",
-      "no-undef": "warn",
-      "better-tailwindcss/no-unknown-classes": "warn",
-      "better-tailwindcss/enforce-consistent-line-wrapping": [
+      "no-unused-vars": [
         "warn",
         {
-          classesPerLine: 1,
-          group: "emptyLine",
-          strictness: "loose",
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrorsIgnorePattern: "^_",
         },
       ],
+      "no-undef": "warn",
+      "better-tailwindcss/no-unknown-classes": [
+        "warn",
+        {
+          ignore: [],
+        },
+      ],
+      "better-tailwindcss/enforce-consistent-line-wrapping": "off",
     },
   },
 ]);

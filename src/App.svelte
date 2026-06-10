@@ -31,24 +31,28 @@
 </script>
 
 <main
-  class="root"
-  class:is-storyboard={app.view === "storyboard"}
-  class:is-storymode={app.view === "storymode"}
+  class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden"
+  data-view={app.view}
 >
-  <div class="stage" aria-hidden="true">
-    <div class="gradient"></div>
+  <div
+    class="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-neutral-900"
+    aria-hidden="true"
+  >
+    <div data-bg="gradient"></div>
 
     <div
-      class="fractal"
+      class="absolute inset-0 bg-cover bg-center filter-[var(--blur-mist)_brightness(var(--brightness-muted))] transition-all duration-(--duration-ambient) ease-in-out will-change-[opacity,filter]"
       style:background-image={fractal_url ? `url('${fractal_url}')` : "none"}
       style:opacity={fractal_url ? fractal_opacity : 0}
       style:view-transition-name={app.view === "storymode" ? "entity-morph-fractal" : undefined}
     ></div>
 
     <div
-      class="noise-overlay"
-      class:is-generating={app.sim_phase === "generating"}
-      data-motion-reduced={motion.isReduced}
+      class="pointer-events-none fixed -inset-5 z-(--z-index-max) bg-(image:--noise-url) mix-blend-overlay {app.sim_phase ===
+      'generating'
+        ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
+        : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-(--opacity-ghost)'}"
+      style:animation-play-state={motion.isReduced ? "paused" : "running"}
     ></div>
   </div>
 
@@ -72,55 +76,23 @@
 <Tooltip />
 
 {#if app.settings.dev_grid_visible}
-  <div class="global-dev-grid" class:is-storymode={app.view === "storymode"} aria-hidden="true">
-    {#each ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"] as col (col)}
-      <div class="col" style:grid-column="col-{col}">
-        <span
-          class="
-            label
-            is-col
-          ">{col}</span
-        >
+  <div data-dev="grid" data-view={app.view} aria-hidden="true">
+    {#each ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l"] as colId (colId)}
+      <div data-axis="col" style:grid-column="col-{colId}">
+        <span data-label="col">{colId}</span>
       </div>
     {/each}
-    <div
-      class="
-        col
-        is-end
-      "
-      style:grid-column="col-end"
-    >
-      <span
-        class="
-          label
-          is-col
-        ">END</span
-      >
+    <div data-axis="col" data-end="true" style:grid-column="col-end">
+      <span data-label="col">END</span>
     </div>
 
-    {#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as row (row)}
-      <div class="row" style:grid-row="row-{row}">
-        <span
-          class="
-            label
-            is-row
-          ">{row}</span
-        >
+    {#each [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as rowId (rowId)}
+      <div data-axis="row" style:grid-row="row-{rowId}">
+        <span data-label="row">{rowId}</span>
       </div>
     {/each}
-    <div
-      class="
-        row
-        is-end
-      "
-      style:grid-row="row-end"
-    >
-      <span
-        class="
-          label
-          is-row
-        ">END</span
-      >
+    <div data-axis="row" data-end="true" style:grid-row="row-end">
+      <span data-label="row">END</span>
     </div>
   </div>
 {/if}
@@ -128,29 +100,9 @@
 <style>
   /* ── Core Shell (Ultra-Lean Stage Matrix) ────────────────────── */
 
-  .root {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    overflow: hidden;
-    z-index: var(--z-index-surface);
-    animation: fade-in var(--duration-slow) var(--ease-standard) forwards;
-  }
-
   /* ── Atmospheric Stage Configuration ────────────────────────── */
 
-  .stage {
-    position: fixed;
-    inset: 0;
-    width: 100vw;
-    height: 100vh;
-    z-index: var(--z-index-base);
-    background-color: var(--chalk);
-    overflow: hidden;
-    pointer-events: none;
-  }
-
-  .gradient {
+  [data-bg="gradient"] {
     position: absolute;
     inset: 0;
     background-image:
@@ -161,18 +113,6 @@
     background-size: cover;
     background-attachment: fixed;
     background-repeat: no-repeat;
-  }
-
-  .fractal {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    filter: var(--blur-mist) var(--brightness-muted);
-    will-change: opacity, filter;
-    transition:
-      opacity var(--duration-ambient) ease-in-out,
-      filter var(--duration-ambient) ease-in-out;
   }
 
   /* ── Global Document Resets ─────────────────────────────────── */
@@ -198,7 +138,7 @@
 
   /* ── Diagnostic Global Grid ─────────────────────────────────── */
 
-  .global-dev-grid {
+  [data-dev="grid"] {
     position: fixed;
     inset: 0;
     margin: auto;
@@ -224,26 +164,26 @@
     background-repeat: repeat;
   }
 
-  .global-dev-grid.is-storymode {
+  [data-dev="grid"][data-view="storymode"] {
     width: 100vw;
     height: 100vh;
   }
 
-  .global-dev-grid .col {
+  [data-dev="grid"] [data-axis="col"] {
     border-left: var(--spacing-pixel) solid var(--frozen);
     height: 100%;
     grid-row: 1 / -1;
     position: relative;
   }
 
-  .global-dev-grid .row {
+  [data-dev="grid"] [data-axis="row"] {
     border-top: var(--spacing-pixel) solid var(--frozen);
     width: 100%;
     grid-column: 1 / -1;
     position: relative;
   }
 
-  .global-dev-grid .label {
+  [data-dev="grid"] [data-label] {
     position: absolute;
     font-family: var(--font-family-mono);
     font-size: var(--font-size-nano);
@@ -253,13 +193,13 @@
     opacity: var(--opacity-whisper);
   }
 
-  .global-dev-grid .label.is-col {
+  [data-dev="grid"] [data-label="col"] {
     top: calc(var(--spacing-unit) * 2);
     left: calc(var(--spacing-unit) * 2);
     text-transform: uppercase;
   }
 
-  .global-dev-grid .label.is-row {
+  [data-dev="grid"] [data-label="row"] {
     left: calc(var(--spacing-unit) * 2);
     top: calc(var(--spacing-unit) * 2);
   }

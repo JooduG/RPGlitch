@@ -254,7 +254,7 @@ We operate within the **Nordic Collection**.
 
 #### 📐 II. The Law (Constraints)
 
-- **Token Sovereignty**: Writing raw values (`px`, `rem`, `em`, `#`) is **Heresy**. All physics must be derived from the Token Registry.
+- **Token Sovereignty**: Derive physics from the Token Registry. However, **Tailwind v4 IDE IntelliSense is the absolute source of truth** for syntax. Never fight the IDE's shorthand suggestions.
 - **The Weaver Protocol**: Any change to the aesthetic must first be recorded in `DESIGN.md` and then synchronized via `npm run sync:design`.
 
 ---

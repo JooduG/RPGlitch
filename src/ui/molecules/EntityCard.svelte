@@ -171,18 +171,87 @@
 <div
   bind:this={root_el}
   class="
-    entity-card-root
-    interactable
-    glass-elevated
+    group
+    @container
+    relative
+    cursor-pointer
+    overflow-visible
+    rounded-md
+    border
+    border-[color-mix(in_srgb,var(--signature-color)_15%,transparent)]
+    bg-black/15
+    shadow-sm
+    transition-all
+    duration-300
+    ease-in-out
+    outline-none
+    select-none
+    after:pointer-events-none
+    after:absolute
+    after:inset-0
+    after:z-10
+
+    after:rounded-[inherit]
+    after:border
+    after:border-transparent
+    after:shadow-[inset_0_0_0_1px_transparent]
+    after:transition-all
+    after:duration-300
+    after:ease-in-out
+    hover:scale-(--scale-lift)
+    hover:brightness-(--brightness-glow)
+    active:scale-(--scale-sink)
+    active:brightness-(--brightness-dim)
+
+    {disabled
+    ? `
+      pointer-events-none
+      transform-none!
+      border-[rgba(255,255,255,0.15)]
+      bg-transparent
+      opacity-50
+      shadow-none!
+      brightness-75
+      grayscale
+      filter
+
+      after:border-transparent
+      after:shadow-none
+    `
+    : `
+      hover:border-(--signature-color)
+      hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
+
+      hover:after:border-(--signature-color,var(--color-slate-50))
+      hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
+    `}
+    {is_empty && !disabled ? 'opacity-60' : ''}
+    {is_pressing && !disabled
+    ? `
+      scale-96
+      border-[color-mix(in_srgb,var(--signature-color)_100%,transparent)]
+    `
+    : ''}
+    {is_launching
+    ? `
+      z-50
+      animate-[rack-pull-eject_0.35s_cubic-bezier(0.4,0,0.2,1)_forwards]
+    `
+    : ''}
+    {variant === 'library' ? 'backdrop-blur-none' : 'backdrop-blur-md'}
   "
-  class:is-empty={is_empty}
-  class:is-fractal={type === "fractal"}
-  class:is-slot={variant === "slot"}
-  class:is-panel={variant === "panel"}
-  class:is-library={variant === "library"}
-  class:is-pressing={is_pressing}
-  class:is-launching={is_launching}
-  class:disabled
+  class:w-[calc(var(--storyboard-fractal-card-width)*0.5)]={type === "fractal" &&
+    variant === "library"}
+  class:h-[calc(var(--storyboard-fractal-card-height)*0.5)]={type === "fractal" &&
+    variant === "library"}
+  class:w-[var(--storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
+  class:h-[var(--storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
+  class:w-[calc(var(--storyboard-character-card-width)*0.5)]={type !== "fractal" &&
+    variant === "library"}
+  class:h-[calc(var(--storyboard-character-card-height)*0.5)]={type !== "fractal" &&
+    variant === "library"}
+  class:w-[var(--storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
+  class:h-[var(--storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   role="button"
@@ -216,37 +285,63 @@
     }
   }}
 >
-  <div class="visual-container" class:is-placeholder={is_empty}>
+  <div
+    class="
+      pointer-events-auto
+      relative
+      h-full
+      w-full
+      overflow-hidden
+      rounded-[inherit]
+      transition-opacity
+      duration-300
+      ease-in-out
+
+      [&_.avatar-wrapper]:h-full
+      [&_.avatar-wrapper]:w-full
+      [&_.avatar-wrapper]:object-cover
+
+      [&_.profile-picture]:h-full
+      [&_.profile-picture]:w-full
+      [&_.profile-picture]:object-cover
+
+      [&_img]:h-full
+      [&_img]:w-full
+      [&_img]:object-cover
+
+      {disabled
+      ? `
+        opacity-20
+        grayscale
+        filter
+      `
+      : 'opacity-100'}
+      {is_empty
+      ? `
+        flex
+        flex-col
+        items-center
+        justify-center
+        gap-4
+        text-slate-50
+        opacity-15
+
+        group-hover:opacity-100
+      `
+      : ''}"
+  >
     {#if !is_empty}
       <ProfilePicture {entity} />
     {:else if variant === "library"}
-      <svg
-        viewBox="0 0 24 24"
-        class="
-          icon
-          icon-outline
-        "
-      >
+      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
         <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
       </svg>
     {:else if type === "fractal"}
-      <svg
-        viewBox="0 0 24 24"
-        class="
-          icon
-          icon-outline
-        "
-      >
+      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
         <path d="M19,12L12,22L5,12L12,2M12,2L19,12H5L12,2Z" />
       </svg>
     {:else}
-      <svg
-        viewBox="0 0 24 24"
-        class="
-          icon
-          icon-outline
-        "
-      >
+      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
         <path
           d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
         />
@@ -254,17 +349,149 @@
     {/if}
   </div>
 
-  <div class="card-hud-panel">
-    <span class="primary-title">{is_empty ? role_label || "Create New" : entity?.name || name}</span
+  <div
+    class="
+      pointer-events-none
+      absolute
+      right-0
+      bottom-0
+      left-0
+      z-10
+      flex
+      flex-col
+      items-center
+      justify-end
+      overflow-hidden
+      rounded-b-md
+      text-center
+      opacity-100
+      transition-all
+      duration-300
+      ease-in-out
+
+      {variant === 'library'
+      ? `
+        h-[40%]
+        px-4
+        py-2
+      `
+      : type === 'fractal'
+        ? `
+          h-auto
+          min-h-[40%]
+          bg-[linear-gradient(to_top,var(--color-neutral-900)_0%,color-mix(in_srgb,var(--color-neutral-900)_100%,transparent)_60%,transparent_100%)]
+          pt-4
+        `
+        : `
+          h-[60%]
+          bg-[linear-gradient(to_top,var(--color-neutral-900)_0%,color-mix(in_srgb,var(--color-neutral-900)_100%,transparent)_40%,color-mix(in_srgb,var(--color-neutral-900)_60%,transparent)_75%,transparent_100%)]
+          p-4
+        `}"
+  >
+    <span
+      class="
+        [display:-webkit-box]
+        w-full
+        overflow-hidden
+        text-center
+        font-serif
+        font-bold
+        wrap-break-word
+        text-(--signature-color,var(--color-slate-50))
+        uppercase
+        shadow-sm
+        [-webkit-box-orient:vertical]
+        [-webkit-line-clamp:3]
+        [line-clamp:3]
+
+        {variant === 'library'
+        ? `
+          text-sm
+          leading-snug
+          tracking-normal
+        `
+        : `
+          text-[clamp(var(--font-size-base),12cqi,var(--font-size-h2))]
+          leading-tight
+          tracking-widest
+        `}
+        {is_empty
+        ? `
+          text-slate-50
+          opacity-15
+          transition-opacity
+          duration-300
+          ease-in-out
+
+          group-hover:opacity-100
+        `
+        : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span
     >
     {#if !is_empty && variant !== "library"}
-      <p class="secondary-desc">{entity?.description || "No description provided."}</p>
+      <p
+        class="
+          mt-2
+          [display:-webkit-box]
+          max-h-18
+          overflow-hidden
+          font-sans
+          text-sm
+          leading-relaxed
+          wrap-break-word
+          whitespace-normal
+          text-slate-50
+          shadow-sm
+          transition-all
+          duration-300
+          ease-in-out
+          [-webkit-box-orient:vertical]
+          [-webkit-line-clamp:3]
+          [line-clamp:3]
+
+          {variant === 'library'
+          ? `
+            m-0
+            max-h-0
+            opacity-0
+          `
+          : ''}"
+      >
+        {entity?.description || "No description provided."}
+      </p>
     {/if}
   </div>
 
-  <nav class="actions-toolbar">
+  <nav
+    class="
+      pointer-events-auto
+      invisible
+      absolute
+      top-2
+      right-2
+      z-50
+      -translate-y-1
+      opacity-0
+      transition-all
+      duration-300
+      ease-in-out
+
+      {variant === 'panel' ? 'flex' : 'hidden'}
+
+      group-hover:visible
+      group-hover:translate-y-0
+      group-hover:opacity-100
+    "
+  >
     <Button
-      class="item"
+      class="
+        flex
+        h-12
+        w-12
+        items-center
+        justify-center
+        rounded-full
+        p-0
+      "
       actions={[[tooltip, { text: `View ${entity?.name || name} Profile` }]]}
       variant="secondary"
       aria-label="View {entity?.name || name} Profile"
@@ -274,7 +501,7 @@
       }}
       tabindex="-1"
     >
-      <svg viewBox="0 0 24 24" class="icon-medium">
+      <svg viewBox="0 0 24 24" class="size-(--icon-medium)">
         <path
           d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
         />
@@ -284,309 +511,6 @@
 </div>
 
 <style>
-  .entity-card-root {
-    /* 1. Base Proportional Dimensions derived directly from central Design Tokens */
-    width: var(--storyboard-character-card-width);
-    height: var(--storyboard-character-card-height);
-    position: relative;
-    overflow: visible;
-    border-radius: var(--radius-standard);
-    background: var(--glass-elevated);
-    backdrop-filter: var(--blur-mist);
-    border: var(--border-whisper);
-    border-color: rgb(from var(--signature-color) r g b / var(--opacity-whisper));
-    transition:
-      width var(--duration-standard) var(--ease-standard),
-      height var(--duration-standard) var(--ease-standard),
-      transform var(--duration-fast) var(--ease-standard),
-      border-color var(--duration-fast) var(--ease-standard),
-      box-shadow var(--duration-fast) var(--ease-standard);
-    container-type: inline-size;
-    box-shadow: var(--shadow-ghost);
-    outline: none;
-
-    /* 2. Overrides for Fractal Anomaly Proportions derived directly from central Design Tokens */
-    &.is-fractal {
-      width: var(--storyboard-fractal-card-width);
-      height: var(--storyboard-fractal-card-height);
-    }
-
-    /* 3. Layout Context Sizing Rules */
-    &.is-library {
-      width: calc(var(--storyboard-character-card-width) * 0.5);
-      height: calc(var(--storyboard-character-card-height) * 0.5);
-      backdrop-filter: none; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
-    }
-
-    &.is-library.is-fractal {
-      width: calc(var(--storyboard-fractal-card-width) * 0.5);
-      height: calc(var(--storyboard-fractal-card-height) * 0.5);
-      backdrop-filter: none; /* Avoid redundant blurring and prevent WebKit/Blink transform-ghosting compositor bugs */
-    }
-  }
-
-  .entity-card-root:hover:not(.disabled) {
-    border-color: var(--signature-color);
-    box-shadow: 0 0 calc(var(--spacing-unit) * 4)
-      rgb(from var(--signature-color) r g b / var(--opacity-whisper));
-  }
-
-  .entity-card-root.is-empty {
-    opacity: 0.6;
-  }
-
-  .entity-card-root.disabled {
-    pointer-events: none;
-    filter: grayscale(1) brightness(0.7) opacity(0.5);
-    transform: none;
-    box-shadow: none;
-    border-color: rgb(from var(--pure-white) r g b / 0.15);
-    background: transparent;
-
-    /* Prevent any interior layer modifiers from bleeding through */
-    &::after {
-      box-shadow: none;
-      border-color: transparent;
-    }
-
-    .visual-container {
-      filter: grayscale(1) opacity(0.2);
-    }
-  }
-
-  /* Structural Highlight (The Edge) */
-  .entity-card-root::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    pointer-events: none;
-    border-radius: inherit;
-    border: var(--border-width-base) solid transparent;
-    box-shadow: inset 0 0 0 var(--spacing-pixel) transparent;
-    transition:
-      box-shadow var(--duration-standard) var(--ease-standard),
-      border-color var(--duration-standard) var(--ease-standard);
-    z-index: var(--z-index-surface);
-  }
-
-  .entity-card-root:hover:not(.disabled)::after {
-    border-color: var(--signature-color, var(--frisk));
-    box-shadow: inset 0 0 0 var(--spacing-pixel) var(--signature-color, var(--frisk));
-  }
-
-  /* --- CONTENT LAYER --- */
-  .visual-container {
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: relative;
-    border-radius: inherit;
-    transition: opacity var(--duration-standard) var(--ease-standard);
-    opacity: 1;
-    pointer-events: auto;
-  }
-
-  .visual-container :global(img),
-  .visual-container :global(.avatar-wrapper),
-  .visual-container :global(.profile-picture) {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  /* --- PLACEHOLDER LAYER --- */
-  .visual-container.is-placeholder {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: var(--gap-standard);
-    color: var(--pure-white);
-    opacity: var(--opacity-whisper);
-  }
-
-  .entity-card-root:hover .visual-container.is-placeholder {
-    opacity: var(--opacity-solid);
-  }
-
-  .visual-container.is-placeholder .icon {
-    width: calc(var(--spacing-unit) * 20);
-    height: calc(var(--spacing-unit) * 20);
-  }
-
-  .icon-outline {
-    fill: none;
-    stroke: currentcolor;
-    stroke-width: 1.5;
-  }
-
-  .card-hud-panel {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(
-      to top,
-      var(--chalk) 0%,
-      rgb(from var(--chalk) r g b / var(--opacity-solid)) 40%,
-      rgb(from var(--chalk) r g b / var(--opacity-muted)) 75%,
-      transparent 100
-    );
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    align-items: center;
-    text-align: center;
-    padding: var(--padding-standard);
-    z-index: var(--z-index-surface);
-    pointer-events: none;
-    border-radius: 0 0 var(--radius-standard) var(--radius-standard);
-
-    /* Shared base height rules */
-    height: 60%;
-    transition:
-      height var(--duration-standard) var(--ease-standard),
-      opacity var(--duration-standard) var(--ease-standard),
-      visibility var(--duration-standard) var(--ease-standard);
-    opacity: 1;
-    visibility: visible;
-    overflow: hidden;
-  }
-
-  .card-hud-panel .primary-title {
-    color: var(--signature-color, var(--frisk));
-    text-shadow: var(--shadow-font);
-    font-family: var(--font-family-heading);
-    font-weight: var(--font-weight-bold);
-    text-transform: uppercase;
-    letter-spacing: var(--font-spacing-loose);
-
-    /* ðŸ›¡ï¸ Impactful, fluid typography scale for full-sized Storyboard cards */
-    font-size: clamp(var(--font-size-base), 12cqi, var(--font-size-h2));
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    overflow-wrap: break-word;
-    line-height: 1.15;
-    text-align: center;
-    width: 100%;
-  }
-
-  .entity-card-root.is-empty .card-hud-panel .primary-title {
-    color: var(--pure-white);
-    opacity: var(--opacity-whisper);
-    transition: opacity var(--duration-standard) var(--ease-standard);
-  }
-
-  .entity-card-root.is-empty:hover .card-hud-panel .primary-title {
-    opacity: var(--opacity-solid);
-  }
-
-  .card-hud-panel .secondary-desc {
-    margin-top: var(--margin-tight);
-    font-family: var(--font-family-base);
-    font-size: var(--font-size-small);
-    color: var(--pure-white);
-    text-shadow: var(--shadow-font);
-    line-height: var(--font-height-base);
-    white-space: normal;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    overflow-wrap: break-word;
-
-    /* Performant layout hide animations - 18 spacing units provides sufficient vertical budget to fit 3 lines without clipping ellipses */
-    max-height: calc(var(--spacing-unit) * 18);
-    transition:
-      max-height var(--duration-standard) var(--ease-standard),
-      opacity var(--duration-standard) var(--ease-standard);
-  }
-
-  /* --- CONTEXTUAL VARIANT MULTIPLIERS --- */
-  .entity-card-root.is-fractal .card-hud-panel {
-    height: auto;
-    min-height: 40%;
-    padding-top: var(--padding-standard);
-    background: linear-gradient(
-      to top,
-      var(--chalk) 0%,
-      rgb(from var(--chalk) r g b / var(--opacity-solid)) 60%,
-      transparent 100
-    );
-  }
-
-  .is-library .card-hud-panel {
-    display: flex;
-    height: 40%;
-    padding: var(--padding-tight) var(--padding-standard);
-  }
-
-  .is-library .secondary-desc {
-    max-height: 0;
-    opacity: 0;
-    margin: 0;
-  }
-
-  .is-library .primary-title {
-    font-size: var(--font-size-small);
-    letter-spacing: var(--font-spacing-base);
-    line-height: 1.2;
-  }
-
-  /* --- ACTIONS TOOLBAR --- */
-  .actions-toolbar {
-    position: absolute;
-    top: calc(var(--spacing-unit) * 2);
-    right: calc(var(--spacing-unit) * 2);
-    z-index: var(--z-index-modal);
-    pointer-events: auto;
-    visibility: hidden;
-    opacity: var(--opacity-none);
-    transition:
-      transform var(--duration-standard) var(--ease-standard),
-      opacity var(--duration-standard) var(--ease-standard),
-      visibility var(--duration-standard) var(--ease-standard);
-    transform: translateY(calc(var(--spacing-unit) * -1));
-    display: none;
-  }
-
-  .is-panel .actions-toolbar {
-    display: flex;
-  }
-
-  .entity-card-root:hover .actions-toolbar {
-    visibility: visible;
-    opacity: var(--opacity-solid);
-    transform: translateY(0);
-  }
-
-  .actions-toolbar :global(.item) {
-    width: var(--icon-giant);
-    height: var(--icon-giant);
-    border-radius: var(--radius-full);
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  /* 1. Tension Build-Up (Absorbing the Touch) */
-  .entity-card-root.is-pressing {
-    transform: scale(0.96);
-    border-color: rgb(from var(--signature-color) r g b / var(--opacity-solid));
-  }
-
-  /* 2. The Launch Reveal (Ejecting from the Server Rack Matrix) */
-  .entity-card-root.is-launching {
-    z-index: var(--z-index-overlay);
-    animation: rack-pull-eject var(--duration-standard) var(--ease-elastic) forwards;
-  }
-
   /* --- KINETIC HARDWARE KEYFRAMES --- */
   @keyframes rack-pull-eject {
     0% {
@@ -603,7 +527,7 @@
       transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
       box-shadow:
         0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6)
-          rgb(from var(--chalk) r g b / 0.5),
+          rgb(from var(--color-neutral-900) r g b / 0.5),
         0 0 calc(var(--spacing-unit) * 4)
           rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     }

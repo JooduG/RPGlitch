@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   import { Button } from "@atoms";
   let {
     text,
@@ -36,7 +36,7 @@
     >
   {:else}
     {#if text}
-      <div class="text-content">{text}</div>
+      <div>{text}</div>
     {/if}
     <Button data-testid="mock-delete" variant="invisible" size="small" onclick={on_delete}
       >Delete</Button
