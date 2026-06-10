@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file TextField.svelte
    * 🕹️ SOTA ATOMIC TEXT INSTRUMENT
@@ -26,7 +26,7 @@
 
     // Design
     no_background = false,
-    signature_color = "#555d66",
+    signature_color = "#475569",
     class: className = "",
     style = "",
 
@@ -109,7 +109,7 @@
     : ''}
     {!is_expanded
     ? `
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgba(34,35,38,0.6))]
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgba(23,23,23,0.6))]
 
       before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--state-dev-accent)_40%),transparent_40%)]
       before:opacity-30
@@ -117,7 +117,7 @@
     : `
       overflow-visible!
       border-transparent
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgba(34,35,38,0.6))]
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgba(23,23,23,0.6))]
 
       before:bg-[linear-gradient(to_bottom,var(--state-dev-accent),color-mix(in_srgb,var(--state-dev-accent),transparent_60%)_30%,transparent_80%)]
       before:opacity-100
@@ -163,7 +163,7 @@
       opacity-60
       transition-[height,opacity,background]
       duration-300
-      ease-[cubic-bezier(0.34,1.56,0.64,1)]
+      ease-out
 
       {no_background ? 'hidden!' : ''}
       {!is_expanded ? 'h-2' : 'h-6 border-b border-solid border-white/10 opacity-100!'}"
@@ -217,7 +217,7 @@
         w-full
         resize-none
         scrollbar-thin
-        scrollbar-thumb-[#363840]
+        scrollbar-thumb-slate-700
         scrollbar-track-transparent
         overflow-x-hidden
         overflow-y-auto
@@ -229,11 +229,11 @@
         text-sm
         leading-normal
         text-wrap
-        text-[#f2f7fa]
+        text-slate-50
         outline-none
 
         placeholder:font-normal
-        placeholder:text-[#555d66]/30
+        placeholder:text-slate-600/30
         placeholder:italic
 
         focus:outline-none
@@ -242,9 +242,9 @@
         [&::-webkit-scrollbar]:w-2
 
         [&::-webkit-scrollbar-thumb]:rounded-xl
-        [&::-webkit-scrollbar-thumb]:bg-[#363840]
+        [&::-webkit-scrollbar-thumb]:bg-slate-700
 
-        [&::-webkit-scrollbar-thumb:hover]:bg-[#f2f7fa]
+        [&::-webkit-scrollbar-thumb:hover]:bg-slate-50
 
         [&::-webkit-scrollbar-track]:bg-transparent
 
@@ -280,7 +280,7 @@
           text-sm
           leading-normal
           text-pretty
-          text-[#f2f7fa]
+          text-slate-50
           outline-none
 
           focus:outline-none
@@ -343,7 +343,7 @@
           <span
             class="
               font-normal
-              text-[#555d66]/30
+              text-slate-600/30
               italic
             ">{placeholder}</span
           >

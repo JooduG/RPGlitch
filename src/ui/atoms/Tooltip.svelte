@@ -182,13 +182,13 @@
                       group-data-[side=bottom]:border-x-8
                       group-data-[side=bottom]:border-b-8
                       group-data-[side=bottom]:border-x-transparent
-                      group-data-[side=bottom]:border-b-slate-400
+                      group-data-[side=bottom]:border-b-slate-600
 
                       group-data-[side=top]:bottom-[-8px]
                       group-data-[side=top]:border-x-8
                       group-data-[side=top]:border-t-8
                       group-data-[side=top]:border-x-transparent
-                      group-data-[side=top]:border-t-slate-400
+                      group-data-[side=top]:border-t-slate-600
                     "
                   >
                     <div
@@ -202,13 +202,13 @@
                         group-data-[side=bottom]:border-x-8
                         group-data-[side=bottom]:border-b-8
                         group-data-[side=bottom]:border-x-transparent
-                        group-data-[side=bottom]:border-b-slate-900
+                        group-data-[side=bottom]:border-b-neutral-900
 
                         group-data-[side=top]:bottom-px
                         group-data-[side=top]:border-x-8
                         group-data-[side=top]:border-t-8
                         group-data-[side=top]:border-x-transparent
-                        group-data-[side=top]:border-t-slate-900
+                        group-data-[side=top]:border-t-neutral-900
                       "
                     ></div>
                   </div>
@@ -221,8 +221,8 @@
                       transform-gpu
                       rounded-md
                       border
-                      border-slate-400
-                      bg-slate-900/98
+                      border-slate-600
+                      bg-neutral-900/98
                       px-2
                       py-1.5
                       text-center
@@ -230,7 +230,7 @@
                       text-xs/normal
                       tracking-normal
                       whitespace-normal
-                      text-slate-100
+                      text-slate-50
                       normal-case
                       backface-hidden
                     "

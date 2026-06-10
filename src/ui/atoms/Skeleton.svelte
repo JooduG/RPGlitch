@@ -52,7 +52,7 @@
     after:inset-0
     after:z-10
     after:-translate-x-full
-    after:animate-[shimmer_2s_cubic-bezier(0.4,0,0.2,1)_infinite]
+    after:animate-[shimmer_2s_ease-in-out_infinite]
     after:bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.08)_30%,rgba(255,255,255,0.18)_50%,rgba(255,255,255,0.08)_70%,transparent_100%)]
     after:blur-md
     after:content-['']

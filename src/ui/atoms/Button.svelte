@@ -79,7 +79,7 @@
     items-center
     justify-center
     gap-4
-    rounded-[16px]
+    rounded-2xl
     border
     border-solid
     border-transparent
@@ -89,23 +89,24 @@
     text-sm
     leading-normal
     font-extrabold
-    text-[#f2f7fa]
+    text-slate-50
     no-underline
-    shadow-[0_4px_16px_rgba(0,0,0,0.3)]
+    shadow-lg
+    shadow-black/30
     select-none
 
     hover:brightness-110
+
     focus-visible:outline
     focus-visible:outline-offset-1
-
     focus-visible:outline-white
+
     active:scale-[0.96]
+
     disabled:pointer-events-none
     disabled:transform-none
     disabled:opacity-30
-
     disabled:shadow-none
-
     disabled:grayscale
 
     data-[kinetic=true]:active:scale-100
@@ -116,38 +117,44 @@
     ? `
       transition-[background-color,color,box-shadow,transform,filter,border-color]
       duration-500
-      ease-[cubic-bezier(0.34,1.56,0.64,1)]
+      ease-out
 
       data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
     `
     : ''}
     {variant === 'primary'
     ? `
-      bg-[#555d66]
+      bg-slate-600
 
-      hover:border-[#f2f7fa]
+      hover:border-slate-50
     `
     : ''}
     {variant === 'secondary'
-    ? 'bg-(--signature-color,#555d66) hover:border-[#f2f7fa]'
-    : ''} {variant === 'danger'
     ? `
-      bg-[#555d66]
+      bg-slate-600
 
-      hover:border-[#f2f7fa]
-      hover:bg-[#ef4444]
-      hover:text-[#f2f7fa]
-      hover:shadow-[0_0_16px_rgba(239,68,68,0.6)]
+      hover:border-slate-50
+    `
+    : ''}
+    {variant === 'danger'
+    ? `
+      bg-slate-600
+
+      hover:border-slate-50
+      hover:bg-red-500
+      hover:text-slate-50
+      hover:shadow-lg
+      hover:shadow-red-500/60
     `
     : ''}
     {variant === 'invisible'
     ? `
       bg-transparent
-      text-[#555d66]
+      text-slate-600
       shadow-none
 
       hover:bg-transparent
-      hover:text-[#f2f7fa]
+      hover:text-slate-50
       hover:brightness-110
     `
     : ''}
@@ -171,9 +178,9 @@
     `
     : square
       ? `
-      h-12
-      w-12
-    `
+        h-12
+        w-12
+      `
       : ''}
     {full_width
     ? `
@@ -208,32 +215,32 @@
     ? `
       border-none
       bg-transparent
-      text-[#f2f7fa]
+      text-slate-50
       opacity-60
       shadow-none
       transition-[transform,color,opacity]
       duration-300
-      ease-[cubic-bezier(0.34,1.56,0.64,1)]
+      ease-out
 
       hover:scale-[1.02]
       hover:opacity-100
+
       active:scale-[0.96]
 
       disabled:transform-none
       disabled:cursor-not-allowed
-
-      disabled:text-[#555d66]
-
+      disabled:text-slate-600
       disabled:opacity-10
 
       data-[kinetic=true]:hover:scale-100
 
       data-[kinetic=true]:active:scale-100
-      [&_svg]:fill-[#f2f7fa]
+
+      [&_svg]:fill-slate-50
       [&_svg]:transition-colors
       [&_svg]:duration-300
 
-      [&_svg]:disabled:fill-[#555d66]
+      [&_svg]:disabled:fill-slate-600
     `
     : ''}
     {className}"

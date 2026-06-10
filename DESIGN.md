@@ -6,7 +6,7 @@ colors:
   background-gradient-2: "#14182b"
   background-gradient-3: "#1e1b38"
   background-gradient-4: "#16243b"
-  chalk: "#222326"
+  chalk: "#171717"
   coral-rose: "#fb7185"
   crimson-red: "#ef4444"
   danger-color: var(--crimson-red)
@@ -16,13 +16,13 @@ colors:
   font-color-base: var(--frisk)
   font-color-muted: var(--frozen)
   forest-green: "#15803d"
-  frisk: "#f2f7fa"
-  frozen: "#555d66"
+  frisk: "#f8fafc"
+  frozen: "#475569"
   glass-base: rgb(from var(--gunmetal) r g b / var(--opacity-muted))
   glass-elevated: rgb(from var(--frozen) r g b / var(--opacity-whisper))
   glass-peak: rgb(from var(--pure-white) r g b / var(--opacity-muted))
   glass-sunken: rgb(from var(--chalk) r g b / var(--opacity-muted))
-  gunmetal: "#363840"
+  gunmetal: "#334155"
   hot-pink: "#ec4899"
   lemon-yellow: "#fde047"
   lime-green: "#84cc16"
@@ -124,7 +124,7 @@ components:
   duration-none: 0s
   duration-slow: 500ms
   duration-standard: 300ms
-  ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1)
+  ease-elastic: "ease-out"
   ease-in: cubic-bezier(0.4, 0, 1, 1)
   ease-out: cubic-bezier(0, 0, 0.2, 1)
   ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
