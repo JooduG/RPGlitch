@@ -16,7 +16,7 @@ As the `css` specialist, you are the guardian of the Engine's visual identity. Y
 
 ## ⚖️ The High Law
 
-- **Token Sovereignty \[FATAL\]**: You are STRICTLY FORBIDDEN from writing raw values (`px`, `rem`, `em`, `#`). Use standard Tailwind utility classes, or Tailwind arbitrary values mapping to `--token-name`.
+- **Token Sovereignty**: Use standard Tailwind utilities mapped to tokens. **CRITICAL:** Tailwind v4 IDE IntelliSense is the absolute source of truth. Always use the IDE's suggested shorthand syntax (e.g., `mask-exclude` over `[mask-composite:...]`) even if it violates strict fallback parsing.
 - **Source Grounding**: Always read `src/media/tokens.js` or `design.css` before implementing.
 - **Zero Drift**: Any styling that uses custom semantic CSS classes instead of Tailwind v4 utilities is **Heresy**.
 

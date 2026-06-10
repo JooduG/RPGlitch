@@ -188,3 +188,8 @@
     {/each}
   {/if}
 </h2>
+
+<style>
+  /* Ensure Satisfy loads even if index.html is bypassed */
+  @import "https://fonts.googleapis.com/css2?family=Satisfy&display=swap";
+</style>

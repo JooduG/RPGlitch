@@ -245,9 +245,9 @@ All imagery in the RPGlitch ecosystem must adhere to the following stylistic con
 
 ## 📐 The Chalk Regime (Laws)
 
-### 1. Token Sovereignty **FATAL CONSTRAINT**
+### 1. Token Sovereignty & IDE Alignment
 
-The system operates within a closed-loop token architecture. Writing raw pixel values (`px`), rems (`rem`), ems (`em`), or hex codes (`#`) in any implementation file is strictly forbidden (**Heresy**).
+The system operates within a closed-loop token architecture. While using raw values is generally discouraged, **Tailwind CSS v4 IDE IntelliSense suggestions take absolute priority**. Do not enforce strict arbitrary properties if the IDE suggests a valid shorthand (e.g., `mask-exclude`).
 
 ### 2. Kinetic Physics (The Grounded Law)
 
