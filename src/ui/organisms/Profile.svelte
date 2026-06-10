@@ -431,7 +431,7 @@
                 is_edit={state.is_editing}
                 syncId={section.label}
                 {signature_color}
-                data-active={state.active_field?.key === field.key}
+                data-active={state.active_field?.key === field.key ? true : undefined}
                 placeholder={field.description}
                 value={state.get_safe_value(field.key)}
                 oninput={(/** @type {any} */ e) =>
