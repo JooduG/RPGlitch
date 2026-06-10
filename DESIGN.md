@@ -343,184 +343,199 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 ```css
 /* --- T4: Realization (Patterns & Resets) --- */
 
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+@utility mask-border-solid {
+  /* stylelint-disable property-no-vendor-prefix */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  /* stylelint-enable property-no-vendor-prefix */
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
 }
 
-html,
-body {
-  margin: 0;
-  padding: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  font-family: var(--font-family-base);
-  color: var(--frisk);
-  background-color: var(--chalk);
-  line-height: var(--font-height-base);
-}
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-h1,
-.h1,
-h2,
-.h2,
-h3,
-.h3,
-h4,
-.h4,
-h5,
-.h5,
-h6,
-.h6 {
-  font-family: var(--font-family-heading);
-  margin: 0;
-  line-height: var(--font-height-base);
-  color: var(--pure-white);
-  text-shadow: var(--title-shadow-ambient);
-  letter-spacing: var(--font-spacing-tight);
-  font-weight: var(--font-weight-bold);
-}
+  html,
+  body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: var(--font-family-base);
+    color: var(--frisk);
+    background-color: var(--chalk);
+    line-height: var(--font-height-base);
+  }
 
-h1,
-.h1 {
-  font-size: var(--font-size-h1);
-}
+  h1,
+  .h1,
+  h2,
+  .h2,
+  h3,
+  .h3,
+  h4,
+  .h4,
+  h5,
+  .h5,
+  h6,
+  .h6 {
+    font-family: var(--font-family-heading);
+    margin: 0;
+    line-height: var(--font-height-base);
+    color: var(--pure-white);
+    text-shadow: var(--title-shadow-ambient);
+    letter-spacing: var(--font-spacing-tight);
+    font-weight: var(--font-weight-bold);
+  }
 
-h2,
-.h2 {
-  font-size: var(--font-size-h2);
-}
+  h1,
+  .h1 {
+    font-size: var(--font-size-h1);
+  }
 
-h3,
-.h3 {
-  font-size: var(--font-size-h3);
-}
+  h2,
+  .h2 {
+    font-size: var(--font-size-h2);
+  }
 
-h4,
-.h4 {
-  font-size: var(--font-size-h4);
-}
+  h3,
+  .h3 {
+    font-size: var(--font-size-h3);
+  }
 
-h5,
-.h5 {
-  font-size: var(--font-size-h5);
-}
+  h4,
+  .h4 {
+    font-size: var(--font-size-h4);
+  }
 
-h6,
-.h6 {
-  font-size: var(--font-size-h6);
-}
+  h5,
+  .h5 {
+    font-size: var(--font-size-h5);
+  }
 
-p,
-span,
-label,
-li,
-strong,
-em,
-small,
-blockquote,
-time,
-code,
-kbd,
-mark,
-q,
-cite,
-dfn,
-sub,
-sup,
-b,
-i,
-u {
-  font-family: inherit; /* Allow inheritance from parent (e.g. h1) */
-  margin: 0;
-  line-height: inherit;
-}
+  h6,
+  .h6 {
+    font-size: var(--font-size-h6);
+  }
 
-/* Base text fallback ONLY for top-level or specific containers */
-body > p,
-body > label,
-main p,
-main label,
-section p,
-section label {
-  font-family: var(--font-family-base);
-}
+  p,
+  span,
+  label,
+  li,
+  strong,
+  em,
+  small,
+  blockquote,
+  time,
+  code,
+  kbd,
+  mark,
+  q,
+  cite,
+  dfn,
+  sub,
+  sup,
+  b,
+  i,
+  u {
+    font-family: inherit; /* Allow inheritance from parent (e.g. h1) */
+    margin: 0;
+    line-height: inherit;
+  }
 
-strong,
-b {
-  font-weight: var(--font-weight-bold);
-}
+  /* Base text fallback ONLY for top-level or specific containers */
+  body > p,
+  body > label,
+  main p,
+  main label,
+  section p,
+  section label {
+    font-family: var(--font-family-base);
+  }
 
-em,
-i {
-  font-style: italic;
-}
+  strong,
+  b {
+    font-weight: var(--font-weight-bold);
+  }
 
-u {
-  text-decoration: underline;
-}
+  em,
+  i {
+    font-style: italic;
+  }
 
-sup,
-sub {
-  font-size: var(--font-size-nano);
-  line-height: 0;
-  position: relative;
-  vertical-align: baseline;
-}
+  u {
+    text-decoration: underline;
+  }
 
-sup {
-  top: -0.5em;
-}
+  sup,
+  sub {
+    font-size: var(--font-size-nano);
+    line-height: 0;
+    position: relative;
+    vertical-align: baseline;
+  }
 
-sub {
-  bottom: -0.25em;
-}
+  sup {
+    top: -0.5em;
+  }
 
-small {
-  font-size: var(--font-size-small);
-}
+  sub {
+    bottom: -0.25em;
+  }
 
-code {
-  font-family: var(--font-family-mono);
-  font-size: var(--font-size-small);
-  background: var(--glass-sunken);
-  padding: var(--spacing-pixel) var(--spacing-unit);
-  border-radius: var(--radius-sharp);
-}
+  small {
+    font-size: var(--font-size-small);
+  }
 
-a {
-  color: inherit;
-  text-decoration: none;
-  transition: color var(--duration-fast) var(--ease-standard);
-}
+  code {
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-small);
+    background: var(--glass-sunken);
+    padding: var(--spacing-pixel) var(--spacing-unit);
+    border-radius: var(--radius-sharp);
+  }
 
-button,
-input,
-optgroup,
-select,
-textarea {
-  font-family: inherit;
-  font-size: 100%;
-  line-height: inherit;
-  margin: 0;
-  color: inherit;
-}
+  a {
+    color: inherit;
+    text-decoration: none;
+    transition: color var(--duration-fast) var(--ease-standard);
+  }
 
-button {
-  cursor: pointer;
-  background: none;
-  border: none;
-  padding: 0;
-}
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: inherit;
+    font-size: 100%;
+    line-height: inherit;
+    margin: 0;
+    color: inherit;
+  }
 
-input:focus,
-textarea:focus,
-select:focus {
-  outline: none;
+  button {
+    cursor: pointer;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+
+  input:focus,
+  textarea:focus,
+  select:focus {
+    outline: none;
+  }
 }
 
 .interactable {
@@ -543,6 +558,19 @@ select:focus {
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
+
+@utility mask-border-solid {
+  /* stylelint-disable property-no-vendor-prefix */
+  -webkit-mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  /* stylelint-enable property-no-vendor-prefix */
+  mask:
+    linear-gradient(#fff 0 0) content-box,
+    linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+}
 
 .text-shadow-outline {
   text-shadow:

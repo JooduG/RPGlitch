@@ -49,7 +49,7 @@
   const duration_out = resolve_ms("--duration-fast", 250);
 </script>
 
-<AlertDialog.Root bind:open>
+<AlertDialog.Root bind:open preventScroll={false}>
   <AlertDialog.Portal>
     <AlertDialog.Overlay forceMount>
       {#snippet child({ props: overlayProps, open: isOpen })}

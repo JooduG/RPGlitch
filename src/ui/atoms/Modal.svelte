@@ -57,7 +57,7 @@
   });
 </script>
 
-<Dialog.Root bind:open>
+<Dialog.Root bind:open preventScroll={false}>
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
@@ -124,7 +124,7 @@
                         overflow-visible!
                         border-none!
                         bg-transparent
-                        p-0
+                        p-0!
                         shadow-none!
                         backdrop-blur-none!
                       `}

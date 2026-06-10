@@ -153,7 +153,8 @@
     gap-2
     rounded-full
     bg-(--glass-elevated)
-    p-2
+    px-4
+    py-2
     [backdrop-filter:var(--blur-mist)]
     transition-all
     duration-500
@@ -182,6 +183,7 @@
 >
   {#if app.view === "storyboard"}
     <Button
+      flank={true}
       variant="invisible"
       aria-label="Shuffle Entities"
       onclick={() => storyboard.shuffle()}
@@ -203,6 +205,7 @@
     </Button>
 
     <Button
+      class="group"
       data-ready={ready_to_begin}
       variant="invisible"
       busy={!ready_to_begin}
@@ -213,20 +216,23 @@
       <h6
         class="
           m-0
-          tracking-wide
+          tracking-widest
+          transition-all
+          duration-300
 
           {ready_to_begin
-          ? `
-            text-emerald-500
-            [text-shadow:0_0_0.5rem_color-mix(in_srgb,var(--color-emerald-500)_15%,transparent)]
-          `
-          : ''}"
+          ? 'group-hover:scale-105 group-hover:brightness-125'
+          : 'text-slate-400 opacity-80'}"
+        style={ready_to_begin
+          ? "color: var(--emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--emerald-green) 25%, transparent);"
+          : undefined}
       >
         {label_text}
       </h6>
     </Button>
 
     <Button
+      flank={true}
       variant="invisible"
       aria-label="Settings"
       onclick={app.toggle_control_panel}
@@ -249,6 +255,7 @@
     </Button>
   {:else}
     <Button
+      flank={true}
       variant="invisible"
       onclick={() => app.toggle_control_panel()}
       aria-label="Settings"

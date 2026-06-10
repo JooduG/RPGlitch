@@ -586,5 +586,7 @@ export const context_broker = {
 };
 
 if (typeof window !== "undefined") {
-  init_context_effects();
+  setTimeout(() => {
+    init_context_effects();
+  }, 0);
 }

@@ -63,7 +63,7 @@
     block
     h-full
     w-full
-    overflow-hidden
+    overflow-visible
 
     {className}"
 >

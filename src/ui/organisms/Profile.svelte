@@ -35,10 +35,10 @@
     if (!(target instanceof Element)) return;
 
     if (state.show_delete_confirm) return;
-    if (target.closest(".wings-container > *")) return;
+    if (target.closest("[data-wings-container]")) return;
     if (
       target.closest(".menu") ||
-      target.closest(".dropdown-menu") ||
+      target.closest("[data-dropdown-menu]") ||
       target.closest(".dropdown-portal-wrapper") ||
       target.closest(".tooltip-portal")
     )
@@ -179,6 +179,7 @@
             bind:description={state.char.description}
             is_editing={state.is_editing}
             active_field={state.active_field?.key}
+            {signature_color}
             on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) =>
               state.set_active_field(key, label)}
           />
@@ -239,6 +240,7 @@
 
       {#if has_wings}
         <aside
+          data-wings-container
           class="
             col-[9/12] flex
             animate-[slide-in-left_var(--motion-elastic)]
@@ -338,12 +340,11 @@
               justify-center
               text-center
               tracking-widest
-              text-(--signature-color)
               uppercase
-              drop-shadow-md
               transition-colors
               duration-300
             "
+            style="color: var(--signature-color); text-shadow: none;"
           >
             {#if state.is_editing && state.hovered_section === section.id && arrayField}
               <span
@@ -455,7 +456,7 @@
                     >
                   {:else if field.sublabel}
                     <span
-                      class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80"
+                      class="text-[10px] font-(--font-family-mono) tracking-widest text-white uppercase opacity-80"
                       >{field.sublabel}</span
                     >
                   {/if}

@@ -46,15 +46,16 @@
       text-sm
       font-extrabold
       text-white
-      transition-all
-      duration-150
-      ease-in-out
-      outline-none
-      select-none
+      uppercase
+      transition-[background-color,color,box-shadow,transform,filter,border-color]
+      duration-500
+      ease-out
 
-      hover:brightness-110
+      hover:brightness-125
 
-      focus:outline-none
+      focus-visible:outline
+      focus-visible:outline-offset-1
+      focus-visible:outline-white
 
       active:scale-[0.96]
 
@@ -94,21 +95,25 @@
   </Select.Trigger>
 
   <Select.Portal>
-    <Select.Content class="z-(--z-index-max)" sideOffset={8} forceMount>
+    <Select.Content sideOffset={8} align="start" forceMount>
       {#snippet child({ wrapperProps, props, open })}
         {#if open}
           <div {...wrapperProps}>
             <div
               {...props}
+              data-dropdown-menu
               class="
+                z-(--z-index-max)
                 flex
                 max-h-36
+                w-[calc(var(--bits-select-anchor-width)+3.5rem)]
                 flex-col
                 overflow-hidden
                 rounded-xl
                 border
                 border-solid
-                border-white/10
+                border-transparent
+                bg-(--signature-color,#555d66)
                 shadow-[0_4px_16px_rgba(0,0,0,0.3)]
               "
               transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
@@ -116,7 +121,7 @@
               <Select.Viewport
                 class="
                   overflow-hidden
-                  p-0
+                  p-1.5
                 "
               >
                 <ScrollArea style="max-height: inherit;">
@@ -129,41 +134,37 @@
                         items-center
                         justify-between
                         gap-4
-                        rounded-none
-                        border-b
-                        border-solid
-                        border-white/10
-                        px-4
+                        rounded-lg
+                        bg-(--signature-color,#555d66)
+                        px-3
                         py-2
                         text-left
                         font-sans
                         text-sm
                         text-[#f2f7fa]
-                        transition-all
-                        duration-150
-                        ease-in-out
+
+                        transition-[background-color,color,box-shadow,transform,filter,border-color]
+                        duration-500
+                        ease-out
+
                         outline-none
                         select-none
 
-                        last:border-b-0
-
                         focus:outline-none
 
-                        aria-selected:bg-zinc-800/60
+                        aria-selected:brightness-110
 
                         data-disabled:pointer-events-none
                         data-disabled:cursor-not-allowed
                         data-disabled:opacity-30
                         data-disabled:grayscale
 
-                        data-highlighted:bg-zinc-900/40
                         data-highlighted:text-white
-                        data-highlighted:brightness-110
-                        data-highlighted:backdrop-blur-sm
+                        data-highlighted:brightness-125
 
-                        data-[selected=true]:bg-zinc-800/60
+                        data-[selected=true]:brightness-110
 
-                        data-[state=checked]:bg-zinc-800/60
+                        data-[state=checked]:brightness-110
                       "
                       value={item.value}
                       label={item.label}
@@ -189,7 +190,7 @@
                             leading-none
                             font-extrabold
                             tracking-wider
-                            text-[#555d66]
+                            text-white/50
                             uppercase
                           "
                         >

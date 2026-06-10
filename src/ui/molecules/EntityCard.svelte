@@ -176,7 +176,7 @@
     relative
     cursor-pointer
     overflow-visible
-    rounded-md
+    rounded-2xl
     border
     border-[color-mix(in_srgb,var(--signature-color)_15%,transparent)]
     bg-black/15
@@ -371,22 +371,17 @@
 
       {variant === 'library'
       ? `
-        h-[40%]
-        px-4
-        py-2
+        h-auto
+        min-h-[40%]
+        p-2
       `
-      : type === 'fractal'
-        ? `
-          h-auto
-          min-h-[40%]
-          bg-[linear-gradient(to_top,var(--color-neutral-900)_0%,color-mix(in_srgb,var(--color-neutral-900)_100%,transparent)_60%,transparent_100%)]
-          pt-4
-        `
-        : `
-          h-[60%]
-          bg-[linear-gradient(to_top,var(--color-neutral-900)_0%,color-mix(in_srgb,var(--color-neutral-900)_100%,transparent)_40%,color-mix(in_srgb,var(--color-neutral-900)_60%,transparent)_75%,transparent_100%)]
-          p-4
-        `}"
+      : `
+        h-auto
+        min-h-[40%]
+        px-2
+        pt-4
+        pb-4
+      `}"
   >
     <span
       class="
@@ -394,12 +389,11 @@
         w-full
         overflow-hidden
         text-center
-        font-serif
+        font-(family-name:--font-family-heading)
         font-bold
         wrap-break-word
-        text-(--signature-color,var(--color-slate-50))
+        text-slate-50
         uppercase
-        shadow-sm
         [-webkit-box-orient:vertical]
         [-webkit-line-clamp:3]
         [line-clamp:3]
@@ -408,12 +402,14 @@
         ? `
           text-sm
           leading-snug
-          tracking-normal
+          tracking-wide
+          text-shadow-[var(--spacing-pixel)_var(--spacing-pixel)_0_var(--void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--void-black)]
         `
         : `
-          text-[clamp(var(--font-size-base),12cqi,var(--font-size-h2))]
+          text-[clamp(1rem,12cqi,1.5rem)]
           leading-tight
           tracking-widest
+          [text-shadow:var(--spacing-pixel)_var(--spacing-pixel)_0_var(--void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--void-black),0_0_calc(var(--spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.4)]
         `}
         {is_empty
         ? `
@@ -440,13 +436,14 @@
           wrap-break-word
           whitespace-normal
           text-slate-50
-          shadow-sm
+          opacity-80
           transition-all
           duration-300
           ease-in-out
           [-webkit-box-orient:vertical]
           [-webkit-line-clamp:3]
           [line-clamp:3]
+          [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]
 
           {variant === 'library'
           ? `

@@ -37,6 +37,21 @@ module.exports = {
       },
     ],
 
+    "scss/at-rule-no-unknown": [
+      true,
+      {
+        ignoreAtRules: [
+          "tailwind",
+          "utility",
+          "theme",
+          "source",
+          "config",
+          "plugin",
+          "custom-variant",
+        ],
+      },
+    ],
+
     /* ========================================================================
        DEVELOPER SANITY OVERRIDES
        ======================================================================== */

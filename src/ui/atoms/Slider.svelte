@@ -120,17 +120,20 @@
     class="
       mb-1
       text-left
+      font-sans
       text-xs
-      font-(--font-family-mono)
-      tracking-wider
-      text-[#555d66]
+      font-bold
+      tracking-widest
+      whitespace-nowrap
+      text-(--signature-color,#555d66)
       uppercase
-      transition-colors
+      transition-[color,filter]
       duration-300
       ease-in-out
       select-none
+      [text-shadow:0_0_10px_rgba(0,0,0,0.5)]
 
-      {!is_disabled ? 'group-hover/slider:text-white!' : ''}
+      {!is_disabled ? 'group-hover/slider:brightness-125' : ''}
     "
   >
     {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
@@ -167,8 +170,14 @@
             w-full
             rounded-full
             border-none
-            bg-[linear-gradient(to_right,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_0%,rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-start),var(--slider-fill-color-start)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_var(--state-fill-end),rgb(from_var(--slider-fill-color-end)_r_g_b/0.3)_100%)]
+            bg-[linear-gradient(to_right,var(--empty-fill)_0%,var(--empty-fill)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-start),var(--signature-color,#555d66)_var(--state-fill-end),var(--empty-fill)_var(--state-fill-end),var(--empty-fill)_100%)]
             shadow-[inset_0_1px_1px_rgba(255,255,255,0.1)]
+            transition-[filter]
+            duration-300
+            ease-in-out
+            [--empty-fill:rgb(23_23_23/0.6)]
+
+            group-hover/slider:brightness-125
           "
         ></span>
         <Slider.Thumb index={0}>
@@ -196,10 +205,6 @@
                 : `
                   bg-white
                   shadow-[0_2px_8px_rgba(0,0,0,0.4)]
-
-                  group-hover/slider:brightness-110!
-
-                  active:scale-110
                 `}
               "
               style="{thumbProps.style}; top: 50%; transform: translate(-50%, -50%);"

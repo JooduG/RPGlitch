@@ -477,5 +477,5 @@ if (typeof window !== "undefined") {
   window.rpgApp = app;
   window.state = app;
   // @ts-ignore
-  Object.defineProperty(window, "visual", { get: () => app.visual });
+  Object.defineProperty(window, "visual", { get: () => app.visual, configurable: true });
 }

@@ -191,13 +191,12 @@
         before:absolute
         before:inset-0
         before:rounded-[inherit]
-        before:mask-exclude
+        before:mask-border-solid
         before:p-px
         before:transition-opacity
         before:duration-300
         before:ease-out
         before:content-['']
-        before:[mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
 
         {is_user ? 'rounded-br-sm' : ''}
         {is_ai ? 'rounded-bl-sm' : ''}

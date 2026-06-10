@@ -206,19 +206,19 @@
   class="
   flex w-full
   flex-col
-  gap-4
-  rounded-md
+  gap-(--gap-standard)
+  rounded-(--radius-standard)
   bg-(--glass-elevated)
-  p-4
+  p-(--padding-standard)
   [backdrop-filter:var(--blur-mist)]
 "
 >
-  <!-- ðŸŽ¨ COLOR SWATCHES -->
+  <!-- 🎨 COLOR SWATCHES -->
   <div
     class="
     grid
     grid-cols-5
-    gap-2
+    gap-(--gap-tight)
   "
   >
     {#each SPECTRUM_COLORS as [name, hex] (name)}
@@ -228,26 +228,27 @@
           relative
           aspect-square
           w-full
-          rounded-md
-          shadow-sm
+          rounded-xl
+          shadow-(--shadow-ghost)
           transition-all
-          duration-300
-          ease-in-out
+          duration-(--duration-fast)
+          ease-(--motion-dissolve)
 
           has-[:not(:disabled)]:hover:z-20
-          has-[:not(:disabled)]:hover:shadow-md
-          has-[:not(:disabled)]:hover:brightness-110
+          has-[:not(:disabled)]:hover:shadow-(--shadow-standard)
+          has-[:not(:disabled)]:hover:brightness-115
 
           {current_label === name
           ? `
             z-20
-            scale-110
+            scale-[1.14]
             cursor-default
-            shadow-[0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
-            outline
-            outline-offset-2
+            [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
+            outline-[calc(var(--spacing-pixel)*3)]
+            outline-offset-[calc(var(--spacing-pixel)*2)]
             outline-white
             brightness-110
+            outline-solid
 
             hover:brightness-100!
           `

@@ -90,12 +90,11 @@
     before:absolute
     before:inset-0
     before:rounded-[inherit]
-    before:mask-exclude
+    before:mask-border-solid
     before:p-px
     before:transition-opacity
     before:duration-300
-    before:content-['']
-    before:[mask:linear-gradient(#fff_0_0)_content-box,linear-gradient(#fff_0_0)]
+    before:content-['']!
 
     {is_expanded ? '' : ''}
     {no_background
@@ -157,9 +156,9 @@
       items-center
       justify-between
       overflow-hidden
-      rounded-[12px_12px_0_0]
+      rounded-t-xl
       bg-(--state-dev-accent)
-      px-2
+      px-4
       opacity-60
       transition-[height,opacity,background]
       duration-300
@@ -226,7 +225,7 @@
         p-4
         text-left
         font-sans
-        text-sm
+        text-(length:--font-size-base)
         leading-normal
         text-wrap
         text-slate-50
@@ -277,7 +276,7 @@
           p-4
           text-left
           font-sans
-          text-sm
+          text-(length:--font-size-base)
           leading-normal
           text-pretty
           text-slate-50

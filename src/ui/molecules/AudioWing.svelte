@@ -70,14 +70,11 @@
     flex
     w-full
     flex-col
-    gap-4
-    rounded-md
-    border
-    border-white/5
-    bg-black/25
-    p-4
-    shadow-md
-    backdrop-blur-sm
+    gap-(--gap-standard)
+    rounded-(--radius-standard)
+    bg-(--glass-elevated)
+    p-(--padding-standard)
+    [backdrop-filter:var(--blur-mist)]
   "
 >
   <!-- VOICE SELECTOR -->

@@ -16,6 +16,7 @@
     is_editing = false,
     active_field = "",
     on_focus_field = () => {},
+    signature_color = "var(--frozen)",
     class: className = "",
   } = $props();
 
@@ -73,23 +74,57 @@
   "
   >
     {#if is_editing}
-      <div>
+      <div
+        class="
+          relative
+          flex
+          w-(--state-fill-end)
+          rounded-(--radius-standard)
+          border-transparent
+          bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--glass-sunken))]
+          transition-[border-color,box-shadow,background]
+          duration-(--duration-fast)
+          ease-(--ease-standard)
+          before:pointer-events-none
+          before:absolute
+          before:inset-0
+          before:rounded-[inherit]
+          before:mask-border-solid
+          before:p-(--spacing-pixel)
+          before:opacity-(--opacity-whisper)
+          before:transition-opacity
+          before:duration-(--duration-standard)
+          before:content-['']
+          before:[background:linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
+          focus-within:border-transparent
+          focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
+          focus-within:before:opacity-(--opacity-solid)
+          focus-within:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
+          data-[expanded=true]:border-transparent
+          data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
+          data-[expanded=true]:before:opacity-(--opacity-solid)
+          data-[expanded=true]:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
+        "
+        data-expanded={active_field === "name"}
+      >
         <input
           bind:this={name_input}
           bind:value={name}
           class="
+            z-20
             box-border
             w-full
             border-none
             bg-transparent
             p-4
             text-left
-            text-2xl
-            font-(--font-family-heading)
+            font-(family-name:--font-family-heading)
+            text-(length:--font-size-h3)
+            font-extrabold
             tracking-normal
-            text-(--signature-color)
             outline-none
           "
+          style="color: {signature_color};"
           onfocus={() => on_focus_field("name", "Entity Name")}
         />
       </div>
@@ -99,10 +134,9 @@
           block
           text-right
           leading-[1.1]
-          text-(--signature-color)
           drop-shadow-md
-
         "
+        style="color: {signature_color};"
       >
         <FitText text={formatName(name)} class="text-inherit!" />
       </h1>
@@ -125,14 +159,13 @@
         before:absolute
         before:inset-0
         before:rounded-[inherit]
-        before:mask-exclude
+        before:mask-border-solid
         before:p-(--spacing-pixel)
         before:opacity-(--opacity-whisper)
         before:transition-opacity
         before:duration-(--duration-standard)
         before:content-['']
         before:[background:linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
-        before:[mask:linear-gradient(var(--pure-white)_0_0)_content-box,linear-gradient(var(--pure-white)_0_0)]
         focus-within:border-transparent
         focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
         focus-within:before:opacity-(--opacity-solid)
@@ -158,7 +191,7 @@
           p-4
           text-left
           font-sans
-          text-sm
+          text-(length:--font-size-base)
           leading-normal
           [text-wrap:auto]
           text-slate-50
@@ -186,7 +219,8 @@
         m-0
         rounded-md
         text-right
-        text-sm
+        font-sans
+        text-(length:--font-size-base)
         leading-normal
         text-balance
         whitespace-pre-wrap

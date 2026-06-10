@@ -23,6 +23,7 @@
     cover = false,
     square = false,
     full_width = false,
+    flank = false,
     class: className = "",
 
     // Handlers
@@ -46,7 +47,7 @@
   );
 
   let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
-  const is_flank = $derived(className?.toLowerCase().includes("flank"));
+  const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
   // Svelte 5 Action delegation: Apply Svelte actions dynamically when element reference becomes active
   $effect(() => {
@@ -74,25 +75,24 @@
     pointer-events-auto
     relative
     inline-flex
-    h-12
+    h-10
     cursor-pointer
     items-center
     justify-center
     gap-4
-    rounded-2xl
+    rounded-xl
     border
     border-solid
     border-transparent
-    bg-transparent
     px-4
     font-[inherit]
-    text-sm
+    text-(length:--font-size-base)
     leading-normal
     font-extrabold
-    text-slate-50
+    text-white
     no-underline
-    shadow-lg
-    shadow-black/30
+    shadow-sm
+    shadow-black/20
     select-none
 
     hover:brightness-110
@@ -122,126 +122,24 @@
       data-[kinetic=true]:transition-[background-color,color,box-shadow,filter,border-color]
     `
     : ''}
-    {variant === 'primary'
-    ? `
-      bg-slate-600
-
-      hover:border-slate-50
-    `
-    : ''}
-    {variant === 'secondary'
-    ? `
-      bg-slate-600
-
-      hover:border-slate-50
-    `
-    : ''}
+    {variant === 'primary' ? 'bg-slate-600 hover:brightness-125' : ''}
+    {variant === 'secondary' ? 'bg-(--signature-color) text-white hover:brightness-125' : ''}
     {variant === 'danger'
-    ? `
-      bg-slate-600
-
-      hover:border-slate-50
-      hover:bg-red-500
-      hover:text-slate-50
-      hover:shadow-lg
-      hover:shadow-red-500/60
-    `
+    ? 'bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125'
     : ''}
     {variant === 'invisible'
-    ? `
-      bg-transparent
-      text-slate-600
-      shadow-none
-
-      hover:bg-transparent
-      hover:text-slate-50
-      hover:brightness-110
-    `
+    ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-110'
     : ''}
-    {size === 'small'
-    ? `
-      px-2
-      text-xs
-    `
-    : ''}
-    {square
-    ? `
-      aspect-square
-      shrink-0
-      p-0
-    `
-    : ''}
-    {square && size === 'small'
-    ? `
-      h-4
-      w-4
-    `
-    : square
-      ? `
-        h-12
-        w-12
-      `
-      : ''}
-    {full_width
-    ? `
-      w-full
-      flex-1
-    `
-    : ''}
+    {size === 'small' ? 'px-2 text-xs' : ''}
+    {square ? 'aspect-square shrink-0 p-0' : ''}
+    {square && size === 'small' ? 'h-4 w-4' : square ? 'h-12 w-12' : ''}
+    {full_width ? 'w-full flex-1' : ''}
     {cover
-    ? `
-      absolute
-      inset-0
-      z-10
-      h-full
-      min-h-0
-      w-full
-      rounded-[inherit]
-      border-none
-      bg-transparent
-      p-0
-      shadow-none
-    `
+    ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!'
     : ''}
-    {busy
-    ? `
-      pointer-events-none
-      cursor-wait
-      brightness-90
-      grayscale-30
-    `
-    : ''}
+    {busy ? 'pointer-events-none cursor-wait brightness-90 grayscale-30' : ''}
     {is_flank
-    ? `
-      border-none
-      bg-transparent
-      text-slate-50
-      opacity-60
-      shadow-none
-      transition-[transform,color,opacity]
-      duration-300
-      ease-out
-
-      hover:scale-[1.02]
-      hover:opacity-100
-
-      active:scale-[0.96]
-
-      disabled:transform-none
-      disabled:cursor-not-allowed
-      disabled:text-slate-600
-      disabled:opacity-10
-
-      data-[kinetic=true]:hover:scale-100
-
-      data-[kinetic=true]:active:scale-100
-
-      [&_svg]:fill-slate-50
-      [&_svg]:transition-colors
-      [&_svg]:duration-300
-
-      [&_svg]:disabled:fill-slate-600
-    `
+    ? 'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-300 ease-out hover:scale-[1.02] hover:opacity-100 active:scale-[0.96] disabled:transform-none disabled:cursor-not-allowed disabled:text-slate-600 disabled:opacity-10 data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-300 [&_svg]:disabled:fill-slate-600'
     : ''}
     {className}"
   aria-busy={busy}

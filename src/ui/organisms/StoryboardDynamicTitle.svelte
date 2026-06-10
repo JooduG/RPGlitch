@@ -132,8 +132,7 @@
     px-4
     py-2
     text-center
-    font-['Satisfy',cursive]
-    text-3xl
+    text-[clamp(1.5rem,4vw,3.5rem)]
     font-normal
     text-balance
     transition-all
@@ -150,6 +149,7 @@
 
     [&>span]:pointer-events-auto
   "
+  style="font-family: Satisfy, cursive;"
   use:tooltip={{ text: "Double-click to re-roll title" }}
   contenteditable="true"
   aria-label="Story Title"
@@ -180,6 +180,7 @@
           class="
           inline
           px-2
+          font-['Satisfy',cursive]
           whitespace-normal
           [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]
         ">{part.text}</span

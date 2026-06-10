@@ -90,17 +90,18 @@
           shrink-0
           cursor-pointer
           rounded-full
-          bg-neutral-900/30
+          bg-neutral-900/60
           backdrop-blur-sm
-          transition-[background-color,box-shadow]
+          transition-[background-color,box-shadow,filter]
           duration-300
           ease-in-out
-
+          group-hover/toggle:brightness-125
           focus-visible:outline
           focus-visible:outline-offset-1
           focus-visible:outline-slate-600
 
-          data-[state=checked]:bg-slate-600/30
+          data-[state=checked]:bg-(--signature-color,#555d66)
+          data-[state=checked]:group-hover/toggle:brightness-125
 
           {size === 'small'
           ? `
@@ -124,8 +125,6 @@
                 transition-[transform,background-color]
                 duration-300
                 ease-out
-
-                group-hover/toggle:brightness-110!
 
                 group-data-[state=checked]:bg-white
                 group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)]
@@ -157,16 +156,17 @@
       class="
         font-sans
         text-xs
-        font-extrabold
+        font-bold
         tracking-widest
         whitespace-nowrap
-        text-slate-600
+        text-(--signature-color,#555d66)
         uppercase
-        transition-colors
+        transition-[color,filter]
         duration-300
         ease-in-out
+        [text-shadow:0_0_10px_rgba(0,0,0,0.5)]
 
-        group-hover/toggle:text-white!
+        group-hover/toggle:brightness-125
       "
     >
       {label}
