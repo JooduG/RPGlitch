@@ -152,13 +152,14 @@
 
                         focus:outline-none
 
-                        aria-selected:brightness-110
+                        active:scale-[0.96]
 
+                        aria-selected:brightness-110
                         data-disabled:pointer-events-none
                         data-disabled:cursor-not-allowed
                         data-disabled:opacity-30
-                        data-disabled:grayscale
 
+                        data-disabled:grayscale
                         data-highlighted:text-white
                         data-highlighted:brightness-125
 

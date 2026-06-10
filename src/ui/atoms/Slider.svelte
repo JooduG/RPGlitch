@@ -213,7 +213,7 @@
                   shadow-none
                 `
                 : `
-                  bg-slate-50
+                  ${value > min ? 'bg-white' : 'bg-slate-50'}
                   shadow-[0_2px_8px_rgba(0,0,0,0.4)]
 
                   active:scale-[1.1]

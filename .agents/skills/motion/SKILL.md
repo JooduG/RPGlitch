@@ -52,6 +52,52 @@ All kinetic directives must hook directly into the single source of truth engine
 - Implement global kinetic loops (such as noise texture breathing effects) via performant CSS definitions tied to the core engine status.
 - Pause or reduce the opacity scale of atmospheric modifications instantly when the system signals a high processing load or reduction directive.
 
+### 6. Interaction State Standards
+
+These are the **system-wide kinetic laws** for all interactive UI atoms. Do not deviate from these without updating `references/interaction-audit.md` first.
+
+#### Hover
+
+- Standard: `hover:brightness-125` on all interactive elements — buttons, dropdown trigger/items, toggle track, slider track, color swatches.
+- Exception: `Button flank` uses `hover:scale-[1.02] hover:opacity-100` (scale-based reveal, no brightness shift).
+
+#### Active / Press
+
+Two intentional patterns exist based on interaction type:
+
+| Interaction                                                               | Pattern               | Rationale                                      |
+| ------------------------------------------------------------------------- | --------------------- | ---------------------------------------------- |
+| **Discrete click** (buttons, dropdown trigger, toggle pill, color swatch) | `active:scale-[0.96]` | Sink — feels like physically pressing a button |
+| **Continuous drag** (slider thumb)                                        | `active:scale-[1.1]`  | Expand — feels like grabbing a handle          |
+
+- Add `transform` to the `transition-[...]` list whenever a scale is applied, so the kinetic movement is smooth.
+- Discrete click elements use `scale-[0.96]`. Drag targets use `scale-[1.1]`. Do not mix the patterns.
+
+#### Selected / Checked / Filled
+
+Context-appropriate variation is intentional. Do not unify these:
+
+| Element       | Selected State                                          |
+| ------------- | ------------------------------------------------------- |
+| Toggle track  | `bg-(--signature-color)` track color                    |
+| Toggle thumb  | `bg-white` + white glow shadow                          |
+| Slider thumb  | `bg-white` when `value > min`, `bg-slate-50` at minimum |
+| Dropdown item | `brightness-110`                                        |
+| Color swatch  | `scale-[1.1]` + `brightness-110` + `outline-white` ring |
+
+#### Disabled
+
+Standard across all elements: `opacity-30 grayscale pointer-events-none`.
+
+- `pointer-events-none` and `cursor-not-allowed` are mutually exclusive. This codebase uses `pointer-events-none` as the hard block — do not add `cursor-not-allowed` alongside it.
+- The `opacity-30 + grayscale` pair provides sufficient visual communication of disabled state.
+
+#### Track & Thumb Parity
+
+- Toggle unchecked track and Slider empty track both use `rgb(23 23 23 / 0.6)` as their default background.
+- Toggle thumb and Slider thumb both default to `bg-slate-50`.
+- These must remain in sync. If one changes, update the other.
+
 ## 📜 Mandatory Directives
 
 - **Subterranean Weight**: Maintain a rigid, mechanical, clinical physics profile. Use high damping ratios to maintain an over-damped or critically damped state. Avoid erratic, loose, or playful bounces.
@@ -64,3 +110,7 @@ All kinetic directives must hook directly into the single source of truth engine
 - [ ] Transition configurations completely derived from `DESIGN.md` physics tokens.
 - [ ] Zero imperative `requestAnimationFrame` loops or manual layout triggers remaining.
 - [ ] View Transitions API successfully handles structural view and modal morphing.
+
+## 📚 References
+
+- [interaction-audit.md](./data/interaction-audit.md): Interaction State Audit — canonical truth for hover, active/press, selected, and disabled states across all UI atoms. Consult before modifying any kinetic interaction pattern to ensure system-wide consistency.

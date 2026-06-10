@@ -123,12 +123,15 @@
                 absolute
                 rounded-full
                 bg-slate-50
-                transition-[transform,background-color]
+                transition-[transform,background-color,filter]
                 duration-300
                 ease-out
 
                 group-data-[state=checked]:bg-white
                 group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)]
+
+                hover:brightness-125
+                active:scale-[1.1]
 
                 {size === 'small'
                 ? `
