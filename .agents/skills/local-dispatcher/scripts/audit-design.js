@@ -1,7 +1,7 @@
 import fs from "fs";
-import path from "path";
 import ignore from "ignore";
-import { PATHS, parseDefinedTokens, getSourceFiles } from "./token-utils.js";
+import path from "path";
+import { PATHS, getSourceFiles, parseDefinedTokens } from "./token-utils.js";
 
 const ROOT_DIR = process.cwd();
 const SRC_DIR = path.join(ROOT_DIR, "src");
@@ -162,12 +162,12 @@ export function findUnusedTokens() {
       "--royal-purple",
       "--sunset-orange",
       "--twilight-violet",
-      "--danger-color",
-      "--font-color-base",
+      "--crimson-red",
+      "--frisk",
       "--glass-peak",
-      "--state-activity-color",
-      "--state-signature-color",
-      "--title-color-part",
+      "--frozen",
+      "--frozen",
+      "--frozen",
     ];
     if (signatureColors.includes(token)) return false;
 

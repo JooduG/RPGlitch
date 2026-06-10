@@ -175,7 +175,6 @@
             transition-[filter]
             duration-300
             ease-in-out
-            [--empty-fill:rgb(23_23_23/0.6)]
 
             group-hover/slider:brightness-125
           "
