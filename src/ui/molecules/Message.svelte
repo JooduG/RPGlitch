@@ -175,7 +175,7 @@
       "
     >
       <div class="w-[calc(var(--column-unit)*6)]">
-        <DevTelemetryBlock {meta} time={time_label} />
+        <DevTelemetryBlock {meta} />
       </div>
     </div>
   {/if}
@@ -204,6 +204,8 @@
         min-w-0
         flex-col
         rounded-2xl
+        border
+        border-transparent
         shadow-[0_8px_32px_rgba(0,0,0,0.5)]
         [backdrop-filter:var(--blur-mist)]
         transition-all
@@ -219,7 +221,7 @@
         before:p-px
         before:transition-all
         before:duration-300
-        before:content-['']
+        before:content-['']!
 
         {!is_extended
         ? `
@@ -261,7 +263,7 @@
           duration-300
           ease-out
           {!is_extended
-          ? 'h-2 border-b-0 px-0 opacity-60'
+          ? 'h-0 overflow-hidden border-b-0 px-0 opacity-0'
           : 'h-9 border-b border-white/10 px-4 opacity-100'}
         "
       >

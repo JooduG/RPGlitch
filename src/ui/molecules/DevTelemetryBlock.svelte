@@ -4,9 +4,10 @@
    * ðŸ“¡ THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
-  import { DataBox } from "@atoms";
+  import { DataBox, tooltip } from "@atoms";
 
   import { TELEMETRY_TYPES } from "@engine";
+  import { DYNAMICS } from "@intelligence";
 
   /**
    * @typedef {Object} TelemetryMeta
@@ -27,11 +28,10 @@
   /**
    * @typedef {Object} Props
    * @property {TelemetryMeta} [meta={}] - The telemetry metadata object.
-   * @property {string} [time=""] - Optional timestamp to display.
    */
 
   /** @type {Props} */
-  let { meta = {}, time = "" } = $props();
+  let { meta = {} } = $props();
 
   // svelte-ignore state_referenced_locally
   let ai = meta.ai || meta.dynamics || meta.snapshot?.ai || {};
@@ -46,483 +46,485 @@
   let signals = Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {});
   // svelte-ignore state_referenced_locally
   let deltas = meta.deltas || [];
+  let active_dynamics = Array.from(
+    new Set([...signals, ...deltas.map((d) => d?.cause).filter(Boolean)]),
+  );
 
   /** @param {number} val */
   function get_pct(val) {
     return Math.max(0, Math.min(100, Math.round(val || 50)));
   }
+
+  /**
+   * @param {string} target
+   * @param {string} axis
+   * @returns {any}
+   */
+  function get_delta(target, axis) {
+    return deltas.find((d) => d?.target === target && d?.axis === axis);
+  }
+
+  function get_explanation(signal_id) {
+    const rule = DYNAMICS.find((d) => d.id === signal_id);
+    if (!rule) return "Unknown Dynamic";
+
+    let cause = "";
+    if (rule.trigger === "turn") {
+      if (rule.filter?.above) {
+        const [k, v] = Object.entries(rule.filter.above)[0];
+        cause = `When ${k} > ${v}`;
+      } else if (rule.filter?.below) {
+        const [k, v] = Object.entries(rule.filter.below)[0];
+        cause = `When ${k} < ${v}`;
+      } else {
+        cause = "Passive Law";
+      }
+    } else if (Array.isArray(rule.trigger)) {
+      const scans = rule.trigger.map((t) => t.scan).join(" / ");
+      cause = `Triggered by: ${scans}`;
+      if (rule.filter?.below) {
+        const [k, v] = Object.entries(rule.filter.below)[0];
+        cause += ` (if ${k} < ${v})`;
+      } else if (rule.filter?.above) {
+        const [k, v] = Object.entries(rule.filter.above)[0];
+        cause += ` (if ${k} > ${v})`;
+      }
+    }
+
+    const effects = [];
+    if (rule.effect?.ai) {
+      Object.entries(rule.effect.ai).forEach(([k, v]) =>
+        effects.push(`AI ${k} ${v > 0 ? "+" + v : v}`),
+      );
+    }
+    if (rule.effect?.fractal) {
+      Object.entries(rule.effect.fractal).forEach(([k, v]) =>
+        effects.push(`World ${k} ${v > 0 ? "+" + v : v}`),
+      );
+    }
+    if (rule.effect?.text) {
+      effects.push(`Prompt: "${rule.effect.text}"`);
+    }
+
+    return `${cause}  ➔  ${effects.join(", ")}`;
+  }
 </script>
 
 <div
   class="
-    mb-4
     w-full
     animate-[slide-in_150ms_cubic-bezier(0.4,0,0.2,1)]
   "
 >
-  <DataBox
-    label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
-      ? "[#] MEMORY_WEAVE"
-      : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
-        ? "[A] VECTOR_ANCHOR"
-        : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
-          ? "[S] DYNAMICS_LOG"
-          : "[S] Simulation Telemetry"}
-    height="auto"
-    class={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
-    meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
-      ? `
-        animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)]
-        border-(--signature-color)
-      `
-      : ""}
-  >
+  {#if meta.type === TELEMETRY_TYPES.STORY_START}
     <div
-      class="
+      class="rounded-sm border border-(--state-dev-accent)/20 bg-(--state-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]"
+    >
+      <div class="flex items-center gap-2">
+        <div
+          class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"
+        ></div>
+        <span class="text-sm font-bold tracking-widest text-(--state-dev-accent) uppercase"
+          >Story Initiated</span
+        >
+      </div>
+      <p class="mt-2 text-xs font-(--font-family-mono) text-slate-300">
+        The simulation engine has anchored a new narrative sequence.
+      </p>
+    </div>
+  {:else}
+    <DataBox
+      label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
+        ? "[#] MEMORY_WEAVE"
+        : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
+          ? "[A] VECTOR_ANCHOR"
+          : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
+            ? "[D] DYNAMICS_DELTAS"
+            : "[D] Simulation Telemetry"}
+      height="auto"
+      isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
+        meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
+    >
+      <div
+        class="
         flex
         flex-col
         gap-4
-        p-2
       "
-    >
-      {#if time}
-        <div
-          class="
-            -mb-4
-            flex
-            justify-end
-            opacity-15
-          "
-        >
-          <span
+      >
+        {#if meta.type === TELEMETRY_TYPES.MEMORY_FORMATION}
+          <!-- [#] WEAVED STATE (Memory Consolidation) -->
+          <div
             class="
-              text-[10px]
-              font-(--font-family-mono)
-              text-slate-600
-            ">{time}</span
-          >
-        </div>
-      {/if}
-
-      {#if meta.type === TELEMETRY_TYPES.MEMORY_FORMATION}
-        <!-- [#] WEAVED STATE (Memory Consolidation) -->
-        <div
-          class="
           
           
         "
-        >
-          <div class="mb-4">
-            <span
-              class="
+          >
+            <div class="mb-4">
+              <span
+                class="
                 block
                 text-xs
                 font-bold
                 tracking-tight
                 text-slate-50
               ">Consolidating Temporal Echoes</span
-            >
-            <p
-              class="
+              >
+              <p
+                class="
                 mt-2
-                text-[10px]
-                text-slate-600
+                text-xs
+                text-slate-400
               "
-            >
-              Merging active impulses into persistent memory vectors.
-            </p>
-          </div>
+              >
+                Merging active impulses into persistent memory vectors.
+              </p>
+            </div>
 
-          <div
-            class="
+            <div
+              class="
               grid
               grid-cols-2
               gap-4
               pt-4
             "
-          >
-            <div
-              class="
+            >
+              <div
+                class="
                 col-span-2
                 mx-auto
                 flex
                 w-full
                 flex-col
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                NEWLY_WEAVED_MEMORIES
-              </header>
-              <div
-                class="
+                >
+                  NEWLY_WEAVED_MEMORIES
+                </header>
+                <div
+                  class="
                   flex
                   flex-col
                   gap-2
                 "
-              >
-                {#each vectors.past as v, i (v.id || v.text)}
-                  <div
-                    class="
+                >
+                  {#each vectors.past as v, i (v.id || v.text)}
+                    <div
+                      class="
                       flex
                       animate-[slide-in_300ms_cubic-bezier(0.4,0,0.2,1)_both]
                       gap-4
                       rounded-sm
                       border
                       border-l-8
-                      border-[color-mix(in_srgb,var(--signature-color),transparent_85%)]
+                      border-[color-mix(in_srgb,var(--state-dev-accent),transparent_85%)]
                       border-l-slate-600
-                      bg-[color-mix(in_srgb,var(--signature-color),transparent_95%)]
+                      bg-[color-mix(in_srgb,var(--state-dev-accent),transparent_95%)]
                       px-2
                       py-2
                       text-xs
                       leading-relaxed
                     "
-                    style="animation-delay: {i * 100}ms"
-                  >
-                    <span
-                      class="
-                        font-(--font-family-mono)
-                        text-(--signature-color)
-                        opacity-15
-                      ">WEAVED</span
+                      style="animation-delay: {i * 100}ms"
                     >
-                    <span
-                      class="
+                      <span
+                        class="
+                        font-(--font-family-mono)
+                        text-(--state-dev-accent)
+                        
+                      ">WEAVED</span
+                      >
+                      <span
+                        class="
                         line-clamp-2
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
                       ">{v.text}</span
-                    >
-                  </div>
-                {:else}
-                  <div
-                    class="
-                      text-[10px]
-                      text-slate-600
-                      opacity-15
+                      >
+                    </div>
+                  {:else}
+                    <div
+                      class="
+                      text-xs
+                      text-slate-400
+                      
                       font-(--font-family-mono)
                     "
-                  >
-                    NO_MEMORIES_WEAVED
-                  </div>
-                {/each}
+                    >
+                      NO_MEMORIES_WEAVED
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      {:else if meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
-        <!-- [A] ANCHORED STATE (Vector Engine) -->
-        <div
-          class="
+        {:else if meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
+          <!-- [A] ANCHORED STATE (Vector Engine) -->
+          <div
+            class="
           
           
         "
-        >
-          <div class="mb-4">
-            <span
-              class="
+          >
+            <div class="mb-4">
+              <span
+                class="
                 block
                 text-xs
                 font-bold
                 tracking-tight
                 text-slate-50
               ">Aligning Future Intent</span
-            >
-            <p
-              class="
+              >
+              <p
+                class="
                 mt-2
-                text-[10px]
-                text-slate-600
+                text-xs
+                text-slate-400
               "
-            >
-              Resolving state deltas into directed narrative vectors.
-            </p>
-          </div>
+              >
+                Resolving state deltas into directed narrative vectors.
+              </p>
+            </div>
 
-          <div
-            class="
+            <div
+              class="
               grid
               grid-cols-2
               gap-4
               pt-4
             "
-          >
-            <div
-              class="
+            >
+              <div
+                class="
                 flex
                 flex-col
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                RESOLVED_IMPULSES
-              </header>
-              <div
-                class="
+                >
+                  RESOLVED_IMPULSES
+                </header>
+                <div
+                  class="
                   flex
                   flex-col
                   gap-2
                 "
-              >
-                {#each vectors.future.slice(0, 5) as v, i (v.id || v.text)}
-                  <div
-                    class="
+                >
+                  {#each vectors.future.slice(0, 5) as v, i (v.id || v.text)}
+                    <div
+                      class="
                       flex
                       animate-[slide-in_300ms_cubic-bezier(0.4,0,0.2,1)_both]
                       gap-4
                       rounded-sm
                       border
                       border-l-8
-                      border-[color-mix(in_srgb,var(--signature-color),transparent_85%)]
-                      border-l-(--signature-color)
-                      bg-[color-mix(in_srgb,var(--signature-color),transparent_95%)]
+                      border-[color-mix(in_srgb,var(--state-dev-accent),transparent_85%)]
+                      border-l-(--state-dev-accent)
+                      bg-[color-mix(in_srgb,var(--state-dev-accent),transparent_95%)]
                       px-2
                       py-2
                       text-xs
                       leading-relaxed
                     "
-                    style="animation-delay: {i * 100}ms"
-                  >
-                    <span
-                      class="
-                        font-(--font-family-mono)
-                        text-(--signature-color)
-                        opacity-15
-                      ">ANCHOR</span
+                      style="animation-delay: {i * 100}ms"
                     >
-                    <span
-                      class="
+                      <span
+                        class="
+                        font-(--font-family-mono)
+                        text-(--state-dev-accent)
+                        
+                      ">ANCHOR</span
+                      >
+                      <span
+                        class="
                         line-clamp-2
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
                       ">{v.text}</span
-                    >
-                  </div>
-                {:else}
-                  <div
-                    class="
-                      text-[10px]
-                      text-slate-600
-                      opacity-15
+                      >
+                    </div>
+                  {:else}
+                    <div
+                      class="
+                      text-xs
+                      text-slate-400
+                      
                       font-(--font-family-mono)
                     "
-                  >
-                    NO_IMPULSES_RESOLVED
-                  </div>
-                {/each}
+                    >
+                      NO_IMPULSES_RESOLVED
+                    </div>
+                  {/each}
+                </div>
               </div>
-            </div>
 
-            <div
-              class="
+              <div
+                class="
                 flex
                 flex-col
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                ACTIVE_CONTEXT
-              </header>
-              <div
-                class="
+                >
+                  ACTIVE_CONTEXT
+                </header>
+                <div
+                  class="
                   flex
                   flex-col
                   gap-2
                 "
-              >
-                {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
-                  <div
-                    class="
+                >
+                  {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
+                    <div
+                      class="
                       flex
                       gap-4
                       rounded-sm
                       border-l-8
                       border-transparent
                       border-l-slate-600
-                      bg-black/15
-                      px-2
-                      py-2
+                      bg-black/40
+                      px-3
+                      py-3
                       text-xs
                       leading-relaxed
                     "
-                  >
-                    <span
-                      class="
-                        font-(--font-family-mono)
-                        text-(--signature-color)
-                        opacity-15
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
                     >
-                    <span
-                      class="
+                      <span
+                        class="
+                        font-(--font-family-mono)
+                        text-(--state-dev-accent)
+                        
+                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
+                      >
+                      <span
+                        class="
                         line-clamp-2
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
                       ">{v.text}</span
-                    >
-                  </div>
-                {/each}
+                      >
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      {:else if meta.type === TELEMETRY_TYPES.STORY_START}
-        <div class="mb-4">
-          <span class="block text-xs font-bold tracking-tight text-slate-50">Story Initiated</span>
-          <p class="mt-2 text-[10px] text-slate-600">
-            The simulation engine has anchored a new narrative sequence.
-          </p>
-        </div>
-      {:else}
-        <!-- [S] DEFAULT SIMULATION TELEMETRY -->
-        <!-- [D] STATE CHANGES (DELTAS) -->
-        {#if deltas.length > 0}
-          <div class="pb-2">
-            <header
-              class="
-                mb-2
-                text-[10px]
-                font-bold
-                tracking-widest
-                text-(--signature-color)
-                uppercase
-                opacity-15
-              "
-            >
-              STATE_MUTATIONS
-            </header>
-            <div
-              class="
-                flex
-                flex-wrap
-                gap-4
-              "
-            >
-              {#each deltas as delta (delta)}
-                <div
-                  class="
-                    rounded-sm
-                    border
-                    p-2
-                    text-[10px]
-                    font-(--font-family-mono)
-                    whitespace-nowrap
-                    transition-all
-                    duration-150
+        {:else}
+          <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
-                    {delta.includes('(+')
-                    ? `
-                      border-(--signature-color)/15
-                      bg-black/15
-                      text-(--signature-color)
-                    `
-                    : ''}
-                    {delta.includes('(-') ? 'border-slate-600/15 bg-black/15 text-slate-600' : ''}
-                    {!delta.includes('(+') && !delta.includes('(-')
-                    ? `
-                      border-transparent
-                      bg-black/15
-                      text-slate-50
-                    `
-                    : ''}
-                  "
-                >
-                  <span class="opacity-100">{delta}</span>
-                </div>
-              {/each}
-            </div>
-          </div>
-        {/if}
-
-        <!-- [T] DYNAMICS GRID -->
-        <div
-          class="
+          <!-- [T] DYNAMICS GRID -->
+          <div
+            class="
             grid
             grid-cols-2
             gap-4
           "
-        >
-          {#if Object.keys(ai).length > 0}
-            <div
-              class="
+          >
+            {#if Object.keys(ai).length > 0}
+              <div
+                class="
                 flex
                 flex-col
                 gap-2
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                AI_SOMATICS
-              </header>
-              {#each Object.entries(ai) as [axis, val] (axis)}
-                <div
-                  class="
-                    flex
-                    items-center
-                    justify-between
-                    gap-4
-                  "
                 >
-                  <span
-                    class="
+                  AI CHARACTER
+                </header>
+                {#each Object.entries(ai) as [axis, val] (axis)}
+                  {@const delta = get_delta("ai", axis)}
+                  {@const closer_pct = delta
+                    ? Math.abs(get_pct(delta.new_val) - 50) < Math.abs(get_pct(delta.old_val) - 50)
+                      ? get_pct(delta.new_val)
+                      : get_pct(delta.old_val)
+                    : get_pct(val)}
+                  <div class="relative flex flex-col gap-1">
+                    <div
+                      class="
+                      flex
+                      items-center
+                      justify-between
+                      gap-4
+                    "
+                    >
+                      <span
+                        class="
                       min-w-20
                       text-xs
-                      text-slate-600
+                      text-slate-400
                       lowercase
                     ">{axis}</span
-                  >
-                  <div
-                    class="
+                      >
+                      <div
+                        class="
                       flex
                       flex-1
                       items-center
                       gap-4
                     "
-                  >
-                    <div
-                      class="
+                      >
+                        <div
+                          class="
                         relative
-                        h-1
+                        h-1.5
                         flex-1
                         overflow-hidden
                         rounded-full
@@ -537,89 +539,133 @@
                         after:bg-white/15
                         after:content-['']
                       "
-                    >
-                      <div
-                        class="
+                        >
+                          <div
+                            class="
                           absolute
                           h-full
-                          rounded-full
                           transition-all
                           duration-300
+                          {!delta
+                              ? 'rounded-full'
+                              : get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
+                                ? 'rounded-l-full'
+                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
+                                  ? 'rounded-r-full'
+                                  : 'rounded-full'}
                         "
-                        style="
-                          left: {Math.min(50, get_pct(val))}%;
-                          width: {Math.abs(get_pct(val) - 50)}%;
-                          background: {get_pct(val) > 50
-                          ? 'var(--signature-color)'
-                          : 'var(--color-slate-600)'}
+                            style="
+                          left: {Math.min(50, closer_pct)}%;
+                          width: {Math.abs(closer_pct - 50)}%;
+                          background: var(--state-dev-accent);
                         "
-                      ></div>
+                          ></div>
+                          {#if delta}
+                            <div
+                              class="
+                            absolute
+                            z-10
+                            h-full
+                            opacity-40
+                            transition-all
+                            duration-300
+                            {get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
+                                ? 'rounded-r-full'
+                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
+                                  ? 'rounded-l-full'
+                                  : 'rounded-full'}
+                          "
+                              style="
+                            left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
+                            width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
+                            background: var(--state-dev-accent);
+                          "
+                            ></div>
+                          {/if}
+                        </div>
+                        <div class="flex flex-col items-end gap-0.5">
+                          <div
+                            class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)"
+                          >
+                            <span class="text-slate-50">{get_pct(val)}</span>
+                            {#if delta}
+                              <span
+                                class={delta.diff > 0
+                                  ? "text-(--state-dev-accent)"
+                                  : "text-slate-500"}
+                              >
+                                ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                              </span>
+                            {/if}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <span
-                      class="
-                        min-w-6
-                        text-right
-                        text-[10px]
-                        font-(--font-family-mono)
-                        text-slate-50
-                      ">{get_pct(val)}</span
-                    >
                   </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
+                {/each}
+              </div>
+            {/if}
 
-          {#if Object.keys(fractal).length > 0}
-            <div
-              class="
+            {#if Object.keys(fractal).length > 0}
+              <div
+                class="
                 flex
                 flex-col
                 gap-2
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                FRACTAL_PHYSICS
-              </header>
-              {#each Object.entries(fractal) as [axis, val] (axis)}
-                <div
-                  class="
-                    flex
-                    items-center
-                    justify-between
-                    gap-4
-                  "
                 >
-                  <span
-                    class="
+                  FRACTAL
+                </header>
+                {#each Object.entries(fractal) as [axis, val] (axis)}
+                  {@const delta = get_delta("fractal", axis)}
+                  {@const closer_pct = delta
+                    ? Math.abs(get_pct(delta.new_val) - 50) < Math.abs(get_pct(delta.old_val) - 50)
+                      ? get_pct(delta.new_val)
+                      : get_pct(delta.old_val)
+                    : get_pct(val)}
+                  <div class="relative flex flex-col gap-1">
+                    <div
+                      class="
+                      flex
+                      items-center
+                      justify-between
+                      gap-4
+                    "
+                    >
+                      <span
+                        class="
                       min-w-20
                       text-xs
-                      text-slate-600
+                      text-slate-400
                       lowercase
                     ">{axis}</span
-                  >
-                  <div
-                    class="
+                      >
+                      <div
+                        class="
                       flex
                       flex-1
                       items-center
                       gap-4
                     "
-                  >
-                    <div
-                      class="
+                      >
+                        <div
+                          class="
                         relative
-                        h-1
+                        h-1.5
                         flex-1
                         overflow-hidden
                         rounded-full
@@ -634,262 +680,305 @@
                         after:bg-white/15
                         after:content-['']
                       "
-                    >
-                      <div
-                        class="
+                        >
+                          <div
+                            class="
                           absolute
                           h-full
-                          rounded-full
                           transition-all
                           duration-300
+                          {!delta
+                              ? 'rounded-full'
+                              : get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
+                                ? 'rounded-l-full'
+                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
+                                  ? 'rounded-r-full'
+                                  : 'rounded-full'}
                         "
-                        style="
-                          left: {Math.min(50, get_pct(val))}%;
-                          width: {Math.abs(get_pct(val) - 50)}%;
-                          background: {get_pct(val) > 50
-                          ? 'var(--signature-color)'
-                          : 'var(--color-slate-600)'}
+                            style="
+                          left: {Math.min(50, closer_pct)}%;
+                          width: {Math.abs(closer_pct - 50)}%;
+                          background: var(--state-dev-accent);
                         "
-                      ></div>
+                          ></div>
+                          {#if delta}
+                            <div
+                              class="
+                            absolute
+                            z-10
+                            h-full
+                            opacity-40
+                            transition-all
+                            duration-300
+                            {get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
+                                ? 'rounded-r-full'
+                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
+                                  ? 'rounded-l-full'
+                                  : 'rounded-full'}
+                          "
+                              style="
+                            left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
+                            width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
+                            background: var(--state-dev-accent);
+                          "
+                            ></div>
+                          {/if}
+                        </div>
+                        <div class="flex flex-col items-end gap-0.5">
+                          <div
+                            class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)"
+                          >
+                            <span class="text-slate-50">{get_pct(val)}</span>
+                            {#if delta}
+                              <span
+                                class={delta.diff > 0
+                                  ? "text-(--state-dev-accent)"
+                                  : "text-slate-500"}
+                              >
+                                ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                              </span>
+                            {/if}
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <span
-                      class="
-                        min-w-6
-                        text-right
-                        text-[10px]
-                        font-(--font-family-mono)
-                        text-slate-50
-                      ">{get_pct(val)}</span
-                    >
                   </div>
-                </div>
-              {/each}
-            </div>
-          {/if}
-        </div>
+                {/each}
+              </div>
+            {/if}
+          </div>
 
-        <!-- VECTOR FABRIC -->
-        {#if vectors.future.length > 0 || vectors.past.length > 0}
-          <div
-            class="
+          <!-- VECTOR FABRIC -->
+          {#if vectors.future.length > 0 || vectors.past.length > 0}
+            <div
+              class="
               grid
               grid-cols-2
               gap-4
               pt-4
             "
-          >
-            <div
-              class="
+            >
+              <div
+                class="
                 flex
                 flex-col
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                ACTIVE_IMPULSES (FUTURE)
-              </header>
-              <div
-                class="
+                >
+                  FUTURE VECTORS
+                </header>
+                <div
+                  class="
                   flex
                   flex-col
                   gap-2
                 "
-              >
-                {#each vectors.future.slice(0, 3) as v (v.id || v.text)}
-                  <div
-                    class="
+                >
+                  {#each vectors.future.slice(0, 3) as v (v.id || v.text)}
+                    <div
+                      class="
                       flex
                       gap-4
                       rounded-sm
                       border-l-8
                       border-transparent
-                      border-l-(--signature-color)
-                      bg-black/15
-                      px-2
-                      py-2
+                      border-l-(--state-dev-accent)
+                      bg-black/40
+                      px-3
+                      py-3
                       text-xs
                       leading-relaxed
                     "
-                  >
-                    <span
-                      class="
-                        font-(--font-family-mono)
-                        text-(--signature-color)
-                        opacity-15
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
                     >
-                    <span
-                      class="
+                      <span
+                        class="
+                        font-(--font-family-mono)
+                        text-(--state-dev-accent)
+                        
+                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
+                      >
+                      <span
+                        class="
                         line-clamp-2
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
                       ">{v.text}</span
-                    >
-                  </div>
-                {:else}
-                  <div
-                    class="
-                      text-[10px]
-                      text-slate-600
-                      opacity-15
+                      >
+                    </div>
+                  {:else}
+                    <div
+                      class="
+                      text-xs
+                      text-slate-400
+                      
                       font-(--font-family-mono)
                     "
-                  >
-                    NO_ACTIVE_IMPULSES
-                  </div>
-                {/each}
+                    >
+                      NO_FUTURE_VECTORS
+                    </div>
+                  {/each}
+                </div>
               </div>
-            </div>
 
-            <div
-              class="
+              <div
+                class="
                 flex
                 flex-col
               "
-            >
-              <header
-                class="
+              >
+                <header
+                  class="
                   mb-2
-                  text-[10px]
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
                   font-bold
                   tracking-widest
-                  text-(--signature-color)
+                  text-(--state-dev-accent)
                   uppercase
-                  opacity-15
+                  
                 "
-              >
-                HISTORICAL_ANCHORS (PAST)
-              </header>
-              <div
-                class="
+                >
+                  PAST MEMORIES
+                </header>
+                <div
+                  class="
                   flex
                   flex-col
                   gap-2
                 "
-              >
-                {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
-                  <div
-                    class="
+                >
+                  {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
+                    <div
+                      class="
                       flex
                       gap-4
                       rounded-sm
                       border-l-8
                       border-transparent
                       border-l-slate-600
-                      bg-black/15
-                      px-2
-                      py-2
+                      bg-black/40
+                      px-3
+                      py-3
                       text-xs
                       leading-relaxed
                     "
-                  >
-                    <span
-                      class="
-                        font-(--font-family-mono)
-                        text-(--signature-color)
-                        opacity-15
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
                     >
-                    <span
-                      class="
+                      <span
+                        class="
+                        font-(--font-family-mono)
+                        text-(--state-dev-accent)
+                        
+                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
+                      >
+                      <span
+                        class="
                         line-clamp-2
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
                       ">{v.text}</span
-                    >
-                  </div>
-                {:else}
-                  <div
-                    class="
-                      text-[10px]
-                      text-slate-600
-                      opacity-15
+                      >
+                    </div>
+                  {:else}
+                    <div
+                      class="
+                      text-xs
+                      text-slate-400
+                      
                       font-(--font-family-mono)
                     "
-                  >
-                    NO_HISTORICAL_ANCHORS
-                  </div>
-                {/each}
+                    >
+                      NO_PAST_MEMORIES
+                    </div>
+                  {/each}
+                </div>
               </div>
             </div>
-          </div>
-        {/if}
+          {/if}
 
-        <!-- [!] SIGNALS -->
-        {#if signals.length > 0}
-          <div class="pt-4">
-            <header
-              class="
+          <!-- [!] ACTIVE DYNAMICS -->
+          {#if active_dynamics.length > 0}
+            <div class="pt-4">
+              <header
+                class="
                 mb-2
-                text-[10px]
+                text-xs
                 font-bold
                 tracking-widest
-                text-(--signature-color)
+                text-(--state-dev-accent)
                 uppercase
-                opacity-15
+                
               "
-            >
-              TRIGGERED_SIGNALS
-            </header>
-            <div
-              class="
+              >
+                ACTIVE DYNAMICS
+              </header>
+              <div
+                class="
                 flex
                 flex-wrap
                 gap-4
               "
-            >
-              {#each signals as signal (signal)}
-                <span
-                  class="
+              >
+                {#each active_dynamics as signal (signal)}
+                  <span
+                    use:tooltip={get_explanation(signal)}
+                    class="
+                    cursor-help
                     rounded-full
                     border
-                    border-(--signature-color)/15
+                    border-(--state-dev-accent)/15
                     bg-white/5
                     p-2
-                    text-[10px]
+                    text-xs
                     font-(--font-family-mono)
-                    text-(--signature-color)
+                    text-(--state-dev-accent)
                     uppercase
                   ">{signal}</span
-                >
-              {/each}
+                  >
+                {/each}
+              </div>
             </div>
-          </div>
+          {/if}
+          {#if Object.keys(meta).length > 0 && deltas.length === 0 && Object.keys(ai).length === 0 && Object.keys(fractal).length === 0 && vectors.future.length === 0 && vectors.past.length === 0 && active_dynamics.length === 0}
+            <div class="overflow-x-auto pt-4 text-xs font-(--font-family-mono) text-slate-400">
+              <pre>{JSON.stringify(meta, null, 2)}</pre>
+            </div>
+          {/if}
         {/if}
-        {#if Object.keys(meta).length > 0 && deltas.length === 0 && Object.keys(ai).length === 0 && Object.keys(fractal).length === 0 && vectors.future.length === 0 && vectors.past.length === 0 && signals.length === 0}
-          <div class="overflow-x-auto pt-4 text-[10px] font-(--font-family-mono) text-slate-400">
-            <pre>{JSON.stringify(meta, null, 2)}</pre>
-          </div>
-        {/if}
-      {/if}
-    </div>
-  </DataBox>
+      </div>
+    </DataBox>
+  {/if}
 </div>
 
 <style>
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 color-mix(in srgb, var(--signature-color) 15%, transparent);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--state-dev-accent) 15%, transparent);
     }
 
     70% {
       box-shadow: 0 0 0 calc(var(--spacing-unit) * 3)
-        color-mix(in srgb, var(--signature-color) 0%, transparent);
+        color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
     }
 
     100% {
-      box-shadow: 0 0 0 0 color-mix(in srgb, var(--signature-color) 0%, transparent);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
     }
   }
 

@@ -118,7 +118,7 @@ export const TOKENS = {
   "signature-glow": "0 0 calc(var(--spacing-unit) * 4) var(--signature-color)",
   "spring-damping-default": "0.8",
   "spring-stiffness-default": "0.15",
-  "state-dev-accent": "var(--frisk)",
+  "state-dev-accent": "var(--electric-cyan)",
   "state-fill-end": "100%",
   "state-fill-start": "0%",
   "state-weight-intensity": "0",

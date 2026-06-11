@@ -91,11 +91,15 @@ export const gamemaster = {
    * Detects changes in entity dynamics and logs a telemetry entry.
    * @param {{ ai: any; fractal: any; flags?: string[]; signals?: any; signal_prompts?: string[]; contributors?: any; key?: Record<string, any> | undefined; }} snapshot
    */
-  async capture_dynamics_delta(snapshot) {
+  async capture_dynamics_delta(snapshot, meta = null) {
+    /**
+     * @type {any[]}
+     */
+    const deltas = [];
     /**
      * @type {string[]}
      */
-    const deltas = [];
+    const log_strings = [];
 
     // AI Deltas
     if (snapshot.ai?.dynamics) {
@@ -103,8 +107,13 @@ export const gamemaster = {
         const old_val = /** @type {any} */ (runtime.ai)?.[axis] ?? 50;
         const diff = val - old_val;
         if (diff !== 0) {
-          const cause = snapshot.contributors?.[`AI.${axis}`]?.join(", ") || "GM";
-          deltas.push(`AI.${axis}: ${val} (${diff > 0 ? "+" : ""}${diff}) [${cause}]`);
+          let cause = snapshot.contributors?.[`AI.${axis}`]?.join(", ") || "GM";
+          if (cause === "GM") cause = null;
+
+          deltas.push({ axis, target: "ai", old_val, new_val: val, diff, cause });
+
+          const capitalizedAxis = axis.charAt(0).toUpperCase() + axis.slice(1);
+          log_strings.push(`${capitalizedAxis} ${diff > 0 ? "+" : ""}${diff}`);
         }
       });
     }
@@ -115,8 +124,13 @@ export const gamemaster = {
         const old_val = /** @type {any} */ (runtime.fractal)?.[axis] ?? 50;
         const diff = val - old_val;
         if (diff !== 0) {
-          const cause = snapshot.contributors?.[`FRACTAL.${axis}`]?.join(", ") || "GM";
-          deltas.push(`World.${axis}: ${val} (${diff > 0 ? "+" : ""}${diff}) [${cause}]`);
+          let cause = snapshot.contributors?.[`FRACTAL.${axis}`]?.join(", ") || "GM";
+          if (cause === "GM") cause = null;
+
+          deltas.push({ axis, target: "fractal", old_val, new_val: val, diff, cause });
+
+          const capitalizedAxis = axis.charAt(0).toUpperCase() + axis.slice(1);
+          log_strings.push(`${capitalizedAxis} ${diff > 0 ? "+" : ""}${diff}`);
         }
       });
     }
@@ -124,16 +138,21 @@ export const gamemaster = {
     // Signals
     const active_signals = Object.keys(snapshot.signals || {});
 
-    if (deltas.length > 0) {
-      await session_driver.log_system_entry(deltas.join(" | "), "system", {
-        type: TELEMETRY_TYPES.DYNAMICS_DELTA,
-        deltas,
-        signals: active_signals,
-        snapshot: {
+    if (deltas.length > 0 || meta) {
+      await session_driver.log_system_entry(
+        log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot",
+        "system",
+        {
+          type: TELEMETRY_TYPES.DYNAMICS_DELTA,
+          deltas,
           ai: snapshot.ai?.dynamics,
           fractal: snapshot.fractal?.dynamics,
+          vectors: meta?.vectors,
+          signals: active_signals,
+          signal_prompts: meta?.signal_prompts,
+          flags: meta?.flags,
         },
-      });
+      );
     }
   },
 
@@ -191,6 +210,23 @@ export const gamemaster = {
       // 4. SYNTHESIS: Build the final prompt
       const { system, meta } = prompt_builder.synthesize(payload, snapshot);
 
+      // 4.5. PHYSICS SYNC & TELEMETRY
+      /** @type {any} */
+      let final_meta = { ...meta };
+
+      // Update metadata to be logged in database
+      final_meta.ai = snapshot.ai?.dynamics;
+      final_meta.fractal = snapshot.fractal?.dynamics;
+      final_meta.flags = snapshot.flags;
+      final_meta.signals = snapshot.signals;
+
+      // Capture and log the dynamics delta for this pre-generation pass exactly once
+      await this.capture_dynamics_delta(snapshot, final_meta);
+
+      // Sync the settled physics to runtime exactly once
+      runtime.ai = snapshot.ai?.dynamics;
+      runtime.fractal = snapshot.fractal?.dynamics;
+
       // 5. TRANSITION & LOGGING: Decoupled from dynamic metric mutations
       app.log(
         "gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
@@ -235,34 +271,8 @@ export const gamemaster = {
         );
       });
 
-      // 6.5. POST-GENERATION PIPELINE: Isolated validation, physics, telemetry, and state sync
-      /** @type {any} */
-      let final_meta = { ...meta };
+      // 6.5. POST-GENERATION PIPELINE: Isolated validation, telemetry, and state sync
       const validationResult = validate_and_repair_response(response || "");
-
-      try {
-        const post_payload = {
-          input: validationResult.text,
-          entities: runtime.snapshot_entities,
-          round: runtime.round,
-        };
-        const post_snapshot = dynamics_engine.simulate(post_payload);
-
-        // Capture and log the dynamics delta for this post-generation pass exactly once
-        await this.capture_dynamics_delta(post_snapshot);
-
-        // Sync the post-generation settled physics to runtime exactly once
-        runtime.ai = post_snapshot.ai.dynamics;
-        runtime.fractal = post_snapshot.fractal.dynamics;
-
-        // Update metadata to be logged in database
-        final_meta.ai = post_snapshot.ai.dynamics;
-        final_meta.fractal = post_snapshot.fractal.dynamics;
-        final_meta.flags = post_snapshot.flags;
-        final_meta.signals = post_snapshot.signals;
-      } catch (post_err) {
-        console.warn("[gamemaster] Post-generation scan failed:", post_err);
-      }
 
       // 7. PERSISTENCE: Save the result
       const character_name =
@@ -274,12 +284,6 @@ export const gamemaster = {
 
       await session_driver.log_turn(validationResult.text, character_name, role, {
         id: nodeId,
-        dynamics: final_meta.ai,
-        fractal_dynamics: final_meta.fractal,
-        flags: final_meta.flags,
-        signal_prompts: final_meta.signal_prompts,
-        signals: final_meta.signals,
-        vectors: final_meta.vectors,
         round: runtime.round,
         turn_type: "AI_TURN",
         sino_logic_violation: final_meta.sino_logic_violation,

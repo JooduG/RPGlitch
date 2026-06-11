@@ -15,6 +15,7 @@
     maxHeight = "none",
     class: className = "",
     children,
+    isResonating = false,
   } = $props();
 </script>
 
@@ -27,7 +28,9 @@
     rounded-sm
     border
     border-solid
-    border-white/10
+    {isResonating
+    ? 'animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)] border-(--state-dev-accent)'
+    : 'border-(--electric-cyan)/20'}
     bg-zinc-900/40
     text-left
     font-(--font-family-mono)
@@ -44,10 +47,10 @@
       class="
         border-b
         border-solid
-        border-white/10
-        bg-white/10
+        border-(--electric-cyan)/20
+        bg-(--electric-cyan)/5
         px-4
-        py-1
+        py-3
         text-xs
         font-extrabold
         tracking-wider

@@ -102,13 +102,18 @@ describe("gamemaster (Intelligence Kernel)", () => {
       await gamemaster.capture_dynamics_delta(snapshot);
 
       expect(session_driver.log_system_entry).toHaveBeenCalledWith(
-        expect.stringContaining("AI.intensity: 60 (+10) [TEST_CAUSE]"),
+        expect.stringContaining("Intensity +10"),
         "system",
         expect.objectContaining({
           type: TELEMETRY_TYPES.DYNAMICS_DELTA,
           deltas: expect.arrayContaining([
-            "AI.intensity: 60 (+10) [TEST_CAUSE]",
-            "World.entropy: 40 (-10) [GM]",
+            expect.objectContaining({
+              axis: "intensity",
+              target: "ai",
+              diff: 10,
+              cause: "TEST_CAUSE",
+            }),
+            expect.objectContaining({ axis: "entropy", target: "fractal", diff: -10, cause: null }),
           ]),
           signals: ["SIGNAL_1"],
         }),
@@ -331,7 +336,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       runtime.fractal = { entropy: 50 };
     });
 
-    it("verifies and repairs truncated text structural anomalies BEFORE updating physics engine metrics", async () => {
+    it("does not simulate physics a second time after generation", async () => {
       const simulateSpy = vi.spyOn(dynamics_engine, "simulate");
       vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
 
@@ -340,11 +345,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
 
-      // The first call is the pre-simulation: input is mockPayload (shoot kill attack)
-      // The second call is the post-simulation: input MUST be the repaired text
-      expect(simulateSpy).toHaveBeenCalledTimes(2);
-      const postSimulationCall = simulateSpy.mock.calls[1][0];
-      expect(postSimulationCall.input).toBe("<think>Analyzing user state</think>");
+      // The physics should only be evaluated once (the pre-simulation using the user's input)
+      expect(simulateSpy).toHaveBeenCalledTimes(1);
 
       simulateSpy.mockRestore();
     });
@@ -362,23 +364,20 @@ describe("gamemaster (Intelligence Kernel)", () => {
       telemetrySpy.mockRestore();
     });
 
-    it("leaves global runtime state dynamics completely untouched by pre-generation physics snapshots during generation", async () => {
+    it("syncs physics snapshots to global runtime before generation", async () => {
       // Setup dynamic metrics in pre-simulation that differ from start state
       runtime.ai = { intensity: 50 };
 
-      // Inside generate, we assert that runtime has NOT been mutated by pre-generation physics
+      // Inside generate, we assert that runtime HAS been mutated by pre-generation physics
       vi.mocked(llm_service.generate).mockImplementation(async () => {
-        expect(runtime.ai?.intensity).toBe(50);
+        expect(runtime.ai?.intensity).not.toBe(50);
         return "shoot kill attack";
       });
 
       await gamemaster.execute_turn("story-123", {
-        input: "shoot kill attack", // pre-generation physics would shift intensity if synced early
+        input: "shoot kill attack",
         role: "ai",
       });
-
-      // After execution turn completes, it should be updated with the post-generation dynamics
-      expect(runtime.ai?.intensity).not.toBe(50);
     });
 
     it("injects HIGH_ENTROPY narrative bridge when entropy > 70 declaratively", async () => {
