@@ -9,6 +9,7 @@
   import { Audio, get_signature_color } from "@media";
   import { motion, typewriter } from "@motion";
   import { app, runtime } from "@state";
+  import { TELEMETRY_TYPES } from "@engine";
 
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
@@ -63,9 +64,10 @@
   let is_fractal = $derived(sender === "fractal");
   let is_telemetry = $derived(
     sender === "system" &&
-      (meta?.type === "telemetry" ||
-        meta?.type === "VECTOR_RESOLUTION" ||
-        meta?.type === "MEMORY_FORMATION"),
+      (meta?.type === TELEMETRY_TYPES.DYNAMICS_DELTA ||
+        meta?.type === TELEMETRY_TYPES.STORY_START ||
+        meta?.type === TELEMETRY_TYPES.VECTOR_RESOLUTION ||
+        meta?.type === TELEMETRY_TYPES.MEMORY_FORMATION),
   );
 
   let entity = $derived(
@@ -170,18 +172,24 @@
       p-4
       transition-all
       duration-200
-
-      {is_user ? 'justify-end' : is_ai ? 'justify-start' : 'justify-center'}"
+      {is_user
+      ? 'justify-end pr-[calc(var(--column-unit)*0.5)]'
+      : is_ai
+        ? 'justify-start pl-[calc(var(--column-unit)*0.5)]'
+        : 'justify-center'}
+    "
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
     <div
       class="
+        group
         relative
         flex
-        cursor-pointer
+        min-w-0
         flex-col
         rounded-2xl
-        border
+        shadow-[0_8px_32px_rgba(0,0,0,0.5)]
+        [backdrop-filter:var(--blur-mist)]
         transition-all
         duration-300
         ease-out
@@ -193,161 +201,98 @@
         before:rounded-[inherit]
         before:mask-border-solid
         before:p-px
-        before:transition-opacity
+        before:transition-all
         before:duration-300
-        before:ease-out
         before:content-['']
 
-        {is_user ? 'rounded-br-sm' : ''}
-        {is_ai ? 'rounded-bl-sm' : ''}
-        {is_fractal
-        ? `
-          w-full
-          text-center
-        `
-        : `
-          w-fit
-          max-w-lg
-          min-w-48
-        `}
-        {is_editing ? 'w-full' : ''}
         {isFocused || busy || is_editing
         ? `
-          border-slate-50
-          bg-[color-mix(in_srgb,var(--color-neutral-900),var(--signature-color)_6%)]
-
+          bg-[color-mix(in_srgb,var(--signature-color)_10%,rgba(15,15,15,0.75))]
+          shadow-[0_8px_32px_color-mix(in_srgb,var(--signature-color),transparent_95%)]
           before:bg-[linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
           before:opacity-100
         `
         : `
-          overflow-hidden
-          border-slate-50/15
-          bg-[color-mix(in_srgb,var(--color-neutral-900),var(--signature-color)_3%)]
-
+          bg-[color-mix(in_srgb,var(--signature-color)_5%,rgba(15,15,15,0.7))]
           before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
-          before:opacity-15
+          before:opacity-40
+          hover:bg-[color-mix(in_srgb,var(--signature-color)_8%,rgba(15,15,15,0.73))]
+          hover:shadow-[0_8px_32px_color-mix(in_srgb,var(--signature-color),transparent_95%)]
+          hover:before:bg-[linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
+          hover:before:opacity-100
         `}
+
+        {is_fractal ? 'w-[calc(var(--column-unit)*6)]' : 'w-[calc(var(--column-unit)*5.5)]'}
       "
-      style="--signature-color: {signature_color}; --scan-animation: {motion.isReduced
-        ? 'none'
-        : 'scan 4s linear infinite'};"
+      style="--signature-color: {signature_color};"
       tabindex="0"
       onfocusin={handle_focus}
       onfocusout={handle_focus_out}
       role="region"
       aria-label="Message Context"
     >
+      <!-- HEADER BAR -->
+      <!-- Top accent stripe (mirrors TextField h-2 → h-6 accent bar) -->
       <div
         class="
-          {busy
-          ? `
-            overflow-hidden
-
-            after:absolute
-            after:inset-0
-            after:w-full
-            after:animate-(--scan-animation)
-            after:bg-[linear-gradient(90deg,transparent_0%,rgba(248,250,252,0.15)_50%,transparent_100%)]
-            after:content-['']
-          `
-          : ''}
-
-          relative
+          pointer-events-none
+          absolute
+          inset-x-0
           top-0
           z-10
-          flex
-          rounded-t-2xl
-          border-b
-          border-transparent
-          transition-all
+          rounded-t-[inherit]
+          transition-[height,opacity]
           duration-300
           ease-out
-
           {isFocused || busy || is_editing
-          ? `
-            h-9
-            flex-row
-            items-center
-            justify-between
-            overflow-visible
-            border-slate-50/15
-            bg-[color-mix(in_srgb,var(--signature-color,var(--color-slate-700)),black_30%)]
-            px-4
-          `
-          : `
-            h-px
-            flex-col
-            bg-[linear-gradient(90deg,transparent_0%,var(--signature-color,var(--color-slate-600))_50%,transparent_100%)]
-          `}
+          ? 'h-[3px] opacity-100'
+          : 'h-[2px] opacity-60 group-hover:opacity-80'}
+        "
+        style="background: var(--signature-color);"
+        aria-hidden="true"
+      ></div>
+
+      <div
+        class="
+          relative
+          flex
+          h-9
+          items-center
+          justify-between
+          rounded-t-[15px]
+          border-b
+          border-white/10
+          px-4
+          font-(--font-family-mono)
+          tracking-widest
+          uppercase
+          transition-[background,opacity]
+          duration-300
+          ease-out
+          {isFocused || busy || is_editing
+          ? 'bg-[color-mix(in_srgb,var(--signature-color),transparent_20%)]'
+          : 'bg-[color-mix(in_srgb,var(--signature-color),transparent_8%)] group-hover:bg-[color-mix(in_srgb,var(--signature-color),transparent_15%)]'}
         "
       >
-        <div
-          class="
-            flex
-            flex-1
-            items-center
-            gap-4
-            overflow-hidden
-            font-(--font-family-mono)
-            tracking-widest
-            uppercase
-
-            {isFocused || busy || is_editing
-            ? `
-              pointer-events-auto
-              translate-y-0
-              opacity-100
-              transition-all
-              delay-100
-              duration-200
-            `
-            : `
-              pointer-events-none
-              -translate-y-4
-              opacity-0
-              transition-all
-              duration-200
-            `}"
-        >
-          <span
-            class="
-              text-xs
-              font-bold
-              whitespace-nowrap
-              text-slate-50
-              drop-shadow-sm
-            ">{entity?.name || character_name || (is_fractal ? "Fractal" : sender)}</span
-          >
-          <span
-            class="
-              text-[10px]
-              text-slate-50/50
-            ">{time_label}</span
-          >
+        <div class="flex items-center gap-2 overflow-hidden">
+          <span class="text-xs font-bold whitespace-nowrap text-white">
+            {entity?.name || character_name || (is_fractal ? "Fractal" : sender)}
+          </span>
+          <span class="text-[10px] font-normal text-white/60">
+            {time_label}
+          </span>
         </div>
+
+        <!-- ACTIONS -->
         <div
           class="
-            ml-auto
             flex
             items-center
             gap-2
-
-            {isFocused || busy || is_editing
-            ? `
-              pointer-events-auto
-              translate-y-0
-              opacity-100
-              transition-all
-              delay-100
-              duration-200
-            `
-            : `
-              pointer-events-none
-              -translate-y-4
-              opacity-0
-              transition-all
-              duration-200
-            `}"
+            transition-opacity
+            duration-200
+            {isFocused || busy || is_editing ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}
+          "
         >
           {#if is_editing}
             <Button
@@ -357,16 +302,9 @@
               aria-label="Save"
               actions={[tooltip]}
               onclick={() => on_save?.(local_text)}
-              class="
-                text-slate-50/80
-                transition-all
-                duration-300
-
-                hover:scale-105
-                hover:text-slate-50
-              "
+              class="text-white/85 transition-colors hover:text-white"
             >
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-slate-50">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                 <polyline
                   points="20 6 9 17 4 12"
                   stroke="currentColor"
@@ -383,16 +321,9 @@
               aria-label="Cancel"
               actions={[tooltip]}
               onclick={on_cancel}
-              class="
-                text-slate-50/80
-                transition-all
-                duration-300
-
-                hover:scale-105
-                hover:text-slate-50
-              "
+              class="text-white/85 transition-colors hover:text-white"
             >
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-slate-50">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                 <line
                   x1="18"
                   y1="6"
@@ -424,16 +355,9 @@
                 aria-label="Continue"
                 actions={[tooltip]}
                 onclick={on_continue}
-                class="
-                  text-slate-50/80
-                  transition-all
-                  duration-300
-
-                  hover:scale-105
-                  hover:text-slate-50
-                "
+                class="text-white/85 transition-colors hover:text-white"
               >
-                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-slate-50 stroke-none">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
                   <polygon points="5 3 19 12 5 21 5 3" fill="currentColor"></polygon>
                 </svg>
               </Button>
@@ -444,16 +368,9 @@
                 aria-label="Reroll"
                 actions={[tooltip]}
                 onclick={on_regenerate}
-                class="
-                  text-slate-50/80
-                  transition-all
-                  duration-300
-
-                  hover:scale-105
-                  hover:text-slate-50
-                "
+                class="text-white/85 transition-colors hover:text-white"
               >
-                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-slate-50">
+                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                   <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2"
                   ></polyline>
                   <path
@@ -472,20 +389,9 @@
               actions={[tooltip]}
               onclick={handle_speak}
               disabled={!clean_markdown}
-              class="
-                text-slate-50/80
-                transition-all
-                duration-300
-
-                hover:scale-105
-                hover:text-slate-50
-
-                disabled:opacity-30
-
-                disabled:hover:scale-100
-              "
+              class="text-white/85 transition-colors hover:text-white disabled:opacity-30"
             >
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-slate-50 stroke-none">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
                 <path
                   fill="currentColor"
                   d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
@@ -499,16 +405,9 @@
               aria-label="Edit"
               actions={[tooltip]}
               onclick={on_edit}
-              class="
-                text-slate-50/80
-                transition-all
-                duration-300
-
-                hover:scale-105
-                hover:text-slate-50
-              "
+              class="text-white/85 transition-colors hover:text-white"
             >
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-slate-50">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                 <path
                   d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"
                   stroke="currentColor"
@@ -528,16 +427,9 @@
               aria-label="Copy"
               actions={[tooltip]}
               onclick={handle_copy}
-              class="
-                text-slate-50/80
-                transition-all
-                duration-300
-
-                hover:scale-105
-                hover:text-slate-50
-              "
+              class="text-white/85 transition-colors hover:text-white"
             >
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-slate-50">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                 <rect
                   x="9"
                   y="9"
@@ -562,16 +454,9 @@
               aria-label="Delete"
               actions={[tooltip]}
               onclick={on_delete}
-              class="
-                text-slate-50/80
-                transition-all
-                duration-300
-
-                hover:scale-105
-                hover:text-slate-50
-              "
+              class="text-white/85 transition-colors hover:text-white"
             >
-              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-slate-50">
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                 <polyline points="3 6 5 6 21 6" stroke="currentColor" stroke-width="2"></polyline>
                 <path
                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
@@ -584,13 +469,8 @@
         </div>
       </div>
 
-      <div
-        class="
-          relative
-          z-10
-          p-4
-        "
-      >
+      <!-- CARD BODY -->
+      <div class="relative p-4">
         {#if app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)}
           <div
             class="
@@ -598,19 +478,18 @@
               text-base
               leading-relaxed
               text-pretty
-              text-slate-50
+              text-slate-100
 
-              [&_em]:text-slate-600
+              [&_em]:text-slate-400
               [&_em]:italic
-              [&_em]:opacity-100
+              [&_em]:opacity-80
 
               [&_p]:mb-4
-
               [&_p:last-child]:mb-0
 
               [&_strong]:font-bold
-              [&_strong]:text-(--signature-color,var(--color-slate-700))
-              [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-700)),transparent_85%)]
+              [&_strong]:text-(--signature-color,var(--color-slate-400))
+              [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
             "
           >
             {#if has_display_text}
@@ -620,13 +499,15 @@
         {:else}
           {#if app.settings.dev_mode}
             {#if think_block}
-              <DataBox label="⚙️ DevMode: Reasoning">
+              <DataBox label="⚙️ DevMode: Reasoning" class="mb-4">
                 {think_block}
               </DataBox>
             {/if}
 
             {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
-              <DevTelemetryBlock {meta} />
+              <div class="mb-4">
+                <DevTelemetryBlock {meta} />
+              </div>
             {/if}
           {/if}
 
@@ -642,7 +523,6 @@
                     bg-neutral-900/50
                     p-2
                     transition-colors
-
                     hover:bg-neutral-900/80
                   "
                   onclick={() => app.open_image_preview(src)}
@@ -680,19 +560,20 @@
                   text-base
                   leading-relaxed
                   text-pretty
-                  text-slate-50
+                  text-slate-100
 
-                  [&_em]:text-slate-600
+                  [&_em]:text-slate-400
                   [&_em]:italic
-                  [&_em]:opacity-100
+                  [&_em]:opacity-80
 
                   [&_p]:mb-4
-
                   [&_p:last-child]:mb-0
 
                   [&_strong]:font-bold
-                  [&_strong]:text-(--signature-color,var(--color-slate-700))
-                  [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-700)),transparent_85%)]
+                  [&_strong]:text-(--signature-color,var(--color-slate-400))
+                  [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
+
+                  {is_fractal ? 'text-center' : ''}
                 "
               >
                 <!-- eslint-disable-next-line svelte/no-at-html-tags -->
