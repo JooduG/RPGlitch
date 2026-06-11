@@ -71,7 +71,6 @@
 
   /* --- COMPONENTS --- */
   --avatar-medium-size: calc(var(--column-unit) * 2);
-  --bits-select-anchor-width: initial;
   --blur-mist: blur(calc(var(--spacing-unit) * 4));
   --border-width-base: var(--spacing-pixel);
   --border-width-thick: var(--spacing-unit);

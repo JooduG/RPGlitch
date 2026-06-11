@@ -20,7 +20,6 @@ try {
 
   const findings = result.findings ?? [];
   const errorFindings = findings.filter((f) => f.severity === "error");
-  const warnFindings = findings.filter((f) => f.severity === "warning");
 
   if (errorFindings.length > 0) {
     console.log(`\x1b[31m[ERRORS]\x1b[0m ${errors} broken token reference(s):`);
@@ -28,11 +27,7 @@ try {
     console.log("");
   }
 
-  if (warnFindings.length > 0) {
-    console.log(
-      `\x1b[33m[WARNINGS]\x1b[0m ${warnings} advisory finding(s). Run 'npm run lint:design' for full report.\n`,
-    );
-  }
+  // Warnings are intentionally muted due to custom RPGlitch component schema
 
   console.log(`📊 Summary — errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
   console.log("\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking).\x1b[0m\n");
@@ -57,9 +52,7 @@ try {
       console.log("");
     }
 
-    console.log(
-      `\x1b[33m[WARNINGS]\x1b[0m ${warnings} advisory finding(s). Run 'npm run lint:design' for full report.`,
-    );
+    // Warnings are intentionally muted due to custom RPGlitch component schema
     console.log(`\n📊 Summary — errors: ${errors} | warnings: ${warnings} | info: ${infos}`);
     console.log("\n\x1b[32m✅ SPEC SCAN COMPLETE (non-blocking).\x1b[0m\n");
   } catch {

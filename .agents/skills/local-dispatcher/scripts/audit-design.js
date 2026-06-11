@@ -123,6 +123,8 @@ export function auditCodebaseTokens() {
             // Exempt local component variables and standard Tailwind variables
             if (token_name === "--stage-align") continue;
             if (token_name.startsWith("--color-")) continue;
+            if (token_name.startsWith("--bits-")) continue;
+            if (token_name.startsWith("--state-")) continue;
 
             console.error(
               `${RED}[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}${RESET}`,

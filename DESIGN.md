@@ -126,8 +126,7 @@ components:
   scan-animation: scan var(--duration-ambient) linear infinite
   title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--void-black)
   z-index-max: "999"
-  bits-select-anchor-width: initial;
-  empty-fill: rgb(23 23 23 / 0.6);
+  empty-fill: "rgb(23 23 23 / 0.6)"
 ---
 
 # ⚔️ RPGlitch Design System: The Chalk Regime
