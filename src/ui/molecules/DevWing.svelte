@@ -6,6 +6,7 @@
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
   import { DataBox, DynamicsMeter } from "@atoms";
+  import { DYNAMICS_META } from "@intelligence";
 
   /**
    * @typedef {Object} Props
@@ -29,21 +30,6 @@
       minute: "2-digit",
     });
   }
-
-  /**
-   * Dictionary for human-readable labels and descriptions.
-   * @type {Record<string, { label: string; desc: string }>}
-   */
-  const DYNAMICS_META = {
-    // Character (Somatic) axes
-    chaos: { label: "Chaos", desc: "Randomness vs Control" },
-    intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
-    openness: { label: "Openness", desc: "Receptivity vs Guardedness" },
-    affinity: { label: "Affinity", desc: "Inter-Entity Bond / Empathy" },
-    // Fractal (Environmental) axes
-    velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
-    entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
-  };
 
   /**
    * Dynamically computes which dynamics are available on the current character.

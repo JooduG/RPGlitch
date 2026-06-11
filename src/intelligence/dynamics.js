@@ -37,6 +37,18 @@
  * @property {string} scan
  * @property {any} [config]
  */
+
+export const DYNAMICS_META = {
+  // Character (Somatic) axes
+  chaos: { label: "Chaos", desc: "Randomness vs Control" },
+  intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
+  openness: { label: "Openness", desc: "Receptivity vs Guardedness" },
+  affinity: { label: "Affinity", desc: "Inter-Entity Bond / Empathy" },
+  // Fractal (Environmental) axes
+  velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
+  entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
+};
+
 export const DYNAMICS = [
   // 📈 INTENSITY METRIC (AI Somatics & Physics)
   {

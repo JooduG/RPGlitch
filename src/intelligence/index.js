@@ -6,7 +6,7 @@ export {
   teardown_context_effects,
 } from "./context.svelte.js";
 export { temporal_engine } from "./temporal.js";
-export { dynamics_engine } from "./dynamics.js";
+export { dynamics_engine, DYNAMICS_META } from "./dynamics.js";
 export {
   ENTITY_FRAGMENTS,
   ENTITY_CATALOG,
