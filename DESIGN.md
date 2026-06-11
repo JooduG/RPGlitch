@@ -33,6 +33,7 @@ colors:
   twilight-violet: "#c084fc"
   void-black: "#000"
 typography:
+  font-family-base: '"Inter", sans-serif'
   font-family-heading: '"Ubuntu", sans-serif'
   font-family-mono: '"JetBrains Mono", monospace'
   font-size-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
