@@ -7,7 +7,7 @@ import { fileURLToPath } from "url";
 import { getCategory } from "./token-utils.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const SCRIPT_SYNC = path.resolve(__dirname, "design-sync.js");
+const SCRIPT_SYNC = path.resolve(__dirname, "sync-css.js");
 
 describe("Design System Orchestration Engine", () => {
   describe("Engine Classifications", () => {
