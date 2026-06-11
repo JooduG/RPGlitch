@@ -56,17 +56,8 @@
 <div
   class="
     mb-4
+    w-full
     animate-[slide-in_150ms_cubic-bezier(0.4,0,0.2,1)]
-
-    {meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA ||
-  meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
-  meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
-    ? `
-      mx-auto
-      my-2
-      max-w-[85%]
-    `
-    : ''}
   "
 >
   <DataBox

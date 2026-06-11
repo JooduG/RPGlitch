@@ -163,7 +163,21 @@
 
 {#if is_telemetry}
   {#if app.settings.dev_mode}
-    <DevTelemetryBlock {meta} time={time_label} />
+    <div
+      class="
+        relative
+        flex
+        w-full
+        justify-center
+        p-4
+        transition-all
+        duration-200
+      "
+    >
+      <div class="w-[calc(var(--column-unit)*6)]">
+        <DevTelemetryBlock {meta} time={time_label} />
+      </div>
+    </div>
   {/if}
 {:else}
   <div
@@ -239,7 +253,7 @@
           justify-between
           overflow-hidden
           rounded-t-[15px]
-          bg-[var(--signature-color)]
+          bg-(--signature-color)
           font-(--font-family-mono)
           tracking-widest
           uppercase
