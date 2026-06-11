@@ -97,7 +97,6 @@
       meter-label
       z-10
       mb-2
-      cursor-help
       text-[10px]
       font-(--font-family-mono)
       tracking-widest
@@ -107,8 +106,7 @@
       transition-[filter,opacity]
       duration-150
       ease-in-out
-      group-hover:opacity-100
-      group-hover:brightness-110
+      {is_editing ? 'cursor-help group-hover:opacity-100 group-hover:brightness-110' : ''}
     "
     use:tooltip={dynamic.desc}
   >
@@ -155,7 +153,6 @@
           meter-input
           w-10
           [appearance:textfield]
-          appearance-none
           bg-transparent
           py-1
           text-center
