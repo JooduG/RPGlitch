@@ -4,7 +4,7 @@
 import { entities } from "@data";
 import { visual_engine } from "@media";
 import { llm_service } from "@platform";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { beforeEach, afterEach, describe, expect, it, vi } from "vitest";
 
 // Mock Perchance global
 vi.stubGlobal("window", {
@@ -58,10 +58,15 @@ describe("VisualEngine (Reactive)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useRealTimers();
+    vi.spyOn(console, "error").mockImplementation(() => {});
     visual_engine.error = null;
     visual_engine.isLoading = false;
     visual_engine.breaker.state = "CLOSED";
     visual_engine.breaker.failureCount = 0;
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
   });
 
   it("should generate an image from a direct prompt", async () => {

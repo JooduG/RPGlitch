@@ -33,7 +33,6 @@ colors:
   twilight-violet: "#c084fc"
   void-black: "#000"
 typography:
-  font-family-base: '"Inter", system-ui, -apple-system, sans-serif'
   font-family-heading: '"Ubuntu", sans-serif'
   font-family-mono: '"JetBrains Mono", monospace'
   font-size-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
@@ -74,7 +73,6 @@ components:
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
-  dev-accent: var(--electric-cyan)
   dropdown-max-height: calc(var(--spacing-unit) * 80)
   duration-ambient: 2000ms
   duration-fast: 150ms
@@ -92,9 +90,7 @@ components:
   kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
   kinetic-slide-y: calc(var(--spacing-pixel) * 10)
   kinetic-stab-distance: var(--spacing-unit)
-  modal-height-standard: calc(var(--row-unit) * 6)
   modal-width-thin: calc(var(--column-unit) * 3)
-  modal-width-wide: calc(var(--column-unit) * 9)
   motion-dissolve: opacity var(--duration-standard) var(--ease-standard)
   motion-elastic: var(--duration-slow) var(--ease-elastic)
   noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
@@ -130,7 +126,6 @@ components:
   scan-animation: scan var(--duration-ambient) linear infinite
   title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--void-black)
   z-index-max: "999"
-  z-index-modal: "300"
   bits-select-anchor-width: initial;
   empty-fill: rgb(23 23 23 / 0.6);
 ---

@@ -34,7 +34,6 @@ export const TOKENS = {
   "swatch-color": "var(--signature-color)",
   "twilight-violet": "#c084fc",
   "void-black": "#000",
-  "font-family-base": '"Inter", system-ui, -apple-system, sans-serif',
   "font-family-heading": '"Ubuntu", sans-serif',
   "font-family-mono": '"JetBrains Mono", monospace',
   "font-size-base": "clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)",
@@ -73,7 +72,6 @@ export const TOKENS = {
   "brightness-dim": "0.9",
   "brightness-glow": "1.1",
   "brightness-muted": "0.3",
-  "dev-accent": "var(--electric-cyan)",
   "dropdown-max-height": "calc(var(--spacing-unit) * 80)",
   "duration-ambient": "2000ms",
   "duration-fast": "150ms",
@@ -92,9 +90,7 @@ export const TOKENS = {
   "kinetic-shimmy-y": "calc(var(--spacing-pixel) / 2)",
   "kinetic-slide-y": "calc(var(--spacing-pixel) * 10)",
   "kinetic-stab-distance": "var(--spacing-unit)",
-  "modal-height-standard": "calc(var(--row-unit) * 6)",
   "modal-width-thin": "calc(var(--column-unit) * 3)",
-  "modal-width-wide": "calc(var(--column-unit) * 9)",
   "motion-dissolve": "opacity var(--duration-standard) var(--ease-standard)",
   "motion-elastic": "var(--duration-slow) var(--ease-elastic)",
   "noise-url":
@@ -129,7 +125,6 @@ export const TOKENS = {
   "storyboard-fractal-card-width": "calc(var(--column-unit) * 4)",
   "title-shadow-ambient": "0 0 calc(var(--spacing-unit) * 5) var(--void-black)",
   "z-index-max": "999",
-  "z-index-modal": "300",
 };
 
 export const PALETTE = {
