@@ -17,7 +17,12 @@ class PerchanceBridge {
       (typeof HTMLCollection !== "undefined" && window.oc instanceof HTMLCollection) ||
       (typeof NodeList !== "undefined" && window.oc instanceof NodeList);
     if (this._mockMode) {
-      console.warn("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.");
+      // Suppress warning during local Vitest runs to prevent terminal bloat
+      const isTestEnv =
+        typeof process !== "undefined" && (process.env.VITEST || process.env.NODE_ENV === "test");
+      if (!isTestEnv) {
+        console.warn("[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.");
+      }
     }
   }
   /**

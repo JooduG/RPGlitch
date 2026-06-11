@@ -26,10 +26,8 @@ describe("PerchanceBridge", () => {
       const module = await import("@platform/bridge.js");
       bridge = module.bridge;
     });
-    it("should log a warning on instantiation", () => {
-      expect(console.warn).toHaveBeenCalledWith(
-        "[Security:Bridge] Native 'oc' object not found. Running in Mock Mode.",
-      );
+    it("should NOT log a warning on instantiation during tests to prevent bloat", () => {
+      expect(console.warn).not.toHaveBeenCalled();
     });
     it("should not be ready", () => {
       expect(bridge.isReady).toBe(false);

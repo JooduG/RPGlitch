@@ -7,7 +7,7 @@
  */
 
 import fs from "fs";
-import { describe, it } from "vitest";
+import { describe, it, expect } from "vitest";
 import { SimulationAudit } from "./simulation-audit.js";
 
 describe("🕹️ SYSTEM TURN: Source Audit", () => {
@@ -78,8 +78,11 @@ ${SEP}
 `;
 
     // 4. PERSISTENCE
-    console.log(report);
     fs.writeFileSync("tmp/audit_report.md", report);
     console.log("✅ Audit report synthesized: tmp/audit_report.md");
+
+    // 5. VERIFICATION
+    expect(fs.existsSync("tmp/audit_report.md")).toBe(true);
+    expect(result.system).toBeDefined();
   });
 });

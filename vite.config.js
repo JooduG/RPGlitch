@@ -46,6 +46,9 @@ export default defineConfig(({ command, mode }) => {
   return {
     // Root must point to where index.html lives
     root: "src",
+    define: {
+      "import.meta": "{}",
+    },
     plugins: [
       designTokenSync(),
       tailwindcss(),
