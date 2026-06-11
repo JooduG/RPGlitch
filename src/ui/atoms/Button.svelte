@@ -49,6 +49,24 @@
   let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
+  const height_class = $derived(
+    cover
+      ? ""
+      : square && size === "small"
+        ? "h-4"
+        : square
+          ? "h-12"
+          : size === "small"
+            ? "h-8"
+            : "h-10",
+  );
+
+  const width_class = $derived(
+    cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "",
+  );
+
+  const padding_class = $derived(cover ? "" : square ? "p-0" : size === "small" ? "px-2" : "px-4");
+
   // Svelte 5 Action delegation: Apply Svelte actions dynamically when element reference becomes active
   $effect(() => {
     if (element && actions.length > 0) {
@@ -75,7 +93,9 @@
     pointer-events-auto
     relative
     inline-flex
-    h-10
+    {height_class}
+    {width_class}
+    {padding_class}
     cursor-pointer
     items-center
     justify-center
@@ -84,7 +104,6 @@
     border
     border-solid
     border-transparent
-    px-4
     font-[inherit]
     text-(length:--font-size-base)
     leading-normal
@@ -130,10 +149,9 @@
     {variant === 'invisible'
     ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125'
     : ''}
-    {size === 'small' ? 'px-2 text-xs' : ''}
-    {square ? 'aspect-square shrink-0 p-0' : ''}
-    {square && size === 'small' ? 'h-4 w-4' : square ? 'h-12 w-12' : ''}
-    {full_width ? 'w-full flex-1' : ''}
+    {size === 'small' ? 'text-xs' : ''}
+    {square ? 'aspect-square shrink-0' : ''}
+    {full_width && !square ? 'flex-1' : ''}
     {cover
     ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!'
     : ''}

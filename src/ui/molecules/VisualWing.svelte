@@ -392,8 +392,7 @@
                 size-(--icon-small)
               "
               >
-                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="var(--pure-white)"
-                ></path>
+                <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
               </svg>
             {:else}
               <svg
@@ -403,10 +402,9 @@
               "
                 fill="none"
               >
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"
-                ></path>
-                <polyline points="7 10 12 15 17 10" stroke="var(--pure-white)"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3" stroke="var(--pure-white)"></line>
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
+                <polyline points="7 10 12 15 17 10" stroke="currentColor"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor"></line>
               </svg>
             {/if}
           </Button>
@@ -430,9 +428,9 @@
             >
               <path
                 d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                stroke="var(--pure-white)"
+                stroke="currentColor"
               ></path>
-              <circle cx="12" cy="13" r="4" stroke="var(--pure-white)"></circle>
+              <circle cx="12" cy="13" r="4" stroke="currentColor"></circle>
             </svg>
           </Button>
 
@@ -453,9 +451,9 @@
             "
               fill="none"
             >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="var(--pure-white)"></path>
-              <polyline points="17 8 12 3 7 8" stroke="var(--pure-white)"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15" stroke="var(--pure-white)"></line>
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
+              <polyline points="17 8 12 3 7 8" stroke="currentColor"></polyline>
+              <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor"></line>
             </svg>
           </Button>
         </div>

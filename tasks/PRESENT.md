@@ -44,8 +44,9 @@ Ready for new assignments. May structural refactoring (Vite 8, Centralized Motio
 | 2026-06-03 17:30     | Archival of May tracks and initialization of the June clean slate.       | legislative   | ✅ Done |
 | 2026-06-10 17:43     | Resolve empty style tag error, lint warnings, and design audit.          | debug         | ✅ Done |
 | 2026-06-10 21:55     | Resolve Profile footer buttons styling by wrapping resets in @layer base | css, debug    | ✅ Done |
+| 2026-06-11 02:45     | Resolve SVG icon collapse by conditionalizing Button height and padding  | ui, css       | ✅ Done |
 
-> ⚒️ Operations | `css` | /02-implement
+> ⚒️ Operations | `ui` | /02-implement
 
 ## 🧹 Backlog (Automated)
 

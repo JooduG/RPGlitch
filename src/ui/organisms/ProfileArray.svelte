@@ -104,6 +104,7 @@
             {#if state.is_editing}
               <Button
                 variant="invisible"
+                flank={true}
                 size="small"
                 square
                 class="
@@ -112,15 +113,14 @@
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
-                <span
-                  class="
-                    flex
-                    items-center
-                    justify-center
-                    text-sm
-                    leading-none
-                    font-(--font-family-mono)
-                  ">&lt;</span
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-(--icon-small)"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"><path d="M5 12h14" /></svg
                 >
               </Button>
             {/if}
@@ -146,6 +146,7 @@
             {#if state.is_editing}
               <Button
                 variant="invisible"
+                flank={true}
                 size="small"
                 square
                 class="
@@ -154,22 +155,21 @@
                   opacity-0
                   transition-colors
                   duration-200
-                  group-[.is-expanded]/textfield:opacity-90
-                  hover:text-(--pure-white)!
+                  group-data-[expanded=true]/textfield:opacity-90
+                  hover:text-white!
                   hover:opacity-100!
                 "
                 onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
-                <span
-                  class="
-                    flex
-                    items-center
-                    justify-center
-                    text-sm
-                    leading-none
-                    font-(--font-family-mono)
-                  ">&gt;</span
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-(--icon-small)"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg
                 >
               </Button>
             {/if}
@@ -262,10 +262,10 @@
                 "
                 fill="none"
               >
-                <polyline points="3 6 5 6 21 6" stroke="var(--pure-white)"></polyline>
+                <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
                 <path
                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                  stroke="var(--pure-white)"
+                  stroke="currentColor"
                 ></path>
               </svg>
             </Button>

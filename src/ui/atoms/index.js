@@ -8,7 +8,6 @@ export {
   closeImagePreview,
   default as ImagePreview,
 } from "./ImagePreview.svelte";
-export { default as Meter } from "./Meter.svelte";
 export { default as Modal } from "./Modal.svelte";
 export { default as ProfilePicture } from "./ProfilePicture.svelte";
 export { default as ScrollArea } from "./ScrollArea.svelte";
@@ -23,3 +22,4 @@ export {
   tooltip,
   default as Tooltip,
 } from "./Tooltip.svelte";
+export { default as DynamicsMeter } from "./DynamicsMeter.svelte";

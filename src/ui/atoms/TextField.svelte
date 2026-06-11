@@ -69,10 +69,27 @@
     is_focused = false;
     onblur?.(e);
   }
+
+  // Clear stuck focus when switching modes
+  $effect(() => {
+    if (is_edit !== undefined) {
+      // Small delay to let DOM settle after mode switch
+      setTimeout(() => {
+        if (
+          is_focused &&
+          document.activeElement?.tagName !== "TEXTAREA" &&
+          document.activeElement?.tagName !== "DIV"
+        ) {
+          is_focused = false;
+        }
+      }, 10);
+    }
+  });
 </script>
 
 <div
   class="
+    group/textfield
     relative
     flex
     w-full
@@ -84,8 +101,8 @@
     border-transparent
     transition-[border-color,background]
     duration-300
-    ease-in-out
 
+    ease-in-out
     before:pointer-events-none
     before:absolute
     before:inset-0
@@ -94,9 +111,8 @@
     before:p-px
     before:transition-opacity
     before:duration-300
-    before:content-['']!
 
-    {is_expanded ? '' : ''}
+    before:content-['']!
     {no_background
     ? `
       border-none!
@@ -137,10 +153,10 @@
     `
     : ''}
     {className}"
-  data-expanded={is_expanded}
-  data-busy={busy}
-  data-no-bg={no_background}
-  data-disabled={is_disabled || busy}
+  data-expanded={is_expanded ? "true" : undefined}
+  data-busy={busy ? "true" : undefined}
+  data-no-bg={no_background ? "true" : undefined}
+  data-disabled={is_disabled || busy ? "true" : undefined}
   style="{style}; --state-dev-accent: {signature_color}; --state-weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
   use:use_actions={actions}

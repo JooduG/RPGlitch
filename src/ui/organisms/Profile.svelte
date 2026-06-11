@@ -505,6 +505,14 @@
                         !profileState.get_safe_value(field.key)}
                       onclick={() =>
                         profileState.enhance(field.key, profileState.get_safe_value(field.key))}
+                      class="
+                        text-slate-400
+                        opacity-0
+                        transition-all
+                        duration-200
+                        group-data-[expanded=true]/textfield:opacity-100
+                        hover:text-(--signature-color)
+                      "
                     >
                       <svg
                         viewBox="0 0 24 24"
@@ -517,9 +525,7 @@
                           [stroke-linejoin:round]
                         "
                       >
-                        <path
-                          d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z"
-                          fill="var(--pure-white)"
+                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"
                         ></path>
                       </svg>
                     </Button>
