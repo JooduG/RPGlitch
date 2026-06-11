@@ -7,6 +7,20 @@ import { TOKENS } from "@media";
 
 export const APP_VERSION = "0.3.0 (Chalk Regime)";
 
+// --- STORAGE KEYS ---
+export const SESSION_ID_KEY = "active_session_id";
+export const KV_SETTINGS_KEY = "rpg_settings";
+
+// --- UI METRICS ---
+export const DROPDOWN_MAX_HEIGHT = 300;
+
+export const TELEMETRY_TYPES = {
+  DYNAMICS_DELTA: "DYNAMICS_DELTA",
+  MEMORY_FORMATION: "MEMORY_FORMATION",
+  VECTOR_RESOLUTION: "VECTOR_RESOLUTION",
+  STORY_START: "STORY_START",
+};
+
 export const CONFIG = {
   // --- ENTITY TYPES ---
   // Used by ContextBroker and Database to know what we are fetching

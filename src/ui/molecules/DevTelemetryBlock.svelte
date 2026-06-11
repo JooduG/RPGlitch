@@ -6,6 +6,8 @@
    */
   import { DataBox } from "@atoms";
 
+  import { TELEMETRY_TYPES } from "@engine";
+
   /**
    * @typedef {Object} TelemetryMeta
    * @property {string} [type] - The type of telemetry event.
@@ -56,9 +58,9 @@
     mb-4
     animate-[slide-in_150ms_cubic-bezier(0.4,0,0.2,1)]
 
-    {meta.type === 'telemetry' ||
-  meta.type === 'MEMORY_FORMATION' ||
-  meta.type === 'VECTOR_RESOLUTION'
+    {meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA ||
+  meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
+  meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
     ? `
       mx-auto
       my-2
@@ -68,15 +70,16 @@
   "
 >
   <DataBox
-    label={meta.type === "MEMORY_FORMATION"
+    label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
       ? "[#] MEMORY_WEAVE"
-      : meta.type === "VECTOR_RESOLUTION"
+      : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
         ? "[A] VECTOR_ANCHOR"
-        : meta.type === "telemetry"
+        : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
           ? "[S] DYNAMICS_LOG"
           : "[S] Simulation Telemetry"}
     height="auto"
-    class={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"
+    class={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
+    meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
       ? `
         animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)]
         border-(--signature-color)
@@ -110,7 +113,7 @@
         </div>
       {/if}
 
-      {#if meta.type === "MEMORY_FORMATION"}
+      {#if meta.type === TELEMETRY_TYPES.MEMORY_FORMATION}
         <!-- [#] WEAVED STATE (Memory Consolidation) -->
         <div
           class="
@@ -227,7 +230,7 @@
             </div>
           </div>
         </div>
-      {:else if meta.type === "VECTOR_RESOLUTION"}
+      {:else if meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
         <!-- [A] ANCHORED STATE (Vector Engine) -->
         <div
           class="
@@ -402,6 +405,13 @@
               </div>
             </div>
           </div>
+        </div>
+      {:else if meta.type === TELEMETRY_TYPES.STORY_START}
+        <div class="mb-4">
+          <span class="block text-xs font-bold tracking-tight text-slate-50">Story Initiated</span>
+          <p class="mt-2 text-[10px] text-slate-600">
+            The simulation engine has anchored a new narrative sequence.
+          </p>
         </div>
       {:else}
         <!-- [S] DEFAULT SIMULATION TELEMETRY -->
@@ -864,6 +874,11 @@
                 >
               {/each}
             </div>
+          </div>
+        {/if}
+        {#if Object.keys(meta).length > 0 && deltas.length === 0 && Object.keys(ai).length === 0 && Object.keys(fractal).length === 0 && vectors.future.length === 0 && vectors.past.length === 0 && signals.length === 0}
+          <div class="overflow-x-auto pt-4 text-[10px] font-(--font-family-mono) text-slate-400">
+            <pre>{JSON.stringify(meta, null, 2)}</pre>
           </div>
         {/if}
       {/if}

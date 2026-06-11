@@ -1,4 +1,4 @@
-import { session_driver } from "@engine";
+import { session_driver, TELEMETRY_TYPES } from "@engine";
 import { context_broker, dynamics_engine, gamemaster, prompt_builder } from "@intelligence";
 import { llm_service } from "@platform";
 import { runtime } from "@state";
@@ -105,7 +105,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         expect.stringContaining("AI.intensity: 60 (+10) [TEST_CAUSE]"),
         "system",
         expect.objectContaining({
-          type: "telemetry",
+          type: TELEMETRY_TYPES.DYNAMICS_DELTA,
           deltas: expect.arrayContaining([
             "AI.intensity: 60 (+10) [TEST_CAUSE]",
             "World.entropy: 40 (-10) [GM]",

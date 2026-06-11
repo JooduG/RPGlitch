@@ -11,7 +11,7 @@
  * - Future (Impulses): Prophecies, Curses, Dreams, Impending Doom, Plans.
  */
 
-import { CONFIG, session_driver } from "@engine";
+import { CONFIG, session_driver, TELEMETRY_TYPES } from "@engine";
 import { dynamics_engine, prompt_builder } from "@intelligence";
 import { llm_service } from "@platform";
 import { simulation_log as log_store } from "@state";
@@ -192,7 +192,7 @@ export function resolve(entity, vector_id, resolution = null) {
     `Vector Resolved: ${vector.text.substring(0, 40)}... [${resolution || "PAST"}]`,
     "system",
     {
-      type: "VECTOR_RESOLUTION",
+      type: TELEMETRY_TYPES.VECTOR_RESOLUTION,
       vector,
       resolution,
     },
@@ -312,7 +312,7 @@ export const temporal_engine = {
               `Memory Weaved: ${resonance.text.substring(0, 50)}...`,
               "system",
               {
-                type: "MEMORY_FORMATION",
+                type: TELEMETRY_TYPES.MEMORY_FORMATION,
                 vectors: { past: [resonance], future: [] },
                 turns_count: slice.length,
               },

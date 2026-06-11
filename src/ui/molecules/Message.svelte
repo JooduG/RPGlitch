@@ -7,7 +7,7 @@
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
-  import { motion, typewriter } from "@motion";
+  import {  typewriter } from "@motion";
   import { app, runtime } from "@state";
   import { TELEMETRY_TYPES } from "@engine";
 

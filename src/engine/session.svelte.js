@@ -1,5 +1,5 @@
 import { db } from "@data";
-import { SESSION_ID_KEY } from "@engine";
+import { SESSION_ID_KEY, TELEMETRY_TYPES } from "@engine";
 import { runtime, simulation_log } from "@state";
 
 /**
@@ -64,7 +64,7 @@ export const session_driver = {
       text: `Story Started: ${selection.story_title}`,
       turn_type: "SYSTEM_TURN",
       round: 0,
-      meta: { type: "STORY_START" },
+      meta: { type: TELEMETRY_TYPES.STORY_START },
       created_at: Date.now(),
     });
 

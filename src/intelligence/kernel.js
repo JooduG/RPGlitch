@@ -15,7 +15,7 @@
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
 import { db, entities, prune, serialize } from "@data";
-import { generateUUID, session_driver } from "@engine";
+import { generateUUID, session_driver, TELEMETRY_TYPES } from "@engine";
 import { context_broker, dynamics_engine, prompt_builder, temporal_engine } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime, simulationState } from "@state";
@@ -126,7 +126,7 @@ export const gamemaster = {
 
     if (deltas.length > 0) {
       await session_driver.log_system_entry(deltas.join(" | "), "system", {
-        type: "telemetry",
+        type: TELEMETRY_TYPES.DYNAMICS_DELTA,
         deltas,
         signals: active_signals,
         snapshot: {
