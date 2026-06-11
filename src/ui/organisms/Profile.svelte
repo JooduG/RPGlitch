@@ -39,7 +39,7 @@
     if (!(target instanceof Element)) return;
 
     if (profileState.show_delete_confirm) return;
-    if (target.closest("[data-wings-container]")) return;
+    if (target.closest("[data-wings-container] > *")) return;
     if (
       target.closest(".menu") ||
       target.closest("[data-dropdown-menu]") ||
@@ -246,13 +246,6 @@
                   profileState.show_delete_confirm = true;
                 }}>Delete</Button
               >
-              <Button
-                variant="primary"
-                onclick={() => {
-                  footer_el?.focus();
-                  profileState.cancel();
-                }}>Cancel</Button
-              >
             {:else}
               <Button
                 variant="secondary"
@@ -261,7 +254,6 @@
                   profileState.is_editing = true;
                 }}>Edit</Button
               >
-              <Button variant="primary" onclick={() => profileState.handle_close()}>Close</Button>
             {/if}
           </footer>
         </div>

@@ -47,13 +47,7 @@
 
     [&.profile-backdrop]:p-0
 
-    {is_pass_through
-    ? `
-      pointer-events-none
-
-      *:pointer-events-auto
-    `
-    : 'pointer-events-auto'}
+    {is_pass_through ? '*:pointer-events-auto' : 'pointer-events-auto'}
     {is_blurred
     ? `
       backdrop-blur-lg
