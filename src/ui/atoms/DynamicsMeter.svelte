@@ -74,7 +74,7 @@
     rounded-sm
     border
     border-transparent
-    bg-black/40
+    bg-neutral-900/60
     p-4
     transition-all
     duration-300
@@ -83,13 +83,14 @@
 
     {is_editing
     ? `
+      cursor-help
       focus-within:z-10
       hover:z-10
-      hover:border-[color-mix(in_srgb,var(--signature-color)_30%,transparent)]
-      hover:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
+      hover:brightness-125
     `
     : ''}
   "
+  use:tooltip={dynamic.desc}
   data-editable={is_editing}
 >
   <span
@@ -100,15 +101,12 @@
       text-[10px]
       font-(--font-family-mono)
       tracking-widest
-      text-(--signature-color)
+      text-(--electric-cyan)
       uppercase
-      opacity-80
       transition-[filter,opacity]
       duration-150
       ease-in-out
-      {is_editing ? 'cursor-help group-hover:opacity-100 group-hover:brightness-110' : ''}
     "
-    use:tooltip={dynamic.desc}
   >
     {dynamic.label}
   </span>
@@ -130,7 +128,7 @@
         flank={true}
         size="small"
         square
-        class="hover:text-(--signature-color)"
+        class="hover:text-(--electric-cyan)"
         onclick={decrease}
         aria-label="Decrease"
       >
@@ -173,7 +171,7 @@
         flank={true}
         size="small"
         square
-        class="hover:text-(--signature-color)"
+        class="hover:text-(--electric-cyan)"
         onclick={increase}
         aria-label="Increase"
       >
@@ -210,14 +208,14 @@
         h-px
         w-full
         overflow-hidden
-        bg-(--signature-color)/10
+        bg-(--electric-cyan)/10
       "
     >
       <div
         class="
           h-full
-          bg-(--signature-color)
-          shadow-[0_0_8px_var(--signature-color)]
+          bg-(--electric-cyan)
+          shadow-[0_0_8px_var(--electric-cyan)]
           transition-[width]
           duration-150
           ease-in-out
