@@ -17,24 +17,28 @@
   let { entity_type = "character" } = $props();
 
   // --- ORCHESTRATION ---
-  const state = new ProfileState();
+  const profileState = new ProfileState();
+  /** @type {HTMLElement | undefined} */
+  let footer_el = $state();
 
   // --- DERIVED ---
-  const signature_color = $derived(themeStore.get_signature_color(state.char, "var(--gunmetal)"));
-  const has_wings = $derived(state.is_editing || app.settings.dev_mode);
+  const signature_color = $derived(
+    themeStore.get_signature_color(profileState.char, "var(--gunmetal)"),
+  );
+  const has_wings = $derived(profileState.is_editing || app.settings.dev_mode);
   const active_sections = $derived(
     PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character,
   );
 
   // --- EFFECTS ---
-  $effect(() => state.sync());
+  $effect(() => profileState.sync());
 
   /** @param {MouseEvent} event */
   function handle_click_outside(event) {
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    if (state.show_delete_confirm) return;
+    if (profileState.show_delete_confirm) return;
     if (target.closest("[data-wings-container]")) return;
     if (
       target.closest(".menu") ||
@@ -45,21 +49,21 @@
       return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
 
-    state.handle_close();
+    profileState.handle_close();
   }
 </script>
 
-{#if state.char?.id}
+{#if profileState.char?.id}
   <Dialog
     type="confirm"
-    bind:open={state.show_delete_confirm}
-    title="Delete {state.char.name || 'Entity'}"
+    bind:open={profileState.show_delete_confirm}
+    title="Delete {profileState.char.name || 'Entity'}"
     message="This action is irreversible. All associated data, including history and vectors, will be lost."
     confirm_label="Delete Permanently"
-    on_confirm={() => state.delete(entity_type)}
+    on_confirm={() => profileState.delete(entity_type)}
   />
 
-  <Modal variant="profile" on_close={() => state.handle_close()} is_pass_through={true}>
+  <Modal variant="profile" on_close={() => profileState.handle_close()} is_pass_through={true}>
     <div
       class="
         m-auto
@@ -159,7 +163,7 @@
               : ''}
             "
           >
-            <ProfilePicture entity={state.char} />
+            <ProfilePicture entity={profileState.char} />
           </div>
         </div>
 
@@ -175,13 +179,13 @@
           "
         >
           <ProfileHeader
-            bind:name={state.char.name}
-            bind:description={state.char.description}
-            is_editing={state.is_editing}
-            active_field={state.active_field?.key}
+            bind:name={profileState.char.name}
+            bind:description={profileState.char.description}
+            is_editing={profileState.is_editing}
+            active_field={profileState.active_field?.key}
             {signature_color}
             on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) =>
-              state.set_active_field(key, label)}
+              profileState.set_active_field(key, label)}
           />
 
           <main
@@ -209,11 +213,14 @@
           </main>
 
           <footer
+            bind:this={footer_el}
+            tabindex="-1"
             class="
               flex
               shrink-0
               gap-4
               p-4
+              outline-none
 
               {app.viewport.mobile || app.viewport.mini
               ? `
@@ -224,15 +231,37 @@
               : 'justify-end'}
             "
           >
-            {#if state.is_editing}
-              <Button variant="secondary" onclick={() => state.save(entity_type)}>Save</Button>
-              <Button variant="danger" onclick={() => (state.show_delete_confirm = true)}
-                >Delete</Button
+            {#if profileState.is_editing}
+              <Button
+                variant="secondary"
+                onclick={() => {
+                  footer_el?.focus();
+                  profileState.save(entity_type);
+                }}>Save</Button
               >
-              <Button variant="primary" onclick={() => state.cancel()}>Cancel</Button>
+              <Button
+                variant="danger"
+                onclick={() => {
+                  footer_el?.focus();
+                  profileState.show_delete_confirm = true;
+                }}>Delete</Button
+              >
+              <Button
+                variant="primary"
+                onclick={() => {
+                  footer_el?.focus();
+                  profileState.cancel();
+                }}>Cancel</Button
+              >
             {:else}
-              <Button variant="secondary" onclick={() => (state.is_editing = true)}>Edit</Button>
-              <Button variant="primary" onclick={() => state.handle_close()}>Close</Button>
+              <Button
+                variant="secondary"
+                onclick={() => {
+                  footer_el?.focus();
+                  profileState.is_editing = true;
+                }}>Edit</Button
+              >
+              <Button variant="primary" onclick={() => profileState.handle_close()}>Close</Button>
             {/if}
           </footer>
         </div>
@@ -252,12 +281,12 @@
             [&::-webkit-scrollbar]:hidden
           "
         >
-          {#if state.is_editing}
-            <VisualWing profileState={state} />
-            <AudioWing profileState={state} />
+          {#if profileState.is_editing}
+            <VisualWing {profileState} />
+            <AudioWing {profileState} />
           {/if}
           {#if app.settings.dev_mode}
-            <DevWing profileState={state} />
+            <DevWing {profileState} />
           {/if}
         </aside>
       {/if}
@@ -303,7 +332,7 @@
           transition-all
           duration-300
 
-          {state.is_editing && arrayField ? 'cursor-pointer' : 'cursor-default'}
+          {profileState.is_editing && arrayField ? 'cursor-pointer' : 'cursor-default'}
           {app.viewport.mobile || app.viewport.mini
           ? `
             border-b
@@ -314,9 +343,9 @@
           : ''}
         "
         data-section={section.id}
-        onclick={() => arrayField && state.add_vector_item(arrayField.key)}
-        onmouseenter={() => (state.hovered_section = section.id)}
-        onmouseleave={() => (state.hovered_section = null)}
+        onclick={() => arrayField && profileState.add_vector_item(arrayField.key)}
+        onmouseenter={() => (profileState.hovered_section = section.id)}
+        onmouseleave={() => (profileState.hovered_section = null)}
         role="presentation"
       >
         <div
@@ -346,7 +375,7 @@
             "
             style="color: var(--signature-color); text-shadow: none;"
           >
-            {#if state.is_editing && state.hovered_section === section.id && arrayField}
+            {#if profileState.is_editing && profileState.hovered_section === section.id && arrayField}
               <span
                 class="
                   pointer-events-none
@@ -404,7 +433,7 @@
           >
             {#if field.type === "array"}
               <ProfileArray
-                {state}
+                state={profileState}
                 path={field.key}
                 unit_label={field.unitLabel}
                 {signature_color}
@@ -429,19 +458,21 @@
               {/if}
               <TextField
                 id={fieldId}
-                is_edit={state.is_editing}
+                is_edit={profileState.is_editing}
                 syncId={section.label}
                 {signature_color}
-                data-active={state.active_field?.key === field.key ? true : undefined}
+                data-active={profileState.active_field?.key === field.key ? true : undefined}
                 placeholder={field.description}
-                value={state.get_safe_value(field.key)}
+                value={profileState.get_safe_value(field.key)}
                 oninput={(/** @type {any} */ e) =>
-                  state.set_field_value(field.key, e.currentTarget.value)}
-                busy={state.busy_fields.has(field.key)}
-                onfocus={() => state.set_active_field(field.key, field.label || section.label)}
+                  profileState.set_field_value(field.key, e.currentTarget.value)}
+                busy={profileState.busy_fields.has(field.key)}
+                onfocus={() =>
+                  profileState.set_active_field(field.key, field.label || section.label)}
+                onblur={() => profileState.reset_active_field()}
               >
                 {#snippet status()}
-                  {#if state.busy_fields.has(field.key)}
+                  {#if profileState.busy_fields.has(field.key)}
                     <span
                       class="
                         mt-2
@@ -463,16 +494,17 @@
                 {/snippet}
 
                 {#snippet header_actions()}
-                  {#if state.is_editing}
+                  {#if profileState.is_editing}
                     <Button
                       variant="invisible"
                       size="small"
                       square={true}
                       aria-label="Enhance with AI"
                       actions={[tooltip]}
-                      disabled={state.busy_fields.has(field.key) ||
-                        !state.get_safe_value(field.key)}
-                      onclick={() => state.enhance(field.key, state.get_safe_value(field.key))}
+                      disabled={profileState.busy_fields.has(field.key) ||
+                        !profileState.get_safe_value(field.key)}
+                      onclick={() =>
+                        profileState.enhance(field.key, profileState.get_safe_value(field.key))}
                     >
                       <svg
                         viewBox="0 0 24 24"

@@ -84,6 +84,8 @@
           state.patch_vector_item(path, i, { text: e.currentTarget.value })}
         placeholder="Enter {unit_label.toLowerCase()} detail..."
         weight={item.base_weight}
+        onfocus={() => state.set_active_field(`${path}[${i}]`, unit_label)}
+        onblur={() => state.reset_active_field()}
       >
         {#snippet status()}
           <div

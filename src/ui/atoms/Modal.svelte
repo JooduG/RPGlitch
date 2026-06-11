@@ -83,6 +83,9 @@
                 // outside the Dialog DOM tree would trigger an unwanted close.
                 e.preventDefault();
               }}
+              onOpenAutoFocus={(/** @type {any} */ e) => {
+                e.preventDefault();
+              }}
             >
               {#snippet child({ props: contentProps })}
                 {#if activeOpen}

@@ -126,6 +126,7 @@
           "
           style="color: {signature_color};"
           onfocus={() => on_focus_field("name", "Entity Name")}
+          onblur={() => on_focus_field("", "")}
         />
       </div>
     {:else}
@@ -211,6 +212,7 @@
         bind:value={description}
         use:auto_resize
         onfocus={() => on_focus_field("description", "Description")}
+        onblur={() => on_focus_field("", "")}
       ></textarea>
     </div>
   {:else if description}
