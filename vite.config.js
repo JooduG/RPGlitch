@@ -68,7 +68,7 @@ export default defineConfig(({ command, mode }) => {
         "@atoms": path.resolve(__dirname, "./src/ui/atoms"),
         "@actions": path.resolve(__dirname, "./src/ui/actions"),
         "@motion": path.resolve(__dirname, "./src/ui/motion"),
-        "@components": path.resolve(__dirname, "./src/ui/components"),
+        "@utils": path.resolve(__dirname, "./src/ui/utils"),
         "@organisms": path.resolve(__dirname, "./src/ui/organisms"),
         "@molecules": path.resolve(__dirname, "./src/ui/molecules"),
       },

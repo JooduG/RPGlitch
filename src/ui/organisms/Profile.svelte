@@ -53,6 +53,25 @@
   }
 </script>
 
+<svelte:window
+  onkeydown={(e) => {
+    if (!profileState.char?.id || profileState.show_delete_confirm) return;
+    if (e.key === "Enter" && !e.shiftKey) {
+      const target = /** @type {HTMLElement} */ (e.target);
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable)
+        return;
+      e.preventDefault();
+      if (profileState.is_editing) {
+        footer_el?.focus();
+        profileState.save(entity_type);
+      } else {
+        footer_el?.focus();
+        profileState.is_editing = true;
+      }
+    }
+  }}
+/>
+
 {#if profileState.char?.id}
   <Dialog
     type="confirm"

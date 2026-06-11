@@ -1,5 +1,5 @@
 /**
- * src/ui/components/index.js
+ * src/ui/utils/index.js
  * COMPONENTS ENTRY BARREL
  * Exposes components' and helpers' public APIs from a single folder gate.
  */

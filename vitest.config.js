@@ -19,7 +19,7 @@ export default defineConfig({
       "@atoms": path.resolve(__dirname, "./src/ui/atoms"),
       "@actions": path.resolve(__dirname, "./src/ui/actions"),
       "@motion": path.resolve(__dirname, "./src/ui/motion"),
-      "@components": path.resolve(__dirname, "./src/ui/components"),
+      "@utils": path.resolve(__dirname, "./src/ui/utils"),
       "@molecules": path.resolve(__dirname, "./src/ui/molecules"),
       "@organisms": path.resolve(__dirname, "./src/ui/organisms"),
     },

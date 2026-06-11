@@ -6,7 +6,7 @@
    * Svelte 5 runes · Chalk Regime · Fully accessible.
    */
   import { Backdrop, Button } from "@atoms";
-  import { resolve_ms, resolve_px } from "@components";
+  import { resolve_ms, resolve_px } from "@utils";
   import { AlertDialog } from "bits-ui";
   import { quartOut } from "svelte/easing";
   import { fly, scale } from "svelte/transition";
@@ -53,6 +53,18 @@
   const duration_in = resolve_ms("--duration-standard", 350);
   const duration_out = resolve_ms("--duration-fast", 250);
 </script>
+
+<svelte:window
+  onkeydown={(e) => {
+    if (open && e.key === "Enter" && !e.shiftKey) {
+      const target = /** @type {HTMLElement} */ (e.target);
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable)
+        return;
+      e.preventDefault();
+      handle_confirm();
+    }
+  }}
+/>
 
 <AlertDialog.Root bind:open preventScroll={false}>
   <AlertDialog.Portal>

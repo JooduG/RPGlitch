@@ -8,7 +8,7 @@
   import { themeStore } from "@media";
   import { runtime, app, session, simulationState } from "@state";
   import { Button, tooltip } from "@atoms";
-  import { pickRandom } from "@components";
+  import { pickRandom } from "@utils";
   import { pulse, roll, shimmy, stab, motion } from "@motion";
 
   // --- CORE VIEW ENGINE STATE ---

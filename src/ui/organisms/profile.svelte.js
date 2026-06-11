@@ -2,7 +2,7 @@
  * @file src/ui/profile/profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
-import { get_value, set_value } from "@components";
+import { get_value, set_value } from "@utils";
 import { db, normalize } from "@data";
 import { generateUUID } from "@engine";
 import { prompt_builder } from "@intelligence";

@@ -6,7 +6,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { ScrollArea } from "@atoms";
-  import { parse_markdown } from "@components";
+  import { parse_markdown } from "@utils";
   import { controlState } from "@state";
   import { auto_resize, use_actions } from "@actions";
   import { fade } from "svelte/transition";

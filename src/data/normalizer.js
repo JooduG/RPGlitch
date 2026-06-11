@@ -4,7 +4,7 @@
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
-import { pickRandom } from "@components";
+import { pickRandom } from "@utils";
 import { PALETTE } from "@media";
 import { Security } from "@platform";
 const sanitize_html = (/** @type {any} */ val) => Security.sanitize(val);

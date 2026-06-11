@@ -5,7 +5,7 @@
  * RUTHLESSLY STANDARDIZED: Fully type-safe, pure Svelte 5 reactive tracking.
  */
 
-import { resolve_ms, resolve_number, resolve_string } from "@components";
+import { resolve_ms, resolve_number, resolve_string } from "@utils";
 import { motion, spring } from "./engine.svelte.js";
 
 /* --- Kinetic Primitives --- */

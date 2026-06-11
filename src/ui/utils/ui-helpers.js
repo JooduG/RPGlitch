@@ -1,5 +1,5 @@
 /**
- * src/ui/components/ui-helpers.js
+ * src/ui/utils/ui-helpers.js
  * UNIFIED UI & DOM UTILITIES
  * Standardized methods for resolving/measuring CSS values, handling Perchance
  * lists and environments, and re-exporting stateless engine logic.

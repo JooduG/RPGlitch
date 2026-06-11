@@ -4,7 +4,7 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { getRpgList } from "@components";
+import { getRpgList } from "@utils";
 import { db } from "@data";
 import { SvelteSet } from "svelte/reactivity";
 
