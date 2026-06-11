@@ -1,7 +1,7 @@
 {
   "general": {
     "plan": {
-      "@": ["tasks/", "tasks/FUTURE.md", "tasks/PRESENT.md", "tasks/ETERNAL.md"]
+      "@": ["tasks/", "tasks/FUTURE.md", "tasks/PRESENT.md", "tasks/ETERNAL.md", "tasks/tracks/"]
     }
   }
 }

@@ -7,7 +7,7 @@
    */
   import { Button, TextField, Toggle, tooltip } from "@atoms";
   import { prompt_builder } from "@intelligence";
-  import { AestheticResolver, PALETTE, PALETTE_VARS, themeStore } from "@media";
+  import { AestheticResolver, PALETTE, PALETTE_VARS, get_signature_label } from "@media";
   import { llm_service } from "@platform";
   import { app } from "@state";
 
@@ -89,7 +89,7 @@
 
   // --- DERIVED ---
 
-  const current_label = $derived(themeStore.get_signature_label(profileState.char));
+  const current_label = $derived(get_signature_label(profileState.char));
 
   const is_prompt_busy = $derived(
     app.visual.isLoading || profileState.busy_fields.has("visual-prompt"),

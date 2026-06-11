@@ -95,7 +95,9 @@ function pre_flight() {
 
   // Check right panel exists (dist/index.html)
   if (!existsSync(CONFIG.right_panel_path)) {
-    fatal(`Right panel not found: ${CONFIG.right_panel_path}\n         Run "npm run build" first.`);
+    fatal(
+      `Right panel not found: ${CONFIG.right_panel_path}\n         Run "npm run deploy:prepare" first.`,
+    );
   }
 
   const left_content = readFileSync(CONFIG.left_panel_path, "utf-8");

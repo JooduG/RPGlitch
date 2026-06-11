@@ -5,7 +5,7 @@
    * Polymorphic command control system merging GlassPill, StoryboardPill, and InputBar.
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
   import { runtime, app, session, simulationState } from "@state";
   import { Button, tooltip } from "@atoms";
   import { pickRandom } from "@utils";
@@ -26,7 +26,7 @@
 
   let is_locked = $derived(simulationState.busy);
   let signature_color = $derived(
-    themeStore.get_signature_color(runtime.active_user || app.selected_user, "var(--gunmetal)"),
+    get_signature_color(runtime.active_user || app.selected_user, "var(--gunmetal)"),
   );
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---

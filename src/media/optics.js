@@ -9,7 +9,7 @@ export const NEGATIVE_PROMPT =
   "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
 import { escapeXml } from "@intelligence/parser.js";
-import { themeStore } from "@media";
+import { get_signature_label } from "@media";
 
 /**
  * Resolves camera specs based on character context.
@@ -23,7 +23,7 @@ export const AestheticResolver = {
   extract(entity = {}) {
     const present = entity.present?.physical || "";
     const eternal = entity.eternal?.physical || "";
-    const colorName = themeStore.get_signature_label(entity);
+    const colorName = get_signature_label(entity);
 
     /**
      * High-end hardware presets.

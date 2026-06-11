@@ -1,13 +1,11 @@
 /**
  * src/media/optics.test.js
  */
-import { AestheticResolver, getResolution, PromptTemplates, themeStore } from "@media";
+import { AestheticResolver, getResolution, PromptTemplates, get_signature_label } from "@media";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-vi.mock("@media/palette.svelte.js", () => ({
-  themeStore: {
-    get_signature_label: vi.fn(),
-  },
+vi.mock("@media/tokens.js", () => ({
+  get_signature_label: vi.fn(),
 }));
 
 describe("PromptTemplates", () => {
@@ -85,7 +83,7 @@ describe("AestheticResolver", () => {
   });
 
   it("should extract traits and use portrait preset for character-like entities", () => {
-    vi.mocked(themeStore.get_signature_label).mockReturnValue("Crimson Red");
+    vi.mocked(get_signature_label).mockReturnValue("Crimson Red");
     const entity = {
       type: "ai",
       present: { physical: "Tall and lean" },
@@ -99,7 +97,7 @@ describe("AestheticResolver", () => {
   });
 
   it("should use landscape preset for 'fractal' or 'scene' entities", () => {
-    vi.mocked(themeStore.get_signature_label).mockReturnValue("");
+    vi.mocked(get_signature_label).mockReturnValue("");
     const entity = {
       type: "fractal",
       present: { physical: "Infinite spirals" },
@@ -110,7 +108,7 @@ describe("AestheticResolver", () => {
   });
 
   it("should handle missing fields gracefully", () => {
-    vi.mocked(themeStore.get_signature_label).mockReturnValue("");
+    vi.mocked(get_signature_label).mockReturnValue("");
     const result = AestheticResolver.extract({});
     // Fragments should just be the preset if nothing else is present
     expect(result).toContain("Hasselblad H6D-100c");

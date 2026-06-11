@@ -63,6 +63,8 @@ describe("VisualEngine (Reactive)", () => {
     visual_engine.isLoading = false;
     visual_engine.breaker.state = "CLOSED";
     visual_engine.breaker.failureCount = 0;
+    visual_engine.retryer.initialDelay = 1;
+    visual_engine.retryer.maxDelay = 5;
   });
 
   afterEach(() => {

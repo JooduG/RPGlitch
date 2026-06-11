@@ -16,23 +16,9 @@ on:
   # 2. Strategic Triggers (Schedules)
   schedule:
     - cron: "0 4 * * *" # 4 AM: Security & Hygiene (The Night Shift)
-    - cron: "0 6 * * *" # 6 AM: Swarm Planning (Fleet Dispatch)
 
   # 3. Operational Triggers (Manual)
   workflow_dispatch:
-    inputs:
-      action:
-        description: "Operation to perform"
-        required: true
-        default: "dispatch"
-        type: choice
-        options:
-          - dispatch
-          - merge
-      base_branch:
-        description: "Target branch"
-        default: "main"
-        type: string
 
   # 4. Physics Gate (Push to Core)
   push:
@@ -61,10 +47,8 @@ jobs:
           node-version: "24"
           cache: "npm"
       - run: npm install --legacy-peer-deps
-      - name: "Sovereign Audit"
-        run: npm run verify
-      - name: "Production Build"
-        run: npm run build
+      - name: "Sovereign Audit & Build"
+        run: npm run deploy:prepare
 
   # --- JOB B: JULES REACTIVE AGENT ---
   # Handles issues, PR comments, and reactive tasks.
@@ -101,7 +85,7 @@ jobs:
           [ -f jules_payload.json ] && mv jules_payload.json tmp/ || true
 
   # --- JOB C: STRATEGIC OPERATIONS ---
-  # Handles scheduled hygiene and swarm planning.
+  # Handles scheduled hygiene.
   strategic-ops:
     name: "🧠 Strategic Ops"
     if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
@@ -118,7 +102,7 @@ jobs:
 
       # NIGHTLY HYGIENE (4 AM)
       - name: "🌙 The Night Shift"
-        if: github.event.schedule == '0 4 * * *'
+        if: github.event.schedule == '0 4 * * *' || github.event_name == 'workflow_dispatch'
         uses: "google-labs-code/jules-action@main"
         with:
           jules_api_key: "${{ secrets.JULES_API_KEY }}"
@@ -130,34 +114,8 @@ jobs:
           [ -f prompt.txt ] && mv prompt.txt tmp/ || true
           [ -f jules_payload.json ] && mv jules_payload.json tmp/ || true
 
-      # SWARM PLANNING (6 AM or Dispatch)
-      - name: "🐝 Fleet Dispatch"
-        if: github.event.schedule == '0 6 * * *' || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'dispatch')
-        env:
-          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-          FLEET_BASE_BRANCH: ${{ github.event.inputs.base_branch || 'main' }}
-        run: npm run swarm:plan
-
-      # SWARM MERGING (Manual Dispatch)
-      - name: "🤝 Fleet Merge"
-        if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'merge'
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          JULES_API_KEY: ${{ secrets.JULES_API_KEY }}
-        run: |
-          # Simplified sequence: find PRs, update, merge.
-          # Resolve PRs, update, and merge based on task completion.
-          npx tsx .agents/skills/swarm/scripts/automation/swarm-merge.ts --base ${{ github.event.inputs.base_branch || 'main' }}
-
-      # PERSISTENCE
-      - name: "🧠 RAG Sync"
-        if: github.event.schedule == '0 4 * * *'
-        env:
-          PINECONE_API_KEY: ${{ secrets.PINECONE_API_KEY }}
-        run: node .agents/skills/data/scripts/index.js upsert || true
-
       - name: "💾 Commit Hygiene"
-        if: github.event.schedule == '0 4 * * *'
+        if: github.event.schedule == '0 4 * * *' || github.event_name == 'workflow_dispatch'
         uses: "stefanzweifel/git-auto-commit-action@v5"
         with:
-          commit_message: "chore(sovereign): nightly hygiene and memory sync [bot-auto]"
+          commit_message: "chore(sovereign): nightly hygiene [bot-auto]"

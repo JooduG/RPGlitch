@@ -6,7 +6,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { NAME_PREFIXES } from "@intelligence";
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
   import { use_actions } from "@actions";
 
   let {
@@ -52,7 +52,7 @@
   let image_failed = $state(false);
   const name = $derived(entity?.name || (placeholder_char ? "" : "Entity"));
   const media_url = $derived(!image_failed && (src || entity?.profile_picture));
-  const signature_color = $derived(themeStore.get_signature_color(entity));
+  const signature_color = $derived(get_signature_color(entity));
   const initials = $derived(placeholder_char || calculate_initials(name));
 
   // 2. Modifiers

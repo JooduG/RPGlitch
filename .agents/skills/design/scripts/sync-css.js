@@ -96,18 +96,29 @@ function buildJsBridge(flat_data) {
     { tokens: {}, palette: {}, palette_vars: {} },
   );
 
-  const output = `/* ============================================================================
- * [GENERATED] src/media/tokens.js
- * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md.
- * ============================================================================ */
-
-export const TOKENS = ${JSON.stringify(tokens, null, 2)};
+  const new_blocks = `export const TOKENS = ${JSON.stringify(tokens, null, 2)};
 
 export const PALETTE = ${JSON.stringify(palette, null, 2)};
 
-export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};\n`;
+export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};`;
 
-  fs.writeFileSync(PATHS.jsBridge, output);
+  if (fs.existsSync(PATHS.jsBridge)) {
+    let content = fs.readFileSync(PATHS.jsBridge, "utf8");
+    const regex =
+      /(\/\/ --- BEGIN AUTO-GENERATED TOKENS ---)[\s\S]*?(\/\/ --- END AUTO-GENERATED TOKENS ---)/;
+    if (regex.test(content)) {
+      content = content.replace(regex, `$1\n${new_blocks}\n$2`);
+      fs.writeFileSync(PATHS.jsBridge, content);
+    } else {
+      console.warn(
+        "⚠️ Could not find auto-generated boundaries in tokens.js. Sync skipped for JS bridge.",
+      );
+    }
+  } else {
+    // Fallback if tokens.js doesn't exist yet
+    const output = `// --- BEGIN AUTO-GENERATED TOKENS ---\n${new_blocks}\n// --- END AUTO-GENERATED TOKENS ---\n`;
+    fs.writeFileSync(PATHS.jsBridge, output);
+  }
 }
 
 /**
@@ -146,9 +157,7 @@ export function syncToCss() {
 
 if (
   process.argv[1] &&
-  process.argv[1]
-    .replace(/\\/g, "/")
-    .endsWith(".agents/skills/local-dispatcher/scripts/design-sync.js")
+  process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/sync-css.js")
 ) {
   syncToCss();
 }

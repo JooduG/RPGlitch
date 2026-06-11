@@ -6,7 +6,7 @@
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { Button } from "@atoms";
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
 
   /** @typedef {import('@data/repository.js').Story} Story */
   /** @type {{
@@ -35,7 +35,7 @@
   }
 
   let signature_color = $derived(
-    themeStore.get_signature_color({ signature_color: story.signature_color }, "var(--gunmetal)"),
+    get_signature_color({ signature_color: story.signature_color }, "var(--gunmetal)"),
   );
 </script>
 

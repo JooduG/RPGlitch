@@ -239,7 +239,7 @@ describe("content-normaliser.js", () => {
 
   describe("get_random_signature_key()", () => {
     it("should return a valid key from the PALETTE", async () => {
-      const { PALETTE } = await import("@media/palette.svelte.js");
+      const { PALETTE } = await import("@media/tokens.js");
       const key = get_random_signature_key();
       expect(Object.keys(PALETTE)).toContain(key);
       expect(key).not.toBe("default");

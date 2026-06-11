@@ -28,7 +28,7 @@ The `release` skill is responsible for the final stage of the simulation cycle. 
 
 ### 1. The Quality Gate
 
-Execute the Warden and the test suite via `npm run verify`.
+Execute the Warden and the test suite via `npm run deploy:prepare`.
 
 - **Fail Fast**: Catch lint and type errors locally before they hit CI.
 
@@ -44,18 +44,16 @@ Merge these findings into a single Go/No-Go decision. This is distinct from the 
 
 ### 3. The Perchance Bridge
 
-Execute the `deploy-perchance.js` script to automate the production update.
+Execute the `npm run deploy:auto` script to automate the production update via Playwright.
 
 - **Rollback**: Maintain a path for instant recovery via previous Commit-SHAs.
 
-## Usage
-
 ```bash
-# Verify the build locally
-npm run verify
+# Verify the build locally (Quality Gate)
+npm run deploy:prepare
 
-# CROSS THE BRIDGE (release to production)
-node .agents/skills/release/scripts/deploy-perchance.js
+# CROSS THE BRIDGE (deploy to production)
+npm run deploy:auto
 ```
 
 ## Verification Checklist

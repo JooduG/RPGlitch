@@ -89,7 +89,7 @@ RPGlitch is a **Local-First Reactive Monolith** (PWA).
 
 - **Core Engine**: Logic & Round Orchestration. **Pure IO**. No DOM manipulation.
 - **UI & Structure**: HTML/Layouts via **Svelte 5** (`src/ui/`).
-- **Sensory**: Visuals, Audio, Theme via Native CSS (`src/media/`).
+- **Sensory**: Visuals, Audio, Theme via **Tailwind CSS v4** (`src/media/`).
 - **Data**: Persistence & History via **Dexie.js** (IndexedDB).
 - **Security**: Validation & Physics via **DOMPurify** sanitization boundaries.
 
@@ -192,6 +192,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Skills** directory (`.agents/skills/`) for infrastructural expertise:
   - [Skill Router](./.agents/skills/local-dispatcher/SKILL.md): Local Skill Routing & Domain Orchestration.
   - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
+  - [Design](./.agents/skills/design/SKILL.md): The Chalk Regime, UI, Motion, and Tailwind Aesthetics.
   - [Security](./.agents/skills/security/SKILL.md): Adversarial Audit & Security.
 
 ---

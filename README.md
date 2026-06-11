@@ -29,7 +29,7 @@ Here is the anatomy of a single Round:
 
 ### Visualizing the Lifecycle
 
-````mermaid
+```mermaid
 flowchart LR
  Start((Message Sent)) --> Sys[SYSTEM_TURN<br>UI Locked<br>Engine Calculates]
 
@@ -47,7 +47,8 @@ flowchart LR
  style AI fill:#264653,stroke:#fff,stroke-width:2px,color:#fff
  style User fill:#264653,stroke:#fff,stroke-width:2px,color:#fff
  style Next fill:#2a9d8f,stroke:#fff,stroke-width:2px,color:#fff
-```text
+```
+
 ## 🏗️ Architecture & Technology Stack
 
 The system architecture prioritizes offline-first resilience and agentic automation, utilizing a Zero-Trust Security model to sanitize the runtime environment.
@@ -65,7 +66,7 @@ The system architecture prioritizes offline-first resilience and agentic automat
 ### Tech Stack
 
 - **State Management:** IndexedDB via Dexie.js (Single source of truth)
-- **UI Framework:** Svelte 5 (Runes) + Native SCSS
+- **UI Framework:** Svelte 5 (Runes) + Tailwind CSS v4
 - **Bundler:** Vite 6
 - **Security:** DOMPurify (XSS prevention)
 
@@ -90,47 +91,15 @@ RPGlitch operates a dual-layer memory system to ensure the simulation is both te
 
 ---
 
-## 🚀 Performance & Best Practices (Supabase/Postgres)
+## 🛸 Sovereign Swarm Operations (Globalized via MCP)
 
-The project includes a specialized skill for **Postgres performance optimization** located in `.agents/skills/supabase-postgres-best-practices/`.
+RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in parallel. Swarm operations have been globalized and are now handled via MCP tools (`mcp_swarm_swarm_plan`, `mcp_swarm_swarm_dispatch`, `mcp_swarm_swarm_merge`).
 
-- **Objective**: Ensure the data layer is optimized for high-fidelity simulation and agentic retrieval.
-- **Key Areas**: Query performance, Connection management, Security/RLS, and Schema design.
-- **Agent Mandate**: Agents should refer to the compiled `AGENTS.md` in the skill directory for concrete transformation patterns (e.g., "Change X to Y" for 10x faster queries).
-
----
-
-## 🛸 Sovereign Swarm Operations (v3.2.0)
-
-RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in parallel. For human operators, the lifecycle is broken down into four distinct phases.
-
-### 🏁 Swarm Lifecycle
-
-1. **Analysis (`npm run swarm:analyze`)**
-   Triage open GitHub issues. The engine identifies if a task is a "Parallel Win" (>20m effort or modular boundaries) and generates a root cause analysis.
-2. **Planning (`npm run swarm:plan`)**
-   Generates a `issue_tasks.json` blueprint. This defines the specialized agent slots (Svelte, logic, CSS) and their restricted file-ownership ranges.
-3. **Dispatch (`npm run swarm:dispatch`)**
-   Launches the parallel fleet. Each sub-agent is spun up in a dedicated, isolated Jules Cloud session to execute its specific task.
-4. **Merge (`npm run swarm:merge`)**
-   The final synthesis. Consolidates the code, executes the **80% Confidence Gate** (internal AI audit), and prepares the final PR.
-
-### 🛠️ Command Reference
-
-| Command                  | Purpose                                                |
-| ------------------------ | ------------------------------------------------------ |
-| `npm run swarm:analyze`  | Triage issues and identify parallel opportunities.     |
-| `npm run swarm:plan`     | Create the execution blueprint and assign agent roles. |
-| `npm run swarm:dispatch` | Spin up the parallel agent fleet.                      |
-| `npm run swarm:merge`    | Consolidate output and perform the 80% Gate audit.     |
-
-> [!TIP]
-> For a detailed walkthrough of manual swarm coordination, see the **[/swarm](.agents/workflows/swarm.md)** workflow.
+If you are a human operator triggering a swarm sequence, consult the `/swarm` global workflow.
 
 ---
 
 ## 🗺️ Documentation & Rules
 
 - [Sovereign Rules & Foundations](GEMINI.md)
-- [Automated Workflows](.agents/workflows)
-````
+- [Design System & The Chalk Regime](DESIGN.md)

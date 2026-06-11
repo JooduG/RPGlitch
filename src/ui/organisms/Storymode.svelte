@@ -7,7 +7,7 @@
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
   import { ProfilePicture, Skeleton, tooltip } from "@atoms";
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
   import { UnifiedConsole } from "@molecules";
   import { Layout, StorymodeFeed } from "@organisms";
   import { app, runtime } from "@state";
@@ -27,7 +27,7 @@
     {:else}
       {@const entity = app.selected_ai}
       {@const name = entity?.name || "Unknown"}
-      {@const signature_color = themeStore.get_signature_color(entity, "var(--gunmetal)")}
+      {@const signature_color = get_signature_color(entity, "var(--gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
       <article
         class="
@@ -119,7 +119,7 @@
     {:else}
       {@const entity = app.selected_user}
       {@const name = entity?.name || "Unknown"}
-      {@const signature_color = themeStore.get_signature_color(entity, "var(--gunmetal)")}
+      {@const signature_color = get_signature_color(entity, "var(--gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
       <article
         class="

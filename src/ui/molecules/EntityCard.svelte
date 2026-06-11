@@ -8,7 +8,7 @@
 
   import { Button, ProfilePicture, tooltip } from "@atoms";
   import { guardedTransition } from "@engine";
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
   import { motion } from "@motion";
   import { app } from "@state";
   import { tick } from "svelte";
@@ -74,7 +74,7 @@
   // --- DERIVATIONS & COMPATIBILITY ---
   let is_empty = $derived(!entity);
   let signature_color = $derived(
-    themeStore.get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)"),
+    get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)"),
   );
   let name = $derived(entity?.name || "Untitled");
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);

@@ -6,7 +6,7 @@
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
-  import { Audio, themeStore } from "@media";
+  import { Audio, get_signature_color } from "@media";
   import { motion, typewriter } from "@motion";
   import { app, runtime } from "@state";
 
@@ -81,7 +81,7 @@
   );
 
   let signature_color = $derived(
-    themeStore.get_signature_color(
+    get_signature_color(
       entity,
       sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)",
     ),

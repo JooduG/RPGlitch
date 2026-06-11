@@ -32,6 +32,19 @@ const themeRules = [
     regex: /border-radius:\s*[0-9]+px/,
     message: "❌ Hardcoded border-radius. Use Tokens: var(--border-radius-m), etc.",
   },
+  {
+    id: "PIXEL_BORDER",
+    severity: "ADVICE",
+    regex: /border:\s*[1-9]px/,
+    message: "❌ Pixel border detected. Use depth markers like shadows.",
+  },
+  {
+    id: "LEGACY_SPACING_SYNTAX",
+    severity: "HERESY",
+    regex:
+      /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
+    message: "Legacy hardcoded spacing scale used inside structural descriptors. Update rules.",
+  },
 ];
 
 let scanned = 0;

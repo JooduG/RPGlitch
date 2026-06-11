@@ -28,10 +28,7 @@ skills:
 
   design_and_sensory:
     design: .agents/skills/design/SKILL.md
-    css: .agents/skills/css/SKILL.md
-    motion: .agents/skills/motion/SKILL.md
     audio: .agents/skills/audio/SKILL.md
-    ui: .agents/skills/ui/SKILL.md
     image-generation: C:/Users/johng/.gemini/config/skills/image/SKILL.md
     ai-text-generation: C:/Users/johng/.gemini/config/skills/text/SKILL.md
 

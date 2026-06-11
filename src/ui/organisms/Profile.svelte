@@ -7,7 +7,7 @@
   import { click_outside } from "@actions";
   import { Button, Modal, ProfilePicture, ScrollArea, TextField, tooltip } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileArray, ProfileHeader } from "@organisms";
   import { app } from "@state";
@@ -22,9 +22,7 @@
   let footer_el = $state();
 
   // --- DERIVED ---
-  const signature_color = $derived(
-    themeStore.get_signature_color(profileState.char, "var(--gunmetal)"),
-  );
+  const signature_color = $derived(get_signature_color(profileState.char, "var(--gunmetal)"));
   const has_wings = $derived(profileState.is_editing || app.settings.dev_mode);
   const active_sections = $derived(
     PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character,

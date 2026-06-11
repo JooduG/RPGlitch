@@ -1,11 +1,17 @@
 /**
- * Unit tests for ThemeStore and Color Generation logic
+ * Unit tests for Tokens and Color Generation logic
  * Ported from legacy entities.test.js
  */
-import { themeStore } from "@media";
+import {
+  get_signature_color,
+  get_signature_label,
+  get_contrast_color,
+  get_color_name,
+  get_deterministic_color,
+} from "@media";
 import { describe, expect, test } from "vitest";
-describe("ThemeStore Color Generation", () => {
-  const get_signature = (/** @type {any} */ e) => themeStore.get_signature_color(e);
+describe("Tokens Color Generation", () => {
+  const get_signature = (/** @type {any} */ e) => get_signature_color(e);
   describe("Modern entities with signature_color", () => {
     test("returns hex value for entity with signature_color", () => {
       const entity = { signature_color: "Electric Cyan" };
@@ -66,7 +72,7 @@ describe("ThemeStore Color Generation", () => {
     test("never returns non-vibrant or background colors for signatures", () => {
       const problematic_seeds = ["test9", "test20", "admin", "system"];
       for (const seed of problematic_seeds) {
-        const color = themeStore.get_deterministic_color(seed);
+        const color = get_deterministic_color(seed);
         expect(color).not.toBe("var(--pure-white)");
         expect(color).not.toBe("var(--void-black)");
         expect(color).not.toBe("var(--chalk)");
@@ -89,33 +95,33 @@ describe("ThemeStore Color Generation", () => {
       expect(result).toMatch(/^var\(--[a-z0-9-]+\)$/);
     });
     test("get_signature_label returns safe default for null entity", () => {
-      expect(themeStore.get_signature_label(null)).toBe("Frozen");
+      expect(get_signature_label(null)).toBe("Frozen");
     });
   });
 });
 
-describe("ThemeStore Contrast Utilities", () => {
+describe("Tokens Contrast Utilities", () => {
   describe("get_contrast_color()", () => {
     test("returns black for light colors", () => {
-      expect(themeStore.get_contrast_color("#fff")).toBe("var(--void-black)");
-      expect(themeStore.get_contrast_color("#fde047")).toBe("var(--void-black)"); // Lemon Yellow
+      expect(get_contrast_color("#fff")).toBe("var(--void-black)");
+      expect(get_contrast_color("#fde047")).toBe("var(--void-black)"); // Lemon Yellow
     });
 
     test("returns white for dark colors", () => {
-      expect(themeStore.get_contrast_color("#000")).toBe("var(--pure-white)");
-      expect(themeStore.get_contrast_color("#15803d")).toBe("var(--pure-white)"); // Forest Green
-      expect(themeStore.get_contrast_color("#ef4444")).toBe("var(--pure-white)"); // Crimson Red
+      expect(get_contrast_color("#000")).toBe("var(--pure-white)");
+      expect(get_contrast_color("#15803d")).toBe("var(--pure-white)"); // Forest Green
+      expect(get_contrast_color("#ef4444")).toBe("var(--pure-white)"); // Crimson Red
     });
 
     test("handles shorthand hex codes", () => {
-      expect(themeStore.get_contrast_color("#fff")).toBe("var(--void-black)");
-      expect(themeStore.get_contrast_color("#000")).toBe("var(--pure-white)");
+      expect(get_contrast_color("#fff")).toBe("var(--void-black)");
+      expect(get_contrast_color("#000")).toBe("var(--pure-white)");
     });
 
     test("handles invalid inputs gracefully", () => {
-      expect(themeStore.get_contrast_color(null)).toBe("var(--pure-white)");
-      expect(themeStore.get_contrast_color("invalid")).toBe("var(--pure-white)");
-      expect(themeStore.get_contrast_color("hsl(0, 0%, 100%)")).toBe("var(--pure-white)");
+      expect(get_contrast_color(null)).toBe("var(--pure-white)");
+      expect(get_contrast_color("invalid")).toBe("var(--pure-white)");
+      expect(get_contrast_color("hsl(0, 0%, 100%)")).toBe("var(--pure-white)");
     });
   });
 });

@@ -1,21 +1,26 @@
-# 🚀 Future (The Roadmap)
+# 🔮 TRACK: Flatten Palette & Optimize Tokens
 
-> **Role**: Mission Board & Tracks Registry
-> **Last Synchronized**: 2026-06-03
+## Goal
 
-This document tracks all major tracks for the project. Each track has its own detailed plan in its respective single-file artifact.
+Flatten the `ThemeStore` pseudo-class from `palette.svelte.js` into pure JavaScript functions, and merge them with `tokens.js`. Update `sync-css.js` to inject auto-generated design data securely inside designated comment boundaries in `tokens.js`, eliminating `palette.svelte.js`.
 
-## 🚀 Active Mission
+## Research
 
-- **Track**: None
-- **Objective**: Ready for June assignments.
+- `src/media/palette.svelte.js` contains the `ThemeStore` class which uses no Svelte runes.
+- `src/media/tokens.js` contains auto-generated JSON tokens.
+- `sync-css.js` currently overwrites `tokens.js` entirely.
+- UI components import `themeStore` and call methods on the class instance.
 
-## 🗺️ Roadmap (Tracks)
+## Audit & Verification
 
-| Track ID | Name | Priority | Status | Objective |
-| -------- | ---- | -------- | ------ | --------- |
-|          |      |          |        |           |
+- Unit tests (`optics.test.js`, `normalizer.test.js`, `palette.test.js`) must be updated.
+- `npm run sync:css` must successfully inject JSON between `// --- BEGIN AUTO-GENERATED TOKENS ---` boundaries without deleting logic.
+- UI must remain stable and linted.
 
----
+## Steps
 
-> 🎨 Tactics | `planning` | /01-plan
+- [ ] Initialize `tokens.js` with pure math logic and the boundary block.
+- [ ] Update `sync-css.js` to inject within the boundaries of `tokens.js`.
+- [ ] Delete `palette.svelte.js`.
+- [ ] Update `index.js` and all UI consumers.
+- [ ] Run test and lint checks.

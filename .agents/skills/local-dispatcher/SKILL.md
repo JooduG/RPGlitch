@@ -35,9 +35,7 @@ When processing a systemic design modification, map changes across the entire ar
 Delegate technical composition details strictly to your dedicated local specialists:
 
 - **Sensory & Aesthetics**:
-  - **The Stylist** (`css`): Core layout alignment, structural grid parameters, and static T1-T3 styling.
-  - **The Kineticist** (`motion`): Centralized engine runes, spring constants, View Transitions API routing, and non-blocking streaming text mechanics.
-  - **The Structuralist** (`ui`): Headless component composition (`bits-ui`), viewport tracking, and layout stability parameters.
+  - **The Designer** (`design`): Master of the Chalk Regime. Handles Tailwind CSS styling (T1-T3), layout alignment, interaction states, structural robustness (`bits-ui`), and kinetic motion (View Transitions, spring physics).
   - **The Synthesizer** (`audio`): Text-to-speech alignment, spatial notification design, and sonic parameters.
   - **The Visionary** (`image`): Optic generation and enhancement pipelines.
 - **Engine & Logic**:
@@ -61,14 +59,11 @@ Delegate technical composition details strictly to your dedicated local speciali
 ## Usage
 
 ```bash
-# Run the warden audit for skills and templates
-npm run audit:agent
+# Verify full project health (lints, audits, and tests)
+npm run deploy:prepare
 
-# Verify full project health
-npm run verify
-
-# Synchronize design tokens
-npm run sync:design
+# Synchronize design tokens from DESIGN.md
+npm run tool:sync-css
 ```
 
 ## ✅ Definition of Done

@@ -10,7 +10,7 @@
    */
   import { tooltip } from "@atoms";
   import { pickRandom } from "@engine";
-  import { themeStore } from "@media";
+  import { get_signature_color } from "@media";
   import { app } from "@state";
 
   // ============================================
@@ -39,7 +39,7 @@
   // DERIVED DATA
   // ============================================
   /** @param {any} entity */
-  const get_color = (entity) => themeStore.get_signature_color(entity);
+  const get_color = (entity) => get_signature_color(entity);
 
   /**
    * Generates structured title parts with entity colors
