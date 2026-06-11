@@ -24,9 +24,6 @@
 
     ...rest
   } = $props();
-
-  // Sync transition with standard fast duration asset (150ms) to sever design.css dependencies
-  let duration = $state(150);
 </script>
 
 <div
@@ -63,7 +60,7 @@
     : ''}
     {className}"
   style:z-index={z_index}
-  transition:fade={{ duration }}
+  transition:fade={{ duration: 150 }}
   use:use_actions={actions}
 >
   {@render children?.()}

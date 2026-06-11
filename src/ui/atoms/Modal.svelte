@@ -8,7 +8,7 @@
   import { Backdrop } from "@atoms";
   import { simulationState } from "@state";
   import { use_actions } from "@actions";
-  import { guardedTransition } from "@engine";
+
   import { Dialog } from "bits-ui";
 
   let {
@@ -38,16 +38,8 @@
   // Bind dialog open state
   let open = $state(true);
 
-  // Synchronize open and activeOpen state using document.startViewTransition
-  let activeOpen = $state(false);
-
-  $effect(() => {
-    if (open !== activeOpen) {
-      guardedTransition(() => {
-        activeOpen = open;
-      });
-    }
-  });
+  // Track active state for mount/unmount gating
+  let activeOpen = $derived(open);
 
   // Trigger on_close only when open changes from true to false
   $effect(() => {
@@ -106,7 +98,7 @@
                       p-4
                       transition-[filter]
                       duration-300
-                      [view-transition-name:modal-container]
+
 
                       {variant}
                       {variant !== 'profile'
