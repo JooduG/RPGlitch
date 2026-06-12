@@ -15,7 +15,7 @@ export const premade = {
       signature_color: "Hot Pink",
       profile_picture: "",
       voice: { uri: "Google US English Male", rate: 1.08, pitch: 0.95 },
-      dynamics: { chaos: 48, openness: 78, intensity: 82, affinity: 88 },
+      dynamics: { chaos: 57, openness: 60, intensity: 56, affinity: 58 },
       eternal: {
         physical:
           "195cm herculean bodybuilder with extreme muscle definition, vieny arms, massive pecs, basketball shoulders and tree-trunk thighs. Pink fade haircut, neat well-groomed moustache, strong chiselled jawline and detailes pink irises. His skin is covered in intricate glowing pink arcane runes.",
@@ -57,7 +57,7 @@ export const premade = {
       signature_color: "Electric Cyan",
       profile_picture: "",
       voice: { uri: "Google UK English Male", rate: 1.22, pitch: 1.1 },
-      dynamics: { chaos: 72, openness: 38, intensity: 68, affinity: 42 },
+      dynamics: { chaos: 52, openness: 48, intensity: 44, affinity: 56 },
       eternal: {
         physical:
           "175cm athletic gay male twunk with sharp angular features, styled short cyan hair, defined pecs, visible abs, and a well-defined bubble butt.",
@@ -100,7 +100,7 @@ export const premade = {
       signature_color: "Crimson Red",
       profile_picture: "",
       voice: { uri: "Zira", rate: 0.84, pitch: 0.8 },
-      dynamics: { chaos: 30, openness: 20, intensity: 90, affinity: 48 },
+      dynamics: { chaos: 46, openness: 42, intensity: 58, affinity: 54 },
       eternal: {
         physical:
           "Tall powerfully built aristocratic vampire, piercing crimson eyes, sharp fangs, silver streaks at the temples and a strong chiselled jawline.",
@@ -141,7 +141,7 @@ export const premade = {
       signature_color: "Twilight Violet",
       profile_picture: "",
       voice: { uri: "Google US English Male", rate: 0.94, pitch: 1.15 },
-      dynamics: { chaos: 35, openness: 82, intensity: 45, affinity: 78 },
+      dynamics: { chaos: 40, openness: 60, intensity: 40, affinity: 60 },
       eternal: {
         physical:
           "High-elf with blonde hair styled short and soft, luminous violet eyes, huge plump cock-sucker lips and porcelain skin. Perky round bubble butt. Fragile graceful male beauty.",
@@ -183,7 +183,7 @@ export const premade = {
       signature_color: "Sunset Orange",
       profile_picture: "",
       voice: { uri: "Google US English Male", rate: 0.82, pitch: 0.85 },
-      dynamics: { chaos: 65, openness: 45, intensity: 78, affinity: 52 },
+      dynamics: { chaos: 60, openness: 43, intensity: 60, affinity: 56 },
       eternal: {
         physical:
           "193cm thick muscle bodybuilder with barrel chest, heavy gut, massive arms, and powerful legs. Coarse dark hair, scars and a stubble.",
@@ -225,7 +225,7 @@ export const premade = {
       signature_color: "Lime Green",
       profile_picture: "",
       voice: { uri: "Google US English Male", rate: 0.7, pitch: 0.6 },
-      dynamics: { chaos: 78, openness: 28, intensity: 92, affinity: 40 },
+      dynamics: { chaos: 58, openness: 40, intensity: 60, affinity: 43 },
       eternal: {
         physical:
           "210cm towering mountain of genetically modified muscle volume with boulder shoulders, barrel chest, and tree-trunk thighs. Glowing lime-green bio-veins, heavy iron manacles, solid black irises, and brutal jaw.",
@@ -266,7 +266,7 @@ export const premade = {
       signature_color: "Neon Teal",
       profile_picture: "",
       voice: { uri: "Google US English Male", rate: 1.05, pitch: 1.02 },
-      dynamics: { chaos: 70, openness: 55, intensity: 82, affinity: 60 },
+      dynamics: { chaos: 57, openness: 54, intensity: 45, affinity: 60 },
       eternal: {
         physical:
           "Powerfully built muscular scientist with defined athletic muscle, messy dark hair with silver streaks, sharp features.",
@@ -306,7 +306,7 @@ export const premade = {
       description: "The official LGBT+ Safe Haven and glittering queer sanctuary metropolis.",
       type: "fractal",
       signature_color: "Royal Purple",
-      dynamics: { velocity: 75, entropy: 68 },
+      dynamics: { velocity: 56, entropy: 56 },
       eternal: {
         physical:
           "Vertical labyrinth of chrome skyscrapers, quantum glass towers and pulsing neon. Crowded streets filled with muscular men in revealing outfits. Pride vibe 24/7.",
@@ -346,7 +346,7 @@ export const premade = {
         "A sentient cursed gothic forest that feeds on secrets and forces intimate encounters.",
       type: "fractal",
       signature_color: "Forest Green",
-      dynamics: { velocity: 32, entropy: 78 },
+      dynamics: { velocity: 40, entropy: 60 },
       eternal: {
         physical:
           "Twisted blackened branches, thick ash ground and crumbling gothic cathedral ruins.",
@@ -384,7 +384,7 @@ export const premade = {
         "Deep-space research station where hot scientists conduct experimental treatments and bimbofication research.",
       type: "fractal",
       signature_color: "Ocean Blue",
-      dynamics: { velocity: 70, entropy: 75 },
+      dynamics: { velocity: 40, entropy: 60 },
       eternal: {
         physical:
           "Sterile white corridors with glowing blue alien tech, medical bays and sleek examination tables.",

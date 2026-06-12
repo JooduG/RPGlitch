@@ -209,6 +209,7 @@ export const context_broker = {
         past: raw.past,
         future: raw.future,
         dynamics: raw.dynamics, // Pass through for physics calculation
+        dynamics_baseline: raw.dynamics_baseline, // Gravitational center
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
       };
     });

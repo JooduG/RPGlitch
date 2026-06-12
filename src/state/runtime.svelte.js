@@ -336,20 +336,28 @@ function createRuntimeStore() {
         }
         if (ai_data) {
           active_ai_state = ai_data;
-          ai_physics = ai_data.dynamics; // Initialize with seed dynamics
+          ai_physics = story.ai_dynamics
+            ? { ...story.ai_dynamics }
+            : story.entity_snapshots?.ai?.dynamics
+              ? { ...story.entity_snapshots.ai.dynamics }
+              : { ...ai_data.dynamics };
         }
         if (fractal_data) {
           active_fractal_state = fractal_data;
-          fractal_physics = fractal_data.dynamics; // Initialize with seed dynamics
+          fractal_physics = story.fractal_dynamics
+            ? { ...story.fractal_dynamics }
+            : story.entity_snapshots?.fractal?.dynamics
+              ? { ...story.entity_snapshots.fractal.dynamics }
+              : { ...fractal_data.dynamics };
         }
         // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center
         // rather than the universal 50 fallback.
         if (story.entity_snapshots?.ai?.dynamics && active_ai_state) {
-          active_ai_state.dynamics_baseline = story.entity_snapshots.ai.dynamics;
+          active_ai_state.dynamics_baseline = { ...story.entity_snapshots.ai.dynamics };
         }
         if (story.entity_snapshots?.fractal?.dynamics && active_fractal_state) {
-          active_fractal_state.dynamics_baseline = story.entity_snapshots.fractal.dynamics;
+          active_fractal_state.dynamics_baseline = { ...story.entity_snapshots.fractal.dynamics };
         }
 
         // Synchronize app selections for UI consistency in storymode

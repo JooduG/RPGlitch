@@ -71,7 +71,7 @@ export const DYNAMICS = [
     id: "INTENSITY_AUTO_LOCK",
     trigger: "turn",
     filter: { above: { intensity: 90 } },
-    effect: { ai: { openness: -10 } },
+    effect: { openness: -10 },
   },
 
   // 🌪️ CHAOS METRIC (AI Somatics & Physics)
@@ -93,7 +93,7 @@ export const DYNAMICS = [
     id: "CHAOS_AUTO_HEAT",
     trigger: "turn",
     filter: { above: { chaos: 90 } },
-    effect: { ai: { intensity: 10 } },
+    effect: { intensity: 10 },
   },
 
   // 🔓 OPENNESS METRIC (AI Somatics & Physics)
@@ -115,7 +115,7 @@ export const DYNAMICS = [
     id: "OPENNESS_AUTO_GLITCH",
     trigger: "turn",
     filter: { above: { openness: 90 } },
-    effect: { ai: { chaos: 15 } },
+    effect: { chaos: 15 },
   },
 
   // 🤝 AFFINITY METRIC (AI Somatics & Physics)
@@ -137,7 +137,7 @@ export const DYNAMICS = [
     id: "AFFINITY_AUTO_OPEN",
     trigger: "turn",
     filter: { above: { affinity: 90 } },
-    effect: { ai: { openness: 5 } },
+    effect: { openness: 5 },
   },
 
   // 🚀 VELOCITY METRIC (World / Fractal Dynamics)
@@ -183,15 +183,21 @@ export const DYNAMICS = [
         pattern: /analy(ze|sis)|code|script|program|system|process/i,
       },
     ],
-    effect: { ai: { chaos: -10, openness: 5 }, fractal: { entropy: -5 } },
+    effect: { chaos: -10, openness: 5, entropy: -5 },
   },
   {
     id: "VULNERABILITY",
     trigger: [
-      { scan: "affection", pattern: /love|kiss|hug|hold|protect|care|soft/i },
-      { scan: "sadness", pattern: /cry|weep|mourn|loss|hurt|pain|lonely/i },
+      {
+        scan: "affection",
+        pattern: /love|kiss|hug|hold|protect|care|soft/i,
+      },
+      {
+        scan: "sadness",
+        pattern: /cry|weep|mourn|loss|hurt|pain|lonely/i,
+      },
     ],
-    effect: { ai: { openness: 15, affinity: 10 } },
+    effect: { openness: 15, affinity: 10 },
   },
   {
     id: "SYSTEM_COLLAPSE",
@@ -201,7 +207,7 @@ export const DYNAMICS = [
         pattern: /glitch|error|crash|fail|null|void|missing|broken/i,
       },
     ],
-    effect: { ai: { chaos: 20 }, fractal: { entropy: 25 } },
+    effect: { chaos: 20, entropy: 25 },
   },
   {
     id: "ANCHOR",
@@ -211,7 +217,7 @@ export const DYNAMICS = [
         pattern: /stone|iron|ground|heavy|floor|wall|weight/i,
       },
     ],
-    effect: { fractal: { velocity: -15, entropy: -10 } },
+    effect: { velocity: -15, entropy: -10 },
   },
   {
     id: "VIOLENCE",
@@ -221,9 +227,12 @@ export const DYNAMICS = [
         pattern:
           /hit|kick|punch|shoot|strike|kill|attack|stab|slash|blood|gore|wound|fight|fought/i,
       },
-      { scan: "aggression", pattern: /threat|angry|rage|furious|hate/i },
+      {
+        scan: "aggression",
+        pattern: /threat|angry|rage|furious|hate/i,
+      },
     ],
-    effect: { ai: { intensity: 15, openness: -10 }, fractal: { entropy: 15 } },
+    effect: { intensity: 15, openness: -10, entropy: 15 },
   },
   {
     id: "KINETICS",
@@ -237,15 +246,21 @@ export const DYNAMICS = [
         pattern: /fast|speed|run|ran|sprint|dash|leap|jump/i,
       },
     ],
-    effect: { ai: { intensity: 10 }, fractal: { velocity: 10 } },
+    effect: { intensity: 10, velocity: 10 },
   },
   {
     id: "STASIS",
     trigger: [
-      { scan: "pause", pattern: /wait|pause|stop|still/i },
-      { scan: "calm", pattern: /silence|quiet|calm|rest|sleep|slow/i },
+      {
+        scan: "pause",
+        pattern: /wait|pause|stop|still/i,
+      },
+      {
+        scan: "calm",
+        pattern: /silence|quiet|calm|rest|sleep|slow/i,
+      },
     ],
-    effect: { ai: { intensity: -10 }, fractal: { velocity: -10 } },
+    effect: { intensity: -10, velocity: -10 },
   },
   {
     id: "ANOMALY",
@@ -254,20 +269,26 @@ export const DYNAMICS = [
         scan: "horror",
         pattern: /scream|panic|horror|dread|fear|spooky|creepy/i,
       },
-      { scan: "hide", pattern: /hide|hidden|secret|conceal|shadow/i },
+      {
+        scan: "hide",
+        pattern: /hide|hidden|secret|conceal|shadow/i,
+      },
     ],
-    effect: { ai: { chaos: 15, openness: 10 }, fractal: { entropy: 15 } },
+    effect: { chaos: 15, openness: 10, entropy: 15 },
   },
   {
     id: "FORTIFICATION",
     trigger: [
-      { scan: "armor", pattern: /armor|shield|barrier|wall|protect|defend/i },
-      { scan: "hide", pattern: /hide|hidden|secret|conceal|shadow/i },
+      {
+        scan: "armor",
+        pattern: /armor|shield|barrier|wall|protect|defend/i,
+      },
+      {
+        scan: "hide",
+        pattern: /hide|hidden|secret|conceal|shadow/i,
+      },
     ],
-    effect: {
-      ai: { openness: -10, affinity: 5 },
-      fractal: { entropy: -5, velocity: -10 },
-    },
+    effect: { openness: -10, affinity: 5, entropy: -5, velocity: -10 },
   },
   // ⚖️ REACTIONS (Conditional Active Triggers)
   {
@@ -277,13 +298,13 @@ export const DYNAMICS = [
         scan: "deception",
         pattern: /lie|lying|liar|fake|deceive|deception|trick|mask|disguise/i,
       },
-      { scan: "trust", pattern: /trust|believe|honest|truth|promise/i },
+      {
+        scan: "trust",
+        pattern: /trust|believe|honest|truth|promise/i,
+      },
     ],
     filter: { below: { openness: 30 } },
-    effect: {
-      ai: { affinity: -10, intensity: 10 },
-      text: "You don't believe them.",
-    },
+    effect: { affinity: -10, intensity: 10, text: "You don't believe them." },
   },
 ];
 export const dynamics_engine = {
@@ -374,22 +395,24 @@ export const dynamics_engine = {
         const config = match?.config || data;
         const eff = config.effect;
         if (eff) {
-          Object.keys(eff).forEach((ent_key) => {
-            const ent_state = state[ent_key];
-            if (ent_state?.dynamics) {
-              Object.keys(eff[ent_key]).forEach((axis) => {
-                if (ent_state.dynamics[axis] !== undefined) {
-                  ent_state.dynamics[axis] = Math.min(
-                    100,
-                    Math.max(0, ent_state.dynamics[axis] + eff[ent_key][axis]),
-                  );
-
-                  // Track contributor
-                  const track_key = `${ent_key.toUpperCase()}.${axis}`;
-                  if (!state.contributors[track_key]) state.contributors[track_key] = [];
-                  state.contributors[track_key].push(data.id);
-                }
-              });
+          Object.keys(eff).forEach((axis) => {
+            if (axis === "text") return; // Narrative text handled elsewhere
+            if (state.ai?.dynamics && state.ai.dynamics[axis] !== undefined) {
+              state.ai.dynamics[axis] = Math.min(
+                100,
+                Math.max(0, state.ai.dynamics[axis] + eff[axis]),
+              );
+              const track_key = `AI.${axis}`;
+              if (!state.contributors[track_key]) state.contributors[track_key] = [];
+              state.contributors[track_key].push(data.id);
+            } else if (state.fractal?.dynamics && state.fractal.dynamics[axis] !== undefined) {
+              state.fractal.dynamics[axis] = Math.min(
+                100,
+                Math.max(0, state.fractal.dynamics[axis] + eff[axis]),
+              );
+              const track_key = `FRACTAL.${axis}`;
+              if (!state.contributors[track_key]) state.contributors[track_key] = [];
+              state.contributors[track_key].push(data.id);
             }
           });
         }

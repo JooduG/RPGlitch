@@ -62,6 +62,13 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       // Openness: 50 - 10 = 40. Gravity: 40 + (50-40)*.25 = 42.5 -> 43
       expect(state.ai.dynamics.openness).toBe(43);
     });
+    it("should pull toward entity custom dynamics_baseline if present", () => {
+      const state = createBaseState();
+      state.ai.dynamics_baseline = { intensity: 70, chaos: 30, openness: 28, affinity: 40 };
+      dynamics_engine.simulation_dynamics(state, null, []);
+      // Openness: 50. Baseline: 28. Gravity: 50 + (28 - 50) * 0.25 = 50 - 5.5 = 44.5 -> 45
+      expect(state.ai.dynamics.openness).toBe(45);
+    });
   });
   describe("Simulation Orchestration", () => {
     it("should simulate a full payload", () => {
@@ -112,7 +119,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
           scan: "",
           config: {
             filter: { below: { openness: 30 } },
-            effect: { ai: { affinity: -10, intensity: 10 } },
+            effect: { affinity: -10, intensity: 10 },
           },
         },
       ]);
@@ -130,7 +137,8 @@ describe("Dynamics Engine v2 (Refactored)", () => {
           config: {
             filter: { below: { openness: 30 } },
             effect: {
-              ai: { affinity: -10, intensity: 10 },
+              affinity: -10,
+              intensity: 10,
               text: "You don't believe them.",
             },
           },

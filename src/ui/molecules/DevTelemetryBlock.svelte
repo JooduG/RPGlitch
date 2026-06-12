@@ -80,7 +80,7 @@
         cause = "Passive Law";
       }
     } else if (Array.isArray(rule.trigger)) {
-      const scans = rule.trigger.map((t) => t.scan).join(" / ");
+      const scans = rule.trigger.map((t) => `${t.scan} ${t.pattern}`).join(" / ");
       cause = `Triggered by: ${scans}`;
       if (rule.filter?.below) {
         const [k, v] = Object.entries(rule.filter.below)[0];
@@ -135,12 +135,12 @@
   {:else}
     <DataBox
       label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
-        ? "[#] MEMORY_WEAVE"
+        ? "Memory Weave"
         : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
-          ? "[A] VECTOR_ANCHOR"
+          ? "Vector Anchor"
           : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
-            ? "[D] DYNAMICS_DELTAS"
-            : "[D] Simulation Telemetry"}
+            ? "System Update"
+            : "Simulation Telemetry"}
       height="auto"
       isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
         meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
@@ -491,11 +491,6 @@
                 </header>
                 {#each Object.entries(ai) as [axis, val] (axis)}
                   {@const delta = get_delta("ai", axis)}
-                  {@const closer_pct = delta
-                    ? Math.abs(get_pct(delta.new_val) - 50) < Math.abs(get_pct(delta.old_val) - 50)
-                      ? get_pct(delta.new_val)
-                      : get_pct(delta.old_val)
-                    : get_pct(val)}
                   <div class="relative flex flex-col gap-1">
                     <div
                       class="
@@ -529,15 +524,6 @@
                         overflow-hidden
                         rounded-full
                         bg-white/5
-
-                        after:absolute
-                        after:top-0
-                        after:bottom-0
-                        after:left-1/2
-                        after:z-10
-                        after:w-px
-                        after:bg-white/15
-                        after:content-['']
                       "
                         >
                           <div
@@ -546,17 +532,12 @@
                           h-full
                           transition-all
                           duration-300
-                          {!delta
-                              ? 'rounded-full'
-                              : get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
-                                ? 'rounded-l-full'
-                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
-                                  ? 'rounded-r-full'
-                                  : 'rounded-full'}
                         "
                             style="
-                          left: {Math.min(50, closer_pct)}%;
-                          width: {Math.abs(closer_pct - 50)}%;
+                          left: 0%;
+                          width: {delta
+                              ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val))
+                              : get_pct(val)}%;
                           background: var(--state-dev-accent);
                         "
                           ></div>
@@ -569,11 +550,6 @@
                             opacity-40
                             transition-all
                             duration-300
-                            {get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
-                                ? 'rounded-r-full'
-                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
-                                  ? 'rounded-l-full'
-                                  : 'rounded-full'}
                           "
                               style="
                             left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
@@ -632,11 +608,6 @@
                 </header>
                 {#each Object.entries(fractal) as [axis, val] (axis)}
                   {@const delta = get_delta("fractal", axis)}
-                  {@const closer_pct = delta
-                    ? Math.abs(get_pct(delta.new_val) - 50) < Math.abs(get_pct(delta.old_val) - 50)
-                      ? get_pct(delta.new_val)
-                      : get_pct(delta.old_val)
-                    : get_pct(val)}
                   <div class="relative flex flex-col gap-1">
                     <div
                       class="
@@ -670,15 +641,6 @@
                         overflow-hidden
                         rounded-full
                         bg-white/5
-
-                        after:absolute
-                        after:top-0
-                        after:bottom-0
-                        after:left-1/2
-                        after:z-10
-                        after:w-px
-                        after:bg-white/15
-                        after:content-['']
                       "
                         >
                           <div
@@ -687,17 +649,12 @@
                           h-full
                           transition-all
                           duration-300
-                          {!delta
-                              ? 'rounded-full'
-                              : get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
-                                ? 'rounded-l-full'
-                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
-                                  ? 'rounded-r-full'
-                                  : 'rounded-full'}
                         "
                             style="
-                          left: {Math.min(50, closer_pct)}%;
-                          width: {Math.abs(closer_pct - 50)}%;
+                          left: 0%;
+                          width: {delta
+                              ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val))
+                              : get_pct(val)}%;
                           background: var(--state-dev-accent);
                         "
                           ></div>
@@ -710,11 +667,6 @@
                             opacity-40
                             transition-all
                             duration-300
-                            {get_pct(delta.old_val) > 50 && get_pct(delta.new_val) > 50
-                                ? 'rounded-r-full'
-                                : get_pct(delta.old_val) < 50 && get_pct(delta.new_val) < 50
-                                  ? 'rounded-l-full'
-                                  : 'rounded-full'}
                           "
                               style="
                             left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
@@ -915,19 +867,6 @@
           <!-- [!] ACTIVE DYNAMICS -->
           {#if active_dynamics.length > 0}
             <div class="pt-4">
-              <header
-                class="
-                mb-2
-                text-xs
-                font-bold
-                tracking-widest
-                text-(--state-dev-accent)
-                uppercase
-                
-              "
-              >
-                ACTIVE DYNAMICS
-              </header>
               <div
                 class="
                 flex

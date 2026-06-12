@@ -110,7 +110,6 @@
     const text = value.trim();
     if (!text || is_locked) return;
 
-    simulationState.set_intent_active(true);
     value = "";
     adjust_height();
 
@@ -118,7 +117,6 @@
       await session.send(text);
     } catch (e) {
       console.error("Failed to send message:", e);
-      simulationState.set_intent_active(false);
     }
   }
 
