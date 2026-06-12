@@ -47,7 +47,7 @@
   // svelte-ignore state_referenced_locally
   let deltas = meta.deltas || [];
   let active_dynamics = Array.from(
-    new Set([...signals, ...deltas.map((d) => d?.cause).filter(Boolean)]),
+    new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))]),
   );
 
   /** @param {number} val */
@@ -92,15 +92,12 @@
     }
 
     const effects = [];
-    if (rule.effect?.ai) {
-      Object.entries(rule.effect.ai).forEach(([k, v]) =>
-        effects.push(`AI ${k} ${v > 0 ? "+" + v : v}`),
-      );
-    }
-    if (rule.effect?.fractal) {
-      Object.entries(rule.effect.fractal).forEach(([k, v]) =>
-        effects.push(`World ${k} ${v > 0 ? "+" + v : v}`),
-      );
+    if (rule.effect) {
+      Object.entries(rule.effect).forEach(([k, v]) => {
+        if (k !== "text") {
+          effects.push(`${k.toUpperCase()} ${v > 0 ? "+" + v : v}`);
+        }
+      });
     }
     if (rule.effect?.text) {
       effects.push(`Prompt: "${rule.effect.text}"`);
