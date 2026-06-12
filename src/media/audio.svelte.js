@@ -33,12 +33,7 @@ if (typeof window !== "undefined") {
     (e) => {
       try {
         const reason = e.reason;
-        const msg =
-          reason && typeof reason === "object" && reason.message
-            ? String(reason.message)
-            : reason
-              ? String(reason)
-              : "";
+        const msg = reason && typeof reason === "object" && reason.message ? String(reason.message) : reason ? String(reason) : "";
         if (msg.includes("Symbol") || msg.includes("numActualScriptLines")) {
           e.preventDefault();
           e.stopPropagation();
@@ -133,8 +128,7 @@ export class VoiceEngine {
       });
 
     if (!this.selectedVoice && this.voices.length > 0) {
-      const preferred =
-        this.voices.find((v) => v.name.includes("Google US English")) || this.voices[0];
+      const preferred = this.voices.find((v) => v.name.includes("Google US English")) || this.voices[0];
       this.selectedVoice = preferred.uri;
     }
   }
@@ -242,10 +236,7 @@ export class VoiceEngine {
     utterance.onerror = (/** @type {any} */ e) => {
       const isInterrupted = e && (e.error === "interrupted" || e.error === "canceled");
       if (isInterrupted) {
-        console.warn(
-          "[AudioEngine] System channel reset detected. Applying hardware backoff recovery delay.",
-          e,
-        );
+        console.warn("[AudioEngine] System channel reset detected. Applying hardware backoff recovery delay.", e);
       } else {
         console.warn("[AudioEngine] Managed synthesis track error:", e);
       }
@@ -374,10 +365,7 @@ class AudioEffectsEngine {
    */
   setVolume(volume) {
     if (this.#gainNode && this.#audioContext) {
-      /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(
-        volume,
-        /** @type {AudioContext} */ (this.#audioContext).currentTime,
-      );
+      /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(volume, /** @type {AudioContext} */ (this.#audioContext).currentTime);
     }
   }
 
@@ -389,13 +377,9 @@ class AudioEffectsEngine {
 
     const unlockHandler = () => {
       this.unlock();
-      ["click", "touchstart", "keydown"].forEach((ev) =>
-        document.body.removeEventListener(ev, unlockHandler),
-      );
+      ["click", "touchstart", "keydown"].forEach((ev) => document.body.removeEventListener(ev, unlockHandler));
     };
-    ["click", "touchstart", "keydown"].forEach((ev) =>
-      document.body.addEventListener(ev, unlockHandler),
-    );
+    ["click", "touchstart", "keydown"].forEach((ev) => document.body.addEventListener(ev, unlockHandler));
   }
 
   /**
@@ -405,9 +389,7 @@ class AudioEffectsEngine {
     if (this.#unlocked) return;
     try {
       if (!this.#audioContext) {
-        const AudioCtx =
-          /** @type {any} */ (window).AudioContext ||
-          /** @type {any} */ (window).webkitAudioContext;
+        const AudioCtx = /** @type {any} */ (window).AudioContext || /** @type {any} */ (window).webkitAudioContext;
         if (!AudioCtx) {
           console.warn("[AudioEngine] AudioContext not supported in this environment.");
           return;
@@ -415,18 +397,10 @@ class AudioEffectsEngine {
         this.#audioContext = new AudioCtx();
 
         this.#gainNode = /** @type {AudioContext} */ (this.#audioContext).createGain();
-        /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(
-          Audio.voice.volume,
-          /** @type {AudioContext} */ (this.#audioContext).currentTime,
-        );
-        /** @type {GainNode} */ (this.#gainNode).connect(
-          /** @type {AudioContext} */ (this.#audioContext).destination,
-        );
+        /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(Audio.voice.volume, /** @type {AudioContext} */ (this.#audioContext).currentTime);
+        /** @type {GainNode} */ (this.#gainNode).connect(/** @type {AudioContext} */ (this.#audioContext).destination);
       }
-      if (
-        this.#audioContext &&
-        /** @type {AudioContext} */ (this.#audioContext).state === "suspended"
-      ) {
+      if (this.#audioContext && /** @type {AudioContext} */ (this.#audioContext).state === "suspended") {
         await /** @type {AudioContext} */ (this.#audioContext).resume();
       }
       this.#unlocked = true;
@@ -449,9 +423,7 @@ class AudioEffectsEngine {
     let url = null;
     const soundList = getRpgList("sounds");
     if (soundList.length > 0) {
-      const entry = soundList.find(
-        (/** @type {any} */ s) => typeof s === "string" && s.startsWith(key + "="),
-      );
+      const entry = soundList.find((/** @type {any} */ s) => typeof s === "string" && s.startsWith(key + "="));
       if (entry) url = entry.split("=").slice(1).join("=").trim();
     }
 
@@ -473,11 +445,7 @@ class AudioEffectsEngine {
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
               const arrayBuffer = await response.arrayBuffer();
               const decoded = await new Promise((resolve, reject) => {
-                const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(
-                  arrayBuffer,
-                  resolve,
-                  reject,
-                );
+                const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(arrayBuffer, resolve, reject);
                 if (promise) promise.then(resolve).catch(reject);
               });
               this.#buffers.set(key, decoded);

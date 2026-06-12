@@ -151,9 +151,7 @@ export const context_broker = {
     ];
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy
-    await Promise.all(
-      entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, new_content)),
-    ).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
+    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, new_content))).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
 
     const entities = /** @type {Record<string, any>} */ ({});
     // Synchronous hydration of entities
@@ -173,8 +171,7 @@ export const context_broker = {
       );
       const data_points = to_data_points(raw);
       // Lexical filtering for AI relevance
-      const filtered =
-        role === "AI" ? context_broker.lexical_filter(data_points, active_vector) : data_points;
+      const filtered = role === "AI" ? context_broker.lexical_filter(data_points, active_vector) : data_points;
       // Safety boot-strap
       if (filtered.length === 0) {
         filtered.push({
@@ -263,8 +260,7 @@ export const context_broker = {
 
     for (const vector of entity.future) {
       // 1. CHRONO VALIDATION
-      const round_threshold =
-        vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
+      const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
       if (round_threshold !== undefined && typeof round_threshold === "number") {
         if ((runtime.round ?? 0) < round_threshold) {
           continue; // immediately block resolution and continue to the next vector
@@ -272,10 +268,7 @@ export const context_broker = {
       }
 
       let is_resolved = false;
-      const has_requires =
-        vector.requires &&
-        typeof vector.requires === "object" &&
-        Object.keys(vector.requires).length > 0;
+      const has_requires = vector.requires && typeof vector.requires === "object" && Object.keys(vector.requires).length > 0;
 
       if (has_requires) {
         // 2. STATE EVALUATION
@@ -302,8 +295,7 @@ export const context_broker = {
         if (recent_log_text) {
           const log_lower = recent_log_text.toLowerCase();
           const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
-          const escape_regex = (/** @type {string} */ str) =>
-            str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const escape_regex = (/** @type {string} */ str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
           // Check strict vector tags
           if (Array.isArray(vector.vector_tags)) {
@@ -385,8 +377,7 @@ export const context_broker = {
       .map((dp) => {
         const text = (dp?.text || "").toLowerCase();
         const layer = (dp?.layer || "").toLowerCase();
-        const hit =
-          layer === "eternal" || keywords.some((/** @type {string} */ k) => text.includes(k));
+        const hit = layer === "eternal" || keywords.some((/** @type {string} */ k) => text.includes(k));
         return { dp, hit: hit ? 1 : 0 };
       })
       .sort((a, b) => b.hit - a.hit)

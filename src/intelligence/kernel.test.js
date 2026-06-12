@@ -244,18 +244,14 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("scrubs Chinese character bleed outside think block but keeps inside characters and spacing intact", async () => {
-      vi.mocked(llm_service.generate).mockResolvedValue(
-        "<think>thought block containing 中文</think> Normal spacing and some 中文 character bleed.",
-      );
+      vi.mocked(llm_service.generate).mockResolvedValue("<think>thought block containing 中文</think> Normal spacing and some 中文 character bleed.");
 
       const result = await gamemaster.execute_turn("story-123", {
         input: "Hello",
         role: "ai",
       });
 
-      expect(result.response).toBe(
-        "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
-      );
+      expect(result.response).toBe("<think>thought block containing 中文</think> Normal spacing and some  character bleed.");
       expect(session_driver.log_turn).toHaveBeenCalledWith(
         "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
         expect.any(String),
@@ -267,9 +263,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("handles normal English text and preserves spacing exactly", async () => {
-      vi.mocked(llm_service.generate).mockResolvedValue(
-        "No think block here.   Multiple   spaces   remain   intact.",
-      );
+      vi.mocked(llm_service.generate).mockResolvedValue("No think block here.   Multiple   spaces   remain   intact.");
 
       const result = await gamemaster.execute_turn("story-123", {
         input: "Hello",
@@ -396,9 +390,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       expect(synthesizeSpy).toHaveBeenCalled();
       const snapshotPassed = synthesizeSpy.mock.calls[0][1];
-      expect(snapshotPassed.signal_prompts).toContain(
-        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
-      );
+      expect(snapshotPassed.signal_prompts).toContain("The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.");
     });
   });
 });

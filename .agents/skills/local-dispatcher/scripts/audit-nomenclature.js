@@ -15,16 +15,7 @@ const RE_PASCAL = /^[A-Z][a-zA-Z0-9]+$/;
 const RE_ALL_CAPS = /^[A-Z][A-Z0-9_]*$/;
 const RE_VAR = /\bvar\s+[a-zA-Z_$][a-zA-Z0-9_$]*/;
 
-const STRIP_SUFFIXES = [
-  ".template",
-  ".svelte",
-  ".test",
-  ".spec",
-  ".manual",
-  ".unit",
-  ".integration",
-  ".d",
-];
+const STRIP_SUFFIXES = [".template", ".svelte", ".test", ".spec", ".manual", ".unit", ".integration", ".d"];
 const TEST_SUFFIXES = [".test", ".spec", ".manual", ".unit", ".integration"];
 const SUBJECT_EXTS = [".svelte", ".svelte.js", ".svelte.ts", ".js", ".ts"];
 
@@ -75,8 +66,7 @@ export const nomenclatureRules = [
     severity: "DEBT",
     message: "File must be kebab-case.",
     auditPath: (name, isDir, relPath) => {
-      if (isDir || name.includes("RPGlitch") || name.startsWith("@") || name.startsWith("$"))
-        return true;
+      if (isDir || name.includes("RPGlitch") || name.startsWith("@") || name.startsWith("$")) return true;
       if (name.endsWith(".svelte") && !name.includes(".template.")) return true;
       const base = getBase(name);
       if (RE_ALL_CAPS.test(base)) return true;
@@ -92,8 +82,7 @@ export const nomenclatureRules = [
     severity: "DEBT",
     message: "Folder must be kebab-case or All-Caps abbreviation.",
     auditPath: (name, isDir) => {
-      if (!isDir || name.startsWith(".") || name.startsWith("@") || name.startsWith("$"))
-        return true;
+      if (!isDir || name.startsWith(".") || name.startsWith("@") || name.startsWith("$")) return true;
       return RE_KEBAB.test(name) || RE_ALL_CAPS.test(name);
     },
   },
@@ -210,9 +199,7 @@ console.log(`🔥 VIOLATIONS: ${violations}`);
 console.log("--------------------------------------------------------------------------------\n");
 
 if (hasHeresy) {
-  console.log(
-    `${RED}❌ REJECTED: Heresy detected in file names or forbidden variables. Gate closed.${RESET}`,
-  );
+  console.log(`${RED}❌ REJECTED: Heresy detected in file names or forbidden variables. Gate closed.${RESET}`);
   process.exit(1);
 } else {
   console.log(`${GREEN}✅ RESONANT: All protocols align. Proceeding.${RESET}`);

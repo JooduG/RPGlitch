@@ -111,10 +111,8 @@ export const TOKENS = {
   "scrollbar-thumb-hover": "var(--frisk)",
   "scrollbar-track": "transparent",
   "scrollbar-width": "calc(var(--spacing-unit) * 2)",
-  "shadow-ghost":
-    "0 var(--spacing-pixel) var(--spacing-pixel)\nrgb(from var(--void-black) r g b / var(--opacity-ghost))",
-  "shadow-standard":
-    "0 var(--spacing-unit) calc(var(--spacing-unit) * 4)\nrgb(from var(--void-black) r g b / var(--opacity-whisper))",
+  "shadow-ghost": "0 var(--spacing-pixel) var(--spacing-pixel)\nrgb(from var(--void-black) r g b / var(--opacity-ghost))",
+  "shadow-standard": "0 var(--spacing-unit) calc(var(--spacing-unit) * 4)\nrgb(from var(--void-black) r g b / var(--opacity-whisper))",
   "signature-glow": "0 0 calc(var(--spacing-unit) * 4) var(--signature-color)",
   "spring-damping-default": "0.8",
   "spring-stiffness-default": "0.15",
@@ -191,11 +189,7 @@ export const PALETTE_VARS = {
  * Filtered registry of vibrant colors suitable for entity signatures.
  * Excludes backgrounds, neutrals, and non-vibrant utility colors.
  */
-export const SIGNATURE_COLORS = Object.keys(PALETTE).filter(
-  (key) =>
-    !key.startsWith("Background") &&
-    !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black"].includes(key),
-);
+export const SIGNATURE_COLORS = Object.keys(PALETTE).filter((key) => !key.startsWith("Background") && !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black"].includes(key));
 
 /************************************************************************************
  * [LEVEL 1: LOGIC & PARSERS]
@@ -246,9 +240,7 @@ export function get_deterministic_color(seed) {
 export function get_color_name(hex) {
   if (!hex) return "";
   // 1. Direct search in PALETTE by value
-  const match = Object.entries(PALETTE).find(
-    ([_, value]) => value.toLowerCase() === hex.toLowerCase(),
-  );
+  const match = Object.entries(PALETTE).find(([_, value]) => value.toLowerCase() === hex.toLowerCase());
   if (match) return match[0];
 
   // 2. Resolve token first if it's a var()

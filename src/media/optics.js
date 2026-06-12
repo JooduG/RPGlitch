@@ -5,8 +5,7 @@
  * Focuses on photorealistic camera specs and cinematic grounding.
  */
 
-export const NEGATIVE_PROMPT =
-  "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
+export const NEGATIVE_PROMPT = "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
 import { escapeXml } from "@intelligence/parser.js";
 import { get_signature_label } from "@media";
@@ -30,12 +29,9 @@ export const AestheticResolver = {
      * We keep cinema and macro here for future wiring.
      */
     const presets = {
-      portrait:
-        "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, shallow depth of field, sharp focus on detailed eyes, hyper-realistic textures, natural skin blemishes, golden ratio composition, cinematic volumetric lighting, 8k resolution.",
-      landscape:
-        "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, wide angle, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution.",
-      macro:
-        "Photorealistic macro shot on Canon EOS R5, 100mm macro lens, extreme detail, sharp focus, beautiful bokeh, scientific precision, 8k resolution.",
+      portrait: "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, shallow depth of field, sharp focus on detailed eyes, hyper-realistic textures, natural skin blemishes, golden ratio composition, cinematic volumetric lighting, 8k resolution.",
+      landscape: "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, wide angle, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution.",
+      macro: "Photorealistic macro shot on Canon EOS R5, 100mm macro lens, extreme detail, sharp focus, beautiful bokeh, scientific precision, 8k resolution.",
     };
 
     const fragments = [];
@@ -83,11 +79,7 @@ ${escapeXml(text)}
   /**
    * Builds the final system prompt for context-aware generation.
    */
-  BUILDER: (
-    /** @type {any} */ targetType,
-    /** @type {string} */ rawIntent,
-    /** @type {any} */ context,
-  ) => {
+  BUILDER: (/** @type {any} */ targetType, /** @type {string} */ rawIntent, /** @type {any} */ context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
     let ctxBlock;

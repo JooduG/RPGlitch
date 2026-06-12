@@ -46,9 +46,7 @@
   let signals = Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {});
   // svelte-ignore state_referenced_locally
   let deltas = meta.deltas || [];
-  let active_dynamics = Array.from(
-    new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))]),
-  );
+  let active_dynamics = Array.from(new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))]));
 
   /** @param {number} val */
   function get_pct(val) {
@@ -65,7 +63,7 @@
   }
 
   function get_explanation(signal_id) {
-    const rule = DYNAMICS.find((d) => d.id === signal_id);
+    const rule = DYNAMICS[signal_id];
     if (!rule) return "Unknown Dynamic";
 
     let cause = "";
@@ -114,33 +112,18 @@
   "
 >
   {#if meta.type === TELEMETRY_TYPES.STORY_START}
-    <div
-      class="rounded-sm border border-(--state-dev-accent)/20 bg-(--state-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]"
-    >
+    <div class="rounded-sm border border-(--state-dev-accent)/20 bg-(--state-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
       <div class="flex items-center gap-2">
-        <div
-          class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"
-        ></div>
-        <span class="text-sm font-bold tracking-widest text-(--state-dev-accent) uppercase"
-          >Story Initiated</span
-        >
+        <div class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"></div>
+        <span class="text-sm font-bold tracking-widest text-(--state-dev-accent) uppercase">Story Initiated</span>
       </div>
-      <p class="mt-2 text-xs font-(--font-family-mono) text-slate-300">
-        The simulation engine has anchored a new narrative sequence.
-      </p>
+      <p class="mt-2 text-xs font-(--font-family-mono) text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>
   {:else}
     <DataBox
-      label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
-        ? "Memory Weave"
-        : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
-          ? "Vector Anchor"
-          : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
-            ? "System Update"
-            : "Simulation Telemetry"}
+      label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ? "Memory Weave" : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION ? "Vector Anchor" : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA ? "System Update" : "Simulation Telemetry"}
       height="auto"
-      isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ||
-        meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
+      isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION || meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
     >
       <div
         class="
@@ -532,9 +515,7 @@
                         "
                             style="
                           left: 0%;
-                          width: {delta
-                              ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val))
-                              : get_pct(val)}%;
+                          width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
                           background: var(--state-dev-accent);
                         "
                           ></div>
@@ -557,16 +538,10 @@
                           {/if}
                         </div>
                         <div class="flex flex-col items-end gap-0.5">
-                          <div
-                            class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)"
-                          >
+                          <div class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)">
                             <span class="text-slate-50">{get_pct(val)}</span>
                             {#if delta}
-                              <span
-                                class={delta.diff > 0
-                                  ? "text-(--state-dev-accent)"
-                                  : "text-slate-500"}
-                              >
+                              <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
                                 ({delta.diff > 0 ? "+" : ""}{delta.diff})
                               </span>
                             {/if}
@@ -649,9 +624,7 @@
                         "
                             style="
                           left: 0%;
-                          width: {delta
-                              ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val))
-                              : get_pct(val)}%;
+                          width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
                           background: var(--state-dev-accent);
                         "
                           ></div>
@@ -674,16 +647,10 @@
                           {/if}
                         </div>
                         <div class="flex flex-col items-end gap-0.5">
-                          <div
-                            class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)"
-                          >
+                          <div class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)">
                             <span class="text-slate-50">{get_pct(val)}</span>
                             {#if delta}
-                              <span
-                                class={delta.diff > 0
-                                  ? "text-(--state-dev-accent)"
-                                  : "text-slate-500"}
-                              >
+                              <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
                                 ({delta.diff > 0 ? "+" : ""}{delta.diff})
                               </span>
                             {/if}
@@ -909,8 +876,7 @@
     }
 
     70% {
-      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3)
-        color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
+      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3) color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
     }
 
     100% {

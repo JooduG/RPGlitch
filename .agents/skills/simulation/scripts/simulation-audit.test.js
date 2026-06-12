@@ -35,9 +35,7 @@ describe("🕹️ SYSTEM TURN: Source Audit", () => {
 
     // 3. GENERATE REPORT
     const SEP = "────────────────────────────────────────────────────────────────────────────────";
-    const timestamp = new Date()
-      .toLocaleString("sv-SE", { timeZone: "Europe/Stockholm" })
-      .replace(/T/, " ");
+    const timestamp = new Date().toLocaleString("sv-SE", { timeZone: "Europe/Stockholm" }).replace(/T/, " ");
 
     const report = `# 📊 Simulation Audit Report
 

@@ -64,14 +64,7 @@ export const CONFIG = {
   // --- MESSAGES & GUARDRAILS ---
   MESSAGES: {
     CONNECTION_LOST: "Connection lost with the Abyss.",
-    REFUSAL_TRIGGERS: [
-      "i cannot",
-      "i can't",
-      "cannot generate",
-      "policy",
-      "guidelines",
-      "sorry, but",
-    ],
+    REFUSAL_TRIGGERS: ["i cannot", "i can't", "cannot generate", "policy", "guidelines", "sorry, but"],
   },
 
   THEME: {

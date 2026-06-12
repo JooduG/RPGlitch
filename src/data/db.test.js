@@ -40,9 +40,7 @@ describe("Database db.js", () => {
     dbInstance = db;
     await init();
     db.on("blocked").fire({ oldVersion: 10, newVersion: 11 });
-    expect(consoleWarnSpy).toHaveBeenCalledWith(
-      "[Data] Database is blocked by another tab/version. Please close other instances.",
-    );
+    expect(consoleWarnSpy).toHaveBeenCalledWith("[Data] Database is blocked by another tab/version. Please close other instances.");
   });
 
   it("should handle versionchange event and close DB/reload window", async () => {

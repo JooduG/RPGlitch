@@ -4,11 +4,7 @@ const master = require("./ignores.master.json");
 module.exports = {
   // One source of truth for ignore globs
   ignoreFiles: master.stylelintIgnore || [],
-  extends: [
-    "stylelint-config-standard-scss",
-    "stylelint-config-html/svelte",
-    "stylelint-prettier/recommended",
-  ],
+  extends: ["stylelint-config-standard-scss", "stylelint-config-html/svelte", "stylelint-prettier/recommended"],
   overrides: [
     {
       files: ["**/*.svelte"],
@@ -25,8 +21,7 @@ module.exports = {
       "^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:--[a-z0-9]+(?:-[a-z0-9]+)*)?$",
       {
         resolveNestedSelectors: true,
-        message:
-          "Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier).",
+        message: "Expected class selector to be kebab-case, optionally with a BEM modifier (--modifier).",
       },
     ],
 
@@ -40,15 +35,7 @@ module.exports = {
     "scss/at-rule-no-unknown": [
       true,
       {
-        ignoreAtRules: [
-          "tailwind",
-          "utility",
-          "theme",
-          "source",
-          "config",
-          "plugin",
-          "custom-variant",
-        ],
+        ignoreAtRules: ["tailwind", "utility", "theme", "source", "config", "plugin", "custom-variant"],
       },
     ],
 

@@ -187,10 +187,7 @@ export const validateAgainstStructure = (content, structure, report) => {
   // Check for illegal fields (only for Rules and Skills, bypass for now if needed)
   for (const name in actualFields) {
     if (!templateFieldNames.has(name)) {
-      report(
-        "HERESY",
-        `🚨 Illegal frontmatter field detected: "${name}". Not in Sovereign Template.`,
-      );
+      report("HERESY", `🚨 Illegal frontmatter field detected: "${name}". Not in Sovereign Template.`);
     }
   }
 
@@ -205,15 +202,10 @@ export const validateAgainstStructure = (content, structure, report) => {
 
   // Check for missing mandatory sections
   for (const tHeader of structure.headers) {
-    const hasMatch = actualHeaders.some((aHeader) =>
-      isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName),
-    );
+    const hasMatch = actualHeaders.some((aHeader) => isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName));
 
     if (!hasMatch && !tHeader.isOptional) {
-      report(
-        "ADVICE",
-        `💡 Missing mandatory section: "${"#".repeat(tHeader.level)} ${tHeader.cleanLabel}".`,
-      );
+      report("ADVICE", `💡 Missing mandatory section: "${"#".repeat(tHeader.level)} ${tHeader.cleanLabel}".`);
     }
   }
 
@@ -221,15 +213,10 @@ export const validateAgainstStructure = (content, structure, report) => {
   for (const aHeader of actualHeaders) {
     if (aHeader.level > 2) continue; // H3 is free space (as long as mandatory H3s are present)
 
-    const isRecognized = structure.headers.some((tHeader) =>
-      isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName),
-    );
+    const isRecognized = structure.headers.some((tHeader) => isHeaderMatch(tHeader, aHeader.level, aHeader.text, projectName));
 
     if (!isRecognized) {
-      report(
-        "HERESY",
-        `🚨 Illegal section detected: "${"#".repeat(aHeader.level)} ${aHeader.text}". Not in Sovereign Template.`,
-      );
+      report("HERESY", `🚨 Illegal section detected: "${"#".repeat(aHeader.level)} ${aHeader.text}". Not in Sovereign Template.`);
     }
   }
 };
@@ -283,11 +270,7 @@ const auditSkill = (skillName, silent = false) => {
 
     currentSubfolders.forEach((dir) => {
       if (!allowedSubfolders.includes(dir) && !dir.startsWith(".")) {
-        logIssue(
-          SEVERITY.HERESY,
-          `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, references, rules, data, or templates.`,
-          50,
-        );
+        logIssue(SEVERITY.HERESY, `Disallowed subfolder: ${dir}/. Use ONLY scripts, assets, references, rules, data, or templates.`, 50);
       }
     });
 
@@ -296,15 +279,9 @@ const auditSkill = (skillName, silent = false) => {
     const newPlaceholders = contentNoCode.match(/\{\{[^}]+\}\}/g) || [];
     const placeholders = [...oldPlaceholders, ...newPlaceholders];
 
-    const invalidPlaceholders = placeholders.filter(
-      (p) => !p.includes("file:///") && p.length > 2 && p.length < 100,
-    );
+    const invalidPlaceholders = placeholders.filter((p) => !p.includes("file:///") && p.length > 2 && p.length < 100);
     if (invalidPlaceholders.length > 3) {
-      logIssue(
-        SEVERITY.HIGH,
-        `Unfilled placeholders detected: ${invalidPlaceholders.join(", ")}`,
-        15,
-      );
+      logIssue(SEVERITY.HIGH, `Unfilled placeholders detected: ${invalidPlaceholders.join(", ")}`, 15);
     }
 
     // 4. Bloat Check
@@ -388,13 +365,8 @@ export const projectRules = [
     id: "PROJECT_TODO_AI_TAG",
     severity: "DEBT",
     regex: /#TODO-AI/,
-    message:
-      "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/PRESENT.md.",
-    validate: (line, filePath) =>
-      !filePath.includes("warden.js") &&
-      !filePath.includes("audit-security.js") &&
-      !filePath.includes("SKILL.md") &&
-      !filePath.includes("rules.js"), // Exclude self
+    message: "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/PRESENT.md.",
+    validate: (line, filePath) => !filePath.includes("warden.js") && !filePath.includes("audit-security.js") && !filePath.includes("SKILL.md") && !filePath.includes("rules.js"), // Exclude self
   },
   {
     id: "PROJECT_BACKLOG_SYNC",

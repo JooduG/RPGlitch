@@ -5,8 +5,7 @@
  */
 
 // Module scope prefers-reduced-motion query
-const mediaQuery =
-  typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+const mediaQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
 
 let isReducedState = $state(!!mediaQuery?.matches);
 
@@ -138,10 +137,7 @@ class KineticSpring {
       this.#current += this.#velocity;
 
       // Convergence check: snap to target when movement falls below delta thresholds
-      if (
-        Math.abs(this.#target - this.#current) < this.#precision &&
-        Math.abs(this.#velocity) < this.#precision
-      ) {
+      if (Math.abs(this.#target - this.#current) < this.#precision && Math.abs(this.#velocity) < this.#precision) {
         this.#current = this.#target;
         this.#velocity = 0;
         this.#rafId = null;

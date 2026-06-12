@@ -22,18 +22,7 @@
   // --- CONSTANTS ---
 
   /** Names to exclude from the swatch grid (background gradients + chalk/neutral base tones). */
-  const EXCLUDED_SWATCHES = new Set([
-    "Background Gradient 1",
-    "Background Gradient 2",
-    "Background Gradient 3",
-    "Background Gradient 4",
-    "Chalk",
-    "Gunmetal",
-    "Frisk",
-    "Frozen",
-    "Pure White",
-    "Void Black",
-  ]);
+  const EXCLUDED_SWATCHES = new Set(["Background Gradient 1", "Background Gradient 2", "Background Gradient 3", "Background Gradient 4", "Chalk", "Gunmetal", "Frisk", "Frozen", "Pure White", "Void Black"]);
 
   /**
    * Returns the HSL hue (0â€“360) for a hex color.
@@ -91,25 +80,14 @@
 
   const current_label = $derived(get_signature_label(profileState.char));
 
-  const is_prompt_busy = $derived(
-    app.visual.isLoading || profileState.busy_fields.has("visual-prompt"),
-  );
+  const is_prompt_busy = $derived(app.visual.isLoading || profileState.busy_fields.has("visual-prompt"));
 
   const prompt_value = $derived((profileState.char?.modifiers?.prompt || "").trim());
 
   /** True when the prompt is freeform text (not a URL or data URI). */
-  const has_prompt_text = $derived(
-    prompt_value.length > 0 &&
-      !prompt_value.startsWith("http") &&
-      !prompt_value.startsWith("data:"),
-  );
+  const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"));
 
-  const is_creative_disabled = $derived(
-    !profileState.is_editing ||
-      (is_prompt_busy &&
-        (!profileState.active_field || profileState.active_field.key === "visual-prompt")) ||
-      (!profileState.active_field && has_prompt_text),
-  );
+  const is_creative_disabled = $derived(!profileState.is_editing || (is_prompt_busy && (!profileState.active_field || profileState.active_field.key === "visual-prompt")) || (!profileState.active_field && has_prompt_text));
 
   // --- HANDLERS ---
 
@@ -252,15 +230,7 @@
           : ''}"
         style="--swatch-color: {color}; background-color: var(--swatch-color);"
       >
-        <Button
-          square={true}
-          cover={true}
-          aria-label={name}
-          actions={[tooltip]}
-          onclick={() => (profileState.char.signature_color = name)}
-          disabled={!profileState.is_editing}
-          variant="invisible"
-        ></Button>
+        <Button square={true} cover={true} aria-label={name} actions={[tooltip]} onclick={() => (profileState.char.signature_color = name)} disabled={!profileState.is_editing} variant="invisible"></Button>
       </div>
     {/each}
   </div>
@@ -274,9 +244,7 @@
     placeholder="Image prompt or URL..."
     disabled={!profileState.is_editing || is_prompt_busy}
     signature_color="var(--frozen)"
-    onfocus={() =>
-      profileState.is_editing &&
-      (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
+    onfocus={() => profileState.is_editing && (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
   >
     {#snippet status()}
       {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
@@ -330,10 +298,7 @@
                   uppercase
                 ">ERROR</span
               >
-              <span
-                class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80"
-                >{app.visual.error}</span
-              >
+              <span class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
             {:else if app.visual.attempts > 0}
               <span
                 class="
@@ -345,10 +310,7 @@
                   uppercase
                 ">RETRYING</span
               >
-              <span
-                class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80"
-                >Attempt {app.visual.attempts}</span
-              >
+              <span class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
             {:else}
               <span
                 class="
@@ -375,16 +337,7 @@
           gap-2
         "
         >
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
-            actions={[tooltip]}
-            onclick={handle_creative_action}
-            onmousedown={prevent_default}
-            disabled={is_creative_disabled}
-          >
+          <Button variant="invisible" size="small" square aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"} actions={[tooltip]} onclick={handle_creative_action} onmousedown={prevent_default} disabled={is_creative_disabled}>
             {#if has_prompt_text}
               <svg
                 viewBox="0 0 24 24"
@@ -409,16 +362,7 @@
             {/if}
           </Button>
 
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label="Generate Image"
-            actions={[tooltip]}
-            onclick={handle_generate}
-            onmousedown={prevent_default}
-            disabled={!profileState.is_editing || is_prompt_busy}
-          >
+          <Button variant="invisible" size="small" square aria-label="Generate Image" actions={[tooltip]} onclick={handle_generate} onmousedown={prevent_default} disabled={!profileState.is_editing || is_prompt_busy}>
             <svg
               viewBox="0 0 24 24"
               class="
@@ -426,24 +370,12 @@
             "
               fill="none"
             >
-              <path
-                d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"
-                stroke="currentColor"
-              ></path>
+              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor"></path>
               <circle cx="12" cy="13" r="4" stroke="currentColor"></circle>
             </svg>
           </Button>
 
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label="Upload Portrait"
-            actions={[tooltip]}
-            onclick={handle_upload_portrait}
-            onmousedown={prevent_default}
-            disabled={!profileState.is_editing || is_prompt_busy}
-          >
+          <Button variant="invisible" size="small" square aria-label="Upload Portrait" actions={[tooltip]} onclick={handle_upload_portrait} onmousedown={prevent_default} disabled={!profileState.is_editing || is_prompt_busy}>
             <svg
               viewBox="0 0 24 24"
               class="
@@ -469,15 +401,7 @@
     gap-2
   "
   >
-    <Toggle
-      label="No Background"
-      bind:value={profileState.noBackground}
-      disabled={!profileState.is_editing}
-    />
-    <Toggle
-      label="Mirror Image"
-      bind:value={profileState.char.modifiers.flipped}
-      disabled={!profileState.is_editing}
-    />
+    <Toggle label="No Background" bind:value={profileState.noBackground} disabled={!profileState.is_editing} />
+    <Toggle label="Mirror Image" bind:value={profileState.char.modifiers.flipped} disabled={!profileState.is_editing} />
   </div>
 </section>

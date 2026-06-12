@@ -33,9 +33,7 @@ export function auto_resize(node, options = {}) {
       }
 
       const syncId = /** @type {any} */ (options).syncId;
-      const scope = syncId
-        ? node.closest(".storymode-grid, .modal-content, body") || document.body
-        : null;
+      const scope = syncId ? node.closest(".storymode-grid, .modal-content, body") || document.body : null;
       // @ts-ignore
       const siblings = syncId ? scope.querySelectorAll(`[data-sync-id="${syncId}"]`) : [node];
 
@@ -53,9 +51,7 @@ export function auto_resize(node, options = {}) {
         if (s instanceof HTMLElement) {
           const sStyle = getComputedStyle(s);
           const sIsBorderBox = sStyle.boxSizing === "border-box";
-          const sBorderOffset = sIsBorderBox
-            ? parseFloat(sStyle.borderTopWidth) + parseFloat(sStyle.borderBottomWidth)
-            : 0;
+          const sBorderOffset = sIsBorderBox ? parseFloat(sStyle.borderTopWidth) + parseFloat(sStyle.borderBottomWidth) : 0;
 
           const sScrollHeight = s.scrollHeight;
           maxScrollHeight = Math.max(maxScrollHeight, sScrollHeight);

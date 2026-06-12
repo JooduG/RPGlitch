@@ -116,9 +116,7 @@ export class AppStore {
     selected: null,
   });
   // --- UI TENSION (Reactive Intensity) ---
-  tension = $derived(
-    simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0,
-  );
+  tension = $derived(simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0);
   /** @type {AppSettings} */
   settings = $state({
     sound: true,
@@ -183,13 +181,9 @@ export class AppStore {
     runtime.turn_type = val;
   }
   // --- READINESS (Derived Logic) ---
-  selected_count = $derived(
-    (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0),
-  );
+  selected_count = $derived((this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0));
   is_ready = $derived.by(() => {
-    const ready =
-      this.settings.dev_mode ||
-      (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
+    const ready = this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
 
     return ready;
   });
@@ -296,10 +290,7 @@ export class AppStore {
    */
   async load_entities() {
     try {
-      const [characters, fractals] = await Promise.all([
-        entities.list("character"),
-        entities.list("fractal"),
-      ]);
+      const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")]);
       this.ai_list = characters;
       this.user_list = characters;
       this.fractal_list = fractals;
@@ -356,10 +347,7 @@ export class AppStore {
    * Selects an entity for the current session.
    * Automatically normalizes the object to ensure a flattened schema.
    */
-  select_entity = (
-    /** @type {'ai' | 'user' | 'fractal' | null} */ type,
-    /** @type {any} */ entity,
-  ) => {
+  select_entity = (/** @type {'ai' | 'user' | 'fractal' | null} */ type, /** @type {any} */ entity) => {
     const clean = normalize(entity);
     if (type === "ai") this.selected_ai = clean;
     else if (type === "user") this.selected_user = clean;

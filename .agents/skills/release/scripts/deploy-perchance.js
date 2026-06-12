@@ -95,9 +95,7 @@ function pre_flight() {
 
   // Check right panel exists (dist/index.html)
   if (!existsSync(CONFIG.right_panel_path)) {
-    fatal(
-      `Right panel not found: ${CONFIG.right_panel_path}\n         Run "npm run deploy:prepare" first.`,
-    );
+    fatal(`Right panel not found: ${CONFIG.right_panel_path}\n         Run "npm run deploy:prepare" first.`);
   }
 
   const left_content = readFileSync(CONFIG.left_panel_path, "utf-8");
@@ -107,25 +105,15 @@ function pre_flight() {
   const left_size = Buffer.byteLength(left_content, "utf-8");
   const right_size = Buffer.byteLength(right_content, "utf-8");
 
-  log(
-    "📦",
-    `Left Panel:  ${(left_size / 1024).toFixed(1)}KB (${left_content.split("\n").length} lines)`,
-  );
-  log(
-    "📦",
-    `Right Panel: ${(right_size / 1024).toFixed(1)}KB (${right_content.split("\n").length} lines)`,
-  );
+  log("📦", `Left Panel:  ${(left_size / 1024).toFixed(1)}KB (${left_content.split("\n").length} lines)`);
+  log("📦", `Right Panel: ${(right_size / 1024).toFixed(1)}KB (${right_content.split("\n").length} lines)`);
 
   if (right_size > CONFIG.max_bundle_size) {
-    fatal(
-      `Right panel exceeds ${CONFIG.max_bundle_size / 1024}KB limit: ${(right_size / 1024).toFixed(1)}KB`,
-    );
+    fatal(`Right panel exceeds ${CONFIG.max_bundle_size / 1024}KB limit: ${(right_size / 1024).toFixed(1)}KB`);
   }
 
   if (left_size > CONFIG.max_bundle_size) {
-    fatal(
-      `Left panel exceeds ${CONFIG.max_bundle_size / 1024}KB limit: ${(left_size / 1024).toFixed(1)}KB`,
-    );
+    fatal(`Left panel exceeds ${CONFIG.max_bundle_size / 1024}KB limit: ${(left_size / 1024).toFixed(1)}KB`);
   }
 
   log("✅", "Pre-flight checks passed.");
@@ -147,15 +135,7 @@ async function deploy({ left_content, right_content }) {
   const context = await chromium.launchPersistentContext(CONFIG.user_data_dir, {
     headless: is_headless,
     viewport: { width: 1400, height: 900 },
-    args: [
-      "--disable-blink-features=AutomationControlled",
-      "--no-sandbox",
-      "--disable-setuid-sandbox",
-      "--disable-infobars",
-      "--window-position=0,0",
-      "--ignore-certifcate-errors",
-      "--ignore-certifcate-errors-spki-list",
-    ],
+    args: ["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-setuid-sandbox", "--disable-infobars", "--window-position=0,0", "--ignore-certifcate-errors", "--ignore-certifcate-errors-spki-list"],
   });
 
   const page = context.pages()[0] || (await context.newPage());
@@ -171,21 +151,12 @@ async function deploy({ left_content, right_content }) {
 
     // Detect Cloudflare / Security challenge
     const title = await page.title();
-    if (
-      title.includes("Just a moment") ||
-      title.includes("Cloudflare") ||
-      (await page.$("#cf-challenge"))
-    ) {
+    if (title.includes("Just a moment") || title.includes("Cloudflare") || (await page.$("#cf-challenge"))) {
       log("🛡️", "Cloudflare security challenge detected. Waiting for it to pass...");
       await page.waitForTimeout(15000); // Give it time to solve or for human intervention if in headed mode
 
       // Re-check
-      const still_on_challenge = await page.evaluate(
-        () =>
-          document.title.includes("Just a moment") ||
-          document.title.includes("Cloudflare") ||
-          !!document.querySelector("#cf-challenge"),
-      );
+      const still_on_challenge = await page.evaluate(() => document.title.includes("Just a moment") || document.title.includes("Cloudflare") || !!document.querySelector("#cf-challenge"));
 
       if (still_on_challenge) {
         log("⚠️", "Still on Cloudflare challenge. Attempting to proceed anyway...");
@@ -205,9 +176,7 @@ async function deploy({ left_content, right_content }) {
           const buttons = Array.from(document.querySelectorAll('button, [role="button"], a.btn'));
 
           // Priority 1: Specific IAB/Quantcast selectors often seen on Perchance
-          const specBtn = document.querySelector(
-            '.qc-cmp2-summary-buttons button[mode="primary"], .qc-cmp2-buttons-desktop button:last-child',
-          );
+          const specBtn = document.querySelector('.qc-cmp2-summary-buttons button[mode="primary"], .qc-cmp2-buttons-desktop button:last-child');
           if (specBtn && specBtn.offsetParent !== null) {
             specBtn.click();
             return "quantcast-primary";
@@ -243,9 +212,7 @@ async function deploy({ left_content, right_content }) {
           await page
             .waitForFunction(
               () => {
-                const overlay = document.querySelector(
-                  '.qc-cmp2-container, #qc-cmp2-container, [class*="cmp-modal"]',
-                );
+                const overlay = document.querySelector('.qc-cmp2-container, #qc-cmp2-container, [class*="cmp-modal"]');
                 return !overlay || window.getComputedStyle(overlay).display === "none";
               },
               { timeout: 10000 },
@@ -349,9 +316,7 @@ async function deploy({ left_content, right_content }) {
     }
 
     if (!editor_found) {
-      throw new Error(
-        `Editor did not load within ${MAX_WAIT / 1000}s. You may not be logged in as the generator owner.`,
-      );
+      throw new Error(`Editor did not load within ${MAX_WAIT / 1000}s. You may not be logged in as the generator owner.`);
     }
 
     log("✅", "Editor loaded. Global references available.");
@@ -363,10 +328,7 @@ async function deploy({ left_content, right_content }) {
       save_state: window.perchanceSaveState,
     }));
 
-    log(
-      "📊",
-      `Current state — Left: ${current_state.model_length} chars, Right: ${current_state.output_length} chars, Save: ${current_state.save_state}`,
-    );
+    log("📊", `Current state — Left: ${current_state.model_length} chars, Right: ${current_state.output_length} chars, Save: ${current_state.save_state}`);
 
     // Inject Left Panel (modelTextEditor)
     log("📝", "Injecting Left Panel content...");
@@ -453,10 +415,7 @@ async function deploy({ left_content, right_content }) {
       iframe_src: document.querySelector("#outputIframeEl")?.src?.substring(0, 80),
     }));
 
-    log(
-      "📊",
-      `Final state — Left: ${final_state.model_length} chars, Right: ${final_state.output_length} chars, Save: ${final_state.save_state}`,
-    );
+    log("📊", `Final state — Left: ${final_state.model_length} chars, Right: ${final_state.output_length} chars, Save: ${final_state.save_state}`);
     log("🚀", `Deployment complete! Live at: https://perchance.org/rpglitch`);
 
     return true;
@@ -509,9 +468,7 @@ async function attempt_login(page) {
   // Open the login modal via Perchance API if not already present
   // CRITICAL: First clear any lingering overlays that might block the login button
   await page.evaluate(() => {
-    const overlay = document.querySelector(
-      '.qc-cmp2-container, #qc-cmp2-container, [class*="cmp-modal"]',
-    );
+    const overlay = document.querySelector('.qc-cmp2-container, #qc-cmp2-container, [class*="cmp-modal"]');
     if (overlay) {
       console.log("Removing blocking overlay...");
       overlay.remove();
@@ -572,9 +529,7 @@ async function attempt_login(page) {
   }
 
   // Click the "signup / login" button
-  const submit_btn = await page.$(
-    'button.main:has-text("signup / login"), #loginModalCtn button.main',
-  );
+  const submit_btn = await page.$('button.main:has-text("signup / login"), #loginModalCtn button.main');
   if (submit_btn) {
     await submit_btn.click();
   } else {
@@ -624,9 +579,7 @@ async function main() {
     log("⏩", "AUTO_DEPLOY=true detected. Skipping confirmation.");
     confirm = "y";
   } else {
-    confirm = await prompt_user(
-      `Deploy ${(payload.left_size / 1024).toFixed(1)}KB (Left) + ${(payload.right_size / 1024).toFixed(1)}KB (Right) to Perchance? [y/N]`,
-    );
+    confirm = await prompt_user(`Deploy ${(payload.left_size / 1024).toFixed(1)}KB (Left) + ${(payload.right_size / 1024).toFixed(1)}KB (Right) to Perchance? [y/N]`);
   }
 
   if (confirm !== "y" && confirm !== "yes") {

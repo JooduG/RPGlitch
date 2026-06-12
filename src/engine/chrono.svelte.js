@@ -42,17 +42,9 @@ export class ChronoStore {
       // We pass the current runtime character context to the Shield
       if (input && runtime.character) {
         // Pass Fractal State for Causality Checks
-        shieldContext = await Shield.process(
-          input,
-          runtime.character,
-          runtime.active_fractal || {},
-        );
+        shieldContext = await Shield.process(input, runtime.character, runtime.active_fractal || {});
         // 🛑 CAUSALITY CHECK
-        if (
-          shieldContext &&
-          shieldContext.causality &&
-          shieldContext.causality.result === "failure"
-        ) {
+        if (shieldContext && shieldContext.causality && shieldContext.causality.result === "failure") {
           app.log(`Causality Violation: ${shieldContext.causality.constraint}`, "error");
           // We override the 'Action' to be a System Constraint.
           // This forces the AI to narrate the failure instead of the action.

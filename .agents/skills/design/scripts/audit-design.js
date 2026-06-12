@@ -23,8 +23,7 @@ const themeRules = [
     id: "THEME_HOVER_TRANSFORM",
     severity: "HERESY",
     regex: /:hover\s*\{[^}]*translateY|:hover\s*\{[^}]*transform:\s*translate/,
-    message:
-      "❌ Rule 04 violation: GROUNDED POLICY. Avoid translateY on hover to maintain subterranean weight.",
+    message: "❌ Rule 04 violation: GROUNDED POLICY. Avoid translateY on hover to maintain subterranean weight.",
   },
   {
     id: "THEME_RADIUS",
@@ -41,8 +40,7 @@ const themeRules = [
   {
     id: "LEGACY_SPACING_SYNTAX",
     severity: "HERESY",
-    regex:
-      /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
+    regex: /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
     message: "Legacy hardcoded spacing scale used inside structural descriptors. Update rules.",
   },
 ];
@@ -91,8 +89,7 @@ function auditFile(filePath) {
   const lines = content.split("\n");
   const relPath = path.relative(ROOT_DIR, filePath).replace(/\\/g, "/");
 
-  if (relPath.includes("audit-") || relPath.endsWith("design.css") || relPath.includes(".bak."))
-    return;
+  if (relPath.includes("audit-") || relPath.endsWith("design.css") || relPath.includes(".bak.")) return;
 
   themeRules.forEach((rule) => {
     lines.forEach((line, i) => {
@@ -114,9 +111,7 @@ function auditFile(filePath) {
  */
 export function auditCodebaseTokens() {
   const definedMap = parseDefinedTokens();
-  const source_files = getSourceFiles(PATHS.src).filter(
-    (file) => file !== PATHS.designCss && file !== PATHS.jsBridge,
-  );
+  const source_files = getSourceFiles(PATHS.src).filter((file) => file !== PATHS.designCss && file !== PATHS.jsBridge);
 
   let total_failures = 0;
 
@@ -139,9 +134,7 @@ export function auditCodebaseTokens() {
             if (token_name.startsWith("--bits-")) continue;
             if (token_name.startsWith("--state-")) continue;
 
-            console.error(
-              `${RED}[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}${RESET}`,
-            );
+            console.error(`${RED}[HERESY] ${rel_path}:${index + 1} - Hallucinated variable reference: ${token_name}${RESET}`);
             total_failures++;
             hasHeresy = true;
           }
@@ -158,32 +151,13 @@ export function auditCodebaseTokens() {
  */
 export function findUnusedTokens() {
   const definedMap = parseDefinedTokens();
-  const source_files = getSourceFiles(PATHS.src).filter(
-    (f) => f !== PATHS.designCss && f !== PATHS.jsBridge,
-  );
+  const source_files = getSourceFiles(PATHS.src).filter((f) => f !== PATHS.designCss && f !== PATHS.jsBridge);
 
   const combined_content = source_files.map((f) => fs.readFileSync(f, "utf8")).join("\n");
 
   const unused = Array.from(definedMap.keys()).filter((token) => {
     // Exempt signature color palette stuff from debt
-    const signatureColors = [
-      "--coral-rose",
-      "--forest-green",
-      "--lemon-yellow",
-      "--lime-green",
-      "--neon-teal",
-      "--ocean-blue",
-      "--pumpkin-amber",
-      "--royal-purple",
-      "--sunset-orange",
-      "--twilight-violet",
-      "--crimson-red",
-      "--frisk",
-      "--glass-peak",
-      "--frozen",
-      "--frozen",
-      "--frozen",
-    ];
+    const signatureColors = ["--coral-rose", "--forest-green", "--lemon-yellow", "--lime-green", "--neon-teal", "--ocean-blue", "--pumpkin-amber", "--royal-purple", "--sunset-orange", "--twilight-violet", "--crimson-red", "--frisk", "--glass-peak", "--frozen", "--frozen", "--frozen"];
     if (signatureColors.includes(token)) return false;
 
     const regex = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);

@@ -14,9 +14,7 @@
   // --- CORE VIEW ENGINE STATE ---
   let ready_to_begin = $derived(app.is_ready);
 
-  let label_text = $derived(
-    ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`,
-  );
+  let label_text = $derived(ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`);
 
   // --- STORYMODE CONSOLE STATE ---
   let value = $state("");
@@ -25,9 +23,7 @@
   let textarea = $state();
 
   let is_locked = $derived(simulationState.busy);
-  let signature_color = $derived(
-    get_signature_color(runtime.active_user || app.selected_user, "var(--gunmetal)"),
-  );
+  let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--gunmetal)"));
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---
   const storyboard = {
@@ -180,14 +176,7 @@
   data-testid="unified-console"
 >
   {#if app.view === "storyboard"}
-    <Button
-      flank={true}
-      variant="invisible"
-      aria-label="Shuffle Entities"
-      onclick={() => storyboard.shuffle()}
-      actions={[shimmy, tooltip]}
-      style="view-transition-name: console-left-flank"
-    >
+    <Button flank={true} variant="invisible" aria-label="Shuffle Entities" onclick={() => storyboard.shuffle()} actions={[shimmy, tooltip]} style="view-transition-name: console-left-flank">
       <svg
         viewBox="0 0 24 24"
         class="
@@ -195,22 +184,11 @@
         size-(--icon-medium)
       "
       >
-        <path
-          fill="currentColor"
-          d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z"
-        />
+        <path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" />
       </svg>
     </Button>
 
-    <Button
-      class="group"
-      data-ready={ready_to_begin}
-      variant="invisible"
-      busy={!ready_to_begin}
-      onclick={storyboard.begin}
-      actions={[pulse]}
-      style="view-transition-name: console-center-axis"
-    >
+    <Button class="group" data-ready={ready_to_begin} variant="invisible" busy={!ready_to_begin} onclick={storyboard.begin} actions={[pulse]} style="view-transition-name: console-center-axis">
       <h6
         class="
           m-0
@@ -218,26 +196,14 @@
           transition-all
           duration-300
 
-          {ready_to_begin
-          ? 'group-hover:scale-105 group-hover:brightness-125'
-          : 'text-slate-400 opacity-80'}"
-        style={ready_to_begin
-          ? "color: var(--emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--emerald-green) 25%, transparent);"
-          : undefined}
+          {ready_to_begin ? 'group-hover:scale-105 group-hover:brightness-125' : 'text-slate-400 opacity-80'}"
+        style={ready_to_begin ? "color: var(--emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--emerald-green) 25%, transparent);" : undefined}
       >
         {label_text}
       </h6>
     </Button>
 
-    <Button
-      flank={true}
-      variant="invisible"
-      aria-label="Settings"
-      onclick={app.toggle_control_panel}
-      data-testid="settings-button"
-      actions={[roll, tooltip]}
-      style="view-transition-name: console-settings-node"
-    >
+    <Button flank={true} variant="invisible" aria-label="Settings" onclick={app.toggle_control_panel} data-testid="settings-button" actions={[roll, tooltip]} style="view-transition-name: console-settings-node">
       <svg
         viewBox="0 0 24 24"
         class="
@@ -252,14 +218,7 @@
       </svg>
     </Button>
   {:else}
-    <Button
-      flank={true}
-      variant="invisible"
-      onclick={() => app.toggle_control_panel()}
-      aria-label="Settings"
-      actions={[roll, tooltip]}
-      style="view-transition-name: console-settings-node"
-    >
+    <Button flank={true} variant="invisible" onclick={() => app.toggle_control_panel()} aria-label="Settings" actions={[roll, tooltip]} style="view-transition-name: console-settings-node">
       <svg
         class="
         block
@@ -304,13 +263,7 @@
     ></textarea>
 
     {#if app.streaming.active}
-      <Button
-        variant="danger"
-        onclick={() => app.trigger_interrupt()}
-        aria-label="Interrupt Generation"
-        actions={[tooltip]}
-        style="view-transition-name: console-right-flank"
-      >
+      <Button variant="danger" onclick={() => app.trigger_interrupt()} aria-label="Interrupt Generation" actions={[tooltip]} style="view-transition-name: console-right-flank">
         <svg
           class="
           block
@@ -318,21 +271,11 @@
         "
           viewBox="0 0 24 24"
         >
-          <path
-            fill="currentColor"
-            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"
-          />
+          <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
         </svg>
       </Button>
     {:else}
-      <Button
-        variant="invisible"
-        onclick={handle_send}
-        disabled={!value.trim() || is_locked}
-        aria-label="Send Message"
-        actions={[stab, tooltip]}
-        style="view-transition-name: console-right-flank"
-      >
+      <Button variant="invisible" onclick={handle_send} disabled={!value.trim() || is_locked} aria-label="Send Message" actions={[stab, tooltip]} style="view-transition-name: console-right-flank">
         <svg
           class="
           block

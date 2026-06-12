@@ -63,17 +63,11 @@
   export function tooltip(node, text) {
     /** @param {MouseEvent | FocusEvent} e */
     const handle_enter = (e) => {
-      if (
-        e instanceof MouseEvent &&
-        e.type === "mouseover" &&
-        node.contains(/** @type {Node} */ (e.relatedTarget))
-      )
-        return;
+      if (e instanceof MouseEvent && e.type === "mouseover" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
 
       // Robustly handle both string and object parameters (use:tooltip={{ text: "..." }})
       const resolved_text = typeof text === "object" ? text?.text : text;
-      const active_text =
-        resolved_text || node.getAttribute("aria-label") || node.getAttribute("title");
+      const active_text = resolved_text || node.getAttribute("aria-label") || node.getAttribute("title");
 
       if (active_text) {
         if (node.hasAttribute("title")) {
@@ -86,12 +80,7 @@
 
     /** @param {MouseEvent | FocusEvent} e */
     const handle_leave = (e) => {
-      if (
-        e instanceof MouseEvent &&
-        e.type === "mouseout" &&
-        node.contains(/** @type {Node} */ (e.relatedTarget))
-      )
-        return;
+      if (e instanceof MouseEvent && e.type === "mouseout" && node.contains(/** @type {Node} */ (e.relatedTarget))) return;
       if (node.dataset.tooltipTitle) {
         node.setAttribute("title", node.dataset.tooltipTitle);
         delete node.dataset.tooltipTitle;
@@ -111,8 +100,7 @@
         // If this node is the active target, sync the text immediately
         if (tooltip_state.target === node && tooltip_state.active) {
           const resolved_text = typeof text === "object" ? text?.text : text;
-          const active_text =
-            resolved_text || node.getAttribute("aria-label") || node.getAttribute("title");
+          const active_text = resolved_text || node.getAttribute("aria-label") || node.getAttribute("title");
           if (active_text) tooltip_state.text = active_text;
         }
       },
@@ -140,15 +128,7 @@
   <Tooltip.Root open={tooltip_state.active}>
     <Tooltip.Portal>
       {#if tooltip_state.target && tooltip_state.text}
-        <Tooltip.Content
-          customAnchor={tooltip_state.target}
-          side="top"
-          sideOffset={8}
-          align="center"
-          avoidCollisions={true}
-          strategy="fixed"
-          forceMount
-        >
+        <Tooltip.Content customAnchor={tooltip_state.target} side="top" sideOffset={8} align="center" avoidCollisions={true} strategy="fixed" forceMount>
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
               <div {...wrapperProps}>

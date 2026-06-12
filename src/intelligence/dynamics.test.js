@@ -38,9 +38,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       // Gravity: (50 - 80) * 0.25 = -7.5
       // 80 - 7.5 = 72.5 -> Round to 73
       expect(state.ai.dynamics.intensity).toBe(73);
-      expect(
-        state.signal_prompts.some((/** @type {string} */ i) => i.includes("high-adrenaline")),
-      ).toBe(true);
+      expect(state.signal_prompts.some((/** @type {string} */ i) => i.includes("high-adrenaline"))).toBe(true);
       expect(state.signals.ADRENALINE).toBe(true);
     });
     it("should trigger VIOLENCE reflex on combat input", () => {
@@ -148,11 +146,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       expect(state.ai.dynamics.openness).toBe(20);
       expect(state.ai.dynamics.intensity).toBe(58);
       expect(state.ai.dynamics.affinity).toBe(43);
-      expect(
-        state.signal_prompts.some((/** @type {string} */ p) =>
-          p.includes("You don't believe them"),
-        ),
-      ).toBe(true);
+      expect(state.signal_prompts.some((/** @type {string} */ p) => p.includes("You don't believe them"))).toBe(true);
     });
   });
   describe("Trigger Matching & Semantic Grouping", () => {
@@ -162,7 +156,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       const matches = scan("She was kissing him.");
       const match = /** @type {any} */ (matches.find((m) => m.scan === "affection"));
       expect(match).toBeDefined();
-      expect(match.id).toBe("VULNERABILITY");
+      expect(match.id).toBe("VULNERABILITY_IMPULSE");
     });
     it("resolves 'fought' to root 'combat'", () => {
       const matches = scan("They fought bravely.");

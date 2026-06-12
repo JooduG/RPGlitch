@@ -5,13 +5,7 @@
  */
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
-import {
-  CircuitBreaker,
-  ExponentialBackoffRetryer,
-  getResolution,
-  NEGATIVE_PROMPT,
-  PromptTemplates,
-} from "@media";
+import { CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
 
@@ -82,8 +76,7 @@ export class VisualEngine {
         return await this.retryer.retry(
           async () => {
             // @ts-ignore
-            if (typeof window === "undefined" || typeof window.pluginTextToImage !== "function")
-              throw new Error("Image plugin missing");
+            if (typeof window === "undefined" || typeof window.pluginTextToImage !== "function") throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
             // @ts-ignore
@@ -135,11 +128,7 @@ export class VisualEngine {
       this.isOffline = this.breaker.isOpen;
 
       if (result && entityId && !options.noCache) {
-        await this._cacheImage(
-          entityId,
-          result,
-          options.type === "user" ? "character" : options.type || "character",
-        );
+        await this._cacheImage(entityId, result, options.type === "user" ? "character" : options.type || "character");
       }
 
       return result;
@@ -218,11 +207,7 @@ export class VisualEngine {
 
       if (!refined) return { imageUrl: null, refinedPrompt: null };
 
-      const cleanPrompt = this._cleanPrompt(
-        refined
-          ?.replace(/<think>[\s\S]*?<\/think>/gi, "")
-          .replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, ""),
-      );
+      const cleanPrompt = this._cleanPrompt(refined?.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, ""));
 
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
       return { imageUrl, refinedPrompt: cleanPrompt };
@@ -305,10 +290,7 @@ export class VisualEngine {
    * @param {string} id
    */
   async _resolveEntity(id) {
-    return (
-      (await entities.get("character", id)) ||
-      (await entities.get("fractal", id)) || { name: "Unknown", description: "" }
-    );
+    return (await entities.get("character", id)) || (await entities.get("fractal", id)) || { name: "Unknown", description: "" };
   }
 
   /**

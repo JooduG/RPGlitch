@@ -68,11 +68,7 @@ export const entities = {
   async list(type) {
     try {
       const items = await db.entities.where("type").equals(type).toArray();
-      return items.sort((a, b) =>
-        (String(/** @type {any} */ (a).name) || "").localeCompare(
-          String(/** @type {any} */ (b).name) || "",
-        ),
-      );
+      return items.sort((a, b) => (String(/** @type {any} */ (a).name) || "").localeCompare(String(/** @type {any} */ (b).name) || ""));
     } catch (err) {
       error(`Error listing the ${type} census:`, err);
       return [];
@@ -171,9 +167,7 @@ export const stories = {
       const allStories = await db.stories.orderBy("updated_at").reverse().toArray();
 
       // Batch fetch fractals to avoid N+1 queries
-      const fractalIds = [
-        ...new Set(allStories.filter((s) => s.fractal_id).map((s) => s.fractal_id)),
-      ];
+      const fractalIds = [...new Set(allStories.filter((s) => s.fractal_id).map((s) => s.fractal_id))];
       const fractals = await db.entities
         .where("id")
         .anyOf(/** @type {any[]} */ (fractalIds))
@@ -238,9 +232,7 @@ export function serialize(entity) {
 export function prune(vectors, type) {
   if (!Array.isArray(vectors)) return [];
   const limit = type === "past" ? 3 : 1;
-  return vectors
-    .slice(0, limit)
-    .map((/** @type {any} */ v) => v.text || v.content || v.summary || v);
+  return vectors.slice(0, limit).map((/** @type {any} */ v) => v.text || v.content || v.summary || v);
 }
 
 /**

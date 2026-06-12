@@ -1,11 +1,4 @@
-import {
-  generateSecureSeed,
-  generateUUID,
-  resolve_ms,
-  resolve_number,
-  resolve_px,
-  resolve_string,
-} from "@utils";
+import { generateSecureSeed, generateUUID, resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {
@@ -88,20 +81,13 @@ describe("dom utilities", () => {
             },
             paddingTop: resolveMockValue(el.dataset?.resolveValue || style.paddingTop, el),
             fontSize: resolveMockValue(el.dataset?.resolveValue || style.fontSize, el),
-            transitionDuration: resolveMockValue(
-              el.dataset?.resolveValue || style.transitionDuration,
-              el,
-            ),
+            transitionDuration: resolveMockValue(el.dataset?.resolveValue || style.transitionDuration, el),
             flexGrow: resolveMockValue(el.dataset?.resolveValue || style.flexGrow, el),
             fontFamily: resolveMockValue(el.dataset?.resolveValue || style.fontFamily, el),
           };
 
           // Ensure fontFamily is quoted if it resolved to a string with spaces or special chars
-          if (
-            mockStyle.fontFamily &&
-            !mockStyle.fontFamily.startsWith('"') &&
-            !mockStyle.fontFamily.startsWith("'")
-          ) {
+          if (mockStyle.fontFamily && !mockStyle.fontFamily.startsWith('"') && !mockStyle.fontFamily.startsWith("'")) {
             if (mockStyle.fontFamily.includes(" ") || mockStyle.fontFamily.includes("(")) {
               mockStyle.fontFamily = `"${mockStyle.fontFamily}"`;
             }
@@ -334,9 +320,7 @@ describe("helpers", () => {
     it("should return a valid UUID string", () => {
       const uuid = generateUUID();
       // Basic UUID v4 regex
-      expect(uuid).toMatch(
-        /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i,
-      );
+      expect(uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i);
     });
     it("should return different UUIDs on subsequent calls", () => {
       const uuid1 = generateUUID();

@@ -24,12 +24,7 @@ export const sanitizeToFragment = (dirty) => {
  */
 export const escape = (str) => {
   if (str === null || str === undefined) return "";
-  return String(str)
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&#39;");
+  return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 };
 /**
  * Evaluates if a given text should be refused based on safety or policy rules.
@@ -39,19 +34,13 @@ export const escape = (str) => {
 export const checkRefusal = (text) => {
   if (!text) return false;
   const lower = String(text).toLowerCase();
-  return CONFIG.MESSAGES.REFUSAL_TRIGGERS.some((trigger) =>
-    lower.includes(String(trigger).toLowerCase()),
-  );
+  return CONFIG.MESSAGES.REFUSAL_TRIGGERS.some((trigger) => lower.includes(String(trigger).toLowerCase()));
 };
 /**
  * @param {any} text
  */
 export const clean = (text) => (text ? text.trim() : "");
-export const IMMUTABLE_CONSTRAINTS = [
-  "Gravity is constant.",
-  "Characters cannot change their own inventory without permission.",
-  "Damage thresholds are binary.",
-];
+export const IMMUTABLE_CONSTRAINTS = ["Gravity is constant.", "Characters cannot change their own inventory without permission.", "Damage thresholds are binary."];
 
 /**
  * Validates an image file for size, type, and magic numbers.
@@ -61,20 +50,13 @@ export const IMMUTABLE_CONSTRAINTS = [
  */
 export const validateImage = async (file, options = {}) => {
   const maxSize = /** @type {any} */ (options).maxSize ?? 5 * 1024 * 1024; // Default 5MB
-  const allowedTypes = /** @type {any} */ (options).allowedTypes ?? [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ];
+  const allowedTypes = /** @type {any} */ (options).allowedTypes ?? ["image/jpeg", "image/png", "image/webp", "image/gif"];
 
   if (!file) throw new Error("No file provided");
 
   // 1. Size Check
   if (file.size > maxSize) {
-    throw new Error(
-      `File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max limit: ${maxSize / 1024 / 1024}MB`,
-    );
+    throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max limit: ${maxSize / 1024 / 1024}MB`);
   }
 
   // 2. MIME Type Check
@@ -88,33 +70,19 @@ export const validateImage = async (file, options = {}) => {
   const header = new Uint8Array(buffer);
   const signatures = {
     "image/jpeg": (/** @type {Uint8Array} */ h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
-    "image/png": (/** @type {Uint8Array} */ h) =>
-      h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4e && h[3] === 0x47,
-    "image/gif": (/** @type {Uint8Array} */ h) =>
-      h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
-    "image/webp": (/** @type {Uint8Array} */ h) =>
-      h[0] === 0x52 &&
-      h[1] === 0x49 &&
-      h[2] === 0x46 &&
-      h[3] === 0x46 &&
-      h[8] === 0x57 &&
-      h[9] === 0x45 &&
-      h[10] === 0x42 &&
-      h[11] === 0x50,
+    "image/png": (/** @type {Uint8Array} */ h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4e && h[3] === 0x47,
+    "image/gif": (/** @type {Uint8Array} */ h) => h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
+    "image/webp": (/** @type {Uint8Array} */ h) => h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46 && h[8] === 0x57 && h[9] === 0x45 && h[10] === 0x42 && h[11] === 0x50,
   };
 
   const verify = /** @type {any} */ (signatures)[file.type];
   if (verify) {
     if (!verify(header)) {
-      throw new Error(
-        "Security verification failed: File content does not match its declared type.",
-      );
+      throw new Error("Security verification failed: File content does not match its declared type.");
     }
   } else {
     // Fail if the type is allowed but we don't have a signature check for it to maintain Zero-Trust
-    throw new Error(
-      `Security verification failed: No signature check available for type ${file.type}`,
-    );
+    throw new Error(`Security verification failed: No signature check available for type ${file.type}`);
   }
 
   return true;

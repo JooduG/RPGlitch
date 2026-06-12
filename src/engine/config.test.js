@@ -1,14 +1,5 @@
 import { describe, it, expect } from "vitest";
-import {
-  APP_VERSION,
-  CONFIG,
-  ROLES,
-  ENTITIES,
-  MESSAGES,
-  ERROR_MESSAGES,
-  VIEWS,
-  THEME,
-} from "./config.js";
+import { APP_VERSION, CONFIG, ROLES, ENTITIES, MESSAGES, ERROR_MESSAGES, VIEWS, THEME } from "./config.js";
 
 describe("core/engine/config", () => {
   it("should have a valid APP_VERSION format", () => {

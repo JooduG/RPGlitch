@@ -32,8 +32,7 @@ const securityRules = [
     severity: "HERESY",
     // Look for assignments/keys that look like secrets. Avoid matching generic "key" or "token".
     regex: /\b(api_?key|auth_?token|secret_?key|password)\b\s*[:=]\s*["'][^"']{8,}/i,
-    message:
-      "🚨 Potential Secret Leak! Verify that variables are environment-bound and NOT hardcoded.",
+    message: "🚨 Potential Secret Leak! Verify that variables are environment-bound and NOT hardcoded.",
     validate: (line) => !line.includes("process.env"),
   },
 ];

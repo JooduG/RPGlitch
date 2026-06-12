@@ -27,17 +27,7 @@
    */
 
   /** @type {Props} */
-  let {
-    variant = "library",
-    entity = undefined,
-    type = "ai",
-    disabled = false,
-    role_label = "",
-    onclick = undefined,
-    on_select = undefined,
-    onViewProfile = undefined,
-    on_view_profile = undefined,
-  } = $props();
+  let { variant = "library", entity = undefined, type = "ai", disabled = false, role_label = "", onclick = undefined, on_select = undefined, onViewProfile = undefined, on_view_profile = undefined } = $props();
 
   // --- STATE RUNES ---
   let is_pressing = $state(false);
@@ -73,9 +63,7 @@
 
   // --- DERIVATIONS & COMPATIBILITY ---
   let is_empty = $derived(!entity);
-  let signature_color = $derived(
-    get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)"),
-  );
+  let signature_color = $derived(get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)"));
   let name = $derived(entity?.name || "Untitled");
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
 
@@ -98,16 +86,9 @@
       elements.forEach((/** @type {any} */ el) => {
         const styleAttr = el.getAttribute("style") || "";
         const hasTransitionName = styleAttr.includes("view-transition-name");
-        const currentName = (
-          el.style.getPropertyValue("view-transition-name") ||
-          el.style.viewTransitionName ||
-          ""
-        ).trim();
+        const currentName = (el.style.getPropertyValue("view-transition-name") || el.style.viewTransitionName || "").trim();
 
-        const isMatch =
-          currentName === targetName ||
-          currentName === `"${targetName}"` ||
-          (hasTransitionName && styleAttr.includes(targetName));
+        const isMatch = currentName === targetName || currentName === `"${targetName}"` || (hasTransitionName && styleAttr.includes(targetName));
 
         if (isMatch && el !== root_el) {
           el.style.removeProperty("view-transition-name");
@@ -240,29 +221,19 @@
     : ''}
     {variant === 'library' ? 'backdrop-blur-none' : 'backdrop-blur-md'}
   "
-  class:w-[calc(var(--storyboard-fractal-card-width)*0.5)]={type === "fractal" &&
-    variant === "library"}
-  class:h-[calc(var(--storyboard-fractal-card-height)*0.5)]={type === "fractal" &&
-    variant === "library"}
+  class:w-[calc(var(--storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
+  class:h-[calc(var(--storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
   class:w-[var(--storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
   class:h-[var(--storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
-  class:w-[calc(var(--storyboard-character-card-width)*0.5)]={type !== "fractal" &&
-    variant === "library"}
-  class:h-[calc(var(--storyboard-character-card-height)*0.5)]={type !== "fractal" &&
-    variant === "library"}
+  class:w-[calc(var(--storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
+  class:h-[calc(var(--storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
   class:w-[var(--storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
   class:h-[var(--storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   role="button"
   tabindex={disabled ? -1 : 0}
-  aria-label={variant === "library"
-    ? is_empty
-      ? "Create New"
-      : disabled
-        ? "Already selected"
-        : "Select " + name
-    : a11y_label}
+  aria-label={variant === "library" ? (is_empty ? "Create New" : disabled ? "Already selected" : "Select " + name) : a11y_label}
   onclick={handle_select}
   onanimationend={handle_animation_end}
   onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
@@ -342,9 +313,7 @@
       </svg>
     {:else}
       <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
-        <path
-          d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z"
-        />
+        <path d="M12,4A4,4 0 0,1 16,8A4,4 0 0,1 12,12A4,4 0 0,1 8,8A4,4 0 0,1 12,4M12,14C16.42,14 20,15.79 20,18V20H4V18C4,15.79 7.58,14 12,14Z" />
       </svg>
     {/if}
   </div>
@@ -499,9 +468,7 @@
       tabindex="-1"
     >
       <svg viewBox="0 0 24 24" class="size-(--icon-medium)">
-        <path
-          d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
-        />
+        <path d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14" />
       </svg>
     </Button>
   </nav>
@@ -523,10 +490,8 @@
     100% {
       transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
       box-shadow:
-        0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6)
-          rgb(from var(--color-neutral-900) r g b / 0.5),
-        0 0 calc(var(--spacing-unit) * 4)
-          rgb(from var(--signature-color) r g b / var(--opacity-whisper));
+        0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6) rgb(from var(--color-neutral-900) r g b / 0.5),
+        0 0 calc(var(--spacing-unit) * 4) rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     }
   }
 </style>

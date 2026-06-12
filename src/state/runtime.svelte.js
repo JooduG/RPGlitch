@@ -319,15 +319,9 @@ function createRuntimeStore() {
         const story = await db.stories.get(db_key);
         if (!story) return;
         const [user_data, ai_data, fractal_data] = await Promise.all([
-          /** @type {Promise<SimulationEntity | null>} */ (
-            entities.get("character", story.user_id)
-          ),
-          /** @type {Promise<SimulationEntity | null>} */ (
-            entities.get("character", story.ai_id || "unknown_ai")
-          ),
-          /** @type {Promise<SimulationEntity | null>} */ (
-            entities.get("fractal", story.fractal_id)
-          ),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.ai_id || "unknown_ai")),
+          /** @type {Promise<SimulationEntity | null>} */ (entities.get("fractal", story.fractal_id)),
         ]);
         if (user_data) {
           Object.assign(character_state, user_data);
@@ -336,19 +330,11 @@ function createRuntimeStore() {
         }
         if (ai_data) {
           active_ai_state = ai_data;
-          ai_physics = story.ai_dynamics
-            ? { ...story.ai_dynamics }
-            : story.entity_snapshots?.ai?.dynamics
-              ? { ...story.entity_snapshots.ai.dynamics }
-              : { ...ai_data.dynamics };
+          ai_physics = story.ai_dynamics ? { ...story.ai_dynamics } : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics } : { ...ai_data.dynamics };
         }
         if (fractal_data) {
           active_fractal_state = fractal_data;
-          fractal_physics = story.fractal_dynamics
-            ? { ...story.fractal_dynamics }
-            : story.entity_snapshots?.fractal?.dynamics
-              ? { ...story.entity_snapshots.fractal.dynamics }
-              : { ...fractal_data.dynamics };
+          fractal_physics = story.fractal_dynamics ? { ...story.fractal_dynamics } : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics } : { ...fractal_data.dynamics };
         }
         // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center
@@ -419,9 +405,7 @@ function createRuntimeStore() {
           // Add updated_at if not present for consistency
           const payload = { ...data, updated_at: Date.now() };
           await entities.update(type, String(id), payload);
-          const targets = [
-            ...new Set([character_state, active_user_state, active_ai_state, active_fractal_state]),
-          ];
+          const targets = [...new Set([character_state, active_user_state, active_ai_state, active_fractal_state])];
           targets.forEach((t) => {
             if (t && t.id === id) Object.assign(t, payload);
           });

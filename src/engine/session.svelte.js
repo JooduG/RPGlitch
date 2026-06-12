@@ -45,9 +45,7 @@ export const session_driver = {
    */
   create_from_selection: async function (selection) {
     const ai_entity = selection.ai_id ? await db.entities.get(selection.ai_id) : null;
-    const fractal_entity = selection.fractal_id
-      ? await db.entities.get(selection.fractal_id)
-      : null;
+    const fractal_entity = selection.fractal_id ? await db.entities.get(selection.fractal_id) : null;
 
     const id = await db.stories.add({
       title: selection.story_title || "New Story",
@@ -180,13 +178,7 @@ export const session_driver = {
    * @param {any} [meta]
    */
   log_turn: async function (text, character_name, role, meta = {}) {
-    return await this.log_message(
-      text,
-      role,
-      character_name,
-      meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN"),
-      meta,
-    );
+    return await this.log_message(text, role, character_name, meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN"), meta);
   },
 
   /**

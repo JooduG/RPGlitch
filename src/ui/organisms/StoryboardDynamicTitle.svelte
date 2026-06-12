@@ -23,15 +23,7 @@
   // CONSTANTS
   // ============================================
   const PREFIXES = {
-    STANDARD: [
-      "The Story of",
-      "The Adventures of",
-      "The Tale of",
-      "The Legend of",
-      "The Saga of",
-      "Chronicles of",
-      "The Journey of",
-    ],
+    STANDARD: ["The Story of", "The Adventures of", "The Tale of", "The Legend of", "The Saga of", "Chronicles of", "The Journey of"],
     FRACTAL: ["Adventures in", "Tales from", "The Fractal of", "Journey to"],
   };
 
@@ -157,10 +149,7 @@
   ondblclick={handle_reset}
 >
   {#if is_custom}
-    <span
-      class="[text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]"
-      >{custom_title}</span
-    >
+    <span class="[text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]">{custom_title}</span>
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}

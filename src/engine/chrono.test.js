@@ -92,25 +92,23 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
       rejectGeneration = reject;
     });
 
-    /** @type {any} */ (Engine.generate_ai_response).mockImplementation(
-      (/** @type {any} */ storyId, /** @type {any} */ options) => {
-        // Simulate AbortController behavior when signal is aborted
-        if (options?.signal) {
-          if (options.signal.aborted) {
+    /** @type {any} */ (Engine.generate_ai_response).mockImplementation((/** @type {any} */ storyId, /** @type {any} */ options) => {
+      // Simulate AbortController behavior when signal is aborted
+      if (options?.signal) {
+        if (options.signal.aborted) {
+          const err = new Error("aborted");
+          err.name = "AbortError";
+          rejectGeneration(err);
+        } else {
+          options.signal.addEventListener("abort", () => {
             const err = new Error("aborted");
             err.name = "AbortError";
             rejectGeneration(err);
-          } else {
-            options.signal.addEventListener("abort", () => {
-              const err = new Error("aborted");
-              err.name = "AbortError";
-              rejectGeneration(err);
-            });
-          }
+          });
         }
-        return generationPromise;
-      },
-    );
+      }
+      return generationPromise;
+    });
 
     // Advance turn (starts non-blocking background generator)
     await Chrono.advance_turn("hello");

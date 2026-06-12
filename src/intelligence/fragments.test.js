@@ -49,12 +49,8 @@ describe("entity-fragments", () => {
       // Polymorphic namespaces
       expect(ENTITY_CATALOG["character.eternal.non_physical"]).toBeDefined();
       expect(ENTITY_CATALOG["fractal.eternal.non_physical"]).toBeDefined();
-      expect(ENTITY_CATALOG["character.eternal.non_physical"].enhancer).toBe(
-        "CORE_COGNITIVE_ARCHITECT",
-      );
-      expect(ENTITY_CATALOG["fractal.eternal.non_physical"].enhancer).toBe(
-        "METAPHYISICAL_CHRONOMETER",
-      );
+      expect(ENTITY_CATALOG["character.eternal.non_physical"].enhancer).toBe("CORE_COGNITIVE_ARCHITECT");
+      expect(ENTITY_CATALOG["fractal.eternal.non_physical"].enhancer).toBe("METAPHYISICAL_CHRONOMETER");
     });
 
     it("should contain top-level keys for array-type sections", () => {

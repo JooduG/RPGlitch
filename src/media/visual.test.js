@@ -76,9 +76,7 @@ describe("VisualEngine (Reactive)", () => {
       dataUrl: "data:image/png;base64,123",
     });
 
-    const result = await visual_engine.generate(
-      "A photorealistic portrait of a Nordic investigator",
-    );
+    const result = await visual_engine.generate("A photorealistic portrait of a Nordic investigator");
 
     expect(result).toBe("data:image/png;base64,123");
     expect(visual_engine.isLoading).toBe(false);
@@ -116,9 +114,7 @@ describe("VisualEngine (Reactive)", () => {
   });
 
   it("should handle service failures with retries and circuit breaker", async () => {
-    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockRejectedValue(
-      new Error("GPU Offline"),
-    );
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockRejectedValue(new Error("GPU Offline"));
 
     // failureThreshold is 3
     await expect(visual_engine.generate("test prompt")).rejects.toThrow("GPU Offline");
@@ -133,9 +129,7 @@ describe("VisualEngine (Reactive)", () => {
     vi.useFakeTimers();
 
     try {
-      vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockReturnValue(
-        new Promise(() => {}),
-      );
+      vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockReturnValue(new Promise(() => {}));
 
       const generatePromise = visual_engine.generate("test prompt");
       // Prevent unhandled promise rejection warnings in the event loop during timer advancement
@@ -159,9 +153,7 @@ describe("VisualEngine (Reactive)", () => {
         status: "fetch_failure",
       });
 
-      await expect(visual_engine.generate("test prompt")).rejects.toThrow(
-        "Text-to-image failed: fetch_failure",
-      );
+      await expect(visual_engine.generate("test prompt")).rejects.toThrow("Text-to-image failed: fetch_failure");
     } finally {
       visual_engine.retryer.maxAttempts = originalMaxAttempts;
     }
@@ -176,18 +168,14 @@ describe("VisualEngine (Reactive)", () => {
         error: "GPU temperature exceeded limit",
       });
 
-      await expect(visual_engine.generate("test prompt")).rejects.toThrow(
-        "Text-to-image failed: GPU temperature exceeded limit",
-      );
+      await expect(visual_engine.generate("test prompt")).rejects.toThrow("Text-to-image failed: GPU temperature exceeded limit");
     } finally {
       visual_engine.retryer.maxAttempts = originalMaxAttempts;
     }
   });
 
   it("should enhance a prompt using Optics", async () => {
-    vi.mocked(llm_service.generate).mockResolvedValue(
-      '"Subject: A man in a cold facility, sharp focus, 8k."',
-    );
+    vi.mocked(llm_service.generate).mockResolvedValue('"Subject: A man in a cold facility, sharp focus, 8k."');
 
     const result = await visual_engine.enhance("A tired scientist");
 
@@ -196,9 +184,7 @@ describe("VisualEngine (Reactive)", () => {
   });
 
   it("should retry enhancement on failure", async () => {
-    vi.mocked(llm_service.generate)
-      .mockRejectedValueOnce(new Error("LLM Timeout"))
-      .mockResolvedValueOnce("Successful prompt");
+    vi.mocked(llm_service.generate).mockRejectedValueOnce(new Error("LLM Timeout")).mockResolvedValueOnce("Successful prompt");
 
     const result = await visual_engine.enhance("text");
 

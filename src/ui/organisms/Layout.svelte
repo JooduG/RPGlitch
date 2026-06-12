@@ -17,9 +17,7 @@
     align = "center", // 'center' | 'end' | 'start'
   } = $props();
 
-  let align_class = $derived(
-    align === "end" ? "items-end" : align === "start" ? "items-start" : "items-center",
-  );
+  let align_class = $derived(align === "end" ? "items-end" : align === "start" ? "items-start" : "items-center");
 </script>
 
 <div

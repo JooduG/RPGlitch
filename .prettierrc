@@ -2,14 +2,9 @@
   "useTabs": false,
   "singleQuote": false,
   "trailingComma": "all",
-  "printWidth": 100,
+  "printWidth": 300,
   "endOfLine": "lf",
-  "plugins": [
-    "prettier-plugin-svelte",
-    "prettier-plugin-markdown-html",
-    "prettier-plugin-sort-package-json",
-    "prettier-plugin-tailwindcss"
-  ],
+  "plugins": ["prettier-plugin-svelte", "prettier-plugin-markdown-html", "prettier-plugin-sort-package-json", "prettier-plugin-tailwindcss"],
   "svelteSortOrder": "options-scripts-markup-styles",
   "svelteAllowShorthand": true,
   "svelteIndentScriptAndStyle": true,

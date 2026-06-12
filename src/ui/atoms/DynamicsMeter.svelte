@@ -125,23 +125,8 @@
     "
   >
     {#if is_editing}
-      <Button
-        flank={true}
-        size="small"
-        square
-        class="hover:text-(--electric-cyan)"
-        onclick={decrease}
-        aria-label="Decrease"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          class="size-(--icon-small)"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+      <Button flank={true} size="small" square class="hover:text-(--electric-cyan)" onclick={decrease} aria-label="Decrease">
+        <svg viewBox="0 0 24 24" class="size-(--icon-small)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14" />
         </svg>
       </Button>
@@ -168,23 +153,8 @@
         max="100"
       />
 
-      <Button
-        flank={true}
-        size="small"
-        square
-        class="hover:text-(--electric-cyan)"
-        onclick={increase}
-        aria-label="Increase"
-      >
-        <svg
-          viewBox="0 0 24 24"
-          class="size-(--icon-small)"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-        >
+      <Button flank={true} size="small" square class="hover:text-(--electric-cyan)" onclick={increase} aria-label="Increase">
+        <svg viewBox="0 0 24 24" class="size-(--icon-small)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14M5 12h14" />
         </svg>
       </Button>

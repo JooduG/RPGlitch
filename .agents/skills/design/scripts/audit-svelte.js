@@ -46,8 +46,7 @@ const svelteRules = [
     id: "SVELTE_BANNED_PROPS",
     severity: "HERESY",
     regex: /\$\$props|\$\$restProps/,
-    message:
-      "CRITICAL: '$$props' is banned. Destructure '$props()' for better performance and clarity.",
+    message: "CRITICAL: '$$props' is banned. Destructure '$props()' for better performance and clarity.",
   },
   {
     id: "SVELTE_LEGACY_STORES",

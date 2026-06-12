@@ -8,15 +8,7 @@
 
   import { ScrollArea } from "@atoms";
 
-  let {
-    label = "",
-    isCode = true,
-    height = "auto",
-    maxHeight = "none",
-    class: className = "",
-    children,
-    isResonating = false,
-  } = $props();
+  let { label = "", isCode = true, height = "auto", maxHeight = "none", class: className = "", children, isResonating = false } = $props();
 </script>
 
 <div
@@ -28,9 +20,7 @@
     rounded-sm
     border
     border-solid
-    {isResonating
-    ? 'animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)] border-(--state-dev-accent)'
-    : 'border-(--electric-cyan)/20'}
+    {isResonating ? 'animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)] border-(--state-dev-accent)' : 'border-(--electric-cyan)/20'}
     bg-zinc-900/40
     text-left
     font-(--font-family-mono)

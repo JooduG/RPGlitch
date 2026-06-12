@@ -99,10 +99,7 @@ export const normalize = (base = {}) => {
   const norm_is_premade = is_premade ?? isPremade ?? 0;
   const norm_is_custom = is_custom ?? isCustom ?? 0;
   const norm_origin_id = origin_id ?? originId ?? null;
-  const norm_dynamics_baseline =
-    (dynamics_baseline ?? dynamicsBaseline) instanceof Object
-      ? { ...(dynamics_baseline ?? dynamicsBaseline) }
-      : null;
+  const norm_dynamics_baseline = (dynamics_baseline ?? dynamicsBaseline) instanceof Object ? { ...(dynamics_baseline ?? dynamicsBaseline) } : null;
 
   const result = {
     // --- CORE METADATA ---
@@ -126,9 +123,7 @@ export const normalize = (base = {}) => {
     type: type,
     signature_color: sanitize_html(String(signature_color)).trim() || get_random_signature_key(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
-    tags: (Array.isArray(tags) ? tags : [])
-      .map((s) => (s != null ? sanitize_html(String(s).trim()) : ""))
-      .filter(Boolean),
+    tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {
       physical: sanitize_html(eternal?.physical ?? "").trim(),
@@ -143,24 +138,10 @@ export const normalize = (base = {}) => {
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
-      no_background: !!(
-        modifiers?.no_background ??
-        modifiers?.noBackground ??
-        visuals?.noBackground ??
-        visuals?.no_background ??
-        false
-      ),
+      no_background: !!(modifiers?.no_background ?? modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
-      profile_picture_seed: Number(
-        modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0,
-      ),
-      color_name: sanitize_html(
-        modifiers?.color_name ??
-          modifiers?.colorName ??
-          visuals?.colorName ??
-          visuals?.color_name ??
-          "",
-      ).trim(),
+      profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
+      color_name: sanitize_html(modifiers?.color_name ?? modifiers?.colorName ?? visuals?.colorName ?? visuals?.color_name ?? "").trim(),
     },
     // --- DYNAMICS (Physics Sliders) ---
     dynamics: (() => {

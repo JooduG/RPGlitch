@@ -71,18 +71,9 @@ export function clean_image_prompts(text) {
   while (previous !== result) {
     previous = result;
     // Handle <image_prompt>...</image_prompt>
-    result = result.replace(
-      new RegExp(
-        `<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`,
-        "gi",
-      ),
-      "",
-    );
+    result = result.replace(new RegExp(`<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`, "gi"), "");
     // Handle <image>...</image>
-    result = result.replace(
-      new RegExp(`<image${attrRegex}\\s*>(?:(?!<image)[\\s\\S])*?<\\/image\\s*>`, "gi"),
-      "",
-    );
+    result = result.replace(new RegExp(`<image${attrRegex}\\s*>(?:(?!<image)[\\s\\S])*?<\\/image\\s*>`, "gi"), "");
   }
 
   return result;

@@ -68,9 +68,7 @@ describe("llm_service - generate", () => {
     // @ts-ignore
     window.ai = undefined; // Ensure it's totally gone
 
-    await expect(
-      llm_service.generate({ system: "", messages: [] }, { silent: true }),
-    ).rejects.toThrow(/LLM Engine Unavailable: window.ai not found/);
+    await expect(llm_service.generate({ system: "", messages: [] }, { silent: true })).rejects.toThrow(/LLM Engine Unavailable: window.ai not found/);
 
     window.ai = originalAi;
   });
@@ -93,8 +91,7 @@ describe("llm_service - generate", () => {
       messages: [{ role: "user", text: "Hello" }],
     };
     await llm_service.generate(payload, { silent: true, raw: true });
-    const expectedInstruction =
-      "System prompt\n\n\n\n[CONVERSATION HISTORY]\n[[User]]: Hello\n\n\n\n[START RESPONSE WITH]\nStart with this";
+    const expectedInstruction = "System prompt\n\n\n\n[CONVERSATION HISTORY]\n[[User]]: Hello\n\n\n\n[START RESPONSE WITH]\nStart with this";
     expect(window.ai).toHaveBeenCalledWith(expectedInstruction, expect.any(Object));
   });
 
@@ -160,9 +157,7 @@ describe("llm_service - generate", () => {
   it("should handle timeout/keep alive network errors", async () => {
     window.ai = vi.fn().mockRejectedValue(new Error("stream keep alive timeout"));
     const payload = { messages: [] };
-    await expect(llm_service.generate(payload, { silent: false })).rejects.toThrow(
-      ERROR_MESSAGES.CONNECTION_LOST,
-    );
+    await expect(llm_service.generate(payload, { silent: false })).rejects.toThrow(ERROR_MESSAGES.CONNECTION_LOST);
     expect(app.end_stream).toHaveBeenCalled();
   });
 

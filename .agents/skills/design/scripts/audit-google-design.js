@@ -38,13 +38,9 @@ try {
     const { errors = 0, warnings = 0, infos = 0 } = result.summary ?? {};
     const errorFindings = (result.findings ?? []).filter((f) => f.severity === "error");
 
-    console.log(
-      "\n================================================================================",
-    );
+    console.log("\n================================================================================");
     console.log("📐 AUDIT: DESIGN.md SPEC COMPLIANCE (@google/design.md)");
-    console.log(
-      "================================================================================\n",
-    );
+    console.log("================================================================================\n");
 
     if (errorFindings.length > 0) {
       console.log(`\x1b[31m[ERRORS]\x1b[0m ${errors} broken token reference(s):`);

@@ -118,10 +118,7 @@
   });
 
   // Secondary evaluation to show trailing typing pointers
-  const shouldShowCursor = $derived(
-    showCursor &&
-      !(!loop && currentWordIndex === wordsToAnimate.length - 1 && currentCharIndex >= totalLength),
-  );
+  const shouldShowCursor = $derived(showCursor && !(!loop && currentWordIndex === wordsToAnimate.length - 1 && currentCharIndex >= totalLength));
 
   // Compute delta progress increments across execution phases
   const activeSpeed = $derived.by(() => {
@@ -135,8 +132,7 @@
       else if (remaining > 50) baseSpeed = 0.04;
 
       const intensity = motion.isReduced ? 0 : motion.intensity;
-      const voiceRateFactor =
-        Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
+      const voiceRateFactor = Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
       return baseSpeed * intensity * voiceRateFactor;
     }
 
@@ -186,12 +182,7 @@
         lastTime = now;
 
         // Handle the initial start delay prop safely before writing characters
-        if (
-          currentCharIndex === 0 &&
-          phase === "typing" &&
-          delay > 0 &&
-          initialDelayElapsed < delay
-        ) {
+        if (currentCharIndex === 0 && phase === "typing" && delay > 0 && initialDelayElapsed < delay) {
           initialDelayElapsed += elapsed;
           return;
         }
@@ -252,11 +243,7 @@
   {@html slicedHtml}
 
   {#if shouldShowCursor}
-    <span
-      class="ml-0.5 inline-block text-(--signature-color) {blinkCursor
-        ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]'
-        : ''}"
-    >
+    <span class="ml-0.5 inline-block text-(--signature-color) {blinkCursor ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]' : ''}">
       {cursorGlyph}
     </span>
   {/if}

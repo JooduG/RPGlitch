@@ -20,21 +20,7 @@
   import { Slider } from "bits-ui";
 
   /** @type {Props} */
-  let {
-    value = $bindable(1.0),
-    min = 0,
-    max = 2.0,
-    step = 0.1,
-    disabled = false,
-    busy = false,
-    label = "",
-    neutral = null,
-    actions = [],
-    class: className = "",
-    style = "",
-    onchange = undefined,
-    ...rest
-  } = $props();
+  let { value = $bindable(1.0), min = 0, max = 2.0, step = 0.1, disabled = false, busy = false, label = "", neutral = null, actions = [], class: className = "", style = "", onchange = undefined, ...rest } = $props();
 
   // Logic Calculations for Nordic Gradient Track
   const center_val = $derived(neutral ?? (min + max) / 2);
@@ -48,17 +34,11 @@
   // position = calc(pct% * (100% - 16px) / 100% + 8px)
   // We invert that: css_pct = (pct / 100) * (1 - 16/track_px) * 100 + 8/track_px * 100
   // Since we can't read track_px reactively, we emit the calc() string directly.
-  const fill_start_css = $derived(
-    `calc(${fill_start} * (100% - 16px) / 100 + ${fill_start === 0 ? "0px" : `${fill_start / 100} * 16px`})`,
-  );
-  const fill_end_css = $derived(
-    `calc(${fill_end} * (100% - 16px) / 100 + ${fill_end / 100} * 16px)`,
-  );
+  const fill_start_css = $derived(`calc(${fill_start} * (100% - 16px) / 100 + ${fill_start === 0 ? "0px" : `${fill_start / 100} * 16px`})`);
+  const fill_end_css = $derived(`calc(${fill_end} * (100% - 16px) / 100 + ${fill_end / 100} * 16px)`);
 
   // Diagnostic identifier
-  const test_id = $derived(
-    label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider",
-  );
+  const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider");
 
   let is_disabled = $derived(disabled || controlState.intent_active);
 
@@ -150,16 +130,7 @@
     {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? "DISABLED" : (value ?? 1.0).toFixed(1)}
   </span>
 
-  <Slider.Root
-    type="single"
-    {value}
-    onValueChange={handle_value_change}
-    {min}
-    {max}
-    {step}
-    disabled={is_disabled || busy}
-    {...rest}
-  >
+  <Slider.Root type="single" {value} onValueChange={handle_value_change} {min} {max} {step} disabled={is_disabled || busy} {...rest}>
     {#snippet child({ props })}
       <div
         {...props}

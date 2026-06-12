@@ -5,9 +5,7 @@ import markdownIt from "markdown-it";
 import githubRules, { init } from "@github/markdownlint-github";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const localConfig = JSON.parse(
-  fs.readFileSync(path.resolve(__dirname, "./.markdownlint.json"), "utf8"),
-);
+const localConfig = JSON.parse(fs.readFileSync(path.resolve(__dirname, "./.markdownlint.json"), "utf8"));
 
 export default {
   config: {

@@ -83,8 +83,7 @@ describe("clean_image_prompts", () => {
     },
     {
       description: "nested image prompts",
-      input:
-        "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End",
+      input: "Start <image_prompt>Outer <image_prompt>Inner</image_prompt> Outer-End</image_prompt> End",
       expected: "Start  End",
     },
     {
@@ -128,9 +127,7 @@ describe("clean_image_prompts", () => {
       expected: "Hello <image_prompt world",
     },
   ];
-  it.each(testCases)("should handle $description", ({ input, expected }) =>
-    expect(clean_image_prompts(input)).toBe(expected),
-  );
+  it.each(testCases)("should handle $description", ({ input, expected }) => expect(clean_image_prompts(input)).toBe(expected));
 });
 
 describe("text-parser: escapeXml", () => {

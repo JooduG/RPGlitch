@@ -8,9 +8,7 @@ vi.mock("dompurify", () => ({
     sanitize: vi.fn((input, options) => {
       let str = typeof input !== "string" ? String(input || "") : input;
       // Simple mock logic for stripping script tags and onerror in unit tests
-      str = str
-        .replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "")
-        .replace(/onerror\s*=\s*["']?([^"']+)["']?/gim, "");
+      str = str.replace(/<script\b[^>]*>([\s\S]*?)<\/script>/gim, "").replace(/onerror\s*=\s*["']?([^"']+)["']?/gim, "");
       if (options && options.RETURN_DOM_FRAGMENT) {
         // Mock a document fragment with some simple properties for tests
         return {

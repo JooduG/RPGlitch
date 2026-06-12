@@ -109,12 +109,10 @@ export function shimmy(node) {
         [
           { transform: "translate(0, 0) rotate(0deg)" },
           {
-            transform:
-              "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(-30deg)",
+            transform: "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(-30deg)",
           },
           {
-            transform:
-              "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(30deg)",
+            transform: "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(30deg)",
           },
           { transform: "translate(0, 0) rotate(0deg)" },
         ],

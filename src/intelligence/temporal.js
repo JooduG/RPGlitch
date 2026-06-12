@@ -188,15 +188,11 @@ export function resolve(entity, vector_id, resolution = null) {
   entity.past.push(vector);
 
   // Telemetry
-  session_driver.log_system_entry(
-    `Vector Resolved: ${vector.text.substring(0, 40)}... [${resolution || "PAST"}]`,
-    "system",
-    {
-      type: TELEMETRY_TYPES.VECTOR_RESOLUTION,
-      vector,
-      resolution,
-    },
-  );
+  session_driver.log_system_entry(`Vector Resolved: ${vector.text.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
+    type: TELEMETRY_TYPES.VECTOR_RESOLUTION,
+    vector,
+    resolution,
+  });
 }
 
 /**
@@ -290,10 +286,7 @@ export const temporal_engine = {
     try {
       const story_id = Session.require_active();
       const messages = await Session.load_log(story_id);
-      const unconsolidated = messages.filter(
-        (/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) =>
-          !m.meta?.consolidated && m.role !== "system",
-      );
+      const unconsolidated = messages.filter((/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated && m.role !== "system");
 
       if (unconsolidated.length >= 12) {
         const slice = unconsolidated.slice(0, 10);
@@ -308,15 +301,11 @@ export const temporal_engine = {
             await runtime.update_entity("character", ai.id, { past: ai.past });
 
             // Telemetry
-            await session_driver.log_system_entry(
-              `Memory Weaved: ${resonance.text.substring(0, 50)}...`,
-              "system",
-              {
-                type: TELEMETRY_TYPES.MEMORY_FORMATION,
-                vectors: { past: [resonance], future: [] },
-                turns_count: slice.length,
-              },
-            );
+            await session_driver.log_system_entry(`Memory Weaved: ${resonance.text.substring(0, 50)}...`, "system", {
+              type: TELEMETRY_TYPES.MEMORY_FORMATION,
+              vectors: { past: [resonance], future: [] },
+              turns_count: slice.length,
+            });
           }
         }
 

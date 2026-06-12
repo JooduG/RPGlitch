@@ -75,9 +75,7 @@
    */
   async function run_mock(role) {
     const is_fractal = role === "fractal";
-    const entity_name = is_fractal
-      ? app.selected_fractal?.name || runtime.active_fractal?.name || "Fractal"
-      : app.selected_ai?.name || runtime.active_ai?.name || "AI";
+    const entity_name = is_fractal ? app.selected_fractal?.name || runtime.active_fractal?.name || "Fractal" : app.selected_ai?.name || runtime.active_ai?.name || "AI";
 
     const content = MOCK_CONTENT[role];
 
@@ -115,14 +113,7 @@
   });
 </script>
 
-<Dialog
-  type="confirm"
-  bind:open={is_confirming_reset}
-  title="Wipe Memories?"
-  message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
-  confirm_label="Erase All"
-  on_confirm={hard_reset}
-/>
+<Dialog type="confirm" bind:open={is_confirming_reset} title="Wipe Memories?" message="This will permanently delete all stories, characters, and logs. This action cannot be undone." confirm_label="Erase All" on_confirm={hard_reset} />
 
 <Modal variant="standard" on_close={() => app.toggle_control_panel()} data-testid="control-panel">
   <header>
@@ -136,11 +127,7 @@
       gap-4
     "
     >
-      <Toggle
-        label="CALL MODE"
-        bind:value={settings.call_mode}
-        onchange={() => app.save_settings()}
-      />
+      <Toggle label="CALL MODE" bind:value={settings.call_mode} onchange={() => app.save_settings()} />
       <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
       <Toggle
         label="CHARACTER VOICE"
@@ -174,11 +161,7 @@
         gap-4
       "
       >
-        <TextField
-          is_edit={true}
-          placeholder="Optional Prologue Instructions like 'Start in media res' or 'Describe the weather first'"
-          bind:value={prologue}
-        />
+        <TextField is_edit={true} placeholder="Optional Prologue Instructions like 'Start in media res' or 'Describe the weather first'" bind:value={prologue} />
       </section>
     {/if}
 
@@ -200,13 +183,7 @@
           gap-4
         "
         >
-          <Button
-            label="PHOTO"
-            variant="secondary"
-            size="small"
-            onclick={() =>
-              visual_engine.visualize(runtime.story_id, prologue || "Current scene", "ai")}
-          />
+          <Button label="PHOTO" variant="secondary" size="small" onclick={() => visual_engine.visualize(runtime.story_id, prologue || "Current scene", "ai")} />
         </div>
         <div
           class="
@@ -217,18 +194,8 @@
           opacity-30
         "
         >
-          <Button
-            label="MOCK PROLOGUE"
-            variant="invisible"
-            size="small"
-            onclick={() => run_mock("fractal")}
-          />
-          <Button
-            label="MOCK TURN"
-            variant="invisible"
-            size="small"
-            onclick={() => run_mock("ai")}
-          />
+          <Button label="MOCK PROLOGUE" variant="invisible" size="small" onclick={() => run_mock("fractal")} />
+          <Button label="MOCK TURN" variant="invisible" size="small" onclick={() => run_mock("ai")} />
         </div>
         <div
           class="
@@ -241,12 +208,7 @@
           pt-2
         "
         >
-          <Button
-            label="END STORY"
-            variant="secondary"
-            size="small"
-            onclick={() => gamemaster.execute_epilogue(runtime.story_id)}
-          />
+          <Button label="END STORY" variant="secondary" size="small" onclick={() => gamemaster.execute_epilogue(runtime.story_id)} />
         </div>
       </section>
     {/if}
@@ -269,11 +231,7 @@
           "
           >
             {#each story_cache as story (story.id)}
-              <StoryCard
-                {story}
-                active={runtime.story_id === String(story.id)}
-                onclick={() => load_story(story.id)}
-              />
+              <StoryCard {story} active={runtime.story_id === String(story.id)} onclick={() => load_story(story.id)} />
             {/each}
           </div>
         </ScrollArea>
@@ -318,22 +276,9 @@
         gap-4
       "
       >
-        <Toggle
-          label="DEVMODE"
-          bind:value={settings.dev_mode}
-          onchange={() => app.save_settings()}
-        />
-        <Toggle
-          label="GRID"
-          bind:value={settings.dev_grid_visible}
-          onchange={() => app.save_settings()}
-        />
-        <Button
-          variant="danger"
-          size="medium"
-          onclick={() => (is_confirming_reset = true)}
-          title="Wipe Memories"
-        >
+        <Toggle label="DEVMODE" bind:value={settings.dev_mode} onchange={() => app.save_settings()} />
+        <Toggle label="GRID" bind:value={settings.dev_grid_visible} onchange={() => app.save_settings()} />
+        <Button variant="danger" size="medium" onclick={() => (is_confirming_reset = true)} title="Wipe Memories">
           <svg
             class="
               size-(--icon-medium)

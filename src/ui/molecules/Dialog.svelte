@@ -31,11 +31,7 @@
   } = $props();
 
   // Derived action config — single source of truth for the action button
-  const action = $derived(
-    type === "confirm"
-      ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
-      : { variant: /** @type {"primary"} */ ("primary"), label: ok_label },
-  );
+  const action = $derived(type === "confirm" ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label } : { variant: /** @type {"primary"} */ ("primary"), label: ok_label });
 
   const handle_confirm = () => {
     if (busy) return;
@@ -58,8 +54,7 @@
   onkeydown={(e) => {
     if (open && e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
-      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable)
-        return;
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
       e.preventDefault();
       handle_confirm();
     }
@@ -71,14 +66,7 @@
     <AlertDialog.Overlay forceMount>
       {#snippet child({ props: overlayProps, open: is_open })}
         {#if is_open}
-          <Backdrop
-            {...overlayProps}
-            onclick={handle_cancel}
-            z_index="var(--z-index-max)"
-            {busy}
-            is_blurred={true}
-            data-backdrop="mini"
-          >
+          <Backdrop {...overlayProps} onclick={handle_cancel} z_index="var(--z-index-max)" {busy} is_blurred={true} data-backdrop="mini">
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div
@@ -130,13 +118,7 @@
                   <footer class="flex justify-end gap-(--gap-standard)">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
-                        <Button
-                          {...actionProps}
-                          variant={action.variant}
-                          onclick={handle_confirm}
-                          label={action.label}
-                          disabled={busy}
-                        />
+                        <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />
                       {/snippet}
                     </AlertDialog.Action>
                   </footer>

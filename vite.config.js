@@ -49,13 +49,7 @@ export default defineConfig(({ command, mode }) => {
     define: {
       "import.meta": "{}",
     },
-    plugins: [
-      designTokenSync(),
-      tailwindcss(),
-      svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }),
-      !isDev && viteSingleFile(),
-      devtoolsJson(),
-    ].filter(Boolean),
+    plugins: [designTokenSync(), tailwindcss(), svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }), !isDev && viteSingleFile(), devtoolsJson()].filter(Boolean),
     resolve: {
       // Top-Level Domain Aliasing
       // Restricting aliases to major folders forces better structural boundaries.

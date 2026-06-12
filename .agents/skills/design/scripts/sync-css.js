@@ -52,8 +52,7 @@ function flattenFrontmatter(data) {
     Object.entries(obj).forEach(([key, value]) => {
       if (obj === data && ["name", "version", "description"].includes(key)) return;
 
-      const category =
-        obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : active_category;
+      const category = obj === data && AUTHORITATIVE_CATEGORIES.includes(key) ? key : active_category;
 
       if (value && typeof value === "object") {
         traverse(value, category);
@@ -104,15 +103,12 @@ export const PALETTE_VARS = ${JSON.stringify(palette_vars, null, 2)};`;
 
   if (fs.existsSync(PATHS.jsBridge)) {
     let content = fs.readFileSync(PATHS.jsBridge, "utf8");
-    const regex =
-      /(\/\/ --- BEGIN AUTO-GENERATED TOKENS ---)[\s\S]*?(\/\/ --- END AUTO-GENERATED TOKENS ---)/;
+    const regex = /(\/\/ --- BEGIN AUTO-GENERATED TOKENS ---)[\s\S]*?(\/\/ --- END AUTO-GENERATED TOKENS ---)/;
     if (regex.test(content)) {
       content = content.replace(regex, `$1\n${new_blocks}\n$2`);
       fs.writeFileSync(PATHS.jsBridge, content);
     } else {
-      console.warn(
-        "⚠️ Could not find auto-generated boundaries in tokens.js. Sync skipped for JS bridge.",
-      );
+      console.warn("⚠️ Could not find auto-generated boundaries in tokens.js. Sync skipped for JS bridge.");
     }
   } else {
     // Fallback if tokens.js doesn't exist yet
@@ -144,9 +140,7 @@ export function syncToCss() {
     return `${category_header}\n${properties}`;
   }).join("\n\n");
 
-  const css_blocks = [...body.matchAll(/```css([\s\S]*?)```/g)]
-    .map((m) => m[1].trim())
-    .join("\n\n");
+  const css_blocks = [...body.matchAll(/```css([\s\S]*?)```/g)].map((m) => m[1].trim()).join("\n\n");
 
   const css_output = `${css_header}\n${css_properties}\n}\n\n${css_blocks}${css_blocks ? "\n" : ""}`;
 
@@ -155,9 +149,6 @@ export function syncToCss() {
   runFormatter();
 }
 
-if (
-  process.argv[1] &&
-  process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/sync-css.js")
-) {
+if (process.argv[1] && process.argv[1].replace(/\\/g, "/").endsWith(".agents/skills/design/scripts/sync-css.js")) {
   syncToCss();
 }

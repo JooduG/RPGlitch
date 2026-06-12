@@ -143,20 +143,16 @@ export const gamemaster = {
     const active_signals = Object.keys(snapshot.signals || {});
 
     if (deltas.length > 0 || meta) {
-      await session_driver.log_system_entry(
-        log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot",
-        "system",
-        {
-          type: TELEMETRY_TYPES.DYNAMICS_DELTA,
-          deltas,
-          ai: snapshot.ai?.dynamics,
-          fractal: snapshot.fractal?.dynamics,
-          vectors: meta?.vectors,
-          signals: active_signals,
-          signal_prompts: meta?.signal_prompts,
-          flags: meta?.flags,
-        },
-      );
+      await session_driver.log_system_entry(log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot", "system", {
+        type: TELEMETRY_TYPES.DYNAMICS_DELTA,
+        deltas,
+        ai: snapshot.ai?.dynamics,
+        fractal: snapshot.fractal?.dynamics,
+        vectors: meta?.vectors,
+        signals: active_signals,
+        signal_prompts: meta?.signal_prompts,
+        flags: meta?.flags,
+      });
     }
   },
 
@@ -232,27 +228,13 @@ export const gamemaster = {
       runtime.fractal = snapshot.fractal?.dynamics;
 
       // 5. TRANSITION & LOGGING: Decoupled from dynamic metric mutations
-      app.log(
-        "gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...",
-        "system",
-      );
+      app.log("gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...", "system");
       runtime.turn_type = "AI_TURN";
 
       // 6. GENERATION: Call the model with retry logic
       const validationResult = await this.execute_with_retry(
         async () => {
-          const {
-            temperature,
-            top_p,
-            repetition_penalty,
-            max_tokens,
-            model,
-            onToken,
-            json,
-            signal,
-            silent,
-            raw,
-          } = llm_options;
+          const { temperature, top_p, repetition_penalty, max_tokens, model, onToken, json, signal, silent, raw } = llm_options;
 
           const generated_text = await llm_service.generate(
             {
@@ -291,8 +273,7 @@ export const gamemaster = {
       // validationResult is generated within the retry loop
 
       // 7. PERSISTENCE: Save the result
-      const character_name =
-        role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
+      const character_name = role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
 
       if (validationResult.violated) {
         final_meta.sino_logic_violation = true;
@@ -385,11 +366,7 @@ export const gamemaster = {
     const raw_messages = await session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system } = prompt_builder.build_epilogue(
-      clean_entities,
-      current_dynamics,
-      recent_history,
-    );
+    const { system } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
     const nodeId = generateUUID();
@@ -410,10 +387,7 @@ export const gamemaster = {
       return await fn();
     } catch (err) {
       if (retries <= 0) throw err;
-      app.log(
-        `gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`,
-        "warn",
-      );
+      app.log(`gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
       await new Promise((resolve) => setTimeout(resolve, delay));
       return await this.execute_with_retry(fn, retries - 1, delay * 2);
     }

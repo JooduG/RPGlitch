@@ -2,14 +2,5 @@
   "config": {
     "MD036": false,
   },
-  "globs": [
-    "**/*.md",
-    "**/*.mdx",
-    "!node_modules",
-    "!**/archive/**",
-    "!.gemini",
-    "!tmp",
-    "!scribbles.md",
-    "!**/svelte-devtools/**",
-  ],
+  "globs": ["**/*.md", "**/*.mdx", "!node_modules", "!**/archive/**", "!.gemini", "!tmp", "!scribbles.md", "!**/svelte-devtools/**"],
 }

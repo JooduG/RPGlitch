@@ -50,14 +50,7 @@ export default defineConfig([
 
   // 3. Svelte Parsing Infrastructure
   {
-    files: [
-      "**/*.svelte",
-      "*.svelte",
-      "**/*.svelte.js",
-      "*.svelte.js",
-      "**/*.svelte.ts",
-      "*.svelte.ts",
-    ],
+    files: ["**/*.svelte", "*.svelte", "**/*.svelte.js", "*.svelte.js", "**/*.svelte.ts", "*.svelte.ts"],
     languageOptions: {
       parser: svelteParser,
       globals: {

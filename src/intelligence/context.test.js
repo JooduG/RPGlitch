@@ -82,12 +82,8 @@ describe("context_broker", () => {
   describe("manage_vector_lifecycle", () => {
     it("should gracefully handle missing entity or future arrays", async () => {
       await expect(context_broker.manage_vector_lifecycle(null, "log")).resolves.not.toThrow();
-      await expect(
-        context_broker.manage_vector_lifecycle({ future: null }, "log"),
-      ).resolves.not.toThrow();
-      await expect(
-        context_broker.manage_vector_lifecycle({ future: [] }, "log"),
-      ).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: null }, "log")).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: [] }, "log")).resolves.not.toThrow();
     });
 
     it("should gracefully handle missing log text for non-conditional vectors", async () => {
@@ -228,11 +224,7 @@ describe("context_broker", () => {
       };
 
       await context_broker.manage_vector_lifecycle(entity, "");
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(
-        entity,
-        "v_chrono_req_ok",
-        "AUTO_RESOLVED",
-      );
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED");
     });
 
     it("should fallback to legacy fuzzy matching when no requirements are defined", async () => {
@@ -265,11 +257,7 @@ describe("context_broker", () => {
 
       const start = performance.now();
       // Hydrate with new input and the massive history log
-      const _payload = await context_broker.hydrate(
-        "Testing with tag_5 in input",
-        "simulation",
-        mockHistory,
-      );
+      const _payload = await context_broker.hydrate("Testing with tag_5 in input", "simulation", mockHistory);
       const end = performance.now();
 
       const duration = end - start;

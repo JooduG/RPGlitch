@@ -38,10 +38,7 @@
 
       const activeRole = app.streaming.role;
       if (activeRole === "ai" || activeRole === "fractal") {
-        const entity =
-          activeRole === "ai"
-            ? runtime.active_ai || app.selected_ai
-            : runtime.active_fractal || app.selected_fractal;
+        const entity = activeRole === "ai" ? runtime.active_ai || app.selected_ai : runtime.active_fractal || app.selected_fractal;
 
         if (entity && entity.voice) {
           Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
@@ -54,9 +51,7 @@
     if (app.streaming.active) {
       const current_raw_text = app.streaming.text ?? app.streaming.content ?? "";
 
-      const sanitized_stream_track = current_raw_text
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<think>[\s\S]*/gi, "");
+      const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
 
       const fresh_buffer = sanitized_stream_track.slice(spoken_character_cursor);
 
@@ -82,9 +77,7 @@
       Audio.play("notification");
 
       const current_raw_text = app.streaming.text ?? app.streaming.content ?? "";
-      const sanitized_stream_track = current_raw_text
-        .replace(/<think>[\s\S]*?<\/think>/gi, "")
-        .replace(/<think>[\s\S]*/gi, "");
+      const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
 
       const remaining_text = sanitized_stream_track.slice(spoken_character_cursor);
       const clean_remainder = clean_image_prompts(remaining_text).trim();
@@ -184,14 +177,7 @@
   }
 </script>
 
-<Dialog
-  type="confirm"
-  bind:open={show_delete_confirm}
-  title="Delete Entry?"
-  message="Permanently delete this log entry? This cannot be undone."
-  confirm_label="Delete"
-  on_confirm={execute_delete}
-/>
+<Dialog type="confirm" bind:open={show_delete_confirm} title="Delete Entry?" message="Permanently delete this log entry? This cannot be undone." confirm_label="Delete" on_confirm={execute_delete} />
 
 <div
   class="
@@ -213,8 +199,7 @@
         id={entry.id}
         text={entry.text}
         sender={map_role(entry.role)}
-        character_name={entry.character_name ||
-          (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
+        character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
         timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
         attachments={entry.attachments}
         is_last={index === simulation_log.feed.length - 1}
@@ -232,15 +217,7 @@
     {/each}
 
     {#if is_active_turn}
-      <Message
-        id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"}
-        text={app.streaming.text ?? app.streaming.content ?? ""}
-        sender={active_turn_role ?? "ai"}
-        character_name={active_turn_name ?? ""}
-        timestamp={new Date()}
-        is_last={true}
-        busy={true}
-      />
+      <Message id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"} text={app.streaming.text ?? app.streaming.content ?? ""} sender={active_turn_role ?? "ai"} character_name={active_turn_name ?? ""} timestamp={new Date()} is_last={true} busy={true} />
     {:else if simulation_log.feed.length === 0}
       <div
         class="
@@ -257,10 +234,7 @@
           [&>p]:max-w-[calc(var(--column-unit)*8)]
         "
       >
-        <p>
-          Establishing context stream... If the screen remains black, please check your network or
-          AI plugin settings.
-        </p>
+        <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
         <Button variant="primary" onclick={() => session.retry()} label="Retry Connection" />
       </div>
     {/if}

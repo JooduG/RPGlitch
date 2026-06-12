@@ -74,10 +74,7 @@
             "
           ></div>
           <div class="relative z-20 flex h-full w-full items-center justify-center">
-            <ProfilePicture
-              {entity}
-              class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!"
-            />
+            <ProfilePicture {entity} class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!" />
           </div>
         </button>
       </article>
@@ -166,10 +163,7 @@
             "
           ></div>
           <div class="relative z-20 flex h-full w-full items-center justify-center">
-            <ProfilePicture
-              {entity}
-              class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!"
-            />
+            <ProfilePicture {entity} class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!" />
           </div>
         </button>
       </article>

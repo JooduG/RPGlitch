@@ -12,9 +12,7 @@
   // --- DERIVED RUNES ---
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
-  let fractal_opacity = $derived(
-    app.view === "storymode" ? "var(--opacity-muted)" : "var(--opacity-muted)",
-  );
+  let fractal_opacity = $derived(app.view === "storymode" ? "var(--opacity-muted)" : "var(--opacity-muted)");
 
   // --- LIFECYCLE EFFECTS ---
 
@@ -30,14 +28,8 @@
   });
 </script>
 
-<main
-  class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden"
-  data-view={app.view}
->
-  <div
-    class="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-neutral-900"
-    aria-hidden="true"
-  >
+<main class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden" data-view={app.view}>
+  <div class="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
     <div
@@ -48,8 +40,7 @@
     ></div>
 
     <div
-      class="pointer-events-none fixed -inset-5 z-(--z-index-max) bg-(image:--noise-url) mix-blend-overlay {app.sim_phase ===
-      'generating'
+      class="pointer-events-none fixed -inset-5 z-(--z-index-max) bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating'
         ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
         : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-(--opacity-ghost)'}"
       style:animation-play-state={motion.isReduced ? "paused" : "running"}
@@ -106,9 +97,7 @@
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 15% 50%, var(--background-gradient-1), transparent 50%),
-      radial-gradient(circle at 85% 30%, var(--background-gradient-2), transparent 50%),
-      radial-gradient(circle at 50% 80%, var(--background-gradient-3), transparent 50%),
+      radial-gradient(circle at 15% 50%, var(--background-gradient-1), transparent 50%), radial-gradient(circle at 85% 30%, var(--background-gradient-2), transparent 50%), radial-gradient(circle at 50% 80%, var(--background-gradient-3), transparent 50%),
       radial-gradient(circle at 50% 10%, var(--background-gradient-4), transparent 50%);
     background-size: cover;
     background-attachment: fixed;
@@ -155,11 +144,7 @@
     z-index: var(--z-index-max);
     opacity: var(--opacity-whisper);
     border: var(--spacing-pixel) dashed var(--frozen);
-    background-image: radial-gradient(
-      circle at 0 0,
-      var(--frozen) calc(var(--spacing-unit) / 2),
-      transparent calc(var(--spacing-unit) / 2 + var(--spacing-pixel))
-    );
+    background-image: radial-gradient(circle at 0 0, var(--frozen) calc(var(--spacing-unit) / 2), transparent calc(var(--spacing-unit) / 2 + var(--spacing-pixel)));
     background-size: calc(100% / 12) calc(100% / 12);
     background-repeat: repeat;
   }

@@ -38,12 +38,7 @@ export function syncIgnores() {
     const ei = content.indexOf(end);
 
     if (si !== -1 && ei !== -1) {
-      const newContent =
-        content.slice(0, si + start.length) +
-        "\n    ignores: " +
-        JSON.stringify(common, null, 2).replace(/\n/g, "\n    ") +
-        ",\n    " +
-        content.slice(ei);
+      const newContent = content.slice(0, si + start.length) + "\n    ignores: " + JSON.stringify(common, null, 2).replace(/\n/g, "\n    ") + ",\n    " + content.slice(ei);
       fs.writeFileSync(eslintPath, newContent);
       console.log("✅ Synced eslint.config.js");
     }
@@ -89,9 +84,7 @@ export function syncIgnores() {
     console.log("✅ Synced .vscode/settings.json");
   }
 
-  console.log(
-    "\n================================================================================\n",
-  );
+  console.log("\n================================================================================\n");
 }
 
 // Main entry check

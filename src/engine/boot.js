@@ -45,10 +45,7 @@ export const AppBootstrap = {
       app.log("[Engine] >> System Online.", "system");
     } catch (err) {
       console.error("[Engine] 🚫 Critical Failure:", err);
-      app.log(
-        `[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`,
-        "error",
-      );
+      app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
 
       const error_template = `
                 <div style="background:var(--chalk); color:var(--crimson-red); padding:calc(var(--spacing-unit) * 8); font-family:var(--font-family-mono); height:100vh; overflow:auto;">

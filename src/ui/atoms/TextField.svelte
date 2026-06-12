@@ -48,9 +48,7 @@
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || controlState.intent_active);
   const paragraphs = $derived(parse_markdown(value));
-  const is_expanded = $derived(
-    (is_focused || busy || always_expanded) && (!!header_actions || !!status),
-  );
+  const is_expanded = $derived((is_focused || busy || always_expanded) && (!!header_actions || !!status));
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
@@ -75,11 +73,7 @@
     if (is_edit !== undefined) {
       // Small delay to let DOM settle after mode switch
       setTimeout(() => {
-        if (
-          is_focused &&
-          document.activeElement?.tagName !== "TEXTAREA" &&
-          document.activeElement?.tagName !== "DIV"
-        ) {
+        if (is_focused && document.activeElement?.tagName !== "TEXTAREA" && document.activeElement?.tagName !== "DIV") {
           is_focused = false;
         }
       }, 10);

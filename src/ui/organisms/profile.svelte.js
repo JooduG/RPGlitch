@@ -213,9 +213,7 @@ export class ProfileState {
    */
   remove_vector_item(path, index) {
     if (!this.char) return;
-    const items = (get_value(this.char, path) || []).filter(
-      (/** @type {any} */ _, /** @type {number} */ i) => i !== index,
-    );
+    const items = (get_value(this.char, path) || []).filter((/** @type {any} */ _, /** @type {number} */ i) => i !== index);
     set_value(this.char, path, items);
   }
 

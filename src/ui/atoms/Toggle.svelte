@@ -17,23 +17,10 @@
   import { Switch } from "bits-ui";
 
   /** @type {Props} */
-  let {
-    value = $bindable(false),
-    label = "",
-    size = "md",
-    disabled = false,
-    busy = false,
-    actions = [],
-    class: className = "",
-    style = "",
-    onchange = undefined,
-    ...rest
-  } = $props();
+  let { value = $bindable(false), label = "", size = "md", disabled = false, busy = false, actions = [], class: className = "", style = "", onchange = undefined, ...rest } = $props();
 
   // Derived identifier for testing
-  const test_id = $derived(
-    label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined,
-  );
+  const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);
 
   let is_disabled = $derived(disabled || controlState.intent_active);
 </script>
@@ -74,12 +61,7 @@
   {style}
   use:use_actions={actions}
 >
-  <Switch.Root
-    bind:checked={value}
-    disabled={is_disabled || busy}
-    onCheckedChange={() => onchange?.(new Event("change"))}
-    {...rest}
-  >
+  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={() => onchange?.(new Event("change"))} {...rest}>
     {#snippet child({ props })}
       <button
         {...props}

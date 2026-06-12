@@ -41,17 +41,7 @@
   });
 
   // Core candidate source stream distribution
-  let entity_list = $derived(
-    /** @type {any[]} */ (
-      drawer_type === "ai"
-        ? app.ai_list
-        : drawer_type === "user"
-          ? app.user_list
-          : drawer_type === "fractal"
-            ? app.fractal_list
-            : []
-    ).filter((/** @type {any} */ entity) => !is_disabled(entity)),
-  );
+  let entity_list = $derived(/** @type {any[]} */ (drawer_type === "ai" ? app.ai_list : drawer_type === "user" ? app.user_list : drawer_type === "fractal" ? app.fractal_list : []).filter((/** @type {any} */ entity) => !is_disabled(entity)));
 
   const total_cards = $derived(entity_list.length);
   const factory_angle = $derived(-((total_cards / 2) * (total_cards > 6 ? 2.5 : 3) + 3));
@@ -251,16 +241,9 @@
             ease-in-out
             will-change-transform
           "
-          style:transform={hovered_index === -1
-            ? `rotate(${-factory_angle}deg) translateY(calc(var(--row-unit) * -0.6)) scale(1.08)`
-            : "none"}
+          style:transform={hovered_index === -1 ? `rotate(${-factory_angle}deg) translateY(calc(var(--row-unit) * -0.6)) scale(1.08)` : "none"}
         >
-          <EntityCard
-            variant="library"
-            type={drawer_type ?? undefined}
-            role_label="Create New"
-            onclick={handle_create_new}
-          />
+          <EntityCard variant="library" type={drawer_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
         </div>
       </div>
 
@@ -335,18 +318,9 @@
                 grayscale-[0.4]
               `
               : ''}"
-            style:transform={is_hovered
-              ? `rotate(${-dynamic_angle}deg) translateY(calc(var(--row-unit) * -0.85)) scale(1.18)`
-              : "none"}
+            style:transform={is_hovered ? `rotate(${-dynamic_angle}deg) translateY(calc(var(--row-unit) * -0.85)) scale(1.18)` : "none"}
           >
-            <EntityCard
-              variant="library"
-              {entity}
-              type={drawer_type ?? undefined}
-              disabled={is_disabled(entity)}
-              onclick={() => handle_select(entity)}
-              onViewProfile={() => app.open_profile(entity)}
-            />
+            <EntityCard variant="library" {entity} type={drawer_type ?? undefined} disabled={is_disabled(entity)} onclick={() => handle_select(entity)} onViewProfile={() => app.open_profile(entity)} />
           </div>
         </div>
       {/each}

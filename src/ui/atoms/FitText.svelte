@@ -28,12 +28,7 @@
 
     let loops = 0;
     // Observe container vs content overflow
-    while (
-      (content.scrollWidth > container.clientWidth ||
-        content.scrollHeight > container.clientHeight) &&
-      font_size > 12 &&
-      loops < 50
-    ) {
+    while ((content.scrollWidth > container.clientWidth || content.scrollHeight > container.clientHeight) && font_size > 12 && loops < 50) {
       font_size -= 2;
       await tick();
       loops++;

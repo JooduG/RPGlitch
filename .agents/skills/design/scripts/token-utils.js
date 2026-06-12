@@ -11,17 +11,10 @@ export const PATHS = {
   src: path.resolve(__dirname, "../../../../src"),
   designMd: process.env.DESIGN_MD_PATH || path.resolve(__dirname, "../../../../DESIGN.md"),
   designCss: process.env.CSS_PATH || path.resolve(__dirname, "../../../../src/media/design.css"),
-  jsBridge:
-    process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
+  jsBridge: process.env.JS_BRIDGE_PATH || path.resolve(__dirname, "../../../../src/media/tokens.js"),
 };
 
-export const AUTHORITATIVE_CATEGORIES = [
-  "colors",
-  "typography",
-  "rounded",
-  "spacing",
-  "components",
-];
+export const AUTHORITATIVE_CATEGORIES = ["colors", "typography", "rounded", "spacing", "components"];
 
 /**
  * Classifies a token name into the project's authoritative 5-category system.
@@ -33,30 +26,12 @@ export function getCategory(name, value = "") {
   const cleanVal = String(value).trim();
   const cleanName = name.trim();
 
-  if (
-    /^color-/.test(cleanName) ||
-    /^background-/.test(cleanName) ||
-    /-color$/.test(cleanName) ||
-    /-color-/.test(cleanName) ||
-    /gradient/.test(cleanName) ||
-    cleanVal.startsWith("#") ||
-    cleanVal.startsWith("rgb") ||
-    cleanVal.startsWith("hsl")
-  ) {
+  if (/^color-/.test(cleanName) || /^background-/.test(cleanName) || /-color$/.test(cleanName) || /-color-/.test(cleanName) || /gradient/.test(cleanName) || cleanVal.startsWith("#") || cleanVal.startsWith("rgb") || cleanVal.startsWith("hsl")) {
     return "colors";
   }
   if (/^font-/.test(cleanName)) return "typography";
   if (/^radius-/.test(cleanName) || /-radius$/.test(cleanName)) return "rounded";
-  if (
-    /^spacing-/.test(cleanName) ||
-    /^gap-/.test(cleanName) ||
-    /^padding-/.test(cleanName) ||
-    /^margin-/.test(cleanName) ||
-    /column/.test(cleanName) ||
-    /row/.test(cleanName) ||
-    /grid-/.test(cleanName) ||
-    cleanName === "auto-resize-buffer"
-  ) {
+  if (/^spacing-/.test(cleanName) || /^gap-/.test(cleanName) || /^padding-/.test(cleanName) || /^margin-/.test(cleanName) || /column/.test(cleanName) || /row/.test(cleanName) || /grid-/.test(cleanName) || cleanName === "auto-resize-buffer") {
     return "spacing";
   }
   return "components";

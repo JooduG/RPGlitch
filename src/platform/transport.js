@@ -96,20 +96,14 @@ export const llm_service = {
   generate: async (payload, options = {}) => {
     // [SAFETY] Guard against missing plugin in non-Perchance environments
     if (typeof window === "undefined" || typeof window.ai !== "function") {
-      const is_mockable =
-        typeof window !== "undefined" &&
-        !(typeof process !== "undefined" && process.env.VITEST) &&
-        (window.location.hostname === "localhost" ||
-          window.location.hostname === "127.0.0.1" ||
-          import.meta.env.DEV);
+      const is_mockable = typeof window !== "undefined" && !(typeof process !== "undefined" && process.env.VITEST) && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || import.meta.env.DEV);
 
       if (is_mockable) {
         console.warn("[llm_service] window.ai not found. Running in local Mock Mode.");
         return await llm_service._mock_generate(payload, options);
       }
 
-      const msg =
-        "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
+      const msg = "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
       if (!options.silent) console.error(msg);
       throw new Error(msg);
     }
@@ -119,13 +113,7 @@ export const llm_service = {
     const chat_history = llm_service._format_history(payload.messages || []);
 
     // 2. Assemble the final instruction block
-    const instruction = [
-      payload.system || "",
-      chat_history ? `\n\n[CONVERSATION HISTORY]\n${chat_history}` : "",
-      payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    const instruction = [payload.system || "", chat_history ? `\n\n[CONVERSATION HISTORY]\n${chat_history}` : "", payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : ""].filter(Boolean).join("\n\n");
 
     try {
       // 3. Prepare generation parameters
@@ -194,22 +182,17 @@ export const llm_service = {
    */
   _mock_generate: async (payload, options = {}) => {
     let text;
-    const is_prologue =
-      payload.system?.toLowerCase().includes("prologue") || payload.role === "fractal";
+    const is_prologue = payload.system?.toLowerCase().includes("prologue") || payload.role === "fractal";
     const is_epilogue = payload.system?.toLowerCase().includes("epilogue");
-    const is_enhance =
-      payload.system?.toLowerCase().includes("enhance") ||
-      payload.system?.toLowerCase().includes("first-person");
+    const is_enhance = payload.system?.toLowerCase().includes("enhance") || payload.system?.toLowerCase().includes("first-person");
 
     if (is_prologue) {
       text =
         "<think>评估：已成功加载场景 [Ashen Weald]。空气中弥漫着古老誓言的冰冷回响。环境熵值：67。</think>The dark canopy of the **Ashen Weald** stretches endlessly overhead. A cold, damp wind rustles through the skeletal trees, carrying the faint, metallic scent of iron. A path lies before you, swallowed by shadow. **Choose your first step.**";
     } else if (is_epilogue) {
-      text =
-        "The simulation cycle reaches its inevitable conclusion. The feedback loop stabilizes. The screen flickers, then fades to a calm, subterranean gray. **Simulation terminated.**";
+      text = "The simulation cycle reaches its inevitable conclusion. The feedback loop stabilizes. The screen flickers, then fades to a calm, subterranean gray. **Simulation terminated.**";
     } else if (is_enhance) {
-      text =
-        "Manifested from cold steel and ancient memory, carrying the quiet weight of subterranean light and absolute mechanical focus.";
+      text = "Manifested from cold steel and ancient memory, carrying the quiet weight of subterranean light and absolute mechanical focus.";
     } else {
       text = `<think>评估：输入接收成功。心理轴线：分析性阻尼。强度：50。</think>The air grows heavy as the wind dies down. A low hum vibrates through the floorboards. "I hear your plea," a voice whispers from the dark, shifting contours. **What is your next move?**`;
     }
@@ -259,9 +242,7 @@ export const llm_service = {
       // Guard against system role telemetry leaks
       if (m.role === "system") continue;
 
-      const label =
-        m.character_name ||
-        (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
+      const label = m.character_name || (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
       const text = m.content || m.text || "";
       if (collapsed.length > 0 && collapsed[collapsed.length - 1].label === label) {
         collapsed[collapsed.length - 1].text += `\n\n${text}`;

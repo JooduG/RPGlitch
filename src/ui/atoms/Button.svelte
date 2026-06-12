@@ -40,30 +40,14 @@
     element?.focus();
   }
 
-  const is_interrupt_btn = $derived(
-    label?.toLowerCase().includes("interrupt") ||
-      rest["aria-label"]?.toLowerCase().includes("interrupt") ||
-      className?.toLowerCase().includes("interrupt"),
-  );
+  const is_interrupt_btn = $derived(label?.toLowerCase().includes("interrupt") || rest["aria-label"]?.toLowerCase().includes("interrupt") || className?.toLowerCase().includes("interrupt"));
 
   let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
-  const height_class = $derived(
-    cover
-      ? ""
-      : square && size === "small"
-        ? "h-4"
-        : square
-          ? "h-12"
-          : size === "small"
-            ? "h-8"
-            : "h-10",
-  );
+  const height_class = $derived(cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10");
 
-  const width_class = $derived(
-    cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "",
-  );
+  const width_class = $derived(cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "");
 
   const padding_class = $derived(cover ? "" : square ? "p-0" : size === "small" ? "px-2" : "px-4");
 
@@ -143,18 +127,12 @@
     : ''}
     {variant === 'primary' ? 'bg-slate-600 hover:brightness-125' : ''}
     {variant === 'secondary' ? 'bg-(--signature-color) text-white hover:brightness-125' : ''}
-    {variant === 'danger'
-    ? 'bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125'
-    : ''}
-    {variant === 'invisible'
-    ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125'
-    : ''}
+    {variant === 'danger' ? 'bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125' : ''}
+    {variant === 'invisible' ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125' : ''}
     {size === 'small' ? 'text-xs' : ''}
     {square ? 'aspect-square shrink-0' : ''}
     {full_width && !square ? 'flex-1' : ''}
-    {cover
-    ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!'
-    : ''}
+    {cover ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!' : ''}
     {busy ? 'pointer-events-none cursor-wait brightness-90 grayscale-30' : ''}
     {is_flank
     ? 'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-300 ease-out hover:scale-[1.02] hover:opacity-100 active:scale-[0.96] disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-300 [&_svg]:disabled:fill-slate-600'

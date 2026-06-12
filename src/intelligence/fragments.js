@@ -59,33 +59,7 @@
  * Shared entity name stop words and title prefixes for visual initials calculations
  * and prefix-aware name formatting breaks.
  */
-export const NAME_PREFIXES = [
-  "mr",
-  "mrs",
-  "ms",
-  "dr",
-  "prof",
-  "sir",
-  "lady",
-  "lord",
-  "the",
-  "a",
-  "an",
-  "of",
-  "in",
-  "and",
-  "or",
-  "for",
-  "to",
-  "at",
-  "by",
-  "with",
-  "mr.",
-  "mrs.",
-  "ms.",
-  "dr.",
-  "prof.",
-];
+export const NAME_PREFIXES = ["mr", "mrs", "ms", "dr", "prof", "sir", "lady", "lord", "the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with", "mr.", "mrs.", "ms.", "dr.", "prof."];
 
 /************************************************************************************
  * [SECTION: ENTITY FRAGMENTS]
@@ -144,14 +118,12 @@ export const ENTITY_FRAGMENTS = {
       label: "Non-Physical",
       character: {
         sublabel: "Current State of Mind",
-        directive:
-          "Capture the character's current internal volatility or state pressure. Detail mental processing focus, active cognitive triggers, and immediate emotional pressure. This drives reactive behavior in the current moment.",
+        directive: "Capture the character's current internal volatility or state pressure. Detail mental processing focus, active cognitive triggers, and immediate emotional pressure. This drives reactive behavior in the current moment.",
         enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
-        directive:
-          "Capture the fractal's immediate atmospheric shifts, active anomalous events, state volatility, or ecological/structural changes. Detail immediate environmental and temporal pressure.",
+        directive: "Capture the fractal's immediate atmospheric shifts, active anomalous events, state volatility, or ecological/structural changes. Detail immediate environmental and temporal pressure.",
         enhancer: "ECOSYSTEM_VOLATILITY_ANALYZER",
       },
     },
@@ -159,14 +131,12 @@ export const ENTITY_FRAGMENTS = {
       label: "Physical",
       character: {
         sublabel: "Outfit, Appearance & Conditions",
-        directive:
-          "Synthesize the character's situational physical state for image generation. Focus on active coverage (attire/gear/plates), visible damage, posture, and environmental overlays (e.g., status effects, grime). Detail the immediate presence.",
+        directive: "Synthesize the character's situational physical state for image generation. Focus on active coverage (attire/gear/plates), visible damage, posture, and environmental overlays (e.g., status effects, grime). Detail the immediate presence.",
         enhancer: "SOMATIC_STATE_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
-        directive:
-          "Synthesize the immediate sensory layers active in the scene. Detail lighting composition, active precipitation or environmental overlays, and situational atmospheric geometry.",
+        directive: "Synthesize the immediate sensory layers active in the scene. Detail lighting composition, active precipitation or environmental overlays, and situational atmospheric geometry.",
         enhancer: "ATMOSPHERIC_RENDER_ENGINE",
       },
     },
@@ -175,8 +145,7 @@ export const ENTITY_FRAGMENTS = {
     label: "Future",
     sublabel: "Plans & Prophecies", // UI only
     unit_label: "Vector",
-    directive:
-      "Map the entity's active trajectory and narrative impulses. Detail operational objectives, evolving vectors, and impending destiny. Define the stakes driving the next state transition.",
+    directive: "Map the entity's active trajectory and narrative impulses. Detail operational objectives, evolving vectors, and impending destiny. Define the stakes driving the next state transition.",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
@@ -190,8 +159,7 @@ export const ENTITY_FRAGMENTS = {
     label: "Past",
     sublabel: "Memories & Backstory", // UI only
     unit_label: "Memory",
-    directive:
-      "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
+    directive: "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {
@@ -259,9 +227,7 @@ function build_entity_catalog() {
       });
     } else {
       // 2. Process flattened fields directly on the section
-      const fieldKeys = Object.keys(section).filter(
-        (k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k),
-      );
+      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k));
       fieldKeys.forEach((field_key) => {
         const id = `${section_key}.${field_key}`;
         const field = section[field_key];
@@ -289,11 +255,7 @@ function build_entity_catalog() {
     }
 
     // 3. Add the section itself if it's an array type or has no explicit sub-fields
-    const hasFields =
-      section.fields ||
-      Object.keys(section).some(
-        (k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k),
-      );
+    const hasFields = section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k));
     if (!hasFields || section.type === "array") {
       ["character", "fractal"].forEach((type) => {
         const typeKey = `${type}.${section_key}`;
@@ -341,18 +303,7 @@ export function build_profile_sections(entity_type = "character") {
       .filter(([_, section]) => typeof section !== "string" && section !== null)
       .map(([sectionKey, sectionObj]) => {
         const section = /** @type {any} */ (sectionObj);
-        const fieldKeys = Object.keys(section).filter(
-          (k) =>
-            ![
-              "label",
-              "sublabel",
-              "type",
-              "unit_label",
-              "directive",
-              "enhancer",
-              "fields",
-            ].includes(k),
-        );
+        const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer", "fields"].includes(k));
 
         const fields =
           fieldKeys.length > 0 && section.type !== "array"

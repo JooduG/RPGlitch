@@ -10,15 +10,7 @@
   import { ENTITY_FRAGMENTS, NAME_PREFIXES } from "@intelligence";
 
   // --- PROP MATRIX BOUNDARIES ---
-  let {
-    name = $bindable(""),
-    description = $bindable(""),
-    is_editing = false,
-    active_field = "",
-    on_focus_field = () => {},
-    signature_color = "var(--frozen)",
-    class: className = "",
-  } = $props();
+  let { name = $bindable(""), description = $bindable(""), is_editing = false, active_field = "", on_focus_field = () => {}, signature_color = "var(--frozen)", class: className = "" } = $props();
 
   // --- INTERACTIVE SYSTEM RUNES ---
   /** @type {HTMLInputElement | undefined} */

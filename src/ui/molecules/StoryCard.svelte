@@ -34,9 +34,7 @@
       .replace(",", "");
   }
 
-  let signature_color = $derived(
-    get_signature_color({ signature_color: story.signature_color }, "var(--gunmetal)"),
-  );
+  let signature_color = $derived(get_signature_color({ signature_color: story.signature_color }, "var(--gunmetal)"));
 </script>
 
 <div

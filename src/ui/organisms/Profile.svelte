@@ -24,9 +24,7 @@
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profileState.char, "var(--gunmetal)"));
   const has_wings = $derived(profileState.is_editing || app.settings.dev_mode);
-  const active_sections = $derived(
-    PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character,
-  );
+  const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
 
   // --- EFFECTS ---
   $effect(() => profileState.sync());
@@ -38,13 +36,7 @@
 
     if (profileState.show_delete_confirm) return;
     if (target.closest("[data-wings-container] > *")) return;
-    if (
-      target.closest(".menu") ||
-      target.closest("[data-dropdown-menu]") ||
-      target.closest(".dropdown-portal-wrapper") ||
-      target.closest(".tooltip-portal")
-    )
-      return;
+    if (target.closest(".menu") || target.closest("[data-dropdown-menu]") || target.closest(".dropdown-portal-wrapper") || target.closest(".tooltip-portal")) return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
 
     profileState.handle_close();
@@ -56,8 +48,7 @@
     if (!profileState.char?.id || profileState.show_delete_confirm) return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
-      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable)
-        return;
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
       e.preventDefault();
       if (profileState.is_editing) {
         footer_el?.focus();
@@ -201,8 +192,7 @@
             is_editing={profileState.is_editing}
             active_field={profileState.active_field?.key}
             {signature_color}
-            on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) =>
-              profileState.set_active_field(key, label)}
+            on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profileState.set_active_field(key, label)}
           />
 
           <main
@@ -220,11 +210,7 @@
               scrollbar-none [&::-webkit-scrollbar]:hidden
             "
           >
-            <ScrollArea
-              style={entity_type === "fractal"
-                ? "height: auto; overflow: visible;"
-                : "height: 100%;"}
-            >
+            <ScrollArea style={entity_type === "fractal" ? "height: auto; overflow: visible;" : "height: 100%;"}>
               {@render EntityBody()}
             </ScrollArea>
           </main>
@@ -364,9 +350,7 @@
             flex-col
             items-center
 
-            {section.id === 'eternal' && !(app.viewport.mobile || app.viewport.mini)
-            ? 'translate-y-4'
-            : ''}
+            {section.id === 'eternal' && !(app.viewport.mobile || app.viewport.mini) ? 'translate-y-4' : ''}
           "
         >
           <h6
@@ -441,12 +425,7 @@
             "
           >
             {#if field.type === "array"}
-              <ProfileArray
-                state={profileState}
-                path={field.key}
-                unit_label={field.unitLabel}
-                {signature_color}
-              />
+              <ProfileArray state={profileState} path={field.key} unit_label={field.unitLabel} {signature_color} />
             {:else}
               {@const fieldId = `field-${field.key.replace(".", "-")}`}
               {#if field.label && section.id === "eternal"}
@@ -473,11 +452,9 @@
                 data-active={profileState.active_field?.key === field.key ? true : undefined}
                 placeholder={field.description}
                 value={profileState.get_safe_value(field.key)}
-                oninput={(/** @type {any} */ e) =>
-                  profileState.set_field_value(field.key, e.currentTarget.value)}
+                oninput={(/** @type {any} */ e) => profileState.set_field_value(field.key, e.currentTarget.value)}
                 busy={profileState.busy_fields.has(field.key)}
-                onfocus={() =>
-                  profileState.set_active_field(field.key, field.label || section.label)}
+                onfocus={() => profileState.set_active_field(field.key, field.label || section.label)}
                 onblur={() => profileState.reset_active_field()}
               >
                 {#snippet status()}
@@ -495,10 +472,7 @@
                       ">ENHANCING</span
                     >
                   {:else if field.sublabel}
-                    <span
-                      class="text-[10px] font-(--font-family-mono) tracking-widest text-white uppercase opacity-80"
-                      >{field.sublabel}</span
-                    >
+                    <span class="text-[10px] font-(--font-family-mono) tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
                   {/if}
                 {/snippet}
 
@@ -510,10 +484,8 @@
                       square={true}
                       aria-label="Enhance with AI"
                       actions={[tooltip]}
-                      disabled={profileState.busy_fields.has(field.key) ||
-                        !profileState.get_safe_value(field.key)}
-                      onclick={() =>
-                        profileState.enhance(field.key, profileState.get_safe_value(field.key))}
+                      disabled={profileState.busy_fields.has(field.key) || !profileState.get_safe_value(field.key)}
+                      onclick={() => profileState.enhance(field.key, profileState.get_safe_value(field.key))}
                       class="
                         text-slate-400
                         opacity-0
@@ -534,8 +506,7 @@
                           [stroke-linejoin:round]
                         "
                       >
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"
-                        ></path>
+                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
                       </svg>
                     </Button>
                   {/if}
