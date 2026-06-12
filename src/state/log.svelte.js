@@ -39,17 +39,5 @@ export class SimulationLogStore {
     if (entry.id && this.feed.some((m) => m.id === entry.id)) return;
     this.feed = [...this.feed, entry];
   }
-  /**
-   * @param {string | number} id - Entry ID to remove
-   */
-  remove(id) {
-    this.feed = this.feed.filter((m) => m.id !== id);
-  }
-  /**
-   * Clear all entries (e.g. on story switch if not handled by refresh)
-   */
-  clear() {
-    this.feed = [];
-  }
 }
 export const simulation_log = new SimulationLogStore();

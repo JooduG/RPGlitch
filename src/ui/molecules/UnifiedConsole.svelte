@@ -305,23 +305,46 @@
       style="view-transition-name: console-center-axis"
     ></textarea>
 
-    <Button
-      variant="invisible"
-      onclick={handle_send}
-      disabled={!value.trim() || is_locked}
-      aria-label="Send Message"
-      actions={[stab, tooltip]}
-      style="view-transition-name: console-right-flank"
-    >
-      <svg
-        class="
-        block
-        size-(--icon-medium)
-      "
-        viewBox="0 0 24 24"
+    {#if app.streaming.active}
+      <Button
+        variant="danger"
+        onclick={() => app.trigger_interrupt()}
+        aria-label="Interrupt Generation"
+        actions={[tooltip]}
+        style="view-transition-name: console-right-flank"
       >
-        <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-      </svg>
-    </Button>
+        <svg
+          class="
+          block
+          size-(--icon-medium)
+        "
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z"
+          />
+        </svg>
+      </Button>
+    {:else}
+      <Button
+        variant="invisible"
+        onclick={handle_send}
+        disabled={!value.trim() || is_locked}
+        aria-label="Send Message"
+        actions={[stab, tooltip]}
+        style="view-transition-name: console-right-flank"
+      >
+        <svg
+          class="
+          block
+          size-(--icon-medium)
+        "
+          viewBox="0 0 24 24"
+        >
+          <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
+        </svg>
+      </Button>
+    {/if}
   {/if}
 </div>

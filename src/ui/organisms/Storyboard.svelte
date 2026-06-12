@@ -8,20 +8,9 @@
    */
 
   import { Skeleton } from "@atoms";
-  import { context_broker } from "@intelligence";
   import { app } from "@state";
   import { StoryboardDynamicTitle, CardHand, Layout } from "@organisms";
   import { UnifiedConsole, EntityCard } from "@molecules";
-
-  // --- EVENT BROADCAST: CONTEXT SWAP ---
-
-  /**
-   * Fires a `context-swap` signal to the ContextBroker whenever the active
-   * "Chin" (view/tab) changes. Zero-latency — no engine re-initialization.
-   */
-  $effect(() => {
-    context_broker.loadViewContext(app.view);
-  });
 
   // --- SNIPPETS ---
 </script>

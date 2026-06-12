@@ -216,41 +216,7 @@ function createRuntimeStore() {
         active_fractal_state.dynamics = val || fallback;
       }
     },
-    get simulation() {
-      return {
-        get is_ready() {
-          return simulation_is_ready;
-        },
-        set is_ready(val) {
-          simulation_is_ready = val;
-        },
-        get story_id() {
-          return simulation_story_id;
-        },
-        set story_id(val) {
-          simulation_story_id = val;
-          simulation_story.active_id = val;
-        },
-        get story() {
-          return simulation_story;
-        },
-        get simulation_log() {
-          return simulation_log_data;
-        },
-        get round() {
-          return simulation_round;
-        },
-        set round(val) {
-          simulation_round = val;
-        },
-        get turn_type() {
-          return simulation_turn_type;
-        },
-        set turn_type(val) {
-          simulation_turn_type = val;
-        },
-      };
-    },
+
     get simulation_log() {
       return simulation_log_data;
     },
@@ -283,22 +249,7 @@ function createRuntimeStore() {
       return simulation_story_id ? simulation_story.by_id[simulation_story_id] : null;
     },
     // --- VECTOR API ---
-    /**
-     * @param {string} [role]
-     * @returns {TemporalVector[]}
-     */
-    active_vectors: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
-      return entity?.future || [];
-    },
-    /**
-     * @param {string} [role]
-     * @returns {string}
-     */
-    active_vector: (role = "AI") => {
-      const entity = api._get_entity_by_role(role);
-      return entity?.future?.[0]?.text || (role === "FRACTAL" ? "Continue the journey." : "");
-    },
+
     /**
      * @param {string} text
      * @param {string} [role]

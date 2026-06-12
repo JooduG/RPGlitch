@@ -44,11 +44,20 @@ export const session_driver = {
    * @returns {Promise<string>}
    */
   create_from_selection: async function (selection) {
+    const ai_entity = selection.ai_id ? await db.entities.get(selection.ai_id) : null;
+    const fractal_entity = selection.fractal_id
+      ? await db.entities.get(selection.fractal_id)
+      : null;
+
     const id = await db.stories.add({
       title: selection.story_title || "New Story",
       ai_id: selection.ai_id,
       user_id: selection.user_id,
       fractal_id: selection.fractal_id,
+      entity_snapshots: {
+        ai: { dynamics: ai_entity?.dynamics || {} },
+        fractal: { dynamics: fractal_entity?.dynamics || {} },
+      },
       created_at: Date.now(),
       updated_at: Date.now(),
       round: 0,

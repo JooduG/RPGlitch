@@ -17,7 +17,7 @@
 import { db, entities, prune, serialize } from "@data";
 import { generateUUID, session_driver, TELEMETRY_TYPES } from "@engine";
 import { context_broker, dynamics_engine, prompt_builder, temporal_engine } from "@intelligence";
-import { llm_service } from "@platform";
+import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
 /**
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
@@ -31,7 +31,11 @@ import { app, runtime, simulationState } from "@state";
  * @returns {{ text: string; violated: boolean }}
  */
 function validate_and_repair_response(response) {
-  const result = { text: response || "", violated: false };
+  const result = { text: response || "", violated: false, refused: false };
+  if (Security.checkRefusal(response)) {
+    result.refused = true;
+    return result;
+  }
   try {
     let text = result.text;
 
@@ -235,28 +239,9 @@ export const gamemaster = {
       runtime.turn_type = "AI_TURN";
 
       // 6. GENERATION: Call the model with retry logic
-      const response = await this.execute_with_retry(async () => {
-        const {
-          temperature,
-          top_p,
-          repetition_penalty,
-          max_tokens,
-          model,
-          onToken,
-          json,
-          signal,
-          silent,
-          raw,
-        } = llm_options;
-
-        return await llm_service.generate(
-          {
-            system,
-            messages: simulation_log,
-            role,
-            node_id: nodeId,
-          },
-          {
+      const validationResult = await this.execute_with_retry(
+        async () => {
+          const {
             temperature,
             top_p,
             repetition_penalty,
@@ -267,12 +252,43 @@ export const gamemaster = {
             signal,
             silent,
             raw,
-          },
-        );
-      });
+          } = llm_options;
+
+          const generated_text = await llm_service.generate(
+            {
+              system,
+              messages: simulation_log,
+              role,
+              node_id: nodeId,
+            },
+            {
+              temperature,
+              top_p,
+              repetition_penalty,
+              max_tokens,
+              model,
+              onToken,
+              json,
+              signal,
+              silent,
+              raw,
+            },
+          );
+
+          const vResult = validate_and_repair_response(generated_text || "");
+          if (vResult.refused) {
+            app.streaming.content = "";
+            app.streaming.text = "";
+            throw new Error("AI_REFUSAL_DETECTED");
+          }
+          return vResult;
+        },
+        2,
+        1000,
+      );
 
       // 6.5. POST-GENERATION PIPELINE: Isolated validation, telemetry, and state sync
-      const validationResult = validate_and_repair_response(response || "");
+      // validationResult is generated within the retry loop
 
       // 7. PERSISTENCE: Save the result
       const character_name =
@@ -316,7 +332,7 @@ export const gamemaster = {
   async execute_prologue(story_id) {
     app.busy = true;
     try {
-      const payload = await context_broker.hydrate("", "prologue");
+      const payload = await context_broker.hydrate(app.prologue || "", "prologue");
       const result = prompt_builder.synthesize(payload, {});
       if (!result.system) return null;
       app.log("gamemaster: Generating prologue...", "system");

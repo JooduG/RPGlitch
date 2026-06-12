@@ -197,13 +197,6 @@ export const SIGNATURE_COLORS = Object.keys(PALETTE).filter(
     !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black"].includes(key),
 );
 
-export const IMG_RESOLUTION = "512x768";
-
-export const PROFILE_PICTURE_PLACEHOLDERS = {
-  default:
-    "data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJjdXJyZW50Q29xvciIgc3Ryb2tlLXdpZHRoPSIyIiBzdHJva2UtbGluZWNhcD0icm91bmQiIHN0cm9rZS1saW5lam9pbj0icm91bmQiPjxjaXJjbGUgY3g9IjEyIiBjeT0iMTIiIHI9IjEwIi8+PHBhdGggZD0iTTEyIDhhNCA0IDAgMSAwIDAtOCA0IDQgMCAwIDAgMCA4eiIvPjxwYXRoIGQ9Ik02IDIxdi0yYTYgNiAwIDAgMSAxMiAweiIvPjwvc3ZnPg==",
-};
-
 /************************************************************************************
  * [LEVEL 1: LOGIC & PARSERS]
  * ----------------------------------------------------------------------------------
@@ -330,51 +323,4 @@ export function get_signature_color(entity, fallback = "var(--frozen)") {
   // 4. Fallback to deterministic color for valid entities
   const seed = [entity.name || "", ...(entity.tags || [])].filter(Boolean).join(",");
   return get_deterministic_color(seed || entity.id || "default");
-}
-
-/************************************************************************************
- * [LEVEL 2: UI FALLBACKS & MATH]
- * ----------------------------------------------------------------------------------
- * Luminosity and generative aesthetics.
- ************************************************************************************/
-
-/**
- * @param {string | null} [hex]
- * @returns {string}
- */
-export function get_contrast_color(hex) {
-  if (!hex || typeof hex !== "string" || hex.startsWith("hsl")) return "var(--pure-white)";
-  let color = hex.replace("#", "");
-  if (color.length === 3) {
-    color = color
-      .split("")
-      .map((c) => c + c)
-      .join("");
-  }
-  if (color.length !== 6 || !/^[0-9a-f]{6}$/i.test(color)) return "var(--pure-white)";
-  const r = parseInt(color.substring(0, 2), 16);
-  const g = parseInt(color.substring(2, 4), 16);
-  const b = parseInt(color.substring(4, 6), 16);
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 128 ? "var(--void-black)" : "var(--pure-white)";
-}
-
-/**
- * @param {string} hex
- * @param {number} [amount]
- * @returns {string}
- */
-export function darken_color(hex, amount = 20) {
-  if (!hex || hex.startsWith("var") || hex.startsWith("hsl")) return hex;
-  let color = hex.replace("#", "");
-  const num = parseInt(color, 16);
-  let r = (num >> 16) - amount;
-  let g = ((num >> 8) & 0x00ff) - amount;
-  let b = (num & 0x0000ff) - amount;
-  return (
-    "#" +
-    (((r < 0 ? 0 : r) << 16) | ((g < 0 ? 0 : g) << 8) | (b < 0 ? 0 : b))
-      .toString(16)
-      .padStart(6, "0")
-  );
 }

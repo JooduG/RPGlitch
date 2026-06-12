@@ -1,6 +1,6 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
-import { Engine } from "@engine";
+import { Engine, session_driver } from "@engine";
 import { Shield } from "@platform";
 import { app, controlState, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State
 /**
@@ -18,8 +18,9 @@ export class ChronoStore {
    * 5. Anchoring State (Runtime)
    * 6. Unlocks UI
    * @param {string|null} input
+   * @param {object} options
    */
-  async advance_turn(input = null) {
+  async advance_turn(input = null, options = {}) {
     if (app.simulation.loading || controlState.intent_active) return; // Prevent double-clicks
     const story_id = runtime.story_id;
     if (!story_id) {
@@ -75,12 +76,25 @@ export class ChronoStore {
     }
 
     // 3. SYNTHESIS: Generate Narrative (Engine) - Runs in background, non-blocking
-    app.log(`LLM synthesizing turn ${app.round + 1}...`, "ai");
+    if (!options.is_retry && !options.is_continue) {
+      runtime.round = Number(runtime.round || 0) + 1;
+    }
+    app.log(`LLM synthesizing turn ${runtime.round}...`, "ai");
     const controller = new AbortController();
     app.streaming.abort_controller = controller;
+    app.streaming.active = true;
 
     (async () => {
       try {
+        if (finalInput) {
+          try {
+            await session_driver.send(finalInput);
+          } catch (dbErr) {
+            console.error("[Chrono] Database write error during send:", dbErr);
+            app.log("Failed to persist user message, but generation continues.", "error");
+          }
+        }
+
         await Engine.generate_ai_response(story_id, {
           shieldContext,
           input: finalInput ?? undefined,
@@ -92,7 +106,6 @@ export class ChronoStore {
         app.log("Echo recording temporal resonance...", "db");
 
         // 5. ANCHOR: Persist the timeline
-        runtime.round = Number(runtime.round || 0) + 1;
         await runtime.save(runtime.round);
       } catch (err) {
         const error = /** @type {any} */ (err);

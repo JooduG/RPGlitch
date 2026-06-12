@@ -5,7 +5,13 @@
  */
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
-import { CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT } from "@media";
+import {
+  CircuitBreaker,
+  ExponentialBackoffRetryer,
+  getResolution,
+  NEGATIVE_PROMPT,
+  PromptTemplates,
+} from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
 
@@ -156,7 +162,7 @@ export class VisualEngine {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = `[SYSTEM: CINEMATOGRAPHY_DIRECTOR] Translate into a single descriptive paragraph: ${text}`;
+          const system = PromptTemplates.ENHANCE(text);
 
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
@@ -190,7 +196,17 @@ export class VisualEngine {
     simulation.start_typing(targetType === "scene" ? "fractal" : targetType || "ai", targetId);
 
     try {
-      const system = `[SYSTEM: SENSORY_CORTEX] Target: ${vTarget}. Convert intent into an image prompt: "${visualPrompt}"`;
+      const ai = await this._resolveEntity(story.ai_id);
+      const user = await this._resolveEntity(story.user_id);
+      const fractal = await this._resolveEntity(story.fractal_id);
+
+      const system = PromptTemplates.BUILDER(vTarget, visualPrompt, {
+        ai,
+        user,
+        fractal,
+        history: "",
+        mode: "visualize",
+      });
 
       const refined = await llm_service.generate(
         {

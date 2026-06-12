@@ -2,13 +2,7 @@
  * Unit tests for Tokens and Color Generation logic
  * Ported from legacy entities.test.js
  */
-import {
-  get_signature_color,
-  get_signature_label,
-  get_contrast_color,
-  get_color_name,
-  get_deterministic_color,
-} from "@media";
+import { get_signature_color, get_signature_label, get_deterministic_color } from "@media";
 import { describe, expect, test } from "vitest";
 describe("Tokens Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => get_signature_color(e);
@@ -96,32 +90,6 @@ describe("Tokens Color Generation", () => {
     });
     test("get_signature_label returns safe default for null entity", () => {
       expect(get_signature_label(null)).toBe("Frozen");
-    });
-  });
-});
-
-describe("Tokens Contrast Utilities", () => {
-  describe("get_contrast_color()", () => {
-    test("returns black for light colors", () => {
-      expect(get_contrast_color("#fff")).toBe("var(--void-black)");
-      expect(get_contrast_color("#fde047")).toBe("var(--void-black)"); // Lemon Yellow
-    });
-
-    test("returns white for dark colors", () => {
-      expect(get_contrast_color("#000")).toBe("var(--pure-white)");
-      expect(get_contrast_color("#15803d")).toBe("var(--pure-white)"); // Forest Green
-      expect(get_contrast_color("#ef4444")).toBe("var(--pure-white)"); // Crimson Red
-    });
-
-    test("handles shorthand hex codes", () => {
-      expect(get_contrast_color("#fff")).toBe("var(--void-black)");
-      expect(get_contrast_color("#000")).toBe("var(--pure-white)");
-    });
-
-    test("handles invalid inputs gracefully", () => {
-      expect(get_contrast_color(null)).toBe("var(--pure-white)");
-      expect(get_contrast_color("invalid")).toBe("var(--pure-white)");
-      expect(get_contrast_color("hsl(0, 0%, 100%)")).toBe("var(--pure-white)");
     });
   });
 });

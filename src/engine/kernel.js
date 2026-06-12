@@ -24,19 +24,6 @@ import { app, simulationState } from "@state";
  * It serves as the primary controller for the Perchance narrative flow.
  */
 export const Engine = {
-  // --- SESSION ---
-  require_active: () => session_driver.require_active(),
-  get_active: () => session_driver.active_id,
-  /** @param {any} data */
-  create_from_selection: (data) => session_driver.create_from_selection(data),
-  /** @param {string} story_id */
-  load_messages: (story_id) => session_driver.load_log(story_id),
-  /** @param {string} text */
-  send: async (text) => {
-    await session_driver.send(text);
-    await Engine.generate_ai_response(session_driver.require_active());
-  },
-  regenerate: () => session_driver.regenerate(),
   // --- GENERATION ---
   /**
    * @param {string} story_id
@@ -85,5 +72,3 @@ export const Engine = {
     }
   },
 };
-// New API Exports
-export { session_driver as Session };

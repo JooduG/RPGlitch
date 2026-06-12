@@ -1,5 +1,5 @@
-import { Engine, session_driver } from "@engine";
-import { app, controlState, runtime, simulationState } from "@state"; // [R5] Unified State
+import { Engine, session_driver, Chrono } from "@engine";
+import { app, controlState, runtime } from "@state"; // [R5] Unified State
 import "@state/log.svelte.js";
 
 /**
@@ -76,45 +76,7 @@ export class ReactiveSession {
    */
   async send(text) {
     if (this.isProcessing || !text.trim()) return;
-    await this.advance_turn(text);
-  }
-
-  /**
-   * The Diagnostic Turn Loop
-   * Forces visibility into the internal state transitions.
-   * @param {string} text
-   */
-  async advance_turn(text) {
-    if (this.isProcessing) return;
-    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
-    this.isProcessing = true;
-    app.simulation.loading = true;
-
-    try {
-      // 1. ATOMIC CHRONO: Increment round before we send/generate to sync prompts & history
-      this.incrementRound();
-      app.log(`Simulation entering Round ${runtime.round}...`, "system");
-
-      // PHASE 1: WARDEN (Observation)
-      app.log("Security checking physics and causality...", "system");
-
-      // PHASE 2: GM (Synthesis)
-      await session_driver.send(text);
-      const story_id = session_driver.require_active();
-      await Engine.generate_ai_response(story_id, { input: text });
-
-      // PHASE 3: ECHO (Affinity)
-      app.log("Echo recording temporal affinity and syncing database...", "db");
-
-      // PHASE 4: PERSIST (Data)
-      await runtime.save(runtime.round);
-    } catch (e) {
-      app.log(`Simulation Error: ${/** @type {Error} */ (e).message}`, "error");
-      console.error("[Session] advance_turn Failed:", e);
-      this.error = /** @type {Error} */ (e).message;
-    } finally {
-      this.releaseLock();
-    }
+    await Chrono.advance_turn(text);
   }
 
   /**
@@ -122,20 +84,11 @@ export class ReactiveSession {
    */
   async retry() {
     if (this.isProcessing) return;
-    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
-    this.isProcessing = true;
-    app.simulation.loading = true;
-
     try {
-      await runtime.save(runtime.round);
       await session_driver.regenerate();
-      const story_id = session_driver.require_active();
-      await Engine.generate_ai_response(story_id);
+      await Chrono.advance_turn(null, { is_retry: true });
     } catch (e) {
       this.error = /** @type {Error} */ (e).message;
-    } finally {
-      this.releaseLock();
-      simulationState.complete();
     }
   }
 
@@ -144,17 +97,10 @@ export class ReactiveSession {
    */
   async continue() {
     if (this.isProcessing) return;
-    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
-    this.isProcessing = true;
-    app.simulation.loading = true;
-
     try {
-      const story_id = session_driver.require_active();
-      await Engine.generate_ai_response(story_id);
+      await Chrono.advance_turn(null, { is_continue: true });
     } catch (e) {
       this.error = /** @type {Error} */ (e).message;
-    } finally {
-      this.releaseLock();
     }
   }
 

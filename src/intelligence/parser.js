@@ -105,7 +105,6 @@ export function parse_message(rawText) {
   return {
     displayText: rendered,
     think: thinkResult.think,
-    sceneData: null,
   };
 }
 

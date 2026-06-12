@@ -10,7 +10,7 @@ export {
   KV_SETTINGS_KEY,
   TELEMETRY_TYPES,
 } from "./config.js";
-export { generateUUID, generateSecureSeed, pickRandom, clamp, debounce } from "./utils.js";
+export { generateUUID, generateSecureSeed, pickRandom, clamp } from "./utils.js";
 export * as logger from "./logger.svelte.js";
 export { log } from "./logger.svelte.js";
 export { guardedTransition } from "./transition-guard.js";

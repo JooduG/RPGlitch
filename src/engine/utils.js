@@ -43,21 +43,6 @@ export const pickRandom = (array) => {
 };
 
 /**
- * Standard debounce implementation.
- * @param {Function} fn
- * @param {number} [wait]
- * @returns {(...args: any[]) => void}
- */
-export const debounce = (fn, wait = 250) => {
-  /** @type {any} */
-  let t;
-  return (/** @type {any[]} */ ...args) => {
-    clearTimeout(t);
-    t = setTimeout(() => fn.apply(null, args), wait);
-  };
-};
-
-/**
  * Clamps a number between min and max.
  * @param {number|string} n
  * @param {number} [min]

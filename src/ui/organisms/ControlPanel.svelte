@@ -1,7 +1,8 @@
 <script>
   import { db, stories } from "@data";
   import { session_driver } from "@engine";
-  import { Audio } from "@media";
+  import { gamemaster } from "@intelligence";
+  import { Audio, visual_engine } from "@media";
   import { app, runtime, simulation_log, simulationState } from "@state";
 
   import { Button, Modal, ScrollArea, Slider, TextField, Toggle } from "@atoms";
@@ -200,16 +201,11 @@
         "
         >
           <Button
-            label="GHOSTWRITE"
-            variant="primary"
-            size="small"
-            onclick={() => log_action("Ghostwrite")}
-          />
-          <Button
             label="PHOTO"
             variant="secondary"
             size="small"
-            onclick={() => log_action("Photo")}
+            onclick={() =>
+              visual_engine.visualize(runtime.story_id, prologue || "Current scene", "ai")}
           />
         </div>
         <div
@@ -249,7 +245,7 @@
             label="END STORY"
             variant="secondary"
             size="small"
-            onclick={() => log_action("EndStory")}
+            onclick={() => gamemaster.execute_epilogue(runtime.story_id)}
           />
         </div>
       </section>

@@ -1,4 +1,5 @@
 import DOMPurify from "dompurify";
+import { CONFIG } from "@engine/config.js";
 /**
  * src/core/security.js
  * 🛡️ SECURITY: The Shield
@@ -35,7 +36,13 @@ export const escape = (str) => {
  * Currently a pass-through placeholder that always returns false.
  * @returns {boolean}
  */
-export const checkRefusal = () => false;
+export const checkRefusal = (text) => {
+  if (!text) return false;
+  const lower = String(text).toLowerCase();
+  return CONFIG.MESSAGES.REFUSAL_TRIGGERS.some((trigger) =>
+    lower.includes(String(trigger).toLowerCase()),
+  );
+};
 /**
  * @param {any} text
  */
@@ -125,7 +132,9 @@ export const Security = {
    * @param {any} _prompt
    * @param {any} [_options]
    */
-  authorizeVisuals: (_prompt, _options = {}) => true,
+  authorizeVisuals: (prompt, _options = {}) => {
+    return !checkRefusal(prompt);
+  },
   /**
    * 🛡️ PROCESS (Causality & Physics Scan)
    * Evaluates if an action is possible within the current simulation context.

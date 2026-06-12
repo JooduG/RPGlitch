@@ -44,6 +44,10 @@ db.version(11)
       });
   });
 // --- STABILITY HANDLERS ---
+db.version(12).stores({
+  entities:
+    "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom]",
+});
 db.on("blocked", () => {
   console.warn("[Data] Database is blocked by another tab/version. Please close other instances.");
 });

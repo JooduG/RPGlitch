@@ -113,199 +113,7 @@ function get_new_content_input(input, simulation_log) {
   }
   return parts.join(" ");
 }
-
-/************************************************************************************
- * [SECTION: KNOWLEDGE CACHE]
- ************************************************************************************/
-// Reactive local cache of active vectors.
-/** @type {any[]} */
-let KnowledgeCache_AI = $state([]);
-/** @type {any[]} */
-let KnowledgeCache_USER = $state([]);
-/** @type {any[]} */
-let KnowledgeCache_FRACTAL = $state([]);
-
-let lastAIKeys = "";
-let lastUserKeys = "";
-let lastFractalKeys = "";
-
-/** @type {(() => void) | null} */
-let context_cleanup = null;
-
-/**
- * Initializes context cache synchronization effects.
- * @returns {void}
- */
-export function init_context_effects() {
-  if (context_cleanup) return;
-  context_cleanup = $effect.root(() => {
-    $effect(() => {
-      const aiFuture = runtime?.active_ai?.future ?? [];
-      const aiKeys = aiFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
-
-      const userFuture = runtime?.active_user?.future ?? [];
-      const userKeys = userFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
-
-      const fractalFuture = runtime?.active_fractal?.future ?? [];
-      const fractalKeys = fractalFuture.map((v) => `${v.id}:${v.timestamp}`).join("|");
-
-      // Only assign and update active state subscribers when actual shifts happen
-      if (aiKeys !== lastAIKeys) {
-        KnowledgeCache_AI = aiFuture;
-        lastAIKeys = aiKeys;
-      }
-      if (userKeys !== lastUserKeys) {
-        KnowledgeCache_USER = userFuture;
-        lastUserKeys = userKeys;
-      }
-      if (fractalKeys !== lastFractalKeys) {
-        KnowledgeCache_FRACTAL = fractalFuture;
-        lastFractalKeys = fractalKeys;
-      }
-    });
-  });
-}
-
-/**
- * Tears down context cache synchronization effects and resets local state.
- * @returns {void}
- */
-export function teardown_context_effects() {
-  if (context_cleanup) {
-    context_cleanup();
-    context_cleanup = null;
-  }
-  KnowledgeCache_AI = [];
-  KnowledgeCache_USER = [];
-  KnowledgeCache_FRACTAL = [];
-  lastAIKeys = "";
-  lastUserKeys = "";
-  lastFractalKeys = "";
-}
-
-/************************************************************************************
- * [SECTION: VIEW CONTEXT]
- ************************************************************************************/
-// Active view identifier — bound to the UI "Chin" (tab) via loadViewContext().
-let active_view_id = $state("global");
-
-/**
- * Hibernate set: IDs of vectors suppressed for the current view.
- * A vector not in this set is considered "Active" (visible to the kernel).
- * @type {Set<string>}
- */
-let hibernated_vector_ids = $state(new Set());
-
-/************************************************************************************
- * [SECTION: CONTEXT BROKER]
- ************************************************************************************/
 export const context_broker = {
-  /**
-   * O(1) getter for the KnowledgeCache.
-   */
-  get_active_vectors() {
-    return {
-      get AI() {
-        return KnowledgeCache_AI;
-      },
-      get USER() {
-        return KnowledgeCache_USER;
-      },
-      get FRACTAL() {
-        return KnowledgeCache_FRACTAL;
-      },
-    };
-  },
-
-  /**
-   * VIEW CONTEXT LOADER — Zero-latency paging.
-   *
-   * Binds the active "Chin" (UI tab) to the Intelligence Kernel context.
-   * Instantly hibernates future vectors whose `vector_tags` do not match the
-   * new viewId, freeing context-window tokens without re-initializing the engine.
-   *
-   * Safety fallback: if any error occurs, reverts to `"global"` (all vectors
-   * visible) to guarantee the simulation never runs with a broken context.
-   *
-   * @param {string} viewId - The active view identifier (e.g. 'storyboard', 'combat', 'merchant').
-   */
-  loadViewContext(viewId) {
-    const safeView =
-      typeof viewId === "string" && viewId.trim() ? viewId.trim().toLowerCase() : "global";
-
-    // No-op guard — skip identical transitions.
-    if (safeView === active_view_id) return;
-
-    try {
-      active_view_id = safeView;
-
-      // Collect all known future vectors across entity caches.
-      const allVectors = [...KnowledgeCache_AI, ...KnowledgeCache_USER, ...KnowledgeCache_FRACTAL];
-
-      // A vector is "relevant" if:
-      //   a) the view is global (no filtering), OR
-      //   b) the vector has no tags (untagged = always visible), OR
-      //   c) it has a "global" tag, OR
-      //   d) one of its tags matches the active view.
-      const newHibernated = /** @type {Set<string>} */ (new Set());
-      for (const v of allVectors) {
-        const tags = Array.isArray(v.vector_tags) ? v.vector_tags : [];
-        const isRelevant =
-          safeView === "global" ||
-          tags.length === 0 ||
-          tags.some(
-            (/** @type {string} */ t) =>
-              t.toLowerCase() === "global" || t.toLowerCase() === safeView,
-          );
-        if (!isRelevant && v.id) {
-          newHibernated.add(v.id);
-        }
-      }
-
-      hibernated_vector_ids = newHibernated;
-    } catch (err) {
-      // Safety fallback: revert to Global Truth — all entities remain visible.
-      console.warn("[ContextBroker] loadViewContext failed. Reverting to Global Truth:", err);
-      active_view_id = "global";
-      hibernated_vector_ids = new Set();
-    }
-  },
-
-  /**
-   * Returns the currently active view identifier.
-   * @returns {string}
-   */
-  get_active_view_id() {
-    return active_view_id;
-  },
-
-  /**
-   * Checks whether a vector is currently hibernating (suppressed for the active view).
-   * @param {string} vectorId
-   * @returns {boolean}
-   */
-  is_hibernating(vectorId) {
-    return hibernated_vector_ids.has(vectorId);
-  },
-
-  /**
-   * Returns the set of active (non-hibernating) future vectors from the KnowledgeCache.
-   * Used by the hydration phase to build a filtered payload.
-   * @returns {{ AI: any[]; USER: any[]; FRACTAL: any[] }}
-   */
-  get_active_knowledge() {
-    if (active_view_id === "global" || hibernated_vector_ids.size === 0) {
-      return { AI: KnowledgeCache_AI, USER: KnowledgeCache_USER, FRACTAL: KnowledgeCache_FRACTAL };
-    }
-    const filter = (/** @type {any[]} */ cache) =>
-      cache.filter((v) => !v.id || !hibernated_vector_ids.has(v.id));
-    return {
-      AI: filter(KnowledgeCache_AI),
-      USER: filter(KnowledgeCache_USER),
-      FRACTAL: filter(KnowledgeCache_FRACTAL),
-    };
-  },
-
   /**
    * HYDRATION PHASE
    * Pulls and resolves all necessary state for an intelligence turn.
@@ -318,9 +126,16 @@ export const context_broker = {
   async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round ?? 1;
 
-    // Use our O(1) Knowledge Cache getter to retrieve active vectors cleanly
-    const active_vectors = context_broker.get_active_vectors();
-    const active_vector = active_vectors.FRACTAL?.[0]?.text || "Continue the journey.";
+    // 1. Resolve Entities mapping (Role -> Data)
+    const clean = runtime.snapshot_entities;
+
+    // Resolve active fractal vector via temporal engine
+    const active_vector =
+      temporal_engine.format(clean.FRACTAL?.future, null, {
+        mode: "future",
+        limit: 1,
+        vector_text: true,
+      }) || "Continue the journey.";
 
     // Check for empathy/trust flags in recent input to conditionalize SUSPICIOUS_COGNITION
     const matches = dynamics_engine.dynamics_scan(input);
@@ -329,8 +144,6 @@ export const context_broker = {
     // Extract new content input for incremental lifecycle matching
     const new_content = get_new_content_input(input, simulation_log);
 
-    // 1. Resolve Entities mapping (Role -> Data)
-    const clean = runtime.snapshot_entities;
     const entries = [
       { role: "AI", data: clean.AI },
       { role: "USER", data: clean.USER },
@@ -405,7 +218,7 @@ export const context_broker = {
       type,
       round,
       entities,
-      view_id: type === "simulation" ? "global" : active_view_id,
+      view_id: "global",
       simulation_log: context_broker.assemble_snapshot(simulation_log),
       rawMessages: simulation_log,
       meta: {
@@ -470,11 +283,6 @@ export const context_broker = {
           if (req_key === "round") continue; // Handled by Chrono Validation above
 
           let actual_val = get_path_value(runtime, req_key);
-          if (actual_val === undefined || actual_val === "") {
-            if (runtime.simulation) {
-              actual_val = get_path_value(runtime.simulation, req_key);
-            }
-          }
           if ((actual_val === undefined || actual_val === "") && app) {
             actual_val = get_path_value(app, req_key);
           }
@@ -584,9 +392,3 @@ export const context_broker = {
       .map((d) => d.dp);
   },
 };
-
-if (typeof window !== "undefined") {
-  setTimeout(() => {
-    init_context_effects();
-  }, 0);
-}

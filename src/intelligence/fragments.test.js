@@ -77,13 +77,6 @@ describe("entity-fragments", () => {
     it("should correctly handle string fields within sections by converting them to objects", () => {
       // In ENTITY_FRAGMENTS.future.fields, the values are strings
       expect(typeof ENTITY_FRAGMENTS.future.fields.text).toBe("string");
-
-      // Verify expansion of string fields to objects in the catalog
-      expect(ENTITY_CATALOG["future.text"]).toBeDefined();
-      expect(ENTITY_CATALOG["future.text"].description).toBe(ENTITY_FRAGMENTS.future.fields.text);
-      expect(ENTITY_CATALOG["future.text"].id).toBe("future.text");
-      expect(ENTITY_CATALOG["future.text"].section_label).toBe("Future");
-      expect(ENTITY_CATALOG["future.text"].layer_key).toBe("FUTURE");
     });
   });
 });

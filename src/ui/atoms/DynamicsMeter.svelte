@@ -7,6 +7,7 @@
    */
   import { Button, tooltip } from "@atoms";
   import { Meter } from "bits-ui";
+  import { clamp } from "@engine/utils.js";
 
   /**
    * @typedef {Object} Props
@@ -34,19 +35,19 @@
     }
   });
 
-  let percentage = $derived(Math.max(0, Math.min(100, value)));
+  let percentage = $derived(clamp(value, 0, 100));
 
   // --- ACTIONS ---
   function decrease() {
     if (!profileState?.char?.[dynamic.source]) return;
     const current = Number(profileState.char[dynamic.source][dynamic.key]) || 0;
-    profileState.char[dynamic.source][dynamic.key] = Math.max(0, current - 1);
+    profileState.char[dynamic.source][dynamic.key] = clamp(current - 1, 0, 100);
   }
 
   function increase() {
     if (!profileState?.char?.[dynamic.source]) return;
     const current = Number(profileState.char[dynamic.source][dynamic.key]) || 0;
-    profileState.char[dynamic.source][dynamic.key] = Math.min(100, current + 1);
+    profileState.char[dynamic.source][dynamic.key] = clamp(current + 1, 0, 100);
   }
 
   /** @param {Event & { currentTarget: HTMLInputElement }} e */
@@ -54,7 +55,7 @@
     if (!profileState?.char?.[dynamic.source]) return;
     const val = Number(e.currentTarget.value);
     if (!isNaN(val)) {
-      profileState.char[dynamic.source][dynamic.key] = Math.max(0, Math.min(100, val));
+      profileState.char[dynamic.source][dynamic.key] = clamp(val, 0, 100);
     }
   }
 </script>

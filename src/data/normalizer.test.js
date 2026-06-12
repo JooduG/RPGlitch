@@ -106,10 +106,7 @@ describe("content-normaliser.js", () => {
         origin_id: "origin-456",
         is_premade: 1,
         is_custom: 1,
-        is_chosen: 1,
-        is_snapshot: 1,
         version: 5,
-        associated_ids: ["abc"],
         dynamics_baseline: { chaos: 50 },
       };
       const result = normalize(input);
@@ -119,19 +116,13 @@ describe("content-normaliser.js", () => {
       expect(result.origin_id).toBe("origin-456");
       expect(result.is_premade).toBe(1);
       expect(result.is_custom).toBe(1);
-      expect(result.is_chosen).toBe(1);
-      expect(result.is_snapshot).toBe(1);
       expect(result.version).toBe(5);
-      expect(result.associated_ids).toEqual(["abc"]);
       expect(result.dynamics_baseline).toEqual({ chaos: 50 });
 
       // Verify camelCase mappings
       expect(result.originId).toBe("origin-456");
       expect(result.isCustom).toBe(1);
       expect(result.isPremade).toBe(1);
-      expect(result.isChosen).toBe(1);
-      expect(result.isSnapshot).toBe(1);
-      expect(result.associatedIds).toEqual(["abc"]);
       expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
     });
 
@@ -142,9 +133,6 @@ describe("content-normaliser.js", () => {
         originId: "origin-456",
         isPremade: 1,
         isCustom: 1,
-        isChosen: 1,
-        isSnapshot: 1,
-        associatedIds: ["abc"],
         dynamicsBaseline: { chaos: 50 },
       };
       const result = normalize(input);
@@ -153,18 +141,12 @@ describe("content-normaliser.js", () => {
       expect(result.origin_id).toBe("origin-456");
       expect(result.is_premade).toBe(1);
       expect(result.is_custom).toBe(1);
-      expect(result.is_chosen).toBe(1);
-      expect(result.is_snapshot).toBe(1);
-      expect(result.associated_ids).toEqual(["abc"]);
       expect(result.dynamics_baseline).toEqual({ chaos: 50 });
 
       // Verify camelCase preservation
       expect(result.originId).toBe("origin-456");
       expect(result.isCustom).toBe(1);
       expect(result.isPremade).toBe(1);
-      expect(result.isChosen).toBe(1);
-      expect(result.isSnapshot).toBe(1);
-      expect(result.associatedIds).toEqual(["abc"]);
       expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
     });
 

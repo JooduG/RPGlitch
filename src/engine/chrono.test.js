@@ -32,6 +32,12 @@ vi.mock("@engine/kernel.js", () => ({
   },
 }));
 
+vi.mock("@engine/session.svelte.js", () => ({
+  session_driver: {
+    send: vi.fn().mockResolvedValue(undefined),
+  },
+}));
+
 describe("Chrono Non-Blocking AI Generation & Interruption", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
@@ -90,11 +96,17 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
       (/** @type {any} */ storyId, /** @type {any} */ options) => {
         // Simulate AbortController behavior when signal is aborted
         if (options?.signal) {
-          options.signal.addEventListener("abort", () => {
+          if (options.signal.aborted) {
             const err = new Error("aborted");
             err.name = "AbortError";
             rejectGeneration(err);
-          });
+          } else {
+            options.signal.addEventListener("abort", () => {
+              const err = new Error("aborted");
+              err.name = "AbortError";
+              rejectGeneration(err);
+            });
+          }
         }
         return generationPromise;
       },
@@ -107,6 +119,9 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
     const controller = app.streaming.abort_controller;
     expect(controller).toBeInstanceOf(AbortController);
 
+    // Wait a tick so `session_driver.send` can resolve and `Engine.generate_ai_response` can be called
+    await new Promise((resolve) => setTimeout(resolve, 0));
+
     // Trigger instant interruption
     app.trigger_interrupt();
 
@@ -117,8 +132,8 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Assert interruption results:
-    // 1. Generation process terminates, round is NOT incremented
-    expect(runtime.round).toBe(0);
+    // 1. Generation process terminates, round is STILL incremented (since it increments before generation)
+    expect(runtime.round).toBe(1);
     expect(runtime.save).not.toHaveBeenCalled();
     // 2. State & locks are cleanly reset/released
     expect(app.simulation.loading).toBe(false);

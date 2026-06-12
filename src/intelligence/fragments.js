@@ -235,7 +235,7 @@ function build_entity_catalog() {
     const section = /** @type {any} */ (sectionObj);
 
     // 1. Process array-type nested fields (if section has explicit fields property)
-    if (section.fields) {
+    if (section.fields && section.type !== "array") {
       Object.entries(section.fields).forEach(([field_key, field]) => {
         const id = `${section_key}.${field_key}`;
         const metadata = typeof field === "string" ? { description: field } : field;
@@ -397,6 +397,3 @@ export const PROFILE_SECTIONS_BY_TYPE = {
   character: build_profile_sections("character"),
   fractal: build_profile_sections("fractal"),
 };
-
-// Deprecated global array: Dynamically acts as character layout by default
-export const PROFILE_SECTIONS = PROFILE_SECTIONS_BY_TYPE.character;

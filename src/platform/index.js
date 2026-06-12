@@ -1,4 +1,3 @@
-export { bridge } from "./bridge.js";
 export { llm_service, sanitize_llm } from "./transport.js";
 export {
   sanitizeToFragment,
