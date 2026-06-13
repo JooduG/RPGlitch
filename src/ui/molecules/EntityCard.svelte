@@ -159,7 +159,7 @@
     overflow-visible
     rounded-2xl
     border
-    border-[color-mix(in_srgb,var(--signature-color)_15%,transparent)]
+    border-(--signature-color)
     bg-black/15
     shadow-sm
     transition-all
@@ -331,7 +331,11 @@
       items-center
       justify-end
       overflow-hidden
-      rounded-b-md
+      rounded-b-[inherit]
+      bg-linear-to-t
+      from-black/90
+      via-black/40
+      to-transparent
       text-center
       opacity-100
       transition-all
@@ -346,9 +350,9 @@
       `
       : `
         h-auto
-        min-h-[40%]
+        min-h-[50%]
         px-2
-        pt-4
+        pt-8
         pb-4
       `}"
   >
@@ -361,7 +365,7 @@
         font-(family-name:--font-family-heading)
         font-bold
         wrap-break-word
-        text-slate-50
+        text-(--signature-color,var(--color-slate-50))
         uppercase
         [-webkit-box-orient:vertical]
         [-webkit-line-clamp:3]
@@ -372,13 +376,13 @@
           text-sm
           leading-snug
           tracking-wide
-          text-shadow-[var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black)]
+          [text-shadow:0_1px_2px_var(--color-void-black)]
         `
         : `
           text-[clamp(1rem,12cqi,1.5rem)]
           leading-tight
           tracking-widest
-          [text-shadow:var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.4)]
+          [text-shadow:0_2px_4px_var(--color-void-black)]
         `}
         {is_empty
         ? `

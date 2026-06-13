@@ -207,12 +207,10 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<FINAL_STATE>");
       expect(result.system).toContain('<ENTITY name="Viper">');
       expect(result.system).toContain("Viper Present State");
-      expect(result.system).toContain("Intensity: 95 | Openness: 10 | Chaos: 80 | Affinity: 45");
       expect(result.system).toContain('<ENTITY name="Ghost">');
       expect(result.system).toContain("Ghost Current Mood");
       expect(result.system).toContain('<ENTITY name="Void">');
       expect(result.system).toContain("Void Collapsing");
-      expect(result.system).toContain("Velocity: 85 | Entropy: 90");
       expect(result.system).toContain("End on sensation, not summary.");
     });
   });

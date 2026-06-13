@@ -197,7 +197,7 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written in
    * PURPOSE: Closes the active simulation round. Resists narrative drift.
    * @param {EpilogueParams} params
    */
-  epilogue: ({ entities, dynamics, recent_history: _recent_history }) => {
+  epilogue: ({ entities, recent_history: _recent_history }) => {
     const ai = entities.AI;
     const user = entities.USER;
     const fractal = entities.FRACTAL;
@@ -212,7 +212,6 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written in
 <ENTITY name="${aiNameSafe}">
     <PRESENT>${escapeXml(ai.fragments.present?.non_physical || "")}</PRESENT>
     <ETERNAL>${escapeXml(ai.fragments.eternal?.non_physical || "")}</ETERNAL>
-    <DYNAMICS>Intensity: ${dynamics.ai?.intensity || 50} | Openness: ${dynamics.ai?.openness || 50} | Chaos: ${dynamics.ai?.chaos || 50} | Affinity: ${dynamics.ai?.affinity || 50}</DYNAMICS>
 </ENTITY>
 <ENTITY name="${userNameSafe}">
     <PRESENT>${escapeXml(user.fragments.present?.non_physical || "")}</PRESENT>
@@ -221,7 +220,6 @@ CRITICAL: When your <think> block ends, your narrative output MUST be written in
 <ENTITY name="${fractalNameSafe}">
     <PRESENT>${escapeXml(fractal.fragments.present?.non_physical || "")}</PRESENT>
     <ETERNAL>${escapeXml(fractal.fragments.eternal?.non_physical || "")}</ETERNAL>
-    <DYNAMICS>Velocity: ${dynamics.fractal?.velocity || 50} | Entropy: ${dynamics.fractal?.entropy || 50}</DYNAMICS>
 </ENTITY>
 </FINAL_STATE>
 <PROTOCOLS>
@@ -273,7 +271,7 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 ${escapeXml(directive)}
 </INSTRUCTIONS>
 <PROTOCOLS>
-${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, IMMERSION, SUPPRESS_TECHNICAL_DIRECTIVES")}
+${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION, SUPPRESS_TECHNICAL_DIRECTIVES")}
 </PROTOCOLS>
 <INPUT_CONTENT>
 ${escapeXml(content)}

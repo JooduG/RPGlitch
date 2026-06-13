@@ -85,30 +85,26 @@ export const ENTITY_FRAGMENTS = {
       label: "Non-Physical",
       character: {
         sublabel: "Personality, Behaviour & Traits",
-        directive:
-          "Define the character's baseline psychological architecture or core essence in the **3rd-person affirmative**. Detail fundamental logic, identity markers, and its signature **Narrative Voice** or **Communication Patterns**. Include specific vocabulary, tone, and any desirable linguistic patterns or structural tics. This serves as the foundation for all reactive behavior; avoid narration.",
-        enhancer: "CORE_COGNITIVE_ARCHITECT",
+        directive: "Define baseline psychology and core identity. Detail fundamental logic, narrative voice, and communication tics. Avoid narration. (Target: 150-400 words).",
+        enhancer: "COGNITIVE_ARCHITECT",
       },
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
-        directive:
-          "Define the fractal's baseline metaphysical rules, structural constants, and ambient physics in the **3rd-person affirmative**. Detail environmental gravity, temporal flow rates, and signature structural behaviors. This serves as the dominant environmental architecture; avoid narration.",
-        enhancer: "METAPHYISICAL_CHRONOMETER",
+        directive: "Define baseline metaphysical rules, structural constants, and ambient physics. Detail gravity and temporal flow rates. (Target: 150-400 words).",
+        enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
     physical: {
       label: "Physical",
       character: {
         sublabel: "Body & Form",
-        directive:
-          "Synthesize the character's permanent visual fragments for image generation using the **3rd-person affirmative**. Focus on structural composition, material properties, attire, and geometry. Detail textures, permanent marks, and lighting-reactive surfaces. For increased realism include imperfections.",
-        enhancer: "BIOMETRIC_RENDER_ENGINE",
+        directive: "Synthesize permanent visual traits for image generation. Focus on geometry, materials, and permanent physical imperfections. (Target: 50-150 words).",
+        enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
-        directive:
-          "Synthesize the permanent structural composition, architectural textures, and landscape features of the fractal for scene generation using the **3rd-person affirmative**. Detail materials, permanent geography, and architectural dimensions. For increased realism include imperfections.",
-        enhancer: "SPATIAL_GEOMETRIC_RENDERER",
+        directive: "Synthesize permanent topography and architectural textures for scene generation. Detail materials and dimensions. (Target: 50-150 words).",
+        enhancer: "SPATIAL_RENDERER",
       },
     },
   },
@@ -118,26 +114,26 @@ export const ENTITY_FRAGMENTS = {
       label: "Non-Physical",
       character: {
         sublabel: "Current State of Mind",
-        directive: "Capture the character's current internal volatility or state pressure. Detail mental processing focus, active cognitive triggers, and immediate emotional pressure. This drives reactive behavior in the current moment.",
-        enhancer: "TACTICAL_BEHAVIOR_ANALYZER",
+        directive: "Capture current internal volatility and state pressure. Detail mental focus, active triggers, and immediate emotional state. (Target: 30-80 words).",
+        enhancer: "TACTICAL_ANALYZER",
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
-        directive: "Capture the fractal's immediate atmospheric shifts, active anomalous events, state volatility, or ecological/structural changes. Detail immediate environmental and temporal pressure.",
-        enhancer: "ECOSYSTEM_VOLATILITY_ANALYZER",
+        directive: "Capture immediate atmospheric shifts, state volatility, or anomalous events. Detail immediate environmental and temporal pressure. (Target: 30-80 words).",
+        enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
     physical: {
       label: "Physical",
       character: {
         sublabel: "Outfit, Appearance & Conditions",
-        directive: "Synthesize the character's situational physical state for image generation. Focus on active coverage (attire/gear/plates), visible damage, posture, and environmental overlays (e.g., status effects, grime). Detail the immediate presence.",
-        enhancer: "SOMATIC_STATE_TRACKER",
+        directive: "Synthesize situational physical state for image generation. Focus on active attire, visible damage, posture, and environmental grime. (Target: 30-80 words).",
+        enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
-        directive: "Synthesize the immediate sensory layers active in the scene. Detail lighting composition, active precipitation or environmental overlays, and situational atmospheric geometry.",
-        enhancer: "ATMOSPHERIC_RENDER_ENGINE",
+        directive: "Synthesize immediate sensory layers active in the scene. Detail lighting composition, precipitation, and situational atmospheric geometry. (Target: 30-80 words).",
+        enhancer: "ATMOSPHERIC_TRACKER",
       },
     },
   },
