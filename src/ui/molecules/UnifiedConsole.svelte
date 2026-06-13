@@ -222,13 +222,14 @@
       flex flex-col
       items-center
       {app.control_panel_open ? 'justify-end' : 'justify-center'}
-      bg-(--glass-elevated)
+      bg-glass-elevated
       [backdrop-filter:var(--blur-mist)]
+      shadow-2xl shadow-black/50
       transition-all
       duration-500
       ease-in-out
 
-      {app.control_panel_open ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4 shadow-2xl shadow-black/50' : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
+      {app.control_panel_open ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4' : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
 
     {is_locked ? 'pointer-events-none cursor-wait opacity-15 brightness-75 grayscale filter' : ''}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
