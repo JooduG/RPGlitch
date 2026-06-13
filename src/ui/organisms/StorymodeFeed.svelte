@@ -64,6 +64,7 @@
         const clean_sentence = clean_image_prompts(structural_sentence).trim();
 
         if (clean_sentence) {
+          Audio.voice.activeMessageId = app.streaming.nodeId ?? app.streaming.node_id;
           Audio.voice.speak(clean_sentence, false);
         }
 
@@ -83,6 +84,7 @@
       const clean_remainder = clean_image_prompts(remaining_text).trim();
 
       if (clean_remainder) {
+        Audio.voice.activeMessageId = app.streaming.nodeId ?? app.streaming.node_id;
         Audio.voice.speak(clean_remainder, false);
       }
     }

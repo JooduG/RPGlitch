@@ -199,7 +199,7 @@ export const llm_service = {
         if (String(cloneErr).includes("DataClone") || String(cloneErr).includes("could not be cloned")) {
           console.warn("[llm_service] Cross-origin function proxy rejected streaming callbacks. Retrying without stream.");
           result = await ai_engine(instruction, {
-            ...gen_options
+            ...gen_options,
           });
         } else {
           throw cloneErr;

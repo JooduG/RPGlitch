@@ -7,7 +7,7 @@
    */
   import { Button, TextField, Toggle, tooltip } from "@atoms";
   import { prompt_builder } from "@intelligence";
-  import { AestheticResolver, PALETTE, PALETTE_VARS, get_signature_label } from "@media";
+  import { AestheticResolver, PALETTE, PALETTE_VARS, get_signature_label, SIGNATURE_COLORS } from "@media";
   import { llm_service } from "@platform";
   import { app } from "@state";
 
@@ -20,9 +20,6 @@
   let { profileState } = $props();
 
   // --- CONSTANTS ---
-
-  /** Names to exclude from the swatch grid (background gradients + chalk/neutral base tones). */
-  const EXCLUDED_SWATCHES = new Set(["Background Gradient 1", "Background Gradient 2", "Background Gradient 3", "Background Gradient 4", "Chalk", "Gunmetal", "Frisk", "Frozen", "Pure White", "Void Black"]);
 
   /**
    * Returns the HSL hue (0â€“360) for a hex color.
@@ -46,7 +43,7 @@
   }
 
   const SPECTRUM_COLORS = Object.entries(PALETTE)
-    .filter(([name]) => !EXCLUDED_SWATCHES.has(name))
+    .filter(([name]) => SIGNATURE_COLORS.includes(name))
     .sort(([, a], [, b]) => hex_hue(a) - hex_hue(b));
 
   // --- INITIALIZATION ---

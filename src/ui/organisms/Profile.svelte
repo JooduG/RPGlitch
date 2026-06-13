@@ -41,13 +41,13 @@
       (app.viewport.mobile || app.viewport.mini ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
   );
 
-  const info_container_class = $derived("flex min-w-0 flex-1 flex-col justify-between " + (entity_type === "fractal" ? "h-auto" : "min-h-0"));
+  const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 " + (entity_type === "fractal" ? "h-auto" : "min-h-0"));
 
   const main_layout_class = $derived("grow p-0 scrollbar-none [&::-webkit-scrollbar]:hidden " + (entity_type === "fractal" ? "h-auto overflow-visible" : "overflow-visible"));
 
-  const footer_layout_class = $derived("flex shrink-0 gap-4 p-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"));
+  const footer_layout_class = $derived("flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"));
 
-  const entity_body_class = $derived("min-w-0 p-4 pb-8 " + (app.viewport.mobile || app.viewport.mini ? "flex flex-col gap-4" : "grid gap-x-2 gap-y-4"));
+  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile || app.viewport.mini ? "flex flex-col gap-4" : "grid gap-x-2 gap-y-4"));
 
   const entity_body_grid_cols = $derived(app.viewport.mobile || app.viewport.mini ? undefined : "2rem 1fr");
 
@@ -132,7 +132,14 @@
 
   <Modal variant="profile" on_close={() => profileState.handle_close()} is_pass_through={true}>
     <div class="m-auto grid h-grid-height w-grid-width grid-cols-12 overflow-hidden" data-mobile={app.viewport.mobile} data-mini={app.viewport.mini} role="presentation">
-      <div class={main_card_class} style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)" style:backdrop-filter="var(--blur-mist)" style:--signature-color={signature_color} use:click_outside={handle_click_outside}>
+      <div
+        class={main_card_class}
+        style:background-color="color-mix(in srgb, var(--signature-color) 1%, var(--color-glass-sunken))"
+        style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
+        style:backdrop-filter="var(--blur-mist)"
+        style:--signature-color={signature_color}
+        use:click_outside={handle_click_outside}
+      >
         <div class={avatar_container_class}>
           <div class={profile_pic_wrapper_class} style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)">
             <ProfilePicture entity={profileState.char} />
@@ -185,14 +192,16 @@
       </div>
 
       {#if has_wings}
-        <aside data-wings-container class="flex scrollbar-none flex-col justify-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden" style:animation="slide-in-left var(--motion-elastic) forwards">
-          {#if profileState.is_editing}
-            <VisualWing {profileState} />
-            <AudioWing {profileState} />
-          {/if}
-          {#if app.settings.dev_mode}
-            <DevWing {profileState} />
-          {/if}
+        <aside data-wings-container class="col-[9/12] flex scrollbar-none flex-col items-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden" style:animation="slide-in-left var(--motion-elastic) forwards">
+          <div class="my-auto flex w-full flex-col gap-4">
+            {#if profileState.is_editing}
+              <VisualWing {profileState} />
+              <AudioWing {profileState} />
+            {/if}
+            {#if app.settings.dev_mode}
+              <DevWing {profileState} />
+            {/if}
+          </div>
         </aside>
       {/if}
     </div>

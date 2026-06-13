@@ -56,6 +56,8 @@ if (typeof window !== "undefined") {
 export class VoiceEngine {
   // --- REACTIVE STATE ---
   isSpeaking = $state(false);
+  /** @type {string | null | number} */
+  activeMessageId = $state(null);
   /** @type {any[]} */
   voices = $state([]);
   /** @type {string | null} */
@@ -193,6 +195,7 @@ export class VoiceEngine {
     if (this.#queue.length === 0) {
       this.#isProcessing = false;
       this.isSpeaking = false;
+      this.activeMessageId = null;
       this._utterance = null;
       return;
     }
@@ -282,6 +285,7 @@ export class VoiceEngine {
       /** @type {SpeechSynthesis} */ (this._synth).cancel();
     }
     this.isSpeaking = false;
+    this.activeMessageId = null;
     this._utterance = null;
   }
 }

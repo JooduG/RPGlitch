@@ -811,8 +811,6 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   }
 }
 
-
-
 /* Fix profile panel side grid positioning */
 [data-wings-container] {
   grid-column: 9 / 12 !important;

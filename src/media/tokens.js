@@ -199,7 +199,7 @@ export const PALETTE_VARS = {
  * Filtered registry of vibrant colors suitable for entity signatures.
  * Excludes backgrounds, neutrals, and non-vibrant utility colors.
  */
-export const SIGNATURE_COLORS = Object.keys(PALETTE).filter((key) => !key.startsWith("Background") && !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black"].includes(key));
+export const SIGNATURE_COLORS = Object.keys(PALETTE).filter((key) => !key.startsWith("Background") && !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black", "Glass Peak", "Glass Elevated", "Signature Color", "Swatch Color", "Glass Sunken"].includes(key));
 
 /************************************************************************************
  * [LEVEL 1: LOGIC & PARSERS]

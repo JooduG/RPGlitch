@@ -4,8 +4,7 @@
  * ============================================================================ */
 
 @import "tailwindcss";
-@source "../ui/**/*.svelte";
-@source "../App.svelte";
+@source "../";
 
 @theme {
   /* --- COLORS --- */

@@ -53,7 +53,6 @@
     shrink-0
     flex-col
     gap-2
-    p-4
 
     {className}"
   data-testid="profile-header"
@@ -127,9 +126,8 @@
           block
           text-right
           leading-[1.1]
-          drop-shadow-md
         "
-        style="color: {signature_color};"
+        style="color: {signature_color}; filter: drop-shadow(0 8px 24px rgb(0 0 0 / 0.4));"
       >
         <FitText text={formatName(name)} class="text-inherit!" />
       </h1>

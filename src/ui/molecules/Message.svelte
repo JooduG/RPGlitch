@@ -124,6 +124,8 @@
   function handle_speak() {
     if (!clean_markdown) return;
 
+    Audio.voice.activeMessageId = id;
+
     if (entity && entity.voice) {
       Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
       Audio.voice.rate = entity.voice.rate ?? 1.0;
@@ -185,7 +187,7 @@
         [backdrop-filter:var(--blur-mist)]
         transition-all
         duration-300
-        ease-(--ease-out)
+        ease-out
         outline-none
 
         before:pointer-events-none
@@ -236,7 +238,7 @@
           uppercase
           transition-all
           duration-300
-          ease-(--ease-out)
+          ease-out
           {!is_extended ? 'h-0 overflow-hidden border-b-0 px-0 opacity-0' : 'h-9 border-b border-white/10 px-4 opacity-100'}
         "
       >
@@ -287,11 +289,19 @@
                   </svg>
                 </Button>
               {/if}
-              <Button variant="invisible" size="small" square={true} aria-label="Read Message" actions={[tooltip]} onclick={handle_speak} disabled={!clean_markdown} class="text-white/85 transition-colors hover:text-white disabled:opacity-30">
-                <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
-                  <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
-                </svg>
-              </Button>
+              {#if Audio.voice.isSpeaking && Audio.voice.activeMessageId === id}
+                <Button variant="invisible" size="small" square={true} aria-label="Interrupt Audio" actions={[tooltip]} onclick={() => Audio.voice.stop()} class="text-white/85 transition-colors hover:text-white">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
+                    <rect x="6" y="6" width="12" height="12" rx="1"></rect>
+                  </svg>
+                </Button>
+              {:else}
+                <Button variant="invisible" size="small" square={true} aria-label="Read Message" actions={[tooltip]} onclick={handle_speak} disabled={!clean_markdown} class="text-white/85 transition-colors hover:text-white disabled:opacity-30">
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
+                    <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+                  </svg>
+                </Button>
+              {/if}
               <Button variant="invisible" size="small" square={true} aria-label="Edit" actions={[tooltip]} onclick={on_edit} class="text-white/85 transition-colors hover:text-white">
                 <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                   <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" stroke="currentColor" stroke-width="2"></path>

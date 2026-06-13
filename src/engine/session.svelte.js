@@ -113,11 +113,13 @@ export const session_driver = {
    */
   regenerate: async function () {
     const story_id = session_driver.require_active();
-    const last = await db.simulation_log.where("story_id").equals(story_id).last();
-    if (last && last.role !== "user") {
-      await db.simulation_log.delete(last.id);
-      simulation_log.refresh();
+    const logs = await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
+    for (let i = logs.length - 1; i >= 0; i--) {
+      const entry = logs[i];
+      if (entry.role === "user") break;
+      await db.simulation_log.delete(entry.id);
     }
+    simulation_log.refresh();
   },
 
   /**

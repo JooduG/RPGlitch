@@ -48,6 +48,7 @@
       previous_volume = Audio.volume;
       explicitly_muted = true;
       Audio.volume = 0;
+      Audio.voice.stop();
     }
   }
 
@@ -222,17 +223,15 @@
       flex flex-col
       items-center
       {app.control_panel_open ? 'justify-end' : 'justify-center'}
+      max-h-[calc(var(--spacing-row-unit)*9)]
       bg-glass-elevated
-      shadow-2xl
-      shadow-black/50 [backdrop-filter:var(--blur-mist)]
+      shadow-2xl shadow-black/50
+      [backdrop-filter:var(--blur-mist)]
       transition-all
       duration-500
       ease-in-out
-      max-h-[calc(var(--spacing-row-unit)*9)]
 
       {app.control_panel_open ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4' : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
-
-    {is_locked ? 'pointer-events-none cursor-wait opacity-15 brightness-75 grayscale filter' : ''}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
       ? `
       w-[calc(var(--spacing-column-unit)*6)]
@@ -247,8 +246,8 @@
     data-testid="unified-console"
   >
     <!-- ACCORDION SETTINGS (VERTICAL EXPANSION) -->
-    <div class="grid w-full min-h-0 transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open ? 'mt-2 grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
-      <div class="w-full overflow-hidden min-h-0 flex flex-col">
+    <div class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open ? 'mt-2 grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
+      <div class="flex min-h-0 w-full flex-col overflow-hidden">
         <div class="mx-auto flex min-h-0 w-[calc(var(--spacing-column-unit)*6-2rem)] flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity {app.control_panel_open ? 'opacity-100 delay-300 duration-200' : 'delay-0 duration-150'}">
           <ScrollArea class="min-h-0">
             <Accordion.Root type="multiple" class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
@@ -372,13 +371,13 @@
                     <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
                     <Toggle label="GRID OVERLAYS" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
                     <div class="mt-2 flex w-full justify-center pt-4 sm:col-span-2">
-                      <Button variant="danger" size="small" class="opacity-80 transition-opacity hover:opacity-100" onclick={() => (is_confirming_reset = true)} title="Delete All">
-                        <svg class="size-4 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
+                      <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
+                        <svg class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
                           <path d="M3 6h18" />
                           <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
                           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
                         </svg>
-                        <span class="text-xs font-bold uppercase tracking-widest">Delete All</span>
+                        <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
                       </Button>
                     </div>
                   </div>
@@ -441,6 +440,8 @@
           outline-none
           placeholder:text-slate-600
           placeholder:opacity-15
+          disabled:cursor-wait
+          disabled:opacity-30
         "
           bind:value
           onkeydown={handle_keydown}
