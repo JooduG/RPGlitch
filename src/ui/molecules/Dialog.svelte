@@ -110,7 +110,7 @@
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0">
-                    <p class="m-0 text-base leading-relaxed whitespace-pre-wrap text-frozen">
+                    <p class="m-0 text-base leading-relaxed whitespace-pre-wrap text-frisk">
                       {message}
                     </p>
                   </AlertDialog.Description>
