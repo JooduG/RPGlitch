@@ -128,7 +128,7 @@ export function syncToCss() {
   const css_header = `/* ============================================================================
  * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
- * ============================================================================ */\n\n@import "tailwindcss";\n\n@theme {`;
+ * ============================================================================ */\n\n@import "tailwindcss";\n@source "../ui/**/*.svelte";\n@source "../App.svelte";\n\n@theme {`;
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;

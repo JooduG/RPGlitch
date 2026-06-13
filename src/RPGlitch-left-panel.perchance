@@ -130,8 +130,8 @@ sounds
   notification = https://user.uploads.dev/file/50dc061d6ed6439719d283d042e9c172.wav
 
 // --- EXPORTS TO JS ---
-pluginAi = ai
-pluginTextToImage = textToImage
+pluginAi = async (opts) => { return await ai(opts); }
+pluginTextToImage = async (opts) => { return await textToImage(opts); }
 pluginSuperFetch = superFetch
 pluginRemember = remember
 pluginUpload = upload

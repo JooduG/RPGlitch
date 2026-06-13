@@ -76,7 +76,7 @@
                     relative
                     z-max
                     flex
-                    w-[90vw]
+                    w-(--dialog-width)
                     cursor-default
                     flex-col
                     justify-between
@@ -84,11 +84,8 @@
                     overflow-hidden
                     rounded-standard
                     border
-                    border-[color-mix(in_srgb,var(--color-frozen)_10%,transparent)]
                     bg-glass-elevated
                     p-padding-standard
-                    [backdrop-filter:var(--blur-mist)]
-                    transition-[filter]
                     duration-300
 
                     before:pointer-events-none
@@ -102,6 +99,13 @@
                     sm:w-modal-width-thin
 
                     {busy ? 'pointer-events-none cursor-wait brightness-75 grayscale' : ''}"
+                  style="
+                    --dialog-width: 90vw;
+
+                    border-color: color-mix(in_srgb, var(--color-frozen) 10%, transparent);
+                    backdrop-filter: var(--blur-mist);
+                    transition-property: filter;
+                  "
                   in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
                   out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
                 >

@@ -1,16 +1,13 @@
 import { svelte } from "@sveltejs/vite-plugin-svelte";
 import tailwindcss from "@tailwindcss/vite";
 import { execSync } from "child_process";
+import fs from "fs";
 import path from "path";
 import { defineConfig } from "vite";
 import devtoolsJson from "vite-plugin-devtools-json";
 import { viteSingleFile } from "vite-plugin-singlefile";
 
 // 🎨 Design Token Sync Plugin
-/**
- * Vite plugin to synchronize design tokens on build and file changes.
- * @returns {import('vite').Plugin} The Vite plugin object.
- */
 function designTokenSync() {
   return {
     name: "design-token-sync",
@@ -31,10 +28,73 @@ function designTokenSync() {
           execSync("node ./.agents/skills/design/scripts/sync-css.js", {
             stdio: "inherit",
           });
-          // Optionally trigger a full reload or just let Vite handle the CSS update
         } catch (err) {
           console.error("❌ Design token sync failed:", err.message);
         }
+      }
+    },
+  };
+}
+
+// 🛡️ Perchance Airtight In-Place Base64 Vault Plugin
+function perchanceBase64Vault() {
+  return {
+    name: "perchance-base64-vault",
+    closeBundle() {
+      const targetOutput = path.resolve(__dirname, "dist/index.html");
+      try {
+        if (fs.existsSync(targetOutput)) {
+          let html = fs.readFileSync(targetOutput, "utf8");
+
+          const toBase64 = (str) => Buffer.from(str, "utf8").toString("base64");
+
+          // 1. Encapsulate compiled inline CSS style rules safely
+          html = html.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (match, cssContent) => {
+            if (cssContent.trim().length < 5) return match;
+            const b64 = toBase64(cssContent);
+            return `<script>
+              (function() {
+                try {
+                  const css = decodeURIComponent(atob("${b64}").split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                  }).join(''));
+                  const style = document.createElement('style');
+                  style.textContent = css;
+                  document.head.appendChild(style);
+                } catch(e) { console.error("CSS vault extraction failed:", e); }
+              })();
+            </script>`;
+          });
+
+          // 2. Encapsulate internal bundled JS code scripts while ignoring external CDN script tags and data-no-vault scripts
+          html = html.replace(/<script([^>]*)>([\s\S]*?)<\/script>/gi, (match, attributes, jsContent) => {
+            if (attributes.includes("src=")) return match;
+            if (attributes.includes("data-no-vault")) return match;
+            if (jsContent.trim().length < 10) return match;
+
+            const b64 = toBase64(jsContent);
+            const isModule = attributes.includes('type="module"') || attributes.includes("type='module'");
+
+            return `<script>
+              (function() {
+                try {
+                  const js = decodeURIComponent(atob("${b64}").split('').map(function(c) {
+                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+                  }).join(''));
+                  const script = document.createElement('script');
+                  if (${isModule}) script.type = 'module';
+                  script.textContent = js;
+                  document.body.appendChild(script);
+                } catch(e) { console.error("JS vault extraction failed:", e); }
+              })();
+            </script>`;
+          });
+
+          fs.writeFileSync(targetOutput, html, "utf8");
+          console.log("🛡️ [Vault Complete] Inline assets wrapped securely in Base64 protection.");
+        }
+      } catch (err) {
+        console.error("❌ Vault processing breakdown:", err.message);
       }
     },
   };
@@ -44,15 +104,12 @@ export default defineConfig(({ command, mode }) => {
   const isDev = command === "serve";
 
   return {
-    // Root must point to where index.html lives
     root: "src",
     define: {
       "import.meta": "{}",
     },
-    plugins: [designTokenSync(), tailwindcss(), svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }), !isDev && viteSingleFile(), devtoolsJson()].filter(Boolean),
+    plugins: [designTokenSync(), tailwindcss(), svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }), !isDev && viteSingleFile(), !isDev && perchanceBase64Vault(), devtoolsJson()].filter(Boolean),
     resolve: {
-      // Top-Level Domain Aliasing
-      // Restricting aliases to major folders forces better structural boundaries.
       alias: {
         "@": path.resolve(__dirname, "./src"),
         "@platform": path.resolve(__dirname, "./src/platform"),
@@ -69,24 +126,18 @@ export default defineConfig(({ command, mode }) => {
         "@organisms": path.resolve(__dirname, "./src/ui/organisms"),
         "@molecules": path.resolve(__dirname, "./src/ui/molecules"),
       },
-      // Force Vite to prioritize Svelte and modern JS
       extensions: [".svelte", ".js", ".ts", ".mjs"],
     },
     build: {
       target: "esnext",
       outDir: "../dist",
       emptyOutDir: true,
-      // Perchance Single-File Mandates
       cssCodeSplit: false,
       minify: "esbuild",
       sourcemap: mode === "development",
-      // WARNING: If you put large assets (.mp3, .png) in the src folder,
-      // this limit will Base64 encode them and bloat your HTML file.
-      // Host assets externally (Imgur/Perchance uploads) and link to them via URL.
       assetsInlineLimit: 100000000,
       rollupOptions: {
         output: {
-          // IIFE format encapsulates the app to prevent variable collisions in Perchance
           format: "iife",
           name: "RPGlitch",
           inlineDynamicImports: true,
@@ -95,13 +146,12 @@ export default defineConfig(({ command, mode }) => {
     },
     server: {
       port: 4001,
-      strictPort: false, // Fail if port 4000 is taken, rather than silently jumping to 4001
-      open: true, // Automatically open embedded browser on boot
+      strictPort: false,
+      open: true,
       watch:
         mode === "test"
           ? null
           : {
-              // Ensure DESIGN.md is watched even though it's outside the src root
               ignored: ["!**/DESIGN.md"],
             },
     },

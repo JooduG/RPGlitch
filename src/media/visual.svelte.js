@@ -76,7 +76,13 @@ export class VisualEngine {
         return await this.retryer.retry(
           async () => {
             // @ts-ignore
-            if (typeof window === "undefined" || typeof window.pluginTextToImage !== "function") throw new Error("Image plugin missing");
+            let hasPlugin = false;
+            try {
+              if (typeof window !== "undefined" && typeof window.pluginTextToImage === "function") hasPlugin = true;
+            } catch (_e) {
+              /* ignore */
+            }
+            if (!hasPlugin) throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
             // @ts-ignore
@@ -225,8 +231,14 @@ export class VisualEngine {
    * @returns {Promise<string | null>}
    */
   async upload() {
-    // @ts-ignore
-    if (typeof window !== "undefined" && typeof window.pluginUpload === "function") {
+    let hasUploadPlugin = false;
+    try {
+      if (typeof window !== "undefined" && typeof window.pluginUpload === "function") hasUploadPlugin = true;
+    } catch (_e) {
+      /* ignore */
+    }
+
+    if (hasUploadPlugin) {
       return new Promise((resolve) => {
         try {
           // @ts-ignore

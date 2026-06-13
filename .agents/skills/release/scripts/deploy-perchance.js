@@ -99,7 +99,13 @@ function pre_flight() {
   }
 
   const left_content = readFileSync(CONFIG.left_panel_path, "utf-8");
-  const right_content = readFileSync(CONFIG.right_panel_path, "utf-8");
+  let right_content = readFileSync(CONFIG.right_panel_path, "utf-8");
+
+  // Escape brackets in the right panel so Perchance doesn't parse Tailwind classes
+  // 1. CSS selectors already have `\[` and `\]`. We want Perchance to output `\[` and `\]`.
+  right_content = right_content.replace(/\\\[/g, "\\\\\\[").replace(/\\\]/g, "\\\\\\]");
+  // 2. HTML classes have raw `[` and `]`. We want Perchance to output `[` and `]`.
+  right_content = right_content.replace(/(?<!\\)\[/g, "\\[").replace(/(?<!\\)\]/g, "\\]");
 
   // Bundle size validation
   const left_size = Buffer.byteLength(left_content, "utf-8");

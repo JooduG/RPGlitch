@@ -1,13 +1,11 @@
 /**
  * @file src/platform/transport.js
  *
- * €
  * 🔌 LLM SERVICE    The Transport Layer
- * €
  *
  * PURPOSE
  * LlmService is the single point of contact with the Perchance AI plugin
- * (window.ai). All callers  the engine, the enhancement UI, Echo  route here.
+ * (window.ai or window.pluginAi). All callers—the engine, the enhancement UI, Echo—route here.
  *
  * RESPONSIBILITIES
  * - Streaming : Connects token output to app.start_stream / update_stream / end_stream.
@@ -21,6 +19,7 @@
 import { ERROR_MESSAGES } from "@engine";
 import { strip_cognition_blocks } from "@intelligence";
 import { app } from "@state";
+
 /************************************************************************************
  * [SECTION: SANITIZATION]
  * ----------------------------------------------------------------------------------
@@ -47,6 +46,7 @@ export function sanitize_llm(text) {
     .replace(/```\s*$/gm, "")
     .trim();
 }
+
 /************************************************************************************
  * [SECTION: LLM SERVICE]
  * ----------------------------------------------------------------------------------
@@ -67,6 +67,7 @@ export const llm_service = {
     const result = await this.generate(payload, { silent: true, raw: true });
     return typeof result === "string" ? sanitize_llm(result) : result;
   },
+
   /**
    * CORE GENERATION
    * The primary abstraction for window.ai. Handles streaming state,
@@ -95,15 +96,56 @@ export const llm_service = {
    */
   generate: async (payload, options = {}) => {
     // [SAFETY] Guard against missing plugin in non-Perchance environments
-    if (typeof window === "undefined" || typeof window.ai !== "function") {
+    // Integrates window.pluginAi seamlessly as our native production fallback
+    const get_ai_engine = () => {
+      if (typeof window === "undefined") return null;
+      try {
+        if (typeof window.ai === "function") return window.ai;
+      } catch (_e) {
+        /* ignore */
+      }
+      try {
+        if (typeof window.pluginAi === "function") return window.pluginAi;
+      } catch (_e) {
+        /* ignore */
+      }
+
+      try {
+        const lexicalAi = eval("typeof ai !== 'undefined' ? ai : undefined");
+        if (typeof lexicalAi === "function") return lexicalAi;
+      } catch (_e) {
+        // ignore
+      }
+
+      try {
+        const lexicalPluginAi = eval("typeof pluginAi !== 'undefined' ? pluginAi : undefined");
+        if (typeof lexicalPluginAi === "function") return lexicalPluginAi;
+      } catch (_e) {
+        // ignore
+      }
+
+      // Debug log removed to prevent SecurityError from cross-origin window.parent access.
+
+      try {
+        if (window.parent && typeof window.parent.ai === "function") return window.parent.ai;
+        if (window.parent && typeof window.parent.pluginAi === "function") return window.parent.pluginAi;
+      } catch (_e) {
+        // Ignore cross-origin errors if we're somehow sandboxed
+      }
+      return null;
+    };
+
+    const ai_engine = get_ai_engine();
+
+    if (!ai_engine || typeof ai_engine !== "function") {
       const is_mockable = typeof window !== "undefined" && !(typeof process !== "undefined" && process.env.VITEST) && (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || import.meta.env.DEV);
 
       if (is_mockable) {
-        console.warn("[llm_service] window.ai not found. Running in local Mock Mode.");
+        console.warn("[llm_service] AI engine function not found. Running in local Mock Mode.");
         return await llm_service._mock_generate(payload, options);
       }
 
-      const msg = "LLM Engine Unavailable: window.ai not found. This simulation requires the Perchance AI plugin.";
+      const msg = "LLM Engine Unavailable: window.ai or window.pluginAi not found. This simulation requires the Perchance AI plugin.";
       if (!options.silent) console.error(msg);
       throw new Error(msg);
     }
@@ -145,12 +187,24 @@ export const llm_service = {
         if (options.onToken) options.onToken(chunk);
       };
 
-      // 5. Execute
-      let result = await window.ai(instruction, {
-        ...gen_options,
-        onToken: on_chunk,
-        onChunk: on_chunk,
-      });
+      // 5. Execute via our securely resolved engine instance
+      let result;
+      try {
+        result = await ai_engine(instruction, {
+          ...gen_options,
+          onToken: on_chunk,
+          onChunk: on_chunk,
+        });
+      } catch (cloneErr) {
+        if (String(cloneErr).includes("DataClone") || String(cloneErr).includes("could not be cloned")) {
+          console.warn("[llm_service] Cross-origin function proxy rejected streaming callbacks. Retrying without stream.");
+          result = await ai_engine(instruction, {
+            ...gen_options
+          });
+        } else {
+          throw cloneErr;
+        }
+      }
 
       // Stream is left active so orchestrator can gracefully hand off to permanent log
 
@@ -174,6 +228,7 @@ export const llm_service = {
       throw err;
     }
   },
+
   /**
    * Local Dev/Test mock generation driver to simulate stream rendering.
    * @param {any} payload
@@ -204,6 +259,7 @@ export const llm_service = {
       if (options.signal?.aborted) {
         throw new Error("Generation aborted by caller.");
       }
+
       const end = Math.min(index + chunkSize, text.length);
       const chunk = text.slice(index, end);
 
@@ -227,6 +283,7 @@ export const llm_service = {
     }
     return text;
   },
+
   /**
    * Formats message history into a plain readable string for the instruction block.
    * Collapses consecutive messages from the same character label into a single entry.

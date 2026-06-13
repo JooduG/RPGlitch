@@ -29,6 +29,7 @@
   <ScrollArea.Viewport
     class="
       h-full
+      min-h-0
       max-h-[inherit]
       w-full
       rounded-[inherit]

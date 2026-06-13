@@ -810,4 +810,56 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     opacity: 1;
   }
 }
+
+
+
+/* Fix profile panel side grid positioning */
+[data-wings-container] {
+  grid-column: 9 / 12 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: center !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+/* Force all 3 wing section containers to maintain flex states and respect vertical gaps */
+[data-wings-container] section {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: var(--spacing-gap-standard, 1rem) !important;
+}
+
+/* Force standard desktop view margins */
+.modal-profile-grid-main {
+  grid-column: 2 / 8 !important;
+}
+
+.modal-profile-grid-flat {
+  grid-column: 4 / 10 !important;
+}
+
+/* Force right alignment on utility control bars */
+footer.outline-none,
+div.flex-1.flex-col footer {
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: flex-end !important;
+  align-items: center !important;
+  gap: 1rem !important;
+}
+
+/* --- PROFILE TYPOGRAPHY SHIELD --- */
+
+/* Force entry fields inside header zones to respect global title variables */
+div[class*="ProfileHeader"] input,
+div[class*="ProfileHeader"] h2,
+div[class*="profile-header"] input,
+.profile-header-title,
+header input {
+  font-size: var(--text-h3) !important;
+  font-family: var(--font-heading) !important;
+  font-weight: 700 !important;
+  line-height: inherit !important;
+}
 ```

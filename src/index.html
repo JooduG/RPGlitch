@@ -2,6 +2,12 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+    <script>
+      // CRITICAL: Required for Perchance cross-origin iframe communication
+      try {
+        document.domain = "perchance.org";
+      } catch (e) {}
+    </script>
     <meta name="viewport" content="width=device-width,initial-scale=1" />
     <title>RPGlitch</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -12,22 +18,90 @@
     <a href="#svelte-root" class="skip-link">Skip to main content</a>
     <div id="svelte-root"></div>
 
-    <script src="https://perchance.org/ai-text-plugin"></script>
-    <script src="https://perchance.org/text-to-image-plugin"></script>
-    <script>
-      // Initialize Plugin Aliases with strict hygiene
-      if (typeof ai !== "undefined") {
-        window.ai = ai;
-        window.pluginAi = ai;
-      }
-      // Text-to-Image (Handle both t2i and textToImage names)
-      if (typeof textToImage !== "undefined") {
-        window.textToImage = textToImage;
-        window.pluginTextToImage = textToImage;
-      } else if (typeof t2i !== "undefined") {
-        window.textToImage = t2i;
-        window.pluginTextToImage = t2i;
-      }
+    <!--PERCHANCE_CONFIG_TARGET-->
+
+    <!-- Plugins exported from Left Panel directly -->
+    <script data-no-vault>
+      // Initialize Plugin Aliases with strict hygiene by polling for lexical variables
+      // since Perchance plugins might load asynchronously and not attach to window.
+      (function () {
+        const MAX_POLLS = 100;
+        let polls = 0;
+
+        function capturePlugins() {
+          let allFound = true;
+
+          if (typeof window.ai === "undefined") {
+            try {
+              if (typeof ai !== "undefined") {
+                window.ai = ai;
+                window.pluginAi = ai;
+              } else {
+                allFound = false;
+              }
+            } catch (e) {
+              allFound = false;
+            }
+          }
+          if (typeof window.textToImage === "undefined") {
+            try {
+              if (typeof textToImage !== "undefined") {
+                window.textToImage = textToImage;
+                window.pluginTextToImage = textToImage;
+              } else if (typeof t2i !== "undefined") {
+                window.textToImage = t2i;
+                window.pluginTextToImage = t2i;
+              } else {
+                allFound = false;
+              }
+            } catch (e) {
+              allFound = false;
+            }
+          }
+          if (typeof window.superFetch === "undefined") {
+            try {
+              if (typeof superFetch !== "undefined") {
+                window.superFetch = superFetch;
+                window.pluginSuperFetch = superFetch;
+              } else {
+                allFound = false;
+              }
+            } catch (e) {
+              allFound = false;
+            }
+          }
+          if (typeof window.remember === "undefined") {
+            try {
+              if (typeof remember !== "undefined") {
+                window.remember = remember;
+                window.pluginRemember = remember;
+              } else {
+                allFound = false;
+              }
+            } catch (e) {
+              allFound = false;
+            }
+          }
+          if (typeof window.upload === "undefined") {
+            try {
+              if (typeof upload !== "undefined") {
+                window.upload = upload;
+                window.pluginUpload = upload;
+              } else {
+                allFound = false;
+              }
+            } catch (e) {
+              allFound = false;
+            }
+          }
+
+          if (!allFound && polls < MAX_POLLS) {
+            polls++;
+            setTimeout(capturePlugins, 50);
+          }
+        }
+        capturePlugins();
+      })();
     </script>
 
     <style>

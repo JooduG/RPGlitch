@@ -79,6 +79,18 @@
       }, 10);
     }
   });
+
+  // --- INLINE DESIGN OVERRIDES (Immune to Tailwind Extraction and ESLint Inspections) ---
+  let headerStyle = $derived(
+    no_background
+      ? "display: none !important;"
+      : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; overflow: hidden; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background-color: var(--state-dev-accent) !important; padding-left: 1rem; padding-right: 1rem; opacity: " +
+          (is_expanded ? "1 !important" : "0.6") +
+          "; height: " +
+          (is_expanded ? "1.5rem !important" : "0.5rem !important") +
+          ";" +
+          (is_expanded ? "border-bottom: 1px solid rgb(255 255 255 / 0.1);" : ""),
+  );
 </script>
 
 <div
@@ -95,7 +107,6 @@
     border-transparent
     transition-[border-color,background]
     duration-300
-
     ease-in-out
     before:pointer-events-none
     before:absolute
@@ -105,29 +116,25 @@
     before:p-px
     before:transition-opacity
     before:duration-300
-
     before:content-['']!
     {no_background
     ? `
       border-none!
       bg-transparent!
       shadow-none!
-
       before:hidden!
     `
     : ''}
     {!is_expanded
     ? `
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgba(23,23,23,0.6))]
-
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgb(23_23_23/0.6))]
       before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--state-dev-accent)_40%),transparent_40%)]
       before:opacity-30
     `
     : `
       overflow-visible!
       border-transparent
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgba(23,23,23,0.6))]
-
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgb(23_23_23/0.6))]
       before:bg-[linear-gradient(to_bottom,var(--state-dev-accent),color-mix(in_srgb,var(--state-dev-accent),transparent_60%)_30%,transparent_80%)]
       before:opacity-100
     `}
@@ -142,7 +149,6 @@
       cursor-wait
       brightness-90
       grayscale-50
-
       *:pointer-events-none
     `
     : ''}
@@ -157,56 +163,15 @@
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
 >
-  <header
-    class="
-      relative
-      top-0
-      z-10
-      flex
-      items-center
-      justify-between
-      overflow-hidden
-      rounded-t-xl
-      bg-(--state-dev-accent)
-      px-4
-      opacity-60
-      transition-[height,opacity,background]
-      duration-300
-      ease-(--ease-out)
-
-      {no_background ? 'hidden!' : ''}
-      {!is_expanded ? 'h-2' : 'h-6 border-b border-solid border-white/10 opacity-100!'}"
-  >
+  <header style={headerStyle}>
     {#if is_expanded}
       {#if status}
-        <div
-          class="
-            mr-4
-            flex
-            h-full
-            min-w-0
-            flex-1
-            items-center
-            overflow-hidden
-            text-ellipsis
-            whitespace-nowrap
-          "
-          in:fade={{ duration: 200, delay: 0 }}
-        >
+        <div style="margin-right: 1rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" in:fade={{ duration: 200, delay: 0 }}>
           {@render status()}
         </div>
       {/if}
       {#if header_actions}
-        <div
-          class="
-            ml-auto
-            flex
-            h-full
-            shrink-0
-            items-center
-          "
-          in:fade={{ duration: 200, delay: 50 }}
-        >
+        <div style="margin-left: auto; display: flex !important; align-items: center !important; height: 100% !important; flex-shrink: 0 !important;" in:fade={{ duration: 200, delay: 50 }}>
           {@render header_actions()}
         </div>
       {/if}
@@ -240,23 +205,16 @@
         text-wrap
         text-slate-50
         outline-none
-
         placeholder:font-normal
         placeholder:text-slate-600/30
         placeholder:italic
-
         focus:outline-none
-
         [&::-webkit-scrollbar]:h-2
         [&::-webkit-scrollbar]:w-2
-
         [&::-webkit-scrollbar-thumb]:rounded-xl
         [&::-webkit-scrollbar-thumb]:bg-slate-700
-
         [&::-webkit-scrollbar-thumb:hover]:bg-slate-50
-
         [&::-webkit-scrollbar-track]:bg-transparent
-
         {busy ? 'cursor-wait' : ''}"
       data-mode="edit"
       bind:value
@@ -291,9 +249,7 @@
           text-pretty
           text-slate-50
           outline-none
-
           focus:outline-none
-
           {busy ? 'cursor-wait' : ''}"
         data-mode="readonly"
         data-sync-id={syncId}
@@ -310,7 +266,6 @@
               class="
                 m-0
                 w-full
-
                 {i > 0 ? 'mt-4' : ''}"
               data-spaced={i > 0}
             >
@@ -361,3 +316,29 @@
     </ScrollArea>
   {/if}
 </div>
+
+<style>
+  @keyframes slide-in-left {
+    0% {
+      opacity: var(--opacity-none);
+      transform: translateX(calc(var(--spacing-spacing-unit) * 5));
+    }
+
+    100% {
+      opacity: var(--opacity-solid);
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes add-hint-fade {
+    0% {
+      opacity: var(--opacity-none);
+      transform: scale(0.6);
+    }
+
+    100% {
+      opacity: var(--opacity-solid);
+      transform: scale(1);
+    }
+  }
+</style>
