@@ -65,7 +65,9 @@
 
   async function run_mock(role) {
     const is_fractal = role === "fractal";
-    const entity_name = is_fractal ? app.selected_fractal?.name || runtime.active_fractal?.name || "Fractal" : app.selected_ai?.name || runtime.active_ai?.name || "AI";
+    const entity_name = is_fractal
+      ? app.selected_fractal?.name || runtime.active_fractal?.name || "Fractal"
+      : app.selected_ai?.name || runtime.active_ai?.name || "AI";
 
     const content =
       role === "fractal"
@@ -206,7 +208,14 @@
 
 <svelte:window onkeydown={handle_window_keydown} />
 
-<Dialog type="confirm" bind:open={is_confirming_reset} title="Wipe Data?" message="This will permanently delete all stories, characters, and logs. This action cannot be undone." confirm_label="Erase All" on_confirm={hard_reset} />
+<Dialog
+  type="confirm"
+  bind:open={is_confirming_reset}
+  title="Wipe Data?"
+  message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
+  confirm_label="Erase All"
+  on_confirm={hard_reset}
+/>
 
 <div class="relative flex h-[calc(var(--spacing-row-unit)*0.5)] w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
@@ -231,7 +240,9 @@
       duration-500
       ease-in-out
 
-      {app.control_panel_open ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4' : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
+      {app.control_panel_open
+      ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4'
+      : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
       ? `
       w-[calc(var(--spacing-column-unit)*6)]
@@ -246,14 +257,24 @@
     data-testid="unified-console"
   >
     <!-- ACCORDION SETTINGS (VERTICAL EXPANSION) -->
-    <div class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open ? 'mt-2 grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
+    <div
+      class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open
+        ? 'mt-2 grid-rows-[1fr]'
+        : 'grid-rows-[0fr]'}"
+    >
       <div class="flex min-h-0 w-full flex-col overflow-hidden">
-        <div class="mx-auto flex min-h-0 w-[calc(var(--spacing-column-unit)*6-2rem)] flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity {app.control_panel_open ? 'opacity-100 delay-300 duration-200' : 'delay-0 duration-150'}">
+        <div
+          class="mx-auto flex min-h-0 w-[calc(var(--spacing-column-unit)*6-2rem)] flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity {app.control_panel_open
+            ? 'opacity-100 delay-300 duration-200'
+            : 'delay-0 duration-150'}"
+        >
           <ScrollArea class="min-h-0">
             <Accordion.Root type="multiple" class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
               <!-- DECK A: AUDIO -->
               <Accordion.Item value="audio">
-                <Accordion.Trigger class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
+                <Accordion.Trigger
+                  class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+                >
                   Audio
                   <span class="opacity-50 transition-transform group-data-[state=open]:rotate-180">▼</span>
                 </Accordion.Trigger>
@@ -294,11 +315,26 @@
                           </svg>
                         {:else}
                           <svg viewBox="0 0 24 24" class="size-5">
-                            <path fill="currentColor" d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z" />
+                            <path
+                              fill="currentColor"
+                              d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+                            />
                           </svg>
                         {/if}
                       </button>
-                      <Slider horizontal label="" bind:value={Audio.volume} min={0} max={1} step={0.1} neutral={0} format={(v) => Math.round(v * 100) + "%"} disabled={explicitly_muted} disabled_label="MUTED" show_value_tooltip={true} />
+                      <Slider
+                        horizontal
+                        label=""
+                        bind:value={Audio.volume}
+                        min={0}
+                        max={1}
+                        step={0.1}
+                        neutral={0}
+                        format={(v) => Math.round(v * 100) + "%"}
+                        disabled={explicitly_muted}
+                        disabled_label="MUTED"
+                        show_value_tooltip={true}
+                      />
                     </div>
                   </div>
                 </Accordion.Content>
@@ -307,7 +343,9 @@
               <!-- DECK B: STORYBOARD (Contextual) -->
               {#if app.view === "storyboard"}
                 <Accordion.Item value="storyboard">
-                  <Accordion.Trigger class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
+                  <Accordion.Trigger
+                    class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+                  >
                     Storyboard
                     <span class="opacity-50 transition-transform group-data-[state=open]:rotate-180">▼</span>
                   </Accordion.Trigger>
@@ -324,16 +362,29 @@
               <!-- DECK C: STORYMODE (Contextual) -->
               {#if app.view === "storymode"}
                 <Accordion.Item value="storymode">
-                  <Accordion.Trigger class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
+                  <Accordion.Trigger
+                    class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+                  >
                     Storymode
                     <span class="opacity-50 transition-transform group-data-[state=open]:rotate-180">▼</span>
                   </Accordion.Trigger>
                   <Accordion.Content>
                     <div class="flex flex-row flex-wrap items-center gap-4 pt-2 pb-4">
-                      <Button label="PHOTO" variant="secondary" size="small" onclick={() => visual_engine.visualize(runtime.story_id, app.prologue || "Current scene", "ai")} />
+                      <Button
+                        label="PHOTO"
+                        variant="secondary"
+                        size="small"
+                        onclick={() => visual_engine.visualize(runtime.story_id, app.prologue || "Current scene", "ai")}
+                      />
                       <Button label="MOCK PROLOGUE" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("fractal")} />
                       <Button label="MOCK TURN" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("ai")} />
-                      <Button label="END STORY" variant="danger" size="small" class="ml-auto" onclick={() => gamemaster.execute_epilogue(runtime.story_id)} />
+                      <Button
+                        label="END STORY"
+                        variant="danger"
+                        size="small"
+                        class="ml-auto"
+                        onclick={() => gamemaster.execute_epilogue(runtime.story_id)}
+                      />
                     </div>
                   </Accordion.Content>
                 </Accordion.Item>
@@ -341,7 +392,9 @@
 
               <!-- DECK C: LIBRARY (Always available) -->
               <Accordion.Item value="library">
-                <Accordion.Trigger class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
+                <Accordion.Trigger
+                  class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+                >
                   Library
                   <span class="opacity-50 transition-transform group-data-[state=open]:rotate-180">▼</span>
                 </Accordion.Trigger>
@@ -362,7 +415,9 @@
 
               <!-- DECK D: ADVANCED -->
               <Accordion.Item value="advanced">
-                <Accordion.Trigger class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
+                <Accordion.Trigger
+                  class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+                >
                   Advanced
                   <span class="opacity-50 transition-transform group-data-[state=open]:rotate-180">▼</span>
                 </Accordion.Trigger>
@@ -372,7 +427,10 @@
                     <Toggle label="GRID OVERLAYS" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
                     <div class="mt-2 flex w-full justify-center pt-4 sm:col-span-2">
                       <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
-                        <svg class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]" viewBox="0 0 24 24">
+                        <svg
+                          class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                          viewBox="0 0 24 24"
+                        >
                           <path d="M3 6h18" />
                           <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
                           <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
@@ -392,23 +450,58 @@
     <!-- BOTTOM CONSOLE / INPUT AREA -->
     <div class="flex w-full items-center justify-between gap-2 transition-colors duration-300 {app.control_panel_open ? 'pt-2' : ''}">
       {#if app.view === "storyboard"}
-        <Button flank={true} variant="invisible" aria-label="Shuffle Entities" disabled={app.control_panel_open} onclick={() => storyboard.shuffle()} actions={[shimmy, tooltip]} style="view-transition-name: console-left-flank">
+        <Button
+          flank={true}
+          variant="invisible"
+          aria-label="Shuffle Entities"
+          disabled={app.control_panel_open}
+          onclick={() => storyboard.shuffle()}
+          actions={[shimmy, tooltip]}
+          style="view-transition-name: console-left-flank"
+        >
           <svg viewBox="0 0 24 24" class="block size-icon-medium">
-            <path fill="currentColor" d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z" />
+            <path
+              fill="currentColor"
+              d="M14.83,13.41L13.42,14.82L16.55,17.95L14.5,20H20V14.5L17.96,16.54L14.83,13.41M14.5,4L16.54,6.04L4,18.59L5.41,20L17.96,7.46L20,9.5V4M10.59,9.17L5.41,4L4,5.41L9.17,10.58L10.59,9.17Z"
+            />
           </svg>
         </Button>
 
-        <Button class="group" data-ready={ready_to_begin} variant="invisible" busy={!ready_to_begin} disabled={app.control_panel_open} onclick={storyboard.begin} actions={[pulse]} style="view-transition-name: console-center-axis">
+        <Button
+          class="group"
+          data-ready={ready_to_begin}
+          variant="invisible"
+          busy={!ready_to_begin}
+          disabled={app.control_panel_open}
+          onclick={storyboard.begin}
+          actions={[pulse]}
+          style="view-transition-name: console-center-axis"
+        >
           <h6
-            class="m-0 tracking-widest transition-all duration-300 {ready_to_begin ? 'group-hover:scale-105 group-hover:brightness-125' : 'text-slate-400 opacity-80'}"
-            style={ready_to_begin ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);" : undefined}
+            class="m-0 tracking-widest transition-all duration-300 {ready_to_begin
+              ? 'group-hover:scale-105 group-hover:brightness-125'
+              : 'text-slate-400 opacity-80'}"
+            style={ready_to_begin
+              ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
+              : undefined}
           >
             {label_text}
           </h6>
         </Button>
 
-        <Button flank={true} variant={app.control_panel_open ? "secondary" : "invisible"} aria-label="Settings" onclick={app.toggle_control_panel} data-testid="settings-button" actions={[roll, tooltip]} style="view-transition-name: console-settings-node">
-          <svg viewBox="0 0 24 24" class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}">
+        <Button
+          flank={true}
+          variant={app.control_panel_open ? "secondary" : "invisible"}
+          aria-label="Settings"
+          onclick={app.toggle_control_panel}
+          data-testid="settings-button"
+          actions={[roll, tooltip]}
+          style="view-transition-name: console-settings-node"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
+          >
             <path
               fill="currentColor"
               d="M12,15.5A3.5,3.5 0 0,1 8.5,12A3.5,3.5 0 0,1 12,8.5A3.5,3.5 0 0,1 15.5,12A3.5,3.5 0 0,1 12,15.5M19.43,12.97C19.47,12.65 19.5,12.33 19.5,12C19.5,11.67 19.47,11.35 19.43,11L21.54,9.37C21.73,9.22 21.78,8.95 21.66,8.73L19.66,5.27C19.54,5.05 19.27,4.96 19.05,5.05L16.56,6.05C16.04,5.66 15.5,5.32 14.87,5.07L14.5,2.42C14.46,2.18 14.25,2 14,2H10C9.75,2 9.54,2.18 9.5,2.42L9.13,5.07C8.5,5.32 7.96,5.66 7.44,6.05L4.95,5.05C4.73,4.96 4.46,5.05 4.34,5.27L2.34,8.73C2.21,8.95 2.27,9.22 2.46,9.37L4.57,11C4.53,11.35 4.5,11.67 4.5,12C4.5,12.33 4.53,12.65 4.57,12.97L2.46,14.63C2.27,14.78 2.21,15.05 2.34,15.27L4.34,18.73C4.46,18.95 4.73,19.04 4.95,18.95L7.44,17.95C7.96,18.34 8.5,18.68 9.13,18.93L9.5,21.58C9.54,21.82 9.75,22 10,22H14C14.25,22 14.46,21.82 14.5,21.58L14.87,18.93C15.5,18.68 16.04,18.34 16.56,17.95L19.05,18.95C19.27,19.04 19.54,18.95 19.66,18.73L21.66,15.27C21.78,15.05 21.73,14.78 21.54,14.63L19.43,12.97Z"
@@ -416,8 +509,18 @@
           </svg>
         </Button>
       {:else}
-        <Button flank={true} variant={app.control_panel_open ? "secondary" : "invisible"} onclick={() => app.toggle_control_panel()} aria-label="Settings" actions={[roll, tooltip]} style="view-transition-name: console-settings-node">
-          <svg class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}" viewBox="0 0 24 24">
+        <Button
+          flank={true}
+          variant={app.control_panel_open ? "secondary" : "invisible"}
+          onclick={() => app.toggle_control_panel()}
+          aria-label="Settings"
+          actions={[roll, tooltip]}
+          style="view-transition-name: console-settings-node"
+        >
+          <svg
+            class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
+            viewBox="0 0 24 24"
+          >
             <path
               fill="currentColor"
               d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
@@ -456,13 +559,27 @@
         ></textarea>
 
         {#if app.streaming.active}
-          <Button variant="danger" disabled={app.control_panel_open} onclick={() => app.trigger_interrupt()} aria-label="Interrupt Generation" actions={[tooltip]} style="view-transition-name: console-right-flank">
+          <Button
+            variant="danger"
+            disabled={app.control_panel_open}
+            onclick={() => app.trigger_interrupt()}
+            aria-label="Interrupt Generation"
+            actions={[tooltip]}
+            style="view-transition-name: console-right-flank"
+          >
             <svg class="block size-icon-medium" viewBox="0 0 24 24">
               <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
             </svg>
           </Button>
         {:else}
-          <Button variant="invisible" onclick={handle_send} disabled={!value.trim() || is_locked || app.control_panel_open} aria-label="Send Message" actions={[stab, tooltip]} style="view-transition-name: console-right-flank">
+          <Button
+            variant="invisible"
+            onclick={handle_send}
+            disabled={!value.trim() || is_locked || app.control_panel_open}
+            aria-label="Send Message"
+            actions={[stab, tooltip]}
+            style="view-transition-name: console-right-flank"
+          >
             <svg class="block size-icon-medium" viewBox="0 0 24 24">
               <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
             </svg>

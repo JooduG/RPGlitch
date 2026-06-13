@@ -141,7 +141,15 @@ async function deploy({ left_content, right_content }) {
   const context = await chromium.launchPersistentContext(CONFIG.user_data_dir, {
     headless: is_headless,
     viewport: { width: 1400, height: 900 },
-    args: ["--disable-blink-features=AutomationControlled", "--no-sandbox", "--disable-setuid-sandbox", "--disable-infobars", "--window-position=0,0", "--ignore-certifcate-errors", "--ignore-certifcate-errors-spki-list"],
+    args: [
+      "--disable-blink-features=AutomationControlled",
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-infobars",
+      "--window-position=0,0",
+      "--ignore-certifcate-errors",
+      "--ignore-certifcate-errors-spki-list",
+    ],
   });
 
   const page = context.pages()[0] || (await context.newPage());
@@ -162,7 +170,9 @@ async function deploy({ left_content, right_content }) {
       await page.waitForTimeout(15000); // Give it time to solve or for human intervention if in headed mode
 
       // Re-check
-      const still_on_challenge = await page.evaluate(() => document.title.includes("Just a moment") || document.title.includes("Cloudflare") || !!document.querySelector("#cf-challenge"));
+      const still_on_challenge = await page.evaluate(
+        () => document.title.includes("Just a moment") || document.title.includes("Cloudflare") || !!document.querySelector("#cf-challenge"),
+      );
 
       if (still_on_challenge) {
         log("⚠️", "Still on Cloudflare challenge. Attempting to proceed anyway...");
@@ -334,7 +344,10 @@ async function deploy({ left_content, right_content }) {
       save_state: window.perchanceSaveState,
     }));
 
-    log("📊", `Current state — Left: ${current_state.model_length} chars, Right: ${current_state.output_length} chars, Save: ${current_state.save_state}`);
+    log(
+      "📊",
+      `Current state — Left: ${current_state.model_length} chars, Right: ${current_state.output_length} chars, Save: ${current_state.save_state}`,
+    );
 
     // Inject Left Panel (modelTextEditor)
     log("📝", "Injecting Left Panel content...");
@@ -585,7 +598,9 @@ async function main() {
     log("⏩", "AUTO_DEPLOY=true detected. Skipping confirmation.");
     confirm = "y";
   } else {
-    confirm = await prompt_user(`Deploy ${(payload.left_size / 1024).toFixed(1)}KB (Left) + ${(payload.right_size / 1024).toFixed(1)}KB (Right) to Perchance? [y/N]`);
+    confirm = await prompt_user(
+      `Deploy ${(payload.left_size / 1024).toFixed(1)}KB (Left) + ${(payload.right_size / 1024).toFixed(1)}KB (Right) to Perchance? [y/N]`,
+    );
   }
 
   if (confirm !== "y" && confirm !== "yes") {

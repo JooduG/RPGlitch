@@ -89,7 +89,8 @@ describe("temporal_engine", () => {
       const scored = temporal_engine.score(entries, "Iron kiss");
 
       // Base (5) + Dynamics ID (1) + Trigger Word (2) + Vector Tag (3) = 11
-      const expected = 5 + CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS + CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS + CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
+      const expected =
+        5 + CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS + CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS + CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
 
       expect(scored[0]._relevance).toBe(expected);
     });
@@ -258,7 +259,13 @@ describe("temporal_engine", () => {
       const mockRuntime = { active_ai: { past: [] } };
       const mockApp = { log: vi.fn() };
 
-      await temporal_engine.consolidate(/** @type {any} */ (mockSession), /** @type {any} */ (mockDb), /** @type {any} */ (mockEntities), /** @type {any} */ (mockRuntime), /** @type {any} */ (mockApp));
+      await temporal_engine.consolidate(
+        /** @type {any} */ (mockSession),
+        /** @type {any} */ (mockDb),
+        /** @type {any} */ (mockEntities),
+        /** @type {any} */ (mockRuntime),
+        /** @type {any} */ (mockApp),
+      );
 
       expect(mockSession.require_active).toHaveBeenCalled();
       expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();

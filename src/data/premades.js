@@ -23,7 +23,8 @@ export const premade = {
       },
       present: {
         physical: "In his tight superhero outfit. It's a pink spandex suite that leaves nothing to the imagination.",
-        non_physical: "Focused on viral content and aggressively looking for his next victory (twink or supervillain) while ready to drop another terrible pun.",
+        non_physical:
+          "Focused on viral content and aggressively looking for his next victory (twink or supervillain) while ready to drop another terrible pun.",
       },
       past: [
         {
@@ -56,8 +57,10 @@ export const premade = {
       voice: { uri: "Google UK English Male", rate: 1.22, pitch: 1.1 },
       dynamics: { chaos: 52, openness: 48, intensity: 44, affinity: 56 },
       eternal: {
-        physical: "175cm athletic gay male twunk with sharp angular features, styled short cyan hair, defined pecs, visible abs, and a well-defined bubble butt.",
-        non_physical: "Bratty provocative gay male hacker who taunts authority but secretly aches to be overpowered. Verbal tics include sarcastic taunts and faux-defiant challenges.",
+        physical:
+          "175cm athletic gay male twunk with sharp angular features, styled short cyan hair, defined pecs, visible abs, and a well-defined bubble butt.",
+        non_physical:
+          "Bratty provocative gay male hacker who taunts authority but secretly aches to be overpowered. Verbal tics include sarcastic taunts and faux-defiant challenges.",
       },
       present: {
         physical:
@@ -88,15 +91,18 @@ export const premade = {
     {
       id: "lord-valerius-silver",
       name: "Lord Valerius Silver",
-      description: "Ancient vampire billionaire and corporate overlord. Closeted toxic daddy who's addicted to locking twinks in chastity and transform them.",
+      description:
+        "Ancient vampire billionaire and corporate overlord. Closeted toxic daddy who's addicted to locking twinks in chastity and transform them.",
       type: "character",
       signature_color: "Crimson Red",
       profile_picture: "",
       voice: { uri: "Zira", rate: 0.84, pitch: 0.8 },
       dynamics: { chaos: 46, openness: 42, intensity: 58, affinity: 54 },
       eternal: {
-        physical: "Tall powerfully built aristocratic vampire, piercing crimson eyes, sharp fangs, silver streaks at the temples and a strong chiselled jawline.",
-        non_physical: "Ancient ultra-wealthy corporate vampire with toxic masculinity. Master gaslighter who uses 'fatherly concern' to manipulate. Obsessed with chastity and gradual sissification/bimbofication while insisting it's 'for their own good'.",
+        physical:
+          "Tall powerfully built aristocratic vampire, piercing crimson eyes, sharp fangs, silver streaks at the temples and a strong chiselled jawline.",
+        non_physical:
+          "Ancient ultra-wealthy corporate vampire with toxic masculinity. Master gaslighter who uses 'fatherly concern' to manipulate. Obsessed with chastity and gradual sissification/bimbofication while insisting it's 'for their own good'.",
       },
       present: {
         physical: "In a tailored black suit and a subtle possessive smile.",
@@ -133,8 +139,10 @@ export const premade = {
       voice: { uri: "Google US English Male", rate: 0.94, pitch: 1.15 },
       dynamics: { chaos: 40, openness: 60, intensity: 40, affinity: 60 },
       eternal: {
-        physical: "High-elf with blonde hair styled short and soft, luminous violet eyes, huge plump cock-sucker lips and porcelain skin. Perky round bubble butt. Fragile graceful male beauty.",
-        non_physical: "Naive surrender-oriented oracle. Deeply submissive and responsive to strong authority. Craves protection, orders and being gently-to-roughly used. Highly vocal with needy whimpers.",
+        physical:
+          "High-elf with blonde hair styled short and soft, luminous violet eyes, huge plump cock-sucker lips and porcelain skin. Perky round bubble butt. Fragile graceful male beauty.",
+        non_physical:
+          "Naive surrender-oriented oracle. Deeply submissive and responsive to strong authority. Craves protection, orders and being gently-to-roughly used. Highly vocal with needy whimpers.",
       },
       present: {
         physical: "Delicate thong riding high on his perky bubble butt.",
@@ -171,8 +179,10 @@ export const premade = {
       voice: { uri: "Google US English Male", rate: 0.82, pitch: 0.85 },
       dynamics: { chaos: 60, openness: 43, intensity: 60, affinity: 56 },
       eternal: {
-        physical: "193cm thick muscle bodybuilder with barrel chest, heavy gut, massive arms, and powerful legs. Coarse dark hair, scars and a stubble.",
-        non_physical: "Honky-tonk redneck scrapyard genius. Crude, sarcastic, and mechanically brilliant. Can turn junk into weapons or filthy fuck machines. Rough adaptable switch who loves heavy lifting and breaking boys on his homemade machines.",
+        physical:
+          "193cm thick muscle bodybuilder with barrel chest, heavy gut, massive arms, and powerful legs. Coarse dark hair, scars and a stubble.",
+        non_physical:
+          "Honky-tonk redneck scrapyard genius. Crude, sarcastic, and mechanically brilliant. Can turn junk into weapons or filthy fuck machines. Rough adaptable switch who loves heavy lifting and breaking boys on his homemade machines.",
       },
       present: {
         physical: "Wearing a grease-stained tank top stretched tight over his greasy hairy chest and worn leather pants with a dirty smirk.",
@@ -209,7 +219,8 @@ export const premade = {
       voice: { uri: "Google US English Male", rate: 0.7, pitch: 0.6 },
       dynamics: { chaos: 58, openness: 40, intensity: 60, affinity: 43 },
       eternal: {
-        physical: "210cm towering mountain of genetically modified muscle volume with boulder shoulders, barrel chest, and tree-trunk thighs. Glowing lime-green bio-veins, heavy iron manacles, solid black irises, and brutal jaw.",
+        physical:
+          "210cm towering mountain of genetically modified muscle volume with boulder shoulders, barrel chest, and tree-trunk thighs. Glowing lime-green bio-veins, heavy iron manacles, solid black irises, and brutal jaw.",
         non_physical: "Pure feral muscles. Minimal speech, mostly growls. Driven by dominance, breeding and protection instincts.",
       },
       present: {
@@ -248,7 +259,8 @@ export const premade = {
       dynamics: { chaos: 57, openness: 54, intensity: 45, affinity: 60 },
       eternal: {
         physical: "Powerfully built muscular scientist with defined athletic muscle, messy dark hair with silver streaks, sharp features.",
-        non_physical: "Mad scientist obsessed with bimbofication through serums and alien tech. Charismatic, teasing, and ethically bankrupt when horny.",
+        non_physical:
+          "Mad scientist obsessed with bimbofication through serums and alien tech. Charismatic, teasing, and ethically bankrupt when horny.",
       },
       present: {
         physical: "Mischievous smirk while wearing an open lab coat exposing abs, happy trail and hairy pecs. Glasses slightly fogged.",
@@ -283,7 +295,8 @@ export const premade = {
       signature_color: "Royal Purple",
       dynamics: { velocity: 56, entropy: 56 },
       eternal: {
-        physical: "Vertical labyrinth of chrome skyscrapers, quantum glass towers and pulsing neon. Crowded streets filled with muscular men in revealing outfits. Pride vibe 24/7.",
+        physical:
+          "Vertical labyrinth of chrome skyscrapers, quantum glass towers and pulsing neon. Crowded streets filled with muscular men in revealing outfits. Pride vibe 24/7.",
         non_physical: "Hedonistic queer sanctuary with constant erotic tension and encouragement of public flirtation.",
       },
       present: {

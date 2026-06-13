@@ -27,7 +27,17 @@
    */
 
   /** @type {Props} */
-  let { variant = "library", entity = undefined, type = "ai", disabled = false, role_label = "", onclick = undefined, on_select = undefined, onViewProfile = undefined, on_view_profile = undefined } = $props();
+  let {
+    variant = "library",
+    entity = undefined,
+    type = "ai",
+    disabled = false,
+    role_label = "",
+    onclick = undefined,
+    on_select = undefined,
+    onViewProfile = undefined,
+    on_view_profile = undefined,
+  } = $props();
 
   // --- STATE RUNES ---
   let is_pressing = $state(false);
@@ -472,7 +482,9 @@
         tabindex="-1"
       >
         <svg viewBox="0 0 24 24" class="size-icon-medium">
-          <path d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14" />
+          <path
+            d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
+          />
         </svg></Button
       >
     </nav>

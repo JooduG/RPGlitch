@@ -28,7 +28,10 @@
   });
 </script>
 
-<main class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left" data-view={app.view}>
+<main
+  class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left"
+  data-view={app.view}
+>
   <div class="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
@@ -40,7 +43,9 @@
     ></div>
 
     <div
-      class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating' ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]' : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
+      class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating'
+        ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
+        : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
       style:animation-play-state={motion.isReduced ? "paused" : "running"}
     ></div>
   </div>
@@ -91,7 +96,9 @@
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 15% 50%, var(--color-background-gradient-1), transparent 50%), radial-gradient(circle at 85% 30%, var(--color-background-gradient-2), transparent 50%), radial-gradient(circle at 50% 80%, var(--color-background-gradient-3), transparent 50%),
+      radial-gradient(circle at 15% 50%, var(--color-background-gradient-1), transparent 50%),
+      radial-gradient(circle at 85% 30%, var(--color-background-gradient-2), transparent 50%),
+      radial-gradient(circle at 50% 80%, var(--color-background-gradient-3), transparent 50%),
       radial-gradient(circle at 50% 10%, var(--color-background-gradient-4), transparent 50%);
     background-size: cover;
     background-attachment: fixed;
@@ -138,7 +145,11 @@
     z-index: var(--z-index-max);
     opacity: var(--opacity-whisper);
     border: var(--spacing-spacing-pixel) dashed var(--color-frozen);
-    background-image: radial-gradient(circle at 0 0, var(--color-frozen) calc(var(--spacing-spacing-unit) / 2), transparent calc(var(--spacing-spacing-unit) / 2 + var(--spacing-spacing-pixel)));
+    background-image: radial-gradient(
+      circle at 0 0,
+      var(--color-frozen) calc(var(--spacing-spacing-unit) / 2),
+      transparent calc(var(--spacing-spacing-unit) / 2 + var(--spacing-spacing-pixel))
+    );
     background-size: calc(100% / 12) calc(100% / 12);
     background-repeat: repeat;
   }

@@ -153,7 +153,9 @@ export const DYNAMICS = {
     id: "HIGH_ENTROPY",
     trigger: "turn",
     filter: { above: { entropy: 70 } },
-    effect: { text: "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture." },
+    effect: {
+      text: "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+    },
   },
   LOW_ENTROPY: {
     id: "LOW_ENTROPY",
@@ -238,7 +240,11 @@ export const DYNAMICS = {
       { scan: "trust", pattern: /trust|believe|honest|truth|promise/i },
     ],
     filter: { below: { openness: 30 } },
-    effect: { affinity: -10, intensity: 10, text: "You don't believe them." },
+    effect: {
+      affinity: -10,
+      intensity: 10,
+      text: "You don't believe them. Scale defensiveness inverse to Openness; high Openness breeds natural bonding.",
+    },
   },
 };
 

@@ -17,7 +17,18 @@
   import { Switch } from "bits-ui";
 
   /** @type {Props} */
-  let { value = $bindable(false), label = "", size = "md", disabled = false, busy = false, actions = [], class: className = "", style = "", onchange = undefined, ...rest } = $props();
+  let {
+    value = $bindable(false),
+    label = "",
+    size = "md",
+    disabled = false,
+    busy = false,
+    actions = [],
+    class: className = "",
+    style = "",
+    onchange = undefined,
+    ...rest
+  } = $props();
 
   // Derived identifier for testing
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);

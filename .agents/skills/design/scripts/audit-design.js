@@ -40,7 +40,8 @@ const themeRules = [
   {
     id: "LEGACY_SPACING_SYNTAX",
     severity: "HERESY",
-    regex: /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
+    regex:
+      /\b(margin|padding|gap|row-gap|column-gap|grid-gap|top|bottom|left|right|inset|width|height|min-width|min-height|max-width|max-height|flex-basis)\s*:[^;]*\bvar\(--spacing-[0-9]+\)/i,
     message: "Legacy hardcoded spacing scale used inside structural descriptors. Update rules.",
   },
 ];
@@ -157,7 +158,24 @@ export function findUnusedTokens() {
 
   const unused = Array.from(definedMap.keys()).filter((token) => {
     // Exempt signature color palette stuff from debt
-    const signatureColors = ["--coral-rose", "--forest-green", "--lemon-yellow", "--lime-green", "--neon-teal", "--ocean-blue", "--pumpkin-amber", "--royal-purple", "--sunset-orange", "--twilight-violet", "--crimson-red", "--frisk", "--glass-peak", "--frozen", "--frozen", "--frozen"];
+    const signatureColors = [
+      "--coral-rose",
+      "--forest-green",
+      "--lemon-yellow",
+      "--lime-green",
+      "--neon-teal",
+      "--ocean-blue",
+      "--pumpkin-amber",
+      "--royal-purple",
+      "--sunset-orange",
+      "--twilight-violet",
+      "--crimson-red",
+      "--frisk",
+      "--glass-peak",
+      "--frozen",
+      "--frozen",
+      "--frozen",
+    ];
     if (signatureColors.includes(token)) return false;
 
     const regex = new RegExp(`(?<![a-zA-Z0-9_-])${token}(?![a-zA-Z0-9_-])`);

@@ -121,7 +121,13 @@
     </div>
   {:else}
     <DataBox
-      label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION ? "Memory Weave" : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION ? "Vector Anchor" : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA ? "System Update" : "Simulation Telemetry"}
+      label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
+        ? "Memory Weave"
+        : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
+          ? "Vector Anchor"
+          : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
+            ? "System Update"
+            : "Simulation Telemetry"}
       height="auto"
       isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION || meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
     >

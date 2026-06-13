@@ -44,8 +44,8 @@ describe("prompt_builder (Refactored)", () => {
 
     it("render_protocols() should return bulleted list of defined protocols", () => {
       const result = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
-      expect(result).toContain("- Advance scene parameters");
-      expect(result).toContain("- Start prose directly");
+      expect(result).toContain("- Escalate stakes immediately.");
+      expect(result).toContain("- Omit all preambles, greetings, or structural commentary. Start prose immediately.");
     });
   });
 
@@ -53,9 +53,24 @@ describe("prompt_builder (Refactored)", () => {
     const mockPayload = {
       round: 1,
       entities: {
-        AI: { name: "Viper", fragments: { present: {}, eternal: {} }, past: [], future: [] },
-        USER: { name: "Ghost", fragments: { present: {}, eternal: {} }, past: [], future: [] },
-        FRACTAL: { name: "Void", fragments: { present: {}, eternal: {} }, past: [], future: [] },
+        AI: {
+          name: "Viper",
+          fragments: { present: { non_physical: "Viper Present" }, eternal: { non_physical: "Viper Eternal" } },
+          past: [{ text: "Viper past 1" }],
+          future: [{ text: "Viper future 1" }],
+        },
+        USER: {
+          name: "Ghost",
+          fragments: { present: { non_physical: "Ghost Present" }, eternal: { non_physical: "Ghost Eternal" } },
+          past: [{ text: "Ghost past 1" }],
+          future: [],
+        },
+        FRACTAL: {
+          name: "Void",
+          fragments: { present: { non_physical: "Void Present" }, eternal: { non_physical: "Void Eternal" } },
+          past: [{ text: "Void past 1" }],
+          future: [{ text: "Void future 1" }],
+        },
       },
       simulation_log: [],
       input: "Check the door.",
@@ -70,25 +85,14 @@ describe("prompt_builder (Refactored)", () => {
     it("synthesize() injects core XML tags into simulation prompts", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
       expect(result.system).toContain("<SYSTEM");
-      expect(result.system).toContain("<EXECUTION_CHECKLIST>");
-      expect(result.system).toContain("<COMPRESSED_STATE>");
-      expect(result.system).toContain('{"state"');
-    });
-
-    it("synthesize() injects SUSPICIOUS_COGNITION when meta.is_suspicious is true", () => {
-      const suspiciousPayload = {
-        ...mockPayload,
-        meta: { is_suspicious: true },
-      };
-      const result = prompt_builder.synthesize(suspiciousPayload, mockSnapshot);
-      expect(result.system).toContain("Match low Openness to defensiveness");
+      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.system).toContain("<PAST>");
     });
 
     it("synthesize() respects prologue mode", () => {
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, {});
       expect(result.system).toContain('mode="PROLOGUE"');
-      expect(result.system).toContain("<EXECUTION_CHECKLIST>");
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
     });
 
@@ -101,6 +105,25 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_memory_prompt("AI", { name: "Viper" }, []);
       expect(result.system).toContain('<MEMORY_PROTOCOL role="AI"');
       expect(result.system).toContain("Entity: Viper");
+    });
+
+    it("synthesize() prunes empty tags and formats entity blocks cleanly", () => {
+      const emptyPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", fragments: { present: {}, eternal: {} }, past: [], future: [] },
+          USER: { name: "Ghost", fragments: { present: {}, eternal: {} }, past: [], future: [] },
+          FRACTAL: { name: "Void", fragments: { present: {}, eternal: {} }, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Check the door.",
+      };
+      const result = prompt_builder.synthesize(emptyPayload, mockSnapshot);
+      expect(result.system).toContain("<SYSTEM");
+      expect(result.system).not.toContain("<PAST>");
+      expect(result.system).not.toContain("<FUTURE>");
+      expect(result.system).not.toContain("<ETERNAL>");
+      expect(result.system).not.toContain("<PRESENT>");
     });
   });
 
@@ -115,8 +138,8 @@ describe("prompt_builder (Refactored)", () => {
               present: { non_physical: "Present" },
               eternal: { non_physical: "Eternal" },
             },
-            past: [{ content: "P1", score: 0.9 }],
-            future: [{ content: "F1", score: 0.8 }],
+            past: [{ text: "P1", base_weight: 9 }],
+            future: [{ text: "F1", base_weight: 9 }],
           },
           USER: {
             name: "Ghost",
@@ -153,13 +176,12 @@ describe("prompt_builder (Refactored)", () => {
 
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
-      expect(result.system).toContain("<EXECUTION_CHECKLIST>");
-      expect(result.system).toContain("<COMPRESSED_STATE>");
-      expect(result.system).toContain('{"state"');
+      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.system).toContain("<PAST>");
       expect(result.system).toContain("STYLE: Grit");
       expect(result.system).toContain("<PROTOCOLS>");
-      expect(result.system).toContain("<TASK_INSTRUCTION>");
-      expect(result.system).toContain("<INPUT_COMMAND>Check the console.</INPUT_COMMAND>");
+      expect(result.system).toContain("<TASK>");
+      expect(result.system).toContain("Input: Check the console.");
 
       // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();

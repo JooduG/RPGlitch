@@ -59,7 +59,33 @@
  * Shared entity name stop words and title prefixes for visual initials calculations
  * and prefix-aware name formatting breaks.
  */
-export const NAME_PREFIXES = ["mr", "mrs", "ms", "dr", "prof", "sir", "lady", "lord", "the", "a", "an", "of", "in", "and", "or", "for", "to", "at", "by", "with", "mr.", "mrs.", "ms.", "dr.", "prof."];
+export const NAME_PREFIXES = [
+  "mr",
+  "mrs",
+  "ms",
+  "dr",
+  "prof",
+  "sir",
+  "lady",
+  "lord",
+  "the",
+  "a",
+  "an",
+  "of",
+  "in",
+  "and",
+  "or",
+  "for",
+  "to",
+  "at",
+  "by",
+  "with",
+  "mr.",
+  "mrs.",
+  "ms.",
+  "dr.",
+  "prof.",
+];
 
 /************************************************************************************
  * [SECTION: ENTITY FRAGMENTS]
@@ -85,12 +111,14 @@ export const ENTITY_FRAGMENTS = {
       label: "Non-Physical",
       character: {
         sublabel: "Personality, Behaviour & Traits",
-        directive: "Define baseline psychology and core identity. Detail fundamental logic, narrative voice, and communication tics. Avoid narration. (Target: 150-400 words).",
+        directive:
+          "Define baseline psychology and core identity. Detail fundamental logic, narrative voice, and communication tics. Avoid narration. (Target: 150-400 words).",
         enhancer: "COGNITIVE_ARCHITECT",
       },
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
-        directive: "Define baseline metaphysical rules, structural constants, and ambient physics. Detail gravity and temporal flow rates. (Target: 150-400 words).",
+        directive:
+          "Define baseline metaphysical rules, structural constants, and ambient physics. Detail gravity and temporal flow rates. (Target: 150-400 words).",
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -98,12 +126,14 @@ export const ENTITY_FRAGMENTS = {
       label: "Physical",
       character: {
         sublabel: "Body & Form",
-        directive: "Synthesize permanent visual traits for image generation. Focus on geometry, materials, and permanent physical imperfections. (Target: 50-150 words).",
+        directive:
+          "Focus exclusively on unalterable physical architecture: skeletal frame, facial morphology, eye attributes, baseline hair traits, skin texture, and permanent body markings. Target length: 50-150 words.",
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
-        directive: "Synthesize permanent topography and architectural textures for scene generation. Detail materials and dimensions. (Target: 50-150 words).",
+        directive:
+          "Focus exclusively on unalterable environmental architecture: permanent topography, geological or urban layouts, structural constants, and raw material textures. Convey spatial styling through permanent physical fixtures. Target length: 50-150 words.",
         enhancer: "SPATIAL_RENDERER",
       },
     },
@@ -114,12 +144,14 @@ export const ENTITY_FRAGMENTS = {
       label: "Non-Physical",
       character: {
         sublabel: "Current State of Mind",
-        directive: "Capture current internal volatility and state pressure. Detail mental focus, active triggers, and immediate emotional state. (Target: 30-80 words).",
+        directive:
+          "Capture current internal volatility and state pressure. Detail mental focus, active triggers, and immediate emotional state. (Target: 30-80 words).",
         enhancer: "TACTICAL_ANALYZER",
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
-        directive: "Capture immediate atmospheric shifts, state volatility, or anomalous events. Detail immediate environmental and temporal pressure. (Target: 30-80 words).",
+        directive:
+          "Capture immediate atmospheric shifts, state volatility, or anomalous events. Detail immediate environmental and temporal pressure. (Target: 30-80 words).",
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
@@ -127,12 +159,14 @@ export const ENTITY_FRAGMENTS = {
       label: "Physical",
       character: {
         sublabel: "Outfit, Appearance & Conditions",
-        directive: "Synthesize situational physical state for image generation. Focus on active attire, visible damage, posture, and environmental grime. (Target: 30-80 words).",
+        directive:
+          "Focus exclusively on transient state layers: active attire, garment textiles, fit, and current physical posture. Incorporate environmental weathering or fabric damage only when explicitly provided in the input source. Target length: 30-80 words.",
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
-        directive: "Synthesize immediate sensory layers active in the scene. Detail lighting composition, precipitation, and situational atmospheric geometry. (Target: 30-80 words).",
+        directive:
+          "Focus exclusively on transient environmental layers: immediate lighting conditions, active weather, precipitation, shifting sensory elements, and ephemeral atmospheric moods. Target length: 30-80 words.",
         enhancer: "ATMOSPHERIC_TRACKER",
       },
     },
@@ -141,7 +175,8 @@ export const ENTITY_FRAGMENTS = {
     label: "Future",
     sublabel: "Plans & Prophecies", // UI only
     unit_label: "Vector",
-    directive: "Map the entity's active trajectory and narrative impulses. Detail operational objectives, evolving vectors, and impending destiny. Define the stakes driving the next state transition.",
+    directive:
+      "Map the entity's active trajectory and narrative impulses. Detail operational objectives, evolving vectors, and impending destiny. Define the stakes driving the next state transition.",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
@@ -155,7 +190,8 @@ export const ENTITY_FRAGMENTS = {
     label: "Past",
     sublabel: "Memories & Backstory", // UI only
     unit_label: "Memory",
-    directive: "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
+    directive:
+      "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {
@@ -251,7 +287,8 @@ function build_entity_catalog() {
     }
 
     // 3. Add the section itself if it's an array type or has no explicit sub-fields
-    const hasFields = section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k));
+    const hasFields =
+      section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k));
     if (!hasFields || section.type === "array") {
       ["character", "fractal"].forEach((type) => {
         const typeKey = `${type}.${section_key}`;
@@ -299,7 +336,9 @@ export function build_profile_sections(entity_type = "character") {
       .filter(([_, section]) => typeof section !== "string" && section !== null)
       .map(([sectionKey, sectionObj]) => {
         const section = /** @type {any} */ (sectionObj);
-        const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer", "fields"].includes(k));
+        const fieldKeys = Object.keys(section).filter(
+          (k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer", "fields"].includes(k),
+        );
 
         const fields =
           fieldKeys.length > 0 && section.type !== "array"

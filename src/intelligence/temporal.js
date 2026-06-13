@@ -286,7 +286,9 @@ export const temporal_engine = {
     try {
       const story_id = Session.require_active();
       const messages = await Session.load_log(story_id);
-      const unconsolidated = messages.filter((/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated && m.role !== "system");
+      const unconsolidated = messages.filter(
+        (/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated && m.role !== "system",
+      );
 
       if (unconsolidated.length >= 12) {
         const slice = unconsolidated.slice(0, 10);

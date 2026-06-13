@@ -156,7 +156,10 @@
   ondblclick={handle_reset}
 >
   {#if is_custom}
-    <span class="[text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]">{custom_title}</span>
+    <span
+      class="[text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]"
+      >{custom_title}</span
+    >
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}

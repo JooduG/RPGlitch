@@ -166,12 +166,18 @@
   <header style={headerStyle}>
     {#if is_expanded}
       {#if status}
-        <div style="margin-right: 1rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" in:fade={{ duration: 200, delay: 0 }}>
+        <div
+          style="margin-right: 1rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          in:fade={{ duration: 200, delay: 0 }}
+        >
           {@render status()}
         </div>
       {/if}
       {#if header_actions}
-        <div style="margin-left: auto; display: flex !important; align-items: center !important; height: 100% !important; flex-shrink: 0 !important;" in:fade={{ duration: 200, delay: 50 }}>
+        <div
+          style="margin-left: auto; display: flex !important; align-items: center !important; height: 100% !important; flex-shrink: 0 !important;"
+          in:fade={{ duration: 200, delay: 50 }}
+        >
           {@render header_actions()}
         </div>
       {/if}

@@ -211,21 +211,6 @@ export const stories = {
 // ============================================================================
 
 /**
- * @param {any} entity
- */
-export function serialize(entity) {
-  if (!entity) return null;
-  return {
-    id: entity.id,
-    n: entity.name,
-    p: entity.fragments?.present?.non_physical || "",
-    e: entity.fragments?.eternal?.non_physical || "",
-    m: typeof entity.mood === "number" ? entity.mood : undefined,
-    t: Array.isArray(entity.tags) ? entity.tags : undefined,
-  };
-}
-
-/**
  * @param {any[]} vectors
  * @param {'past'|'future'} type
  */
@@ -246,8 +231,6 @@ export function hydrate(snapshot) {
   return {
     id: snapshot.id,
     name: snapshot.n || snapshot.name || "Unknown",
-    mood: snapshot.m,
-    tags: snapshot.t || [],
     fragments: {
       present: { non_physical: snapshot.p || "" },
       eternal: { non_physical: snapshot.e || "" },

@@ -330,11 +330,19 @@ function createRuntimeStore() {
         }
         if (ai_data) {
           active_ai_state = ai_data;
-          ai_physics = story.ai_dynamics ? { ...story.ai_dynamics } : story.entity_snapshots?.ai?.dynamics ? { ...story.entity_snapshots.ai.dynamics } : { ...ai_data.dynamics };
+          ai_physics = story.ai_dynamics
+            ? { ...story.ai_dynamics }
+            : story.entity_snapshots?.ai?.dynamics
+              ? { ...story.entity_snapshots.ai.dynamics }
+              : { ...ai_data.dynamics };
         }
         if (fractal_data) {
           active_fractal_state = fractal_data;
-          fractal_physics = story.fractal_dynamics ? { ...story.fractal_dynamics } : story.entity_snapshots?.fractal?.dynamics ? { ...story.entity_snapshots.fractal.dynamics } : { ...fractal_data.dynamics };
+          fractal_physics = story.fractal_dynamics
+            ? { ...story.fractal_dynamics }
+            : story.entity_snapshots?.fractal?.dynamics
+              ? { ...story.entity_snapshots.fractal.dynamics }
+              : { ...fractal_data.dynamics };
         }
         // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center

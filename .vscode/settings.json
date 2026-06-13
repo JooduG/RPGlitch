@@ -11,7 +11,18 @@
   },
   "markdown.validate.enabled": true,
   "markdown.validate.referenceLinks.enabled": "ignore",
-  "markdown.validate.ignoredLinks": ["always_on | on_change | manual", "high | medium | low", "./tasks/PRESENT.md", "**/skills/**", "**/GEMINI.md", "**/GEMINI.md#*", "**/rules/**", "**/package.json", "**/tasks/**", "**/workflows/**"],
+  "markdown.validate.ignoredLinks": [
+    "always_on | on_change | manual",
+    "high | medium | low",
+    "./tasks/PRESENT.md",
+    "**/skills/**",
+    "**/GEMINI.md",
+    "**/GEMINI.md#*",
+    "**/rules/**",
+    "**/package.json",
+    "**/tasks/**",
+    "**/workflows/**"
+  ],
   "typescript.tsdk": "node_modules/typescript/lib",
   "files.exclude": {
     "**/.DS_Store": true,

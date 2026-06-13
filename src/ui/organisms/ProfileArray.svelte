@@ -80,7 +80,8 @@
         is_edit={state.is_editing}
         {signature_color}
         value={item.text}
-        oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) => state.patch_vector_item(path, i, { text: e.currentTarget.value })}
+        oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
+          state.patch_vector_item(path, i, { text: e.currentTarget.value })}
         placeholder="Enter {unit_label.toLowerCase()} detail..."
         weight={item.base_weight}
         onfocus={() => state.set_active_field(`${path}[${i}]`, unit_label)}
@@ -112,7 +113,15 @@
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
-                <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-icon-small"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"><path d="M5 12h14" /></svg
+                >
               </Button>
             {/if}
 
@@ -153,7 +162,15 @@
                 onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
-                <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                <svg
+                  viewBox="0 0 24 24"
+                  class="size-icon-small"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg
+                >
               </Button>
             {/if}
           </div>
@@ -224,7 +241,15 @@
 
         {#snippet header_actions()}
           {#if state.is_editing}
-            <Button variant="invisible" size="small" square actions={[tooltip]} tooltip="Remove {unit_label}" aria-label="Remove {unit_label}" onclick={() => state.remove_vector_item(path, i)}>
+            <Button
+              variant="invisible"
+              size="small"
+              square
+              actions={[tooltip]}
+              tooltip="Remove {unit_label}"
+              aria-label="Remove {unit_label}"
+              onclick={() => state.remove_vector_item(path, i)}
+            >
               <svg
                 viewBox="0 0 24 24"
                 class="
@@ -281,7 +306,10 @@
           "
           style="width: var(--text-small); height: var(--text-small);"
         >
-          <path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
+          <path
+            fill="currentColor"
+            d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
+          />
         </svg>
         AWAITING {unit_label.toUpperCase()} DATA STREAM...
       </span>

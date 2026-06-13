@@ -128,7 +128,15 @@
   <Tooltip.Root open={tooltip_state.active}>
     <Tooltip.Portal>
       {#if tooltip_state.target && tooltip_state.text}
-        <Tooltip.Content customAnchor={tooltip_state.target} side="top" sideOffset={8} align="center" avoidCollisions={true} strategy="fixed" forceMount>
+        <Tooltip.Content
+          customAnchor={tooltip_state.target}
+          side="top"
+          sideOffset={8}
+          align="center"
+          avoidCollisions={true}
+          strategy="fixed"
+          forceMount
+        >
           {#snippet child({ wrapperProps, props, open })}
             {#if open}
               <div {...wrapperProps}>

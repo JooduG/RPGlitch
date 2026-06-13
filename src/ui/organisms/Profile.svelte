@@ -33,7 +33,11 @@
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
-  const avatar_container_class = $derived("sticky top-0 z-20 flex shrink-0 items-stretch " + (entity_type === "fractal" ? "h-12 min-h-50 w-full " : "h-full w-avatar-medium-size ") + (app.viewport.mobile || app.viewport.mini ? "h-auto w-auto items-center justify-center p-4" : ""));
+  const avatar_container_class = $derived(
+    "sticky top-0 z-20 flex shrink-0 items-stretch " +
+      (entity_type === "fractal" ? "h-12 min-h-50 w-full " : "h-full w-avatar-medium-size ") +
+      (app.viewport.mobile || app.viewport.mini ? "h-auto w-auto items-center justify-center p-4" : ""),
+  );
 
   const profile_pic_wrapper_class = $derived(
     "overflow-hidden border-solid " +
@@ -43,9 +47,13 @@
 
   const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 " + (entity_type === "fractal" ? "h-auto" : "min-h-0"));
 
-  const main_layout_class = $derived("grow p-0 scrollbar-none [&::-webkit-scrollbar]:hidden " + (entity_type === "fractal" ? "h-auto overflow-visible" : "overflow-visible"));
+  const main_layout_class = $derived(
+    "grow p-0 scrollbar-none [&::-webkit-scrollbar]:hidden " + (entity_type === "fractal" ? "h-auto overflow-visible" : "overflow-visible"),
+  );
 
-  const footer_layout_class = $derived("flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"));
+  const footer_layout_class = $derived(
+    "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"),
+  );
 
   const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile || app.viewport.mini ? "flex flex-col gap-4" : "grid gap-x-2 gap-y-4"));
 
@@ -95,7 +103,13 @@
 
     if (profileState.show_delete_confirm) return;
     if (target.closest("[data-wings-container] > *")) return;
-    if (target.closest(".menu") || target.closest("[data-dropdown-menu]") || target.closest(".dropdown-portal-wrapper") || target.closest(".tooltip-portal")) return;
+    if (
+      target.closest(".menu") ||
+      target.closest("[data-dropdown-menu]") ||
+      target.closest(".dropdown-portal-wrapper") ||
+      target.closest(".tooltip-portal")
+    )
+      return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
 
     profileState.handle_close();
@@ -131,7 +145,12 @@
   />
 
   <Modal variant="profile" on_close={() => profileState.handle_close()} is_pass_through={true}>
-    <div class="m-auto grid h-grid-height w-grid-width grid-cols-12 overflow-hidden" data-mobile={app.viewport.mobile} data-mini={app.viewport.mini} role="presentation">
+    <div
+      class="m-auto grid h-grid-height w-grid-width grid-cols-12 overflow-hidden"
+      data-mobile={app.viewport.mobile}
+      data-mini={app.viewport.mini}
+      role="presentation"
+    >
       <div
         class={main_card_class}
         style:background-color="color-mix(in srgb, var(--signature-color) 1%, var(--color-glass-sunken))"
@@ -192,7 +211,11 @@
       </div>
 
       {#if has_wings}
-        <aside data-wings-container class="col-[9/12] flex scrollbar-none flex-col items-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden" style:animation="slide-in-left var(--motion-elastic) forwards">
+        <aside
+          data-wings-container
+          class="col-[9/12] flex scrollbar-none flex-col items-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden"
+          style:animation="slide-in-left var(--motion-elastic) forwards"
+        >
           <div class="my-auto flex w-full flex-col gap-4">
             {#if profileState.is_editing}
               <VisualWing {profileState} />
@@ -223,11 +246,18 @@
         role="presentation"
       >
         <div class="flex w-full flex-col items-center" style={get_inner_section_style(section.id)}>
-          <h6 class="m-0 flex flex-col items-center justify-center text-center tracking-widest uppercase transition-colors duration-300" style="color: var(--signature-color); text-shadow: none;">
+          <h6
+            class="m-0 flex flex-col items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
+            style="color: var(--signature-color); text-shadow: none;"
+          >
             {#if profileState.is_editing && profileState.hovered_section === section.id && arrayField}
               <span class={get_hint_span_class()} style:animation="add-hint-fade var(--motion-elastic) forwards">+</span>
             {/if}
-            <span class={get_label_span_class()} style:text-orientation={app.viewport.mobile || app.viewport.mini ? undefined : "mixed"} style:writing-mode={app.viewport.mobile || app.viewport.mini ? undefined : "vertical-rl"}>{section.label}</span>
+            <span
+              class={get_label_span_class()}
+              style:text-orientation={app.viewport.mobile || app.viewport.mini ? undefined : "mixed"}
+              style:writing-mode={app.viewport.mobile || app.viewport.mini ? undefined : "vertical-rl"}>{section.label}</span
+            >
           </h6>
         </div>
       </div>
@@ -240,7 +270,10 @@
             {:else}
               {@const fieldId = `field-${field.key.replace(".", "-")}`}
               {#if field.label && section.id === "eternal"}
-                <label class="block w-full text-center text-[10px] font-bold tracking-widest text-(--signature-color) uppercase drop-shadow-md" for={fieldId}>{field.label}</label>
+                <label
+                  class="block w-full text-center text-[10px] font-bold tracking-widest text-(--signature-color) uppercase drop-shadow-md"
+                  for={fieldId}>{field.label}</label
+                >
               {/if}
               <TextField
                 id={fieldId}
@@ -275,7 +308,11 @@
                       onclick={() => profileState.enhance(field.key, profileState.get_safe_value(field.key))}
                       class={get_ai_action_btn_class(field.key)}
                     >
-                      <svg viewBox="0 0 24 24" class="size-icon-small fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                      <svg
+                        viewBox="0 0 24 24"
+                        class="size-icon-small fill-none stroke-current stroke-2"
+                        style="stroke-linecap: round; stroke-linejoin: round;"
+                      >
                         <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
                       </svg>
                     </Button>

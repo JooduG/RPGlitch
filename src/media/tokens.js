@@ -99,7 +99,8 @@ export const TOKENS = {
   "scrollbar-thumb-hover": "var(--color-frisk)",
   "scrollbar-track": "transparent",
   "shadow-ghost": "0 var(--spacing-spacing-pixel) var(--spacing-spacing-pixel)\nrgb(from var(--color-void-black) r g b / var(--opacity-ghost))",
-  "shadow-standard": "0 var(--spacing-spacing-unit) calc(var(--spacing-spacing-unit) * 4)\nrgb(from var(--color-void-black) r g b / var(--opacity-whisper))",
+  "shadow-standard":
+    "0 var(--spacing-spacing-unit) calc(var(--spacing-spacing-unit) * 4)\nrgb(from var(--color-void-black) r g b / var(--opacity-whisper))",
   "signature-color": "var(--color-signature-color)",
   "signature-glow": "0 0 calc(var(--spacing-spacing-unit) * 4) var(--color-signature-color)",
   "spacing-avatar-medium-size": "calc(var(--spacing-column-unit) * 2)",
@@ -199,7 +200,23 @@ export const PALETTE_VARS = {
  * Filtered registry of vibrant colors suitable for entity signatures.
  * Excludes backgrounds, neutrals, and non-vibrant utility colors.
  */
-export const SIGNATURE_COLORS = Object.keys(PALETTE).filter((key) => !key.startsWith("Background") && !["Chalk", "Frisk", "Frozen", "Gunmetal", "Pure White", "Void Black", "Glass Peak", "Glass Elevated", "Signature Color", "Swatch Color", "Glass Sunken"].includes(key));
+export const SIGNATURE_COLORS = Object.keys(PALETTE).filter(
+  (key) =>
+    !key.startsWith("Background") &&
+    ![
+      "Chalk",
+      "Frisk",
+      "Frozen",
+      "Gunmetal",
+      "Pure White",
+      "Void Black",
+      "Glass Peak",
+      "Glass Elevated",
+      "Signature Color",
+      "Swatch Color",
+      "Glass Sunken",
+    ].includes(key),
+);
 
 /************************************************************************************
  * [LEVEL 1: LOGIC & PARSERS]

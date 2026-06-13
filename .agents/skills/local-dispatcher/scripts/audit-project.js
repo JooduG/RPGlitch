@@ -366,7 +366,8 @@ export const projectRules = [
     severity: "DEBT",
     regex: /#TODO-AI/,
     message: "⚠️ Unresolved Agentic Debt (#TODO-AI) found. Ensure it is registered in tasks/PRESENT.md.",
-    validate: (line, filePath) => !filePath.includes("warden.js") && !filePath.includes("audit-security.js") && !filePath.includes("SKILL.md") && !filePath.includes("rules.js"), // Exclude self
+    validate: (line, filePath) =>
+      !filePath.includes("warden.js") && !filePath.includes("audit-security.js") && !filePath.includes("SKILL.md") && !filePath.includes("rules.js"), // Exclude self
   },
   {
     id: "PROJECT_BACKLOG_SYNC",

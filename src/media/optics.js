@@ -5,7 +5,8 @@
  * Focuses on photorealistic camera specs and cinematic grounding.
  */
 
-export const NEGATIVE_PROMPT = "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
+export const NEGATIVE_PROMPT =
+  "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
 
 import { escapeXml } from "@intelligence/parser.js";
 import { get_signature_label } from "@media";
@@ -29,9 +30,12 @@ export const AestheticResolver = {
      * We keep cinema and macro here for future wiring.
      */
     const presets = {
-      portrait: "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, shallow depth of field, sharp focus on detailed eyes, hyper-realistic textures, natural skin blemishes, golden ratio composition, cinematic volumetric lighting, 8k resolution.",
-      landscape: "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, wide angle, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution.",
-      macro: "Photorealistic macro shot on Canon EOS R5, 100mm macro lens, extreme detail, sharp focus, beautiful bokeh, scientific precision, 8k resolution.",
+      portrait:
+        "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, natural skin blemishes, golden ratio composition, 8k resolution, Cinematic portrait, shallow depth of field, sharp focus on eyes, hyper-detailed textures, atmospheric studio lighting, volumetric shadows, composition focusing on silhouette and style.",
+      landscape:
+        "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution, wide angle view, dramatic scope, cinematic atmosphere, high-fidelity textures.",
+      macro:
+        "Photorealistic macro shot on Canon EOS R5, 100mm macro lens, sharp focus, scientific precision, 8k resolution, extreme detail, beautiful soft bokeh, high-fidelity textures, dramatic lighting, volumetric shadows.",
     };
 
     const fragments = [];
@@ -62,18 +66,21 @@ export const PromptTemplates = {
    */
   ENHANCE: (/** @type {string} */ text) =>
     `
-[SYSTEM: CINEMATOGRAPHY_DIRECTOR]
-Translate rough visual descriptions into a single, cohesive, highly descriptive paragraph formatted for a natural language diffusion model.
-<CONSTRAINTS>
-- Output EXACTLY ONE continuous, grammatically correct paragraph.
-- Use explicit spatial prepositions to anchor attributes (e.g., "A man wearing a crimson coat," NOT "man, crimson coat").
-- Exclude first-person language, names, invisible psychological traits, and narrative backstory.
-- Group adjectives immediately adjacent to their specific nouns to prevent visual bleeding.
-- Sequence the description rigidly: primary subject, physical features, worn garments, environmental setting, and atmospheric lighting.
-</CONSTRAINTS>
-<DRAFT_DESCRIPTION>
+<system_prompt>
+You are an expert Cinematography Director. Your task is to translate a rough visual description into a single, cohesive, highly descriptive paragraph engineered for the FLUX diffusion model.
+<constraints>
+- Output EXACTLY ONE continuous, grammatically correct paragraph. Do not include introductory text, conversational filler, or markdown code blocks in your final output.
+- Begin the paragraph by establishing the medium, camera framing, and lens type (e.g., "A cinematic film still captured on 35mm lens, medium shot...").
+- Use explicit spatial prepositions to anchor attributes tightly to their nouns (e.g., "A man wearing a dark leather jacket standing beside a neon sign," NOT "man, leather jacket, neon sign").
+- Group descriptive adjectives immediately adjacent to their specific nouns to prevent visual bleeding or attribute mixing.
+- Strictly ban quality buzzwords such as "photorealistic," "hyperrealistic," "ultra HD," or "4K." Define high fidelity purely through tangible, physical elements (e.g., "subtle skin pores," "sharp focus," "natural film grain").
+- Exclude all first-person language, character names, unrenderable psychological states, and narrative backstory.
+- Sequence the description rigidly: 1. Medium & Camera Setup -> 2. Primary Subject -> 3. Physical Features & Expressions -> 4. Garments & Material Textures -> 5. Environmental Setting & Background Objects -> 6. Atmospheric Lighting & Color Palette.
+</constraints>
+<draft_description>
 ${escapeXml(text)}
-</DRAFT_DESCRIPTION>
+</draft_description>
+</system_prompt>
 `.trim(),
 
   /**

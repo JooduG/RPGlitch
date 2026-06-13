@@ -12,7 +12,9 @@
 export function get_value(obj, path) {
   if (!obj || !path) return "";
   /** @type {any} */
-  const result = path.split(".").reduce((acc, part) => (acc && /** @type {any} */ (acc)[part] !== undefined ? /** @type {any} */ (acc)[part] : undefined), obj);
+  const result = path
+    .split(".")
+    .reduce((acc, part) => (acc && /** @type {any} */ (acc)[part] !== undefined ? /** @type {any} */ (acc)[part] : undefined), obj);
   return result ?? "";
 }
 

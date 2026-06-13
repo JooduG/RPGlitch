@@ -108,7 +108,14 @@ export default defineConfig(({ command, mode }) => {
     define: {
       "import.meta": "{}",
     },
-    plugins: [designTokenSync(), tailwindcss(), svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }), !isDev && viteSingleFile(), !isDev && perchanceBase64Vault(), devtoolsJson()].filter(Boolean),
+    plugins: [
+      designTokenSync(),
+      tailwindcss(),
+      svelte({ configFile: path.resolve(__dirname, "svelte.config.js") }),
+      !isDev && viteSingleFile(),
+      !isDev && perchanceBase64Vault(),
+      devtoolsJson(),
+    ].filter(Boolean),
     resolve: {
       alias: {
         "@": path.resolve(__dirname, "./src"),

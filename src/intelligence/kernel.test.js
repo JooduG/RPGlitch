@@ -142,7 +142,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       rawMessages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
+      meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
@@ -206,7 +206,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       rawMessages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
+      meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
@@ -306,7 +306,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       rawMessages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString(), is_suspicious: false },
+      meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
@@ -390,7 +390,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       expect(synthesizeSpy).toHaveBeenCalled();
       const snapshotPassed = synthesizeSpy.mock.calls[0][1];
-      expect(snapshotPassed.signal_prompts).toContain("The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.");
+      expect(snapshotPassed.signal_prompts).toContain(
+        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
+      );
     });
   });
 });

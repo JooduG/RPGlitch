@@ -40,7 +40,6 @@ export const checkRefusal = (text) => {
  * @param {any} text
  */
 export const clean = (text) => (text ? text.trim() : "");
-export const IMMUTABLE_CONSTRAINTS = ["Gravity is constant.", "Characters cannot change their own inventory without permission.", "Damage thresholds are binary."];
 
 /**
  * Validates an image file for size, type, and magic numbers.
@@ -72,7 +71,8 @@ export const validateImage = async (file, options = {}) => {
     "image/jpeg": (/** @type {Uint8Array} */ h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
     "image/png": (/** @type {Uint8Array} */ h) => h[0] === 0x89 && h[1] === 0x50 && h[2] === 0x4e && h[3] === 0x47,
     "image/gif": (/** @type {Uint8Array} */ h) => h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
-    "image/webp": (/** @type {Uint8Array} */ h) => h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46 && h[8] === 0x57 && h[9] === 0x45 && h[10] === 0x42 && h[11] === 0x50,
+    "image/webp": (/** @type {Uint8Array} */ h) =>
+      h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46 && h[8] === 0x57 && h[9] === 0x45 && h[10] === 0x42 && h[11] === 0x50,
   };
 
   const verify = /** @type {any} */ (signatures)[file.type];
@@ -95,7 +95,6 @@ export const Security = {
   checkRefusal,
   clean,
   validateImage,
-  IMMUTABLE_CONSTRAINTS,
   /**
    * @param {any} _prompt
    * @param {any} [_options]

@@ -401,7 +401,10 @@ class AudioEffectsEngine {
         this.#audioContext = new AudioCtx();
 
         this.#gainNode = /** @type {AudioContext} */ (this.#audioContext).createGain();
-        /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(Audio.voice.volume, /** @type {AudioContext} */ (this.#audioContext).currentTime);
+        /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(
+          Audio.voice.volume,
+          /** @type {AudioContext} */ (this.#audioContext).currentTime,
+        );
         /** @type {GainNode} */ (this.#gainNode).connect(/** @type {AudioContext} */ (this.#audioContext).destination);
       }
       if (this.#audioContext && /** @type {AudioContext} */ (this.#audioContext).state === "suspended") {

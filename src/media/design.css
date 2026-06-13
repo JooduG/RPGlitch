@@ -107,7 +107,8 @@
   --scrollbar-thumb-hover: var(--color-frisk);
   --scrollbar-track: transparent;
   --shadow-ghost: 0 var(--spacing-spacing-pixel) var(--spacing-spacing-pixel) rgb(from var(--color-void-black) r g b / var(--opacity-ghost));
-  --shadow-standard: 0 var(--spacing-spacing-unit) calc(var(--spacing-spacing-unit) * 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper));
+  --shadow-standard: 0 var(--spacing-spacing-unit) calc(var(--spacing-spacing-unit) * 4)
+    rgb(from var(--color-void-black) r g b / var(--opacity-whisper));
   --signature-color: var(--color-signature-color);
   --signature-glow: 0 0 calc(var(--spacing-spacing-unit) * 4) var(--color-signature-color);
   --spacing-avatar-medium-size: calc(var(--spacing-column-unit) * 2);

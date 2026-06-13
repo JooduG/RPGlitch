@@ -18,7 +18,7 @@
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-import { clean_text, dynamics_engine, ENTITY_CATALOG, temporal_engine } from "@intelligence";
+import { clean_text, ENTITY_CATALOG, temporal_engine } from "@intelligence";
 import { app, runtime } from "@state";
 
 const RAW_CACHE = new Map();
@@ -137,10 +137,6 @@ export const context_broker = {
         vector_text: true,
       }) || "Continue the journey.";
 
-    // Check for empathy/trust flags in recent input to conditionalize SUSPICIOUS_COGNITION
-    const matches = dynamics_engine.dynamics_scan(input);
-    const has_trust_plea = matches.some((m) => m.id === "VULNERABILITY" || m.id === "SUSPICIOUS");
-
     // Extract new content input for incremental lifecycle matching
     const new_content = get_new_content_input(input, simulation_log);
 
@@ -151,7 +147,9 @@ export const context_broker = {
     ];
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy
-    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, new_content))).catch((err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err));
+    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, new_content))).catch((err) =>
+      console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
+    );
 
     const entities = /** @type {Record<string, any>} */ ({});
     // Synchronous hydration of entities
@@ -221,7 +219,6 @@ export const context_broker = {
       rawMessages: simulation_log,
       meta: {
         active_vector,
-        is_suspicious: has_trust_plea,
         timestamp: new Date().toISOString(),
       },
     };

@@ -144,6 +144,19 @@
     return 0;
   });
 
+  // Raw state caches to prevent Svelte 5 derived_inert warnings inside async callbacks
+  let wordsToAnimateRaw = $state([]);
+  let hasMultipleWordsRaw = $state(false);
+  let totalLengthRaw = $state(0);
+  let activeSpeedRaw = $state(0);
+
+  $effect(() => {
+    wordsToAnimateRaw = wordsToAnimate;
+    hasMultipleWordsRaw = hasMultipleWords;
+    totalLengthRaw = totalLength;
+    activeSpeedRaw = activeSpeed;
+  });
+
   // Clear timeline counters cleanly whenever content data strings alter
   let lastText = "";
   $effect(() => {
@@ -174,7 +187,7 @@
     const intervalId = setInterval(() => {
       untrack(() => {
         if (!isMounted) return;
-        const words = wordsToAnimate;
+        const words = wordsToAnimateRaw;
         if (words.length === 0) return;
 
         const now = performance.now();
@@ -188,10 +201,10 @@
         }
 
         if (phase === "typing") {
-          if (currentCharIndex < totalLength) {
-            currentCharIndex = Math.min(totalLength, currentCharIndex + elapsed * activeSpeed);
+          if (currentCharIndex < totalLengthRaw) {
+            currentCharIndex = Math.min(totalLengthRaw, currentCharIndex + elapsed * activeSpeedRaw);
           } else {
-            if (hasMultipleWords || loop) {
+            if (hasMultipleWordsRaw || loop) {
               phase = "pause";
               pauseAccumulator = 0;
             }
@@ -199,13 +212,13 @@
         } else if (phase === "pause") {
           pauseAccumulator += elapsed;
           if (pauseAccumulator >= pauseDelay) {
-            if (hasMultipleWords || loop) {
+            if (hasMultipleWordsRaw || loop) {
               phase = "deleting";
             }
           }
         } else if (phase === "deleting") {
           if (currentCharIndex > 0) {
-            currentCharIndex = Math.max(0, currentCharIndex - elapsed * activeSpeed);
+            currentCharIndex = Math.max(0, currentCharIndex - elapsed * activeSpeedRaw);
           } else {
             const nextIndex = currentWordIndex + 1;
             if (nextIndex >= words.length) {

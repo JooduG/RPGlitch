@@ -179,7 +179,14 @@
   }
 </script>
 
-<Dialog type="confirm" bind:open={show_delete_confirm} title="Delete Entry?" message="Permanently delete this log entry? This cannot be undone." confirm_label="Delete" on_confirm={execute_delete} />
+<Dialog
+  type="confirm"
+  bind:open={show_delete_confirm}
+  title="Delete Entry?"
+  message="Permanently delete this log entry? This cannot be undone."
+  confirm_label="Delete"
+  on_confirm={execute_delete}
+/>
 
 <div
   class="
@@ -219,7 +226,15 @@
     {/each}
 
     {#if is_active_turn}
-      <Message id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"} text={app.streaming.text ?? app.streaming.content ?? ""} sender={active_turn_role ?? "ai"} character_name={active_turn_name ?? ""} timestamp={new Date()} is_last={true} busy={true} />
+      <Message
+        id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"}
+        text={app.streaming.text ?? app.streaming.content ?? ""}
+        sender={active_turn_role ?? "ai"}
+        character_name={active_turn_name ?? ""}
+        timestamp={new Date()}
+        is_last={true}
+        busy={true}
+      />
     {:else if simulation_log.feed.length === 0}
       <div
         class="

@@ -58,22 +58,7 @@ export const rpgLists = {
     "low angle, heroic perspective",
     "negative space, minimalist composition",
   ],
-  mood: [
-    "ancient, timeless, weathered",
-    "chaotic, battle-worn, intense",
-    "dramatic, tense, suspenseful",
-    "energetic, dynamic, motion",
-    "epic, larger-than-life, majestic",
-    "futuristic, sleek, clean",
-    "gritty, harsh, dirty",
-    "hopeful, uplifting, bright",
-    "magical, enchanted, mystical",
-    "melancholic, nostalgic, sad",
-    "mysterious, foggy, unknown",
-    "peaceful, serene, quiet",
-    "romantic, affectionate, soft",
-    "spooky, haunted, ominous",
-  ],
+
   artifacts: [
     "motion blur, harsh cinematic shadows, lens flare, rim light",
     "low light film grain, cctv security angle, volumetric bounce",

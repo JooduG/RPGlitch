@@ -84,7 +84,11 @@
   /** True when the prompt is freeform text (not a URL or data URI). */
   const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"));
 
-  const is_creative_disabled = $derived(!profileState.is_editing || (is_prompt_busy && (!profileState.active_field || profileState.active_field.key === "visual-prompt")) || (!profileState.active_field && has_prompt_text));
+  const is_creative_disabled = $derived(
+    !profileState.is_editing ||
+      (is_prompt_busy && (!profileState.active_field || profileState.active_field.key === "visual-prompt")) ||
+      (!profileState.active_field && has_prompt_text),
+  );
 
   // --- HANDLERS ---
 
@@ -227,7 +231,15 @@
           : ''}"
         style="--swatch-color: {color}; background-color: var(--swatch-color);"
       >
-        <Button square={true} cover={true} aria-label={name} actions={[tooltip]} onclick={() => (profileState.char.signature_color = name)} disabled={!profileState.is_editing} variant="invisible"></Button>
+        <Button
+          square={true}
+          cover={true}
+          aria-label={name}
+          actions={[tooltip]}
+          onclick={() => (profileState.char.signature_color = name)}
+          disabled={!profileState.is_editing}
+          variant="invisible"
+        ></Button>
       </div>
     {/each}
   </div>
@@ -334,7 +346,16 @@
           gap-2
         "
         >
-          <Button variant="invisible" size="small" square aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"} actions={[tooltip]} onclick={handle_creative_action} onmousedown={prevent_default} disabled={is_creative_disabled}>
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label={has_prompt_text ? "Enhance Prompt" : "Fetch Data"}
+            actions={[tooltip]}
+            onclick={handle_creative_action}
+            onmousedown={prevent_default}
+            disabled={is_creative_disabled}
+          >
             {#if has_prompt_text}
               <svg
                 viewBox="0 0 24 24"
@@ -359,7 +380,16 @@
             {/if}
           </Button>
 
-          <Button variant="invisible" size="small" square aria-label="Generate Image" actions={[tooltip]} onclick={handle_generate} onmousedown={prevent_default} disabled={!profileState.is_editing || is_prompt_busy}>
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label="Generate Image"
+            actions={[tooltip]}
+            onclick={handle_generate}
+            onmousedown={prevent_default}
+            disabled={!profileState.is_editing || is_prompt_busy}
+          >
             <svg
               viewBox="0 0 24 24"
               class="
@@ -372,7 +402,16 @@
             </svg>
           </Button>
 
-          <Button variant="invisible" size="small" square aria-label="Upload Portrait" actions={[tooltip]} onclick={handle_upload_portrait} onmousedown={prevent_default} disabled={!profileState.is_editing || is_prompt_busy}>
+          <Button
+            variant="invisible"
+            size="small"
+            square
+            aria-label="Upload Portrait"
+            actions={[tooltip]}
+            onclick={handle_upload_portrait}
+            onmousedown={prevent_default}
+            disabled={!profileState.is_editing || is_prompt_busy}
+          >
             <svg
               viewBox="0 0 24 24"
               class="

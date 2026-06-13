@@ -14,7 +14,7 @@
  * 2. Persistence  : Automatically logs turns to the Session database.
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
-import { db, entities, prune, serialize } from "@data";
+import { db, entities, prune } from "@data";
 import { generateUUID, session_driver, TELEMETRY_TYPES } from "@engine";
 import { context_broker, dynamics_engine, prompt_builder, temporal_engine } from "@intelligence";
 import { llm_service, Security } from "@platform";
@@ -189,13 +189,6 @@ export const gamemaster = {
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
       const snapshot = dynamics_engine.simulate(payload);
 
-      // 3.6. COMPRESSION LAYER
-      const compressed_entities = {
-        AI: serialize(payload.entities.AI),
-        USER: serialize(payload.entities.USER),
-        FRACTAL: serialize(payload.entities.FRACTAL),
-      };
-      /** @type {any} */ (snapshot).compressed_entities = compressed_entities;
       /** @type {any} */ (snapshot).pruned_past = {
         AI: prune(payload.entities.AI?.past, "past"),
         USER: prune(payload.entities.USER?.past, "past"),

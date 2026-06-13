@@ -40,7 +40,11 @@
     element?.focus();
   }
 
-  const is_interrupt_btn = $derived(label?.toLowerCase().includes("interrupt") || rest["aria-label"]?.toLowerCase().includes("interrupt") || className?.toLowerCase().includes("interrupt"));
+  const is_interrupt_btn = $derived(
+    label?.toLowerCase().includes("interrupt") ||
+      rest["aria-label"]?.toLowerCase().includes("interrupt") ||
+      className?.toLowerCase().includes("interrupt"),
+  );
 
   let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));

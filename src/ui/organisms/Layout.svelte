@@ -31,7 +31,13 @@
   );
 
   // ── HEADER CLASS MATRIX ──────────────────────────────────────────────────
-  let header_class = $derived(app.viewport.mobile ? "relative inset-auto col-span-full row-start-1 h-auto items-center" : mode === "storymode" ? "absolute right-0 left-0 col-[1/13] row-start-2 items-end self-stretch" : "absolute right-0 left-0 col-[2/12] row-start-2 items-end self-stretch");
+  let header_class = $derived(
+    app.viewport.mobile
+      ? "relative inset-auto col-span-full row-start-1 h-auto items-center"
+      : mode === "storymode"
+        ? "absolute right-0 left-0 col-[1/13] row-start-2 items-end self-stretch"
+        : "absolute right-0 left-0 col-[2/12] row-start-2 items-end self-stretch",
+  );
 
   // ── LEFT ASIDE CLASS MATRIX ──────────────────────────────────────────────
   let left_class = $derived(
@@ -46,11 +52,25 @@
 
   // ── CENTER MAIN CLASS MATRIX ─────────────────────────────────────────────
   let center_class = $derived(
-    app.viewport.mobile ? (mode === "storymode" ? "inset-auto col-span-full row-3 h-auto items-center overflow-auto" : "inset-auto col-span-full row-3 h-auto items-center") : mode === "storymode" ? `col-[3/11] row-[1/13] h-full ${align_class}` : `col-[4/10] row-[2/12] h-full ${align_class}`,
+    app.viewport.mobile
+      ? mode === "storymode"
+        ? "inset-auto col-span-full row-3 h-auto items-center overflow-auto"
+        : "inset-auto col-span-full row-3 h-auto items-center"
+      : mode === "storymode"
+        ? `col-[3/11] row-[1/13] h-full ${align_class}`
+        : `col-[4/10] row-[2/12] h-full ${align_class}`,
   );
 
   // ── RIGHT ASIDE CLASS MATRIX ────────────────────────────────────────────
-  let right_class = $derived(app.viewport.mobile ? (mode === "storymode" ? "col-[2/3] row-2 h-full items-center" : "inset-auto col-span-full row-4 h-auto items-center") : mode === "storymode" ? `col-[11/13] row-[1/13] h-full ${align_class}` : `col-[10/12] row-[2/12] h-full ${align_class}`);
+  let right_class = $derived(
+    app.viewport.mobile
+      ? mode === "storymode"
+        ? "col-[2/3] row-2 h-full items-center"
+        : "inset-auto col-span-full row-4 h-auto items-center"
+      : mode === "storymode"
+        ? `col-[11/13] row-[1/13] h-full ${align_class}`
+        : `col-[10/12] row-[2/12] h-full ${align_class}`,
+  );
 
   // ── FOOTER CLASS MATRIX ──────────────────────────────────────────────────
   let footer_class = $derived(
@@ -64,7 +84,11 @@
   );
 </script>
 
-<div class="fixed inset-0 z-20 m-auto grid overflow-hidden text-white transition-opacity duration-300 {transparent ? 'bg-transparent' : ''} {container_class}">
+<div
+  class="fixed inset-0 z-20 m-auto grid overflow-hidden text-white transition-opacity duration-300 {transparent
+    ? 'bg-transparent'
+    : ''} {container_class}"
+>
   {#if header}
     <header class="pointer-events-none z-30 flex justify-center {header_class}">
       {@render header()}

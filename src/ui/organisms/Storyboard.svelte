@@ -15,11 +15,24 @@
   // --- SNIPPETS ---
 </script>
 
-{#snippet Slot(/** @type {"ai" | "user" | "fractal"} */ type, /** @type {any} */ entity, /** @type {string} */ label, /** @type {string} */ width, /** @type {string} */ height)}
+{#snippet Slot(
+  /** @type {"ai" | "user" | "fractal"} */ type,
+  /** @type {any} */ entity,
+  /** @type {string} */ label,
+  /** @type {string} */ width,
+  /** @type {string} */ height,
+)}
   {#if !app.entities_loaded}
     <Skeleton variant="card" {width} {height} />
   {:else}
-    <EntityCard variant={entity ? "panel" : "slot"} {type} {entity} role_label={label} on_select={() => app.open_drawer(type)} on_view_profile={() => app.toggle_profile(true, entity)} />
+    <EntityCard
+      variant={entity ? "panel" : "slot"}
+      {type}
+      {entity}
+      role_label={label}
+      on_select={() => app.open_drawer(type)}
+      on_view_profile={() => app.toggle_profile(true, entity)}
+    />
   {/if}
 {/snippet}
 
@@ -41,7 +54,13 @@
         [view-transition-name:entity-morph-ai]
       "
     >
-      {@render Slot("ai", app.selected_ai, "AI Character", "var(--spacing-storyboard-character-card-width)", "var(--spacing-storyboard-character-card-height)")}
+      {@render Slot(
+        "ai",
+        app.selected_ai,
+        "AI Character",
+        "var(--spacing-storyboard-character-card-width)",
+        "var(--spacing-storyboard-character-card-height)",
+      )}
     </div>
   {/snippet}
 
@@ -56,7 +75,13 @@
         [view-transition-name:entity-morph-fractal]
       "
     >
-      {@render Slot("fractal", app.selected_fractal, "Fractal", "var(--spacing-storyboard-fractal-card-width)", "var(--spacing-storyboard-fractal-card-height)")}
+      {@render Slot(
+        "fractal",
+        app.selected_fractal,
+        "Fractal",
+        "var(--spacing-storyboard-fractal-card-width)",
+        "var(--spacing-storyboard-fractal-card-height)",
+      )}
     </div>
   {/snippet}
 
@@ -71,7 +96,13 @@
         [view-transition-name:entity-morph-user]
       "
     >
-      {@render Slot("user", app.selected_user, "User Persona", "var(--spacing-storyboard-character-card-width)", "var(--spacing-storyboard-character-card-height)")}
+      {@render Slot(
+        "user",
+        app.selected_user,
+        "User Persona",
+        "var(--spacing-storyboard-character-card-width)",
+        "var(--spacing-storyboard-character-card-height)",
+      )}
     </div>
   {/snippet}
 

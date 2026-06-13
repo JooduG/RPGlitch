@@ -31,7 +31,11 @@
   } = $props();
 
   // Derived action config — single source of truth for the action button
-  const action = $derived(type === "confirm" ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label } : { variant: /** @type {"primary"} */ ("primary"), label: ok_label });
+  const action = $derived(
+    type === "confirm"
+      ? { variant: /** @type {"danger"} */ ("danger"), label: confirm_label }
+      : { variant: /** @type {"primary"} */ ("primary"), label: ok_label },
+  );
 
   const handle_confirm = () => {
     if (busy) return;
