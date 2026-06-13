@@ -288,6 +288,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     color: var(--color-frisk);
     background-color: var(--color-chalk);
     line-height: var(--font-height-base);
+    text-align: left;
   }
 
   h1,

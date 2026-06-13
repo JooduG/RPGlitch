@@ -14,8 +14,8 @@ upload = {import:upload-plugin}
 // --- BUILDER & CONFIG ---
 // We inject the configuration script into the head of the HTML
 buildApp() =>
-  var html = {import:dist/RPGlitch.html}
-  var htmlWithConfig = html.replace("<!--PERCHANCE_CONFIG_TARGET-->", [clientSideConfig])
+  var appHtml = html
+  var htmlWithConfig = appHtml.replace("<!--PERCHANCE_CONFIG_TARGET-->", [clientSideConfig])
   return htmlWithConfig
 
 // --- LIVE BRIDGE: EXPORT LISTS TO JS ---

@@ -172,6 +172,7 @@
     color: var(--color-frisk);
     background-color: var(--color-chalk);
     line-height: var(--font-height-base);
+    text-align: left;
   }
 
   h1,
