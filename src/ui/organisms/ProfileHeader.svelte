@@ -139,7 +139,6 @@
   {#if is_editing}
     <div
       class="
-        before:p-spacing-pixel
         relative
         flex
         w-(--state-fill-end)
@@ -154,6 +153,7 @@
         before:inset-0
         before:rounded-[inherit]
         before:mask-border-solid
+        before:p-spacing-pixel
         before:opacity-whisper
         before:transition-opacity
         before:duration-(--duration-standard)
