@@ -156,7 +156,7 @@
   ondblclick={handle_reset}
 >
   {#if is_custom}
-    <span class="[text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]">{custom_title}</span>
+    <span class="[text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]">{custom_title}</span>
   {:else}
     {#each title_parts as part, i (i)}
       {#if part.color}
@@ -167,7 +167,7 @@
             font-['Satisfy',cursive]
             whitespace-nowrap
             text-(--signature-color)
-            [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
+            [text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
           "
           style:--signature-color={part.color}>{part.text}</span
         >
@@ -178,7 +178,7 @@
           px-2
           font-['Satisfy',cursive]
           whitespace-normal
-          [text-shadow:0_var(--spacing-pixel)_var(--spacing-pixel)_var(--void-black),0_0_var(--spacing-unit)_var(--void-black)]
+          [text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]
         ">{part.text}</span
         >
       {/if}

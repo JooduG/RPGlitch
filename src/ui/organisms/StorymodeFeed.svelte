@@ -182,7 +182,7 @@
 <div
   class="
     flex
-    min-h-(--dropdown-max-height)
+    min-h-dropdown-max-height
     w-full
     flex-1
     flex-col
@@ -231,7 +231,7 @@
           text-center
           text-slate-600
 
-          [&>p]:max-w-[calc(var(--column-unit)*8)]
+          [&>p]:max-w-[calc(var(--spacing-column-unit)*8)]
         "
       >
         <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>

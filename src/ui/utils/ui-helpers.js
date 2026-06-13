@@ -164,7 +164,7 @@ export function resolve_px(value, fallback = 0, context = null) {
 /**
  * Resolves a CSS duration value (handles variables, ms, s, etc.) to milliseconds.
  *
- * @param {string | number | undefined} value - The CSS duration or variable name (e.g., "--duration-fast")
+ * @param {string | number | undefined} value - The CSS duration or variable name (e.g., "--duration-(--duration-fast)")
  * @param {number} fallback - Value to return if resolution fails
  * @param {HTMLElement | null} [context] - Optional element context for variable resolution
  * @returns {number}
@@ -270,7 +270,7 @@ export function resolve_number(value, fallback = 0, context = null) {
  * Resolves a CSS string value (handles variables).
  * Useful for easings, colors (as strings), or other non-numeric tokens.
  *
- * @param {string | undefined} value - The CSS value or variable name (e.g., "--ease-out")
+ * @param {string | undefined} value - The CSS value or variable name (e.g., "--ease-(--ease-out)")
  * @param {string} fallback - Value to return if resolution fails
  * @param {HTMLElement | null} [context] - Optional element context for variable resolution
  * @returns {string}

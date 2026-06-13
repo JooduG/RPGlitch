@@ -110,7 +110,7 @@
         opacity-95
         filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]
         select-none
-        [text-shadow:var(--spacing-pixel)_var(--spacing-pixel)_0_var(--void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--void-black),0_0_calc(var(--spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.6)]
+        [text-shadow:var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.6)]
       "
     >
       {initials}

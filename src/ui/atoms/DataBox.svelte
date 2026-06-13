@@ -1,4 +1,4 @@
-﻿<script>
+<script>
   /**
    * @file src/ui/devmode/DataBox.svelte
    * 📦 DATABOX ATOM
@@ -20,10 +20,10 @@
     rounded-sm
     border
     border-solid
-    {isResonating ? 'animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)] border-(--state-dev-accent)' : 'border-(--electric-cyan)/20'}
+    {isResonating ? 'animate-[pulse-resonance_3s_infinite_cubic-bezier(0.4,0,0.2,1)] border-(--state-dev-accent)' : 'border-electric-cyan/20'}
     bg-zinc-900/40
     text-left
-    font-(--font-family-mono)
+    font-mono
     backdrop-blur-sm
     transition-all
     duration-300
@@ -37,8 +37,8 @@
       class="
         border-b
         border-solid
-        border-(--electric-cyan)/20
-        bg-(--electric-cyan)/5
+        border-electric-cyan/20
+        bg-electric-cyan/5
         px-4
         py-3
         text-xs

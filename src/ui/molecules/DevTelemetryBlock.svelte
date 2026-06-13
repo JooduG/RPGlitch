@@ -117,7 +117,7 @@
         <div class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"></div>
         <span class="text-sm font-bold tracking-widest text-(--state-dev-accent) uppercase">Story Initiated</span>
       </div>
-      <p class="mt-2 text-xs font-(--font-family-mono) text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
+      <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>
   {:else}
     <DataBox
@@ -222,7 +222,7 @@
                     >
                       <span
                         class="
-                        font-(--font-family-mono)
+                        font-mono
                         text-(--state-dev-accent)
                         
                       ">WEAVED</span
@@ -242,7 +242,7 @@
                       text-xs
                       text-slate-400
                       
-                      font-(--font-family-mono)
+                      font-mono
                     "
                     >
                       NO_MEMORIES_WEAVED
@@ -339,7 +339,7 @@
                     >
                       <span
                         class="
-                        font-(--font-family-mono)
+                        font-mono
                         text-(--state-dev-accent)
                         
                       ">ANCHOR</span
@@ -359,7 +359,7 @@
                       text-xs
                       text-slate-400
                       
-                      font-(--font-family-mono)
+                      font-mono
                     "
                     >
                       NO_IMPULSES_RESOLVED
@@ -415,7 +415,7 @@
                     >
                       <span
                         class="
-                        font-(--font-family-mono)
+                        font-mono
                         text-(--state-dev-accent)
                         
                       ">{v._relevance?.toFixed(1) || v.base_weight}</span
@@ -538,7 +538,7 @@
                           {/if}
                         </div>
                         <div class="flex flex-col items-end gap-0.5">
-                          <div class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)">
+                          <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
                             <span class="text-slate-50">{get_pct(val)}</span>
                             {#if delta}
                               <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
@@ -647,7 +647,7 @@
                           {/if}
                         </div>
                         <div class="flex flex-col items-end gap-0.5">
-                          <div class="flex min-w-16 items-center justify-end gap-1.5 text-xs font-(--font-family-mono)">
+                          <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
                             <span class="text-slate-50">{get_pct(val)}</span>
                             {#if delta}
                               <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
@@ -721,7 +721,7 @@
                     >
                       <span
                         class="
-                        font-(--font-family-mono)
+                        font-mono
                         text-(--state-dev-accent)
                         
                       ">{v._relevance?.toFixed(1) || v.base_weight}</span
@@ -741,7 +741,7 @@
                       text-xs
                       text-slate-400
                       
-                      font-(--font-family-mono)
+                      font-mono
                     "
                     >
                       NO_FUTURE_VECTORS
@@ -797,7 +797,7 @@
                     >
                       <span
                         class="
-                        font-(--font-family-mono)
+                        font-mono
                         text-(--state-dev-accent)
                         
                       ">{v._relevance?.toFixed(1) || v.base_weight}</span
@@ -817,7 +817,7 @@
                       text-xs
                       text-slate-400
                       
-                      font-(--font-family-mono)
+                      font-mono
                     "
                     >
                       NO_PAST_MEMORIES
@@ -848,8 +848,8 @@
                     border-(--state-dev-accent)/15
                     bg-white/5
                     p-2
+                    font-mono
                     text-xs
-                    font-(--font-family-mono)
                     text-(--state-dev-accent)
                     uppercase
                   ">{signal}</span
@@ -859,7 +859,7 @@
             </div>
           {/if}
           {#if Object.keys(meta).length > 0 && deltas.length === 0 && Object.keys(ai).length === 0 && Object.keys(fractal).length === 0 && vectors.future.length === 0 && vectors.past.length === 0 && active_dynamics.length === 0}
-            <div class="overflow-x-auto pt-4 text-xs font-(--font-family-mono) text-slate-400">
+            <div class="overflow-x-auto pt-4 font-mono text-xs text-slate-400">
               <pre>{JSON.stringify(meta, null, 2)}</pre>
             </div>
           {/if}
@@ -876,7 +876,7 @@
     }
 
     70% {
-      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3) color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
+      box-shadow: 0 0 0 calc(var(--spacing-spacing-unit) * 3) color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
     }
 
     100% {
@@ -887,7 +887,7 @@
   @keyframes slide-in {
     from {
       opacity: 0;
-      transform: translateY(var(--kinetic-slide-y));
+      transform: translateY(var(--spacing-kinetic-slide-y));
     }
 
     to {

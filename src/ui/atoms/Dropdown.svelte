@@ -49,7 +49,7 @@
       uppercase
       transition-[background-color,color,box-shadow,transform,filter,border-color]
       duration-500
-      ease-out
+      ease-(--ease-out)
 
       hover:brightness-125
 
@@ -103,7 +103,7 @@
               {...props}
               data-dropdown-menu
               class="
-                z-(--z-index-max)
+                z-max
                 flex
                 max-h-36
                 w-[calc(var(--bits-select-anchor-width)+3.5rem)]
@@ -145,7 +145,7 @@
 
                         transition-[background-color,color,box-shadow,transform,filter,border-color]
                         duration-500
-                        ease-out
+                        ease-(--ease-out)
 
                         outline-none
                         select-none

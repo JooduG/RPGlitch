@@ -27,7 +27,7 @@
     {:else}
       {@const entity = app.selected_ai}
       {@const name = entity?.name || "Unknown"}
-      {@const signature_color = get_signature_color(entity, "var(--gunmetal)")}
+      {@const signature_color = get_signature_color(entity, "var(--color-gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
       <article
         class="
@@ -55,8 +55,8 @@
             transition-all
             duration-300
 
-            hover:scale-(--scale-lift)
-            hover:brightness-(--brightness-glow)
+            hover:scale-lift
+            hover:brightness-glow
           "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
@@ -70,7 +70,7 @@
               border-r
               border-solid
               border-white/10
-              bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color),transparent_30%)_0%,color-mix(in_srgb,var(--void-black),var(--signature-color)_5%)_50%,var(--void-black)_100%)]
+              bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color),transparent_30%)_0%,color-mix(in_srgb,var(--color-void-black),var(--signature-color)_5%)_50%,var(--color-void-black)_100%)]
             "
           ></div>
           <div class="relative z-20 flex h-full w-full items-center justify-center">
@@ -101,7 +101,7 @@
           z-30
           w-full
           shrink-0
-          pb-(--row-unit)
+          pb-row-unit
         "
         >
           <UnifiedConsole />
@@ -116,7 +116,7 @@
     {:else}
       {@const entity = app.selected_user}
       {@const name = entity?.name || "Unknown"}
-      {@const signature_color = get_signature_color(entity, "var(--gunmetal)")}
+      {@const signature_color = get_signature_color(entity, "var(--color-gunmetal)")}
       {@const a11y_label = `View Profile: ${name}`}
       <article
         class="
@@ -144,8 +144,8 @@
             transition-all
             duration-300
 
-            hover:scale-(--scale-lift)
-            hover:brightness-(--brightness-glow)
+            hover:scale-lift
+            hover:brightness-glow
           "
           use:tooltip={{ text: a11y_label }}
           onclick={() => app.toggle_profile(true, entity)}
@@ -159,7 +159,7 @@
               border-l
               border-solid
               border-white/10
-              bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color),transparent_30%)_0%,color-mix(in_srgb,var(--void-black),var(--signature-color)_5%)_50%,var(--void-black)_100%)]
+              bg-[linear-gradient(to_bottom,color-mix(in_srgb,var(--signature-color),transparent_30%)_0%,color-mix(in_srgb,var(--color-void-black),var(--signature-color)_5%)_50%,var(--color-void-black)_100%)]
             "
           ></div>
           <div class="relative z-20 flex h-full w-full items-center justify-center">

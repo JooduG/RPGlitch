@@ -107,7 +107,7 @@
                 bg-slate-50
                 transition-[transform,background-color,filter]
                 duration-300
-                ease-out
+                ease-(--ease-out)
 
                 group-data-[state=checked]:bg-white
                 group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)]

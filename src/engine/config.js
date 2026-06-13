@@ -70,7 +70,7 @@ export const CONFIG = {
   THEME: {
     // @ts-ignore
     get GRID_UNITS() {
-      return parseInt(TOKENS["column-unit"] || "12");
+      return parseInt(TOKENS["spacing-column-unit"] || "12");
     },
     get ANIMATION_STANDARD() {
       return TOKENS["duration-standard"];

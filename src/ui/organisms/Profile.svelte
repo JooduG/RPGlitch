@@ -22,7 +22,7 @@
   let footer_el = $state();
 
   // --- DERIVED ---
-  const signature_color = $derived(get_signature_color(profileState.char, "var(--gunmetal)"));
+  const signature_color = $derived(get_signature_color(profileState.char, "var(--color-gunmetal)"));
   const has_wings = $derived(profileState.is_editing || app.settings.dev_mode);
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
 
@@ -76,8 +76,8 @@
       class="
         m-auto
         grid
-        h-(--grid-height)
-        w-(--grid-width)
+        h-grid-height
+        w-grid-width
         grid-cols-12
         overflow-hidden"
       data-mobile={app.viewport.mobile}
@@ -93,7 +93,7 @@
           scrollbar-none overflow-auto
           border-solid
           border-[color-mix(in_srgb,var(--signature-color)_30%,transparent)]
-          bg-(--glass-elevated)
+          bg-glass-elevated
           [backdrop-filter:var(--blur-mist)]
           transition-all
           duration-300
@@ -122,12 +122,12 @@
             {entity_type === 'fractal'
             ? `
               h-12
-              min-h-[calc(var(--spacing-unit)*50)]
+              min-h-50
               w-full
             `
             : `
               h-full
-              w-(--avatar-medium-size)
+              w-avatar-medium-size
             `}
             {app.viewport.mobile || app.viewport.mini
             ? `
@@ -163,10 +163,10 @@
               `}
               {app.viewport.mobile || app.viewport.mini
               ? `
-                h-(--avatar-medium-size)
-                w-(--avatar-medium-size)
-                rounded-md
-                border-(--border-width-base)
+                 h-avatar-medium-size
+                 w-avatar-medium-size
+                 border-spacing-border-width-base
+                 rounded-md
               `
               : ''}
             "
@@ -374,8 +374,8 @@
                   pointer-events-none
                   shrink-0
                   animate-[add-hint-fade_var(--motion-elastic)]
+                  font-mono
                   text-base
-                  font-(--font-family-mono)
                   tracking-widest
                   whitespace-nowrap
                   text-white
@@ -464,15 +464,15 @@
                         mt-2
                         block
                         animate-pulse
+                        font-mono
                         text-[10px]
-                        font-(--font-family-mono)
                         tracking-widest
                         text-white
                         uppercase
                       ">ENHANCING</span
                     >
                   {:else if field.sublabel}
-                    <span class="text-[10px] font-(--font-family-mono) tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
+                    <span class="font-mono text-[10px] tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
                   {/if}
                 {/snippet}
 
@@ -498,7 +498,7 @@
                       <svg
                         viewBox="0 0 24 24"
                         class="
-                          size-(--icon-small)
+                          size-icon-small
                           fill-none
                           stroke-current
                           stroke-2
@@ -524,7 +524,7 @@
   @keyframes slide-in-left {
     0% {
       opacity: var(--opacity-none);
-      transform: translateX(calc(var(--spacing-unit) * 5));
+      transform: translateX(calc(var(--spacing-spacing-unit) * 5));
     }
 
     100% {

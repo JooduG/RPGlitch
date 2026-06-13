@@ -112,7 +112,7 @@
                 onclick={() => state.update_vector_weight(path, i, -1)}
                 aria-label="Decrease Weight"
               >
-                <svg viewBox="0 0 24 24" class="size-(--icon-small)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
+                <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14" /></svg>
               </Button>
             {/if}
 
@@ -127,9 +127,9 @@
                 items-center
                 justify-center
                 text-center
+                font-mono
                 text-sm
                 leading-none
-                font-(--font-family-mono)
                 text-white
               ">{item.base_weight}</span
             >
@@ -153,7 +153,7 @@
                 onclick={() => state.update_vector_weight(path, i, 1)}
                 aria-label="Increase Weight"
               >
-                <svg viewBox="0 0 24 24" class="size-(--icon-small)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
+                <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg>
               </Button>
             {/if}
           </div>
@@ -176,8 +176,8 @@
                   border-none
                   bg-transparent
                   p-0
+                  font-mono
                   text-[10px]
-                  font-(--font-family-mono)
                   tracking-widest
                   text-white
                   uppercase
@@ -228,7 +228,7 @@
               <svg
                 viewBox="0 0 24 24"
                 class="
-                  size-(--icon-small)
+                  size-icon-small
                   fill-none
                   stroke-current
                   stroke-2
@@ -264,8 +264,8 @@
           flex
           items-center
           gap-4
+          font-mono
           text-[10px]
-          font-(--font-family-mono)
           tracking-widest
           text-slate-50
           uppercase
@@ -276,10 +276,10 @@
         <svg
           viewBox="0 0 24 24"
           class="
-            h-[10px]
-            w-[10px]
+            h-kinetic-slide-y
+            w-kinetic-slide-y
           "
-          style="width: var(--font-size-small); height: var(--font-size-small);"
+          style="width: var(--text-small); height: var(--text-small);"
         >
           <path fill="currentColor" d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
         </svg>
@@ -293,7 +293,7 @@
   @keyframes slide-down-item {
     from {
       opacity: 0;
-      transform: translateY(calc(var(--spacing-unit) * -2.5));
+      transform: translateY(calc(var(--spacing-spacing-unit) * -2.5));
     }
 
     to {

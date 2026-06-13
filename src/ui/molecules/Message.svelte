@@ -153,7 +153,7 @@
         duration-200
       "
     >
-      <div class="w-[calc(var(--column-unit)*6)]">
+      <div class="w-[calc(var(--spacing-column-unit)*6)]">
         <DevTelemetryBlock {meta} />
       </div>
     </div>
@@ -167,7 +167,7 @@
       p-4
       transition-all
       duration-200
-      {is_user ? 'justify-end pr-[calc(var(--column-unit)*0.5)]' : is_ai ? 'justify-start pl-[calc(var(--column-unit)*0.5)]' : 'justify-center'}
+      {is_user ? 'justify-end pr-[calc(var(--spacing-column-unit)*0.5)]' : is_ai ? 'justify-start pl-[calc(var(--spacing-column-unit)*0.5)]' : 'justify-center'}
     "
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -185,7 +185,7 @@
         [backdrop-filter:var(--blur-mist)]
         transition-all
         duration-300
-        ease-out
+        ease-(--ease-out)
         outline-none
 
         before:pointer-events-none
@@ -211,7 +211,7 @@
           before:opacity-100
         `}
 
-        {is_fractal ? 'w-[calc(var(--column-unit)*6)]' : 'w-[calc(var(--column-unit)*5.5)]'}
+        {is_fractal ? 'w-[calc(var(--spacing-column-unit)*6)]' : 'w-[calc(var(--spacing-column-unit)*5.5)]'}
       "
       style="--signature-color: {signature_color};"
       tabindex="0"
@@ -231,12 +231,12 @@
           overflow-hidden
           rounded-t-[15px]
           bg-(--signature-color)
-          font-(--font-family-mono)
+          font-mono
           tracking-widest
           uppercase
           transition-all
           duration-300
-          ease-out
+          ease-(--ease-out)
           {!is_extended ? 'h-0 overflow-hidden border-b-0 px-0 opacity-0' : 'h-9 border-b border-white/10 px-4 opacity-100'}
         "
       >

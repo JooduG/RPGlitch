@@ -28,7 +28,7 @@
   let textarea = $state();
 
   let is_locked = $derived(simulationState.busy);
-  let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--gunmetal)"));
+  let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
 
   // --- CONTROL PANEL STATE ---
   let is_confirming_reset = $state(false);
@@ -207,7 +207,7 @@
 
 <Dialog type="confirm" bind:open={is_confirming_reset} title="Wipe Data?" message="This will permanently delete all stories, characters, and logs. This action cannot be undone." confirm_label="Erase All" on_confirm={hard_reset} />
 
-<div class="relative flex h-[calc(var(--row-unit)*0.5)] w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
+<div class="relative flex h-[calc(var(--spacing-row-unit)*0.5)] w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
     <Backdrop z_index="40" is_blurred={true} onclick={() => (app.control_panel_open = false)} />
   {/if}
@@ -228,17 +228,17 @@
       duration-500
       ease-in-out
 
-      {app.control_panel_open ? 'w-[calc(var(--column-unit)*6)] rounded-[calc(var(--row-unit)*0.5)] p-4 shadow-2xl shadow-black/50' : 'min-h-[calc(var(--row-unit)*0.5)] rounded-[calc(var(--row-unit)*0.5)] px-4 py-2'}
+      {app.control_panel_open ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4 shadow-2xl shadow-black/50' : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
 
     {is_locked ? 'pointer-events-none cursor-wait opacity-15 brightness-75 grayscale filter' : ''}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
       ? `
-      w-[calc(var(--column-unit)*6)]
+      w-[calc(var(--spacing-column-unit)*6)]
       border-(--signature-color,var(--color-slate-600))
-      shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
+      shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
     `
       : !app.control_panel_open
-        ? 'w-[calc(var(--column-unit)*4)]'
+        ? 'w-[calc(var(--spacing-column-unit)*4)]'
         : ''}
   "
     style:--signature-color={app.view === "storymode" ? signature_color : undefined}
@@ -247,9 +247,9 @@
     <!-- ACCORDION SETTINGS (VERTICAL EXPANSION) -->
     <div class="grid w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open ? 'mt-2 grid-rows-[1fr]' : 'grid-rows-[0fr]'}">
       <div class="w-full overflow-hidden">
-        <div class="mx-auto flex h-max w-[calc(var(--column-unit)*6-2rem)] flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity {app.control_panel_open ? 'opacity-100 delay-300 duration-200' : 'delay-0 duration-150'}">
+        <div class="mx-auto flex h-max w-[calc(var(--spacing-column-unit)*6-2rem)] flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity {app.control_panel_open ? 'opacity-100 delay-300 duration-200' : 'delay-0 duration-150'}">
           <ScrollArea style="max-height: 50vh;">
-            <Accordion.Root type="multiple" class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--frozen);">
+            <Accordion.Root type="multiple" class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
               <!-- DECK A: AUDIO -->
               <Accordion.Item value="audio">
                 <Accordion.Trigger class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white">
@@ -400,7 +400,7 @@
         <Button class="group" data-ready={ready_to_begin} variant="invisible" busy={!ready_to_begin} disabled={app.control_panel_open} onclick={storyboard.begin} actions={[pulse]} style="view-transition-name: console-center-axis">
           <h6
             class="m-0 tracking-widest transition-all duration-300 {ready_to_begin ? 'group-hover:scale-105 group-hover:brightness-125' : 'text-slate-400 opacity-80'}"
-            style={ready_to_begin ? "color: var(--emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--emerald-green) 25%, transparent);" : undefined}
+            style={ready_to_begin ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);" : undefined}
           >
             {label_text}
           </h6>

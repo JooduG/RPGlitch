@@ -184,10 +184,10 @@
   class="
   flex w-full
   flex-col
-  gap-(--gap-standard)
-  rounded-(--radius-standard)
-  bg-(--glass-elevated)
-  p-(--padding-standard)
+  gap-gap-standard
+  rounded-standard
+  bg-glass-elevated
+  p-padding-standard
   [backdrop-filter:var(--blur-mist)]
 "
 >
@@ -196,7 +196,7 @@
     class="
     grid
     grid-cols-5
-    gap-(--gap-tight)
+    gap-gap-tight
   "
   >
     {#each SPECTRUM_COLORS as [name, hex] (name)}
@@ -207,12 +207,12 @@
           aspect-square
           w-full
           rounded-xl
-          shadow-(--shadow-ghost)
+          shadow-ghost
           transition-all
           duration-(--duration-fast)
           ease-(--motion-dissolve)
           has-[:not(:disabled)]:hover:z-20
-          has-[:not(:disabled)]:hover:shadow-(--shadow-standard)
+          has-[:not(:disabled)]:hover:shadow-standard
           has-[:not(:disabled)]:hover:brightness-125
           has-[:not(:disabled)]:active:scale-[0.96]
           {current_label === name
@@ -220,9 +220,9 @@
             z-25
             scale-[1.1]
             cursor-default
-            [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
-            outline-[calc(var(--spacing-pixel)*3)]
-            outline-offset-[calc(var(--spacing-pixel)*2)]
+            [box-shadow:0_0_calc(var(--spacing-spacing-unit)*5)_var(--swatch-color)]
+            outline-[calc(var(--spacing-spacing-pixel)*3)]
+            outline-offset-[calc(var(--spacing-spacing-pixel)*2)]
             outline-white
             brightness-110
             outline-solid
@@ -235,7 +235,7 @@
     {/each}
   </div>
 
-  <!-- ðŸ‘ ï¸  IMAGE PROMPT -->
+  <!-- 🖼️ IMAGE PROMPT -->
   <TextField
     data-active={profileState.active_field?.key === "visual-prompt" ? true : undefined}
     is_edit={profileState.is_editing}
@@ -243,7 +243,7 @@
     bind:value={profileState.char.modifiers.prompt}
     placeholder="Image prompt or URL..."
     disabled={!profileState.is_editing || is_prompt_busy}
-    signature_color="var(--frozen)"
+    signature_color="var(--color-frozen)"
     onfocus={() => profileState.is_editing && (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
   >
     {#snippet status()}
@@ -281,8 +281,8 @@
             {#if app.visual.isOffline}
               <span
                 class="
+                  font-mono
                   text-[0.625rem]
-                  font-(--font-family-mono)
                   tracking-widest
                   text-inherit
                   uppercase
@@ -291,32 +291,32 @@
             {:else if app.visual.error}
               <span
                 class="
+                  font-mono
                   text-[0.625rem]
-                  font-(--font-family-mono)
                   tracking-widest
                   text-inherit
                   uppercase
                 ">ERROR</span
               >
-              <span class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
+              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
             {:else if app.visual.attempts > 0}
               <span
                 class="
                   animate-pulse
+                  font-mono
                   text-[0.625rem]
-                  font-(--font-family-mono)
                   tracking-widest
                   text-inherit
                   uppercase
                 ">RETRYING</span
               >
-              <span class="text-[10px] font-(--font-family-mono) tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
+              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
             {:else}
               <span
                 class="
                   animate-pulse
+                  font-mono
                   text-[0.625rem]
-                  font-(--font-family-mono)
                   tracking-widest
                   text-inherit
                   uppercase
@@ -342,7 +342,7 @@
               <svg
                 viewBox="0 0 24 24"
                 class="
-                size-(--icon-small)
+                size-icon-small
               "
               >
                 <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
@@ -351,7 +351,7 @@
               <svg
                 viewBox="0 0 24 24"
                 class="
-                size-(--icon-small)
+                size-icon-small
               "
                 fill="none"
               >
@@ -366,7 +366,7 @@
             <svg
               viewBox="0 0 24 24"
               class="
-              size-(--icon-small)
+              size-icon-small
             "
               fill="none"
             >
@@ -379,7 +379,7 @@
             <svg
               viewBox="0 0 24 24"
               class="
-              size-(--icon-small)
+              size-icon-small
             "
               fill="none"
             >

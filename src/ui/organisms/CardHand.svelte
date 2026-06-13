@@ -133,7 +133,7 @@
       items-center
       justify-end
       overflow-hidden
-      pb-[calc(var(--row-unit)*0.1)]
+      pb-[calc(var(--spacing-row-unit)*0.1)]
       transition-all
       duration-300
       ease-in-out
@@ -184,11 +184,11 @@
       class="
         relative
         block
-        h-[calc(var(--row-unit)*3.5)]
+        h-[calc(var(--spacing-row-unit)*3.5)]
         w-full
         max-w-(--grid-width-max)
         origin-bottom
-        pb-[calc(var(--row-unit)*0.2)]
+        pb-[calc(var(--spacing-row-unit)*0.2)]
       "
       style:--total-count={total_cards}
     >
@@ -198,15 +198,15 @@
           absolute
           bottom-0
           left-1/2
-          ml-[calc(-0.425*var(--column-unit))]
-          h-[calc(var(--row-unit)*2.8)]
-          w-[calc(var(--column-unit)*0.85)]
+          ml-[calc(-0.425*var(--spacing-column-unit))]
+          h-[calc(var(--spacing-row-unit)*2.8)]
+          w-[calc(var(--spacing-column-unit)*0.85)]
 
           hover:z-50!
         "
         role="presentation"
         style:transform="rotate({factory_angle}deg) translateY(0)"
-        style:transform-origin="center calc(100% + calc(var(--row-unit) * 25))"
+        style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
         style:z-index="0"
         onmouseenter={() => (hovered_index = -1)}
         onmouseleave={() => (hovered_index = null)}
@@ -241,7 +241,7 @@
             ease-in-out
             will-change-transform
           "
-          style:transform={hovered_index === -1 ? `rotate(${-factory_angle}deg) translateY(calc(var(--row-unit) * -0.6)) scale(1.08)` : "none"}
+          style:transform={hovered_index === -1 ? `rotate(${-factory_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)` : "none"}
         >
           <EntityCard variant="library" type={drawer_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
         </div>
@@ -257,15 +257,15 @@
             absolute
             bottom-0
             left-1/2
-            ml-[calc(-0.425*var(--column-unit))]
-            h-[calc(var(--row-unit)*2.8)]
-            w-[calc(var(--column-unit)*0.85)]
+            ml-[calc(-0.425*var(--spacing-column-unit))]
+            h-[calc(var(--spacing-row-unit)*2.8)]
+            w-[calc(var(--spacing-column-unit)*0.85)]
 
             hover:z-50!
           "
           role="presentation"
           style:transform="rotate({dynamic_angle}deg) translateY(0)"
-          style:transform-origin="center calc(100% + calc(var(--row-unit) * 25))"
+          style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
           style:z-index={idx + 1}
           onmouseenter={() => (hovered_index = idx)}
           onmouseleave={() => (hovered_index = null)}
@@ -318,7 +318,7 @@
                 grayscale-[0.4]
               `
               : ''}"
-            style:transform={is_hovered ? `rotate(${-dynamic_angle}deg) translateY(calc(var(--row-unit) * -0.85)) scale(1.18)` : "none"}
+            style:transform={is_hovered ? `rotate(${-dynamic_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)` : "none"}
           >
             <EntityCard variant="library" {entity} type={drawer_type ?? undefined} disabled={is_disabled(entity)} onclick={() => handle_select(entity)} onViewProfile={() => app.open_profile(entity)} />
           </div>

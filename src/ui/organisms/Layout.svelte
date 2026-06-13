@@ -39,7 +39,7 @@
         h-(--grid-height)
         w-(--grid-width)
         grid-cols-2
-        grid-rows-[min-content_calc(var(--spacing-unit)*24)_1fr_min-content]
+        grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content]
         overflow-y-auto
       `
       : `
@@ -121,7 +121,7 @@
           row-2
           h-full
           items-center
-          bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--void-black))]
+          bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--color-void-black))]
         `
         : `
           inset-auto

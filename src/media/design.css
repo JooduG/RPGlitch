@@ -5,76 +5,73 @@
 
 @import "tailwindcss";
 
-:root {
+@theme {
   /* --- COLORS --- */
-  --background-gradient-1: #0b101a;
-  --background-gradient-2: #14182b;
-  --background-gradient-3: #1e1b38;
-  --background-gradient-4: #16243b;
-  --chalk: #171717;
-  --coral-rose: #fb7185;
-  --crimson-red: #ef4444;
-  --deep-indigo: #818cf8;
-  --electric-cyan: #11aecc;
-  --emerald-green: #10b981;
-  --forest-green: #15803d;
-  --frisk: #f8fafc;
-  --frozen: #475569;
-  --glass-elevated: rgb(from var(--frozen) r g b / var(--opacity-whisper));
-  --glass-peak: rgb(from var(--pure-white) r g b / var(--opacity-muted));
-  --glass-sunken: rgb(from var(--chalk) r g b / var(--opacity-muted));
-  --gunmetal: #334155;
-  --hot-pink: #ec4899;
-  --lemon-yellow: #fde047;
-  --lime-green: #84cc16;
-  --neon-teal: #14b8a6;
-  --ocean-blue: #3b82f6;
-  --pumpkin-amber: #fbbf24;
-  --pure-white: #fff;
-  --royal-purple: #a855f7;
-  --signature-color: var(--frozen);
-  --sunset-orange: #f97316;
-  --swatch-color: var(--signature-color);
-  --twilight-violet: #c084fc;
-  --void-black: #000;
+  --color-background-gradient-1: #0b101a;
+  --color-background-gradient-2: #14182b;
+  --color-background-gradient-3: #1e1b38;
+  --color-background-gradient-4: #16243b;
+  --color-chalk: #171717;
+  --color-coral-rose: #fb7185;
+  --color-crimson-red: #ef4444;
+  --color-deep-indigo: #818cf8;
+  --color-electric-cyan: #11aecc;
+  --color-emerald-green: #10b981;
+  --color-forest-green: #15803d;
+  --color-frisk: #f8fafc;
+  --color-frozen: #475569;
+  --color-glass-elevated: #4755694d;
+  --color-glass-peak: #fff9;
+  --color-glass-sunken: #17171799;
+  --color-gunmetal: #334155;
+  --color-hot-pink: #ec4899;
+  --color-lemon-yellow: #fde047;
+  --color-lime-green: #84cc16;
+  --color-neon-teal: #14b8a6;
+  --color-ocean-blue: #3b82f6;
+  --color-pumpkin-amber: #fbbf24;
+  --color-pure-white: #fff;
+  --color-royal-purple: #a855f7;
+  --color-signature-color: #475569;
+  --color-sunset-orange: #f97316;
+  --color-swatch-color: #475569;
+  --color-twilight-violet: #c084fc;
+  --color-void-black: #000;
 
   /* --- TYPOGRAPHY --- */
-  --font-family-base: "Inter", sans-serif;
-  --font-family-heading: "Ubuntu", sans-serif;
-  --font-family-mono: "JetBrains Mono", monospace;
-  --font-size-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem);
-  --font-size-h1: clamp(3rem, 5vw + 2rem, 6rem);
-  --font-size-h2: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem);
-  --font-size-h3: clamp(2rem, 3vw + 1.6rem, 3.2rem);
-  --font-size-h4: clamp(1.6rem, 2vw + 1.4rem, 2.4rem);
-  --font-size-h5: clamp(1.1rem, 1.2vw + 1rem, 1.5rem);
-  --font-size-h6: clamp(1rem, 1vw + 0.9rem, 1.25rem);
-  --font-size-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem);
-  --font-size-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
+  --font-base: "Inter", sans-serif;
+  --font-heading: "Ubuntu", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  --text-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem);
+  --text-h1: clamp(3rem, 5vw + 2rem, 6rem);
+  --text-h2: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem);
+  --text-h3: clamp(2rem, 3vw + 1.6rem, 3.2rem);
+  --text-h4: clamp(1.6rem, 2vw + 1.4rem, 2.4rem);
+  --text-h5: clamp(1.1rem, 1.2vw + 1rem, 1.5rem);
+  --text-h6: clamp(1rem, 1vw + 0.9rem, 1.25rem);
+  --text-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem);
+  --text-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
 
   /* --- ROUNDED --- */
   --radius-sharp: 0.25rem;
   --radius-standard: 1rem;
 
   /* --- SPACING --- */
-  --column-unit: calc(var(--grid-width) / 12);
-  --gap-standard: calc(var(--spacing-unit) * 4);
-  --gap-tight: calc(var(--spacing-unit) * 2);
-  --grid-height: clamp(20rem, 100vh, var(--grid-height-max));
-  --grid-height-max: clamp(25rem, calc(var(--golden-ratio) * 100vw), 100vh);
-  --grid-width: clamp(20rem, 100vw, var(--grid-width-max));
-  --grid-width-max: clamp(50rem, calc(var(--golden-ratio) * 100vh), 100vw);
-  --padding-standard: calc(var(--spacing-unit) * 4);
-  --padding-tight: calc(var(--spacing-unit) * 2);
-  --row-unit: calc(var(--grid-height) / 12);
-  --spacing-pixel: 1px;
-  --spacing-unit: 0.25rem;
+  --spacing-column-unit: calc(var(--spacing-grid-width) / 12);
+  --spacing-gap-standard: calc(var(--spacing-spacing-unit) * 4);
+  --spacing-gap-tight: calc(var(--spacing-spacing-unit) * 2);
+  --spacing-grid-height: clamp(20rem, 100vh, var(--spacing-grid-height-max));
+  --spacing-grid-height-max: clamp(25rem, calc(var(--spacing-golden-ratio) * 100vw), 100vh);
+  --spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max));
+  --spacing-grid-width-max: clamp(50rem, calc(var(--spacing-golden-ratio) * 100vh), 100vw);
+  --spacing-padding-standard: calc(var(--spacing-spacing-unit) * 4);
+  --spacing-padding-tight: calc(var(--spacing-spacing-unit) * 2);
+  --spacing-row-unit: calc(var(--spacing-grid-height) / 12);
+  --spacing-spacing-pixel: 1px;
+  --spacing-spacing-unit: 0.25rem;
 
   /* --- COMPONENTS --- */
-  --avatar-medium-size: calc(var(--column-unit) * 2);
-  --blur-mist: blur(calc(var(--spacing-unit) * 4));
-  --border-width-base: var(--spacing-pixel);
-  --border-width-thick: var(--spacing-unit);
+  --blur-mist: blur(calc(var(--spacing-spacing-unit) * 4));
   --breakpoint-desktop: 80rem;
   --breakpoint-high-density: 120rem;
   --breakpoint-mini: 30rem;
@@ -83,7 +80,6 @@
   --brightness-dim: 0.9;
   --brightness-glow: 1.1;
   --brightness-muted: 0.3;
-  --dropdown-max-height: calc(var(--spacing-unit) * 80);
   --duration-ambient: 2000ms;
   --duration-fast: 150ms;
   --duration-slow: 500ms;
@@ -91,17 +87,9 @@
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --empty-fill: rgb(23 23 23 / 0.6);
-  --golden-ratio: 1.618;
-  --icon-medium: calc(var(--spacing-unit) * 8);
-  --icon-small: calc(var(--spacing-unit) * 4);
   --kinetic-drag-threshold: 10;
   --kinetic-momentum-friction: 0.95;
   --kinetic-scroll-multiplier: 1.5;
-  --kinetic-shimmy-offset: var(--spacing-pixel);
-  --kinetic-shimmy-y: calc(var(--spacing-pixel) / 2);
-  --kinetic-slide-y: calc(var(--spacing-pixel) * 10);
-  --kinetic-stab-distance: var(--spacing-unit);
-  --modal-width-thin: calc(var(--column-unit) * 3);
   --motion-dissolve: opacity var(--duration-standard) var(--ease-standard);
   --motion-elastic: var(--duration-slow) var(--ease-elastic);
   --noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -114,24 +102,38 @@
   --scale-pulse: 1.05;
   --scale-sink: 0.96;
   --scan-animation: scan var(--duration-ambient) linear infinite;
-  --scrollbar-thumb: var(--gunmetal);
-  --scrollbar-thumb-hover: var(--frisk);
+  --scrollbar-thumb: var(--color-gunmetal);
+  --scrollbar-thumb-hover: var(--color-frisk);
   --scrollbar-track: transparent;
-  --scrollbar-width: calc(var(--spacing-unit) * 2);
-  --shadow-ghost: 0 var(--spacing-pixel) var(--spacing-pixel) rgb(from var(--void-black) r g b / var(--opacity-ghost));
-  --shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit) * 4) rgb(from var(--void-black) r g b / var(--opacity-whisper));
-  --signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--signature-color);
+  --shadow-ghost: 0 var(--spacing-spacing-pixel) var(--spacing-spacing-pixel) rgb(from var(--color-void-black) r g b / var(--opacity-ghost));
+  --shadow-standard: 0 var(--spacing-spacing-unit) calc(var(--spacing-spacing-unit) * 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper));
+  --signature-color: var(--color-signature-color);
+  --signature-glow: 0 0 calc(var(--spacing-spacing-unit) * 4) var(--color-signature-color);
+  --spacing-avatar-medium-size: calc(var(--spacing-column-unit) * 2);
+  --spacing-border-width-base: var(--spacing-spacing-pixel);
+  --spacing-border-width-thick: var(--spacing-spacing-unit);
+  --spacing-dropdown-max-height: calc(var(--spacing-spacing-unit) * 80);
+  --spacing-golden-ratio: 1.618;
+  --spacing-icon-medium: calc(var(--spacing-spacing-unit) * 8);
+  --spacing-icon-small: calc(var(--spacing-spacing-unit) * 4);
+  --spacing-kinetic-shimmy-offset: var(--spacing-spacing-pixel);
+  --spacing-kinetic-shimmy-y: calc(var(--spacing-spacing-pixel) / 2);
+  --spacing-kinetic-slide-y: calc(var(--spacing-spacing-pixel) * 10);
+  --spacing-kinetic-stab-distance: var(--spacing-spacing-unit);
+  --spacing-modal-width-thin: calc(var(--spacing-column-unit) * 3);
+  --spacing-scrollbar-width: calc(var(--spacing-spacing-unit) * 2);
+  --spacing-storyboard-character-card-height: calc(var(--spacing-row-unit) * 5);
+  --spacing-storyboard-character-card-width: calc(var(--spacing-column-unit) * 2);
+  --spacing-storyboard-fractal-card-height: calc(var(--spacing-row-unit) * 4);
+  --spacing-storyboard-fractal-card-width: calc(var(--spacing-column-unit) * 4);
   --spring-damping-default: 0.8;
   --spring-stiffness-default: 0.15;
-  --state-dev-accent: var(--electric-cyan);
+  --state-dev-accent: var(--color-electric-cyan);
   --state-fill-end: 100%;
   --state-fill-start: 0%;
   --state-weight-intensity: 0;
-  --storyboard-character-card-height: calc(var(--row-unit) * 5);
-  --storyboard-character-card-width: calc(var(--column-unit) * 2);
-  --storyboard-fractal-card-height: calc(var(--row-unit) * 4);
-  --storyboard-fractal-card-width: calc(var(--column-unit) * 4);
-  --title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--void-black);
+  --swatch-color: var(--color-swatch-color);
+  --title-shadow-ambient: 0 0 calc(var(--spacing-spacing-unit) * 5) var(--color-void-black);
   --z-index-max: 999;
 }
 
@@ -166,9 +168,9 @@
     width: 100%;
     height: 100%;
     overflow: hidden;
-    font-family: var(--font-family-base);
-    color: var(--frisk);
-    background-color: var(--chalk);
+    font-family: var(--font-base);
+    color: var(--color-frisk);
+    background-color: var(--color-chalk);
     line-height: var(--font-height-base);
   }
 
@@ -184,7 +186,7 @@
   .h5,
   h6,
   .h6 {
-    font-family: var(--font-family-heading);
+    font-family: var(--font-heading);
     margin: 0;
     line-height: var(--font-height-base);
     color: var(--pure-white);
@@ -195,32 +197,32 @@
 
   h1,
   .h1 {
-    font-size: var(--font-size-h1);
+    font-size: var(--text-h1);
   }
 
   h2,
   .h2 {
-    font-size: var(--font-size-h2);
+    font-size: var(--text-h2);
   }
 
   h3,
   .h3 {
-    font-size: var(--font-size-h3);
+    font-size: var(--text-h3);
   }
 
   h4,
   .h4 {
-    font-size: var(--font-size-h4);
+    font-size: var(--text-h4);
   }
 
   h5,
   .h5 {
-    font-size: var(--font-size-h5);
+    font-size: var(--text-h5);
   }
 
   h6,
   .h6 {
-    font-size: var(--font-size-h6);
+    font-size: var(--text-h6);
   }
 
   p,
@@ -255,7 +257,7 @@
   main label,
   section p,
   section label {
-    font-family: var(--font-family-base);
+    font-family: var(--font-base);
   }
 
   strong,
@@ -368,21 +370,21 @@
 
 .text-shadow-outline {
   text-shadow:
-    var(--spacing-pixel) var(--spacing-pixel) 0 var(--void-black),
-    calc(var(--spacing-pixel) * -1) var(--spacing-pixel) 0 var(--void-black),
-    var(--spacing-pixel) calc(var(--spacing-pixel) * -1) 0 var(--void-black),
-    calc(var(--spacing-pixel) * -1) calc(var(--spacing-pixel) * -1) 0 var(--void-black),
-    0 0 calc(var(--spacing-unit) * 4) var(--void-black);
+    var(--spacing-spacing-pixel) var(--spacing-spacing-pixel) 0 var(--color-void-black),
+    calc(var(--spacing-spacing-pixel) * -1) var(--spacing-spacing-pixel) 0 var(--color-void-black),
+    var(--spacing-spacing-pixel) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
+    calc(var(--spacing-spacing-pixel) * -1) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
+    0 0 calc(var(--spacing-spacing-unit) * 4) var(--color-void-black);
 }
 
 .text-shadow-bloom {
   text-shadow:
-    var(--spacing-pixel) var(--spacing-pixel) 0 var(--void-black),
-    calc(var(--spacing-pixel) * -1) var(--spacing-pixel) 0 var(--void-black),
-    var(--spacing-pixel) calc(var(--spacing-pixel) * -1) 0 var(--void-black),
-    calc(var(--spacing-pixel) * -1) calc(var(--spacing-pixel) * -1) 0 var(--void-black),
-    0 0 calc(var(--spacing-unit) * 2) var(--signature-color),
-    0 0 calc(var(--spacing-unit) * 6) rgb(from var(--signature-color) r g b / var(--opacity-muted));
+    var(--spacing-spacing-pixel) var(--spacing-spacing-pixel) 0 var(--color-void-black),
+    calc(var(--spacing-spacing-pixel) * -1) var(--spacing-spacing-pixel) 0 var(--color-void-black),
+    var(--spacing-spacing-pixel) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
+    calc(var(--spacing-spacing-pixel) * -1) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
+    0 0 calc(var(--spacing-spacing-unit) * 2) var(--signature-color),
+    0 0 calc(var(--spacing-spacing-unit) * 6) rgb(from var(--signature-color) r g b / var(--opacity-muted));
 }
 
 .icon-outline {

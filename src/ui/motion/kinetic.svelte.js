@@ -104,15 +104,15 @@ function createKineticAction(node, config) {
 export function shimmy(node) {
   return createKineticAction(node, {
     animate: (target, intensity) => {
-      const baseDuration = resolve_ms("--duration-slow", 500, node);
+      const baseDuration = resolve_ms("--duration-(--duration-slow)", 500, node);
       const animation = target.animate(
         [
           { transform: "translate(0, 0) rotate(0deg)" },
           {
-            transform: "translate(calc(var(--kinetic-shimmy-offset) * -1), var(--kinetic-shimmy-y)) rotate(-30deg)",
+            transform: "translate(calc(var(--spacing-kinetic-shimmy-offset) * -1), var(--spacing-kinetic-shimmy-y)) rotate(-30deg)",
           },
           {
-            transform: "translate(var(--kinetic-shimmy-offset), calc(var(--kinetic-shimmy-y) * -1)) rotate(30deg)",
+            transform: "translate(var(--spacing-kinetic-shimmy-offset), calc(var(--spacing-kinetic-shimmy-y) * -1)) rotate(30deg)",
           },
           { transform: "translate(0, 0) rotate(0deg)" },
         ],
@@ -145,7 +145,7 @@ export function pulse(node) {
         return_anim.cancel();
         return_anim = null;
       }
-      const baseDuration = resolve_ms("--duration-ambient", 1000, node);
+      const baseDuration = resolve_ms("--duration-(--duration-ambient)", 1000, node);
       const animation = target.animate(
         [
           { transform: "scale(1)", offset: 0 },
@@ -167,8 +167,8 @@ export function pulse(node) {
     onStop: (target, currentAnimation) => {
       if (currentAnimation) {
         currentAnimation.cancel();
-        const duration = resolve_ms("--duration-fast", 250, node);
-        const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
+        const duration = resolve_ms("--duration-(--duration-fast)", 250, node);
+        const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
         return_anim = target.animate([{ transform: "scale(1)" }], { duration, easing });
         return_anim.onfinish = () => {
           return_anim = null;
@@ -280,12 +280,12 @@ roll.is_kinetic = true;
 export function stab(node) {
   return createKineticAction(node, {
     animate: (target, intensity) => {
-      const baseDuration = resolve_ms("--duration-slow", 500, node);
-      const easing = resolve_string("--ease-out", "cubic-bezier(0, 0, 0.2, 1)", node);
+      const baseDuration = resolve_ms("--duration-(--duration-slow)", 500, node);
+      const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
       const animation = target.animate(
         [
           { transform: "translateX(0)", offset: 0 },
-          { transform: "translateX(var(--kinetic-stab-distance))", offset: 0.2 },
+          { transform: "translateX(var(--spacing-kinetic-stab-distance))", offset: 0.2 },
           { transform: "translateX(0)", offset: 1 },
         ],
         {

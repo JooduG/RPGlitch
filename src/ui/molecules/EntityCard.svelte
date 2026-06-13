@@ -63,7 +63,7 @@
 
   // --- DERIVATIONS & COMPATIBILITY ---
   let is_empty = $derived(!entity);
-  let signature_color = $derived(get_signature_color(entity, variant === "library" ? undefined : "var(--gunmetal)"));
+  let signature_color = $derived(get_signature_color(entity, variant === "library" ? undefined : "var(--color-gunmetal)"));
   let name = $derived(entity?.name || "Untitled");
   let a11y_label = $derived(is_empty ? `Select ${role_label}` : `Change ${role_label}`);
 
@@ -179,10 +179,10 @@
     after:transition-all
     after:duration-300
     after:ease-in-out
-    hover:scale-(--scale-lift)
-    hover:brightness-(--brightness-glow)
-    active:scale-(--scale-sink)
-    active:brightness-(--brightness-dim)
+    hover:scale-lift
+    hover:brightness-glow
+    active:scale-sink
+    active:brightness-dim
 
     {disabled
     ? `
@@ -201,7 +201,7 @@
     `
     : `
       hover:border-(--signature-color)
-      hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
+      hover:shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
 
       hover:after:border-(--signature-color,var(--color-slate-50))
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
@@ -221,14 +221,14 @@
     : ''}
     {variant === 'library' ? 'backdrop-blur-none' : 'backdrop-blur-md'}
   "
-  class:w-[calc(var(--storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
-  class:h-[calc(var(--storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
-  class:w-[var(--storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
-  class:h-[var(--storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
-  class:w-[calc(var(--storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
-  class:h-[calc(var(--storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
-  class:w-[var(--storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
-  class:h-[var(--storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
+  class:w-[calc(var(--spacing-storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
+  class:h-[calc(var(--spacing-storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
+  class:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
+  class:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
+  class:w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
+  class:h-[calc(var(--spacing-storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
+  class:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
+  class:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   role="button"
@@ -372,13 +372,13 @@
           text-sm
           leading-snug
           tracking-wide
-          text-shadow-[var(--spacing-pixel)_var(--spacing-pixel)_0_var(--void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--void-black)]
+          text-shadow-[var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black)]
         `
         : `
           text-[clamp(1rem,12cqi,1.5rem)]
           leading-tight
           tracking-widest
-          [text-shadow:var(--spacing-pixel)_var(--spacing-pixel)_0_var(--void-black),calc(-1*var(--spacing-pixel))_var(--spacing-pixel)_0_var(--void-black),var(--spacing-pixel)_calc(-1*var(--spacing-pixel))_0_var(--void-black),calc(-1*var(--spacing-pixel))_calc(-1*var(--spacing-pixel))_0_var(--void-black),0_0_calc(var(--spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.4)]
+          [text-shadow:var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.4)]
         `}
         {is_empty
         ? `
@@ -427,29 +427,29 @@
     {/if}
   </div>
 
-  <nav
-    class="
+  {#if !is_empty && variant === "panel"}
+    <nav
+      class="
       pointer-events-auto
       invisible
       absolute
       top-2
       right-2
       z-50
+      flex
       -translate-y-1
       opacity-0
       transition-all
       duration-300
       ease-in-out
 
-      {variant === 'panel' ? 'flex' : 'hidden'}
-
       group-hover:visible
       group-hover:translate-y-0
       group-hover:opacity-100
     "
-  >
-    <Button
-      class="
+    >
+      <Button
+        class="
         flex
         h-12
         w-12
@@ -458,20 +458,21 @@
         rounded-full
         p-0
       "
-      actions={[[tooltip, { text: `View ${entity?.name || name} Profile` }]]}
-      variant="secondary"
-      aria-label="View {entity?.name || name} Profile"
-      onclick={(/** @type {MouseEvent} */ e) => {
-        e.stopPropagation();
-        view_profile_handler();
-      }}
-      tabindex="-1"
-    >
-      <svg viewBox="0 0 24 24" class="size-(--icon-medium)">
-        <path d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14" />
-      </svg>
-    </Button>
-  </nav>
+        actions={[[tooltip, { text: `View ${entity?.name || name} Profile` }]]}
+        variant="secondary"
+        aria-label="View {entity?.name || name} Profile"
+        onclick={(/** @type {MouseEvent} */ e) => {
+          e.stopPropagation();
+          view_profile_handler();
+        }}
+        tabindex="-1"
+      >
+        <svg viewBox="0 0 24 24" class="size-icon-medium">
+          <path d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14" />
+        </svg></Button
+      >
+    </nav>
+  {/if}
 </div>
 
 <style>
@@ -483,15 +484,15 @@
     }
 
     40% {
-      transform: scale(1.04) translateY(calc(var(--spacing-unit) * -3));
+      transform: scale(1.04) translateY(calc(var(--spacing-spacing-unit) * -3));
       filter: brightness(1.15);
     }
 
     100% {
-      transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
+      transform: scale(1.02) translateY(calc(var(--spacing-spacing-unit) * -2));
       box-shadow:
-        0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6) rgb(from var(--color-neutral-900) r g b / 0.5),
-        0 0 calc(var(--spacing-unit) * 4) rgb(from var(--signature-color) r g b / var(--opacity-whisper));
+        0 calc(var(--spacing-spacing-unit) * 4) calc(var(--spacing-spacing-unit) * 6) rgb(from var(--color-neutral-900) r g b / 0.5),
+        0 0 calc(var(--spacing-spacing-unit) * 4) rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     }
   }
 </style>

@@ -99,10 +99,10 @@
       meter-label
       z-10
       mb-2
+      font-mono
       text-[10px]
-      font-(--font-family-mono)
       tracking-widest
-      text-(--electric-cyan)
+      text-electric-cyan
       uppercase
       transition-[filter,opacity]
       duration-150
@@ -125,8 +125,8 @@
     "
   >
     {#if is_editing}
-      <Button flank={true} size="small" square class="hover:text-(--electric-cyan)" onclick={decrease} aria-label="Decrease">
-        <svg viewBox="0 0 24 24" class="size-(--icon-small)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <Button flank={true} size="small" square class="hover:text-electric-cyan" onclick={decrease} aria-label="Decrease">
+        <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M5 12h14" />
         </svg>
       </Button>
@@ -140,8 +140,8 @@
           bg-transparent
           py-1
           text-center
+          font-mono
           text-base
-          font-(--font-family-mono)
           text-slate-50
           outline-none
           [&::-webkit-inner-spin-button]:appearance-none
@@ -153,13 +153,13 @@
         max="100"
       />
 
-      <Button flank={true} size="small" square class="hover:text-(--electric-cyan)" onclick={increase} aria-label="Increase">
-        <svg viewBox="0 0 24 24" class="size-(--icon-small)" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <Button flank={true} size="small" square class="hover:text-electric-cyan" onclick={increase} aria-label="Increase">
+        <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M12 5v14M5 12h14" />
         </svg>
       </Button>
     {:else}
-      <span class="meter-value py-1 text-base font-(--font-family-mono) text-slate-50">
+      <span class="meter-value py-1 font-mono text-base text-slate-50">
         {value}%
       </span>
     {/if}
@@ -179,14 +179,14 @@
         h-px
         w-full
         overflow-hidden
-        bg-(--electric-cyan)/10
+        bg-electric-cyan/10
       "
     >
       <div
         class="
           h-full
-          bg-(--electric-cyan)
-          shadow-[0_0_8px_var(--electric-cyan)]
+          bg-electric-cyan
+          shadow-[0_0_8px_var(--color-electric-cyan)]
           transition-[width]
           duration-150
           ease-in-out

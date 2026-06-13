@@ -82,7 +82,8 @@ function buildJsBridge(flat_data) {
         .forEach(([name, value]) => {
           acc.tokens[name] = value;
           if (category === "colors" && typeof value === "string" && value.startsWith("#")) {
-            const label = name
+            const cleanName = name.startsWith("color-") ? name.slice(6) : name;
+            const label = cleanName
               .split("-")
               .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
               .join(" ");
@@ -127,7 +128,7 @@ export function syncToCss() {
   const css_header = `/* ============================================================================
  * [GENERATED] src/media/design.css
  * DO NOT EDIT DIRECTLY. Sovereign Source: DESIGN.md
- * ============================================================================ */\n\n@import "tailwindcss";\n\n:root {`;
+ * ============================================================================ */\n\n@import "tailwindcss";\n\n@theme {`;
 
   const css_properties = AUTHORITATIVE_CATEGORIES.map((category) => {
     const category_header = `  /* --- ${category.toUpperCase()} --- */`;

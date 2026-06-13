@@ -28,7 +28,7 @@
   });
 </script>
 
-<main class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden" data-view={app.view}>
+<main class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left" data-view={app.view}>
   <div class="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
@@ -40,9 +40,7 @@
     ></div>
 
     <div
-      class="pointer-events-none fixed -inset-5 z-(--z-index-max) bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating'
-        ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
-        : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-(--opacity-ghost)'}"
+      class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating' ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]' : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
       style:animation-play-state={motion.isReduced ? "paused" : "running"}
     ></div>
   </div>
@@ -93,8 +91,8 @@
     position: absolute;
     inset: 0;
     background-image:
-      radial-gradient(circle at 15% 50%, var(--background-gradient-1), transparent 50%), radial-gradient(circle at 85% 30%, var(--background-gradient-2), transparent 50%), radial-gradient(circle at 50% 80%, var(--background-gradient-3), transparent 50%),
-      radial-gradient(circle at 50% 10%, var(--background-gradient-4), transparent 50%);
+      radial-gradient(circle at 15% 50%, var(--color-background-gradient-1), transparent 50%), radial-gradient(circle at 85% 30%, var(--color-background-gradient-2), transparent 50%), radial-gradient(circle at 50% 80%, var(--color-background-gradient-3), transparent 50%),
+      radial-gradient(circle at 50% 10%, var(--color-background-gradient-4), transparent 50%);
     background-size: cover;
     background-attachment: fixed;
     background-repeat: no-repeat;
@@ -127,8 +125,8 @@
     position: fixed;
     inset: 0;
     margin: auto;
-    width: var(--grid-width);
-    height: var(--grid-height);
+    width: var(--spacing-grid-width);
+    height: var(--spacing-grid-height);
     display: grid;
     grid-template-columns:
       [col-a] 1fr [col-b] 1fr [col-c] 1fr [col-d] 1fr [col-e] 1fr [col-f] 1fr
@@ -139,8 +137,8 @@
     pointer-events: none;
     z-index: var(--z-index-max);
     opacity: var(--opacity-whisper);
-    border: var(--spacing-pixel) dashed var(--frozen);
-    background-image: radial-gradient(circle at 0 0, var(--frozen) calc(var(--spacing-unit) / 2), transparent calc(var(--spacing-unit) / 2 + var(--spacing-pixel)));
+    border: var(--spacing-spacing-pixel) dashed var(--color-frozen);
+    background-image: radial-gradient(circle at 0 0, var(--color-frozen) calc(var(--spacing-spacing-unit) / 2), transparent calc(var(--spacing-spacing-unit) / 2 + var(--spacing-spacing-pixel)));
     background-size: calc(100% / 12) calc(100% / 12);
     background-repeat: repeat;
   }
@@ -151,14 +149,14 @@
   }
 
   [data-dev="grid"] [data-axis="col"] {
-    border-left: var(--spacing-pixel) solid var(--frozen);
+    border-left: var(--spacing-spacing-pixel) solid var(--color-frozen);
     height: 100%;
     grid-row: 1 / -1;
     position: relative;
   }
 
   [data-dev="grid"] [data-axis="row"] {
-    border-top: var(--spacing-pixel) solid var(--frozen);
+    border-top: var(--spacing-spacing-pixel) solid var(--color-frozen);
     width: 100%;
     grid-column: 1 / -1;
     position: relative;
@@ -166,22 +164,22 @@
 
   [data-dev="grid"] [data-label] {
     position: absolute;
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-nano);
-    color: var(--frozen);
-    background: var(--void-black);
-    padding: 0 var(--padding-tight);
+    font-family: var(--font-mono);
+    font-size: var(--text-nano);
+    color: var(--color-frozen);
+    background: var(--color-void-black);
+    padding: 0 var(--spacing-padding-tight);
     opacity: var(--opacity-whisper);
   }
 
   [data-dev="grid"] [data-label="col"] {
-    top: calc(var(--spacing-unit) * 2);
-    left: calc(var(--spacing-unit) * 2);
+    top: calc(var(--spacing-spacing-unit) * 2);
+    left: calc(var(--spacing-spacing-unit) * 2);
     text-transform: uppercase;
   }
 
   [data-dev="grid"] [data-label="row"] {
-    left: calc(var(--spacing-unit) * 2);
-    top: calc(var(--spacing-unit) * 2);
+    left: calc(var(--spacing-spacing-unit) * 2);
+    top: calc(var(--spacing-spacing-unit) * 2);
   }
 </style>

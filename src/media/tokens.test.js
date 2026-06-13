@@ -10,17 +10,17 @@ describe("Tokens Color Generation", () => {
     test("returns hex value for entity with signature_color", () => {
       const entity = { signature_color: "Electric Cyan" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--electric-cyan)");
+      expect(result).toBe("var(--color-electric-cyan)");
     });
     test("returns hex value for entity with pink signature_color", () => {
       const entity = { signature_color: "Hot Pink" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--hot-pink)");
+      expect(result).toBe("var(--color-hot-pink)");
     });
     test("returns hex value for entity with emerald signature_color", () => {
       const entity = { signature_color: "Emerald Green" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--emerald-green)");
+      expect(result).toBe("var(--color-emerald-green)");
     });
   });
   describe("Deterministic color generation fallback", () => {
@@ -67,9 +67,9 @@ describe("Tokens Color Generation", () => {
       const problematic_seeds = ["test9", "test20", "admin", "system"];
       for (const seed of problematic_seeds) {
         const color = get_deterministic_color(seed);
-        expect(color).not.toBe("var(--pure-white)");
-        expect(color).not.toBe("var(--void-black)");
-        expect(color).not.toBe("var(--chalk)");
+        expect(color).not.toBe("var(--color-pure-white)");
+        expect(color).not.toBe("var(--color-void-black)");
+        expect(color).not.toBe("var(--color-chalk)");
         expect(color).not.toMatch(/background-gradient/);
       }
     });

@@ -10,7 +10,7 @@
   import { ENTITY_FRAGMENTS, NAME_PREFIXES } from "@intelligence";
 
   // --- PROP MATRIX BOUNDARIES ---
-  let { name = $bindable(""), description = $bindable(""), is_editing = false, active_field = "", on_focus_field = () => {}, signature_color = "var(--frozen)", class: className = "" } = $props();
+  let { name = $bindable(""), description = $bindable(""), is_editing = false, active_field = "", on_focus_field = () => {}, signature_color = "var(--color-frozen)", class: className = "" } = $props();
 
   // --- INTERACTIVE SYSTEM RUNES ---
   /** @type {HTMLInputElement | undefined} */
@@ -47,7 +47,7 @@
 <header
   class="
     flex
-    min-h-(--font-size-h3)
+    min-h-(--text-h3)
     w-full
     min-w-0
     shrink-0
@@ -71,9 +71,9 @@
           relative
           flex
           w-(--state-fill-end)
-          rounded-(--radius-standard)
+          rounded-standard
           border-transparent
-          bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--glass-sunken))]
+          bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--color-glass-sunken))]
           transition-[border-color,box-shadow,background]
           duration-(--duration-fast)
           ease-(--ease-standard)
@@ -82,19 +82,19 @@
           before:inset-0
           before:rounded-[inherit]
           before:mask-border-solid
-          before:p-(--spacing-pixel)
-          before:opacity-(--opacity-whisper)
+          before:p-spacing-pixel
+          before:opacity-whisper
           before:transition-opacity
           before:duration-(--duration-standard)
           before:content-['']
           before:[background:linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
           focus-within:border-transparent
-          focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
-          focus-within:before:opacity-(--opacity-solid)
+          focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
+          focus-within:before:opacity-solid
           focus-within:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
           data-[expanded=true]:border-transparent
-          data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
-          data-[expanded=true]:before:opacity-(--opacity-solid)
+          data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
+          data-[expanded=true]:before:opacity-solid
           data-[expanded=true]:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
         "
         data-expanded={active_field === "name"}
@@ -110,8 +110,8 @@
             bg-transparent
             p-4
             text-left
-            font-(family-name:--font-family-heading)
-            text-(length:--font-size-h3)
+            font-heading
+            text-h3
             font-extrabold
             tracking-normal
             outline-none
@@ -139,12 +139,13 @@
   {#if is_editing}
     <div
       class="
+        before:p-spacing-pixel
         relative
         flex
         w-(--state-fill-end)
-        rounded-(--radius-standard)
+        rounded-standard
         border-transparent
-        bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--glass-sunken))]
+        bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--color-glass-sunken))]
         transition-[border-color,box-shadow,background]
         duration-(--duration-fast)
         ease-(--ease-standard)
@@ -153,19 +154,18 @@
         before:inset-0
         before:rounded-[inherit]
         before:mask-border-solid
-        before:p-(--spacing-pixel)
-        before:opacity-(--opacity-whisper)
+        before:opacity-whisper
         before:transition-opacity
         before:duration-(--duration-standard)
         before:content-['']
         before:[background:linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
         focus-within:border-transparent
-        focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
-        focus-within:before:opacity-(--opacity-solid)
+        focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
+        focus-within:before:opacity-solid
         focus-within:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
         data-[expanded=true]:border-transparent
-        data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--glass-sunken))]
-        data-[expanded=true]:before:opacity-(--opacity-solid)
+        data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
+        data-[expanded=true]:before:opacity-solid
         data-[expanded=true]:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
       "
       data-expanded={active_field === "description"}
@@ -174,8 +174,8 @@
         class="
           z-20
           m-0
-          max-h-[calc(var(--row-unit)*4)]
-          min-h-(--row-unit)
+          max-h-[calc(var(--spacing-row-unit)*4)]
+          min-h-row-unit
           w-full
           resize-none
           [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)]
@@ -184,7 +184,7 @@
           p-4
           text-left
           font-sans
-          text-(length:--font-size-base)
+          text-base
           leading-normal
           [text-wrap:auto]
           text-slate-50
@@ -192,9 +192,9 @@
           placeholder:text-slate-600
           placeholder:italic
           placeholder:opacity-30
-          [&::-webkit-scrollbar]:h-(--scrollbar-width)
-          [&::-webkit-scrollbar]:w-(--scrollbar-width)
-          [&::-webkit-scrollbar-thumb]:rounded-(--radius-standard)
+          [&::-webkit-scrollbar]:h-scrollbar-width
+          [&::-webkit-scrollbar]:w-scrollbar-width
+          [&::-webkit-scrollbar-thumb]:rounded-standard
 
           [&::-webkit-scrollbar-thumb]:bg-(--scrollbar-thumb)
           hover:[&::-webkit-scrollbar-thumb]:bg-(--scrollbar-thumb-hover)
@@ -214,7 +214,7 @@
         rounded-md
         text-right
         font-sans
-        text-(length:--font-size-base)
+        text-base
         leading-normal
         text-balance
         whitespace-pre-wrap

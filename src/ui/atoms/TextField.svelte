@@ -172,7 +172,7 @@
       opacity-60
       transition-[height,opacity,background]
       duration-300
-      ease-out
+      ease-(--ease-out)
 
       {no_background ? 'hidden!' : ''}
       {!is_expanded ? 'h-2' : 'h-6 border-b border-solid border-white/10 opacity-100!'}"

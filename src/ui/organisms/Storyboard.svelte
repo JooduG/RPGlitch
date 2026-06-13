@@ -41,7 +41,7 @@
         [view-transition-name:entity-morph-ai]
       "
     >
-      {@render Slot("ai", app.selected_ai, "AI Character", "var(--storyboard-character-card-width)", "var(--storyboard-character-card-height)")}
+      {@render Slot("ai", app.selected_ai, "AI Character", "var(--spacing-storyboard-character-card-width)", "var(--spacing-storyboard-character-card-height)")}
     </div>
   {/snippet}
 
@@ -56,7 +56,7 @@
         [view-transition-name:entity-morph-fractal]
       "
     >
-      {@render Slot("fractal", app.selected_fractal, "Fractal", "var(--storyboard-fractal-card-width)", "var(--storyboard-fractal-card-height)")}
+      {@render Slot("fractal", app.selected_fractal, "Fractal", "var(--spacing-storyboard-fractal-card-width)", "var(--spacing-storyboard-fractal-card-height)")}
     </div>
   {/snippet}
 
@@ -71,7 +71,7 @@
         [view-transition-name:entity-morph-user]
       "
     >
-      {@render Slot("user", app.selected_user, "User Persona", "var(--storyboard-character-card-width)", "var(--storyboard-character-card-height)")}
+      {@render Slot("user", app.selected_user, "User Persona", "var(--spacing-storyboard-character-card-width)", "var(--spacing-storyboard-character-card-height)")}
     </div>
   {/snippet}
 

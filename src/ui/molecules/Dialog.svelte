@@ -46,8 +46,8 @@
   };
 
   const offset = resolve_px("--spacing-5", 20);
-  const duration_in = resolve_ms("--duration-standard", 350);
-  const duration_out = resolve_ms("--duration-fast", 250);
+  const duration_in = resolve_ms("--duration-(--duration-standard)", 350);
+  const duration_out = resolve_ms("--duration-(--duration-fast)", 250);
 </script>
 
 <svelte:window
@@ -74,19 +74,19 @@
                   class="
                     pointer-events-auto
                     relative
-                    z-(--z-index-max)
+                    z-max
                     flex
                     w-[90vw]
                     cursor-default
                     flex-col
                     justify-between
-                    gap-(--gap-standard)
+                    gap-gap-standard
                     overflow-hidden
-                    rounded-(--radius-standard)
+                    rounded-standard
                     border
-                    border-[color-mix(in_srgb,var(--frozen)_10%,transparent)]
-                    bg-(--glass-elevated)
-                    p-(--padding-standard)
+                    border-[color-mix(in_srgb,var(--color-frozen)_10%,transparent)]
+                    bg-glass-elevated
+                    p-padding-standard
                     [backdrop-filter:var(--blur-mist)]
                     transition-[filter]
                     duration-300
@@ -99,7 +99,7 @@
                     before:opacity-10
                     before:mix-blend-overlay
 
-                    sm:w-(--modal-width-thin)
+                    sm:w-modal-width-thin
 
                     {busy ? 'pointer-events-none cursor-wait brightness-75 grayscale' : ''}"
                   in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
@@ -110,12 +110,12 @@
                   </AlertDialog.Title>
 
                   <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0">
-                    <p class="m-0 text-base leading-relaxed whitespace-pre-wrap text-(--frozen)">
+                    <p class="m-0 text-base leading-relaxed whitespace-pre-wrap text-frozen">
                       {message}
                     </p>
                   </AlertDialog.Description>
 
-                  <footer class="flex justify-end gap-(--gap-standard)">
+                  <footer class="flex justify-end gap-gap-standard">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
                         <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />

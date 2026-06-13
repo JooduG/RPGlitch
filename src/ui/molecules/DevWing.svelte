@@ -56,10 +56,10 @@
     flex
     w-full
     flex-col
-    gap-(--gap-standard)
-    rounded-(--radius-standard)
-    bg-(--glass-elevated)
-    p-(--padding-standard)
+    gap-gap-standard
+    rounded-standard
+    bg-glass-elevated
+    p-padding-standard
     [backdrop-filter:var(--blur-mist)]
   "
 >
@@ -89,8 +89,8 @@
       <summary
         class="
           cursor-pointer
+          font-mono
           text-[10px]
-          font-(--font-family-mono)
           tracking-widest
           text-cyan-400
           uppercase
@@ -101,8 +101,8 @@
           hover:brightness-125
         ">View JSON Data</summary
       >
-      <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
-        <pre class="font-(--font-family-mono)">{JSON.stringify(profileState.char, null, 2)}</pre>
+      <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
+        <pre class="font-mono">{JSON.stringify(profileState.char, null, 2)}</pre>
       </DataBox>
     </details>
   </div>
@@ -120,8 +120,8 @@
         flex
         justify-between
         gap-4
+        font-mono
         text-[10px]
-        font-(--font-family-mono)
         tracking-widest
         uppercase
       "
@@ -139,8 +139,8 @@
         flex
         justify-between
         gap-4
+        font-mono
         text-[10px]
-        font-(--font-family-mono)
         tracking-widest
         uppercase
       "
