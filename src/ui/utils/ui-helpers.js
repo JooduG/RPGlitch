@@ -320,21 +320,20 @@ export const mockPlugins = () => {
   const w = /** @type {any} */ (window);
   if (!w["pluginAi"]) w["pluginAi"] = async () => "Mock AI Response";
   if (!w["pluginTextToImage"]) w["pluginTextToImage"] = async () => "https://via.placeholder.com/512x768";
-  if (!w["pluginRemember"]) w["pluginRemember"] = { get: () => null, set: () => {} };
-  if (!w["pluginSuperFetch"]) w["pluginSuperFetch"] = async () => ({ text: async () => "" });
   if (!w["pluginUpload"]) w["pluginUpload"] = async () => "https://via.placeholder.com/150";
 };
 
+import { rpgLists } from "@data/perchance-lists.js";
+
 /**
- * Safely accesses Perchance lists injected from the Left Panel.
+ * Safely accesses Perchance lists.
  * Handles both raw arrays and stringified JSON arrays.
  * @param {string} key
  * @returns {any[]}
  */
 export const getRpgList = (key) => {
-  const w = /** @type {any} */ (window);
-  if (typeof window !== "undefined" && w.rpgLists && w.rpgLists[key]) {
-    let list = w.rpgLists[key];
+  if (rpgLists && rpgLists[key]) {
+    let list = rpgLists[key];
     // Check if the first element is a stringified JSON array (Perchance quirk)
     if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
       if (list[0].length > 65536) {

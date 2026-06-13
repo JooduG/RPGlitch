@@ -8,16 +8,7 @@ import DOMPurify from "dompurify";
 // 🚑 EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
 // Must happen BEFORE any other code runs
 Object.assign(window, { Dexie, DOMPurify });
-// [DEV] Mock rpgLists for local development to bypass 5s bootstrap timeout
-const win = /** @type {any} */ (window);
-if (!win.rpgLists) {
-  win.rpgLists = {
-    sounds: [],
-    voices: [],
-    themes: [],
-  };
-  console.info("[Engine] Injected mock rpgLists for local dev.");
-}
+// [DEV] Mock environment setups (if needed in future)
 // 🚀 BOOTSTRAP
 import { AppBootstrap } from "@engine";
 AppBootstrap.init().then(() => {
