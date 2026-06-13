@@ -223,8 +223,8 @@
       items-center
       {app.control_panel_open ? 'justify-end' : 'justify-center'}
       bg-glass-elevated
-      [backdrop-filter:var(--blur-mist)]
-      shadow-2xl shadow-black/50
+      shadow-2xl
+      shadow-black/50 [backdrop-filter:var(--blur-mist)]
       transition-all
       duration-500
       ease-in-out
