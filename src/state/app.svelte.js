@@ -100,6 +100,7 @@ export class AppStore {
   });
   // --- NARRATIVE CONFIG ---
   prologue = $state(""); // Starting directions/context
+  story_title = $state(""); // Synchronized generated or custom title
   /** @type {SimulationControl} */
   simulation = {
     get loading() {

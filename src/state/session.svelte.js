@@ -45,7 +45,7 @@ export class ReactiveSession {
     app.simulation.loading = true;
 
     try {
-      const story_title = `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
+      const story_title = app.story_title || `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
       // 1. Create Core Session
       const story_id = await session_driver.create_from_selection({
         ai_id: selection.ai.id,

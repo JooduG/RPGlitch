@@ -95,6 +95,13 @@
     return [{ text: "Your story begins here..." }];
   });
 
+  $effect(() => {
+    app.story_title = title_parts
+      .map((p) => p.text)
+      .join("")
+      .trim();
+  });
+
   // ============================================
   // HANDLERS
   // ============================================

@@ -6,7 +6,7 @@
    */
   import { ImagePreview, Tooltip } from "@atoms";
   import { motion } from "@motion";
-  import { ControlPanel, Profile, Storyboard, Storymode } from "@organisms";
+  import { Profile, Storyboard, Storymode } from "@organisms";
   import { app } from "@state";
 
   // --- DERIVED RUNES ---
@@ -57,10 +57,6 @@
 
   {#if app.profile_open}
     <Profile entity_type={app.profile_target_type} />
-  {/if}
-
-  {#if app.control_panel_open}
-    <ControlPanel />
   {/if}
 </main>
 

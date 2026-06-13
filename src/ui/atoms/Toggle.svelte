@@ -145,7 +145,7 @@
         font-bold
         tracking-widest
         whitespace-nowrap
-        text-(--signature-color,#555d66)
+        text-slate-400
         uppercase
         transition-[color,filter]
         duration-300
