@@ -255,19 +255,28 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 
 /**
  * ENHANCEMENT PROMPT
- * @param {{ label: string, directive: string, enhancer: string, content: string }} params
+ * @param {{ label: string, directive: string, enhancer: string, content: string, is_image_field?: boolean }} params
  */
-function render_enhancement({ label, directive, enhancer, content }) {
+function render_enhancement({ label, directive, enhancer, content, is_image_field = false }) {
+  const protocols = is_image_field
+    ? prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE")
+    : prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION");
+
+  const imageBlock = is_image_field
+    ? `\n<FORMAT>Output comma-separated visual tokens suitable for FLUX diffusion models. No prose. No sentences. No narrative language.</FORMAT>`
+    : "";
+
   const labelSafe = escapeXml(label || "");
   const roleSafe = escapeXml(enhancer || "GENERAL");
+
   return `
 <SYSTEM role="${roleSafe}" enhancing="${labelSafe}">
 <INSTRUCTIONS>
 ${escapeXml(directive)}
 </INSTRUCTIONS>
 <PROTOCOLS>
-${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION")}
-</PROTOCOLS>
+${protocols}
+</PROTOCOLS>${imageBlock}
 <INPUT_CONTENT>
 ${escapeXml(content)}
 </INPUT_CONTENT>
@@ -282,7 +291,8 @@ ${escapeXml(content)}
  */
 const PROTOCOL_LIBRARY = {
   IDENTITY: "Resolve all state inferences strictly within the active <YOUR_IDENTITY> block.",
-  USER_AGENCY: "Never write dialogue, actions, or thoughts for the User. Treat their motives as entirely opaque.",
+  USER_AGENCY:
+    "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
   IMMERSION: "Render spatial coordinates and convey emotion strictly through physical behavior.",
   COGNITION:
     "Begin your response with <think> in zh-CN. Map environmental geometry and spatial proximity first. CRITICAL: zh-CN is strictly forbidden outside of the think block; it is your internal cognitive language only.",
@@ -543,7 +553,7 @@ export const prompt_builder = {
    * @param {string} [entity_name]
    * @param {string} [entity_type]
    */
-  build_enhancement(field_id, content, entity_name = "", entity_type = "character") {
+  build_enhancement(field_id, content, entity_name = "", entity_type = "character", is_image_field = false) {
     const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
     const typeKey = `${resolvedType}.${field_id}`;
 
@@ -560,6 +570,7 @@ export const prompt_builder = {
         label: entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
+        is_image_field,
       }),
       messages: [],
     };

@@ -127,7 +127,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Body & Form",
         directive:
-          "Focus exclusively on unalterable physical architecture: skeletal frame, facial morphology, eye attributes, baseline hair traits, skin texture, and permanent body markings. Target length: 50-150 words.",
+          "Write comma-separated visual descriptors optimized for photorealistic image generation. Describe: body type (e.g. 'muscular athletic build, broad shoulders, defined chest'), facial features (jaw shape, brow, nose, lips), eye color and shape, skin tone and texture, hair color/length/cut, height impression, any distinctive permanent markings. Use concrete adjectives only. DO NOT write sentences or prose — output comma-separated tokens only. 40-80 words.",
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
@@ -160,7 +160,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
-          "Focus exclusively on transient state layers: active attire, garment textiles, fit, and current physical posture. Incorporate environmental weathering or fabric damage only when explicitly provided in the input source. Target length: 30-80 words.",
+          "Write comma-separated visual tokens describing current appearance for image generation. Specify: each clothing item by name and material (e.g. 'unbuttoned dark denim shirt, white cotton undershirt'), colors, fit (tight/loose/open), visible skin exposure, and current physical posture. Use specific material names. DO NOT write sentences. Output comma-separated tokens only. 30-60 words.",
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {

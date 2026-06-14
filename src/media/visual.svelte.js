@@ -5,7 +5,7 @@
  */
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
-import { CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
+import { AestheticResolver, CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
 
@@ -62,9 +62,7 @@ export class VisualEngine {
         /** @type {any} */
         const entity = await this._resolveEntity(entityId);
 
-        // PRIORITY: Use user-edited prompt if available.
-        // Fallback to name ONLY for the engine's final generation path.
-        finalPrompt = entity.modifiers?.prompt || entity.name;
+        finalPrompt = entity.modifiers?.prompt || AestheticResolver.extract(entity) || entity.name;
 
         /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
       } else {
@@ -213,7 +211,9 @@ export class VisualEngine {
 
       if (!refined) return { imageUrl: null, refinedPrompt: null };
 
-      const cleanPrompt = this._cleanPrompt(refined?.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<image_prompt[^>]*>|<\/image_prompt>/gi, ""));
+      const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
+      const extracted = match?.[1] || refined || "";
+      const cleanPrompt = this._cleanPrompt(extracted.replace(/<think>[\s\S]*?<\/think>/gi, ""));
 
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
       return { imageUrl, refinedPrompt: cleanPrompt };

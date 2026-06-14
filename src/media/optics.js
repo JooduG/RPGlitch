@@ -6,7 +6,7 @@
  */
 
 export const NEGATIVE_PROMPT =
-  "cartoon, anime, 3d render, illustration, painting, drawing, sketch, watermark, text, signature, low quality, blurry, deformed, mutated, extra limbs, missing limbs, fused fingers, distorted face, amateur, grainy, pixelated";
+  "anime, manga, cartoon, illustrated, digital painting, concept art, cgi, 3d render, 3d model, stylized, fantasy art, comic book, animated, toon shading, cel shading, furry, anthro, anthropomorphic, unrealistic proportions, doll, figure, toy, drawing, sketch, watercolor, oil painting, low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur";
 
 import { escapeXml } from "@intelligence/parser.js";
 import { get_signature_label } from "@media";
@@ -31,7 +31,7 @@ export const AestheticResolver = {
      */
     const presets = {
       portrait:
-        "Photorealistic portrait shot on Hasselblad H6D-100c, 80mm f/1.9 lens, vogue magazine cover, natural skin blemishes, golden ratio composition, 8k resolution, Cinematic portrait, shallow depth of field, sharp focus on eyes, hyper-detailed textures, atmospheric studio lighting, volumetric shadows, composition focusing on silhouette and style.",
+        "RAW photograph, photorealistic, real person, professional portrait photography, Hasselblad H6D-100c, 85mm f/1.8 lens, natural skin texture, visible skin pores, film grain, shallow depth of field, sharp focus on eyes, dramatic studio lighting, volumetric light, natural color grading, high-end editorial photography",
       landscape:
         "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution, wide angle view, dramatic scope, cinematic atmosphere, high-fidelity textures.",
       macro:
@@ -64,24 +64,32 @@ export const PromptTemplates = {
   /**
    * Refines raw description into dense visual tokens.
    */
-  ENHANCE: (/** @type {string} */ text) =>
-    `
-<system_prompt>
-You are an expert Cinematography Director. Your task is to translate a rough visual description into a single, cohesive, highly descriptive paragraph engineered for the FLUX diffusion model.
-<constraints>
-- Output EXACTLY ONE continuous, grammatically correct paragraph. Do not include introductory text, conversational filler, or markdown code blocks in your final output.
-- Begin the paragraph by establishing the medium, camera framing, and lens type (e.g., "A cinematic film still captured on 35mm lens, medium shot...").
-- Use explicit spatial prepositions to anchor attributes tightly to their nouns (e.g., "A man wearing a dark leather jacket standing beside a neon sign," NOT "man, leather jacket, neon sign").
-- Group descriptive adjectives immediately adjacent to their specific nouns to prevent visual bleeding or attribute mixing.
-- Strictly ban quality buzzwords such as "photorealistic," "hyperrealistic," "ultra HD," or "4K." Define high fidelity purely through tangible, physical elements (e.g., "subtle skin pores," "sharp focus," "natural film grain").
-- Exclude all first-person language, character names, unrenderable psychological states, and narrative backstory.
-- Sequence the description rigidly: 1. Medium & Camera Setup -> 2. Primary Subject -> 3. Physical Features & Expressions -> 4. Garments & Material Textures -> 5. Environmental Setting & Background Objects -> 6. Atmospheric Lighting & Color Palette.
-</constraints>
-<draft_description>
+  ENHANCE: (text) =>
+    `You are a professional image prompt engineer. Your task is to convert a visual character description into an optimized prompt for the FLUX diffusion model.
+
+OUTPUT FORMAT: A single line of comma-separated visual tokens. NOT prose. NOT sentences.
+
+MANDATORY TOKEN SEQUENCE:
+1. Medium anchor: begin with "RAW photograph of a man," or "photorealistic portrait of a man,"
+2. Physical build: body type, musculature, height impression
+3. Face: jaw, brow, eyes (color + shape), nose, lips, stubble/beard if applicable
+4. Hair: color, length, cut style
+5. Skin: tone, texture (e.g. "olive skin, visible pores, natural sheen")
+6. Clothing: each item by name, material, color, fit
+7. Setting: minimal background context
+8. Camera + lighting: lens type, focal length, lighting setup, color grade
+9. Realism anchors: end with "photorealistic, natural skin texture, professional photography"
+
+STRICT RULES:
+- NEVER use: anime, illustrated, digital art, painterly, stylized, ethereal, otherworldly, radiant, glowing
+- NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece, best quality
+- Use only physically grounded, photographable descriptors
+- If input contains non-photographic language, translate it to its photographic equivalent
+
+Input description:
 ${escapeXml(text)}
-</draft_description>
-</system_prompt>
-`.trim(),
+
+Output only the token string. No preamble, no explanation.`.trim(),
 
   /**
    * Builds the final system prompt for context-aware generation.
@@ -113,8 +121,11 @@ ${ctxBlock}
 Convert intent into a single impactful image prompt.
 Input Intent: "${escapeXml(rawIntent)}"
 [PROTOCOL]
-1. Start with <think> for composition planning.
+1. Use <think> in zh-CN for composition planning.
 2. Output exactly one <image_prompt> tag.
+3. The image_prompt MUST start with "RAW photograph of" and use comma-separated tokens, NOT prose.
+4. NEVER use anime, illustrated, digital art, or painterly language.
+5. End every prompt with: "photorealistic, real person, professional photography"
 `.trim();
   },
 };
