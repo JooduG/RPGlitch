@@ -253,7 +253,7 @@
           text-(length:--font-size-base)
           leading-normal
           text-pretty
-          text-slate-50
+          text-white
           outline-none
           focus:outline-none
           {busy ? 'cursor-wait' : ''}"
@@ -282,7 +282,7 @@
                   <strong
                     class="
                       font-extrabold
-                      text-white
+                      text-(--state-dev-accent)
                     ">{token.content}</strong
                   >
                 {:else if token.type === "em"}
@@ -296,7 +296,7 @@
                   <strong
                     class="
                       font-extrabold
-                      text-white
+                      text-(--state-dev-accent)
                     "
                     ><em
                       class="
@@ -305,6 +305,8 @@
                       ">{token.content}</em
                     ></strong
                   >
+                {:else if token.type === "quote"}
+                  <span class="text-[1.05em]">"{token.content}"</span>
                 {/if}
               {/each}
             </p>

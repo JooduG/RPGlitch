@@ -243,7 +243,17 @@ export const DYNAMICS = {
     effect: {
       affinity: -10,
       intensity: 10,
-      text: "You don't believe them. Scale defensiveness inverse to Openness; high Openness breeds natural bonding.",
+      text: "Trust is broken. Treat every statement with suspicion. Deflect with cold precision and scale your defensiveness inverse to Openness.",
+    },
+  },
+  SNAP: {
+    id: "SNAP",
+    trigger: [{ scan: "hostility", pattern: /attack|strike|hit|threat|violence|hurt|kill/i }],
+    filter: { below: { openness: 20 } },
+    effect: {
+      affinity: -15,
+      intensity: 20,
+      text: "An overt threat has been perceived while defenses are completely raised. Escalate into an immediate, cold defensive retaliation.",
     },
   },
 };
@@ -304,7 +314,7 @@ export const dynamics_engine = {
     // 2. PHYSICS PASS: Baseline settlement and Threshold laws (Flags only)
     const ents = Object.keys(state).filter((k) => state[k]?.dynamics);
     ents.forEach((key) => {
-      dynamics_engine._process_entity_dynamics(state[key].dynamics, dynamics_engine._get_baselines(state[key]), matches, state);
+      dynamics_engine._process_entity_dynamics(state[key].dynamics, dynamics_engine._get_baselines(state[key]), matches, state, state[key]);
     });
     // 3. NARRATIVE PASS: Environmental prompts
     dynamics_engine.dynamics_narrative(state, matches);
@@ -389,7 +399,8 @@ export const dynamics_engine = {
     if (!filter) return true;
     const above_ok = Object.entries(filter.above || {}).every(([axis, limit]) => d[axis] > limit);
     const below_ok = Object.entries(filter.below || {}).every(([axis, limit]) => d[axis] < limit);
-    return above_ok && below_ok;
+    const between_ok = Object.entries(filter.between || {}).every(([axis, [lo, hi]]) => d[axis] >= lo && d[axis] <= hi);
+    return above_ok && below_ok && between_ok;
   },
 
   /**
@@ -412,11 +423,12 @@ export const dynamics_engine = {
    * @param {DynamicsState} _state
    */
 
-  _process_entity_dynamics(d, baselines, _matches, _state) {
+  _process_entity_dynamics(d, baselines, _matches, _state, entity) {
     // 1. Gravity Pull
     Object.keys(d).forEach((axis) => {
       const target = baselines[axis] ?? 50;
-      d[axis] += (target - d[axis]) * 0.25;
+      const gravity = entity?.dynamics_config?.gravity ?? 0.1; // Fallback default altered to 0.1
+      d[axis] += (target - d[axis]) * gravity;
     });
     // 2. Settlement
     Object.keys(d).forEach((axis) => (d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))));

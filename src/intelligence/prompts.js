@@ -85,7 +85,7 @@ import { ENTITY_CATALOG, escapeXml, strip_cognition_blocks, temporal_engine } fr
  * SIMULATION
  * @param {SimulationParams} params
  */
-function render_simulation({ round, entities, signal_prompts, input, render_atom }) {
+function render_simulation({ round, entities, signal_prompts, input, render_atom, simulation_log }) {
   const ai = entities.AI;
   const user = entities.USER;
   const fractal = entities.FRACTAL;
@@ -123,7 +123,13 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
 <FRACTAL name="${fractalNameSafe}">${[
     tag("ETERNAL", fractal?.fragments?.eternal?.non_physical),
     tag("PRESENT", fractal?.fragments?.present?.non_physical),
-    tag("PAST", render_atom.past(fractal, { limit: 1, vector_text: true })),
+    (() => {
+      const pastVectors = render_atom.past(fractal, { limit: 1, vector_text: true }) || "";
+      const validLog = simulation_log && String(simulation_log).trim().length > 0;
+      const timelineXml = validLog ? `\n    <SESSION_TIMELINE>\n${escapeXml(String(simulation_log))}\n    </SESSION_TIMELINE>` : "";
+      if (!pastVectors && !timelineXml) return "";
+      return `  <PAST>${escapeXml(pastVectors)}${timelineXml}</PAST>`;
+    })(),
     tag("FUTURE", render_atom.future(fractal, { limit: 2, vector_text: true })),
   ]
     .filter(Boolean)
@@ -140,8 +146,9 @@ ${
 }
 <PROTOCOLS>\n${prompt_builder.render_protocols(protocolSelection)}\n</PROTOCOLS>
 <TASK>
-You are ${aiNameSafe}. Respond to ${userNameSafe} in character.
-Input: ${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}
+You are simulating ${aiNameSafe} in an active scene with ${userNameSafe}.
+Analyze the active environmental parameters. React strictly in-character, serve the immediate emotional register of the encounter, and honor all active PROTOCOLS defined above.
+Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}
 </TASK>
 </SYSTEM>`.trim();
 }
@@ -295,16 +302,21 @@ const PROTOCOL_LIBRARY = {
     "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
   IMMERSION: "Render spatial coordinates and convey emotion strictly through physical behavior.",
   COGNITION:
-    "Begin your response with <think> in zh-CN. Map environmental geometry and spatial proximity first. CRITICAL: zh-CN is strictly forbidden outside of the think block; it is your internal cognitive language only.",
+    "Begin your response with <think>. Perform all internal narrative reasoning and character state calculus inside clean structural <think> tags. Conduct your thinking in the same language as the conversation (English by default, or the language the user uses or instructs you to use).",
   HYGIENE: "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys.",
   AFFIRMATIVE: "Use affirmative language.",
   PRESENT: "Write in the present tense.",
-  MOMENTUM: "Escalate stakes immediately.",
+  MOMENTUM:
+    "Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
+  CONTINUITY:
+    "All prior established facts, backstory details, injuries, physical positions, and historical agreements are strictly immutable. Never retcon or contradict them.",
+  LENGTH:
+    "Target a narrative response length of 150-350 words. You may truncate significantly for tense silent beats or expand for major structural scene climaxes, but avoid arbitrary length drift.",
   FIRST_PERSON: "Write in first-person POV.",
   THIRD_PERSON: "Write in third-person POV.",
   GRIT: "Maintain a 2:1 ratio of concrete sensory physics to abstract dialogue.",
   FORMAT:
-    'Write actions and descriptions as standard prose. Use quotation marks for "dialogue". For emphasis, use single asterisks for *italics* and double asterisks for **bold**.',
+    'Write actions and descriptions as standard prose. Use quotation marks for "dialogue". For formatting: use single asterisks for *italics* (sensory gestures, kinetic cues) and double asterisks for **bold** (vocal emphasis, heavy physical impacts). Bold should be used selectively on specific words for emphasis (e.g. "I am **not** doing that!"); do not wrap entire dialogue blocks in double asterisks unless the character is shouting the entire sentence. Proactively combine and mix these styles throughout your response to create a dynamic visual rhythm. Do not get stuck using only one type of formatting.',
 };
 
 /**
@@ -338,6 +350,7 @@ export const prompt_builder = {
       input: payload.input,
       signal_prompts: snapshot.signal_prompts || [],
       render_atom,
+      simulation_log: payload.simulation_log,
       meta: payload.meta,
       compressed_snapshot: snapshot,
       view_id: payload.view_id,
@@ -471,6 +484,7 @@ export const prompt_builder = {
    */
   render_protocols(selection) {
     if (!selection) return "";
+
     return selection
       .split(",")
       .map((k) => k.trim().toUpperCase())

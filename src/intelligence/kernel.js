@@ -378,11 +378,13 @@ export const gamemaster = {
   async execute_with_retry(fn, retries = 3, delay = 1000) {
     try {
       return await fn();
-    } catch (err) {
-      if (retries <= 0) throw err;
+    } catch (error) {
+      if (retries === 0) throw error;
       app.log(`gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
       await new Promise((resolve) => setTimeout(resolve, delay));
-      return await this.execute_with_retry(fn, retries - 1, delay * 2);
+      const baseDelay = delay * 2;
+      const jitteredSleepTime = baseDelay * (0.75 + Math.random() * 0.5);
+      return await this.execute_with_retry(fn, retries - 1, jitteredSleepTime);
     }
   },
 };

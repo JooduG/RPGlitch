@@ -35,11 +35,11 @@ import { app } from "@state";
 export function sanitize_llm(text) {
   if (!text) return "";
 
-  // 1. Strip deep-think blocks to prevent Context Window collapse
-  const sanitized = strip_cognition_blocks(text);
-
-  // 2. Clean standard AI filler and artifacts
-  return sanitized
+  // 1. Clean standard AI filler and artifacts
+  // Note: We intentionally DO NOT strip cognition blocks here so they can be
+  // saved to the database and rendered in DevMode.
+  // _format_history() handles stripping them for the context window.
+  return text
     .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
     .replace(/^["']|[ "']$/g, "")
     .replace(/^\s*```.*?[\r\n]/gm, "")
@@ -239,28 +239,20 @@ export const llm_service = {
   },
 
   /**
+   * Centralized mock message generator for Local Dev & Control Panel tests.
+   */
+  get_mock_message: () => {
+    return `<think>Here's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
+  },
+
+  /**
    * Local Dev/Test mock generation driver to simulate stream rendering.
    * @param {any} payload
    * @param {any} options
    * @returns {Promise<string>}
    */
   _mock_generate: async (payload, options = {}) => {
-    let text;
-    const is_prologue = payload.system?.toLowerCase().includes("prologue") || payload.role === "fractal";
-    const is_epilogue = payload.system?.toLowerCase().includes("epilogue");
-    const is_enhance = payload.system?.toLowerCase().includes("enhance") || payload.system?.toLowerCase().includes("first-person");
-
-    if (is_prologue) {
-      text =
-        "<think>评估：已成功加载场景 [Ashen Weald]。空气中弥漫着古老誓言的冰冷回响。环境熵值：67。</think>The dark canopy of the **Ashen Weald** stretches endlessly overhead. A cold, damp wind rustles through the skeletal trees, carrying the faint, metallic scent of iron. A path lies before you, swallowed by shadow. **Choose your first step.**";
-    } else if (is_epilogue) {
-      text =
-        "The simulation cycle reaches its inevitable conclusion. The feedback loop stabilizes. The screen flickers, then fades to a calm, subterranean gray. **Simulation terminated.**";
-    } else if (is_enhance) {
-      text = "Manifested from cold steel and ancient memory, carrying the quiet weight of subterranean light and absolute mechanical focus.";
-    } else {
-      text = `<think>评估：输入接收成功。心理轴线：分析性阻尼。强度：50。</think>The air grows heavy as the wind dies down. A low hum vibrates through the floorboards. "I hear your plea," a voice whispers from the dark, shifting contours. **What is your next move?**`;
-    }
+    const text = llm_service.get_mock_message();
 
     const chunkSize = 4;
     let index = 0;
@@ -310,7 +302,9 @@ export const llm_service = {
       if (m.role === "system") continue;
 
       const label = m.character_name || (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
-      const text = m.content || m.text || "";
+      const text = strip_cognition_blocks(m.content || m.text || "").trim();
+      if (!text) continue;
+
       if (collapsed.length > 0 && collapsed[collapsed.length - 1].label === label) {
         collapsed[collapsed.length - 1].text += `\n\n${text}`;
       } else {

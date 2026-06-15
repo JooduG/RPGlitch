@@ -122,7 +122,6 @@
         z-0
         w-[70%]
         rounded-[inherit]
-        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
         bg-cover
         bg-center
         opacity-15
@@ -140,7 +139,7 @@
         `
         : ''}
       "
-      style="background-image: url({story.fractal_profile_picture})"
+      style="mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%); background-image: url({story.fractal_profile_picture})"
     ></div>
   {:else}
     <div
@@ -153,7 +152,6 @@
         z-0
         w-[70%]
         rounded-[inherit]
-        mask-[linear-gradient(to_left,black_0%,black_20%,transparent_100%)]
         opacity-15
         transition-all
         duration-150
@@ -169,7 +167,7 @@
         `
         : ''}
       "
-      style="background-color: var(--signature-color)"
+      style="mask-image: linear-gradient(to left, black 0%, black 20%, transparent 100%); background-color: var(--signature-color)"
     ></div>
   {/if}
 </div>

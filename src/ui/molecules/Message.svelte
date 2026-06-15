@@ -7,7 +7,7 @@
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
-  import { typewriter } from "@motion";
+  import { Typewriter } from "@motion";
   import { app, runtime } from "@state";
   import { TELEMETRY_TYPES } from "@engine";
 
@@ -57,6 +57,8 @@
   // --- STATE RUNES ---
   let isFocused = $state(false);
   let local_text = $state("");
+  let is_typing_finished = $state(false);
+  let was_streaming = $state(false);
 
   // --- DERIVATIONS & RECONCILIATIONS ---
   let is_user = $derived(sender === "user");
@@ -89,6 +91,9 @@
   let parsed = $derived(parse_message(text));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
+
+  let is_streaming_target = $derived(!!(app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)));
+  let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));
 
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
   let clean_markdown = $derived(clean_image_prompts(strip_cognition_blocks(text)).trim());
@@ -154,6 +159,12 @@
   $effect(() => {
     if (is_editing) {
       local_text = clean_markdown;
+    }
+  });
+
+  $effect(() => {
+    if (is_streaming_target) {
+      was_streaming = true;
     }
   });
 </script>
@@ -424,39 +435,58 @@
 
       <!-- CARD BODY -->
       <div class="relative p-4">
-        {#if app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)}
+        {#if app.settings.dev_mode && think_block}
+          <DataBox label="Thoughts" isCode={false} class="mb-4">
+            <div
+              class="
+                text-left
+                text-sm
+                leading-relaxed
+                text-pretty
+                text-slate-300
+
+                [&_em]:italic
+                [&_em]:opacity-75
+
+                [&_p]:mb-4
+                [&_p:last-child]:mb-0
+                [&_strong]:font-bold
+              "
+            >
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              {@html think_block}
+            </div>
+          </DataBox>
+        {/if}
+        {#if should_use_typewriter}
           <div
             class="
               text-left
               text-base
               leading-relaxed
               text-pretty
-              text-slate-100
+              text-white
 
-              [&_em]:text-slate-400
+              [&_.dialogue]:text-[1.12em]
+              [&_.dialogue]:font-medium
+
               [&_em]:italic
-              [&_em]:opacity-80
+              [&_em]:opacity-75
 
               [&_p]:mb-4
               [&_p:last-child]:mb-0
-
               [&_strong]:font-bold
+
               [&_strong]:text-(--signature-color,var(--color-slate-400))
               [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
             "
           >
             {#if has_display_text}
-              <div use:typewriter={display_text}></div>
+              <Typewriter targetHtml={display_text} bind:isFinished={is_typing_finished} />
             {/if}
           </div>
         {:else}
           {#if app.settings.dev_mode}
-            {#if think_block}
-              <DataBox label="⚙️ DevMode: Reasoning" class="mb-4">
-                {think_block}
-              </DataBox>
-            {/if}
-
             {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
               <div class="mb-4">
                 <DevTelemetryBlock {meta} />
@@ -507,11 +537,14 @@
                   text-base
                   leading-relaxed
                   text-pretty
-                  text-slate-100
+                  text-white
 
-                  [&_em]:text-slate-400
+                  [&_.dialogue]:text-[1.12em]
+                  [&_.dialogue]:font-medium
+                  [&_.dialogue]:[text-shadow:0_0_1px_rgba(255,255,255,0.1)]
+
                   [&_em]:italic
-                  [&_em]:opacity-80
+                  [&_em]:opacity-75
 
                   [&_p]:mb-4
                   [&_p:last-child]:mb-0

@@ -193,6 +193,8 @@ export const context_broker = {
           const fld = /** @type {"physical"|"non_physical"} */ (field);
           if (fragments[l][fld] === "") {
             fragments[l][fld] = f.text;
+          } else {
+            fragments[l][fld] += `\n${f.text}`;
           }
         }
       });
@@ -324,7 +326,7 @@ export const context_broker = {
 
             if (keywords.length > 0) {
               // If at least 3 significant keywords (or all if < 3) are found, consider it matched
-              const match_threshold = Math.min(3, keywords.length);
+              const match_threshold = Math.min(2, keywords.length);
 
               let matched_count = 0;
               for (const k of keywords) {

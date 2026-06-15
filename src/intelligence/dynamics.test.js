@@ -35,9 +35,9 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       const triggered = dynamics_engine.dynamics_scan("I run towards the exit");
       dynamics_engine.simulation_dynamics(state, prevState, triggered);
       // 70 + 10 (KINETICS reflex) = 80
-      // Gravity: (50 - 80) * 0.25 = -7.5
-      // 80 - 7.5 = 72.5 -> Round to 73
-      expect(state.ai.dynamics.intensity).toBe(73);
+      // Gravity: (50 - 80) * 0.1 = -3
+      // 80 - 3 = 77
+      expect(state.ai.dynamics.intensity).toBe(77);
       expect(state.signal_prompts.some((/** @type {string} */ i) => i.includes("high-adrenaline"))).toBe(true);
       expect(state.signals.ADRENALINE).toBe(true);
     });
@@ -46,26 +46,26 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       const triggered = dynamics_engine.dynamics_scan("I punch him in the face");
       dynamics_engine.simulation_dynamics(state, null, triggered);
       // 50 + 15 (VIOLENCE) = 65
-      // Gravity: (50 - 65) * 0.25 = -3.75
-      // 65 - 3.75 = 61.25 -> Round to 61
-      expect(state.ai.dynamics.intensity).toBe(61);
+      // Gravity: (50 - 65) * 0.1 = -1.5
+      // 65 - 1.5 = 63.5 -> Round to 64
+      expect(state.ai.dynamics.intensity).toBe(64);
       expect(state.ai.dynamics.chaos).toBe(50);
-      expect(state.ai.dynamics.openness).toBe(43); // 50 - 10 = 40. Gravity: 40 + (50-40)*.25 = 42.5 -> 43
+      expect(state.ai.dynamics.openness).toBe(41); // 50 - 10 = 40. Gravity: 40 + (50-40)*0.1 = 41 -> 41
     });
     it("should trigger Passive Natural Force (INTENSITY_AUTO_LOCK)", () => {
       const state = createBaseState();
       state.ai.dynamics.intensity = 95; // Above 90  triggers PHYSICS LAW threshold
       dynamics_engine.simulation_dynamics(state, null, []);
       // Law: Intensity > 90 -> Openness -10
-      // Openness: 50 - 10 = 40. Gravity: 40 + (50-40)*.25 = 42.5 -> 43
-      expect(state.ai.dynamics.openness).toBe(43);
+      // Openness: 50 - 10 = 40. Gravity: 40 + (50-40)*0.1 = 41 -> 41
+      expect(state.ai.dynamics.openness).toBe(41);
     });
     it("should pull toward entity custom dynamics_baseline if present", () => {
       const state = createBaseState();
       state.ai.dynamics_baseline = { intensity: 70, chaos: 30, openness: 28, affinity: 40 };
       dynamics_engine.simulation_dynamics(state, null, []);
-      // Openness: 50. Baseline: 28. Gravity: 50 + (28 - 50) * 0.25 = 50 - 5.5 = 44.5 -> 45
-      expect(state.ai.dynamics.openness).toBe(45);
+      // Openness: 50. Baseline: 28. Gravity: 50 + (28 - 50) * 0.1 = 50 - 2.2 = 47.8 -> 48
+      expect(state.ai.dynamics.openness).toBe(48);
     });
   });
   describe("Simulation Orchestration", () => {
@@ -85,7 +85,7 @@ describe("Dynamics Engine v2 (Refactored)", () => {
         },
       };
       const snapshot = dynamics_engine.simulate(payload);
-      expect(snapshot.ai.dynamics.intensity).toBe(73);
+      expect(snapshot.ai.dynamics.intensity).toBe(77);
       expect(snapshot.signal_prompts.length).toBeGreaterThan(0);
     });
   });
@@ -137,16 +137,16 @@ describe("Dynamics Engine v2 (Refactored)", () => {
             effect: {
               affinity: -10,
               intensity: 10,
-              text: "You don't believe them.",
+              text: "Trust is broken. Treat every statement with suspicion. Deflect with cold precision and scale your defensiveness inverse to Openness.",
             },
           },
         },
       ]);
       dynamics_engine.simulation_dynamics(state, null, triggered);
-      expect(state.ai.dynamics.openness).toBe(20);
-      expect(state.ai.dynamics.intensity).toBe(58);
-      expect(state.ai.dynamics.affinity).toBe(43);
-      expect(state.signal_prompts.some((/** @type {string} */ p) => p.includes("You don't believe them"))).toBe(true);
+      expect(state.ai.dynamics.openness).toBe(14);
+      expect(state.ai.dynamics.intensity).toBe(59);
+      expect(state.ai.dynamics.affinity).toBe(41);
+      expect(state.signal_prompts.some((/** @type {string} */ p) => p.includes("Trust is broken"))).toBe(true);
     });
   });
   describe("Trigger Matching & Semantic Grouping", () => {

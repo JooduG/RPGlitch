@@ -50,9 +50,14 @@
       window.clearTimeout(timer);
       timer = null;
     }
-    tooltip_state.active = false;
-    tooltip_state.text = null;
-    tooltip_state.target = null;
+    // Defer state mutation to avoid Svelte 5 state_unsafe_mutation.
+    // DOM removal during unmount can trigger synchronous `mouseout` or `blur` events,
+    // which execute this function while Svelte is in the middle of a reactive teardown.
+    setTimeout(() => {
+      tooltip_state.active = false;
+      tooltip_state.text = null;
+      tooltip_state.target = null;
+    }, 0);
   }
 
   /**
@@ -113,7 +118,9 @@
           node.setAttribute("title", node.dataset.tooltipTitle);
           delete node.dataset.tooltipTitle;
         }
-        if (tooltip_state.target === node) hide_tooltip();
+        if (tooltip_state.target === node) {
+          hide_tooltip();
+        }
       },
     };
   }
@@ -147,7 +154,7 @@
                     group
                     pointer-events-none
                     relative
-                    z-999
+                    z-max
                     flex
                     flex-col
                     items-center

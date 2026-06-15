@@ -13,7 +13,7 @@ export function parse_markdown(text) {
     let normalized = p.replace(/\n/g, " ");
     /** @type {any[]} */
     let tokens = [];
-    const regex = /\*\*\*([\s\S]+?)\*\*\*|\*\*([\s\S]+?)\*\*|\*([\s\S]+?)\*/g;
+    const regex = /\*\*\*([\s\S]+?)\*\*\*|\*\*([\s\S]+?)\*\*|\*([\s\S]+?)\*|"([^"]+)"/g;
     let lastIndex = 0;
     let match;
     while ((match = regex.exec(normalized)) !== null) {
@@ -29,6 +29,8 @@ export function parse_markdown(text) {
         tokens.push({ type: "strong", content: match[2] });
       } else if (match[3] !== undefined) {
         tokens.push({ type: "em", content: match[3] });
+      } else if (match[4] !== undefined) {
+        tokens.push({ type: "quote", content: match[4] });
       }
       lastIndex = match.index + match[0].length;
     }

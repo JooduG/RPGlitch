@@ -4,6 +4,7 @@
  * Handles: Think blocks, Image prompts, and Markdown.
  */
 import MarkdownIt from "markdown-it";
+import { sanitize } from "@platform";
 
 const md = new MarkdownIt({
   html: false,
@@ -79,6 +80,52 @@ export function clean_image_prompts(text) {
   return result;
 }
 /**
+ * Stateful parser to wrap text inside double quotes with a `<span class="dialogue">` tag.
+ * Preserves inner HTML tags (like `<em>`) by splitting the HTML and only running quote
+ * replacement on text nodes. Converts straight quotes to curly smart quotes.
+ * @param {string} html
+ * @returns {string}
+ */
+export function wrap_dialogue(html) {
+  if (!html) return "";
+  const parts = html.split(/(<[^>]+>)/);
+  let inQuote = false;
+
+  for (let i = 0; i < parts.length; i++) {
+    if (parts[i].startsWith("<")) {
+      continue;
+    }
+
+    // Normalize escaped double quotes inside text nodes
+    const text = parts[i].replace(/&quot;/g, '"');
+    let newText = "";
+    let lastIndex = 0;
+
+    for (let j = 0; j < text.length; j++) {
+      if (text[j] === '"') {
+        newText += text.substring(lastIndex, j);
+        if (!inQuote) {
+          newText += '<span class="dialogue">&ldquo;';
+          inQuote = true;
+        } else {
+          newText += "&rdquo;</span>";
+          inQuote = false;
+        }
+        lastIndex = j + 1;
+      }
+    }
+    newText += text.substring(lastIndex);
+    parts[i] = newText;
+  }
+
+  let result = parts.join("");
+  if (inQuote) {
+    result += "</span>";
+  }
+  return result;
+}
+
+/**
  * Master parser that runs all passes.
  * @param {string|null|undefined} rawText
  * @returns {{ displayText: string, think: string|null, sceneData: object|null }}
@@ -91,11 +138,16 @@ export function parse_message(rawText) {
   text = thinkResult.content;
 
   // 3. Render Markdown
-  const rendered = md.render(text).trim();
+  let rendered = sanitize(md.render(text).trim());
+
+  // 4. Wrap Dialogue Quotes
+  rendered = wrap_dialogue(rendered);
+
+  let rendered_think = thinkResult.think ? sanitize(md.render(thinkResult.think).trim()) : null;
 
   return {
     displayText: rendered,
-    think: thinkResult.think,
+    think: rendered_think,
   };
 }
 
@@ -126,7 +178,9 @@ export function escapeXml(str) {
 export function clean_text(text, limit = 500) {
   if (!text) return "";
   const clean = text
-    .replace(/[*_#>`-]/g, "")
+    .replace(/^#{1,6}\s/gm, "")
+    .replace(/^[>-]\s/gm, "")
+    .replace(/[*_]{1,2}([^*_]+)[*_]{1,2}/g, "$1")
     .replace(/\s+/g, " ")
     .trim();
   return clean.length > limit ? clean.substring(0, limit) + "..." : clean;

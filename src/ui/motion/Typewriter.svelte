@@ -26,6 +26,7 @@
     showCursor = false,
     blinkCursor = true,
     cursorStyle = "line",
+    isFinished = $bindable(false),
   } = $props();
 
   // --- UNIFIED REACTIVE TRACKERS ---
@@ -127,9 +128,12 @@
 
       // Inherited smart-acceleration matrix for chat streams
       const remaining = totalLength - currentCharIndex;
-      let baseSpeed = 0.02;
-      if (remaining > 150) baseSpeed = 0.06;
-      else if (remaining > 50) baseSpeed = 0.04;
+      let baseSpeed = 0.02; // Default typing speed
+      if (remaining > 300)
+        baseSpeed = 0.3; // Catching up (fast forward)
+      else if (remaining > 150) baseSpeed = 0.15;
+      else if (remaining > 50) baseSpeed = 0.08;
+      else if (remaining < 15) baseSpeed = 0.01; // Almost caught up to stream (slow down)
 
       const intensity = motion.isReduced ? 0 : motion.intensity;
       const voiceRateFactor = Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
@@ -159,15 +163,30 @@
 
   // Clear timeline counters cleanly whenever content data strings alter
   let lastText = "";
+
+  /**
+   * Normalize text to detect clean appends during stream generation.
+   * Strips HTML tags, markdown formatting markers, and collapses whitespace.
+   * @param {string} val
+   * @returns {string}
+   */
+  function normalize(val) {
+    return val
+      .replace(/<[^>]*>/g, "")
+      .replace(/[*_`~"“”'‘’]/g, "")
+      .replace(/&[a-z0-9]+;/gi, "")
+      .replace(/\s+/g, " ")
+      .trim();
+  }
+
   $effect(() => {
     const currentText = wordsToAnimate.join("||");
 
-    // Strip HTML tags to accurately detect text appends during markdown streaming updates
-    const cleanCurrent = currentText.replace(/<[^>]*>/g, "");
-    const cleanLast = lastText.replace(/<[^>]*>/g, "");
-    const isAppend = cleanLast && cleanCurrent.startsWith(cleanLast);
+    const cleanCurrent = normalize(currentText);
+    const cleanLast = normalize(lastText);
+    const isAppend = cleanLast && (cleanCurrent.startsWith(cleanLast) || cleanCurrent.length >= cleanLast.length);
 
-    if (!isAppend) {
+    if (!isAppend && lastText !== "") {
       currentCharIndex = 0;
       currentWordIndex = 0;
       phase = "typing";
@@ -203,7 +222,9 @@
         if (phase === "typing") {
           if (currentCharIndex < totalLengthRaw) {
             currentCharIndex = Math.min(totalLengthRaw, currentCharIndex + elapsed * activeSpeedRaw);
+            if (isFinished) isFinished = false;
           } else {
+            if (!isFinished && !hasMultipleWordsRaw && !loop) isFinished = true;
             if (hasMultipleWordsRaw || loop) {
               phase = "pause";
               pauseAccumulator = 0;

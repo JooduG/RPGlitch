@@ -44,7 +44,9 @@ describe("prompt_builder (Refactored)", () => {
 
     it("render_protocols() should return bulleted list of defined protocols", () => {
       const result = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
-      expect(result).toContain("- Escalate stakes immediately.");
+      expect(result).toContain(
+        "- Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
+      );
       expect(result).toContain("- Omit all preambles, greetings, or structural commentary. Start prose immediately.");
     });
   });
@@ -181,7 +183,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("STYLE: Grit");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).toContain("<TASK>");
-      expect(result.system).toContain("Input: Check the console.");
+      expect(result.system).toContain("Input parameter from user: Check the console.");
 
       // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();
