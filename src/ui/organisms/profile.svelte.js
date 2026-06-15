@@ -6,6 +6,7 @@ import { get_value, set_value } from "@utils";
 import { db, normalize } from "@data";
 import { generateUUID } from "@engine";
 import { prompt_builder } from "@intelligence";
+import { strip_cognition_blocks } from "@intelligence/parser.js";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
 import { SvelteSet } from "svelte/reactivity";
@@ -160,9 +161,12 @@ export class ProfileState {
     this.busy_fields.add(key);
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = prompt_builder.build_enhancement(key, value, this.char.name || "", type);
+      const payload = prompt_builder.build_enhancement(key, value, this.char.name || "", type, false, this.char);
       const result = await llm_service.enhance(payload);
-      if (result) set_value(this.char, key, result);
+      if (result) {
+        const clean_result = strip_cognition_blocks(result).trim();
+        set_value(this.char, key, clean_result);
+      }
     } catch (err) {
       console.error("Enhance failed:", err);
     } finally {

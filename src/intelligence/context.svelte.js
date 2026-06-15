@@ -10,6 +10,9 @@
  * @property {string} section
  * @property {string} [layer]
  * @property {number} [hit]
+ * @property {number} [score]
+ * @property {number} [emotional_weight]
+ * @property {number} [density_multiplier]
  *
  * 🔌 CONTEXT BROKER    The State Adapter & Document Assembler
  *
@@ -81,12 +84,15 @@ function to_data_points(entity) {
     let val = get_path_value(entity, fieldId);
 
     if (val && typeof val === "string") {
+      const isEternal = metadata.layer_key?.toLowerCase() === "eternal";
       list.push({
         text: clean_text(val, 2000),
         type: metadata.label ?? "unknown",
         enhancer: metadata.enhancer ?? "SYSTEM",
         section: metadata.section_label || "Present",
         layer: metadata.layer_key,
+        emotional_weight: metadata.emotional_weight ?? (isEternal ? 10 : 5),
+        density_multiplier: metadata.density_multiplier ?? 1.0,
       });
     }
   });
@@ -369,17 +375,27 @@ export const context_broker = {
 
     if (keywords.length === 0) return data_points;
 
-    // Schwartzian transform: decorate-sort-undecorate
-    // This caches the lowercase text and the hit status once per data point,
-    // avoiding repeated O(N) operations during the sort comparisons.
     return data_points
       .map((dp) => {
         const text = (dp?.text || "").toLowerCase();
         const layer = (dp?.layer || "").toLowerCase();
-        const hit = layer === "eternal" || keywords.some((/** @type {string} */ k) => text.includes(k));
-        return { dp, hit: hit ? 1 : 0 };
+
+        let hitCount = 0;
+        for (const k of keywords) {
+          const regex = new RegExp(k.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&"), "g");
+          const matches = text.match(regex);
+          if (matches) hitCount += matches.length;
+        }
+
+        const emotional_weight = dp.emotional_weight ?? (layer === "eternal" ? 10 : 5);
+        const density_multiplier = dp.density_multiplier ?? 1.0;
+
+        let score = hitCount * density_multiplier + emotional_weight;
+        if (layer === "eternal") score += 1000;
+
+        return { dp, score };
       })
-      .sort((a, b) => b.hit - a.hit)
+      .sort((a, b) => b.score - a.score)
       .map((d) => d.dp);
   },
 };

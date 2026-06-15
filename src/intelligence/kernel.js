@@ -31,7 +31,7 @@ import { app, runtime, simulationState } from "@state";
  * @returns {{ text: string; violated: boolean }}
  */
 function validate_and_repair_response(response) {
-  const result = { text: response || "", violated: false, refused: false };
+  const result = { text: response || "", violated: false, refused: false, structural_repair: false };
   if (Security.checkRefusal(response)) {
     result.refused = true;
     return result;
@@ -44,6 +44,7 @@ function validate_and_repair_response(response) {
     const thinkCloser = /<\/think>/i;
     if (thinkOpener.test(text) && !thinkCloser.test(text)) {
       text += "</think>";
+      result.structural_repair = true;
     }
 
     // CHINESE BLEED PARSING: Isolate narrative prose from think blocks
@@ -186,6 +187,8 @@ export const gamemaster = {
           character_name: m.character_name,
         }));
       const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
+      payload.meta = payload.meta || {};
+      payload.meta.structural_errors = runtime.structural_errors || 0;
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
       const snapshot = dynamics_engine.simulate(payload);
 
@@ -264,6 +267,11 @@ export const gamemaster = {
 
       // 6.5. POST-GENERATION PIPELINE: Isolated validation, telemetry, and state sync
       // validationResult is generated within the retry loop
+      if (validationResult.violated || validationResult.structural_repair) {
+        runtime.structural_errors = (runtime.structural_errors || 0) + 1;
+      } else {
+        runtime.structural_errors = Math.max(0, (runtime.structural_errors || 0) - 1);
+      }
 
       // 7. PERSISTENCE: Save the result
       const character_name = role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
@@ -271,6 +279,7 @@ export const gamemaster = {
       if (validationResult.violated) {
         final_meta.sino_logic_violation = true;
       }
+      final_meta.structural_errors = runtime.structural_errors; // Expose updated count in returned meta
 
       await session_driver.log_turn(validationResult.text, character_name, role, {
         id: nodeId,

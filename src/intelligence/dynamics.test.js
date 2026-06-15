@@ -36,8 +36,9 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       dynamics_engine.simulation_dynamics(state, prevState, triggered);
       // 70 + 10 (KINETICS reflex) = 80
       // Gravity: (50 - 80) * 0.1 = -3
-      // 80 - 3 = 77
-      expect(state.ai.dynamics.intensity).toBe(77);
+      // 80 - 3 = 77 (with random variance 76-78)
+      expect(state.ai.dynamics.intensity).toBeGreaterThanOrEqual(76);
+      expect(state.ai.dynamics.intensity).toBeLessThanOrEqual(78);
       expect(state.signal_prompts.some((/** @type {string} */ i) => i.includes("high-adrenaline"))).toBe(true);
       expect(state.signals.ADRENALINE).toBe(true);
     });
@@ -47,10 +48,13 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       dynamics_engine.simulation_dynamics(state, null, triggered);
       // 50 + 15 (VIOLENCE) = 65
       // Gravity: (50 - 65) * 0.1 = -1.5
-      // 65 - 1.5 = 63.5 -> Round to 64
-      expect(state.ai.dynamics.intensity).toBe(64);
+      // 65 - 1.5 = 63.5 -> Round to 64 (with random variance 63-65)
+      expect(state.ai.dynamics.intensity).toBeGreaterThanOrEqual(63);
+      expect(state.ai.dynamics.intensity).toBeLessThanOrEqual(65);
       expect(state.ai.dynamics.chaos).toBe(50);
-      expect(state.ai.dynamics.openness).toBe(41); // 50 - 10 = 40. Gravity: 40 + (50-40)*0.1 = 41 -> 41
+      // 50 - 10 = 40. Gravity: 40 + (50-40)*0.1 = 41 -> 41 (with variance 40-42)
+      expect(state.ai.dynamics.openness).toBeGreaterThanOrEqual(40);
+      expect(state.ai.dynamics.openness).toBeLessThanOrEqual(42);
     });
     it("should trigger Passive Natural Force (INTENSITY_AUTO_LOCK)", () => {
       const state = createBaseState();
@@ -58,14 +62,16 @@ describe("Dynamics Engine v2 (Refactored)", () => {
       dynamics_engine.simulation_dynamics(state, null, []);
       // Law: Intensity > 90 -> Openness -10
       // Openness: 50 - 10 = 40. Gravity: 40 + (50-40)*0.1 = 41 -> 41
-      expect(state.ai.dynamics.openness).toBe(41);
+      expect(state.ai.dynamics.openness).toBeGreaterThanOrEqual(40);
+      expect(state.ai.dynamics.openness).toBeLessThanOrEqual(42);
     });
     it("should pull toward entity custom dynamics_baseline if present", () => {
       const state = createBaseState();
       state.ai.dynamics_baseline = { intensity: 70, chaos: 30, openness: 28, affinity: 40 };
       dynamics_engine.simulation_dynamics(state, null, []);
       // Openness: 50. Baseline: 28. Gravity: 50 + (28 - 50) * 0.1 = 50 - 2.2 = 47.8 -> 48
-      expect(state.ai.dynamics.openness).toBe(48);
+      expect(state.ai.dynamics.openness).toBeGreaterThanOrEqual(47);
+      expect(state.ai.dynamics.openness).toBeLessThanOrEqual(49);
     });
   });
   describe("Simulation Orchestration", () => {
@@ -85,7 +91,8 @@ describe("Dynamics Engine v2 (Refactored)", () => {
         },
       };
       const snapshot = dynamics_engine.simulate(payload);
-      expect(snapshot.ai.dynamics.intensity).toBe(77);
+      expect(snapshot.ai.dynamics.intensity).toBeGreaterThanOrEqual(76);
+      expect(snapshot.ai.dynamics.intensity).toBeLessThanOrEqual(78);
       expect(snapshot.signal_prompts.length).toBeGreaterThan(0);
     });
   });
@@ -143,9 +150,12 @@ describe("Dynamics Engine v2 (Refactored)", () => {
         },
       ]);
       dynamics_engine.simulation_dynamics(state, null, triggered);
-      expect(state.ai.dynamics.openness).toBe(14);
-      expect(state.ai.dynamics.intensity).toBe(59);
-      expect(state.ai.dynamics.affinity).toBe(41);
+      expect(state.ai.dynamics.openness).toBeGreaterThanOrEqual(13);
+      expect(state.ai.dynamics.openness).toBeLessThanOrEqual(15);
+      expect(state.ai.dynamics.intensity).toBeGreaterThanOrEqual(58);
+      expect(state.ai.dynamics.intensity).toBeLessThanOrEqual(60);
+      expect(state.ai.dynamics.affinity).toBeGreaterThanOrEqual(40);
+      expect(state.ai.dynamics.affinity).toBeLessThanOrEqual(42);
       expect(state.signal_prompts.some((/** @type {string} */ p) => p.includes("Trust is broken"))).toBe(true);
     });
   });

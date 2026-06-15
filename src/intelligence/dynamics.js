@@ -425,10 +425,16 @@ export const dynamics_engine = {
 
   _process_entity_dynamics(d, baselines, _matches, _state, entity) {
     // 1. Gravity Pull
+    const active_entropy = _state.fractal?.dynamics?.entropy ?? 50;
+    const variance = (active_entropy / 100) * 0.05;
+
     Object.keys(d).forEach((axis) => {
       const target = baselines[axis] ?? 50;
-      const gravity = entity?.dynamics_config?.gravity ?? 0.1; // Fallback default altered to 0.1
-      d[axis] += (target - d[axis]) * gravity;
+      const base_gravity = entity?.dynamics_config?.gravity ?? 0.1; // Fallback default altered to 0.1
+      const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
+      const applied_gravity = Math.max(0, Math.min(1, randomized_gravity)); // Clamp [0, 1]
+
+      d[axis] += (target - d[axis]) * applied_gravity;
     });
     // 2. Settlement
     Object.keys(d).forEach((axis) => (d[axis] = Math.max(0, Math.min(100, Math.round(d[axis])))));

@@ -64,21 +64,49 @@ export const PromptTemplates = {
   /**
    * Refines raw description into dense visual tokens.
    */
-  ENHANCE: (text) =>
-    `You are a professional image prompt engineer. Your task is to convert a visual character description into an optimized prompt for the FLUX diffusion model.
+  ENHANCE: (text, type = "character") => {
+    if (type === "fractal" || type === "scene") {
+      return `You are a professional image prompt engineer. Your task is to convert a visual environment description into an optimized prompt for the FLUX diffusion model.
 
 OUTPUT FORMAT: A single line of comma-separated visual tokens. NOT prose. NOT sentences.
 
 MANDATORY TOKEN SEQUENCE:
-1. Medium anchor: begin with "RAW photograph of a man," or "photorealistic portrait of a man,"
-2. Physical build: body type, musculature, height impression
-3. Face: jaw, brow, eyes (color + shape), nose, lips, stubble/beard if applicable
-4. Hair: color, length, cut style
-5. Skin: tone, texture (e.g. "olive skin, visible pores, natural sheen")
-6. Clothing: each item by name, material, color, fit
-7. Setting: minimal background context
-8. Camera + lighting: lens type, focal length, lighting setup, color grade
-9. Realism anchors: end with "photorealistic, natural skin texture, professional photography"
+1. Planning: Use a <think> block first to analyze the environment's mood, lighting setup, and architectural/natural details.
+2. Medium anchor: begin with "RAW photograph of a landscape," or "photorealistic wide shot of an interior,"
+3. Core Subject: the primary environment, architecture, or natural feature
+3. Lighting & Atmosphere: weather, time of day, fog, atmospheric perspective
+4. Key Details: specific materials, architectural elements, or flora
+5. Camera: lens type, focal length, color grade
+6. Realism anchors: end with "photorealistic, 8k resolution, professional architectural photography"
+
+STRICT RULES:
+- NEVER use: anime, illustrated, digital art, painterly, stylized
+- NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece
+- Use only physically grounded, photographable descriptors
+- NO characters or people in the focus
+
+Input description:
+${escapeXml(text)}
+
+Output only the token string. No preamble, no explanation.`.trim();
+    }
+
+    return `You are a professional image prompt engineer. Your task is to convert a visual character description into an optimized prompt for the FLUX diffusion model.
+
+OUTPUT FORMAT: A single line of comma-separated visual tokens. NOT prose. NOT sentences.
+
+MANDATORY TOKEN SEQUENCE:
+1. Planning: Use a <think> block first to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements.
+2. Medium anchor: begin with "RAW photograph of a character," or "photorealistic portrait,"
+3. Demographics: age, gender, race/ethnicity
+4. Physical build: body type, musculature, height impression
+5. Face: jaw, brow, eyes (color + shape), nose, lips, stubble/beard if applicable
+6. Hair: color, length, cut style
+7. Skin: tone, texture (e.g. "olive skin, visible pores, natural sheen")
+8. Clothing: each item by name, material, color, fit
+9. Setting: minimal background context
+10. Camera + lighting: lens type, focal length, lighting setup, color grade
+11. Realism anchors: end with "photorealistic, natural skin texture, professional photography"
 
 STRICT RULES:
 - NEVER use: anime, illustrated, digital art, painterly, stylized, ethereal, otherworldly, radiant, glowing
@@ -89,7 +117,8 @@ STRICT RULES:
 Input description:
 ${escapeXml(text)}
 
-Output only the token string. No preamble, no explanation.`.trim(),
+Output only the token string. No preamble, no explanation.`.trim();
+  },
 
   /**
    * Builds the final system prompt for context-aware generation.
@@ -111,6 +140,14 @@ Output only the token string. No preamble, no explanation.`.trim(),
         break;
     }
 
+    let anchor = "RAW photograph of a character";
+    let realism = "photorealistic, natural skin texture, professional photography";
+
+    if (targetType === "scene") {
+      anchor = "RAW photograph of a landscape or photorealistic wide shot of an interior";
+      realism = "photorealistic, 8k resolution, professional architectural photography";
+    }
+
     return `
 [SYSTEM: SENSORY_CORTEX_V5]
 Target: ${targetType}
@@ -121,11 +158,11 @@ ${ctxBlock}
 Convert intent into a single impactful image prompt.
 Input Intent: "${escapeXml(rawIntent)}"
 [PROTOCOL]
-1. Use <think> in zh-CN for composition planning.
-2. Output exactly one <image_prompt> tag.
-3. The image_prompt MUST start with "RAW photograph of" and use comma-separated tokens, NOT prose.
+1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
+2. Output exactly one <image_prompt> tag containing the final token string.
+3. The image_prompt MUST start with "${anchor}" and use comma-separated tokens, NOT prose.
 4. NEVER use anime, illustrated, digital art, or painterly language.
-5. End every prompt with: "photorealistic, real person, professional photography"
+5. End every prompt with: "${realism}"
 `.trim();
   },
 };

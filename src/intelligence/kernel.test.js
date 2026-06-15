@@ -291,6 +291,25 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       expect(result.response).toBe("");
     });
+
+    it("increments and decrements runtime.structural_errors through a rolling multi-turn sequence", async () => {
+      runtime.structural_errors = 0; // Reset state for test
+
+      // Turn 1: Broken output, needs repair
+      vi.mocked(llm_service.generate).mockResolvedValueOnce("<think>Unclosed block");
+      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+      expect(runtime.structural_errors).toBe(1);
+
+      // Turn 2: Clean output, no repair needed (cooldown activates)
+      vi.mocked(llm_service.generate).mockResolvedValueOnce("<think>Clean block</think> Normal text");
+      await gamemaster.execute_turn("story-123", { input: "Hello again", role: "ai" });
+      expect(runtime.structural_errors).toBe(0);
+
+      // Turn 3: Clean output, hits the hard floor of 0
+      vi.mocked(llm_service.generate).mockResolvedValueOnce("<think>Clean block</think> Normal text");
+      await gamemaster.execute_turn("story-123", { input: "Hello again", role: "ai" });
+      expect(runtime.structural_errors).toBe(0);
+    });
   });
 
   describe("Asynchronous Validation Isolation & Telemetry Unification", () => {

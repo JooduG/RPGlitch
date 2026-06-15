@@ -85,7 +85,7 @@ import { ENTITY_CATALOG, escapeXml, strip_cognition_blocks, temporal_engine } fr
  * SIMULATION
  * @param {SimulationParams} params
  */
-function render_simulation({ round, entities, signal_prompts, input, render_atom, simulation_log }) {
+function render_simulation({ round, entities, signal_prompts, input, render_atom, simulation_log, meta, compressed_snapshot }) {
   const ai = entities.AI;
   const user = entities.USER;
   const fractal = entities.FRACTAL;
@@ -93,7 +93,13 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
   const aiNameSafe = escapeXml(ai.name);
   const userNameSafe = escapeXml(user.name);
   const fractalNameSafe = escapeXml(fractal?.name || "");
-  const protocolSelection = "COGNITION, FORMAT, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM";
+  let protocolSelection = "COGNITION, FORMAT, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM";
+
+  if (meta?.structural_errors >= 3) {
+    protocolSelection += ", STABILITY_LOCK_2";
+  } else if (meta?.structural_errors >= 1) {
+    protocolSelection += ", STABILITY_LOCK_1";
+  }
 
   // Formats and escapes a sub-tag if content is populated, returning empty string if empty.
   const tag = (name, value) => {
@@ -101,9 +107,20 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
     return trimmed ? `  <${name}>${escapeXml(trimmed)}</${name}>` : "";
   };
 
+  const format_dynamics_attrs = (dynObj) => {
+    if (!dynObj) return "";
+    const attrs = Object.entries(dynObj)
+      .map(([k, v]) => `${escapeXml(k)}="${Math.round(v)}"`)
+      .join(" ");
+    return attrs ? ` ${attrs}` : "";
+  };
+
+  const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
+  const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
+
   return `
 <SYSTEM role="${aiNameSafe}" round="${roundSafe}">
-<YOUR_IDENTITY name="${aiNameSafe}">${[
+<YOUR_IDENTITY name="${aiNameSafe}"${aiDynAttrs}>${[
     tag("ETERNAL", ai.fragments?.eternal?.non_physical),
     tag("PRESENT", ai.fragments?.present?.non_physical),
     tag("PAST", render_atom.past(ai, { limit: 2, vector_text: true })),
@@ -120,7 +137,7 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
     .filter(Boolean)
     .map((x) => `\n${x}`)
     .join("")}</USER_PERSONA>
-<FRACTAL name="${fractalNameSafe}">${[
+<FRACTAL name="${fractalNameSafe}"${fracDynAttrs}>${[
     tag("ETERNAL", fractal?.fragments?.eternal?.non_physical),
     tag("PRESENT", fractal?.fragments?.present?.non_physical),
     (() => {
@@ -262,19 +279,29 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 
 /**
  * ENHANCEMENT PROMPT
- * @param {{ label: string, directive: string, enhancer: string, content: string, is_image_field?: boolean }} params
+ * @param {{ label: string, directive: string, enhancer: string, content: string, is_image_field?: boolean, entity?: any }} params
  */
-function render_enhancement({ label, directive, enhancer, content, is_image_field = false }) {
+function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null }) {
   const protocols = is_image_field
-    ? prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE")
-    : prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION");
+    ? prompt_builder.render_protocols("ENHANCER_COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE")
+    : prompt_builder.render_protocols("ENHANCER_COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION");
 
   const imageBlock = is_image_field
     ? `\n<FORMAT>Output comma-separated visual tokens suitable for FLUX diffusion models. No prose. No sentences. No narrative language.</FORMAT>`
-    : "";
+    : `\n<FORMAT>Write standard narrative prose. DO NOT write comma-separated lists.</FORMAT>`;
 
   const labelSafe = escapeXml(label || "");
   const roleSafe = escapeXml(enhancer || "GENERAL");
+
+  let contextBlock = "";
+  if (entity && (entity.eternal || entity.present)) {
+    const p = [entity.eternal?.physical, entity.present?.physical].filter(Boolean).join(" | ");
+    const np = [entity.eternal?.non_physical, entity.present?.non_physical].filter(Boolean).join(" | ");
+
+    if (p || np) {
+      contextBlock = `\n<ENTITY_CONTEXT>\n${p ? `<PHYSICAL>${escapeXml(p)}</PHYSICAL>\n` : ""}${np ? `<PSYCHOLOGICAL>${escapeXml(np)}</PSYCHOLOGICAL>\n` : ""}</ENTITY_CONTEXT>`;
+    }
+  }
 
   return `
 <SYSTEM role="${roleSafe}" enhancing="${labelSafe}">
@@ -283,7 +310,7 @@ ${escapeXml(directive)}
 </INSTRUCTIONS>
 <PROTOCOLS>
 ${protocols}
-</PROTOCOLS>${imageBlock}
+</PROTOCOLS>${imageBlock}${contextBlock}
 <INPUT_CONTENT>
 ${escapeXml(content)}
 </INPUT_CONTENT>
@@ -302,7 +329,7 @@ const PROTOCOL_LIBRARY = {
     "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
   IMMERSION: "Render spatial coordinates and convey emotion strictly through physical behavior.",
   COGNITION:
-    "Begin your response with <think>. Perform all internal narrative reasoning and character state calculus inside clean structural <think> tags. Conduct your thinking in the same language as the conversation (English by default, or the language the user uses or instructs you to use).",
+    "Begin your response with <think>. You are strictly forbidden from writing loose prose inside the <think> block. You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:\n\n# Phase 1: Prior Assessment\nEstablish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.\n\n# Phase 2: Evidence Evaluation\nParse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.\n\n# Phase 3: Likelihood Estimation\nEvaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.\n\n# Phase 4: Posterior Update\nCalculate and declare the finalized, updated emotional state vectors and immediate intentions right before closing the tracking tag.\n\nConduct your thinking in the same language as the conversation.",
   HYGIENE: "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys.",
   AFFIRMATIVE: "Use affirmative language.",
   PRESENT: "Write in the present tense.",
@@ -317,6 +344,13 @@ const PROTOCOL_LIBRARY = {
   GRIT: "Maintain a 2:1 ratio of concrete sensory physics to abstract dialogue.",
   FORMAT:
     'Write actions and descriptions as standard prose. Use quotation marks for "dialogue". For formatting: use single asterisks for *italics* (sensory gestures, kinetic cues) and double asterisks for **bold** (vocal emphasis, heavy physical impacts). Bold should be used selectively on specific words for emphasis (e.g. "I am **not** doing that!"); do not wrap entire dialogue blocks in double asterisks unless the character is shouting the entire sentence. Proactively combine and mix these styles throughout your response to create a dynamic visual rhythm. Do not get stuck using only one type of formatting.',
+  STABILITY_LOCK_1: "WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.",
+  STABILITY_LOCK_2:
+    "CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.",
+  ENHANCER_COGNITION_NON_PHYSICAL:
+    "Begin your response with <think>. Use this block to analyze the core psychological archetypes, thematic resonances, and necessary vocabulary before writing the final enhanced text.",
+  ENHANCER_COGNITION_PHYSICAL:
+    "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements before formatting the visual tokens.",
 };
 
 /**
@@ -410,6 +444,7 @@ export const prompt_builder = {
         return temporal_engine.format(entity.past || [], scoring_context, {
           limit: 3,
           offset: 0,
+          max_chars: 1500,
           ...options,
           mode: "past",
         });
@@ -427,6 +462,7 @@ export const prompt_builder = {
         return temporal_engine.format(entity.future || [], scoring_context, {
           limit: 3,
           offset: 0,
+          max_chars: 1500,
           ...options,
           mode: "future",
         });
@@ -566,10 +602,15 @@ export const prompt_builder = {
    * @param {string} content
    * @param {string} [entity_name]
    * @param {string} [entity_type]
+   * @param {boolean} [is_image_field]
+   * @param {any} [entity]
    */
-  build_enhancement(field_id, content, entity_name = "", entity_type = "character", is_image_field = false) {
+  build_enhancement(field_id, content, entity_name = "", entity_type = "character", is_image_field = false, entity = null) {
     const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
     const typeKey = `${resolvedType}.${field_id}`;
+
+    // Auto-detect image field if not explicitly passed
+    const isImage = is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")) || field_id.includes("visual");
 
     /** @type {any} */
     const meta = ENTITY_CATALOG[typeKey] ||
@@ -584,7 +625,8 @@ export const prompt_builder = {
         label: entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
-        is_image_field,
+        is_image_field: isImage,
+        entity,
       }),
       messages: [],
     };

@@ -114,12 +114,16 @@ export const ENTITY_FRAGMENTS = {
         directive:
           "Define baseline psychology and core identity. Detail fundamental logic, narrative voice, and communication tics. Avoid narration. (Target: 150-400 words).",
         enhancer: "COGNITIVE_ARCHITECT",
+        emotional_weight: 10,
+        density_multiplier: 1,
       },
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
         directive:
           "Define baseline metaphysical rules, structural constants, and ambient physics. Detail gravity and temporal flow rates. (Target: 150-400 words).",
         enhancer: "METAPHYSICAL_ARCHITECT",
+        emotional_weight: 10,
+        density_multiplier: 1,
       },
     },
     physical: {
@@ -127,7 +131,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Body & Form",
         directive:
-          "Write comma-separated visual descriptors optimized for photorealistic image generation. Describe: body type (e.g. 'muscular athletic build, broad shoulders, defined chest'), facial features (jaw shape, brow, nose, lips), eye color and shape, skin tone and texture, hair color/length/cut, height impression, any distinctive permanent markings. Use concrete adjectives only. DO NOT write sentences or prose — output comma-separated tokens only. 40-80 words.",
+          "Write comma-separated visual descriptors optimized for photorealistic image generation. MANDATORY: explicitly specify gender presentation, age range, and race/ethnicity. Describe: body type (e.g. 'muscular athletic build, broad shoulders, defined chest'), facial features (jaw shape, brow, nose, lips), eye color and shape, skin tone and texture, hair color/length/cut, height impression, any distinctive permanent markings. Use concrete adjectives only. DO NOT write sentences or prose — output comma-separated tokens only. 40-80 words.",
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
@@ -147,12 +151,16 @@ export const ENTITY_FRAGMENTS = {
         directive:
           "Capture current internal volatility and state pressure. Detail mental focus, active triggers, and immediate emotional state. (Target: 30-80 words).",
         enhancer: "TACTICAL_ANALYZER",
+        emotional_weight: 5,
+        density_multiplier: 1.5,
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
         directive:
           "Capture immediate atmospheric shifts, state volatility, or anomalous events. Detail immediate environmental and temporal pressure. (Target: 30-80 words).",
         enhancer: "ECOSYSTEM_ANALYZER",
+        emotional_weight: 5,
+        density_multiplier: 1.5,
       },
     },
     physical: {

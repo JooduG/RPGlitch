@@ -131,11 +131,29 @@ export function format(vectors, input, options = {}) {
   const limit = options.limit || 3;
   const show_text = options.vector_text ?? true;
   const show_label = options.vector_label ?? true;
+  const max_chars = options.max_chars || 1500;
 
   const offset = options.offset || 0;
-  const ranked = score(vectors, input).slice(offset, offset + limit);
+  const ranked = score(vectors, input).slice(offset);
+
+  let running_chars = 0;
+  const selected = [];
+
+  for (const v of ranked) {
+    if (selected.length >= limit) break;
+
+    const payload_length = (v.text || "").length;
+
+    if (running_chars + payload_length > max_chars && selected.length > 0) {
+      break;
+    }
+
+    selected.push(v);
+    running_chars += payload_length;
+  }
+
   // Maintain reverse-chrono order in the prompt (oldest to newest)
-  const sorted = [...ranked].reverse();
+  const sorted = [...selected].reverse();
 
   return sorted
     .map((v) => {

@@ -45,7 +45,7 @@ export function parse_think_block(text) {
  */
 export function strip_cognition_blocks(text) {
   if (!text) return "";
-  return text.replace(/<think>[\s\S]*?<\/think>\r?\n?/gi, "");
+  return text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
 }
 /**
  * Removes <image_prompt> tags from text.

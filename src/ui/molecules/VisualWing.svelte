@@ -7,6 +7,7 @@
    */
   import { Button, TextField, Toggle, tooltip } from "@atoms";
   import { prompt_builder } from "@intelligence";
+  import { strip_cognition_blocks } from "@intelligence/parser.js";
   import { AestheticResolver, PALETTE, PALETTE_VARS, get_signature_label, SIGNATURE_COLORS } from "@media";
   import { llm_service } from "@platform";
   import { app } from "@state";
@@ -106,15 +107,25 @@
         if (!has_prompt_text) {
           profileState.char.modifiers.prompt = AestheticResolver.extract(profileState.char);
         } else {
-          const result = await app.visual.enhance(profileState.char.modifiers.prompt);
+          const result = await app.visual.enhance(profileState.char.modifiers.prompt, profileState.char.type);
           if (result) profileState.char.modifiers.prompt = result;
         }
       } else if (profileState.active_field) {
         const val = profileState.get_safe_value(current_key);
         if (val) {
-          const payload = prompt_builder.build_enhancement(current_key, val);
+          const payload = prompt_builder.build_enhancement(
+            current_key,
+            val,
+            profileState.char.name,
+            profileState.char.type,
+            false,
+            profileState.char,
+          );
           const res = await llm_service.enhance(payload);
-          if (res) profileState.set_field_value(current_key, res);
+          if (res) {
+            const clean_res = strip_cognition_blocks(res).trim();
+            profileState.set_field_value(current_key, clean_res);
+          }
         }
       }
     } catch (err) {

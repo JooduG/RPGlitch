@@ -178,7 +178,7 @@ describe("prompt_builder (Refactored)", () => {
 
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
-      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
       expect(result.system).toContain("<PAST>");
       expect(result.system).toContain("STYLE: Grit");
       expect(result.system).toContain("<PROTOCOLS>");
@@ -193,6 +193,31 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.meta?.vectors).toBeDefined();
       expect(result.meta?.vectors?.past).toBeInstanceOf(Array);
       expect(result.meta?.vectors?.future).toBeInstanceOf(Array);
+    });
+
+    it("synthesize() injects adaptive stability protocols based on meta.structural_errors", () => {
+      const payload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper" },
+          USER: { name: "Ghost" },
+          FRACTAL: { name: "Void" },
+        },
+        simulation_log: [],
+        input: "Test input",
+        meta: { structural_errors: 1 },
+      };
+
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      // Errors = 1
+      let result = prompt_builder.synthesize(payload, snapshot);
+      expect(result.system).toContain("WARNING: Previous output exhibited structural drift.");
+
+      // Errors = 3
+      payload.meta.structural_errors = 3;
+      result = prompt_builder.synthesize(payload, snapshot);
+      expect(result.system).toContain("CRITICAL: Severe structural formatting leakage detected.");
     });
 
     it("build_epilogue() renders a contextually-hydrated closing sequence", () => {

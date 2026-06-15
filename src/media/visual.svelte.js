@@ -5,6 +5,7 @@
  */
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
+import { strip_cognition_blocks } from "@intelligence/parser.js";
 import { AestheticResolver, CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
@@ -150,12 +151,13 @@ export class VisualEngine {
   /**
    * Translates text into enhanced visual tokens.
    * @param {string} text
+   * @param {string} [type]
    */
-  async enhance(text) {
+  async enhance(text, type = "character") {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = PromptTemplates.ENHANCE(text);
+          const system = PromptTemplates.ENHANCE(text, type);
 
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
@@ -320,7 +322,7 @@ export class VisualEngine {
    */
   _cleanPrompt(raw) {
     if (typeof raw !== "string") return raw;
-    return raw
+    return strip_cognition_blocks(raw)
       .replace(/^["']|["']$/g, "")
       .replace(/^(here is|sure|the prompt).*?:/i, "")
       .replace(/```.*?[\r\n]|```/g, "")
