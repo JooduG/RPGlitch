@@ -1,4 +1,5 @@
-import { Chrono, Engine } from "@engine";
+import { Chrono } from "@engine";
+import { gamemaster } from "@intelligence";
 import { Shield } from "@platform";
 import { app, runtime, controlState, simulationState } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -25,9 +26,9 @@ vi.mock("@platform/security.js", () => {
   };
 });
 
-vi.mock("@engine/kernel.js", () => ({
-  Engine: {
-    generate_ai_response: vi.fn(),
+vi.mock("@intelligence", () => ({
+  gamemaster: {
+    execute_turn: vi.fn(),
   },
 }));
 
@@ -52,7 +53,7 @@ describe("Chrono Intent Lock State Lifecycle", () => {
       resolveGeneration = /** @type {any} */ (resolve);
     });
 
-    /** @type {any} */ (Engine.generate_ai_response).mockImplementation(() => generationPromise);
+    /** @type {any} */ (gamemaster.execute_turn).mockImplementation(() => generationPromise);
 
     // Call advance_turn. It starts a non-blocking background generator.
     const advancePromise = Chrono.advance_turn("hello");

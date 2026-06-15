@@ -12,7 +12,8 @@
   import { Button, ScrollArea } from "@atoms";
   import { clean_image_prompts } from "@intelligence";
   import { Audio } from "@media";
-  import { app, runtime, session, simulation_log, simulationState } from "@state";
+  import { Chrono } from "@engine";
+  import { app, runtime, simulation_log, simulationState } from "@state";
   import { motion } from "@motion";
   import { Message, Dialog } from "@molecules";
 
@@ -153,7 +154,7 @@
    */
   async function execute_delete() {
     if (delete_target_id) {
-      await session.delete_log_entry(delete_target_id.toString());
+      await Chrono.delete_log_entry(delete_target_id.toString());
       delete_target_id = null;
     }
   }
@@ -174,7 +175,7 @@
    * @returns {Promise<void>}
    */
   async function handle_save_edit(id, updated_text) {
-    await session.edit_log_entry(id.toString(), updated_text);
+    await Chrono.edit_log_entry(id.toString(), updated_text);
     editing_index = null;
   }
 </script>
@@ -213,8 +214,8 @@
         attachments={entry.attachments}
         is_last={index === simulation_log.feed.length - 1}
         on_delete={() => handle_delete(index)}
-        on_regenerate={() => session.retry()}
-        on_continue={() => session.continue()}
+        on_regenerate={() => Chrono.retry()}
+        on_continue={() => Chrono.continue()}
         on_edit={() => handle_edit(index)}
         is_editing={index === editing_index}
         on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
@@ -252,7 +253,7 @@
         "
       >
         <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
-        <Button variant="primary" onclick={() => session.retry()} label="Retry Connection" />
+        <Button variant="primary" onclick={() => Chrono.retry()} label="Retry Connection" />
       </div>
     {/if}
   </ScrollArea>

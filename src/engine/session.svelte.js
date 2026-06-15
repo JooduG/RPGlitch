@@ -80,14 +80,6 @@ export const session_driver = {
   },
 
   /**
-   * Create a new session entry (Simple version)
-   */
-  create_session: async function (title = "New Story") {
-    // Legacy support or simplified start
-    return await this.create_from_selection({ story_title: title });
-  },
-
-  /**
    * Clear active session
    */
   clear_active: async function () {
@@ -212,19 +204,5 @@ export const session_driver = {
       created_at: Date.now(),
     });
     simulation_log.refresh();
-  },
-
-  /**
-   * Restore session from DB
-   */
-  restore_session: async function () {
-    if (typeof window === "undefined") return null;
-    const entry = await db.kv_settings.get(SESSION_ID_KEY);
-    if (entry?.value) {
-      _active_id = entry.value;
-      runtime.story_id = entry.value;
-      return entry.value;
-    }
-    return null;
   },
 };

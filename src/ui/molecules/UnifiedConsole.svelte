@@ -6,9 +6,9 @@
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
   import { get_signature_color, Audio, visual_engine } from "@media";
-  import { runtime, app, session, simulationState, simulation_log } from "@state";
+  import { runtime, app, simulationState, simulation_log } from "@state";
   import { db, stories } from "@data";
-  import { session_driver } from "@engine";
+  import { session_driver, Chrono } from "@engine";
   import { gamemaster } from "@intelligence";
   import { llm_service } from "@platform";
   import { Backdrop, Button, tooltip, ScrollArea, Slider, TextField, Toggle } from "@atoms";
@@ -155,14 +155,14 @@
         };
         motion.intensity = 0.4;
         app.set_view("storymode");
-        await session.start(selection);
+        await Chrono.start(selection);
         refresh_stories();
         return;
       }
       if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
       motion.intensity = 0.4;
       app.set_view("storymode");
-      await session.start({
+      await Chrono.start({
         ai: app.selected_ai,
         user: app.selected_user,
         fractal: app.selected_fractal,
@@ -185,7 +185,7 @@
     adjust_height();
 
     try {
-      await session.send(text);
+      await Chrono.send(text);
     } catch (e) {
       console.error("Failed to send message:", e);
     }

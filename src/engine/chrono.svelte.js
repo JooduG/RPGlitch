@@ -1,13 +1,121 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
-import { Engine, session_driver } from "@engine";
+import { session_driver } from "@engine";
+import { gamemaster } from "@intelligence";
 import { Shield } from "@platform";
 import { app, controlState, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State
-/**
- *
- */
+
 export class ChronoStore {
-  // No local state needed, acts as a controller for app.simulation
+  error = $state(null);
+
+  /**
+   * Start a new story from the Lobby.
+   * @param {{ ai: any, user: any, fractal: any }} selection - { ai, user, fractal }
+   */
+  async start(selection) {
+    if (app.simulation.loading || controlState.intent_active) return;
+    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    app.simulation.loading = true;
+
+    try {
+      const story_title = app.story_title || `The Journey of ${selection.ai.name} & ${selection.user.name} in ${selection.fractal.name}`;
+      // 1. Create Core Session
+      const story_id = await session_driver.create_from_selection({
+        ai_id: selection.ai.id,
+        user_id: selection.user.id,
+        fractal_id: selection.fractal.id,
+        story_title,
+      });
+
+      // 2. Synchronize Runtime State with the new session
+      await runtime.sync(story_id);
+
+      // 3. Switch View (Immediate Feedback)
+      app.set_view("storymode");
+
+      // 4. Trigger Prologue Generation
+      simulationState.start_generation("fractal");
+      try {
+        await gamemaster.execute_prologue(story_id);
+        app.log("Prologue generated and opening turn executed.", "system");
+      } catch (e) {
+        console.error("Chrono: Prologue Failed", e);
+        app.log("Error: Prologue Failed.", "error");
+        throw e;
+      } finally {
+        simulationState.complete();
+        app.end_stream();
+      }
+    } catch (e) {
+      console.error("[Chrono] Start Failed:", e);
+      this.error = /** @type {Error} */ (e).message;
+    } finally {
+      app.simulation.loading = false;
+      controlState.set_intent_active(false); // Release Intent Lock
+    }
+  }
+
+  /**
+   * Send user input and advance the simulation turn.
+   * @param {string} text
+   */
+  async send(text) {
+    if (app.simulation.loading || controlState.intent_active || !text.trim()) return;
+    await this.advance_turn(text);
+  }
+
+  /**
+   * Retry the last AI turn.
+   */
+  async retry() {
+    if (app.simulation.loading || controlState.intent_active) return;
+    try {
+      await session_driver.regenerate();
+      await this.advance_turn(null, { is_retry: true });
+    } catch (e) {
+      this.error = /** @type {Error} */ (e).message;
+    }
+  }
+
+  /**
+   * Continue the story (AI generates next part).
+   */
+  async continue() {
+    if (app.simulation.loading || controlState.intent_active) return;
+    try {
+      await this.advance_turn(null, { is_continue: true });
+    } catch (e) {
+      this.error = /** @type {Error} */ (e).message;
+    }
+  }
+
+  /**
+   * Delete a log entry by ID
+   * @param {string} id
+   */
+  async delete_log_entry(id) {
+    await session_driver.delete_log_entry(id);
+  }
+
+  /**
+   * Edit a log entry by ID
+   * @param {string} id
+   * @param {string} new_text
+   */
+  async edit_log_entry(id, new_text) {
+    await session_driver.edit_log_entry(id, new_text);
+  }
+
+  /**
+   * 🧪 DEBUG: Inject AI Message
+   * @param {string} text
+   * @param {string} character_name
+   * @param {string} role
+   */
+  async log_turn(text, character_name, role) {
+    await session_driver.log_turn(text, character_name, role);
+  }
+
   /**
    * ADVANCE TURN
    * The ONLY way time moves forward.
@@ -87,11 +195,22 @@ export class ChronoStore {
           }
         }
 
-        await Engine.generate_ai_response(story_id, {
-          shieldContext,
-          input: finalInput ?? undefined,
-          signal: controller.signal,
-        });
+        simulationState.start_generation(options.role || "ai");
+        try {
+          await gamemaster.execute_turn(story_id, {
+            shieldContext,
+            input: finalInput ?? undefined,
+            signal: controller.signal,
+          });
+          app.log("Generation complete.", "system");
+        } catch (e) {
+          console.error("Chrono: Generation Failed", e);
+          app.log("Error: Generation Failed.", "error");
+          throw e;
+        } finally {
+          simulationState.complete();
+          app.end_stream();
+        }
 
         // 4. ECHO: Commit to Resonance (Echo/Scholar) - Timeline Safety Lock
         simulationState.lock(); // Phase 3: Database Lock (Post-Generation)

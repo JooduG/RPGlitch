@@ -1,4 +1,4 @@
-import { Engine } from "@engine";
+import { gamemaster } from "@intelligence";
 import { Shield } from "@platform";
 import { app, runtime, simulationState } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -26,9 +26,9 @@ vi.mock("@platform/security.js", () => {
   };
 });
 
-vi.mock("@engine/kernel.js", () => ({
-  Engine: {
-    generate_ai_response: vi.fn(),
+vi.mock("@intelligence", () => ({
+  gamemaster: {
+    execute_turn: vi.fn(),
   },
 }));
 
@@ -58,7 +58,7 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
       resolveGeneration = /** @type {any} */ (resolve);
     });
 
-    /** @type {any} */ (Engine.generate_ai_response).mockImplementation(() => generationPromise);
+    /** @type {any} */ (gamemaster.execute_turn).mockImplementation(() => generationPromise);
 
     // Call advance_turn. Since it's non-blocking, it should return immediately!
     const advancePromise = Chrono.advance_turn("hello");
@@ -92,7 +92,7 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
       rejectGeneration = reject;
     });
 
-    /** @type {any} */ (Engine.generate_ai_response).mockImplementation((/** @type {any} */ storyId, /** @type {any} */ options) => {
+    /** @type {any} */ (gamemaster.execute_turn).mockImplementation((/** @type {any} */ storyId, /** @type {any} */ options) => {
       // Simulate AbortController behavior when signal is aborted
       if (options?.signal) {
         if (options.signal.aborted) {
@@ -117,7 +117,7 @@ describe("Chrono Non-Blocking AI Generation & Interruption", () => {
     const controller = app.streaming.abort_controller;
     expect(controller).toBeInstanceOf(AbortController);
 
-    // Wait a tick so `session_driver.send` can resolve and `Engine.generate_ai_response` can be called
+    // Wait a tick so `session_driver.send` can resolve and `gamemaster.execute_turn` can be called
     await new Promise((resolve) => setTimeout(resolve, 0));
 
     // Trigger instant interruption
