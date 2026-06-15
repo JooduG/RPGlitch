@@ -12,7 +12,7 @@ import { visual_engine } from "@media";
 import { runtime, simulationState, uiState } from "@state";
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
-/** @typedef {import('./status.svelte.js').DrawerState} DrawerState */
+/** @typedef {import('./status.svelte.js').CardHandState} CardHandState */
 /** @typedef {import('./status.svelte.js').SimulationControl} SimulationControl */
 /** @typedef {import('./status.svelte.js').FateSystem} FateSystem */
 
@@ -92,8 +92,8 @@ export class AppStore {
    */
   fractal_list = $state([]);
   entities_loaded = $state(false);
-  /** @type {DrawerState} */
-  drawer = $state({
+  /** @type {CardHandState} */
+  card_hand = $state({
     open: false,
     type: null, // 'ai' | 'user' | 'fractal'
     reroll_count: 0,
@@ -334,12 +334,12 @@ export class AppStore {
       this.view = view;
     });
   };
-  open_drawer = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
-    this.drawer.type = type;
-    this.drawer.open = true;
+  open_card_hand = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
+    this.card_hand.type = type;
+    this.card_hand.open = true;
   };
-  close_drawer = () => {
-    this.drawer.open = false;
+  close_card_hand = () => {
+    this.card_hand.open = false;
   };
   close_image_preview = () => {
     closeImagePreview();
@@ -353,7 +353,7 @@ export class AppStore {
     if (type === "ai") this.selected_ai = clean;
     else if (type === "user") this.selected_user = clean;
     else if (type === "fractal") this.selected_fractal = clean;
-    this.drawer.open = false;
+    this.card_hand.open = false;
   };
   /** @type {any} */
   editing_entity = $state(null);
@@ -449,7 +449,7 @@ export class AppStore {
     openImagePreview(src, caption);
   };
   reroll_title = () => {
-    this.drawer.reroll_count++;
+    this.card_hand.reroll_count++;
   };
   /**
    * DEBUG: Force Storymode Entry

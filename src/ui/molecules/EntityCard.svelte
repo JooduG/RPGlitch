@@ -54,9 +54,9 @@
       return is_launching ? "card-slot-" + type : undefined;
     }
 
-    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when the drawer is open for this specific type
+    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when the card hand is open for this specific type
     // to guarantee zero duplicate transition name errors during snapshot capture.
-    if (app.drawer.open && app.drawer.type === type) {
+    if (app.card_hand.open && app.card_hand.type === type) {
       return undefined;
     }
 

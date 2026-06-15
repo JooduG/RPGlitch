@@ -40,7 +40,7 @@
     if (is_custom && custom_title) return [{ text: custom_title }];
 
     // Trigger on reroll
-    void app.drawer.reroll_count;
+    void app.card_hand.reroll_count;
 
     const { selected_ai: ai, selected_user: user, selected_fractal: fractal } = app;
     const has_entities = ai || user;

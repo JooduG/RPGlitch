@@ -12,8 +12,8 @@
   import { app } from "@state";
 
   // --- RUNES & CORE VIEW ENGINE CONNECTIONS ---
-  let is_open = $derived(app.drawer.open);
-  let drawer_type = $derived(app.drawer.type);
+  let is_open = $derived(app.card_hand.open);
+  let card_hand_type = $derived(app.card_hand.type);
 
   /** @type {number | null} */
   let hovered_index = $state(null);
@@ -43,7 +43,7 @@
   // Core candidate source stream distribution
   let entity_list = $derived(
     /** @type {any[]} */ (
-      drawer_type === "ai" ? app.ai_list : drawer_type === "user" ? app.user_list : drawer_type === "fractal" ? app.fractal_list : []
+      card_hand_type === "ai" ? app.ai_list : card_hand_type === "user" ? app.user_list : card_hand_type === "fractal" ? app.fractal_list : []
     ).filter((/** @type {any} */ entity) => !is_disabled(entity)),
   );
 
@@ -57,7 +57,7 @@
     fractal: "Select Fractal",
   };
 
-  let title = $derived((drawer_type ? TITLES[drawer_type] : null) ?? "Select Entity");
+  let title = $derived((card_hand_type ? TITLES[card_hand_type] : null) ?? "Select Entity");
 
   // --- MUTUAL EXCLUSION SAFETY BARRIERS ---
   /**
@@ -66,14 +66,14 @@
    * @returns {boolean}
    */
   function is_disabled(entity) {
-    if (!entity || !drawer_type) return false;
-    if (drawer_type === "ai") {
+    if (!entity || !card_hand_type) return false;
+    if (card_hand_type === "ai") {
       return app.selected_ai?.id === entity.id || app.selected_user?.id === entity.id;
     }
-    if (drawer_type === "user") {
+    if (card_hand_type === "user") {
       return app.selected_user?.id === entity.id || app.selected_ai?.id === entity.id;
     }
-    if (drawer_type === "fractal") {
+    if (card_hand_type === "fractal") {
       return app.selected_fractal?.id === entity.id;
     }
     return false;
@@ -84,17 +84,17 @@
    * Generates a pristine entity instance template via the Factory and upserts to storage.
    */
   async function handle_create_new() {
-    const type = drawer_type === "fractal" ? "fractal" : "character";
+    const type = card_hand_type === "fractal" ? "fractal" : "character";
     const plan = create_new(type, {
-      name: `New ${drawer_type ? drawer_type.toUpperCase() : type.toUpperCase()}`,
+      name: `New ${card_hand_type ? card_hand_type.toUpperCase() : type.toUpperCase()}`,
     });
 
     try {
       const saved = await repository.upsert(type, plan);
       app.log(`Birthed new ${type} blueprint: ${saved.id}`, "db");
-      app.select_entity(drawer_type, saved);
+      app.select_entity(card_hand_type, saved);
       app.open_profile(saved);
-      app.close_drawer();
+      app.close_card_hand();
     } catch (err) {
       const error = /** @type {Error} */ (err);
       app.log(`Factory initialization failed: ${error.message}`, "error");
@@ -104,13 +104,13 @@
   /** @param {any} entity */
   function handle_select(entity) {
     if (is_disabled(entity)) return;
-    app.select_entity(drawer_type, entity);
-    app.close_drawer();
+    app.select_entity(card_hand_type, entity);
+    app.close_card_hand();
   }
 
   /** @param {KeyboardEvent} e */
   function handle_keydown(e) {
-    if (e.key === "Escape" && is_open) app.close_drawer();
+    if (e.key === "Escape" && is_open) app.close_card_hand();
   }
 </script>
 
@@ -118,7 +118,7 @@
 
 {#if is_open}
   <!-- Svelte handles Backdrop outro natively. Removing redundant wrapper div. -->
-  <Backdrop onclick={() => app.close_drawer()} z_index="50" />
+  <Backdrop onclick={() => app.close_card_hand()} z_index="50" />
 {/if}
 
 {#if render_active}
@@ -249,7 +249,7 @@
             ? `rotate(${-factory_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
             : "none"}
         >
-          <EntityCard variant="library" type={drawer_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
+          <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
         </div>
       </div>
 
@@ -329,7 +329,7 @@
             <EntityCard
               variant="library"
               {entity}
-              type={drawer_type ?? undefined}
+              type={card_hand_type ?? undefined}
               disabled={is_disabled(entity)}
               onclick={() => handle_select(entity)}
               onViewProfile={() => app.open_profile(entity)}

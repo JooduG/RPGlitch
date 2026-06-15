@@ -56,6 +56,7 @@ No active tracks remaining. Monolithic cleanup fully concluded.
 | 2026-06-13 20:54     | Sensory Cortex & Enhancer Refactor                                             | svelte, design    | ✅ Done |
 | 2026-06-15 17:50     | Fixed Svelte 5 derived_inert errors and AI Chinese language bleed on Perchance | debug, svelte     | ✅ Done |
 | 2026-06-15 21:49     | Resolve StoryCard vertical cutoff in Library accordion                         | `debug`, `svelte` | ✅ Done |
+| 2026-06-15 22:02     | Execute drawer-rename and archive pending backlog tracks                       | `legislative`     | ✅ Done |
 
 ## 🧹 Backlog (Automated)
 

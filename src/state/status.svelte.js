@@ -13,8 +13,8 @@ import { app } from "@state";
  */
 
 /**
- * @typedef {Object} DrawerState
- * @property {boolean} open - Whether the side drawer is currently visible.
+ * @typedef {Object} CardHandState
+ * @property {boolean} open - Whether the card hand is currently visible.
  * @property {'ai' | 'user' | 'fractal' | null} type - The target category for entity selection.
  * @property {number} reroll_count - The number of times the current selection pool has been shuffled.
  */
@@ -94,7 +94,7 @@ class UIStateStore {
   }
 
   get menu_open() {
-    return !!(app?.profile_open || app?.control_panel_open || app?.drawer?.open);
+    return !!(app?.profile_open || app?.control_panel_open || app?.card_hand?.open);
   }
 
   get input_active() {
