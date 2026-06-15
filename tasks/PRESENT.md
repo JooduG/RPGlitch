@@ -55,7 +55,7 @@ No active tracks remaining. Monolithic cleanup fully concluded.
 | 2026-06-13 05:22     | Analyze Perchance flex layout and CSS selector corruption                      | debug, css        | ✅ Done   |
 | 2026-06-13 20:54     | Sensory Cortex & Enhancer Refactor                                             | svelte, design    | ✅ Done   |
 | 2026-06-15 17:50     | Fixed Svelte 5 derived_inert errors and AI Chinese language bleed on Perchance | debug, svelte     | ✅ Done   |
-| 2026-06-15 21:49     | Resolve StoryCard vertical cutoff in Library accordion                         | `debug`, `svelte` | 🔄 Active |
+| 2026-06-15 21:49     | Resolve StoryCard vertical cutoff in Library accordion                         | `debug`, `svelte` | ✅ Done |
 
 ## 🧹 Backlog (Automated)
 
