@@ -81,6 +81,20 @@ import { ENTITY_CATALOG, escapeXml, strip_cognition_blocks, temporal_engine } fr
  * @param {number} limits.pastLimit
  * @param {number} limits.futureLimit
  */
+// Formats and escapes a sub-tag if content is populated, returning empty string if empty.
+const tag = (name, value) => {
+  const trimmed = value ? String(value).trim() : "";
+  return trimmed ? `  <${name}>${escapeXml(trimmed)}</${name}>` : "";
+};
+
+const format_dynamics_attrs = (dynObj) => {
+  if (!dynObj) return "";
+  const attrs = Object.entries(dynObj)
+    .map(([k, v]) => `${escapeXml(k)}="${Math.round(v)}"`)
+    .join(" ");
+  return attrs ? ` ${attrs}` : "";
+};
+
 /**
  * SIMULATION
  * @param {SimulationParams} params
@@ -101,28 +115,14 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
     protocolSelection += ", STABILITY_LOCK_1";
   }
 
-  // Formats and escapes a sub-tag if content is populated, returning empty string if empty.
-  const tag = (name, value) => {
-    const trimmed = value ? String(value).trim() : "";
-    return trimmed ? `  <${name}>${escapeXml(trimmed)}</${name}>` : "";
-  };
-
-  const format_dynamics_attrs = (dynObj) => {
-    if (!dynObj) return "";
-    const attrs = Object.entries(dynObj)
-      .map(([k, v]) => `${escapeXml(k)}="${Math.round(v)}"`)
-      .join(" ");
-    return attrs ? ` ${attrs}` : "";
-  };
-
   const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
   const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
 
   return `
 <SYSTEM role="${aiNameSafe}" round="${roundSafe}">
 <YOUR_IDENTITY name="${aiNameSafe}"${aiDynAttrs}>${[
-    tag("ETERNAL", ai.fragments?.eternal?.non_physical),
-    tag("PRESENT", ai.fragments?.present?.non_physical),
+    tag("ETERNAL", ai.eternal?.non_physical),
+    tag("PRESENT", ai.present?.non_physical),
     tag("PAST", render_atom.past(ai, { limit: 2, vector_text: true })),
     tag("FUTURE", render_atom.future(ai, { limit: 1, vector_text: true })),
   ]
@@ -130,16 +130,16 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
     .map((x) => `\n${x}`)
     .join("")}</YOUR_IDENTITY>
 <USER_PERSONA name="${userNameSafe}">${[
-    tag("ETERNAL", user.fragments?.eternal?.non_physical),
-    tag("PRESENT", user.fragments?.present?.non_physical),
+    tag("ETERNAL", user.eternal?.non_physical),
+    tag("PRESENT", user.present?.non_physical),
     tag("PAST", render_atom.past(user, { limit: 2, vector_text: true })),
   ]
     .filter(Boolean)
     .map((x) => `\n${x}`)
     .join("")}</USER_PERSONA>
 <FRACTAL name="${fractalNameSafe}"${fracDynAttrs}>${[
-    tag("ETERNAL", fractal?.fragments?.eternal?.non_physical),
-    tag("PRESENT", fractal?.fragments?.present?.non_physical),
+    tag("ETERNAL", fractal?.eternal?.non_physical),
+    tag("PRESENT", fractal?.present?.non_physical),
     (() => {
       const pastVectors = render_atom.past(fractal, { limit: 1, vector_text: true }) || "";
       const validLog = simulation_log && String(simulation_log).trim().length > 0;
@@ -175,7 +175,7 @@ Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Pu
  * PURPOSE: Initial scene setup and atmospheric resonance.
  * @param {PrologueParams} params
  */
-function render_prologue({ round, entities, input }) {
+function render_prologue({ round, entities, input, render_atom, compressed_snapshot }) {
   const ai = entities.AI;
   const user = entities.USER;
   const fractal = entities.FRACTAL;
@@ -185,27 +185,48 @@ function render_prologue({ round, entities, input }) {
   const userNameSafe = escapeXml(user.name);
   const fractalNameSafe = escapeXml(fractal.name);
 
+  const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
+  const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
+
   return `
 <SYSTEM role="${fractalNameSafe}" round="${roundSafe}" mode="PROLOGUE">
-<YOUR_IDENTITY name="${fractalNameSafe}">
-<ETERNAL>${escapeXml(fractal.fragments.eternal.non_physical)}</ETERNAL>
-<PRESENT>${escapeXml(fractal.fragments.present.non_physical)}</PRESENT>
+<YOUR_IDENTITY name="${fractalNameSafe}"${fracDynAttrs}>${[
+    tag("ETERNAL", fractal.eternal?.non_physical),
+    tag("PRESENT", fractal.present?.non_physical),
+    tag("PAST", render_atom?.past(fractal, { limit: 2, vector_text: true })),
+    tag("FUTURE", render_atom?.future(fractal, { limit: 2, vector_text: true })),
+  ]
+    .filter(Boolean)
+    .map((x) => `\n${x}`)
+    .join("")}
 </YOUR_IDENTITY>
 <ACTIVE_CHARACTERS>
-    <AI_CHARACTER name="${aiNameSafe}">
-    <ETERNAL>${escapeXml(ai.fragments.eternal.non_physical)}</ETERNAL>
-    <PRESENT>${escapeXml(ai.fragments.present.non_physical)}</PRESENT>
+    <AI_CHARACTER name="${aiNameSafe}"${aiDynAttrs}>${[
+      tag("ETERNAL", ai.eternal?.non_physical),
+      tag("PRESENT", ai.present?.non_physical),
+      tag("PAST", render_atom?.past(ai, { limit: 2, vector_text: true })),
+      tag("FUTURE", render_atom?.future(ai, { limit: 2, vector_text: true })),
+    ]
+      .filter(Boolean)
+      .map((x) => `\n${x}`)
+      .join("")}
     </AI_CHARACTER>
-    <USER_PERSONA name="${userNameSafe}">
-    <ETERNAL>${escapeXml(user.fragments.eternal.non_physical)}</ETERNAL>
-    <PRESENT>${escapeXml(user.fragments.present.non_physical)}</PRESENT>
+    <USER_PERSONA name="${userNameSafe}">${[
+      tag("ETERNAL", user.eternal?.non_physical),
+      tag("PRESENT", user.present?.non_physical),
+      tag("PAST", render_atom?.past(user, { limit: 2, vector_text: true })),
+      tag("FUTURE", render_atom?.future(user, { limit: 2, vector_text: true })),
+    ]
+      .filter(Boolean)
+      .map((x) => `\n${x}`)
+      .join("")}
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
-<PROTOCOLS>\n${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, IMMERSION, MOMENTUM, FORMAT")}\n</PROTOCOLS>
+<PROTOCOLS>
+${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, IMMERSION, MOMENTUM, FORMAT")}
+</PROTOCOLS>
 <TASK>
-You see everything. Open the scene.
-Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop.
-The Fractal speaks first. Begin with sensation. No dialogue.
+You see everything. Open the scene. Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation—where the characters are and what they are currently doing. Set the narrative on a collision course with the active FUTURE vectors of all entities. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.
 Input: ${escapeXml(input?.trim() || "The scene begins.")}
 </TASK>
 </SYSTEM>`.trim();
@@ -216,7 +237,7 @@ Input: ${escapeXml(input?.trim() || "The scene begins.")}
  * PURPOSE: Closes the active simulation round. Resists narrative drift.
  * @param {EpilogueParams} params
  */
-function render_epilogue({ entities, recent_history: _recent_history }) {
+function render_epilogue({ entities, recent_history: _recent_history, render_atom, compressed_snapshot }) {
   const ai = entities.AI;
   const user = entities.USER;
   const fractal = entities.FRACTAL;
@@ -225,28 +246,48 @@ function render_epilogue({ entities, recent_history: _recent_history }) {
   const userNameSafe = escapeXml(user.name);
   const fractalNameSafe = escapeXml(fractal.name);
 
+  const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
+  const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
+
   return `
-<SYSTEM role="NARRATOR" mode="EPILOGUE">
-<FINAL_STATE>
-<ENTITY name="${aiNameSafe}">
-    <PRESENT>${escapeXml(ai.fragments.present?.non_physical || "")}</PRESENT>
-    <ETERNAL>${escapeXml(ai.fragments.eternal?.non_physical || "")}</ETERNAL>
-</ENTITY>
-<ENTITY name="${userNameSafe}">
-    <PRESENT>${escapeXml(user.fragments.present?.non_physical || "")}</PRESENT>
-    <ETERNAL>${escapeXml(user.fragments.eternal?.non_physical || "")}</ETERNAL>
-</ENTITY>
-<ENTITY name="${fractalNameSafe}">
-    <PRESENT>${escapeXml(fractal.fragments.present?.non_physical || "")}</PRESENT>
-    <ETERNAL>${escapeXml(fractal.fragments.eternal?.non_physical || "")}</ETERNAL>
-</ENTITY>
-</FINAL_STATE>
+<SYSTEM role="${fractalNameSafe}" mode="EPILOGUE">
+<YOUR_IDENTITY name="${fractalNameSafe}"${fracDynAttrs}>${[
+    tag("ETERNAL", fractal.eternal?.non_physical),
+    tag("PRESENT", fractal.present?.non_physical),
+    tag("PAST", render_atom?.past(fractal, { limit: 2, vector_text: true })),
+    tag("FUTURE", render_atom?.future(fractal, { limit: 2, vector_text: true })),
+  ]
+    .filter(Boolean)
+    .map((x) => `\n${x}`)
+    .join("")}
+</YOUR_IDENTITY>
+<ACTIVE_CHARACTERS>
+    <AI_CHARACTER name="${aiNameSafe}"${aiDynAttrs}>${[
+      tag("ETERNAL", ai.eternal?.non_physical),
+      tag("PRESENT", ai.present?.non_physical),
+      tag("PAST", render_atom?.past(ai, { limit: 2, vector_text: true })),
+      tag("FUTURE", render_atom?.future(ai, { limit: 2, vector_text: true })),
+    ]
+      .filter(Boolean)
+      .map((x) => `\n${x}`)
+      .join("")}
+    </AI_CHARACTER>
+    <USER_PERSONA name="${userNameSafe}">${[
+      tag("ETERNAL", user.eternal?.non_physical),
+      tag("PRESENT", user.present?.non_physical),
+      tag("PAST", render_atom?.past(user, { limit: 2, vector_text: true })),
+      tag("FUTURE", render_atom?.future(user, { limit: 2, vector_text: true })),
+    ]
+      .filter(Boolean)
+      .map((x) => `\n${x}`)
+      .join("")}
+    </USER_PERSONA>
+</ACTIVE_CHARACTERS>
 <PROTOCOLS>
-${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, FORMAT")}
+${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, IMMERSION, MOMENTUM, FORMAT")}
 </PROTOCOLS>
 <TASK>
-Close the scene. Resolve every active tension thread. Show  do not narrate  the
-weight of what just happened. Leave the world visibly changed. End on sensation, not summary.
+You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.
 </TASK>
 </SYSTEM>`.trim();
 }
@@ -329,7 +370,7 @@ const PROTOCOL_LIBRARY = {
     "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
   IMMERSION: "Render spatial coordinates and convey emotion strictly through physical behavior.",
   COGNITION:
-    "Begin your response with <think>. You are strictly forbidden from writing loose prose inside the <think> block. You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:\n\n# Phase 1: Prior Assessment\nEstablish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.\n\n# Phase 2: Evidence Evaluation\nParse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.\n\n# Phase 3: Likelihood Estimation\nEvaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.\n\n# Phase 4: Posterior Update\nCalculate and declare the finalized, updated emotional state vectors and immediate intentions right before closing the tracking tag.\n\nConduct your thinking in the same language as the conversation.",
+    "Begin your response with <think>. You are strictly forbidden from writing loose prose inside the <think> block. You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:\n\n# Phase 1: Prior Assessment\nEstablish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.\n\n# Phase 2: Evidence Evaluation\nParse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.\n\n# Phase 3: Likelihood Estimation\nEvaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.\n\n# Phase 4: Posterior Update\nCalculate and declare the finalized, updated emotional state vectors and immediate intentions.\n\nCRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.",
   HYGIENE: "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys.",
   AFFIRMATIVE: "Use affirmative language.",
   PRESENT: "Write in the present tense.",
@@ -348,9 +389,9 @@ const PROTOCOL_LIBRARY = {
   STABILITY_LOCK_2:
     "CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.",
   ENHANCER_COGNITION_NON_PHYSICAL:
-    "Begin your response with <think>. Use this block to analyze the core psychological archetypes, thematic resonances, and necessary vocabulary before writing the final enhanced text.",
+    "Begin your response with <think>. Use this block to analyze the core psychological archetypes, thematic resonances, and necessary vocabulary. You MUST explicitly write </think> to close the block before outputting the final text.",
   ENHANCER_COGNITION_PHYSICAL:
-    "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements before formatting the visual tokens.",
+    "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements. You MUST explicitly write </think> to close the block before formatting the visual tokens.",
 };
 
 /**
@@ -371,6 +412,7 @@ export const prompt_builder = {
         ...payload,
         round: payload.round,
         render_atom,
+        compressed_snapshot: snapshot,
       });
       return {
         system: prompt_builder.clean(system),
@@ -551,31 +593,29 @@ export const prompt_builder = {
     const safeEntities = {
       AI: entities?.AI || {
         name: "AI",
-        fragments: {
-          present: { non_physical: "" },
-          eternal: { non_physical: "" },
-        },
+        present: { non_physical: "" },
+        eternal: { non_physical: "" },
       },
       USER: entities?.USER || {
         name: "USER",
-        fragments: {
-          present: { non_physical: "" },
-          eternal: { non_physical: "" },
-        },
+        present: { non_physical: "" },
+        eternal: { non_physical: "" },
       },
       FRACTAL: entities?.FRACTAL || {
         name: "FRACTAL",
-        fragments: {
-          present: { non_physical: "" },
-          eternal: { non_physical: "" },
-        },
+        present: { non_physical: "" },
+        eternal: { non_physical: "" },
       },
     };
+
+    const render_atom = prompt_builder.create_render_atom(safeEntities, "", recent_history);
 
     return {
       system: render_epilogue({
         entities: safeEntities,
         recent_history,
+        render_atom,
+        compressed_snapshot: { ai: { dynamics: dynamics?.ai }, fractal: { dynamics: dynamics?.fractal } },
       }),
       messages: [],
     };

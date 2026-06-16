@@ -57,19 +57,22 @@ describe("prompt_builder (Refactored)", () => {
       entities: {
         AI: {
           name: "Viper",
-          fragments: { present: { non_physical: "Viper Present" }, eternal: { non_physical: "Viper Eternal" } },
+          present: { non_physical: "Viper Present" },
+          eternal: { non_physical: "Viper Eternal" },
           past: [{ text: "Viper past 1" }],
           future: [{ text: "Viper future 1" }],
         },
         USER: {
           name: "Ghost",
-          fragments: { present: { non_physical: "Ghost Present" }, eternal: { non_physical: "Ghost Eternal" } },
+          present: { non_physical: "Ghost Present" },
+          eternal: { non_physical: "Ghost Eternal" },
           past: [{ text: "Ghost past 1" }],
           future: [],
         },
         FRACTAL: {
           name: "Void",
-          fragments: { present: { non_physical: "Void Present" }, eternal: { non_physical: "Void Eternal" } },
+          present: { non_physical: "Void Present" },
+          eternal: { non_physical: "Void Eternal" },
           past: [{ text: "Void past 1" }],
           future: [{ text: "Void future 1" }],
         },
@@ -98,9 +101,9 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
     });
 
-    it("build_epilogue() returns valid narrator system prompt", () => {
+    it("build_epilogue() returns valid fractal system prompt", () => {
       const result = prompt_builder.build_epilogue();
-      expect(result.system).toContain('role="NARRATOR"');
+      expect(result.system).toContain('role="FRACTAL"');
     });
 
     it("build_memory_prompt() targets specific entity refinement", () => {
@@ -113,9 +116,9 @@ describe("prompt_builder (Refactored)", () => {
       const emptyPayload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", fragments: { present: {}, eternal: {} }, past: [], future: [] },
-          USER: { name: "Ghost", fragments: { present: {}, eternal: {} }, past: [], future: [] },
-          FRACTAL: { name: "Void", fragments: { present: {}, eternal: {} }, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
         },
         simulation_log: [],
         input: "Check the door.",
@@ -136,28 +139,22 @@ describe("prompt_builder (Refactored)", () => {
         entities: {
           AI: {
             name: "Viper",
-            fragments: {
-              present: { non_physical: "Present" },
-              eternal: { non_physical: "Eternal" },
-            },
+            present: { non_physical: "Present" },
+            eternal: { non_physical: "Eternal" },
             past: [{ text: "P1", base_weight: 9 }],
             future: [{ text: "F1", base_weight: 9 }],
           },
           USER: {
             name: "Ghost",
-            fragments: {
-              present: { non_physical: "User Present" },
-              eternal: { non_physical: "User Eternal" },
-            },
+            present: { non_physical: "User Present" },
+            eternal: { non_physical: "User Eternal" },
             past: [],
             future: [],
           },
           FRACTAL: {
             name: "Void",
-            fragments: {
-              present: { non_physical: "Void Present" },
-              eternal: { non_physical: "Void Eternal" },
-            },
+            present: { non_physical: "Void Present" },
+            eternal: { non_physical: "Void Eternal" },
             past: [],
             future: [],
           },
@@ -224,24 +221,18 @@ describe("prompt_builder (Refactored)", () => {
       const entities = {
         AI: {
           name: "Viper",
-          fragments: {
-            present: { non_physical: "Viper Present State" },
-            eternal: { non_physical: "Viper Core State" },
-          },
+          present: { non_physical: "Viper Present State" },
+          eternal: { non_physical: "Viper Core State" },
         },
         USER: {
           name: "Ghost",
-          fragments: {
-            present: { non_physical: "Ghost Current Mood" },
-            eternal: { non_physical: "Ghost Core Spirit" },
-          },
+          present: { non_physical: "Ghost Current Mood" },
+          eternal: { non_physical: "Ghost Core Spirit" },
         },
         FRACTAL: {
           name: "Void",
-          fragments: {
-            present: { non_physical: "Void Collapsing" },
-            eternal: { non_physical: "Void Eternal Abyss" },
-          },
+          present: { non_physical: "Void Collapsing" },
+          eternal: { non_physical: "Void Eternal Abyss" },
         },
       };
       const dynamics = {
@@ -252,15 +243,15 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_epilogue(entities, dynamics, recent_history);
 
-      expect(result.system).toContain('<SYSTEM role="NARRATOR" mode="EPILOGUE">');
-      expect(result.system).toContain("<FINAL_STATE>");
-      expect(result.system).toContain('<ENTITY name="Viper">');
+      expect(result.system).toContain('<SYSTEM role="Void" mode="EPILOGUE">');
+      expect(result.system).toContain('<YOUR_IDENTITY name="Void" velocity="85" entropy="90">');
+      expect(result.system).toContain("<ACTIVE_CHARACTERS>");
+      expect(result.system).toContain('<AI_CHARACTER name="Viper"');
       expect(result.system).toContain("Viper Present State");
-      expect(result.system).toContain('<ENTITY name="Ghost">');
+      expect(result.system).toContain('<USER_PERSONA name="Ghost">');
       expect(result.system).toContain("Ghost Current Mood");
-      expect(result.system).toContain('<ENTITY name="Void">');
       expect(result.system).toContain("Void Collapsing");
-      expect(result.system).toContain("End on sensation, not summary.");
+      expect(result.system).toContain("End on lingering sensation, not summary.");
     });
   });
 });

@@ -372,10 +372,11 @@ export const gamemaster = {
     if (!system) return null;
     app.log("gamemaster: Generating epilogue...", "system");
     const nodeId = generateUUID();
+    const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     const response = await this.execute_with_retry(async () => {
-      return await llm_service.generate({ system, role: "ai", node_id: nodeId });
+      return await llm_service.generate({ system, role: "fractal", node_id: nodeId });
     });
-    await session_driver.log_turn(response, "Narrator", "ai", { id: nodeId });
+    await session_driver.log_turn(response, fractal_name, "fractal", { id: nodeId });
     app.end_stream();
     return response;
   },
