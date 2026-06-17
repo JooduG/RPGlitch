@@ -209,6 +209,8 @@ export const context_broker = {
         name: raw.name || role,
         _data_points: filtered,
         fragments,
+        eternal: fragments.eternal,
+        present: fragments.present,
         past: raw.past,
         future: raw.future,
         dynamics: raw.dynamics, // Pass through for physics calculation

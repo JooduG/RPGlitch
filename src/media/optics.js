@@ -123,47 +123,61 @@ Output only the token string. No preamble, no explanation.`.trim();
   BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
-    let ctxBlock;
+    // eslint-disable-next-line no-useless-assignment
+    let ctxBlock = "";
     let anchor = "RAW photograph of a character";
     let realism = "photorealistic, natural skin texture, professional photography";
 
+    const renderEntity = (tagStr, entity) => {
+      if (!entity) return "";
+      const p = [entity.eternal?.physical, entity.present?.physical].filter(Boolean);
+      if (!p.length) return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}" />`;
+      return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}">\n${p.map((txt) => `  <PHYSICAL>${escapeXml(txt)}</PHYSICAL>`).join("\n")}\n</${tagStr}>`;
+    };
+
+    const aiBlock = renderEntity("AI_CHARACTER", ai);
+    const userBlock = renderEntity("USER_PERSONA", user);
+    const fractalBlock = renderEntity("FRACTAL", fractal);
+
     switch (targetType) {
       case "scene":
-        ctxBlock = `[CONTEXT: ENVIRONMENT]\nSetting: ${escapeXml(fractal?.present?.physical || "Unknown")}\n**STRICTLY NO CHARACTERS.** Focus on composition and lighting.`;
+        ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus on composition and lighting.</RESTRICTION>`;
         anchor = "RAW photograph of a landscape or photorealistic wide shot of an interior";
         realism = "photorealistic, 8k resolution, professional architectural photography";
         break;
       case "user":
-        ctxBlock = `[CONTEXT: USER_PORTRAIT]\nIdentity: ${escapeXml(user?.name || "User")}\nPhysical: ${escapeXml(user?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO PROTOCOL.**</RESTRICTION>`;
         break;
       case "selfie":
-        ctxBlock = `[CONTEXT: SMARTPHONE_SELFIE]\nSubject Identity: ${escapeXml(ai?.name || "AI")}\nSubject Physical Features: ${escapeXml(ai?.present?.physical || "Standard")}\nBackground Environment Details: ${escapeXml(fractal?.present?.physical || "Standard")}`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
         anchor =
           "RAW photograph, a modern smartphone selfie shot, front-facing wide-angle camera lens distortion, one arm stretched out forward holding the phone into the lower edge of the frame, capturing the character from the chest up while the active environment is fully visible behind them";
         realism = "photorealistic, cinematic selfie framing, lens flare, smartphone camera aesthetic, natural lighting, professional photography";
         break;
       case "ai":
       default:
-        ctxBlock = `[CONTEXT: ENTITY_PORTRAIT]\nIdentity: ${escapeXml(ai?.name || "AI")}\nPhysical: ${escapeXml(ai?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO PROTOCOL.**</RESTRICTION>`;
         break;
     }
 
     return `
-[SYSTEM: SENSORY_CORTEX_V5]
-Target: ${targetType}
-Mode: ${mode.toUpperCase()}
-${history ? `[HISTORY]\n${escapeXml(history)}` : ""}
-${ctxBlock}
-[INSTRUCTIONS]
+<SYSTEM role="SENSORY_CORTEX_V5">
+<TARGET>${targetType}</TARGET>
+<MODE>${mode.toUpperCase()}</MODE>
+${history ? `<HISTORY>\n${escapeXml(history)}\n</HISTORY>\n` : ""}${ctxBlock}
+<INSTRUCTIONS>
 Convert intent into a single impactful image prompt.
 Input Intent: "${escapeXml(rawIntent)}"
-[PROTOCOL]
+</INSTRUCTIONS>
+<PROTOCOL>
 1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
 2. Output exactly one <image_prompt> tag containing the final token string.
 3. The image_prompt MUST start with "${anchor}" and use comma-separated tokens, NOT prose.
 4. NEVER use anime, illustrated, digital art, or painterly language.
 5. End every prompt with: "${realism}"
 ${targetType === "selfie" ? "6. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie." : ""}
+</PROTOCOL>
+</SYSTEM>
 `.trim();
   },
 };

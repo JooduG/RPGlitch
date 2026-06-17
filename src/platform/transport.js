@@ -17,7 +17,7 @@
  * nothing about the narrative. It only sends and receives.
  */
 import { ERROR_MESSAGES } from "@engine";
-import { strip_cognition_blocks } from "@intelligence";
+import { strip_cognition_blocks, escapeXml } from "@intelligence";
 import { app } from "@state";
 
 /************************************************************************************
@@ -160,7 +160,7 @@ export const llm_service = {
     // 2. Assemble the final instruction block
     const instruction = [
       payload.system || "",
-      chat_history ? `\n\n[CONVERSATION HISTORY]\n${chat_history}` : "",
+      chat_history ? `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>` : "",
       payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : "",
     ]
       .filter(Boolean)
@@ -301,6 +301,7 @@ export const llm_service = {
       // Guard against system role telemetry leaks
       if (m.role === "system") continue;
 
+      const roleAttr = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
       const label = m.character_name || (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
       const text = strip_cognition_blocks(m.content || m.text || "").trim();
       if (!text) continue;
@@ -308,9 +309,9 @@ export const llm_service = {
       if (collapsed.length > 0 && collapsed[collapsed.length - 1].label === label) {
         collapsed[collapsed.length - 1].text += `\n\n${text}`;
       } else {
-        collapsed.push({ label, text });
+        collapsed.push({ roleAttr, label, text });
       }
     }
-    return collapsed.map((c) => `[[${c.label}]]: ${c.text}`).join("\n\n");
+    return collapsed.map((c) => `  <entry role="${escapeXml(c.roleAttr)}" name="${escapeXml(c.label)}">${escapeXml(c.text)}</entry>`).join("\n");
   },
 };
