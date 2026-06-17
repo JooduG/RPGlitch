@@ -29,6 +29,7 @@ export const ENTITY_TEMPLATES = {
     present: { physical: "", non_physical: "" },
     modifiers: {
       prompt: "",
+      negative_prompt: "",
       no_background: false,
       flipped: false,
       profile_picture_seed: 0,
@@ -138,6 +139,7 @@ export const normalize = (base = {}) => {
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
+      negative_prompt: sanitize_html(modifiers?.negative_prompt ?? "").trim(),
       no_background: !!(modifiers?.no_background ?? modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),

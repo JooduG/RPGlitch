@@ -174,22 +174,72 @@ describe("VisualEngine (Reactive)", () => {
     }
   });
 
-  it("should enhance a prompt using Optics", async () => {
+  it("should enhance a prompt and return structured { prompt, negativePrompt }", async () => {
+    const mockJson = JSON.stringify({
+      _thought_process: "Analyzed the scene.",
+      prompt: "RAW photograph of a character, tired scientist, 8k.",
+      negativePrompt: "blurry, low quality, anime",
+    });
+    vi.mocked(llm_service.generate).mockResolvedValue(mockJson);
+
+    const result = await visual_engine.enhance("A tired scientist");
+
+    expect(result).toEqual({
+      prompt: "RAW photograph of a character, tired scientist, 8k.",
+      negativePrompt: "blurry, low quality, anime",
+    });
+    expect(llm_service.generate).toHaveBeenCalled();
+  });
+
+  it("should fall back to plain-text { prompt, negativePrompt: '' } when JSON parse fails", async () => {
     vi.mocked(llm_service.generate).mockResolvedValue('"Subject: A man in a cold facility, sharp focus, 8k."');
 
     const result = await visual_engine.enhance("A tired scientist");
 
-    expect(result).toBe("Subject: A man in a cold facility, sharp focus, 8k.");
-    expect(llm_service.generate).toHaveBeenCalled();
+    expect(result).toEqual({
+      prompt: "Subject: A man in a cold facility, sharp focus, 8k.",
+      negativePrompt: "",
+    });
   });
 
   it("should retry enhancement on failure", async () => {
-    vi.mocked(llm_service.generate).mockRejectedValueOnce(new Error("LLM Timeout")).mockResolvedValueOnce("Successful prompt");
+    const mockJson = JSON.stringify({ prompt: "Successful prompt", negativePrompt: "" });
+    vi.mocked(llm_service.generate).mockRejectedValueOnce(new Error("LLM Timeout")).mockResolvedValueOnce(mockJson);
 
     const result = await visual_engine.enhance("text");
 
-    expect(result).toBe("Successful prompt");
+    expect(result).toEqual({ prompt: "Successful prompt", negativePrompt: "" });
     expect(llm_service.generate).toHaveBeenCalledTimes(2);
+  });
+
+  it("should pass custom negativePrompt option to the image plugin", async () => {
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue({
+      dataUrl: "data:image/png;base64,neg",
+    });
+
+    await visual_engine.generate("A Nordic investigator", {
+      negativePrompt: "cartoonish, bright colors",
+    });
+
+    expect(/** @type {any} */ (window).pluginTextToImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        negativePrompt: "cartoonish, bright colors",
+      }),
+    );
+  });
+
+  it("should fall back to NEGATIVE_PROMPT constant when no custom negativePrompt is provided", async () => {
+    vi.mocked(/** @type {any} */ (window).pluginTextToImage).mockResolvedValue({
+      dataUrl: "data:image/png;base64,fallback",
+    });
+
+    await visual_engine.generate("A Nordic investigator");
+
+    expect(/** @type {any} */ (window).pluginTextToImage).toHaveBeenCalledWith(
+      expect.objectContaining({
+        negativePrompt: expect.stringContaining("anime"),
+      }),
+    );
   });
 
   it("should handle null LLM responses in visualize safely", async () => {

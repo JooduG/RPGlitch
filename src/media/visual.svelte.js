@@ -6,7 +6,15 @@
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
 import { strip_cognition_blocks } from "@intelligence/parser.js";
-import { AestheticResolver, CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
+import {
+  AestheticResolver,
+  CircuitBreaker,
+  ExponentialBackoffRetryer,
+  getResolution,
+  NEGATIVE_PROMPT,
+  parseRefineResponse,
+  PromptTemplates,
+} from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
 
@@ -66,6 +74,10 @@ export class VisualEngine {
         finalPrompt = entity.modifiers?.prompt || AestheticResolver.extract(entity) || entity.name;
 
         /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
+        // Store the entity's custom negative prompt for use in generation
+        if (!options.negativePrompt && entity.modifiers?.negative_prompt) {
+          /** @type {any} */ (options).negativePrompt = entity.modifiers.negative_prompt;
+        }
       } else {
         finalPrompt = String(target);
       }
@@ -110,9 +122,11 @@ export class VisualEngine {
             if (!image_engine) throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
+            // Resolve negative prompt: per-entity override > hardcoded constant
+            const effectiveNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || NEGATIVE_PROMPT;
             const generatePromise = image_engine({
               prompt: finalPrompt,
-              negativePrompt: NEGATIVE_PROMPT,
+              negativePrompt: effectiveNegativePrompt,
               seed: options.seed ?? generateSecureSeed(),
               width: options.width || res.width,
               height: options.height || res.height,
@@ -174,9 +188,12 @@ export class VisualEngine {
   }
 
   /**
-   * Translates text into enhanced visual tokens.
+   * Refines raw text into structured { prompt, negativePrompt } visual tokens
+   * using the Optics Scribe pattern (ImageGlitch-style Refine pipeline).
+   * Falls back to a plain-text result object if JSON parsing fails.
    * @param {string} text
    * @param {string} [type]
+   * @returns {Promise<{ prompt: string, negativePrompt: string } | null>}
    */
   async enhance(text, type = "character") {
     return await this.breaker.execute(async () => {
@@ -187,7 +204,13 @@ export class VisualEngine {
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
-          return this._cleanPrompt(result);
+          // Attempt structured JSON parse (Scribe pattern)
+          const parsed = parseRefineResponse(result);
+          if (parsed) return parsed;
+
+          // Fallback: treat raw result as plain-text prompt only
+          const cleanPrompt = this._cleanPrompt(result);
+          return cleanPrompt ? { prompt: cleanPrompt, negativePrompt: "" } : null;
         },
         (/** @type {number} */ attempt) => {
           console.warn(`[VisualEngine] Enhancement retry ${attempt}...`);

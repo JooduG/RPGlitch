@@ -57,6 +57,7 @@
     if (!profileState.char.modifiers) {
       profileState.char.modifiers = {
         prompt: "",
+        negative_prompt: "",
         no_background: false,
         flipped: false,
         profile_picture_seed: 0,
@@ -65,6 +66,7 @@
       return;
     }
     profileState.char.modifiers.prompt ??= "";
+    profileState.char.modifiers.negative_prompt ??= "";
     profileState.char.modifiers.no_background ??= false;
     profileState.char.modifiers.flipped ??= false;
     profileState.char.modifiers.profile_picture_seed ??= 0;
@@ -108,7 +110,10 @@
           profileState.char.modifiers.prompt = AestheticResolver.extract(profileState.char);
         } else {
           const result = await app.visual.enhance(profileState.char.modifiers.prompt, profileState.char.type);
-          if (result) profileState.char.modifiers.prompt = result;
+          if (result) {
+            if (result.prompt) profileState.char.modifiers.prompt = result.prompt;
+            if (result.negativePrompt) profileState.char.modifiers.negative_prompt = result.negativePrompt;
+          }
         }
       } else if (profileState.active_field) {
         const val = profileState.get_safe_value(current_key);
@@ -153,6 +158,7 @@
     try {
       const url = await app.visual.generate(prompt_value, {
         no_background: profileState.noBackground,
+        negativePrompt: profileState.char.modifiers.negative_prompt || undefined,
       });
       if (url) profileState.char.profile_picture = url;
     } catch (err) {
@@ -439,6 +445,16 @@
       {/if}
     {/snippet}
   </TextField>
+
+  <!-- 🚫 NEGATIVE PROMPT -->
+  <TextField
+    is_edit={profileState.is_editing}
+    busy={is_prompt_busy}
+    bind:value={profileState.char.modifiers.negative_prompt}
+    placeholder="Negative prompt (avoid these)..."
+    disabled={!profileState.is_editing || is_prompt_busy}
+    signature_color="var(--color-frozen)"
+  ></TextField>
 
   <!-- âš™ï¸  RENDER TOGGLES -->
   <div

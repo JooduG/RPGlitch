@@ -35,6 +35,7 @@ describe("content-normaliser.js", () => {
         future: [],
         modifiers: {
           prompt: "",
+          negative_prompt: "",
           no_background: false,
           flipped: false,
           profile_picture_seed: 0,
@@ -74,11 +75,26 @@ describe("content-normaliser.js", () => {
       const result = normalize(input);
       expect(result.modifiers).toEqual({
         prompt: "test prompt",
+        negative_prompt: "",
         no_background: true,
         flipped: true,
         profile_picture_seed: 123,
         color_name: "Blue",
       });
+    });
+
+    it("should persist a custom negative_prompt value", () => {
+      const input = {
+        modifiers: { prompt: "a hero", negative_prompt: "blurry, low quality" },
+      };
+      const result = normalize(input);
+      expect(result.modifiers.negative_prompt).toBe("blurry, low quality");
+    });
+
+    it("should default negative_prompt to empty string when absent", () => {
+      const input = { modifiers: { prompt: "a hero" } };
+      const result = normalize(input);
+      expect(result.modifiers.negative_prompt).toBe("");
     });
 
     it("should prioritize modifiers over legacy visuals", () => {

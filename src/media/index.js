@@ -10,6 +10,6 @@ export {
   PALETTE_VARS,
   TOKENS,
 } from "./tokens.js";
-export { NEGATIVE_PROMPT, AestheticResolver, PromptTemplates, getResolution } from "./optics.js";
+export { NEGATIVE_PROMPT, AESTHETICS_REGISTRY, AestheticResolver, PromptTemplates, parseRefineResponse, getResolution } from "./optics.js";
 export { ExponentialBackoffRetryer, CircuitBreaker } from "./resilience.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";

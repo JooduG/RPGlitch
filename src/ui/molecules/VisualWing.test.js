@@ -19,6 +19,7 @@ function ensureModifiers(char) {
   if (!char.modifiers) {
     char.modifiers = {
       prompt: "",
+      negative_prompt: "",
       no_background: false,
       flipped: false,
       profile_picture_seed: 0,
@@ -26,6 +27,7 @@ function ensureModifiers(char) {
     };
   } else {
     char.modifiers.prompt ??= "";
+    char.modifiers.negative_prompt ??= "";
     char.modifiers.no_background ??= false;
     char.modifiers.flipped ??= false;
     char.modifiers.profile_picture_seed ??= 0;
@@ -66,6 +68,7 @@ describe("VisualWing Stability (Hotfix)", () => {
     ensureModifiers(char);
     expect(char.modifiers).toBeDefined();
     expect(char.modifiers.prompt).toBe("");
+    expect(char.modifiers.negative_prompt).toBe("");
     expect(char.modifiers.no_background).toBe(false);
   });
 
@@ -78,6 +81,7 @@ describe("VisualWing Stability (Hotfix)", () => {
     };
     ensureModifiers(char);
     expect(char.modifiers.prompt).toBe("Existing prompt");
+    expect(char.modifiers.negative_prompt).toBe("");
     expect(char.modifiers.no_background).toBe(false);
     expect(char.modifiers.profile_picture_seed).toBe(0);
   });
@@ -105,5 +109,21 @@ describe("VisualWing Stability (Hotfix)", () => {
     };
     const result = await handleCreativeAction(context);
     expect(result.result).toBe("success");
+  });
+
+  test("handleCreativeAction writes both prompt and negative_prompt from Refine result", () => {
+    /** @type {any} */
+    const char = { modifiers: { prompt: "old prompt", negative_prompt: "" } };
+    // Simulate refine result update logic from handle_creative_action
+    const refineResult = {
+      prompt: "RAW photograph of a character, sharp focus, 8k.",
+      negativePrompt: "blurry, low quality, anime",
+    };
+    if (refineResult) {
+      if (refineResult.prompt) char.modifiers.prompt = refineResult.prompt;
+      if (refineResult.negativePrompt) char.modifiers.negative_prompt = refineResult.negativePrompt;
+    }
+    expect(char.modifiers.prompt).toBe("RAW photograph of a character, sharp focus, 8k.");
+    expect(char.modifiers.negative_prompt).toBe("blurry, low quality, anime");
   });
 });

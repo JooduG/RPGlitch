@@ -12,6 +12,135 @@ import { escapeXml } from "@intelligence/parser.js";
 import { get_signature_label } from "@media";
 
 /**
+ * Aesthetic token registry — curated dimensions injected into the Refine
+ * prompt for contextual grounding. Ported and adapted from ImageGlitch,
+ * tuned for RPGlitch's photorealistic Nordic Collection aesthetic.
+ * Each dimension provides a pool of specific tokens the AI selects from.
+ */
+export const AESTHETICS_REGISTRY = {
+  // The fundamental art format — photorealistic always anchored first
+  mediums: [
+    "RAW photograph",
+    "ARRI Alexa 35 cinema camera capture",
+    "Hasselblad medium format digital",
+    "Leica M11 documentary shot",
+    "Fujifilm GFX 100S editorial photograph",
+    "vintage 35mm analog film scan",
+  ],
+  // Physical lens and camera hardware
+  camera_and_optics: [
+    "85mm Prime f/1.2 lens, creamy bokeh",
+    "35mm Summilux wide-angle lens",
+    "Hasselblad HC 100mm f/2.2 macro lens",
+    "anamorphic lens distortion, cinematic oval bokeh",
+    "shallow depth-of-field, sharp focus on subject",
+    "long exposure motion blur, environmental movement",
+    "wide-angle environmental capture",
+    "extreme close-up macro detail shot",
+  ],
+  // Environmental and artificial light sources
+  lighting: [
+    "dramatic cinematic chiaroscuro, deep shadow contrast",
+    "cold Nordic overcast diffused light",
+    "volumetric god rays through mist",
+    "backlit silhouette with ice-blue rim lighting",
+    "harsh clinical fluorescent studio lighting",
+    "subterranean abyssal ambient glow",
+    "golden hour warm sidelighting",
+    "night photography, practical light sources only",
+    "neon sign glow, urban night reflections",
+  ],
+  // Color science, grading, and film stocks
+  colors: [
+    "Kodak Vision3 500T desaturated film grain",
+    "high-contrast monochrome black and white",
+    "cold teal and deep navy cinematic grade",
+    "muted desaturated Scandinavian palette",
+    "frozen gunmetal and chalk white tones",
+    "abyssal deep blue and silver metallic",
+    "deep shadow, minimal highlight roll-off",
+    "split-toned cyan shadows, warm highlight bleed",
+  ],
+  // Framing and compositional geometry
+  composition: [
+    "rule of thirds, intentional negative space",
+    "golden ratio spiral composition",
+    "symmetrical environmental framing",
+    "extreme close-up detail shot",
+    "medium portrait 3/4 framing, slight angle",
+    "full body environmental context shot",
+    "bird's eye overhead perspective",
+    "worm's eye dramatic low angle",
+    "dutch tilt, tension framing",
+  ],
+  // Micro-detail, texture fidelity, rendering quality
+  fidelity: [
+    "8K hyper-realistic micro-detail",
+    "subsurface scattering, natural skin translucency",
+    "micro-detailed visible skin pores, natural texture",
+    "realistic fabric weave and material texture",
+    "heavy analog film grain texture overlay",
+    "chromatic aberration edge bleed, subtle lens defect",
+    "ambient occlusion depth shading",
+    "ray-traced surface reflections",
+  ],
+  // Emotional and atmospheric tone
+  moods: [
+    "intense and dramatic, high psychological tension",
+    "cold and clinical, detached observation",
+    "dark and gothic, subterranean atmosphere",
+    "melancholic Nordic isolation, quiet desolation",
+    "predatory stillness, controlled power",
+    "ethereal dreamlike suspension",
+    "chaotic and rebellious, unstable energy",
+    "serene and contemplative, subdued presence",
+  ],
+};
+
+/**
+ * Shared prompt protocol fragments to ensure standardization.
+ */
+const PROTOCOL_NO_WEIGHTS =
+  'Remove or avoid numerical weighting syntax (e.g. "(masterpiece:1.2)" or "(bokeh:1.3)"). Control emphasis through descriptive adjectives, positioning, and absolute quantities only.';
+
+const PROTOCOL_JSON_OUTPUT = "Return a single JSON object. No conversational preamble, no markdown backticks, no XML tags outside of the JSON block.";
+
+const SHARED_CONSTRAINTS = `<CONSTRAINTS>
+- Output MUST be valid JSON starting with '{' and ending with '}'.
+- Do not wrap the JSON in markdown code blocks like \`\`\`json.
+- No XML tags outside the JSON.
+</CONSTRAINTS>`;
+
+/**
+ * Formats a dimension category for injection into the AI prompt context.
+ * @param {string} label
+ * @param {string[]} items
+ * @returns {string}
+ */
+const formatDimension = (label, items) => (items.length > 0 ? `[DIMENSION: ${label}]\n${items.join(", ")}\n` : "");
+
+/**
+ * Renders all AESTHETICS_REGISTRY dimensions into a structured context block.
+ * @returns {string}
+ */
+const buildDimensionsContext = () =>
+  Object.entries(AESTHETICS_REGISTRY)
+    .map(([key, items]) => {
+      const labels = {
+        mediums: "Mediums",
+        camera_and_optics: "Camera & Optics",
+        lighting: "Lighting",
+        colors: "Colors & Film Stock",
+        composition: "Composition",
+        fidelity: "Fidelity & Texture",
+        moods: "Mood & Atmosphere",
+      };
+      return formatDimension(labels[key] || key, items);
+    })
+    .filter(Boolean)
+    .join("\n");
+
+/**
  * Resolves camera specs based on character context.
  */
 export const AestheticResolver = {
@@ -62,42 +191,32 @@ export const AestheticResolver = {
  */
 export const PromptTemplates = {
   /**
-   * Refines raw description into dense visual tokens.
+   * Refines raw description into structured JSON with positive + negative prompt tokens.
+   * Scribe pattern: Lawful Good prompter that enriches intent using the AESTHETICS_REGISTRY
+   * dimension matrix and returns { _thought_process, prompt, negativePrompt }.
+   *
+   * @param {string} text - Raw character or scene description to refine
+   * @param {string} [type] - Entity type: "character" | "fractal" | "scene"
+   * @returns {string} The complete system prompt string
    */
   ENHANCE: (text, type = "character") => {
-    if (type === "fractal" || type === "scene") {
-      return `You are a professional image prompt engineer. Your task is to convert a visual environment description into an optimized prompt for the FLUX diffusion model.
+    const dimensionsContext = buildDimensionsContext();
+    const isScene = type === "fractal" || type === "scene";
 
-OUTPUT FORMAT: A single line of comma-separated visual tokens. NOT prose. NOT sentences.
+    const mediumAnchor = isScene
+      ? `begin with "RAW photograph of a landscape," or "photorealistic wide shot of an interior,"`
+      : `begin with "RAW photograph of a character," or "photorealistic portrait,"`;
 
-MANDATORY TOKEN SEQUENCE:
-1. Planning: Use a <think> block first to analyze the environment's mood, lighting setup, and architectural/natural details.
-2. Medium anchor: begin with "RAW photograph of a landscape," or "photorealistic wide shot of an interior,"
+    const tokenSequence = isScene
+      ? `1. Planning: Use a <think> block to analyze the environment's mood, lighting, architecture, and atmospheric details.
+2. Medium anchor: ${mediumAnchor}
 3. Core Subject: the primary environment, architecture, or natural feature
-3. Lighting & Atmosphere: weather, time of day, fog, atmospheric perspective
-4. Key Details: specific materials, architectural elements, or flora
-5. Camera: lens type, focal length, color grade
-6. Realism anchors: end with "photorealistic, 8k resolution, professional architectural photography"
-
-STRICT RULES:
-- NEVER use: anime, illustrated, digital art, painterly, stylized
-- NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece
-- Use only physically grounded, photographable descriptors
-- NO characters or people in the focus
-
-Input description:
-${escapeXml(text)}
-
-Output only the token string. No preamble, no explanation.`.trim();
-    }
-
-    return `You are a professional image prompt engineer. Your task is to convert a visual character description into an optimized prompt for the FLUX diffusion model.
-
-OUTPUT FORMAT: A single line of comma-separated visual tokens. NOT prose. NOT sentences.
-
-MANDATORY TOKEN SEQUENCE:
-1. Planning: Use a <think> block first to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements.
-2. Medium anchor: begin with "RAW photograph of a character," or "photorealistic portrait,"
+4. Lighting & Atmosphere: weather, time of day, fog, atmospheric perspective
+5. Key Details: specific materials, architectural elements, or flora
+6. Camera: lens type, focal length, color grade from the DIMENSIONS matrix
+7. Realism anchors: end with "photorealistic, 8k resolution, professional architectural photography"`
+      : `1. Planning: Use a <think> block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements.
+2. Medium anchor: ${mediumAnchor}
 3. Demographics: age, gender, race/ethnicity
 4. Physical build: body type, musculature, height impression
 5. Face: jaw, brow, eyes (color + shape), nose, lips, stubble/beard if applicable
@@ -105,19 +224,53 @@ MANDATORY TOKEN SEQUENCE:
 7. Skin: tone, texture (e.g. "olive skin, visible pores, natural sheen")
 8. Clothing: each item by name, material, color, fit
 9. Setting: minimal background context
-10. Camera + lighting: lens type, focal length, lighting setup, color grade
-11. Realism anchors: end with "photorealistic, natural skin texture, professional photography"
+10. Camera + lighting: select from the DIMENSIONS matrix below
+11. Realism anchors: end with "photorealistic, natural skin texture, professional photography"`;
 
-STRICT RULES:
-- NEVER use: anime, illustrated, digital art, painterly, stylized, ethereal, otherworldly, radiant, glowing
+    const strictRules = isScene
+      ? `- NEVER use: anime, illustrated, digital art, painterly, stylized
+- NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece
+- Use only physically grounded, photographable descriptors
+- NO characters or people in the scene focus
+- ${PROTOCOL_NO_WEIGHTS}`
+      : `- NEVER use: anime, illustrated, digital art, painterly, stylized, ethereal, otherworldly, radiant, glowing
 - NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece, best quality
 - Use only physically grounded, photographable descriptors
 - If input contains non-photographic language, translate it to its photographic equivalent
+- ${PROTOCOL_NO_WEIGHTS}`;
 
-Input description:
+    return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
+You are the "Optics Scribe" — a Lawful Good photorealistic prompt engineer for the RPGlitch Nordic Collection.
+Your goal is to enrich the input description by selecting and integrating specific aesthetic tokens from the provided <DIMENSIONS> matrix, returning a structured JSON response that is visually precise, photorealistic, and cinematically grounded.
+
+<INPUT_DESCRIPTION>
 ${escapeXml(text)}
+</INPUT_DESCRIPTION>
 
-Output only the token string. No preamble, no explanation.`.trim();
+<DIMENSIONS>
+${dimensionsContext}
+</DIMENSIONS>
+
+<REFINE_PROTOCOL>
+${tokenSequence}
+
+STRICT RULES:
+${strictRules}
+
+STRUCTURED THOUGHT PROCESS: In the "_thought_process" field, break down your decisions across: Medium, Camera & Optics, Lighting, Colors & Film Stock, Composition, Fidelity, and Mood. Explain which tokens you selected from the DIMENSIONS and why.
+
+JSON OUTPUT FORMULATION: ${PROTOCOL_JSON_OUTPUT}
+
+JSON STRUCTURE:
+{
+  "_thought_process": "<your dimensional breakdown: Medium, Camera, Lighting, Colors, Composition, Fidelity, Mood — cite specific tokens selected from DIMENSIONS>",
+  "prompt": "<synthesized comma-separated visual tokens integrating input description with selected DIMENSION tokens>",
+  "negativePrompt": "<cohesive negative elements preventing style dilution, unrealistic rendering, or Nordic Collection violations>"
+}
+</REFINE_PROTOCOL>
+
+${SHARED_CONSTRAINTS}
+</OPTICS_REFINE>`.trim();
   },
 
   BUILDER: (targetType, rawIntent, context) => {
@@ -180,6 +333,42 @@ ${targetType === "selfie" ? "6. Finally, output a short, in-character <caption>.
 </SYSTEM>
 `.trim();
   },
+};
+
+/**
+ * Parses a structured JSON response from PromptTemplates.ENHANCE.
+ * Returns { prompt, negativePrompt } on success, or null on parse failure.
+ * @param {string} raw
+ * @returns {{ prompt: string, negativePrompt: string } | null}
+ */
+export const parseRefineResponse = (raw) => {
+  if (!raw || typeof raw !== "string") return null;
+
+  let trimmed = raw.trim();
+
+  // Handle Perchance assistant pre-filling: response may start without '{'
+  if (!trimmed.startsWith("{") && (trimmed.includes('"prompt"') || trimmed.includes('"_thought_process"'))) {
+    trimmed = "{" + trimmed;
+  }
+
+  const start = trimmed.indexOf("{");
+  const end = trimmed.lastIndexOf("}");
+
+  if (start !== -1 && end !== -1 && end > start) {
+    try {
+      const parsed = JSON.parse(trimmed.slice(start, end + 1));
+      if (parsed && typeof parsed.prompt === "string") {
+        return {
+          prompt: parsed.prompt.trim(),
+          negativePrompt: typeof parsed.negativePrompt === "string" ? parsed.negativePrompt.trim() : "",
+        };
+      }
+    } catch {
+      // Fall through to null
+    }
+  }
+
+  return null;
 };
 
 /**
