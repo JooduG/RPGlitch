@@ -408,6 +408,11 @@
                               console.log("[PHOTO] Starting generation");
                               console.log("[PHOTO] runtime.story_id:", runtime.story_id);
                               console.log("[PHOTO] runtime.active_story:", runtime.active_story);
+
+                              // Directly set role for guaranteed reactivity before triggering phase change
+                              simulationState.role = "ai";
+                              simulationState.start_generation("ai");
+
                               const result = await visual_engine.visualize(
                                 runtime.story_id,
                                 app.prologue || "Taking an outstretched phone selfie portrait capturing the moment",
@@ -418,11 +423,17 @@
                               console.log("[PHOTO] Image URL:", result?.imageUrl);
 
                               if (result?.imageUrl) {
-                                const entity_name = app.selected_ai?.name || runtime.active_ai?.name || "AI";
+                                const entity = runtime.active_ai || app.selected_ai;
+                                const entity_name = entity?.name || "AI";
+
+                                const caption = result.caption || "Here, caught this moment for you.";
 
                                 console.log("[PHOTO] Logging image to chat");
 
-                                await session_driver.log_turn(`![Selfie](${result.imageUrl})`, entity_name, "ai", { turn_type: "SYSTEM_TURN" });
+                                await session_driver.log_turn(caption, entity_name, "ai", {
+                                  turn_type: "AI_TURN",
+                                  attachments: [result.imageUrl],
+                                });
 
                                 console.log("[PHOTO] Chat log complete");
                               } else {
@@ -430,6 +441,8 @@
                               }
                             } catch (err) {
                               console.error("[PHOTO ERROR]", err);
+                            } finally {
+                              simulationState.complete();
                             }
                           }}
                         />
@@ -630,7 +643,7 @@
           onblur={() => (is_focused = false)}
           placeholder="Type a message..."
           rows="1"
-          disabled={is_locked || app.control_panel_open}
+          disabled={app.control_panel_open}
           aria-label="Input message"
           style="view-transition-name: console-center-axis"
         ></textarea>

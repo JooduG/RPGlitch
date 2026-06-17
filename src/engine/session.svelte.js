@@ -143,7 +143,7 @@ export const session_driver = {
    * @param {string} [turn_type]
    * @param {any} [meta]
    */
-  log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}) {
+  log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}, attachments = []) {
     const story_id = session_driver.require_active();
     /** @type {any} */
     const entry = {
@@ -157,6 +157,9 @@ export const session_driver = {
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };
+    if (attachments && attachments.length > 0) {
+      entry.attachments = attachments;
+    }
     if (meta && meta.id) {
       entry.id = meta.id;
     }
@@ -172,7 +175,15 @@ export const session_driver = {
    * @param {any} [meta]
    */
   log_turn: async function (text, character_name, role, meta = {}) {
-    return await this.log_message(text, role, character_name, meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN"), meta);
+    const { attachments, ...rest_meta } = meta;
+    return await this.log_message(
+      text,
+      role,
+      character_name,
+      rest_meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN"),
+      rest_meta,
+      attachments || [],
+    );
   },
 
   /**

@@ -246,9 +246,9 @@ function createRuntimeStore() {
       simulation_turn_type = val;
     },
     get active_story() {
-      console.log("[ACTIVE_STORY]", simulation_story_id, simulation_story, simulation_story?.by_id);
-
-      return simulation_story_id ? simulation_story.by_id[simulation_story_id] : null;
+      if (!simulation_story_id) return null;
+      // Normalize the lookup key to match however sync() stored it
+      return simulation_story.by_id[simulation_story_id] ?? simulation_story.by_id[coerce_story_key(simulation_story_id)] ?? null;
     },
 
     // --- VECTOR API ---
@@ -361,6 +361,14 @@ function createRuntimeStore() {
         app.selected_ai = active_ai_state;
         app.selected_user = active_user_state;
         app.selected_fractal = active_fractal_state;
+
+        // Store the story object in the by_id map so active_story getter works.
+        // Key with the coerced numeric key to match how DB stores it.
+        simulation_story.by_id[db_key] = story;
+        // Also index by the original string form if different, to cover all lookup paths.
+        if (String(db_key) !== String(simulation_story_id)) {
+          simulation_story.by_id[simulation_story_id] = story;
+        }
 
         simulation_is_ready = true;
       } catch (err) {

@@ -50,7 +50,7 @@ export const simulationState = $state({
   // Actions
   start_generation(role = "ai") {
     this.phase = "generating";
-    /** @type {any} */ (this).role = role;
+    this.role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);
   },
   /**
    * @param {"ai" | "system" | "fractal" | "user" | null} role
@@ -58,7 +58,7 @@ export const simulationState = $state({
    */
   start_typing(role, id) {
     this.is_typing = true;
-    /** @type {any} */ (this).role = role;
+    this.role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);
     this.active_id = id;
   },
   stop_typing() {

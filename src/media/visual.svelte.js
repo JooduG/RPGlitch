@@ -243,17 +243,23 @@ export class VisualEngine {
         { silent: true },
       );
 
-      if (!refined) return { imageUrl: null, refinedPrompt: null };
+      if (!refined) return { imageUrl: null, refinedPrompt: null, caption: null };
 
       const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
       const extracted = match?.[1] || refined || "";
       const cleanPrompt = this._cleanPrompt(extracted.replace(/<think>[\s\S]*?<\/think>/gi, ""));
 
+      let caption = null;
+      if (vTarget === "selfie") {
+        const captionMatch = refined?.match(/<caption\s+text="([^"]+)"/i) || refined?.match(/<caption>([\s\S]*?)<\/caption>/i);
+        caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
+      }
+
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
-      return { imageUrl, refinedPrompt: cleanPrompt };
+      return { imageUrl, refinedPrompt: cleanPrompt, caption };
     } catch (err) {
       console.error("[VisualEngine] Visualize error:", err);
-      return { imageUrl: null, refinedPrompt: null };
+      return { imageUrl: null, refinedPrompt: null, caption: null };
     } finally {
       simulation.stop_typing();
     }

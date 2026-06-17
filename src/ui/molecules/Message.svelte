@@ -497,12 +497,14 @@
           {#if attachments.length > 0}
             <div class="mb-4">
               {#each attachments as src (src)}
-                <Button
-                  variant="invisible"
+                <button
+                  type="button"
                   class="
                     mb-2
-                    min-h-0
-                    w-fit
+                    block
+                    w-full
+                    overflow-hidden
+                    rounded-lg
                     bg-neutral-900/50
                     p-2
                     transition-colors
@@ -510,19 +512,23 @@
                   "
                   onclick={() => app.open_image_preview(src)}
                   aria-label="View Attachment"
-                  actions={[tooltip]}
+                  use:tooltip
                 >
                   <img
                     {src}
                     alt="Attachment"
                     class="
+                      mx-auto
+                      max-h-[280px]
+                      w-auto
                       max-w-full
+                      cursor-zoom-in
                       rounded-sm
-                      object-cover
+                      object-contain
                       shadow-sm
                     "
                   />
-                </Button>
+                </button>
               {/each}
             </div>
           {/if}

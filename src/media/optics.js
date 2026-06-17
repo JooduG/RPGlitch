@@ -163,6 +163,7 @@ Input Intent: "${escapeXml(rawIntent)}"
 3. The image_prompt MUST start with "${anchor}" and use comma-separated tokens, NOT prose.
 4. NEVER use anime, illustrated, digital art, or painterly language.
 5. End every prompt with: "${realism}"
+${targetType === "selfie" ? "6. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie." : ""}
 `.trim();
   },
 };
@@ -178,6 +179,7 @@ export const getResolution = (/** @type {any} */ mode) => {
       return { width: 768, height: 512 };
     case "portrait":
     case "character":
+    case "selfie":
     case "user":
     case "ai":
       return { width: 512, height: 768 };

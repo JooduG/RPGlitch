@@ -106,7 +106,16 @@
 
   // Turn state orchestration
   let is_active_turn = $derived(simulationState.phase === "generating" || app.streaming.active);
-  let active_turn_role = $derived(app.streaming.active ? app.streaming.role : simulationState.role);
+  let active_turn_role = $derived.by(() => {
+    if (app.streaming.active) return app.streaming.role;
+    // During image generation, always fall back to "ai" so the busy
+    // bubble renders left-aligned regardless of intermediate typing roles.
+    if (simulationState.phase === "generating") {
+      if (simulationState.role === "selfie" || simulationState.role === "setting" || simulationState.role === "paparazzi") return "ai";
+      return simulationState.role ?? "ai";
+    }
+    return simulationState.role;
+  });
   let active_turn_name = $derived.by(() => {
     if (active_turn_role === "ai") return app.selected_ai?.name;
     if (active_turn_role === "fractal") return app.selected_fractal?.name;
