@@ -404,14 +404,32 @@
                           loading={visual_engine.isLoading}
                           disabled={visual_engine.isLoading || is_locked}
                           onclick={async () => {
-                            const result = await visual_engine.visualize(
-                              runtime.story_id,
-                              app.prologue || "Taking an outstretched phone selfie portrait capturing the moment",
-                              "selfie",
-                            );
-                            if (result?.imageUrl) {
-                              const entity_name = app.selected_ai?.name || runtime.active_ai?.name || "AI";
-                              await session_driver.log_turn(`![Selfie](${result.imageUrl})`, entity_name, "ai", { turn_type: "SYSTEM_TURN" });
+                            try {
+                              console.log("[PHOTO] Starting generation");
+                              console.log("[PHOTO] runtime.story_id:", runtime.story_id);
+                              console.log("[PHOTO] runtime.active_story:", runtime.active_story);
+                              const result = await visual_engine.visualize(
+                                runtime.story_id,
+                                app.prologue || "Taking an outstretched phone selfie portrait capturing the moment",
+                                "selfie",
+                              );
+
+                              console.log("[PHOTO] Result:", result);
+                              console.log("[PHOTO] Image URL:", result?.imageUrl);
+
+                              if (result?.imageUrl) {
+                                const entity_name = app.selected_ai?.name || runtime.active_ai?.name || "AI";
+
+                                console.log("[PHOTO] Logging image to chat");
+
+                                await session_driver.log_turn(`![Selfie](${result.imageUrl})`, entity_name, "ai", { turn_type: "SYSTEM_TURN" });
+
+                                console.log("[PHOTO] Chat log complete");
+                              } else {
+                                console.warn("[PHOTO] No imageUrl returned");
+                              }
+                            } catch (err) {
+                              console.error("[PHOTO ERROR]", err);
                             }
                           }}
                         />

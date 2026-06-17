@@ -1,7 +1,7 @@
 <script>
   /**
    * @file Storymode.svelte
-   * â„ï¸ THE MAIN STAGE
+   * THE MAIN STAGE
    * Container for the active game session, simulation log, and side panels.
    * Refactored: Mariana Trench SOTA Refactor
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement

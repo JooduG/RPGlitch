@@ -246,8 +246,11 @@ function createRuntimeStore() {
       simulation_turn_type = val;
     },
     get active_story() {
+      console.log("[ACTIVE_STORY]", simulation_story_id, simulation_story, simulation_story?.by_id);
+
       return simulation_story_id ? simulation_story.by_id[simulation_story_id] : null;
     },
+
     // --- VECTOR API ---
 
     /**

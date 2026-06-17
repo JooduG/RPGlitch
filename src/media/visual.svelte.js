@@ -204,9 +204,16 @@ export class VisualEngine {
    * @param {any} [options]
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
-    /** @type {any} */
+    console.log("[VISUALIZE] storyId arg:", storyId);
+    console.log("[VISUALIZE] runtime.story_id:", runtime.story_id);
+    console.log("[VISUALIZE] runtime.active_story:", runtime.active_story);
+
     const story = runtime.active_story;
-    if (!story) return { imageUrl: null, refinedPrompt: null };
+
+    if (!story) {
+      console.warn("[VISUALIZE] No active story!");
+      return { imageUrl: null, refinedPrompt: null };
+    }
 
     const targetTypeMap = { fractal: "scene", scene: "scene", user: "user", selfie: "selfie" };
     const vTarget = /** @type {any} */ (targetTypeMap)[targetType] || "ai";
