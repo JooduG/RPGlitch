@@ -55,9 +55,12 @@ if (typeof window !== "undefined") {
  */
 export class VoiceEngine {
   // --- REACTIVE STATE ---
-  isSpeaking = $state(false);
   /** @type {string | null | number} */
   activeMessageId = $state(null);
+
+  get isSpeaking() {
+    return this.activeMessageId !== null;
+  }
   /** @type {any[]} */
   voices = $state([]);
   /** @type {string | null} */

@@ -29,7 +29,7 @@
     "**/package-lock.json",
     "**/pnpm-lock.yaml",
     "**/public/assets/**",
-    "**/scribbles/**",
+    "**/scribbles**",
     "**/templates/**",
     "**/test-results/**",
     "**/yarn.lock",
@@ -46,7 +46,7 @@
     "!**/test-results/**",
     "!**/tmp/**"
   ],
-  "gitignore": ["!**/rpglitch-left-panel.txt", "!**/templates/**", ".secrets", "**/.jules/**", "act_output.log", "gha-creds-*.json"],
+  "gitignore": ["!**/rpglitch-left-panel.txt", "!**/templates/**", ".secrets", "**/.jules/**", "act_output.log", "gha-creds-*.json", "**ignore"],
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],

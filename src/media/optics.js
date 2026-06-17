@@ -120,32 +120,32 @@ ${escapeXml(text)}
 Output only the token string. No preamble, no explanation.`.trim();
   },
 
-  /**
-   * Builds the final system prompt for context-aware generation.
-   */
-  BUILDER: (/** @type {any} */ targetType, /** @type {string} */ rawIntent, /** @type {any} */ context) => {
+  BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
     let ctxBlock;
+    let anchor = "RAW photograph of a character";
+    let realism = "photorealistic, natural skin texture, professional photography";
+
     switch (targetType) {
       case "scene":
         ctxBlock = `[CONTEXT: ENVIRONMENT]\nSetting: ${escapeXml(fractal?.present?.physical || "Unknown")}\n**STRICTLY NO CHARACTERS.** Focus on composition and lighting.`;
+        anchor = "RAW photograph of a landscape or photorealistic wide shot of an interior";
+        realism = "photorealistic, 8k resolution, professional architectural photography";
         break;
       case "user":
         ctxBlock = `[CONTEXT: USER_PORTRAIT]\nIdentity: ${escapeXml(user?.name || "User")}\nPhysical: ${escapeXml(user?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
+        break;
+      case "selfie":
+        ctxBlock = `[CONTEXT: SMARTPHONE_SELFIE]\nSubject Identity: ${escapeXml(ai?.name || "AI")}\nSubject Physical Features: ${escapeXml(ai?.present?.physical || "Standard")}\nBackground Environment Details: ${escapeXml(fractal?.present?.physical || "Standard")}`;
+        anchor =
+          "RAW photograph, a modern smartphone selfie shot, front-facing wide-angle camera lens distortion, one arm stretched out forward holding the phone into the lower edge of the frame, capturing the character from the chest up while the active environment is fully visible behind them";
+        realism = "photorealistic, cinematic selfie framing, lens flare, smartphone camera aesthetic, natural lighting, professional photography";
         break;
       case "ai":
       default:
         ctxBlock = `[CONTEXT: ENTITY_PORTRAIT]\nIdentity: ${escapeXml(ai?.name || "AI")}\nPhysical: ${escapeXml(ai?.present?.physical || "Standard")}\n**SOLO PROTOCOL.**`;
         break;
-    }
-
-    let anchor = "RAW photograph of a character";
-    let realism = "photorealistic, natural skin texture, professional photography";
-
-    if (targetType === "scene") {
-      anchor = "RAW photograph of a landscape or photorealistic wide shot of an interior";
-      realism = "photorealistic, 8k resolution, professional architectural photography";
     }
 
     return `

@@ -401,10 +401,25 @@
                           label="PHOTO"
                           variant="secondary"
                           size="small"
-                          onclick={() => visual_engine.visualize(runtime.story_id, app.prologue || "Current scene", "ai")}
+                          loading={visual_engine.isLoading}
+                          disabled={visual_engine.isLoading || is_locked}
+                          onclick={async () => {
+                            const result = await visual_engine.visualize(
+                              runtime.story_id,
+                              app.prologue || "Taking an outstretched phone selfie portrait capturing the moment",
+                              "selfie",
+                            );
+                            if (result?.imageUrl) {
+                              const entity_name = app.selected_ai?.name || runtime.active_ai?.name || "AI";
+                              await session_driver.log_turn(`![Selfie](${result.imageUrl})`, entity_name, "ai", { turn_type: "SYSTEM_TURN" });
+                            }
+                          }}
                         />
                         <Button label="MOCK PROLOGUE" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("fractal")} />
                         <Button label="MOCK TURN" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("ai")} />
+
+                        <Button label="STORYBOARD" variant="secondary" size="small" onclick={() => app.set_view("storyboard")} />
+
                         <Button
                           label="END STORY"
                           variant="danger"

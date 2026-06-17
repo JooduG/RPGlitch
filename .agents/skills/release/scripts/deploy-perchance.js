@@ -36,7 +36,7 @@ const CONFIG = {
   perchance_key: process.env.PERCHANCE_KEY || "",
 
   left_panel_path: resolve(PROJECT_ROOT, "src", "RPGlitch-left-panel.perchance"),
-  max_bundle_size: 1024 * 1024, // 1MB limit for Perchance stability
+  max_bundle_size: 2 * 1024 * 1024, // 2MB limit for Perchance stability
   right_panel_path: resolve(PROJECT_ROOT, "dist", "index.html"),
 
   // Optimization is a requirement for Perchance stability

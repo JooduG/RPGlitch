@@ -74,18 +74,43 @@ export class VisualEngine {
       const result = await this.breaker.execute(async () => {
         return await this.retryer.retry(
           async () => {
-            // @ts-ignore
-            let hasPlugin = false;
-            try {
-              if (typeof window !== "undefined" && typeof window.pluginTextToImage === "function") hasPlugin = true;
-            } catch (_e) {
-              /* ignore */
-            }
-            if (!hasPlugin) throw new Error("Image plugin missing");
+            // Resolve the text-to-image plugin function
+            const get_image_engine = () => {
+              if (typeof window === "undefined") return null;
+              try {
+                if (typeof window.pluginTextToImage === "function") return window.pluginTextToImage;
+              } catch (_e) {
+                /* ignore */
+              }
+              try {
+                if (typeof window.textToImage === "function") return window.textToImage;
+              } catch (_e) {
+                /* ignore */
+              }
+              try {
+                if (window.parent && typeof window.parent.pluginTextToImage === "function") return window.parent.pluginTextToImage;
+              } catch (_e) {
+                /* ignore */
+              }
+              try {
+                if (window.parent && typeof window.parent.textToImage === "function") return window.parent.textToImage;
+              } catch (_e) {
+                /* ignore */
+              }
+              try {
+                const lexical = eval("typeof textToImage !== 'undefined' ? textToImage : undefined");
+                if (typeof lexical === "function") return lexical;
+              } catch (_e) {
+                /* ignore */
+              }
+              return null;
+            };
+
+            const image_engine = get_image_engine();
+            if (!image_engine) throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
-            // @ts-ignore
-            const generatePromise = window.pluginTextToImage({
+            const generatePromise = image_engine({
               prompt: finalPrompt,
               negativePrompt: NEGATIVE_PROMPT,
               seed: options.seed ?? generateSecureSeed(),
@@ -180,10 +205,10 @@ export class VisualEngine {
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
     /** @type {any} */
-    const story = /** @type {any} */ (runtime.simulation)?.story?.by_id?.[storyId];
+    const story = runtime.active_story;
     if (!story) return { imageUrl: null, refinedPrompt: null };
 
-    const targetTypeMap = { fractal: "scene", scene: "scene", user: "user" };
+    const targetTypeMap = { fractal: "scene", scene: "scene", user: "user", selfie: "selfie" };
     const vTarget = /** @type {any} */ (targetTypeMap)[targetType] || "ai";
 
     const targetIdMap = { fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
@@ -219,7 +244,8 @@ export class VisualEngine {
 
       const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
       return { imageUrl, refinedPrompt: cleanPrompt };
-    } catch {
+    } catch (err) {
+      console.error("[VisualEngine] Visualize error:", err);
       return { imageUrl: null, refinedPrompt: null };
     } finally {
       simulation.stop_typing();

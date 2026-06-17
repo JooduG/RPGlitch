@@ -117,7 +117,9 @@ export class AppStore {
     selected: null,
   });
   // --- UI TENSION (Reactive Intensity) ---
-  tension = $derived(simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0);
+  get tension() {
+    return simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0;
+  }
   /** @type {AppSettings} */
   settings = $state({
     sound: true,
@@ -182,12 +184,12 @@ export class AppStore {
     runtime.turn_type = val;
   }
   // --- READINESS (Derived Logic) ---
-  selected_count = $derived((this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0));
-  is_ready = $derived.by(() => {
-    const ready = this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
-
-    return ready;
-  });
+  get selected_count() {
+    return (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0);
+  }
+  get is_ready() {
+    return this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
+  }
   /** Legacy alias for storyboard readiness */
   get storyboard_ready() {
     return this.is_ready;

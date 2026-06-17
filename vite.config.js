@@ -52,10 +52,13 @@ function perchanceBase64Vault() {
           html = html.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (match, cssContent) => {
             if (cssContent.trim().length < 5) return match;
             const b64 = toBase64(cssContent);
+            const chunks = b64.match(/.{1,10000}/g) || [];
+            const arrayStr = JSON.stringify(chunks);
             return `<script>
               (function() {
                 try {
-                  const css = decodeURIComponent(atob("${b64}").split('').map(function(c) {
+                  const b64 = ${arrayStr}.join('');
+                  const css = decodeURIComponent(atob(b64).split('').map(function(c) {
                     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                   }).join(''));
                   const style = document.createElement('style');
@@ -73,12 +76,15 @@ function perchanceBase64Vault() {
             if (jsContent.trim().length < 10) return match;
 
             const b64 = toBase64(jsContent);
+            const chunks = b64.match(/.{1,10000}/g) || [];
+            const arrayStr = JSON.stringify(chunks);
             const isModule = attributes.includes('type="module"') || attributes.includes("type='module'");
 
             return `<script>
               (function() {
                 try {
-                  const js = decodeURIComponent(atob("${b64}").split('').map(function(c) {
+                  const b64 = ${arrayStr}.join('');
+                  const js = decodeURIComponent(atob(b64).split('').map(function(c) {
                     return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
                   }).join(''));
                   const script = document.createElement('script');
