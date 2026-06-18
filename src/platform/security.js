@@ -1,5 +1,5 @@
 import DOMPurify from "dompurify";
-import { CONFIG } from "@engine/config.js";
+import { CONFIG } from "@engine";
 /**
  * src/core/security.js
  * 🛡️ SECURITY: The Shield

@@ -1,14 +1,13 @@
 <script>
   /**
    * @file src/ui/profile/VisualWing.svelte
-   * â„ï¸ THE ENTITY SHOWCASE ENGINE
+   * ❄️ THE ENTITY SHOWCASE ENGINE
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
   import { Button, TextField, Toggle, tooltip } from "@atoms";
-  import { prompt_builder } from "@intelligence";
-  import { strip_cognition_blocks } from "@intelligence/parser.js";
-  import { AestheticResolver, PALETTE, PALETTE_VARS, get_signature_label, SIGNATURE_COLORS } from "@media";
+  import { prompt_builder, strip_cognition_blocks } from "@intelligence";
+  import { AestheticResolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { llm_service } from "@platform";
   import { app } from "@state";
 
@@ -23,7 +22,7 @@
   // --- CONSTANTS ---
 
   /**
-   * Returns the HSL hue (0â€“360) for a hex color.
+   * Returns the HSL hue (0–360) for a hex color.
    * Achromatic colors (neutrals) return 361 so they sort to the end.
    * @param {string} hex
    */
@@ -111,8 +110,25 @@
         } else {
           const result = await app.visual.enhance(profileState.char.modifiers.prompt, profileState.char.type);
           if (result) {
-            if (result.prompt) profileState.char.modifiers.prompt = result.prompt;
-            if (result.negativePrompt) profileState.char.modifiers.negative_prompt = result.negativePrompt;
+            let positive = result.prompt || "";
+            let negative = result.negativePrompt || "";
+
+            // Emergency extraction slice if upstream JSON.parse tripped and returned a raw string dump
+            if (!negative && (positive.includes('"prompt"') || positive.includes('"negativePrompt"') || positive.includes('"negative_prompt"'))) {
+              const cleanText = strip_cognition_blocks(positive);
+              const promptMatch = cleanText.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+              const negMatch = cleanText.match(/"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+
+              if (promptMatch && promptMatch[1]) {
+                positive = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+              }
+              if (negMatch && negMatch[1]) {
+                negative = negMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+              }
+            }
+
+            if (positive) profileState.char.modifiers.prompt = positive.trim();
+            if (negative) profileState.char.modifiers.negative_prompt = negative.trim();
           }
         }
       } else if (profileState.active_field) {
@@ -209,7 +225,6 @@
   [backdrop-filter:var(--blur-mist)]
 "
 >
-  <!-- 🎨 COLOR SWATCHES -->
   <div
     class="
     grid
@@ -261,7 +276,6 @@
     {/each}
   </div>
 
-  <!-- 🖼️ IMAGE PROMPT -->
   <TextField
     data-active={profileState.active_field?.key === "visual-prompt" ? true : undefined}
     is_edit={profileState.is_editing}
@@ -446,7 +460,6 @@
     {/snippet}
   </TextField>
 
-  <!-- 🚫 NEGATIVE PROMPT -->
   <TextField
     is_edit={profileState.is_editing}
     busy={is_prompt_busy}
@@ -456,7 +469,6 @@
     signature_color="var(--color-frozen)"
   ></TextField>
 
-  <!-- âš™ï¸  RENDER TOGGLES -->
   <div
     class="
     flex
@@ -464,7 +476,7 @@
     gap-2
   "
   >
-    <Toggle label="No Background" bind:value={profileState.noBackground} disabled={!profileState.is_editing} />
+    <Toggle label="Transparent Background" bind:value={profileState.noBackground} disabled={!profileState.is_editing} />
     <Toggle label="Mirror Image" bind:value={profileState.char.modifiers.flipped} disabled={!profileState.is_editing} />
   </div>
 </section>

@@ -1,22 +1,55 @@
 /**
- * src/media/visual-engine.svelte.js
+ * src/media/visual.svelte.js
  * 🎨 VISUAL ENGINE (Reactive Class)
- * The sensory cortex orchestrator.
+ * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
-import { strip_cognition_blocks } from "@intelligence/parser.js";
-import {
-  AestheticResolver,
-  CircuitBreaker,
-  ExponentialBackoffRetryer,
-  getResolution,
-  NEGATIVE_PROMPT,
-  parseRefineResponse,
-  PromptTemplates,
-} from "@media";
+import { strip_cognition_blocks } from "@intelligence";
+import { AestheticResolver, CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
+
+// Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
+let cachedImageEngine = null;
+
+/**
+ * Lazily searches and caches the hosted Perchance text-to-image plugin infrastructure.
+ * Safely insulates cross-origin boundary lookups to prevent Same-Origin Policy crashes.
+ * @returns {Function | null}
+ */
+function findImageEngine() {
+  if (cachedImageEngine) return cachedImageEngine;
+  if (typeof window === "undefined") return null;
+
+  // 1. Check local frame scope immediately
+  if (typeof window.pluginTextToImage === "function") {
+    cachedImageEngine = window.pluginTextToImage;
+    return cachedImageEngine;
+  }
+  if (typeof window.textToImage === "function") {
+    cachedImageEngine = window.textToImage;
+    return cachedImageEngine;
+  }
+
+  // 2. Insulate cross-origin parent lookups behind a secure fence
+  try {
+    if (window.parent) {
+      if (typeof window.parent.pluginTextToImage === "function") {
+        cachedImageEngine = window.parent.pluginTextToImage;
+        return cachedImageEngine;
+      }
+      if (typeof window.parent.textToImage === "function") {
+        cachedImageEngine = window.parent.textToImage;
+        return cachedImageEngine;
+      }
+    }
+  } catch (_) {
+    // Quietly swallow cross-origin access exceptions if parent frame is sandboxed away
+  }
+
+  return null;
+}
 
 /**
  *
@@ -65,7 +98,7 @@ export class VisualEngine {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
 
       if (typeof target === "string" && !isUuid) {
-        finalPrompt = target; // Direct prompt
+        finalPrompt = target.trim(); // Clean raw inputs
       } else if (typeof target === "string") {
         entityId = target;
         /** @type {any} */
@@ -86,39 +119,7 @@ export class VisualEngine {
       const result = await this.breaker.execute(async () => {
         return await this.retryer.retry(
           async () => {
-            // Resolve the text-to-image plugin function
-            const get_image_engine = () => {
-              if (typeof window === "undefined") return null;
-              try {
-                if (typeof window.pluginTextToImage === "function") return window.pluginTextToImage;
-              } catch (_e) {
-                /* ignore */
-              }
-              try {
-                if (typeof window.textToImage === "function") return window.textToImage;
-              } catch (_e) {
-                /* ignore */
-              }
-              try {
-                if (window.parent && typeof window.parent.pluginTextToImage === "function") return window.parent.pluginTextToImage;
-              } catch (_e) {
-                /* ignore */
-              }
-              try {
-                if (window.parent && typeof window.parent.textToImage === "function") return window.parent.textToImage;
-              } catch (_e) {
-                /* ignore */
-              }
-              try {
-                const lexical = eval("typeof textToImage !== 'undefined' ? textToImage : undefined");
-                if (typeof lexical === "function") return lexical;
-              } catch (_e) {
-                /* ignore */
-              }
-              return null;
-            };
-
-            const image_engine = get_image_engine();
+            const image_engine = findImageEngine();
             if (!image_engine) throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
@@ -189,8 +190,7 @@ export class VisualEngine {
 
   /**
    * Refines raw text into structured { prompt, negativePrompt } visual tokens
-   * using the Optics Scribe pattern (ImageGlitch-style Refine pipeline).
-   * Falls back to a plain-text result object if JSON parsing fails.
+   * using an internalized Scribe-parsing block to handle logging artifacts safely.
    * @param {string} text
    * @param {string} [type]
    * @returns {Promise<{ prompt: string, negativePrompt: string } | null>}
@@ -204,8 +204,8 @@ export class VisualEngine {
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
-          // Attempt structured JSON parse (Scribe pattern)
-          const parsed = parseRefineResponse(result);
+          // Internalized structural parse loop
+          const parsed = this._parseRefineResponse(result);
           if (parsed) return parsed;
 
           // Fallback: treat raw result as plain-text prompt only
@@ -377,6 +377,33 @@ export class VisualEngine {
   async _cacheImage(id, data, type = "character") {
     await db.entities.update(id, { profile_picture: data, updated_at: Date.now() });
     await runtime.update_entity(type, id, { profile_picture: data });
+  }
+
+  /**
+   * Localized JSON isolation peeler to separate incoming text streams flawlessly.
+   * @param {string} raw
+   * @returns {{ prompt: string, negativePrompt: string } | null}
+   */
+  _parseRefineResponse(raw) {
+    if (!raw || typeof raw !== "string") return null;
+
+    const start = raw.indexOf("{");
+    const end = raw.lastIndexOf("}");
+
+    if (start !== -1 && end !== -1 && end > start) {
+      try {
+        const parsed = JSON.parse(raw.slice(start, end + 1));
+        if (parsed && typeof parsed.prompt === "string") {
+          return {
+            prompt: parsed.prompt.trim(),
+            negativePrompt: typeof parsed.negativePrompt === "string" ? parsed.negativePrompt.trim() : "",
+          };
+        }
+      } catch (_) {
+        // Fall through safely
+      }
+    }
+    return null;
   }
 
   /**

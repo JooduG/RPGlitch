@@ -1,67 +1,122 @@
 /**
  * src/media/optics.js
- * 👁️ OPTICS LAYER
- * High-fidelity prompt engineering and aesthetic resolution.
- * Focuses on photorealistic camera specs and cinematic grounding.
+ * 👁️ OPTICS LAYER — UPGRADED ENHANCEMENT SCRIBE
+ * High-fidelity prompt engineering, dynamic syntax integration, and artistic refinement.
+ * Merges photorealistic collection specs with adaptive multi-medium rendering flexibility.
  */
 
 export const NEGATIVE_PROMPT =
-  "anime, manga, cartoon, illustrated, digital painting, concept art, cgi, 3d render, 3d model, stylized, fantasy art, comic book, animated, toon shading, cel shading, furry, anthro, anthropomorphic, unrealistic proportions, doll, figure, toy, drawing, sketch, watercolor, oil painting, low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur";
+  "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
 
 import { LISTS } from "@data";
-import { escapeXml } from "@intelligence/parser.js";
+import { escapeXml } from "@intelligence";
 import { get_signature_label } from "@media";
 
 /**
- * Shared prompt protocol fragments to ensure standardization.
+ * Shared prompt protocol fragments to ensure standardization across AI roles.
  */
 const PROTOCOL_NO_WEIGHTS =
-  'Remove or avoid numerical weighting syntax (e.g. "(masterpiece:1.2)" or "(bokeh:1.3)"). Control emphasis through descriptive adjectives, positioning, and absolute quantities only.';
+  'Remove or avoid numerical weighting strings or syntax (e.g. "(masterpiece:1.2)" or "(bokeh:1.3)"). Control emphasis through descriptive adjectives, absolute quantities, and sentence positioning.';
 
-const PROTOCOL_JSON_OUTPUT = "Return a single JSON object. No conversational preamble, no markdown backticks, no XML tags outside of the JSON block.";
+const PROTOCOL_JSON_FORMULATION = "Return a single JSON object. No conversational preamble, no markdown backticks outside of the JSON block.";
+
+const PROTOCOL_DYNAMIC_RANDOMIZATION =
+  'Dynamic Randomization: You MAY use Perchance inline dynamic selection syntax "{Option A|Option B|Option C}" for inline variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.';
 
 const SHARED_CONSTRAINTS = `<CONSTRAINTS>
 - Output MUST be valid JSON starting with '{' and ending with '}'.
 - Do not wrap the JSON in markdown code blocks like \`\`\`json.
-- No XML tags outside the JSON.
+- No XML tags outside the JSON block.
 </CONSTRAINTS>`;
 
 /**
- * Formats a dimension category for injection into the AI prompt context.
- * @param {string} label
- * @param {string[]} items
- * @returns {string}
+ * Safely parses list tokens, gracefully falling back to raw arrays.
+ * @param {string[]|string} items
+ * @returns {string[]|string}
  */
-const formatDimension = (label, items) => (items.length > 0 ? `[DIMENSION: ${label}]\n${items.join(", ")}\n` : "");
+const parseListTokens = (items) => {
+  if (Array.isArray(items) && items.length === 1 && typeof items[0] === "string" && items[0].startsWith("[")) {
+    try {
+      return JSON.parse(items[0]);
+    } catch {
+      return items;
+    }
+  }
+  return items;
+};
 
 /**
- * Renders all LISTS dimensions into a structured context block.
+ * Formats a dimension category for injection into the AI prompt context using clean XML tags.
+ * @param {string} label
+ * @param {string[]|string} items
  * @returns {string}
  */
-const buildDimensionsContext = () =>
-  Object.entries(LISTS)
+const formatDimension = (label, items) => {
+  if (!items || items.length === 0) return "";
+  const cleanItems = parseListTokens(items);
+  const formattedContent = Array.isArray(cleanItems) ? cleanItems.join(", ") : cleanItems;
+  return `<DIMENSION category="${escapeXml(label)}">\n  ${formattedContent}\n</DIMENSION>`;
+};
+
+/**
+ * Recursively flattens nested structures into a cohesive text string.
+ * @param {any} val
+ * @returns {string}
+ */
+export const flattenToParagraph = (val) => {
+  if (val === null || val === undefined) return "";
+  if (typeof val === "string") return val;
+  if (Array.isArray(val)) {
+    return val
+      .map((item) => flattenToParagraph(item))
+      .filter(Boolean)
+      .join(" ");
+  }
+  if (typeof val === "object") {
+    return Object.entries(val)
+      .map(([key, value]) => {
+        const flatVal = flattenToParagraph(value);
+        if (!flatVal) return "";
+        if (!isNaN(Number(key))) return flatVal;
+        return `${key}: ${flatVal}`;
+      })
+      .filter(Boolean)
+      .join(" ");
+  }
+  return String(val);
+};
+
+/**
+ * Renders select LISTS dimensions into a structured template context block.
+ * Automatically handles cleaning up configuration keys and system properties.
+ * @returns {string}
+ */
+const buildDimensionsContext = () => {
+  const labelMap = {
+    mediums: "Mediums",
+    camera_and_optics: "Camera & Optics",
+    lighting: "Lighting",
+    colors: "Colors & Film Stock",
+    composition: "Composition",
+    fidelity: "Fidelity & Texture",
+    moods: "Mood & Atmosphere",
+  };
+
+  return Object.entries(LISTS)
     .map(([key, items]) => {
-      const labels = {
-        mediums: "Mediums",
-        camera_and_optics: "Camera & Optics",
-        lighting: "Lighting",
-        colors: "Colors & Film Stock",
-        composition: "Composition",
-        fidelity: "Fidelity & Texture",
-        moods: "Mood & Atmosphere",
-      };
-      return formatDimension(labels[key] || key, items);
+      if (key === "settings" || key === "sounds" || key === "mutations" || !items) return "";
+      return formatDimension(labelMap[key] || key, items);
     })
     .filter(Boolean)
     .join("\n");
+};
 
 /**
- * Resolves camera specs based on character context.
+ * Resolves specs based on active character context properties.
  */
 export const AestheticResolver = {
   /**
    * Deterministic extraction of traits from entity fields.
-   * EXCLUDES name and description for privacy and precision.
    * @param {any} entity
    */
   extract(entity = {}) {
@@ -69,17 +124,11 @@ export const AestheticResolver = {
     const eternal = entity.eternal?.physical || "";
     const colorName = get_signature_label(entity);
 
-    /**
-     * High-end hardware presets.
-     * We keep cinema and macro here for future wiring.
-     */
     const presets = {
       portrait:
-        "RAW photograph, photorealistic, real person, professional portrait photography, Hasselblad H6D-100c, 85mm f/1.8 lens, natural skin texture, visible skin pores, film grain, shallow depth of field, sharp focus on eyes, dramatic studio lighting, volumetric light, natural color grading, high-end editorial photography",
+        "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
       landscape:
-        "Photorealistic cinematic landscape shot on Leica M11, 35mm Summilux lens, volumetric natural lighting, golden ratio composition, cinematic scope, movie still, 8k resolution, wide angle view, dramatic scope, cinematic atmosphere, high-fidelity textures.",
-      macro:
-        "Photorealistic macro shot on Canon EOS R5, 100mm macro lens, sharp focus, scientific precision, 8k resolution, extreme detail, beautiful soft bokeh, high-fidelity textures, dramatic lighting, volumetric shadows.",
+        "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout",
     };
 
     const fragments = [];
@@ -90,7 +139,6 @@ export const AestheticResolver = {
       fragments.push(`${colorName.toLowerCase()} aesthetic`);
     }
 
-    // Context-Aware Hardware Presets
     if (entity.type === "fractal" || entity.type === "scene") {
       fragments.push(presets.landscape);
     } else {
@@ -102,61 +150,24 @@ export const AestheticResolver = {
 };
 
 /**
- * Authoritative prompt templates optimized for stable diffusion.
+ * Authoritative prompt templates optimized for generative diffusion pipelines.
  */
 export const PromptTemplates = {
   /**
-   * Refines raw description into structured JSON with positive + negative prompt tokens.
-   * Scribe pattern: Lawful Good prompter that enriches intent using the LISTS
-   * dimension matrix and returns { _thought_process, prompt, negativePrompt }.
+   * Refines raw concept data into balanced sentences containing target vocabulary arrays.
+   * Unlocks complete freedom across stylistic mediums (anime, digital painting, photography).
    *
-   * @param {string} text - Raw character or scene description to refine
+   * @param {string} text - Raw content description to enrich
    * @param {string} [type] - Entity type: "character" | "fractal" | "scene"
-   * @returns {string} The complete system prompt string
+   * @returns {string} The formatted system instruction prompt payload string
    */
   ENHANCE: (text, type = "character") => {
-    const dimensionsContext = buildDimensionsContext();
-    const isScene = type === "fractal" || type === "scene";
-
-    const mediumAnchor = isScene
-      ? `begin with "RAW photograph of a landscape," or "photorealistic wide shot of an interior,"`
-      : `begin with "RAW photograph of a character," or "photorealistic portrait,"`;
-
-    const tokenSequence = isScene
-      ? `1. Planning: Use a <think> block to analyze the environment's mood, lighting, architecture, and atmospheric details.
-2. Medium anchor: ${mediumAnchor}
-3. Core Subject: the primary environment, architecture, or natural feature
-4. Lighting & Atmosphere: weather, time of day, fog, atmospheric perspective
-5. Key Details: specific materials, architectural elements, or flora
-6. Camera: lens type, focal length, color grade from the DIMENSIONS matrix
-7. Realism anchors: end with "photorealistic, 8k resolution, professional architectural photography"`
-      : `1. Planning: Use a <think> block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements.
-2. Medium anchor: ${mediumAnchor}
-3. Demographics: age, gender, race/ethnicity
-4. Physical build: body type, musculature, height impression
-5. Face: jaw, brow, eyes (color + shape), nose, lips, stubble/beard if applicable
-6. Hair: color, length, cut style
-7. Skin: tone, texture (e.g. "olive skin, visible pores, natural sheen")
-8. Clothing: each item by name, material, color, fit
-9. Setting: minimal background context
-10. Camera + lighting: select from the DIMENSIONS matrix below
-11. Realism anchors: end with "photorealistic, natural skin texture, professional photography"`;
-
-    const strictRules = isScene
-      ? `- NEVER use: anime, illustrated, digital art, painterly, stylized
-- NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece
-- Use only physically grounded, photographable descriptors
-- NO characters or people in the scene focus
-- ${PROTOCOL_NO_WEIGHTS}`
-      : `- NEVER use: anime, illustrated, digital art, painterly, stylized, ethereal, otherworldly, radiant, glowing
-- NEVER use abstract quality tags: ultra HD, hyperrealistic, masterpiece, best quality
-- Use only physically grounded, photographable descriptors
-- If input contains non-photographic language, translate it to its photographic equivalent
-- ${PROTOCOL_NO_WEIGHTS}`;
+    const dimensionsContext = buildDimensionsContext(type, text);
 
     return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
-You are the "Optics Scribe" — a Lawful Good photorealistic prompt engineer for the RPGlitch Nordic Collection.
-Your goal is to enrich the input description by selecting and integrating specific aesthetic tokens from the provided <DIMENSIONS> matrix, returning a structured JSON response that is visually precise, photorealistic, and cinematically grounded.
+You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and pristine rendering clarity for the generation matrix.
+
+Your goal is to evaluate the user's initial core concept, enrich it by selecting and integrating highly compatible aesthetic tokens from the provided <DIMENSIONS> matrix, and return an optimized JSON data block.
 
 <INPUT_DESCRIPTION>
 ${escapeXml(text)}
@@ -167,22 +178,25 @@ ${dimensionsContext}
 </DIMENSIONS>
 
 <REFINE_PROTOCOL>
-${tokenSequence}
+1. **Aesthetic Ingestion:** Analyze the core thematic style, subjects, and implied format requirements inside the INPUT_DESCRIPTION.
+2. **Dimensional Integration:** Blend the root concept with specific properties drawn from the matching <DIMENSION category="..."> tags. Use these matrix properties to establish the concrete rendering rules of the asset.
+3. **Synthesized Descriptive Sentences:** Synthesize your chosen dimensions and the user's core concepts into natural, continuous descriptive sentences. Avoid compiling fragmented keyword strings or unorganized keyword soup.
+4. **Style Flexibility Rule:** Embrace the user's requested medium choice completely. If the user requests illustration, anime, cgi, pixel art, or photography, adjust your selected lighting and fidelity options to match that chosen artistic format seamlessly.
+5. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground your descriptions using concrete, physical details, textures, or stylistic equivalents instead.
+6. **No Numerical Weighting:** ${PROTOCOL_NO_WEIGHTS}
+7. **Dynamic Elements:** ${PROTOCOL_DYNAMIC_RANDOMIZATION}
+8. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the selected elements, lighting styles, color sciences, and mediums marry together.
+</REFINE_PROTOCOL>
 
-STRICT RULES:
-${strictRules}
-
-STRUCTURED THOUGHT PROCESS: In the "_thought_process" field, break down your decisions across: Medium, Camera & Optics, Lighting, Colors & Film Stock, Composition, Fidelity, and Mood. Explain which tokens you selected from the DIMENSIONS and why.
-
-JSON OUTPUT FORMULATION: ${PROTOCOL_JSON_OUTPUT}
+JSON OUTPUT FORMULATION:
+${PROTOCOL_JSON_FORMULATION}
 
 JSON STRUCTURE:
 {
-  "_thought_process": "<your dimensional breakdown: Medium, Camera, Lighting, Colors, Composition, Fidelity, Mood — cite specific tokens selected from DIMENSIONS>",
-  "prompt": "<synthesized comma-separated visual tokens integrating input description with selected DIMENSION tokens>",
-  "negativePrompt": "<cohesive negative elements preventing style dilution, unrealistic rendering, or Nordic Collection violations>"
+  "_thought_process": "<your dimensional breakdown planning: Medium, Camera/Optics style, Lighting approach, Colors, Composition grid, Textures, and Mood environment>",
+  "prompt": "<synthesized descriptive sentences merging the core input elements with target matrix tokens and optional runtime dynamic blocks>",
+  "negativePrompt": "<cohesive negative elements preventing structural dilution, rendering artifacts, or style contradictions>"
 }
-</REFINE_PROTOCOL>
 
 ${SHARED_CONSTRAINTS}
 </OPTICS_REFINE>`.trim();
@@ -191,16 +205,21 @@ ${SHARED_CONSTRAINTS}
   BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
-    // eslint-disable-next-line no-useless-assignment
-    let ctxBlock = "";
-    let anchor = "RAW photograph of a character";
-    let realism = "photorealistic, natural skin texture, professional photography";
+    let ctxBlock;
+    let anchor = "RAW photograph or structured visual rendering of a character";
+    let realism = "clear focus, defined textures, professional aesthetic layout";
 
     const renderEntity = (tagStr, entity) => {
       if (!entity) return "";
-      const p = [entity.eternal?.physical, entity.present?.physical].filter(Boolean);
-      if (!p.length) return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}" />`;
-      return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}">\n${p.map((txt) => `  <PHYSICAL>${escapeXml(txt)}</PHYSICAL>`).join("\n")}\n</${tagStr}>`;
+      const blocks = [];
+      if (entity.eternal?.physical) {
+        blocks.push(`  <ETERNAL>${escapeXml(entity.eternal.physical)}</ETERNAL>`);
+      }
+      if (entity.present?.physical) {
+        blocks.push(`  <PRESENT>${escapeXml(entity.present.physical)}</PRESENT>`);
+      }
+      if (!blocks.length) return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}" />`;
+      return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;
     };
 
     const aiBlock = renderEntity("AI_CHARACTER", ai);
@@ -209,22 +228,22 @@ ${SHARED_CONSTRAINTS}
 
     switch (targetType) {
       case "scene":
-        ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus on composition and lighting.</RESTRICTION>`;
-        anchor = "RAW photograph of a landscape or photorealistic wide shot of an interior";
-        realism = "photorealistic, 8k resolution, professional architectural photography";
+        ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, medium context, and background lighting structures.</RESTRICTION>`;
+        anchor = "RAW photograph or structured artistic rendering of an landscape environment or interior layout space";
+        realism = "8k resolution, crisp spatial depth details, professional landscape layout alignment";
         break;
       case "user":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO PROTOCOL.**</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona profile context.</RESTRICTION>`;
         break;
       case "selfie":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
         anchor =
-          "RAW photograph, a modern smartphone selfie shot, front-facing wide-angle camera lens distortion, one arm stretched out forward holding the phone into the lower edge of the frame, capturing the character from the chest up while the active environment is fully visible behind them";
-        realism = "photorealistic, cinematic selfie framing, lens flare, smartphone camera aesthetic, natural lighting, professional photography";
+          "RAW photograph or stylized illustration, a modern front-facing wide-angle camera selfie shot layout, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
+        realism = "cinematic framing, clear focus distribution, naturalistic lightning features, smartphone camera simulation layer";
         break;
       case "ai":
       default:
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO PROTOCOL.**</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character profile context.</RESTRICTION>`;
         break;
     }
 
@@ -240,50 +259,14 @@ Input Intent: "${escapeXml(rawIntent)}"
 <PROTOCOL>
 1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
 2. Output exactly one <image_prompt> tag containing the final token string.
-3. The image_prompt MUST start with "${anchor}" and use comma-separated tokens, NOT prose.
-4. NEVER use anime, illustrated, digital art, or painterly language.
+3. The image_prompt MUST start with "${anchor}" and use continuous, descriptive details or tokens.
+4. Allow alternative artistic formats (like anime or illustrations) to map cleanly if requested by the input intent context.
 5. End every prompt with: "${realism}"
 ${targetType === "selfie" ? "6. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie." : ""}
 </PROTOCOL>
 </SYSTEM>
 `.trim();
   },
-};
-
-/**
- * Parses a structured JSON response from PromptTemplates.ENHANCE.
- * Returns { prompt, negativePrompt } on success, or null on parse failure.
- * @param {string} raw
- * @returns {{ prompt: string, negativePrompt: string } | null}
- */
-export const parseRefineResponse = (raw) => {
-  if (!raw || typeof raw !== "string") return null;
-
-  let trimmed = raw.trim();
-
-  // Handle Perchance assistant pre-filling: response may start without '{'
-  if (!trimmed.startsWith("{") && (trimmed.includes('"prompt"') || trimmed.includes('"_thought_process"'))) {
-    trimmed = "{" + trimmed;
-  }
-
-  const start = trimmed.indexOf("{");
-  const end = trimmed.lastIndexOf("}");
-
-  if (start !== -1 && end !== -1 && end > start) {
-    try {
-      const parsed = JSON.parse(trimmed.slice(start, end + 1));
-      if (parsed && typeof parsed.prompt === "string") {
-        return {
-          prompt: parsed.prompt.trim(),
-          negativePrompt: typeof parsed.negativePrompt === "string" ? parsed.negativePrompt.trim() : "",
-        };
-      }
-    } catch {
-      // Fall through to null
-    }
-  }
-
-  return null;
 };
 
 /**
