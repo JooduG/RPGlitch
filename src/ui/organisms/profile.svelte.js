@@ -27,8 +27,10 @@ export class ProfileState {
   /** @type {any} */
   char = $state(null);
 
-  /** @private */
-  _clean_snapshot = null;
+  /** * Operational gate tracking real human input or array alterations.
+   * @type {boolean}
+   */
+  _user_mutated = $state(false);
 
   constructor() {
     this.char = normalize(app.editing_entity || runtime.character);
@@ -39,8 +41,7 @@ export class ProfileState {
    * @type {boolean}
    */
   get is_dirty() {
-    if (!this.is_editing || !this._clean_snapshot || !this.char) return false;
-    return JSON.stringify(this.char) !== this._clean_snapshot;
+    return this.is_editing && this._user_mutated;
   }
 
   /**
@@ -54,15 +55,16 @@ export class ProfileState {
   set noBackground(val) {
     if (this.char?.modifiers) {
       this.char.modifiers.no_background = val;
+      this._user_mutated = true;
     }
   }
 
   /**
-   * Initiates the editing state transition and captures a pristine structural snapshot.
+   * Initiates the editing state transition and resets interaction tracking.
    */
   start_editing() {
+    this._user_mutated = false;
     this.is_editing = true;
-    this._clean_snapshot = JSON.stringify(this.char);
   }
 
   /**
@@ -92,6 +94,7 @@ export class ProfileState {
   set_field_value(path, value) {
     if (!this.char) return;
     set_value(this.char, path, value);
+    this._user_mutated = true;
   }
 
   /**
@@ -111,7 +114,7 @@ export class ProfileState {
   cancel() {
     this.is_editing = false;
     this.char = normalize(app.editing_entity || runtime.character);
-    this._clean_snapshot = null;
+    this._user_mutated = false;
     this.reset_active_field();
   }
 
@@ -137,7 +140,7 @@ export class ProfileState {
    */
   async save(entity_type) {
     this.is_editing = false;
-    this._clean_snapshot = null;
+    this._user_mutated = false;
     this.is_saving = true;
     try {
       await runtime.save_entity(entity_type, this.char);
@@ -198,6 +201,7 @@ export class ProfileState {
       if (result) {
         const clean_result = strip_cognition_blocks(result).trim();
         set_value(this.char, key, clean_result);
+        this._user_mutated = true;
       }
     } catch (err) {
       console.error("Enhance failed:", err);
@@ -226,6 +230,7 @@ export class ProfileState {
     };
 
     set_value(this.char, path, [newItem, ...items]);
+    this._user_mutated = true;
   }
 
   /**
@@ -240,6 +245,7 @@ export class ProfileState {
     if (!items[index]) return;
     items[index] = { ...items[index], ...patch };
     set_value(this.char, path, items);
+    this._user_mutated = true;
   }
 
   /**
@@ -251,6 +257,7 @@ export class ProfileState {
     if (!this.char) return;
     const items = (get_value(this.char, path) || []).filter((/** @type {any} */ _, /** @type {number} */ i) => i !== index);
     set_value(this.char, path, items);
+    this._user_mutated = true;
   }
 
   /**
@@ -268,6 +275,7 @@ export class ProfileState {
     this.patch_vector_item(path, index, {
       base_weight: Math.min(10, Math.max(1, weight + delta)),
     });
+    this._user_mutated = true;
   }
 
   /**
@@ -286,6 +294,7 @@ export class ProfileState {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
       await db.entities.update(id, { profile_picture: cleanUrl, updated_at: Date.now() });
       await runtime.update_entity(type, id, { profile_picture: cleanUrl });
+      this._user_mutated = true;
     }
   }
 }

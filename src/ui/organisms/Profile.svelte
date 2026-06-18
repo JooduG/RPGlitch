@@ -122,6 +122,22 @@
   // --- EFFECTS ---
   $effect(() => profileState.sync());
 
+  // Operational catchment tracking user DOM actions
+  $effect(() => {
+    if (profileState.is_editing) {
+      const mark_mutated = () => {
+        profileState._user_mutated = true;
+      };
+      window.addEventListener("input", mark_mutated, { capture: true });
+      window.addEventListener("change", mark_mutated, { capture: true });
+
+      return () => {
+        window.removeEventListener("input", mark_mutated, { capture: true });
+        window.removeEventListener("change", mark_mutated, { capture: true });
+      };
+    }
+  });
+
   /** @type {(event: MouseEvent) => void} */
   function handle_click_outside(event) {
     const target = event.target;
@@ -320,7 +336,8 @@
           <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
             {#if field.type === "array"}
               <ProfileArray state={profileState} path={field.key} unit_label={field.unitLabel} {signature_color} />
-            {:else}
+            {/if}
+            {#if field.type !== "array"}
               {@const fieldId = `field-${field.key.replace(".", "-")}`}
               {@const raw = profileState.get_safe_value(field.key) || ""}
               {@const parsed = (() => {
@@ -357,47 +374,34 @@
                 >
               {/if}
 
-              {#if !profileState.is_editing}
-                {#if parsed}
-                  <div
-                    id={fieldId}
-                    class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard bg-glass-sunken p-3"
-                    role="region"
-                    aria-label={field.sublabel || field.label}
-                  >
-                    {#if profileState.busy_fields.has(field.key)}
-                      <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                    {:else}
-                      <div class="flex flex-wrap gap-2">
-                        {#each Object.entries(parsed) as [k, v] (k)}
-                          {#if v && String(v).trim()}
-                            <div
-                              class="flex min-w-[95px] flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+              {#if !profileState.is_editing && parsed}
+                <div
+                  id={fieldId}
+                  class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard bg-glass-sunken p-3"
+                  role="region"
+                  aria-label={field.sublabel || field.label}
+                >
+                  {#if profileState.busy_fields.has(field.key)}
+                    <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
+                  {:else}
+                    <div class="flex flex-wrap gap-2">
+                      {#each Object.entries(parsed) as [k, v] (k)}
+                        {#if v && String(v).trim()}
+                          <div
+                            class="flex min-w-[95px] flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                          >
+                            <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
+                              >{k}</span
                             >
-                              <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
-                                >{k}</span
-                              >
-                              <span class="text-left text-xs leading-normal text-slate-200">
-                                {@render RenderFormattedValue(String(v))}
-                              </span>
-                            </div>
-                          {/if}
-                        {/each}
-                      </div>
-                    {/if}
-                  </div>
-                {:else}
-                  <div class="relative flex min-h-20 w-full flex-col gap-1 rounded-standard bg-glass-sunken p-4 text-left">
-                    {#if field.sublabel}
-                      <span class="mb-1 font-mono text-[9px] tracking-widest text-(--signature-color) uppercase opacity-60">{field.sublabel}</span>
-                    {/if}
-                    {#if profileState.busy_fields.has(field.key)}
-                      <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                    {:else}
-                      <p class="m-0 text-sm leading-relaxed [text-wrap:auto] whitespace-pre-wrap text-slate-200">{raw || "Empty"}</p>
-                    {/if}
-                  </div>
-                {/if}
+                            <span class="text-left text-xs leading-normal text-slate-200">
+                              {@render RenderFormattedValue(String(v))}
+                            </span>
+                          </div>
+                        {/if}
+                      {/each}
+                    </div>
+                  {/if}
+                </div>
               {:else}
                 <TextField
                   id={fieldId}
