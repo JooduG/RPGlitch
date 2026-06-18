@@ -377,7 +377,7 @@
               {#if !profileState.is_editing && parsed}
                 <div
                   id={fieldId}
-                  class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard bg-glass-sunken p-3"
+                  class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard"
                   role="region"
                   aria-label={field.sublabel || field.label}
                 >
