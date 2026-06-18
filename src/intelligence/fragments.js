@@ -6,19 +6,19 @@
  * Every field carries a UI label, an AI directive, and an enhancer tag.
  *
  * EXPORTS
- *   ENTITY_FRAGMENTS   Nested, section-grouped source of truth.
- *                      Consumed by: UI components, profile builder.
+ * ENTITY_FRAGMENTS   Nested, section-grouped source of truth.
+ * Consumed by: UI components, profile builder.
  *
- *   ENTITY_CATALOG     Flat dot-keyed map derived from ENTITY_FRAGMENTS.
- *                      Consumed by: ContextBroker for field iteration.
+ * ENTITY_CATALOG     Flat dot-keyed map derived from ENTITY_FRAGMENTS.
+ * Consumed by: ContextBroker for field iteration.
  *
  * FIELD SCHEMA
- *   label      {string}  Display name (UI + prompt).
- *   directive  {string}  AI writing instruction for enhancement prompts.
- *   enhancer   {string}  Semantic tag for LexicalFilter prioritization.
+ * label      {string}  Display name (UI + prompt).
+ * directive  {string}  AI writing instruction for enhancement prompts.
+ * enhancer   {string}  Semantic tag for LexicalFilter prioritization.
  *
  * SECTION SCHEMA (UI-only, not consumed by engine)
- *   sublabel   {string}  Subtitle shown beneath the section header.
+ * sublabel   {string}  Subtitle shown beneath the section header.
  */
 /**
  * @typedef {Object} EntityField
@@ -90,8 +90,8 @@ export const NAME_PREFIXES = [
  * Canonical taxonomy of all entity fields, grouped by temporal section.
  *
  * ESSENCE TAXONOMY
- *   Eternal / Present -> each has `physical` + `non_physical` fields
- *   Past / Future     -> each has a single unified field (`vectors`)
+ * Eternal / Present -> each has `physical` + `non_physical` fields
+ * Past / Future     -> each has a single unified field (`vectors`)
  *
  * Note: `physical` fields are excluded from simulation mode prompts by the broker.
  */
@@ -124,13 +124,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Body & Form",
         directive:
-          'Output a JSON object describing this character\'s permanent physical features for photorealistic image generation. PERMANENT FEATURES ONLY — no clothing, expressions, or poses. MANDATORY: specify gender, age_range, and ethnicity. Use exactly these keys: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "", "markings": "" }. Each value is a comma-separated token string. Omit any key that is not applicable. No prose. No extra keys.',
+          'Output a list describing this character\'s permanent physical features for photorealistic image generation. PERMANENT FEATURES ONLY — no clothing, expressions, or poses. MANDATORY: specify gender, age_range, and ethnicity. Baseline keys to include: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "" }. CRITICAL BOUNDARY: Focus exclusively on immediate, visible physical body details. You are strictly forbidden from inventing attributes, qualities, character traits, or non-visual RPG sheet parameters (e.g., intelligence, skills, gear, mood, morality). Hard cap at 15 lines maximum.',
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
         directive:
-          'Output a JSON object describing this environment\'s permanent physical geography for photorealistic image generation. PERMANENT GEOGRAPHY ONLY — no weather, lighting, or atmospheric events. Use exactly these keys: { "terrain": "", "architecture": "", "materials": "", "landmarks": "", "scale": "" }. Each value is a comma-separated token string. Omit any key that is not applicable. No prose. No extra keys.',
+          'Output a list describing this environment\'s permanent physical geography for photorealistic image generation. PERMANENT GEOGRAPHY ONLY — no weather, lighting, or atmospheric events. Baseline keys to include: { "terrain": "", "architecture": "", "materials": "", "landmarks": "", "scale": "" }. CRITICAL BOUNDARY: Focus exclusively on concrete, visible physical features of the landscape. Do not invent lore notes, invisible parameters, historical logs, or background summaries. Hard cap at 15 lines maximum.',
         enhancer: "SPATIAL_RENDERER",
       },
     },
@@ -161,13 +161,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
-          'Output a JSON object describing this character\'s current physical appearance for image generation. CURRENT STATE ONLY — layered over the eternal physical baseline. Use exactly these keys: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Each value is a comma-separated token string. Use Perchance dynamic syntax {A|B} for variable features. Omit any key that is not applicable. No prose. No extra keys.',
+          'Output a list describing this character\'s current physical appearance for image generation. CURRENT STATE ONLY — layered over the eternal physical baseline. Baseline keys to include: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Use Perchance dynamic syntax {A|B} for variable features. CRITICAL BOUNDARY: Focus exclusively on immediate, visible temporary items, layers, and expressions. Do not include hidden status properties or psychological thoughts. Hard cap at 15 lines maximum.',
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
         directive:
-          'Output a JSON object describing this environment\'s current atmospheric state for image generation. TRANSIENT CONDITIONS ONLY — layered over the eternal physical baseline. Use exactly these keys: { "lighting": "", "weather": "", "atmosphere": "", "events": "" }. Each value is a comma-separated token string. Use Perchance dynamic syntax {A|B} for variable features. Omit any key that is not applicable. No prose. No extra keys.',
+          'Output a list describing this environment\'s current atmospheric state for image generation. TRANSIENT CONDITIONS ONLY — layered over the eternal physical baseline. Baseline keys to include: { "lighting": "", "weather": "", "atmosphere": "", "events": "" }. Use Perchance dynamic syntax {A|B} for variable features. CRITICAL BOUNDARY: Focus exclusively on momentary sensory environmental elements visible right now. Hard cap at 15 lines maximum.',
         enhancer: "ATMOSPHERIC_TRACKER",
       },
     },

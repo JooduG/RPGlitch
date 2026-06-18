@@ -52,7 +52,7 @@
   });
 </script>
 
-<header
+<div
   class="
     flex
     min-h-(--text-h3)
@@ -60,10 +60,11 @@
     min-w-0
     shrink-0
     flex-col
-    gap-2
+    gap-4
 
     {className}"
   data-testid="profile-header"
+  role="banner"
 >
   <div
     class="
@@ -231,4 +232,4 @@
       {description}
     </p>
   {/if}
-</header>
+</div>

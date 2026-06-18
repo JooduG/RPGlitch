@@ -93,10 +93,33 @@
     return cls;
   };
 
+  /**
+   * Tokenizes string payloads to detect inline Perchance dynamic variable loops.
+   * @param {string} str
+   */
+  const parseVariants = (str) => {
+    if (!str) return [];
+    const regex = /\{([^}]+)\}/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+    while ((match = regex.exec(str)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push({ isVar: false, text: str.slice(lastIndex, match.index) });
+      }
+      parts.push({ isVar: true, choices: match[1].split("|").map((c) => c.trim()) });
+      lastIndex = regex.lastIndex;
+    }
+    if (lastIndex < str.length) {
+      parts.push({ isVar: false, text: str.slice(lastIndex) });
+    }
+    return parts.length > 0 ? parts : [{ isVar: false, text: str }];
+  };
+
   // --- EFFECTS ---
   $effect(() => profileState.sync());
 
-  /** @param {MouseEvent} event */
+  /** @type {(event: MouseEvent) => void} */
   function handle_click_outside(event) {
     const target = event.target;
     if (!(target instanceof Element)) return;
@@ -275,16 +298,36 @@
                   for={fieldId}>{field.label}</label
                 >
               {/if}
-              {#if field.is_physical && !profileState.is_editing}
-                {@const raw = profileState.get_safe_value(field.key) || ""}
-                {@const parsed = (() => {
-                  try {
-                    const p = JSON.parse(raw);
-                    return typeof p === "object" && p !== null ? p : null;
-                  } catch {
-                    return null;
+
+              {@const raw = profileState.get_safe_value(field.key) || ""}
+              {@const parsed = (() => {
+                try {
+                  let cleanRaw = raw.trim();
+                  if (!cleanRaw) return null;
+                  if (!cleanRaw.startsWith("{") && cleanRaw.includes(":")) {
+                    cleanRaw = cleanRaw.replace(/,\s*$/, "");
+                    cleanRaw = `{ ${cleanRaw} }`;
                   }
-                })()}
+                  if (!cleanRaw.startsWith("{")) return null;
+                  const p = JSON.parse(cleanRaw);
+                  if (typeof p === "object" && p !== null) {
+                    const standardized = {};
+                    Object.entries(p).forEach(([k, v]) => {
+                      if (typeof v === "string") {
+                        standardized[k] = v.replace(/,([^\s])/g, ", $1");
+                      } else {
+                        standardized[k] = v;
+                      }
+                    });
+                    return standardized;
+                  }
+                  return null;
+                } catch {
+                  return null;
+                }
+              })()}
+
+              {#if parsed && !profileState.is_editing}
                 <div
                   id={fieldId}
                   class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard bg-glass-sunken p-3"
@@ -293,21 +336,23 @@
                 >
                   {#if profileState.busy_fields.has(field.key)}
                     <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                  {:else if parsed}
-                    <div class="flex flex-wrap gap-1.5">
+                  {:else}
+                    <div class="flex flex-wrap gap-2">
                       {#each Object.entries(parsed) as [k, v] (k)}
                         {#if v && String(v).trim()}
-                          <div class="flex items-baseline gap-1 rounded-sm bg-white/5 px-2 py-1">
-                            <span class="shrink-0 font-mono text-[9px] tracking-widest text-(--signature-color) uppercase opacity-70">{k}</span>
-                            <span class="text-[11px] leading-snug text-slate-200">{String(v)}</span>
+                          <div
+                            class="flex min-w-[95px] flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                          >
+                            <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
+                              >{k}</span
+                            >
+                            <span class="text-left text-xs leading-normal text-slate-200">
+                              {@render RenderFormattedValue(String(v))}
+                            </span>
                           </div>
                         {/if}
                       {/each}
                     </div>
-                  {:else if raw}
-                    <p class="text-[11px] leading-relaxed text-slate-300">{raw}</p>
-                  {:else}
-                    <span class="font-mono text-[10px] tracking-widest text-slate-500 uppercase opacity-60">{field.sublabel || "Empty"}</span>
                   {/if}
                 </div>
               {:else}
@@ -318,8 +363,8 @@
                   {signature_color}
                   data-active={profileState.active_field?.key === field.key ? true : undefined}
                   placeholder={field.description}
-                  value={profileState.get_safe_value(field.key)}
-                  oninput={(/** @type {any} */ e) => profileState.set_field_value(field.key, e.currentTarget.value)}
+                  value={raw}
+                  oninput={(e) => profileState.set_field_value(field.key, e.target.value)}
                   busy={profileState.busy_fields.has(field.key)}
                   onfocus={() => profileState.set_active_field(field.key, field.label || section.label)}
                   onblur={() => profileState.reset_active_field()}
@@ -362,6 +407,26 @@
       </div>
     {/each}
   </div>
+{/snippet}
+
+{#snippet RenderFormattedValue(valStr)}
+  {#each parseVariants(valStr) as part, i (i)}
+    {#if part.isVar}
+      <span
+        class="mx-0.5 inline-flex flex-wrap items-center gap-1 rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
+      >
+        <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
+        {#each part.choices as choice, idx (idx)}
+          <span>{choice}</span>
+          {#if idx < part.choices.length - 1}
+            <span class="mx-0.5 text-[9px] text-(--signature-color)/40">/</span>
+          {/if}
+        {/each}
+      </span>
+    {:else}
+      <span>{part.text}</span>
+    {/if}
+  {/each}
 {/snippet}
 
 <style>

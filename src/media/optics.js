@@ -13,6 +13,59 @@ import { escapeXml, PROTOCOL_LIBRARY } from "@intelligence";
 import { get_signature_label } from "@media";
 
 /**
+ * High-fidelity parser that safely extracts configurations from fields.
+ * Gracefully processes rigid JSON, loose unquoted key-value configurations,
+ * and automatically falls back to raw text blocks if no clear parameters are detected.
+ * @param {string} raw
+ * @returns {Record<string, string>}
+ */
+const safeParsePseudoJson = (raw) => {
+  if (!raw) return {};
+  const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+  if (!cleanRaw) return {};
+
+  // Tier 1: Try parsing standard JSON or braced setups
+  try {
+    let standardFormat = cleanRaw;
+    if (!standardFormat.startsWith("{") && standardFormat.includes(":")) {
+      standardFormat = `{ ${standardFormat.replace(/,\s*$/, "")} }`;
+    }
+    if (standardFormat.startsWith("{")) {
+      const parsed = JSON.parse(standardFormat);
+      if (typeof parsed === "object" && parsed !== null) return parsed;
+    }
+  } catch (_e) {
+    /* Structure is unbraced or fractured */
+  }
+
+  // Tier 2: Process line-by-line configuration if colons exist
+  if (cleanRaw.includes(":")) {
+    const extracted = {};
+    const lines = cleanRaw.split(/[\n,]+/);
+    const propertyRegex = /"([^"]+)"\s*:\s*"([^"]*)"/;
+    const looseRegex = /([^:]+)\s*:\s*([^,]+)/;
+
+    lines.forEach((line) => {
+      let match = line.match(propertyRegex);
+      if (match && match[1]) {
+        extracted[match[1]] = match[2].trim();
+      } else {
+        match = line.match(looseRegex);
+        if (match && match[1]) {
+          const k = match[1].replace(/["']/g, "").trim();
+          const v = match[2].replace(/["']/g, "").trim();
+          if (k && v) extracted[k] = v;
+        }
+      }
+    });
+    if (Object.keys(extracted).length > 0) return extracted;
+  }
+
+  // Tier 3: Complete Fallback — Field holds raw text prose description sentence!
+  return { __raw_prose__: cleanRaw };
+};
+
+/**
  * Safely parses list tokens, gracefully falling back to raw arrays.
  * @param {string[]|string} items
  * @returns {string[]|string}
@@ -71,26 +124,82 @@ export const flattenToParagraph = (val) => {
 
 /**
  * Collapses a physical field value into a flat comma-separated token string
- * suitable for diffusion model prompts. Transparently handles both legacy
- * plain-text strings and new structured JSON objects by extracting values only.
- * @param {string} raw - Raw field value (plain string or JSON string)
+ * suitable for diffusion model prompts. Transparently handles legacy plain text,
+ * standard JSON, and bracketless pseudo-JSON by normalizing on the fly.
+ * Enforces a strict space requirement after every comma.
+ * @param {string} raw - Raw field value
  * @returns {string}
  */
 export const flatten_physical = (raw) => {
   if (!raw) return "";
-  try {
-    const parsed = JSON.parse(raw);
-    if (typeof parsed === "object" && parsed !== null) {
-      return Object.values(parsed)
-        .flatMap((v) => (Array.isArray(v) ? v : [v]))
-        .map((v) => String(v).trim())
-        .filter(Boolean)
-        .join(", ");
-    }
-  } catch {
-    // Not JSON — return as-is
+  const parsed = safeParsePseudoJson(raw);
+
+  if (parsed.__raw_prose__) {
+    return parsed.__raw_prose__.replace(/,([^\s])/g, ", $1");
   }
-  return raw;
+
+  if (Object.keys(parsed).length > 0) {
+    return Object.values(parsed)
+      .flatMap((v) => (Array.isArray(v) ? v : [v]))
+      .map((v) => String(v).trim())
+      .filter(Boolean)
+      .join(", ")
+      .replace(/,([^\s])/g, ", $1");
+  }
+
+  return raw.trim().replace(/,([^\s])/g, ", $1");
+};
+
+/**
+ * Resolves specs based on active character context properties.
+ */
+export const AestheticResolver = {
+  /**
+   * Deterministic extraction of traits from entity fields.
+   * @param {any} entity
+   */
+  extract(entity = {}) {
+    const eternalObj = safeParsePseudoJson(entity.eternal?.physical || "");
+    const presentObj = safeParsePseudoJson(entity.present?.physical || "");
+
+    const merged = {};
+
+    // Map properties sequentially, preserving nested raw streams under descriptive headers
+    const mergeInputSource = (sourceObj, fallbackLabel) => {
+      if (sourceObj.__raw_prose__) {
+        merged[fallbackLabel] = sourceObj.__raw_prose__;
+      } else {
+        Object.entries(sourceObj).forEach(([k, v]) => {
+          merged[k] = v;
+        });
+      }
+    };
+
+    mergeInputSource(eternalObj, "eternal");
+    mergeInputSource(presentObj, "present");
+
+    const colorName = get_signature_label(entity);
+    if (colorName) {
+      merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
+    }
+
+    const isLandscape = entity.type === "fractal" || entity.type === "scene";
+    merged.preset = isLandscape
+      ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
+      : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
+
+    // Map compiled fields out into ultra-clean unbracketed properties
+    const cleanLines = Object.entries(merged)
+      .map(([k, v]) => {
+        const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        if (!valStr) return "";
+        const formattedVal = valStr.replace(/,([^\s])/g, ", $1");
+        return `  "${k}": "${formattedVal.replace(/"/g, '\\"')}"`;
+      })
+      .filter(Boolean);
+
+    return cleanLines.join(",\n");
+  },
 };
 
 /**
@@ -116,44 +225,6 @@ const buildDimensionsContext = () => {
     })
     .filter(Boolean)
     .join("\n");
-};
-
-/**
- * Resolves specs based on active character context properties.
- */
-export const AestheticResolver = {
-  /**
-   * Deterministic extraction of traits from entity fields.
-   * @param {any} entity
-   */
-  extract(entity = {}) {
-    const present = flatten_physical(entity.present?.physical || "");
-    const eternal = flatten_physical(entity.eternal?.physical || "");
-    const colorName = get_signature_label(entity);
-
-    const presets = {
-      portrait:
-        "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
-      landscape:
-        "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout",
-    };
-
-    const fragments = [];
-    if (present) fragments.push(present);
-    if (eternal) fragments.push(eternal);
-
-    if (colorName) {
-      fragments.push(`${colorName.toLowerCase()} aesthetic`);
-    }
-
-    if (entity.type === "fractal" || entity.type === "scene") {
-      fragments.push(presets.landscape);
-    } else {
-      fragments.push(presets.portrait);
-    }
-
-    return fragments.join(", ");
-  },
 };
 
 /**
@@ -198,7 +269,7 @@ JSON STRUCTURE:
 {
   "_thought_process": "<your dimensional breakdown planning: Medium, Camera/Optics style, Lighting approach, Colors, Composition grid, Textures, and Mood environment>",
   "prompt": "<synthesized descriptive sentences merging the core input elements with target matrix tokens and optional runtime dynamic blocks>",
-  "negativePrompt": "<cohesive negative elements preventing style dilution, rendering artifacts, or style contradictions>"
+  "negativePrompt": "<cohesive comma-separated flat tokens to repel, preventing style dilution or contradictions. Use direct visual features only (e.g., 'bright daylight', 'blurry text'). STRICT MANDATE: Never use conversational verbs, instructions, or phrases like 'avoid', 'don't', 'free of', or 'no characters'>"
 }
 
 ${PROTOCOL_LIBRARY.JSON_OUTPUT}

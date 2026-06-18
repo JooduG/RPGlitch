@@ -130,7 +130,7 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
  */
 function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null }) {
   const protocolSelection = is_image_field
-    ? "COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE, PERCHANCE_SYNTAX, JSON_OUTPUT, FORMAT_VISUAL"
+    ? "COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE, PERCHANCE_SYNTAX, UNBRACKETED_JSON_OUTPUT, FORMAT_VISUAL"
     : "COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION, FORMAT_PROSE";
 
   let contextBlock = "";
@@ -149,9 +149,9 @@ function render_enhancement({ label, directive, enhancer, content, is_image_fiel
       contextBlock =
         `\n<ENTITY_CONTEXT>\n` +
         (entity.eternal?.physical ? `  <ETERNAL_PHYSICAL>${escapeXml(flatten_physical(entity.eternal.physical))}</ETERNAL_PHYSICAL>\n` : "") +
-        (entity.eternal?.non_physical ? `  <ETERNAL_PSYCHOLOGICAL>${escapeXml(entity.eternal.non_physical)}</ETERNAL_PSYCHOLOGICAL>\n` : "") +
+        (entity.eternal?.non_physical ? `  <ETERNAL_NON_PHYSICAL>${escapeXml(entity.eternal.non_physical)}</ETERNAL_NON_PHYSICAL>\n` : "") +
         (entity.present?.physical ? `  <PRESENT_PHYSICAL>${escapeXml(flatten_physical(entity.present.physical))}</PRESENT_PHYSICAL>\n` : "") +
-        (entity.present?.non_physical ? `  <PRESENT_PSYCHOLOGICAL>${escapeXml(entity.present.non_physical)}</PRESENT_PSYCHOLOGICAL>\n` : "") +
+        (entity.present?.non_physical ? `  <PRESENT_NON_PHYSICAL>${escapeXml(entity.present.non_physical)}</PRESENT_NON_PHYSICAL>\n` : "") +
         (pastVectors ? `  <HISTORICAL_CONTEXT>\n${escapeXml(pastVectors)}\n  </HISTORICAL_CONTEXT>\n` : "") +
         (futureVectors ? `  <PROJECTED_TRAJECTORY>\n${escapeXml(futureVectors)}\n  </PROJECTED_TRAJECTORY>\n` : "") +
         `</ENTITY_CONTEXT>`;
@@ -213,6 +213,9 @@ export const PROTOCOL_LIBRARY = {
   // --- JSON output constraints (formulation + structural constraints, combined) ---
   JSON_OUTPUT:
     "Return a single JSON object. No conversational preamble, no markdown backticks outside of the JSON block.\n<CONSTRAINTS>\n- Output MUST be valid JSON starting with '{' and ending with '}'.\n- Do not wrap the JSON in markdown code blocks like ```json.\n- No XML tags outside the JSON block.\n</CONSTRAINTS>",
+  // --- Unbracketed structural constraints for physical data structures ---
+  UNBRACKETED_JSON_OUTPUT:
+    'Return a flat configuration block of comma-separated property lines. Do NOT include opening or closing curly braces {} or square brackets []. Output keys and values wrapped in double quotes. No conversational preamble.\n<CONSTRAINTS>\n- Output lines MUST follow this exact syntax pattern: "key": "value",\n- Do not use structural markdown code block ticks.\n- MANDATORY: Every comma inside keys or values MUST be followed by a space (e.g., "powerful, athletic"). Double-check your formatting output to prevent squished text sequences.\n</CONSTRAINTS>',
   // --- Enhancement output format tags (inline XML, not compatible with render_protocols) ---
   FORMAT_VISUAL:
     "<FORMAT>Output optimized descriptive prose incorporating targeted matrix descriptors. Avoid raw unorganized keyword soup layout arrays.</FORMAT>",
