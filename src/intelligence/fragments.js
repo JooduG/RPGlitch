@@ -1,31 +1,24 @@
 /**
- * @file src/core/intelligence/entity-fragments.js
+ * src/intelligence/fragments.js
+ * 📋 Entity Taxonomy — One True Source of Truth for Entity Fields.
  *
- * ⚔️
- * 📋 ENTITY FRAGMENTS    The One True Source of Truth for Entity Taxonomy
- * ⚔️
- *
- * PURPOSE
  * Defines the canonical schema for all entity fields across the simulation.
- * Every field has a UI label, an AI directive, and an enhancer tag.
+ * Every field carries a UI label, an AI directive, and an enhancer tag.
  *
- * TWO EXPORTS
- * Œ
- *  ENTITY_FRAGMENTS   Nested, section-grouped source of truth.           ‚
- *                      Consumed by: UI components, broker (via CATALOG).  ‚
- *                                                                         ‚
- *  ENTITY_CATALOG     Flat dot-keyed map derived from ENTITY_FRAGMENTS.  ‚
- *                      Consumed by: ContextBroker.js for iteration.       ‚
+ * EXPORTS
+ *   ENTITY_FRAGMENTS   Nested, section-grouped source of truth.
+ *                      Consumed by: UI components, profile builder.
  *
+ *   ENTITY_CATALOG     Flat dot-keyed map derived from ENTITY_FRAGMENTS.
+ *                      Consumed by: ContextBroker for field iteration.
  *
  * FIELD SCHEMA
- *   label     {string}   Display name for the field (UI + prompt).
- *   directive {string}   Third-person AI writing instruction for the field.
- *   enhancer  {string}   Semantic tag used for LexicalFilter prioritization.
+ *   label      {string}  Display name (UI + prompt).
+ *   directive  {string}  AI writing instruction for enhancement prompts.
+ *   enhancer   {string}  Semantic tag for LexicalFilter prioritization.
  *
- * SECTION SCHEMA (UI-only additions, not used by engine)
- *   sublabel  {string}   UI subtitle shown beneath the section header.
- *   columns   {number}   UI grid column count for the section's fields.
+ * SECTION SCHEMA (UI-only, not consumed by engine)
+ *   sublabel   {string}  Subtitle shown beneath the section header.
  */
 /**
  * @typedef {Object} EntityField
@@ -112,7 +105,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Personality, Behaviour & Traits",
         directive:
-          "Define baseline psychology and core identity. Detail fundamental logic, narrative voice, and communication tics. Avoid narration. (Target: 150-400 words).",
+          "Define this character as a timeless psychological substrate. Use present-tense state declarations: what this entity has, how it tends to react, what it believes at its core. Cover: fundamental personality drivers, core logic patterns, narrative voice, and signature communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a statement could become false during play, it belongs in Present. Never write a reactive moment or describe a specific event. (Target: 150-400 words).",
         enhancer: "COGNITIVE_ARCHITECT",
         emotional_weight: 10,
         density_multiplier: 1,
@@ -120,7 +113,7 @@ export const ENTITY_FRAGMENTS = {
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
         directive:
-          "Define baseline metaphysical rules, structural constants, and ambient physics. Detail gravity and temporal flow rates. (Target: 150-400 words).",
+          "Define this environment as a timeless metaphysical substrate. Use present-tense state declarations: what laws govern this world, what forces are always in play, what atmosphere is structurally constant. Cover: physical constants, ambient metaphysical rules, defining sensory essence, and unbreakable world logic. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe a moment of observation. (Target: 150-400 words).",
         enhancer: "METAPHYSICAL_ARCHITECT",
         emotional_weight: 10,
         density_multiplier: 1,
@@ -131,13 +124,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Body & Form",
         directive:
-          "Write comma-separated visual descriptors optimized for photorealistic image generation. MANDATORY: explicitly specify gender presentation, age range, and race/ethnicity. Describe: body type (e.g. 'muscular athletic build, broad shoulders, defined chest'), facial features (jaw shape, brow, nose, lips), eye color and shape, skin tone and texture, hair color/length/cut, height impression, any distinctive permanent markings. Use concrete adjectives only. DO NOT write sentences or prose — output comma-separated tokens only. 40-80 words.",
+          'Output a JSON object describing this character\'s permanent physical features for photorealistic image generation. PERMANENT FEATURES ONLY — no clothing, expressions, or poses. MANDATORY: specify gender, age_range, and ethnicity. Use exactly these keys: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "", "markings": "" }. Each value is a comma-separated token string. Omit any key that is not applicable. No prose. No extra keys.',
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
         directive:
-          "Focus exclusively on unalterable environmental architecture: permanent topography, geological or urban layouts, structural constants, and raw material textures. Convey spatial styling through permanent physical fixtures. Target length: 50-150 words.",
+          'Output a JSON object describing this environment\'s permanent physical geography for photorealistic image generation. PERMANENT GEOGRAPHY ONLY — no weather, lighting, or atmospheric events. Use exactly these keys: { "terrain": "", "architecture": "", "materials": "", "landmarks": "", "scale": "" }. Each value is a comma-separated token string. Omit any key that is not applicable. No prose. No extra keys.',
         enhancer: "SPATIAL_RENDERER",
       },
     },
@@ -149,7 +142,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Current State of Mind",
         directive:
-          "Capture current internal volatility and state pressure. Detail mental focus, active triggers, and immediate emotional state. (Target: 30-80 words).",
+          "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. (Target: 30-80 words).",
         enhancer: "TACTICAL_ANALYZER",
         emotional_weight: 5,
         density_multiplier: 1.5,
@@ -157,7 +150,7 @@ export const ENTITY_FRAGMENTS = {
       fractal: {
         sublabel: "Active Anomalies & Volatility",
         directive:
-          "Capture immediate atmospheric shifts, state volatility, or anomalous events. Detail immediate environmental and temporal pressure. (Target: 30-80 words).",
+          "Capture what has changed from this environment's eternal baseline in this specific moment. State the active anomaly, current pressure, or immediate shift in the world's physics or atmosphere. TEMPORAL LAW: Only write what is true RIGHT NOW — stable conditions belong in Eternal. (Target: 30-80 words).",
         enhancer: "ECOSYSTEM_ANALYZER",
         emotional_weight: 5,
         density_multiplier: 1.5,
@@ -168,13 +161,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
-          "Write comma-separated visual tokens describing current appearance for image generation. Specify: each clothing item by name and material (e.g. 'unbuttoned dark denim shirt, white cotton undershirt'), colors, fit (tight/loose/open), visible skin exposure, and current physical posture. Use specific material names. DO NOT write sentences. Output comma-separated tokens only. 30-60 words.",
+          'Output a JSON object describing this character\'s current physical appearance for image generation. CURRENT STATE ONLY — layered over the eternal physical baseline. Use exactly these keys: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Each value is a comma-separated token string. Use Perchance dynamic syntax {A|B} for variable features. Omit any key that is not applicable. No prose. No extra keys.',
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
         directive:
-          "Focus exclusively on transient environmental layers: immediate lighting conditions, active weather, precipitation, shifting sensory elements, and ephemeral atmospheric moods. Target length: 30-80 words.",
+          'Output a JSON object describing this environment\'s current atmospheric state for image generation. TRANSIENT CONDITIONS ONLY — layered over the eternal physical baseline. Use exactly these keys: { "lighting": "", "weather": "", "atmosphere": "", "events": "" }. Each value is a comma-separated token string. Use Perchance dynamic syntax {A|B} for variable features. Omit any key that is not applicable. No prose. No extra keys.',
         enhancer: "ATMOSPHERIC_TRACKER",
       },
     },
@@ -184,7 +177,7 @@ export const ENTITY_FRAGMENTS = {
     sublabel: "Plans & Prophecies", // UI only
     unit_label: "Vector",
     directive:
-      "Map the entity's active trajectory and narrative impulses. Detail operational objectives, evolving vectors, and impending destiny. Define the stakes driving the next state transition.",
+      "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state.",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
@@ -199,7 +192,7 @@ export const ENTITY_FRAGMENTS = {
     sublabel: "Memories & Backstory", // UI only
     unit_label: "Memory",
     directive:
-      "Anchor the entity in their historical context. Detail formative records, critical precedents, and established resonances. These 'Echoes' provide weight and depth to their current state.",
+      "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague.",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {
@@ -362,6 +355,7 @@ export function build_profile_sections(entity_type = "character") {
                   enhancer: leaf.enhancer,
                   type: field.type,
                   unitLabel: field.unit_label || section.unit_label || "Vector",
+                  is_physical: fieldKey === "physical",
                 };
               })
             : [

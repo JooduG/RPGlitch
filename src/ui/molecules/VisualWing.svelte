@@ -173,6 +173,7 @@
 
     try {
       const url = await app.visual.generate(prompt_value, {
+        mode: profileState.char.type,
         no_background: profileState.noBackground,
         negativePrompt: profileState.char.modifiers.negative_prompt || undefined,
       });

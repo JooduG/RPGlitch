@@ -9,25 +9,8 @@ export const NEGATIVE_PROMPT =
   "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
 
 import { LISTS } from "@data";
-import { escapeXml } from "@intelligence";
+import { escapeXml, PROTOCOL_LIBRARY } from "@intelligence";
 import { get_signature_label } from "@media";
-
-/**
- * Shared prompt protocol fragments to ensure standardization across AI roles.
- */
-const PROTOCOL_NO_WEIGHTS =
-  'Remove or avoid numerical weighting strings or syntax (e.g. "(masterpiece:1.2)" or "(bokeh:1.3)"). Control emphasis through descriptive adjectives, absolute quantities, and sentence positioning.';
-
-const PROTOCOL_JSON_FORMULATION = "Return a single JSON object. No conversational preamble, no markdown backticks outside of the JSON block.";
-
-const PROTOCOL_DYNAMIC_RANDOMIZATION =
-  'Dynamic Randomization: You MAY use Perchance inline dynamic selection syntax "{Option A|Option B|Option C}" for inline variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.';
-
-const SHARED_CONSTRAINTS = `<CONSTRAINTS>
-- Output MUST be valid JSON starting with '{' and ending with '}'.
-- Do not wrap the JSON in markdown code blocks like \`\`\`json.
-- No XML tags outside the JSON block.
-</CONSTRAINTS>`;
 
 /**
  * Safely parses list tokens, gracefully falling back to raw arrays.
@@ -87,6 +70,30 @@ export const flattenToParagraph = (val) => {
 };
 
 /**
+ * Collapses a physical field value into a flat comma-separated token string
+ * suitable for diffusion model prompts. Transparently handles both legacy
+ * plain-text strings and new structured JSON objects by extracting values only.
+ * @param {string} raw - Raw field value (plain string or JSON string)
+ * @returns {string}
+ */
+export const flatten_physical = (raw) => {
+  if (!raw) return "";
+  try {
+    const parsed = JSON.parse(raw);
+    if (typeof parsed === "object" && parsed !== null) {
+      return Object.values(parsed)
+        .flatMap((v) => (Array.isArray(v) ? v : [v]))
+        .map((v) => String(v).trim())
+        .filter(Boolean)
+        .join(", ");
+    }
+  } catch {
+    // Not JSON — return as-is
+  }
+  return raw;
+};
+
+/**
  * Renders select LISTS dimensions into a structured template context block.
  * Automatically handles cleaning up configuration keys and system properties.
  * @returns {string}
@@ -120,8 +127,8 @@ export const AestheticResolver = {
    * @param {any} entity
    */
   extract(entity = {}) {
-    const present = entity.present?.physical || "";
-    const eternal = entity.eternal?.physical || "";
+    const present = flatten_physical(entity.present?.physical || "");
+    const eternal = flatten_physical(entity.eternal?.physical || "");
     const colorName = get_signature_label(entity);
 
     const presets = {
@@ -161,8 +168,8 @@ export const PromptTemplates = {
    * @param {string} [type] - Entity type: "character" | "fractal" | "scene"
    * @returns {string} The formatted system instruction prompt payload string
    */
-  ENHANCE: (text, type = "character") => {
-    const dimensionsContext = buildDimensionsContext(type, text);
+  ENHANCE: (text, _type = "character") => {
+    const dimensionsContext = buildDimensionsContext();
 
     return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
 You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and pristine rendering clarity for the generation matrix.
@@ -183,22 +190,18 @@ ${dimensionsContext}
 3. **Synthesized Descriptive Sentences:** Synthesize your chosen dimensions and the user's core concepts into natural, continuous descriptive sentences. Avoid compiling fragmented keyword strings or unorganized keyword soup.
 4. **Style Flexibility Rule:** Embrace the user's requested medium choice completely. If the user requests illustration, anime, cgi, pixel art, or photography, adjust your selected lighting and fidelity options to match that chosen artistic format seamlessly.
 5. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground your descriptions using concrete, physical details, textures, or stylistic equivalents instead.
-6. **No Numerical Weighting:** ${PROTOCOL_NO_WEIGHTS}
-7. **Dynamic Elements:** ${PROTOCOL_DYNAMIC_RANDOMIZATION}
-8. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the selected elements, lighting styles, color sciences, and mediums marry together.
+6. **Perchance Syntax:** ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}
+7. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the selected elements, lighting styles, color sciences, and mediums marry together.
 </REFINE_PROTOCOL>
-
-JSON OUTPUT FORMULATION:
-${PROTOCOL_JSON_FORMULATION}
 
 JSON STRUCTURE:
 {
   "_thought_process": "<your dimensional breakdown planning: Medium, Camera/Optics style, Lighting approach, Colors, Composition grid, Textures, and Mood environment>",
   "prompt": "<synthesized descriptive sentences merging the core input elements with target matrix tokens and optional runtime dynamic blocks>",
-  "negativePrompt": "<cohesive negative elements preventing structural dilution, rendering artifacts, or style contradictions>"
+  "negativePrompt": "<cohesive negative elements preventing style dilution, rendering artifacts, or style contradictions>"
 }
 
-${SHARED_CONSTRAINTS}
+${PROTOCOL_LIBRARY.JSON_OUTPUT}
 </OPTICS_REFINE>`.trim();
   },
 
@@ -213,10 +216,10 @@ ${SHARED_CONSTRAINTS}
       if (!entity) return "";
       const blocks = [];
       if (entity.eternal?.physical) {
-        blocks.push(`  <ETERNAL>${escapeXml(entity.eternal.physical)}</ETERNAL>`);
+        blocks.push(`  <ETERNAL>${escapeXml(flatten_physical(entity.eternal.physical))}</ETERNAL>`);
       }
       if (entity.present?.physical) {
-        blocks.push(`  <PRESENT>${escapeXml(entity.present.physical)}</PRESENT>`);
+        blocks.push(`  <PRESENT>${escapeXml(flatten_physical(entity.present.physical))}</PRESENT>`);
       }
       if (!blocks.length) return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}" />`;
       return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;

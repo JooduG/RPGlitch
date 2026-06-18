@@ -275,50 +275,87 @@
                   for={fieldId}>{field.label}</label
                 >
               {/if}
-              <TextField
-                id={fieldId}
-                is_edit={profileState.is_editing}
-                syncId={section.label}
-                {signature_color}
-                data-active={profileState.active_field?.key === field.key ? true : undefined}
-                placeholder={field.description}
-                value={profileState.get_safe_value(field.key)}
-                oninput={(/** @type {any} */ e) => profileState.set_field_value(field.key, e.currentTarget.value)}
-                busy={profileState.busy_fields.has(field.key)}
-                onfocus={() => profileState.set_active_field(field.key, field.label || section.label)}
-                onblur={() => profileState.reset_active_field()}
-              >
-                {#snippet status()}
+              {#if field.is_physical && !profileState.is_editing}
+                {@const raw = profileState.get_safe_value(field.key) || ""}
+                {@const parsed = (() => {
+                  try {
+                    const p = JSON.parse(raw);
+                    return typeof p === "object" && p !== null ? p : null;
+                  } catch {
+                    return null;
+                  }
+                })()}
+                <div
+                  id={fieldId}
+                  class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard bg-glass-sunken p-3"
+                  role="region"
+                  aria-label={field.sublabel || field.label}
+                >
                   {#if profileState.busy_fields.has(field.key)}
-                    <span class="mt-2 block animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                  {:else if field.sublabel}
-                    <span class="font-mono text-[10px] tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
+                    <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
+                  {:else if parsed}
+                    <div class="flex flex-wrap gap-1.5">
+                      {#each Object.entries(parsed) as [k, v] (k)}
+                        {#if v && String(v).trim()}
+                          <div class="flex items-baseline gap-1 rounded-sm bg-white/5 px-2 py-1">
+                            <span class="shrink-0 font-mono text-[9px] tracking-widest text-(--signature-color) uppercase opacity-70">{k}</span>
+                            <span class="text-[11px] leading-snug text-slate-200">{String(v)}</span>
+                          </div>
+                        {/if}
+                      {/each}
+                    </div>
+                  {:else if raw}
+                    <p class="text-[11px] leading-relaxed text-slate-300">{raw}</p>
+                  {:else}
+                    <span class="font-mono text-[10px] tracking-widest text-slate-500 uppercase opacity-60">{field.sublabel || "Empty"}</span>
                   {/if}
-                {/snippet}
+                </div>
+              {:else}
+                <TextField
+                  id={fieldId}
+                  is_edit={profileState.is_editing}
+                  syncId={section.label}
+                  {signature_color}
+                  data-active={profileState.active_field?.key === field.key ? true : undefined}
+                  placeholder={field.description}
+                  value={profileState.get_safe_value(field.key)}
+                  oninput={(/** @type {any} */ e) => profileState.set_field_value(field.key, e.currentTarget.value)}
+                  busy={profileState.busy_fields.has(field.key)}
+                  onfocus={() => profileState.set_active_field(field.key, field.label || section.label)}
+                  onblur={() => profileState.reset_active_field()}
+                >
+                  {#snippet status()}
+                    {#if profileState.busy_fields.has(field.key)}
+                      <span class="mt-2 block animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
+                    {:else if field.sublabel}
+                      <span class="font-mono text-[10px] tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
+                    {/if}
+                  {/snippet}
 
-                {#snippet header_actions()}
-                  {#if profileState.is_editing}
-                    <Button
-                      variant="invisible"
-                      size="small"
-                      square={true}
-                      aria-label="Enhance with AI"
-                      actions={[tooltip]}
-                      disabled={profileState.busy_fields.has(field.key) || !profileState.get_safe_value(field.key)}
-                      onclick={() => profileState.enhance(field.key, profileState.get_safe_value(field.key))}
-                      class={get_ai_action_btn_class(field.key)}
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        class="size-icon-small fill-none stroke-current stroke-2"
-                        style="stroke-linecap: round; stroke-linejoin: round;"
+                  {#snippet header_actions()}
+                    {#if profileState.is_editing}
+                      <Button
+                        variant="invisible"
+                        size="small"
+                        square={true}
+                        aria-label="Enhance with AI"
+                        actions={[tooltip]}
+                        disabled={profileState.busy_fields.has(field.key) || !profileState.get_safe_value(field.key)}
+                        onclick={() => profileState.enhance(field.key, profileState.get_safe_value(field.key))}
+                        class={get_ai_action_btn_class(field.key)}
                       >
-                        <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
-                      </svg>
-                    </Button>
-                  {/if}
-                {/snippet}
-              </TextField>
+                        <svg
+                          viewBox="0 0 24 24"
+                          class="size-icon-small fill-none stroke-current stroke-2"
+                          style="stroke-linecap: round; stroke-linejoin: round;"
+                        >
+                          <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
+                        </svg>
+                      </Button>
+                    {/if}
+                  {/snippet}
+                </TextField>
+              {/if}
             {/if}
           </div>
         {/each}

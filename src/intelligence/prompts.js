@@ -1,92 +1,23 @@
 /**
- * @file src/intelligence/prompts.js
- *
- * ⚙️⚙️⚙️
- * ⚙️⚙️⚙️⚙️ PROMPT BUILDER ⚙️⚙️⚙️ Architecture for Structural Excellence
- * ⚙️⚙️⚙️
- *
- * PURPOSE
- * This module acts as the "Assembly Line" for the Intelligence Kernel. It
- * synthesizes raw simulation data, character state, and RAG-based narrative
- * memory into formatted XML system prompts for the LLM.
- *
- * ARCHITECTURE
- * ⚙️⚙️⚙️⚙️
- *  synthesize()    : The Bridge. Compiles payloads into system prompts.  ⚙️⚙️⚙️
- *  create_render_atom() : The Pipe. Provides proxies for RAG rendering.  ⚙️⚙️⚙️
- *  render_history(): The Lens. Formats simulation logs for XML.          ⚙️⚙️⚙️
- *  render_protocols(): The DNA. Inject rules from the Protocol Library.  ⚙️⚙️⚙️
- *
+ * src/intelligence/prompts.js
+ * @description Centralized assembly line for the Intelligence Kernel.
+ * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
 
 import { ENTITY_CATALOG, escapeXml, strip_cognition_blocks, temporal_engine } from "@intelligence";
+import { flatten_physical } from "@media";
 
 /**
- * @typedef {Object} SimulationEntity
- * @property {string} name
- * @property {Object} fragments
- * @property {Object} fragments.eternal
- * @property {string} fragments.eternal.non_physical
- * @property {Object} fragments.present
- * @property {string} fragments.present.non_physical
- * @property {any[]} [past]
- * @property {any[]} [future]
+ * Helper to render sub-tags cleanly, omitting them if empty.
  */
-
-/**
- * @typedef {Object} RenderAtom
- * @property {string} _context
- * @property {(entity_reference: string|SimulationEntity, options?: { limit?: number, offset?: number, vector_text?: boolean, vector_label?: boolean }) => string} past
- * @property {(entity_reference: string|SimulationEntity, options?: { limit?: number, offset?: number, vector_text?: boolean, vector_label?: boolean }) => string} future
- * @property {(limit?: number, offset?: number) => string} simulation_log
- */
-
-/**
- * @typedef {Object} SimulationParams
- * @property {number} round
- * @property {Object.<string, SimulationEntity>} entities
- * @property {string[]} signal_prompts
- * @property {string} input
- * @property {RenderAtom} render_atom
- * @property {Object} [meta]
- * @property {boolean} [meta.is_suspicious]
- * @property {any} [compressed_snapshot]
- * @property {string} [view_id]
- * @property {string} [type]
- */
-
-/**
- * @typedef {Object} PrologueParams
- * @property {number} round
- * @property {Object.<string, SimulationEntity>} entities
- * @property {string} input
- * @property {RenderAtom} render_atom
- */
-
-/**
- * @typedef {Object} EpilogueParams
- * @property {Object.<string, SimulationEntity>} entities
- * @property {any[]} [recent_history]
- */
-
-// --- [PRIVATE TEMPLATE RENDERERS] ---
-
-/**
- * Renders a simulation entity block dynamically, omitting empty tags.
- * Safe from null/undefined entity dereferencing.
- * @param {string} tag
- * @param {SimulationEntity} [entity]
- * @param {RenderAtom} render_atom
- * @param {Object} limits
- * @param {number} limits.pastLimit
- * @param {number} limits.futureLimit
- */
-// Formats and escapes a sub-tag if content is populated, returning empty string if empty.
 const tag = (name, value) => {
   const trimmed = value ? String(value).trim() : "";
   return trimmed ? `  <${name}>${escapeXml(trimmed)}</${name}>` : "";
 };
 
+/**
+ * Compiles dynamic system parameter keys into inline attributes.
+ */
 const format_dynamics_attrs = (dynObj) => {
   if (!dynObj) return "";
   const attrs = Object.entries(dynObj)
@@ -96,63 +27,31 @@ const format_dynamics_attrs = (dynObj) => {
 };
 
 /**
- * SIMULATION
- * @param {SimulationParams} params
+ * Core simulation system layout compiler.
  */
 function render_simulation({ round, entities, signal_prompts, input, render_atom, simulation_log, meta, compressed_snapshot }) {
-  const ai = entities.AI;
-  const user = entities.USER;
-  const fractal = entities.FRACTAL;
-  const roundSafe = escapeXml(String(round));
-  const aiNameSafe = escapeXml(ai.name);
-  const userNameSafe = escapeXml(user.name);
-  const fractalNameSafe = escapeXml(fractal?.name || "");
   let protocolSelection = "COGNITION, FORMAT, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM";
+  if (meta?.structural_errors >= 3) protocolSelection += ", STABILITY_LOCK_2";
+  else if (meta?.structural_errors >= 1) protocolSelection += ", STABILITY_LOCK_1";
 
-  if (meta?.structural_errors >= 3) {
-    protocolSelection += ", STABILITY_LOCK_2";
-  } else if (meta?.structural_errors >= 1) {
-    protocolSelection += ", STABILITY_LOCK_1";
-  }
-
-  const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
-  const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
+  const pastVectors = render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "";
+  const validLog = simulation_log && String(simulation_log).trim().length > 0;
+  const fractalPast =
+    pastVectors || validLog
+      ? `  <PAST>${escapeXml(pastVectors)}${validLog ? `\n    <SESSION_TIMELINE>\n${escapeXml(String(simulation_log))}\n    </SESSION_TIMELINE>` : ""}</PAST>`
+      : "";
 
   return `
-<SYSTEM role="${aiNameSafe}" round="${roundSafe}">
-<YOUR_IDENTITY name="${aiNameSafe}"${aiDynAttrs}>${[
-    tag("ETERNAL", ai.eternal?.non_physical),
-    tag("PRESENT", ai.present?.non_physical),
-    tag("PAST", render_atom.past(ai, { limit: 2, vector_text: true })),
-    tag("FUTURE", render_atom.future(ai, { limit: 1, vector_text: true })),
-  ]
-    .filter(Boolean)
-    .map((x) => `\n${x}`)
-    .join("")}</YOUR_IDENTITY>
-<USER_PERSONA name="${userNameSafe}">${[
-    tag("ETERNAL", user.eternal?.non_physical),
-    tag("PRESENT", user.present?.non_physical),
-    tag("PAST", render_atom.past(user, { limit: 2, vector_text: true })),
-  ]
-    .filter(Boolean)
-    .map((x) => `\n${x}`)
-    .join("")}</USER_PERSONA>
-<FRACTAL name="${fractalNameSafe}"${fracDynAttrs}>${[
-    tag("ETERNAL", fractal?.eternal?.non_physical),
-    tag("PRESENT", fractal?.present?.non_physical),
-    (() => {
-      const pastVectors = render_atom.past(fractal, { limit: 1, vector_text: true }) || "";
-      const validLog = simulation_log && String(simulation_log).trim().length > 0;
-      const timelineXml = validLog ? `\n    <SESSION_TIMELINE>\n${escapeXml(String(simulation_log))}\n    </SESSION_TIMELINE>` : "";
-      if (!pastVectors && !timelineXml) return "";
-      return `  <PAST>${escapeXml(pastVectors)}${timelineXml}</PAST>`;
-    })(),
-    tag("FUTURE", render_atom.future(fractal, { limit: 2, vector_text: true })),
-  ]
-    .filter(Boolean)
-    .map((x) => `\n${x}`)
-    .join("")}</FRACTAL>
-
+<SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">
+<YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+${[tag("ETERNAL", entities.AI.eternal?.non_physical), tag("PRESENT", entities.AI.present?.non_physical), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true })), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }))].filter(Boolean).join("\n")}
+</YOUR_IDENTITY>
+<USER_PERSONA name="${escapeXml(entities.USER.name)}">
+${[tag("ETERNAL", entities.USER.eternal?.non_physical), tag("PRESENT", entities.USER.present?.non_physical), tag("PAST", render_atom.past(entities.USER, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+</USER_PERSONA>
+<FRACTAL name="${escapeXml(entities.FRACTAL?.name || "")}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical), tag("PRESENT", entities.FRACTAL?.present?.non_physical), fractalPast, tag("FUTURE", render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+</FRACTAL>
 ${
   signal_prompts.length > 0
     ? `<NARRATIVE_STYLE>\n${signal_prompts
@@ -161,9 +60,11 @@ ${
         .join("\n")}\n</NARRATIVE_STYLE>`
     : ""
 }
-<PROTOCOLS>\n${prompt_builder.render_protocols(protocolSelection)}\n</PROTOCOLS>
+<PROTOCOLS>
+${prompt_builder.render_protocols(protocolSelection)}
+</PROTOCOLS>
 <TASK>
-You are simulating ${aiNameSafe} in an active scene with ${userNameSafe}.
+You are simulating ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)}.
 Analyze the active environmental parameters. React strictly in-character, serve the immediate emotional register of the encounter, and honor all active PROTOCOLS defined above.
 Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}
 </TASK>
@@ -171,142 +72,48 @@ Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Pu
 }
 
 /**
- * PROLOGUE
- * PURPOSE: Initial scene setup and atmospheric resonance.
- * @param {PrologueParams} params
+ * Prologue / Epilogue narration compiler.
+ * Shared structure with mode-specific task text pulled from PROTOCOL_LIBRARY.
+ * @param {"prologue"|"epilogue"} mode
  */
-function render_prologue({ round, entities, input, render_atom, compressed_snapshot }) {
-  const ai = entities.AI;
-  const user = entities.USER;
-  const fractal = entities.FRACTAL;
-
-  const roundSafe = escapeXml(String(round));
-  const aiNameSafe = escapeXml(ai.name);
-  const userNameSafe = escapeXml(user.name);
-  const fractalNameSafe = escapeXml(fractal.name);
-
-  const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
-  const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
+function render_narration(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
+  const roundAttr = round != null ? ` round="${escapeXml(String(round))}"` : "";
+  const taskText = PROTOCOL_LIBRARY[mode === "prologue" ? "PROLOGUE" : "EPILOGUE"];
+  const inputLine = mode === "prologue" ? `\nInput: ${escapeXml(input?.trim() || "The scene begins.")}` : "";
 
   return `
-<SYSTEM role="${fractalNameSafe}" round="${roundSafe}" mode="PROLOGUE">
-<YOUR_IDENTITY name="${fractalNameSafe}"${fracDynAttrs}>${[
-    tag("ETERNAL", fractal.eternal?.non_physical),
-    tag("PRESENT", fractal.present?.non_physical),
-    tag("PAST", render_atom?.past(fractal, { limit: 2, vector_text: true })),
-    tag("FUTURE", render_atom?.future(fractal, { limit: 2, vector_text: true })),
-  ]
-    .filter(Boolean)
-    .map((x) => `\n${x}`)
-    .join("")}
+<SYSTEM role="${escapeXml(entities.FRACTAL.name)}"${roundAttr} mode="${mode.toUpperCase()}">
+<YOUR_IDENTITY name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+${[tag("ETERNAL", entities.FRACTAL.eternal?.non_physical), tag("PRESENT", entities.FRACTAL.present?.non_physical), tag("PAST", render_atom?.past(entities.FRACTAL, { limit: 2, vector_text: true })), tag("FUTURE", render_atom?.future(entities.FRACTAL, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
 </YOUR_IDENTITY>
 <ACTIVE_CHARACTERS>
-    <AI_CHARACTER name="${aiNameSafe}"${aiDynAttrs}>${[
-      tag("ETERNAL", ai.eternal?.non_physical),
-      tag("PRESENT", ai.present?.non_physical),
-      tag("PAST", render_atom?.past(ai, { limit: 2, vector_text: true })),
-      tag("FUTURE", render_atom?.future(ai, { limit: 2, vector_text: true })),
-    ]
-      .filter(Boolean)
-      .map((x) => `\n${x}`)
-      .join("")}
+    <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+${[tag("ETERNAL", entities.AI.eternal?.non_physical), tag("PRESENT", entities.AI.present?.non_physical), tag("PAST", render_atom?.past(entities.AI, { limit: 2, vector_text: true })), tag("FUTURE", render_atom?.future(entities.AI, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
     </AI_CHARACTER>
-    <USER_PERSONA name="${userNameSafe}">${[
-      tag("ETERNAL", user.eternal?.non_physical),
-      tag("PRESENT", user.present?.non_physical),
-      tag("PAST", render_atom?.past(user, { limit: 2, vector_text: true })),
-      tag("FUTURE", render_atom?.future(user, { limit: 2, vector_text: true })),
-    ]
-      .filter(Boolean)
-      .map((x) => `\n${x}`)
-      .join("")}
+    <USER_PERSONA name="${escapeXml(entities.USER.name)}">
+${[tag("ETERNAL", entities.USER.eternal?.non_physical), tag("PRESENT", entities.USER.present?.non_physical), tag("PAST", render_atom?.past(entities.USER, { limit: 2, vector_text: true })), tag("FUTURE", render_atom?.future(entities.USER, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 <PROTOCOLS>
 ${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, IMMERSION, MOMENTUM, FORMAT")}
 </PROTOCOLS>
 <TASK>
-You see everything. Open the scene. Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation—where the characters are and what they are currently doing. Set the narrative on a collision course with the active FUTURE vectors of all entities. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.
-Input: ${escapeXml(input?.trim() || "The scene begins.")}
+${taskText}${inputLine}
 </TASK>
 </SYSTEM>`.trim();
 }
 
 /**
- * EPILOGUE
- * PURPOSE: Closes the active simulation round. Resists narrative drift.
- * @param {EpilogueParams} params
- */
-function render_epilogue({ entities, recent_history: _recent_history, render_atom, compressed_snapshot }) {
-  const ai = entities.AI;
-  const user = entities.USER;
-  const fractal = entities.FRACTAL;
-
-  const aiNameSafe = escapeXml(ai.name);
-  const userNameSafe = escapeXml(user.name);
-  const fractalNameSafe = escapeXml(fractal.name);
-
-  const aiDynAttrs = format_dynamics_attrs(compressed_snapshot?.ai?.dynamics);
-  const fracDynAttrs = format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics);
-
-  return `
-<SYSTEM role="${fractalNameSafe}" mode="EPILOGUE">
-<YOUR_IDENTITY name="${fractalNameSafe}"${fracDynAttrs}>${[
-    tag("ETERNAL", fractal.eternal?.non_physical),
-    tag("PRESENT", fractal.present?.non_physical),
-    tag("PAST", render_atom?.past(fractal, { limit: 2, vector_text: true })),
-    tag("FUTURE", render_atom?.future(fractal, { limit: 2, vector_text: true })),
-  ]
-    .filter(Boolean)
-    .map((x) => `\n${x}`)
-    .join("")}
-</YOUR_IDENTITY>
-<ACTIVE_CHARACTERS>
-    <AI_CHARACTER name="${aiNameSafe}"${aiDynAttrs}>${[
-      tag("ETERNAL", ai.eternal?.non_physical),
-      tag("PRESENT", ai.present?.non_physical),
-      tag("PAST", render_atom?.past(ai, { limit: 2, vector_text: true })),
-      tag("FUTURE", render_atom?.future(ai, { limit: 2, vector_text: true })),
-    ]
-      .filter(Boolean)
-      .map((x) => `\n${x}`)
-      .join("")}
-    </AI_CHARACTER>
-    <USER_PERSONA name="${userNameSafe}">${[
-      tag("ETERNAL", user.eternal?.non_physical),
-      tag("PRESENT", user.present?.non_physical),
-      tag("PAST", render_atom?.past(user, { limit: 2, vector_text: true })),
-      tag("FUTURE", render_atom?.future(user, { limit: 2, vector_text: true })),
-    ]
-      .filter(Boolean)
-      .map((x) => `\n${x}`)
-      .join("")}
-    </USER_PERSONA>
-</ACTIVE_CHARACTERS>
-<PROTOCOLS>
-${prompt_builder.render_protocols("COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, IMMERSION, MOMENTUM, FORMAT")}
-</PROTOCOLS>
-<TASK>
-You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.
-</TASK>
-</SYSTEM>`.trim();
-}
-
-/**
- * MEMORY PROTOCOL
- * PURPOSE: Consolidates turns into RAG-compatible vectors.
- * @param {{ role: string, entity: SimulationEntity, history: any[] }} params
+ * Turn memory compilation and vector indexing template.
  */
 function render_memory({ role, entity, history }) {
-  const roleSafe = escapeXml(role);
-  const entityNameSafe = escapeXml(entity.name || "Unknown");
   return `
-<MEMORY_PROTOCOL role="${roleSafe}" entity="${entityNameSafe}">
+<MEMORY_PROTOCOL role="${escapeXml(role)}" entity="${escapeXml(entity.name || "Unknown")}">
 <PROTOCOLS>
 ${prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT")}
 </PROTOCOLS>
 <CONTEXT>
-Entity: ${entityNameSafe}
+Entity: ${escapeXml(entity.name || "Unknown")}
 </CONTEXT>
 <INPUT_HISTORY>
 ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
@@ -319,39 +126,46 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 }
 
 /**
- * ENHANCEMENT PROMPT
- * @param {{ label: string, directive: string, enhancer: string, content: string, is_image_field?: boolean, entity?: any }} params
+ * Text field enhancement instructions builder.
  */
 function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null }) {
-  const protocols = is_image_field
-    ? prompt_builder.render_protocols("ENHANCER_COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE")
-    : prompt_builder.render_protocols("ENHANCER_COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION");
-
-  const imageBlock = is_image_field
-    ? `\n<FORMAT>Output comma-separated visual tokens suitable for FLUX diffusion models. No prose. No sentences. No narrative language.</FORMAT>`
-    : `\n<FORMAT>Write standard narrative prose. DO NOT write comma-separated lists.</FORMAT>`;
-
-  const labelSafe = escapeXml(label || "");
-  const roleSafe = escapeXml(enhancer || "GENERAL");
+  const protocolSelection = is_image_field
+    ? "COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE, PERCHANCE_SYNTAX, JSON_OUTPUT, FORMAT_VISUAL"
+    : "COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION, FORMAT_PROSE";
 
   let contextBlock = "";
-  if (entity && (entity.eternal || entity.present)) {
-    const p = [entity.eternal?.physical, entity.present?.physical].filter(Boolean).join(" | ");
-    const np = [entity.eternal?.non_physical, entity.present?.non_physical].filter(Boolean).join(" | ");
+  if (entity) {
+    const pastVectors = entity.past?.length ? temporal_engine.format(entity.past, content || "", { limit: 2, mode: "past" }) : "";
+    const futureVectors = entity.future?.length ? temporal_engine.format(entity.future, content || "", { limit: 1, mode: "future" }) : "";
 
-    if (p || np) {
-      contextBlock = `\n<ENTITY_CONTEXT>\n${p ? `<PHYSICAL>${escapeXml(p)}</PHYSICAL>\n` : ""}${np ? `<PSYCHOLOGICAL>${escapeXml(np)}</PSYCHOLOGICAL>\n` : ""}</ENTITY_CONTEXT>`;
+    if (
+      entity.eternal?.physical ||
+      entity.eternal?.non_physical ||
+      entity.present?.physical ||
+      entity.present?.non_physical ||
+      pastVectors ||
+      futureVectors
+    ) {
+      contextBlock =
+        `\n<ENTITY_CONTEXT>\n` +
+        (entity.eternal?.physical ? `  <ETERNAL_PHYSICAL>${escapeXml(flatten_physical(entity.eternal.physical))}</ETERNAL_PHYSICAL>\n` : "") +
+        (entity.eternal?.non_physical ? `  <ETERNAL_PSYCHOLOGICAL>${escapeXml(entity.eternal.non_physical)}</ETERNAL_PSYCHOLOGICAL>\n` : "") +
+        (entity.present?.physical ? `  <PRESENT_PHYSICAL>${escapeXml(flatten_physical(entity.present.physical))}</PRESENT_PHYSICAL>\n` : "") +
+        (entity.present?.non_physical ? `  <PRESENT_PSYCHOLOGICAL>${escapeXml(entity.present.non_physical)}</PRESENT_PSYCHOLOGICAL>\n` : "") +
+        (pastVectors ? `  <HISTORICAL_CONTEXT>\n${escapeXml(pastVectors)}\n  </HISTORICAL_CONTEXT>\n` : "") +
+        (futureVectors ? `  <PROJECTED_TRAJECTORY>\n${escapeXml(futureVectors)}\n  </PROJECTED_TRAJECTORY>\n` : "") +
+        `</ENTITY_CONTEXT>`;
     }
   }
 
   return `
-<SYSTEM role="${roleSafe}" enhancing="${labelSafe}">
+<SYSTEM role="${escapeXml(enhancer || "GENERAL")}" enhancing="${escapeXml(label || "")}">
 <INSTRUCTIONS>
 ${escapeXml(directive)}
 </INSTRUCTIONS>
 <PROTOCOLS>
-${protocols}
-</PROTOCOLS>${imageBlock}${contextBlock}
+${prompt_builder.render_protocols(protocolSelection)}
+</PROTOCOLS>${contextBlock}
 <INPUT_CONTENT>
 ${escapeXml(content)}
 </INPUT_CONTENT>
@@ -359,12 +173,11 @@ ${escapeXml(content)}
 }
 
 /**
- * 🧬🧬🧬🧬🧬🧬🧬🧬 PROTOCOL LIBRARY (The DNA)
- * Rules, directives, and cosmic constraints that govern every simulation.
- * Use render_protocols() to inject these as a markdown list.
+ * Definitive core constraint matrices ruleset map.
  * @type {Record<string, string>}
  */
-const PROTOCOL_LIBRARY = {
+export const PROTOCOL_LIBRARY = {
+  // --- Simulation core ---
   IDENTITY: "Resolve all state inferences strictly within the active <YOUR_IDENTITY> block.",
   USER_AGENCY:
     "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
@@ -376,10 +189,6 @@ const PROTOCOL_LIBRARY = {
   PRESENT: "Write in the present tense.",
   MOMENTUM:
     "Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
-  CONTINUITY:
-    "All prior established facts, backstory details, injuries, physical positions, and historical agreements are strictly immutable. Never retcon or contradict them.",
-  LENGTH:
-    "Target a narrative response length of 150-350 words. You may truncate significantly for tense silent beats or expand for major structural scene climaxes, but avoid arbitrary length drift.",
   FIRST_PERSON: "Write in first-person POV.",
   THIRD_PERSON: "Write in third-person POV.",
   GRIT: "Maintain a 2:1 ratio of concrete sensory physics to abstract dialogue.",
@@ -388,58 +197,46 @@ const PROTOCOL_LIBRARY = {
   STABILITY_LOCK_1: "WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.",
   STABILITY_LOCK_2:
     "CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.",
-  ENHANCER_COGNITION_NON_PHYSICAL:
+  // --- Enhancement cognition ---
+  COGNITION_NON_PHYSICAL:
     "Begin your response with <think>. Use this block to analyze the core psychological archetypes, thematic resonances, and necessary vocabulary. You MUST explicitly write </think> to close the block before outputting the final text.",
-  ENHANCER_COGNITION_PHYSICAL:
+  COGNITION_PHYSICAL:
     "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements. You MUST explicitly write </think> to close the block before formatting the visual tokens.",
+  // --- Narration modes (task directives for render_narration) ---
+  PROLOGUE:
+    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation—where the characters are and what they are currently doing. Set the narrative on a collision course with the active FUTURE vectors of all entities. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.",
+  EPILOGUE:
+    "You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.",
+  // --- Perchance rendering constraints (no-weights + dynamic syntax, combined) ---
+  PERCHANCE_SYNTAX:
+    'Remove or avoid numerical weighting strings or syntax (e.g. "(masterpiece:1.2)" or "(bokeh:1.3)"). Control emphasis through descriptive adjectives, absolute quantities, and sentence positioning. You MAY use Perchance inline dynamic selection syntax "{Option A|Option B|Option C}" for inline variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.',
+  // --- JSON output constraints (formulation + structural constraints, combined) ---
+  JSON_OUTPUT:
+    "Return a single JSON object. No conversational preamble, no markdown backticks outside of the JSON block.\n<CONSTRAINTS>\n- Output MUST be valid JSON starting with '{' and ending with '}'.\n- Do not wrap the JSON in markdown code blocks like ```json.\n- No XML tags outside the JSON block.\n</CONSTRAINTS>",
+  // --- Enhancement output format tags (inline XML, not compatible with render_protocols) ---
+  FORMAT_VISUAL:
+    "<FORMAT>Output optimized descriptive prose incorporating targeted matrix descriptors. Avoid raw unorganized keyword soup layout arrays.</FORMAT>",
+  FORMAT_PROSE: "<FORMAT>Write standard narrative prose. DO NOT write comma-separated lists.</FORMAT>",
 };
 
 /**
- * SYNTHESIS PHASE
- * The orchestration layer that produces ready-to-use LLM instruction sets.
+ * Synthesis Engine Object Interface Layer.
  */
 export const prompt_builder = {
-  /**
-   * @param {any} payload
-   * @param {any} snapshot
-   */
   synthesize(payload, snapshot) {
-    const { type, entities, input, rawMessages } = payload;
-    const render_atom = prompt_builder.create_render_atom(entities, input, rawMessages);
+    const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
 
-    if (type === "prologue") {
-      const system = render_prologue({
-        ...payload,
-        round: payload.round,
-        render_atom,
-        compressed_snapshot: snapshot,
-      });
+    if (payload.type === "prologue") {
       return {
-        system: prompt_builder.clean(system),
+        system: prompt_builder.clean(render_narration("prologue", { ...payload, render_atom, compressed_snapshot: snapshot })),
         meta: {},
       };
     }
 
-    const system = render_simulation({
-      round: payload.round,
-      entities: payload.entities,
-      input: payload.input,
-      signal_prompts: snapshot.signal_prompts || [],
-      render_atom,
-      simulation_log: payload.simulation_log,
-      meta: payload.meta,
-      compressed_snapshot: snapshot,
-      view_id: payload.view_id,
-      type,
-    });
-
-    // Capture top vectors for telemetry
-    const scoring_context = render_atom._context;
-    const ai_past = temporal_engine.score(payload.entities.AI.past || [], scoring_context).slice(0, 5);
-    const ai_future = temporal_engine.score(payload.entities.AI.future || [], scoring_context).slice(0, 5);
-
     return {
-      system: prompt_builder.clean(system),
+      system: prompt_builder.clean(
+        render_simulation({ ...payload, signal_prompts: snapshot.signal_prompts || [], render_atom, compressed_snapshot: snapshot }),
+      ),
       meta: {
         ai: snapshot.ai.dynamics,
         fractal: snapshot.fractal.dynamics,
@@ -447,217 +244,101 @@ export const prompt_builder = {
         signal_prompts: snapshot.signal_prompts,
         signals: snapshot.signals,
         vectors: {
-          past: ai_past,
-          future: ai_future,
+          past: temporal_engine.score(payload.entities.AI.past || [], render_atom._context).slice(0, 5),
+          future: temporal_engine.score(payload.entities.AI.future || [], render_atom._context).slice(0, 5),
         },
       },
     };
   },
 
-  /**
-   * @param {Object.<string, SimulationEntity>} entities
-   * @param {string} input
-   * @param {any[]} raw_messages
-   * @returns {RenderAtom}
-   */
   create_render_atom(entities, input, raw_messages) {
-    /** @param {string|SimulationEntity} entity_reference */
-    const resolve = (entity_reference) => (typeof entity_reference === "string" ? entities[entity_reference] || entities.AI : entity_reference);
-
-    const input_pool = Array.isArray(raw_messages) ? raw_messages : [];
-    const recent_history = input_pool
+    const resolve = (ref) => (typeof ref === "string" ? entities[ref] || entities.AI : ref);
+    const scoring_context = `${input || ""} ${(Array.isArray(raw_messages) ? raw_messages : [])
       .slice(-3)
-      .map((message) => message.content)
-      .join(" ");
-    const scoring_context = `${input || ""} ${recent_history}`.trim();
+      .map((m) => m.content)
+      .join(" ")}`.trim();
 
     return {
       _context: scoring_context,
-      /**
-       * @param {string|SimulationEntity} entity_reference
-       * @param {Object} [options]
-       * @param {number} [options.limit]
-       * @param {number} [options.offset]
-       * @param {boolean} [options.vector_text]
-       * @param {boolean} [options.vector_label]
-       */
-      past: (entity_reference, options = {}) => {
-        const entity = resolve(entity_reference);
-        return temporal_engine.format(entity.past || [], scoring_context, {
-          limit: 3,
-          offset: 0,
-          max_chars: 1500,
-          ...options,
-          mode: "past",
-        });
-      },
-      /**
-       * @param {string|SimulationEntity} entity_reference
-       * @param {Object} [options]
-       * @param {number} [options.limit]
-       * @param {number} [options.offset]
-       * @param {boolean} [options.vector_text]
-       * @param {boolean} [options.vector_label]
-       */
-      future: (entity_reference, options = {}) => {
-        const entity = resolve(entity_reference);
-        return temporal_engine.format(entity.future || [], scoring_context, {
-          limit: 3,
-          offset: 0,
-          max_chars: 1500,
-          ...options,
-          mode: "future",
-        });
-      },
-      /**
-       * @param {number} [limit]
-       * @param {number} [offset]
-       */
-      simulation_log: (limit = 10, offset = 0) => {
-        return prompt_builder.render_history(raw_messages, limit, offset);
-      },
+      past: (ref, options = {}) =>
+        temporal_engine.format(resolve(ref).past || [], scoring_context, { limit: 3, offset: 0, max_chars: 1500, ...options, mode: "past" }),
+      future: (ref, options = {}) =>
+        temporal_engine.format(resolve(ref).future || [], scoring_context, { limit: 3, offset: 0, max_chars: 1500, ...options, mode: "future" }),
+      simulation_log: (limit = 10, offset = 0) => prompt_builder.render_history(raw_messages, limit, offset),
     };
   },
 
-  /**
-   * @param {any[]|string} simulation_log
-   * @param {number} [count]
-   * @param {number} [offset]
-   */
   render_history(simulation_log, count = 10, offset = 0) {
     if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
     if (Array.isArray(simulation_log)) {
-      // 1. Collapse the ENTIRE history array first to merge consecutive turns
-      /** @type {any[]} */
       const collapsed = [];
       for (const m of simulation_log) {
-        if (m.role === "system") continue; // Extra safety guard
-
+        if (m.role === "system") continue;
         const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
-        const name = m.character_name || "";
         const content = strip_cognition_blocks(m.content || m.text || "");
-        if (collapsed.length > 0 && collapsed[collapsed.length - 1].role === role && collapsed[collapsed.length - 1].name === name) {
+
+        if (
+          collapsed.length > 0 &&
+          collapsed[collapsed.length - 1].role === role &&
+          collapsed[collapsed.length - 1].name === (m.character_name || "")
+        ) {
           collapsed[collapsed.length - 1].content += `\n\n${content}`;
         } else {
-          collapsed.push({ role, name, content });
+          collapsed.push({ role, name: m.character_name || "", content });
         }
       }
-
-      // 2. Slice the final collapsed array to guarantee full context depth
-      const start = Math.max(0, collapsed.length - (count + offset));
-      const end = Math.max(0, collapsed.length - offset);
-      const sliced = collapsed.slice(start, end);
-
-      return sliced
-        .map((c) => {
-          return `    <entry role="${c.role}"${c.name ? ` name="${escapeXml(c.name)}"` : ""}>${escapeXml(c.content)}</entry>`;
-        })
+      return collapsed
+        .slice(Math.max(0, collapsed.length - (count + offset)), Math.max(0, collapsed.length - offset))
+        .map((c) => `    <entry role="${c.role}"${c.name ? ` name="${escapeXml(c.name)}"` : ""}>${escapeXml(c.content)}</entry>`)
         .join("\n");
     }
     return "";
   },
 
-  /**
-   * @param {string} selection
-   */
   render_protocols(selection) {
-    if (!selection) return "";
-
     return selection
-      .split(",")
-      .map((k) => k.trim().toUpperCase())
-      .map((key) => PROTOCOL_LIBRARY[key])
-      .filter(Boolean)
-      .map((rule) => `- ${rule}`)
-      .join("\n");
+      ? selection
+          .split(",")
+          .map((k) => PROTOCOL_LIBRARY[k.trim().toUpperCase()])
+          .filter(Boolean)
+          .map((rule) => `- ${rule}`)
+          .join("\n")
+      : "";
   },
 
-  /**
-   * Clean formatting irregularities but preserve paragraph structures
-   * @param {string} str
-   */
   clean(str) {
-    if (typeof str !== "string") return "";
-    return str
-      .replace(/[ \t]+$/gm, "")
-      .replace(/\n{3,}/g, "\n\n") // Preserves standard paragraph breaks, collapsing 3+ into 2.
-      .trim();
+    return typeof str === "string"
+      ? str
+          .replace(/[ \t]+$/gm, "")
+          .replace(/\n{3,}/g, "\n\n")
+          .trim()
+      : "";
   },
 
-  /**
-   * @param {any} [entities]
-   * @param {any} [dynamics] Maintained for signature compatibility, unused internally.
-   * @param {any[]} [recent_history]
-   */
   build_epilogue(entities, dynamics, recent_history = []) {
     const safeEntities = {
-      AI: entities?.AI || {
-        name: "AI",
-        present: { non_physical: "" },
-        eternal: { non_physical: "" },
-      },
-      USER: entities?.USER || {
-        name: "USER",
-        present: { non_physical: "" },
-        eternal: { non_physical: "" },
-      },
-      FRACTAL: entities?.FRACTAL || {
-        name: "FRACTAL",
-        present: { non_physical: "" },
-        eternal: { non_physical: "" },
-      },
+      AI: entities?.AI || { name: "AI", present: {}, eternal: {} },
+      USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
+      FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
     };
-
-    const render_atom = prompt_builder.create_render_atom(safeEntities, "", recent_history);
-
     return {
-      system: render_epilogue({
+      system: render_narration("epilogue", {
         entities: safeEntities,
-        recent_history,
-        render_atom,
+        render_atom: prompt_builder.create_render_atom(safeEntities, "", recent_history),
         compressed_snapshot: { ai: { dynamics: dynamics?.ai }, fractal: { dynamics: dynamics?.fractal } },
       }),
       messages: [],
     };
   },
 
-  /**
-   * @param {string} role
-   * @param {any} entity
-   * @param {any[]} history
-   */
   build_memory_prompt(role, entity, history) {
-    return {
-      system: render_memory({
-        role,
-        entity,
-        history,
-      }),
-      messages: [],
-    };
+    return { system: render_memory({ role, entity, history }), messages: [] };
   },
 
-  /**
-   * @param {string} field_id
-   * @param {string} content
-   * @param {string} [entity_name]
-   * @param {string} [entity_type]
-   * @param {boolean} [is_image_field]
-   * @param {any} [entity]
-   */
   build_enhancement(field_id, content, entity_name = "", entity_type = "character", is_image_field = false, entity = null) {
     const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
-    const typeKey = `${resolvedType}.${field_id}`;
-
-    // Auto-detect image field if not explicitly passed
-    const isImage = is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")) || field_id.includes("visual");
-
-    /** @type {any} */
-    const meta = ENTITY_CATALOG[typeKey] ||
-      ENTITY_CATALOG[field_id] || {
-        directive: "Expand and enrich the fragment.",
-        enhancer: "GENERAL",
-      };
+    const meta = ENTITY_CATALOG[`${resolvedType}.${field_id}`] ||
+      ENTITY_CATALOG[field_id] || { directive: "Expand and enrich the fragment.", enhancer: "GENERAL" };
 
     return {
       system: render_enhancement({
@@ -665,7 +346,7 @@ export const prompt_builder = {
         label: entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
-        is_image_field: isImage,
+        is_image_field: is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")) || field_id.includes("visual"),
         entity,
       }),
       messages: [],

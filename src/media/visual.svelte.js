@@ -125,12 +125,13 @@ export class VisualEngine {
             const res = getResolution(options.mode);
             // Resolve negative prompt: per-entity override > hardcoded constant
             const effectiveNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || NEGATIVE_PROMPT;
+
             const generatePromise = image_engine({
               prompt: finalPrompt,
               negativePrompt: effectiveNegativePrompt,
               seed: options.seed ?? generateSecureSeed(),
-              width: options.width || res.width,
-              height: options.height || res.height,
+              // Map custom resolution parameters directly to the strict string formats expected by Perchance
+              resolution: `${res.width}x${res.height}`,
               removeBackground: !!(options.removeBackground ?? options.no_background),
             });
 
