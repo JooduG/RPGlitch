@@ -27,8 +27,20 @@ export class ProfileState {
   /** @type {any} */
   char = $state(null);
 
+  /** @private */
+  _clean_snapshot = null;
+
   constructor() {
     this.char = normalize(app.editing_entity || runtime.character);
+  }
+
+  /**
+   * Deterministic check verifying if the active workspace has morphed during this edit session.
+   * @type {boolean}
+   */
+  get is_dirty() {
+    if (!this.is_editing || !this._clean_snapshot || !this.char) return false;
+    return JSON.stringify(this.char) !== this._clean_snapshot;
   }
 
   /**
@@ -43,6 +55,14 @@ export class ProfileState {
     if (this.char?.modifiers) {
       this.char.modifiers.no_background = val;
     }
+  }
+
+  /**
+   * Initiates the editing state transition and captures a pristine structural snapshot.
+   */
+  start_editing() {
+    this.is_editing = true;
+    this._clean_snapshot = JSON.stringify(this.char);
   }
 
   /**
@@ -91,6 +111,7 @@ export class ProfileState {
   cancel() {
     this.is_editing = false;
     this.char = normalize(app.editing_entity || runtime.character);
+    this._clean_snapshot = null;
     this.reset_active_field();
   }
 
@@ -116,6 +137,7 @@ export class ProfileState {
    */
   async save(entity_type) {
     this.is_editing = false;
+    this._clean_snapshot = null;
     this.is_saving = true;
     try {
       await runtime.save_entity(entity_type, this.char);
@@ -158,6 +180,16 @@ export class ProfileState {
    */
   async enhance(key, value) {
     if (!value || this.busy_fields.has(key)) return;
+    this.enhance_field_inner(key, value);
+  }
+
+  /**
+   * Private internal logic pipeline executing the text enhancement mechanics.
+   * @private
+   * @param {string} key
+   * @param {string} value
+   */
+  async enhance_field_inner(key, value) {
     this.busy_fields.add(key);
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";

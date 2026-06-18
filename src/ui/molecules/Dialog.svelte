@@ -74,7 +74,7 @@
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div
-                  {...contentProps}
+                  {contentProps}
                   class="
                     pointer-events-auto
                     relative
