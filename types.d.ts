@@ -86,7 +86,7 @@ declare global {
     [key: string]: unknown;
   }
 
-  const rpgLists: RPGLists;
+  const LISTS: RPGLists;
 
   /** Security & Sanitization kernel */
   interface PurifyKernel {
@@ -141,7 +141,7 @@ declare global {
     DOMPurify: PurifyKernel;
     ai: typeof ai;
     t2i: typeof t2i;
-    rpgLists: RPGLists;
+    LISTS: RPGLists;
     pluginTextToImage: typeof pluginTextToImage;
     pluginUpload: typeof pluginUpload;
     oc: PerchanceOC;

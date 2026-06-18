@@ -1,4 +1,9 @@
-export const rpgLists = {
+/**
+ * Consolidated token registry — curated dimensions injected into the AI Refine
+ * (Scribe) prompt for contextual grounding, combining core RPG utilities with
+ * the photorealistic Nordic Collection aesthetic.
+ */
+export const LISTS = {
   quality: [
     "captured on 35mm film, authentic film grain, color graded",
     "high-fidelity photography, sharp focus, studio portraiture",
@@ -33,6 +38,15 @@ export const rpgLists = {
     "overcast, diffused light, soft shadows",
     "cinematic lighting, dramatic moody lighting",
     "volumetric lighting, god rays, foggy atmosphere",
+    "dramatic cinematic chiaroscuro, deep shadow contrast",
+    "cold Nordic overcast diffused light",
+    "volumetric god rays through mist",
+    "backlit silhouette with ice-blue rim lighting",
+    "harsh clinical fluorescent studio lighting",
+    "subterranean abyssal ambient glow",
+    "golden hour warm sidelighting",
+    "night photography, practical light sources only",
+    "neon sign glow, urban night reflections",
   ],
   tech: [
     "35mm film grain, analog aesthetic",
@@ -57,8 +71,16 @@ export const rpgLists = {
     "landscape orientation, epic scale",
     "low angle, heroic perspective",
     "negative space, minimalist composition",
+    "rule of thirds, intentional negative space",
+    "golden ratio spiral composition",
+    "symmetrical environmental framing",
+    "extreme close-up detail shot",
+    "medium portrait 3/4 framing, slight angle",
+    "full body environmental context shot",
+    "bird's eye overhead perspective",
+    "worm's eye dramatic low angle",
+    "dutch tilt, tension framing",
   ],
-
   artifacts: [
     "motion blur, harsh cinematic shadows, lens flare, rim light",
     "low light film grain, cctv security angle, volumetric bounce",
@@ -76,4 +98,52 @@ export const rpgLists = {
   settings: {
     voiceEnabled: true,
   },
+  mediums: [
+    "RAW photograph",
+    "ARRI Alexa 35 cinema camera capture",
+    "Hasselblad medium format digital",
+    "Leica M11 documentary shot",
+    "Fujifilm GFX 100S editorial photograph",
+    "vintage 35mm analog film scan",
+  ],
+  camera_and_optics: [
+    "85mm Prime f/1.2 lens, creamy bokeh",
+    "35mm Summilux wide-angle lens",
+    "Hasselblad HC 100mm f/2.2 macro lens",
+    "anamorphic lens distortion, cinematic oval bokeh",
+    "shallow depth-of-field, sharp focus on subject",
+    "long exposure motion blur, environmental movement",
+    "wide-angle environmental capture",
+    "extreme close-up macro detail shot",
+  ],
+  colors: [
+    "Kodak Vision3 500T desaturated film grain",
+    "high-contrast monochrome black and white",
+    "cold teal and deep navy cinematic grade",
+    "muted desaturated Scandinavian palette",
+    "frozen gunmetal and chalk white tones",
+    "abyssal deep blue and silver metallic",
+    "deep shadow, minimal highlight roll-off",
+    "split-toned cyan shadows, warm highlight bleed",
+  ],
+  fidelity: [
+    "8K hyper-realistic micro-detail",
+    "subsurface scattering, natural skin translucency",
+    "micro-detailed visible skin pores, natural texture",
+    "realistic fabric weave and material texture",
+    "heavy analog film grain texture overlay",
+    "chromatic aberration edge bleed, subtle lens defect",
+    "ambient occlusion depth shading",
+    "ray-traced surface reflections",
+  ],
+  moods: [
+    "intense and dramatic, high psychological tension",
+    "cold and clinical, detached observation",
+    "dark and gothic, subterranean atmosphere",
+    "melancholic Nordic isolation, quiet desolation",
+    "predatory stillness, controlled power",
+    "ethereal dreamlike suspension",
+    "chaotic and rebellious, unstable energy",
+    "serene and contemplative, subdued presence",
+  ],
 };

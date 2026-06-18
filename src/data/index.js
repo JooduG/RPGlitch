@@ -10,4 +10,4 @@ export {
   format_premade,
 } from "./normalizer.js";
 export { premade } from "./premades.js";
-export { rpgLists } from "./perchance-lists.js";
+export { LISTS } from "./lists.js";

@@ -6,6 +6,7 @@
  */
 
 import { clamp, generateSecureSeed, generateUUID, pickRandom } from "@engine";
+import { LISTS } from "@data";
 
 // Re-export pure engine utilities
 export { clamp, generateSecureSeed, generateUUID, pickRandom };
@@ -326,8 +327,6 @@ export const mockPlugins = () => {
   if (!w["pluginUpload"]) w["pluginUpload"] = async () => "https://via.placeholder.com/150";
 };
 
-import { rpgLists } from "@data/perchance-lists.js";
-
 /**
  * Safely accesses Perchance lists.
  * Handles both raw arrays and stringified JSON arrays.
@@ -335,8 +334,8 @@ import { rpgLists } from "@data/perchance-lists.js";
  * @returns {any[]}
  */
 export const getRpgList = (key) => {
-  if (rpgLists && rpgLists[key]) {
-    let list = rpgLists[key];
+  if (LISTS && LISTS[key]) {
+    let list = LISTS[key];
     // Check if the first element is a stringified JSON array (Perchance quirk)
     if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
       if (list[0].length > 65536) {

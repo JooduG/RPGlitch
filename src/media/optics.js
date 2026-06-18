@@ -8,94 +8,9 @@
 export const NEGATIVE_PROMPT =
   "anime, manga, cartoon, illustrated, digital painting, concept art, cgi, 3d render, 3d model, stylized, fantasy art, comic book, animated, toon shading, cel shading, furry, anthro, anthropomorphic, unrealistic proportions, doll, figure, toy, drawing, sketch, watercolor, oil painting, low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur";
 
+import { LISTS } from "@data";
 import { escapeXml } from "@intelligence/parser.js";
 import { get_signature_label } from "@media";
-
-/**
- * Aesthetic token registry — curated dimensions injected into the Refine
- * prompt for contextual grounding. Ported and adapted from ImageGlitch,
- * tuned for RPGlitch's photorealistic Nordic Collection aesthetic.
- * Each dimension provides a pool of specific tokens the AI selects from.
- */
-export const AESTHETICS_REGISTRY = {
-  // The fundamental art format — photorealistic always anchored first
-  mediums: [
-    "RAW photograph",
-    "ARRI Alexa 35 cinema camera capture",
-    "Hasselblad medium format digital",
-    "Leica M11 documentary shot",
-    "Fujifilm GFX 100S editorial photograph",
-    "vintage 35mm analog film scan",
-  ],
-  // Physical lens and camera hardware
-  camera_and_optics: [
-    "85mm Prime f/1.2 lens, creamy bokeh",
-    "35mm Summilux wide-angle lens",
-    "Hasselblad HC 100mm f/2.2 macro lens",
-    "anamorphic lens distortion, cinematic oval bokeh",
-    "shallow depth-of-field, sharp focus on subject",
-    "long exposure motion blur, environmental movement",
-    "wide-angle environmental capture",
-    "extreme close-up macro detail shot",
-  ],
-  // Environmental and artificial light sources
-  lighting: [
-    "dramatic cinematic chiaroscuro, deep shadow contrast",
-    "cold Nordic overcast diffused light",
-    "volumetric god rays through mist",
-    "backlit silhouette with ice-blue rim lighting",
-    "harsh clinical fluorescent studio lighting",
-    "subterranean abyssal ambient glow",
-    "golden hour warm sidelighting",
-    "night photography, practical light sources only",
-    "neon sign glow, urban night reflections",
-  ],
-  // Color science, grading, and film stocks
-  colors: [
-    "Kodak Vision3 500T desaturated film grain",
-    "high-contrast monochrome black and white",
-    "cold teal and deep navy cinematic grade",
-    "muted desaturated Scandinavian palette",
-    "frozen gunmetal and chalk white tones",
-    "abyssal deep blue and silver metallic",
-    "deep shadow, minimal highlight roll-off",
-    "split-toned cyan shadows, warm highlight bleed",
-  ],
-  // Framing and compositional geometry
-  composition: [
-    "rule of thirds, intentional negative space",
-    "golden ratio spiral composition",
-    "symmetrical environmental framing",
-    "extreme close-up detail shot",
-    "medium portrait 3/4 framing, slight angle",
-    "full body environmental context shot",
-    "bird's eye overhead perspective",
-    "worm's eye dramatic low angle",
-    "dutch tilt, tension framing",
-  ],
-  // Micro-detail, texture fidelity, rendering quality
-  fidelity: [
-    "8K hyper-realistic micro-detail",
-    "subsurface scattering, natural skin translucency",
-    "micro-detailed visible skin pores, natural texture",
-    "realistic fabric weave and material texture",
-    "heavy analog film grain texture overlay",
-    "chromatic aberration edge bleed, subtle lens defect",
-    "ambient occlusion depth shading",
-    "ray-traced surface reflections",
-  ],
-  // Emotional and atmospheric tone
-  moods: [
-    "intense and dramatic, high psychological tension",
-    "cold and clinical, detached observation",
-    "dark and gothic, subterranean atmosphere",
-    "melancholic Nordic isolation, quiet desolation",
-    "predatory stillness, controlled power",
-    "ethereal dreamlike suspension",
-    "chaotic and rebellious, unstable energy",
-    "serene and contemplative, subdued presence",
-  ],
-};
 
 /**
  * Shared prompt protocol fragments to ensure standardization.
@@ -120,11 +35,11 @@ const SHARED_CONSTRAINTS = `<CONSTRAINTS>
 const formatDimension = (label, items) => (items.length > 0 ? `[DIMENSION: ${label}]\n${items.join(", ")}\n` : "");
 
 /**
- * Renders all AESTHETICS_REGISTRY dimensions into a structured context block.
+ * Renders all LISTS dimensions into a structured context block.
  * @returns {string}
  */
 const buildDimensionsContext = () =>
-  Object.entries(AESTHETICS_REGISTRY)
+  Object.entries(LISTS)
     .map(([key, items]) => {
       const labels = {
         mediums: "Mediums",
@@ -192,7 +107,7 @@ export const AestheticResolver = {
 export const PromptTemplates = {
   /**
    * Refines raw description into structured JSON with positive + negative prompt tokens.
-   * Scribe pattern: Lawful Good prompter that enriches intent using the AESTHETICS_REGISTRY
+   * Scribe pattern: Lawful Good prompter that enriches intent using the LISTS
    * dimension matrix and returns { _thought_process, prompt, negativePrompt }.
    *
    * @param {string} text - Raw character or scene description to refine
