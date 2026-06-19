@@ -31,6 +31,7 @@ const format_dynamics_attrs = (dynObj) => {
  */
 function render_simulation({ round, entities, signal_prompts, input, render_atom, simulation_log, meta, compressed_snapshot }) {
   let protocolSelection = "COGNITION, FORMAT, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM";
+  if (meta?.is_opening_turn) protocolSelection += ", FIRST_CONTACT";
   if (meta?.structural_errors >= 3) protocolSelection += ", STABILITY_LOCK_2";
   else if (meta?.structural_errors >= 1) protocolSelection += ", STABILITY_LOCK_1";
 
@@ -204,7 +205,7 @@ export const PROTOCOL_LIBRARY = {
     "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements. You MUST explicitly write </think> to close the block before formatting the visual tokens.",
   // --- Narration modes (task directives for render_narration) ---
   PROLOGUE:
-    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance and character alignment before speaking. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation—where the characters are and what they are currently doing. Set the narrative on a collision course with the active FUTURE vectors of all entities. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.",
+    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance, character alignment, and — critically — whether AI_CHARACTER and USER_PERSONA have an established prior relationship. Unless ETERNAL or PAST context explicitly states a history between them, treat this as their first encounter: strangers, no shared names, no assumed dynamic. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation — where the characters are, what brought them into the same space, and what is visibly happening. Introduce AI_CHARACTER through their first impression: how they look, how they carry themselves, what their presence projects. Let the stranger dynamic drive the initial tension rather than assumed familiarity. Set the narrative on a collision course with the active FUTURE vectors of all entities. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.",
   EPILOGUE:
     "You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.",
   // --- Perchance rendering constraints (no-weights + dynamic syntax, combined) ---
@@ -220,6 +221,8 @@ export const PROTOCOL_LIBRARY = {
   FORMAT_VISUAL:
     "<FORMAT>Output optimized descriptive prose incorporating targeted matrix descriptors. Avoid raw unorganized keyword soup layout arrays.</FORMAT>",
   FORMAT_PROSE: "<FORMAT>Write standard narrative prose. DO NOT write comma-separated lists.</FORMAT>",
+  FIRST_CONTACT:
+    "SCENE CONTEXT: Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is the moment AI_CHARACTER and USER_PERSONA first cross paths. You don't know their name, history, or intentions yet. Let your eternal personality drive how you react to a stranger — warmly, warily, with calculated interest, however your nature demands — but don't assume familiarity. This is the beat to plant a real first impression. When the moment arrives naturally, introduce yourself; let it come from character, not convention.",
 };
 
 /**

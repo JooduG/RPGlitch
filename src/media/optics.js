@@ -21,7 +21,7 @@ import { get_signature_label } from "@media";
  */
 const safeParsePseudoJson = (raw) => {
   if (!raw) return {};
-  const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/g, "").trim();
+  const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
   if (!cleanRaw) return {};
 
   // Tier 1: Try parsing standard JSON or braced setups

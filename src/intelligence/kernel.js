@@ -189,6 +189,7 @@ export const gamemaster = {
       const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = runtime.structural_errors || 0;
+      payload.meta.is_opening_turn = !!options.is_opening_turn;
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
       const snapshot = dynamics_engine.simulate(payload);
 
@@ -294,9 +295,12 @@ export const gamemaster = {
       app.end_stream();
       simulationState.complete(); // Ensure typing indicator clears instantly before consolidate runs
 
-      // 9. HOUSEKEEPING: Trigger narrative control (MemoryEngine) if needed
-      await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
+      // After app.end_stream() / simulationState.complete():
+      app.busy = false; // release the UI
+      simulationState.phase = "idle"; // unlock engine
 
+      // Then consolidate runs non-blocking from the user's perspective:
+      await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
       return { response: validationResult.text, meta: final_meta };
     } finally {
       app.busy = false;
@@ -344,7 +348,7 @@ export const gamemaster = {
 
       // 2. The Hook: Trigger immediate AI follow-up to open the scene.
       // Ensure we transition simulationState to 'ai' role for the hook.
-      return await this.execute_turn(story_id, { role: "ai" });
+      return await this.execute_turn(story_id, { role: "ai", is_opening_turn: true });
     } finally {
       app.busy = false;
       app.end_stream();

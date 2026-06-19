@@ -30,7 +30,7 @@ export const premade = {
         {
           id: "orion-p1",
           text: "Infamous live-streamed wardrobe malfunction that gave him the nickname 'Orion the Pink Tip'.",
-          dynamics_tags: ["EXHIBITION", "VIRAL"],
+          dynamics_tags: ["KINETICS"],
           vector_tags: ["fame"],
           emotional_weight: 7,
         },
@@ -39,7 +39,7 @@ export const premade = {
         {
           id: "orion-f1",
           text: "Wants a viral homoerotic rescue moment",
-          dynamics_tags: ["FOCUS"],
+          dynamics_tags: ["SYNCHRONY"],
           vector_tags: ["viral"],
           emotional_weight: 6,
         },
@@ -71,7 +71,7 @@ export const premade = {
         {
           id: "proxy-p1",
           text: "Got overpowered and roughly used after a major breach.",
-          dynamics_tags: ["SUBMISSION"],
+          dynamics_tags: ["VULNERABILITY_IMPULSE"],
           vector_tags: ["punishment"],
           emotional_weight: 9,
         },
@@ -80,7 +80,7 @@ export const premade = {
         {
           id: "proxy-f1",
           text: "Gets cornered and fucked senseless while systems are live.",
-          dynamics_tags: ["SCHISM"],
+          dynamics_tags: ["SYSTEM_COLLAPSE"],
           vector_tags: ["public use"],
           emotional_weight: 8,
         },
@@ -112,7 +112,7 @@ export const premade = {
         {
           id: "valerius-p1",
           text: "Destroyed a rival corporation after they interfered with one of his claimed boys.",
-          dynamics_tags: ["POSSESSION"],
+          dynamics_tags: ["SYNCHRONY"],
           vector_tags: ["chastity"],
           emotional_weight: 10,
         },
@@ -121,7 +121,7 @@ export const premade = {
         {
           id: "valerius-f1",
           text: "Transforms a defiant young man into his perfectly chastity-locked thrall",
-          dynamics_tags: ["FOCUS"],
+          dynamics_tags: ["SYNCHRONY"],
           vector_tags: ["bimbofication"],
           emotional_weight: 9,
         },
@@ -161,7 +161,7 @@ export const premade = {
         {
           id: "caelum-f1",
           text: "Secure permanent ownership from a powerful dominant master.",
-          dynamics_tags: ["FOCUS"],
+          dynamics_tags: ["SYNCHRONY"],
           vector_tags: ["submission"],
           emotional_weight: 8,
         },
@@ -192,7 +192,7 @@ export const premade = {
         {
           id: "silas-p1",
           text: "Betrayed during a heist and built his cybernetic arm and first fuck machine from scrap.",
-          dynamics_tags: ["BETRAYAL"],
+          dynamics_tags: ["ANOMALY", "SUSPICIOUS"],
           vector_tags: ["scrap"],
           emotional_weight: 9,
         },
@@ -201,7 +201,7 @@ export const premade = {
         {
           id: "silas-f1",
           text: "Pulls off one final heist using a scrap-built weapon/fuck machine hybrid",
-          dynamics_tags: ["FOCUS"],
+          dynamics_tags: ["SYNCHRONY"],
           vector_tags: ["freedom"],
           emotional_weight: 7,
         },
@@ -231,7 +231,7 @@ export const premade = {
         {
           id: "beast-p1",
           text: "Survived a brutal ten-to-one deathmatch in the fighting pits.",
-          dynamics_tags: ["SURVIVAL"],
+          dynamics_tags: ["VIOLENCE"],
           vector_tags: ["gladiator"],
           emotional_weight: 9,
         },
@@ -270,7 +270,7 @@ export const premade = {
         {
           id: "elias-p1",
           text: "Fired from corporations after turning interns into bimbo test subjects.",
-          dynamics_tags: ["EXPERIMENT"],
+          dynamics_tags: ["SHARD"],
           vector_tags: ["bimbofication"],
           emotional_weight: 8,
         },
@@ -279,7 +279,7 @@ export const premade = {
         {
           id: "elias-f1",
           text: "Turns a resistant subject into his perfect brainless bimbo",
-          dynamics_tags: ["FOCUS"],
+          dynamics_tags: ["SYNCHRONY"],
           vector_tags: ["transformation"],
           emotional_weight: 8,
         },
@@ -316,7 +316,7 @@ export const premade = {
         {
           id: "nova-f1",
           text: "The Zenith Festival with predicted power overload and sexual surge.",
-          dynamics_tags: ["ESCALATION"],
+          dynamics_tags: ["KINETICS"],
           vector_tags: ["festival"],
           emotional_weight: 8,
         },
@@ -377,7 +377,7 @@ export const premade = {
         {
           id: "tartarus-p1",
           text: "Catastrophic breach during a classified enhancement experiment.",
-          dynamics_tags: ["EXPERIMENT"],
+          dynamics_tags: ["SHARD"],
           vector_tags: ["lab accident"],
           emotional_weight: 9,
         },
@@ -386,7 +386,7 @@ export const premade = {
         {
           id: "tartarus-f1",
           text: "Full lockdown triggering mass 'emergency enhancement protocol'.",
-          dynamics_tags: ["ESCALATION"],
+          dynamics_tags: ["KINETICS"],
           vector_tags: ["bimbofication"],
           emotional_weight: 9,
         },
