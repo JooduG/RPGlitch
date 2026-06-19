@@ -331,7 +331,7 @@ export const dynamics_engine = {
     if (!state.contributors) state.contributors = {};
     const processed = new Set();
     const matchMap = new Map();
-    for (const m of matches) {
+    for (const m of matches || []) {
       matchMap.set(m.id, m);
     }
     Object.values(DYNAMICS).forEach((data) => {
