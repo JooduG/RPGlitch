@@ -197,7 +197,7 @@ export function resolve(entity, vector_id, resolution = null) {
 
   if (resolution) {
     if (!vector.vector_tags) vector.vector_tags = [];
-    vector.vector_tags.push(`RESOLUTION:${resolution.toUpperCase()}`.toLowerCase());
+    vector.vector_tags.push("resolution:" + resolution.toLowerCase());
     // Optionally update text if resolution brings new clarity
     // vector.text = `[Fulfilled] ${vector.text}`;
   }
