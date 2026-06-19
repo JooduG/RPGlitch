@@ -330,7 +330,10 @@ export const dynamics_engine = {
   dynamics_numerical(state, matches) {
     if (!state.contributors) state.contributors = {};
     const processed = new Set();
-    const matchMap = new Map(matches.map((m) => [m.id, m]));
+    const matchMap = new Map();
+    for (const m of matches) {
+      matchMap.set(m.id, m);
+    }
     Object.values(DYNAMICS).forEach((data) => {
       if (processed.has(data.id)) return;
       const match = matchMap.get(data.id);
@@ -374,7 +377,10 @@ export const dynamics_engine = {
    */
 
   dynamics_narrative(state, matches) {
-    const matchSet = new Set(matches.map((m) => m.id));
+    const matchSet = new Set();
+    for (const m of matches) {
+      matchSet.add(m.id);
+    }
     Object.values(DYNAMICS).forEach((data) => {
       const is_triggered = matchSet.has(data.id);
       const active_state = {
