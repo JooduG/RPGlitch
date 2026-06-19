@@ -99,7 +99,7 @@ export function score(vectors, input) {
     });
 
     v.vector_tags?.forEach((t) => {
-      if (input_lower.includes(t.toLowerCase())) {
+      if (input_lower.includes(t)) {
         relevance += CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
       }
     });
@@ -197,7 +197,7 @@ export function resolve(entity, vector_id, resolution = null) {
 
   if (resolution) {
     if (!vector.vector_tags) vector.vector_tags = [];
-    vector.vector_tags.push(`RESOLUTION:${resolution.toUpperCase()}`);
+    vector.vector_tags.push(`RESOLUTION:${resolution.toUpperCase()}`.toLowerCase());
     // Optionally update text if resolution brings new clarity
     // vector.text = `[Fulfilled] ${vector.text}`;
   }
@@ -270,7 +270,7 @@ export async function weave_resonance(target_entity, history_slice, role = "char
       type: "past",
       base_weight: 5, // Default for recent session memories
       dynamics_tags: triggered_reflexes.map((r) => ({ id: r.id, word: r.scan })),
-      vector_tags: resonance.vector_tags || resonance.tags || [],
+      vector_tags: (resonance.vector_tags || resonance.tags || []).map((t) => String(t).toLowerCase()),
       meta: {},
     };
   } catch (err) {

@@ -80,7 +80,7 @@ describe("temporal_engine", () => {
           type: "past",
           base_weight: 5,
           dynamics_tags: [{ id: "EXPOSURE", word: "kiss" }],
-          vector_tags: ["Iron"],
+          vector_tags: ["iron"],
           meta: {},
           emotional_weight: 5,
         },
@@ -119,7 +119,7 @@ describe("temporal_engine", () => {
       expect(entity.future).toHaveLength(0);
       expect(entity.past).toHaveLength(1);
       expect(entity.past[0].text).toBe("Goal");
-      expect(entity.past[0].vector_tags).toContain("RESOLUTION:SUCCESS");
+      expect(entity.past[0].vector_tags).toContain("resolution:success");
     });
   });
 
