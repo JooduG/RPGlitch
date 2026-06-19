@@ -378,7 +378,7 @@ export const dynamics_engine = {
 
   dynamics_narrative(state, matches) {
     const matchSet = new Set();
-    for (const m of matches) {
+    for (const m of matches || []) {
       matchSet.add(m.id);
     }
     Object.values(DYNAMICS).forEach((data) => {
