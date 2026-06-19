@@ -107,11 +107,13 @@
           if (token.value.length === token.length) {
             sliced = token.value.slice(0, remaining);
           } else {
-            let count = 0;
-            for (const char of token.value) {
-              sliced += char;
-              if (++count >= remaining) break;
+            let index = 0;
+            for (let i = 0; i < remaining; i++) {
+              const code = token.value.charCodeAt(index);
+              if (isNaN(code)) break;
+              index += (code >= 0xD800 && code <= 0xDBFF) ? 2 : 1;
             }
+            sliced = token.value.slice(0, index);
           }
           output += sliced;
           textCount += remaining;
