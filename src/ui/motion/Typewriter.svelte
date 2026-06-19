@@ -61,7 +61,7 @@
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });
       } else {
-        tokens.push({ type: "text", value: val, length: [...val].length });
+        tokens.push({ type: "text", value: val, length: /[\uD800-\uDFFF]/.test(val) ? [...val].length : val.length });
       }
     }
     return tokens;
@@ -100,10 +100,14 @@
           textCount += token.length;
         } else {
           let sliced = "";
-          let count = 0;
-          for (const char of token.value) {
-            sliced += char;
-            if (++count >= remaining) break;
+          if (token.value.length === token.length) {
+            sliced = token.value.slice(0, remaining);
+          } else {
+            let count = 0;
+            for (const char of token.value) {
+              sliced += char;
+              if (++count >= remaining) break;
+            }
           }
           output += sliced;
           textCount += remaining;
