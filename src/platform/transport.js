@@ -117,8 +117,7 @@ export const llm_service = {
       }
 
       try {
-        const lexicalPluginAi = typeof pluginAi !== 'undefined' ? pluginAi : undefined; // eslint-disable-line no-undef
-        if (typeof lexicalPluginAi === "function") return lexicalPluginAi;
+        if (typeof pluginAi === "function") return pluginAi; // eslint-disable-line no-undef
       } catch (_e) {
         // ignore
       }
