@@ -330,9 +330,10 @@ export const dynamics_engine = {
   dynamics_numerical(state, matches) {
     if (!state.contributors) state.contributors = {};
     const processed = new Set();
+    const matchMap = new Map(matches.map((m) => [m.id, m]));
     Object.values(DYNAMICS).forEach((data) => {
       if (processed.has(data.id)) return;
-      const match = matches.find((m) => m.id === data.id);
+      const match = matchMap.get(data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
@@ -373,8 +374,9 @@ export const dynamics_engine = {
    */
 
   dynamics_narrative(state, matches) {
+    const matchSet = new Set(matches.map((m) => m.id));
     Object.values(DYNAMICS).forEach((data) => {
-      const is_triggered = matches.some((m) => m.id === data.id);
+      const is_triggered = matchSet.has(data.id);
       const active_state = {
         ...state.ai?.dynamics,
         ...state.fractal?.dynamics,
