@@ -99,8 +99,13 @@
           output += token.value;
           textCount += token.length;
         } else {
-          const codePoints = [...token.value];
-          output += codePoints.slice(0, remaining).join("");
+          let sliced = "";
+          let count = 0;
+          for (const char of token.value) {
+            sliced += char;
+            if (++count >= remaining) break;
+          }
+          output += sliced;
           textCount += remaining;
           break;
         }
