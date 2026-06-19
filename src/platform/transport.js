@@ -111,15 +111,13 @@ export const llm_service = {
       }
 
       try {
-        const lexicalAi = eval("typeof ai !== 'undefined' ? ai : undefined");
-        if (typeof lexicalAi === "function") return lexicalAi;
+        if (typeof ai === "function") return ai; // eslint-disable-line no-undef
       } catch (_e) {
         // ignore
       }
 
       try {
-        const lexicalPluginAi = eval("typeof pluginAi !== 'undefined' ? pluginAi : undefined");
-        if (typeof lexicalPluginAi === "function") return lexicalPluginAi;
+        if (typeof pluginAi === "function") return pluginAi; // eslint-disable-line no-undef
       } catch (_e) {
         // ignore
       }
