@@ -61,14 +61,14 @@
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });
       } else {
-        tokens.push({ type: "text", value: val });
+        tokens.push({ type: "text", value: val, length: [...val].length });
       }
     }
     return tokens;
   });
 
   // Count text-only characters inside active token allocation frame
-  const totalLength = $derived(tokenBuffer.reduce((acc, t) => acc + (t.type === "text" ? [...t.value].length : 0), 0));
+  const totalLength = $derived(tokenBuffer.reduce((acc, t) => acc + (t.type === "text" ? t.length : 0), 0));
 
   // Reconstruct structural markup up to current plain-text length limits
   const slicedHtml = $derived.by(() => {
@@ -95,11 +95,11 @@
         const remaining = targetCount - textCount;
         if (remaining <= 0) break;
 
-        const codePoints = [...token.value];
-        if (codePoints.length <= remaining) {
+        if (token.length <= remaining) {
           output += token.value;
-          textCount += codePoints.length;
+          textCount += token.length;
         } else {
+          const codePoints = [...token.value];
           output += codePoints.slice(0, remaining).join("");
           textCount += remaining;
           break;
