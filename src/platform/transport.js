@@ -111,7 +111,7 @@ export const llm_service = {
       }
 
       try {
-        if (typeof ai === "function") return ai; // eslint-disable-line no-undef
+        if (typeof ai === "function") return ai;
       } catch (_e) {
         // ignore
       }

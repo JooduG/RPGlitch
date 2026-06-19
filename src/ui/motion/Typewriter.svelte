@@ -103,20 +103,19 @@
           output += token.value;
           textCount += token.length;
         } else {
-          let sliced = "";
+          let sliced;
           if (token.value.length === token.length) {
             sliced = token.value.slice(0, remaining);
           } else {
             let index = 0;
-            for (let i = 0; i < remaining; i++) {
+            const len = token.value.length;
+            for (let i = 0; i < remaining && index < len; i++) {
               const code = token.value.charCodeAt(index);
-              if (isNaN(code)) break;
-              index += (code >= 0xD800 && code <= 0xDBFF) ? 2 : 1;
+              index += code >= 0xd800 && code <= 0xdbff ? 2 : 1;
             }
             sliced = token.value.slice(0, index);
           }
           output += sliced;
-          textCount += remaining;
           break;
         }
       }
