@@ -55,6 +55,7 @@ describe("dom utilities", () => {
         if (trimmed.includes("calc(")) {
           if (trimmed.includes("10px + 5px")) return "15px";
           if (trimmed.includes("var(--local-px) * 2")) return "40px";
+          if (trimmed.includes("var(--base) + var(--gap)")) return "15px";
         }
 
         // Handle rem resolution (1rem = 16px)
@@ -168,18 +169,6 @@ describe("dom utilities", () => {
     it("handles calc with multiple variables", () => {
       contextEl.style.setProperty("--base", "10px");
       contextEl.style.setProperty("--gap", "5px");
-      // JSDOM mock logic update for this specific test
-      if (typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom")) {
-        vi.spyOn(window, "getComputedStyle").mockImplementation((/** @type {any} */ el) => {
-          if (el.style?.zIndex === "-9999") {
-            return /** @type {any} */ ({
-              getPropertyValue: (/** @type {string} */ prop) => (prop === "--proxy" ? "15px" : ""),
-              paddingTop: "15px",
-            });
-          }
-          return window.getComputedStyle(el);
-        });
-      }
       expect(resolve_px("calc(var(--base) + var(--gap))", 0, contextEl)).toBe(15);
     });
   });
