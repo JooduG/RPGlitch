@@ -10,7 +10,8 @@
  */
 import { db, normalize, premade, STORAGE_VERSION } from "@data";
 const error = console.error;
-const premadeEntityMap = new Map((premade?.entities || []).map((e) => [e.id, e]));
+import { premade as localPremade } from "./premades.js";
+const premadeEntityMap = new Map((localPremade?.entities || []).map((e) => [e.id, e]));
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
 // ============================================================================
