@@ -10,6 +10,8 @@
  */
 import { db, normalize, premade, STORAGE_VERSION } from "@data";
 const error = console.error;
+import { premade as localPremade } from "./premades.js";
+const premadeEntityMap = new Map((localPremade?.entities || []).map((e) => [e.id, e]));
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
 // ============================================================================
@@ -82,7 +84,7 @@ export const entities = {
   async get(type, id) {
     try {
       let item = await db.entities.get(id);
-      if (!item) item = premade.entities.find((e) => e.id === id);
+      if (!item) item = premadeEntityMap.get(id);
       return item && item.type === type ? item : null;
     } catch (err) {
       error(`Failed to fetch ${type} [${id}] from the void:`, err);
