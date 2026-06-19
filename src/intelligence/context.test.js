@@ -261,7 +261,6 @@ describe("context_broker", () => {
       const end = performance.now();
 
       const duration = end - start;
-      console.log(`[Stress Test] Hydration with 550 history nodes took: ${duration.toFixed(2)}ms`);
 
       // Verify execution is extremely fast (well under 100ms, typically < 2ms on modern systems, but we allow margin for concurrent CI environments)
       expect(duration).toBeLessThan(100); // Robust 100ms performance gate
