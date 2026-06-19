@@ -8,6 +8,9 @@
   import { motion } from "./engine.svelte.js";
   import { Audio } from "@media";
 
+  // Fast check for Unicode surrogate pairs (e.g. emojis)
+  const SURROGATE_PAIR_REGEX = /[\uD800-\uDFFF]/;
+
   // --- PROP MATRIX BOUNDARIES ---
   let {
     // Legacy single-string input (supports backwards compatibility with Svelte actions)
@@ -61,7 +64,8 @@
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });
       } else {
-        tokens.push({ type: "text", value: val, length: /[\uD800-\uDFFF]/.test(val) ? [...val].length : val.length });
+        const hasSurrogates = SURROGATE_PAIR_REGEX.test(val);
+        tokens.push({ type: "text", value: val, length: hasSurrogates ? [...val].length : val.length });
       }
     }
     return tokens;
