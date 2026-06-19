@@ -111,14 +111,14 @@ export const llm_service = {
       }
 
       try {
-        const lexicalAi = eval("typeof ai !== 'undefined' ? ai : undefined");
+        const lexicalAi = typeof ai !== 'undefined' ? ai : undefined; // eslint-disable-line no-undef
         if (typeof lexicalAi === "function") return lexicalAi;
       } catch (_e) {
         // ignore
       }
 
       try {
-        const lexicalPluginAi = eval("typeof pluginAi !== 'undefined' ? pluginAi : undefined");
+        const lexicalPluginAi = typeof pluginAi !== 'undefined' ? pluginAi : undefined; // eslint-disable-line no-undef
         if (typeof lexicalPluginAi === "function") return lexicalPluginAi;
       } catch (_e) {
         // ignore
