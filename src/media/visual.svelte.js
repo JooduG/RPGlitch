@@ -228,8 +228,8 @@ export class VisualEngine {
    * @param {any} [options]
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
-
-    const story = runtime.active_story;
+    const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : storyId;
+    const story = dbKey ? await db.stories.get(dbKey) : runtime.active_story;
 
     if (!story) {
       console.warn("[VISUALIZE] No active story!");
