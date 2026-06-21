@@ -93,6 +93,6 @@ export function syncIgnores() {
 }
 
 // Main entry check
-if (process.argv[1] && process.argv[1].endsWith("sync.js")) {
+if (process.argv[1] && process.argv[1].endsWith("sync-ignores.js")) {
   syncIgnores();
 }

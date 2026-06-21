@@ -253,6 +253,22 @@
           <footer bind:this={footer_el} tabindex="-1" class={footer_layout_class}>
             {#if profileState.is_editing}
               <Button
+                variant="primary"
+                actions={[tooltip]}
+                aria-label="Warning: Overwrites all fields using AI enhancement. Existing macros are preserved."
+                disabled={profileState.is_saving || profileState.busy_fields.size > 0}
+                onclick={() => {
+                  footer_el?.focus();
+                  profileState.enhance_profile(entity_type);
+                }}
+              >
+                {#if profileState.busy_fields.has("eternal.non_physical")}
+                  <span class="animate-pulse">ENHANCING...</span>
+                {:else}
+                  Enhance Profile
+                {/if}
+              </Button>
+              <Button
                 variant="secondary"
                 onclick={() => {
                   footer_el?.focus();
@@ -335,9 +351,8 @@
         {#each section.fields as field (field.key)}
           <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
             {#if field.type === "array"}
-              <ProfileArray state={profileState} path={field.key} unit_label={field.unitLabel} {signature_color} />
-            {/if}
-            {#if field.type !== "array"}
+              <ProfileArray state={profileState} path={field.key} sublabel={field.sublabel || field.label} {signature_color} />
+            {:else}
               {@const fieldId = `field-${field.key.replace(".", "-")}`}
               {@const raw = profileState.get_safe_value(field.key) || ""}
               {@const parsed = (() => {

@@ -87,18 +87,24 @@
                       pointer-events-auto
                       relative
                       flex
-                      h-[clamp(12rem,auto,40rem)]
+                      h-auto
+                      max-h-[90vh]
+                      min-h-48
                       w-[clamp(16rem,90vw,28rem)]
                       cursor-default
+                      scrollbar-none
                       flex-col
                       justify-between
                       gap-4
-                      overflow-hidden
+                      overflow-x-hidden
+                      overflow-y-auto
                       rounded-xl
+                      border
+                      bg-glass-elevated
                       p-4
                       transition-[filter]
                       duration-300
-
+                      [&::-webkit-scrollbar]:hidden
 
                       {variant}
                       {variant !== 'profile'

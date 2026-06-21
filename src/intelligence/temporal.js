@@ -28,7 +28,7 @@ import { simulation_log as log_store } from "@state";
  * @typedef {Object} TemporalVector
  * @property {string} id - UUID unique identifier.
  * @property {number} timestamp - Epoch timestamp of creation.
- * @property {string} text - The narrative payload.
+ * @property {string} directive - The narrative payload.
  * @property {string} type - "past" | "future".
  * @property {number} base_weight - Narrative gravity (1-10).
  * @property {Array<{id: string, word: string}>} dynamics_tags - Associated dynamics identifiers.
@@ -41,17 +41,17 @@ import { simulation_log as log_store } from "@state";
 /**
  * Creates a rich Temporal Log Entry (Vector).
  *
- * @param {string} text - The narrative payload.
+ * @param {string} directive - The narrative payload.
  * @param {string} [type="future"] - "past" | "future".
  * @param {number} [weight=5] - 1-10 priority.
  * @returns {TemporalVector} A strict Temporal Vector.
  */
-export function create(text, type = "future", weight = 5) {
-  const reflexes = dynamics_engine.dynamics_scan(text);
+export function create(directive, type = "future", weight = 5) {
+  const reflexes = dynamics_engine.dynamics_scan(directive);
   return {
     id: crypto.randomUUID(),
     timestamp: Date.now(),
-    text,
+    directive,
     type,
     base_weight: weight,
     dynamics_tags: reflexes.map((r) => ({ id: r.id, word: r.scan })),
@@ -121,7 +121,7 @@ export function score(vectors, input) {
  * @param {Object} [options]
  * @param {string} [options.mode]
  * @param {number} [options.limit]
- * @param {boolean} [options.vector_text]
+ * @param {boolean} [options.vector_directive]
  * @param {boolean} [options.vector_label]
  * @param {number} [options.offset]
  * @returns {string}
@@ -129,7 +129,7 @@ export function score(vectors, input) {
 export function format(vectors, input, options = {}) {
   const mode = options.mode || "past";
   const limit = options.limit || 3;
-  const show_text = options.vector_text ?? true;
+  const show_directive = options.vector_directive ?? true;
   const show_label = options.vector_label ?? true;
   const max_chars = options.max_chars || 1500;
 
@@ -142,7 +142,7 @@ export function format(vectors, input, options = {}) {
   for (const v of ranked) {
     if (selected.length >= limit) break;
 
-    const payload_length = (v.text || "").length;
+    const payload_length = (v.directive || "").length;
 
     if (running_chars + payload_length > max_chars && selected.length > 0) {
       break;
@@ -172,9 +172,9 @@ export function format(vectors, input, options = {}) {
         else label = "ACTIVE_IMPULSE";
       }
 
-      if (show_label && show_text) return `[${label}]: ${v.text}`;
-      if (show_label) return label;
-      if (show_text) return v.text;
+      if (show_label && show_directive) return `[${label}]: ${v.directive}`;
+      if (show_label) return `[${label}]`;
+      if (show_directive) return v.directive;
       return "";
     })
     .join("\n");
@@ -199,14 +199,14 @@ export function resolve(entity, vector_id, resolution = null) {
     if (!vector.vector_tags) vector.vector_tags = [];
     vector.vector_tags.push("resolution:" + resolution.toLowerCase());
     // Optionally update text if resolution brings new clarity
-    // vector.text = `[Fulfilled] ${vector.text}`;
+    // vector.directive = `[Fulfilled] ${vector.directive}`;
   }
 
   if (!Array.isArray(entity.past)) entity.past = [];
   entity.past.push(vector);
 
   // Telemetry
-  session_driver.log_system_entry(`Vector Resolved: ${vector.text.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
+  session_driver.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
     type: TELEMETRY_TYPES.VECTOR_RESOLUTION,
     vector,
     resolution,
@@ -266,7 +266,7 @@ export async function weave_resonance(target_entity, history_slice, role = "char
     return {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
-      text: resonance.summary,
+      directive: resonance.summary,
       type: "past",
       base_weight: 5, // Default for recent session memories
       dynamics_tags: triggered_reflexes.map((r) => ({ id: r.id, word: r.scan })),
@@ -321,7 +321,7 @@ export const temporal_engine = {
             await runtime.update_entity("character", ai.id, { past: ai.past });
 
             // Telemetry
-            await session_driver.log_system_entry(`Memory Weaved: ${resonance.text.substring(0, 50)}...`, "system", {
+            await session_driver.log_system_entry(`Memory Weaved: ${resonance.directive.substring(0, 50)}...`, "system", {
               type: TELEMETRY_TYPES.MEMORY_FORMATION,
               vectors: { past: [resonance], future: [] },
               turns_count: slice.length,

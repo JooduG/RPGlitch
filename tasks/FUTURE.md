@@ -1,13 +1,12 @@
-# 🔍 TRACK: optics-refine-2026-06-18
+# 🔍 TRACK: feature-macro-engine
 
 ## Goal
 
-Upgrade RPGlitch image generation pipeline with negative prompt field and ImageGlitch-style Refine (Scribe) AI prompt engineering.
+Implement a Universal Macro Parsing Engine for contextual macro swapping (`{{me}}`, `{{you}}`, `{{char}}`, etc.) and build the "Enhance Profile" feature using the Macro Preservation Protocol.
 
 ## Steps
 
-- [x] cfacdbad Add negative_prompt to entity modifiers schema
-- [x] cfacdbad Port LISTS, upgrade ENHANCE to JSON Scribe pattern
-- [x] cfacdbad Update VisualEngine enhance/generate to handle structured output
-- [x] cfacdbad Add negative prompt TextField to VisualWing.svelte
-- [x] cfacdbad Update all test files — 275/275 passing
+- [ ] Phase 1: Implement JIT Macro Parser in prompts.js
+- [ ] Phase 2: Add Macro Preservation Protocol for Enhance mode
+- [ ] Phase 3: Implement Enhance Profile UI and wiring
+- [ ] Phase 4: Build Universal Import Pipeline in UnifiedConsole

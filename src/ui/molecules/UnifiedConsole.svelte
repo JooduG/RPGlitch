@@ -5,17 +5,17 @@
    * Polymorphic command control system merging GlassPill, StoryboardPill, ControlPanel, and InputBar.
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
-  import { get_signature_color, Audio, visual_engine } from "@media";
-  import { runtime, app, simulationState, simulation_log } from "@state";
-  import { db, stories } from "@data";
-  import { session_driver, Chrono } from "@engine";
-  import { gamemaster } from "@intelligence";
-  import { llm_service } from "@platform";
-  import { Backdrop, Button, tooltip, ScrollArea, Slider, TextField, Toggle } from "@atoms";
-  import { pickRandom } from "@utils";
-  import { pulse, roll, shimmy, stab, motion } from "@motion";
   import { click_outside } from "@actions";
-  import { StoryCard, Dialog } from "@molecules";
+  import { Backdrop, Button, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
+  import { db, stories } from "@data";
+  import { Chrono, session_driver } from "@engine";
+  import { gamemaster } from "@intelligence";
+  import { Audio, get_signature_color, visual_engine } from "@media";
+  import { Dialog, ImportEntity, StoryCard } from "@molecules";
+  import { motion, pulse, roll, shimmy, stab } from "@motion";
+  import { llm_service } from "@platform";
+  import { app, runtime, simulationState, simulation_log } from "@state";
+  import { pickRandom } from "@utils";
 
   // --- CORE VIEW ENGINE STATE ---
   let ready_to_begin = $derived(app.is_ready);
@@ -116,6 +116,8 @@
       refresh_stories();
     }
   });
+
+  let show_import_modal = $state(false);
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---
   const storyboard = {
@@ -372,6 +374,26 @@
                       <div class="flex flex-col gap-6 pt-2 pb-4">
                         <div class="w-full">
                           <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
+                        </div>
+
+                        <div class="flex flex-col gap-2">
+                          <div class="flex flex-wrap gap-2">
+                            <Button variant="primary" size="small" disabled={simulationState.busy} onclick={() => (show_import_modal = true)}>
+                              <svg
+                                viewBox="0 0 24 24"
+                                class="size-3.5 fill-none stroke-current stroke-2"
+                                style="stroke-linecap: round; stroke-linejoin: round;"
+                              >
+                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                                <polyline points="7 10 12 15 17 10"></polyline>
+                                <line x1="12" y1="15" x2="12" y2="3"></line>
+                              </svg>
+                              <span class="text-xs font-bold tracking-widest uppercase">Import</span>
+                            </Button>
+                          </div>
+                          {#if simulationState.busy}
+                            <span class="mt-1 animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">Importing...</span>
+                          {/if}
                         </div>
                       </div>
                     </div>
@@ -678,5 +700,6 @@
         {/if}
       {/if}
     </div>
+    <ImportEntity bind:open={show_import_modal} />
   </div>
 </div>

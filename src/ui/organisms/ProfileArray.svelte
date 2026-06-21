@@ -22,11 +22,11 @@
    * @property {import('./profile.svelte.js').ProfileState} state - The profile state controller
    * @property {string} path - The dot-path to the array in state.char
    * @property {string} signature_color - The theme accent color
-   * @property {string} [unit_label] - Display label for individual items
+   * @property {string} [sublabel] - Display label for individual items
    */
 
   /** @type {Props} */
-  let { state, path, signature_color, unit_label = "Vector" } = $props();
+  let { state, path, signature_color, sublabel = "Vector" } = $props();
 
   // --- DERIVED STATE ---
 
@@ -44,7 +44,7 @@
         };
       }
       // This case should be rare now as state.add_vector_item handles initialization
-      return { text: String(val || ""), base_weight: 5, vector_tags: [] };
+      return { directive: String(val || ""), base_weight: 5, vector_tags: [] };
     });
   });
 
@@ -79,12 +79,12 @@
       <TextField
         is_edit={state.is_editing}
         {signature_color}
-        value={item.text}
+        value={item.directive}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
-          state.patch_vector_item(path, i, { text: e.currentTarget.value })}
-        placeholder="Enter {unit_label.toLowerCase()} detail..."
+          state.patch_vector_item(path, i, { directive: e.currentTarget.value })}
+        placeholder="Enter {sublabel.toLowerCase()} detail..."
         weight={item.base_weight}
-        onfocus={() => state.set_active_field(`${path}[${i}]`, unit_label)}
+        onfocus={() => state.set_active_field(`${path}[${i}]`, sublabel)}
         onblur={() => state.reset_active_field()}
       >
         {#snippet status()}
@@ -246,8 +246,8 @@
               size="small"
               square
               actions={[tooltip]}
-              tooltip="Remove {unit_label}"
-              aria-label="Remove {unit_label}"
+              tooltip="Remove {sublabel}"
+              aria-label="Remove {sublabel}"
               onclick={() => state.remove_vector_item(path, i)}
             >
               <svg
@@ -311,7 +311,7 @@
             d="M12,20A8,8 0 0,1 4,12A8,8 0 0,1 12,4A8,8 0 0,1 20,12A8,8 0 0,1 12,20M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z"
           />
         </svg>
-        AWAITING {unit_label.toUpperCase()} DATA STREAM...
+        AWAITING {sublabel.toUpperCase()} DATA STREAM...
       </span>
     </div>
   {/if}

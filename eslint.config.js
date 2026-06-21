@@ -13,7 +13,48 @@ import svelteConfig from "./svelte.config.js";
 export default defineConfig([
   // 0. Global Quarantine (Prevents fatal parsing crashes on non-script files)
   {
-    ignores: ["dist/**/*", "src/index.html", "types.d.ts", "**/.cache", "node_modules/**/*"],
+    // @agent:ignore-start
+    ignores: [
+      "*.bak",
+      "*.log",
+      "*.template",
+      "*.tmp",
+      "**/*.lock",
+      ".secrets",
+      "**/.DS_Store",
+      "**/.env*",
+      "**/.eslintcache",
+      "**/.git/**",
+      "**/cache/**",
+      "**/.next/**",
+      "**/.playwright-auth/**",
+      "**/*ignore",
+      "**/.turbo/**",
+      "**/Thumbs.db",
+      "**/__snapshots__/**",
+      "**/archive/**",
+      "**/build/**",
+      "**/bun.lockb",
+      "**/coverage/**",
+      "**/dist/**",
+      "**/mcp.json",
+      "**/node_modules/**",
+      "**/out/**",
+      "**/package-lock.json",
+      "**/pnpm-lock.yaml",
+      "**/public/assets/**",
+      "**/*scribbles**",
+      "**/templates/**",
+      "**/test-results/**",
+      "**/yarn.lock",
+      "**/tmp/**",
+      "tmp/**/*",
+    ],
+    // @agent:ignore-end
+  },
+  {
+    // ESLint-specific global ignores (not managed by sync-ignores.js)
+    ignores: ["dist/**/*", "src/index.html", "types.d.ts", "**/.cache"],
   },
 
   // 1. Core JavaScript Engine Rules

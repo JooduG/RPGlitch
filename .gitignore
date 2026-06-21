@@ -11,7 +11,7 @@
 **/cache/**
 **/.next/**
 **/.playwright-auth/**
-*ignore
+**/*ignore
 **/.turbo/**
 **/Thumbs.db
 **/__snapshots__/**
@@ -26,14 +26,16 @@
 **/package-lock.json
 **/pnpm-lock.yaml
 **/public/assets/**
-**/scribbles/**
+**/*scribbles**
 **/templates/**
 **/test-results/**
 **/yarn.lock
 **/tmp/**
-!**/rpglitch-left-panel.txt
+tmp/**/*
+!**/*rpglitch-left-panel.txt
 !**/templates/**
 .secrets
 **/.jules/**
 act_output.log
 gha-creds-*.json
+**/*ignore

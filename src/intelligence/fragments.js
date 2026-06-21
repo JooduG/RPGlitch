@@ -27,13 +27,13 @@
  * @property {string} [enhancer]
  * @property {string} [description]
  * @property {string} [type]
- * @property {string} [unit_label]
+ * @property {string} [sublabel] - Subtitle shown beneath the section header.
  */
 /**
  * @typedef {Object} EntitySection
  * @property {string} [label]
  * @property {string} [sublabel]
- * @property {string} [unit_label]
+ * @property {string} [directive]
  * @property {string} [directive]
  * @property {string} [enhancer]
  * @property {string} [type]
@@ -98,14 +98,24 @@ export const NAME_PREFIXES = [
 export const ENTITY_FRAGMENTS = {
   name: "Name",
   description: "Summary of the entity's vibe and role.", // HUMAN EYES ONLY!!
+  profile: {
+    character: {
+      enhancer: "NARRATIVE_STRUCTURER",
+      directive:
+        "You are an expert narrative structurer. Extract and sort the raw text below into a flat entity JSON schema.\n\nReturn a single flat JSON object matching the exact keys required for the schema: name (string), description (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).\n\nSCHEMA DEFINITIONS:\n- description: This field is strictly for HUMAN EYES ONLY (metadata, creator notes, etc). It is NEVER used in the simulation. Feel free to dump unformatted raw instructions or OOC info here.\n- eternal_physical: Baseline traits. Permanent visual features/architecture.\n- eternal_non_physical: Baseline traits. Core essence/philosophy.\n- present_physical: Immediate conditions. Temporary visual features/current state.\n- present_non_physical: Immediate conditions. Current processing state/mood.\n- past: Historical anchors, critical precedents, and lore. (Array of strings).\n- future: Active impulses, plans, prophecies, and impending intent. (Array of strings).",
+    },
+    fractal: {
+      enhancer: "NARRATIVE_STRUCTURER",
+      directive:
+        "You are an expert narrative structurer. Extract and sort the raw text below into a flat entity JSON schema.\n\nReturn a single flat JSON object matching the exact keys required for the schema: name (string), description (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).\n\nSCHEMA DEFINITIONS:\n- description: This field is strictly for HUMAN EYES ONLY (metadata, creator notes, etc). It is NEVER used in the simulation. Feel free to dump unformatted raw instructions or OOC info here.\n- eternal_physical: Baseline traits. Permanent visual features/architecture.\n- eternal_non_physical: Baseline traits. Core essence/philosophy.\n- present_physical: Immediate conditions. Temporary visual features/current state.\n- present_non_physical: Immediate conditions. Current processing state/mood.\n- past: Historical anchors, critical precedents, and lore. (Array of strings).\n- future: Active impulses, plans, prophecies, and impending intent. (Array of strings).",
+    },
+  },
   eternal: {
-    label: "Eternal",
     non_physical: {
-      label: "Non-Physical",
       character: {
         sublabel: "Personality, Behaviour & Traits",
         directive:
-          "Define this character as a timeless psychological substrate. Use present-tense state declarations: what this entity has, how it tends to react, what it believes at its core. Cover: fundamental personality drivers, core logic patterns, narrative voice, and signature communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a statement could become false during play, it belongs in Present. Never write a reactive moment or describe a specific event. (Target: 150-400 words).",
+          "Define this character as a timeless psychological substrate. Use present-tense state declarations: what this entity has, how it tends to react, what it believes at its core. Cover: fundamental personality drivers, core logic patterns, narrative voice, and signature communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a statement could become false during play, it belongs in Present. Never write a reactive moment or describe a specific event. Provide a comprehensive, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
         emotional_weight: 10,
         density_multiplier: 1,
@@ -113,14 +123,13 @@ export const ENTITY_FRAGMENTS = {
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
         directive:
-          "Define this environment as a timeless metaphysical substrate. Use present-tense state declarations: what laws govern this world, what forces are always in play, what atmosphere is structurally constant. Cover: physical constants, ambient metaphysical rules, defining sensory essence, and unbreakable world logic. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe a moment of observation. (Target: 150-400 words).",
+          "Define this environment as a timeless metaphysical substrate. Use present-tense state declarations: what laws govern this world, what forces are always in play, what atmosphere is structurally constant. Cover: physical constants, ambient metaphysical rules, defining sensory essence, and unbreakable world logic. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe a moment of observation. Provide a dense, high-fidelity paragraph outlining these baseline constants.",
         enhancer: "METAPHYSICAL_ARCHITECT",
         emotional_weight: 10,
         density_multiplier: 1,
       },
     },
     physical: {
-      label: "Physical",
       character: {
         sublabel: "Body & Form",
         directive:
@@ -136,13 +145,11 @@ export const ENTITY_FRAGMENTS = {
     },
   },
   present: {
-    label: "Present",
     non_physical: {
-      label: "Non-Physical",
       character: {
         sublabel: "Current State of Mind",
         directive:
-          "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. (Target: 30-80 words).",
+          "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. Provide a dense, punchy summary snippet.",
         enhancer: "TACTICAL_ANALYZER",
         emotional_weight: 5,
         density_multiplier: 1.5,
@@ -150,14 +157,13 @@ export const ENTITY_FRAGMENTS = {
       fractal: {
         sublabel: "Active Anomalies & Volatility",
         directive:
-          "Capture what has changed from this environment's eternal baseline in this specific moment. State the active anomaly, current pressure, or immediate shift in the world's physics or atmosphere. TEMPORAL LAW: Only write what is true RIGHT NOW — stable conditions belong in Eternal. (Target: 30-80 words).",
+          "Capture what has changed from this environment's eternal baseline in this specific moment. State the active anomaly, current pressure, or immediate shift in the world's physics or atmosphere. TEMPORAL LAW: Only write what is true RIGHT NOW — stable conditions belong in Eternal. Provide a short, high-fidelity statement of immediate fluctuations.",
         enhancer: "ECOSYSTEM_ANALYZER",
         emotional_weight: 5,
         density_multiplier: 1.5,
       },
     },
     physical: {
-      label: "Physical",
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
@@ -173,30 +179,24 @@ export const ENTITY_FRAGMENTS = {
     },
   },
   future: {
-    label: "Future",
-    sublabel: "Plans & Prophecies", // UI only
-    unit_label: "Vector",
-    directive:
-      "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state.",
+    sublabel: "Vector", // Serves as subtitle and array item label
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
-      text: "Clear statement of the vector.",
+      directive:
+        "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state.",
       dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
       vector_tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },
   past: {
-    label: "Past",
-    sublabel: "Memories & Backstory", // UI only
-    unit_label: "Memory",
-    directive:
-      "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague.",
+    sublabel: "Memory", // Serves as subtitle and array item label
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {
-      text: "Clear statement of the memory.",
+      directive:
+        "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague.",
       dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
       vector_tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
@@ -218,7 +218,6 @@ export const ENTITY_FRAGMENTS = {
  * @property {string} [directive] - AI instruction.
  * @property {string} [enhancer] - Semantic tag.
  * @property {string} [description] - Fallback description.
- * @property {string} [unit_label] - Label for individual items (for arrays).
  * @property {string} [type] - Field type (e.g., "array").
  */
 
@@ -228,6 +227,19 @@ export const ENTITY_FRAGMENTS = {
  *
  * @returns {Record<string, CatalogEntry>} Flat catalog keyed by dot-notation field ID.
  */
+/**
+ * Auto-formats object keys into UI labels (e.g. "non_physical" -> "Non-Physical", "future" -> "Future")
+ * @param {string} key
+ * @returns {string}
+ */
+export function format_key_as_label(key) {
+  if (key === "non_physical") return "Non-Physical";
+  return key
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 function build_entity_catalog() {
   /** @type {Record<string, any>} */
   const catalog = {};
@@ -246,7 +258,7 @@ function build_entity_catalog() {
           catalog[typeKey] = {
             ...metadata,
             id: typeKey,
-            section_label: section.label,
+            section_label: format_key_as_label(section_key),
             layer_key: section_key.toUpperCase(),
           };
         });
@@ -254,13 +266,13 @@ function build_entity_catalog() {
         catalog[id] = {
           ...metadata,
           id,
-          section_label: section.label,
+          section_label: format_key_as_label(section_key),
           layer_key: section_key.toUpperCase(),
         };
       });
     } else {
       // 2. Process flattened fields directly on the section
-      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k));
+      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer"].includes(k));
       fieldKeys.forEach((field_key) => {
         const id = `${section_key}.${field_key}`;
         const field = section[field_key];
@@ -271,7 +283,7 @@ function build_entity_catalog() {
           catalog[typeKey] = {
             ...leaf,
             id: typeKey,
-            section_label: section.label,
+            section_label: format_key_as_label(section_key),
             layer_key: section_key.toUpperCase(),
           };
         });
@@ -281,23 +293,21 @@ function build_entity_catalog() {
         catalog[id] = {
           ...leafDefault,
           id,
-          section_label: section.label,
+          section_label: format_key_as_label(section_key),
           layer_key: section_key.toUpperCase(),
         };
       });
     }
 
     // 3. Add the section itself if it's an array type or has no explicit sub-fields
-    const hasFields =
-      section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer"].includes(k));
+    const hasFields = section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "directive", "enhancer"].includes(k));
     if (!hasFields || section.type === "array") {
       ["character", "fractal"].forEach((type) => {
         const typeKey = `${type}.${section_key}`;
         catalog[typeKey] = {
           ...section,
           id: typeKey,
-          section_label: section.label,
-          unit_label: section.unit_label,
+          section_label: format_key_as_label(section_key),
           layer_key: section_key.toUpperCase(),
         };
       });
@@ -305,8 +315,7 @@ function build_entity_catalog() {
       catalog[section_key] = {
         ...section,
         id: section_key,
-        section_label: section.label,
-        unit_label: section.unit_label,
+        section_label: format_key_as_label(section_key),
         layer_key: section_key.toUpperCase(),
       };
     }
@@ -333,13 +342,11 @@ export function build_profile_sections(entity_type = "character") {
 
   return (
     Object.entries(ENTITY_FRAGMENTS)
-      // Filter out top-level strings (like 'name' and 'description')
-      .filter(([_, section]) => typeof section !== "string" && section !== null)
+      // Filter out top-level strings (like 'name' and 'description') and the internal 'profile' prompt directive
+      .filter(([sectionKey, section]) => typeof section !== "string" && section !== null && sectionKey !== "profile")
       .map(([sectionKey, sectionObj]) => {
         const section = /** @type {any} */ (sectionObj);
-        const fieldKeys = Object.keys(section).filter(
-          (k) => !["label", "sublabel", "type", "unit_label", "directive", "enhancer", "fields"].includes(k),
-        );
+        const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer", "fields"].includes(k));
 
         const fields =
           fieldKeys.length > 0 && section.type !== "array"
@@ -349,29 +356,27 @@ export function build_profile_sections(entity_type = "character") {
                 const leaf = field[resolvedType] || field;
                 return {
                   key: `${sectionKey}.${fieldKey}`, // e.g. "eternal.physical"
-                  label: field.label || fieldKey,
+                  label: format_key_as_label(fieldKey),
                   sublabel: leaf.sublabel || null,
                   description: leaf.directive || leaf.description || "",
                   enhancer: leaf.enhancer,
                   type: field.type,
-                  unitLabel: field.unit_label || section.unit_label || "Vector",
                   is_physical: fieldKey === "physical",
                 };
               })
             : [
                 {
                   key: sectionKey, // e.g. "past" or "future"
-                  label: section.label,
+                  label: format_key_as_label(sectionKey),
                   sublabel: section.sublabel || null,
                   description: section.directive || "",
                   enhancer: section.enhancer,
                   type: section.type,
-                  unitLabel: section.unit_label || "Vector",
                 },
               ];
         return {
           id: sectionKey,
-          label: section.label,
+          label: format_key_as_label(sectionKey),
           fields,
         };
       })

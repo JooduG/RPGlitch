@@ -2,13 +2,12 @@
  * @file src/ui/profile/profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
-import { get_value, set_value } from "@utils";
 import { db, normalize } from "@data";
 import { generateUUID } from "@engine";
-import { prompt_builder } from "@intelligence";
-import { strip_cognition_blocks } from "@intelligence/parser.js";
+import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
+import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
@@ -211,6 +210,75 @@ export class ProfileState {
   }
 
   /**
+   * AI-enhanced text generation for the entire profile.
+   * @param {"character" | "fractal"} entity_type
+   */
+  async enhance_profile(entity_type) {
+    if (this.is_saving) return;
+    this.is_saving = true; // Use is_saving flag to prevent double clicks and lock UI
+
+    // Temporarily mark all non-image fields as busy for visual feedback
+    this.busy_fields.add("eternal.non_physical");
+    this.busy_fields.add("present.non_physical");
+    this.busy_fields.add("past");
+    this.busy_fields.add("future");
+    this.busy_fields.add("description");
+
+    try {
+      const payload = prompt_builder.build_profile_sorting_prompt(this.char, entity_type);
+      const result = await llm_service.enhance(payload);
+
+      if (result) {
+        const cleanJsonText = strip_cognition_blocks(result).trim();
+        const startIdx = cleanJsonText.indexOf("{");
+        const endIdx = cleanJsonText.lastIndexOf("}");
+
+        if (startIdx >= 0 && endIdx >= 0) {
+          const cleanJson = JSON.parse(cleanJsonText.substring(startIdx, endIdx + 1));
+
+          for (const [key, val] of Object.entries(cleanJson)) {
+            if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
+
+            if (key === "past" || key === "future") {
+              if (Array.isArray(val)) {
+                const currentVectors = get_value(this.char, key) || [];
+                const newVectors = val.map((textStr, idx) => {
+                  const existing = currentVectors[idx] || {};
+                  const vectorStr = typeof textStr === "string" ? textStr : textStr.text || JSON.stringify(textStr);
+                  return {
+                    ...temporal_engine.create(vectorStr, key),
+                    id: existing.id || generateUUID(),
+                    base_weight: existing.base_weight || 5,
+                  };
+                });
+                set_value(this.char, key, newVectors);
+              }
+            } else if (typeof val === "object" && !Array.isArray(val)) {
+              for (const [subKey, subVal] of Object.entries(val)) {
+                if (typeof subVal === "string") {
+                  set_value(this.char, `${key}.${subKey}`, subVal);
+                }
+              }
+            } else if (typeof val === "string") {
+              set_value(this.char, key, val);
+            }
+          }
+          this._user_mutated = true;
+        }
+      }
+    } catch (err) {
+      console.error("Enhance profile failed:", err);
+    } finally {
+      this.busy_fields.delete("eternal.non_physical");
+      this.busy_fields.delete("present.non_physical");
+      this.busy_fields.delete("past");
+      this.busy_fields.delete("future");
+      this.busy_fields.delete("description");
+      this.is_saving = false;
+    }
+  }
+
+  /**
    * Adds a new item to a vector array.
    * @param {string} path
    */
@@ -223,7 +291,7 @@ export class ProfileState {
     const newItem = {
       id: generateUUID(),
       timestamp: Date.now(),
-      text: "",
+      directive: "",
       type: path,
       base_weight: 5,
       vector_tags: [],

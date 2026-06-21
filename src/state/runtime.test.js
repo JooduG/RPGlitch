@@ -23,28 +23,28 @@ describe("Narrative Vector System", () => {
   it("should add a vector to the background (echoes)", () => {
     runtime.add_vector("Find the key.", "FRACTAL");
     expect(runtime.active_fractal?.future).toHaveLength(1);
-    expect(runtime.active_fractal?.future?.[0].text).toBe("Find the key.");
+    expect(runtime.active_fractal?.future?.[0].directive).toBe("Find the key.");
 
     runtime.add_vector("Explore the cave.", "FRACTAL");
     expect(runtime.active_fractal?.future).toHaveLength(2);
     // "Find the key" is still index 0 because we pushed
-    expect(runtime.active_fractal?.future?.[0].text).toBe("Find the key.");
-    expect(runtime.active_fractal?.future?.[1].text).toBe("Explore the cave.");
+    expect(runtime.active_fractal?.future?.[0].directive).toBe("Find the key.");
+    expect(runtime.active_fractal?.future?.[1].directive).toBe("Explore the cave.");
   });
 
   it("should add a vector to the front (is_vanguard)", () => {
     runtime.add_vector("Background Task", "FRACTAL");
     runtime.add_vector("Urgent Task", "FRACTAL", true); // isVanguard = true
-    expect(runtime.active_fractal?.future?.[0].text).toBe("Urgent Task");
-    expect(runtime.active_fractal?.future?.[1].text).toBe("Background Task");
+    expect(runtime.active_fractal?.future?.[0].directive).toBe("Urgent Task");
+    expect(runtime.active_fractal?.future?.[1].directive).toBe("Background Task");
   });
 
   it("should complete the active vector and promote the next one", () => {
     runtime.add_vector("Task A", "FRACTAL");
     runtime.add_vector("Task B", "FRACTAL");
-    expect(runtime.active_fractal?.future?.[0].text).toBe("Task A");
+    expect(runtime.active_fractal?.future?.[0].directive).toBe("Task A");
     runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.future?.[0].text).toBe("Task B");
+    expect(runtime.active_fractal?.future?.[0].directive).toBe("Task B");
     expect(runtime.active_fractal?.future).toHaveLength(1);
   });
 

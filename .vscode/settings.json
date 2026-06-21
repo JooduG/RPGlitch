@@ -21,7 +21,8 @@
     "**/rules/**",
     "**/package.json",
     "**/tasks/**",
-    "**/workflows/**"
+    "**/workflows/**",
+    "/ai-rpg"
   ],
   "files.exclude": {
     "**/.DS_Store": true,

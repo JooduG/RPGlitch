@@ -7,3 +7,4 @@ export { default as DevTelemetryBlock } from "./DevTelemetryBlock.svelte";
 export { default as EntityCard } from "./EntityCard.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
 export { default as UnifiedConsole } from "./UnifiedConsole.svelte";
+export { default as ImportEntity } from "./ImportEntity.svelte";

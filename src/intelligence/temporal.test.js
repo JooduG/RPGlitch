@@ -55,7 +55,7 @@ describe("temporal_engine", () => {
       const entry = temporal_engine.create("He felt a strange vibe.");
 
       expect(entry).toHaveProperty("id");
-      expect(entry.text).toBe("He felt a strange vibe.");
+      expect(entry.directive).toBe("He felt a strange vibe.");
       expect(entry.dynamics_tags[0].id).toBe("VIBE_CHECK");
       expect(Array.isArray(entry.vector_tags)).toBe(true);
       expect(typeof entry.timestamp).toBe("number");
@@ -76,7 +76,7 @@ describe("temporal_engine", () => {
         {
           id: "t1",
           timestamp: 100,
-          text: "A",
+          directive: "A",
           type: "past",
           base_weight: 5,
           dynamics_tags: [{ id: "EXPOSURE", word: "kiss" }],
@@ -103,7 +103,7 @@ describe("temporal_engine", () => {
           {
             id: "v1",
             timestamp: 100,
-            text: "Goal",
+            directive: "Goal",
             type: "future",
             base_weight: 5,
             dynamics_tags: [],
@@ -118,7 +118,7 @@ describe("temporal_engine", () => {
 
       expect(entity.future).toHaveLength(0);
       expect(entity.past).toHaveLength(1);
-      expect(entity.past[0].text).toBe("Goal");
+      expect(entity.past[0].directive).toBe("Goal");
       expect(entity.past[0].vector_tags).toContain("resolution:success");
     });
   });
@@ -129,7 +129,7 @@ describe("temporal_engine", () => {
         {
           id: "p1",
           timestamp: 100,
-          text: "Core memory",
+          directive: "Core memory",
           type: "past",
           base_weight: 5,
           dynamics_tags: [],
@@ -140,7 +140,7 @@ describe("temporal_engine", () => {
         {
           id: "p2",
           timestamp: 200,
-          text: "Major memory",
+          directive: "Major memory",
           type: "past",
           base_weight: 5,
           dynamics_tags: [],
@@ -151,7 +151,7 @@ describe("temporal_engine", () => {
         {
           id: "p3",
           timestamp: 300,
-          text: "Minor memory",
+          directive: "Minor memory",
           type: "past",
           base_weight: 5,
           dynamics_tags: [],
@@ -173,7 +173,7 @@ describe("temporal_engine", () => {
         {
           id: "f1",
           timestamp: 100,
-          text: "Prophecy",
+          directive: "Prophecy",
           type: "future",
           base_weight: 5,
           dynamics_tags: [],
@@ -208,7 +208,7 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.weave_resonance(mockEntity, mockHistory, "character");
 
-      expect(result?.text).toBe(mockResonance.summary);
+      expect(result?.directive).toBe(mockResonance.summary);
       expect(result?.vector_tags).toEqual(["event"]);
       expect(result?.dynamics_tags).toEqual([{ id: "TEST_TAG", word: "" }]);
       expect(result?.timestamp).toBe(Date.now());
@@ -220,7 +220,7 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.weave_resonance(/** @type {any} */ ({ name: "Viper" }), []);
 
-      expect(result?.text).toBe("First object");
+      expect(result?.directive).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
@@ -233,8 +233,8 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.weave_resonance(/** @type {any} */ ({ name: "Viper" }), []);
 
-      expect(result?.text).toBe(nestedResonance.summary);
-      expect(JSON.stringify(result?.text)).not.toBe(JSON.stringify(nestedResonance)); // summary is text
+      expect(result?.directive).toBe(nestedResonance.summary);
+      expect(JSON.stringify(result?.directive)).not.toBe(JSON.stringify(nestedResonance)); // summary is text
     });
 
     it("returns null and logs error if LLM fails", async () => {

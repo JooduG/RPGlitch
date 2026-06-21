@@ -4,15 +4,14 @@
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
 
-import { ENTITY_CATALOG, escapeXml, strip_cognition_blocks, temporal_engine } from "@intelligence";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS, escapeXml, strip_cognition_blocks, temporal_engine } from "@intelligence";
 import { flatten_physical } from "@media";
 
 /**
- * Helper to render sub-tags cleanly, omitting them if empty.
+ * Helper to render sub-tags cleanly, applying macros and escaping, omitting them if empty.
  */
-const tag = (name, value) => {
-  const trimmed = value ? String(value).trim() : "";
-  return trimmed ? `  <${name}>${escapeXml(trimmed)}</${name}>` : "";
+const tag = (name, value, owner, entities) => {
+  return prompt_builder.render_tag(name, value, owner, entities);
 };
 
 /**
@@ -45,13 +44,13 @@ function render_simulation({ round, entities, signal_prompts, input, render_atom
   return `
 <SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">
 <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-${[tag("ETERNAL", entities.AI.eternal?.non_physical), tag("PRESENT", entities.AI.present?.non_physical), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true })), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }))].filter(Boolean).join("\n")}
+${[tag("ETERNAL", entities.AI.eternal?.non_physical, entities.AI, entities), tag("PRESENT", entities.AI.present?.non_physical, entities.AI, entities), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }), entities.AI, entities)].filter(Boolean).join("\n")}
 </YOUR_IDENTITY>
 <USER_PERSONA name="${escapeXml(entities.USER.name)}">
-${[tag("ETERNAL", entities.USER.eternal?.non_physical), tag("PRESENT", entities.USER.present?.non_physical), tag("PAST", render_atom.past(entities.USER, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+${[tag("ETERNAL", entities.USER.eternal?.non_physical, entities.USER, entities), tag("PRESENT", entities.USER.present?.non_physical, entities.USER, entities), tag("PAST", render_atom.past(entities.USER, { limit: 2, vector_text: true }), entities.USER, entities)].filter(Boolean).join("\n")}
 </USER_PERSONA>
 <FRACTAL name="${escapeXml(entities.FRACTAL?.name || "")}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical), tag("PRESENT", entities.FRACTAL?.present?.non_physical), fractalPast, tag("FUTURE", render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, entities), tag("PRESENT", entities.FRACTAL?.present?.non_physical, entities.FRACTAL, entities), fractalPast, tag("FUTURE", render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities)].filter(Boolean).join("\n")}
 </FRACTAL>
 ${
   signal_prompts.length > 0
@@ -85,14 +84,14 @@ function render_narration(mode, { entities, render_atom, compressed_snapshot, ro
   return `
 <SYSTEM role="${escapeXml(entities.FRACTAL.name)}"${roundAttr} mode="${mode.toUpperCase()}">
 <YOUR_IDENTITY name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-${[tag("ETERNAL", entities.FRACTAL.eternal?.non_physical), tag("PRESENT", entities.FRACTAL.present?.non_physical), tag("PAST", render_atom?.past(entities.FRACTAL, { limit: 2, vector_text: true })), tag("FUTURE", render_atom?.future(entities.FRACTAL, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+${[tag("ETERNAL", entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities), tag("PRESENT", entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities), tag("PAST", render_atom?.past(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities), tag("FUTURE", render_atom?.future(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities)].filter(Boolean).join("\n")}
 </YOUR_IDENTITY>
 <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-${[tag("ETERNAL", entities.AI.eternal?.non_physical), tag("PRESENT", entities.AI.present?.non_physical), tag("PAST", render_atom?.past(entities.AI, { limit: 2, vector_text: true })), tag("FUTURE", render_atom?.future(entities.AI, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+${[tag("ETERNAL", entities.AI.eternal?.non_physical, entities.AI, entities), tag("PRESENT", entities.AI.present?.non_physical, entities.AI, entities), tag("PAST", render_atom?.past(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities), tag("FUTURE", render_atom?.future(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities)].filter(Boolean).join("\n")}
     </AI_CHARACTER>
     <USER_PERSONA name="${escapeXml(entities.USER.name)}">
-${[tag("ETERNAL", entities.USER.eternal?.non_physical), tag("PRESENT", entities.USER.present?.non_physical), tag("PAST", render_atom?.past(entities.USER, { limit: 2, vector_text: true })), tag("FUTURE", render_atom?.future(entities.USER, { limit: 2, vector_text: true }))].filter(Boolean).join("\n")}
+${[tag("ETERNAL", entities.USER.eternal?.non_physical, entities.USER, entities), tag("PRESENT", entities.USER.present?.non_physical, entities.USER, entities), tag("PAST", render_atom?.past(entities.USER, { limit: 2, vector_text: true }), entities.USER, entities), tag("FUTURE", render_atom?.future(entities.USER, { limit: 2, vector_text: true }), entities.USER, entities)].filter(Boolean).join("\n")}
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 <PROTOCOLS>
@@ -129,10 +128,14 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 /**
  * Text field enhancement instructions builder.
  */
-function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null }) {
-  const protocolSelection = is_image_field
+function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null, entity_type = "character" }) {
+  let protocolSelection = is_image_field
     ? "COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE, PERCHANCE_SYNTAX, UNBRACKETED_JSON_OUTPUT, FORMAT_VISUAL"
     : "COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION, FORMAT_PROSE";
+
+  if (!is_image_field) {
+    protocolSelection += entity_type === "fractal" ? ", MACRO_FRACTAL" : ", MACRO_CHARACTER";
+  }
 
   let contextBlock = "";
   if (entity) {
@@ -183,6 +186,7 @@ export const PROTOCOL_LIBRARY = {
   USER_AGENCY:
     "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
   IMMERSION: "Render spatial coordinates and convey emotion strictly through physical behavior.",
+  // Streamlined prompt protocol in prompts.js
   COGNITION:
     "Begin your response with <think>. You are strictly forbidden from writing loose prose inside the <think> block. You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:\n\n# Phase 1: Prior Assessment\nEstablish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.\n\n# Phase 2: Evidence Evaluation\nParse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.\n\n# Phase 3: Likelihood Estimation\nEvaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.\n\n# Phase 4: Posterior Update\nCalculate and declare the finalized, updated emotional state vectors and immediate intentions.\n\nCRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.",
   HYGIENE: "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys.",
@@ -205,7 +209,7 @@ export const PROTOCOL_LIBRARY = {
     "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements. You MUST explicitly write </think> to close the block before formatting the visual tokens.",
   // --- Narration modes (task directives for render_narration) ---
   PROLOGUE:
-    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance, character alignment, and — critically — whether AI_CHARACTER and USER_PERSONA have an established prior relationship. Unless ETERNAL or PAST context explicitly states a history between them, treat this as their first encounter: strangers, no shared names, no assumed dynamic. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation — where the characters are, what brought them into the same space, and what is visibly happening. Introduce AI_CHARACTER through their first impression: how they look, how they carry themselves, what their presence projects. Let the stranger dynamic drive the initial tension rather than assumed familiarity. Set the narrative on a collision course with the active FUTURE vectors of all entities. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.",
+    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance, character alignment, and — critically — whether AI_CHARACTER and USER_PERSONA have an established prior relationship. Unless ETERNAL or PAST context explicitly states a history between them, treat this as their first encounter: strangers, no shared names, no assumed dynamic. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation — where both USER_PERSONA and AI_CHARACTER are currently positioned, what personal motivations brought them into the same space, and what they are visibly doing. Introduce both characters through their first impressions and current actions. Let the stranger dynamic drive the initial tension rather than assumed familiarity. Set the narrative on a collision course intertwining the active FUTURE vectors of both entities, ending the prologue right as they are about to interact. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue.",
   EPILOGUE:
     "You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.",
   // --- Perchance rendering constraints (no-weights + dynamic syntax, combined) ---
@@ -223,12 +227,53 @@ export const PROTOCOL_LIBRARY = {
   FORMAT_PROSE: "<FORMAT>Write standard narrative prose. DO NOT write comma-separated lists.</FORMAT>",
   FIRST_CONTACT:
     "SCENE CONTEXT: Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is the moment AI_CHARACTER and USER_PERSONA first cross paths. You don't know their name, history, or intentions yet. Let your eternal personality drive how you react to a stranger — warmly, warily, with calculated interest, however your nature demands — but don't assume familiarity. This is the beat to plant a real first impression. When the moment arrives naturally, introduce yourself; let it come from character, not convention.",
+  MACRO_CHARACTER:
+    "Use placeholder macros to refer to entities: use '{{me}}' to refer to this character itself, '{{you}}' to refer to the user persona/partner, and '{{fractal}}' to refer to the environmental setting. Do not bake specific names into description text; use these macros instead. Legacy '{{char}}' and '{{user}}' macros are also recognized.",
+  MACRO_FRACTAL:
+    "Use placeholder macros to refer to entities: use '{{user}}' to refer to the user persona, '{{char}}' to refer to the AI character, and '{{fractal}}' to refer to this environment itself. Do not bake specific names into description text; use these macros instead.",
+  SORTING_CHARACTER:
+    "CRITICAL FOCUS: You are extracting data to define an individual CHARACTER. Any incoming raw text describing broad environmental atmosphere, world history, or global rules must be re-contextualized to fit within this character's personal background and gear, or completely discarded. Do not generate world-level descriptions; focus entirely on the individual.",
+  SORTING_FRACTAL:
+    "CRITICAL FOCUS: You are extracting data to define a FRACTAL (a world, location, or environmental ecosystem). You are NOT describing a person or individual character. Any incoming raw text containing character-specific personal traits or interpersonal history must be re-contextualized as part of the world's overarching lore or completely discarded. Focus entirely on the setting, its rules, and its physical/thematic atmosphere.",
 };
 
 /**
  * Synthesis Engine Object Interface Layer.
  */
 export const prompt_builder = {
+  parse_macros(text, owner, entities) {
+    if (!text || !entities) return text || "";
+    return text.replace(/\{\{(.*?)\}\}/g, (match, macro) => {
+      const token = macro.toLowerCase().trim();
+      const ai_name = entities.AI?.name || "AI";
+      const user_name = entities.USER?.name || "User";
+      const fractal_name = entities.FRACTAL?.name || "Fractal";
+
+      if (owner === entities.AI) {
+        if (token === "me" || token === "char") return ai_name;
+        if (token === "you" || token === "user") return user_name;
+        if (token === "fractal") return fractal_name;
+      } else if (owner === entities.USER) {
+        if (token === "me" || token === "user") return user_name;
+        if (token === "you" || token === "char") return ai_name;
+        if (token === "fractal") return fractal_name;
+      } else if (owner === entities.FRACTAL) {
+        if (token === "fractal" || token === "me") return fractal_name;
+        if (token === "you") return `${ai_name} and ${user_name}`;
+        if (token === "char") return ai_name;
+        if (token === "user") return user_name;
+      }
+      return match;
+    });
+  },
+
+  render_tag(name, value, owner, entities) {
+    const trimmed = value ? String(value).trim() : "";
+    if (!trimmed) return "";
+    const parsed = prompt_builder.parse_macros(trimmed, owner, entities);
+    return `  <${name}>${escapeXml(parsed)}</${name}>`;
+  },
+
   synthesize(payload, snapshot) {
     const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
 
@@ -266,10 +311,28 @@ export const prompt_builder = {
 
     return {
       _context: scoring_context,
-      past: (ref, options = {}) =>
-        temporal_engine.format(resolve(ref).past || [], scoring_context, { limit: 3, offset: 0, max_chars: 1500, ...options, mode: "past" }),
-      future: (ref, options = {}) =>
-        temporal_engine.format(resolve(ref).future || [], scoring_context, { limit: 3, offset: 0, max_chars: 1500, ...options, mode: "future" }),
+      past: (ref, options = {}) => {
+        const entity = resolve(ref);
+        const formatted = temporal_engine.format(entity.past || [], scoring_context, {
+          limit: 3,
+          offset: 0,
+          max_chars: 1500,
+          ...options,
+          mode: "past",
+        });
+        return prompt_builder.parse_macros(formatted, entity, entities);
+      },
+      future: (ref, options = {}) => {
+        const entity = resolve(ref);
+        const formatted = temporal_engine.format(entity.future || [], scoring_context, {
+          limit: 3,
+          offset: 0,
+          max_chars: 1500,
+          ...options,
+          mode: "future",
+        });
+        return prompt_builder.parse_macros(formatted, entity, entities);
+      },
       simulation_log: (limit = 10, offset = 0) => prompt_builder.render_history(raw_messages, limit, offset),
     };
   },
@@ -354,8 +417,38 @@ export const prompt_builder = {
         enhancer: meta.enhancer,
         is_image_field: is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")) || field_id.includes("visual"),
         entity,
+        entity_type: resolvedType,
       }),
       messages: [],
+    };
+  },
+
+  build_profile_sorting_prompt(inputData, entity_type = "character") {
+    const rawText = typeof inputData === "string" ? inputData : JSON.stringify(inputData, null, 2);
+    const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
+
+    const protocols = [
+      "HYGIENE",
+      "AFFIRMATIVE",
+      "THIRD_PERSON",
+      "JSON_OUTPUT",
+      resolvedType === "fractal" ? "MACRO_FRACTAL" : "MACRO_CHARACTER",
+      resolvedType === "fractal" ? "SORTING_FRACTAL" : "SORTING_CHARACTER",
+    ].join(", ");
+
+    const profileMeta = ENTITY_FRAGMENTS.profile[resolvedType];
+
+    return {
+      system: `
+<SYSTEM role="${profileMeta.enhancer}" enhancing="Entire Profile">
+<INSTRUCTIONS>
+${escapeXml(profileMeta.directive)}
+</INSTRUCTIONS>
+<PROTOCOLS>
+${prompt_builder.render_protocols(protocols)}
+</PROTOCOLS>
+</SYSTEM>`.trim(),
+      messages: [{ role: "user", text: rawText }],
     };
   },
 };

@@ -5,7 +5,7 @@
  * ZERO BACKWARDS COMPATIBILITY.
  */
 import { pickRandom } from "@utils";
-import { PALETTE } from "@media";
+import { SIGNATURE_COLORS } from "@media";
 import { Security } from "@platform";
 const sanitize_html = (/** @type {any} */ val) => Security.sanitize(val);
 export const STORAGE_VERSION = 3;
@@ -56,8 +56,7 @@ export const ENTITY_TEMPLATES = {
  * Utility to safely access the palette for a random signature key.
  */
 export const get_random_signature_key = () => {
-  const keys = Object.keys(PALETTE).filter((k) => k !== "default");
-  return pickRandom(keys);
+  return pickRandom(SIGNATURE_COLORS);
 };
 /**
  * Main Normalizer
@@ -122,7 +121,10 @@ export const normalize = (base = {}) => {
     name: sanitize_html(name).trim(),
     description: sanitize_html(description).trim(),
     type: type,
-    signature_color: sanitize_html(String(signature_color)).trim() || get_random_signature_key(),
+    signature_color: (() => {
+      const parsed = sanitize_html(String(signature_color)).trim();
+      return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
+    })(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---

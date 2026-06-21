@@ -51,6 +51,50 @@ describe("prompt_builder (Refactored)", () => {
     });
   });
 
+  describe("Macro Parsing Pipeline", () => {
+    const mockEntities = {
+      AI: { name: "Viper" },
+      USER: { name: "Ghost" },
+      FRACTAL: { name: "Void" },
+    };
+
+    it("parse_macros() should resolve macros correctly for AI owner", () => {
+      const text = "I am {{me}}, you are {{you}}.";
+      const result = prompt_builder.parse_macros(text, mockEntities.AI, mockEntities);
+      expect(result).toBe("I am Viper, you are Ghost.");
+
+      const alt = "Legacy {{char}} and {{user}}.";
+      const altResult = prompt_builder.parse_macros(alt, mockEntities.AI, mockEntities);
+      expect(altResult).toBe("Legacy Viper and Ghost.");
+    });
+
+    it("parse_macros() should resolve macros correctly for USER owner", () => {
+      const text = "I am {{me}}, you are {{you}}.";
+      const result = prompt_builder.parse_macros(text, mockEntities.USER, mockEntities);
+      expect(result).toBe("I am Ghost, you are Viper.");
+
+      const alt = "Legacy {{user}} and {{char}}.";
+      const altResult = prompt_builder.parse_macros(alt, mockEntities.USER, mockEntities);
+      expect(altResult).toBe("Legacy Ghost and Viper.");
+    });
+
+    it("parse_macros() should resolve macros correctly for FRACTAL owner", () => {
+      const text = "This is {{fractal}}, welcome {{you}}.";
+      const result = prompt_builder.parse_macros(text, mockEntities.FRACTAL, mockEntities);
+      expect(result).toBe("This is Void, welcome Viper and Ghost.");
+
+      const alt = "Fallback {{me}}, AI is {{char}}, User is {{user}}.";
+      const altResult = prompt_builder.parse_macros(alt, mockEntities.FRACTAL, mockEntities);
+      expect(altResult).toBe("Fallback Void, AI is Viper, User is Ghost.");
+    });
+
+    it("render_tag() should apply macros before escaping", () => {
+      const value = "Hello {{me}} <test>";
+      const result = prompt_builder.render_tag("GREETING", value, mockEntities.AI, mockEntities);
+      expect(result).toBe("  <GREETING>Hello Viper &lt;test&gt;</GREETING>");
+    });
+  });
+
   describe("Assembly Pipeline", () => {
     const mockPayload = {
       round: 1,
@@ -252,6 +296,26 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("Ghost Current Mood");
       expect(result.system).toContain("Void Collapsing");
       expect(result.system).toContain("End on lingering sensation, not summary.");
+    });
+
+    it("build_enhancement() injects MACRO_PROTOCOL correctly", () => {
+      const charResult = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Viper", "character");
+      expect(charResult.system).toContain("Use placeholder macros to refer to entities: use '{{me}}'");
+      expect(charResult.system).not.toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
+
+      const fractalResult = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Void", "fractal");
+      expect(fractalResult.system).toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
+      expect(fractalResult.system).not.toContain("use '{{me}}' to refer to this character itself");
+    });
+
+    it("build_profile_sorting_prompt() injects sorting instructions correctly", () => {
+      const charResult = prompt_builder.build_profile_sorting_prompt("Raw text block", "character");
+      expect(charResult.system).toContain("CRITICAL FOCUS: You are extracting data to define an individual CHARACTER");
+      expect(charResult.system).toContain("Use placeholder macros to refer to entities: use '{{me}}'");
+
+      const fractalResult = prompt_builder.build_profile_sorting_prompt("Raw text block", "fractal");
+      expect(fractalResult.system).toContain("CRITICAL FOCUS: You are extracting data to define a FRACTAL");
+      expect(fractalResult.system).toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
     });
   });
 });
