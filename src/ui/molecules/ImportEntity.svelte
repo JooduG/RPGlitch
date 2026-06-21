@@ -1,5 +1,5 @@
 <script>
-  import { Button, Modal, TextField, Toggle } from "@atoms";
+  import { Button, Modal, Toggle } from "@atoms";
   import { llm_service } from "@platform";
   import { app, runtime, simulationState } from "@state";
   import { prompt_builder, strip_cognition_blocks } from "@intelligence";
@@ -156,7 +156,7 @@
         if (key === "past" || key === "future") {
           if (Array.isArray(val)) {
             const newVectors = val.map((textStr) => {
-              const vectorStr = typeof textStr === "string" ? textStr : textStr.text || JSON.stringify(textStr);
+              const vectorStr = typeof textStr === "string" ? textStr : textStr.directive || textStr.text || JSON.stringify(textStr);
               return {
                 ...temporal_engine.create(vectorStr, key),
                 id: crypto.randomUUID(),
@@ -228,13 +228,17 @@
         <div class="flex flex-1 flex-col gap-2 overflow-hidden">
           <span class="text-xs text-slate-400 uppercase">Raw Data</span>
           <div class="relative flex-1 overflow-hidden">
-            <TextField
+            <textarea
               bind:value={raw_text}
               placeholder="Paste raw entity JSON here or upload a Character Card..."
-              is_edit={true}
               disabled={is_loading}
-              class="h-full w-full"
-            />
+              class="
+                h-full w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent
+                rounded-xl
+                border border-transparent bg-[color-mix(in_srgb,#475569_8%,rgb(23_23_23/0.6))] p-4 font-sans
+                text-sm text-slate-50 outline-none
+              "
+            ></textarea>
           </div>
         </div>
 

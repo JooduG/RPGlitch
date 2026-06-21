@@ -87,7 +87,7 @@ describe("context_broker", () => {
     });
 
     it("should gracefully handle missing log text for non-conditional vectors", async () => {
-      const entity = { future: [{ id: "1", vector_tags: [], text: "test" }] };
+      const entity = { future: [{ id: "1", vector_tags: [], directive: "test" }] };
       // @ts-ignore
       await expect(context_broker.manage_vector_lifecycle(entity, null)).resolves.not.toThrow();
       await expect(context_broker.manage_vector_lifecycle(entity, "")).resolves.not.toThrow();
@@ -96,9 +96,9 @@ describe("context_broker", () => {
     it("should resolve vectors based on vector_tags match", async () => {
       const entity = {
         future: [
-          { id: "v1", vector_tags: ["apple", "banana"], text: "Some short text" },
-          { id: "v2", vector_tags: ["cherry"], text: "Another text" },
-          { id: "v3", vector_tags: ["multi word tag"], text: "Yet another text" },
+          { id: "v1", vector_tags: ["apple", "banana"], directive: "Some short text" },
+          { id: "v2", vector_tags: ["cherry"], directive: "Another text" },
+          { id: "v3", vector_tags: ["multi word tag"], directive: "Yet another text" },
         ],
       };
       const log = "I ate a Banana yesterday and saw a multi word tag in the wild.";
@@ -112,7 +112,7 @@ describe("context_broker", () => {
 
     it("should not resolve vectors using substring false positives", async () => {
       const entity = {
-        future: [{ id: "v1", vector_tags: ["cat"], text: "Some short text" }],
+        future: [{ id: "v1", vector_tags: ["cat"], directive: "Some short text" }],
       };
       const log = "This is a new category.";
 
@@ -124,8 +124,8 @@ describe("context_broker", () => {
     it("should resolve vectors based on significant keywords if no tags match", async () => {
       const entity = {
         future: [
-          { id: "v1", text: "The grand master spoke." },
-          { id: "v2", text: "A tiny cat slept." },
+          { id: "v1", directive: "The grand master spoke." },
+          { id: "v2", directive: "A tiny cat slept." },
         ],
       };
       const log = "The Grand old Master spoke loudly.";
@@ -138,7 +138,7 @@ describe("context_broker", () => {
 
     it("should not resolve vectors if keywords don't meet threshold", async () => {
       const entity = {
-        future: [{ id: "v1", text: "The grand master spoke." }],
+        future: [{ id: "v1", directive: "The grand master spoke." }],
       };
       const log = "The Grand canyon is big.";
 
@@ -157,7 +157,7 @@ describe("context_broker", () => {
             id: "v_state",
             requires: { state_anchor: "active" },
             vector_tags: ["apple"],
-            text: "The state is active",
+            directive: "The state is active",
           },
         ],
       };
@@ -175,7 +175,7 @@ describe("context_broker", () => {
             id: "v_state",
             requires: { state_anchor: "active" },
             vector_tags: ["apple"],
-            text: "The state is active",
+            directive: "The state is active",
           },
         ],
       };
@@ -233,7 +233,7 @@ describe("context_broker", () => {
           {
             id: "v_legacy",
             vector_tags: ["cherry"],
-            text: "Cherry cherry",
+            directive: "Cherry cherry",
           },
         ],
       };

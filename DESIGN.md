@@ -255,6 +255,26 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 ```css
 /* --- T4: Realization (Patterns & Resets) --- */
 
+/* Global Scrollbars */
+::-webkit-scrollbar {
+  width: var(--spacing-scrollbar-width);
+  height: var(--spacing-scrollbar-width);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: var(--radius-sharp);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: var(--radius-sharp);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
 @utility mask-border-solid {
   /* stylelint-disable property-no-vendor-prefix */
   -webkit-mask:

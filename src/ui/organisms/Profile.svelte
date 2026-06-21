@@ -48,11 +48,9 @@
       (app.viewport.mobile || app.viewport.mini ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
   );
 
-  const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 " + (entity_type === "fractal" ? "h-auto" : "min-h-0"));
+  const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 min-h-0");
 
-  const main_layout_class = $derived(
-    "grow p-0 scrollbar-none [&::-webkit-scrollbar]:hidden " + (entity_type === "fractal" ? "h-auto overflow-visible" : "overflow-visible"),
-  );
+  const main_layout_class = $derived("grow p-0 scrollbar-none [&::-webkit-scrollbar]:hidden min-h-0 overflow-hidden");
 
   const footer_layout_class = $derived(
     "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"),
@@ -245,7 +243,7 @@
           />
 
           <main class={main_layout_class}>
-            <ScrollArea style={entity_type === "fractal" ? "height: auto; overflow: visible;" : "height: 100%;"}>
+            <ScrollArea style="height: 100%;">
               {@render EntityBody()}
             </ScrollArea>
           </main>
@@ -262,7 +260,7 @@
                   profileState.enhance_profile(entity_type);
                 }}
               >
-                {#if profileState.busy_fields.has("eternal.non_physical")}
+                {#if Array.from(profileState.busy_fields).some((f) => f !== "visual-prompt")}
                   <span class="animate-pulse">ENHANCING...</span>
                 {:else}
                   Enhance Profile

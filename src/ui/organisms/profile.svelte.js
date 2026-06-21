@@ -217,8 +217,10 @@ export class ProfileState {
     if (this.is_saving) return;
     this.is_saving = true; // Use is_saving flag to prevent double clicks and lock UI
 
-    // Temporarily mark all non-image fields as busy for visual feedback
+    // Temporarily mark all fields as busy for visual feedback
+    this.busy_fields.add("eternal.physical");
     this.busy_fields.add("eternal.non_physical");
+    this.busy_fields.add("present.physical");
     this.busy_fields.add("present.non_physical");
     this.busy_fields.add("past");
     this.busy_fields.add("future");
@@ -236,19 +238,25 @@ export class ProfileState {
         if (startIdx >= 0 && endIdx >= 0) {
           const cleanJson = JSON.parse(cleanJsonText.substring(startIdx, endIdx + 1));
 
-          for (const [key, val] of Object.entries(cleanJson)) {
+          for (let [key, val] of Object.entries(cleanJson)) {
             if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
+
+            // Map flat LLM keys (e.g. eternal_physical) back to nested DB schema (eternal.physical)
+            if (key === "eternal_physical") key = "eternal.physical";
+            else if (key === "eternal_non_physical") key = "eternal.non_physical";
+            else if (key === "present_physical") key = "present.physical";
+            else if (key === "present_non_physical") key = "present.non_physical";
 
             if (key === "past" || key === "future") {
               if (Array.isArray(val)) {
                 const currentVectors = get_value(this.char, key) || [];
                 const newVectors = val.map((textStr, idx) => {
                   const existing = currentVectors[idx] || {};
-                  const vectorStr = typeof textStr === "string" ? textStr : textStr.text || JSON.stringify(textStr);
+                  const vectorStr = typeof textStr === "string" ? textStr : textStr.directive || textStr.text || JSON.stringify(textStr);
                   return {
                     ...temporal_engine.create(vectorStr, key),
                     id: existing.id || generateUUID(),
-                    base_weight: existing.base_weight || 5,
+                    emotional_weight: existing.emotional_weight || existing.base_weight || 5,
                   };
                 });
                 set_value(this.char, key, newVectors);
@@ -269,7 +277,9 @@ export class ProfileState {
     } catch (err) {
       console.error("Enhance profile failed:", err);
     } finally {
+      this.busy_fields.delete("eternal.physical");
       this.busy_fields.delete("eternal.non_physical");
+      this.busy_fields.delete("present.physical");
       this.busy_fields.delete("present.non_physical");
       this.busy_fields.delete("past");
       this.busy_fields.delete("future");
@@ -293,7 +303,7 @@ export class ProfileState {
       timestamp: Date.now(),
       directive: "",
       type: path,
-      base_weight: 5,
+      emotional_weight: 5,
       vector_tags: [],
     };
 
@@ -339,9 +349,9 @@ export class ProfileState {
     const items = get_value(this.char, path) || [];
     const item = items[index];
     if (!item) return;
-    const weight = item.base_weight ?? 5;
+    const weight = item.emotional_weight ?? 5;
     this.patch_vector_item(path, index, {
-      base_weight: Math.min(10, Math.max(1, weight + delta)),
+      emotional_weight: Math.min(10, Math.max(1, weight + delta)),
     });
     this._user_mutated = true;
   }

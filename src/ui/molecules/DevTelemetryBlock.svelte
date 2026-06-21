@@ -207,7 +207,7 @@
                   gap-2
                 "
                 >
-                  {#each vectors.past as v, i (v.id || v.text)}
+                  {#each vectors.past as v, i (v.id || v.directive)}
                     <div
                       class="
                       flex
@@ -239,7 +239,7 @@
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
-                      ">{v.text}</span
+                      ">{v.directive}</span
                       >
                     </div>
                   {:else}
@@ -324,7 +324,7 @@
                   gap-2
                 "
                 >
-                  {#each vectors.future.slice(0, 5) as v, i (v.id || v.text)}
+                  {#each vectors.future.slice(0, 5) as v, i (v.id || v.directive)}
                     <div
                       class="
                       flex
@@ -356,7 +356,7 @@
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
-                      ">{v.text}</span
+                      ">{v.directive}</span
                       >
                     </div>
                   {:else}
@@ -403,7 +403,7 @@
                   gap-2
                 "
                 >
-                  {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
+                  {#each vectors.past.slice(0, 3) as v (v.id || v.directive)}
                     <div
                       class="
                       flex
@@ -432,7 +432,7 @@
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
-                      ">{v.text}</span
+                      ">{v.directive}</span
                       >
                     </div>
                   {/each}
@@ -709,7 +709,7 @@
                   gap-2
                 "
                 >
-                  {#each vectors.future.slice(0, 3) as v (v.id || v.text)}
+                  {#each vectors.future.slice(0, 3) as v (v.id || v.directive)}
                     <div
                       class="
                       flex
@@ -738,7 +738,7 @@
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
-                      ">{v.text}</span
+                      ">{v.directive}</span
                       >
                     </div>
                   {:else}
@@ -785,7 +785,7 @@
                   gap-2
                 "
                 >
-                  {#each vectors.past.slice(0, 3) as v (v.id || v.text)}
+                  {#each vectors.past.slice(0, 3) as v (v.id || v.directive)}
                     <div
                       class="
                       flex
@@ -814,7 +814,7 @@
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
-                      ">{v.text}</span
+                      ">{v.directive}</span
                       >
                     </div>
                   {:else}

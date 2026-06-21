@@ -1,6 +1,21 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { ProfileState } from "./profile.svelte.js";
 
+// Mock platform module
+let resolveEnhanceFn;
+vi.mock("@platform", () => ({
+  llm_service: {
+    enhance: vi.fn(() => {
+      return new Promise((resolve) => {
+        resolveEnhanceFn = resolve;
+      });
+    }),
+  },
+  Security: {
+    sanitize: vi.fn((val) => val),
+  },
+}));
+
 // Mock imports
 vi.mock("@state/app.svelte.js", () => ({
   app: {
@@ -58,5 +73,42 @@ describe("ProfileState setImage", () => {
     expect(runtime.update_entity).toHaveBeenCalledWith("character", "test-char", {
       profile_picture: "data:image/png;base64,trimmed123",
     });
+  });
+});
+
+describe("ProfileState enhance_profile", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("should set busy_fields correctly during the async enhance call and clear them afterward", async () => {
+    const state = new ProfileState();
+
+    // Start enhancement
+    const enhanceCall = state.enhance_profile("character");
+
+    // Check that busy_fields are populated during enhancement
+    expect(state.busy_fields.has("eternal.physical")).toBe(true);
+    expect(state.busy_fields.has("eternal.non_physical")).toBe(true);
+    expect(state.busy_fields.has("present.physical")).toBe(true);
+    expect(state.busy_fields.has("present.non_physical")).toBe(true);
+    expect(state.busy_fields.has("past")).toBe(true);
+    expect(state.busy_fields.has("future")).toBe(true);
+    expect(state.busy_fields.has("description")).toBe(true);
+    expect(state.is_saving).toBe(true);
+
+    // Resolve LLM call
+    resolveEnhanceFn(`{"name": "Proxy"}`);
+    await enhanceCall;
+
+    // Check that busy_fields are cleared after enhancement
+    expect(state.busy_fields.has("eternal.physical")).toBe(false);
+    expect(state.busy_fields.has("eternal.non_physical")).toBe(false);
+    expect(state.busy_fields.has("present.physical")).toBe(false);
+    expect(state.busy_fields.has("present.non_physical")).toBe(false);
+    expect(state.busy_fields.has("past")).toBe(false);
+    expect(state.busy_fields.has("future")).toBe(false);
+    expect(state.busy_fields.has("description")).toBe(false);
+    expect(state.is_saving).toBe(false);
   });
 });

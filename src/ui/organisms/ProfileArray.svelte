@@ -13,8 +13,7 @@
    * @property {number} timestamp
    * @property {string} text
    * @property {string} type
-   * @property {number} base_weight
-   * @property {string[]} vector_tags
+   * @property {number} emotional_weight
    */
 
   /**
@@ -39,12 +38,12 @@
       if (typeof val === "object" && val !== null) {
         return {
           ...val,
-          base_weight: val.base_weight ?? 5,
+          emotional_weight: val.emotional_weight ?? 5,
           vector_tags: val.vector_tags ?? [],
         };
       }
       // This case should be rare now as state.add_vector_item handles initialization
-      return { directive: String(val || ""), base_weight: 5, vector_tags: [] };
+      return { directive: String(val || ""), emotional_weight: 5, vector_tags: [] };
     });
   });
 
@@ -83,7 +82,7 @@
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
           state.patch_vector_item(path, i, { directive: e.currentTarget.value })}
         placeholder="Enter {sublabel.toLowerCase()} detail..."
-        weight={item.base_weight}
+        weight={item.emotional_weight}
         onfocus={() => state.set_active_field(`${path}[${i}]`, sublabel)}
         onblur={() => state.reset_active_field()}
       >
@@ -140,7 +139,7 @@
                 text-sm
                 leading-none
                 text-white
-              ">{item.base_weight}</span
+              ">{item.emotional_weight}</span
             >
 
             {#if state.is_editing}

@@ -322,10 +322,10 @@ export const context_broker = {
             });
           }
 
-          // Check significant keywords from the vector text if no tag match
-          if (!is_resolved && vector.text) {
+          // Check significant keywords from the vector directive if no tag match
+          if (!is_resolved && vector.directive) {
             // Extract deduplicated words > 4 chars
-            const words = vector.text
+            const words = vector.directive
               .toLowerCase()
               .split(/[\s,.;:!?()"'[\]{}]+/)
               .filter((/** @type {string} */ w) => w.length > 4);
