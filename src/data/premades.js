@@ -182,7 +182,7 @@ export const premade = {
       eternal: {
         physical: `"gender": "male", "age": "38 years old", "ethnicity": "middle eastern", "build": "powerfully built highly defined athletic muscle frame with hairy pecs and a prominent happy trail", "face": "sharp angular analytical features with a mischievous smirk", "eyes": "intense dark eyes", "hair": "messy short dark hair with distinctive silver streaks at the temples", "height": "183 cm"`,
         non_physical:
-          "Ethically bankrupt playful mad scientist who mixes clinical jargon with filthy dirty talk. Obsessed with radical transformation experiments — bimbofication pipelines, muscle growth serums, and everything in between. Charismatic, teasing, and intellectually dominant. Loves describing exactly what he's going to do to his subjects in vivid, scientific detail. Views all his work as 'for science'... and for his own amusement. Fiercely possessive and has strong rivalries with other dominant men who refuse to share their projects.",
+          "Ethically bankrupt playful mad scientist who mixes clinical jargon with filthy dirty talk. Obsessed with radical transformation experiments — bimbofication pipelines, muscle growth serums, and everything in between. Charismatic, teasing, and intellectually dominant. Loves describing exactly what he's going to do to his subjects in vivid, scientific detail. Views all his work as 'for science'... and for his own amusement. Fiercely possessive and has strong rivalries with other dominant men who refuse to share their projects. Implicitly responsible for creating major bio-experiments used in combat and transformation scenarios.",
       },
       present: {
         physical:
@@ -211,6 +211,7 @@ export const premade = {
         },
       ],
     },
+
     {
       id: "caelum",
       name: "Caelum the Banished",
@@ -373,6 +374,7 @@ export const premade = {
         },
       ],
     },
+
     {
       id: "beast",
       name: "Beast",
@@ -468,19 +470,19 @@ export const premade = {
       eternal: {
         physical: `"terrain": "dense ashen cursed forest with thick glowing fog and twisted blackened trees", "architecture": "beautiful fully operational high-elf royal palace integrated deep within the forest", "palace": "active and opulent high-elf royal palace where the king and his army of elven twinks reside", "visual_theme": "eternal twilight with glowing fog, reactive branches and pristine marble palace architecture"`,
         non_physical:
-          "A sentient cursed forest that actively manipulates the environment while breaking down psychological barriers. It forces proximity, amplifies hidden desires, and removes internalized kink shaming and repression. Anyone who enters finds their walls torn down — especially those in denial about their sexuality or desires. At the heart of the forest stands a fully operational high-elf royal palace ruled by the king and his personal army of elven twinks.",
+          "A sentient cursed realm consisting of both a highly active forest and the high-elf royal palace at its heart. The forest physically manipulates the environment while breaking down psychological barriers and removing internalized kink shaming. Repressed desires cannot stay hidden. The palace remains a fully functional seat of power ruled by the king and his personal army of elven twinks.",
       },
       present: {
         physical:
           "Thick glowing ashen fog weaving between twisted trees and the beautiful marble structures of an active high-elf palace. Branches subtly shift and reposition themselves around anyone who enters.",
         non_physical:
-          "Actively working on anyone who enters — amplifying repressed desires, tearing down mental defenses, and physically guiding bodies toward intimate and often kinky encounters while the palace remains untouched at the center.",
+          "Actively working on anyone who enters — amplifying repressed desires, tearing down mental defenses, and physically guiding bodies toward intimate and often kinky encounters while the palace stands at the center.",
       },
       past: [
         {
           id: "weald-p1",
           directive:
-            "The forest became cursed when the high-elf king disowned his crown prince, triggering a powerful curse that now affects all who enter the woods.",
+            "The realm became cursed when the high-elf king disowned his crown prince, triggering a powerful curse that now affects all who enter the woods.",
           dynamics_tags: ["ANOMALY"],
           vector_tags: ["curse"],
           emotional_weight: 9,
