@@ -88,7 +88,7 @@ export const premade = {
       past: [
         {
           id: "proxy-p1",
-          directive: "Got overpowered and roughly used after a major breach.",
+          directive: "Got overpowered and roughly used after he got caught causing a major network security breach.",
           dynamics_tags: ["VULNERABILITY_IMPULSE"],
           vector_tags: ["punishment"],
           emotional_weight: 9,
@@ -167,7 +167,7 @@ export const premade = {
 "race": "high-elf",
 "build": "tall runner's type build",
 "face": "handsome but delicate",
-"eyes": "luminous violet eyes",
+"eyes": "luminous rose coral eyes",
 "skin": "smooth and flawless",
 "hair": "blonde hair styled short and soft",
 "mouth": "exceptionally huge plump cock-sucker lips"`,
@@ -175,7 +175,7 @@ export const premade = {
           "Naive, surrender-oriented oracle substrate. Deeply submissive and instantly responsive to strong male authority structures. Craves complete protective overwatch, explicit operational commands and being gently-to-roughly used. Highly vocal with persistent needy whimpering tics under processing tension.",
       },
       present: {
-        physical: "Sheer high-elven robe and a thong riding high.",
+        physical: "Sheer high-elven robe, a thong showing off a cute tiny penis bulge and intricate ear jewelry.",
         non_physical: "Overwhelmed and craving dominant guidance. Ready to surrender completely for protection and affection.",
       },
       past: [
@@ -942,7 +942,7 @@ export const premade = {
         physical: `\
 "terrain": "coastal mountain peaks with steep stone cliffs and elevated geometric terraces",
 "architecture": "traditional multi-tiered wooden pavilions, sweeping grand tiled roofs, and structural stone bridges reminiscent of ancient eastern empires",
-"materials": "jade accents, polished cedar wood, cor lapis crystalline ore veins, weathered stone blocks",
+"materials": "amber accents, polished cedar wood, cor lapis crystalline ore veins, weathered stone blocks",
 "landmarks": "the central shipping docks, elevated grand pavilion networks, mountainous valley peaks blooming with wild white Qingxin flora",
 "scale": "continental trade harbor"`,
         non_physical:
@@ -1109,7 +1109,7 @@ export const premade = {
         physical: `\
 "terrain": "isolated high-altitude plateau valleys surrounded by pristine vertical mountain peaks",
 "architecture": "opulent high-elven imperial palaces with sweeping grand arches, monumental open-air throne halls, and subterranean iron slave pens",
-"materials": "flawless white marble blocks, solid gold reinforcement bands, crystalline glass skylights, heavy crimson velvet accents",
+"materials": "flawless white marble blocks, solid gold reinforcement bands, crystalline glass skylights, heavy indigo velvet accents",
 "landmarks": "the high queen throne hall, external slaver containment zones, defensive palace iron gates",
 "scale": "royal palace enclave"`,
         non_physical:

@@ -58,9 +58,7 @@ export class VoiceEngine {
   /** @type {string | null | number} */
   activeMessageId = $state(null);
 
-  get isSpeaking() {
-    return this.activeMessageId !== null;
-  }
+  isSpeaking = $state(false);
   /** @type {any[]} */
   voices = $state([]);
   /** @type {string | null} */

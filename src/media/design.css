@@ -759,8 +759,7 @@ div.flex-1.flex-col footer {
 div[class*="ProfileHeader"] input,
 div[class*="ProfileHeader"] h2,
 div[class*="profile-header"] input,
-.profile-header-title,
-header input {
+.profile-header-title {
   font-size: var(--text-h3) !important;
   font-family: var(--font-heading) !important;
   font-weight: 700 !important;
