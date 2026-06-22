@@ -88,7 +88,7 @@
                       relative
                       flex
                       h-auto
-                      max-h-[90vh]
+                      max-h-screen
                       min-h-48
                       w-[clamp(16rem,90vw,28rem)]
                       cursor-default

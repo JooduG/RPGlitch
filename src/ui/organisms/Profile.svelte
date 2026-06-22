@@ -5,7 +5,7 @@
    * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
   import { click_outside } from "@actions";
-  import { Button, Modal, ProfilePicture, ScrollArea, TextField, tooltip } from "@atoms";
+  import { Button, Modal, ProfilePicture, TextField, tooltip } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
@@ -31,7 +31,7 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex h-full scrollbar-none overflow-auto border-solid transition-all duration-300 [&::-webkit-scrollbar]:hidden " +
+    "flex h-full overflow-y-auto overflow-x-hidden border-solid transition-all duration-300 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent " +
       (app.viewport.mobile || app.viewport.mini ? "col-span-full flex-col " : has_wings ? "modal-profile-grid-main " : "modal-profile-grid-flat ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
@@ -48,9 +48,9 @@
       (app.viewport.mobile || app.viewport.mini ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
   );
 
-  const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 min-h-0");
+  const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4");
 
-  const main_layout_class = $derived("grow p-0 scrollbar-none [&::-webkit-scrollbar]:hidden min-h-0 overflow-hidden");
+  const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
     "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"),
@@ -243,9 +243,7 @@
           />
 
           <main class={main_layout_class}>
-            <ScrollArea style="height: 100%;">
-              {@render EntityBody()}
-            </ScrollArea>
+            {@render EntityBody()}
           </main>
 
           <footer bind:this={footer_el} tabindex="-1" class={footer_layout_class}>
