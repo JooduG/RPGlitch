@@ -228,7 +228,7 @@ export class VisualEngine {
    * @param {any} [options]
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
-    const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : (typeof storyId === "number" ? storyId : null);
+    const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : typeof storyId === "number" ? storyId : null;
     const story = typeof dbKey === "number" && Number.isInteger(dbKey) && dbKey > 0 ? await db.stories.get(dbKey) : runtime.active_story;
 
     if (!story) {
