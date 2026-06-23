@@ -427,10 +427,6 @@
                           disabled={visual_engine.isLoading || is_locked}
                           onclick={async () => {
                             try {
-                              console.log("[PHOTO] Starting generation");
-                              console.log("[PHOTO] runtime.story_id:", runtime.story_id);
-                              console.log("[PHOTO] runtime.active_story:", runtime.active_story);
-
                               // Directly set role for guaranteed reactivity before triggering phase change
                               simulationState.role = "ai";
                               simulationState.start_generation("ai");
@@ -441,23 +437,16 @@
                                 "selfie",
                               );
 
-                              console.log("[PHOTO] Result:", result);
-                              console.log("[PHOTO] Image URL:", result?.imageUrl);
-
                               if (result?.imageUrl) {
                                 const entity = runtime.active_ai || app.selected_ai;
                                 const entity_name = entity?.name || "AI";
 
                                 const caption = result.caption || "Here, caught this moment for you.";
 
-                                console.log("[PHOTO] Logging image to chat");
-
                                 await session_driver.log_turn(caption, entity_name, "ai", {
                                   turn_type: "AI_TURN",
                                   attachments: [result.imageUrl],
                                 });
-
-                                console.log("[PHOTO] Chat log complete");
                               } else {
                                 console.warn("[PHOTO] No imageUrl returned");
                               }
