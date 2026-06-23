@@ -15,6 +15,14 @@ describe("prompt_builder (Refactored)", () => {
       expect(result).toContain('role="FRACTAL"');
     });
 
+    it("render_history() should strip double asterisks wrapping dialogue", () => {
+      const history = [{ role: "assistant", content: 'She smiled. **"Hello there."**', character_name: "Viper" }];
+      const result = prompt_builder.render_history(history);
+      expect(result).not.toContain("**&quot;Hello there.&quot;**");
+      expect(result).toContain("&quot;Hello there.&quot;");
+      expect(result).toContain("She smiled.");
+    });
+
     it("render_history() should collapse consecutive messages of the same entity before slicing", () => {
       const history = [
         { role: "user", content: "Hello", character_name: "Ghost" },
@@ -130,6 +138,11 @@ describe("prompt_builder (Refactored)", () => {
       fractal: { dynamics: {} },
       flags: {},
     };
+
+    it("synthesize() omits duplicate SESSION_TIMELINE from FRACTAL PAST block", () => {
+      const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
+      expect(result.system).not.toContain("<SESSION_TIMELINE>");
+    });
 
     it("synthesize() injects core XML tags into simulation prompts", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
@@ -296,6 +309,16 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("Ghost Current Mood");
       expect(result.system).toContain("Void Collapsing");
       expect(result.system).toContain("End on lingering sensation, not summary.");
+    });
+
+    it("build_enhancement() formats physical properties to XML correctly", () => {
+      const entity = {
+        eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
+      };
+      const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character", false, entity);
+      expect(result.system).toContain("<ETERNAL_PHYSICAL>");
+      expect(result.system).toContain("<eyeColor>blue</eyeColor>");
+      expect(result.system).toContain("<hair>black</hair>");
     });
 
     it("build_enhancement() injects MACRO_PROTOCOL correctly", () => {

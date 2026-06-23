@@ -85,9 +85,10 @@ function to_data_points(entity) {
 
     if (val && typeof val === "string") {
       const isEternal = metadata.layer_key?.toLowerCase() === "eternal";
+      const isPhysical = fieldId.endsWith(".physical");
       list.push({
         text: clean_text(val, 2000),
-        type: metadata.label ?? "unknown",
+        type: isPhysical ? "Physical" : (metadata.label ?? "unknown"),
         enhancer: metadata.enhancer ?? "SYSTEM",
         section: metadata.section_label || "Present",
         layer: metadata.layer_key,

@@ -5,7 +5,22 @@
  */
 
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS, escapeXml, strip_cognition_blocks, temporal_engine } from "@intelligence";
-import { flatten_physical } from "@media";
+import { safeParsePseudoJson } from "@media";
+
+/**
+ * Helper to transform physical data to XML nodes.
+ */
+function physical_to_xml(raw, tagName) {
+  if (!raw) return "";
+  const parsed = safeParsePseudoJson(raw);
+  if (parsed.__raw_prose__) {
+    return `  <${tagName}>${escapeXml(parsed.__raw_prose__)}</${tagName}>`;
+  }
+  const children = Object.entries(parsed)
+    .map(([k, v]) => `    <${k}>${escapeXml(String(v))}</${k}>`)
+    .join("\n");
+  return `  <${tagName}>\n${children}\n  </${tagName}>`;
+}
 
 /**
  * Helper to render sub-tags cleanly, applying macros and escaping, omitting them if empty.
@@ -28,18 +43,14 @@ const format_dynamics_attrs = (dynObj) => {
 /**
  * Core simulation system layout compiler.
  */
-function render_simulation({ round, entities, signal_prompts, input, render_atom, simulation_log, meta, compressed_snapshot }) {
+function render_simulation({ round, entities, signal_prompts, input, render_atom, meta, compressed_snapshot }) {
   let protocolSelection = "COGNITION, FORMAT, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM";
   if (meta?.is_opening_turn) protocolSelection += ", FIRST_CONTACT";
   if (meta?.structural_errors >= 3) protocolSelection += ", STABILITY_LOCK_2";
   else if (meta?.structural_errors >= 1) protocolSelection += ", STABILITY_LOCK_1";
 
   const pastVectors = render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "";
-  const validLog = simulation_log && String(simulation_log).trim().length > 0;
-  const fractalPast =
-    pastVectors || validLog
-      ? `  <PAST>${escapeXml(pastVectors)}${validLog ? `\n    <SESSION_TIMELINE>\n${escapeXml(String(simulation_log))}\n    </SESSION_TIMELINE>` : ""}</PAST>`
-      : "";
+  const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
   return `
 <SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">
@@ -152,9 +163,9 @@ function render_enhancement({ label, directive, enhancer, content, is_image_fiel
     ) {
       contextBlock =
         `\n<ENTITY_CONTEXT>\n` +
-        (entity.eternal?.physical ? `  <ETERNAL_PHYSICAL>${escapeXml(flatten_physical(entity.eternal.physical))}</ETERNAL_PHYSICAL>\n` : "") +
+        (entity.eternal?.physical ? `${physical_to_xml(entity.eternal.physical, "ETERNAL_PHYSICAL")}\n` : "") +
         (entity.eternal?.non_physical ? `  <ETERNAL_NON_PHYSICAL>${escapeXml(entity.eternal.non_physical)}</ETERNAL_NON_PHYSICAL>\n` : "") +
-        (entity.present?.physical ? `  <PRESENT_PHYSICAL>${escapeXml(flatten_physical(entity.present.physical))}</PRESENT_PHYSICAL>\n` : "") +
+        (entity.present?.physical ? `${physical_to_xml(entity.present.physical, "PRESENT_PHYSICAL")}\n` : "") +
         (entity.present?.non_physical ? `  <PRESENT_NON_PHYSICAL>${escapeXml(entity.present.non_physical)}</PRESENT_NON_PHYSICAL>\n` : "") +
         (pastVectors ? `  <HISTORICAL_CONTEXT>\n${escapeXml(pastVectors)}\n  </HISTORICAL_CONTEXT>\n` : "") +
         (futureVectors ? `  <PROJECTED_TRAJECTORY>\n${escapeXml(futureVectors)}\n  </PROJECTED_TRAJECTORY>\n` : "") +
@@ -198,7 +209,7 @@ export const PROTOCOL_LIBRARY = {
   THIRD_PERSON: "Write in third-person POV.",
   GRIT: "Maintain a 2:1 ratio of concrete sensory physics to abstract dialogue.",
   FORMAT:
-    'Write actions and descriptions as standard prose. Use quotation marks for "dialogue". For formatting: use single asterisks for *italics* (sensory gestures, kinetic cues) and double asterisks for **bold** (vocal emphasis, heavy physical impacts). Bold should be used selectively on specific words for emphasis (e.g. "I am **not** doing that!"); do not wrap entire dialogue blocks in double asterisks unless the character is shouting the entire sentence. Proactively combine and mix these styles throughout your response to create a dynamic visual rhythm. Do not get stuck using only one type of formatting.',
+    'Write actions and descriptions as standard prose. Use quotation marks for "dialogue". For formatting: use single asterisks for *italics* (sensory gestures, kinetic cues) and double asterisks for **bold** (vocal emphasis, heavy physical impacts). Bold should be used selectively on specific words for emphasis (e.g. "I am **not** doing that!"); NEVER wrap entire dialogue blocks in double asterisks (e.g. do NOT write **"Hello"**). Correct: *He grunted.* "I am **not** doing that!" | Incorrect: **"I am not doing that!"** *He grunted.*',
   STABILITY_LOCK_1: "WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.",
   STABILITY_LOCK_2:
     "CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.",
@@ -344,7 +355,7 @@ export const prompt_builder = {
       for (const m of simulation_log) {
         if (m.role === "system") continue;
         const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
-        const content = strip_cognition_blocks(m.content || m.text || "");
+        const content = strip_cognition_blocks(m.content || m.text || "").replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
 
         if (
           collapsed.length > 0 &&

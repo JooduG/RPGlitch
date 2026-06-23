@@ -11,6 +11,6 @@ export {
   TOKENS,
 } from "./tokens.js";
 export { LISTS } from "@data";
-export { NEGATIVE_PROMPT, AestheticResolver, PromptTemplates, getResolution, flatten_physical } from "./optics.js";
+export { NEGATIVE_PROMPT, AestheticResolver, PromptTemplates, getResolution, flatten_physical, safeParsePseudoJson } from "./optics.js";
 export { ExponentialBackoffRetryer, CircuitBreaker } from "./resilience.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";

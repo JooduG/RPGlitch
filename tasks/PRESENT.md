@@ -33,7 +33,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
-- [ ] **feature-macro-engine**: Universal Macro Parsing Engine and Enhance Profile Feature. (Active)
+- [ ] [Pending]
 
 ## 🧠 Pulse (History)
 
@@ -62,6 +62,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 | 2026-06-18 01:02     | Upgrade image generation: port LISTS, Scribe/Refine JSON pipeline, per-entity negative_prompt field in VisualWing           | `optics`, `image`     | ✅ Done `cfacdbad` |
 | 2026-06-21 16:18     | Plan Universal Macro Parsing Engine and Enhance Profile Feature                                                             | `planning`            | ✅ Done            |
 | 2026-06-22 12:15     | Critical analysis of prompt efficiency from console logs in scribbles.md                                                    | `review`              | ✅ Done            |
+| 2026-06-23 22:22     | Archival of completed feature-macro-engine track and initialization of clean slate.                                         | `legislative`         | ✅ Done            |
+| 2026-06-23 23:07     | Prompt efficiency refactor: removed dialogue bold bias, token efficiency & XML properties                                   | `/02-implement`       | ✅ Done            |
 
 ## 🧹 Backlog (Automated)
 

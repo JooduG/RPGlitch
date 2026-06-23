@@ -19,7 +19,7 @@ import { get_signature_label } from "@media";
  * @param {string} raw
  * @returns {Record<string, string>}
  */
-const safeParsePseudoJson = (raw) => {
+export const safeParsePseudoJson = (raw) => {
   if (!raw) return {};
   const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
   if (!cleanRaw) return {};
@@ -283,14 +283,26 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     let anchor = "RAW photograph or structured visual rendering of a character";
     let realism = "clear focus, defined textures, professional aesthetic layout";
 
+    const physical_to_xml = (raw, tagName) => {
+      if (!raw) return "";
+      const parsed = safeParsePseudoJson(raw);
+      if (parsed.__raw_prose__) {
+        return `  <${tagName}>${escapeXml(parsed.__raw_prose__)}</${tagName}>`;
+      }
+      const children = Object.entries(parsed)
+        .map(([k, v]) => `    <${k}>${escapeXml(String(v))}</${k}>`)
+        .join("\n");
+      return `  <${tagName}>\n${children}\n  </${tagName}>`;
+    };
+
     const renderEntity = (tagStr, entity) => {
       if (!entity) return "";
       const blocks = [];
       if (entity.eternal?.physical) {
-        blocks.push(`  <ETERNAL>${escapeXml(flatten_physical(entity.eternal.physical))}</ETERNAL>`);
+        blocks.push(physical_to_xml(entity.eternal.physical, "ETERNAL"));
       }
       if (entity.present?.physical) {
-        blocks.push(`  <PRESENT>${escapeXml(flatten_physical(entity.present.physical))}</PRESENT>`);
+        blocks.push(physical_to_xml(entity.present.physical, "PRESENT"));
       }
       if (!blocks.length) return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}" />`;
       return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;
