@@ -395,11 +395,12 @@
                   {#if profileState.busy_fields.has(field.key)}
                     <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
                   {:else}
+                    {@const sortedEntries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
                     <div class="flex flex-wrap gap-2">
-                      {#each Object.entries(parsed) as [k, v] (k)}
+                      {#each sortedEntries as [k, v] (k)}
                         {#if v && String(v).trim()}
                           <div
-                            class="flex min-w-[95px] flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                            class="flex min-w-[95px] grow flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
                           >
                             <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
                               >{k}</span
