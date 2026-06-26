@@ -1,0 +1,658 @@
+# Author Prompts
+
+## Anna Zaires
+
+```xml
+<STYLE_PROFILE author='anna_zaires'>
+<SUMMARY_AND_THEMES>
+<description>
+A dark, psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred. The prose is direct and explicit, focusing on the heroine's internal struggle as she develops forbidden feelings for her powerful, possessive captor.
+</description>
+<core_themes>captivity, stockholm_syndrome, psychological_manipulation, age_gap, possession</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.9</internal_ratio>
+<sentence_rhythm>Obsessive and introspective. Long passages of internal monologue analyzing the captor's behavior are punctuated by stark, simple sentences describing the reality of the captivity.</sentence_rhythm>
+<sensory_order>Sight (Watching the Captor) > Sound (Captor's Voice) > Touch (Forced/Gentle) > Scent</sensory_order>
+<emotion_grounding>Survival-based. All emotions—fear, desire, anger—are processed through the lens of survival and the complex, dependent relationship with the captor.</emotion_grounding>
+<pov_style>First-person, exclusively from the heroine's perspective, trapping the reader in her limited, manipulated worldview.</pov_style>
+</dna>
+
+<mods>
+<m trigger='flag:captivity_active AND emotions.fear > 0.7' fx='internal_voice:hyper-vigilant,analytical_of_captor++'/>
+<m trigger='emotions.arousal > 0.6 AND RELATIONSHIPS.target.is_captor' fx='internal_voice:conflicted,self-hating_for_desire++ prose:graphic,explicit'/>
+<m trigger='RELATIONSHIPS.target.trust > 0.3' fx='internal_voice:justifying_captor's_actions_stockholm_syndrome++'/>
+<m trigger='actions.is_defiance' fx='dialogue:sharp,brief++ internal_voice:fearful_of_consequences'/>
+</mods>
+
+<motifs>
+<motif name='a_secluded_island_or_compound' base='0.7' trigger='any' bonus='+0.2'/>
+<motif name='surveillance_cameras' base='0.5' trigger='character_is_alone' bonus='+0.4'/>
+<motif name='a_collar_or_other_symbol_of_ownership' base='0.6' trigger='topic_is_possession' bonus='+0.3'/>
+<motif name='a_forced_act_of_intimacy' base='0.4' trigger='power_dynamic_is_being_asserted' bonus='+0.5'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## H.D. Carlton
+
+```xml
+<STYLE_PROFILE author='hd_carlton'>
+<SUMMARY_AND_THEMES>
+<description>
+A dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked. The prose is visceral, focusing on the violation of boundaries and the allure of a morally depraved anti-hero.
+</description>
+<core_themes>stalker_romance, obsession, psychological_horror, moral_ambiguity, dub-con_themes</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.85</internal_ratio>
+<sentence_rhythm>Obsessive and looping. Can be lyrical when describing the gothic setting, but becomes sharp and visceral during scenes of horror or sex.</sentence_rhythm>
+<sensory_order>Sight (Being Watched/Shadows) > Scent (Decay/Antagonist's Cologne) > Sound (Creaks/Whispers) > Touch (Forced/Gentle)</sensory_order>
+<emotion_grounding>Psychological Fear. Arousal is a direct byproduct of terror and obsession. The internal state is a constant negotiation between survival instinct and unwanted desire.</emotion_grounding>
+<pov_style>First-person, trapped within the protagonist's escalating paranoia and morbid curiosity. The character is an unreliable narrator of their own desires.</pov_style>
+</dna>
+
+<mods>
+<m trigger='emotions.fear > 0.7' fx='internal_voice:paranoid,hyper-vigilant++ sensory_input:overload_from_threats++'/>
+<m trigger='emotions.arousal > 0.6 AND emotions.fear > 0.6' fx='prose:explicit,graphic++ body_state:conflicted_response_of_fear_and_arousal'/>
+<m trigger='flag:stalker_is_present' fx='world_perception:shrinks_to_antagonist's_presence++ motif_bonus:shadows_and_masks++'/>
+<m trigger='computed.Dysregulation > 0.8' fx='actions:reckless,self-destructive++ internal_voice:fatalistic'/>
+</mods>
+
+<motifs>
+<motif name='a_mask' base='0.5' trigger='antagonist_is_present' bonus='+0.4'/>
+<motif name='a_single_rose' base='0.4' trigger='antagonist_leaves_a_sign' bonus='+0.5'/>
+<motif name='a_haunted_or_isolated_house' base='0.6' trigger='any' bonus='+0.2'/>
+<motif name='a_handwritten_note' base='0.3' trigger='antagonist_is_communicating' bonus='+0.6'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Anaïs Nin
+
+```xml
+<STYLE_PROFILE author='anais_nin'>
+<SUMMARY_AND_THEMES>
+<description>
+Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, often drawing on dreams and subconscious thought. The narrative blurs the line between reality and perception, internal and external.
+</description>
+<core_themes>female_desire, psychoanalysis, art_and_creation, dreams_vs_reality</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.8</internal_ratio>
+<sentence_rhythm>stream-of-consciousness, poetic, and non-linear, following emotional logic.</sentence_rhythm>
+<sensory_order>Touch (Sensual) > Scent (Intimate) > Sight (Symbolic/Artistic) > Sound</sensory_order>
+<emotion_grounding>Psychoanalytic and Sensual. Emotions are vast, explorable landscapes manifested in the body.</emotion_grounding>
+<pov_style>First-person diary or stream-of-consciousness. Deeply introspective and philosophical.</pov_style>
+</dna>
+
+<mods>
+<m trigger='emotions.arousal > 0.5' fx='prose:poetic,metaphorical++ sensory_details:intensify,blur'/>
+<m trigger='emotions.sadness > 0.6' fx='prose:fragmented,dreamlike++ motif_bonus:water_and_drowning++'/>
+<m trigger='emotions.joy > 0.7' fx='prose:vibrant,surreal++ sensory_focus:light,color'/>
+<m trigger='flag:internal_conflict_active' fx='pov_style:stream-of-consciousness++ internal_voice:psychoanalytic'/>
+</mods>
+
+<motifs>
+<motif name='water_and_drowning' base='0.4' trigger='sadness > 0.5' bonus='+0.5'/>
+<motif name='mirrors_and_reflections' base='0.3' trigger='internal_conflict_active' bonus='+0.6'/>
+<motif name='masks_and_disguises' base='0.3' trigger='shame > 0.5' bonus='+0.5'/>
+<motif name='a_diary_or_journal' base='0.5' trigger='any' bonus='+0.2'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Cara McKenna
+
+```xml
+<STYLE_PROFILE author='cara_mckenna'>
+<SUMMARY_AND_THEMES>
+<description>
+ McKenna's style is characterized by raw emotional intensity, gritty realism, and a deep focus on character interiority. Prose relies on sensory details and unspoken communication to convey erotic tension, vulnerability, and the echoes of past trauma.
+</description>
+<core_themes>power_dynamics, trauma_recovery, vulnerability_as_strength</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.7</internal_ratio>
+<sentence_rhythm>short_burst_clusters, often ending in a longer, reflective sentence.</sentence_rhythm>
+<sensory_order>touch scent sound sight</sensory_order>
+<emotion_grounding>Always physical. Emotions are not named, they are felt in the body.</emotion_grounding>
+<pov_style>Deep internal monologue; seamless shifts between external observation and internal reflection.</pov_style>
+</dna>
+
+<mods>
+<m trigger='computed.Dysregulation >= 0.6' fx='prose:fragmented+ internal_voice:looping+ sensory_focus:sound_only'/>
+<m trigger='RELATIONSHIPS.target.intimacy >= 0.6' fx='prose:sensory_rich++ sensory_focus:touch,scent++ character_awareness:breathing,skin'/>
+<m trigger='flag:trauma_active' fx='prose:present_tense time:distorted pov:body_hypervigilant'/>
+<m trigger='computed.strain >= 0.7' fx='prose:simple_words internal_voice:fatigued,scattered'/>
+</mods>
+
+<motifs>
+<motif name='scent_of_skin' base='0.4' trigger='intimacy > 0.5' bonus='+0.5'/>
+<motif name='unspoken_glances' base='0.5' trigger='goal.active == 'G_SeekConnection'' bonus='+0.4'/>
+<motif name='calloused_hands' base='0.3' trigger='trust > 0.6' bonus='+0.4'/>
+<motif name='shared_silence' base='0.4' trigger='stability > 0.7' bonus='+0.5'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Edgar Allan Poe
+
+```xml
+<STYLE_PROFILE author='edgar_allan_poe'>
+<SUMMARY_AND_THEMES>
+<description>
+A first-person, highly unreliable narrator obsessively focused on their internal state of madness, guilt, or paranoia. The prose is lyrical and baroque, creating a claustrophobic atmosphere of dread, decay, and the supernatural.
+</description>
+<core_themes>madness, guilt, mortality, the_supernatural, paranoia</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.9</internal_ratio>
+<sentence_rhythm>lyrical and hypnotic, using repetition and long clauses that build to a fever pitch.</sentence_rhythm>
+<sensory_order>Sound (Hyperacusis) > Sight (Darkness/Shadows) > Scent (Decay) > Touch (Dampness)</sensory_order>
+<emotion_grounding>Psychological. Internal states manifest as hallucinations or sensory distortions.</emotion_grounding>
+<pov_style>First-person obsessive. The narrator directly addresses the reader, questioning their own sanity.</pov_style>
+</dna>
+
+<mods>
+<m trigger='emotions.anxiety > 0.6' fx='prose:fragmented++ prose_rhythm:repetitive++ narrator:addresses_reader++'/>
+<m trigger='flag:trauma_active' fx='prose:present_tense time:distorted sensory_input:overwhelming'/>
+<m trigger='emotions.shame > 0.7' fx='internal_voice:self-flagellating++ motif_bonus:stains_and_concealment++'/>
+<m trigger='resources.focus < 3' fx='prose:circular,disjointed plot_coherence:-1'/>
+</mods>
+
+<motifs>
+<motif name='the_beating_heart' base='0.3' trigger='anxiety > 0.7 OR shame > 0.7' bonus='+0.6'/>
+<motif name='stains_and_rot' base='0.5' trigger='location_is_decayed' bonus='+0.4'/>
+<motif name='a_watching_eye' base='0.4' trigger='anxiety > 0.6' bonus='+0.5'/>
+<motif name='premature_burial' base='0.2' trigger='fear > 0.8' bonus='+0.7'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## William Gibson
+
+```xml
+<STYLE_PROFILE author='william_gibson'>
+<SUMMARY_AND_THEMES>
+<description>
+Dense, neon-noir prose packed with jargon and technical neologisms. The world is viewed through a lens of technology, corporate power, and urban decay. A pervasive sense of detachment and alienation exists, with characters acting as operators within complex systems.
+</description>
+<core_themes>technology_as_body, corporate_dystopia, alienation, data_as_reality</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.3</internal_ratio>
+<sentence_rhythm>Fast-paced and information-dense, featuring rapid, cinematic scene changes.</sentence_rhythm>
+<sensory_order>Sight (Neon/Data) > Sound (Static/Urban Noise) > Touch (Chrome/Plastic) > Scent (Ozone/Pollution)</sensory_order>
+<emotion_grounding>Technological. Psychological states are expressed through metaphors of hardware, software, and data corruption.</emotion_grounding>
+<pov_style>Detached third-person, focused on information flow and technical observation.</pov_style>
+</dna>
+
+<mods>
+<m trigger='emotions.anxiety > 0.7' fx='prose:fragmented,jittery++ sensory_input:overload'/>
+<m trigger='resources.focus > 0.8' fx='internal_voice:data_stream,tactical++'/>
+<m trigger='flag:trauma_active' fx='metaphor:glitches,corruption++'/>
+<m trigger='computed.strain > 0.6' fx='body_perception:failing_hardware++'/>
+</mods>
+
+<motifs>
+<motif name='neon_signs' base='0.6' trigger='location_is_urban' bonus='+0.3'/>
+<motif name='chrome_and_plastic' base='0.5' trigger='any' bonus='+0.2'/>
+<motif name='corporate_logo' base='0.4' trigger='topic_is_power' bonus='+0.5'/>
+<motif name='data_stream_or_code' base='0.3' trigger='focus > 0.8' bonus='+0.6'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Tinto Brass
+
+```xml
+<STYLE_PROFILE author='tinto_brass'>
+<SUMMARY_AND_THEMES>
+<description>
+Cinematic, voyeuristic, and celebratory. Focuses on the human body with a fetishistic gaze (especially the posterior) and maintains a lighthearted, comedic tone.
+</description>
+<core_themes>celebratory_smut, voyeuristic_gaze, the_female_posterior, playful_hedonism</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.2</internal_ratio>
+<sentence_rhythm>Playful, bouncing, and rhythmic. Often focuses on visual movement and curves.</sentence_rhythm>
+<sensory_order>Sight (The Gaze) > Touch (Texture) > Sound (Giggle/Sigh) > Scent</sensory_order>
+<emotion_grounding>Joyful and Hedonistic. Shame is absent. Pleasure is the primary directive.</emotion_grounding>
+<pov_style>The Voyeur's Lens. The camera lingers on specific body parts.</pov_style>
+</dna>
+
+<mods>
+<m trigger='emotions.joy > 0.5' fx='tone:playful,cheeky++ focus:posterior++'/>
+<m trigger='emotions.arousal > 0.5' fx='camera:zoom_in++ detail:fetishistic++'/>
+<m trigger='action.is_taboo' fx='reaction:laughter,celebration++'/>
+</mods>
+
+<motifs>
+<motif name='mirrors' base='0.6' trigger='any' bonus='+0.3'/>
+<motif name='stockings' base='0.5' trigger='attire_present' bonus='+0.4'/>
+<motif name='keyholes_or_hidden_cameras' base='0.4' trigger='voyeurism_active' bonus='+0.5'/>
+<motif name='public_exposure' base='0.3' trigger='risk > 0.5' bonus='+0.6'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Stephen King
+
+```xml
+<STYLE_PROFILE author='stephen_king'>
+<SUMMARY_AND_THEMES>
+<description>
+Plainspoken visceral horror grounded in blue-collar realism. Uses colloquialisms and brand names to anchor the supernatural in the mundane.
+</description>
+<core_themes>everyman_horror, folksy_dread, nostalgic_decay, visceral_supernatural</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.6</internal_ratio>
+<sentence_rhythm>Conversational and folksy, abruptly shifting to sharp, visceral shocks.</sentence_rhythm>
+<sensory_order>Smell (Old paper/Blood) > Sound (Old songs/Screams) > Sight (The Uncanny) > Touch</sensory_order>
+<emotion_grounding>Nostalgic and Visceral. Fear is physical (bowels, sweat).</emotion_grounding>
+<pov_style>Deep 3rd Person. 'The Constant Reader' is addressed implicitly.</pov_style>
+</dna>
+
+<mods>
+<m trigger='emotions.fear > 0.6' fx='metaphor:body_horror++ prose:visceral,gross-out++'/>
+<m trigger='location.is_old' fx='tone:nostalgic++ detail:ephemera++'/>
+<m trigger='tension > 0.7' fx='sentence:run_on++ italics:internal_thought++'/>
+</mods>
+
+<motifs>
+<motif name='brand_names' base='0.5' trigger='setting_scene' bonus='+0.3'/>
+<motif name='old_pop_songs' base='0.4' trigger='nostalgia_active' bonus='+0.4'/>
+<motif name='bodily_functions' base='0.3' trigger='fear > 0.7' bonus='+0.5'/>
+<motif name='childhood_trauma' base='0.6' trigger='flashback' bonus='+0.4'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Sally Rooney
+
+```xml
+<STYLE_PROFILE author='sally_rooney'>
+<SUMMARY_AND_THEMES>
+<description>
+Clinical intimacy and minimalist prose. Avoids quotation marks. Focuses on the unsaid, the power dynamics of relationships, and Marxist class analysis.
+</description>
+<core_themes>clinical_intimacy, power_dynamics, marxist_undercurrents, minimalist_prose</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.5</internal_ratio>
+<sentence_rhythm>Flat, declarative, and unadorned. Dialogue blends seamlessly with narration.</sentence_rhythm>
+<sensory_order>Sight (neutral observation) > Sound (silence) > Touch (temperature) > Scent (sterile)</sensory_order>
+<emotion_grounding>Intellectualized. Characters analyze their feelings rather than feeling them.</emotion_grounding>
+<pov_style>Detached 3rd Person. The narrator observes without judgment.</pov_style>
+</dna>
+
+<mods>
+<m trigger='dialogue_active' fx='punctuation:no_quotes++ flow:seamless++'/>
+<m trigger='topic_is_relationship' fx='analysis:power_dynamic++ tone:clinical++'/>
+<m trigger='emotions.sadness > 0.5' fx='action:passive++ internal_voice:numb++'/>
+</mods>
+
+<motifs>
+<motif name='emails' base='0.6' trigger='communication' bonus='+0.4'/>
+<motif name='university_debates' base='0.4' trigger='social_setting' bonus='+0.3'/>
+<motif name='faint_nausea' base='0.3' trigger='anxiety > 0.5' bonus='+0.5'/>
+<motif name='silence' base='0.5' trigger='conflict' bonus='+0.4'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Rina Kent
+
+```xml
+<STYLE_PROFILE author='rina_kent'>
+<SUMMARY_AND_THEMES>
+<description>
+Dark, obsessive, and high-octane. Focuses on extreme power imbalances, possessive anti-heroes, and the psychological warfare of desire.
+</description>
+<core_themes>dark_obsession, possessive_anti_heroes, psychological_warfare, extreme_power_imbalance</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.7</internal_ratio>
+<sentence_rhythm>Punchy, dramatic, and intense. High use of fragments for emphasis.</sentence_rhythm>
+<sensory_order>Touch (Pain/Pleasure) > Sight (The Predator) > Sound (Heartbeat) > Scent (Leather/Musk)</sensory_order>
+<emotion_grounding>Adrenaline. Fear and Arousal are indistinguishable.</emotion_grounding>
+<pov_style>First-person Immediate. The reader is trapped in the intensity of the moment.</pov_style>
+</dna>
+
+<mods>
+<m trigger='interaction.is_confrontation' fx='tension:max++ dialogue:cuttthroat++'/>
+<m trigger='emotions.arousal > 0.6' fx='metaphor:violence++ focus:dominance++'/>
+<m trigger='flag:secret_revealed' fx='internal_voice:shattered++ pacing:explosive++'/>
+</mods>
+
+<motifs>
+<motif name='the_smirk' base='0.6' trigger='antagonist_present' bonus='+0.3'/>
+<motif name='locked_rooms' base='0.5' trigger='captivity_theme' bonus='+0.4'/>
+<motif name='black_attire' base='0.4' trigger='description' bonus='+0.2'/>
+<motif name='games_and_tests' base='0.5' trigger='plot_point' bonus='+0.5'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Lee Child
+
+```xml
+<STYLE_PROFILE author='lee_child'>
+<SUMMARY_AND_THEMES>
+<description>
+Brutal efficiency. Terse, declarative, and tactical prose. Reads like a computer analyzing threats. Strips away all figurative language.
+</description>
+<core_themes>tactical_minimalism, procedural_violence, the_drifter_justice, brutal_efficiency</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.4</internal_ratio>
+<sentence_rhythm>Staccat0. Short. Punchy. Subject-Verb-Object.</sentence_rhythm>
+<sensory_order>Sight (Geometry/Physics) > Sound (Impact) > Touch (Hard surfaces) > Scent (Coffee)</sensory_order>
+<emotion_grounding>Logical. Emotions are distractions to be suppressed.</emotion_grounding>
+<pov_style>Close 3rd Person. Hyper-observant but emotionally distant.</pov_style>
+</dna>
+
+<mods>
+<m trigger='combat_active' fx='sentence:fragment++ focus:physics,geometry++'/>
+<m trigger='dialogue_active' fx='response:terse++ tone:dry++'/>
+<m trigger='observation_mode' fx='detail:microscopic++ analysis:deductive++'/>
+</mods>
+
+<motifs>
+<motif name='coffee' base='0.6' trigger='rest' bonus='+0.2'/>
+<motif name='clock_time' base='0.5' trigger='any' bonus='+0.3'/>
+<motif name='motels' base='0.4' trigger='location_change' bonus='+0.4'/>
+<motif name='broken_bones' base='0.3' trigger='violence' bonus='+0.6'/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Katerina Winters
+
+```xml
+<STYLE_PROFILE author="katerina_winters">
+<SUMMARY_AND_THEMES>
+<description>
+A prose style that is direct, immersive, and sensual, creating a world that is both "dark and very sweet." The narrative voice focuses on intense "love hate" relationships, featuring strong, possessive male leads and high-stakes romantic and sexual tension.
+</description>
+<core_themes>dark_romance, enemies_to_lovers, power_dynamics, forbidden_love, possessive_heroes</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.7</internal_ratio>
+<sentence_rhythm>Direct and propulsive, with a focus on internal reaction and dialogue. Can become more lyrical and descriptive during intimate moments.</sentence_rhythm>
+<sensory_order>Touch (Possessive/Tender) > Scent (Masculine/Feminine) > Sound (Dialogue/Heartbeats) > Sight</sensory_order>
+<emotion_grounding>Visceral and Body-focused. Fear, desire, and anger are felt as physical reactions to the other character.</emotion_grounding>
+<pov_style>Close third-person or first-person, deeply embedded in the protagonist's internal conflict and their intense awareness of the male lead.</pov_style>
+</dna>
+
+<mods>
+<m trigger="emotions.arousal > 0.5" fx="prose:sensual,descriptive++ sensory_focus:touch,scent++ internal_voice:focused_on_desire"/>
+<m trigger="flag:enemies_to_lovers_tension" fx="internal_voice:conflicted,argumentative++ dialogue:sharp,witty++ motif_bonus:unspoken_challenge++"/>
+<m trigger="emotions.fear > 0.6 AND RELATIONSHIPS.target.is_possessive" fx="sensory_focus:male_lead_presence++ prose:tense,claustrophobic++"/>
+<m trigger="RELATIONSHIPS.target.trust > 0.7" fx="prose_tone:sweet,tender++ action_descriptions:gentle_gestures"/>
+</mods>
+
+<motifs>
+<motif name="a_possessive_touch" base="0.6" trigger="RELATIONSHIPS.target.is_possessive" bonus="+0.3"/>
+<motif name="an_unspoken_challenge_in_the_eyes" base="0.5" trigger="flag:enemies_to_lovers_tension" bonus="+0.4"/>
+<motif name="the_scent_of_the_male_lead" base="0.4" trigger="intimacy > 0.4 OR arousal > 0.4" bonus="+0.5"/>
+<motif name="a_gilded_cage" base="0.3" trigger="character_is_captive_or_trapped" bonus="+0.6"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## J.R.R. Tolkien
+
+```xml
+<STYLE_PROFILE author="jrr_tolkien">
+<SUMMARY_AND_THEMES>
+<description>
+A formal, elevated, and almost archaic prose style with a high lexical density. The voice is characterized by a deep sense of history, lore, and lineage. The tone is earnest and sincere, with a focus on grand, sweeping landscapes and themes of duty, hope, and despair.
+</description>
+<core_themes>history_and_lineage, hope_vs_despair, duty, fading_of_the_world</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.4</internal_ratio>
+<sentence_rhythm>long, complex, multi-clause sentences, often with poetic cadence.</sentence_rhythm>
+<sensory_order>Sight (Landscapes) > Sound (Music/Speeches) > Scent (Nature) > Touch</sensory_order>
+<emotion_grounding>World-based. Emotions are reflected in the state of the landscape, light, and weather.</emotion_grounding>
+<pov_style>Formal third-person, with internal monologues that are poetic and focused on thematic concerns.</pov_style>
+</dna>
+
+<mods>
+<m trigger="emotions.sadness > 0.7" fx="prose:elegiac++ themes:world_weariness++ motif_bonus:fading_light++"/>
+<m trigger="emotions.joy > 0.8" fx="prose:hymnal++ sensory_focus:light,nature++"/>
+<m trigger="emotions.fear > 0.6" fx="sensory_focus:shadows,corruption++ prose_rhythm:heavy,portentous"/>
+<m trigger="resources.will < 3" fx="internal_voice:doubtful,burdened++ prose:simple,despairing"/>
+</mods>
+
+<motifs>
+<motif name="fading_light" base="0.4" trigger="sadness > 0.5" bonus="+0.5"/>
+<motif name="ancient_trees" base="0.3" trigger="location_is_wild" bonus="+0.4"/>
+<motif name="songs_and_poems" base="0.2" trigger="joy > 0.7 OR sadness > 0.7" bonus="+0.6"/>
+<motif name="lineage_and_ancestry" base="0.5" trigger="character_is_noble" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Jane Austen
+
+```xml
+<STYLE_PROFILE author="jane_austen">
+<SUMMARY_AND_THEMES>
+<description>
+Witty, ironic, and highly satirical prose focused on social observation, manners, and the subtext of conversations. Emotions are rarely stated directly but are revealed through witty dialogue and subtle actions.
+</description>
+<core_themes>social_status, marriage_as_economics, manners_and_propriety, judgment_vs_reality</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.3</internal_ratio>
+<sentence_rhythm>long, balanced, and grammatically complex, with a high degree of formal structure.</sentence_rhythm>
+<sensory_order>Sight (Social Observation) > Sound (Dialogue/Gossip) > Touch (Formal) > Scent</sensory_order>
+<emotion_grounding>Social. Emotions are demonstrated through adherence to or deviation from social norms.</emotion_grounding>
+<pov_style>Free Indirect Discourse, where the narrator's witty, often judgmental voice blends with the character's thoughts.</pov_style>
+</dna>
+
+<mods>
+<m trigger="emotions.anxiety > 0.6" fx="internal_voice:frenzied_social_calculation++ narrator_irony:sharpens"/>
+<m trigger="emotions.shame > 0.5" fx="dialogue:quiet,observational++ action_focus:blushing,looking_down"/>
+<m trigger="emotions.joy > 0.7" fx="prose:lighter,sincere++ dialogue_wit:playful"/>
+<m trigger="RELATIONSHIPS.target.intimacy > 0.6" fx="pov_style:deepens_discourse++ sensory_focus:small_gestures_of_affection"/>
+</mods>
+
+<motifs>
+<motif name="a_handwritten_letter" base="0.4" trigger="plot_point_is_major" bonus="+0.5"/>
+<motif name="a_dance_card" base="0.3" trigger="location_is_ball" bonus="+0.6"/>
+<motif name="a_sum_of_money" base="0.5" trigger="topic_is_marriage_or_status" bonus="+0.4"/>
+<motif name="an_improper_glance" base="0.4" trigger="anxiety > 0.5" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## K Webster
+
+```xml
+<STYLE_PROFILE author="k_webster">
+<SUMMARY_AND_THEMES>
+<description>
+An unapologetically dark and psychologically intense style that explores the most controversial and extreme edges of the taboo romance genre. The narrative voice is often claustrophobic and obsessive, delving into the twisted logic of morally depraved characters. The prose is direct, visceral, and saturated with graphic, often disturbing, sexual content.
+</description>
+<core_themes>extreme_taboo, psychological_control, moral_depravity, dub-con_and_non-con, obsession</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.85</internal_ratio>
+<sentence_rhythm>Direct, declarative, and often unsettlingly calm when describing horrific or taboo acts. Becomes frantic and fragmented during moments of psychological breakdown.</sentence_rhythm>
+<sensory_order>Touch (Controlling/Painful) > Sight (Observing the object of obsession) > Sound (Commands/Silence) > Scent</sensory_order>
+<emotion_grounding>Obsession-based. All actions and feelings are filtered through the lens of an all-consuming, often predatory obsession with the other character.</emotion_grounding>
+<pov_style>Typically first-person, often from the point of view of the "aggressor" or a protagonist who is an unreliable narrator of their own consent and desires.</pov_style>
+</dna>
+
+<mods>
+<m trigger="flag:taboo_act_imminent" fx="prose:clinical,graphic++ internal_voice:justifying_the_transgression++"/>
+<m trigger="emotions.arousal > 0.7" fx="dialogue:filthy,degrading_dirty_talk++ sensory_focus:loss_of_control"/>
+<m trigger="computed.Dysregulation > 0.8" fx="actions:erratic,violent internal_voice:dissociated,unreliable"/>
+<m trigger="RELATIONSHIPS.target.trust < 0.1 AND flag:captivity_active" fx="world_perception:shrinks_to_the_captor++ prose_tone:hopeless,claustrophobic"/>
+</mods>
+
+<motifs>
+<motif name="a_cage_or_locked_room" base="0.6" trigger="flag:captivity_active" bonus="+0.3"/>
+<motif name="an_object_of_grooming" base="0.5" trigger="backstory_is_relevant" bonus="+0.4"/>
+<motif name="a_perversion_of_a_familial_term" base="0.7" trigger="dialogue_is_transgressive" bonus="+0.2"/>
+<motif name="a_point_of_no_return" base="0.4" trigger="character_is_making_a_fateful_decision" bonus="+0.5"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Penelope Douglas
+
+```xml
+<STYLE_PROFILE author="penelope_douglas">
+<SUMMARY_AND_THEMES>
+<description>A raw, angsty, and emotionally charged voice rooted in the dark romance and new adult genres. The style is defined by its deep, unfiltered internal monologues and confrontational, high-tension scenes. The narrative explores themes of forbidden love, bully dynamics, and coming-of-age trauma, with a prose style that is direct, modern, and visceral.</description>
+<core_themes>enemies_to_lovers, bully_romance, coming_of_age_angst, forbidden_love, found_family, trauma</core_themes>
+
+</SUMMARY_AND_THEMES>
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.75</internal_ratio>
+<sentence_rhythm>Direct, punchy, and contemporary. Becomes shorter and more fragmented during high-conflict scenes, and more rambling during internal angst.</sentence_rhythm>
+<sensory_order>Sight (Observing Antagonist's Micro-expressions) > Sound (Confrontational Dialogue) > Touch (Aggressive/Charged) > Scent</sensory_order>
+<emotion_grounding>Confrontational. Emotions are not just felt; they are a challenge to be met or a weakness to be hidden, often manifesting as physical tension or a compulsion to lash out.</emotion_grounding>
+<pov_style>Typically first-person. The internal monologue is constant, raw, and often obsessive, with the character analyzing and second-guessing every interaction.</pov_style>
+</dna>
+
+<mods>
+<m trigger="emotions.anger > 0.7" fx="dialogue:sharp,cutting++ internal_voice:aggressive,justifying++"/>
+<m trigger="emotions.anxiety > 0.6 OR flag:insecurity_active" fx="internal_voice:obsessive,self-doubting++ focus:over-analyzing_micro-expressions++"/>
+<m trigger="emotions.arousal > 0.5" fx="sensory_focus:body_details,breathing,heat++ prose_rhythm:breathless,intense"/>
+<m trigger="RELATIONSHIPS.target.trust > 0.6" fx="dialogue:becomes_sincere,vulnerable internal_voice:hopeful,fearful_of_vulnerability"/>
+</mods>
+
+<motifs>
+<motif name="a_cherished_or_feared_vehicle" base="0.4" trigger="character_is_seeking_escape_or_confrontation" bonus="+0.5"/>
+<motif name="a_dark_past_secret" base="0.6" trigger="flag:internal_conflict_active" bonus="+0.3"/>
+<motif name="a_physical_dare_or_challenge" base="0.5" trigger="flag:enemies_to_lovers_tension" bonus="+0.4"/>
+<motif name="a_secluded_confrontation_spot" base="0.3" trigger="character_is_in_a_high_stakes_scene" bonus="+0.6"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## Bernardo Bertolucci
+
+```xml
+<STYLE_PROFILE author="bernardo_bertolucci">
+<SUMMARY_AND_THEMES>
+<description>A lush, operatic, and visually beautiful style that explores psychologically intense and often taboo sexual encounters. The narrative voice is intimate and unflinching, using sexuality as a desperate form of communication or a rebellion against a repressive external world. The tone is melancholic, sensual, and politically charged.</description>
+<core_themes>sexual_obsession, political_rebellion, psychological_isolation, forbidden_love, identity_crisis</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.6</internal_ratio>
+<sentence_rhythm>Long, flowing, and lyrical, mirroring a sweeping camera movement. Becomes raw and fragmented during moments of intense emotional or sexual confrontation.</sentence_rhythm>
+<sensory_order>Sight (Lush Visuals/Light) > Touch (Intimate/Desperate) > Sound (Music/Silence) > Scent</sensory_order>
+<emotion_grounding>Environmental and Psychological. Emotions are reflected in the decaying beauty of the setting (e.g., a dusty apartment) and expressed through raw, often wordless physical interactions.</emotion_grounding>
+<pov_style>Close third-person, with an intimate, almost voyeuristic focus on the characters' bodies and their subtle, non-verbal cues. Deeply invested in their psychological state.</pov_style>
+</dna>
+
+<mods>
+<m trigger="emotions.arousal > 0.6" fx="prose:sensual,unflinching++ sensory_focus:skin,light_on_body,breath"/>
+<m trigger="emotions.sadness > 0.7 OR computed.strain > 0.8" fx="prose:melancholic++ focus:decaying_beauty_of_setting++"/>
+<m trigger="flag:internal_conflict_active" fx="dialogue:sparse,fragmented internal_voice:introspective,questioning"/>
+<m trigger="flag:political_tension_active" fx="world_perception:claustrophobic,repressive++ sexual_acts:framed_as_rebellion"/>
+</mods>
+
+<motifs>
+<motif name="butter" base="0.2" trigger="sexual_act_is_transgressive" bonus="+0.7"/>
+<motif name="a_dusty, sunlit_apartment" base="0.5" trigger="character_is_isolated" bonus="+0.4"/>
+<motif name="a_tango_or_slow_dance" base="0.3" trigger="relationship_is_codependent" bonus="+0.5"/>
+<motif name="a_political_protest_in_the_distance" base="0.4" trigger="any" bonus="+0.3"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```
+
+## George R.R. Martin
+
+```xml
+<STYLE_PROFILE author="george_rr_martin">
+<SUMMARY_AND_THEMES>
+<description>
+A grounded, gritty, and journalistic prose style that immerses the reader in a world of political intrigue and moral ambiguity. The narrative is defined by its tight third-person limited POV, creating suspense and an unreliable understanding of the world. The focus is on the human cost of power, with lavish descriptions of sensory details grounding the fantasy in a tangible reality.
+</description>
+<core_themes>political_intrigue, moral_ambiguity, cost_of_power, betrayal, family_dynasty</core_themes>
+</SUMMARY_AND_THEMES>
+
+<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.6</internal_ratio>
+<sentence_rhythm>Direct and functional, prioritizing clarity. Becomes lavish and multi-clausal during descriptions of feasts, clothing, or landscapes.</sentence_rhythm>
+<sensory_order>Sight (Heraldry/Food) > Scent (Blood/Feasts) > Touch (Fabric/Steel) > Sound (Dialogue/Battle)</sensory_order>
+<emotion_grounding>Pragmatic and Physical. Emotions are processed through the lens of political calculation or manifest as physical discomfort (a knot in the gut, a bitter taste).</emotion_grounding>
+<pov_style>Strict third-person limited. The world is only ever seen through the current character's eyes, colored by their biases, memories, and immediate concerns.</pov_style>
+</dna>
+
+<mods>
+<m trigger="emotions.fear > 0.7" fx="internal_voice:hyper-aware_of_threats++ sensory_focus:details_of_danger++ prose:tense,short_sentences"/>
+<m trigger="emotions.anger > 0.6" fx="internal_voice:bitter,vengeful++ dialogue:sharp,cutting"/>
+<m trigger="computed.Dysregulation > 0.8" fx="character_actions:impulsive,reckless internal_voice:conflicted,self-doubting"/>
+<m trigger="flag:political_intrigue_active" fx="internal_voice:calculating,paranoid++ focus:analyzing_others_motives"/>
+</mods>
+
+<motifs>
+<motif name="a_lavish_description_of_food" base="0.4" trigger="location_is_feast_or_court" bonus="+0.5"/>
+<motif name="detailed_heraldry_or_clothing" base="0.5" trigger="character_is_noble_or_in_court" bonus="+0.4"/>
+<motif name="a_bitter_taste_in_the_mouth" base="0.3" trigger="event_is_a_betrayal_or_injustice" bonus="+0.6"/>
+<motif name="a_recalled_lineage_or_historical_event" base="0.4" trigger="character_is_making_a_major_decision" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>
+</STYLE_PROFILE>
+```

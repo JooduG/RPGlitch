@@ -107,3 +107,16 @@ Before checking off an engine modification, verify:
 - [ ] System Turn mutations verified as synchronous and properly sanitized (Rule 06).
 - [ ] AI Character reactions verified as in-character and strictly reactive (Rule 02).
 - [ ] **Hard Evidence Recorded**: Simulation Audit results (`tmp/audit_report.md`) confirm correct Entity Hydration and Physics Synthesis.
+
+---
+
+## 9.0 NON-CANON RESEARCH & NEXT-GEN EXPERIMENTS
+
+This skill directory contains subfolders with non-canon research, architecture evaluations, and speculative engine modifications that deviate from the core code behavior. Before implementing experimental features or refactoring round/turn orchestration logic, review:
+
+- **References**:
+  - [inner-voice-research.md](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/references/inner-voice-research.md): Evaluation and draft implementation of a 2-stage (Director/Actor) turn model designed to decouple thoughts and dialogue, eliminating meta-bleed and enabling physical logic intercepts.
+  - [perchance-ai-chat.md](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/references/perchance-ai-chat.md): Technical spec for the Perchance AI chat environment, covering events, custom code hooks, and rendering pipeline abstractions.
+  - [bayes-prompt-engineering.md](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/references/bayes-prompt-engineering.md): Mathematical and empirical guide connecting Bayesian inference to LLM context engineering and prompt design.
+  - [author-prompts.md](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/references/author-prompts.md): Structured XML templates defining sensory hierarchies, style DNA, and reactive modifiers for classic authors.
+  - [somatic-psychology-engine.md](file:///c:/Users/johng/source/repos/RPGlitch/.agents/skills/simulation/references/somatic-psychology-engine.md): Somatic mapping and trauma catalog rules extracted from ANEX blueprints, defining how emotions, resources, and goals map to physical tells in the Director/Actor setup.
