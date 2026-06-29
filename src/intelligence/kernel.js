@@ -282,8 +282,11 @@ export const gamemaster = {
           if (!snapshot.ai) snapshot.ai = {};
           if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...runtime.ai };
           Object.entries(directorData.state_mutations.ai_dynamics).forEach(([k, delta]) => {
-            const current = snapshot.ai.dynamics[k] || 50;
-            snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + Number(delta)));
+            const val = Number(delta);
+            if (!isNaN(val)) {
+              const current = snapshot.ai.dynamics[k] || 50;
+              snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
+            }
           });
         }
         if (directorData.state_mutations.fractal_dynamics) {
