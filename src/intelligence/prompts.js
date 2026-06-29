@@ -47,7 +47,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   let protocolSelection = "COGNITION, JSON_OUTPUT, HYGIENE, IMMERSION, MOMENTUM";
   if (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) protocolSelection += ", FIRST_CONTACT";
 
-  const pastVectors = render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "";
+  const pastVectors = entities.FRACTAL ? (render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "") : "";
   const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
   return `
