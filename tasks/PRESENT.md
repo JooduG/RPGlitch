@@ -33,7 +33,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
-- [ ] [Pending]
+- [/] [feature-inner-voice-2026-06-29.md](file:///c:/Users/johng/source/repos/RPGlitch/tasks/tracks/feature-inner-voice-2026-06-29.md) (Active planning track)
 
 ## 🧠 Pulse (History)
 
@@ -65,6 +65,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 | 2026-06-23 22:22     | Archival of completed feature-macro-engine track and initialization of clean slate.                                         | `legislative`         | ✅ Done            |
 | 2026-06-23 23:07     | Prompt efficiency refactor: removed dialogue bold bias, token efficiency & XML properties                                   | `/02-implement`       | ✅ Done            |
 | 2026-06-26 08:53     | Integrate ANEX Bayesian & Boundary Mechanics into references/somatic-psychology-engine.md                                   | `simulation`          | ✅ Done            |
+| 2026-06-29 20:25     | Initialize plan for 2-Shot Private Inner Voice (inner-voice)                                                                | `planning`            | 🔄 Active          |
 
 ## 🧹 Backlog (Automated)
 
