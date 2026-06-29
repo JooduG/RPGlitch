@@ -5,7 +5,7 @@
  */
 
 import { context_broker } from "../../../../src/intelligence/context.svelte.js";
-import { dynamics_engine } from "../../../../src/intelligence/dynamics.js";
+
 import { prompt_builder } from "../../../../src/intelligence/prompts.js";
 import { premade } from "../../../../src/data/premades.js";
 
@@ -44,16 +44,25 @@ export const SimulationAudit = {
       };
     }
 
-    // 2. PHASE 2: SIMULATION (Dynamic Physics)
-    const snapshot = dynamics_engine.simulate(payload);
+    // 2. PHASE 2: PHYSICS (Passive)
+    // The physics simulation is now triggered by the Director's output via gamemaster.
+    // For audit purposes, we skip active mutations and just generate the prompts.
+    const snapshot = {
+      ai: { dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 } },
+      fractal: { dynamics: { velocity: 50, entropy: 50 } },
+      flags: [],
+      signals: {},
+      signal_prompts: [],
+    };
 
     // 3. PHASE 3: SYNTHESIS (Prompt Construction)
-    const { system } = prompt_builder.synthesize(payload, snapshot);
+    const director_prompt = prompt_builder.build_director_prompt(payload, snapshot);
+    const character_prompt = prompt_builder.build_character_prompt(payload, snapshot, null);
 
     return {
       payload,
-      snapshot,
-      system,
+      director_prompt: director_prompt.system,
+      character_prompt: character_prompt.system,
     };
   },
 

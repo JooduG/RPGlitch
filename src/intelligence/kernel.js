@@ -24,6 +24,25 @@ import { app, runtime, simulationState } from "@state";
  */
 
 /**
+ * Helper to extract Director's JSON from a raw string
+ * @param {string} raw_text
+ * @returns {any}
+ */
+function parse_director_json(raw_text) {
+  try {
+    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+    const first_brace = stripped.indexOf("{");
+    const last_brace = stripped.lastIndexOf("}");
+    if (first_brace === -1 || last_brace === -1) return null;
+    const json_string = stripped.substring(first_brace, last_brace + 1);
+    return JSON.parse(json_string);
+  } catch (e) {
+    console.warn("[gamemaster] Failed to parse Director JSON:", e);
+    return null;
+  }
+}
+
+/**
  * Synchronous post-turn validation and repair layer.
  * Automatically closes truncated `<think>` blocks and strips Chinese characters from narrative prose
  * without removing spaces, corrupting sentence formatting, or contaminating reactive global app proxies.
@@ -40,9 +59,9 @@ function validate_and_repair_response(response) {
     let text = result.text;
 
     // TAG CLOSURE PASS:
-    const thinkOpener = /<think>/i;
-    const thinkCloser = /<\/think>/i;
-    if (thinkOpener.test(text) && !thinkCloser.test(text)) {
+    const thinkOpeners = (text.match(/<think>/gi) || []).length;
+    const thinkClosers = (text.match(/<\/think>/gi) || []).length;
+    if (thinkOpeners > thinkClosers) {
       text += "</think>";
       result.structural_repair = true;
     }
@@ -189,10 +208,26 @@ export const gamemaster = {
       const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = runtime.structural_errors || 0;
-      payload.meta.is_opening_turn = !!options.is_opening_turn;
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
-      const snapshot = dynamics_engine.simulate(payload);
+      const snapshot = {
+        ai: { dynamics: { ...(runtime.ai || {}) } },
+        fractal: { dynamics: { ...(runtime.fractal || {}) } },
+        flags: [],
+        signals: {},
+        signal_prompts: [],
+      };
 
+      // Apply passive gravity before the Director evaluates the scene
+      dynamics_engine.settle_physics(
+        snapshot.ai.dynamics,
+        dynamics_engine._get_baselines(payload.entities.AI),
+        snapshot.fractal.dynamics?.entropy || 50,
+      );
+      dynamics_engine.settle_physics(
+        snapshot.fractal.dynamics,
+        dynamics_engine._get_baselines(payload.entities.FRACTAL),
+        snapshot.fractal.dynamics?.entropy || 50,
+      );
       /** @type {any} */ (snapshot).pruned_past = {
         AI: prune(payload.entities.AI?.past, "past"),
         USER: prune(payload.entities.USER?.past, "past"),
@@ -204,29 +239,100 @@ export const gamemaster = {
         FRACTAL: prune(payload.entities.FRACTAL?.future, "future"),
       };
 
-      // 4. SYNTHESIS: Build the final prompt
-      const { system, meta } = prompt_builder.synthesize(payload, snapshot);
+      // 4. DIRECTOR PASS (Shot 1)
+      app.log("gamemaster: Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
+      const directorPrompt = prompt_builder.build_director_prompt(payload, snapshot);
+
+      const directorRaw = await this.execute_with_retry(
+        async () => {
+          return await llm_service.generate(
+            {
+              system: directorPrompt.system,
+              messages: simulation_log,
+              role: "system",
+              node_id: nodeId + "-director",
+            },
+            {
+              ...llm_options,
+              json: true,
+              silent: true,
+              raw: true,
+              onToken: null, // Wait for full JSON synchronously
+            },
+          );
+        },
+        2,
+        1000,
+      );
+
+      let directorText = "";
+      if (typeof directorRaw === "string") {
+        directorText = directorRaw.trim();
+      } else if (directorRaw && typeof directorRaw === "object") {
+        directorText = String(directorRaw.generatedText ?? directorRaw.text ?? "").trim();
+      }
+
+      const directorData = parse_director_json(directorText) || {};
+
+      // 4.1 Apply State Mutations
+      if (directorData.state_mutations) {
+        temporal_engine.apply_state_mutations(runtime.active_ai, directorData.state_mutations);
+
+        if (directorData.state_mutations.ai_dynamics) {
+          if (!snapshot.ai) snapshot.ai = {};
+          if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...runtime.ai };
+          Object.entries(directorData.state_mutations.ai_dynamics).forEach(([k, delta]) => {
+            const current = snapshot.ai.dynamics[k] || 50;
+            snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + Number(delta)));
+          });
+        }
+        if (directorData.state_mutations.fractal_dynamics) {
+          if (!snapshot.fractal) snapshot.fractal = {};
+          if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...runtime.fractal };
+          Object.entries(directorData.state_mutations.fractal_dynamics).forEach(([k, delta]) => {
+            const current = snapshot.fractal.dynamics[k] || 50;
+            snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + Number(delta)));
+          });
+        }
+      }
 
       // 4.5. PHYSICS SYNC & TELEMETRY
-      /** @type {any} */
-      let final_meta = { ...meta };
+      const characterPrompt = prompt_builder.build_character_prompt(payload, snapshot, directorData);
+      const meta = characterPrompt.meta;
 
-      // Update metadata to be logged in database
+      let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
       final_meta.flags = snapshot.flags;
       final_meta.signals = snapshot.signals;
 
-      // Capture and log the dynamics delta for this pre-generation pass exactly once
       await this.capture_dynamics_delta(snapshot, final_meta);
 
-      // Sync the settled physics to runtime exactly once
       runtime.ai = snapshot.ai?.dynamics;
       runtime.fractal = snapshot.fractal?.dynamics;
 
-      // 5. TRANSITION & LOGGING: Decoupled from dynamic metric mutations
-      app.log("gamemaster: Context hydrated. Physics resolved. Entering AI_TURN. Routing to LLM...", "system");
+      // 5. TRANSITION & LOGGING
+      app.log("gamemaster: Routing to LLM (Character Pass)...", "system");
       runtime.turn_type = "AI_TURN";
+
+      let directorMonologue = "";
+      if (directorData.internal_monologue) {
+        let thinkContent = `## Cognition\n${directorData.internal_monologue}`;
+        if (directorData.intent) thinkContent += `\n\n## Intent\n${directorData.intent}`;
+        if (directorData.somatic_tells) thinkContent += `\n\n## Somatic Tells\n${directorData.somatic_tells}`;
+        if (directorData.dialogue_direction) thinkContent += `\n\n## Dialogue Direction\n${directorData.dialogue_direction}`;
+        directorMonologue = `<think>\n${thinkContent}\n</think>\n\n`;
+      }
+
+      if (directorMonologue) {
+        // Push to UI early so the user sees the think block while Character streams
+        app.streaming.content = directorMonologue;
+        app.streaming.text = directorMonologue;
+        if (typeof llm_options.onToken === "function") {
+          // Ensure the onToken handler knows about the prepended text
+          llm_options.onToken(directorMonologue);
+        }
+      }
 
       // 6. GENERATION: Call the model with retry logic
       const validationResult = await this.execute_with_retry(
@@ -235,7 +341,7 @@ export const gamemaster = {
 
           const generated_text = await llm_service.generate(
             {
-              system,
+              system: characterPrompt.system,
               messages: simulation_log,
               role,
               node_id: nodeId,
@@ -254,7 +360,10 @@ export const gamemaster = {
             },
           );
 
-          const vResult = validate_and_repair_response(generated_text || "");
+          // Prepend the director's monologue to the final text so it gets saved and validated properly
+          const full_text = directorMonologue + (generated_text || "");
+
+          const vResult = validate_and_repair_response(full_text);
           if (vResult.refused) {
             app.streaming.content = "";
             app.streaming.text = "";
@@ -384,17 +493,19 @@ export const gamemaster = {
     app.end_stream();
     return response;
   },
-  /**
-   * INTERNAL: Execute with exponential backoff retry.
-   * @param {() => Promise<any>} fn
-   * @returns {Promise<any>}
-   */
   async execute_with_retry(fn, retries = 3, delay = 1000) {
     try {
       return await fn();
     } catch (error) {
       if (retries === 0) throw error;
       app.log(`gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
+
+      // Communicate retry gracefully in the UI
+      if (app.streaming.active) {
+        app.streaming.content = "";
+        app.streaming.text = "_Network interrupted... Retrying connection..._";
+      }
+
       await new Promise((resolve) => setTimeout(resolve, delay));
       const baseDelay = delay * 2;
       const jitteredSleepTime = baseDelay * (0.75 + Math.random() * 0.5);
