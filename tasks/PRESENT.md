@@ -33,7 +33,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
-- [ ] [Pending]
+- [ ] Awaiting new track.
 
 ## 🧠 Pulse (History)
 
@@ -65,6 +65,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 | 2026-06-23 22:22     | Archival of completed feature-macro-engine track and initialization of clean slate.                                         | `legislative`         | ✅ Done            |
 | 2026-06-23 23:07     | Prompt efficiency refactor: removed dialogue bold bias, token efficiency & XML properties                                   | `/02-implement`       | ✅ Done            |
 | 2026-06-26 08:53     | Integrate ANEX Bayesian & Boundary Mechanics into references/somatic-psychology-engine.md                                   | `simulation`          | ✅ Done            |
+| 2026-06-29 20:25     | Initialize plan for 2-Shot Private Inner Voice (inner-voice)                                                                | `planning`            | ✅ Done            |
+| 2026-06-29 20:50     | Implemented Director AI 2-Shot pipeline & removed dynamics_scan                                                             | `/02-implement`       | ✅ Done            |
 
 ## 🧹 Backlog (Automated)
 

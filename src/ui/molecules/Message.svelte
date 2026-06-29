@@ -448,6 +448,23 @@
                 [&_em]:italic
                 [&_em]:opacity-75
 
+                [&_h1]:mb-2
+                [&_h1]:text-base
+                [&_h1]:font-bold
+                [&_h1]:text-white
+
+                [&_h2]:mt-4
+                [&_h2]:mb-1
+                [&_h2]:text-base
+                [&_h2]:font-bold
+                [&_h2]:text-slate-200
+
+                [&_h3]:mt-3
+                [&_h3]:mb-1
+                [&_h3]:text-[0.95rem]
+                [&_h3]:font-bold
+                [&_h3]:text-slate-300
+
                 [&_p]:mb-4
                 [&_p:last-child]:mb-0
                 [&_strong]:font-bold
@@ -483,6 +500,12 @@
           >
             {#if has_display_text}
               <Typewriter targetHtml={display_text} bind:isFinished={is_typing_finished} />
+            {:else if busy}
+              <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
+                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+              </div>
             {/if}
           </div>
         {:else}
@@ -566,6 +589,12 @@
                 {@html display_text}
               </div>
             {/if}
+          {:else if busy}
+            <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
+              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+            </div>
           {/if}
         {/if}
       </div>

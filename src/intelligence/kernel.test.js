@@ -14,6 +14,8 @@ vi.mock("@intelligence/context.svelte.js", () => ({
 vi.mock("@intelligence/prompts.js", () => ({
   prompt_builder: {
     synthesize: vi.fn(),
+    build_director_prompt: vi.fn(),
+    build_character_prompt: vi.fn(),
     build_epilogue: vi.fn(),
     render_history: vi.fn(),
     render_protocols: vi.fn(),
@@ -76,12 +78,21 @@ vi.mock("@intelligence/temporal.js", () => ({
   temporal_engine: {
     ensure_momentum: vi.fn(),
     consolidate: vi.fn(),
+    apply_state_mutations: vi.fn(),
+  },
+  dynamics_engine: {
+    settle_physics: vi.fn().mockImplementation((dynamics) => {
+      if (dynamics) dynamics.intensity = 60; // Mutate to verify change
+    }),
+    _get_baselines: vi.fn().mockReturnValue({}),
   },
 }));
 
 describe("gamemaster (Intelligence Kernel)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    runtime.ai = { intensity: 50 };
+    runtime.fractal = { entropy: 50 };
   });
 
   describe("capture_dynamics_delta()", () => {
@@ -146,13 +157,15 @@ describe("gamemaster (Intelligence Kernel)", () => {
     };
 
     vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
-    vi.mocked(prompt_builder.synthesize).mockReturnValue({
-      system: "PROMPT",
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
+      system: "DIRECTOR_PROMPT",
+    });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "CHARACTER_PROMPT",
       meta: {
         ai: {},
         fractal: {},
-        flags: {},
-        signal_prompts: [],
+        flags: [],
         signals: {},
         vectors: { past: [], future: [] },
       },
@@ -165,7 +178,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     expect(context_broker.hydrate).toHaveBeenCalled();
-    expect(prompt_builder.synthesize).toHaveBeenCalled();
+    expect(prompt_builder.build_director_prompt).toHaveBeenCalled();
+    expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
     expect(llm_service.generate).toHaveBeenCalled();
     expect(result.response).toBe("Identified.");
   });
@@ -211,13 +225,15 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     beforeEach(() => {
       vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
-      vi.mocked(prompt_builder.synthesize).mockReturnValue({
-        system: "PROMPT",
+      vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
+        system: "DIRECTOR_PROMPT",
+      });
+      vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+        system: "CHARACTER_PROMPT",
         meta: {
           ai: {},
           fractal: {},
           flags: [],
-          signal_prompts: [],
           signals: {},
           vectors: { past: [], future: [] },
         },
@@ -295,18 +311,24 @@ describe("gamemaster (Intelligence Kernel)", () => {
     it("increments and decrements runtime.structural_errors through a rolling multi-turn sequence", async () => {
       runtime.structural_errors = 0; // Reset state for test
 
+      // Mock LLM to return valid JSON for Director and then the respective text for Character
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ internal_monologue: "think" })) // Turn 1 Director
+        .mockResolvedValueOnce("<think>Unclosed block") // Turn 1 Character
+        .mockResolvedValueOnce(JSON.stringify({ internal_monologue: "think" })) // Turn 2 Director
+        .mockResolvedValueOnce("<think>Clean block</think> Normal text") // Turn 2 Character
+        .mockResolvedValueOnce(JSON.stringify({ internal_monologue: "think" })) // Turn 3 Director
+        .mockResolvedValueOnce("<think>Clean block</think> Normal text"); // Turn 3 Character
+
       // Turn 1: Broken output, needs repair
-      vi.mocked(llm_service.generate).mockResolvedValueOnce("<think>Unclosed block");
       await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
       expect(runtime.structural_errors).toBe(1);
 
       // Turn 2: Clean output, no repair needed (cooldown activates)
-      vi.mocked(llm_service.generate).mockResolvedValueOnce("<think>Clean block</think> Normal text");
       await gamemaster.execute_turn("story-123", { input: "Hello again", role: "ai" });
       expect(runtime.structural_errors).toBe(0);
 
       // Turn 3: Clean output, hits the hard floor of 0
-      vi.mocked(llm_service.generate).mockResolvedValueOnce("<think>Clean block</think> Normal text");
       await gamemaster.execute_turn("story-123", { input: "Hello again", role: "ai" });
       expect(runtime.structural_errors).toBe(0);
     });
@@ -330,13 +352,15 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     beforeEach(() => {
       vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
-      vi.mocked(prompt_builder.synthesize).mockReturnValue({
-        system: "PROMPT",
+      vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
+        system: "DIRECTOR_PROMPT",
+      });
+      vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+        system: "CHARACTER_PROMPT",
         meta: {
           ai: { intensity: 50 },
           fractal: { entropy: 50 },
           flags: [],
-          signal_prompts: [],
           signals: {},
           vectors: { past: [], future: [] },
         },
@@ -346,7 +370,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("does not simulate physics a second time after generation", async () => {
-      const simulateSpy = vi.spyOn(dynamics_engine, "simulate");
+      vi.mocked(dynamics_engine.settle_physics).mockClear();
       vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
 
       await gamemaster.execute_turn("story-123", {
@@ -354,10 +378,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
 
-      // The physics should only be evaluated once (the pre-simulation using the user's input)
-      expect(simulateSpy).toHaveBeenCalledTimes(1);
-
-      simulateSpy.mockRestore();
+      // Settle physics is called exactly twice (once for AI, once for Fractal)
+      expect(dynamics_engine.settle_physics).toHaveBeenCalledTimes(2);
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
@@ -377,8 +399,13 @@ describe("gamemaster (Intelligence Kernel)", () => {
       // Setup dynamic metrics in pre-simulation that differ from start state
       runtime.ai = { intensity: 50 };
 
-      // Inside generate, we assert that runtime HAS been mutated by pre-generation physics
+      // We only assert on the second call (Character generation)
+      let callCount = 0;
       vi.mocked(llm_service.generate).mockImplementation(async () => {
+        callCount++;
+        if (callCount === 1) {
+          return JSON.stringify({ internal_monologue: "think" });
+        }
         expect(runtime.ai?.intensity).not.toBe(50);
         return "shoot kill attack";
       });
@@ -387,31 +414,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         input: "shoot kill attack",
         role: "ai",
       });
-    });
-
-    it("injects HIGH_ENTROPY narrative bridge when entropy > 70 declaratively", async () => {
-      const payloadWithHighEntropy = {
-        ...mockPayload,
-        entities: {
-          ...mockPayload.entities,
-          FRACTAL: { name: "Void", dynamics: { entropy: 90 } },
-        },
-      };
-      vi.mocked(context_broker.hydrate).mockResolvedValue(payloadWithHighEntropy);
-
-      const synthesizeSpy = vi.mocked(prompt_builder.synthesize);
-      vi.mocked(llm_service.generate).mockResolvedValue("Clean output");
-
-      await gamemaster.execute_turn("story-123", {
-        input: "Hello",
-        role: "ai",
-      });
-
-      expect(synthesizeSpy).toHaveBeenCalled();
-      const snapshotPassed = synthesizeSpy.mock.calls[0][1];
-      expect(snapshotPassed.signal_prompts).toContain(
-        "The environmental geometry is unstable. Weave sensory descriptions of physical glitches, non-linear decay, and structural reality degradation directly into the background texture.",
-      );
+      expect(callCount).toBe(2);
     });
   });
 });

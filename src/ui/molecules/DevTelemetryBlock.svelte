@@ -7,7 +7,6 @@
   import { DataBox, tooltip } from "@atoms";
 
   import { TELEMETRY_TYPES } from "@engine";
-  import { DYNAMICS } from "@intelligence";
 
   /**
    * @typedef {Object} TelemetryMeta
@@ -63,45 +62,7 @@
   }
 
   function get_explanation(signal_id) {
-    const rule = DYNAMICS[signal_id];
-    if (!rule) return "Unknown Dynamic";
-
-    let cause = "";
-    if (rule.trigger === "turn") {
-      if (rule.filter?.above) {
-        const [k, v] = Object.entries(rule.filter.above)[0];
-        cause = `When ${k} > ${v}`;
-      } else if (rule.filter?.below) {
-        const [k, v] = Object.entries(rule.filter.below)[0];
-        cause = `When ${k} < ${v}`;
-      } else {
-        cause = "Passive Law";
-      }
-    } else if (Array.isArray(rule.trigger)) {
-      const scans = rule.trigger.map((t) => `${t.scan} ${t.pattern}`).join(" / ");
-      cause = `Triggered by: ${scans}`;
-      if (rule.filter?.below) {
-        const [k, v] = Object.entries(rule.filter.below)[0];
-        cause += ` (if ${k} < ${v})`;
-      } else if (rule.filter?.above) {
-        const [k, v] = Object.entries(rule.filter.above)[0];
-        cause += ` (if ${k} > ${v})`;
-      }
-    }
-
-    const effects = [];
-    if (rule.effect) {
-      Object.entries(rule.effect).forEach(([k, v]) => {
-        if (k !== "text") {
-          effects.push(`${k.toUpperCase()} ${v > 0 ? "+" + v : v}`);
-        }
-      });
-    }
-    if (rule.effect?.text) {
-      effects.push(`Prompt: "${rule.effect.text}"`);
-    }
-
-    return `${cause}  ➔  ${effects.join(", ")}`;
+    return `Active Signal: ${signal_id}`;
   }
 </script>
 
@@ -123,11 +84,9 @@
     <DataBox
       label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
         ? "Memory Weave"
-        : meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION
-          ? "Vector Anchor"
-          : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
-            ? "System Update"
-            : "Simulation Telemetry"}
+        : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
+          ? "System Update"
+          : "Simulation Telemetry"}
       height="auto"
       isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION || meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
     >
@@ -252,188 +211,6 @@
                     "
                     >
                       NO_MEMORIES_WEAVED
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            </div>
-          </div>
-        {:else if meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
-          <!-- [A] ANCHORED STATE (Vector Engine) -->
-          <div
-            class="
-          
-          
-        "
-          >
-            <div class="mb-4">
-              <span
-                class="
-                block
-                text-xs
-                font-bold
-                tracking-tight
-                text-slate-50
-              ">Aligning Future Intent</span
-              >
-              <p
-                class="
-                mt-2
-                text-xs
-                text-slate-400
-              "
-              >
-                Resolving state deltas into directed narrative vectors.
-              </p>
-            </div>
-
-            <div
-              class="
-              grid
-              grid-cols-2
-              gap-4
-              pt-4
-            "
-            >
-              <div
-                class="
-                flex
-                flex-col
-              "
-              >
-                <header
-                  class="
-                  mb-2
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
-                "
-                >
-                  RESOLVED_IMPULSES
-                </header>
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  {#each vectors.future.slice(0, 5) as v, i (v.id || v.directive)}
-                    <div
-                      class="
-                      flex
-                      animate-[slide-in_300ms_cubic-bezier(0.4,0,0.2,1)_both]
-                      gap-4
-                      rounded-sm
-                      border
-                      border-l-8
-                      border-[color-mix(in_srgb,var(--state-dev-accent),transparent_85%)]
-                      border-l-(--state-dev-accent)
-                      bg-[color-mix(in_srgb,var(--state-dev-accent),transparent_95%)]
-                      px-2
-                      py-2
-                      text-xs
-                      leading-relaxed
-                    "
-                      style="animation-delay: {i * 100}ms"
-                    >
-                      <span
-                        class="
-                        font-mono
-                        text-(--state-dev-accent)
-                        
-                      ">ANCHOR</span
-                      >
-                      <span
-                        class="
-                        line-clamp-2
-                        overflow-hidden
-                        text-ellipsis
-                        text-slate-50
-                      ">{v.directive}</span
-                      >
-                    </div>
-                  {:else}
-                    <div
-                      class="
-                      text-xs
-                      text-slate-400
-                      
-                      font-mono
-                    "
-                    >
-                      NO_IMPULSES_RESOLVED
-                    </div>
-                  {/each}
-                </div>
-              </div>
-
-              <div
-                class="
-                flex
-                flex-col
-              "
-              >
-                <header
-                  class="
-                  mb-2
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
-                "
-                >
-                  ACTIVE_CONTEXT
-                </header>
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  {#each vectors.past.slice(0, 3) as v (v.id || v.directive)}
-                    <div
-                      class="
-                      flex
-                      gap-4
-                      rounded-sm
-                      border-l-8
-                      border-transparent
-                      border-l-slate-600
-                      bg-black/40
-                      px-3
-                      py-3
-                      text-xs
-                      leading-relaxed
-                    "
-                    >
-                      <span
-                        class="
-                        font-mono
-                        text-(--state-dev-accent)
-                        
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
-                      >
-                      <span
-                        class="
-                        line-clamp-2
-                        overflow-hidden
-                        text-ellipsis
-                        text-slate-50
-                      ">{v.directive}</span
-                      >
                     </div>
                   {/each}
                 </div>

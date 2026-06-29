@@ -234,7 +234,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
       expect(result.system).toContain("<PAST>");
-      expect(result.system).toContain("STYLE: Grit");
+      expect(result.system).toContain("<INTERNAL_DIRECTIVE>");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).toContain("<TASK>");
       expect(result.system).toContain("Input parameter from user: Check the console.");
@@ -243,10 +243,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.meta).toBeDefined();
       expect(result.meta.ai).toEqual(snapshot.ai.dynamics);
       expect(result.meta.fractal).toEqual(snapshot.fractal.dynamics);
-      expect(result.meta.signals).toContain("SIGNAL_X");
       expect(result.meta?.vectors).toBeDefined();
       expect(result.meta?.vectors?.past).toBeInstanceOf(Array);
-      expect(result.meta?.vectors?.future).toBeInstanceOf(Array);
     });
 
     it("synthesize() injects adaptive stability protocols based on meta.structural_errors", () => {

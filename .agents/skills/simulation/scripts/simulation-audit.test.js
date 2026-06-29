@@ -52,20 +52,18 @@ ${SEP}
 
 ${SEP}
 
-## [PHASE 2: THE ECHO (DYNAMICS)]
+## [PHASE 2: DIRECTOR PROMPT]
 
-- **Signal Prompts:** ${result.snapshot.signal_prompts.join(", ") || "None"}
-- **Mechanical Weights:**
-  - **AI (Intensity):** \`${result.snapshot.ai?.dynamics?.intensity || 50}\`
-  - **Fractal (Entropy):** \`${result.snapshot.fractal?.dynamics?.entropy || 50}\`
-- **Logic Flags:** ${result.snapshot.flags?.join(", ") || "None"}
+\`\`\`xml
+${result.director_prompt}
+\`\`\`
 
 ${SEP}
 
 ## [PHASE 3: THE SYNTHESIS (PROMPT)]
 
 \`\`\`xml
-${result.system}
+${result.character_prompt}
 \`\`\`
 
 ${SEP}
@@ -81,6 +79,7 @@ ${SEP}
 
     // 5. VERIFICATION
     expect(fs.existsSync("tmp/audit_report.md")).toBe(true);
-    expect(result.system).toBeDefined();
+    expect(result.director_prompt).toBeDefined();
+    expect(result.character_prompt).toBeDefined();
   });
 });

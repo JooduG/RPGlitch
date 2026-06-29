@@ -1,5 +1,5 @@
 import { CONFIG } from "@engine";
-import { dynamics_engine, temporal_engine } from "@intelligence";
+import { temporal_engine } from "@intelligence";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -7,12 +7,6 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 vi.mock("@platform/transport.js", () => ({
   llm_service: {
     generate: vi.fn(),
-  },
-}));
-
-vi.mock("@intelligence/dynamics.js", () => ({
-  dynamics_engine: {
-    dynamics_scan: vi.fn(() => []),
   },
 }));
 
@@ -45,18 +39,12 @@ describe("temporal_engine", () => {
 
   describe("create", () => {
     it("creates a symmetric temporal entry", () => {
-      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([
-        {
-          id: "VIBE_CHECK",
-          scan: "",
-        },
-      ]);
-
       const entry = temporal_engine.create("He felt a strange vibe.");
 
       expect(entry).toHaveProperty("id");
       expect(entry.directive).toBe("He felt a strange vibe.");
-      expect(entry.dynamics_tags[0].id).toBe("VIBE_CHECK");
+      expect(entry.dynamics_tags).toEqual([]);
+      expect(entry.vector_tags).toEqual([]);
       expect(Array.isArray(entry.vector_tags)).toBe(true);
       expect(typeof entry.timestamp).toBe("number");
       expect(entry.base_weight).toBe(5); // Default weight
@@ -70,8 +58,6 @@ describe("temporal_engine", () => {
 
   describe("score", () => {
     it("calculates relevance with dynamics and tag bonuses", () => {
-      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([{ id: "EXPOSURE", scan: "kiss" }]);
-
       const entries = [
         {
           id: "t1",
@@ -79,7 +65,7 @@ describe("temporal_engine", () => {
           directive: "A",
           type: "past",
           base_weight: 5,
-          dynamics_tags: [{ id: "EXPOSURE", word: "kiss" }],
+          dynamics_tags: [],
           vector_tags: ["iron"],
           meta: {},
           emotional_weight: 5,
@@ -88,9 +74,8 @@ describe("temporal_engine", () => {
 
       const scored = temporal_engine.score(entries, "Iron kiss");
 
-      // Base (5) + Dynamics ID (1) + Trigger Word (2) + Vector Tag (3) = 11
-      const expected =
-        5 + CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS + CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS + CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
+      // Base (5) + Vector Tag (3) = 8
+      const expected = 5 + CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
 
       expect(scored[0]._relevance).toBe(expected);
     });
@@ -120,6 +105,44 @@ describe("temporal_engine", () => {
       expect(entity.past).toHaveLength(1);
       expect(entity.past[0].directive).toBe("Goal");
       expect(entity.past[0].vector_tags).toContain("resolution:success");
+    });
+  });
+
+  describe("apply_state_mutations", () => {
+    it("appends to present_append and shifts future_to_past", () => {
+      const entity = /** @type {any} */ ({
+        present: { physical: "", non_physical: "Initial state." },
+        future: [
+          {
+            id: "v1",
+            timestamp: 100,
+            directive: "Goal",
+            type: "future",
+            base_weight: 5,
+            dynamics_tags: [],
+            vector_tags: [],
+            meta: {},
+          },
+        ],
+        past: [],
+      });
+
+      const mutations = {
+        present_append: "Now they are angry.",
+        future_to_past: ["v1"],
+      };
+
+      const result = temporal_engine.apply_state_mutations(entity, mutations);
+      expect(result).toBe(true);
+      expect(entity.present.non_physical).toBe("Initial state.\nNow they are angry.");
+      expect(entity.future).toHaveLength(0);
+      expect(entity.past).toHaveLength(1);
+    });
+
+    it("returns false if mutations object is empty or invalid", () => {
+      const entity = /** @type {any} */ ({ present: { non_physical: "" } });
+      const result = temporal_engine.apply_state_mutations(entity, null);
+      expect(result).toBe(false);
     });
   });
 
@@ -199,18 +222,12 @@ describe("temporal_engine", () => {
       };
 
       vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
-      vi.mocked(dynamics_engine.dynamics_scan).mockReturnValue([
-        {
-          id: "TEST_TAG",
-          scan: "",
-        },
-      ]);
 
       const result = await temporal_engine.weave_resonance(mockEntity, mockHistory, "character");
 
       expect(result?.directive).toBe(mockResonance.summary);
       expect(result?.vector_tags).toEqual(["event"]);
-      expect(result?.dynamics_tags).toEqual([{ id: "TEST_TAG", word: "" }]);
+      expect(result?.dynamics_tags).toEqual([]);
       expect(result?.timestamp).toBe(Date.now());
     });
 
