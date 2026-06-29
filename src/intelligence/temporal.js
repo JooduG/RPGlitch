@@ -327,7 +327,7 @@ export const dynamics_engine = {
  * @returns {boolean} True if any mutations were applied
  */
 export function apply_state_mutations(entity, mutations) {
-  if (!mutations || typeof mutations !== "object") return false;
+  if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
   // 1. Present Append (Psychological/State shifts)
