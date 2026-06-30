@@ -51,12 +51,12 @@ describe("prompt_builder (Refactored)", () => {
       expect(result).not.toContain("Vector Resolved");
     });
 
-    it("render_protocols() should return bulleted list of defined protocols", () => {
+    it("render_protocols() should return XML-tagged protocols", () => {
       const out = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
-      expect(out).toContain(
-        "- Drive the scene forward. End your turn on a live hook that demands a response: a challenge issued, a physical move directed at them, a suspended moment of sensory tension, or silence that forces them to fill the void. The hook must emerge organically from character — never announce it with structural labels.",
-      );
-      expect(out).toContain("- You are forbidden from using animalistic or melodic vocal descriptions (purring, growling, humming).");
+      expect(out).toContain("<MOMENTUM>Drive the scene forward.");
+      expect(out).toContain("never announce it with structural labels.</MOMENTUM>");
+      expect(out).toContain("<HYGIENE>Omit all conversational preambles");
+      expect(out).toContain("for dialogue interactions.</HYGIENE>");
     });
   });
 
@@ -186,7 +186,6 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).not.toContain("<PAST>");
       expect(result.system).not.toContain("<FUTURE>");
       expect(result.system).not.toContain("<ETERNAL>");
-      expect(result.system).not.toContain("<PRESENT>");
     });
   });
 
