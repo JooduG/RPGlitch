@@ -1,8 +1,11 @@
 /**
- * src/data/lists.js
- * 🎛️ CONSOLIDATED TOKEN REGISTRY
- * Curated dimensions injected into the upgraded Adaptive Enhancement Scribe prompt.
- * Fully optimized for both high-fidelity photorealism and diverse artistic styles.
+ * Consolidated dimensions registry.
+ *
+ * DIMENSION KEYS (Injected into the Optics Scribe context via buildDimensionsContext()):
+ * - quality, styles, lighting, tech, composition, artifacts, glitches, mediums, camera_and_optics, colors, fidelity, moods.
+ *
+ * EXCLUDED KEYS (System config/assets not processed as prompt dimensions):
+ * - sounds, settings, mutations (unused).
  */
 export const LISTS = {
   quality: [

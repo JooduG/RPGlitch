@@ -209,11 +209,16 @@ export const AestheticResolver = {
  */
 const buildDimensionsContext = () => {
   const labelMap = {
+    quality: "Quality Presets",
+    styles: "Artistic Styles",
+    lighting: "Lighting",
+    tech: "Technical Setup",
+    composition: "Composition",
+    artifacts: "Visual Artifacts",
+    glitches: "System Glitches",
     mediums: "Mediums",
     camera_and_optics: "Camera & Optics",
-    lighting: "Lighting",
     colors: "Colors & Film Stock",
-    composition: "Composition",
     fidelity: "Fidelity & Texture",
     moods: "Mood & Atmosphere",
   };
@@ -316,7 +321,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
       case "scene":
         ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, medium context, and background lighting structures.</RESTRICTION>`;
         anchor = "RAW photograph or structured artistic rendering of an landscape environment or interior layout space";
-        realism = "8k resolution, crisp spatial depth details, professional landscape layout alignment";
+        realism = "high architectural definition, crisp spatial depth details, professional landscape layout alignment";
         break;
       case "user":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona profile context.</RESTRICTION>`;

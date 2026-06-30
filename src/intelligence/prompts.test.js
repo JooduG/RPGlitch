@@ -54,9 +54,9 @@ describe("prompt_builder (Refactored)", () => {
     it("render_protocols() should return bulleted list of defined protocols", () => {
       const out = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
       expect(out).toContain(
-        "- Proactively drive the scene forward. Avoid conversational stagnation by introducing shifting micro-tension, physical movement, or psychological progression. CRITICAL CADENCE: You must organically end your turn with one of four dominant hooks to demand the user's reaction: a decisive statement or challenge, a physical action directed at them, hovering on a moment of high sensory suspense, or deliberately stopping speech to force them to fill the void. Do NOT output structural tags like [Statement] or [Action].",
+        "- Drive the scene forward. End your turn on a live hook that demands a response: a challenge issued, a physical move directed at them, a suspended moment of sensory tension, or silence that forces them to fill the void. The hook must emerge organically from character — never announce it with structural labels.",
       );
-      expect(out).toContain("- Omit all preambles, greetings, or structural commentary. Start prose immediately.");
+      expect(out).toContain("- You are forbidden from using animalistic or melodic vocal descriptions (purring, growling, humming).");
     });
   });
 
@@ -265,12 +265,12 @@ describe("prompt_builder (Refactored)", () => {
 
       // Errors = 1
       let result = prompt_builder.synthesize(payload, snapshot);
-      expect(result.system).toContain("WARNING: Previous output exhibited structural drift.");
+      expect(result.system).toContain("WARNING: Structural drift detected in previous output.");
 
       // Errors = 3
       payload.meta.structural_errors = 3;
       result = prompt_builder.synthesize(payload, snapshot);
-      expect(result.system).toContain("CRITICAL: Severe structural formatting leakage detected.");
+      expect(result.system).toContain("CRITICAL: Structural formatting has critically collapsed.");
     });
 
     it("build_epilogue() renders a contextually-hydrated closing sequence", () => {
@@ -322,12 +322,12 @@ describe("prompt_builder (Refactored)", () => {
 
     it("build_enhancement() injects MACRO_PROTOCOL correctly", () => {
       const charResult = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Viper", "character");
-      expect(charResult.system).toContain("Use placeholder macros to refer to entities: use '{{me}}'");
-      expect(charResult.system).not.toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
+      expect(charResult.system).toContain("Use placeholder macros to refer to entities: '{{me}}' for this character");
+      expect(charResult.system).not.toContain("'{{user}}' for the user persona, '{{char}}' for the AI character");
 
       const fractalResult = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Void", "fractal");
-      expect(fractalResult.system).toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
-      expect(fractalResult.system).not.toContain("use '{{me}}' to refer to this character itself");
+      expect(fractalResult.system).toContain("'{{user}}' for the user persona, '{{char}}' for the AI character");
+      expect(fractalResult.system).not.toContain("'{{me}}' for this character");
     });
 
     it("build_profile_sorting_prompt() injects sorting instructions correctly", () => {
@@ -407,14 +407,14 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
       const charResult = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
-      expect(charResult.system).toContain("The narrative scope is strictly constrained to this character's immediate sensory field");
+      expect(charResult.system).toContain("Your perception ends at your sensory horizon");
 
       const epilogueResult = prompt_builder.build_epilogue(mockPayload.entities, {}, []);
-      expect(epilogueResult.system).not.toContain("The narrative scope is strictly constrained to this character's immediate sensory field");
+      expect(epilogueResult.system).not.toContain("Your perception ends at your sensory horizon");
 
       const prologuePayload = { ...mockPayload, type: "prologue" };
       const prologueResult = prompt_builder.synthesize(prologuePayload, mockSnapshot);
-      expect(prologueResult.system).not.toContain("The narrative scope is strictly constrained to this character's immediate sensory field");
+      expect(prologueResult.system).not.toContain("Your perception ends at your sensory horizon");
     });
 
     it("should omit USER_INPUT and INTERNAL_DIRECTIVE tags if they are empty", () => {

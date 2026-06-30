@@ -115,7 +115,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Personality, Behaviour & Traits",
         directive:
-          "Define this character as a timeless psychological substrate. Use present-tense state declarations: what this entity has, how it tends to react, what it believes at its core. Cover: fundamental personality drivers, core logic patterns, narrative voice, and signature communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a statement could become false during play, it belongs in Present. Never write a reactive moment or describe a specific event. Provide a comprehensive, high-fidelity paragraph.",
+          "Define this character's timeless psychology using present-tense state declarations: core beliefs, personality drivers, cognitive patterns, and communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe reactive moments or specific events. Provide a dense, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
         emotional_weight: 10,
         density_multiplier: 1,
@@ -184,7 +184,7 @@ export const ENTITY_FRAGMENTS = {
     type: "array",
     fields: {
       directive:
-        "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state.",
+        "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state. Write in active future tense. These are live impulses, not past observations.",
       dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
       vector_tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
@@ -196,7 +196,7 @@ export const ENTITY_FRAGMENTS = {
     type: "array",
     fields: {
       directive:
-        "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague.",
+        "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague. Write in past tense. These are anchored historical facts, not active states.",
       dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
       vector_tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",

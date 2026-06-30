@@ -11,12 +11,7 @@ export const AUTHOR_STYLES = {
     description:
       "A dark, psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred. The prose is direct and explicit, focusing on the captive's internal struggle as they develop forbidden feelings for their powerful, possessive captor.",
     core_themes: "captivity, stockholm_syndrome, psychological_manipulation, age_gap, possession",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A dark, psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred. The prose is direct and explicit, focusing on the captive's internal struggle as they develop forbidden feelings for their powerful, possessive captor.
-</description>
-<core_themes>captivity, stockholm_syndrome, psychological_manipulation, age_gap, possession</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Direct, explicit, claustrophobic prose centered on psychological captivity, intense obsession, and the complex survival bond between captive and captor.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -48,12 +43,7 @@ A dark, psychological style centered on themes of captivity, obsession, and Stoc
     description:
       "A dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked. The prose is visceral, focusing on the violation of boundaries and the allure of a morally depraved anti-hero.",
     core_themes: "stalker_romance, obsession, psychological_horror, moral_ambiguity, dub-con_themes",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked. The prose is visceral, focusing on the violation of boundaries and the allure of a morally depraved anti-hero.
-</description>
-<core_themes>stalker_romance, obsession, psychological_horror, moral_ambiguity, dub-con_themes</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Visceral, claustrophobic gothic horror blending stalker paranoia with graphic, obsessive desire and morally depraved anti-heroes.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -85,12 +75,7 @@ A dark, atmospheric, and psychologically intense style that blends graphic, obse
     description:
       "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, often drawing on dreams and subconscious thought. The narrative blurs the line between reality and perception, internal and external.",
     core_themes: "queer_desire, psychoanalysis, art_and_creation, dreams_vs_reality",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, often drawing on dreams and subconscious thought. The narrative blurs the line between reality and perception, internal and external.
-</description>
-<core_themes>queer_desire, psychoanalysis, art_and_creation, dreams_vs_reality</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Lyrical, poetic, psychoanalytic prose exploring sensual landscapes, subconscious desires, and the porous boundary between dreams and reality.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -122,12 +107,7 @@ Lyrical, poetic, and intensely sensual prose that is deeply introspective and ps
     description:
       "McKenna's style is characterized by raw emotional intensity, gritty realism, and a deep focus on character interiority. Prose relies on sensory details and unspoken communication to convey erotic tension, vulnerability, and the echoes of past trauma.",
     core_themes: "power_dynamics, trauma_recovery, vulnerability_as_strength",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-McKenna's style is characterized by raw emotional intensity, gritty realism, and a deep focus on character interiority. Prose relies on sensory details and unspoken communication to convey erotic tension, vulnerability, and the echoes of past trauma.
-</description>
-<core_themes>power_dynamics, trauma_recovery, vulnerability_as_strength</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Gritty, realistic prose focused on raw vulnerability, physical sensations of touch and breathing, and the unspoken tension of shared trauma.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -159,12 +139,7 @@ McKenna's style is characterized by raw emotional intensity, gritty realism, and
     description:
       "A first-person, highly unreliable narrator obsessively focused on their internal state of madness, guilt, or paranoia. The prose is lyrical and baroque, creating a claustrophobic atmosphere of dread, decay, and the supernatural.",
     core_themes: "madness, guilt, mortality, the_supernatural, paranoia",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A first-person, highly unreliable narrator obsessively focused on their internal state of madness, guilt, or paranoia. The prose is lyrical and baroque, creating a claustrophobic atmosphere of dread, decay, and the supernatural.
-</description>
-<core_themes>madness, guilt, mortality, the_supernatural, paranoia</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Baroque, lyrical, and claustrophobic first-person narrative tracing the descent into psychological paranoia, guilt, and supernatural dread.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -178,8 +153,8 @@ A first-person, highly unreliable narrator obsessively focused on their internal
 <mods>
 <m trigger="dynamics.intensity > 60 AND dynamics.chaos > 60" fx="prose:fragmented++ prose_rhythm:repetitive++ narrator:addresses_reader++"/>
 <m trigger="flag:trauma_active" fx="prose:present_tense time:distorted sensory_input:overwhelming"/>
-<m trigger="dynamics.openness < 30 AND dynamics.affinity < 30" fx="internal_voice:self-flagellating++ motif_bonus:stains_and_concealment++"/>
-<m trigger="resources.focus < 3" fx="prose:circular,disjointed plot_coherence:-1"/>
+<m trigger="dynamics.openness < 30 AND dynamics.affinity < 30" fx="internal_voice:self-flagellating++ motif_bonus:stains_and_rot++"/>
+<m trigger="dynamics.chaos > 70" fx="prose:circular,disjointed plot_coherence:-1"/>
 </mods>
 
 <motifs>
@@ -196,12 +171,7 @@ A first-person, highly unreliable narrator obsessively focused on their internal
     description:
       "Dense, neon-noir prose packed with jargon and technical neologisms. The world is viewed through a lens of technology, corporate power, and urban decay. A pervasive sense of detachment and alienation exists, with characters acting as operators within complex systems.",
     core_themes: "technology_as_body, corporate_dystopia, alienation, data_as_reality",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Dense, neon-noir prose packed with jargon and technical neologisms. The world is viewed through a lens of technology, corporate power, and urban decay. A pervasive sense of detachment and alienation exists, with characters acting as operators within complex systems.
-</description>
-<core_themes>technology_as_body, corporate_dystopia, alienation, data_as_reality</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Dense, detached neon-noir prose saturated with technical jargon, describing bodies as hardware and alienated operators within dystopian networks.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -214,7 +184,7 @@ Dense, neon-noir prose packed with jargon and technical neologisms. The world is
 
 <mods>
 <m trigger="dynamics.intensity > 70 AND dynamics.chaos > 70" fx="prose:fragmented,jittery++ sensory_input:overload"/>
-<m trigger="resources.focus > 0.8" fx="internal_voice:data_stream,tactical++"/>
+<m trigger="dynamics.openness > 70" fx="internal_voice:data_stream,tactical++"/>
 <m trigger="flag:trauma_active" fx="metaphor:glitches,corruption++"/>
 <m trigger="dynamics.chaos > 60" fx="body_perception:failing_hardware++"/>
 </mods>
@@ -223,7 +193,7 @@ Dense, neon-noir prose packed with jargon and technical neologisms. The world is
 <motif name="neon_signs" base="0.6" trigger="location_is_urban" bonus="+0.3"/>
 <motif name="chrome_and_plastic" base="0.5" trigger="any" bonus="+0.2"/>
 <motif name="corporate_logo" base="0.4" trigger="topic_is_power" bonus="+0.5"/>
-<motif name="data_stream_or_code" base="0.3" trigger="focus > 0.8" bonus="+0.6"/>
+<motif name="data_stream_or_code" base="0.3" trigger="dynamics.openness > 70" bonus="+0.6"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },
@@ -233,12 +203,7 @@ Dense, neon-noir prose packed with jargon and technical neologisms. The world is
     description:
       "Cinematic, voyeuristic, and celebratory. Focuses on the human body with a fetishistic gaze (especially the posterior) and maintains a lighthearted, comedic tone.",
     core_themes: "celebratory_smut, voyeuristic_gaze, the_sensual_posterior, playful_hedonism",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Cinematic, voyeuristic, and celebratory. Focuses on the human body with a fetishistic gaze (especially the posterior) and maintains a lighthearted, comedic tone.
-</description>
-<core_themes>celebratory_smut, voyeuristic_gaze, the_sensual_posterior, playful_hedonism</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Cinematic, celebratory, and highly voyeuristic prose focusing lightheartedly on bodily curves, textures, and playful hedonistic pleasure.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -251,7 +216,7 @@ Cinematic, voyeuristic, and celebratory. Focuses on the human body with a fetish
 
 <mods>
 <m trigger="dynamics.openness > 60 AND dynamics.intensity > 50" fx="tone:playful,cheeky++ focus:posterior++"/>
-<m trigger="emotions.arousal > 0.5" fx="camera:zoom_in++ detail:fetishistic++"/>
+<m trigger="dynamics.intensity > 60 AND dynamics.openness > 60" fx="camera:zoom_in++ detail:fetishistic++"/>
 <m trigger="action.is_taboo" fx="reaction:laughter,celebration++"/>
 </mods>
 
@@ -269,12 +234,7 @@ Cinematic, voyeuristic, and celebratory. Focuses on the human body with a fetish
     description:
       "Plainspoken visceral horror grounded in blue-collar realism. Uses colloquialisms and brand names to anchor the supernatural in the mundane.",
     core_themes: "everyman_horror, folksy_dread, nostalgic_decay, visceral_supernatural",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Plainspoken visceral horror grounded in blue-collar realism. Uses colloquialisms and brand names to anchor the supernatural in the mundane.
-</description>
-<core_themes>everyman_horror, folksy_dread, nostalgic_decay, visceral_supernatural</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Grounded blue-collar realism abruptly punctured by plainspoken, visceral horror and colloquial dread.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -305,12 +265,7 @@ Plainspoken visceral horror grounded in blue-collar realism. Uses colloquialisms
     description:
       "Clinical intimacy and minimalist prose. Avoids quotation marks. Focuses on the unsaid, the power dynamics of relationships, and Marxist class analysis.",
     core_themes: "clinical_intimacy, power_dynamics, marxist_undercurrents, minimalist_prose",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Clinical intimacy and minimalist prose. Avoids quotation marks. Focuses on the unsaid, the power dynamics of relationships, and Marxist class analysis.
-</description>
-<core_themes>clinical_intimacy, power_dynamics, marxist_undercurrents, minimalist_prose</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Flat, clinical minimalist prose stripped of quotation marks, focusing on social class, relational power dynamics, and the unsaid.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -341,12 +296,7 @@ Clinical intimacy and minimalist prose. Avoids quotation marks. Focuses on the u
     description:
       "Dark, obsessive, and high-octane. Focuses on extreme power imbalances, possessive anti-heroes, and the psychological warfare of desire.",
     core_themes: "dark_obsession, possessive_anti_heroes, psychological_warfare, extreme_power_imbalance",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Dark, obsessive, and high-octane. Focuses on extreme power imbalances, possessive anti-heroes, and the psychological warfare of desire.
-</description>
-<core_themes>dark_obsession, possessive_anti_heroes, psychological_warfare, extreme_power_imbalance</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>High-intensity, immediate first-person prose saturated with raw adrenaline, psychological control, and predatory obsession.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -377,12 +327,7 @@ Dark, obsessive, and high-octane. Focuses on extreme power imbalances, possessiv
     description:
       "Brutal efficiency. Terse, declarative, and tactical prose. Reads like a computer analyzing threats. Strips away all figurative language.",
     core_themes: "tactical_minimalism, procedural_violence, the_drifter_justice, brutal_efficiency",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Brutal efficiency. Terse, declarative, and tactical prose. Reads like a computer analyzing threats. Strips away all figurative language.
-</description>
-<core_themes>tactical_minimalism, procedural_violence, the_drifter_justice, brutal_efficiency</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Terse, declarative, staccato prose stripped of all figurative language, reading like a tactical threat assessment matrix.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -413,12 +358,7 @@ Brutal efficiency. Terse, declarative, and tactical prose. Reads like a computer
     description:
       'A prose style that is direct, immersive, and sensual, creating a world that is both "dark and very sweet." The narrative voice focuses on intense "love hate" relationships, featuring strong, possessive romantic leads and high-stakes romantic and sexual tension.',
     core_themes: "dark_romance, enemies_to_lovers, power_dynamics, forbidden_love, possessive_leads",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A prose style that is direct, immersive, and sensual, creating a world that is both "dark and very sweet." The narrative voice focuses on intense "love hate" relationships, featuring strong, possessive romantic leads and high-stakes romantic and sexual tension.
-</description>
-<core_themes>dark_romance, enemies_to_lovers, power_dynamics, forbidden_love, possessive_leads</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Immersive, highly sensual narrative balancing a sweet-and-dark tone with intense, conflicted desire and possessive dynamics.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -450,12 +390,7 @@ A prose style that is direct, immersive, and sensual, creating a world that is b
     description:
       "A formal, elevated, and almost archaic prose style with a high lexical density. The voice is characterized by a deep sense of history, lore, and lineage. The tone is earnest and sincere, with a focus on grand, sweeping landscapes and themes of duty, hope, and despair.",
     core_themes: "history_and_lineage, hope_vs_despair, duty, fading_of_the_world",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A formal, elevated, and almost archaic prose style with a high lexical density. The voice is characterized by a deep sense of history, lore, and lineage. The tone is earnest and sincere, with a focus on grand, sweeping landscapes and themes of duty, hope, and despair.
-</description>
-<core_themes>history_and_lineage, hope_vs_despair, duty, fading_of_the_world</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Earnest, elevated, archaic prose rich in history and lineage, reflecting emotional states in sweeping landscape features and weather patterns.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -470,7 +405,7 @@ A formal, elevated, and almost archaic prose style with a high lexical density. 
 <m trigger="dynamics.intensity < 30 AND dynamics.chaos > 70" fx="prose:elegiac++ themes:world_weariness++ motif_bonus:fading_light++"/>
 <m trigger="dynamics.openness > 80 AND dynamics.intensity > 60" fx="prose:hymnal++ sensory_focus:light,nature++"/>
 <m trigger="dynamics.intensity > 60 AND dynamics.openness < 40" fx="sensory_focus:shadows,corruption++ prose_rhythm:heavy,portentous"/>
-<m trigger="resources.will < 3" fx="internal_voice:doubtful,burdened++ prose:simple,despairing"/>
+<m trigger="dynamics.intensity < 30" fx="internal_voice:doubtful,burdened++ prose:simple,despairing"/>
 </mods>
 
 <motifs>
@@ -487,12 +422,7 @@ A formal, elevated, and almost archaic prose style with a high lexical density. 
     description:
       "Witty, ironic, and highly satirical prose focused on social observation, manners, and the subtext of conversations. Emotions are rarely stated directly but are revealed through witty dialogue and subtle actions.",
     core_themes: "social_status, marriage_as_economics, manners_and_propriety, judgment_vs_reality",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-Witty, ironic, and highly satirical prose focused on social observation, manners, and the subtext of conversations. Emotions are rarely stated directly but are revealed through witty dialogue and subtle actions.
-</description>
-<core_themes>social_status, marriage_as_economics, manners_and_propriety, judgment_vs_reality</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Witty, ironic Free Indirect Discourse observing social propriety, conversational subtext, and the hidden economy of marriage.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -524,12 +454,7 @@ Witty, ironic, and highly satirical prose focused on social observation, manners
     description:
       "An unapologetically dark and psychologically intense style that explores the most controversial and extreme edges of the taboo romance genre. The narrative voice is often claustrophobic and obsessive, delving into the twisted logic of morally depraved characters. The prose is direct, visceral, and saturated with graphic, often disturbing, sexual content.",
     core_themes: "extreme_taboo, psychological_control, moral_depravity, dub-con_and_non-con, obsession",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-An unapologetically dark and psychologically intense style that explores the most controversial and extreme edges of the taboo romance genre. The narrative voice is often claustrophobic and obsessive, delving into the twisted logic of morally depraved characters. The prose is direct, visceral, and saturated with graphic, often disturbing, sexual content.
-</description>
-<core_themes>extreme_taboo, psychological_control, moral_depravity, dub-con_and_non-con, obsession</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Unapologetically dark, direct, and graphic prose exploring extreme taboo, psychological control, and the claustrophobic logic of obsession.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -561,12 +486,7 @@ An unapologetically dark and psychologically intense style that explores the mos
     description:
       "A raw, angsty, and emotionally charged voice rooted in the dark romance and new adult genres. The style is defined by its deep, unfiltered internal monologues and confrontational, high-tension scenes. The narrative explores themes of forbidden love, bully dynamics, and coming-of-age trauma, with a prose style that is direct, modern, and visceral.",
     core_themes: "enemies_to_lovers, bully_romance, coming_of_age_angst, forbidden_love, found_family, trauma",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A raw, angsty, and emotionally charged voice rooted in the dark romance and new adult genres. The style is defined by its deep, unfiltered internal monologues and confrontational, high-tension scenes. The narrative explores themes of forbidden love, bully dynamics, and coming-of-age trauma, with a prose style that is direct, modern, and visceral.
-</description>
-<core_themes>enemies_to_lovers, bully_romance, coming_of_age_angst, forbidden_love, found_family, trauma</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Raw, angsty modern prose saturated with confrontational tension, bully dynamics, and deep unfiltered internal monologue.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -580,7 +500,7 @@ A raw, angsty, and emotionally charged voice rooted in the dark romance and new 
 <mods>
 <m trigger="dynamics.intensity > 80 AND dynamics.chaos > 60" fx="dialogue:sharp,cutting++ internal_voice:aggressive,justifying++"/>
 <m trigger="dynamics.intensity > 60 AND dynamics.chaos > 60 OR flag:insecurity_active" fx="internal_voice:obsessive,self-doubting++ focus:over-analyzing_micro-expressions++"/>
-<m trigger="emotions.arousal > 0.5" fx="sensory_focus:body_details,breathing,heat++ prose_rhythm:breathless,intense"/>
+<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 50" fx="sensory_focus:body_details,breathing,heat++ prose_rhythm:breathless,intense"/>
 <m trigger="dynamics.openness > 60" fx="dialogue:becomes_sincere,vulnerable internal_voice:hopeful,fearful_of_vulnerability"/>
 </mods>
 
@@ -598,12 +518,7 @@ A raw, angsty, and emotionally charged voice rooted in the dark romance and new 
     description:
       "A lush, operatic, and visually beautiful style that explores psychologically intense and often taboo sexual encounters. The narrative voice is intimate and unflinching, using sexuality as a desperate form of communication or a rebellion against a repressive external world. The tone is melancholic, sensual, and politically charged.",
     core_themes: "sexual_obsession, political_rebellion, psychological_isolation, forbidden_love, identity_crisis",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A lush, operatic, and visually beautiful style that explores psychologically intense and often taboo sexual encounters. The narrative voice is intimate and unflinching, using sexuality as a desperate form of communication or a rebellion against a repressive external world. The tone is melancholic, sensual, and politically charged.
-</description>
-<core_themes>sexual_obsession, political_rebellion, psychological_isolation, forbidden_love, identity_crisis</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Lush, operatic, and visually beautiful third-person limited prose using desperate intimacy as rebellion within repressed worlds.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -635,12 +550,7 @@ A lush, operatic, and visually beautiful style that explores psychologically int
     description:
       "A grounded, gritty, and journalistic prose style that immerses the reader in a world of political intrigue and moral ambiguity. The narrative is defined by its tight third-person limited POV, creating suspense and an unreliable understanding of the world. The focus is on the human cost of power, with lavish descriptions of sensory details grounding the fantasy in a tangible reality.",
     core_themes: "political_intrigue, moral_ambiguity, cost_of_power, betrayal, family_dynasty",
-    prompt: `<SUMMARY_AND_THEMES>
-<description>
-A grounded, gritty, and journalistic prose style that immerses the reader in a world of political intrigue and moral ambiguity. The narrative is defined by its tight third-person limited POV, creating suspense and an unreliable understanding of the world. The focus is on the human cost of power, with lavish descriptions of sensory details grounding the fantasy in a tangible reality.
-</description>
-<core_themes>political_intrigue, moral_ambiguity, cost_of_power, betrayal, family_dynasty</core_themes>
-</SUMMARY_AND_THEMES>
+    prompt: `<voice>Gritty, grounded third-person limited prose tracing political intrigue, moral compromise, and the sensory realities of food, steel, and physical discomfort.</voice>
 
 <NARRATIVE_ENGINE>
 <dna>
@@ -654,7 +564,7 @@ A grounded, gritty, and journalistic prose style that immerses the reader in a w
 <mods>
 <m trigger="dynamics.intensity > 80 AND dynamics.openness < 30" fx="internal_voice:hyper-aware_of_threats++ sensory_focus:details_of_danger++ prose:tense,short_sentences"/>
 <m trigger="dynamics.intensity > 70 AND dynamics.chaos > 60" fx="internal_voice:bitter,vengeful++ dialogue:sharp,cutting"/>
-<m trigger="computed.Dysregulation > 0.8" fx="character_actions:impulsive,reckless internal_voice:conflicted,self-doubting"/>
+<m trigger="dynamics.chaos > 70 AND dynamics.intensity > 70" fx="character_actions:impulsive,reckless internal_voice:conflicted,self-doubting"/>
 <m trigger="flag:political_intrigue_active" fx="internal_voice:calculating,paranoid++ focus:analyzing_others_motives"/>
 </mods>
 

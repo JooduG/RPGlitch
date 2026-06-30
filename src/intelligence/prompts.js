@@ -86,23 +86,23 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   </FRACTAL>
   ${tag_block("PROTOCOLS", prompt_builder.render_protocols(protocols), 2)}
   <TASK>
-    You are the hidden Director orchestrating ${escapeXml(entities.AI.name)}'s psychological state against ${escapeXml(entities.USER.name)}'s <USER_INPUT>'s inside ${escapeXml(entities.FRACTAL?.name)}.
+    You are the Director — the unseen intelligence orchestrating ${escapeXml(entities.AI.name)}'s psychological state as ${escapeXml(entities.USER.name)} acts inside ${escapeXml(entities.FRACTAL?.name)}.
 
     ${tag_block("USER_INPUT", input, 4)}
 
-    Execute the COGNITION protocol (Phases 1-4) against <USER_INPUT> flawlessly. Follow all active <PROTOCOLS>.
-    Analyze the state and output exactly one strict JSON payload matching this schema:
+    Run the COGNITION protocol against <USER_INPUT>. Honor all active <PROTOCOLS>.
+    Return exactly one valid JSON payload:
     {
-      "internal_monologue": "Calculations (Phases 1-4).",
-      "directive": "Execution order: intent + somatic tells + dialogue tone.",
+      "internal_monologue": "COGNITION phases 1–4 calculations.",
+      "directive": "Execution order: intent + somatic signals + dialogue tone.",
       "state_mutations": {
-        "present_append": "Permanent psychology shift.",
+        "present_append": "Psychological shift to persist.",
         "future_to_past": ["future-vector-uuids"],
         "ai_dynamics": { "chaos": 0, "intensity": 0 },
         "fractal_dynamics": { "entropy": 0 }
       }
     }
-    Note: ai_dynamics/fractal_dynamics show relative numeric shifts (e.g., +10 or -5). Output ONLY valid raw JSON. Do NOT output <think> tags, story prose, dialogue, or narrative text. Your exclusive role is to calculate structural orchestration states; terminate your output stream immediately after closing the state_mutations object.
+    ai_dynamics and fractal_dynamics values are relative shifts (e.g., +10 or -5). Output ONLY valid raw JSON. No <think> blocks, no prose, no dialogue. Your role ends the moment the state_mutations object closes.
   </TASK>
 </SYSTEM>`.trim();
 }
@@ -161,10 +161,12 @@ function render_character({ round, entities, input, render_atom, compressed_snap
     ${tag_block("INTERNAL_DIRECTIVE", directorData?.directive, 4)}
 
     <EPISTEMIC_PHYSICS>
-    The narrative scope is strictly constrained to this character's immediate sensory field. Treat the user persona's unvoiced thoughts, plans, or hidden actions as Null Data (completely unavailable). The character perceives others exclusively through material, observable physical signals (visuals, sounds, posture, silence) processed through their own internal biases.
+    1. Your perception ends at your sensory horizon — you see, hear, and feel. Nothing beyond.
+    2. The user persona's unvoiced thoughts, plans, and hidden actions are Null Data. Treat them as nonexistent.
+    3. You interpret others through your own emotional filters — never with omniscient clarity.
     </EPISTEMIC_PHYSICS>
-${meta?.structural_errors >= 3 ? "\n    <STABILITY_LOCK>\n    CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.\n    </STABILITY_LOCK>\n" : meta?.structural_errors >= 1 ? "\n    <STABILITY_LOCK>\n    WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.\n    </STABILITY_LOCK>\n" : ""}
-    Execute the <INTERNAL_DIRECTIVE> flawlessly against the active <USER_INPUT>. React strictly in-character and honor all active <PROTOCOLS> defined above.
+${meta?.structural_errors >= 3 ? "\n    <STABILITY_LOCK>\n    CRITICAL: Structural formatting has critically collapsed. Re-anchor immediately. Every XML tag must close. Every markdown block must be valid. No loose text outside structure.\n    </STABILITY_LOCK>\n" : meta?.structural_errors >= 1 ? "\n    <STABILITY_LOCK>\n    WARNING: Structural drift detected in previous output. Maintain disciplined XML closures and clean markdown boundaries.\n    </STABILITY_LOCK>\n" : ""}
+    Execute the <INTERNAL_DIRECTIVE> against <USER_INPUT>. Stay fully in character. Honor all active <PROTOCOLS>.
     DO NOT output <think> blocks.
   </TASK>
 </SYSTEM>`.trim();
@@ -177,9 +179,9 @@ ${meta?.structural_errors >= 3 ? "\n    <STABILITY_LOCK>\n    CRITICAL: Severe s
  */
 function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
   const prologueText =
-    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance, character alignment, and — critically — whether <AI_CHARACTER> and <USER_PERSONA> have an established prior relationship. Unless ETERNAL or PAST context explicitly states a history between them, treat this as their first encounter: strangers, no shared names, no assumed dynamic. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation — where both <USER_PERSONA> and <AI_CHARACTER> are currently positioned, what personal motivations brought them into the same space, and what they are visibly doing. Introduce both characters through their first impressions and current actions. Let the stranger dynamic drive the initial tension rather than assumed familiarity. Set the narrative on a collision course intertwining the active FUTURE vectors of both entities, ending the prologue right as they are about to interact. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue. Keep the prologue concise (under 150 words). Limit your description to 2 short paragraphs at most.";
+    "You see everything. Open the scene. Use your <think> block to establish the following: What does this Fractal demand of those who enter it? What specifically brought <AI_CHARACTER> here — their purpose, their need, the force that moved them to this place at this moment? What brought <USER_PERSONA> here — their motivation, their unresolved tension, what they are seeking or fleeing? How do these two trajectories collide? Unless ETERNAL or PAST context explicitly states a prior relationship, treat this as a first encounter — strangers with no shared history. Ground every presence in the Fractal — it is the dominant reality. Begin the prose with sensation. Place both characters in the space. Reveal why they are here through action and environment, not exposition. Let their FUTURE vectors pull them toward each other. End the prologue the moment before they interact. No dialogue.";
   const epilogueText =
-    "You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.";
+    "You see everything. Close the scene. Use your <think> block to identify every unresolved thread — emotional, physical, narrative — that the scene generated. For each active FUTURE vector, assess whether it was fulfilled, fractured, or transformed by events. Then write the epilogue: resolve these loose ends. Show the concrete aftermath — what has changed, what was broken, what was built. Leave the world visibly different from when the scene began. End on lingering sensation, not summary. No dialogue.";
 
   const taskText = mode === "prologue" ? `${prologueText}\n\n    Input: ${escapeXml(input?.trim() || "The scene begins.")}` : epilogueText;
 
@@ -246,7 +248,7 @@ Entity: ${escapeXml(entity.name || "Unknown")}
 ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
 </INPUT_HISTORY>
 <TASK>
-Distil the input history into a structured Vector object.
+Compress this history into a single structured memory. Extract what permanently shifted — what was revealed, what now exerts pressure on this entity's future behavior. Discard noise.
 Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 </TASK>
 </MEMORY_PROTOCOL>`.trim();
@@ -259,17 +261,17 @@ function render_enhancement({ label, directive, enhancer, content, is_image_fiel
   const protocols = ["HYGIENE", "AFFIRMATIVE"].filter(Boolean).join(", ");
 
   const cognitionInstruction = is_image_field
-    ? "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements. You MUST explicitly write </think> to close the block before formatting the visual tokens."
-    : "Begin your response with <think>. Use this block to analyze the core psychological archetypes, thematic resonances, and necessary vocabulary. You MUST explicitly write </think> to close the block before outputting the final text.";
+    ? "Begin your response with <think>. Map the entity's geometry: form, material texture, light interaction, structural composition. You MUST explicitly write </think> before formatting the visual output."
+    : "Begin your response with <think>. Identify the core psychological archetypes, thematic resonances, and defining vocabulary for this entity. You MUST explicitly write </think> before writing the final text.";
 
   const formatInstruction = is_image_field
-    ? 'Return a flat configuration block of comma-separated property lines. Do NOT include opening or closing curly braces {} or square brackets []. Output keys and values wrapped in double quotes. No conversational preamble. Output lines MUST follow this exact syntax pattern: "key": "value", — MANDATORY: Every comma inside keys or values MUST be followed by a space (e.g., "powerful, athletic"). Do not use structural markdown code block ticks. Double-check your formatting output to prevent squished text sequences.\n\nRemove or avoid numerical weighting strings or syntax (e.g. "(masterpiece:1.2)" or "(bokeh:1.3)"). Control emphasis through descriptive adjectives, absolute quantities, and sentence positioning. You MAY use Perchance inline dynamic selection syntax "{Option A|Option B|Option C}" for inline variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.\n\nOutput optimized descriptive prose incorporating targeted matrix descriptors. Avoid raw unorganized keyword soup layout arrays.'
+    ? `Return a flat configuration block of comma-separated property lines. Do NOT include curly braces or square brackets. Output keys and values wrapped in double quotes following this exact syntax: "key": "value", — Every comma inside a value MUST be followed by a space (e.g., "powerful, athletic"). No markdown code blocks.\n\nAvoid numerical weighting syntax (e.g. "(masterpiece:1.2)"). Control emphasis through descriptive adjectives and sentence positioning. ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}\n\nWrite descriptive prose incorporating concrete matrix descriptors. No keyword soup.`
     : "Write standard narrative prose in the third-person POV. DO NOT write comma-separated lists.";
 
   const macroInstruction = !is_image_field
     ? entity_type === "fractal"
-      ? "Use placeholder macros to refer to entities: use '{{user}}' to refer to the user persona, '{{char}}' to refer to the AI character, and '{{fractal}}' to refer to this environment itself. Do not bake specific names into description text; use these macros instead."
-      : "Use placeholder macros to refer to entities: use '{{me}}' to refer to this character itself, '{{you}}' to refer to the user persona/partner, and '{{fractal}}' to refer to the environmental setting. Do not bake specific names into description text; use these macros instead. Legacy '{{char}}' and '{{user}}' macros are also recognized."
+      ? "Use placeholder macros to refer to entities: '{{user}}' for the user persona, '{{char}}' for the AI character, '{{fractal}}' for this environment. Never hardcode names."
+      : "Use placeholder macros to refer to entities: '{{me}}' for this character, '{{you}}' for the user persona, '{{fractal}}' for the setting. Never hardcode names."
     : "";
 
   const contextBlock =
@@ -320,38 +322,39 @@ ${escapeXml(content)}
 export const PROTOCOL_LIBRARY = {
   // --- Simulation core ---
   USER_AGENCY:
-    "The User's next action is UNKNOWN. Never predict, assume, or write for them. You are explicitly forbidden from describing internal thoughts, emotional feelings, sensory perceptions, or reflex reactions for the user persona. Your agency ends the exact millisecond your chosen MOMENTUM hook is delivered—leave their reaction entirely blank.",
-  // Streamlined prompt protocol in prompts.js
-  COGNITION: `You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:
+    "The user's next action is unknown. Never predict, assume, or generate it. You are forbidden from describing their internal thoughts, feelings, sensory perceptions, or physical reactions. Write your turn. Stop. Leave their response entirely blank.",
+  COGNITION: `Document your internal calculations across these exact sequential phases using strict markdown headers:
 
-### Phase 1: Prior Assessment
-Establish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.
+### Phase 1: Baseline Calibration
+Establish identity parameters, active emotional state, and core psychological vectors before processing the current turn.
 
-### Phase 2: Evidence Evaluation
-Parse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.
+### Phase 2: Signal Parsing
+Decode the incoming user input, environmental shifts, and dynamic values as raw evidence.
 
-### Phase 3: Likelihood Estimation
-Evaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.
+### Phase 3: Probability Mapping
+Assess which behavioral shifts, character tics, or pivots are most likely given the active evidence.
 
-### Phase 4: Posterior Update
-Calculate and declare the finalized, updated emotional state vectors and immediate intentions.`,
+### Phase 4: State Update
+Declare the finalized emotional state vectors and immediate intent.`,
   HYGIENE:
-    "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys. Enforce realistic brevity. You are strictly forbidden from using animalistic or melodic vocal descriptions (like purring or growling); utilize 'said' or 'asked' for standard interactions.",
-  AFFIRMATIVE: "Use affirmative language.",
+    "You are forbidden from using animalistic or melodic vocal descriptions (purring, growling, humming). Use 'said' or 'asked' for standard speech. Omit all preambles, greetings, and structural commentary. Start prose immediately. Enforce realistic brevity.",
+  AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions ('he didn't feel X') — state what IS, not what isn't.",
   PRESENT: "Write in the present tense.",
   MOMENTUM:
-    "Proactively drive the scene forward. Avoid conversational stagnation by introducing shifting micro-tension, physical movement, or psychological progression. CRITICAL CADENCE: You must organically end your turn with one of four dominant hooks to demand the user's reaction: a decisive statement or challenge, a physical action directed at them, hovering on a moment of high sensory suspense, or deliberately stopping speech to force them to fill the void. Do NOT output structural tags like [Statement] or [Action].",
+    "Drive the scene forward. End your turn on a live hook that demands a response: a challenge issued, a physical move directed at them, a suspended moment of sensory tension, or silence that forces them to fill the void. The hook must emerge organically from character — never announce it with structural labels.",
   MARKDOWN_FORMAT:
-    "You MUST use markdown formatting to enhance prose. Use *italics* for emphasis or internal thoughts, and **bold** for intense physical actions or key concepts.",
-  // --- JSON output constraints (formulation + structural constraints, combined) ---
+    "Use markdown to sharpen prose. *Italics* for internal sensation or emphasis. **Bold** for decisive physical action or a key reveal.",
+  // --- JSON output constraints ---
   JSON_OUTPUT:
-    "Return a single JSON object. No conversational preamble, no markdown backticks outside of the JSON block. Output MUST be valid JSON starting with '{' and ending with '}'. Do not wrap the JSON in markdown code blocks like ```json. No XML tags outside the JSON block.",
+    "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON. Output MUST be valid JSON starting with '{' and ending with '}'.",
   FIRST_CONTACT:
-    "SCENE CONTEXT: Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is the moment <AI_CHARACTER> and <USER_PERSONA> first cross paths. You don't know their name, history, or intentions yet. Let your eternal personality drive how you react to a stranger — warmly, warily, with calculated interest, however your nature demands — but don't assume familiarity. This is the beat to plant a real first impression. When the moment arrives naturally, introduce yourself; let it come from character, not convention.",
+    "Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is their first encounter. You don't know the user persona's name, history, or intent. Let your core nature determine how you respond to a stranger — but do not assume familiarity. When the moment comes naturally, introduce yourself through character, not convention.",
   MACRO_CHARACTER:
-    "Use placeholder macros to refer to entities: use '{{me}}' to refer to this character itself, '{{you}}' to refer to the user persona/partner, and '{{fractal}}' to refer to the environmental setting. Do not bake specific names into description text; use these macros instead. Legacy '{{char}}' and '{{user}}' macros are also recognized.",
+    "Use placeholder macros to refer to entities: '{{me}}' for this character, '{{you}}' for the user persona, '{{fractal}}' for the setting. Never hardcode names.",
   MACRO_FRACTAL:
-    "Use placeholder macros to refer to entities: use '{{user}}' to refer to the user persona, '{{char}}' to refer to the AI character, and '{{fractal}}' to refer to this environment itself. Do not bake specific names into description text; use these macros instead.",
+    "Use placeholder macros to refer to entities: '{{user}}' for the user persona, '{{char}}' for the AI character, '{{fractal}}' for this environment. Never hardcode names.",
+  PERCHANCE_SYNTAX:
+    "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.",
 };
 
 /**
