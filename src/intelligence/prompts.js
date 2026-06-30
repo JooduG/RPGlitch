@@ -254,17 +254,18 @@ export const PROTOCOL_LIBRARY = {
   // --- Simulation core ---
   IDENTITY: "Resolve all state inferences strictly within the active <YOUR_IDENTITY> block.",
   USER_AGENCY:
-    "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
+    "The User's next action is UNKNOWN. Never predict, assume, or write for them. You are explicitly forbidden from describing internal thoughts, emotional feelings, sensory perceptions, or reflex reactions for the user persona. End your response at the exact moment before they would need to react.",
   // Streamlined prompt protocol in prompts.js
   COGNITION:
     "You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:\n\n### Phase 1: Prior Assessment\nEstablish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.\n\n### Phase 2: Evidence Evaluation\nParse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.\n\n### Phase 3: Likelihood Estimation\nEvaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.\n\n### Phase 4: Posterior Update\nCalculate and declare the finalized, updated emotional state vectors and immediate intentions.",
   THINK_FORMAT:
     "Begin your response with <think>. ALL internal calculations, phases, and markdown headers MUST be placed strictly INSIDE this block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.",
-  HYGIENE: "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys.",
+  HYGIENE:
+    "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys. Enforce realistic brevity and conversational friction. Utilize 'said' or 'asked' for the majority of dialogue tags; strictly avoid overreliance on melodramatic vocal modifiers. Never embed internal physical reactions inside a line of spoken text.",
   AFFIRMATIVE: "Use affirmative language.",
   PRESENT: "Write in the present tense.",
   MOMENTUM:
-    "Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
+    "Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume. CRITICAL CADENCE: Every turn must terminate strictly on an unresolved micro-tension, a physical action, or a spatial conflict to explicitly prompt the user's next input.",
   MARKDOWN_FORMAT:
     "You MUST use markdown formatting to enhance prose. Use *italics* for emphasis or internal thoughts, and **bold** for intense physical actions or key concepts.",
   STABILITY_LOCK_1: "WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.",
