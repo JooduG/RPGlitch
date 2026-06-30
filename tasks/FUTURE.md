@@ -11,3 +11,4 @@ Integrate Author Style Profiles (DNA, Triggers, & Motifs) into RPGlitch's 2-shot
 - [x] Add Narrative Style Accordion to Control Panel (`UnifiedConsole.svelte`) with dropdown and prompt viewer
 - [x] Register and verify style selection persistence (`app.settings.author_style`)
 - [x] Verify using unit tests and full project verification (`npm run verify`)
+- [x] Refactor heteronormative/gender-specific phrasing in `author-styles.js` to be gender-neutral/queer-inclusive (e.g. `female_desire` -> `queer_desire`, `heroine` -> `captive`, `male lead` -> `romantic lead`)

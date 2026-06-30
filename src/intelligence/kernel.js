@@ -35,7 +35,12 @@ function parse_director_json(raw_text) {
     const last_brace = stripped.lastIndexOf("}");
     if (first_brace === -1 || last_brace === -1) return null;
     const json_string = stripped.substring(first_brace, last_brace + 1);
-    return JSON.parse(json_string);
+    const sanitized_json = json_string.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
+    const payload = JSON.parse(sanitized_json);
+    if (payload.prose) {
+      delete payload.prose;
+    }
+    return payload;
   } catch (e) {
     console.warn("[gamemaster] Failed to parse Director JSON:", e);
     return null;

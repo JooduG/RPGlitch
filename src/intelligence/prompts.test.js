@@ -232,13 +232,13 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(payload, snapshot);
 
       // Verify presence of tags without strict whitespace dependency
-      expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
+      expect(result.system).toContain('<SYSTEM role="IDENTITY" round="5"');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
       expect(result.system).toContain("<PAST>");
       expect(result.system).toContain("<INTERNAL_DIRECTIVE>");
       expect(result.system).toContain("<PROTOCOLS>");
-      expect(result.system).toContain("<TASK>");
-      expect(result.system).toContain("Input parameter from user: Check the console.");
+      expect(result.system).toContain("<USER_INPUT>");
+      expect(result.system).toContain("Check the console.");
 
       // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();

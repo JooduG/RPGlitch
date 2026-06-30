@@ -52,16 +52,13 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   const pastVectors = entities.FRACTAL ? render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "" : "";
   const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
-  return `
-<SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">
-<ACTIVE_CHARACTERS>
-    <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+  return `<SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">
+<AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
 ${[tag("ETERNAL", entities.AI.eternal?.non_physical, entities.AI, entities), tag("PRESENT", entities.AI.present?.non_physical, entities.AI, entities), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }), entities.AI, entities)].filter(Boolean).join("\n")}
-    </AI_CHARACTER>
-    <USER_PERSONA name="${escapeXml(entities.USER.name)}">
+</AI_CHARACTER>
+<USER_PERSONA name="${escapeXml(entities.USER.name)}">
 ${[tag("ETERNAL", entities.USER.eternal?.non_physical, entities.USER, entities), tag("PRESENT", entities.USER.present?.non_physical, entities.USER, entities), tag("PAST", render_atom.past(entities.USER, { limit: 2, vector_text: true }), entities.USER, entities)].filter(Boolean).join("\n")}
-    </USER_PERSONA>
-</ACTIVE_CHARACTERS>
+</USER_PERSONA>
 <FRACTAL name="${escapeXml(entities.FRACTAL?.name || "")}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
 ${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, entities), tag("PRESENT", entities.FRACTAL?.present?.non_physical, entities.FRACTAL, entities), fractalPast, tag("FUTURE", render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities)].filter(Boolean).join("\n")}
 </FRACTAL>
@@ -69,25 +66,25 @@ ${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, ent
 ${prompt_builder.render_protocols(protocolSelection)}
 </PROTOCOLS>
 <TASK>
-You are the hidden Director orchestrating ${escapeXml(entities.AI.name)}'s psychological reaction to the User's input.
-Evaluate the active scene, the input parameter, and the psychological state.
-Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}
+You are the hidden Director orchestrating ${escapeXml(entities.AI.name)}'s psychological state against <USER_PERSONA>'s input within <FRACTAL>.
 
-Analyze the situation and output a strict JSON payload with EXACTLY these keys:
+<USER_INPUT>
+${escapeXml(input?.trim() || "Continue scene.")}
+</USER_INPUT>
+
+Execute the COGNITION protocol (Phases 1-4) against <USER_INPUT> flawlessly. Follow all active <PROTOCOLS>.
+Analyze the state and output exactly one strict JSON payload matching this schema:
 {
-  "internal_monologue": "Your private thoughts and methodical calculations as defined by the COGNITION protocol.",
-  "intent": "What the character fundamentally intends to achieve this turn.",
-  "somatic_tells": "Physical reactions, facial expressions, micro-expressions (to be written in prose).",
-  "dialogue_direction": "The emotional tone and specific subtext of what they will say.",
-  "historical_search_keys": ["concept 1", "concept 2"],
+  "internal_monologue": "Calculations (Phases 1-4).",
+  "directive": "Execution order: intent + somatic tells + dialogue tone.",
   "state_mutations": {
-    "present_append": "Any permanent shift in current psychological state (optional)",
-    "future_to_past": ["uuid-of-future-vector-to-resolve-optional"],
-    "ai_dynamics": { "chaos": 10, "intensity": -5 },
-    "fractal_dynamics": { "entropy": 5 }
+    "present_append": "Permanent psychology shift.",
+    "future_to_past": ["future-vector-uuids"],
+    "ai_dynamics": { "chaos": 0, "intensity": 0 },
+    "fractal_dynamics": { "entropy": 0 }
   }
 }
-Note: ai_dynamics and fractal_dynamics should reflect the relative numeric shift (e.g., +10 or -5) from the user's action. Do NOT include <think> tags.
+Note: ai_dynamics/fractal_dynamics show relative numeric shifts (e.g., +10 or -5). Output ONLY valid raw JSON. Do NOT output <think> tags, story prose, dialogue, or narrative text. Your exclusive role is to calculate structural orchestration states; terminate your output stream immediately after closing the state_mutations object.
 </TASK>
 </SYSTEM>`.trim();
 }
@@ -105,30 +102,32 @@ function render_character({ round, entities, input, render_atom, compressed_snap
   const pastVectors = render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "";
   const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
-  const basePrompt = `
-<SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">
+  const basePrompt = `<SYSTEM role="IDENTITY" round="${escapeXml(String(round))}">
 <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
 ${[tag("ETERNAL", entities.AI.eternal?.non_physical, entities.AI, entities), tag("PRESENT", entities.AI.present?.non_physical, entities.AI, entities), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }), entities.AI, entities)].filter(Boolean).join("\n")}
 </YOUR_IDENTITY>
 <USER_PERSONA name="${escapeXml(entities.USER.name)}">
 ${[tag("ETERNAL", entities.USER.eternal?.non_physical, entities.USER, entities), tag("PRESENT", entities.USER.present?.non_physical, entities.USER, entities), tag("PAST", render_atom.past(entities.USER, { limit: 2, vector_text: true }), entities.USER, entities)].filter(Boolean).join("\n")}
 </USER_PERSONA>
-<FRACTAL name="${escapeXml(entities.FRACTAL?.name || "")}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+<FRACTAL name="${escapeXml(entities.FRACTAL?.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
 ${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, entities), tag("PRESENT", entities.FRACTAL?.present?.non_physical, entities.FRACTAL, entities), fractalPast, tag("FUTURE", render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities)].filter(Boolean).join("\n")}
 </FRACTAL>
-<INTERNAL_DIRECTIVE>
-Intent: ${escapeXml(directorData?.intent || "Survive.")}
-Somatic Tells: ${escapeXml(directorData?.somatic_tells || "None.")}
-Dialogue Direction: ${escapeXml(directorData?.dialogue_direction || "Neutral.")}
-</INTERNAL_DIRECTIVE>
 <PROTOCOLS>
 ${prompt_builder.render_protocols(protocolSelection)}
 </PROTOCOLS>
 <TASK>
-You are simulating ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)}.
-Execute the INTERNAL_DIRECTIVE flawlessly. React strictly in-character and honor all active PROTOCOLS defined above.
+You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name)}.
+
+<USER_INPUT>
+${escapeXml(input?.trim() || "Continue scene.")}
+</USER_INPUT>
+
+<INTERNAL_DIRECTIVE>
+${escapeXml(directorData?.directive || "Drive the scene forward.")}
+</INTERNAL_DIRECTIVE>
+
+Execute the <INTERNAL_DIRECTIVE> flawlessly against the active <USER_INPUT>. React strictly in-character and honor all active <PROTOCOLS> defined above.
 DO NOT output <think> blocks.
-Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}
 </TASK>
 </SYSTEM>`.trim();
 
@@ -428,7 +427,8 @@ export const prompt_builder = {
       const collapsed = [];
       for (const m of simulation_log) {
         if (m.role === "system") continue;
-        const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" || m.role === "fractal" ? "FRACTAL" : "AI_CHARACTER";
+        const lowerRole = (m.role || "").toLowerCase();
+        const role = lowerRole === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lowerRole) ? "FRACTAL" : "AI_CHARACTER";
         const content = strip_cognition_blocks(m.content || m.text || "").replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
 
         if (

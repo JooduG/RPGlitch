@@ -226,6 +226,10 @@ export function detox_prose(rawText) {
 
   const DETOX_MAP = {
     "\\bpurr(s|ed|ing)?\\b": "whisper$1",
+    "\\bmurmur(s|ed|ing)?\\b": "say$1",
+    "\\brasp(s|ed|ing)?\\b": "grated voice",
+    "\\brough,?\\s+(dismissive|dangerous)?\\s*rasp\\b": "low voice",
+    "\\bshell of (his|her|their|your)\\s+ear\\b": "ear",
     "\\bhitch(es|ed|ing)?\\b": "still$1",
     "\\bbreathless(ly)?\\b": "quiet$1",
     "\\btracing lazy circles\\b": "maintaining contact",
