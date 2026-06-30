@@ -96,7 +96,7 @@ Note: ai_dynamics and fractal_dynamics should reflect the relative numeric shift
  * AI Character (Actor) prompt compiler (Shot 2).
  */
 function render_character({ round, entities, input, render_atom, compressed_snapshot, directorData, meta }) {
-  let protocolSelection = "PRESENT, HYGIENE, USER_AGENCY, MOMENTUM";
+  let protocolSelection = "PRESENT, HYGIENE, USER_AGENCY, MOMENTUM, MARKDOWN_FORMAT";
   if (meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")))
     protocolSelection += ", FIRST_CONTACT";
   if (meta?.structural_errors >= 3) protocolSelection += ", STABILITY_LOCK_2";
@@ -161,7 +161,7 @@ ${[tag("ETERNAL", entities.USER.eternal?.non_physical, entities.USER, entities),
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 <PROTOCOLS>
-${prompt_builder.render_protocols("THINK_FORMAT, COGNITION, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, MOMENTUM")}
+${prompt_builder.render_protocols("THINK_FORMAT, COGNITION, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, MOMENTUM, MARKDOWN_FORMAT")}
 </PROTOCOLS>
 <TASK>
 ${taskText}${inputLine}
@@ -265,6 +265,8 @@ export const PROTOCOL_LIBRARY = {
   PRESENT: "Write in the present tense.",
   MOMENTUM:
     "Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
+  MARKDOWN_FORMAT:
+    "You MUST use markdown formatting to enhance prose. Use *italics* for emphasis or internal thoughts, and **bold** for intense physical actions or key concepts.",
   STABILITY_LOCK_1: "WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.",
   STABILITY_LOCK_2:
     "CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.",
