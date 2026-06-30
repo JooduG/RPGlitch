@@ -261,7 +261,7 @@ export const PROTOCOL_LIBRARY = {
   THINK_FORMAT:
     "Begin your response with <think>. ALL internal calculations, phases, and markdown headers MUST be placed strictly INSIDE this block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.",
   HYGIENE:
-    "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys. Enforce realistic brevity and conversational friction. Utilize 'said' or 'asked' for the majority of dialogue tags; strictly avoid overreliance on melodramatic vocal modifiers. Never embed internal physical reactions inside a line of spoken text.",
+    "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys. Enforce realistic brevity. You are strictly forbidden from using animalistic or melodic vocal descriptions (like purring or growling); utilize 'said' or 'asked' for standard interactions.",
   AFFIRMATIVE: "Use affirmative language.",
   PRESENT: "Write in the present tense.",
   MOMENTUM:

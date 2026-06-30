@@ -5,6 +5,7 @@
  */
 import MarkdownIt from "markdown-it";
 import { sanitize } from "@platform";
+import { detox_prose } from "../data/normalizer.js";
 
 const md = new MarkdownIt({
   html: false,
@@ -133,9 +134,13 @@ export function wrap_dialogue(html) {
 export function parse_message(rawText) {
   // 1. Remove Image Prompts (Artifacts)
   let text = clean_image_prompts(rawText || "");
+
   // 2. Extract Think Block
   const thinkResult = parse_think_block(text);
   text = thinkResult.content;
+
+  // 🧪 ANTI-CLICHÉ LAYER: Intercept and clean text right here to keep thoughts pure
+  text = detox_prose(text);
 
   // 3. Render Markdown
   let rendered = sanitize(md.render(text).trim());

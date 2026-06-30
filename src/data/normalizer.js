@@ -213,3 +213,33 @@ export const format_premade = (entity, type) => {
     updated_at: 0,
   };
 };
+
+/**
+ * 🧼 GLOBAL PROSE DETOX LAYER
+ * Programmatically intercepts and scrubs clichéd AI tropes.
+ * Handles structural inflection matching (e.g., purr/purrs/purred/purring).
+ * @param {string|null|undefined} rawText
+ * @returns {string}
+ */
+export function detox_prose(rawText) {
+  if (!rawText || typeof rawText !== "string") return "";
+
+  const DETOX_MAP = {
+    "\\bpurr(s|ed|ing)?\\b": "whisper$1",
+    "\\bhitch(es|ed|ing)?\\b": "still$1",
+    "\\bbreathless(ly)?\\b": "quiet$1",
+    "\\btracing lazy circles\\b": "maintaining contact",
+    "dropping an octave": "lowering voice",
+    "\\bpalpable\\b": "noticeable",
+    "\\btangible\\b": "real",
+    "\\btapestry\\b": "network",
+  };
+
+  let cleanText = rawText;
+  Object.keys(DETOX_MAP).forEach((pattern) => {
+    const regex = new RegExp(pattern, "gi");
+    cleanText = cleanText.replace(regex, DETOX_MAP[pattern]);
+  });
+
+  return cleanText;
+}
