@@ -6,8 +6,8 @@
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
   import { click_outside } from "@actions";
-  import { Backdrop, Button, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
-  import { db, stories } from "@data";
+  import { Backdrop, Button, Dropdown, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
+  import { db, stories, AUTHOR_STYLES } from "@data";
   import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color, visual_engine } from "@media";
@@ -41,8 +41,15 @@
     storyboard: true,
     storymode: true,
     library: true,
+    style: false,
     advanced: true,
   });
+
+  const author_options = Object.values(AUTHOR_STYLES).map((style) => ({
+    value: style.id,
+    label: style.name,
+    tag: style.core_themes ? style.core_themes.replace(/_/g, " ") : "",
+  }));
 
   // --- MUTE STATE ---
   let previous_volume = $state(1.0);
@@ -231,7 +238,17 @@
   {/if}
 
   <div
-    use:click_outside={() => {
+    use:click_outside={(event) => {
+      const target = event?.target;
+      if (
+        target instanceof Element &&
+        (target.closest(".menu") ||
+          target.closest("[data-dropdown-menu]") ||
+          target.closest(".dropdown-portal-wrapper") ||
+          target.closest(".tooltip-portal"))
+      ) {
+        return;
+      }
       app.control_panel_open = false;
     }}
     class="
@@ -349,6 +366,49 @@
                           show_value_tooltip={true}
                         />
                       </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DECK F: NARRATIVE STYLE -->
+              <div class="w-full">
+                <button
+                  type="button"
+                  onclick={() => (open_sections.style = !open_sections.style)}
+                  class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
+                >
+                  Narrative Style
+                  <span class="opacity-50 transition-transform {open_sections.style ? 'rotate-180' : ''}">▼</span>
+                </button>
+                <div
+                  class="grid transition-[grid-template-rows] duration-300 ease-in-out {open_sections.style ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
+                >
+                  <div class="min-h-0 overflow-hidden">
+                    <div class="flex flex-col gap-4 pt-2 pb-4">
+                      <Dropdown
+                        bind:value={app.settings.author_style}
+                        items={author_options}
+                        onchange={() => app.save_settings()}
+                        label="Select Writing Style"
+                        uppercase={false}
+                        matchWidth={true}
+                      />
+                      {#if app.settings.author_style && app.settings.author_style !== "default"}
+                        <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/30 p-3">
+                          <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
+                            {AUTHOR_STYLES[app.settings.author_style]?.name} Prompt Profile
+                          </span>
+                          <p class="m-0 text-xs leading-relaxed text-slate-300 italic">
+                            {AUTHOR_STYLES[app.settings.author_style]?.description}
+                          </p>
+                          <textarea
+                            readonly
+                            class="h-32 w-full resize-y rounded-lg border border-white/5 bg-black/40 p-2 font-mono text-[10px] text-slate-400 focus:outline-none"
+                            value={AUTHOR_STYLES[app.settings.author_style]?.prompt}
+                          ></textarea>
+                        </div>
+                      {/if}
                     </div>
                   </div>
                 </div>

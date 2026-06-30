@@ -217,6 +217,67 @@
               </div>
             </div>
           </div>
+        {:else if meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
+          <!-- [#] VECTOR RESOLUTION -->
+          <div class="mb-4">
+            <span
+              class="
+              block
+              text-xs
+              font-bold
+              tracking-tight
+              text-slate-50
+            ">Vector Resolution</span
+            >
+            <p
+              class="
+              mt-2
+              text-xs
+              text-slate-400
+            "
+            >
+              A vector has met its fulfillment criteria and been anchored into memory.
+            </p>
+          </div>
+          <div
+            class="
+            flex
+            animate-[slide-in_300ms_cubic-bezier(0.4,0,0.2,1)_both]
+            gap-4
+            rounded-sm
+            border
+            border-l-8
+            border-[color-mix(in_srgb,var(--state-dev-accent),transparent_85%)]
+            border-l-(--state-dev-accent)
+            bg-[color-mix(in_srgb,var(--state-dev-accent),transparent_95%)]
+            px-3
+            py-3
+            text-xs
+            leading-relaxed
+          "
+          >
+            <span
+              class="
+              font-mono
+              text-(--state-dev-accent)
+            ">{meta.vector?.emotional_weight || meta.vector?.base_weight || 0}</span
+            >
+            <span
+              class="
+              text-slate-50
+            ">{meta.vector?.directive}</span
+            >
+            {#if meta.resolution}
+              <span
+                class="
+                ml-auto
+                font-mono
+                text-xs
+                text-(--state-dev-accent)/50
+              ">[{meta.resolution}]</span
+              >
+            {/if}
+          </div>
         {:else}
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
@@ -477,82 +538,6 @@
                   
                 "
                 >
-                  FUTURE VECTORS
-                </header>
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  {#each vectors.future.slice(0, 3) as v (v.id || v.directive)}
-                    <div
-                      class="
-                      flex
-                      gap-4
-                      rounded-sm
-                      border-l-8
-                      border-transparent
-                      border-l-(--state-dev-accent)
-                      bg-black/40
-                      px-3
-                      py-3
-                      text-xs
-                      leading-relaxed
-                    "
-                    >
-                      <span
-                        class="
-                        font-mono
-                        text-(--state-dev-accent)
-                        
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
-                      >
-                      <span
-                        class="
-                        line-clamp-2
-                        overflow-hidden
-                        text-ellipsis
-                        text-slate-50
-                      ">{v.directive}</span
-                      >
-                    </div>
-                  {:else}
-                    <div
-                      class="
-                      text-xs
-                      text-slate-400
-                      
-                      font-mono
-                    "
-                    >
-                      NO_FUTURE_VECTORS
-                    </div>
-                  {/each}
-                </div>
-              </div>
-
-              <div
-                class="
-                flex
-                flex-col
-              "
-              >
-                <header
-                  class="
-                  mb-2
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
-                "
-                >
                   PAST MEMORIES
                 </header>
                 <div
@@ -604,6 +589,82 @@
                     "
                     >
                       NO_PAST_MEMORIES
+                    </div>
+                  {/each}
+                </div>
+              </div>
+
+              <div
+                class="
+                flex
+                flex-col
+              "
+              >
+                <header
+                  class="
+                  mb-2
+                  border-b
+                  border-(--state-dev-accent)/20
+                  pb-1
+                  text-xs
+                  font-bold
+                  tracking-widest
+                  text-(--state-dev-accent)
+                  uppercase
+                  
+                "
+                >
+                  FUTURE VECTORS
+                </header>
+                <div
+                  class="
+                  flex
+                  flex-col
+                  gap-2
+                "
+                >
+                  {#each vectors.future.slice(0, 3) as v (v.id || v.directive)}
+                    <div
+                      class="
+                      flex
+                      gap-4
+                      rounded-sm
+                      border-l-8
+                      border-transparent
+                      border-l-(--state-dev-accent)
+                      bg-black/40
+                      px-3
+                      py-3
+                      text-xs
+                      leading-relaxed
+                    "
+                    >
+                      <span
+                        class="
+                        font-mono
+                        text-(--state-dev-accent)
+                        
+                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
+                      >
+                      <span
+                        class="
+                        line-clamp-2
+                        overflow-hidden
+                        text-ellipsis
+                        text-slate-50
+                      ">{v.directive}</span
+                      >
+                    </div>
+                  {:else}
+                    <div
+                      class="
+                      text-xs
+                      text-slate-400
+                      
+                      font-mono
+                    "
+                    >
+                      NO_FUTURE_VECTORS
                     </div>
                   {/each}
                 </div>

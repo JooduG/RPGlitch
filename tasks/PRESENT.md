@@ -33,12 +33,12 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
-- [ ] Awaiting new track.
+- [x] integrate-author-styles-2026-06-30: Integrate Author Style Profiles
 
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601) | Task                                                                                                                        | Skill Invoked         | Outcome            |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------ |
+| :------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :-------------------- | :----------------- |
 | 2026-06-03 17:30     | Archival of May tracks and initialization of the June clean slate.                                                          | legislative           | ✅ Done            |
 | 2026-06-10 17:43     | Resolve empty style tag error, lint warnings, and design audit.                                                             | debug                 | ✅ Done            |
 | 2026-06-10 21:55     | Resolve Profile footer buttons styling by wrapping resets in @layer base                                                    | css, debug            | ✅ Done            |
@@ -67,6 +67,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 | 2026-06-26 08:53     | Integrate ANEX Bayesian & Boundary Mechanics into references/somatic-psychology-engine.md                                   | `simulation`          | ✅ Done            |
 | 2026-06-29 20:25     | Initialize plan for 2-Shot Private Inner Voice (inner-voice)                                                                | `planning`            | ✅ Done            |
 | 2026-06-29 20:50     | Implemented Director AI 2-Shot pipeline & removed dynamics_scan                                                             | `/02-implement`       | ✅ Done            |
+| 2026-06-30 00:50     | Initialize plan for Author Style Profiles integration                                                                       | `planning`            | ✅ Done            |
+| 2026-06-30 01:10     | Implemented Author Style Profiles Accordion and visible chat prompt injection                                               | `/02-implement`       | ✅ Done            |
 
 ## 🧹 Backlog (Automated)
 

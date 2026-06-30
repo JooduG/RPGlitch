@@ -49,7 +49,7 @@ function perchanceBase64Vault() {
           const toBase64 = (str) => Buffer.from(str, "utf8").toString("base64");
 
           // 1. Encapsulate compiled inline CSS style rules safely
-          html = html.replace(/<style[^>]*>([\s\S]*?)<\/style>/gi, (match, cssContent) => {
+          html = html.replace(/<style\b[^>]*>([\s\S]*?)<\/style>/gi, (match, cssContent) => {
             if (cssContent.trim().length < 5) return match;
             const b64 = toBase64(cssContent);
             const chunks = b64.match(/.{1,10000}/g) || [];

@@ -100,26 +100,6 @@ function to_data_points(entity) {
   return list.filter((f) => f.text.length > 0);
 }
 
-/**
- * Extracts new input and the last logged turn text to avoid parsing full history.
- * @param {string} input
- * @param {any[]} simulation_log
- * @returns {string}
- */
-function get_new_content_input(input, simulation_log) {
-  const parts = [];
-  if (input && typeof input === "string") {
-    parts.push(input);
-  }
-  if (Array.isArray(simulation_log) && simulation_log.length > 0) {
-    const last_msg = simulation_log[simulation_log.length - 1];
-    const sanitized = get_sanitized_text(last_msg);
-    if (sanitized) {
-      parts.push(sanitized);
-    }
-  }
-  return parts.join(" ");
-}
 export const context_broker = {
   /**
    * HYDRATION PHASE
@@ -144,9 +124,6 @@ export const context_broker = {
         vector_text: true,
       }) || "Continue the journey.";
 
-    // Extract new content input for incremental lifecycle matching
-    const new_content = get_new_content_input(input, simulation_log);
-
     const entries = [
       { role: "AI", data: clean.AI },
       { role: "USER", data: clean.USER },
@@ -154,7 +131,7 @@ export const context_broker = {
     ];
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy
-    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data, new_content))).catch((err) =>
+    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data))).catch((err) =>
       console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
     );
 
@@ -257,11 +234,10 @@ export const context_broker = {
       .join("\n");
   },
   /**
-   * Dynamically resolves FUTURE_VECTOR items based on recent simulation log keywords.
+   * Dynamically resolves FUTURE_VECTOR items based on chronos state constraints.
    * @param {any} entity
-   * @param {string} recent_log_text
    */
-  async manage_vector_lifecycle(entity, recent_log_text) {
+  async manage_vector_lifecycle(entity) {
     if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
 
     const vectors_to_resolve = [];
@@ -297,58 +273,6 @@ export const context_broker = {
 
         if (state_checks_passed) {
           is_resolved = true;
-        }
-      } else {
-        // 3. FUZZY TEXT FALLBACK
-        if (recent_log_text) {
-          const log_lower = recent_log_text.toLowerCase();
-          const log_words = new Set(log_lower.split(/[\s,.;:!?()"'[\]{}]+/));
-          const escape_regex = (/** @type {string} */ str) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-          // Check strict vector tags
-          if (Array.isArray(vector.vector_tags)) {
-            is_resolved = vector.vector_tags.some((/** @type {string} */ tag) => {
-              const t = tag.toLowerCase();
-              if (t.includes(" ")) {
-                // Multi-word tag: use escaped regex with word boundaries
-                try {
-                  const regex = new RegExp(`\\b${escape_regex(t)}\\b`, "i");
-                  return regex.test(recent_log_text);
-                } catch {
-                  return log_lower.includes(t);
-                }
-              }
-              // Single word tag: fast O(1) lookup
-              return log_words.has(t);
-            });
-          }
-
-          // Check significant keywords from the vector directive if no tag match
-          if (!is_resolved && vector.directive) {
-            // Extract deduplicated words > 4 chars
-            const words = vector.directive
-              .toLowerCase()
-              .split(/[\s,.;:!?()"'[\]{}]+/)
-              .filter((/** @type {string} */ w) => w.length > 4);
-
-            const keywords = Array.from(new Set(words));
-
-            if (keywords.length > 0) {
-              // If at least 3 significant keywords (or all if < 3) are found, consider it matched
-              const match_threshold = Math.min(2, keywords.length);
-
-              let matched_count = 0;
-              for (const k of keywords) {
-                if (log_words.has(k)) {
-                  matched_count++;
-                }
-              }
-
-              if (matched_count >= match_threshold) {
-                is_resolved = true;
-              }
-            }
-          }
         }
       }
 

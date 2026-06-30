@@ -81,75 +81,14 @@ describe("context_broker", () => {
 
   describe("manage_vector_lifecycle", () => {
     it("should gracefully handle missing entity or future arrays", async () => {
-      await expect(context_broker.manage_vector_lifecycle(null, "log")).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ future: null }, "log")).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ future: [] }, "log")).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle(null)).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: null })).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: [] })).resolves.not.toThrow();
     });
 
-    it("should gracefully handle missing log text for non-conditional vectors", async () => {
-      const entity = { future: [{ id: "1", vector_tags: [], directive: "test" }] };
-      // @ts-ignore
-      await expect(context_broker.manage_vector_lifecycle(entity, null)).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle(entity, "")).resolves.not.toThrow();
-    });
+    // --- STRICT STATE AND CHRONO MATRIX TESTS ---
 
-    it("should resolve vectors based on vector_tags match", async () => {
-      const entity = {
-        future: [
-          { id: "v1", vector_tags: ["apple", "banana"], directive: "Some short text" },
-          { id: "v2", vector_tags: ["cherry"], directive: "Another text" },
-          { id: "v3", vector_tags: ["multi word tag"], directive: "Yet another text" },
-        ],
-      };
-      const log = "I ate a Banana yesterday and saw a multi word tag in the wild.";
-
-      await context_broker.manage_vector_lifecycle(entity, log);
-
-      expect(temporal_engine.resolve).toHaveBeenCalledTimes(2);
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v3", "AUTO_RESOLVED");
-    });
-
-    it("should not resolve vectors using substring false positives", async () => {
-      const entity = {
-        future: [{ id: "v1", vector_tags: ["cat"], directive: "Some short text" }],
-      };
-      const log = "This is a new category.";
-
-      await context_broker.manage_vector_lifecycle(entity, log);
-
-      expect(temporal_engine.resolve).not.toHaveBeenCalled();
-    });
-
-    it("should resolve vectors based on significant keywords if no tags match", async () => {
-      const entity = {
-        future: [
-          { id: "v1", directive: "The grand master spoke." },
-          { id: "v2", directive: "A tiny cat slept." },
-        ],
-      };
-      const log = "The Grand old Master spoke loudly.";
-
-      await context_broker.manage_vector_lifecycle(entity, log);
-
-      expect(temporal_engine.resolve).toHaveBeenCalledTimes(1);
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v1", "AUTO_RESOLVED");
-    });
-
-    it("should not resolve vectors if keywords don't meet threshold", async () => {
-      const entity = {
-        future: [{ id: "v1", directive: "The grand master spoke." }],
-      };
-      const log = "The Grand canyon is big.";
-
-      await context_broker.manage_vector_lifecycle(entity, log);
-
-      expect(temporal_engine.resolve).not.toHaveBeenCalled();
-    });
-
-    // --- NEW STRICT STATE AND CHRONO MATRIX TESTS ---
-
-    it("should not resolve state-locked vectors if requires state is not met, even if keywords are in log", async () => {
+    it("should not resolve state-locked vectors if requires state is not met", async () => {
       mockAppState.state_anchor = "inactive";
       const entity = {
         future: [
@@ -161,13 +100,13 @@ describe("context_broker", () => {
           },
         ],
       };
-      // Log text contains the tag "apple", but requirement is state_anchor: "active" (which is inactive)
-      await context_broker.manage_vector_lifecycle(entity, "I ate an apple");
+      // Requirement is state_anchor: "active" (which is inactive)
+      await context_broker.manage_vector_lifecycle(entity);
 
       expect(temporal_engine.resolve).not.toHaveBeenCalled();
     });
 
-    it("should resolve state-locked vectors instantly when requires state matches, even with empty log text", async () => {
+    it("should resolve state-locked vectors instantly when requires state matches", async () => {
       mockAppState.state_anchor = "active";
       const entity = {
         future: [
@@ -179,13 +118,13 @@ describe("context_broker", () => {
           },
         ],
       };
-      // Log text is empty, but requirement is met
-      await context_broker.manage_vector_lifecycle(entity, "");
+
+      await context_broker.manage_vector_lifecycle(entity);
 
       expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_state", "AUTO_RESOLVED");
     });
 
-    it("should block resolution if round has not met threshold from requires or meta, even if text matches", async () => {
+    it("should block resolution if round has not met threshold from requires or meta", async () => {
       mockRound = 2;
       const entity = {
         future: [
@@ -207,11 +146,11 @@ describe("context_broker", () => {
         ],
       };
 
-      await context_broker.manage_vector_lifecycle(entity, "eating a banana");
+      await context_broker.manage_vector_lifecycle(entity);
       expect(temporal_engine.resolve).not.toHaveBeenCalled();
     });
 
-    it("should resolve when round has met threshold, even without log text", async () => {
+    it("should resolve when round has met threshold", async () => {
       mockRound = 3;
       const entity = {
         future: [
@@ -223,23 +162,8 @@ describe("context_broker", () => {
         ],
       };
 
-      await context_broker.manage_vector_lifecycle(entity, "");
+      await context_broker.manage_vector_lifecycle(entity);
       expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED");
-    });
-
-    it("should fallback to legacy fuzzy matching when no requirements are defined", async () => {
-      const entity = {
-        future: [
-          {
-            id: "v_legacy",
-            vector_tags: ["cherry"],
-            directive: "Cherry cherry",
-          },
-        ],
-      };
-
-      await context_broker.manage_vector_lifecycle(entity, "I love cherry.");
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_legacy", "AUTO_RESOLVED");
     });
   });
 

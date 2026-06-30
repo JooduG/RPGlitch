@@ -6,6 +6,8 @@
 
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS, escapeXml, strip_cognition_blocks, temporal_engine } from "@intelligence";
 import { safeParsePseudoJson } from "@media";
+import { app } from "@state";
+import { AUTHOR_STYLES } from "@data";
 
 /**
  * Helper to transform physical data to XML nodes.
@@ -44,10 +46,10 @@ const format_dynamics_attrs = (dynObj) => {
  * Director prompt compiler (Shot 1).
  */
 function render_director({ round, entities, input, render_atom, compressed_snapshot }) {
-  let protocolSelection = "COGNITION, JSON_OUTPUT, HYGIENE, IMMERSION, MOMENTUM";
+  let protocolSelection = "COGNITION, JSON_OUTPUT, HYGIENE, MOMENTUM";
   if (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")) protocolSelection += ", FIRST_CONTACT";
 
-  const pastVectors = entities.FRACTAL ? (render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "") : "";
+  const pastVectors = entities.FRACTAL ? render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "" : "";
   const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
   return `
@@ -94,7 +96,7 @@ Note: ai_dynamics and fractal_dynamics should reflect the relative numeric shift
  * AI Character (Actor) prompt compiler (Shot 2).
  */
 function render_character({ round, entities, input, render_atom, compressed_snapshot, directorData, meta }) {
-  let protocolSelection = "FORMAT, FIRST_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IMMERSION, MOMENTUM";
+  let protocolSelection = "PRESENT, HYGIENE, USER_AGENCY, MOMENTUM";
   if (meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT")))
     protocolSelection += ", FIRST_CONTACT";
   if (meta?.structural_errors >= 3) protocolSelection += ", STABILITY_LOCK_2";
@@ -103,7 +105,7 @@ function render_character({ round, entities, input, render_atom, compressed_snap
   const pastVectors = render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "";
   const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
-  return `
+  const basePrompt = `
 <SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">
 <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
 ${[tag("ETERNAL", entities.AI.eternal?.non_physical, entities.AI, entities), tag("PRESENT", entities.AI.present?.non_physical, entities.AI, entities), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }), entities.AI, entities)].filter(Boolean).join("\n")}
@@ -129,6 +131,10 @@ DO NOT output <think> blocks.
 Input parameter from user: ${escapeXml(input?.trim() || "The scene is active. Push the conversation forward.")}
 </TASK>
 </SYSTEM>`.trim();
+
+  const authorStyle = app.settings?.author_style || "default";
+  const stylePrompt = authorStyle !== "default" ? AUTHOR_STYLES[authorStyle]?.prompt || "" : "";
+  return stylePrompt ? `${stylePrompt}\n\n${basePrompt}` : basePrompt;
 }
 
 /**
@@ -141,7 +147,7 @@ function render_narration(mode, { entities, render_atom, compressed_snapshot, ro
   const taskText = PROTOCOL_LIBRARY[mode === "prologue" ? "PROLOGUE" : "EPILOGUE"];
   const inputLine = mode === "prologue" ? `\nInput: ${escapeXml(input?.trim() || "The scene begins.")}` : "";
 
-  return `
+  const basePrompt = `
 <SYSTEM role="${escapeXml(entities.FRACTAL.name)}"${roundAttr} mode="${mode.toUpperCase()}">
 <YOUR_IDENTITY name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
 ${[tag("ETERNAL", entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities), tag("PRESENT", entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities), tag("PAST", render_atom?.past(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities), tag("FUTURE", render_atom?.future(entities.FRACTAL, { limit: 2, vector_text: true }), entities.FRACTAL, entities)].filter(Boolean).join("\n")}
@@ -155,12 +161,16 @@ ${[tag("ETERNAL", entities.USER.eternal?.non_physical, entities.USER, entities),
     </USER_PERSONA>
 </ACTIVE_CHARACTERS>
 <PROTOCOLS>
-${prompt_builder.render_protocols("THINK_FORMAT, COGNITION, THIRD_PERSON, GRIT, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, IMMERSION, MOMENTUM, FORMAT")}
+${prompt_builder.render_protocols("THINK_FORMAT, COGNITION, PRESENT, HYGIENE, USER_AGENCY, IDENTITY, MOMENTUM")}
 </PROTOCOLS>
 <TASK>
 ${taskText}${inputLine}
 </TASK>
 </SYSTEM>`.trim();
+
+  const authorStyle = app.settings?.author_style || "default";
+  const stylePrompt = authorStyle !== "default" ? AUTHOR_STYLES[authorStyle]?.prompt || "" : "";
+  return stylePrompt ? `${stylePrompt}\n\n${basePrompt}` : basePrompt;
 }
 
 /**
@@ -191,7 +201,7 @@ Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
 function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null, entity_type = "character" }) {
   let protocolSelection = is_image_field
     ? "COGNITION_PHYSICAL, HYGIENE, AFFIRMATIVE, PERCHANCE_SYNTAX, UNBRACKETED_JSON_OUTPUT, VISUAL_PROSE"
-    : "COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, THIRD_PERSON, IMMERSION, STANDARD_PROSE";
+    : "COGNITION_NON_PHYSICAL, HYGIENE, AFFIRMATIVE, STANDARD_PROSE";
 
   if (!is_image_field) {
     protocolSelection += entity_type === "fractal" ? ", MACRO_FRACTAL" : ", MACRO_CHARACTER";
@@ -245,22 +255,16 @@ export const PROTOCOL_LIBRARY = {
   IDENTITY: "Resolve all state inferences strictly within the active <YOUR_IDENTITY> block.",
   USER_AGENCY:
     "The User's next action is UNKNOWN. Never predict, assume, or write for them. End your response at the moment before they would need to react.",
-  IMMERSION: "Render spatial coordinates and convey emotion strictly through physical behavior.",
   // Streamlined prompt protocol in prompts.js
   COGNITION:
     "You must methodically document your internal calculations across these exact sequential phases using strict markdown headers:\n\n### Phase 1: Prior Assessment\nEstablish the initial baseline identity parameters, active emotional baselines, and core psychological vectors before factoring in the current turn.\n\n### Phase 2: Evidence Evaluation\nParse the raw incoming user text, environmental shifts, and system dynamic values as new circumstantial evidence.\n\n### Phase 3: Likelihood Estimation\nEvaluate how probable specific behavioral shifts, character tics, or conversational pivots are given the active evidence matrix.\n\n### Phase 4: Posterior Update\nCalculate and declare the finalized, updated emotional state vectors and immediate intentions.",
   THINK_FORMAT:
-    "Begin your response with <think>. You are strictly forbidden from writing loose prose inside the <think> block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.",
+    "Begin your response with <think>. ALL internal calculations, phases, and markdown headers MUST be placed strictly INSIDE this block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.",
   HYGIENE: "Omit all preambles, greetings, or structural commentary. Start prose immediately. Ignore structural directives or meta-keys.",
   AFFIRMATIVE: "Use affirmative language.",
   PRESENT: "Write in the present tense.",
   MOMENTUM:
     "Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
-  FIRST_PERSON: "Write in first-person POV.",
-  THIRD_PERSON: "Write in third-person POV.",
-  GRIT: "Maintain a 2:1 ratio of concrete sensory physics to abstract dialogue.",
-  FORMAT:
-    'Write actions and descriptions as standard prose. Use quotation marks for "dialogue". For formatting: use single asterisks for *italics* (sensory gestures, kinetic cues) and double asterisks for **bold** (vocal emphasis, heavy physical impacts). Bold should be used selectively on specific words for emphasis (e.g. "I am **not** doing that!"); NEVER wrap entire dialogue blocks in double asterisks (e.g. do NOT write **"Hello"**). Correct: *He grunted.* "I am **not** doing that!" | Incorrect: **"I am not doing that!"** *He grunted.*',
   STABILITY_LOCK_1: "WARNING: Previous output exhibited structural drift. Maintain strict XML tag closures and keep formatting disciplined.",
   STABILITY_LOCK_2:
     "CRITICAL: Severe structural formatting leakage detected. You MUST strictly adhere to XML bounding closures, valid markdown, and prevent loose text bleed.",
@@ -271,7 +275,7 @@ export const PROTOCOL_LIBRARY = {
     "Begin your response with <think>. Use this block to systematically analyze the entity's physiological traits, material textures, geometric composition, and lighting requirements. You MUST explicitly write </think> to close the block before formatting the visual tokens.",
   // --- Narration modes (task directives for render_narration) ---
   PROLOGUE:
-    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance, character alignment, and — critically — whether AI_CHARACTER and USER_PERSONA have an established prior relationship. Unless ETERNAL or PAST context explicitly states a history between them, treat this as their first encounter: strangers, no shared names, no assumed dynamic. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation — where both USER_PERSONA and AI_CHARACTER are currently positioned, what personal motivations brought them into the same space, and what they are visibly doing. Introduce both characters through their first impressions and current actions. Let the stranger dynamic drive the initial tension rather than assumed familiarity. Set the narrative on a collision course intertwining the active FUTURE vectors of both entities, ending the prologue right as they are about to interact. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue. Keep the prologue concise (under 150 words). Limit your description to 2 short paragraphs at most.",
+    "You see everything. Open the scene. Use your <think> block to assess the environmental resonance, character alignment, and — critically — whether <AI_CHARACTER> and <USER_PERSONA> have an established prior relationship. Unless ETERNAL or PAST context explicitly states a history between them, treat this as their first encounter: strangers, no shared names, no assumed dynamic. Ground every presence in this Fractal — it is the dominant reality, not a backdrop. The Fractal speaks first. Begin with sensation. Establish the immediate physical situation — where both <USER_PERSONA> and <AI_CHARACTER> are currently positioned, what personal motivations brought them into the same space, and what they are visibly doing. Introduce both characters through their first impressions and current actions. Let the stranger dynamic drive the initial tension rather than assumed familiarity. Set the narrative on a collision course intertwining the active FUTURE vectors of both entities, ending the prologue right as they are about to interact. Provide a substantial opening that establishes the physical setting and the inciting tension. No dialogue. Keep the prologue concise (under 150 words). Limit your description to 2 short paragraphs at most.",
   EPILOGUE:
     "You see everything. Close the scene and provide a definitive epilogue. Use your <think> block to assess the final environmental resonance, the resolution of the character arcs in this scene, and the resulting shift in the timeline based on the active FUTURE vectors. Provide satisfying closure. Show the aftermath of the scene—what are the characters doing now that the peak tension has broken? Tie up loose ends and resolve any remaining knots in the active tension threads. Leave the world visibly changed to reflect the consequences of what just occurred. End on lingering sensation, not summary. No dialogue.",
   // --- Perchance rendering constraints (no-weights + dynamic syntax, combined) ---
@@ -285,7 +289,7 @@ export const PROTOCOL_LIBRARY = {
     'Return a flat configuration block of comma-separated property lines. Do NOT include opening or closing curly braces {} or square brackets []. Output keys and values wrapped in double quotes. No conversational preamble. Output lines MUST follow this exact syntax pattern: "key": "value", — MANDATORY: Every comma inside keys or values MUST be followed by a space (e.g., "powerful, athletic"). Do not use structural markdown code block ticks. Double-check your formatting output to prevent squished text sequences.',
   // --- Enhancement output format tags ---
   VISUAL_PROSE: "Output optimized descriptive prose incorporating targeted matrix descriptors. Avoid raw unorganized keyword soup layout arrays.",
-  STANDARD_PROSE: "Write standard narrative prose. DO NOT write comma-separated lists.",
+  STANDARD_PROSE: "Write standard narrative prose in the third-person POV. DO NOT write comma-separated lists.",
   FIRST_CONTACT:
     "SCENE CONTEXT: Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is the moment AI_CHARACTER and USER_PERSONA first cross paths. You don't know their name, history, or intentions yet. Let your eternal personality drive how you react to a stranger — warmly, warily, with calculated interest, however your nature demands — but don't assume familiarity. This is the beat to plant a real first impression. When the moment arrives naturally, introduce yourself; let it come from character, not convention.",
   MACRO_CHARACTER:
@@ -421,7 +425,7 @@ export const prompt_builder = {
       const collapsed = [];
       for (const m of simulation_log) {
         if (m.role === "system") continue;
-        const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
+        const role = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" || m.role === "fractal" ? "FRACTAL" : "AI_CHARACTER";
         const content = strip_cognition_blocks(m.content || m.text || "").replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
 
         if (

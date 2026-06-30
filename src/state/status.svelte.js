@@ -10,6 +10,7 @@ import { app } from "@state";
  * @property {boolean} auto_scroll - Toggles automatic log scrolling to the bottom of the stack.
  * @property {boolean} dev_mode - Enables the Telemetry HUD and system debug overrides.
  * @property {boolean} dev_grid_visible - Toggles the visual chess grid overlay.
+ * @property {string} [author_style] - The active narrative writing style profile in the session.
  */
 
 /**

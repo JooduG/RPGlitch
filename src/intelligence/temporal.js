@@ -113,18 +113,14 @@ export function score(vectors, input) {
  * @param {TemporalVector[]} vectors
  * @param {string} input
  * @param {Object} [options]
- * @param {string} [options.mode]
  * @param {number} [options.limit]
  * @param {boolean} [options.vector_directive]
- * @param {boolean} [options.vector_label]
  * @param {number} [options.offset]
  * @returns {string}
  */
 export function format(vectors, input, options = {}) {
-  const mode = options.mode || "past";
   const limit = options.limit || 3;
   const show_directive = options.vector_directive ?? true;
-  const show_label = options.vector_label ?? true;
   const max_chars = options.max_chars || 1500;
 
   const offset = options.offset || 0;
@@ -151,23 +147,6 @@ export function format(vectors, input, options = {}) {
 
   return sorted
     .map((v) => {
-      const weight = v.emotional_weight ?? v.base_weight ?? 5;
-      let label;
-
-      if (mode === "past") {
-        if (weight >= 10) label = "CORE_ANCHOR";
-        else if (weight >= 8) label = "MAJOR_ANCHOR";
-        else if (weight >= 7) label = "ANCHOR";
-        else label = "MINOR_ANCHOR";
-      } else {
-        if (weight >= 10) label = "PIVOTAL_IMPULSE";
-        else if (weight >= 8) label = "MAJOR_IMPULSE";
-        else if (weight >= 7) label = "IMPULSE";
-        else label = "ACTIVE_IMPULSE";
-      }
-
-      if (show_label && show_directive) return `[${label}]: ${v.directive}`;
-      if (show_label) return `[${label}]`;
       if (show_directive) return v.directive;
       return "";
     })

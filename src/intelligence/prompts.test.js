@@ -1,4 +1,5 @@
 import { prompt_builder } from "@intelligence";
+import { app } from "@state";
 import { describe, expect, it } from "vitest";
 
 describe("prompt_builder (Refactored)", () => {
@@ -111,22 +112,22 @@ describe("prompt_builder (Refactored)", () => {
           name: "Viper",
           present: { non_physical: "Viper Present" },
           eternal: { non_physical: "Viper Eternal" },
-          past: [{ text: "Viper past 1" }],
-          future: [{ text: "Viper future 1" }],
+          past: [{ directive: "Viper past 1" }],
+          future: [{ directive: "Viper future 1" }],
         },
         USER: {
           name: "Ghost",
           present: { non_physical: "Ghost Present" },
           eternal: { non_physical: "Ghost Eternal" },
-          past: [{ text: "Ghost past 1" }],
+          past: [{ directive: "Ghost past 1" }],
           future: [],
         },
         FRACTAL: {
           name: "Void",
           present: { non_physical: "Void Present" },
           eternal: { non_physical: "Void Eternal" },
-          past: [{ text: "Void past 1" }],
-          future: [{ text: "Void future 1" }],
+          past: [{ directive: "Void past 1" }],
+          future: [{ directive: "Void future 1" }],
         },
       },
       simulation_log: [],
@@ -198,8 +199,8 @@ describe("prompt_builder (Refactored)", () => {
             name: "Viper",
             present: { non_physical: "Present" },
             eternal: { non_physical: "Eternal" },
-            past: [{ text: "P1", base_weight: 9 }],
-            future: [{ text: "F1", base_weight: 9 }],
+            past: [{ directive: "P1", base_weight: 9 }],
+            future: [{ directive: "F1", base_weight: 9 }],
           },
           USER: {
             name: "Ghost",
@@ -337,6 +338,60 @@ describe("prompt_builder (Refactored)", () => {
       const fractalResult = prompt_builder.build_profile_sorting_prompt("Raw text block", "fractal");
       expect(fractalResult.system).toContain("CRITICAL FOCUS: You are extracting data to define a FRACTAL");
       expect(fractalResult.system).toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
+    });
+
+    it("should prepend author style prompt to build_character_prompt if app.settings.author_style is active", () => {
+      app.settings.author_style = "anna_zaires";
+      const mockPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+      const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
+      expect(result.system).toContain("<STYLE_PROFILE author='anna_zaires'>");
+      app.settings.author_style = "default";
+    });
+
+    it("should not prepend author style prompt if app.settings.author_style is 'default'", () => {
+      app.settings.author_style = "default";
+      const mockPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+      const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
+      expect(result.system).not.toContain("<STYLE_PROFILE");
+    });
+
+    it("should prepend author style prompt to render_narration (prologue) if active", () => {
+      app.settings.author_style = "william_gibson";
+      const mockPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+      const prologue_payload = { ...mockPayload, type: "prologue" };
+      const result = prompt_builder.synthesize(prologue_payload, mockSnapshot);
+      expect(result.system).toContain("<STYLE_PROFILE author='william_gibson'>");
+      app.settings.author_style = "default";
     });
   });
 });

@@ -11,3 +11,4 @@ export {
 } from "./normalizer.js";
 export { premade } from "./premades.js";
 export { LISTS } from "./lists.js";
+export { AUTHOR_STYLES } from "./author-styles.js";

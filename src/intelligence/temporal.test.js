@@ -186,9 +186,9 @@ describe("temporal_engine", () => {
 
       const result = temporal_engine.format(past, "", { mode: "past" });
 
-      expect(result).toContain("[CORE_ANCHOR]: Core memory");
-      expect(result).toContain("[MAJOR_ANCHOR]: Major memory");
-      expect(result).toContain("[MINOR_ANCHOR]: Minor memory");
+      expect(result).toContain("Core memory");
+      expect(result).toContain("Major memory");
+      expect(result).toContain("Minor memory");
     });
 
     it("labels future entries as impulses", () => {
@@ -208,7 +208,7 @@ describe("temporal_engine", () => {
 
       const result = temporal_engine.format(future, "", { mode: "future" });
 
-      expect(result).toContain("[ACTIVE_IMPULSE]: Prophecy");
+      expect(result).toContain("Prophecy");
     });
   });
 

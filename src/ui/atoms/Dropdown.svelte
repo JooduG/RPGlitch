@@ -14,6 +14,8 @@
     items = [], // Array of { value: string, label: string, region?: string, tag?: string, disabled?: boolean }
     label = "Select Option",
     disabled = false,
+    uppercase = true,
+    matchWidth = false,
 
     // Callbacks
     onchange = undefined,
@@ -44,12 +46,11 @@
       text-left
       font-sans
       text-sm
-      font-extrabold
       text-white
-      uppercase
+      {uppercase ? 'uppercase' : ''}
       transition-[background-color,color,box-shadow,transform,filter,border-color]
       duration-500
-      ease-(--ease-out)
+      ease-out
 
       hover:brightness-125
 
@@ -75,6 +76,9 @@
       "
     >
       {selected_item ? selected_item.label : label}
+      {#if selected_item && (selected_item.region || selected_item.tag)}
+        <span class="opacity-50"> - {selected_item.region || selected_item.tag}</span>
+      {/if}
     </span>
     <svg
       viewBox="0 0 24 24"
@@ -95,19 +99,18 @@
   </Select.Trigger>
 
   <Select.Portal>
-    <Select.Content sideOffset={8} align="start" forceMount>
-      {#snippet child({ wrapperProps, props, open })}
-        {#if open}
-          <div {...wrapperProps}>
-            <div
-              {...props}
-              data-dropdown-menu
-              class="
-                z-max
-                flex
-                max-h-36
-                w-[calc(var(--bits-select-anchor-width)+3.5rem)]
-                flex-col
+    <Select.Content sideOffset={8} align="start">
+      {#snippet child({ wrapperProps, props })}
+        <div {...wrapperProps}>
+          <div
+            {...props}
+            data-dropdown-menu
+            class="
+              z-max
+              flex
+              max-h-36
+              {matchWidth ? 'w-(--bits-select-anchor-width)' : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
+              flex-col
                 overflow-hidden
                 rounded-xl
                 border
@@ -116,18 +119,18 @@
                 bg-(--signature-color,#555d66)
                 shadow-[0_4px_16px_rgba(0,0,0,0.3)]
               "
-              transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
-            >
-              <Select.Viewport
-                class="
+            transition:scale={{ duration: 150, start: 0.95, opacity: 0 }}
+          >
+            <Select.Viewport
+              class="
                   overflow-hidden
                   p-1.5
                 "
-              >
-                <ScrollArea style="max-height: inherit;">
-                  {#each items as item (item.value)}
-                    <Select.Item
-                      class="
+            >
+              <ScrollArea style="max-height: inherit;">
+                {#each items as item (item.value)}
+                  <Select.Item
+                    class="
                         flex
                         w-full
                         cursor-pointer
@@ -145,7 +148,7 @@
 
                         transition-[background-color,color,box-shadow,transform,filter,border-color]
                         duration-500
-                        ease-(--ease-out)
+                        ease-out
 
                         outline-none
                         select-none
@@ -167,44 +170,28 @@
 
                         data-[state=checked]:brightness-110
                       "
-                      value={item.value}
-                      label={item.label}
-                      disabled={item.disabled}
-                    >
-                      <span
-                        class="
+                    value={item.value}
+                    label={item.label}
+                    disabled={item.disabled}
+                  >
+                    <span
+                      class="
                           flex-1
                           truncate
-                        ">{item.label}</span
-                      >
+                          {uppercase ? 'uppercase' : ''}
+                        "
+                    >
+                      {item.label}
                       {#if item.region || item.tag}
-                        <div
-                          class="
-                            flex
-                            shrink-0
-                            flex-row
-                            flex-wrap
-                            justify-end
-                            gap-2
-                            text-right
-                            text-xs
-                            leading-none
-                            font-extrabold
-                            tracking-wider
-                            text-white/50
-                            uppercase
-                          "
-                        >
-                          <span>{item.region || item.tag}</span>
-                        </div>
+                        <span class="opacity-50"> - {item.region || item.tag}</span>
                       {/if}
-                    </Select.Item>
-                  {/each}
-                </ScrollArea>
-              </Select.Viewport>
-            </div>
+                    </span>
+                  </Select.Item>
+                {/each}
+              </ScrollArea>
+            </Select.Viewport>
           </div>
-        {/if}
+        </div>
       {/snippet}
     </Select.Content>
   </Select.Portal>
