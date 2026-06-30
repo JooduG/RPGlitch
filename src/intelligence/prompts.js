@@ -102,7 +102,7 @@ function render_character({ round, entities, input, render_atom, compressed_snap
   const pastVectors = render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }) || "";
   const fractalPast = pastVectors ? `  <PAST>${escapeXml(pastVectors)}</PAST>` : "";
 
-  const basePrompt = `<SYSTEM role="IDENTITY" round="${escapeXml(String(round))}">
+  const basePrompt = `<SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">
 <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
 ${[tag("ETERNAL", entities.AI.eternal?.non_physical, entities.AI, entities), tag("PRESENT", entities.AI.present?.non_physical, entities.AI, entities), tag("PAST", render_atom.past(entities.AI, { limit: 2, vector_text: true }), entities.AI, entities), tag("FUTURE", render_atom.future(entities.AI, { limit: 1, vector_text: true }), entities.AI, entities)].filter(Boolean).join("\n")}
 </YOUR_IDENTITY>
@@ -115,7 +115,10 @@ ${[tag("ETERNAL", entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, ent
 <PROTOCOLS>
 ${prompt_builder.render_protocols(protocolSelection)}
 </PROTOCOLS>
-<TASK>
+${(() => {
+  const authorStyle = typeof app !== "undefined" && app.settings?.author_style ? app.settings.author_style : "default";
+  return authorStyle !== "default" && AUTHOR_STYLES[authorStyle]?.prompt ? `${AUTHOR_STYLES[authorStyle].prompt}\n` : "";
+})()}<TASK>
 You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name)}.
 
 <USER_INPUT>
@@ -131,9 +134,7 @@ DO NOT output <think> blocks.
 </TASK>
 </SYSTEM>`.trim();
 
-  const authorStyle = app.settings?.author_style || "default";
-  const stylePrompt = authorStyle !== "default" ? AUTHOR_STYLES[authorStyle]?.prompt || "" : "";
-  return stylePrompt ? `${stylePrompt}\n\n${basePrompt}` : basePrompt;
+  return basePrompt;
 }
 
 /**

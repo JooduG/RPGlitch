@@ -156,13 +156,18 @@ export const llm_service = {
     const chat_history = llm_service._format_history(payload.messages || []);
 
     // 2. Assemble the final instruction block
-    const instruction = [
-      payload.system || "",
-      chat_history ? `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>` : "",
-      payload.startWith ? `\n\n[START RESPONSE WITH]\n${payload.startWith}` : "",
-    ]
-      .filter(Boolean)
-      .join("\n\n");
+    let instruction = payload.system || "";
+    if (chat_history) {
+      if (instruction.endsWith("</SYSTEM>")) {
+        instruction =
+          instruction.substring(0, instruction.length - 10) + `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>\n</SYSTEM>`;
+      } else {
+        instruction += `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`;
+      }
+    }
+    if (payload.startWith) {
+      instruction += `\n\n[START RESPONSE WITH]\n${payload.startWith}`;
+    }
 
     try {
       // 3. Prepare generation parameters
