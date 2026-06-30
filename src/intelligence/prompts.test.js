@@ -52,11 +52,11 @@ describe("prompt_builder (Refactored)", () => {
     });
 
     it("render_protocols() should return bulleted list of defined protocols", () => {
-      const result = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
-      expect(result).toContain(
-        "- Proactively drive the scene forward. Avoid conversational stagnation. Every turn must introduce a shifting micro-tension, physical movement, environmental shift, or psychological progression while matching the scene's emotional volume.",
+      const out = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
+      expect(out).toContain(
+        "- Proactively drive the scene forward. Avoid conversational stagnation by introducing shifting micro-tension, physical movement, or psychological progression. CRITICAL CADENCE: You must organically end your turn with one of four dominant hooks to demand the user's reaction: a decisive statement or challenge, a physical action directed at them, hovering on a moment of high sensory suspense, or deliberately stopping speech to force them to fill the void. Do NOT output structural tags like [Statement] or [Action].",
       );
-      expect(result).toContain("- Omit all preambles, greetings, or structural commentary. Start prose immediately.");
+      expect(out).toContain("- Omit all preambles, greetings, or structural commentary. Start prose immediately.");
     });
   });
 
@@ -100,7 +100,7 @@ describe("prompt_builder (Refactored)", () => {
     it("render_tag() should apply macros before escaping", () => {
       const value = "Hello {{me}} <test>";
       const result = prompt_builder.render_tag("GREETING", value, mockEntities.AI, mockEntities);
-      expect(result).toBe("  <GREETING>Hello Viper &lt;test&gt;</GREETING>");
+      expect(result).toBe("<GREETING>Hello Viper &lt;test&gt;</GREETING>");
     });
   });
 
@@ -354,7 +354,7 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
-      expect(result.system).toContain("<STYLE_PROFILE author='anna_zaires'>");
+      expect(result.system).toContain('<NARRATIVE_STYLE author="anna_zaires">');
       app.settings.author_style = "default";
     });
 
@@ -374,8 +374,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
       expect(result.system).not.toContain("<STYLE_PROFILE");
     });
-
-    it("should prepend author style prompt to render_narration (prologue) if active", () => {
+    it("should prepend author style prompt to render_narrator (prologue) if active", () => {
       app.settings.author_style = "william_gibson";
       const mockPayload = {
         round: 1,
@@ -390,8 +389,53 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, mockSnapshot);
-      expect(result.system).toContain("<STYLE_PROFILE author='william_gibson'>");
+      expect(result.system).toContain('<NARRATIVE_STYLE author="william_gibson">');
       app.settings.author_style = "default";
+    });
+
+    it("should include EPISTEMIC_PHYSICS in build_character_prompt but not build_epilogue or prologue narrator narration", () => {
+      const mockPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const charResult = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
+      expect(charResult.system).toContain("The narrative scope is strictly constrained to this character's immediate sensory field");
+
+      const epilogueResult = prompt_builder.build_epilogue(mockPayload.entities, {}, []);
+      expect(epilogueResult.system).not.toContain("The narrative scope is strictly constrained to this character's immediate sensory field");
+
+      const prologuePayload = { ...mockPayload, type: "prologue" };
+      const prologueResult = prompt_builder.synthesize(prologuePayload, mockSnapshot);
+      expect(prologueResult.system).not.toContain("The narrative scope is strictly constrained to this character's immediate sensory field");
+    });
+
+    it("should omit USER_INPUT and INTERNAL_DIRECTIVE tags if they are empty", () => {
+      const mockPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const charResult = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, { directive: "" });
+      expect(charResult.system).not.toContain("</USER_INPUT>");
+      expect(charResult.system).not.toContain("</INTERNAL_DIRECTIVE>");
+
+      const dirResult = prompt_builder.build_director_prompt(mockPayload, mockSnapshot);
+      expect(dirResult.system).not.toContain("</USER_INPUT>");
     });
   });
 });
