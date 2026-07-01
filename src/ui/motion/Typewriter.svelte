@@ -285,8 +285,6 @@
   this={as}
   class="
     font-[inherit]
-    leading-normal
-    tracking-normal
     {as === 'span' ? 'inline-block' : 'block'}
     {className}"
   style="content-visibility: auto;"

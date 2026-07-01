@@ -122,25 +122,60 @@
     return "";
   });
 
+  let visible_feed = $derived.by(() => {
+    const list = [...simulation_log.feed];
+    if (is_active_turn) {
+      const active_id = app.streaming.nodeId ?? app.streaming.node_id ?? "temp";
+      if (!list.some((entry) => entry.id === active_id)) {
+        list.push({
+          id: active_id,
+          text: app.streaming.text ?? app.streaming.content ?? "",
+          role: active_turn_role ?? "ai",
+          character_name: active_turn_name ?? "",
+          created_at: Date.now(),
+          busy: true,
+        });
+      }
+    }
+    return list;
+  });
+
   // Advanced Kinetic Viewport Auto-Scroll Controller
   $effect(() => {
-    if ((simulation_log.feed.length || app.streaming.active) && scroll_ref) {
-      const el = scroll_ref.querySelector(".scroll-area-viewport");
-      if (!el) return;
+    // Read dependencies to trigger effect
+    const isActive = app.streaming.active;
+    const _len = visible_feed.length;
 
+    if (!scroll_ref) return;
+    const el = scroll_ref.querySelector(".scroll-area-viewport");
+    if (!el) return;
+
+    const scroll_to_bottom = (smooth = true) => {
       const is_reduced = motion.isReduced;
+      if (is_reduced || !smooth || typeof el.scrollTo !== "function") {
+        el.scrollTop = el.scrollHeight;
+      } else {
+        el.scrollTo({
+          top: el.scrollHeight,
+          behavior: "smooth",
+        });
+      }
+    };
 
-      // Unwind layout calculations safely inside framework execution ticks
-      tick().then(() => {
-        if (is_reduced || typeof el.scrollTo !== "function") {
-          el.scrollTop = el.scrollHeight;
-        } else {
-          el.scrollTo({
-            top: el.scrollHeight,
-            behavior: "smooth",
-          });
+    // Trigger immediate scroll on major state changes
+    tick().then(() => scroll_to_bottom(true));
+
+    // Track dynamic height expansion during streaming
+    if (isActive) {
+      const observer = new MutationObserver(() => {
+        // Only auto-scroll if the user hasn't scrolled far up manually
+        const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200;
+        if (isNearBottom) {
+          scroll_to_bottom(false); // Instant scroll to prevent animation fighting
         }
       });
+      observer.observe(el, { childList: true, subtree: true, characterData: true });
+      return () => observer.disconnect();
     }
   });
 
@@ -215,7 +250,7 @@
   bind:this={scroll_ref}
 >
   <ScrollArea style="height: 100%; width: 100%;">
-    {#each simulation_log.feed as entry, index (entry.id)}
+    {#each visible_feed as entry, index (entry.id)}
       <Message
         id={entry.id}
         text={entry.text}
@@ -223,7 +258,7 @@
         character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
         timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
         attachments={entry.attachments}
-        is_last={index === simulation_log.feed.length - 1}
+        is_last={index === visible_feed.length - 1}
         on_delete={() => handle_delete(index)}
         on_regenerate={() => Chrono.retry()}
         on_continue={() => Chrono.continue()}
@@ -234,20 +269,11 @@
           editing_index = null;
         }}
         meta={entry.meta}
+        busy={entry.busy}
       />
     {/each}
 
-    {#if is_active_turn}
-      <Message
-        id={app.streaming.nodeId ?? app.streaming.node_id ?? "temp"}
-        text={app.streaming.text ?? app.streaming.content ?? ""}
-        sender={active_turn_role ?? "ai"}
-        character_name={active_turn_name ?? ""}
-        timestamp={new Date()}
-        is_last={true}
-        busy={true}
-      />
-    {:else if simulation_log.feed.length === 0}
+    {#if visible_feed.length === 0}
       <div
         class="
           flex
@@ -267,5 +293,8 @@
         <Button variant="primary" onclick={() => Chrono.retry()} label="Retry Connection" />
       </div>
     {/if}
+
+    <!-- SPACER for UnifiedConsole overlap -->
+    <div class="h-[calc(var(--spacing-row-unit)*2)] w-full shrink-0"></div>
   </ScrollArea>
 </div>

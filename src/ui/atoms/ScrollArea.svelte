@@ -28,6 +28,7 @@
 >
   <ScrollArea.Viewport
     class="
+      scroll-area-viewport
       h-full
       max-h-[inherit]
       min-h-0

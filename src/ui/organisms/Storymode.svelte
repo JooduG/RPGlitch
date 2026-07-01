@@ -96,15 +96,10 @@
         <Skeleton variant="card" width="100%" height="100%" />
       {:else}
         <StorymodeFeed />
-        <div
-          class="
-          z-30
-          w-full
-          shrink-0
-          pb-row-unit
-        "
-        >
-          <UnifiedConsole />
+        <div class="pointer-events-none absolute bottom-0 z-30 w-full pb-row-unit">
+          <div class="pointer-events-auto">
+            <UnifiedConsole />
+          </div>
         </div>
       {/if}
     </div>

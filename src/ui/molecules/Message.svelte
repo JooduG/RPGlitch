@@ -86,7 +86,7 @@
 
   let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
 
-  let is_extended = $derived(isFocused || busy || is_editing);
+  let is_extended = $derived(isFocused || is_editing);
 
   let parsed = $derived(parse_message(text));
   let display_text = $derived(parsed.displayText);
@@ -475,40 +475,7 @@
             </div>
           </DataBox>
         {/if}
-        {#if should_use_typewriter}
-          <div
-            class="
-              text-left
-              text-base
-              leading-relaxed
-              text-pretty
-              text-white
-
-              [&_.dialogue]:text-[1.12em]
-              [&_.dialogue]:font-medium
-
-              [&_em]:italic
-              [&_em]:opacity-75
-
-              [&_p]:mb-4
-              [&_p:last-child]:mb-0
-              [&_strong]:font-bold
-
-              [&_strong]:text-(--signature-color,var(--color-slate-400))
-              [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
-            "
-          >
-            {#if has_display_text}
-              <Typewriter targetHtml={display_text} bind:isFinished={is_typing_finished} />
-            {:else if busy}
-              <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
-                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-              </div>
-            {/if}
-          </div>
-        {:else}
+        {#if !should_use_typewriter}
           {#if app.settings.dev_mode}
             {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
               <div class="mb-4">
@@ -556,47 +523,57 @@
               {/each}
             </div>
           {/if}
+        {/if}
 
-          {#if is_editing || has_display_text}
-            {#if is_editing}
-              <TextField bind:value={local_text} is_edit={true} {signature_color} no_background={true} placeholder="Edit message..." />
-            {:else}
-              <div
-                class="
-                  text-left
-                  text-base
-                  leading-relaxed
-                  text-pretty
-                  text-white
+        {#if is_editing}
+          <TextField bind:value={local_text} is_edit={true} {signature_color} no_background={true} placeholder="Edit message..." />
+        {:else if has_display_text || busy}
+          <div
+            class="
+              text-left
+              text-base
+              leading-relaxed
+              text-pretty
+              text-white
 
-                  [&_.dialogue]:text-[1.12em]
-                  [&_.dialogue]:font-medium
-                  [&_.dialogue]:[text-shadow:0_0_1px_rgba(255,255,255,0.1)]
+              [&_.dialogue]:text-[1.12em]
+              [&_.dialogue]:font-medium
 
-                  [&_em]:italic
-                  [&_em]:opacity-75
+              [&_em]:italic
+              [&_em]:opacity-75
 
-                  [&_p]:mb-4
-                  [&_p:last-child]:mb-0
+              [&_p]:mb-4
+              [&_p:last-child]:mb-0
 
-                  [&_strong]:font-bold
-                  [&_strong]:text-(--signature-color,var(--color-slate-400))
-                  [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
+              [&_strong]:font-bold
+              [&_strong]:text-(--signature-color,var(--color-slate-400))
+              [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
 
-                  {is_fractal ? 'text-center' : ''}
-                "
-              >
-                <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-                {@html display_text}
+              {is_fractal ? 'text-center' : ''}
+            "
+            style={!should_use_typewriter ? "content-visibility: auto;" : ""}
+          >
+            {#if should_use_typewriter}
+              {#if has_display_text}
+                <Typewriter targetHtml={display_text} bind:isFinished={is_typing_finished} />
+              {:else if busy}
+                <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
+                  <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                  <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                  <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                </div>
+              {/if}
+            {:else if has_display_text}
+              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
+              {@html display_text}
+            {:else if busy}
+              <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
+                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
               </div>
             {/if}
-          {:else if busy}
-            <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
-              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-              <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-            </div>
-          {/if}
+          </div>
         {/if}
       </div>
     </div>

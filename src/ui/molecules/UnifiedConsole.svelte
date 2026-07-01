@@ -5,6 +5,7 @@
    * Polymorphic command control system merging GlassPill, StoryboardPill, ControlPanel, and InputBar.
    * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
    */
+  import { tick } from "svelte";
   import { click_outside } from "@actions";
   import { Backdrop, Button, Dropdown, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
   import { db, stories, NARRATIVE_STYLES } from "@data";
@@ -197,6 +198,9 @@
     if (!text || is_locked) return;
 
     value = "";
+
+    // Wait for Svelte to flush the empty value to the DOM before measuring
+    await tick();
     adjust_height();
 
     try {
