@@ -128,9 +128,11 @@
       const el = scroll_ref.querySelector(".scroll-area-viewport");
       if (!el) return;
 
+      const is_reduced = motion.isReduced;
+
       // Unwind layout calculations safely inside framework execution ticks
       tick().then(() => {
-        if (motion.isReduced || typeof el.scrollTo !== "function") {
+        if (is_reduced || typeof el.scrollTo !== "function") {
           el.scrollTop = el.scrollHeight;
         } else {
           el.scrollTo({

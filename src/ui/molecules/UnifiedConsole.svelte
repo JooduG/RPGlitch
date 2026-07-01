@@ -7,7 +7,7 @@
    */
   import { click_outside } from "@actions";
   import { Backdrop, Button, Dropdown, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
-  import { db, stories, AUTHOR_STYLES } from "@data";
+  import { db, stories, NARRATIVE_STYLES } from "@data";
   import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color, visual_engine } from "@media";
@@ -45,7 +45,7 @@
     advanced: true,
   });
 
-  const author_options = Object.values(AUTHOR_STYLES).map((style) => ({
+  const author_options = Object.values(NARRATIVE_STYLES).map((style) => ({
     value: style.id,
     label: style.name,
     tag: style.core_themes ? style.core_themes.replace(/_/g, " ") : "",
@@ -387,25 +387,25 @@
                   <div class="min-h-0 overflow-hidden">
                     <div class="flex flex-col gap-4 pt-2 pb-4">
                       <Dropdown
-                        bind:value={app.settings.author_style}
+                        bind:value={app.settings.narrative_style}
                         items={author_options}
                         onchange={() => app.save_settings()}
                         label="Select Writing Style"
                         uppercase={false}
                         matchWidth={true}
                       />
-                      {#if app.settings.author_style && app.settings.author_style !== "default"}
+                      {#if app.settings.narrative_style && app.settings.narrative_style !== "default"}
                         <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/30 p-3">
                           <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                            {AUTHOR_STYLES[app.settings.author_style]?.name} Prompt Profile
+                            {NARRATIVE_STYLES[app.settings.narrative_style]?.name} Prompt Profile
                           </span>
                           <p class="m-0 text-xs leading-relaxed text-slate-300 italic">
-                            {AUTHOR_STYLES[app.settings.author_style]?.description}
+                            {NARRATIVE_STYLES[app.settings.narrative_style]?.description}
                           </p>
                           <textarea
                             readonly
                             class="h-32 w-full resize-y rounded-lg border border-white/5 bg-black/40 p-2 font-mono text-[10px] text-slate-400 focus:outline-none"
-                            value={AUTHOR_STYLES[app.settings.author_style]?.prompt}
+                            value={NARRATIVE_STYLES[app.settings.narrative_style]?.narrative_engine}
                           ></textarea>
                         </div>
                       {/if}

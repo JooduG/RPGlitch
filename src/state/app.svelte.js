@@ -128,7 +128,7 @@ export class AppStore {
     auto_scroll: true,
     dev_mode: false,
     dev_grid_visible: false,
-    author_style: "default",
+    narrative_style: "default",
   });
   // --- SENSORY ENGINES ---
   get visual() {

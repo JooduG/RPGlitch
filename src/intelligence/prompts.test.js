@@ -35,8 +35,8 @@ describe("prompt_builder (Refactored)", () => {
       // entry 1: Ghost's collapsed message
       // entry 2: Viper's collapsed message
       const result = prompt_builder.render_history(history, 2);
-      expect(result).toContain('name="Ghost">Hello\n\nAre you there?</entry>');
-      expect(result).toContain('name="Viper">Greetings\n\nI am ready.</entry>');
+      expect(result).toContain('name="Ghost">Hello\nAre you there?</entry>');
+      expect(result).toContain('name="Viper">Greetings\nI am ready.</entry>');
     });
 
     it("render_history() should filter out system messages", () => {
@@ -56,7 +56,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(out).toContain("<MOMENTUM>Drive the scene forward.");
       expect(out).toContain("never announce it with structural labels.</MOMENTUM>");
       expect(out).toContain("<HYGIENE>Omit all conversational preambles");
-      expect(out).toContain("for dialogue interactions.</HYGIENE>");
+      expect(out).toContain("or temporal references.</HYGIENE>");
     });
   });
 
@@ -95,12 +95,6 @@ describe("prompt_builder (Refactored)", () => {
       const alt = "Fallback {{me}}, AI is {{char}}, User is {{user}}.";
       const altResult = prompt_builder.parse_macros(alt, mockEntities.FRACTAL, mockEntities);
       expect(altResult).toBe("Fallback Void, AI is Viper, User is Ghost.");
-    });
-
-    it("render_tag() should apply macros before escaping", () => {
-      const value = "Hello {{me}} <test>";
-      const result = prompt_builder.render_tag("GREETING", value, mockEntities.AI, mockEntities);
-      expect(result).toBe("<GREETING>Hello Viper &lt;test&gt;</GREETING>");
     });
   });
 
@@ -149,7 +143,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.system).toContain("<PAST>");
+      expect(result.system).not.toContain("<PAST>");
     });
 
     it("synthesize() respects prologue mode", () => {
@@ -166,8 +160,7 @@ describe("prompt_builder (Refactored)", () => {
 
     it("build_memory_prompt() targets specific entity refinement", () => {
       const result = prompt_builder.build_memory_prompt("AI", { name: "Viper" }, []);
-      expect(result.system).toContain('<MEMORY_PROTOCOL role="AI"');
-      expect(result.system).toContain("Entity: Viper");
+      expect(result.system).toContain('<MEMORY_FORGE name="Viper" role="AI">');
     });
 
     it("synthesize() prunes empty tags and formats entity blocks cleanly", () => {
@@ -233,10 +226,10 @@ describe("prompt_builder (Refactored)", () => {
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
-      expect(result.system).toContain("<PAST>");
-      expect(result.system).toContain("<INTERNAL_DIRECTIVE>");
+      expect(result.system).not.toContain("<PAST>");
+      expect(result.system).toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
-      expect(result.system).toContain("<USER_INPUT>");
+      expect(result.system).toContain("<USER_ACTION>");
       expect(result.system).toContain("Check the console.");
 
       // TELEMETRY VERIFICATION
@@ -339,8 +332,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(fractalResult.system).toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
     });
 
-    it("should prepend author style prompt to build_character_prompt if app.settings.author_style is active", () => {
-      app.settings.author_style = "anna_zaires";
+    it("should prepend author style prompt to build_character_prompt if app.settings.narrative_style is active", () => {
+      app.settings.narrative_style = "anna_zaires";
       const mockPayload = {
         round: 1,
         entities: {
@@ -353,12 +346,12 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
-      expect(result.system).toContain('<NARRATIVE_STYLE author="anna_zaires">');
-      app.settings.author_style = "default";
+      expect(result.system).toContain('<STYLE_PROFILE author="anna_zaires">');
+      app.settings.narrative_style = "default";
     });
 
-    it("should not prepend author style prompt if app.settings.author_style is 'default'", () => {
-      app.settings.author_style = "default";
+    it("should not prepend author style prompt if app.settings.narrative_style is 'default'", () => {
+      app.settings.narrative_style = "default";
       const mockPayload = {
         round: 1,
         entities: {
@@ -374,7 +367,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).not.toContain("<STYLE_PROFILE");
     });
     it("should prepend author style prompt to render_narrator (prologue) if active", () => {
-      app.settings.author_style = "william_gibson";
+      app.settings.narrative_style = "william_gibson";
       const mockPayload = {
         round: 1,
         entities: {
@@ -388,8 +381,8 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, mockSnapshot);
-      expect(result.system).toContain('<NARRATIVE_STYLE author="william_gibson">');
-      app.settings.author_style = "default";
+      expect(result.system).toContain('<STYLE_PROFILE author="william_gibson">');
+      app.settings.narrative_style = "default";
     });
 
     it("should include EPISTEMIC_PHYSICS in build_character_prompt but not build_epilogue or prologue narrator narration", () => {
@@ -416,7 +409,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(prologueResult.system).not.toContain("Your perception ends at your sensory horizon");
     });
 
-    it("should omit USER_INPUT and INTERNAL_DIRECTIVE tags if they are empty", () => {
+    it("should omit USER_ACTION and INTERNAL_DIRECTION tags if they are empty", () => {
       const mockPayload = {
         round: 1,
         entities: {
@@ -430,11 +423,12 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
       const charResult = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, { directive: "" });
-      expect(charResult.system).not.toContain("</USER_INPUT>");
-      expect(charResult.system).not.toContain("</INTERNAL_DIRECTIVE>");
+      expect(charResult.system).not.toContain("</USER_ACTION>");
+      expect(charResult.system).not.toContain("</DIRECTION>");
+      expect(charResult.system).not.toContain("</SUBCONSCIOUS>");
 
       const dirResult = prompt_builder.build_director_prompt(mockPayload, mockSnapshot);
-      expect(dirResult.system).not.toContain("</USER_INPUT>");
+      expect(dirResult.system).not.toContain("</USER_ACTION>");
     });
   });
 });

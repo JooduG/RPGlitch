@@ -14,30 +14,41 @@ const md = new MarkdownIt({
 });
 /**
  * Extracts <think> blocks from text.
- * Handles partial tags during streaming.
+ * Handles partial tags during streaming and merges multiple blocks.
  * @param {string|null|undefined} text
  * @returns {{ content: string, think: string|null }}
  */
 export function parse_think_block(text) {
   if (!text) return { content: "", think: null };
 
-  // 1. Check for complete block
-  const completeMatch = text.match(/<think>([\s\S]*?)<\/think>/i);
-  if (completeMatch) {
-    const think = completeMatch[1].trim();
-    const content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
-    return { content, think };
+  // 1. Match all closed blocks
+  const matches = [...text.matchAll(/<think>([\s\S]*?)<\/think>/gi)];
+  let closedThink = matches
+    .map((m) => m[1].trim())
+    .filter(Boolean)
+    .join("\n\n");
+  let content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
+
+  // 2. Check for an unclosed partial block (streaming)
+  // If there is a <think> tag that has not been closed, it will be the last one
+  const lowerText = text.toLowerCase();
+  const lastThinkIndex = lowerText.lastIndexOf("<think>");
+  if (lastThinkIndex !== -1) {
+    const postThink = text.substring(lastThinkIndex + 7);
+    if (!postThink.toLowerCase().includes("</think>")) {
+      // It's unclosed. The preceding text might have closed think blocks.
+      const streamingThink = postThink.trim();
+      const finalThink = [closedThink, streamingThink].filter(Boolean).join("\n\n");
+
+      // Clean content by removing everything from the unclosed <think> onwards
+      const precedingText = text.substring(0, lastThinkIndex);
+      content = precedingText.replace(/<think>[\s\S]*?<\/think>/gi, "");
+
+      return { content, think: finalThink || null };
+    }
   }
 
-  // 2. Check for unclosed partial block (streaming)
-  const partialMatch = text.match(/<think>([\s\S]*)$/i);
-  if (partialMatch) {
-    const think = partialMatch[1].trim();
-    // During streaming think, there is no displayable content yet
-    return { content: "", think };
-  }
-
-  return { content: text, think: null };
+  return { content, think: closedThink || null };
 }
 /**
  * Strips all <think> blocks and optional trailing newlines.
@@ -189,4 +200,18 @@ export function clean_text(text, limit = 500) {
     .replace(/\s+/g, " ")
     .trim();
   return clean.length > limit ? clean.substring(0, limit) + "..." : clean;
+}
+
+/**
+ * Recursively cleans empty XML tags from a string.
+ */
+export function clean_xml(str) {
+  let prev;
+  let curr = str;
+  do {
+    prev = curr;
+    curr = curr.replace(/^[ \t]*<([A-Z_]+)(?: [^>]*)?>\s*<\/\1>[ \t]*\n/gm, "");
+    curr = curr.replace(/<([A-Z_]+)(?: [^>]*)?>\s*<\/\1>/g, "");
+  } while (prev !== curr);
+  return curr.replace(/\n{3,}/g, "\n");
 }

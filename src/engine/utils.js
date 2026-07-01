@@ -58,3 +58,12 @@ export const log = (...args) => {
     console.info("[Engine]", ...args);
   }
 };
+
+/**
+ * Safely indents multi-line string content.
+ */
+export const ind = (text, spaces) => {
+  if (!text) return "";
+  const prefix = " ".repeat(spaces);
+  return String(text).trim().split("\n").join(`\n${prefix}`);
+};

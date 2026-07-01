@@ -1,4 +1,4 @@
-import { clean_image_prompts, escapeXml, strip_cognition_blocks, parse_message, wrap_dialogue } from "@intelligence";
+import { clean_image_prompts, escapeXml, strip_cognition_blocks, parse_think_block, parse_message, wrap_dialogue } from "@intelligence";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {
@@ -28,6 +28,32 @@ describe("strip_cognition_blocks", () => {
   it("should handle text without <think> blocks", () => {
     const input = "Just regular text.";
     expect(strip_cognition_blocks(input)).toBe(input);
+  });
+});
+
+describe("parse_think_block", () => {
+  it("should parse a single complete think block", () => {
+    const result = parse_think_block("<think>Hello</think> World");
+    expect(result.think).toBe("Hello");
+    expect(result.content).toBe(" World");
+  });
+
+  it("should merge multiple complete think blocks", () => {
+    const result = parse_think_block("<think>First</think>\nText\n<think>Second</think> More text");
+    expect(result.think).toBe("First\n\nSecond");
+    expect(result.content).toBe("\nText\n More text");
+  });
+
+  it("should merge complete blocks and a streaming unclosed block", () => {
+    const result = parse_think_block("<think>Director</think>\n\n<think>Actor starting...");
+    expect(result.think).toBe("Director\n\nActor starting...");
+    expect(result.content).toBe("\n\n");
+  });
+
+  it("should handle only an unclosed block", () => {
+    const result = parse_think_block("<think>Streaming only");
+    expect(result.think).toBe("Streaming only");
+    expect(result.content).toBe("");
   });
 });
 

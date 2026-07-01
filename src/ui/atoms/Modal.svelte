@@ -90,7 +90,7 @@
                       h-auto
                       max-h-screen
                       min-h-48
-                      w-[clamp(16rem,90vw,28rem)]
+                      {variant === 'lightbox' ? 'w-[clamp(20rem,95vw,80rem)] max-w-[95vw]' : 'w-[clamp(16rem,90vw,28rem)]'}
                       cursor-default
                       scrollbar-none
                       flex-col

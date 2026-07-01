@@ -10,7 +10,7 @@
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileArray, ProfileHeader } from "@organisms";
-  import { app } from "@state";
+  import { app, runtime } from "@state";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -23,6 +23,17 @@
 
   // Local safety interlock rune for unsaved changes
   let show_close_confirm = $state(false);
+
+  // --- DEVMODE LIVE TELEMETRY SYNC ---
+  $effect(() => {
+    // Keeps the Profile modal Dev Wing synced with live background engine changes
+    if (app.settings.dev_mode && profileState.char?.id) {
+      const live_entity = [runtime.character, runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profileState.char.id);
+      if (live_entity?.dynamics && profileState.char.dynamics) {
+        Object.assign(profileState.char.dynamics, live_entity.dynamics);
+      }
+    }
+  });
 
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profileState.char, "var(--color-gunmetal)"));
