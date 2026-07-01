@@ -125,8 +125,8 @@ export const llm_service = {
       // Debug log removed to prevent SecurityError from cross-origin window.parent access.
 
       try {
-        if (typeof window.parent !== "undefined" && window.parent && typeof window.parent.ai === "function") return window.parent.ai;
-        if (typeof window.parent !== "undefined" && window.parent && typeof window.parent.pluginAi === "function") return window.parent.pluginAi;
+        if (window.parent && typeof window.parent.ai === "function") return window.parent.ai;
+        if (window.parent && typeof window.parent.pluginAi === "function") return window.parent.pluginAi;
       } catch (_e) {
         // Ignore cross-origin errors if we're somehow sandboxed
       }
