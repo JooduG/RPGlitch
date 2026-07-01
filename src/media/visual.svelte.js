@@ -34,7 +34,7 @@ function findImageEngine() {
 
   // 2. Insulate cross-origin parent lookups behind a secure fence
   try {
-    if (window.parent) {
+    if (typeof window.parent !== "undefined" && window.parent) {
       if (typeof window.parent.pluginTextToImage === "function") {
         cachedImageEngine = window.parent.pluginTextToImage;
         return cachedImageEngine;
