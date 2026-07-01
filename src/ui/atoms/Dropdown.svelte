@@ -16,6 +16,7 @@
     disabled = false,
     uppercase = true,
     matchWidth = false,
+    dropdownHeight = "max-h-36",
 
     // Callbacks
     onchange = undefined,
@@ -108,7 +109,7 @@
             class="
               z-max
               flex
-              max-h-36
+              {dropdownHeight}
               {matchWidth ? 'w-(--bits-select-anchor-width)' : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
               flex-col
                 overflow-hidden

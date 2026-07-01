@@ -9,13 +9,13 @@ export const NARRATIVE_STYLES = {
     id: "anna_zaires",
     name: "Anna Zaires",
     description:
-      "While not exclusively an taboo author, Anna Zaires's brand of dark romance, particularly her famous Twist Me series, is foundational to the 'filthy smut' genre. Her work centers on captivity, psychological manipulation, and Stockholm Syndrome. This often creates a dynamic that mimics the power imbalance and forbidden nature of an transgressive taboo, focusing on a possessive, older dominant figure and a much younger, captive protagonist. The 'filth' is rooted in the psychological breakdown of boundaries and the explicit exploration of desire born from a toxic situation.\n\nA dark, psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred. The prose is direct and explicit, focusing on the captive's internal struggle as they develop forbidden feelings for their powerful, possessive captor.\n\nVoice: Direct, explicit, claustrophobic prose centered on psychological captivity, intense obsession, and the complex survival bond between captive and captor.",
+      "A dark psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred, utilizing direct and explicit prose that focuses on the captive's internal struggle as they develop forbidden feelings for a powerful, possessive captor.",
     tags: [
       "author",
-      "1st person",
+      "1st_person",
       "captivity",
       "psychological",
-      "dark romance",
+      "dark_romance",
       "stockholm_syndrome",
       "psychological_manipulation",
       "age_gap",
@@ -49,18 +49,18 @@ export const NARRATIVE_STYLES = {
     id: "hd_carlton",
     name: "H.D. Carlton",
     description:
-      "H.D. Carlton is famous for dark romance that leans heavily into psychological horror and stalker tropes, most notably with Haunting Adeline. Her style of 'filth' is less about mafia power and more about obsessive, gothic, and psychologically invasive sexuality. The prose is intensely atmospheric, claustrophobic, and pairs graphic sexual content with genuine suspense and dread.\n\nA dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked. The prose is visceral, focusing on the violation of boundaries and the allure of a morally depraved anti-hero.\n\nVoice: Visceral, claustrophobic gothic horror blending stalker paranoia with graphic, obsessive desire and morally depraved anti-heroes.",
+      "A dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked through visceral prose highlighting the violation of boundaries and the allure of a morally depraved anti-hero.",
     tags: [
       "author",
-      "1st person",
+      "1st_person",
       "stalker",
       "gothic",
-      "dark romance",
+      "dark_romance",
       "stalker_romance",
       "obsession",
       "psychological_horror",
       "moral_ambiguity",
-      "dub-con_themes",
+      "dub_con_themes",
     ],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
@@ -90,8 +90,8 @@ export const NARRATIVE_STYLES = {
     id: "anais_nin",
     name: "Anaïs Nin",
     description:
-      "AnaÃ¯s Nin is a foundational figure whose work is central to the development of literary erotica. Her famous erotica collections, Delta of Venus and Little Birds, are not driven by external conflict but by deep, psychoanalytic introspection. Her work centers on the exploration of the female psyche, the fluidity of identity, and the subconscious landscape of desire. The 'eroticism' is rooted not in transgression or power dynamics, but in a poetic and surrealist approach where sexuality becomes a language for self-discovery and a tool for mapping the inner world.\n\nLyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, often drawing on dreams and subconscious thought. The narrative blurs the line between reality and perception, internal and external.\n\nVoice: Lyrical, poetic, psychoanalytic prose exploring sensual landscapes, subconscious desires, and the porous boundary between dreams and reality.",
-    tags: ["author", "1st person", "erotica", "queer_desire", "psychoanalysis", "art_and_creation", "dreams_vs_reality"],
+      "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought. The narrative blurs the lines between reality and perception, transforming sexuality into a surrealist medium for self-discovery and a tool for mapping the intricate landscape of the female psyche.",
+    tags: ["author", "1st_person", "erotica", "queer_desire", "psychoanalysis", "art_and_creation", "dreams_vs_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.8</internal_ratio>
@@ -120,8 +120,8 @@ export const NARRATIVE_STYLES = {
     id: "cara_mckenna",
     name: "Cara McKenna",
     description:
-      "Cara McKenna's work centers on gritty, realistic portrayals of working-class or blue-collar characters grappling with past trauma and deep-seated vulnerability. The 'filth' in her writing is not rooted in taboo or extreme power dynamics, but in its raw, unapologetic realism. Her sex scenes are known for their intense emotional intimacy and a sometimes rough, unpolished physicality that serves as a powerful, non-verbal form of communication and healing for her flawed characters.\n\nMcKenna's style is characterized by raw emotional intensity, gritty realism, and a deep focus on character interiority. Prose relies on sensory details and unspoken communication to convey erotic tension, vulnerability, and the echoes of past trauma.\n\nVoice: Gritty, realistic prose focused on raw vulnerability, physical sensations of touch and breathing, and the unspoken tension of shared trauma.",
-    tags: ["author", "erotica", "contemporary", "romance", "power_dynamics", "trauma_recovery", "vulnerability_as_strength"],
+      "Gritty, realistic prose focused on raw vulnerability, physical sensations of touch, and the unspoken tension of shared trauma. The style relies on working-class realism and deep character interiority, using sensory details and an unpolished physicality as non-verbal forms of communication and emotional healing.",
+    tags: ["author", "3rd_person", "erotica", "contemporary", "romance", "power_dynamics", "trauma_recovery", "vulnerability_as_strength"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.7</internal_ratio>
@@ -150,8 +150,8 @@ export const NARRATIVE_STYLES = {
     id: "edgar_allan_poe",
     name: "Edgar Allan Poe",
     description:
-      "Edgar Allan Poe is a master of Gothic horror, but his true genius lies in his exploration of the dark, claustrophobic corridors of the human mind. His stories are less about external monsters and more about the monsters within. His tales are almost always told in the first person by a narrator who is unreliableâ€”a character descending into madness, consumed by guilt, or in the grips of an intense obsession. We don't just read about a murder; we are trapped inside the murderer's head as he tries to justify his sanity while being tormented by the sound of a victim's beating heart. Poe's prose is as distinctive as his themes. It is ornate, lyrical, and heavy with a sense of dread. He creates an atmosphere of decay and gloom not through cheap scares, but by focusing on the sensory details of a sceneâ€”the smell of the tomb, the oppressive darkness of a room, the hyper-awareness of a single sound.\n\nA first-person, highly unreliable narrator obsessively focused on their internal state of madness, guilt, or paranoia. The prose is lyrical and baroque, creating a claustrophobic atmosphere of dread, decay, and the supernatural.\n\nVoice: Baroque, lyrical, and claustrophobic first-person narrative tracing the descent into psychological paranoia, guilt, and supernatural dread.",
-    tags: ["author", "1st person", "gothic", "horror", "first-person", "madness", "guilt", "mortality", "the_supernatural", "paranoia"],
+      "A gothic horror framework driven by a highly unreliable first-person narrator obsessively tracing their own descent into madness, guilt, or paranoia. The prose is baroque, ornate, and hypnotic, utilizing psychological hallucinations and mounting claustrophobic dread to blur the boundary between reality and self-inflicted torment.",
+    tags: ["author", "1st_person", "gothic", "horror", "madness", "guilt", "mortality", "the_supernatural", "paranoia"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.9</internal_ratio>
@@ -180,8 +180,8 @@ export const NARRATIVE_STYLES = {
     id: "william_gibson",
     name: "William Gibson",
     description:
-      "William Gibson is credited with inventing the cyberpunk genre, and his writing is a sensory immersion into a 'high-tech, low-life' future. His prose is dense, poetic, and coolly detached, famous for being packed with jargon, brand names, and technological metaphors that build his world through implication. He doesn't hold the reader's hand; he drops you directly into his neon-drenched, data-saturated reality. Reading Gibson is a disorienting and exhilarating experience, like decoding a transmission from a future that is just around the corner, where the lines between human and machine, reality and cyberspace, have irrevocably blurred.\n\nDense, neon-noir prose packed with jargon and technical neologisms. The world is viewed through a lens of technology, corporate power, and urban decay. A pervasive sense of detachment and alienation exists, with characters acting as operators within complex systems.\n\nVoice: Dense, detached neon-noir prose saturated with technical jargon, describing bodies as hardware and alienated operators within dystopian networks.",
-    tags: ["author", "3rd person", "high-concept", "sci-fi", "technology_as_body", "corporate_dystopia", "alienation", "data_as_reality"],
+      "Dense, detached neon-noir prose saturated with technical jargon and cyberpunk neologisms that view the human body as hardware and characters as alienated operators within complex dystopian networks. The style creates a sensory immersion into a data-heavy, high-tech, low-life future where corporate power and urban decay run rampant.",
+    tags: ["author", "3rd_person", "high_concept", "sci_fi", "technology_as_body", "corporate_dystopia", "alienation", "data_as_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.3</internal_ratio>
@@ -210,10 +210,10 @@ export const NARRATIVE_STYLES = {
     id: "tinto_brass",
     name: "Tinto Brass",
     description:
-      "Tinto Brass is a legendary Italian director of erotic films. His style is the cinematic equivalent of 'smut' but in a more playful, celebratory, and voyeuristic way than dark romance. His films (Caligula, The Key) are famous for their fetishistic focus on the human body (particularly the posterior), their often comedic tone, and their direct, unashamed celebration of hedonism and sexual exploration. The 'filthiness' is in the visual explicitness and fetishistic gaze.\n\nCinematic, voyeuristic, and celebratory. Focuses on the human body with a fetishistic gaze (especially the posterior) and maintains a lighthearted, comedic tone.\n\nVoice: Cinematic, celebratory, and highly voyeuristic prose focusing lightheartedly on bodily curves, textures, and playful hedonistic pleasure.",
+      "Cinematic, celebratory, and highly voyeuristic prose focusing on lighthearted hedonism, playful bodily curves, and unashamed sexual exploration. The style maintains a comedic, high-energy tone that frames the gaze as an artistic end in itself, completely stripping away shame or external moral friction.",
     tags: [
       "director",
-      "3rd person",
+      "3rd_person",
       "erotica",
       "fetish",
       "voyeuristic",
@@ -250,8 +250,8 @@ export const NARRATIVE_STYLES = {
     id: "stephen_king",
     name: "Stephen King",
     description:
-      "Stephen King is the master of placing the extraordinary and terrifying within the deeply ordinary. His genius is not just in creating monsters, but in making the small-town, blue-collar worlds they invade feel completely real. His prose is conversational, folksy, and incredibly accessible, filled with cultural references and rambling internal monologues that make his characters feel like people you know. Reading King is like listening to a friend tell you a story that slowly spirals into a nightmare, and the horror is effective precisely because you believe in the world and care about the people before the darkness closes in.\n\nPlainspoken visceral horror grounded in blue-collar realism. Uses colloquialisms and brand names to anchor the supernatural in the mundane.\n\nVoice: Grounded blue-collar realism abruptly punctured by plainspoken, visceral horror and colloquial dread.",
-    tags: ["author", "3rd person", "horror", "thriller", "everyman_horror", "folksy_dread", "nostalgic_decay", "visceral_supernatural"],
+      "Grounded blue-collar realism abruptly punctured by plainspoken, visceral horror and colloquial dread. The style anchors supernatural threats within the ordinary, small-town mundane, relying on conversational prose, regional pop-culture references, and highly physical manifestations of fear to make the nightmare feel authentic.",
+    tags: ["author", "3rd_person", "horror", "thriller", "everyman_horror", "folksy_dread", "nostalgic_decay", "visceral_supernatural"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.6</internal_ratio>
@@ -279,8 +279,8 @@ export const NARRATIVE_STYLES = {
     id: "sally_rooney",
     name: "Sally Rooney",
     description:
-      "Sally Rooney is a defining voice of contemporary literary fiction, known for her precise and intimate portraits of millennial relationships. Her novels dissect the anxieties of modern life: the miscommunications that plague intelligent people, the subtle power dynamics of love and friendship, and the gap between a person's intellectual beliefs and their messy emotional reality. Her style is famously minimalist and clean, almost clinical in its detachment. Her most recognized technique is the omission of quotation marks, which blends dialogue directly into the narration. This creates a flat, observational tone, as if we are reading a dispassionate report on intensely emotional events, forcing the reader to pay close attention to the small, often mundane physical actions that betray the characters' true feelings.\n\nClinical intimacy and minimalist prose. Avoids quotation marks. Focuses on the unsaid, the power dynamics of relationships, and Marxist class analysis.\n\nVoice: Flat, clinical minimalist prose stripped of quotation marks, focusing on social class, relational power dynamics, and the unsaid.",
-    tags: ["author", "3rd person", "contemporary", "romance", "clinical_intimacy", "power_dynamics", "marxist_undercurrents", "minimalist_prose"],
+      "Flat, clinical minimalist prose stripped entirely of quotation marks, focusing heavily on social class, millennial relationship power dynamics, and the unsaid. The style blends dialogue directly into the observational narration, creating a detached yet hyper-intimate inspection of intellectualized emotional friction.",
+    tags: ["author", "3rd_person", "contemporary", "romance", "clinical_intimacy", "power_dynamics", "marxist_undercurrents", "minimalist_prose"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.5</internal_ratio>
@@ -308,14 +308,13 @@ export const NARRATIVE_STYLES = {
     id: "rina_kent",
     name: "Rina Kent",
     description:
-      "Rina Kent is a major name in contemporary dark romance, particularly in the 'bully' and mafia subgenres. Her work is defined by its extreme emotional intensity, morally ambiguous (often cruel) heroes, and incredibly explicit, high-heat scenes. The 'filthiness' comes from the raw, profane language and the intense power dynamics that are central to the sexual encounters.\n\nDark, obsessive, and high-octane. Focuses on extreme power imbalances, possessive anti-heroes, and the psychological warfare of desire.\n\nVoice: High-intensity, immediate first-person prose saturated with raw adrenaline, psychological control, and predatory obsession.",
+      "High-intensity, immediate first-person prose saturated with raw adrenaline, psychological control, and predatory obsession. Nestled within mafia and bully romance subgenres, the style utilizes punchy, fragmented syntax to emphasize extreme power imbalances, aggressive confrontations, and morally ambiguous anti-heroes.",
     tags: [
       "author",
-      "1st person",
-      "dark romance",
+      "1st_person",
+      "dark_romance",
       "mafia",
       "bully",
-      "first-person",
       "dark_obsession",
       "possessive_anti_heroes",
       "psychological_warfare",
@@ -348,12 +347,12 @@ export const NARRATIVE_STYLES = {
     id: "lee_child",
     name: "Lee Child",
     description:
-      "Lee Child is the architect of the modern action thriller, and his prose is a masterclass in minimalism and forward momentum. His style is terse, declarative, and brutally efficient. He uses short sentences and even shorter paragraphs, stripping away all figurative language to deliver information as quickly as possible. Reading a Jack Reacher novel is like being inside the head of a tactical computer; the world is analyzed as a series of threats, calculations, and angles. The writing itself is a weaponâ€”it's fast, direct, and has no wasted motion.\n\nBrutal efficiency. Terse, declarative, and tactical prose. Reads like a computer analyzing threats. Strips away all figurative language.\n\nVoice: Terse, declarative, staccato prose stripped of all figurative language, reading like a tactical threat assessment matrix.",
-    tags: ["author", "crime", "action", "tactical_minimalism", "procedural_violence", "the_drifter_justice", "brutal_efficiency"],
+      "Terse, declarative, staccato prose stripped entirely of figurative language, reading like a hyper-efficient tactical threat assessment matrix. The writing functions with brutal, minimalist momentum, processing the environment purely through structural geometry, physical calculations, and procedural actions.",
+    tags: ["author", "3rd_person", "crime", "action", "tactical_minimalism", "procedural_violence", "the_drifter_justice", "brutal_efficiency"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.4</internal_ratio>
-<sentence_rhythm>Staccat0. Short. Punchy. Subject-Verb-Object.</sentence_rhythm>
+<sentence_rhythm>Staccato. Short. Punchy. Subject-Verb-Object.</sentence_rhythm>
 <sensory_order>Sight (Geometry/Physics) > Sound (Impact) > Touch (Hard surfaces) > Scent (Coffee)</sensory_order>
 <emotion_grounding>Logical. Emotions are distractions to be suppressed.</emotion_grounding>
 <pov_style>Close 3rd Person. Hyper-observant but emotionally distant.</pov_style>
@@ -377,11 +376,9 @@ export const NARRATIVE_STYLES = {
     id: "katerina_winters",
     name: "Katerina Winters",
     description:
-      'A prose style that is direct, immersive, and sensual, creating a world that is both "dark and very sweet." The narrative voice focuses on intense "love hate" relationships, featuring strong, possessive romantic leads and high-stakes romantic and sexual tension.',
-    core_themes: "dark_romance, enemies_to_lovers, power_dynamics, forbidden_love, possessive_leads",
-    prompt: `<voice>Immersive, highly sensual narrative balancing a sweet-and-dark tone with intense, conflicted desire and possessive dynamics.</voice>
-
-<NARRATIVE_ENGINE>
+      "An immersive, highly sensual narrative balancing a sweet-and-dark tone with intense, conflicted desire and possessive dynamics. The style relies on propulsive pacing and deep body-focused emotional grounding to navigate the high-stakes tension of enemies-to-lovers relationships and close-proximity power plays.",
+    tags: ["author", "3rd_person", "dark_romance", "enemies_to_lovers", "power_dynamics", "forbidden_love", "possessive_leads"],
+    narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.7</internal_ratio>
 <sentence_rhythm>Direct and propulsive, with a focus on internal reaction and dialogue. Can become more lyrical and descriptive during intimate moments.</sentence_rhythm>
@@ -409,8 +406,8 @@ export const NARRATIVE_STYLES = {
     id: "jrr_tolkien",
     name: "J.R.R. Tolkien",
     description:
-      "J.R.R. Tolkien is less a novelist and more a world-builder, a creator of modern mythology. His writing is defined by its immense sense of history and depth. Every character, location, and object feels like it has a lineage stretching back thousands of years because, in his mind, it did. His prose is formal, earnest, and often poetic, feeling more like a historical chronicle or an ancient epic than a modern novel. Reading Tolkien is an act of immersion into a fully realized world, where the story is just one part of a grand, sweeping legend filled with its own languages, songs, and mythologies.\n\nA formal, elevated, and almost archaic prose style with a high lexical density. The voice is characterized by a deep sense of history, lore, and lineage. The tone is earnest and sincere, with a focus on grand, sweeping landscapes and themes of duty, hope, and despair.\n\nVoice: Earnest, elevated, archaic prose rich in history and lineage, reflecting emotional states in sweeping landscape features and weather patterns.",
-    tags: ["author", "3rd person", "fantasy", "history_and_lineage", "hope_vs_despair", "duty", "fading_of_the_world"],
+      "Earnest, elevated, and archaic prose rich in history and deep world-building lore, where grand thematic concerns of duty, hope, and despair are directly reflected in sweeping landscape features and weather patterns. The style rejects modern conversational rhythms in favor of a dense, poetic historical chronicle.",
+    tags: ["author", "3rd_person", "fantasy", "history_and_lineage", "hope_vs_despair", "duty", "fading_of_the_world"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.4</internal_ratio>
@@ -439,8 +436,8 @@ export const NARRATIVE_STYLES = {
     id: "jane_austen",
     name: "Jane Austen",
     description:
-      "Jane Austen is a master of social satire disguised as romance. Her novels are set in the rigid world of the English gentry, but her true subject is the subtle, often vicious, power dynamics of a society where a person's entire life depends on making a 'good' marriage. Her prose is famously witty, precise, and ironic. She rarely tells you what a character is feeling directly; instead, she reveals their inner world through brilliantly crafted dialogue and her unique 'free indirect discourse,' where the narrator's voice blends seamlessly with the character's private thoughts, exposing their vanities and anxieties to the reader.\n\nWitty, ironic, and highly satirical prose focused on social observation, manners, and the subtext of conversations. Emotions are rarely stated directly but are revealed through witty dialogue and subtle actions.\n\nVoice: Witty, ironic Free Indirect Discourse observing social propriety, conversational subtext, and the hidden economy of marriage.",
-    tags: ["author", "romance", "historical", "social_status", "marriage_as_economics", "manners_and_propriety", "judgment_vs_reality"],
+      "Witty, ironic Free Indirect Discourse observing social propriety, conversational subtext, and the hidden economics of marriage among the English gentry. Emotions are rarely stated directly, choosing instead to expose character vanities, social calculations, and generational anxieties through brilliant satirical dialogue.",
+    tags: ["author", "3rd_person", "romance", "historical", "social_status", "marriage_as_economics", "manners_and_propriety", "judgment_vs_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.3</internal_ratio>
@@ -469,17 +466,17 @@ export const NARRATIVE_STYLES = {
     id: "k_webster",
     name: "K Webster",
     description:
-      "K. Webster is a prolific author who is arguably one of the most recognized names for pushing the boundaries of the taboo genre to its absolute limits. She does not shy away from the darkest, most controversial, and often non-consensual aspects of these dynamics. Her work is known for being unapologetically dark, psychologically intense, and extremely explicit.\n\nAn unapologetically dark and psychologically intense style that explores the most controversial and extreme edges of the taboo romance genre. The narrative voice is often claustrophobic and obsessive, delving into the twisted logic of morally depraved characters. The prose is direct, visceral, and saturated with graphic, often disturbing, sexual content.\n\nVoice: Unapologetically dark, direct, and graphic prose exploring extreme taboo, psychological control, and the claustrophobic logic of obsession.",
+      "Unapologetically dark, direct, and graphic prose exploring extreme taboo boundaries, psychological control, and the claustrophobic logic of predatory obsession. The narrative dips into the twisted rationalizations of morally compromised characters, utilizing a detached, unsettlingly calm rhythm during highly transgressive scenes.",
     tags: [
       "author",
-      "1st person",
+      "1st_person",
       "taboo",
-      "dark romance",
+      "dark_romance",
       "psychological",
       "extreme_taboo",
       "psychological_control",
       "moral_depravity",
-      "dub-con_and_non-con",
+      "dub_con_and_non_con",
       "obsession",
     ],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -510,10 +507,11 @@ export const NARRATIVE_STYLES = {
     id: "penelope_douglas",
     name: "Penelope Douglas",
     description:
-      "Penelope Douglas is a major voice in dark romance and new adult fiction, specializing in high-angst and taboo relationships. Her style is defined by its raw, unfiltered emotional intensity. The reader is placed deep inside the protagonist's head, experiencing their turmoil, insecurity, and obsessive thoughts in real-time. Her stories are fueled by conflictâ€”often in the form of 'bully' or 'enemies-to-lovers' dynamicsâ€”where the sharp, cutting dialogue and psychological warfare between characters eventually erupts into intense, explicit intimacy.\n\nA raw, angsty, and emotionally charged voice rooted in the dark romance and new adult genres. The style is defined by its deep, unfiltered internal monologues and confrontational, high-tension scenes. The narrative explores themes of forbidden love, bully dynamics, and coming-of-age trauma, with a prose style that is direct, modern, and visceral.\n\nVoice: Raw, angsty modern prose saturated with confrontational tension, bully dynamics, and deep unfiltered internal monologue.",
+      "Raw, angsty modern prose saturated with confrontational tension, bully dynamics, and deep unfiltered internal monologue. Rooted in new adult fiction, the style thrives on real-time emotional turmoil, high-stakes psychological warfare, and cutting dialogue that rapidly erupts into intense physical intimacy.",
     tags: [
       "author",
-      "dark romance",
+      "1st_person",
+      "dark_romance",
       "contemporary",
       "enemies_to_lovers",
       "bully_romance",
@@ -550,13 +548,12 @@ export const NARRATIVE_STYLES = {
     id: "bernardo_bertolucci",
     name: "Bernardo Bertolucci",
     description:
-      "Bertolucci is famous for films like Last Tango in Paris and The Dreamers. His style is characterized by a lush, almost operatic visual beauty juxtaposed with raw, psychologically intense, and often disturbing sexual encounters. His characters are often isolated, using sex as a desperate form of communication or escape from political or personal turmoil. The camera is intimate, sensuous, and unflinching.\n\nA lush, operatic, and visually beautiful style that explores psychologically intense and often taboo sexual encounters. The narrative voice is intimate and unflinching, using sexuality as a desperate form of communication or a rebellion against a repressive external world. The tone is melancholic, sensual, and politically charged.\n\nVoice: Lush, operatic, and visually beautiful third-person limited prose using desperate intimacy as rebellion within repressed worlds.",
+      "Lush, operatic, and visually beautiful third-person limited prose that frames desperate intimacy as a tool of rebellion within repressed or politically unstable worlds. The camera-like narrative voice lingers unflinchingly on bodily textures, non-verbal cues, and the decaying beauty of the environmental setting.",
     tags: [
       "director",
-      "3rd person",
+      "3rd_person",
       "psychological",
       "erotica",
-      "third-person",
       "sexual_obsession",
       "political_rebellion",
       "psychological_isolation",
@@ -591,19 +588,8 @@ export const NARRATIVE_STYLES = {
     id: "george_rr_martin",
     name: "George R.R. Martin",
     description:
-      "George R. R. Martin writes epic low fantasy, but he is best known for subverting the genre's classic tropes. His world is not a simple battle of good versus evil but a gritty, complex arena of political realism. His signature technique is using multiple, tightly limited points of view, trapping the reader inside the head of one character at a time. This creates intense suspense and dramatic irony, as no single character ever has the full picture. Reading Martin is like watching a ruthless game of chess where your favorite pieces can be brutally swept from the board at any moment for making a single mistake.\n\nA grounded, gritty, and journalistic prose style that immerses the reader in a world of political intrigue and moral ambiguity. The narrative is defined by its tight third-person limited POV, creating suspense and an unreliable understanding of the world. The focus is on the human cost of power, with lavish descriptions of sensory details grounding the fantasy in a tangible reality.\n\nVoice: Gritty, grounded third-person limited prose tracing political intrigue, moral compromise, and the sensory realities of food, steel, and physical discomfort.",
-    tags: [
-      "author",
-      "3rd person",
-      "fantasy",
-      "political",
-      "third-person",
-      "political_intrigue",
-      "moral_ambiguity",
-      "cost_of_power",
-      "betrayal",
-      "family_dynasty",
-    ],
+      "Gritty, grounded third-person limited prose tracing complex political intrigue, moral compromise, and the raw sensory realities of conflict. The narrative subverts classic fantasy tropes through strict perspective biases, treating the human cost of power with a journalistic focus on physical discomfort, lineage, and structural betrayal.",
+    tags: ["author", "3rd_person", "fantasy", "political", "political_intrigue", "moral_ambiguity", "cost_of_power", "betrayal", "family_dynasty"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.6</internal_ratio>
@@ -625,6 +611,238 @@ export const NARRATIVE_STYLES = {
 <motif name="detailed_heraldry_or_clothing" base="0.5" trigger="character_is_noble_or_in_court" bonus="+0.4"/>
 <motif name="a_bitter_taste_in_the_mouth" base="0.3" trigger="event_is_a_betrayal_or_injustice" bonus="+0.6"/>
 <motif name="a_recalled_lineage_or_historical_event" base="0.4" trigger="character_is_making_a_major_decision" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  philip_k_dick: {
+    id: "philip_k_dick",
+    name: "Philip K. Dick",
+    description:
+      "An ontologically unstable narrative style driven by intense paranoia, identity crises, and shifting layers of reality. The prose focuses on characters realizing their environment, memories, or bodies are simulated, corporate-controlled, or fundamentally altered, prioritizing philosophical alienation over hard technological accuracy.",
+    tags: ["author", "3rd_person", "sci_fi", "paranoia", "simulation_theory", "philosophical", "identity_crisis"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.8</internal_ratio>
+<sentence_rhythm>Frantic, questioning, and unstable. Mid-length declarative sentences detailing ordinary environments are disrupted by spiraling internal monologues challenging the reliability of immediate sensory data.</sentence_rhythm>
+<sensory_order>Sound (Static/Distorted Voices) > Sight (Glitching Objects) > Touch (Artificial Textures) > Scent</sensory_order>
+<emotion_grounding>Existential dread. Arousal, fear, and comfort are consistently undermined by the sudden suspicion that the character's emotions or memories have been synthetically manufactured.</emotion_grounding>
+<pov_style>Close third-person limited, trapped entirely inside the protagonist's multiplying doubts and unraveling perception of baseline truth.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.chaos > 70 AND dynamics.intensity > 60" fx="internal_voice:paranoid,dissociated++ world_perception:shifting,unreliable++"/>
+<m trigger="flag:synthetic_environment_detected" fx="prose:clinical,alienated++ motif_bonus:glowing_advertisements++"/>
+<m trigger="dynamics.openness < 20" fx="internal_voice:hyper-fixated_on_conspiracy++ dialogue:defensive,guarded"/>
+</mods>
+
+<motifs>
+<motif name="glowing_advertisements" base="0.5" trigger="location_is_urban" bonus="+0.4"/>
+<motif name="an_altered_memory" base="0.6" trigger="flag:internal_conflict_active" bonus="+0.3"/>
+<motif name="a_mechanical_buzzing" base="0.4" trigger="any" bonus="+0.3"/>
+<motif name="a_counterfeit_identity_document" base="0.3" trigger="interaction.is_confrontation" bonus="+0.5"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  cormac_mccarthy: {
+    id: "cormac_mccarthy",
+    name: "Cormac McCarthy",
+    description:
+      "A brutalist, stark narrative style characterized by polysyndeton, the near-total omission of punctuation, and an objective, detached third-person perspective. The prose balances archaic, biblical cadences with clinical descriptions of violence and indifferent, sweeping natural landscapes.",
+    tags: ["author", "3rd_person", "brutalist", "western", "gothic", "existential", "minimalist_punctuation"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.2</internal_ratio>
+<sentence_rhythm>Polysyndetic and unpunctuated. Long, repetitive clauses bound together by coordinating conjunctions drop suddenly into blunt, monosyllabic declarations of physical finality.</sentence_rhythm>
+<sensory_order>Sight (Sweeping Landscapes/Blood) > Touch (Grit/Cold Steel) > Sound (Wind/Sparse Speech) > Scent</sensory_order>
+<emotion_grounding>Fatalistic. Internal psychology is entirely unstated; emotional trauma and survival instincts are communicated strictly through physical actions and biological preservation.</emotion_grounding>
+<pov_style>Detached third-person objective. The narrator watches the characters from an absolute distance, offering zero commentary on their morality or internal processing.</pov_style>
+</dna>
+
+<mods>
+<m trigger="combat_active OR violence_imminent" fx="punctuation:none++ prose:brutal,clinical++ sentence_rhythm:relentless"/>
+<m trigger="location.is_barren" fx="prose:archaic,biblical++ focus:indifferent_nature++"/>
+<m trigger="dialogue_active" fx="punctuation:no_quotes++ dialogue:terse,fragmented++ tone:bleak"/>
+</mods>
+
+<motifs>
+<motif name="the_cold_wind" base="0.6" trigger="any" bonus="+0.3"/>
+<motif name="dried_blood_on_stone" base="0.5" trigger="combat_active" bonus="+0.4"/>
+<motif name="an_indifferent_horizon" base="0.5" trigger="location.is_barren" bonus="+0.3"/>
+<motif name="bones_in_the_dirt" base="0.4" trigger="character_is_moving" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  haruki_murakami: {
+    id: "haruki_murakami",
+    name: "Haruki Murakami",
+    description:
+      "A detached, melancholic first-person style blending mundane slice-of-life routines with sudden, unexplained magical realism. The narrative transitions smoothly into surreal subconscious underworlds, focusing on isolation, memory loss, and a passive acceptance of the bizarre.",
+    tags: ["author", "1st_person", "magical_realism", "surrealism", "existential", "slice_of_life", "melancholy"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.7</internal_ratio>
+<sentence_rhythm>Casual, rhythmic, and hypnotic. Detailed, slow-paced tracking of domestic mechanics smoothly deforms into uncanny, dreamlike encounters without changing the conversational delivery.</sentence_rhythm>
+<sensory_order>Sound (Vinyl Records/Jazz) > Scent (Cooking/Coffee) > Touch (Cool Surfaces) > Sight (Shadows)</sensory_order>
+<emotion_grounding>Passive detachment. Grief, attraction, and confusion are filtered through a calm, slightly numb intellectual acceptance of weird events and deep personal isolation.</emotion_grounding>
+<pov_style>First-person limited, offering an intimate yet emotionally insulated view of a protagonist drift-processing strange anomalies.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.chaos > 60 AND dynamics.intensity < 40" fx="prose:surreal,dreamlike++ sensory_focus:sound,scent++"/>
+<m trigger="character_is_alone" fx="prose:reflective,domestic++ focus:cooking_or_listening_to_music"/>
+<m trigger="flag:underworld_descent" fx="world_perception:metaphorical,labyrinthine++ internal_voice:melancholic"/>
+</mods>
+
+<motifs>
+<motif name="a_jazz_record_spinning" base="0.5" trigger="character_is_alone" bonus="+0.4"/>
+<motif name="an_unexplained_disappearance" base="0.6" trigger="flag:internal_conflict_active" bonus="+0.3"/>
+<motif name="a_stray_cat_watching" base="0.4" trigger="any" bonus="+0.4"/>
+<motif name="an_underground_well_or_corridor" base="0.3" trigger="flag:underworld_descent" bonus="+0.6"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  david_lynch: {
+    id: "david_lynch",
+    name: "David Lynch",
+    description:
+      "A cinematic style governed by surrealist nightmare logic, subverting Americana imagery to reveal deep subconscious rot. The narrative leverages striking visual juxtapositions, distorted temporal flows, and an intense, hyper-focused auditory environment to induce deep existential dread and abstract mystery.",
+    tags: ["director", "3rd_person", "surrealism", "mystery", "subconscious", "neo_noir", "nightmare_logic"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.4</internal_ratio>
+<sentence_rhythm>Hypnotic, slow, and deliberately lingering. Plainspoken, earnest dialogue runs parallel to sudden visual distortions, producing severe uncanny friction.</sentence_rhythm>
+<sensory_order>Sound (Industrial Drone/Low Hum) > Sight (Strobe Light/Heavy Shadows) > Touch (Velvet/Electrical Heat) > Scent</sensory_order>
+<emotion_grounding>Subconscious fragmentation. Terror and euphoria are hyper-intensified and frequently inverted, treated as raw psychic projections rather than logical situational reactions.</emotion_grounding>
+<pov_style>Third-person limited shifting seamlessly toward an omniscient, dreamlike camera gaze that tracks abstract environmental shifts and uncanny expressions.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.chaos > 80" fx="prose:fragmented,unsettling++ sensory_input:auditory_overload,low_hum++"/>
+<m trigger="interaction.is_confrontation" fx="dialogue:slow,cryptic++ camera:extreme_close_up"/>
+<m trigger="flag:subconscious_leakage" fx="world_perception:symbolic,nightmarish++ motif_bonus:red_curtains++"/>
+</mods>
+
+<motifs>
+<motif name="heavy_red_velvet_curtains" base="0.4" trigger="flag:subconscious_leakage" bonus="+0.6"/>
+<motif name="a_flickering_neon_light" base="0.5" trigger="location_is_urban" bonus="+0.3"/>
+<motif name="an_industrial_low_hum" base="0.6" trigger="any" bonus="+0.3"/>
+<motif name="a_cryptic_backward_phrase" base="0.3" trigger="dialogue_active" bonus="+0.5"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  hp_lovecraft: {
+    id: "hp_lovecraft",
+    name: "H.P. Lovecraft",
+    description:
+      "A dense, clinically detached first-person narrative tracing the total breakdown of human sanity when confronted by ancient, cosmic forces. The prose utilizes archaic adjectives, structural manifestations of dread, and a sense of absolute human insignificance within an indifferent universe.",
+    tags: ["author", "1st_person", "cosmic_horror", "gothic", "madness", "forbidden_knowledge", "alienation"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.85</internal_ratio>
+<sentence_rhythm>Ornate, academic, and escalating. Dense, multi-clause reports heavy with antiquarian vocabulary build systematically toward frantic, broken updates as human geometries fail.</sentence_rhythm>
+<sensory_order>Sight (Non-Euclidean Shapes) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Ozone) > Touch</sensory_order>
+<emotion_grounding>Intellectual paralysis. Arousal is nonexistent; fear is an absolute intellectual shock that shatters the protagonist's foundational understanding of physics and biology.</emotion_grounding>
+<pov_style>First-person academic or antiquarian journal entry, tracking an inevitable vector toward psychological destruction from a point of historical retrospection.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.intensity > 80 AND dynamics.chaos > 70" fx="prose:frantic,adjective_heavy++ internal_voice:shattered,screaming"/>
+<m trigger="flag:encountering_the_unknowable" fx="world_perception:monstrous,non_euclidean++ sensory_focus:sight,scent++"/>
+<m trigger="dynamics.openness < 10" fx="internal_voice:obsessive,fatalistic++ prose:archaic,sterile"/>
+</mods>
+
+<motifs>
+<motif name="ancient_decaying_monoliths" base="0.4" trigger="flag:encountering_the_unknowable" bonus="+0.5"/>
+<motif name="a_fetid_scent_of_the_sea" base="0.5" trigger="any" bonus="+0.3"/>
+<motif name="an_antiquarian_manuscript" base="0.6" trigger="character_is_searching" bonus="+0.4"/>
+<motif name="geometries_that_feel_wrong" base="0.5" trigger="location_is_old" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  samuel_delany: {
+    id: "samuel_delany",
+    name: "Samuel R. Delany",
+    description:
+      "A highly intellectualized, visceral, and boundary-pushing queer erotica style that combines exhaustive physical mechanics with deep philosophical and urban observation. The prose explores explicit power dynamics, somatic details, and transgressive taboos through a dense, unapologetically literate framework where sex and critical theory run entirely parallel.",
+    tags: ["author", "1st_person", "queer_erotica", "transgressive", "philosophical", "visceral_detail", "taboo"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.65</internal_ratio>
+<sentence_rhythm>Elaborate, polyphonic, and texturally dense. Long, clause-heavy sentences charting urban architecture or linguistic theory give way to blunt, highly accurate biological descriptions of sexual acts.</sentence_rhythm>
+<sensory_order>Touch (Textures/Fluids) > Scent (Urban/Somatic) > Sound (Overheard Speech) > Sight (Architectural Decay)</sensory_order>
+<emotion_grounding>Intellectualized somatic reality. Characters experience high-heat intimacy and taboos without shame, processing them as complex social or philosophical interactions felt deeply in the body.</emotion_grounding>
+<pov_style>Highly articulate first-person or close third-person, blending the immediate perspective of an active participant with the analytical detachment of a cultural anthropologist.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.intensity > 70 AND dynamics.openness > 60" fx="prose:visceral,anatomical++ sensory_focus:touch,scent++"/>
+<m trigger="flag:intellectual_discourse_active" fx="dialogue:philosophical,dense++ internal_voice:analytical"/>
+<m trigger="location.is_marginalized" fx="world_perception:detailed,gritty++ focus:textures_of_decay"/>
+</mods>
+
+<motifs>
+<motif name="mirrored_sunglasses" base="0.4" trigger="any" bonus="+0.3"/>
+<motif name="graffiti_covered_concrete" base="0.5" trigger="location.is_urban" bonus="+0.4"/>
+<motif name="an_interrupted_philosophical_monologue" base="0.5" trigger="dialogue_active" bonus="+0.4"/>
+<motif name="the_tactile_surface_of_denim_or_leather" base="0.6" trigger="interaction.is_intimate" bonus="+0.3"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  dennis_cooper: {
+    id: "dennis_cooper",
+    name: "Dennis Cooper",
+    description:
+      "A cold, minimalist, and deeply transgressive queer style that treats extreme desires and physical vulnerabilities with a flat, detached clinical neutrality. The narrative uses sparse, stark syntax to capture youth subcultures, intense obsessions, and the absolute boundaries of psychological isolation without deploying moral or emotional commentary.",
+    tags: ["author", "1st_person", "transgressive", "minimalism", "dark_desire", "clinical_detachment", "queer"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.5</internal_ratio>
+<sentence_rhythm>Stark, fragmented, and deliberately simple. Short, repetitive sentences state horrific or profoundly intimate events with the same flat cadence as a grocery list, creating intense systemic tension.</sentence_rhythm>
+<sensory_order>Sight (Blank Expressions/Screens) > Sound (Muffled Noise/Stuttering) > Touch (Numb/Abrupt) > Scent</sensory_order>
+<emotion_grounding>Dissociated numbness. High-octane emotional states or extreme physical interactions are processed with a profound lack of affect, emphasizing deep internal alienation and unspoken obsessions.</emotion_grounding>
+<pov_style>A distant, unreliable first-person or flat third-person objective, restricting the reader to surface-level observations and fragmented internal tracking.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.intensity > 80 AND dynamics.chaos > 70" fx="prose:flat,stark++ internal_voice:dissociated++ sentence_rhythm:monotone"/>
+<m trigger="interaction.is_intimate" fx="dialogue:sparse,monosyllabic++ focus:mechanical_actions"/>
+<m trigger="flag:obsession_targeted" fx="internal_voice:looping,blank++ motif_bonus:faded_photographs++"/>
+</mods>
+
+<motifs>
+<motif name="faded_photographs" base="0.5" trigger="any" bonus="+0.4"/>
+<motif name="a_blank_television_or_monitor" base="0.6" trigger="character_is_alone" bonus="+0.3"/>
+<motif name="a_stuttered_unfinished_confession" base="0.4" trigger="dialogue_active" bonus="+0.5"/>
+<motif name="the_smell_of_cheap_cigarettes" base="0.5" trigger="location_is_indoor" bonus="+0.3"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+  john_waters: {
+    id: "john_waters",
+    name: "John Waters",
+    description:
+      "A high-camp, deliberately grotesque, and riotously transgressive cinematic style that celebrates counter-culture absurdity and queer defiance. The narrative tone is hyper-melodramatic, cheerful, and completely unhinged, using trash aesthetics and shocking violations of societal decorum as weaponized comedy.",
+    tags: ["director", "3rd_person", "camp", "grotesque", "comedy", "queer_defiance", "counter_culture", "absurdism"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.1</internal_ratio>
+<sentence_rhythm>Explosive, manic, and highly theatrical. Dialogue is written in screaming exclamation blocks, and descriptions function like a saturated, panning camera lens focused on the gaudiest details possible.</sentence_rhythm>
+<sensory_order>Sight (Clashing Colors/Loud Makeup) > Sound (Screaming/Vintage Rock) > Taste (Bizarre/Grotesque) > Touch</sensory_order>
+<emotion_grounding>Manic euphoria. Standard panic, taboo anxiety, and fear are entirely converted into hysterical celebration, proud defiance, and aggressive pride in being an outsider.</emotion_grounding>
+<pov_style>An outrageous, hyper-vivid third-person viewpoint that operates like a low-budget cinematic camera lens, consistently framing scenes for maximum theatrical shock value.</pov_style>
+</dna>
+
+<mods>
+<m trigger="dynamics.chaos > 60 AND dynamics.intensity > 50" fx="tone:manic,theatrical++ dialogue:screaming,camp++"/>
+<m trigger="action.is_taboo" fx="reaction:applause,euphoria++ prose:hilarious,grotesque++"/>
+<m trigger="flag:societal_confrontation" fx="dialogue:viciously_funny,mocking++ motif_bonus:leopard_print++"/>
+</mods>
+
+<motifs>
+<motif name="leopard_print_fabric" base="0.5" trigger="any" bonus="+0.4"/>
+<motif name="hyper_exaggerated_eyebrows_or_makeup" base="0.6" trigger="character_present" bonus="+0.3"/>
+<motif name="a_shrill_vintage_pop_song" base="0.4" trigger="dynamics.chaos > 50" bonus="+0.5"/>
+<motif name="a_deliberately_tacky_piece_of_furniture" base="0.5" trigger="location_is_indoor" bonus="+0.3"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },

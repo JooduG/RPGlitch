@@ -519,7 +519,8 @@
 
           {#if attachments.length > 0}
             <div class="mb-4">
-              {#each attachments as src (src)}
+              {#each attachments as attachment (typeof attachment === "string" ? attachment : attachment.src)}
+                {@const src = typeof attachment === "string" ? attachment : attachment.src}
                 <button
                   type="button"
                   class="
@@ -533,7 +534,7 @@
                     transition-colors
                     hover:bg-neutral-900/80
                   "
-                  onclick={() => app.open_image_preview(src)}
+                  onclick={() => app.open_image_preview(attachment)}
                   aria-label="View Attachment"
                   use:tooltip
                 >

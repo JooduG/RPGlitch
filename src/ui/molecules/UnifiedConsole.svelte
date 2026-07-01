@@ -38,18 +38,24 @@
   // --- ACCORDION SECTIONS STATE ---
   let open_sections = $state({
     audio: true,
-    storyboard: true,
-    storymode: true,
-    library: true,
-    style: false,
+    storyboard: false,
+    storymode: false,
+    library: false,
+    style: true,
     advanced: true,
   });
 
-  const author_options = Object.values(NARRATIVE_STYLES).map((style) => ({
-    value: style.id,
-    label: style.name,
-    tag: style.core_themes ? style.core_themes.replace(/_/g, " ") : "",
-  }));
+  const author_options = Object.values(NARRATIVE_STYLES)
+    .sort((a, b) => {
+      if (a.id === "default") return -1;
+      if (b.id === "default") return 1;
+      return a.name.localeCompare(b.name);
+    })
+    .map((style) => ({
+      value: style.id,
+      label: style.name,
+      tag: style.tags ? style.tags.join(", ") : "",
+    }));
 
   // --- MUTE STATE ---
   let previous_volume = $state(1.0);
@@ -393,6 +399,7 @@
                         label="Select Writing Style"
                         uppercase={false}
                         matchWidth={true}
+                        dropdownHeight="max-h-80"
                       />
                       {#if app.settings.narrative_style && app.settings.narrative_style !== "default"}
                         <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/30 p-3">
@@ -505,7 +512,14 @@
 
                                 await session_driver.log_turn(caption, entity_name, "ai", {
                                   turn_type: "AI_TURN",
-                                  attachments: [result.imageUrl],
+                                  attachments: [
+                                    {
+                                      src: result.imageUrl,
+                                      metadata: {
+                                        prompt: result.refinedPrompt,
+                                      },
+                                    },
+                                  ],
                                 });
                               } else {
                                 console.warn("[PHOTO] No imageUrl returned");
