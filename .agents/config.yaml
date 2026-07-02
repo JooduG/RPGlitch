@@ -26,6 +26,16 @@ skills:
     migration: C:/Users/johng/.gemini/config/skills/migration/SKILL.md
     performance: C:/Users/johng/.gemini/config/skills/performance/SKILL.md
 
+  codebase_comprehension:
+    understand: C:/Users/johng/.gemini/config/skills/understand/SKILL.md
+    understand-chat: C:/Users/johng/.gemini/config/skills/understand-chat/SKILL.md
+    understand-dashboard: C:/Users/johng/.gemini/config/skills/understand-dashboard/SKILL.md
+    understand-diff: C:/Users/johng/.gemini/config/skills/understand-diff/SKILL.md
+    understand-domain: C:/Users/johng/.gemini/config/skills/understand-domain/SKILL.md
+    understand-explain: C:/Users/johng/.gemini/config/skills/understand-explain/SKILL.md
+    understand-knowledge: C:/Users/johng/.gemini/config/skills/understand-knowledge/SKILL.md
+    understand-onboard: C:/Users/johng/.gemini/config/skills/understand-onboard/SKILL.md
+
   design_and_sensory:
     design: .agents/skills/design/SKILL.md
     audio: .agents/skills/audio/SKILL.md
