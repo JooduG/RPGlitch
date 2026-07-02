@@ -1,3 +1,7 @@
+<script module>
+  let sync_focus_counts = $state({});
+</script>
+
 <script>
   /**
    * @file TextField.svelte
@@ -10,6 +14,7 @@
   import { controlState } from "@state";
   import { auto_resize, use_actions } from "@actions";
   import { fade } from "svelte/transition";
+  import { onDestroy } from "svelte";
 
   let {
     // Data
@@ -47,8 +52,9 @@
 
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || controlState.intent_active);
+  let is_sync_focused = $derived(syncId ? (sync_focus_counts[syncId] || 0) > 0 : false);
   const paragraphs = $derived(parse_markdown(value));
-  const is_expanded = $derived((is_focused || busy || always_expanded) && (!!header_actions || !!status));
+  const is_expanded = $derived((is_focused || is_sync_focused || busy || always_expanded) && (!!header_actions || !!status));
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
@@ -57,6 +63,9 @@
   function handle_focus(e) {
     if (is_disabled || busy) return;
     is_focused = true;
+    if (syncId) {
+      sync_focus_counts[syncId] = (sync_focus_counts[syncId] || 0) + 1;
+    }
     onfocus?.(e);
   }
 
@@ -65,8 +74,17 @@
     const root = /** @type {HTMLElement} */ (e.currentTarget);
     if (e.relatedTarget && root.contains(/** @type {Node} */ (e.relatedTarget))) return;
     is_focused = false;
+    if (syncId) {
+      sync_focus_counts[syncId] = Math.max(0, (sync_focus_counts[syncId] || 0) - 1);
+    }
     onblur?.(e);
   }
+
+  onDestroy(() => {
+    if (is_focused && syncId) {
+      sync_focus_counts[syncId] = Math.max(0, (sync_focus_counts[syncId] || 0) - 1);
+    }
+  });
 
   // Clear stuck focus when switching modes
   $effect(() => {

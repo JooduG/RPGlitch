@@ -136,6 +136,22 @@ export const session_driver = {
   },
 
   /**
+   * Update an attachment in a log entry
+   * @param {string | number} id
+   * @param {number} attachment_index
+   * @param {any} new_attachment
+   */
+  update_log_attachment: async function (id, attachment_index, new_attachment) {
+    const key = isNaN(Number(id)) ? id : Number(id);
+    const entry = await db.simulation_log.get(key);
+    if (entry && entry.attachments && entry.attachments[attachment_index]) {
+      entry.attachments[attachment_index] = new_attachment;
+      await db.simulation_log.put(entry);
+      simulation_log.refresh();
+    }
+  },
+
+  /**
    * Add a message to the simulation log
    * @param {string} text
    * @param {string} role

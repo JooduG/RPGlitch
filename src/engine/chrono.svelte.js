@@ -107,6 +107,16 @@ export class ChronoStore {
   }
 
   /**
+   * Update an attachment in a log entry by ID
+   * @param {string} id
+   * @param {number} attachment_index
+   * @param {any} new_attachment
+   */
+  async update_log_attachment(id, attachment_index, new_attachment) {
+    await session_driver.update_log_attachment(id, attachment_index, new_attachment);
+  }
+
+  /**
    * 🧪 DEBUG: Inject AI Message
    * @param {string} text
    * @param {string} character_name

@@ -520,6 +520,7 @@
                                     {
                                       src: result.imageUrl,
                                       metadata: {
+                                        ...result.metadata,
                                         prompt: result.refinedPrompt,
                                       },
                                     },

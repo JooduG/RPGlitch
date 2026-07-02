@@ -9,7 +9,7 @@
   import { Audio, get_signature_color } from "@media";
   import { Typewriter } from "@motion";
   import { app, runtime } from "@state";
-  import { TELEMETRY_TYPES } from "@engine";
+  import { Chrono, TELEMETRY_TYPES } from "@engine";
 
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
@@ -486,7 +486,7 @@
 
           {#if attachments.length > 0}
             <div class="mb-4">
-              {#each attachments as attachment (typeof attachment === "string" ? attachment : attachment.src)}
+              {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src)}
                 {@const src = typeof attachment === "string" ? attachment : attachment.src}
                 <button
                   type="button"
@@ -501,7 +501,39 @@
                     transition-colors
                     hover:bg-neutral-900/80
                   "
-                  onclick={() => app.open_image_preview(attachment)}
+                  onclick={() => {
+                    const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+                    if (!previewOptions.metadata) previewOptions.metadata = {};
+                    previewOptions.signature_color = signature_color;
+
+                    if (previewOptions.metadata?.prompt) {
+                      previewOptions.on_reroll = async () => {
+                        app.busy = true;
+                        try {
+                          const payload = await app.visual.generate(previewOptions.metadata.prompt, {
+                            seed: null,
+                            resolution: previewOptions.metadata.resolution,
+                            negativePrompt: previewOptions.metadata.negativePrompt,
+                            mode: "selfie",
+                            returnPayload: true,
+                          });
+                          if (payload?.url && id) {
+                            const newAttachment = {
+                              src: payload.url,
+                              metadata: payload.metadata,
+                              signature_color,
+                            };
+                            await Chrono.update_log_attachment(id, attach_idx, newAttachment);
+                            app.open_image_preview(newAttachment);
+                          }
+                        } finally {
+                          app.busy = false;
+                        }
+                      };
+                    }
+
+                    app.open_image_preview(previewOptions);
+                  }}
                   aria-label="View Attachment"
                   use:tooltip
                 >

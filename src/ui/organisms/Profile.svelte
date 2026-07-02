@@ -101,7 +101,7 @@
 
   const get_ai_action_btn_class = (fieldKey) => {
     let cls = "text-slate-400 transition-all duration-200 hover:text-(--signature-color) ";
-    cls += profileState.active_field?.key === fieldKey ? "opacity-100" : "opacity-0";
+    cls += profileState.active_field?.key === fieldKey ? "opacity-100" : "opacity-0 group-data-[expanded=true]/textfield:opacity-100";
     return cls;
   };
 
@@ -158,7 +158,8 @@
       target.closest(".menu") ||
       target.closest("[data-dropdown-menu]") ||
       target.closest(".dropdown-portal-wrapper") ||
-      target.closest(".tooltip-portal")
+      target.closest(".tooltip-portal") ||
+      target.closest("[data-modal-variant='lightbox']")
     )
       return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
@@ -238,9 +239,53 @@
         use:click_outside={handle_click_outside}
       >
         <div class={avatar_container_class}>
-          <div class={profile_pic_wrapper_class} style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)">
+          <button
+            class={[
+              profile_pic_wrapper_class,
+              "flex appearance-none items-center justify-center p-0 outline-none",
+              profileState.is_editing && profileState.char?.profile_picture ? "cursor-pointer transition-opacity hover:opacity-80" : "cursor-default",
+            ]}
+            style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
+            style:background="transparent"
+            disabled={!profileState.is_editing || !profileState.char?.profile_picture}
+            onclick={() => {
+              if (profileState.is_editing && profileState.char?.profile_picture) {
+                app.open_image_preview({
+                  src: profileState.char.profile_picture,
+                  metadata: profileState.char.modifiers
+                    ? {
+                        prompt: profileState.char.modifiers.prompt,
+                        negativePrompt: profileState.char.modifiers.negative_prompt,
+                        seed: profileState.char.modifiers.profile_picture_seed,
+                      }
+                    : null,
+                  on_reroll: () => {
+                    const modifiers = profileState.char.modifiers;
+                    if (!modifiers || !modifiers.prompt) return;
+                    profileState.busy_fields.add("visual-prompt");
+                    app.log(`[Profile] Rerolling profile picture...`, "system");
+                    app.visual
+                      .generate(modifiers.prompt, {
+                        mode: profileState.char.type,
+                        no_background: profileState.noBackground,
+                        negativePrompt: modifiers.negative_prompt || undefined,
+                      })
+                      .then((url) => {
+                        if (url) profileState.char.profile_picture = url;
+                      })
+                      .catch((err) => {
+                        app.log(`Generation failed: ${err.message}`, "error");
+                      })
+                      .finally(() => {
+                        profileState.busy_fields.delete("visual-prompt");
+                      });
+                  },
+                });
+              }
+            }}
+          >
             <ProfilePicture entity={profileState.char} />
-          </div>
+          </button>
         </div>
 
         <div class={info_container_class}>

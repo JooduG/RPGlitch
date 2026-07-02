@@ -83,6 +83,7 @@
                 {#if activeOpen}
                   <div
                     {...contentProps}
+                    data-modal-variant={variant}
                     class="
                       pointer-events-auto
                       relative

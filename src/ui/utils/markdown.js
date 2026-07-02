@@ -7,8 +7,9 @@
   * @returns {any[][]} An array of paragraph blocks, each containing an array of inline tokens
   */
 export function parse_markdown(text) {
-  if (!text) return [];
-  let paragraphs = text.split(/\n\s*\n/);
+  if (text === null || text === undefined || text === "") return [];
+  const textStr = typeof text !== "string" ? String(text) : text;
+  let paragraphs = textStr.split(/\n\s*\n/);
   return paragraphs.map((p) => {
     let normalized = p.replace(/\n/g, " ");
     /** @type {any[]} */

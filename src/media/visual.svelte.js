@@ -123,15 +123,16 @@ export class VisualEngine {
             if (!image_engine) throw new Error("Image plugin missing");
 
             const res = getResolution(options.mode);
-            // Resolve negative prompt: per-entity override > hardcoded constant
             const effectiveNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || NEGATIVE_PROMPT;
+            const effectiveSeed = options.seed ?? generateSecureSeed();
+            const effectiveResolution = `${res.width}x${res.height}`;
 
             const generatePromise = image_engine({
               prompt: finalPrompt,
               negativePrompt: effectiveNegativePrompt,
-              seed: options.seed ?? generateSecureSeed(),
+              seed: effectiveSeed,
               // Map custom resolution parameters directly to the strict string formats expected by Perchance
-              resolution: `${res.width}x${res.height}`,
+              resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
             });
 
@@ -156,7 +157,31 @@ export class VisualEngine {
                 if (!img) {
                   throw new Error("Text-to-image failed: no image data returned");
                 }
+
+                if (options.returnPayload) {
+                  return {
+                    url: img,
+                    metadata: {
+                      prompt: finalPrompt,
+                      negativePrompt: effectiveNegativePrompt,
+                      seed: effectiveSeed,
+                      resolution: effectiveResolution,
+                    },
+                  };
+                }
                 return img;
+              }
+
+              if (options.returnPayload) {
+                return {
+                  url: data,
+                  metadata: {
+                    prompt: finalPrompt,
+                    negativePrompt: effectiveNegativePrompt,
+                    seed: effectiveSeed,
+                    resolution: effectiveResolution,
+                  },
+                };
               }
               return data;
             } finally {
@@ -276,8 +301,16 @@ export class VisualEngine {
         caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
       }
 
-      const imageUrl = await this.generate(cleanPrompt, { mode: vTarget, ...options });
-      return { imageUrl, refinedPrompt: cleanPrompt, caption };
+      const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
+      if (payload && payload.url) {
+        return {
+          imageUrl: payload.url,
+          refinedPrompt: cleanPrompt,
+          caption,
+          metadata: payload.metadata,
+        };
+      }
+      return { imageUrl: payload, refinedPrompt: cleanPrompt, caption };
     } catch (err) {
       console.error("[VisualEngine] Visualize error:", err);
       return { imageUrl: null, refinedPrompt: null, caption: null };
