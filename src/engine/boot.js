@@ -57,7 +57,7 @@ export const AppBootstrap = {
       const fragment = sanitizeToFragment(error_template);
 
       // Use textContent for safety
-      const error_stack = fragment.querySelector("pre");
+      const error_stack = fragment.querySelector("#user-content-error-stack");
       if (error_stack) {
         error_stack.textContent = /** @type {any} */ (err).stack || String(err);
       }
