@@ -54,7 +54,7 @@ describe("AppBootstrap", () => {
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure:"), error);
     expect(app.log).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure: Critical Failure"), "error");
     consoleSpy.mockRestore();
-    const errorStackElement = /** @type {HTMLElement} */ (document.querySelector("pre"));
+    const errorStackElement = /** @type {HTMLElement} */ (document.getElementById("user-content-error-stack"));
     expect(errorStackElement).not.toBeNull();
     // When using textContent, the literal string should be present in the text,
     // but it won't be interpreted as HTML.

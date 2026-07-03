@@ -55,13 +55,14 @@ export const AppBootstrap = {
                 </div>
             `;
       const fragment = sanitizeToFragment(error_template);
-      document.body.replaceChildren(fragment);
 
       // Use textContent for safety
-      const error_stack = document.getElementById("user-content-error-stack");
+      const error_stack = fragment.querySelector("pre");
       if (error_stack) {
         error_stack.textContent = /** @type {any} */ (err).stack || String(err);
       }
+
+      document.body.replaceChildren(fragment);
     }
   },
 };
