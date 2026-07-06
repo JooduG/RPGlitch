@@ -34,7 +34,8 @@
     "**/test-results/**",
     "**/yarn.lock",
     "**/tmp/**",
-    "tmp/**/*"
+    "tmp/**/*",
+    "**/.understand-anything/**"
   ],
   "geminiignore": [
     "!**/*.env",

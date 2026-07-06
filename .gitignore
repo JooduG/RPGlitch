@@ -39,3 +39,4 @@ tmp/**/*
 act_output.log
 gha-creds-*.json
 **/*ignore
+.understand-anything
