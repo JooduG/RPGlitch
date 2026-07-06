@@ -1,0 +1,8 @@
+{
+  "fileSummary": "This JSON file acts as a manifest for the RPGlitch codebase, detailing each file's path, content hash, and structural analysis including functions, classes, imports, exports, and line counts, along with metadata about the analysis itself.",
+  "tags": ["metadata", "build-artifact", "json", "project-structure", "code-analysis"],
+  "complexity": "moderate",
+  "functionSummaries": {},
+  "classSummaries": {},
+  "languageNotes": "The file is a JSON document. Its 'files' field contains a comprehensive object mapping file paths to their respective structural and metadata details, generated during code analysis."
+}

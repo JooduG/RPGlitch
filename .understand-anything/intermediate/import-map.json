@@ -9,18 +9,12 @@
     ".agents/config.yaml": [],
     ".agents/skills/audio/SKILL.md": [],
     ".agents/skills/design/data/interaction-audit.md": [],
-    ".agents/skills/design/scripts/audit-design.js": [
-      ".agents/skills/design/scripts/token-utils.js"
-    ],
+    ".agents/skills/design/scripts/audit-design.js": [".agents/skills/design/scripts/token-utils.js"],
     ".agents/skills/design/scripts/audit-google-design.js": [],
     ".agents/skills/design/scripts/audit-svelte.js": [],
     ".agents/skills/design/scripts/forge-svelte.js": [],
-    ".agents/skills/design/scripts/sync-css.js": [
-      ".agents/skills/design/scripts/token-utils.js"
-    ],
-    ".agents/skills/design/scripts/sync-css.test.js": [
-      ".agents/skills/design/scripts/token-utils.js"
-    ],
+    ".agents/skills/design/scripts/sync-css.js": [".agents/skills/design/scripts/token-utils.js"],
+    ".agents/skills/design/scripts/sync-css.test.js": [".agents/skills/design/scripts/token-utils.js"],
     ".agents/skills/design/scripts/token-utils.js": [],
     ".agents/skills/design/SKILL.md": [],
     ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js": [],
@@ -41,9 +35,7 @@
       "src/intelligence/context.svelte.js",
       "src/intelligence/prompts.js"
     ],
-    ".agents/skills/simulation/scripts/simulation-audit.test.js": [
-      ".agents/skills/simulation/scripts/simulation-audit.js"
-    ],
+    ".agents/skills/simulation/scripts/simulation-audit.test.js": [".agents/skills/simulation/scripts/simulation-audit.js"],
     ".agents/skills/simulation/scripts/test-setup.js": [],
     ".agents/skills/simulation/SKILL.md": [],
     ".env.example": [],
@@ -62,9 +54,7 @@
     ".prettierignore": [],
     ".stylelintignore": [],
     "DESIGN.md": [],
-    "eslint.config.js": [
-      "svelte.config.js"
-    ],
+    "eslint.config.js": ["svelte.config.js"],
     "GEMINI.md": [],
     "ignores.master.json": [],
     "jsconfig.json": [],
@@ -83,29 +73,19 @@
     "src/data/normalizer.js": [],
     "src/data/normalizer.test.js": [],
     "src/data/premades.js": [],
-    "src/data/repository.js": [
-      "src/data/premades.js"
-    ],
-    "src/engine/boot.js": [
-      "src/App.svelte"
-    ],
+    "src/data/repository.js": ["src/data/premades.js"],
+    "src/engine/boot.js": ["src/App.svelte"],
     "src/engine/boot.test.js": [],
     "src/engine/chrono.svelte.js": [],
-    "src/engine/chrono.test.js": [
-      "src/engine/chrono.svelte.js"
-    ],
+    "src/engine/chrono.test.js": ["src/engine/chrono.svelte.js"],
     "src/engine/config.js": [],
-    "src/engine/config.test.js": [
-      "src/engine/config.js"
-    ],
+    "src/engine/config.test.js": ["src/engine/config.js"],
     "src/engine/index.js": [],
     "src/engine/session.svelte.js": [],
     "src/engine/transition-guard.js": [],
     "src/engine/transition-guard.test.js": [],
     "src/engine/utils.js": [],
-    "src/engine/utils.test.js": [
-      "src/engine/utils.js"
-    ],
+    "src/engine/utils.test.js": ["src/engine/utils.js"],
     "src/index.html": [],
     "src/intelligence/context.svelte.js": [],
     "src/intelligence/context.test.js": [],
@@ -113,15 +93,11 @@
     "src/intelligence/index.js": [],
     "src/intelligence/kernel.js": [],
     "src/intelligence/kernel.test.js": [],
-    "src/intelligence/parser.js": [
-      "src/data/normalizer.js"
-    ],
+    "src/intelligence/parser.js": ["src/data/normalizer.js"],
     "src/intelligence/parser.test.js": [],
     "src/intelligence/prompts.js": [],
     "src/intelligence/prompts.test.js": [],
-    "src/intelligence/temporal.js": [
-      "src/intelligence/prompts.js"
-    ],
+    "src/intelligence/temporal.js": ["src/intelligence/prompts.js"],
     "src/intelligence/temporal.test.js": [],
     "src/main.js": [],
     "src/media/audio.svelte.js": [],
@@ -180,24 +156,16 @@
     "src/ui/molecules/VisualWing.test.js": [],
     "src/ui/motion/engine.svelte.js": [],
     "src/ui/motion/index.js": [],
-    "src/ui/motion/kinetic.svelte.js": [
-      "src/ui/motion/engine.svelte.js"
-    ],
-    "src/ui/motion/kinetic.test.js": [
-      "src/ui/motion/kinetic.svelte.js"
-    ],
+    "src/ui/motion/kinetic.svelte.js": ["src/ui/motion/engine.svelte.js"],
+    "src/ui/motion/kinetic.test.js": ["src/ui/motion/kinetic.svelte.js"],
     "src/ui/motion/Typewriter.svelte": [],
-    "src/ui/motion/typewriter.svelte.js": [
-      "src/ui/motion/Typewriter.svelte"
-    ],
+    "src/ui/motion/typewriter.svelte.js": ["src/ui/motion/Typewriter.svelte"],
     "src/ui/organisms/CardHand.svelte": [],
     "src/ui/organisms/index.js": [],
     "src/ui/organisms/Layout.svelte": [],
     "src/ui/organisms/Profile.svelte": [],
     "src/ui/organisms/profile.svelte.js": [],
-    "src/ui/organisms/profile.test.js": [
-      "src/ui/organisms/profile.svelte.js"
-    ],
+    "src/ui/organisms/profile.test.js": ["src/ui/organisms/profile.svelte.js"],
     "src/ui/organisms/ProfileArray.svelte": [],
     "src/ui/organisms/ProfileHeader.svelte": [],
     "src/ui/organisms/Storyboard.svelte": [],
@@ -211,9 +179,7 @@
     "src/ui/utils/safe-html.test.js": [],
     "src/ui/utils/ui-helpers.js": [],
     "src/ui/utils/ui-helpers.test.js": [],
-    "stylelint.config.cjs": [
-      "ignores.master.json"
-    ],
+    "stylelint.config.cjs": ["ignores.master.json"],
     "svelte.config.js": [],
     "tasks/ETERNAL.md": [],
     "tasks/FUTURE.md": [],

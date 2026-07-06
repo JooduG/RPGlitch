@@ -1,1 +1,30 @@
-{"projectRoot":"c:/Users/johng/source/repos/RPGlitch","batchFiles":[{"path":"src/media/design.css","language":"css","sizeLines":767,"fileCategory":"markup"},{"path":"src/media/index.js","language":"javascript","sizeLines":16,"fileCategory":"code"},{"path":"src/media/optics.js","language":"javascript","sizeLines":381,"fileCategory":"code"},{"path":"src/media/resilience.js","language":"javascript","sizeLines":157,"fileCategory":"code"},{"path":"src/media/resilience.test.js","language":"javascript","sizeLines":90,"fileCategory":"code"},{"path":"src/media/tokens.js","language":"javascript","sizeLines":345,"fileCategory":"code"},{"path":"src/media/tokens.test.js","language":"javascript","sizeLines":95,"fileCategory":"code"},{"path":"src/media/visual.svelte.js","language":"javascript","sizeLines":454,"fileCategory":"code"},{"path":"src/platform/index.js","language":"javascript","sizeLines":2,"fileCategory":"code"},{"path":"src/platform/security.js","language":"javascript","sizeLines":125,"fileCategory":"code"},{"path":"src/platform/security.test.js","language":"javascript","sizeLines":215,"fileCategory":"code"},{"path":"src/platform/transport.js","language":"javascript","sizeLines":320,"fileCategory":"code"},{"path":"src/RPGlitch-left-panel.perchance","language":"perchance","sizeLines":18,"fileCategory":"code"},{"path":"src/state/app.svelte.js","language":"javascript","sizeLines":473,"fileCategory":"code"},{"path":"src/state/app.test.js","language":"javascript","sizeLines":17,"fileCategory":"code"},{"path":"src/state/index.js","language":"javascript","sizeLines":4,"fileCategory":"code"},{"path":"src/state/log.svelte.js","language":"javascript","sizeLines":43,"fileCategory":"code"},{"path":"src/state/runtime.svelte.js","language":"javascript","sizeLines":476,"fileCategory":"code"},{"path":"src/state/runtime.test.js","language":"javascript","sizeLines":97,"fileCategory":"code"},{"path":"src/state/status.svelte.js","language":"javascript","sizeLines":130,"fileCategory":"code"},{"path":"src/state/status.test.js","language":"javascript","sizeLines":80,"fileCategory":"code"},{"path":"src/ui/actions/click-outside.js","language":"javascript","sizeLines":23,"fileCategory":"code"},{"path":"src/ui/actions/index.js","language":"javascript","sizeLines":3,"fileCategory":"code"},{"path":"src/ui/actions/resize.js","language":"javascript","sizeLines":92,"fileCategory":"code"},{"path":"src/ui/actions/use-actions.js","language":"javascript","sizeLines":74,"fileCategory":"code"}]}
+{
+  "projectRoot": "c:/Users/johng/source/repos/RPGlitch",
+  "batchFiles": [
+    { "path": "src/media/design.css", "language": "css", "sizeLines": 767, "fileCategory": "markup" },
+    { "path": "src/media/index.js", "language": "javascript", "sizeLines": 16, "fileCategory": "code" },
+    { "path": "src/media/optics.js", "language": "javascript", "sizeLines": 381, "fileCategory": "code" },
+    { "path": "src/media/resilience.js", "language": "javascript", "sizeLines": 157, "fileCategory": "code" },
+    { "path": "src/media/resilience.test.js", "language": "javascript", "sizeLines": 90, "fileCategory": "code" },
+    { "path": "src/media/tokens.js", "language": "javascript", "sizeLines": 345, "fileCategory": "code" },
+    { "path": "src/media/tokens.test.js", "language": "javascript", "sizeLines": 95, "fileCategory": "code" },
+    { "path": "src/media/visual.svelte.js", "language": "javascript", "sizeLines": 454, "fileCategory": "code" },
+    { "path": "src/platform/index.js", "language": "javascript", "sizeLines": 2, "fileCategory": "code" },
+    { "path": "src/platform/security.js", "language": "javascript", "sizeLines": 125, "fileCategory": "code" },
+    { "path": "src/platform/security.test.js", "language": "javascript", "sizeLines": 215, "fileCategory": "code" },
+    { "path": "src/platform/transport.js", "language": "javascript", "sizeLines": 320, "fileCategory": "code" },
+    { "path": "src/RPGlitch-left-panel.perchance", "language": "perchance", "sizeLines": 18, "fileCategory": "code" },
+    { "path": "src/state/app.svelte.js", "language": "javascript", "sizeLines": 473, "fileCategory": "code" },
+    { "path": "src/state/app.test.js", "language": "javascript", "sizeLines": 17, "fileCategory": "code" },
+    { "path": "src/state/index.js", "language": "javascript", "sizeLines": 4, "fileCategory": "code" },
+    { "path": "src/state/log.svelte.js", "language": "javascript", "sizeLines": 43, "fileCategory": "code" },
+    { "path": "src/state/runtime.svelte.js", "language": "javascript", "sizeLines": 476, "fileCategory": "code" },
+    { "path": "src/state/runtime.test.js", "language": "javascript", "sizeLines": 97, "fileCategory": "code" },
+    { "path": "src/state/status.svelte.js", "language": "javascript", "sizeLines": 130, "fileCategory": "code" },
+    { "path": "src/state/status.test.js", "language": "javascript", "sizeLines": 80, "fileCategory": "code" },
+    { "path": "src/ui/actions/click-outside.js", "language": "javascript", "sizeLines": 23, "fileCategory": "code" },
+    { "path": "src/ui/actions/index.js", "language": "javascript", "sizeLines": 3, "fileCategory": "code" },
+    { "path": "src/ui/actions/resize.js", "language": "javascript", "sizeLines": 92, "fileCategory": "code" },
+    { "path": "src/ui/actions/use-actions.js", "language": "javascript", "sizeLines": 74, "fileCategory": "code" }
+  ]
+}

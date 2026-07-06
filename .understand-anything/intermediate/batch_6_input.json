@@ -1,1 +1,30 @@
-{"projectRoot":"c:/Users/johng/source/repos/RPGlitch","batchFiles":[{"path":".gitattributes","language":"unknown","sizeLines":19,"fileCategory":"code"},{"path":".htmlhintignore","language":"unknown","sizeLines":35,"fileCategory":"code"},{"path":".htmlhintrc","language":"unknown","sizeLines":14,"fileCategory":"code"},{"path":".jules/cache/8661477173321466351/session.json","language":"json","sizeLines":19,"fileCategory":"config"},{"path":".jules/cache/sessions.jsonl","language":"jsonl","sizeLines":1,"fileCategory":"code"},{"path":".markdownlint-cli2.mjs","language":"javascript","sizeLines":20,"fileCategory":"code"},{"path":".markdownlintignore","language":"unknown","sizeLines":35,"fileCategory":"code"},{"path":".npmrc","language":"unknown","sizeLines":5,"fileCategory":"code"},{"path":".prettierignore","language":"unknown","sizeLines":34,"fileCategory":"code"},{"path":".stylelintignore","language":"unknown","sizeLines":34,"fileCategory":"code"},{"path":"eslint.config.js","language":"javascript","sizeLines":178,"fileCategory":"code"},{"path":"playwright.config.js","language":"javascript","sizeLines":45,"fileCategory":"code"},{"path":"RPGlitch.code-workspace","language":"code-workspace","sizeLines":15,"fileCategory":"code"},{"path":"src/App.svelte","language":"svelte","sizeLines":196,"fileCategory":"code"},{"path":"src/data/db.js","language":"javascript","sizeLines":69,"fileCategory":"code"},{"path":"src/data/db.test.js","language":"javascript","sizeLines":55,"fileCategory":"code"},{"path":"src/data/index.js","language":"javascript","sizeLines":14,"fileCategory":"code"},{"path":"src/data/lists.js","language":"javascript","sizeLines":137,"fileCategory":"code"},{"path":"src/data/narrative-styles.js","language":"javascript","sizeLines":849,"fileCategory":"code"},{"path":"src/data/normalizer.js","language":"javascript","sizeLines":249,"fileCategory":"code"},{"path":"src/data/normalizer.test.js","language":"javascript","sizeLines":238,"fileCategory":"code"},{"path":"src/data/premades.js","language":"javascript","sizeLines":582,"fileCategory":"code"},{"path":"src/data/repository.js","language":"javascript","sizeLines":241,"fileCategory":"code"},{"path":"src/engine/boot.js","language":"javascript","sizeLines":67,"fileCategory":"code"},{"path":"src/engine/boot.test.js","language":"javascript","sizeLines":119,"fileCategory":"code"}]}
+{
+  "projectRoot": "c:/Users/johng/source/repos/RPGlitch",
+  "batchFiles": [
+    { "path": ".gitattributes", "language": "unknown", "sizeLines": 19, "fileCategory": "code" },
+    { "path": ".htmlhintignore", "language": "unknown", "sizeLines": 35, "fileCategory": "code" },
+    { "path": ".htmlhintrc", "language": "unknown", "sizeLines": 14, "fileCategory": "code" },
+    { "path": ".jules/cache/8661477173321466351/session.json", "language": "json", "sizeLines": 19, "fileCategory": "config" },
+    { "path": ".jules/cache/sessions.jsonl", "language": "jsonl", "sizeLines": 1, "fileCategory": "code" },
+    { "path": ".markdownlint-cli2.mjs", "language": "javascript", "sizeLines": 20, "fileCategory": "code" },
+    { "path": ".markdownlintignore", "language": "unknown", "sizeLines": 35, "fileCategory": "code" },
+    { "path": ".npmrc", "language": "unknown", "sizeLines": 5, "fileCategory": "code" },
+    { "path": ".prettierignore", "language": "unknown", "sizeLines": 34, "fileCategory": "code" },
+    { "path": ".stylelintignore", "language": "unknown", "sizeLines": 34, "fileCategory": "code" },
+    { "path": "eslint.config.js", "language": "javascript", "sizeLines": 178, "fileCategory": "code" },
+    { "path": "playwright.config.js", "language": "javascript", "sizeLines": 45, "fileCategory": "code" },
+    { "path": "RPGlitch.code-workspace", "language": "code-workspace", "sizeLines": 15, "fileCategory": "code" },
+    { "path": "src/App.svelte", "language": "svelte", "sizeLines": 196, "fileCategory": "code" },
+    { "path": "src/data/db.js", "language": "javascript", "sizeLines": 69, "fileCategory": "code" },
+    { "path": "src/data/db.test.js", "language": "javascript", "sizeLines": 55, "fileCategory": "code" },
+    { "path": "src/data/index.js", "language": "javascript", "sizeLines": 14, "fileCategory": "code" },
+    { "path": "src/data/lists.js", "language": "javascript", "sizeLines": 137, "fileCategory": "code" },
+    { "path": "src/data/narrative-styles.js", "language": "javascript", "sizeLines": 849, "fileCategory": "code" },
+    { "path": "src/data/normalizer.js", "language": "javascript", "sizeLines": 249, "fileCategory": "code" },
+    { "path": "src/data/normalizer.test.js", "language": "javascript", "sizeLines": 238, "fileCategory": "code" },
+    { "path": "src/data/premades.js", "language": "javascript", "sizeLines": 582, "fileCategory": "code" },
+    { "path": "src/data/repository.js", "language": "javascript", "sizeLines": 241, "fileCategory": "code" },
+    { "path": "src/engine/boot.js", "language": "javascript", "sizeLines": 67, "fileCategory": "code" },
+    { "path": "src/engine/boot.test.js", "language": "javascript", "sizeLines": 119, "fileCategory": "code" }
+  ]
+}

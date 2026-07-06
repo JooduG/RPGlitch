@@ -1,0 +1,21 @@
+{
+  "fileSummary": "This collection of Markdown files outlines the RPGlitch project's foundational vision and product dream, details its current development status and maturity against that vision, and logs a comprehensive history of recently completed tasks, particularly focusing on AI prompt pipeline refinements and core technical architecture.",
+  "tags": [
+    "project management",
+    "vision",
+    "roadmap",
+    "development status",
+    "technical architecture",
+    "AI prompts",
+    "Svelte",
+    "local-first",
+    "simulation",
+    "documentation",
+    "AI",
+    "project vision"
+  ],
+  "complexity": "complex",
+  "functionSummaries": {},
+  "classSummaries": {},
+  "languageNotes": "The files utilize a highly structured Markdown format with extensive use of checklists, tables, and metaphorical section titles (e.g., 'Eternal (The Soul)', 'Present (The State)', 'Technical Soul'). They employ project-specific terminology like 'Chalk Regime', 'Perchance Two-Panel Paradigm', 'Reactive Monolith', 'Fractal RAG memory', and 'MCPs', indicative of a well-defined internal vocabulary for the RPGlitch codebase. Task descriptions are precise and often include file paths, demonstrating a clear link to the underlying code structure."
+}

@@ -39,17 +39,13 @@
       "functions": [
         {
           "name": "scan",
-          "params": [
-            "dir"
-          ],
+          "params": ["dir"],
           "exported": false,
           "lineCount": 28
         },
         {
           "name": "auditFile",
-          "params": [
-            "filePath"
-          ],
+          "params": ["filePath"],
           "exported": false,
           "lineCount": 21
         },
@@ -70,35 +66,22 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "ignore",
-          "specifiers": [
-            "ignore"
-          ]
+          "specifiers": ["ignore"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "./token-utils.js",
-          "specifiers": [
-            "PATHS",
-            "getSourceFiles",
-            "parseDefinedTokens"
-          ]
+          "specifiers": ["PATHS", "getSourceFiles", "parseDefinedTokens"]
         }
       ],
-      "exports": [
-        "auditCodebaseTokens",
-        "findUnusedTokens"
-      ],
+      "exports": ["auditCodebaseTokens", "findUnusedTokens"],
       "totalLines": 212,
       "hasStructuralAnalysis": true
     },
@@ -110,21 +93,15 @@
       "imports": [
         {
           "source": "child_process",
-          "specifiers": [
-            "execSync"
-          ]
+          "specifiers": ["execSync"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         }
       ],
       "exports": [],
@@ -137,17 +114,13 @@
       "functions": [
         {
           "name": "scan",
-          "params": [
-            "dir"
-          ],
+          "params": ["dir"],
           "exported": false,
           "lineCount": 28
         },
         {
           "name": "auditFile",
-          "params": [
-            "filePath"
-          ],
+          "params": ["filePath"],
           "exported": false,
           "lineCount": 23
         }
@@ -156,21 +129,15 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "ignore",
-          "specifiers": [
-            "ignore"
-          ]
+          "specifiers": ["ignore"]
         }
       ],
       "exports": [],
@@ -183,9 +150,7 @@
       "functions": [
         {
           "name": "forge",
-          "params": [
-            "name"
-          ],
+          "params": ["name"],
           "exported": false,
           "lineCount": 45
         }
@@ -194,21 +159,15 @@
       "imports": [
         {
           "source": "node:fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "node:path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "node:url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         }
       ],
       "exports": [],
@@ -233,17 +192,13 @@
         },
         {
           "name": "flattenFrontmatter",
-          "params": [
-            "data"
-          ],
+          "params": ["data"],
           "exported": false,
           "lineCount": 31
         },
         {
           "name": "buildJsBridge",
-          "params": [
-            "flat_data"
-          ],
+          "params": ["flat_data"],
           "exported": false,
           "lineCount": 43
         },
@@ -258,34 +213,22 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "js-yaml",
-          "specifiers": [
-            "yaml"
-          ]
+          "specifiers": ["yaml"]
         },
         {
           "source": "child_process",
-          "specifiers": [
-            "execSync"
-          ]
+          "specifiers": ["execSync"]
         },
         {
           "source": "./token-utils.js",
-          "specifiers": [
-            "PATHS",
-            "AUTHORITATIVE_CATEGORIES",
-            "getCategory"
-          ]
+          "specifiers": ["PATHS", "AUTHORITATIVE_CATEGORIES", "getCategory"]
         }
       ],
-      "exports": [
-        "syncToCss"
-      ],
+      "exports": ["syncToCss"],
       "totalLines": 156,
       "hasStructuralAnalysis": true
     },
@@ -297,49 +240,31 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect",
-            "beforeEach",
-            "afterEach"
-          ]
+          "specifiers": ["describe", "it", "expect", "beforeEach", "afterEach"]
         },
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "os",
-          "specifiers": [
-            "os"
-          ]
+          "specifiers": ["os"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "child_process",
-          "specifiers": [
-            "execSync"
-          ]
+          "specifiers": ["execSync"]
         },
         {
           "source": "url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         },
         {
           "source": "./token-utils.js",
-          "specifiers": [
-            "getCategory"
-          ]
+          "specifiers": ["getCategory"]
         }
       ],
       "exports": [],
@@ -352,9 +277,7 @@
       "functions": [
         {
           "name": "getCategory",
-          "params": [
-            "name"
-          ],
+          "params": ["name"],
           "exported": true,
           "lineCount": 32
         },
@@ -366,9 +289,7 @@
         },
         {
           "name": "getSourceFiles",
-          "params": [
-            "dir"
-          ],
+          "params": ["dir"],
           "exported": true,
           "lineCount": 18
         }
@@ -377,36 +298,22 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "js-yaml",
-          "specifiers": [
-            "yaml"
-          ]
+          "specifiers": ["yaml"]
         },
         {
           "source": "url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         }
       ],
-      "exports": [
-        "PATHS",
-        "AUTHORITATIVE_CATEGORIES",
-        "getCategory",
-        "parseDefinedTokens",
-        "getSourceFiles"
-      ],
+      "exports": ["PATHS", "AUTHORITATIVE_CATEGORIES", "getCategory", "parseDefinedTokens", "getSourceFiles"],
       "totalLines": 126,
       "hasStructuralAnalysis": true
     },
@@ -426,34 +333,25 @@
       "functions": [
         {
           "name": "getBase",
-          "params": [
-            "filename"
-          ],
+          "params": ["filename"],
           "exported": false,
           "lineCount": 16
         },
         {
           "name": "findTestSubject",
-          "params": [
-            "filename",
-            "dir"
-          ],
+          "params": ["filename", "dir"],
           "exported": false,
           "lineCount": 13
         },
         {
           "name": "scan",
-          "params": [
-            "dir"
-          ],
+          "params": ["dir"],
           "exported": false,
           "lineCount": 39
         },
         {
           "name": "auditFile",
-          "params": [
-            "filePath"
-          ],
+          "params": ["filePath"],
           "exported": false,
           "lineCount": 25
         }
@@ -462,26 +360,18 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "ignore",
-          "specifiers": [
-            "ignore"
-          ]
+          "specifiers": ["ignore"]
         }
       ],
-      "exports": [
-        "nomenclatureRules"
-      ],
+      "exports": ["nomenclatureRules"],
       "totalLines": 207,
       "hasStructuralAnalysis": true
     },
@@ -491,87 +381,61 @@
       "functions": [
         {
           "name": "safeStatSync",
-          "params": [
-            "filePath"
-          ],
+          "params": ["filePath"],
           "exported": true,
           "lineCount": 11
         },
         {
           "name": "cleanHeaderLabel",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": false,
           "lineCount": 6
         },
         {
           "name": "isHeaderMatch",
-          "params": [
-            "templateHeader",
-            "actualLevel",
-            "actualText",
-            "_projectName"
-          ],
+          "params": ["templateHeader", "actualLevel", "actualText", "_projectName"],
           "exported": false,
           "lineCount": 29
         },
         {
           "name": "stripCodeBlocks",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": false,
           "lineCount": 3
         },
         {
           "name": "getTemplateStructure",
-          "params": [
-            "type"
-          ],
+          "params": ["type"],
           "exported": true,
           "lineCount": 47
         },
         {
           "name": "validateAgainstStructure",
-          "params": [
-            "content",
-            "structure",
-            "report"
-          ],
+          "params": ["content", "structure", "report"],
           "exported": true,
           "lineCount": 72
         },
         {
           "name": "auditSkill",
-          "params": [
-            "skillName"
-          ],
+          "params": ["skillName"],
           "exported": false,
           "lineCount": 74
         },
         {
           "name": "createTemplateRule",
-          "params": [
-            "id",
-            "type"
-          ],
+          "params": ["id", "type"],
           "exported": false,
           "lineCount": 24
         },
         {
           "name": "scan",
-          "params": [
-            "dir"
-          ],
+          "params": ["dir"],
           "exported": false,
           "lineCount": 28
         },
         {
           "name": "auditFile",
-          "params": [
-            "filePath"
-          ],
+          "params": ["filePath"],
           "exported": false,
           "lineCount": 55
         }
@@ -580,38 +444,22 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "ignore",
-          "specifiers": [
-            "ignore"
-          ]
+          "specifiers": ["ignore"]
         },
         {
           "source": "url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         }
       ],
-      "exports": [
-        "safeStatSync",
-        "getTemplateStructure",
-        "validateAgainstStructure",
-        "skillRules",
-        "ruleRules",
-        "workflowRules",
-        "projectRules"
-      ],
+      "exports": ["safeStatSync", "getTemplateStructure", "validateAgainstStructure", "skillRules", "ruleRules", "workflowRules", "projectRules"],
       "totalLines": 513,
       "hasStructuralAnalysis": true
     },
@@ -621,17 +469,13 @@
       "functions": [
         {
           "name": "scan",
-          "params": [
-            "dir"
-          ],
+          "params": ["dir"],
           "exported": false,
           "lineCount": 28
         },
         {
           "name": "auditFile",
-          "params": [
-            "filePath"
-          ],
+          "params": ["filePath"],
           "exported": false,
           "lineCount": 23
         }
@@ -640,21 +484,15 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "ignore",
-          "specifiers": [
-            "ignore"
-          ]
+          "specifiers": ["ignore"]
         }
       ],
       "exports": [],
@@ -676,20 +514,14 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         }
       ],
-      "exports": [
-        "syncIgnores"
-      ],
+      "exports": ["syncIgnores"],
       "totalLines": 99,
       "hasStructuralAnalysis": true
     },
@@ -709,9 +541,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "premade"
-      ],
+      "exports": ["premade"],
       "totalLines": 583,
       "hasStructuralAnalysis": true
     },
@@ -731,26 +561,19 @@
       "functions": [
         {
           "name": "log",
-          "params": [
-            "emoji",
-            "message"
-          ],
+          "params": ["emoji", "message"],
           "exported": false,
           "lineCount": 4
         },
         {
           "name": "fatal",
-          "params": [
-            "message"
-          ],
+          "params": ["message"],
           "exported": false,
           "lineCount": 4
         },
         {
           "name": "prompt_user",
-          "params": [
-            "question"
-          ],
+          "params": ["question"],
           "exported": false,
           "lineCount": 9
         },
@@ -768,9 +591,7 @@
         },
         {
           "name": "attempt_login",
-          "params": [
-            "page"
-          ],
+          "params": ["page"],
           "exported": false,
           "lineCount": 97
         },
@@ -789,35 +610,23 @@
         },
         {
           "source": "fs",
-          "specifiers": [
-            "existsSync",
-            "readFileSync"
-          ]
+          "specifiers": ["existsSync", "readFileSync"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "dirname",
-            "resolve"
-          ]
+          "specifiers": ["dirname", "resolve"]
         },
         {
           "source": "playwright",
-          "specifiers": [
-            "chromium"
-          ]
+          "specifiers": ["chromium"]
         },
         {
           "source": "readline",
-          "specifiers": [
-            "createInterface"
-          ]
+          "specifiers": ["createInterface"]
         },
         {
           "source": "url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         }
       ],
       "exports": [],
@@ -882,26 +691,18 @@
       "imports": [
         {
           "source": "../../../../src/intelligence/context.svelte.js",
-          "specifiers": [
-            "context_broker"
-          ]
+          "specifiers": ["context_broker"]
         },
         {
           "source": "../../../../src/intelligence/prompts.js",
-          "specifiers": [
-            "prompt_builder"
-          ]
+          "specifiers": ["prompt_builder"]
         },
         {
           "source": "../../../../src/data/premades.js",
-          "specifiers": [
-            "premade"
-          ]
+          "specifiers": ["premade"]
         }
       ],
-      "exports": [
-        "SimulationAudit"
-      ],
+      "exports": ["SimulationAudit"],
       "totalLines": 93,
       "hasStructuralAnalysis": true
     },
@@ -913,23 +714,15 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect"
-          ]
+          "specifiers": ["describe", "it", "expect"]
         },
         {
           "source": "./simulation-audit.js",
-          "specifiers": [
-            "SimulationAudit"
-          ]
+          "specifiers": ["SimulationAudit"]
         }
       ],
       "exports": [],
@@ -942,9 +735,7 @@
       "functions": [
         {
           "name": "mock_llm_success",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 5
         }
@@ -953,20 +744,14 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "vi"
-          ]
+          "specifiers": ["vi"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "afterAll"
-          ]
+          "specifiers": ["afterAll"]
         }
       ],
-      "exports": [
-        "mock_llm_success"
-      ],
+      "exports": ["mock_llm_success"],
       "totalLines": 91,
       "hasStructuralAnalysis": true
     },
@@ -1078,34 +863,23 @@
       "imports": [
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "url",
-          "specifiers": [
-            "fileURLToPath"
-          ]
+          "specifiers": ["fileURLToPath"]
         },
         {
           "source": "markdown-it",
-          "specifiers": [
-            "markdownIt"
-          ]
+          "specifiers": ["markdownIt"]
         },
         {
           "source": "@github/markdownlint-github",
-          "specifiers": [
-            "githubRules",
-            "init"
-          ]
+          "specifiers": ["githubRules", "init"]
         }
       ],
       "exports": [],
@@ -1180,69 +954,47 @@
       "imports": [
         {
           "source": "@eslint/css",
-          "specifiers": [
-            "css"
-          ]
+          "specifiers": ["css"]
         },
         {
           "source": "@eslint/js",
-          "specifiers": [
-            "js"
-          ]
+          "specifiers": ["js"]
         },
         {
           "source": "@eslint/json",
-          "specifiers": [
-            "json"
-          ]
+          "specifiers": ["json"]
         },
         {
           "source": "@eslint/markdown",
-          "specifiers": [
-            "markdown"
-          ]
+          "specifiers": ["markdown"]
         },
         {
           "source": "@vitest/eslint-plugin",
-          "specifiers": [
-            "vitest"
-          ]
+          "specifiers": ["vitest"]
         },
         {
           "source": "eslint-plugin-better-tailwindcss",
-          "specifiers": [
-            "eslintPluginBetterTailwindcss"
-          ]
+          "specifiers": ["eslintPluginBetterTailwindcss"]
         },
         {
           "source": "eslint-plugin-svelte",
-          "specifiers": [
-            "svelte"
-          ]
+          "specifiers": ["svelte"]
         },
         {
           "source": "eslint/config",
-          "specifiers": [
-            "defineConfig"
-          ]
+          "specifiers": ["defineConfig"]
         },
         {
           "source": "globals",
-          "specifiers": [
-            "globals"
-          ]
+          "specifiers": ["globals"]
         },
         {
           "source": "svelte-eslint-parser",
-          "specifiers": [
-            "svelteParser"
-          ]
+          "specifiers": ["svelteParser"]
         },
         {
           "source": "./svelte.config.js",
-          "specifiers": [
-            "svelteConfig"
-          ]
+          "specifiers": ["svelteConfig"]
         }
       ],
       "exports": [],
@@ -1297,10 +1049,7 @@
       "imports": [
         {
           "source": "@playwright/test",
-          "specifiers": [
-            "defineConfig",
-            "devices"
-          ]
+          "specifiers": ["defineConfig", "devices"]
         }
       ],
       "exports": [],
@@ -1372,15 +1121,10 @@
       "imports": [
         {
           "source": "dexie",
-          "specifiers": [
-            "Dexie"
-          ]
+          "specifiers": ["Dexie"]
         }
       ],
-      "exports": [
-        "init",
-        "db"
-      ],
+      "exports": ["init", "db"],
       "totalLines": 70,
       "hasStructuralAnalysis": true
     },
@@ -1392,14 +1136,7 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect",
-            "vi",
-            "beforeEach",
-            "afterEach"
-          ]
+          "specifiers": ["describe", "it", "expect", "vi", "beforeEach", "afterEach"]
         },
         {
           "source": "fake-indexeddb/auto",
@@ -1443,9 +1180,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "LISTS"
-      ],
+      "exports": ["LISTS"],
       "totalLines": 138,
       "hasStructuralAnalysis": true
     },
@@ -1455,9 +1190,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "NARRATIVE_STYLES"
-      ],
+      "exports": ["NARRATIVE_STYLES"],
       "totalLines": 850,
       "hasStructuralAnalysis": true
     },
@@ -1467,9 +1200,7 @@
       "functions": [
         {
           "name": "sanitize_html",
-          "params": [
-            "val"
-          ],
+          "params": ["val"],
           "exported": false,
           "lineCount": 1
         },
@@ -1487,9 +1218,7 @@
         },
         {
           "name": "coerce_temporal_array",
-          "params": [
-            "val"
-          ],
+          "params": ["val"],
           "exported": true,
           "lineCount": 8
         },
@@ -1501,18 +1230,13 @@
         },
         {
           "name": "format_premade",
-          "params": [
-            "entity",
-            "type"
-          ],
+          "params": ["entity", "type"],
           "exported": true,
           "lineCount": 9
         },
         {
           "name": "detox_prose",
-          "params": [
-            "rawText"
-          ],
+          "params": ["rawText"],
           "exported": true,
           "lineCount": 26
         }
@@ -1521,21 +1245,15 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "pickRandom"
-          ]
+          "specifiers": ["pickRandom"]
         },
         {
           "source": "@media",
-          "specifiers": [
-            "SIGNATURE_COLORS"
-          ]
+          "specifiers": ["SIGNATURE_COLORS"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "Security"
-          ]
+          "specifiers": ["Security"]
         }
       ],
       "exports": [
@@ -1571,19 +1289,11 @@
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "Security"
-          ]
+          "specifiers": ["Security"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -1596,9 +1306,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "premade"
-      ],
+      "exports": ["premade"],
       "totalLines": 583,
       "hasStructuralAnalysis": true
     },
@@ -1614,18 +1322,13 @@
         },
         {
           "name": "prune",
-          "params": [
-            "vectors",
-            "type"
-          ],
+          "params": ["vectors", "type"],
           "exported": true,
           "lineCount": 5
         },
         {
           "name": "hydrate",
-          "params": [
-            "snapshot"
-          ],
+          "params": ["snapshot"],
           "exported": true,
           "lineCount": 14
         }
@@ -1634,27 +1337,14 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "db",
-            "normalize",
-            "premade",
-            "STORAGE_VERSION"
-          ]
+          "specifiers": ["db", "normalize", "premade", "STORAGE_VERSION"]
         },
         {
           "source": "./premades.js",
-          "specifiers": [
-            "localPremade"
-          ]
+          "specifiers": ["localPremade"]
         }
       ],
-      "exports": [
-        "seed_premades",
-        "entities",
-        "stories",
-        "prune",
-        "hydrate"
-      ],
+      "exports": ["seed_premades", "entities", "stories", "prune", "hydrate"],
       "totalLines": 242,
       "hasStructuralAnalysis": true
     },
@@ -1666,46 +1356,30 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "seed_premades"
-          ]
+          "specifiers": ["seed_premades"]
         },
         {
           "source": "@media",
-          "specifiers": [
-            "Audio"
-          ]
+          "specifiers": ["Audio"]
         },
         {
           "source": "../App.svelte",
-          "specifiers": [
-            "App"
-          ]
+          "specifiers": ["App"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "sanitizeToFragment"
-          ]
+          "specifiers": ["sanitizeToFragment"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime"
-          ]
+          "specifiers": ["app", "runtime"]
         },
         {
           "source": "svelte",
-          "specifiers": [
-            "mount"
-          ]
+          "specifiers": ["mount"]
         }
       ],
-      "exports": [
-        "reset_bootstrap_guard",
-        "AppBootstrap"
-      ],
+      "exports": ["reset_bootstrap_guard", "AppBootstrap"],
       "totalLines": 68,
       "hasStructuralAnalysis": true
     },
@@ -1717,32 +1391,19 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "* as repository"
-          ]
+          "specifiers": ["* as repository"]
         },
         {
           "source": "@engine/boot.js",
-          "specifiers": [
-            "AppBootstrap",
-            "reset_bootstrap_guard"
-          ]
+          "specifiers": ["AppBootstrap", "reset_bootstrap_guard"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "test",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "test", "vi"]
         }
       ],
       "exports": [],
@@ -1775,37 +1436,22 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "session_driver"
-          ]
+          "specifiers": ["session_driver"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "gamemaster"
-          ]
+          "specifiers": ["gamemaster"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "Shield"
-          ]
+          "specifiers": ["Shield"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "controlState",
-            "runtime",
-            "simulation_log",
-            "simulationState"
-          ]
+          "specifiers": ["app", "controlState", "runtime", "simulation_log", "simulationState"]
         }
       ],
-      "exports": [
-        "ChronoStore",
-        "Chrono"
-      ],
+      "exports": ["ChronoStore", "Chrono"],
       "totalLines": 266,
       "hasStructuralAnalysis": true
     },
@@ -1817,39 +1463,23 @@
       "imports": [
         {
           "source": "@intelligence",
-          "specifiers": [
-            "gamemaster"
-          ]
+          "specifiers": ["gamemaster"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "Shield"
-          ]
+          "specifiers": ["Shield"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime",
-            "simulationState"
-          ]
+          "specifiers": ["app", "runtime", "simulationState"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it", "vi"]
         },
         {
           "source": "./chrono.svelte.js",
-          "specifiers": [
-            "Chrono"
-          ]
+          "specifiers": ["Chrono"]
         }
       ],
       "exports": [],
@@ -1864,9 +1494,7 @@
       "imports": [
         {
           "source": "@media",
-          "specifiers": [
-            "TOKENS"
-          ]
+          "specifiers": ["TOKENS"]
         }
       ],
       "exports": [
@@ -1890,24 +1518,11 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect"
-          ]
+          "specifiers": ["describe", "it", "expect"]
         },
         {
           "source": "./config.js",
-          "specifiers": [
-            "APP_VERSION",
-            "CONFIG",
-            "ROLES",
-            "ENTITIES",
-            "MESSAGES",
-            "ERROR_MESSAGES",
-            "VIEWS",
-            "THEME"
-          ]
+          "specifiers": ["APP_VERSION", "CONFIG", "ROLES", "ENTITIES", "MESSAGES", "ERROR_MESSAGES", "VIEWS", "THEME"]
         }
       ],
       "exports": [],
@@ -1949,28 +1564,18 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "db"
-          ]
+          "specifiers": ["db"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "SESSION_ID_KEY",
-            "TELEMETRY_TYPES"
-          ]
+          "specifiers": ["SESSION_ID_KEY", "TELEMETRY_TYPES"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "runtime",
-            "simulation_log"
-          ]
+          "specifiers": ["runtime", "simulation_log"]
         }
       ],
-      "exports": [
-        "session_driver"
-      ],
+      "exports": ["session_driver"],
       "totalLines": 236,
       "hasStructuralAnalysis": true
     },
@@ -1980,18 +1585,14 @@
       "functions": [
         {
           "name": "guardedTransition",
-          "params": [
-            "callback"
-          ],
+          "params": ["callback"],
           "exported": true,
           "lineCount": 38
         }
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "guardedTransition"
-      ],
+      "exports": ["guardedTransition"],
       "totalLines": 71,
       "hasStructuralAnalysis": true
     },
@@ -2003,13 +1604,7 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -2034,48 +1629,32 @@
         },
         {
           "name": "pickRandom",
-          "params": [
-            "array"
-          ],
+          "params": ["array"],
           "exported": true,
           "lineCount": 5
         },
         {
           "name": "clamp",
-          "params": [
-            "n"
-          ],
+          "params": ["n"],
           "exported": true,
           "lineCount": 1
         },
         {
           "name": "log",
-          "params": [
-            "...args"
-          ],
+          "params": ["...args"],
           "exported": true,
           "lineCount": 6
         },
         {
           "name": "ind",
-          "params": [
-            "text",
-            "spaces"
-          ],
+          "params": ["text", "spaces"],
           "exported": true,
           "lineCount": 5
         }
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "generateUUID",
-        "generateSecureSeed",
-        "pickRandom",
-        "clamp",
-        "log",
-        "ind"
-      ],
+      "exports": ["generateUUID", "generateSecureSeed", "pickRandom", "clamp", "log", "ind"],
       "totalLines": 70,
       "hasStructuralAnalysis": true
     },
@@ -2087,19 +1666,11 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect"
-          ]
+          "specifiers": ["describe", "it", "expect"]
         },
         {
           "source": "./utils.js",
-          "specifiers": [
-            "pickRandom",
-            "generateSecureSeed",
-            "generateUUID"
-          ]
+          "specifiers": ["pickRandom", "generateSecureSeed", "generateUUID"]
         }
       ],
       "exports": [],
@@ -2122,26 +1693,19 @@
       "functions": [
         {
           "name": "get_sanitized_text",
-          "params": [
-            "msg"
-          ],
+          "params": ["msg"],
           "exported": false,
           "lineCount": 16
         },
         {
           "name": "get_path_value",
-          "params": [
-            "obj",
-            "path"
-          ],
+          "params": ["obj", "path"],
           "exported": false,
           "lineCount": 14
         },
         {
           "name": "to_data_points",
-          "params": [
-            "entity"
-          ],
+          "params": ["entity"],
           "exported": false,
           "lineCount": 23
         }
@@ -2150,23 +1714,14 @@
       "imports": [
         {
           "source": "@intelligence",
-          "specifiers": [
-            "clean_text",
-            "ENTITY_CATALOG",
-            "temporal_engine"
-          ]
+          "specifiers": ["clean_text", "ENTITY_CATALOG", "temporal_engine"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime"
-          ]
+          "specifiers": ["app", "runtime"]
         }
       ],
-      "exports": [
-        "context_broker"
-      ],
+      "exports": ["context_broker"],
       "totalLines": 329,
       "hasStructuralAnalysis": true
     },
@@ -2178,21 +1733,11 @@
       "imports": [
         {
           "source": "@intelligence",
-          "specifiers": [
-            "context_broker",
-            "temporal_engine"
-          ]
+          "specifiers": ["context_broker", "temporal_engine"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "afterEach",
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -2205,9 +1750,7 @@
       "functions": [
         {
           "name": "format_key_as_label",
-          "params": [
-            "key"
-          ],
+          "params": ["key"],
           "exported": true,
           "lineCount": 7
         },
@@ -2226,14 +1769,7 @@
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "NAME_PREFIXES",
-        "ENTITY_FRAGMENTS",
-        "format_key_as_label",
-        "ENTITY_CATALOG",
-        "build_profile_sections",
-        "PROFILE_SECTIONS_BY_TYPE"
-      ],
+      "exports": ["NAME_PREFIXES", "ENTITY_FRAGMENTS", "format_key_as_label", "ENTITY_CATALOG", "build_profile_sections", "PROFILE_SECTIONS_BY_TYPE"],
       "totalLines": 393,
       "hasStructuralAnalysis": true
     },
@@ -2273,17 +1809,13 @@
       "functions": [
         {
           "name": "parse_director_json",
-          "params": [
-            "raw_text"
-          ],
+          "params": ["raw_text"],
           "exported": false,
           "lineCount": 18
         },
         {
           "name": "validate_and_repair_response",
-          "params": [
-            "response"
-          ],
+          "params": ["response"],
           "exported": false,
           "lineCount": 59
         }
@@ -2292,48 +1824,26 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "db",
-            "entities",
-            "prune"
-          ]
+          "specifiers": ["db", "entities", "prune"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "generateUUID",
-            "session_driver",
-            "TELEMETRY_TYPES"
-          ]
+          "specifiers": ["generateUUID", "session_driver", "TELEMETRY_TYPES"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "context_broker",
-            "dynamics_engine",
-            "prompt_builder",
-            "temporal_engine"
-          ]
+          "specifiers": ["context_broker", "dynamics_engine", "prompt_builder", "temporal_engine"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "llm_service",
-            "Security"
-          ]
+          "specifiers": ["llm_service", "Security"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime",
-            "simulationState"
-          ]
+          "specifiers": ["app", "runtime", "simulationState"]
         }
       ],
-      "exports": [
-        "gamemaster"
-      ],
+      "exports": ["gamemaster"],
       "totalLines": 524,
       "hasStructuralAnalysis": true
     },
@@ -2345,41 +1855,23 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "session_driver",
-            "TELEMETRY_TYPES"
-          ]
+          "specifiers": ["session_driver", "TELEMETRY_TYPES"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "context_broker",
-            "dynamics_engine",
-            "gamemaster",
-            "prompt_builder"
-          ]
+          "specifiers": ["context_broker", "dynamics_engine", "gamemaster", "prompt_builder"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "llm_service"
-          ]
+          "specifiers": ["llm_service"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "runtime"
-          ]
+          "specifiers": ["runtime"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -2392,65 +1884,49 @@
       "functions": [
         {
           "name": "parse_think_block",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 32
         },
         {
           "name": "strip_cognition_blocks",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 4
         },
         {
           "name": "clean_image_prompts",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 27
         },
         {
           "name": "wrap_dialogue",
-          "params": [
-            "html"
-          ],
+          "params": ["html"],
           "exported": true,
           "lineCount": 38
         },
         {
           "name": "parse_message",
-          "params": [
-            "rawText"
-          ],
+          "params": ["rawText"],
           "exported": true,
           "lineCount": 24
         },
         {
           "name": "escapeXml",
-          "params": [
-            "str"
-          ],
+          "params": ["str"],
           "exported": true,
           "lineCount": 11
         },
         {
           "name": "clean_text",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 10
         },
         {
           "name": "clean_xml",
-          "params": [
-            "str"
-          ],
+          "params": ["str"],
           "exported": true,
           "lineCount": 10
         }
@@ -2459,21 +1935,15 @@
       "imports": [
         {
           "source": "markdown-it",
-          "specifiers": [
-            "MarkdownIt"
-          ]
+          "specifiers": ["MarkdownIt"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "sanitize"
-          ]
+          "specifiers": ["sanitize"]
         },
         {
           "source": "../data/normalizer.js",
-          "specifiers": [
-            "detox_prose"
-          ]
+          "specifiers": ["detox_prose"]
         }
       ],
       "exports": [
@@ -2497,22 +1967,11 @@
       "imports": [
         {
           "source": "@intelligence",
-          "specifiers": [
-            "clean_image_prompts",
-            "escapeXml",
-            "strip_cognition_blocks",
-            "parse_think_block",
-            "parse_message",
-            "wrap_dialogue"
-          ]
+          "specifiers": ["clean_image_prompts", "escapeXml", "strip_cognition_blocks", "parse_think_block", "parse_message", "wrap_dialogue"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "expect",
-            "it"
-          ]
+          "specifiers": ["describe", "expect", "it"]
         }
       ],
       "exports": [],
@@ -2525,20 +1984,13 @@
       "functions": [
         {
           "name": "physical_to_xml",
-          "params": [
-            "raw",
-            "tagName"
-          ],
+          "params": ["raw", "tagName"],
           "exported": false,
           "lineCount": 11
         },
         {
           "name": "val",
-          "params": [
-            "text",
-            "owner",
-            "entities"
-          ],
+          "params": ["text", "owner", "entities"],
           "exported": false,
           "lineCount": 4
         },
@@ -2556,9 +2008,7 @@
         },
         {
           "name": "format_dynamics_attrs",
-          "params": [
-            "dynObj"
-          ],
+          "params": ["dynObj"],
           "exported": false,
           "lineCount": 7
         },
@@ -2576,9 +2026,7 @@
         },
         {
           "name": "render_narrator",
-          "params": [
-            "mode"
-          ],
+          "params": ["mode"],
           "exported": false,
           "lineCount": 45
         },
@@ -2605,44 +2053,26 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "NARRATIVE_STYLES"
-          ]
+          "specifiers": ["NARRATIVE_STYLES"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "ind"
-          ]
+          "specifiers": ["ind"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "ENTITY_CATALOG",
-            "ENTITY_FRAGMENTS",
-            "escapeXml",
-            "clean_xml",
-            "strip_cognition_blocks",
-            "temporal_engine"
-          ]
+          "specifiers": ["ENTITY_CATALOG", "ENTITY_FRAGMENTS", "escapeXml", "clean_xml", "strip_cognition_blocks", "temporal_engine"]
         },
         {
           "source": "@media",
-          "specifiers": [
-            "safeParsePseudoJson"
-          ]
+          "specifiers": ["safeParsePseudoJson"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         }
       ],
-      "exports": [
-        "PROTOCOL_LIBRARY",
-        "prompt_builder"
-      ],
+      "exports": ["PROTOCOL_LIBRARY", "prompt_builder"],
       "totalLines": 693,
       "hasStructuralAnalysis": true
     },
@@ -2654,23 +2084,15 @@
       "imports": [
         {
           "source": "@intelligence",
-          "specifiers": [
-            "prompt_builder"
-          ]
+          "specifiers": ["prompt_builder"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "expect",
-            "it"
-          ]
+          "specifiers": ["describe", "expect", "it"]
         }
       ],
       "exports": [],
@@ -2683,54 +2105,37 @@
       "functions": [
         {
           "name": "create",
-          "params": [
-            "directive"
-          ],
+          "params": ["directive"],
           "exported": true,
           "lineCount": 12
         },
         {
           "name": "score",
-          "params": [
-            "vectors",
-            "input"
-          ],
+          "params": ["vectors", "input"],
           "exported": true,
           "lineCount": 41
         },
         {
           "name": "format",
-          "params": [
-            "vectors",
-            "input"
-          ],
+          "params": ["vectors", "input"],
           "exported": true,
           "lineCount": 34
         },
         {
           "name": "resolve",
-          "params": [
-            "entity",
-            "vector_id"
-          ],
+          "params": ["entity", "vector_id"],
           "exported": true,
           "lineCount": 26
         },
         {
           "name": "weave_resonance",
-          "params": [
-            "target_entity",
-            "history_slice"
-          ],
+          "params": ["target_entity", "history_slice"],
           "exported": true,
           "lineCount": 55
         },
         {
           "name": "apply_state_mutations",
-          "params": [
-            "entity",
-            "mutations"
-          ],
+          "params": ["entity", "mutations"],
           "exported": true,
           "lineCount": 22
         }
@@ -2739,29 +2144,19 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "CONFIG",
-            "session_driver",
-            "TELEMETRY_TYPES"
-          ]
+          "specifiers": ["CONFIG", "session_driver", "TELEMETRY_TYPES"]
         },
         {
           "source": "./prompts.js",
-          "specifiers": [
-            "prompt_builder"
-          ]
+          "specifiers": ["prompt_builder"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "llm_service"
-          ]
+          "specifiers": ["llm_service"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "log_store"
-          ]
+          "specifiers": ["log_store"]
         }
       ],
       "exports": [
@@ -2786,32 +2181,19 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "CONFIG"
-          ]
+          "specifiers": ["CONFIG"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "temporal_engine"
-          ]
+          "specifiers": ["temporal_engine"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "llm_service"
-          ]
+          "specifiers": ["llm_service"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "afterEach",
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -2830,21 +2212,15 @@
         },
         {
           "source": "dexie",
-          "specifiers": [
-            "Dexie"
-          ]
+          "specifiers": ["Dexie"]
         },
         {
           "source": "dompurify",
-          "specifiers": [
-            "DOMPurify"
-          ]
+          "specifiers": ["DOMPurify"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "AppBootstrap"
-          ]
+          "specifiers": ["AppBootstrap"]
         }
       ],
       "exports": [],
@@ -2858,28 +2234,14 @@
       "classes": [
         {
           "name": "VoiceEngine",
-          "methods": [
-            "constructor",
-            "_loadVoices",
-            "_getRegionLabel",
-            "speak",
-            "preview",
-            "stop"
-          ],
+          "methods": ["constructor", "_loadVoices", "_getRegionLabel", "speak", "preview", "stop"],
           "properties": [],
           "exported": true,
           "lineCount": 237
         },
         {
           "name": "AudioEffectsEngine",
-          "methods": [
-            "constructor",
-            "initSettings",
-            "saveAllSettings",
-            "setVolume",
-            "unlock",
-            "play"
-          ],
+          "methods": ["constructor", "initSettings", "saveAllSettings", "setVolume", "unlock", "play"],
           "properties": [],
           "exported": false,
           "lineCount": 179
@@ -2888,27 +2250,18 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "getRpgList"
-          ]
+          "specifiers": ["getRpgList"]
         },
         {
           "source": "@data",
-          "specifiers": [
-            "db"
-          ]
+          "specifiers": ["db"]
         },
         {
           "source": "svelte/reactivity",
-          "specifiers": [
-            "SvelteSet"
-          ]
+          "specifiers": ["SvelteSet"]
         }
       ],
-      "exports": [
-        "VoiceEngine",
-        "Audio"
-      ],
+      "exports": ["VoiceEngine", "Audio"],
       "totalLines": 552,
       "hasStructuralAnalysis": true
     },
@@ -2961,42 +2314,31 @@
       "functions": [
         {
           "name": "safeParsePseudoJson",
-          "params": [
-            "raw"
-          ],
+          "params": ["raw"],
           "exported": true,
           "lineCount": 45
         },
         {
           "name": "parseListTokens",
-          "params": [
-            "items"
-          ],
+          "params": ["items"],
           "exported": false,
           "lineCount": 10
         },
         {
           "name": "formatDimension",
-          "params": [
-            "label",
-            "items"
-          ],
+          "params": ["label", "items"],
           "exported": false,
           "lineCount": 6
         },
         {
           "name": "flattenToParagraph",
-          "params": [
-            "val"
-          ],
+          "params": ["val"],
           "exported": true,
           "lineCount": 22
         },
         {
           "name": "flatten_physical",
-          "params": [
-            "raw"
-          ],
+          "params": ["raw"],
           "exported": true,
           "lineCount": 19
         },
@@ -3008,9 +2350,7 @@
         },
         {
           "name": "getResolution",
-          "params": [
-            "mode"
-          ],
+          "params": ["mode"],
           "exported": true,
           "lineCount": 16
         }
@@ -3019,22 +2359,15 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "LISTS"
-          ]
+          "specifiers": ["LISTS"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "escapeXml",
-            "PROTOCOL_LIBRARY"
-          ]
+          "specifiers": ["escapeXml", "PROTOCOL_LIBRARY"]
         },
         {
           "source": "@media",
-          "specifiers": [
-            "get_signature_label"
-          ]
+          "specifiers": ["get_signature_label"]
         }
       ],
       "exports": [
@@ -3056,36 +2389,21 @@
       "classes": [
         {
           "name": "ExponentialBackoffRetryer",
-          "methods": [
-            "constructor",
-            "retry"
-          ],
+          "methods": ["constructor", "retry"],
           "properties": [],
           "exported": true,
           "lineCount": 37
         },
         {
           "name": "CircuitBreaker",
-          "methods": [
-            "constructor",
-            "isClosed",
-            "isOpen",
-            "isHalfOpen",
-            "execute",
-            "_onSuccess",
-            "_onFailure",
-            "_evaluateState"
-          ],
+          "methods": ["constructor", "isClosed", "isOpen", "isHalfOpen", "execute", "_onSuccess", "_onFailure", "_evaluateState"],
           "properties": [],
           "exported": true,
           "lineCount": 91
         }
       ],
       "imports": [],
-      "exports": [
-        "ExponentialBackoffRetryer",
-        "CircuitBreaker"
-      ],
+      "exports": ["ExponentialBackoffRetryer", "CircuitBreaker"],
       "totalLines": 158,
       "hasStructuralAnalysis": true
     },
@@ -3097,20 +2415,11 @@
       "imports": [
         {
           "source": "@media",
-          "specifiers": [
-            "CircuitBreaker",
-            "ExponentialBackoffRetryer"
-          ]
+          "specifiers": ["CircuitBreaker", "ExponentialBackoffRetryer"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -3123,49 +2432,37 @@
       "functions": [
         {
           "name": "_hash",
-          "params": [
-            "str"
-          ],
+          "params": ["str"],
           "exported": false,
           "lineCount": 7
         },
         {
           "name": "resolve_token",
-          "params": [
-            "color"
-          ],
+          "params": ["color"],
           "exported": true,
           "lineCount": 5
         },
         {
           "name": "get_deterministic_color",
-          "params": [
-            "seed"
-          ],
+          "params": ["seed"],
           "exported": true,
           "lineCount": 8
         },
         {
           "name": "get_color_name",
-          "params": [
-            "hex"
-          ],
+          "params": ["hex"],
           "exported": true,
           "lineCount": 14
         },
         {
           "name": "get_signature_label",
-          "params": [
-            "entity"
-          ],
+          "params": ["entity"],
           "exported": true,
           "lineCount": 19
         },
         {
           "name": "get_signature_color",
-          "params": [
-            "entity"
-          ],
+          "params": ["entity"],
           "exported": true,
           "lineCount": 32
         }
@@ -3194,19 +2491,11 @@
       "imports": [
         {
           "source": "@media",
-          "specifiers": [
-            "get_signature_color",
-            "get_signature_label",
-            "get_deterministic_color"
-          ]
+          "specifiers": ["get_signature_color", "get_signature_label", "get_deterministic_color"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "expect",
-            "test"
-          ]
+          "specifiers": ["describe", "expect", "test"]
         }
       ],
       "exports": [],
@@ -3246,52 +2535,30 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "generateSecureSeed"
-          ]
+          "specifiers": ["generateSecureSeed"]
         },
         {
           "source": "@data",
-          "specifiers": [
-            "db",
-            "entities"
-          ]
+          "specifiers": ["db", "entities"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "strip_cognition_blocks"
-          ]
+          "specifiers": ["strip_cognition_blocks"]
         },
         {
           "source": "@media",
-          "specifiers": [
-            "AestheticResolver",
-            "CircuitBreaker",
-            "ExponentialBackoffRetryer",
-            "getResolution",
-            "NEGATIVE_PROMPT",
-            "PromptTemplates"
-          ]
+          "specifiers": ["AestheticResolver", "CircuitBreaker", "ExponentialBackoffRetryer", "getResolution", "NEGATIVE_PROMPT", "PromptTemplates"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "llm_service"
-          ]
+          "specifiers": ["llm_service"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "runtime",
-            "simulation"
-          ]
+          "specifiers": ["runtime", "simulation"]
         }
       ],
-      "exports": [
-        "VisualEngine",
-        "visual_engine"
-      ],
+      "exports": ["VisualEngine", "visual_engine"],
       "totalLines": 455,
       "hasStructuralAnalysis": true
     },
@@ -3323,49 +2590,37 @@
       "functions": [
         {
           "name": "sanitize",
-          "params": [
-            "dirty"
-          ],
+          "params": ["dirty"],
           "exported": true,
           "lineCount": 4
         },
         {
           "name": "sanitizeToFragment",
-          "params": [
-            "dirty"
-          ],
+          "params": ["dirty"],
           "exported": true,
           "lineCount": 4
         },
         {
           "name": "escape",
-          "params": [
-            "str"
-          ],
+          "params": ["str"],
           "exported": true,
           "lineCount": 4
         },
         {
           "name": "checkRefusal",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 5
         },
         {
           "name": "clean",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 1
         },
         {
           "name": "validateImage",
-          "params": [
-            "file"
-          ],
+          "params": ["file"],
           "exported": true,
           "lineCount": 40
         }
@@ -3374,28 +2629,14 @@
       "imports": [
         {
           "source": "dompurify",
-          "specifiers": [
-            "DOMPurify"
-          ]
+          "specifiers": ["DOMPurify"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "CONFIG"
-          ]
+          "specifiers": ["CONFIG"]
         }
       ],
-      "exports": [
-        "sanitize",
-        "sanitizeToFragment",
-        "escape",
-        "checkRefusal",
-        "clean",
-        "validateImage",
-        "Security",
-        "Shield",
-        "Snitch"
-      ],
+      "exports": ["sanitize", "sanitizeToFragment", "escape", "checkRefusal", "clean", "validateImage", "Security", "Shield", "Snitch"],
       "totalLines": 126,
       "hasStructuralAnalysis": true
     },
@@ -3407,18 +2648,11 @@
       "imports": [
         {
           "source": "@platform",
-          "specifiers": [
-            "Security"
-          ]
+          "specifiers": ["Security"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "expect",
-            "test",
-            "vi"
-          ]
+          "specifiers": ["describe", "expect", "test", "vi"]
         }
       ],
       "exports": [],
@@ -3431,9 +2665,7 @@
       "functions": [
         {
           "name": "sanitize_llm",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 14
         }
@@ -3442,28 +2674,18 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "ERROR_MESSAGES"
-          ]
+          "specifiers": ["ERROR_MESSAGES"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "strip_cognition_blocks",
-            "escapeXml"
-          ]
+          "specifiers": ["strip_cognition_blocks", "escapeXml"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         }
       ],
-      "exports": [
-        "sanitize_llm",
-        "llm_service"
-      ],
+      "exports": ["sanitize_llm", "llm_service"],
       "totalLines": 321,
       "hasStructuralAnalysis": true
     },
@@ -3484,12 +2706,7 @@
       "classes": [
         {
           "name": "StreamingState",
-          "methods": [
-            "text",
-            "text",
-            "nodeId",
-            "nodeId"
-          ],
+          "methods": ["text", "text", "nodeId", "nodeId"],
           "properties": [],
           "exported": false,
           "lineCount": 26
@@ -3527,53 +2744,30 @@
       "imports": [
         {
           "source": "@atoms",
-          "specifiers": [
-            "closeImagePreview",
-            "openImagePreview"
-          ]
+          "specifiers": ["closeImagePreview", "openImagePreview"]
         },
         {
           "source": "@utils",
-          "specifiers": [
-            "generateUUID",
-            "resolve_px"
-          ]
+          "specifiers": ["generateUUID", "resolve_px"]
         },
         {
           "source": "@data",
-          "specifiers": [
-            "db",
-            "entities",
-            "normalize"
-          ]
+          "specifiers": ["db", "entities", "normalize"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "engineLog",
-            "KV_SETTINGS_KEY",
-            "guardedTransition"
-          ]
+          "specifiers": ["engineLog", "KV_SETTINGS_KEY", "guardedTransition"]
         },
         {
           "source": "@media",
-          "specifiers": [
-            "visual_engine"
-          ]
+          "specifiers": ["visual_engine"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "runtime",
-            "simulationState",
-            "uiState"
-          ]
+          "specifiers": ["runtime", "simulationState", "uiState"]
         }
       ],
-      "exports": [
-        "AppStore",
-        "app"
-      ],
+      "exports": ["AppStore", "app"],
       "totalLines": 474,
       "hasStructuralAnalysis": true
     },
@@ -3585,18 +2779,11 @@
       "imports": [
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it"]
         }
       ],
       "exports": [],
@@ -3609,14 +2796,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "app",
-        "runtime",
-        "controlState",
-        "simulationState",
-        "uiState",
-        "simulation_log"
-      ],
+      "exports": ["app", "runtime", "controlState", "simulationState", "uiState", "simulation_log"],
       "totalLines": 5,
       "hasStructuralAnalysis": true
     },
@@ -3627,11 +2807,7 @@
       "classes": [
         {
           "name": "SimulationLogStore",
-          "methods": [
-            "constructor",
-            "refresh",
-            "add"
-          ],
+          "methods": ["constructor", "refresh", "add"],
           "properties": [],
           "exported": true,
           "lineCount": 24
@@ -3640,21 +2816,14 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "session_driver"
-          ]
+          "specifiers": ["session_driver"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "runtime"
-          ]
+          "specifiers": ["runtime"]
         }
       ],
-      "exports": [
-        "SimulationLogStore",
-        "simulation_log"
-      ],
+      "exports": ["SimulationLogStore", "simulation_log"],
       "totalLines": 44,
       "hasStructuralAnalysis": true
     },
@@ -3673,33 +2842,22 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "db",
-            "entities"
-          ]
+          "specifiers": ["db", "entities"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "SESSION_ID_KEY"
-          ]
+          "specifiers": ["SESSION_ID_KEY"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "temporal_engine"
-          ]
+          "specifiers": ["temporal_engine"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         }
       ],
-      "exports": [
-        "runtime"
-      ],
+      "exports": ["runtime"],
       "totalLines": 477,
       "hasStructuralAnalysis": true
     },
@@ -3711,20 +2869,11 @@
       "imports": [
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime"
-          ]
+          "specifiers": ["app", "runtime"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "afterEach",
-            "beforeEach",
-            "describe",
-            "expect",
-            "it"
-          ]
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it"]
         }
       ],
       "exports": [],
@@ -3738,12 +2887,7 @@
       "classes": [
         {
           "name": "UIStateStore",
-          "methods": [
-            "loading",
-            "menu_open",
-            "input_active",
-            "set_loading"
-          ],
+          "methods": ["loading", "menu_open", "input_active", "set_loading"],
           "properties": [],
           "exported": false,
           "lineCount": 24
@@ -3752,16 +2896,10 @@
       "imports": [
         {
           "source": "@state",
-          "specifiers": [
-            "app"
-          ]
+          "specifiers": ["app"]
         }
       ],
-      "exports": [
-        "simulationState",
-        "uiState",
-        "controlState"
-      ],
+      "exports": ["simulationState", "uiState", "controlState"],
       "totalLines": 131,
       "hasStructuralAnalysis": true
     },
@@ -3773,40 +2911,23 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "Chrono"
-          ]
+          "specifiers": ["Chrono"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "gamemaster"
-          ]
+          "specifiers": ["gamemaster"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "Shield"
-          ]
+          "specifiers": ["Shield"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime",
-            "controlState",
-            "simulationState"
-          ]
+          "specifiers": ["app", "runtime", "controlState", "simulationState"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -3819,19 +2940,14 @@
       "functions": [
         {
           "name": "click_outside",
-          "params": [
-            "node",
-            "handler"
-          ],
+          "params": ["node", "handler"],
           "exported": true,
           "lineCount": 19
         }
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "click_outside"
-      ],
+      "exports": ["click_outside"],
       "totalLines": 24,
       "hasStructuralAnalysis": true
     },
@@ -3841,11 +2957,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "auto_resize",
-        "click_outside",
-        "use_actions"
-      ],
+      "exports": ["auto_resize", "click_outside", "use_actions"],
       "totalLines": 4,
       "hasStructuralAnalysis": true
     },
@@ -3855,9 +2967,7 @@
       "functions": [
         {
           "name": "auto_resize",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 78
         }
@@ -3866,14 +2976,10 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "resolve_px"
-          ]
+          "specifiers": ["resolve_px"]
         }
       ],
-      "exports": [
-        "auto_resize"
-      ],
+      "exports": ["auto_resize"],
       "totalLines": 93,
       "hasStructuralAnalysis": true
     },
@@ -3883,19 +2989,14 @@
       "functions": [
         {
           "name": "use_actions",
-          "params": [
-            "node",
-            "actions"
-          ],
+          "params": ["node", "actions"],
           "exported": true,
           "lineCount": 59
         }
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "use_actions"
-      ],
+      "exports": ["use_actions"],
       "totalLines": 75,
       "hasStructuralAnalysis": true
     },
@@ -4208,17 +3309,13 @@
       "functions": [
         {
           "name": "ensureModifiers",
-          "params": [
-            "char"
-          ],
+          "params": ["char"],
           "exported": false,
           "lineCount": 19
         },
         {
           "name": "handleCreativeAction",
-          "params": [
-            "ctx"
-          ],
+          "params": ["ctx"],
           "exported": false,
           "lineCount": 23
         }
@@ -4227,12 +3324,7 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "expect",
-            "test",
-            "vi"
-          ]
+          "specifiers": ["describe", "expect", "test", "vi"]
         }
       ],
       "exports": [],
@@ -4245,9 +3337,7 @@
       "functions": [
         {
           "name": "spring",
-          "params": [
-            "initialValue"
-          ],
+          "params": ["initialValue"],
           "exported": true,
           "lineCount": 3
         }
@@ -4255,29 +3345,14 @@
       "classes": [
         {
           "name": "KineticSpring",
-          "methods": [
-            "constructor",
-            "value",
-            "value",
-            "stiffness",
-            "stiffness",
-            "damping",
-            "damping",
-            "precision",
-            "precision",
-            "set",
-            "update"
-          ],
+          "methods": ["constructor", "value", "value", "stiffness", "stiffness", "damping", "damping", "precision", "precision", "set", "update"],
           "properties": [],
           "exported": false,
           "lineCount": 114
         }
       ],
       "imports": [],
-      "exports": [
-        "motion",
-        "spring"
-      ],
+      "exports": ["motion", "spring"],
       "totalLines": 163,
       "hasStructuralAnalysis": true
     },
@@ -4287,18 +3362,7 @@
       "functions": [],
       "classes": [],
       "imports": [],
-      "exports": [
-        "motion",
-        "spring",
-        "pulse",
-        "roll",
-        "shimmy",
-        "spin",
-        "stab",
-        "kinetic_scroll",
-        "typewriter",
-        "Typewriter"
-      ],
+      "exports": ["motion", "spring", "pulse", "roll", "shimmy", "spin", "stab", "kinetic_scroll", "typewriter", "Typewriter"],
       "totalLines": 12,
       "hasStructuralAnalysis": true
     },
@@ -4308,66 +3372,49 @@
       "functions": [
         {
           "name": "get_target",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": false,
           "lineCount": 1
         },
         {
           "name": "createKineticAction",
-          "params": [
-            "node",
-            "config"
-          ],
+          "params": ["node", "config"],
           "exported": false,
           "lineCount": 67
         },
         {
           "name": "shimmy",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 26
         },
         {
           "name": "pulse",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 42
         },
         {
           "name": "spin",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 38
         },
         {
           "name": "roll",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 38
         },
         {
           "name": "stab",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 22
         },
         {
           "name": "kinetic_scroll",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 90
         }
@@ -4376,28 +3423,14 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "resolve_ms",
-            "resolve_number",
-            "resolve_string"
-          ]
+          "specifiers": ["resolve_ms", "resolve_number", "resolve_string"]
         },
         {
           "source": "./engine.svelte.js",
-          "specifiers": [
-            "motion",
-            "spring"
-          ]
+          "specifiers": ["motion", "spring"]
         }
       ],
-      "exports": [
-        "shimmy",
-        "pulse",
-        "spin",
-        "roll",
-        "stab",
-        "kinetic_scroll"
-      ],
+      "exports": ["shimmy", "pulse", "spin", "roll", "stab", "kinetic_scroll"],
       "totalLines": 400,
       "hasStructuralAnalysis": true
     },
@@ -4409,20 +3442,11 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect",
-            "beforeEach",
-            "afterEach",
-            "vi"
-          ]
+          "specifiers": ["describe", "it", "expect", "beforeEach", "afterEach", "vi"]
         },
         {
           "source": "./kinetic.svelte.js",
-          "specifiers": [
-            "pulse"
-          ]
+          "specifiers": ["pulse"]
         }
       ],
       "exports": [],
@@ -4445,9 +3469,7 @@
       "functions": [
         {
           "name": "typewriter",
-          "params": [
-            "node"
-          ],
+          "params": ["node"],
           "exported": true,
           "lineCount": 29
         }
@@ -4456,21 +3478,14 @@
       "imports": [
         {
           "source": "svelte",
-          "specifiers": [
-            "mount",
-            "unmount"
-          ]
+          "specifiers": ["mount", "unmount"]
         },
         {
           "source": "./Typewriter.svelte",
-          "specifiers": [
-            "Typewriter"
-          ]
+          "specifiers": ["Typewriter"]
         }
       ],
-      "exports": [
-        "typewriter"
-      ],
+      "exports": ["typewriter"],
       "totalLines": 46,
       "hasStructuralAnalysis": true
     },
@@ -4563,55 +3578,34 @@
       "imports": [
         {
           "source": "@data",
-          "specifiers": [
-            "db",
-            "normalize"
-          ]
+          "specifiers": ["db", "normalize"]
         },
         {
           "source": "@engine",
-          "specifiers": [
-            "generateUUID"
-          ]
+          "specifiers": ["generateUUID"]
         },
         {
           "source": "@intelligence",
-          "specifiers": [
-            "prompt_builder",
-            "strip_cognition_blocks",
-            "temporal_engine"
-          ]
+          "specifiers": ["prompt_builder", "strip_cognition_blocks", "temporal_engine"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "llm_service"
-          ]
+          "specifiers": ["llm_service"]
         },
         {
           "source": "@state",
-          "specifiers": [
-            "app",
-            "runtime"
-          ]
+          "specifiers": ["app", "runtime"]
         },
         {
           "source": "@utils",
-          "specifiers": [
-            "get_value",
-            "set_value"
-          ]
+          "specifiers": ["get_value", "set_value"]
         },
         {
           "source": "svelte/reactivity",
-          "specifiers": [
-            "SvelteSet"
-          ]
+          "specifiers": ["SvelteSet"]
         }
       ],
-      "exports": [
-        "ProfileState"
-      ],
+      "exports": ["ProfileState"],
       "totalLines": 379,
       "hasStructuralAnalysis": true
     },
@@ -4623,19 +3617,11 @@
       "imports": [
         {
           "source": "vitest",
-          "specifiers": [
-            "describe",
-            "it",
-            "expect",
-            "vi",
-            "beforeEach"
-          ]
+          "specifiers": ["describe", "it", "expect", "vi", "beforeEach"]
         },
         {
           "source": "./profile.svelte.js",
-          "specifiers": [
-            "ProfileState"
-          ]
+          "specifiers": ["ProfileState"]
         }
       ],
       "exports": [],
@@ -4708,30 +3694,20 @@
       "functions": [
         {
           "name": "get_value",
-          "params": [
-            "obj",
-            "path"
-          ],
+          "params": ["obj", "path"],
           "exported": true,
           "lineCount": 8
         },
         {
           "name": "set_value",
-          "params": [
-            "obj",
-            "path",
-            "val"
-          ],
+          "params": ["obj", "path", "val"],
           "exported": true,
           "lineCount": 11
         }
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "get_value",
-        "set_value"
-      ],
+      "exports": ["get_value", "set_value"],
       "totalLines": 39,
       "hasStructuralAnalysis": true
     },
@@ -4751,18 +3727,14 @@
       "functions": [
         {
           "name": "parse_markdown",
-          "params": [
-            "text"
-          ],
+          "params": ["text"],
           "exported": true,
           "lineCount": 35
         }
       ],
       "classes": [],
       "imports": [],
-      "exports": [
-        "parse_markdown"
-      ],
+      "exports": ["parse_markdown"],
       "totalLines": 44,
       "hasStructuralAnalysis": true
     },
@@ -4772,10 +3744,7 @@
       "functions": [
         {
           "name": "safe_html",
-          "params": [
-            "node",
-            "content"
-          ],
+          "params": ["node", "content"],
           "exported": true,
           "lineCount": 11
         }
@@ -4784,14 +3753,10 @@
       "imports": [
         {
           "source": "@platform",
-          "specifiers": [
-            "sanitizeToFragment"
-          ]
+          "specifiers": ["sanitizeToFragment"]
         }
       ],
-      "exports": [
-        "safe_html"
-      ],
+      "exports": ["safe_html"],
       "totalLines": 18,
       "hasStructuralAnalysis": true
     },
@@ -4803,25 +3768,15 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "safe_html"
-          ]
+          "specifiers": ["safe_html"]
         },
         {
           "source": "@platform",
-          "specifiers": [
-            "* as security"
-          ]
+          "specifiers": ["* as security"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "beforeEach",
-            "describe",
-            "expect",
-            "test",
-            "vi"
-          ]
+          "specifiers": ["beforeEach", "describe", "expect", "test", "vi"]
         }
       ],
       "exports": [],
@@ -4834,18 +3789,13 @@
       "functions": [
         {
           "name": "get_css_value",
-          "params": [
-            "value"
-          ],
+          "params": ["value"],
           "exported": false,
           "lineCount": 4
         },
         {
           "name": "try_direct_var_resolve",
-          "params": [
-            "trimmed",
-            "context"
-          ],
+          "params": ["trimmed", "context"],
           "exported": false,
           "lineCount": 15
         },
@@ -4857,44 +3807,31 @@
         },
         {
           "name": "prepare_measure",
-          "params": [
-            "value",
-            "prop",
-            "sentinel",
-            "context"
-          ],
+          "params": ["value", "prop", "sentinel", "context"],
           "exported": false,
           "lineCount": 28
         },
         {
           "name": "resolve_px",
-          "params": [
-            "value"
-          ],
+          "params": ["value"],
           "exported": true,
           "lineCount": 41
         },
         {
           "name": "resolve_ms",
-          "params": [
-            "value"
-          ],
+          "params": ["value"],
           "exported": true,
           "lineCount": 51
         },
         {
           "name": "resolve_number",
-          "params": [
-            "value"
-          ],
+          "params": ["value"],
           "exported": true,
           "lineCount": 36
         },
         {
           "name": "resolve_string",
-          "params": [
-            "value"
-          ],
+          "params": ["value"],
           "exported": true,
           "lineCount": 31
         },
@@ -4906,9 +3843,7 @@
         },
         {
           "name": "getRpgList",
-          "params": [
-            "key"
-          ],
+          "params": ["key"],
           "exported": true,
           "lineCount": 20
         }
@@ -4917,18 +3852,11 @@
       "imports": [
         {
           "source": "@engine",
-          "specifiers": [
-            "clamp",
-            "generateSecureSeed",
-            "generateUUID",
-            "pickRandom"
-          ]
+          "specifiers": ["clamp", "generateSecureSeed", "generateUUID", "pickRandom"]
         },
         {
           "source": "@data",
-          "specifiers": [
-            "LISTS"
-          ]
+          "specifiers": ["LISTS"]
         }
       ],
       "exports": [
@@ -4955,25 +3883,11 @@
       "imports": [
         {
           "source": "@utils",
-          "specifiers": [
-            "generateSecureSeed",
-            "generateUUID",
-            "resolve_ms",
-            "resolve_number",
-            "resolve_px",
-            "resolve_string"
-          ]
+          "specifiers": ["generateSecureSeed", "generateUUID", "resolve_ms", "resolve_number", "resolve_px", "resolve_string"]
         },
         {
           "source": "vitest",
-          "specifiers": [
-            "afterEach",
-            "beforeEach",
-            "describe",
-            "expect",
-            "it",
-            "vi"
-          ]
+          "specifiers": ["afterEach", "beforeEach", "describe", "expect", "it", "vi"]
         }
       ],
       "exports": [],
@@ -4998,9 +3912,7 @@
       "imports": [
         {
           "source": "mdsvex",
-          "specifiers": [
-            "mdsvex"
-          ]
+          "specifiers": ["mdsvex"]
         }
       ],
       "exports": [],
@@ -5045,15 +3957,11 @@
       "imports": [
         {
           "source": "dexie",
-          "specifiers": [
-            "Table"
-          ]
+          "specifiers": ["Table"]
         },
         {
           "source": "dexie",
-          "specifiers": [
-            "Dexie"
-          ]
+          "specifiers": ["Dexie"]
         }
       ],
       "exports": [],
@@ -5081,51 +3989,35 @@
       "imports": [
         {
           "source": "@sveltejs/vite-plugin-svelte",
-          "specifiers": [
-            "svelte"
-          ]
+          "specifiers": ["svelte"]
         },
         {
           "source": "@tailwindcss/vite",
-          "specifiers": [
-            "tailwindcss"
-          ]
+          "specifiers": ["tailwindcss"]
         },
         {
           "source": "child_process",
-          "specifiers": [
-            "execSync"
-          ]
+          "specifiers": ["execSync"]
         },
         {
           "source": "fs",
-          "specifiers": [
-            "fs"
-          ]
+          "specifiers": ["fs"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "vite",
-          "specifiers": [
-            "defineConfig"
-          ]
+          "specifiers": ["defineConfig"]
         },
         {
           "source": "vite-plugin-devtools-json",
-          "specifiers": [
-            "devtoolsJson"
-          ]
+          "specifiers": ["devtoolsJson"]
         },
         {
           "source": "vite-plugin-singlefile",
-          "specifiers": [
-            "viteSingleFile"
-          ]
+          "specifiers": ["viteSingleFile"]
         }
       ],
       "exports": [],
@@ -5140,21 +4032,15 @@
       "imports": [
         {
           "source": "@sveltejs/vite-plugin-svelte",
-          "specifiers": [
-            "svelte"
-          ]
+          "specifiers": ["svelte"]
         },
         {
           "source": "path",
-          "specifiers": [
-            "path"
-          ]
+          "specifiers": ["path"]
         },
         {
           "source": "vitest/config",
-          "specifiers": [
-            "defineConfig"
-          ]
+          "specifiers": ["defineConfig"]
         }
       ],
       "exports": [],

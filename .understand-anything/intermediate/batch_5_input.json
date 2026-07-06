@@ -1,1 +1,30 @@
-{"projectRoot":"c:/Users/johng/source/repos/RPGlitch","batchFiles":[{"path":".agents/config.yaml","language":"yaml","sizeLines":121,"fileCategory":"config"},{"path":".agents/skills/audio/SKILL.md","language":"markdown","sizeLines":89,"fileCategory":"docs"},{"path":".agents/skills/design/data/interaction-audit.md","language":"markdown","sizeLines":42,"fileCategory":"docs"},{"path":".agents/skills/design/scripts/audit-design.js","language":"javascript","sizeLines":211,"fileCategory":"code"},{"path":".agents/skills/design/scripts/audit-google-design.js","language":"javascript","sizeLines":60,"fileCategory":"code"},{"path":".agents/skills/design/scripts/audit-svelte.js","language":"javascript","sizeLines":139,"fileCategory":"code"},{"path":".agents/skills/design/scripts/forge-svelte.js","language":"javascript","sizeLines":69,"fileCategory":"code"},{"path":".agents/skills/design/scripts/sync-css.js","language":"javascript","sizeLines":155,"fileCategory":"code"},{"path":".agents/skills/design/scripts/sync-css.test.js","language":"javascript","sizeLines":67,"fileCategory":"code"},{"path":".agents/skills/design/scripts/token-utils.js","language":"javascript","sizeLines":125,"fileCategory":"code"},{"path":".agents/skills/design/SKILL.md","language":"markdown","sizeLines":109,"fileCategory":"docs"},{"path":".agents/skills/local-dispatcher/scripts/audit-nomenclature.js","language":"javascript","sizeLines":206,"fileCategory":"code"},{"path":".agents/skills/local-dispatcher/scripts/audit-project.js","language":"javascript","sizeLines":512,"fileCategory":"code"},{"path":".agents/skills/local-dispatcher/scripts/audit-security.js","language":"javascript","sizeLines":119,"fileCategory":"code"},{"path":".agents/skills/local-dispatcher/scripts/sync-ignores.js","language":"javascript","sizeLines":98,"fileCategory":"code"},{"path":".agents/skills/local-dispatcher/SKILL.md","language":"markdown","sizeLines":74,"fileCategory":"docs"},{"path":".agents/skills/premades/assets/premades-nsfw.js","language":"javascript","sizeLines":582,"fileCategory":"code"},{"path":".agents/skills/premades/SKILL.md","language":"markdown","sizeLines":85,"fileCategory":"docs"},{"path":".agents/skills/release/scripts/deploy-perchance.js","language":"javascript","sizeLines":625,"fileCategory":"code"},{"path":".agents/skills/release/SKILL.md","language":"markdown","sizeLines":64,"fileCategory":"docs"},{"path":".agents/skills/simulation/scripts/simulation-audit.js","language":"javascript","sizeLines":92,"fileCategory":"code"},{"path":".agents/skills/simulation/scripts/simulation-audit.test.js","language":"javascript","sizeLines":85,"fileCategory":"code"},{"path":".agents/skills/simulation/scripts/test-setup.js","language":"javascript","sizeLines":90,"fileCategory":"code"},{"path":".agents/skills/simulation/SKILL.md","language":"markdown","sizeLines":122,"fileCategory":"docs"},{"path":".gemini/settings.json","language":"json","sizeLines":7,"fileCategory":"config"}]}
+{
+  "projectRoot": "c:/Users/johng/source/repos/RPGlitch",
+  "batchFiles": [
+    { "path": ".agents/config.yaml", "language": "yaml", "sizeLines": 121, "fileCategory": "config" },
+    { "path": ".agents/skills/audio/SKILL.md", "language": "markdown", "sizeLines": 89, "fileCategory": "docs" },
+    { "path": ".agents/skills/design/data/interaction-audit.md", "language": "markdown", "sizeLines": 42, "fileCategory": "docs" },
+    { "path": ".agents/skills/design/scripts/audit-design.js", "language": "javascript", "sizeLines": 211, "fileCategory": "code" },
+    { "path": ".agents/skills/design/scripts/audit-google-design.js", "language": "javascript", "sizeLines": 60, "fileCategory": "code" },
+    { "path": ".agents/skills/design/scripts/audit-svelte.js", "language": "javascript", "sizeLines": 139, "fileCategory": "code" },
+    { "path": ".agents/skills/design/scripts/forge-svelte.js", "language": "javascript", "sizeLines": 69, "fileCategory": "code" },
+    { "path": ".agents/skills/design/scripts/sync-css.js", "language": "javascript", "sizeLines": 155, "fileCategory": "code" },
+    { "path": ".agents/skills/design/scripts/sync-css.test.js", "language": "javascript", "sizeLines": 67, "fileCategory": "code" },
+    { "path": ".agents/skills/design/scripts/token-utils.js", "language": "javascript", "sizeLines": 125, "fileCategory": "code" },
+    { "path": ".agents/skills/design/SKILL.md", "language": "markdown", "sizeLines": 109, "fileCategory": "docs" },
+    { "path": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js", "language": "javascript", "sizeLines": 206, "fileCategory": "code" },
+    { "path": ".agents/skills/local-dispatcher/scripts/audit-project.js", "language": "javascript", "sizeLines": 512, "fileCategory": "code" },
+    { "path": ".agents/skills/local-dispatcher/scripts/audit-security.js", "language": "javascript", "sizeLines": 119, "fileCategory": "code" },
+    { "path": ".agents/skills/local-dispatcher/scripts/sync-ignores.js", "language": "javascript", "sizeLines": 98, "fileCategory": "code" },
+    { "path": ".agents/skills/local-dispatcher/SKILL.md", "language": "markdown", "sizeLines": 74, "fileCategory": "docs" },
+    { "path": ".agents/skills/premades/assets/premades-nsfw.js", "language": "javascript", "sizeLines": 582, "fileCategory": "code" },
+    { "path": ".agents/skills/premades/SKILL.md", "language": "markdown", "sizeLines": 85, "fileCategory": "docs" },
+    { "path": ".agents/skills/release/scripts/deploy-perchance.js", "language": "javascript", "sizeLines": 625, "fileCategory": "code" },
+    { "path": ".agents/skills/release/SKILL.md", "language": "markdown", "sizeLines": 64, "fileCategory": "docs" },
+    { "path": ".agents/skills/simulation/scripts/simulation-audit.js", "language": "javascript", "sizeLines": 92, "fileCategory": "code" },
+    { "path": ".agents/skills/simulation/scripts/simulation-audit.test.js", "language": "javascript", "sizeLines": 85, "fileCategory": "code" },
+    { "path": ".agents/skills/simulation/scripts/test-setup.js", "language": "javascript", "sizeLines": 90, "fileCategory": "code" },
+    { "path": ".agents/skills/simulation/SKILL.md", "language": "markdown", "sizeLines": 122, "fileCategory": "docs" },
+    { "path": ".gemini/settings.json", "language": "json", "sizeLines": 7, "fileCategory": "config" }
+  ]
+}

@@ -4,27 +4,14 @@
   "totalFiles": 209,
   "totalBatches": 14,
   "exportsByPath": {
-    ".agents/skills/design/scripts/audit-design.js": [
-      "auditCodebaseTokens",
-      "findUnusedTokens"
-    ],
+    ".agents/skills/design/scripts/audit-design.js": ["auditCodebaseTokens", "findUnusedTokens"],
     ".agents/skills/design/scripts/audit-google-design.js": [],
     ".agents/skills/design/scripts/audit-svelte.js": [],
     ".agents/skills/design/scripts/forge-svelte.js": [],
-    ".agents/skills/design/scripts/sync-css.js": [
-      "syncToCss"
-    ],
+    ".agents/skills/design/scripts/sync-css.js": ["syncToCss"],
     ".agents/skills/design/scripts/sync-css.test.js": [],
-    ".agents/skills/design/scripts/token-utils.js": [
-      "PATHS",
-      "AUTHORITATIVE_CATEGORIES",
-      "getCategory",
-      "parseDefinedTokens",
-      "getSourceFiles"
-    ],
-    ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js": [
-      "nomenclatureRules"
-    ],
+    ".agents/skills/design/scripts/token-utils.js": ["PATHS", "AUTHORITATIVE_CATEGORIES", "getCategory", "parseDefinedTokens", "getSourceFiles"],
+    ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js": ["nomenclatureRules"],
     ".agents/skills/local-dispatcher/scripts/audit-project.js": [
       "safeStatSync",
       "getTemplateStructure",
@@ -35,20 +22,12 @@
       "projectRules"
     ],
     ".agents/skills/local-dispatcher/scripts/audit-security.js": [],
-    ".agents/skills/local-dispatcher/scripts/sync-ignores.js": [
-      "syncIgnores"
-    ],
-    ".agents/skills/premades/assets/premades-nsfw.js": [
-      "premade"
-    ],
+    ".agents/skills/local-dispatcher/scripts/sync-ignores.js": ["syncIgnores"],
+    ".agents/skills/premades/assets/premades-nsfw.js": ["premade"],
     ".agents/skills/release/scripts/deploy-perchance.js": [],
-    ".agents/skills/simulation/scripts/simulation-audit.js": [
-      "SimulationAudit"
-    ],
+    ".agents/skills/simulation/scripts/simulation-audit.js": ["SimulationAudit"],
     ".agents/skills/simulation/scripts/simulation-audit.test.js": [],
-    ".agents/skills/simulation/scripts/test-setup.js": [
-      "mock_llm_success"
-    ],
+    ".agents/skills/simulation/scripts/test-setup.js": ["mock_llm_success"],
     ".gitattributes": [],
     ".htmlhintignore": [],
     ".htmlhintrc": [],
@@ -62,10 +41,7 @@
     "playwright.config.js": [],
     "RPGlitch.code-workspace": [],
     "src/App.svelte": [],
-    "src/data/db.js": [
-      "init",
-      "db"
-    ],
+    "src/data/db.js": ["init", "db"],
     "src/data/db.test.js": [],
     "src/data/index.js": [
       "seed_premades",
@@ -85,12 +61,8 @@
       "LISTS",
       "NARRATIVE_STYLES"
     ],
-    "src/data/lists.js": [
-      "LISTS"
-    ],
-    "src/data/narrative-styles.js": [
-      "NARRATIVE_STYLES"
-    ],
+    "src/data/lists.js": ["LISTS"],
+    "src/data/narrative-styles.js": ["NARRATIVE_STYLES"],
     "src/data/normalizer.js": [
       "STORAGE_VERSION",
       "ENTITY_TEMPLATES",
@@ -102,25 +74,11 @@
       "detox_prose"
     ],
     "src/data/normalizer.test.js": [],
-    "src/data/premades.js": [
-      "premade"
-    ],
-    "src/data/repository.js": [
-      "seed_premades",
-      "entities",
-      "stories",
-      "prune",
-      "hydrate"
-    ],
-    "src/engine/boot.js": [
-      "reset_bootstrap_guard",
-      "AppBootstrap"
-    ],
+    "src/data/premades.js": ["premade"],
+    "src/data/repository.js": ["seed_premades", "entities", "stories", "prune", "hydrate"],
+    "src/engine/boot.js": ["reset_bootstrap_guard", "AppBootstrap"],
     "src/engine/boot.test.js": [],
-    "src/engine/chrono.svelte.js": [
-      "ChronoStore",
-      "Chrono"
-    ],
+    "src/engine/chrono.svelte.js": ["ChronoStore", "Chrono"],
     "src/engine/chrono.test.js": [],
     "src/engine/config.js": [
       "APP_VERSION",
@@ -151,25 +109,12 @@
       "ind",
       "guardedTransition"
     ],
-    "src/engine/session.svelte.js": [
-      "session_driver"
-    ],
-    "src/engine/transition-guard.js": [
-      "guardedTransition"
-    ],
+    "src/engine/session.svelte.js": ["session_driver"],
+    "src/engine/transition-guard.js": ["guardedTransition"],
     "src/engine/transition-guard.test.js": [],
-    "src/engine/utils.js": [
-      "generateUUID",
-      "generateSecureSeed",
-      "pickRandom",
-      "clamp",
-      "log",
-      "ind"
-    ],
+    "src/engine/utils.js": ["generateUUID", "generateSecureSeed", "pickRandom", "clamp", "log", "ind"],
     "src/engine/utils.test.js": [],
-    "src/intelligence/context.svelte.js": [
-      "context_broker"
-    ],
+    "src/intelligence/context.svelte.js": ["context_broker"],
     "src/intelligence/context.test.js": [],
     "src/intelligence/fragments.js": [
       "NAME_PREFIXES",
@@ -200,9 +145,7 @@
       "dynamics_engine",
       "DYNAMICS_META"
     ],
-    "src/intelligence/kernel.js": [
-      "gamemaster"
-    ],
+    "src/intelligence/kernel.js": ["gamemaster"],
     "src/intelligence/kernel.test.js": [],
     "src/intelligence/parser.js": [
       "parse_think_block",
@@ -215,10 +158,7 @@
       "clean_xml"
     ],
     "src/intelligence/parser.test.js": [],
-    "src/intelligence/prompts.js": [
-      "PROTOCOL_LIBRARY",
-      "prompt_builder"
-    ],
+    "src/intelligence/prompts.js": ["PROTOCOL_LIBRARY", "prompt_builder"],
     "src/intelligence/prompts.test.js": [],
     "src/intelligence/temporal.js": [
       "create",
@@ -233,10 +173,7 @@
     ],
     "src/intelligence/temporal.test.js": [],
     "src/main.js": [],
-    "src/media/audio.svelte.js": [
-      "VoiceEngine",
-      "Audio"
-    ],
+    "src/media/audio.svelte.js": ["VoiceEngine", "Audio"],
     "src/media/index.js": [
       "Audio",
       "VoiceEngine",
@@ -270,10 +207,7 @@
       "PromptTemplates",
       "getResolution"
     ],
-    "src/media/resilience.js": [
-      "ExponentialBackoffRetryer",
-      "CircuitBreaker"
-    ],
+    "src/media/resilience.js": ["ExponentialBackoffRetryer", "CircuitBreaker"],
     "src/media/resilience.test.js": [],
     "src/media/tokens.js": [
       "TOKENS",
@@ -287,10 +221,7 @@
       "get_signature_color"
     ],
     "src/media/tokens.test.js": [],
-    "src/media/visual.svelte.js": [
-      "VisualEngine",
-      "visual_engine"
-    ],
+    "src/media/visual.svelte.js": ["VisualEngine", "visual_engine"],
     "src/platform/index.js": [
       "llm_service",
       "sanitize_llm",
@@ -316,52 +247,20 @@
       "Snitch"
     ],
     "src/platform/security.test.js": [],
-    "src/platform/transport.js": [
-      "sanitize_llm",
-      "llm_service"
-    ],
+    "src/platform/transport.js": ["sanitize_llm", "llm_service"],
     "src/RPGlitch-left-panel.perchance": [],
-    "src/state/app.svelte.js": [
-      "AppStore",
-      "app"
-    ],
+    "src/state/app.svelte.js": ["AppStore", "app"],
     "src/state/app.test.js": [],
-    "src/state/index.js": [
-      "app",
-      "runtime",
-      "controlState",
-      "simulationState",
-      "uiState",
-      "simulation_log"
-    ],
-    "src/state/log.svelte.js": [
-      "SimulationLogStore",
-      "simulation_log"
-    ],
-    "src/state/runtime.svelte.js": [
-      "runtime"
-    ],
+    "src/state/index.js": ["app", "runtime", "controlState", "simulationState", "uiState", "simulation_log"],
+    "src/state/log.svelte.js": ["SimulationLogStore", "simulation_log"],
+    "src/state/runtime.svelte.js": ["runtime"],
     "src/state/runtime.test.js": [],
-    "src/state/status.svelte.js": [
-      "simulationState",
-      "uiState",
-      "controlState"
-    ],
+    "src/state/status.svelte.js": ["simulationState", "uiState", "controlState"],
     "src/state/status.test.js": [],
-    "src/ui/actions/click-outside.js": [
-      "click_outside"
-    ],
-    "src/ui/actions/index.js": [
-      "auto_resize",
-      "click_outside",
-      "use_actions"
-    ],
-    "src/ui/actions/resize.js": [
-      "auto_resize"
-    ],
-    "src/ui/actions/use-actions.js": [
-      "use_actions"
-    ],
+    "src/ui/actions/click-outside.js": ["click_outside"],
+    "src/ui/actions/index.js": ["auto_resize", "click_outside", "use_actions"],
+    "src/ui/actions/resize.js": ["auto_resize"],
+    "src/ui/actions/use-actions.js": ["use_actions"],
     "src/ui/atoms/Backdrop.svelte": [],
     "src/ui/atoms/Button.svelte": [],
     "src/ui/atoms/DataBox.svelte": [],
@@ -423,35 +322,12 @@
     "src/ui/molecules/UnifiedConsole.svelte": [],
     "src/ui/molecules/VisualWing.svelte": [],
     "src/ui/molecules/VisualWing.test.js": [],
-    "src/ui/motion/engine.svelte.js": [
-      "motion",
-      "spring"
-    ],
-    "src/ui/motion/index.js": [
-      "motion",
-      "spring",
-      "pulse",
-      "roll",
-      "shimmy",
-      "spin",
-      "stab",
-      "kinetic_scroll",
-      "typewriter",
-      "Typewriter"
-    ],
-    "src/ui/motion/kinetic.svelte.js": [
-      "shimmy",
-      "pulse",
-      "spin",
-      "roll",
-      "stab",
-      "kinetic_scroll"
-    ],
+    "src/ui/motion/engine.svelte.js": ["motion", "spring"],
+    "src/ui/motion/index.js": ["motion", "spring", "pulse", "roll", "shimmy", "spin", "stab", "kinetic_scroll", "typewriter", "Typewriter"],
+    "src/ui/motion/kinetic.svelte.js": ["shimmy", "pulse", "spin", "roll", "stab", "kinetic_scroll"],
     "src/ui/motion/kinetic.test.js": [],
     "src/ui/motion/Typewriter.svelte": [],
-    "src/ui/motion/typewriter.svelte.js": [
-      "typewriter"
-    ],
+    "src/ui/motion/typewriter.svelte.js": ["typewriter"],
     "src/ui/organisms/CardHand.svelte": [],
     "src/ui/organisms/index.js": [
       "Profile",
@@ -466,9 +342,7 @@
     ],
     "src/ui/organisms/Layout.svelte": [],
     "src/ui/organisms/Profile.svelte": [],
-    "src/ui/organisms/profile.svelte.js": [
-      "ProfileState"
-    ],
+    "src/ui/organisms/profile.svelte.js": ["ProfileState"],
     "src/ui/organisms/profile.test.js": [],
     "src/ui/organisms/ProfileArray.svelte": [],
     "src/ui/organisms/ProfileHeader.svelte": [],
@@ -476,17 +350,10 @@
     "src/ui/organisms/StoryboardDynamicTitle.svelte": [],
     "src/ui/organisms/Storymode.svelte": [],
     "src/ui/organisms/StorymodeFeed.svelte": [],
-    "src/ui/utils/field-path.js": [
-      "get_value",
-      "set_value"
-    ],
+    "src/ui/utils/field-path.js": ["get_value", "set_value"],
     "src/ui/utils/index.js": [],
-    "src/ui/utils/markdown.js": [
-      "parse_markdown"
-    ],
-    "src/ui/utils/safe-html.js": [
-      "safe_html"
-    ],
+    "src/ui/utils/markdown.js": ["parse_markdown"],
+    "src/ui/utils/safe-html.js": ["safe_html"],
     "src/ui/utils/safe-html.test.js": [],
     "src/ui/utils/ui-helpers.js": [
       "clamp",

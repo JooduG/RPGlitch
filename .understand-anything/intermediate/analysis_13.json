@@ -1,0 +1,119 @@
+{
+  "fileSummary": "",
+  "tags": [],
+  "complexity": "moderate",
+  "functionSummaries": {
+    "src/ui/molecules/StoryCard.svelte": {
+      "format_timestamp": "Formats a given timestamp into a standard Swedish/ISO-adjacent 'YYYY-MM-DD HH:mm' string."
+    },
+    "src/ui/molecules/UnifiedConsole.svelte": {
+      "toggle_mute": "Toggles the global audio mute state, preserving previous volume if unmuting.",
+      "log_action": "Logs a control panel action to the application's system log.",
+      "load_story": "Loads a specific story by ID, sets it as active, syncs runtime, refreshes the log, and switches to storymode view.",
+      "run_mock": "Simulates a mock turn by either a fractal or AI character, generating content and logging it as a system turn.",
+      "hard_reset": "Performs a complete hard reset by deleting the database and reloading the application window.",
+      "refresh_stories": "Asynchronously fetches and updates the local cache of available stories.",
+      "adjust_height": "Dynamically adjusts the height of the textarea to fit its content.",
+      "handle_send": "Handles sending user input, trimming whitespace, clearing the input, and passing it to the Chrono engine.",
+      "handle_keydown": "Captures keyboard events to send messages on Enter (without Shift) and prevent default form submission.",
+      "handle_window_keydown": "Captures window keyboard events to close the control panel on 'Escape'."
+    },
+    "src/ui/molecules/VisualWing.svelte": {
+      "hex_hue": "Calculates the HSL hue (0-360) for a given hexadecimal color string, returning 361 for achromatic colors.",
+      "sync_modifiers": "Ensures the character's `modifiers` object and its required fields are properly initialized.",
+      "handle_creative_action": "Triggers AI enhancement for the active prompt field or extracts optics metadata if no prompt text is present.",
+      "handle_generate": "Initiates AI image generation based on the current prompt or opens an upload dialog if no prompt text exists.",
+      "handle_upload_portrait": "Handles manual image upload via a Perchance plugin and updates the character's profile picture.",
+      "prevent_default": "Prevents the default event behavior to maintain active focus states."
+    },
+    "src/ui/molecules/VisualWing.test.js": {
+      "ensureModifiers": "Initializes or updates a character's modifiers object, ensuring all required fields are present with default values.",
+      "handleCreativeAction": "Simulates the logic for handling creative actions, such as enhancing a prompt or composing a base prompt."
+    },
+    "src/ui/motion/engine.svelte.js": {
+      "spring": "Creates and returns a new `KineticSpring` instance, a Svelte 5 rune-compatible spring physics wrapper."
+    },
+    "src/ui/motion/kinetic.svelte.js": {
+      "get_target": "Helper function to find the appropriate animation target element within a node.",
+      "createKineticAction": "A standardized manager for registering hover-triggered physical animations, synchronizing with global motion intensity and reduced motion preferences.",
+      "shimmy": "A Svelte action that applies a nervous, high-frequency jitter (rotation + translation) animation to an element on hover.",
+      "pulse": "A Svelte action that applies a looping 'Heartbeat' thump animation to an element on hover, with a return animation on mouse leave.",
+      "spin": "A Svelte action that applies a 90-degree rotation animation to an element, powered by spring physics.",
+      "roll": "A Svelte action that applies a full 360-degree rotation animation to an element, powered by spring physics.",
+      "stab": "A Svelte action that applies a quick horizontal thrust animation to an element on hover.",
+      "kinetic_scroll": "A Svelte action that enables drag-to-scroll functionality with momentum for an element."
+    },
+    "src/ui/motion/Typewriter.svelte": {
+      "normalize": "Normalizes text by stripping HTML tags, markdown formatting, and collapsing whitespace to detect clean content appends."
+    },
+    "src/ui/motion/typewriter.svelte.js": {
+      "typewriter": "A Svelte action that safely types out sanitized HTML character-by-character within a target element, preserving HTML tags and truncating text nodes reactively."
+    },
+    "src/ui/organisms/CardHand.svelte": {
+      "is_disabled": "Determines if an entity card should be disabled due to identity allocation collisions across synchronized role slots.",
+      "handle_create_new": "Generates a pristine entity instance template via the Factory, upserts it to storage, selects it, and opens its profile.",
+      "handle_select": "Selects an entity for the current card hand type and closes the card hand overlay.",
+      "handle_keydown": "Closes the card hand overlay if the 'Escape' key is pressed while it's open."
+    },
+    "src/ui/organisms/Layout.svelte": {},
+    "src/ui/organisms/Profile.svelte": {
+      "handle_click_outside": "Handles click events outside the profile modal to check for unsaved changes or close the profile."
+    },
+    "src/ui/organisms/profile.svelte.js": {
+      "sync": "Synchronizes the character state when the application-level editing entity changes.",
+      "get_safe_value": "Safely retrieves a value from the `char` object using a dot-string path, returning an empty string if not found.",
+      "set_field_value": "Sets a value in the `char` object at a specified dot-string path and marks the profile as user-mutated.",
+      "handle_close": "Toggles editing mode or closes the profile, prompting for unsaved changes if necessary.",
+      "cancel": "Reverts all changes, exits editing mode, reloads the character from the original entity, and resets interaction tracking.",
+      "set_active_field": "Sets the currently active field context for interaction tracking.",
+      "reset_active_field": "Resets the active field context to its default state.",
+      "save": "Commits the current entity changes to the repository, updates global entity lists, and exits editing mode.",
+      "delete": "Deletes the current entity from the repository and closes the profile.",
+      "enhance": "Triggers an AI-enhanced text generation for a specific field if it has a value and is not already busy.",
+      "enhance_field_inner": "Executes the internal text enhancement mechanics for a specific field using an LLM service.",
+      "enhance_profile": "Triggers AI-enhanced text generation for the entire profile, populating multiple fields simultaneously.",
+      "add_vector_item": "Adds a new, initialized item to a specified vector array within the character's data.",
+      "patch_vector_item": "Applies a partial update (patch) to a specific item within a vector array.",
+      "remove_vector_item": "Removes an item at a given index from a specified vector array.",
+      "update_vector_weight": "Adjusts the emotional weight of a specific vector item within a defined range (1-10).",
+      "setImage": "Sets the character's profile picture and triggers immediate persistence to the database and runtime state."
+    },
+    "src/ui/organisms/ProfileArray.svelte": {
+      "update_tags": "Parses a raw comma-separated string into an array of tags and patches the vector item with these tags."
+    },
+    "src/ui/organisms/ProfileHeader.svelte": {
+      "formatName": "Formats a raw name string, specifically making three-word names 'bottom-heavy' by inserting a newline for better visual balance."
+    },
+    "src/ui/organisms/Storyboard.svelte": {
+      "Slot": "A Svelte snippet that renders either a Skeleton loader or an EntityCard for AI, User, or Fractal slots."
+    },
+    "src/ui/organisms/StoryboardDynamicTitle.svelte": {
+      "get_color": "Retrieves the signature color for a given entity.",
+      "handle_input": "Updates the custom_title state and sets `is_custom` to true based on user input in the contenteditable title.",
+      "handle_reset": "Resets the title to its dynamically generated state and triggers a re-roll."
+    },
+    "src/ui/organisms/Storymode.svelte": {},
+    "src/ui/organisms/StorymodeFeed.svelte": {
+      "map_role": "Maps database roles ('assistant', 'ai', 'prologue') to simplified UI sender archetypes ('ai', 'fractal', or original role).",
+      "handle_delete": "Initiates the deletion confirmation process for a specific story log entry.",
+      "execute_delete": "Executes the permanent deletion of a story log entry from the database via Chrono engine.",
+      "handle_edit": "Activates the editing state for a designated stream log index.",
+      "handle_save_edit": "Persists client-side text modifications for a log entry to the database via Chrono engine."
+    },
+    "src/ui/utils/field-path.js": {
+      "get_value": "Retrieves a value from a nested JavaScript object using a dot-string path.",
+      "set_value": "Sets a value within a nested JavaScript object using a dot-string path, mutating the object."
+    },
+    "src/ui/utils/markdown.js": {
+      "parse_markdown": "Safely parses basic markdown (strong, emphasis, strong-emphasis, quote) from text into an array of paragraph blocks, each containing an array of inline tokens."
+    }
+  },
+  "classSummaries": {
+    "src/ui/motion/engine.svelte.js": {
+      "KineticSpring": "A native Svelte 5 class that implements a spring physics controller, managing an animated value with stiffness, damping, and precision."
+    },
+    "src/ui/organisms/profile.svelte.js": {
+      "ProfileState": "A Svelte 5 reactive class responsible for controlling the viewing, editing, saving, and deletion logic for entity profiles, integrating with application state and AI services."
+    }
+  }
+}

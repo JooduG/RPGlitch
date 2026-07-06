@@ -68,17 +68,13 @@
           "name": "ensureModifiers",
           "startLine": 18,
           "endLine": 36,
-          "params": [
-            "char"
-          ]
+          "params": ["char"]
         },
         {
           "name": "handleCreativeAction",
           "startLine": 41,
           "endLine": 63,
-          "params": [
-            "ctx"
-          ]
+          "params": ["ctx"]
         }
       ],
       "callGraph": [
@@ -116,9 +112,7 @@
           "name": "spring",
           "startLine": 160,
           "endLine": 162,
-          "params": [
-            "initialValue"
-          ]
+          "params": ["initialValue"]
         }
       ],
       "classes": [
@@ -126,19 +120,7 @@
           "name": "KineticSpring",
           "startLine": 38,
           "endLine": 151,
-          "methods": [
-            "constructor",
-            "value",
-            "value",
-            "stiffness",
-            "stiffness",
-            "damping",
-            "damping",
-            "precision",
-            "precision",
-            "set",
-            "update"
-          ],
+          "methods": ["constructor", "value", "value", "stiffness", "stiffness", "damping", "damping", "precision", "precision", "set", "update"],
           "properties": []
         }
       ],
@@ -279,66 +261,49 @@
           "name": "get_target",
           "startLine": 18,
           "endLine": 18,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "createKineticAction",
           "startLine": 30,
           "endLine": 96,
-          "params": [
-            "node",
-            "config"
-          ]
+          "params": ["node", "config"]
         },
         {
           "name": "shimmy",
           "startLine": 104,
           "endLine": 129,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "pulse",
           "startLine": 138,
           "endLine": 179,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "spin",
           "startLine": 188,
           "endLine": 225,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "roll",
           "startLine": 234,
           "endLine": 271,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "stab",
           "startLine": 280,
           "endLine": 301,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "kinetic_scroll",
           "startLine": 310,
           "endLine": 399,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         }
       ],
       "exports": [
@@ -819,9 +784,7 @@
           "name": "typewriter",
           "startLine": 17,
           "endLine": 45,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         }
       ],
       "exports": [
@@ -1465,20 +1428,13 @@
           "name": "get_value",
           "startLine": 12,
           "endLine": 19,
-          "params": [
-            "obj",
-            "path"
-          ]
+          "params": ["obj", "path"]
         },
         {
           "name": "set_value",
           "startLine": 28,
           "endLine": 38,
-          "params": [
-            "obj",
-            "path",
-            "val"
-          ]
+          "params": ["obj", "path", "val"]
         }
       ],
       "exports": [
@@ -1551,9 +1507,7 @@
           "name": "parse_markdown",
           "startLine": 9,
           "endLine": 43,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         }
       ],
       "exports": [
@@ -1648,10 +1602,7 @@
           "name": "safe_html",
           "startLine": 7,
           "endLine": 17,
-          "params": [
-            "node",
-            "content"
-          ]
+          "params": ["node", "content"]
         }
       ],
       "exports": [
@@ -1709,18 +1660,13 @@
           "name": "get_css_value",
           "startLine": 19,
           "endLine": 22,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "try_direct_var_resolve",
           "startLine": 30,
           "endLine": 44,
-          "params": [
-            "trimmed",
-            "context"
-          ]
+          "params": ["trimmed", "context"]
         },
         {
           "name": "get_measure_el",
@@ -1732,44 +1678,31 @@
           "name": "prepare_measure",
           "startLine": 88,
           "endLine": 115,
-          "params": [
-            "value",
-            "prop",
-            "sentinel",
-            "context"
-          ]
+          "params": ["value", "prop", "sentinel", "context"]
         },
         {
           "name": "resolve_px",
           "startLine": 126,
           "endLine": 166,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "resolve_ms",
           "startLine": 176,
           "endLine": 226,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "resolve_number",
           "startLine": 236,
           "endLine": 271,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "resolve_string",
           "startLine": 282,
           "endLine": 312,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "mockPlugins",
@@ -1781,9 +1714,7 @@
           "name": "getRpgList",
           "startLine": 336,
           "endLine": 355,
-          "params": [
-            "key"
-          ]
+          "params": ["key"]
         }
       ],
       "exports": [
@@ -4560,17 +4491,13 @@
           "name": "scan",
           "startLine": 56,
           "endLine": 83,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 88,
           "endLine": 108,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         },
         {
           "name": "auditCodebaseTokens",
@@ -4920,17 +4847,13 @@
           "name": "scan",
           "startLine": 67,
           "endLine": 94,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 99,
           "endLine": 121,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "callGraph": [
@@ -5088,9 +5011,7 @@
           "name": "forge",
           "startLine": 21,
           "endLine": 65,
-          "params": [
-            "name"
-          ]
+          "params": ["name"]
         }
       ],
       "callGraph": [
@@ -5225,17 +5146,13 @@
           "name": "flattenFrontmatter",
           "startLine": 41,
           "endLine": 71,
-          "params": [
-            "data"
-          ]
+          "params": ["data"]
         },
         {
           "name": "buildJsBridge",
           "startLine": 77,
           "endLine": 119,
-          "params": [
-            "flat_data"
-          ]
+          "params": ["flat_data"]
         },
         {
           "name": "syncToCss",
@@ -5569,9 +5486,7 @@
           "name": "getCategory",
           "startLine": 25,
           "endLine": 56,
-          "params": [
-            "name"
-          ]
+          "params": ["name"]
         },
         {
           "name": "parseDefinedTokens",
@@ -5583,9 +5498,7 @@
           "name": "getSourceFiles",
           "startLine": 108,
           "endLine": 125,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         }
       ],
       "exports": [
@@ -5946,34 +5859,25 @@
           "name": "getBase",
           "startLine": 22,
           "endLine": 37,
-          "params": [
-            "filename"
-          ]
+          "params": ["filename"]
         },
         {
           "name": "findTestSubject",
           "startLine": 39,
           "endLine": 51,
-          "params": [
-            "filename",
-            "dir"
-          ]
+          "params": ["filename", "dir"]
         },
         {
           "name": "scan",
           "startLine": 117,
           "endLine": 155,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 160,
           "endLine": 184,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "exports": [
@@ -6213,87 +6117,61 @@
           "name": "safeStatSync",
           "startLine": 25,
           "endLine": 35,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         },
         {
           "name": "cleanHeaderLabel",
           "startLine": 45,
           "endLine": 50,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "isHeaderMatch",
           "startLine": 55,
           "endLine": 83,
-          "params": [
-            "templateHeader",
-            "actualLevel",
-            "actualText",
-            "_projectName"
-          ]
+          "params": ["templateHeader", "actualLevel", "actualText", "_projectName"]
         },
         {
           "name": "stripCodeBlocks",
           "startLine": 88,
           "endLine": 90,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "getTemplateStructure",
           "startLine": 97,
           "endLine": 143,
-          "params": [
-            "type"
-          ]
+          "params": ["type"]
         },
         {
           "name": "validateAgainstStructure",
           "startLine": 151,
           "endLine": 222,
-          "params": [
-            "content",
-            "structure",
-            "report"
-          ]
+          "params": ["content", "structure", "report"]
         },
         {
           "name": "auditSkill",
           "startLine": 231,
           "endLine": 304,
-          "params": [
-            "skillName"
-          ]
+          "params": ["skillName"]
         },
         {
           "name": "createTemplateRule",
           "startLine": 329,
           "endLine": 352,
-          "params": [
-            "id",
-            "type"
-          ]
+          "params": ["id", "type"]
         },
         {
           "name": "scan",
           "startLine": 403,
           "endLine": 430,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 435,
           "endLine": 489,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "exports": [
@@ -7073,17 +6951,13 @@
           "name": "scan",
           "startLine": 47,
           "endLine": 74,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 79,
           "endLine": 101,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "callGraph": [
@@ -7598,26 +7472,19 @@
           "name": "log",
           "startLine": 55,
           "endLine": 58,
-          "params": [
-            "emoji",
-            "message"
-          ]
+          "params": ["emoji", "message"]
         },
         {
           "name": "fatal",
           "startLine": 63,
           "endLine": 66,
-          "params": [
-            "message"
-          ]
+          "params": ["message"]
         },
         {
           "name": "prompt_user",
           "startLine": 71,
           "endLine": 79,
-          "params": [
-            "question"
-          ]
+          "params": ["question"]
         },
         {
           "name": "pre_flight",
@@ -7635,9 +7502,7 @@
           "name": "attempt_login",
           "startLine": 482,
           "endLine": 578,
-          "params": [
-            "page"
-          ]
+          "params": ["page"]
         },
         {
           "name": "main",
@@ -8797,9 +8662,7 @@
           "name": "mock_llm_success",
           "startLine": 71,
           "endLine": 75,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         }
       ],
       "exports": [
@@ -9289,9 +9152,7 @@
           "name": "sanitize_html",
           "startLine": 10,
           "endLine": 10,
-          "params": [
-            "val"
-          ]
+          "params": ["val"]
         },
         {
           "name": "get_random_signature_key",
@@ -9309,9 +9170,7 @@
           "name": "coerce_temporal_array",
           "startLine": 176,
           "endLine": 183,
-          "params": [
-            "val"
-          ]
+          "params": ["val"]
         },
         {
           "name": "create_new",
@@ -9323,18 +9182,13 @@
           "name": "format_premade",
           "startLine": 207,
           "endLine": 215,
-          "params": [
-            "entity",
-            "type"
-          ]
+          "params": ["entity", "type"]
         },
         {
           "name": "detox_prose",
           "startLine": 224,
           "endLine": 249,
-          "params": [
-            "rawText"
-          ]
+          "params": ["rawText"]
         }
       ],
       "exports": [
@@ -9708,18 +9562,13 @@
           "name": "prune",
           "startLine": 219,
           "endLine": 223,
-          "params": [
-            "vectors",
-            "type"
-          ]
+          "params": ["vectors", "type"]
         },
         {
           "name": "hydrate",
           "startLine": 228,
           "endLine": 241,
-          "params": [
-            "snapshot"
-          ]
+          "params": ["snapshot"]
         }
       ],
       "exports": [
@@ -10728,9 +10577,7 @@
           "name": "guardedTransition",
           "startLine": 33,
           "endLine": 70,
-          "params": [
-            "callback"
-          ]
+          "params": ["callback"]
         }
       ],
       "exports": [
@@ -10830,34 +10677,25 @@
           "name": "pickRandom",
           "startLine": 35,
           "endLine": 39,
-          "params": [
-            "array"
-          ]
+          "params": ["array"]
         },
         {
           "name": "clamp",
           "startLine": 48,
           "endLine": 48,
-          "params": [
-            "n"
-          ]
+          "params": ["n"]
         },
         {
           "name": "log",
           "startLine": 55,
           "endLine": 60,
-          "params": [
-            "...args"
-          ]
+          "params": ["...args"]
         },
         {
           "name": "ind",
           "startLine": 65,
           "endLine": 69,
-          "params": [
-            "text",
-            "spaces"
-          ]
+          "params": ["text", "spaces"]
         }
       ],
       "exports": [
@@ -10998,26 +10836,19 @@
           "name": "get_sanitized_text",
           "startLine": 38,
           "endLine": 53,
-          "params": [
-            "msg"
-          ]
+          "params": ["msg"]
         },
         {
           "name": "get_path_value",
           "startLine": 60,
           "endLine": 73,
-          "params": [
-            "obj",
-            "path"
-          ]
+          "params": ["obj", "path"]
         },
         {
           "name": "to_data_points",
           "startLine": 79,
           "endLine": 101,
-          "params": [
-            "entity"
-          ]
+          "params": ["entity"]
         }
       ],
       "exports": [
@@ -11345,9 +11176,7 @@
           "name": "format_key_as_label",
           "startLine": 235,
           "endLine": 241,
-          "params": [
-            "key"
-          ]
+          "params": ["key"]
         },
         {
           "name": "build_entity_catalog",
@@ -11734,17 +11563,13 @@
           "name": "parse_director_json",
           "startLine": 31,
           "endLine": 48,
-          "params": [
-            "raw_text"
-          ]
+          "params": ["raw_text"]
         },
         {
           "name": "validate_and_repair_response",
           "startLine": 57,
           "endLine": 115,
-          "params": [
-            "response"
-          ]
+          "params": ["response"]
         }
       ],
       "exports": [
@@ -12352,65 +12177,49 @@
           "name": "parse_think_block",
           "startLine": 21,
           "endLine": 52,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "strip_cognition_blocks",
           "startLine": 58,
           "endLine": 61,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "clean_image_prompts",
           "startLine": 67,
           "endLine": 93,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "wrap_dialogue",
           "startLine": 101,
           "endLine": 138,
-          "params": [
-            "html"
-          ]
+          "params": ["html"]
         },
         {
           "name": "parse_message",
           "startLine": 145,
           "endLine": 168,
-          "params": [
-            "rawText"
-          ]
+          "params": ["rawText"]
         },
         {
           "name": "escapeXml",
           "startLine": 175,
           "endLine": 185,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         },
         {
           "name": "clean_text",
           "startLine": 194,
           "endLine": 203,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "clean_xml",
           "startLine": 208,
           "endLine": 217,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         }
       ],
       "exports": [
@@ -12753,20 +12562,13 @@
           "name": "physical_to_xml",
           "startLine": 19,
           "endLine": 29,
-          "params": [
-            "raw",
-            "tagName"
-          ]
+          "params": ["raw", "tagName"]
         },
         {
           "name": "val",
           "startLine": 34,
           "endLine": 37,
-          "params": [
-            "text",
-            "owner",
-            "entities"
-          ]
+          "params": ["text", "owner", "entities"]
         },
         {
           "name": "extract_pov_directive",
@@ -12784,9 +12586,7 @@
           "name": "format_dynamics_attrs",
           "startLine": 86,
           "endLine": 92,
-          "params": [
-            "dynObj"
-          ]
+          "params": ["dynObj"]
         },
         {
           "name": "render_director",
@@ -12804,9 +12604,7 @@
           "name": "render_narrator",
           "startLine": 264,
           "endLine": 308,
-          "params": [
-            "mode"
-          ]
+          "params": ["mode"]
         },
         {
           "name": "render_memory",
@@ -14097,54 +13895,37 @@
           "name": "create",
           "startLine": 49,
           "endLine": 60,
-          "params": [
-            "directive"
-          ]
+          "params": ["directive"]
         },
         {
           "name": "score",
           "startLine": 69,
           "endLine": 109,
-          "params": [
-            "vectors",
-            "input"
-          ]
+          "params": ["vectors", "input"]
         },
         {
           "name": "format",
           "startLine": 121,
           "endLine": 154,
-          "params": [
-            "vectors",
-            "input"
-          ]
+          "params": ["vectors", "input"]
         },
         {
           "name": "resolve",
           "startLine": 162,
           "endLine": 187,
-          "params": [
-            "entity",
-            "vector_id"
-          ]
+          "params": ["entity", "vector_id"]
         },
         {
           "name": "weave_resonance",
           "startLine": 196,
           "endLine": 250,
-          "params": [
-            "target_entity",
-            "history_slice"
-          ]
+          "params": ["target_entity", "history_slice"]
         },
         {
           "name": "apply_state_mutations",
           "startLine": 308,
           "endLine": 329,
-          "params": [
-            "entity",
-            "mutations"
-          ]
+          "params": ["entity", "mutations"]
         }
       ],
       "exports": [
@@ -14565,28 +14346,14 @@
           "name": "VoiceEngine",
           "startLine": 56,
           "endLine": 292,
-          "methods": [
-            "constructor",
-            "_loadVoices",
-            "_getRegionLabel",
-            "speak",
-            "preview",
-            "stop"
-          ],
+          "methods": ["constructor", "_loadVoices", "_getRegionLabel", "speak", "preview", "stop"],
           "properties": []
         },
         {
           "name": "AudioEffectsEngine",
           "startLine": 301,
           "endLine": 479,
-          "methods": [
-            "constructor",
-            "initSettings",
-            "saveAllSettings",
-            "setVolume",
-            "unlock",
-            "play"
-          ],
+          "methods": ["constructor", "initSettings", "saveAllSettings", "setVolume", "unlock", "play"],
           "properties": []
         }
       ],
@@ -15205,42 +14972,31 @@
           "name": "safeParsePseudoJson",
           "startLine": 22,
           "endLine": 66,
-          "params": [
-            "raw"
-          ]
+          "params": ["raw"]
         },
         {
           "name": "parseListTokens",
           "startLine": 73,
           "endLine": 82,
-          "params": [
-            "items"
-          ]
+          "params": ["items"]
         },
         {
           "name": "formatDimension",
           "startLine": 90,
           "endLine": 95,
-          "params": [
-            "label",
-            "items"
-          ]
+          "params": ["label", "items"]
         },
         {
           "name": "flattenToParagraph",
           "startLine": 102,
           "endLine": 123,
-          "params": [
-            "val"
-          ]
+          "params": ["val"]
         },
         {
           "name": "flatten_physical",
           "startLine": 133,
           "endLine": 151,
-          "params": [
-            "raw"
-          ]
+          "params": ["raw"]
         },
         {
           "name": "buildDimensionsContext",
@@ -15252,9 +15008,7 @@
           "name": "getResolution",
           "startLine": 366,
           "endLine": 381,
-          "params": [
-            "mode"
-          ]
+          "params": ["mode"]
         }
       ],
       "exports": [
@@ -15759,26 +15513,14 @@
           "name": "ExponentialBackoffRetryer",
           "startLine": 25,
           "endLine": 61,
-          "methods": [
-            "constructor",
-            "retry"
-          ],
+          "methods": ["constructor", "retry"],
           "properties": []
         },
         {
           "name": "CircuitBreaker",
           "startLine": 67,
           "endLine": 157,
-          "methods": [
-            "constructor",
-            "isClosed",
-            "isOpen",
-            "isHalfOpen",
-            "execute",
-            "_onSuccess",
-            "_onFailure",
-            "_evaluateState"
-          ],
+          "methods": ["constructor", "isClosed", "isOpen", "isHalfOpen", "execute", "_onSuccess", "_onFailure", "_evaluateState"],
           "properties": []
         }
       ],
@@ -15877,49 +15619,37 @@
           "name": "_hash",
           "startLine": 232,
           "endLine": 238,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         },
         {
           "name": "resolve_token",
           "startLine": 244,
           "endLine": 248,
-          "params": [
-            "color"
-          ]
+          "params": ["color"]
         },
         {
           "name": "get_deterministic_color",
           "startLine": 254,
           "endLine": 261,
-          "params": [
-            "seed"
-          ]
+          "params": ["seed"]
         },
         {
           "name": "get_color_name",
           "startLine": 267,
           "endLine": 280,
-          "params": [
-            "hex"
-          ]
+          "params": ["hex"]
         },
         {
           "name": "get_signature_label",
           "startLine": 288,
           "endLine": 306,
-          "params": [
-            "entity"
-          ]
+          "params": ["entity"]
         },
         {
           "name": "get_signature_color",
           "startLine": 314,
           "endLine": 345,
-          "params": [
-            "entity"
-          ]
+          "params": ["entity"]
         }
       ],
       "exports": [
@@ -16643,49 +16373,37 @@
           "name": "sanitize",
           "startLine": 11,
           "endLine": 14,
-          "params": [
-            "dirty"
-          ]
+          "params": ["dirty"]
         },
         {
           "name": "sanitizeToFragment",
           "startLine": 18,
           "endLine": 21,
-          "params": [
-            "dirty"
-          ]
+          "params": ["dirty"]
         },
         {
           "name": "escape",
           "startLine": 25,
           "endLine": 28,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         },
         {
           "name": "checkRefusal",
           "startLine": 34,
           "endLine": 38,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "clean",
           "startLine": 42,
           "endLine": 42,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "validateImage",
           "startLine": 50,
           "endLine": 89,
-          "params": [
-            "file"
-          ]
+          "params": ["file"]
         }
       ],
       "exports": [
@@ -16945,9 +16663,7 @@
           "name": "sanitize_llm",
           "startLine": 35,
           "endLine": 48,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         }
       ],
       "exports": [
@@ -17040,12 +16756,7 @@
           "name": "StreamingState",
           "startLine": 30,
           "endLine": 55,
-          "methods": [
-            "text",
-            "text",
-            "nodeId",
-            "nodeId"
-          ],
+          "methods": ["text", "text", "nodeId", "nodeId"],
           "properties": []
         },
         {
@@ -17318,11 +17029,7 @@
           "name": "SimulationLogStore",
           "startLine": 19,
           "endLine": 42,
-          "methods": [
-            "constructor",
-            "refresh",
-            "add"
-          ],
+          "methods": ["constructor", "refresh", "add"],
           "properties": []
         }
       ],
@@ -17756,12 +17463,7 @@
           "name": "UIStateStore",
           "startLine": 89,
           "endLine": 112,
-          "methods": [
-            "loading",
-            "menu_open",
-            "input_active",
-            "set_loading"
-          ],
+          "methods": ["loading", "menu_open", "input_active", "set_loading"],
           "properties": []
         }
       ],
@@ -17820,10 +17522,7 @@
           "name": "click_outside",
           "startLine": 5,
           "endLine": 23,
-          "params": [
-            "node",
-            "handler"
-          ]
+          "params": ["node", "handler"]
         }
       ],
       "exports": [
@@ -17908,9 +17607,7 @@
           "name": "auto_resize",
           "startLine": 15,
           "endLine": 92,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         }
       ],
       "exports": [
@@ -18045,10 +17742,7 @@
           "name": "use_actions",
           "startLine": 16,
           "endLine": 74,
-          "params": [
-            "node",
-            "actions"
-          ]
+          "params": ["node", "actions"]
         }
       ],
       "exports": [
