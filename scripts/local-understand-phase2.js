@@ -8,7 +8,7 @@ const batchesPath = path.join(intermediateDir, 'batches.json');
 const batchesData = JSON.parse(fs.readFileSync(batchesPath, 'utf8'));
 
 const extractScript = "C:/Users/johng/.gemini/config/skills/understand-anything/understand/extract-structure.mjs";
-const pluginRoot = "C:\\Users\\johng\\.understand-anything\\repo\\understand-anything-plugin";
+const pluginRoot = "C:\\Users\\johng\\.gemini\\config\\plugins\\understand-anything";
 
 console.log(`Processing ${batchesData.batches.length} batches deterministically...`);
 
