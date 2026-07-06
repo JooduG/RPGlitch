@@ -84,6 +84,39 @@ jobs:
           [ -f prompt.txt ] && mv prompt.txt tmp/ || true
           [ -f jules_payload.json ] && mv jules_payload.json tmp/ || true
 
+  # --- JOB B2: SWARM ORCHESTRATOR ---
+  # Handles parallel agent dispatch via @google/jules
+  jules-swarm:
+    name: "🐝 Swarm Commander"
+    needs: [physics-gate]
+    if: |-
+      github.event.sender.type == 'User' &&
+      !github.event.pull_request.head.repo.fork &&
+      (
+        github.event.label.name == 'jules:swarm' ||
+        contains(github.event.issue.body, '@jules swarm') ||
+        contains(github.event.pull_request.body, '@jules swarm') ||
+        contains(github.event.comment.body, '@jules swarm')
+      )
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: "npm"
+      - run: npm install --legacy-peer-deps
+      - name: "🚀 Dispatch Jules Swarm"
+        # In a real environment, you might use a custom action or script here
+        # that orchestrates the swarm using jules-sdk.
+        run: |
+          echo "Initiating parallel jules-sdk dispatch..."
+          npm run swarm:dispatch --if-present || echo "swarm:dispatch script not found. You must configure jules-sdk locally."
+        env:
+          JULES_API_KEY: "${{ secrets.JULES_API_KEY }}"
+
   # --- JOB C: STRATEGIC OPERATIONS ---
   # Handles scheduled hygiene.
   strategic-ops:
