@@ -1,4 +1,0 @@
-{
-  "projectRoot": "c:/Users/johng/source/repos/RPGlitch",
-  "batchFiles": [{ "path": ".github/workflows/jules-auto.yml", "language": "yaml", "sizeLines": 121, "fileCategory": "infra" }]
-}
