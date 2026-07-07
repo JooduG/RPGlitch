@@ -310,6 +310,195 @@
       "summary": "Class ProfileState",
       "tags": [],
       "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#constructor",
+      "type": "function",
+      "name": "constructor",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method constructor",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#is_dirty",
+      "type": "function",
+      "name": "is_dirty",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method is_dirty",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#noBackground",
+      "type": "function",
+      "name": "noBackground",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method noBackground",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#start_editing",
+      "type": "function",
+      "name": "start_editing",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method start_editing",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#sync",
+      "type": "function",
+      "name": "sync",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method sync",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#get_safe_value",
+      "type": "function",
+      "name": "get_safe_value",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method get_safe_value",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#set_field_value",
+      "type": "function",
+      "name": "set_field_value",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method set_field_value",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#handle_close",
+      "type": "function",
+      "name": "handle_close",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method handle_close",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#cancel",
+      "type": "function",
+      "name": "cancel",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method cancel",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#set_active_field",
+      "type": "function",
+      "name": "set_active_field",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method set_active_field",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#reset_active_field",
+      "type": "function",
+      "name": "reset_active_field",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method reset_active_field",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#save",
+      "type": "function",
+      "name": "save",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method save",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#delete",
+      "type": "function",
+      "name": "delete",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method delete",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#enhance",
+      "type": "function",
+      "name": "enhance",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method enhance",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "type": "function",
+      "name": "enhance_field_inner",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method enhance_field_inner",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "type": "function",
+      "name": "enhance_profile",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method enhance_profile",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "type": "function",
+      "name": "add_vector_item",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method add_vector_item",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
+      "type": "function",
+      "name": "patch_vector_item",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method patch_vector_item",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
+      "type": "function",
+      "name": "remove_vector_item",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method remove_vector_item",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "type": "function",
+      "name": "update_vector_weight",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method update_vector_weight",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "type": "function",
+      "name": "setImage",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Method setImage",
+      "tags": [],
+      "complexity": "simple"
     }
   ],
   "edges": [
@@ -335,17 +524,12 @@
     },
     {
       "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
-      "target": "function:src/ui/molecules/VisualWing.test.js#prompt_builder.build_enhancement",
+      "target": "function:unknown#prompt_builder.build_enhancement",
       "type": "calls"
     },
     {
       "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
-      "target": "function:src/ui/molecules/VisualWing.test.js#llm_service.enhance",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
-      "target": "function:src/ui/molecules/VisualWing.test.js#TextToImage.composeBasePrompt",
+      "target": "function:unknown#llm_service.enhance",
       "type": "calls"
     },
     {
@@ -355,17 +539,17 @@
     },
     {
       "source": "function:src/ui/motion/typewriter.svelte.js#typewriter",
-      "target": "function:src/ui/motion/typewriter.svelte.js#$state",
+      "target": "function:unknown#$state",
       "type": "calls"
     },
     {
       "source": "function:src/ui/motion/typewriter.svelte.js#typewriter",
-      "target": "function:src/ui/motion/typewriter.svelte.js#mount",
+      "target": "function:svelte#mount",
       "type": "calls"
     },
     {
       "source": "function:src/ui/motion/typewriter.svelte.js#destroy",
-      "target": "function:src/ui/motion/typewriter.svelte.js#unmount",
+      "target": "function:svelte#unmount",
       "type": "calls"
     },
     {
@@ -375,402 +559,392 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#constructor",
-      "target": "function:src/ui/organisms/profile.svelte.js#normalize",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#is_dirty",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#noBackground",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#start_editing",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#sync",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#get_safe_value",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#set_field_value",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#handle_close",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#cancel",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#set_active_field",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#reset_active_field",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#delete",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#constructor",
+      "target": "function:src/data/index.js#normalize",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#sync",
-      "target": "function:src/ui/organisms/profile.svelte.js#normalize",
+      "target": "function:src/data/index.js#normalize",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#get_safe_value",
-      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#set_field_value",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#handle_close",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.cancel",
+      "target": "function:src/ui/organisms/profile.svelte.js#cancel",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#handle_close",
-      "target": "function:src/ui/organisms/profile.svelte.js#app.toggle_profile",
+      "target": "function:src/state/index.js#app.toggle_profile",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#cancel",
-      "target": "function:src/ui/organisms/profile.svelte.js#normalize",
+      "target": "function:src/data/index.js#normalize",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#cancel",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.reset_active_field",
+      "target": "function:src/ui/organisms/profile.svelte.js#reset_active_field",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#save",
-      "target": "function:src/ui/organisms/profile.svelte.js#runtime.save_entity",
+      "target": "function:src/state/index.js#runtime.save_entity",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#save",
-      "target": "function:src/ui/organisms/profile.svelte.js#app.load_entities",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#save",
-      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#save",
-      "target": "function:src/ui/organisms/profile.svelte.js#list.find",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#save",
-      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
+      "target": "function:src/state/index.js#app.load_entities",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#delete",
-      "target": "function:src/ui/organisms/profile.svelte.js#runtime.delete_entity",
+      "target": "function:src/state/index.js#runtime.delete_entity",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#delete",
-      "target": "function:src/ui/organisms/profile.svelte.js#app.toggle_profile",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#delete",
-      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
+      "target": "function:src/state/index.js#app.toggle_profile",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.has",
+      "target": "function:unknown#busy_fields.has",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#prompt_builder.build_enhancement",
+      "target": "function:src/intelligence/index.js#prompt_builder.build_enhancement",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#llm_service.enhance",
+      "target": "function:src/platform/index.js#llm_service.enhance",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks(result).trim",
+      "target": "function:src/intelligence/index.js#strip_cognition_blocks",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks",
+      "target": "function:src/intelligence/index.js#strip_cognition_blocks",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "target": "function:unknown#busy_fields.add",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#prompt_builder.build_profile_sorting_prompt",
+      "target": "function:src/intelligence/index.js#prompt_builder.build_profile_sorting_prompt",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#llm_service.enhance",
+      "target": "function:src/platform/index.js#llm_service.enhance",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks(result).trim",
+      "target": "function:src/intelligence/index.js#strip_cognition_blocks",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks",
+      "target": "function:src/intelligence/index.js#strip_cognition_blocks",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#cleanJsonText.indexOf",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#cleanJsonText.lastIndexOf",
+      "target": "function:src/intelligence/index.js#temporal_engine.create",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#JSON.parse",
+      "target": "function:src/engine/index.js#generateUUID",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#cleanJsonText.substring",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#Object.entries",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#val.map",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#JSON.stringify",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#temporal_engine.create",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#generateUUID",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#Object.entries",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
+      "target": "function:src/engine/index.js#generateUUID",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#raw.trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#generateUUID",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#Date.now",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#(get_value(this.char, path) || []).filter",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
-      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
-      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
-      "target": "function:src/ui/organisms/profile.svelte.js#this.patch_vector_item",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
-      "target": "function:src/ui/organisms/profile.svelte.js#Math.min",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
-      "target": "function:src/ui/organisms/profile.svelte.js#Math.max",
+      "target": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#setImage",
-      "target": "function:src/ui/organisms/profile.svelte.js#dataUrl.trim",
+      "target": "function:src/data/index.js#db.entities.update",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#setImage",
-      "target": "function:src/ui/organisms/profile.svelte.js#db.entities.update",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
-      "target": "function:src/ui/organisms/profile.svelte.js#Date.now",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
-      "target": "function:src/ui/organisms/profile.svelte.js#runtime.update_entity",
+      "target": "function:src/state/index.js#runtime.update_entity",
       "type": "calls"
     },
     {
