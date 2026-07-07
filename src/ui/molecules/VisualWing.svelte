@@ -178,7 +178,12 @@
         mode: profileState.char.type,
         no_background: profileState.noBackground,
         negativePrompt: profileState.char.modifiers.negative_prompt || undefined,
-        seed: profileState.char.modifiers.profile_picture_seed || 0,
+        seed:
+          profileState.char.modifiers.profile_picture_seed !== null &&
+          profileState.char.modifiers.profile_picture_seed !== undefined &&
+          profileState.char.modifiers.profile_picture_seed !== ""
+            ? Number(profileState.char.modifiers.profile_picture_seed)
+            : undefined,
         returnPayload: true,
       });
       if (payload?.url) {

@@ -306,8 +306,8 @@
                 </Button>
               </div>
               <NumberField
-                value={!state.metadata.seed ? null : state.metadata.seed}
-                placeholder={!state.metadata.seed ? "Random" : "Seed"}
+                value={state.metadata.seed === null || state.metadata.seed === undefined ? null : state.metadata.seed}
+                placeholder={state.metadata.seed === null || state.metadata.seed === undefined ? "Random" : "Seed"}
                 readonly={true}
                 class="w-full text-lg"
               />

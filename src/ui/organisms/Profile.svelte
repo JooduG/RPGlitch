@@ -4,7 +4,7 @@
    * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Chalk Regime UI · Flat DOM · Bolted Architecture
    */
-  import { click_outside } from "@actions";
+  import { auto_resize, click_outside } from "@actions";
   import { Button, Modal, ProfilePicture, TextField, tooltip } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { get_signature_color } from "@media";
@@ -271,9 +271,16 @@
                         mode: profileState.char.type,
                         no_background: profileState.noBackground,
                         negativePrompt: modifiers.negative_prompt || undefined,
+                        seed: undefined, // Force a new random seed on reroll
+                        returnPayload: true,
                       })
-                      .then((url) => {
-                        if (url) profileState.char.profile_picture = url;
+                      .then((payload) => {
+                        if (payload?.url) {
+                          profileState.char.profile_picture = payload.url;
+                          if (payload.metadata?.seed !== undefined) {
+                            modifiers.profile_picture_seed = payload.metadata.seed;
+                          }
+                        }
                       })
                       .catch((err) => {
                         app.log(`Generation failed: ${err.message}`, "error");
@@ -286,7 +293,7 @@
               }
             }}
           >
-            <ProfilePicture entity={profileState.char} />
+            <ProfilePicture entity={profileState.char} contain={true} landscape={entity_type !== "character"} />
           </button>
         </div>
 
@@ -449,6 +456,8 @@
                   class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard"
                   role="region"
                   aria-label={field.sublabel || field.label}
+                  use:auto_resize={{ syncId: section.label }}
+                  data-sync-id={section.label}
                 >
                   {#if profileState.busy_fields.has(field.key)}
                     <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>

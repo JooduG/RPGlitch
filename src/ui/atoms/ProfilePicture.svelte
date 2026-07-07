@@ -15,6 +15,8 @@
     src = null,
     alt = null,
     placeholder_char = null,
+    contain = false,
+    landscape = false,
 
     // Design
     class: className = "",
@@ -76,63 +78,109 @@
   style="--signature-color: {signature_color};"
   use:use_actions={actions}
 >
-  <div
-    class="
-      absolute
-      inset-0
-      z-0
-      flex
-      h-full
-      w-full
-      items-center
-      justify-center
-      bg-(--signature-color,#555d66)
-    "
-    aria-hidden="true"
-  >
+  {#if !media_url}
     <div
       class="
-        pointer-events-none
+        absolute
+        inset-0
+        z-0
         flex
         h-full
         w-full
         items-center
         justify-center
-        p-0
-        text-center
-        font-['Ubuntu']
-        text-[clamp(0.6rem,60cqi,6rem)]
-        leading-[0.7]
-        font-bold
-        tracking-tight
-        text-nowrap
-        text-white
-        uppercase
-        opacity-95
-        filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]
-        select-none
-        [text-shadow:var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.6)]
+        bg-(--signature-color,#555d66)
       "
+      aria-hidden="true"
     >
-      {initials}
+      <div
+        class="
+          pointer-events-none
+          flex
+          h-full
+          w-full
+          items-center
+          justify-center
+          p-0
+          text-center
+          font-['Ubuntu']
+          text-[clamp(0.6rem,60cqi,6rem)]
+          leading-[0.7]
+          font-bold
+          tracking-tight
+          text-nowrap
+          text-white
+          uppercase
+          opacity-95
+          filter-[drop-shadow(0_8px_16px_rgba(from_var(--signature-color,#555d66)_r_g_b/0.6))]
+          select-none
+          [text-shadow:var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_var(--spacing-spacing-pixel)_0_var(--color-void-black),var(--spacing-spacing-pixel)_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),calc(-1*var(--spacing-spacing-pixel))_calc(-1*var(--spacing-spacing-pixel))_0_var(--color-void-black),0_0_calc(var(--spacing-spacing-unit)*2)_var(--signature-color,var(--color-slate-600)),0_0_calc(var(--spacing-spacing-unit)*6)_rgba(from_var(--signature-color,var(--color-slate-600))_r_g_b/0.6)]
+        "
+      >
+        {initials}
+      </div>
     </div>
-  </div>
+  {/if}
 
   {#if media_url}
-    <img
-      src={media_url}
-      alt={alt || `${name} Profile`}
-      class="
-        absolute
-        inset-0
-        z-10
-        block
-        h-full
-        w-full
-        object-cover
+    {#if contain}
+      <!-- Blurred Background (resolves aspect ratio discrepancy without stretching artifacts) -->
+      <img
+        src={media_url}
+        alt=""
+        class="
+          pointer-events-none
+          absolute
+          inset-0
+          z-0
+          block
+          h-full
+          w-full
+          scale-110
+          object-cover
+          opacity-45
+          blur-lg
+          saturate-200
+          select-none"
+        aria-hidden="true"
+      />
 
-        {is_flipped ? '-scale-x-100' : ''}"
-      onerror={() => (image_failed = true)}
-    />
+      <!-- Signature Color Glow (shines through transparent foreground images) -->
+      <div
+        class="pointer-events-none absolute inset-0 z-5 opacity-25"
+        style="background: radial-gradient(circle at center, var(--signature-color) 0%, transparent 70%);"
+      ></div>
+
+      <!-- Crisp Foreground (centered on both axes, natural size, cropped by container, shrinks if exceeds container height or 512px) -->
+      <img
+        src={media_url}
+        alt={alt || `${name} Profile`}
+        class="
+          pointer-events-none
+          relative
+          z-10
+          block
+          {landscape ? 'h-auto max-h-none w-auto max-w-full' : 'h-auto max-h-full w-auto max-w-none'}
+          select-none
+          {is_flipped ? '-scale-x-100' : ''}"
+        onerror={() => (image_failed = true)}
+      />
+    {:else}
+      <img
+        src={media_url}
+        alt={alt || `${name} Profile`}
+        class="
+          absolute
+          inset-0
+          z-10
+          block
+          h-full
+          w-full
+          object-cover
+
+          {is_flipped ? '-scale-x-100' : ''}"
+        onerror={() => (image_failed = true)}
+      />
+    {/if}
   {/if}
 </div>
