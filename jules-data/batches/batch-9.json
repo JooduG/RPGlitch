@@ -1,0 +1,489 @@
+[
+  {
+    "id": "file:.npmrc",
+    "type": "file",
+    "name": ".npmrc",
+    "filePath": ".npmrc"
+  },
+  {
+    "id": "file:eslint.config.js",
+    "type": "file",
+    "name": "eslint.config.js",
+    "filePath": "eslint.config.js"
+  },
+  {
+    "id": "file:playwright.config.js",
+    "type": "file",
+    "name": "playwright.config.js",
+    "filePath": "playwright.config.js"
+  },
+  {
+    "id": "file:RPGlitch.code-workspace",
+    "type": "file",
+    "name": "RPGlitch.code-workspace",
+    "filePath": "RPGlitch.code-workspace"
+  },
+  {
+    "id": "file:scripts/local-understand-phase2.js",
+    "type": "file",
+    "name": "local-understand-phase2.js",
+    "filePath": "scripts/local-understand-phase2.js"
+  },
+  {
+    "id": "file:src/App.svelte",
+    "type": "file",
+    "name": "App.svelte",
+    "filePath": "src/App.svelte"
+  },
+  {
+    "id": "file:src/data/db.js",
+    "type": "file",
+    "name": "db.js",
+    "filePath": "src/data/db.js"
+  },
+  {
+    "id": "file:src/data/db.test.js",
+    "type": "file",
+    "name": "db.test.js",
+    "filePath": "src/data/db.test.js"
+  },
+  {
+    "id": "file:src/data/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/data/index.js"
+  },
+  {
+    "id": "file:src/data/lists.js",
+    "type": "file",
+    "name": "lists.js",
+    "filePath": "src/data/lists.js"
+  },
+  {
+    "id": "file:src/data/narrative-styles.js",
+    "type": "file",
+    "name": "narrative-styles.js",
+    "filePath": "src/data/narrative-styles.js"
+  },
+  {
+    "id": "file:src/data/normalizer.js",
+    "type": "file",
+    "name": "normalizer.js",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "file:src/data/normalizer.test.js",
+    "type": "file",
+    "name": "normalizer.test.js",
+    "filePath": "src/data/normalizer.test.js"
+  },
+  {
+    "id": "file:src/engine/boot.js",
+    "type": "file",
+    "name": "boot.js",
+    "filePath": "src/engine/boot.js"
+  },
+  {
+    "id": "file:src/engine/boot.test.js",
+    "type": "file",
+    "name": "boot.test.js",
+    "filePath": "src/engine/boot.test.js"
+  },
+  {
+    "id": "file:src/engine/chrono.svelte.js",
+    "type": "file",
+    "name": "chrono.svelte.js",
+    "filePath": "src/engine/chrono.svelte.js"
+  },
+  {
+    "id": "file:src/engine/chrono.test.js",
+    "type": "file",
+    "name": "chrono.test.js",
+    "filePath": "src/engine/chrono.test.js"
+  },
+  {
+    "id": "file:src/engine/config.js",
+    "type": "file",
+    "name": "config.js",
+    "filePath": "src/engine/config.js"
+  },
+  {
+    "id": "file:src/engine/config.test.js",
+    "type": "file",
+    "name": "config.test.js",
+    "filePath": "src/engine/config.test.js"
+  },
+  {
+    "id": "file:src/engine/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/engine/index.js"
+  },
+  {
+    "id": "file:src/engine/session.svelte.js",
+    "type": "file",
+    "name": "session.svelte.js",
+    "filePath": "src/engine/session.svelte.js"
+  },
+  {
+    "id": "file:src/engine/transition-guard.js",
+    "type": "file",
+    "name": "transition-guard.js",
+    "filePath": "src/engine/transition-guard.js"
+  },
+  {
+    "id": "file:src/engine/transition-guard.test.js",
+    "type": "file",
+    "name": "transition-guard.test.js",
+    "filePath": "src/engine/transition-guard.test.js"
+  },
+  {
+    "id": "file:src/engine/utils.js",
+    "type": "file",
+    "name": "utils.js",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "file:src/engine/utils.test.js",
+    "type": "file",
+    "name": "utils.test.js",
+    "filePath": "src/engine/utils.test.js"
+  },
+  {
+    "id": "function:src/data/db.js:init",
+    "type": "function",
+    "name": "init",
+    "filePath": "src/data/db.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:sanitize_html",
+    "type": "function",
+    "name": "sanitize_html",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:get_random_signature_key",
+    "type": "function",
+    "name": "get_random_signature_key",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:normalize",
+    "type": "function",
+    "name": "normalize",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:coerce_temporal_array",
+    "type": "function",
+    "name": "coerce_temporal_array",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:create_new",
+    "type": "function",
+    "name": "create_new",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:format_premade",
+    "type": "function",
+    "name": "format_premade",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "function:src/data/normalizer.js:detox_prose",
+    "type": "function",
+    "name": "detox_prose",
+    "filePath": "src/data/normalizer.js"
+  },
+  {
+    "id": "class:src/engine/chrono.svelte.js:ChronoStore",
+    "type": "class",
+    "name": "ChronoStore",
+    "filePath": "src/engine/chrono.svelte.js"
+  },
+  {
+    "id": "function:src/engine/transition-guard.js:guardedTransition",
+    "type": "function",
+    "name": "guardedTransition",
+    "filePath": "src/engine/transition-guard.js"
+  },
+  {
+    "id": "function:src/engine/utils.js:generateUUID",
+    "type": "function",
+    "name": "generateUUID",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "function:src/engine/utils.js:generateSecureSeed",
+    "type": "function",
+    "name": "generateSecureSeed",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "function:src/engine/utils.js:pickRandom",
+    "type": "function",
+    "name": "pickRandom",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "function:src/engine/utils.js:clamp",
+    "type": "function",
+    "name": "clamp",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "function:src/engine/utils.js:log",
+    "type": "function",
+    "name": "log",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "function:src/engine/utils.js:ind",
+    "type": "function",
+    "name": "ind",
+    "filePath": "src/engine/utils.js"
+  },
+  {
+    "id": "file:svelte.config.js",
+    "type": "file",
+    "name": "svelte.config.js",
+    "filePath": "svelte.config.js"
+  },
+  {
+    "source": "function:src/data/db.js:init",
+    "target": "file:src/data/db.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:sanitize_html",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:get_random_signature_key",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:coerce_temporal_array",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:create_new",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:format_premade",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:detox_prose",
+    "target": "file:src/data/normalizer.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:get_random_signature_key",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:coerce_temporal_array",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:coerce_temporal_array",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:create_new",
+    "target": "function:src/data/normalizer.js:get_random_signature_key",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:create_new",
+    "target": "function:src/data/normalizer.js:normalize",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:format_premade",
+    "target": "function:src/data/normalizer.js:normalize",
+    "type": "calls"
+  },
+  {
+    "source": "class:src/engine/chrono.svelte.js:ChronoStore",
+    "target": "file:src/engine/chrono.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/transition-guard.js:guardedTransition",
+    "target": "file:src/engine/transition-guard.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:generateUUID",
+    "target": "file:src/engine/utils.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:generateSecureSeed",
+    "target": "file:src/engine/utils.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:pickRandom",
+    "target": "file:src/engine/utils.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:clamp",
+    "target": "file:src/engine/utils.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:log",
+    "target": "file:src/engine/utils.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:ind",
+    "target": "file:src/engine/utils.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/engine/utils.js:pickRandom",
+    "target": "function:src/engine/utils.js:generateSecureSeed",
+    "type": "calls"
+  },
+  {
+    "source": "file:src/data/db.js",
+    "target": "file:src/data/db.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:src/data/normalizer.js",
+    "target": "file:src/data/normalizer.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/engine/boot.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:src/engine/chrono.svelte.js",
+    "target": "file:src/engine/chrono.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:src/engine/config.js",
+    "target": "file:src/engine/config.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:src/engine/transition-guard.js",
+    "target": "file:src/engine/transition-guard.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:src/engine/utils.js",
+    "target": "file:src/engine/utils.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "file:eslint.config.js",
+    "target": "file:svelte.config.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/App.svelte",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.test.js",
+    "target": "file:src/engine/chrono.svelte.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/config.test.js",
+    "target": "file:src/engine/config.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/utils.test.js",
+    "target": "file:src/engine/utils.js",
+    "type": "imports"
+  }
+]
