@@ -7,12 +7,10 @@ $meta
 // --- IMPORTS ---
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
-upload = {import:upload-plugin}
 
 // --- EXPORTS TO JS ---
 pluginAi = async (opts) => { return await ai(opts); }
 pluginTextToImage = async (opts) => { return await textToImage(opts); }
-pluginUpload = upload
 
 // --- MAIN OUTPUT ---
 $output = [{import:apps/rpglitch/index.html}]

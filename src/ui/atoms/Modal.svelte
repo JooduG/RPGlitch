@@ -120,9 +120,11 @@
                         before:content-[\\'\\']
                       `
                       : `
-                        h-screen
+                        h-auto
+                        max-h-none!
+                        min-h-0
                         w-fit
-                        max-w-none
+                        max-w-none!
                         overflow-visible!
                         border-none!
                         bg-transparent

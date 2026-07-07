@@ -56,7 +56,6 @@ declare global {
   function upload(callback: (dataUrl: string | null | undefined) => void): void;
 
   /** Plugin asset upload alias */
-  const pluginUpload: typeof upload;
 
   /** Forces a UI tick/update */
   function update(): void;

@@ -5,7 +5,7 @@
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch "Chalk Regime" UI collection.
    */
-  import { Button, TextField, Toggle, tooltip } from "@atoms";
+  import { Button, TextField, Toggle, NumberField, tooltip } from "@atoms";
   import { prompt_builder, strip_cognition_blocks } from "@intelligence";
   import { AestheticResolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { llm_service } from "@platform";
@@ -59,7 +59,7 @@
         negative_prompt: "",
         no_background: false,
         flipped: false,
-        profile_picture_seed: 0,
+        profile_picture_seed: null,
         color_name: "",
       };
       return;
@@ -68,7 +68,9 @@
     profileState.char.modifiers.negative_prompt ??= "";
     profileState.char.modifiers.no_background ??= false;
     profileState.char.modifiers.flipped ??= false;
-    profileState.char.modifiers.profile_picture_seed ??= 0;
+    if (profileState.char.modifiers.profile_picture_seed === 0 || profileState.char.modifiers.profile_picture_seed === undefined) {
+      profileState.char.modifiers.profile_picture_seed = null;
+    }
     profileState.char.modifiers.color_name ??= "";
   };
 
@@ -176,12 +178,13 @@
         mode: profileState.char.type,
         no_background: profileState.noBackground,
         negativePrompt: profileState.char.modifiers.negative_prompt || undefined,
+        seed: profileState.char.modifiers.profile_picture_seed || 0,
         returnPayload: true,
       });
       if (payload?.url) {
         profileState.char.profile_picture = payload.url;
-        if (payload.metadata?.seed) profileState.char.modifiers.profile_picture_seed = payload.metadata.seed;
-        if (payload.metadata?.negativePrompt) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
+        if (payload.metadata?.seed !== undefined) profileState.char.modifiers.profile_picture_seed = payload.metadata.seed;
+        if (payload.metadata?.negativePrompt !== undefined) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
       }
     } catch (err) {
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
@@ -290,88 +293,92 @@
     placeholder="Image prompt or URL..."
     disabled={!profileState.is_editing || is_prompt_busy}
     signature_color="var(--color-frozen)"
+    oninput={() => (profileState._user_mutated = true)}
     onfocus={() => profileState.is_editing && (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
   >
     {#snippet status()}
-      {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
-        <div
-          class="
-            flex
-            items-center
-            gap-4
-            rounded-full
-            border
-            p-2
-
-            {app.visual.error || app.visual.isOffline
-            ? `
-              border-red-500/15
-              bg-red-500/15
-              text-red-500
-            `
-            : `
-              border-white/15
-              bg-white/5
-              text-slate-50
-            `}"
-          data-loading={is_prompt_busy}
-        >
+      <div class="flex items-center gap-4">
+        <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
+        {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
           <div
             class="
-            box-border
-            flex
-            items-center
-            gap-4
-          "
+              flex
+              items-center
+              gap-4
+              rounded-full
+              border
+              p-2
+
+              {app.visual.error || app.visual.isOffline
+              ? `
+                border-red-500/15
+                bg-red-500/15
+                text-red-500
+              `
+              : `
+                border-white/15
+                bg-white/5
+                text-slate-50
+              `}"
+            data-loading={is_prompt_busy}
           >
-            {#if app.visual.isOffline}
-              <span
-                class="
-                  font-mono
-                  text-[0.625rem]
-                  tracking-widest
-                  text-inherit
-                  uppercase
-                ">OFFLINE</span
-              >
-            {:else if app.visual.error}
-              <span
-                class="
-                  font-mono
-                  text-[0.625rem]
-                  tracking-widest
-                  text-inherit
-                  uppercase
-                ">ERROR</span
-              >
-              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
-            {:else if app.visual.attempts > 0}
-              <span
-                class="
-                  animate-pulse
-                  font-mono
-                  text-[0.625rem]
-                  tracking-widest
-                  text-inherit
-                  uppercase
-                ">RETRYING</span
-              >
-              <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
-            {:else}
-              <span
-                class="
-                  animate-pulse
-                  font-mono
-                  text-[0.625rem]
-                  tracking-widest
-                  text-inherit
-                  uppercase
-                ">GENERATING</span
-              >
-            {/if}
+            <div
+              class="
+              box-border
+              flex
+              items-center
+              gap-4
+            "
+            >
+              {#if app.visual.isOffline}
+                <span
+                  class="
+                    font-mono
+                    text-[0.625rem]
+                    tracking-widest
+                    text-inherit
+                    uppercase
+                  ">OFFLINE</span
+                >
+              {:else if app.visual.error}
+                <span
+                  class="
+                    font-mono
+                    text-[0.625rem]
+                    tracking-widest
+                    text-inherit
+                    uppercase
+                  ">ERROR</span
+                >
+                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">{app.visual.error}</span>
+              {:else if app.visual.attempts > 0}
+                <span
+                  class="
+                    animate-pulse
+                    font-mono
+                    text-[0.625rem]
+                    tracking-widest
+                    text-inherit
+                    uppercase
+                  ">RETRYING</span
+                >
+                <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
+              {:else}
+                <span
+                  class="
+                    animate-pulse
+                    font-mono
+                    text-[0.625rem]
+                    tracking-widest
+                    text-inherit
+                    uppercase
+                  ">GENERATING</span
+                >
+              {/if}
+            </div>
           </div>
-        </div>
-      {/if}
+        {/if}
+      </div>
     {/snippet}
 
     {#snippet header_actions()}
@@ -421,45 +428,36 @@
             variant="invisible"
             size="small"
             square
-            aria-label="Generate Image"
+            aria-label={has_prompt_text ? "Generate Image" : "Upload Portrait"}
             actions={[tooltip]}
             onclick={handle_generate}
             onmousedown={prevent_default}
             disabled={!profileState.is_editing || is_prompt_busy}
           >
-            <svg
-              viewBox="0 0 24 24"
-              class="
-              size-icon-small
-            "
-              fill="none"
-            >
-              <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor"></path>
-              <circle cx="12" cy="13" r="4" stroke="currentColor"></circle>
-            </svg>
-          </Button>
-
-          <Button
-            variant="invisible"
-            size="small"
-            square
-            aria-label="Upload Portrait"
-            actions={[tooltip]}
-            onclick={handle_upload_portrait}
-            onmousedown={prevent_default}
-            disabled={!profileState.is_editing || is_prompt_busy}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              class="
-              size-icon-small
-            "
-              fill="none"
-            >
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
-              <polyline points="17 8 12 3 7 8" stroke="currentColor"></polyline>
-              <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor"></line>
-            </svg>
+            {#if has_prompt_text}
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                size-icon-small
+              "
+                fill="none"
+              >
+                <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z" stroke="currentColor"></path>
+                <circle cx="12" cy="13" r="4" stroke="currentColor"></circle>
+              </svg>
+            {:else}
+              <svg
+                viewBox="0 0 24 24"
+                class="
+                size-icon-small
+              "
+                fill="none"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor"></path>
+                <polyline points="17 8 12 3 7 8" stroke="currentColor"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15" stroke="currentColor"></line>
+              </svg>
+            {/if}
           </Button>
         </div>
       {/if}
@@ -467,22 +465,47 @@
   </TextField>
 
   <TextField
+    data-active={profileState.active_field?.key === "visual-negative-prompt" ? true : undefined}
     is_edit={profileState.is_editing}
     busy={is_prompt_busy}
     bind:value={profileState.char.modifiers.negative_prompt}
     placeholder="Negative prompt (avoid these)..."
     disabled={!profileState.is_editing || is_prompt_busy}
     signature_color="var(--color-frozen)"
-  ></TextField>
-
-  <div
-    class="
-    flex
-    flex-col
-    gap-2
-  "
+    oninput={() => (profileState._user_mutated = true)}
+    onfocus={() => profileState.is_editing && (profileState.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}
   >
-    <Toggle label="Transparent Background" bind:value={profileState.noBackground} disabled={!profileState.is_editing} />
-    <Toggle label="Mirror Image" bind:value={profileState.char.modifiers.flipped} disabled={!profileState.is_editing} />
+    {#snippet status()}
+      <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
+    {/snippet}
+  </TextField>
+
+  <div class="flex items-center justify-between gap-4">
+    <div
+      class="
+      flex
+      flex-col
+      gap-2
+    "
+    >
+      <Toggle label="Transparent Background" bind:value={profileState.noBackground} disabled={!profileState.is_editing} />
+      <Toggle
+        label="Mirror Image"
+        bind:value={profileState.char.modifiers.flipped}
+        disabled={!profileState.is_editing}
+        onchange={() => (profileState._user_mutated = true)}
+      />
+    </div>
+
+    <div class="flex w-32 flex-col justify-end">
+      <NumberField
+        id="seed-input"
+        bind:value={profileState.char.modifiers.profile_picture_seed}
+        disabled={!profileState.is_editing}
+        oninput={() => (profileState._user_mutated = true)}
+        placeholder="Seed"
+        class="w-full"
+      />
+    </div>
   </div>
 </section>

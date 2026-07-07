@@ -71,7 +71,7 @@
 </script>
 
 <script>
-  import { Modal, Button, TextField, tooltip } from "@atoms";
+  import { Modal, Button, TextField, NumberField, tooltip } from "@atoms";
 
   const copyCanvas = (node, sourceCanvas) => {
     const draw = (src) => {
@@ -286,36 +286,31 @@
         {/if}
 
         <div class="flex gap-4">
-          {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
+          {#if state.metadata.seed !== undefined}
             <div class="flex flex-1 flex-col gap-2">
-              <TextField
-                value={state.metadata.seed === 0 ? "Random" : String(state.metadata.seed).trim()}
-                is_edit={false}
-                always_expanded={false}
-                syncId="image-preview-meta"
-                signature_color="var(--color-frozen)"
-                class="font-mono text-lg **:data-[mode='readonly']:text-center!"
-              >
-                {#snippet status()}
-                  <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Seed</span>
-                {/snippet}
-                {#snippet header_actions()}
-                  <Button
-                    variant="invisible"
-                    size="small"
-                    square={true}
-                    aria-label="Copy Seed"
-                    actions={[tooltip]}
-                    class="h-full! py-0! opacity-80 hover:opacity-100"
-                    onclick={handleCopySeed}
-                  >
-                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-                    </svg>
-                  </Button>
-                {/snippet}
-              </TextField>
+              <div class="flex items-center justify-between px-2">
+                <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Seed</span>
+                <Button
+                  variant="invisible"
+                  size="small"
+                  square={true}
+                  aria-label="Copy Seed"
+                  actions={[tooltip]}
+                  class="py-0! opacity-80 hover:opacity-100"
+                  onclick={handleCopySeed}
+                >
+                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
+                  </svg>
+                </Button>
+              </div>
+              <NumberField
+                value={!state.metadata.seed ? null : state.metadata.seed}
+                placeholder={!state.metadata.seed ? "Random" : "Seed"}
+                readonly={true}
+                class="w-full text-lg"
+              />
             </div>
           {/if}
         </div>

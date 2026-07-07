@@ -42,7 +42,7 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex h-full overflow-y-auto overflow-x-hidden border-solid transition-all duration-300 scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent " +
+    "flex h-full overflow-y-auto overflow-x-hidden rounded-2xl border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent " +
       (app.viewport.mobile || app.viewport.mini ? "col-span-full flex-col " : has_wings ? "modal-profile-grid-main " : "modal-profile-grid-flat ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
@@ -225,7 +225,7 @@
     is_pass_through={true}
   >
     <div
-      class="m-auto grid h-grid-height w-grid-width grid-cols-12 overflow-hidden"
+      class="m-auto my-8 grid h-auto w-grid-width grid-cols-12"
       data-mobile={app.viewport.mobile}
       data-mini={app.viewport.mini}
       role="presentation"
@@ -236,6 +236,8 @@
         style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
         style:backdrop-filter="var(--blur-mist)"
         style:--signature-color={signature_color}
+        style:--scrollbar-thumb="color-mix(in srgb, var(--signature-color) 40%, var(--color-gunmetal))"
+        style:--scrollbar-thumb-hover="color-mix(in srgb, var(--signature-color) 60%, var(--color-frisk))"
         use:click_outside={handle_click_outside}
       >
         <div class={avatar_container_class}>

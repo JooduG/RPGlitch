@@ -24,6 +24,7 @@
    * @property {() => void} [on_select] - Selection callback mapping
    * @property {() => void} [onViewProfile] - View profile context mapping
    * @property {() => void} [on_view_profile] - View profile callback mapping
+   * @property {() => void} [on_swap] - Swap callback mapping
    */
 
   /** @type {Props} */
@@ -37,6 +38,7 @@
     on_select = undefined,
     onViewProfile = undefined,
     on_view_profile = undefined,
+    on_swap = undefined,
   } = $props();
 
   // --- STATE RUNES ---
@@ -80,6 +82,7 @@
   // Unified callback event mappings
   let select_handler = $derived(onclick || on_select || (() => {}));
   let view_profile_handler = $derived(on_view_profile || onViewProfile || (() => {}));
+  let swap_handler = $derived(on_swap || (() => {}));
 
   /**
    * Helper to perform the actual entity selection, wrapped inside guardedTransition.
@@ -255,8 +258,10 @@
   }}
   oncontextmenu={(/** @type {MouseEvent} */ e) => {
     e.preventDefault();
-    if (variant === "library" || variant === "panel") {
+    if (variant === "library") {
       view_profile_handler();
+    } else if (variant === "panel") {
+      swap_handler();
     }
   }}
   onkeydown={(/** @type {KeyboardEvent} */ e) => {
@@ -472,19 +477,17 @@
         rounded-full
         p-0
       "
-        actions={[[tooltip, { text: `View ${entity?.name || name} Profile` }]]}
+        actions={[[tooltip, { text: `Swap ${entity?.name || name}` }]]}
         variant="secondary"
-        aria-label="View {entity?.name || name} Profile"
+        aria-label="Swap {entity?.name || name}"
         onclick={(/** @type {MouseEvent} */ e) => {
           e.stopPropagation();
-          view_profile_handler();
+          swap_handler();
         }}
         tabindex="-1"
       >
         <svg viewBox="0 0 24 24" class="size-icon-medium">
-          <path
-            d="M20,2H4C2.89,2 2,2.89 2,4V20C2,21.11 2.89,22 4,22H20C21.11,22 22,21.11 22,20V4C22,2.89 21.11,2 20,2M20,20H4V4H20V20M12,10H17V12H12V10M12,14H17V16H12V14M7,10H10V13H7V10M7,14H10V15H7V14"
-          />
+          <path d="M16,17.01V10H14V17.01H11L15,21L19,17.01H16M9,3L5,6.99H8V14H10V6.99H13L9,3Z" />
         </svg></Button
       >
     </nav>

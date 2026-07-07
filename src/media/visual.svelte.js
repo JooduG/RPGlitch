@@ -326,27 +326,6 @@ export class VisualEngine {
    * @returns {Promise<string | null>}
    */
   async upload() {
-    let hasUploadPlugin = false;
-    try {
-      if (typeof window !== "undefined" && typeof window.pluginUpload === "function") hasUploadPlugin = true;
-    } catch (_e) {
-      /* ignore */
-    }
-
-    if (hasUploadPlugin) {
-      return new Promise((resolve) => {
-        try {
-          // @ts-ignore
-          window.pluginUpload((dataUrl) => {
-            resolve(dataUrl || null);
-          });
-        } catch (err) {
-          console.error("[VisualEngine] Upload failure:", err);
-          resolve(null);
-        }
-      });
-    }
-
     // Secure local fallback
     try {
       const { validateImage } = await import("@platform/security.js");

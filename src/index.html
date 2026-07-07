@@ -85,18 +85,6 @@
               allFound = false;
             }
           }
-          if (typeof window.upload === "undefined") {
-            try {
-              if (typeof upload !== "undefined") {
-                window.upload = upload;
-                window.pluginUpload = upload;
-              } else {
-                allFound = false;
-              }
-            } catch (e) {
-              allFound = false;
-            }
-          }
 
           if (!allFound && polls < MAX_POLLS) {
             polls++;

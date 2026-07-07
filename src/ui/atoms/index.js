@@ -12,3 +12,4 @@ export { default as TextField } from "./TextField.svelte";
 export { default as Toggle } from "./Toggle.svelte";
 export { tooltip_state, show_tooltip, hide_tooltip, tooltip, default as Tooltip } from "./Tooltip.svelte";
 export { default as DynamicsMeter } from "./DynamicsMeter.svelte";
+export { default as NumberField } from "./NumberField.svelte";

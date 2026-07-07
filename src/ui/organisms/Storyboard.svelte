@@ -30,7 +30,14 @@
       {type}
       {entity}
       role_label={label}
-      on_select={() => app.open_card_hand(type)}
+      on_select={() => {
+        if (entity) {
+          app.toggle_profile(true, entity);
+        } else {
+          app.open_card_hand(type);
+        }
+      }}
+      on_swap={() => app.open_card_hand(type)}
       on_view_profile={() => app.toggle_profile(true, entity)}
     />
   {/if}
