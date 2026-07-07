@@ -1,0 +1,3798 @@
+[
+  {
+    "id": "config:.agents/config.yaml",
+    "type": "config",
+    "name": "config.yaml",
+    "filePath": ".agents/config.yaml",
+    "tags": [
+      "yaml"
+    ],
+    "summary": "Analysis of .agents/config.yaml",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/audio/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/audio/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/audio/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/design/data/interaction-audit.md",
+    "type": "document",
+    "name": "interaction-audit.md",
+    "filePath": ".agents/skills/design/data/interaction-audit.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/design/data/interaction-audit.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/design/scripts/audit-google-design.js",
+    "type": "file",
+    "name": "audit-google-design.js",
+    "filePath": ".agents/skills/design/scripts/audit-google-design.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/design/scripts/audit-google-design.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/design/scripts/audit-svelte.js",
+    "type": "file",
+    "name": "audit-svelte.js",
+    "filePath": ".agents/skills/design/scripts/audit-svelte.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/design/scripts/audit-svelte.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/design/scripts/forge-svelte.js",
+    "type": "file",
+    "name": "forge-svelte.js",
+    "filePath": ".agents/skills/design/scripts/forge-svelte.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/design/scripts/forge-svelte.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/design/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/design/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/design/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "type": "file",
+    "name": "audit-nomenclature.js",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "file",
+    "name": "audit-project.js",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/local-dispatcher/scripts/audit-project.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/local-dispatcher/scripts/audit-security.js",
+    "type": "file",
+    "name": "audit-security.js",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-security.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/local-dispatcher/scripts/audit-security.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/local-dispatcher/scripts/sync-ignores.js",
+    "type": "file",
+    "name": "sync-ignores.js",
+    "filePath": ".agents/skills/local-dispatcher/scripts/sync-ignores.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/local-dispatcher/scripts/sync-ignores.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/local-dispatcher/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/local-dispatcher/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/local-dispatcher/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/premades/assets/premades-nsfw.js",
+    "type": "file",
+    "name": "premades-nsfw.js",
+    "filePath": ".agents/skills/premades/assets/premades-nsfw.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/premades/assets/premades-nsfw.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/premades/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/premades/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/premades/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "file",
+    "name": "deploy-perchance.js",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/release/scripts/deploy-perchance.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/release/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/release/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/release/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/sfw-premades/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/sfw-premades/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/sfw-premades/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/simulation/scripts/test-setup.js",
+    "type": "file",
+    "name": "test-setup.js",
+    "filePath": ".agents/skills/simulation/scripts/test-setup.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/simulation/scripts/test-setup.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/simulation/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/simulation/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/simulation/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "file",
+    "name": "cli.js",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .agents/skills/swarm/scripts/cli.js",
+    "complexity": "simple"
+  },
+  {
+    "id": "document:.agents/skills/swarm/SKILL.md",
+    "type": "document",
+    "name": "SKILL.md",
+    "filePath": ".agents/skills/swarm/SKILL.md",
+    "tags": [
+      "markdown"
+    ],
+    "summary": "Analysis of .agents/skills/swarm/SKILL.md",
+    "complexity": "simple"
+  },
+  {
+    "id": "config:.gemini/settings.json",
+    "type": "config",
+    "name": "settings.json",
+    "filePath": ".gemini/settings.json",
+    "tags": [
+      "json"
+    ],
+    "summary": "Analysis of .gemini/settings.json",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.gitattributes",
+    "type": "file",
+    "name": ".gitattributes",
+    "filePath": ".gitattributes",
+    "tags": [
+      "unknown"
+    ],
+    "summary": "Analysis of .gitattributes",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.htmlhintrc",
+    "type": "file",
+    "name": ".htmlhintrc",
+    "filePath": ".htmlhintrc",
+    "tags": [
+      "unknown"
+    ],
+    "summary": "Analysis of .htmlhintrc",
+    "complexity": "simple"
+  },
+  {
+    "id": "file:.markdownlint-cli2.mjs",
+    "type": "file",
+    "name": ".markdownlint-cli2.mjs",
+    "filePath": ".markdownlint-cli2.mjs",
+    "tags": [
+      "javascript"
+    ],
+    "summary": "Analysis of .markdownlint-cli2.mjs",
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "type": "function",
+    "name": "scan",
+    "filePath": ".agents/skills/design/scripts/audit-svelte.js",
+    "summary": "Function scan",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "type": "function",
+    "name": "auditFile",
+    "filePath": ".agents/skills/design/scripts/audit-svelte.js",
+    "summary": "Function auditFile",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "type": "function",
+    "name": "forge",
+    "filePath": ".agents/skills/design/scripts/forge-svelte.js",
+    "summary": "Function forge",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:getBase",
+    "type": "function",
+    "name": "getBase",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "summary": "Function getBase",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "type": "function",
+    "name": "findTestSubject",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "summary": "Function findTestSubject",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "type": "function",
+    "name": "scan",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "summary": "Function scan",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "type": "function",
+    "name": "auditFile",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "summary": "Function auditFile",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:safeStatSync",
+    "type": "function",
+    "name": "safeStatSync",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function safeStatSync",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "type": "function",
+    "name": "cleanHeaderLabel",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function cleanHeaderLabel",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "type": "function",
+    "name": "isHeaderMatch",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function isHeaderMatch",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stripCodeBlocks",
+    "type": "function",
+    "name": "stripCodeBlocks",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function stripCodeBlocks",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "type": "function",
+    "name": "getTemplateStructure",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function getTemplateStructure",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "type": "function",
+    "name": "validateAgainstStructure",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function validateAgainstStructure",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "type": "function",
+    "name": "auditSkill",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function auditSkill",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "type": "function",
+    "name": "createTemplateRule",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function createTemplateRule",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "type": "function",
+    "name": "scan",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function scan",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "type": "function",
+    "name": "auditFile",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+    "summary": "Function auditFile",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "type": "function",
+    "name": "scan",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-security.js",
+    "summary": "Function scan",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "type": "function",
+    "name": "auditFile",
+    "filePath": ".agents/skills/local-dispatcher/scripts/audit-security.js",
+    "summary": "Function auditFile",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "type": "function",
+    "name": "syncIgnores",
+    "filePath": ".agents/skills/local-dispatcher/scripts/sync-ignores.js",
+    "summary": "Function syncIgnores",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "function",
+    "name": "log",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function log",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "function",
+    "name": "fatal",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function fatal",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "type": "function",
+    "name": "prompt_user",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function prompt_user",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "type": "function",
+    "name": "pre_flight",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function pre_flight",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "type": "function",
+    "name": "deploy",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function deploy",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "type": "function",
+    "name": "attempt_login",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function attempt_login",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "type": "function",
+    "name": "main",
+    "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
+    "summary": "Function main",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/simulation/scripts/test-setup.js:mock_llm_success",
+    "type": "function",
+    "name": "mock_llm_success",
+    "filePath": ".agents/skills/simulation/scripts/test-setup.js",
+    "summary": "Function mock_llm_success",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:init",
+    "type": "function",
+    "name": "init",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function init",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "type": "function",
+    "name": "parseArgs",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function parseArgs",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "type": "function",
+    "name": "getActiveTrack",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function getActiveTrack",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "type": "function",
+    "name": "getTrackFile",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function getTrackFile",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "type": "function",
+    "name": "parseTasksMarkdown",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function parseTasksMarkdown",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:commandPlan",
+    "type": "function",
+    "name": "commandPlan",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function commandPlan",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "type": "function",
+    "name": "commandDispatch",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function commandDispatch",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "type": "function",
+    "name": "commandStatus",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function commandStatus",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "type": "function",
+    "name": "commandMerge",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function commandMerge",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "type": "function",
+    "name": "commandCancel",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function commandCancel",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "id": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "type": "function",
+    "name": "main",
+    "filePath": ".agents/skills/swarm/scripts/cli.js",
+    "summary": "Function main",
+    "tags": [],
+    "complexity": "simple"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "file:.agents/skills/design/scripts/audit-svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "file:.agents/skills/design/scripts/audit-svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:fs.readdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:path.relative(ROOT_DIR, fullPath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:ig.ignores",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:fs.statSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:stat.isDirectory",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:path.extname",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:scan",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:path.relative(ROOT_DIR, filePath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:svelteRules.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:lines.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:rule.regex.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:rule.validate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:line.trim().substring",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/audit-svelte.js:auditFile",
+    "target": "function:.agents/skills/design/scripts/audit-svelte.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "file:.agents/skills/design/scripts/forge-svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:name.charAt(0).toUpperCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:name.charAt",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:name.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:fs.mkdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:console.warn",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:componentName.toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:componentName.toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:content.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:fs.writeFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/design/scripts/forge-svelte.js:forge",
+    "target": "function:.agents/skills/design/scripts/forge-svelte.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:getBase",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:getBase",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:filename.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:getBase",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.extname",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:getBase",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:stem.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:getBase",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:stem.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.extname",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:filename.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:withoutExt.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:withoutExt.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:SUBJECT_EXTS.some",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:findTestSubject",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:fs.readdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.relative(ROOT_DIR, fullPath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:ig.ignores",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:fs.statSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:stat.isDirectory",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:nomenclatureRules.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:rule.auditPath",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.relative(ROOT_DIR, filePath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:nomenclatureRules.filter",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:fileRules.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:lines.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:rule.regex.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:rule.validate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:line.trim().substring",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-nomenclature.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:safeStatSync",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stripCodeBlocks",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-project.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:safeStatSync",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.statSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:safeStatSync",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:[\"ENAMETOOLONG\", \"ENOENT\", \"EACCES\", \"ELOOP\"].includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:safeStatSync",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.warn",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:text\n    .replace(/[(\\s#]_?(Mandatory|Optional)_?([)\\s#\\n]|$)/gi, \"\") // Clean metadata suffixes\n    .replace(/[\\u{1F300}-\\u{1F6FF}\\u{1F900}-\\u{1F9FF}\\u{2600}-\\u{26FF}\\u{2700}-\\u{27BF}]/gu, \"\") // Remove emojis\n    .trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:text\n    .replace(/[(\\s#]_?(Mandatory|Optional)_?([)\\s#\\n]|$)/gi, \"\") // Clean metadata suffixes\n    .replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:text\n    .replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:templateClean.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:parts.map",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:p.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:escapedParts.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:actualText.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:regex.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:regex.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:templateClean.toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:actualClean.toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:aLower.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:tLower.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stripCodeBlocks",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:text.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stripCodeBlocks",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:content.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fmMatch[1].split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:line.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fields.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:/[(\\s#]_?Optional_?([)\\s#\\n]|$)/i.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:contentNoCode.matchAll",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:match[2].trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:headers.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:cleanHeaderLabel",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:/[(\\s#]_?Optional_?([)\\s#\\n]|$)/i.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:/\\{\\{/.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stripCodeBlocks",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:content.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fmMatch[1].split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:line.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:match[2]\n        .trim()\n        .replace(/^[\"']|[\"']$/g, \"\")\n        .split(\" #\")[0]\n        .trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:match[2]\n        .trim()\n        .replace(/^[\"']|[\"']$/g, \"\")\n        .split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:match[2]\n        .trim()\n        .replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:match[2]\n        .trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:structure.fields.map",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:templateFieldNames.has",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:contentNoCode.matchAll",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:Array.from(hMatches).map",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:Array.from",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:m[2].trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:actualHeaders.some",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:\"#\".repeat",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:structure.headers.some",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:isHeaderMatch",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:\"#\".repeat",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:logIssue",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report.issues.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:logIssue",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:content.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:logIssue",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.readdirSync(skillPath).filter",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.readdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:safeStatSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stat.isDirectory",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:currentSubfolders.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:allowedSubfolders.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:dir.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:logIssue",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:contentNoCode.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:contentNoCode.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:placeholders.filter",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:p.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:logIssue",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:invalidPlaceholders.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:logIssue",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:Math.max",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report.issues.reduce",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditSkill",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:report.issues.map",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:filePath.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.relative(PROJECT_ROOT, filePath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:type.toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:getTemplateStructure",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:validateAgainstStructure",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:createTemplateRule",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:errors.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.readdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.relative(ROOT_DIR, fullPath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:ig.ignores",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.statSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:stat.isDirectory",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.extname",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.relative(ROOT_DIR, filePath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rules.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rules.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:relPath.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rules.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rules.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rules.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:lines.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rule.regex.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rule.validate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:line.trim().substring",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:rule.validate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:errors.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-project.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "file:.agents/skills/local-dispatcher/scripts/audit-security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:fs.readdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:path.relative(ROOT_DIR, fullPath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:ig.ignores",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:fs.statSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:stat.isDirectory",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:path.extname",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:scan",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:path.relative(ROOT_DIR, filePath).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:path.relative",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:relPath.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:securityRules.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:lines.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:rule.regex.test",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:rule.validate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:line.trim().substring",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:auditFile",
+    "target": "function:.agents/skills/local-dispatcher/scripts/audit-security.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "file:.agents/skills/local-dispatcher/scripts/sync-ignores.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:JSON.parse",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:content.indexOf",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:content.indexOf",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:content.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:JSON.stringify(common, null, 2).replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:JSON.stringify",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:content.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.writeFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:lineBased.forEach",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.writeFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:lb.patterns.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:JSON.parse",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.warn",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:path.dirname",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.mkdirSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:fs.writeFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:JSON.stringify",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:syncIgnores",
+    "target": "function:.agents/skills/local-dispatcher/scripts/sync-ignores.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "file:.agents/skills/release/scripts/deploy-perchance.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:new Date().toISOString().substring",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:new Date().toISOString",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:createInterface",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:rl.question",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:rl.close",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:resolve",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:answer.trim().toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:answer.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:existsSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:readFileSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:right_content.replace(/\\\\\\[/g, \"\\\\\\\\\\\\[\").replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:right_content.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:right_content.replace(/(?<!\\\\)\\[/g, \"\\\\[\").replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:right_content.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Buffer.byteLength",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Buffer.byteLength",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(left_size / 1024).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:left_content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(right_size / 1024).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:right_content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(right_size / 1024).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(left_size / 1024).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:chromium.launchPersistentContext",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:context.pages",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:context.newPage",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:CONFIG.perchance_url.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.goto",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.title",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:title.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:title.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.$",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.title.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.title.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Array.from",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelectorAll",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:specBtn.click",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(btn.textContent || \"\").toLowerCase().trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(btn.textContent || \"\").toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:exactKeywords.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:btn.click",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(btn.textContent || \"\").toLowerCase().trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(btn.textContent || \"\").toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fuzzyKeywords.some",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:text.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:btn.click",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page\n            .waitForFunction(\n              () => {\n                const overlay = document.querySelector('.qc-cmp2-container, #qc-cmp2-container, [class*=\"cmp-modal\"]');\n                return !overlay || window.getComputedStyle(overlay).display === \"none\";\n              },\n              { timeout: 10000 },\n            )\n            .catch",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page\n            .waitForFunction",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.getComputedStyle",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.frames",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:frame.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelectorAll",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(btn.textContent || \"\").toLowerCase().trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(btn.textContent || \"\").toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:keywords.some",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:text.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:btn.click",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.getComputedStyle",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.goto",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Date.now",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.app.goToEditMode",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Date.now",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Date.now",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:((Date.now() - start) / 1000).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:Date.now",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:view.dispatch",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:view.dispatch",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.app.saveGenerator",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForFunction",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector(\"#outputIframeEl\")?.src?.substring",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:resolve",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.screenshot",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:navigator.clipboard.writeText",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:context.close",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:overlay.remove",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.app.openLoginModal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForSelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForTimeout",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.$",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.$",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:fatal",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:email_input.fill",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:password_input.fill",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.$",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:submit_btn.click",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.evaluate",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.loginModal.login",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.app.loginModal.login",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:page.waitForFunction",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:document.querySelector",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:window.getComputedStyle",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:attempt_login",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:pre_flight",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:prompt_user",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(payload.left_size / 1024).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:(payload.right_size / 1024).toFixed",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:deploy",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/release/scripts/deploy-perchance.js:main",
+    "target": "function:.agents/skills/release/scripts/deploy-perchance.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/simulation/scripts/test-setup.js:mock_llm_success",
+    "target": "file:.agents/skills/simulation/scripts/test-setup.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/simulation/scripts/test-setup.js:mock_llm_success",
+    "target": "function:.agents/skills/simulation/scripts/test-setup.js:vi.mocked(window.ai).mockResolvedValue",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/simulation/scripts/test-setup.js:mock_llm_success",
+    "target": "function:.agents/skills/simulation/scripts/test-setup.js:vi.mocked",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:init",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandPlan",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "file:.agents/skills/swarm/scripts/cli.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:init",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.mkdir",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:arg.startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:arg.slice(2).split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:arg.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:parsed.positional.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:future.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:future.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:match[1].match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readdir",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:files.filter",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:f.endsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.stat",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:newest.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:getActiveTrack",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:path.join",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.access",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:content.split",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.includes",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.match",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:tasks.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:match[1].toLowerCase",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:match[2].trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.trim().startsWith",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.replace('- Files:', '').trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.replace",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:[...filesStr.matchAll(/`([^`]+)`/g)].map",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:filesStr.matchAll",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:line.trim",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:tasks.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandPlan",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandPlan",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:parseArgs",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:getTrackFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:parseTasksMarkdown",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:tasks.filter",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.exit",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:path.resolve",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:jules.with",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:client.all",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:sessionsList.push",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.writeFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:JSON.stringify",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:JSON.parse",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:jules.with",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:client.getSession",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:JSON.parse",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:execSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:execSync",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.error",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.stdin.resume",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.stdin.once",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.stdin.pause",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:JSON.parse",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:fs.readFile",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:jules.with",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:client.cancelSession",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:init",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:process.argv.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:commandPlan",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:commandDispatch",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:args.slice",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:commandStatus",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:commandMerge",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:commandCancel",
+    "type": "calls"
+  },
+  {
+    "source": "function:.agents/skills/swarm/scripts/cli.js:main",
+    "target": "function:.agents/skills/swarm/scripts/cli.js:console.log",
+    "type": "calls"
+  }
+]
