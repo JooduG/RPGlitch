@@ -524,12 +524,12 @@
     },
     {
       "source": "function:src/ui/molecules/VisualWing.svelte#handle_creative_action",
-      "target": "function:unknown#prompt_builder.build_enhancement",
+      "target": "function:src/intelligence/index.js#prompt_builder.build_enhancement",
       "type": "calls"
     },
     {
       "source": "function:src/ui/molecules/VisualWing.svelte#handle_creative_action",
-      "target": "function:unknown#llm_service.enhance",
+      "target": "function:src/platform/index.js#llm_service.enhance",
       "type": "calls"
     },
     {
