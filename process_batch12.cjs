@@ -8,6 +8,7 @@ const batchImportData = batchInput.batchImportData || {};
 
 const nodes = [];
 const edges = [];
+const fileCache = {};
 
 for (const file of batchInput.files) {
     let nType = 'file';
@@ -143,21 +144,26 @@ for (const res of extractOutput.results) {
             let callee = call.callee;
 
             if (callee.includes('(')) {
-                const match = callee.match(/([a-zA-Z_$][a-zA-Z0-9_$]*)\s*\(/);
-                if (match) {
-                    callee = match[1];
-                } else {
-                    continue;
-                }
+                callee = callee.split('(')[0].trim();
             }
 
             if (callee.includes('.')) {
                 if (callee.startsWith('this.')) {
                     callee = callee.replace('this.', '');
-                } else if (callee.startsWith('app.') || callee.startsWith('runtime.') || callee.startsWith('prompt_builder.') || callee.startsWith('llm_service.') || callee.startsWith('temporal_engine.') || callee.startsWith('db.') || callee.startsWith('busy_fields.')) {
-                    // Let these pass for now, we'll try to find them
                 } else {
-                    continue;
+                    const baseName = callee.split('.')[0];
+                    const isSystemPrefix = ['app', 'runtime', 'prompt_builder', 'llm_service', 'temporal_engine', 'db', 'busy_fields'].includes(baseName);
+                    if (!isSystemPrefix) {
+                        try {
+                            if (!fileCache[callerPath]) {
+                                fileCache[callerPath] = fs.readFileSync(callerPath, 'utf8');
+                            }
+                            const content = fileCache[callerPath];
+                            if (!content.includes(baseName)) continue;
+                        } catch (e) { 
+                            continue;
+                        }
+                    }
                 }
             }
 
@@ -178,8 +184,11 @@ for (const res of extractOutput.results) {
                try {
                    // FIX: Use callerPath instead of res.path to resolve imports correctly
                    // for functions mapped to a different file
-                   const content = fs.readFileSync(callerPath, 'utf8');
-                   const importRegex = /import\s+.*?\{([^}]+)\}.*?from\s+['"]([^'"]+)['"]/g;
+                   if (!fileCache[callerPath]) {
+                       fileCache[callerPath] = fs.readFileSync(callerPath, 'utf8');
+                   }
+                   const content = fileCache[callerPath];
+                   const importRegex = /import\s+[^;]*?\{([^}]+)\}[^;]*?from\s+['"]([^'"]+)['"]/g;
                    let match;
                    let foundModule = null;
 
@@ -193,7 +202,7 @@ for (const res of extractOutput.results) {
                        }
                    }
                    if (!foundModule) {
-                       const defaultImportRegex = /import\s+([a-zA-Z_$][a-zA-Z0-9_$]*).*?from\s+['"]([^'"]+)['"]/g;
+                       const defaultImportRegex = /import\s+([a-zA-Z_$][a-zA-Z0-9_$]*)[^;]*?from\s+['"]([^'"]+)['"]/g;
                        while ((match = defaultImportRegex.exec(content)) !== null) {
                            if (match[1] === baseName) {
                                foundModule = match[2];
@@ -209,6 +218,10 @@ for (const res of extractOutput.results) {
                        else if (foundModule === '@data') foundModule = 'src/data/index.js';
                        else if (foundModule === '@state') foundModule = 'src/state/index.js';
                        else if (foundModule === '@platform') foundModule = 'src/platform/index.js';
+                       else if (foundModule === '@media') foundModule = 'src/media/index.js';
+                       else if (foundModule === '@atoms') foundModule = 'src/ui/atoms/index.js';
+                       else if (foundModule === '@molecules') foundModule = 'src/ui/molecules/index.js';
+                       else if (foundModule === '@organisms') foundModule = 'src/ui/organisms/index.js';
                        else if (foundModule.startsWith('.')) {
                            let resDir = path.dirname(callerPath);
                            foundModule = path.join(resDir, foundModule);
@@ -217,6 +230,8 @@ for (const res of extractOutput.results) {
                        if (!foundModule.endsWith('.js') && !foundModule.endsWith('.svelte')) {
                            if (fs.existsSync(foundModule + '.js')) foundModule += '.js';
                            else if (fs.existsSync(foundModule + '/index.js')) foundModule += '/index.js';
+                       } else if (foundModule.endsWith('.svelte') && fs.existsSync(foundModule + '.js')) {
+                           foundModule += '.js';
                        }
 
                        foundModule = foundModule.replace(/\\/g, '/');

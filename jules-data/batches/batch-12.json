@@ -713,6 +713,21 @@
       "type": "calls"
     },
     {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:unknown#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:unknown#list.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:unknown#console.error",
+      "type": "calls"
+    },
+    {
       "source": "function:src/ui/organisms/profile.svelte.js#delete",
       "target": "function:src/state/index.js#runtime.delete_entity",
       "type": "calls"
@@ -720,6 +735,11 @@
     {
       "source": "function:src/ui/organisms/profile.svelte.js#delete",
       "target": "function:src/state/index.js#app.toggle_profile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#delete",
+      "target": "function:unknown#console.error",
       "type": "calls"
     },
     {
@@ -759,6 +779,11 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:unknown#console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
       "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
@@ -784,7 +809,47 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#cleanJsonText.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#cleanJsonText.lastIndexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#cleanJsonText.substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
       "target": "function:src/ui/utils/index.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#val.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#JSON.stringify",
       "type": "calls"
     },
     {
@@ -804,6 +869,11 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:unknown#console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
       "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
@@ -814,7 +884,22 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:unknown#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:unknown#raw.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
       "target": "function:src/engine/index.js#generateUUID",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:unknown#Date.now",
       "type": "calls"
     },
     {
@@ -830,6 +915,11 @@
     {
       "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
       "target": "function:src/ui/utils/index.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
+      "target": "function:unknown#",
       "type": "calls"
     },
     {
@@ -853,8 +943,28 @@
       "type": "calls"
     },
     {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "function:unknown#Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "function:unknown#Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "function:unknown#dataUrl.trim",
+      "type": "calls"
+    },
+    {
       "source": "function:src/ui/organisms/profile.svelte.js#setImage",
       "target": "function:src/data/index.js#db.entities.update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "function:unknown#Date.now",
       "type": "calls"
     },
     {
