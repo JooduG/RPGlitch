@@ -1,5 +1,5 @@
 ---
-name: sfw-premades
+name: premades
 description: Use when modifying the src/data/premades.js file, specifically when instructed to convert the standard premades to SFW (Safe For Work) or when sanitizing character and fractal content.
 ---
 
