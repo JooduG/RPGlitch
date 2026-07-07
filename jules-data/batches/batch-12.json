@@ -276,20 +276,20 @@
       "complexity": "simple"
     },
     {
-      "id": "function:src/ui/molecules/VisualWing.test.js#ensureModifiers",
+      "id": "function:src/ui/molecules/VisualWing.svelte#sync_modifiers",
       "type": "function",
-      "name": "ensureModifiers",
-      "filePath": "src/ui/molecules/VisualWing.test.js",
-      "summary": "Function ensureModifiers",
+      "name": "sync_modifiers",
+      "filePath": "src/ui/molecules/VisualWing.svelte",
+      "summary": "Function sync_modifiers",
       "tags": [],
       "complexity": "simple"
     },
     {
-      "id": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "id": "function:src/ui/molecules/VisualWing.svelte#handle_creative_action",
       "type": "function",
-      "name": "handleCreativeAction",
-      "filePath": "src/ui/molecules/VisualWing.test.js",
-      "summary": "Function handleCreativeAction",
+      "name": "handle_creative_action",
+      "filePath": "src/ui/molecules/VisualWing.svelte",
+      "summary": "Function handle_creative_action",
       "tags": [],
       "complexity": "simple"
     },
@@ -513,22 +513,22 @@
       "type": "imports"
     },
     {
-      "source": "function:src/ui/molecules/VisualWing.test.js#ensureModifiers",
-      "target": "file:src/ui/molecules/VisualWing.test.js",
+      "source": "function:src/ui/molecules/VisualWing.svelte#sync_modifiers",
+      "target": "file:src/ui/molecules/VisualWing.svelte",
       "type": "defined_in"
     },
     {
-      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
-      "target": "file:src/ui/molecules/VisualWing.test.js",
+      "source": "function:src/ui/molecules/VisualWing.svelte#handle_creative_action",
+      "target": "file:src/ui/molecules/VisualWing.svelte",
       "type": "defined_in"
     },
     {
-      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "source": "function:src/ui/molecules/VisualWing.svelte#handle_creative_action",
       "target": "function:unknown#prompt_builder.build_enhancement",
       "type": "calls"
     },
     {
-      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "source": "function:src/ui/molecules/VisualWing.svelte#handle_creative_action",
       "target": "function:unknown#llm_service.enhance",
       "type": "calls"
     },
@@ -754,11 +754,6 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
-      "target": "function:src/intelligence/index.js#strip_cognition_blocks",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
       "target": "function:src/ui/utils/index.js#set_value",
       "type": "calls"
     },
@@ -774,47 +769,12 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.add",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.add",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.add",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.add",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.add",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.add",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
       "target": "function:src/intelligence/index.js#prompt_builder.build_profile_sorting_prompt",
       "type": "calls"
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
       "target": "function:src/platform/index.js#llm_service.enhance",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/intelligence/index.js#strip_cognition_blocks",
       "type": "calls"
     },
     {
@@ -844,46 +804,6 @@
     },
     {
       "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/utils/index.js#set_value",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:src/ui/utils/index.js#set_value",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
-      "target": "function:unknown#busy_fields.delete",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
       "target": "function:unknown#busy_fields.delete",
       "type": "calls"
     },
@@ -910,11 +830,6 @@
     {
       "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
       "target": "function:src/ui/utils/index.js#set_value",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
-      "target": "function:src/ui/utils/index.js#get_value",
       "type": "calls"
     },
     {
