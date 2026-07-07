@@ -1,0 +1,787 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/ui/atoms/TextField.svelte",
+      "type": "file",
+      "name": "TextField.svelte",
+      "filePath": "src/ui/atoms/TextField.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/TextField.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Toggle.svelte",
+      "type": "file",
+      "name": "Toggle.svelte",
+      "filePath": "src/ui/atoms/Toggle.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Toggle.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Tooltip.svelte",
+      "type": "file",
+      "name": "Tooltip.svelte",
+      "filePath": "src/ui/atoms/Tooltip.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Tooltip.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/AudioWing.svelte",
+      "type": "file",
+      "name": "AudioWing.svelte",
+      "filePath": "src/ui/molecules/AudioWing.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/AudioWing.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/DevTelemetryBlock.svelte",
+      "type": "file",
+      "name": "DevTelemetryBlock.svelte",
+      "filePath": "src/ui/molecules/DevTelemetryBlock.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/DevTelemetryBlock.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/DevWing.svelte",
+      "type": "file",
+      "name": "DevWing.svelte",
+      "filePath": "src/ui/molecules/DevWing.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/DevWing.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/Dialog.svelte",
+      "type": "file",
+      "name": "Dialog.svelte",
+      "filePath": "src/ui/molecules/Dialog.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/Dialog.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/EntityCard.svelte",
+      "type": "file",
+      "name": "EntityCard.svelte",
+      "filePath": "src/ui/molecules/EntityCard.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/EntityCard.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/ImportEntity.svelte",
+      "type": "file",
+      "name": "ImportEntity.svelte",
+      "filePath": "src/ui/molecules/ImportEntity.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/ImportEntity.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/ui/molecules/index.js",
+      "summary": "Deterministic extraction for src/ui/molecules/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/Message.svelte",
+      "type": "file",
+      "name": "Message.svelte",
+      "filePath": "src/ui/molecules/Message.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/Message.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/StoryCard.svelte",
+      "type": "file",
+      "name": "StoryCard.svelte",
+      "filePath": "src/ui/molecules/StoryCard.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/StoryCard.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/UnifiedConsole.svelte",
+      "type": "file",
+      "name": "UnifiedConsole.svelte",
+      "filePath": "src/ui/molecules/UnifiedConsole.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/UnifiedConsole.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/VisualWing.svelte",
+      "type": "file",
+      "name": "VisualWing.svelte",
+      "filePath": "src/ui/molecules/VisualWing.svelte",
+      "summary": "Deterministic extraction for src/ui/molecules/VisualWing.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/molecules/VisualWing.test.js",
+      "type": "file",
+      "name": "VisualWing.test.js",
+      "filePath": "src/ui/molecules/VisualWing.test.js",
+      "summary": "Deterministic extraction for src/ui/molecules/VisualWing.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/motion/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/ui/motion/index.js",
+      "summary": "Deterministic extraction for src/ui/motion/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/motion/Typewriter.svelte",
+      "type": "file",
+      "name": "Typewriter.svelte",
+      "filePath": "src/ui/motion/Typewriter.svelte",
+      "summary": "Deterministic extraction for src/ui/motion/Typewriter.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/motion/typewriter.svelte.js",
+      "type": "file",
+      "name": "typewriter.svelte.js",
+      "filePath": "src/ui/motion/typewriter.svelte.js",
+      "summary": "Deterministic extraction for src/ui/motion/typewriter.svelte.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/CardHand.svelte",
+      "type": "file",
+      "name": "CardHand.svelte",
+      "filePath": "src/ui/organisms/CardHand.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/CardHand.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/ui/organisms/index.js",
+      "summary": "Deterministic extraction for src/ui/organisms/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/Layout.svelte",
+      "type": "file",
+      "name": "Layout.svelte",
+      "filePath": "src/ui/organisms/Layout.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/Layout.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/Profile.svelte",
+      "type": "file",
+      "name": "Profile.svelte",
+      "filePath": "src/ui/organisms/Profile.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/Profile.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/profile.svelte.js",
+      "type": "file",
+      "name": "profile.svelte.js",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Deterministic extraction for src/ui/organisms/profile.svelte.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/profile.test.js",
+      "type": "file",
+      "name": "profile.test.js",
+      "filePath": "src/ui/organisms/profile.test.js",
+      "summary": "Deterministic extraction for src/ui/organisms/profile.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/ProfileArray.svelte",
+      "type": "file",
+      "name": "ProfileArray.svelte",
+      "filePath": "src/ui/organisms/ProfileArray.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/ProfileArray.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/molecules/VisualWing.test.js#ensureModifiers",
+      "type": "function",
+      "name": "ensureModifiers",
+      "filePath": "src/ui/molecules/VisualWing.test.js",
+      "summary": "Function ensureModifiers",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "type": "function",
+      "name": "handleCreativeAction",
+      "filePath": "src/ui/molecules/VisualWing.test.js",
+      "summary": "Function handleCreativeAction",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/motion/typewriter.svelte.js#typewriter",
+      "type": "function",
+      "name": "typewriter",
+      "filePath": "src/ui/motion/typewriter.svelte.js",
+      "summary": "Function typewriter",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "type": "class",
+      "name": "ProfileState",
+      "filePath": "src/ui/organisms/profile.svelte.js",
+      "summary": "Class ProfileState",
+      "tags": [],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:src/ui/motion/typewriter.svelte.js",
+      "target": "file:src/ui/motion/Typewriter.svelte",
+      "type": "imports"
+    },
+    {
+      "source": "file:src/ui/organisms/profile.test.js",
+      "target": "file:src/ui/organisms/profile.svelte.js",
+      "type": "imports"
+    },
+    {
+      "source": "function:src/ui/molecules/VisualWing.test.js#ensureModifiers",
+      "target": "file:src/ui/molecules/VisualWing.test.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "target": "file:src/ui/molecules/VisualWing.test.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "target": "function:src/ui/molecules/VisualWing.test.js#prompt_builder.build_enhancement",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "target": "function:src/ui/molecules/VisualWing.test.js#llm_service.enhance",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/molecules/VisualWing.test.js#handleCreativeAction",
+      "target": "function:src/ui/molecules/VisualWing.test.js#TextToImage.composeBasePrompt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/motion/typewriter.svelte.js#typewriter",
+      "target": "file:src/ui/motion/typewriter.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/motion/typewriter.svelte.js#typewriter",
+      "target": "function:src/ui/motion/typewriter.svelte.js#$state",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/motion/typewriter.svelte.js#typewriter",
+      "target": "function:src/ui/motion/typewriter.svelte.js#mount",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/motion/typewriter.svelte.js#destroy",
+      "target": "function:src/ui/motion/typewriter.svelte.js#unmount",
+      "type": "calls"
+    },
+    {
+      "source": "class:src/ui/organisms/profile.svelte.js#ProfileState",
+      "target": "file:src/ui/organisms/profile.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#constructor",
+      "target": "function:src/ui/organisms/profile.svelte.js#normalize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#sync",
+      "target": "function:src/ui/organisms/profile.svelte.js#normalize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#get_safe_value",
+      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#set_field_value",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#handle_close",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.cancel",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#handle_close",
+      "target": "function:src/ui/organisms/profile.svelte.js#app.toggle_profile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#cancel",
+      "target": "function:src/ui/organisms/profile.svelte.js#normalize",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#cancel",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.reset_active_field",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:src/ui/organisms/profile.svelte.js#runtime.save_entity",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:src/ui/organisms/profile.svelte.js#app.load_entities",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:src/ui/organisms/profile.svelte.js#list.find",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#save",
+      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#delete",
+      "target": "function:src/ui/organisms/profile.svelte.js#runtime.delete_entity",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#delete",
+      "target": "function:src/ui/organisms/profile.svelte.js#app.toggle_profile",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#delete",
+      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.has",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.enhance_field_inner",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#prompt_builder.build_enhancement",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#llm_service.enhance",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks(result).trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_field_inner",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.add",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#prompt_builder.build_profile_sorting_prompt",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#llm_service.enhance",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks(result).trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#strip_cognition_blocks",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#cleanJsonText.indexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#cleanJsonText.lastIndexOf",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#JSON.parse",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#cleanJsonText.substring",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#val.map",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#JSON.stringify",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#temporal_engine.create",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#generateUUID",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#Object.entries",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#enhance_profile",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.busy_fields.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#raw.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#generateUUID",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#add_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#patch_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#(get_value(this.char, path) || []).filter",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#remove_vector_item",
+      "target": "function:src/ui/organisms/profile.svelte.js#set_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "function:src/ui/organisms/profile.svelte.js#get_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "function:src/ui/organisms/profile.svelte.js#this.patch_vector_item",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "function:src/ui/organisms/profile.svelte.js#Math.min",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#update_vector_weight",
+      "target": "function:src/ui/organisms/profile.svelte.js#Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "function:src/ui/organisms/profile.svelte.js#dataUrl.trim",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "function:src/ui/organisms/profile.svelte.js#db.entities.update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "function:src/ui/organisms/profile.svelte.js#Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/organisms/profile.svelte.js#setImage",
+      "target": "function:src/ui/organisms/profile.svelte.js#runtime.update_entity",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/ui/molecules/VisualWing.svelte",
+      "target": "file:src/ui/molecules/VisualWing.test.js",
+      "type": "tested_by"
+    },
+    {
+      "source": "file:src/ui/organisms/profile.svelte.js",
+      "target": "file:src/ui/organisms/profile.test.js",
+      "type": "tested_by"
+    }
+  ]
+}
