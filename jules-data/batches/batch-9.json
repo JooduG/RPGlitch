@@ -252,6 +252,48 @@
     "filePath": "svelte.config.js"
   },
   {
+    "id": "file:src/ui/atoms/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/ui/atoms/index.js"
+  },
+  {
+    "id": "file:src/ui/motion/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/ui/motion/index.js"
+  },
+  {
+    "id": "file:src/ui/organisms/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/ui/organisms/index.js"
+  },
+  {
+    "id": "file:src/state/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/state/index.js"
+  },
+  {
+    "id": "file:src/media/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/media/index.js"
+  },
+  {
+    "id": "file:src/platform/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/platform/index.js"
+  },
+  {
+    "id": "file:src/intelligence/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/intelligence/index.js"
+  },
+  {
     "source": "function:src/data/db.js:init",
     "target": "file:src/data/db.js",
     "type": "defined_in"
@@ -290,96 +332,6 @@
     "source": "function:src/data/normalizer.js:detox_prose",
     "target": "file:src/data/normalizer.js",
     "type": "defined_in"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:get_random_signature_key",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:coerce_temporal_array",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:coerce_temporal_array",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:normalize",
-    "target": "function:src/data/normalizer.js:sanitize_html",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:create_new",
-    "target": "function:src/data/normalizer.js:get_random_signature_key",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:create_new",
-    "target": "function:src/data/normalizer.js:normalize",
-    "type": "calls"
-  },
-  {
-    "source": "function:src/data/normalizer.js:format_premade",
-    "target": "function:src/data/normalizer.js:normalize",
-    "type": "calls"
   },
   {
     "source": "class:src/engine/chrono.svelte.js:ChronoStore",
@@ -422,6 +374,201 @@
     "type": "defined_in"
   },
   {
+    "source": "file:eslint.config.js",
+    "target": "file:svelte.config.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/App.svelte",
+    "target": "file:src/ui/atoms/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/App.svelte",
+    "target": "file:src/ui/motion/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/App.svelte",
+    "target": "file:src/ui/organisms/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/App.svelte",
+    "target": "file:src/state/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/data/normalizer.js",
+    "target": "file:src/engine/utils.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/data/normalizer.js",
+    "target": "file:src/media/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/data/normalizer.js",
+    "target": "file:src/platform/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/data/normalizer.test.js",
+    "target": "file:src/data/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/data/normalizer.test.js",
+    "target": "file:src/platform/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/App.svelte",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/data/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/media/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/platform/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.js",
+    "target": "file:src/state/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.test.js",
+    "target": "file:src/data/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.test.js",
+    "target": "file:src/engine/boot.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/boot.test.js",
+    "target": "file:src/state/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.svelte.js",
+    "target": "file:src/engine/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.svelte.js",
+    "target": "file:src/intelligence/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.svelte.js",
+    "target": "file:src/platform/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.svelte.js",
+    "target": "file:src/state/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.test.js",
+    "target": "file:src/engine/chrono.svelte.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.test.js",
+    "target": "file:src/intelligence/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.test.js",
+    "target": "file:src/platform/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/chrono.test.js",
+    "target": "file:src/state/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/config.js",
+    "target": "file:src/media/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/config.test.js",
+    "target": "file:src/engine/config.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/session.svelte.js",
+    "target": "file:src/data/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/session.svelte.js",
+    "target": "file:src/engine/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/session.svelte.js",
+    "target": "file:src/state/index.js",
+    "type": "imports"
+  },
+  {
+    "source": "file:src/engine/utils.test.js",
+    "target": "file:src/engine/utils.js",
+    "type": "imports"
+  },
+  {
+    "source": "function:src/data/normalizer.js:get_random_signature_key",
+    "target": "function:src/engine/utils.js:pickRandom",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:sanitize_html",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:get_random_signature_key",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:normalize",
+    "target": "function:src/data/normalizer.js:coerce_temporal_array",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:create_new",
+    "target": "function:src/data/normalizer.js:get_random_signature_key",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:create_new",
+    "target": "function:src/data/normalizer.js:normalize",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/data/normalizer.js:format_premade",
+    "target": "function:src/data/normalizer.js:normalize",
+    "type": "calls"
+  },
+  {
     "source": "function:src/engine/utils.js:pickRandom",
     "target": "function:src/engine/utils.js:generateSecureSeed",
     "type": "calls"
@@ -460,30 +607,5 @@
     "source": "file:src/engine/utils.js",
     "target": "file:src/engine/utils.test.js",
     "type": "tested_by"
-  },
-  {
-    "source": "file:eslint.config.js",
-    "target": "file:svelte.config.js",
-    "type": "imports"
-  },
-  {
-    "source": "file:src/engine/boot.js",
-    "target": "file:src/App.svelte",
-    "type": "imports"
-  },
-  {
-    "source": "file:src/engine/chrono.test.js",
-    "target": "file:src/engine/chrono.svelte.js",
-    "type": "imports"
-  },
-  {
-    "source": "file:src/engine/config.test.js",
-    "target": "file:src/engine/config.js",
-    "type": "imports"
-  },
-  {
-    "source": "file:src/engine/utils.test.js",
-    "target": "file:src/engine/utils.js",
-    "type": "imports"
   }
 ]
