@@ -1,0 +1,860 @@
+[
+  {
+    "id": "document:src/index.html",
+    "type": "document",
+    "name": "index.html",
+    "filePath": "src/index.html"
+  },
+  {
+    "id": "file:src/intelligence/context.test.js",
+    "type": "file",
+    "name": "context.test.js",
+    "filePath": "src/intelligence/context.test.js"
+  },
+  {
+    "id": "file:src/intelligence/fragments.js",
+    "type": "file",
+    "name": "fragments.js",
+    "filePath": "src/intelligence/fragments.js"
+  },
+  {
+    "id": "function:src/intelligence/fragments.js:format_key_as_label",
+    "type": "function",
+    "name": "format_key_as_label",
+    "filePath": "src/intelligence/fragments.js"
+  },
+  {
+    "id": "function:src/intelligence/fragments.js:build_entity_catalog",
+    "type": "function",
+    "name": "build_entity_catalog",
+    "filePath": "src/intelligence/fragments.js"
+  },
+  {
+    "id": "function:src/intelligence/fragments.js:build_profile_sections",
+    "type": "function",
+    "name": "build_profile_sections",
+    "filePath": "src/intelligence/fragments.js"
+  },
+  {
+    "id": "file:src/intelligence/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/intelligence/index.js"
+  },
+  {
+    "id": "file:src/intelligence/kernel.js",
+    "type": "file",
+    "name": "kernel.js",
+    "filePath": "src/intelligence/kernel.js"
+  },
+  {
+    "id": "function:src/intelligence/kernel.js:parse_director_json",
+    "type": "function",
+    "name": "parse_director_json",
+    "filePath": "src/intelligence/kernel.js"
+  },
+  {
+    "id": "function:src/intelligence/kernel.js:validate_and_repair_response",
+    "type": "function",
+    "name": "validate_and_repair_response",
+    "filePath": "src/intelligence/kernel.js"
+  },
+  {
+    "id": "file:src/intelligence/kernel.test.js",
+    "type": "file",
+    "name": "kernel.test.js",
+    "filePath": "src/intelligence/kernel.test.js"
+  },
+  {
+    "id": "file:src/intelligence/parser.js",
+    "type": "file",
+    "name": "parser.js",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:parse_think_block",
+    "type": "function",
+    "name": "parse_think_block",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:strip_cognition_blocks",
+    "type": "function",
+    "name": "strip_cognition_blocks",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:clean_image_prompts",
+    "type": "function",
+    "name": "clean_image_prompts",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:wrap_dialogue",
+    "type": "function",
+    "name": "wrap_dialogue",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:parse_message",
+    "type": "function",
+    "name": "parse_message",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:escapeXml",
+    "type": "function",
+    "name": "escapeXml",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:clean_text",
+    "type": "function",
+    "name": "clean_text",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "function:src/intelligence/parser.js:clean_xml",
+    "type": "function",
+    "name": "clean_xml",
+    "filePath": "src/intelligence/parser.js"
+  },
+  {
+    "id": "file:src/intelligence/parser.test.js",
+    "type": "file",
+    "name": "parser.test.js",
+    "filePath": "src/intelligence/parser.test.js"
+  },
+  {
+    "id": "file:src/intelligence/prompts.test.js",
+    "type": "file",
+    "name": "prompts.test.js",
+    "filePath": "src/intelligence/prompts.test.js"
+  },
+  {
+    "id": "file:src/intelligence/temporal.test.js",
+    "type": "file",
+    "name": "temporal.test.js",
+    "filePath": "src/intelligence/temporal.test.js"
+  },
+  {
+    "id": "file:src/main.js",
+    "type": "file",
+    "name": "main.js",
+    "filePath": "src/main.js"
+  },
+  {
+    "id": "file:src/media/audio.svelte.js",
+    "type": "file",
+    "name": "audio.svelte.js",
+    "filePath": "src/media/audio.svelte.js"
+  },
+  {
+    "id": "class:src/media/audio.svelte.js:VoiceEngine",
+    "type": "class",
+    "name": "VoiceEngine",
+    "filePath": "src/media/audio.svelte.js"
+  },
+  {
+    "id": "class:src/media/audio.svelte.js:AudioEffectsEngine",
+    "type": "class",
+    "name": "AudioEffectsEngine",
+    "filePath": "src/media/audio.svelte.js"
+  },
+  {
+    "id": "document:src/media/design.css",
+    "type": "document",
+    "name": "design.css",
+    "filePath": "src/media/design.css"
+  },
+  {
+    "id": "file:src/media/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/media/index.js"
+  },
+  {
+    "id": "file:src/media/optics.js",
+    "type": "file",
+    "name": "optics.js",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:safeParsePseudoJson",
+    "type": "function",
+    "name": "safeParsePseudoJson",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:parseListTokens",
+    "type": "function",
+    "name": "parseListTokens",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:formatDimension",
+    "type": "function",
+    "name": "formatDimension",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:flattenToParagraph",
+    "type": "function",
+    "name": "flattenToParagraph",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:flatten_physical",
+    "type": "function",
+    "name": "flatten_physical",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:buildDimensionsContext",
+    "type": "function",
+    "name": "buildDimensionsContext",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:getResolution",
+    "type": "function",
+    "name": "getResolution",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "file:src/media/resilience.js",
+    "type": "file",
+    "name": "resilience.js",
+    "filePath": "src/media/resilience.js"
+  },
+  {
+    "id": "class:src/media/resilience.js:ExponentialBackoffRetryer",
+    "type": "class",
+    "name": "ExponentialBackoffRetryer",
+    "filePath": "src/media/resilience.js"
+  },
+  {
+    "id": "class:src/media/resilience.js:CircuitBreaker",
+    "type": "class",
+    "name": "CircuitBreaker",
+    "filePath": "src/media/resilience.js"
+  },
+  {
+    "id": "file:src/media/resilience.test.js",
+    "type": "file",
+    "name": "resilience.test.js",
+    "filePath": "src/media/resilience.test.js"
+  },
+  {
+    "id": "file:src/media/tokens.js",
+    "type": "file",
+    "name": "tokens.js",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "function:src/media/tokens.js:_hash",
+    "type": "function",
+    "name": "_hash",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "function:src/media/tokens.js:resolve_token",
+    "type": "function",
+    "name": "resolve_token",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "function:src/media/tokens.js:get_deterministic_color",
+    "type": "function",
+    "name": "get_deterministic_color",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "function:src/media/tokens.js:get_color_name",
+    "type": "function",
+    "name": "get_color_name",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "function:src/media/tokens.js:get_signature_label",
+    "type": "function",
+    "name": "get_signature_label",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "function:src/media/tokens.js:get_signature_color",
+    "type": "function",
+    "name": "get_signature_color",
+    "filePath": "src/media/tokens.js"
+  },
+  {
+    "id": "file:src/media/tokens.test.js",
+    "type": "file",
+    "name": "tokens.test.js",
+    "filePath": "src/media/tokens.test.js"
+  },
+  {
+    "id": "file:src/media/visual.svelte.js",
+    "type": "file",
+    "name": "visual.svelte.js",
+    "filePath": "src/media/visual.svelte.js"
+  },
+  {
+    "id": "function:src/media/visual.svelte.js:findImageEngine",
+    "type": "function",
+    "name": "findImageEngine",
+    "filePath": "src/media/visual.svelte.js"
+  },
+  {
+    "id": "class:src/media/visual.svelte.js:VisualEngine",
+    "type": "class",
+    "name": "VisualEngine",
+    "filePath": "src/media/visual.svelte.js"
+  },
+  {
+    "id": "file:src/platform/index.js",
+    "type": "file",
+    "name": "index.js",
+    "filePath": "src/platform/index.js"
+  },
+  {
+    "id": "file:src/platform/security.js",
+    "type": "file",
+    "name": "security.js",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "function:src/platform/security.js:sanitize",
+    "type": "function",
+    "name": "sanitize",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "function:src/platform/security.js:sanitizeToFragment",
+    "type": "function",
+    "name": "sanitizeToFragment",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "function:src/platform/security.js:escape",
+    "type": "function",
+    "name": "escape",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "function:src/platform/security.js:checkRefusal",
+    "type": "function",
+    "name": "checkRefusal",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "function:src/platform/security.js:clean",
+    "type": "function",
+    "name": "clean",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "function:src/platform/security.js:validateImage",
+    "type": "function",
+    "name": "validateImage",
+    "filePath": "src/platform/security.js"
+  },
+  {
+    "id": "file:src/platform/security.test.js",
+    "type": "file",
+    "name": "security.test.js",
+    "filePath": "src/platform/security.test.js"
+  },
+  {
+    "id": "file:src/platform/transport.js",
+    "type": "file",
+    "name": "transport.js",
+    "filePath": "src/platform/transport.js"
+  },
+  {
+    "id": "function:src/platform/transport.js:sanitize_llm",
+    "type": "function",
+    "name": "sanitize_llm",
+    "filePath": "src/platform/transport.js"
+  },
+  {
+    "id": "file:src/RPGlitch-left-panel.perchance",
+    "type": "file",
+    "name": "RPGlitch-left-panel.perchance",
+    "filePath": "src/RPGlitch-left-panel.perchance"
+  },
+  {
+    "id": "function:src/intelligence/kernel.js:execute_turn",
+    "type": "function",
+    "name": "execute_turn",
+    "filePath": "src/intelligence/kernel.js"
+  },
+  {
+    "id": "function:src/media/optics.js:extract",
+    "type": "function",
+    "name": "extract",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:physical_to_xml",
+    "type": "function",
+    "name": "physical_to_xml",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/optics.js:renderEntity",
+    "type": "function",
+    "name": "renderEntity",
+    "filePath": "src/media/optics.js"
+  },
+  {
+    "id": "function:src/media/tokens.test.js:get_signature",
+    "type": "function",
+    "name": "get_signature",
+    "filePath": "src/media/tokens.test.js"
+  },
+  {
+    "id": "function:src/media/visual.svelte.js:generate",
+    "type": "function",
+    "name": "generate",
+    "filePath": "src/media/visual.svelte.js"
+  },
+  {
+    "id": "function:src/media/visual.svelte.js:upload",
+    "type": "function",
+    "name": "upload",
+    "filePath": "src/media/visual.svelte.js"
+  },
+  {
+    "id": "function:src/media/visual.svelte.js:_cleanPrompt",
+    "type": "function",
+    "name": "_cleanPrompt",
+    "filePath": "src/media/visual.svelte.js"
+  },
+  {
+    "id": "function:src/platform/transport.js:enhance",
+    "type": "function",
+    "name": "enhance",
+    "filePath": "src/platform/transport.js"
+  },
+  {
+    "source": "function:src/intelligence/fragments.js:format_key_as_label",
+    "target": "file:src/intelligence/fragments.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/fragments.js:build_entity_catalog",
+    "target": "file:src/intelligence/fragments.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/fragments.js:build_profile_sections",
+    "target": "file:src/intelligence/fragments.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/fragments.js:build_entity_catalog",
+    "target": "function:src/intelligence/fragments.js:format_key_as_label",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/fragments.js:build_profile_sections",
+    "target": "function:src/intelligence/fragments.js:format_key_as_label",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/kernel.js:parse_director_json",
+    "target": "file:src/intelligence/kernel.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/kernel.js:validate_and_repair_response",
+    "target": "file:src/intelligence/kernel.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/kernel.js:execute_turn",
+    "target": "function:src/intelligence/kernel.js:parse_director_json",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/kernel.js:execute_turn",
+    "target": "function:src/intelligence/kernel.js:validate_and_repair_response",
+    "type": "calls"
+  },
+  {
+    "source": "file:src/intelligence/kernel.js",
+    "target": "file:src/intelligence/kernel.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:parse_think_block",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:strip_cognition_blocks",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:clean_image_prompts",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:wrap_dialogue",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:parse_message",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:escapeXml",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:clean_text",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:clean_xml",
+    "target": "file:src/intelligence/parser.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:parse_message",
+    "target": "function:src/intelligence/parser.js:clean_image_prompts",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:parse_message",
+    "target": "function:src/intelligence/parser.js:parse_think_block",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:parse_message",
+    "target": "function:src/platform/security.js:sanitize",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/parser.js:parse_message",
+    "target": "function:src/intelligence/parser.js:wrap_dialogue",
+    "type": "calls"
+  },
+  {
+    "source": "file:src/intelligence/parser.js",
+    "target": "file:src/intelligence/parser.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "class:src/media/audio.svelte.js:VoiceEngine",
+    "target": "file:src/media/audio.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "class:src/media/audio.svelte.js:AudioEffectsEngine",
+    "target": "file:src/media/audio.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:safeParsePseudoJson",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:parseListTokens",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:formatDimension",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:flattenToParagraph",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:flatten_physical",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:buildDimensionsContext",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:getResolution",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:formatDimension",
+    "target": "function:src/media/optics.js:parseListTokens",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:formatDimension",
+    "target": "function:src/intelligence/parser.js:escapeXml",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:flattenToParagraph",
+    "target": "function:src/media/optics.js:flattenToParagraph",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:flatten_physical",
+    "target": "function:src/media/optics.js:safeParsePseudoJson",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:extract",
+    "target": "function:src/media/optics.js:safeParsePseudoJson",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:extract",
+    "target": "function:src/media/tokens.js:get_signature_label",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:buildDimensionsContext",
+    "target": "function:src/media/optics.js:formatDimension",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:physical_to_xml",
+    "target": "function:src/media/optics.js:safeParsePseudoJson",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:physical_to_xml",
+    "target": "function:src/intelligence/parser.js:escapeXml",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/optics.js:renderEntity",
+    "target": "function:src/intelligence/parser.js:escapeXml",
+    "type": "calls"
+  },
+  {
+    "source": "class:src/media/resilience.js:ExponentialBackoffRetryer",
+    "target": "file:src/media/resilience.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "class:src/media/resilience.js:CircuitBreaker",
+    "target": "file:src/media/resilience.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "file:src/media/resilience.js",
+    "target": "file:src/media/resilience.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "function:src/media/tokens.js:_hash",
+    "target": "file:src/media/tokens.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.js:resolve_token",
+    "target": "file:src/media/tokens.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_deterministic_color",
+    "target": "file:src/media/tokens.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_color_name",
+    "target": "file:src/media/tokens.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_signature_label",
+    "target": "file:src/media/tokens.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_signature_color",
+    "target": "file:src/media/tokens.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_deterministic_color",
+    "target": "function:src/media/tokens.js:_hash",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_deterministic_color",
+    "target": "function:src/media/tokens.js:resolve_token",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_color_name",
+    "target": "function:src/media/tokens.js:get_color_name",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_signature_label",
+    "target": "function:src/media/tokens.js:get_color_name",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_signature_label",
+    "target": "function:src/media/tokens.js:_hash",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_signature_color",
+    "target": "function:src/media/tokens.js:resolve_token",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.js:get_signature_color",
+    "target": "function:src/media/tokens.js:get_deterministic_color",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/tokens.test.js:get_signature",
+    "target": "function:src/media/tokens.js:get_signature_color",
+    "type": "calls"
+  },
+  {
+    "source": "file:src/media/tokens.js",
+    "target": "file:src/media/tokens.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:findImageEngine",
+    "target": "file:src/media/visual.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "class:src/media/visual.svelte.js:VisualEngine",
+    "target": "file:src/media/visual.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:generate",
+    "target": "function:src/media/visual.svelte.js:findImageEngine",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:generate",
+    "target": "function:src/media/optics.js:getResolution",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:upload",
+    "target": "function:src/platform/security.js:validateImage",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:_cleanPrompt",
+    "target": "function:src/intelligence/parser.js:strip_cognition_blocks",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/platform/security.js:sanitize",
+    "target": "file:src/platform/security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/security.js:sanitizeToFragment",
+    "target": "file:src/platform/security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/security.js:escape",
+    "target": "file:src/platform/security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/security.js:checkRefusal",
+    "target": "file:src/platform/security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/security.js:clean",
+    "target": "file:src/platform/security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/security.js:validateImage",
+    "target": "file:src/platform/security.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "file:src/platform/security.js",
+    "target": "file:src/platform/security.test.js",
+    "type": "tested_by"
+  },
+  {
+    "source": "function:src/platform/transport.js:sanitize_llm",
+    "target": "file:src/platform/transport.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/transport.js:enhance",
+    "target": "function:src/platform/transport.js:sanitize_llm",
+    "type": "calls"
+  },
+  {
+    "source": "function:src/intelligence/kernel.js:execute_turn",
+    "target": "file:src/intelligence/kernel.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:extract",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:physical_to_xml",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/optics.js:renderEntity",
+    "target": "file:src/media/optics.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/tokens.test.js:get_signature",
+    "target": "file:src/media/tokens.test.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:generate",
+    "target": "file:src/media/visual.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:upload",
+    "target": "file:src/media/visual.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/media/visual.svelte.js:_cleanPrompt",
+    "target": "file:src/media/visual.svelte.js",
+    "type": "defined_in"
+  },
+  {
+    "source": "function:src/platform/transport.js:enhance",
+    "target": "file:src/platform/transport.js",
+    "type": "defined_in"
+  }
+]
