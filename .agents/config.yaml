@@ -6,7 +6,7 @@ skills:
 
   orchestration_and_governance:
     master-skill-router: .agents/skills/executive/SKILL.md
-    swarm: C:/Users/johng/.gemini/config/skills/swarm/SKILL.md
+    swarm: .agents/skills/swarm/SKILL.md
     legislative: .agents/skills/legislative/SKILL.md
     security: C:/Users/johng/.gemini/config/skills/security/SKILL.md
     simulation: .agents/skills/simulation/SKILL.md
@@ -57,7 +57,6 @@ workflows:
   utility:
     generate-ideas: C:/Users/johng/.gemini/config/global_workflows/generate-ideas.md
     refactor: C:/Users/johng/.gemini/config/global_workflows/refactor.md
-    swarm: C:/Users/johng/.gemini/config/global_workflows/swarm.md
     revert: C:/Users/johng/.gemini/config/global_workflows/revert.md
     test: C:/Users/johng/.gemini/config/global_workflows/test.md
     classify: C:/Users/johng/.gemini/config/global_workflows/classify.md
