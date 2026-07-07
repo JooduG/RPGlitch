@@ -1,0 +1,1684 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".npmrc",
+      "language": "unknown",
+      "fileCategory": "code",
+      "totalLines": 5,
+      "nonEmptyLines": 5,
+      "metrics": {}
+    },
+    {
+      "path": "eslint.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 178,
+      "nonEmptyLines": 169,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "playwright.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 45,
+      "nonEmptyLines": 36,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "RPGlitch.code-workspace",
+      "language": "code-workspace",
+      "fileCategory": "code",
+      "totalLines": 15,
+      "nonEmptyLines": 15,
+      "metrics": {}
+    },
+    {
+      "path": "scripts/local-understand-phase2.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 211,
+      "nonEmptyLines": 188,
+      "callGraph": [
+        {
+          "caller": "processImport",
+          "callee": "importPath.startsWith",
+          "lineNumber": 144
+        },
+        {
+          "caller": "processImport",
+          "callee": "importPath.startsWith",
+          "lineNumber": 144
+        },
+        {
+          "caller": "processImport",
+          "callee": "importPath.startsWith",
+          "lineNumber": 147
+        },
+        {
+          "caller": "processImport",
+          "callee": "Object.entries",
+          "lineNumber": 149
+        },
+        {
+          "caller": "processImport",
+          "callee": "importPath.startsWith",
+          "lineNumber": 150
+        },
+        {
+          "caller": "processImport",
+          "callee": "path.join",
+          "lineNumber": 152
+        },
+        {
+          "caller": "processImport",
+          "callee": "importPath.slice",
+          "lineNumber": 152
+        },
+        {
+          "caller": "processImport",
+          "callee": "path.dirname",
+          "lineNumber": 158
+        },
+        {
+          "caller": "processImport",
+          "callee": "path.join",
+          "lineNumber": 159
+        },
+        {
+          "caller": "processImport",
+          "callee": "resolved.replace",
+          "lineNumber": 162
+        },
+        {
+          "caller": "processImport",
+          "callee": "fs.existsSync",
+          "lineNumber": 167
+        },
+        {
+          "caller": "processImport",
+          "callee": "fs.statSync(checkPath).isFile",
+          "lineNumber": 169
+        },
+        {
+          "caller": "processImport",
+          "callee": "fs.statSync",
+          "lineNumber": 169
+        },
+        {
+          "caller": "processImport",
+          "callee": "path.relative(projectRoot, finalPath).replace",
+          "lineNumber": 178
+        },
+        {
+          "caller": "processImport",
+          "callee": "path.relative",
+          "lineNumber": 178
+        },
+        {
+          "caller": "processImport",
+          "callee": "edges.some",
+          "lineNumber": 180
+        },
+        {
+          "caller": "processImport",
+          "callee": "edges.push",
+          "lineNumber": 181
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/App.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 196,
+      "nonEmptyLines": 166,
+      "metrics": {}
+    },
+    {
+      "path": "src/data/db.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 69,
+      "nonEmptyLines": 69,
+      "functions": [
+        {
+          "name": "init",
+          "startLine": 59,
+          "endLine": 67,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "init",
+          "line": 59,
+          "isDefault": false
+        },
+        {
+          "name": "db",
+          "line": 69,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "init",
+          "callee": "db.open",
+          "lineNumber": 61
+        },
+        {
+          "caller": "init",
+          "callee": "console.error",
+          "lineNumber": 64
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/data/db.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 55,
+      "nonEmptyLines": 47,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/data/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 14,
+      "exports": [
+        {
+          "name": "seed_premades",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "stories",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "entities",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "prune",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "db",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "init",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "STORAGE_VERSION",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "ENTITY_TEMPLATES",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "get_random_signature_key",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "normalize",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "coerce_temporal_array",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "create_new",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "format_premade",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "premade",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "LISTS",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "NARRATIVE_STYLES",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 16,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/data/lists.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 137,
+      "nonEmptyLines": 137,
+      "exports": [
+        {
+          "name": "LISTS",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/data/narrative-styles.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 849,
+      "nonEmptyLines": 797,
+      "exports": [
+        {
+          "name": "NARRATIVE_STYLES",
+          "line": 1,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/data/normalizer.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 249,
+      "nonEmptyLines": 239,
+      "functions": [
+        {
+          "name": "sanitize_html",
+          "startLine": 10,
+          "endLine": 10,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "get_random_signature_key",
+          "startLine": 58,
+          "endLine": 60,
+          "params": []
+        },
+        {
+          "name": "normalize",
+          "startLine": 66,
+          "endLine": 168,
+          "params": []
+        },
+        {
+          "name": "coerce_temporal_array",
+          "startLine": 176,
+          "endLine": 183,
+          "params": [
+            "val"
+          ]
+        },
+        {
+          "name": "create_new",
+          "startLine": 190,
+          "endLine": 201,
+          "params": []
+        },
+        {
+          "name": "format_premade",
+          "startLine": 207,
+          "endLine": 215,
+          "params": [
+            "entity",
+            "type"
+          ]
+        },
+        {
+          "name": "detox_prose",
+          "startLine": 224,
+          "endLine": 249,
+          "params": [
+            "rawText"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "STORAGE_VERSION",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "ENTITY_TEMPLATES",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "get_random_signature_key",
+          "line": 58,
+          "isDefault": false
+        },
+        {
+          "name": "normalize",
+          "line": 66,
+          "isDefault": false
+        },
+        {
+          "name": "coerce_temporal_array",
+          "line": 176,
+          "isDefault": false
+        },
+        {
+          "name": "create_new",
+          "line": 190,
+          "isDefault": false
+        },
+        {
+          "name": "format_premade",
+          "line": 207,
+          "isDefault": false
+        },
+        {
+          "name": "detox_prose",
+          "line": 224,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "sanitize_html",
+          "callee": "Security.sanitize",
+          "lineNumber": 10
+        },
+        {
+          "caller": "get_random_signature_key",
+          "callee": "pickRandom",
+          "lineNumber": 59
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(name).trim",
+          "lineNumber": 121
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 121
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(description).trim",
+          "lineNumber": 122
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 122
+        },
+        {
+          "caller": "normalize",
+          "callee": "(() => {\n      const parsed = sanitize_html(String(signature_color)).trim();\n      return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();\n    })",
+          "lineNumber": 124
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(String(signature_color)).trim",
+          "lineNumber": 125
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 125
+        },
+        {
+          "caller": "normalize",
+          "callee": "String",
+          "lineNumber": 125
+        },
+        {
+          "caller": "normalize",
+          "callee": "SIGNATURE_COLORS.includes",
+          "lineNumber": 126
+        },
+        {
+          "caller": "normalize",
+          "callee": "get_random_signature_key",
+          "lineNumber": 126
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(String(profile_picture)).trim",
+          "lineNumber": 128
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 128
+        },
+        {
+          "caller": "normalize",
+          "callee": "String",
+          "lineNumber": 128
+        },
+        {
+          "caller": "normalize",
+          "callee": "(Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : \"\")).filter",
+          "lineNumber": 129
+        },
+        {
+          "caller": "normalize",
+          "callee": "(Array.isArray(tags) ? tags : []).map",
+          "lineNumber": 129
+        },
+        {
+          "caller": "normalize",
+          "callee": "Array.isArray",
+          "lineNumber": 129
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 129
+        },
+        {
+          "caller": "normalize",
+          "callee": "String(s).trim",
+          "lineNumber": 129
+        },
+        {
+          "caller": "normalize",
+          "callee": "String",
+          "lineNumber": 129
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(eternal?.physical ?? \"\").trim",
+          "lineNumber": 132
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 132
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(eternal?.non_physical ?? \"\").trim",
+          "lineNumber": 133
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 133
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(present?.physical ?? \"\").trim",
+          "lineNumber": 136
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 136
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(present?.non_physical ?? \"\").trim",
+          "lineNumber": 137
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 137
+        },
+        {
+          "caller": "normalize",
+          "callee": "coerce_temporal_array",
+          "lineNumber": 139
+        },
+        {
+          "caller": "normalize",
+          "callee": "coerce_temporal_array",
+          "lineNumber": 140
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? \"\").trim",
+          "lineNumber": 143
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 143
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(modifiers?.negative_prompt ?? \"\").trim",
+          "lineNumber": 144
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 144
+        },
+        {
+          "caller": "normalize",
+          "callee": "Number",
+          "lineNumber": 147
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html(modifiers?.color_name ?? modifiers?.colorName ?? visuals?.colorName ?? visuals?.color_name ?? \"\").trim",
+          "lineNumber": 148
+        },
+        {
+          "caller": "normalize",
+          "callee": "sanitize_html",
+          "lineNumber": 148
+        },
+        {
+          "caller": "normalize",
+          "callee": "(() => {\n      if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics };\n      // Seed from type-template on birth\n      const template = /** @type {any} */ (ENTITY_TEMPLATES)[type];\n      return template?.dynamics ? { ...template.dynamics } : {};\n    })",
+          "lineNumber": 151
+        },
+        {
+          "caller": "normalize",
+          "callee": "Object.keys",
+          "lineNumber": 152
+        },
+        {
+          "caller": "coerce_temporal_array",
+          "callee": "Array.isArray",
+          "lineNumber": 177
+        },
+        {
+          "caller": "coerce_temporal_array",
+          "callee": "val\n    .split(\"\\n\")\n    .map((v) => v.trim())\n    .filter",
+          "lineNumber": 179
+        },
+        {
+          "caller": "coerce_temporal_array",
+          "callee": "val\n    .split(\"\\n\")\n    .map",
+          "lineNumber": 179
+        },
+        {
+          "caller": "coerce_temporal_array",
+          "callee": "val\n    .split",
+          "lineNumber": 179
+        },
+        {
+          "caller": "coerce_temporal_array",
+          "callee": "v.trim",
+          "lineNumber": 181
+        },
+        {
+          "caller": "create_new",
+          "callee": "get_random_signature_key",
+          "lineNumber": 195
+        },
+        {
+          "caller": "create_new",
+          "callee": "Date.now",
+          "lineNumber": 196
+        },
+        {
+          "caller": "create_new",
+          "callee": "Date.now",
+          "lineNumber": 197
+        },
+        {
+          "caller": "create_new",
+          "callee": "crypto.randomUUID",
+          "lineNumber": 198
+        },
+        {
+          "caller": "create_new",
+          "callee": "normalize",
+          "lineNumber": 200
+        },
+        {
+          "caller": "format_premade",
+          "callee": "normalize",
+          "lineNumber": 209
+        },
+        {
+          "caller": "detox_prose",
+          "callee": "Object.keys(DETOX_MAP).forEach",
+          "lineNumber": 243
+        },
+        {
+          "caller": "detox_prose",
+          "callee": "Object.keys",
+          "lineNumber": 243
+        },
+        {
+          "caller": "detox_prose",
+          "callee": "cleanText.replace",
+          "lineNumber": 245
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 8,
+        "functionCount": 7,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/data/normalizer.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 238,
+      "nonEmptyLines": 216,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/boot.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 68,
+      "nonEmptyLines": 58,
+      "exports": [
+        {
+          "name": "reset_bootstrap_guard",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "AppBootstrap",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "init",
+          "callee": "app.log",
+          "lineNumber": 26
+        },
+        {
+          "caller": "init",
+          "callee": "seed_premades",
+          "lineNumber": 33
+        },
+        {
+          "caller": "init",
+          "callee": "Promise.all",
+          "lineNumber": 36
+        },
+        {
+          "caller": "init",
+          "callee": "runtime.sync",
+          "lineNumber": 36
+        },
+        {
+          "caller": "init",
+          "callee": "app.init",
+          "lineNumber": 36
+        },
+        {
+          "caller": "init",
+          "callee": "Audio.init",
+          "lineNumber": 36
+        },
+        {
+          "caller": "init",
+          "callee": "mount",
+          "lineNumber": 39
+        },
+        {
+          "caller": "init",
+          "callee": "document.getElementById",
+          "lineNumber": 40
+        },
+        {
+          "caller": "init",
+          "callee": "document.getElementById(\"svelte-root\")?.remove",
+          "lineNumber": 44
+        },
+        {
+          "caller": "init",
+          "callee": "document.getElementById",
+          "lineNumber": 44
+        },
+        {
+          "caller": "init",
+          "callee": "app.log",
+          "lineNumber": 45
+        },
+        {
+          "caller": "init",
+          "callee": "console.error",
+          "lineNumber": 47
+        },
+        {
+          "caller": "init",
+          "callee": "app.log",
+          "lineNumber": 48
+        },
+        {
+          "caller": "init",
+          "callee": "String",
+          "lineNumber": 48
+        },
+        {
+          "caller": "init",
+          "callee": "sanitizeToFragment",
+          "lineNumber": 57
+        },
+        {
+          "caller": "init",
+          "callee": "fragment.querySelector",
+          "lineNumber": 60
+        },
+        {
+          "caller": "init",
+          "callee": "String",
+          "lineNumber": 62
+        },
+        {
+          "caller": "init",
+          "callee": "document.body.replaceChildren",
+          "lineNumber": 65
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/boot.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 119,
+      "nonEmptyLines": 101,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/chrono.svelte.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 265,
+      "nonEmptyLines": 244,
+      "classes": [
+        {
+          "name": "ChronoStore",
+          "startLine": 8,
+          "endLine": 261,
+          "methods": [
+            "start",
+            "send",
+            "retry",
+            "continue",
+            "delete_log_entry",
+            "edit_log_entry",
+            "update_log_attachment",
+            "log_turn",
+            "advance_turn"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "ChronoStore",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "Chrono",
+          "line": 262,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "start",
+          "callee": "controlState.set_intent_active",
+          "lineNumber": 17
+        },
+        {
+          "caller": "start",
+          "callee": "session_driver.create_from_selection",
+          "lineNumber": 23
+        },
+        {
+          "caller": "start",
+          "callee": "runtime.sync",
+          "lineNumber": 31
+        },
+        {
+          "caller": "start",
+          "callee": "app.set_view",
+          "lineNumber": 34
+        },
+        {
+          "caller": "start",
+          "callee": "simulationState.start_generation",
+          "lineNumber": 37
+        },
+        {
+          "caller": "start",
+          "callee": "gamemaster.execute_prologue",
+          "lineNumber": 39
+        },
+        {
+          "caller": "start",
+          "callee": "app.log",
+          "lineNumber": 40
+        },
+        {
+          "caller": "start",
+          "callee": "console.error",
+          "lineNumber": 42
+        },
+        {
+          "caller": "start",
+          "callee": "app.log",
+          "lineNumber": 43
+        },
+        {
+          "caller": "start",
+          "callee": "simulationState.complete",
+          "lineNumber": 46
+        },
+        {
+          "caller": "start",
+          "callee": "app.end_stream",
+          "lineNumber": 47
+        },
+        {
+          "caller": "start",
+          "callee": "console.error",
+          "lineNumber": 50
+        },
+        {
+          "caller": "start",
+          "callee": "controlState.set_intent_active",
+          "lineNumber": 54
+        },
+        {
+          "caller": "send",
+          "callee": "text.trim",
+          "lineNumber": 63
+        },
+        {
+          "caller": "send",
+          "callee": "this.advance_turn",
+          "lineNumber": 64
+        },
+        {
+          "caller": "retry",
+          "callee": "session_driver.regenerate",
+          "lineNumber": 73
+        },
+        {
+          "caller": "retry",
+          "callee": "this.advance_turn",
+          "lineNumber": 74
+        },
+        {
+          "caller": "continue",
+          "callee": "this.advance_turn",
+          "lineNumber": 86
+        },
+        {
+          "caller": "delete_log_entry",
+          "callee": "session_driver.delete_log_entry",
+          "lineNumber": 97
+        },
+        {
+          "caller": "edit_log_entry",
+          "callee": "session_driver.edit_log_entry",
+          "lineNumber": 106
+        },
+        {
+          "caller": "update_log_attachment",
+          "callee": "session_driver.update_log_attachment",
+          "lineNumber": 116
+        },
+        {
+          "caller": "log_turn",
+          "callee": "session_driver.log_turn",
+          "lineNumber": 126
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "console.error",
+          "lineNumber": 145
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "controlState.set_intent_active",
+          "lineNumber": 149
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulationState.lock",
+          "lineNumber": 151
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 152
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "Shield.process",
+          "lineNumber": 163
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 166
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 174
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "console.error",
+          "lineNumber": 175
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulation_log.add",
+          "lineNumber": 176
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "Date.now",
+          "lineNumber": 177
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "Date.now",
+          "lineNumber": 180
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulationState.unlock",
+          "lineNumber": 183
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "controlState.set_intent_active",
+          "lineNumber": 184
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "Number",
+          "lineNumber": 190
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 192
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "(async () => {\n      try {\n        if (finalInput) {\n          try {\n            await session_driver.send(finalInput);\n          } catch (dbErr) {\n            console.error(\"[Chrono] Database write error during send:\", dbErr);\n            app.log(\"Failed to persist user message, but generation continues.\", \"error\");\n          }\n        }\n\n        simulationState.start_generation(options.role || \"ai\");\n        try {\n          await gamemaster.execute_turn(story_id, {\n            shieldContext,\n            input: finalInput ?? undefined,\n            signal: controller.signal,\n          });\n          app.log(\"Generation complete.\", \"system\");\n        } catch (e) {\n          console.error(\"Chrono: Generation Failed\", e);\n          app.log(\"Error: Generation Failed.\", \"error\");\n          throw e;\n        } finally {\n          simulationState.complete();\n          app.end_stream();\n        }\n\n        // 4. ECHO: Commit to Resonance (Echo/Scholar) - Timeline Safety Lock\n        simulationState.lock(); // Phase 3: Database Lock (Post-Generation)\n        app.log(\"Echo recording temporal resonance...\", \"db\");\n\n        // 5. ANCHOR: Persist the timeline\n        await runtime.save(runtime.round);\n      } catch (err) {\n        const error = /** @type {any} */ (err);\n        if (error.name === \"AbortError\" || error.message?.includes(\"aborted\")) {\n          app.log(\"Generation interrupted cleanly.\", \"system\");\n        } else {\n          app.log(`Time Fracture: ${error.message}`, \"error\");\n          console.error(\"[Chrono] 💥 Time Fracture:\", error);\n          // Push error to feed so user knows what happened\n          simulation_log.add({\n            id: `err-${Date.now()}`,\n            role: \"system\",\n            text: `Simulation Error: ${error.message || \"Unknown Time Fracture\"}`,\n            timestamp: Date.now(),\n          });\n        }\n      } finally {\n        // Unified Cleanup Framework\n        if (app.streaming.abort_controller === controller) {\n          app.streaming.abort_controller = null;\n        }\n        app.streaming.active = false;\n        app.streaming.content = \"\";\n        app.streaming.node_id = null;\n        app.streaming.role = \"ai\";\n        app.simulation.loading = false;\n        simulationState.unlock();\n        controlState.set_intent_active(false); // Release Intent Lock\n      }\n    })",
+          "lineNumber": 197
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "session_driver.send",
+          "lineNumber": 201
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "console.error",
+          "lineNumber": 203
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 204
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulationState.start_generation",
+          "lineNumber": 208
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "gamemaster.execute_turn",
+          "lineNumber": 210
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 215
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "console.error",
+          "lineNumber": 217
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 218
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulationState.complete",
+          "lineNumber": 221
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.end_stream",
+          "lineNumber": 222
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulationState.lock",
+          "lineNumber": 226
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 227
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "runtime.save",
+          "lineNumber": 230
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "error.message?.includes",
+          "lineNumber": 233
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 234
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "app.log",
+          "lineNumber": 236
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "console.error",
+          "lineNumber": 237
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulation_log.add",
+          "lineNumber": 239
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "Date.now",
+          "lineNumber": 240
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "Date.now",
+          "lineNumber": 243
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "simulationState.unlock",
+          "lineNumber": 256
+        },
+        {
+          "caller": "advance_turn",
+          "callee": "controlState.set_intent_active",
+          "lineNumber": 257
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/engine/chrono.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 143,
+      "nonEmptyLines": 123,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 86,
+      "nonEmptyLines": 73,
+      "exports": [
+        {
+          "name": "APP_VERSION",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "SESSION_ID_KEY",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "KV_SETTINGS_KEY",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "DROPDOWN_MAX_HEIGHT",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "TELEMETRY_TYPES",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "CONFIG",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "{ ROLES, ENTITIES, MESSAGES, VIEWS, THEME }",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "ERROR_MESSAGES",
+          "line": 86,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "GRID_UNITS",
+          "callee": "parseInt",
+          "lineNumber": 73
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 8,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/config.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 92,
+      "nonEmptyLines": 78,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 7,
+      "nonEmptyLines": 6,
+      "exports": [
+        {
+          "name": "AppBootstrap",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "Chrono",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "session_driver",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "ERROR_MESSAGES",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "CONFIG",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "APP_VERSION",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "SESSION_ID_KEY",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "KV_SETTINGS_KEY",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "TELEMETRY_TYPES",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "log",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "generateUUID",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "generateSecureSeed",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "pickRandom",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "clamp",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "ind",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "guardedTransition",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 16,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/session.svelte.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 235,
+      "nonEmptyLines": 216,
+      "exports": [
+        {
+          "name": "session_driver",
+          "line": 13,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/transition-guard.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 70,
+      "nonEmptyLines": 63,
+      "functions": [
+        {
+          "name": "guardedTransition",
+          "startLine": 33,
+          "endLine": 70,
+          "params": [
+            "callback"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "guardedTransition",
+          "line": 33,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "guardedTransition",
+          "callee": "callback",
+          "lineNumber": 36
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "document.documentElement.classList.add",
+          "lineNumber": 43
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "document.startViewTransition",
+          "lineNumber": 46
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "callback",
+          "lineNumber": 48
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "transition.finished.finally",
+          "lineNumber": 58
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "document.documentElement.classList.remove",
+          "lineNumber": 60
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "transition.finished.catch",
+          "lineNumber": 67
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "transition.ready.catch",
+          "lineNumber": 68
+        },
+        {
+          "caller": "guardedTransition",
+          "callee": "transition.updateCallbackDone.catch",
+          "lineNumber": 69
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/transition-guard.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 131,
+      "nonEmptyLines": 113,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/utils.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 69,
+      "nonEmptyLines": 63,
+      "functions": [
+        {
+          "name": "generateUUID",
+          "startLine": 11,
+          "endLine": 16,
+          "params": []
+        },
+        {
+          "name": "generateSecureSeed",
+          "startLine": 21,
+          "endLine": 28,
+          "params": []
+        },
+        {
+          "name": "pickRandom",
+          "startLine": 35,
+          "endLine": 39,
+          "params": [
+            "array"
+          ]
+        },
+        {
+          "name": "clamp",
+          "startLine": 48,
+          "endLine": 48,
+          "params": [
+            "n"
+          ]
+        },
+        {
+          "name": "log",
+          "startLine": 55,
+          "endLine": 60,
+          "params": [
+            "...args"
+          ]
+        },
+        {
+          "name": "ind",
+          "startLine": 65,
+          "endLine": 69,
+          "params": [
+            "text",
+            "spaces"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "generateUUID",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "generateSecureSeed",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "pickRandom",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "clamp",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "log",
+          "line": 55,
+          "isDefault": false
+        },
+        {
+          "name": "ind",
+          "line": 65,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "generateUUID",
+          "callee": "globalThis.crypto.randomUUID",
+          "lineNumber": 15
+        },
+        {
+          "caller": "generateSecureSeed",
+          "callee": "globalThis.crypto.getRandomValues",
+          "lineNumber": 26
+        },
+        {
+          "caller": "pickRandom",
+          "callee": "Array.isArray",
+          "lineNumber": 36
+        },
+        {
+          "caller": "pickRandom",
+          "callee": "generateSecureSeed",
+          "lineNumber": 37
+        },
+        {
+          "caller": "clamp",
+          "callee": "Math.min",
+          "lineNumber": 48
+        },
+        {
+          "caller": "clamp",
+          "callee": "Math.max",
+          "lineNumber": 48
+        },
+        {
+          "caller": "clamp",
+          "callee": "Number",
+          "lineNumber": 48
+        },
+        {
+          "caller": "log",
+          "callee": "console.info",
+          "lineNumber": 58
+        },
+        {
+          "caller": "ind",
+          "callee": "\" \".repeat",
+          "lineNumber": 67
+        },
+        {
+          "caller": "ind",
+          "callee": "String(text).trim().split(\"\\n\").join",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ind",
+          "callee": "String(text).trim().split",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ind",
+          "callee": "String(text).trim",
+          "lineNumber": 68
+        },
+        {
+          "caller": "ind",
+          "callee": "String",
+          "lineNumber": 68
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 6,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/engine/utils.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 41,
+      "nonEmptyLines": 36,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

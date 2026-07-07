@@ -1,0 +1,1336 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 25,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "src/state/app.svelte.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 473,
+      "nonEmptyLines": 454,
+      "classes": [
+        {
+          "name": "StreamingState",
+          "startLine": 30,
+          "endLine": 55,
+          "methods": [
+            "text",
+            "text",
+            "nodeId",
+            "nodeId"
+          ],
+          "properties": []
+        },
+        {
+          "name": "AppStore",
+          "startLine": 60,
+          "endLine": 465,
+          "methods": [
+            "tension",
+            "visual",
+            "busy",
+            "busy",
+            "round",
+            "env",
+            "sim_phase",
+            "isProcessing",
+            "voiceSuppressed",
+            "round",
+            "turnType",
+            "turnType",
+            "selected_count",
+            "is_ready",
+            "storyboard_ready",
+            "log",
+            "init",
+            "init_viewport",
+            "load_entities",
+            "profile_target_id",
+            "profile_target_type"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AppStore",
+          "line": 60,
+          "isDefault": false
+        },
+        {
+          "name": "app",
+          "line": 466,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "loading",
+          "callee": "uiState.set_loading",
+          "lineNumber": 110
+        },
+        {
+          "caller": "busy",
+          "callee": "uiState.set_loading",
+          "lineNumber": 141
+        },
+        {
+          "caller": "log",
+          "callee": "generateUUID",
+          "lineNumber": 210
+        },
+        {
+          "caller": "log",
+          "callee": "logTimeFormatter.format",
+          "lineNumber": 211
+        },
+        {
+          "caller": "log",
+          "callee": "Date.now",
+          "lineNumber": 211
+        },
+        {
+          "caller": "log",
+          "callee": "this.logs.unshift",
+          "lineNumber": 215
+        },
+        {
+          "caller": "log",
+          "callee": "this.logs.pop",
+          "lineNumber": 216
+        },
+        {
+          "caller": "log",
+          "callee": "engineLog",
+          "lineNumber": 219
+        },
+        {
+          "caller": "log",
+          "callee": "type.toUpperCase",
+          "lineNumber": 219
+        },
+        {
+          "caller": "init",
+          "callee": "this.init_viewport",
+          "lineNumber": 234
+        },
+        {
+          "caller": "init",
+          "callee": "db.kv_settings.get",
+          "lineNumber": 237
+        },
+        {
+          "caller": "init",
+          "callee": "console.error",
+          "lineNumber": 242
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "this._viewport_cleanup.forEach",
+          "lineNumber": 255
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "cleanup",
+          "lineNumber": 255
+        },
+        {
+          "caller": "getBreakpoint",
+          "callee": "resolve_px",
+          "lineNumber": 261
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "getBreakpoint",
+          "lineNumber": 266
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "getBreakpoint",
+          "lineNumber": 267
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "getBreakpoint",
+          "lineNumber": 268
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "getBreakpoint",
+          "lineNumber": 269
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "Object.keys(queries).forEach",
+          "lineNumber": 272
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "Object.keys",
+          "lineNumber": 272
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "window.matchMedia",
+          "lineNumber": 275
+        },
+        {
+          "caller": "listener",
+          "callee": "this.log",
+          "lineNumber": 283
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "mql.addEventListener",
+          "lineNumber": 285
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "this._viewport_cleanup.push",
+          "lineNumber": 286
+        },
+        {
+          "caller": "init_viewport",
+          "callee": "mql.removeEventListener",
+          "lineNumber": 286
+        },
+        {
+          "caller": "load_entities",
+          "callee": "Promise.all",
+          "lineNumber": 297
+        },
+        {
+          "caller": "load_entities",
+          "callee": "entities.list",
+          "lineNumber": 297
+        },
+        {
+          "caller": "load_entities",
+          "callee": "entities.list",
+          "lineNumber": 297
+        },
+        {
+          "caller": "load_entities",
+          "callee": "console.error",
+          "lineNumber": 303
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 2
+      }
+    },
+    {
+      "path": "src/state/app.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 17,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/state/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 4,
+      "nonEmptyLines": 4,
+      "exports": [
+        {
+          "name": "app",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "runtime",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "controlState",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "simulationState",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "uiState",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "simulation_log",
+          "line": 4,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 6,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/state/log.svelte.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 42,
+      "classes": [
+        {
+          "name": "SimulationLogStore",
+          "startLine": 19,
+          "endLine": 42,
+          "methods": [
+            "constructor",
+            "refresh",
+            "add"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "SimulationLogStore",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "simulation_log",
+          "line": 43,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "refresh",
+          "callee": "session_driver.load_log",
+          "lineNumber": 31
+        },
+        {
+          "caller": "add",
+          "callee": "this.feed.some",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/state/runtime.svelte.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 476,
+      "nonEmptyLines": 459,
+      "functions": [
+        {
+          "name": "createRuntimeStore",
+          "startLine": 72,
+          "endLine": 471,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "runtime",
+          "line": 472,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "coerce_story_key",
+          "callee": "/^\\d+$/.test",
+          "lineNumber": 81
+        },
+        {
+          "caller": "coerce_story_key",
+          "callee": "Number",
+          "lineNumber": 81
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 86
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 108
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 110
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 112
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 125
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 127
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 129
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 131
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 132
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 133
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 136
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state",
+          "lineNumber": 138
+        },
+        {
+          "caller": "init_effects",
+          "callee": "$effect.root",
+          "lineNumber": 147
+        },
+        {
+          "caller": "init_effects",
+          "callee": "$effect",
+          "lineNumber": 148
+        },
+        {
+          "caller": "init_effects",
+          "callee": "db.stories\n              .update(coerce_story_key(simulation_story_id), {\n                round: _round,\n                last_played: Date.now(),\n                ai_dynamics: $state.snapshot(_ai),\n                fractal_dynamics: $state.snapshot(_fractal),\n              })\n              .catch",
+          "lineNumber": 153
+        },
+        {
+          "caller": "init_effects",
+          "callee": "db.stories\n              .update",
+          "lineNumber": 153
+        },
+        {
+          "caller": "init_effects",
+          "callee": "coerce_story_key",
+          "lineNumber": 154
+        },
+        {
+          "caller": "init_effects",
+          "callee": "Date.now",
+          "lineNumber": 156
+        },
+        {
+          "caller": "init_effects",
+          "callee": "$state.snapshot",
+          "lineNumber": 157
+        },
+        {
+          "caller": "init_effects",
+          "callee": "$state.snapshot",
+          "lineNumber": 158
+        },
+        {
+          "caller": "init_effects",
+          "callee": "console.error",
+          "lineNumber": 160
+        },
+        {
+          "caller": "teardown_effects",
+          "callee": "runtime_cleanup",
+          "lineNumber": 167
+        },
+        {
+          "caller": "snapshot_entities",
+          "callee": "$state.snapshot",
+          "lineNumber": 194
+        },
+        {
+          "caller": "snapshot_entities",
+          "callee": "$state.snapshot",
+          "lineNumber": 195
+        },
+        {
+          "caller": "snapshot_entities",
+          "callee": "$state.snapshot",
+          "lineNumber": 196
+        },
+        {
+          "caller": "active_story",
+          "callee": "coerce_story_key",
+          "lineNumber": 251
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "api._get_entity_by_role",
+          "lineNumber": 262
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Array.isArray",
+          "lineNumber": 264
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "temporal_engine.create",
+          "lineNumber": 265
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entity.future.unshift",
+          "lineNumber": 266
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entity.future.push",
+          "lineNumber": 267
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "simulation_log_data.by_story_id[story_id].push",
+          "lineNumber": 278
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Date.now",
+          "lineNumber": 282
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "api._get_entity_by_role",
+          "lineNumber": 289
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Array.isArray",
+          "lineNumber": 290
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entity.future.shift",
+          "lineNumber": 291
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "db.kv_settings.get",
+          "lineNumber": 313
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "coerce_story_key",
+          "lineNumber": 321
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "db.stories.get",
+          "lineNumber": 322
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Promise.all",
+          "lineNumber": 324
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entities.get",
+          "lineNumber": 325
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entities.get",
+          "lineNumber": 326
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entities.get",
+          "lineNumber": 327
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Object.assign",
+          "lineNumber": 330
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "String",
+          "lineNumber": 369
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "String",
+          "lineNumber": 369
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "console.warn",
+          "lineNumber": 375
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "db.stories.update",
+          "lineNumber": 386
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "coerce_story_key",
+          "lineNumber": 386
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Date.now",
+          "lineNumber": 388
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state.snapshot",
+          "lineNumber": 389
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "$state.snapshot",
+          "lineNumber": 390
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "console.error",
+          "lineNumber": 393
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entities.upsert",
+          "lineNumber": 402
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Object.assign",
+          "lineNumber": 404
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "console.error",
+          "lineNumber": 407
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "db.stories.update",
+          "lineNumber": 419
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Object.assign",
+          "lineNumber": 421
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Date.now",
+          "lineNumber": 425
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entities.update",
+          "lineNumber": 426
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "String",
+          "lineNumber": 426
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "targets.forEach",
+          "lineNumber": 428
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "Object.assign",
+          "lineNumber": 429
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "console.error",
+          "lineNumber": 433
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "entities.remove",
+          "lineNumber": 442
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "String",
+          "lineNumber": 442
+        },
+        {
+          "caller": "createRuntimeStore",
+          "callee": "console.error",
+          "lineNumber": 444
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/state/runtime.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 97,
+      "nonEmptyLines": 86,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/state/status.svelte.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 130,
+      "nonEmptyLines": 116,
+      "classes": [
+        {
+          "name": "UIStateStore",
+          "startLine": 89,
+          "endLine": 112,
+          "methods": [
+            "loading",
+            "menu_open",
+            "input_active",
+            "set_loading"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "simulationState",
+          "line": 35,
+          "isDefault": false
+        },
+        {
+          "name": "uiState",
+          "line": 114,
+          "isDefault": false
+        },
+        {
+          "name": "controlState",
+          "line": 117,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "set_intent_active",
+          "callee": "simulationState.set_intent_active",
+          "lineNumber": 128
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "src/state/status.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 80,
+      "nonEmptyLines": 69,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/actions/click-outside.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 23,
+      "nonEmptyLines": 20,
+      "functions": [
+        {
+          "name": "click_outside",
+          "startLine": 5,
+          "endLine": 23,
+          "params": [
+            "node",
+            "handler"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "click_outside",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "handleClick",
+          "callee": "document.body.contains",
+          "lineNumber": 9
+        },
+        {
+          "caller": "handleClick",
+          "callee": "node.contains",
+          "lineNumber": 11
+        },
+        {
+          "caller": "handleClick",
+          "callee": "handler",
+          "lineNumber": 12
+        },
+        {
+          "caller": "click_outside",
+          "callee": "document.addEventListener",
+          "lineNumber": 16
+        },
+        {
+          "caller": "destroy",
+          "callee": "document.removeEventListener",
+          "lineNumber": 20
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/actions/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 3,
+      "nonEmptyLines": 3,
+      "exports": [
+        {
+          "name": "auto_resize",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "click_outside",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "use_actions",
+          "line": 3,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 3,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/actions/resize.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 92,
+      "nonEmptyLines": 75,
+      "functions": [
+        {
+          "name": "auto_resize",
+          "startLine": 15,
+          "endLine": 92,
+          "params": [
+            "node"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "auto_resize",
+          "line": 15,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "update",
+          "callee": "cancelAnimationFrame",
+          "lineNumber": 24
+        },
+        {
+          "caller": "update",
+          "callee": "requestAnimationFrame",
+          "lineNumber": 26
+        },
+        {
+          "caller": "update",
+          "callee": "resolve_px",
+          "lineNumber": 28
+        },
+        {
+          "caller": "update",
+          "callee": "node.closest",
+          "lineNumber": 36
+        },
+        {
+          "caller": "update",
+          "callee": "scope.querySelectorAll",
+          "lineNumber": 38
+        },
+        {
+          "caller": "update",
+          "callee": "siblings.forEach",
+          "lineNumber": 41
+        },
+        {
+          "caller": "update",
+          "callee": "siblings.forEach",
+          "lineNumber": 50
+        },
+        {
+          "caller": "update",
+          "callee": "getComputedStyle",
+          "lineNumber": 52
+        },
+        {
+          "caller": "update",
+          "callee": "parseFloat",
+          "lineNumber": 54
+        },
+        {
+          "caller": "update",
+          "callee": "parseFloat",
+          "lineNumber": 54
+        },
+        {
+          "caller": "update",
+          "callee": "Math.max",
+          "lineNumber": 57
+        },
+        {
+          "caller": "update",
+          "callee": "metrics.push",
+          "lineNumber": 59
+        },
+        {
+          "caller": "update",
+          "callee": "metrics.forEach",
+          "lineNumber": 64
+        },
+        {
+          "caller": "auto_resize",
+          "callee": "node.addEventListener",
+          "lineNumber": 73
+        },
+        {
+          "caller": "auto_resize",
+          "callee": "observer.observe",
+          "lineNumber": 75
+        },
+        {
+          "caller": "auto_resize",
+          "callee": "mutationObserver.observe",
+          "lineNumber": 79
+        },
+        {
+          "caller": "auto_resize",
+          "callee": "update",
+          "lineNumber": 82
+        },
+        {
+          "caller": "destroy",
+          "callee": "cancelAnimationFrame",
+          "lineNumber": 86
+        },
+        {
+          "caller": "destroy",
+          "callee": "node.removeEventListener",
+          "lineNumber": 87
+        },
+        {
+          "caller": "destroy",
+          "callee": "observer.disconnect",
+          "lineNumber": 88
+        },
+        {
+          "caller": "destroy",
+          "callee": "mutationObserver.disconnect",
+          "lineNumber": 89
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/actions/use-actions.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 74,
+      "nonEmptyLines": 61,
+      "functions": [
+        {
+          "name": "use_actions",
+          "startLine": 16,
+          "endLine": 74,
+          "params": [
+            "node",
+            "actions"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "use_actions",
+          "line": 16,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "update",
+          "callee": "new_actions.forEach",
+          "lineNumber": 28
+        },
+        {
+          "caller": "update",
+          "callee": "Array.isArray",
+          "lineNumber": 36
+        },
+        {
+          "caller": "update",
+          "callee": "instances.get",
+          "lineNumber": 48
+        },
+        {
+          "caller": "update",
+          "callee": "existing.update",
+          "lineNumber": 51
+        },
+        {
+          "caller": "update",
+          "callee": "next_instances.set",
+          "lineNumber": 52
+        },
+        {
+          "caller": "update",
+          "callee": "instances.delete",
+          "lineNumber": 53
+        },
+        {
+          "caller": "update",
+          "callee": "next_instances.set",
+          "lineNumber": 55
+        },
+        {
+          "caller": "update",
+          "callee": "action",
+          "lineNumber": 55
+        },
+        {
+          "caller": "update",
+          "callee": "node.setAttribute",
+          "lineNumber": 60
+        },
+        {
+          "caller": "update",
+          "callee": "node.removeAttribute",
+          "lineNumber": 61
+        },
+        {
+          "caller": "update",
+          "callee": "instances.forEach",
+          "lineNumber": 64
+        },
+        {
+          "caller": "update",
+          "callee": "result?.destroy",
+          "lineNumber": 64
+        },
+        {
+          "caller": "use_actions",
+          "callee": "update",
+          "lineNumber": 68
+        },
+        {
+          "caller": "use_actions",
+          "callee": "instances.forEach",
+          "lineNumber": 72
+        },
+        {
+          "caller": "use_actions",
+          "callee": "result?.destroy",
+          "lineNumber": 72
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/atoms/Backdrop.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 67,
+      "nonEmptyLines": 59,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/Button.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 154,
+      "nonEmptyLines": 131,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/DataBox.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 78,
+      "nonEmptyLines": 72,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/Dropdown.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 199,
+      "nonEmptyLines": 180,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/DynamicsMeter.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 214,
+      "nonEmptyLines": 200,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/FitText.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 80,
+      "nonEmptyLines": 70,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/ImagePreview.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 370,
+      "nonEmptyLines": 353,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 14,
+      "nonEmptyLines": 14,
+      "exports": [
+        {
+          "name": "Backdrop",
+          "line": 1,
+          "isDefault": false
+        },
+        {
+          "name": "Button",
+          "line": 2,
+          "isDefault": false
+        },
+        {
+          "name": "DataBox",
+          "line": 3,
+          "isDefault": false
+        },
+        {
+          "name": "Dropdown",
+          "line": 4,
+          "isDefault": false
+        },
+        {
+          "name": "imagePreview",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "openImagePreview",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "closeImagePreview",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "ImagePreview",
+          "line": 5,
+          "isDefault": false
+        },
+        {
+          "name": "Modal",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "ProfilePicture",
+          "line": 7,
+          "isDefault": false
+        },
+        {
+          "name": "ScrollArea",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "Skeleton",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "Slider",
+          "line": 10,
+          "isDefault": false
+        },
+        {
+          "name": "TextField",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "Toggle",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "tooltip_state",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "show_tooltip",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "hide_tooltip",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "tooltip",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "Tooltip",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "DynamicsMeter",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 21,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/atoms/Modal.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 155,
+      "nonEmptyLines": 143,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/ProfilePicture.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 137,
+      "nonEmptyLines": 125,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/ScrollArea.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 77,
+      "nonEmptyLines": 69,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/Skeleton.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 74,
+      "nonEmptyLines": 65,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/atoms/Slider.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 308,
+      "nonEmptyLines": 279,
+      "metrics": {}
+    }
+  ]
+}

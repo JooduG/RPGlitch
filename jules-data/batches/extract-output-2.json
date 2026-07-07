@@ -1,0 +1,996 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 4,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": ".agents/skills/design/scripts/audit-design.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 211,
+      "nonEmptyLines": 182,
+      "functions": [
+        {
+          "name": "scan",
+          "startLine": 56,
+          "endLine": 83,
+          "params": [
+            "dir"
+          ]
+        },
+        {
+          "name": "auditFile",
+          "startLine": 88,
+          "endLine": 108,
+          "params": [
+            "filePath"
+          ]
+        },
+        {
+          "name": "auditCodebaseTokens",
+          "startLine": 113,
+          "endLine": 148,
+          "params": []
+        },
+        {
+          "name": "findUnusedTokens",
+          "startLine": 153,
+          "endLine": 190,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "auditCodebaseTokens",
+          "line": 113,
+          "isDefault": false
+        },
+        {
+          "name": "findUnusedTokens",
+          "line": 153,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "scan",
+          "callee": "fs.existsSync",
+          "lineNumber": 57
+        },
+        {
+          "caller": "scan",
+          "callee": "fs.readdirSync",
+          "lineNumber": 58
+        },
+        {
+          "caller": "scan",
+          "callee": "path.join",
+          "lineNumber": 61
+        },
+        {
+          "caller": "scan",
+          "callee": "path.relative(ROOT_DIR, fullPath).replace",
+          "lineNumber": 62
+        },
+        {
+          "caller": "scan",
+          "callee": "path.relative",
+          "lineNumber": 62
+        },
+        {
+          "caller": "scan",
+          "callee": "ig.ignores",
+          "lineNumber": 64
+        },
+        {
+          "caller": "scan",
+          "callee": "relPath.includes",
+          "lineNumber": 64
+        },
+        {
+          "caller": "scan",
+          "callee": "fs.statSync",
+          "lineNumber": 68
+        },
+        {
+          "caller": "scan",
+          "callee": "stat.isDirectory",
+          "lineNumber": 73
+        },
+        {
+          "caller": "scan",
+          "callee": "scan",
+          "lineNumber": 74
+        },
+        {
+          "caller": "scan",
+          "callee": "path.extname",
+          "lineNumber": 76
+        },
+        {
+          "caller": "scan",
+          "callee": "auditFile",
+          "lineNumber": 79
+        },
+        {
+          "caller": "auditFile",
+          "callee": "fs.readFileSync",
+          "lineNumber": 89
+        },
+        {
+          "caller": "auditFile",
+          "callee": "content.split",
+          "lineNumber": 90
+        },
+        {
+          "caller": "auditFile",
+          "callee": "path.relative(ROOT_DIR, filePath).replace",
+          "lineNumber": 91
+        },
+        {
+          "caller": "auditFile",
+          "callee": "path.relative",
+          "lineNumber": 91
+        },
+        {
+          "caller": "auditFile",
+          "callee": "relPath.includes",
+          "lineNumber": 93
+        },
+        {
+          "caller": "auditFile",
+          "callee": "relPath.endsWith",
+          "lineNumber": 93
+        },
+        {
+          "caller": "auditFile",
+          "callee": "relPath.includes",
+          "lineNumber": 93
+        },
+        {
+          "caller": "auditFile",
+          "callee": "themeRules.forEach",
+          "lineNumber": 95
+        },
+        {
+          "caller": "auditFile",
+          "callee": "lines.forEach",
+          "lineNumber": 96
+        },
+        {
+          "caller": "auditFile",
+          "callee": "rule.regex.test",
+          "lineNumber": 97
+        },
+        {
+          "caller": "auditFile",
+          "callee": "console.log",
+          "lineNumber": 102
+        },
+        {
+          "caller": "auditFile",
+          "callee": "console.log",
+          "lineNumber": 103
+        },
+        {
+          "caller": "auditFile",
+          "callee": "console.log",
+          "lineNumber": 104
+        },
+        {
+          "caller": "auditFile",
+          "callee": "line.trim().substring",
+          "lineNumber": 104
+        },
+        {
+          "caller": "auditFile",
+          "callee": "line.trim",
+          "lineNumber": 104
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "parseDefinedTokens",
+          "lineNumber": 114
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "getSourceFiles(PATHS.src).filter",
+          "lineNumber": 115
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "getSourceFiles",
+          "lineNumber": 115
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "path.relative(PATHS.root, file).replace",
+          "lineNumber": 120
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "path.relative",
+          "lineNumber": 120
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "fs.readFileSync(file, \"utf8\").split",
+          "lineNumber": 121
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "fs.readFileSync",
+          "lineNumber": 121
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "file.endsWith",
+          "lineNumber": 122
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "file.endsWith",
+          "lineNumber": 122
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "/^\\s*(\\/\\/|\\*|\\/\\*)/.test",
+          "lineNumber": 126
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "line.matchAll",
+          "lineNumber": 128
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "definedMap.has",
+          "lineNumber": 131
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "token_name.startsWith",
+          "lineNumber": 134
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "token_name.startsWith",
+          "lineNumber": 135
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "token_name.startsWith",
+          "lineNumber": 136
+        },
+        {
+          "caller": "auditCodebaseTokens",
+          "callee": "console.error",
+          "lineNumber": 138
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "parseDefinedTokens",
+          "lineNumber": 154
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "getSourceFiles(PATHS.src).filter",
+          "lineNumber": 155
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "getSourceFiles",
+          "lineNumber": 155
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "source_files.map((f) => fs.readFileSync(f, \"utf8\")).join",
+          "lineNumber": 157
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "source_files.map",
+          "lineNumber": 157
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "fs.readFileSync",
+          "lineNumber": 157
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "Array.from(definedMap.keys()).filter",
+          "lineNumber": 159
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "Array.from",
+          "lineNumber": 159
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "definedMap.keys",
+          "lineNumber": 159
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "signatureColors.includes",
+          "lineNumber": 179
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "regex.test",
+          "lineNumber": 182
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "console.log",
+          "lineNumber": 186
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "unused.forEach",
+          "lineNumber": 187
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "console.log",
+          "lineNumber": 187
+        },
+        {
+          "caller": "findUnusedTokens",
+          "callee": "console.log",
+          "lineNumber": 188
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 2,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".agents/skills/design/scripts/sync-css.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 155,
+      "nonEmptyLines": 135,
+      "functions": [
+        {
+          "name": "runFormatter",
+          "startLine": 10,
+          "endLine": 19,
+          "params": []
+        },
+        {
+          "name": "parseMarkdownDoc",
+          "startLine": 25,
+          "endLine": 34,
+          "params": []
+        },
+        {
+          "name": "flattenFrontmatter",
+          "startLine": 41,
+          "endLine": 71,
+          "params": [
+            "data"
+          ]
+        },
+        {
+          "name": "buildJsBridge",
+          "startLine": 77,
+          "endLine": 119,
+          "params": [
+            "flat_data"
+          ]
+        },
+        {
+          "name": "syncToCss",
+          "startLine": 124,
+          "endLine": 151,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "syncToCss",
+          "line": 124,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "runFormatter",
+          "callee": "execSync",
+          "lineNumber": 13
+        },
+        {
+          "caller": "runFormatter",
+          "callee": "console.warn",
+          "lineNumber": 17
+        },
+        {
+          "caller": "parseMarkdownDoc",
+          "callee": "fs.readFileSync",
+          "lineNumber": 26
+        },
+        {
+          "caller": "parseMarkdownDoc",
+          "callee": "content.split",
+          "lineNumber": 27
+        },
+        {
+          "caller": "parseMarkdownDoc",
+          "callee": "yaml.load",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parseMarkdownDoc",
+          "callee": "parts.slice(2).join(\"---\").trim",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parseMarkdownDoc",
+          "callee": "parts.slice(2).join",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parseMarkdownDoc",
+          "callee": "parts.slice",
+          "lineNumber": 30
+        },
+        {
+          "caller": "flattenFrontmatter",
+          "callee": "Object.fromEntries",
+          "lineNumber": 42
+        },
+        {
+          "caller": "flattenFrontmatter",
+          "callee": "AUTHORITATIVE_CATEGORIES.map",
+          "lineNumber": 42
+        },
+        {
+          "caller": "traverse",
+          "callee": "Object.entries(obj).forEach",
+          "lineNumber": 52
+        },
+        {
+          "caller": "traverse",
+          "callee": "Object.entries",
+          "lineNumber": 52
+        },
+        {
+          "caller": "traverse",
+          "callee": "[\"name\", \"version\", \"description\"].includes",
+          "lineNumber": 53
+        },
+        {
+          "caller": "traverse",
+          "callee": "AUTHORITATIVE_CATEGORIES.includes",
+          "lineNumber": 55
+        },
+        {
+          "caller": "traverse",
+          "callee": "traverse",
+          "lineNumber": 58
+        },
+        {
+          "caller": "traverse",
+          "callee": "getCategory",
+          "lineNumber": 60
+        },
+        {
+          "caller": "traverse",
+          "callee": "console.error",
+          "lineNumber": 64
+        },
+        {
+          "caller": "flattenFrontmatter",
+          "callee": "traverse",
+          "lineNumber": 69
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "AUTHORITATIVE_CATEGORIES.reduce",
+          "lineNumber": 78
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "Object.entries(flat_data[category] || {})\n        .sort()\n        .forEach",
+          "lineNumber": 80
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "Object.entries(flat_data[category] || {})\n        .sort",
+          "lineNumber": 80
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "Object.entries",
+          "lineNumber": 80
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "value.startsWith",
+          "lineNumber": 84
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "name.startsWith",
+          "lineNumber": 85
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "name.slice",
+          "lineNumber": 85
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "cleanName\n              .split(\"-\")\n              .map((w) => w.charAt(0).toUpperCase() + w.slice(1))\n              .join",
+          "lineNumber": 86
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "cleanName\n              .split(\"-\")\n              .map",
+          "lineNumber": 86
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "cleanName\n              .split",
+          "lineNumber": 86
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "w.charAt(0).toUpperCase",
+          "lineNumber": 88
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "w.charAt",
+          "lineNumber": 88
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "w.slice",
+          "lineNumber": 88
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "JSON.stringify",
+          "lineNumber": 99
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "JSON.stringify",
+          "lineNumber": 101
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "JSON.stringify",
+          "lineNumber": 103
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "fs.existsSync",
+          "lineNumber": 105
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "fs.readFileSync",
+          "lineNumber": 106
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "regex.test",
+          "lineNumber": 108
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "content.replace",
+          "lineNumber": 109
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "fs.writeFileSync",
+          "lineNumber": 110
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "console.warn",
+          "lineNumber": 112
+        },
+        {
+          "caller": "buildJsBridge",
+          "callee": "fs.writeFileSync",
+          "lineNumber": 117
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "parseMarkdownDoc",
+          "lineNumber": 125
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "flattenFrontmatter",
+          "lineNumber": 126
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "AUTHORITATIVE_CATEGORIES.map((category) => {\n    const category_header = `  /* --- ${category.toUpperCase()} --- */`;\n    const entries = Object.entries(flat_data[category]).sort();\n    if (entries.length === 0) {\n      return category_header;\n    }\n    const properties = entries.map(([name, value]) => `  --${name}: ${value};`).join(\"\\n\");\n\n    return `${category_header}\\n${properties}`;\n  }).join",
+          "lineNumber": 133
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "AUTHORITATIVE_CATEGORIES.map",
+          "lineNumber": 133
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "category.toUpperCase",
+          "lineNumber": 134
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "Object.entries(flat_data[category]).sort",
+          "lineNumber": 135
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "Object.entries",
+          "lineNumber": 135
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "entries.map(([name, value]) => `  --${name}: ${value};`).join",
+          "lineNumber": 139
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "entries.map",
+          "lineNumber": 139
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "[...body.matchAll(/```css([\\s\\S]*?)```/g)].map((m) => m[1].trim()).join",
+          "lineNumber": 144
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "[...body.matchAll(/```css([\\s\\S]*?)```/g)].map",
+          "lineNumber": 144
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "body.matchAll",
+          "lineNumber": 144
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "m[1].trim",
+          "lineNumber": 144
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "fs.writeFileSync",
+          "lineNumber": 148
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "buildJsBridge",
+          "lineNumber": 149
+        },
+        {
+          "caller": "syncToCss",
+          "callee": "runFormatter",
+          "lineNumber": 150
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".agents/skills/design/scripts/sync-css.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 67,
+      "nonEmptyLines": 58,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": ".agents/skills/design/scripts/token-utils.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 125,
+      "nonEmptyLines": 109,
+      "functions": [
+        {
+          "name": "getCategory",
+          "startLine": 25,
+          "endLine": 56,
+          "params": [
+            "name"
+          ]
+        },
+        {
+          "name": "parseDefinedTokens",
+          "startLine": 62,
+          "endLine": 100,
+          "params": []
+        },
+        {
+          "name": "getSourceFiles",
+          "startLine": 108,
+          "endLine": 125,
+          "params": [
+            "dir"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "PATHS",
+          "line": 9,
+          "isDefault": false
+        },
+        {
+          "name": "AUTHORITATIVE_CATEGORIES",
+          "line": 17,
+          "isDefault": false
+        },
+        {
+          "name": "getCategory",
+          "line": 25,
+          "isDefault": false
+        },
+        {
+          "name": "parseDefinedTokens",
+          "line": 62,
+          "isDefault": false
+        },
+        {
+          "name": "getSourceFiles",
+          "line": 108,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "getCategory",
+          "callee": "String(value).trim",
+          "lineNumber": 26
+        },
+        {
+          "caller": "getCategory",
+          "callee": "String",
+          "lineNumber": 26
+        },
+        {
+          "caller": "getCategory",
+          "callee": "name.trim",
+          "lineNumber": 27
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^color-/.test",
+          "lineNumber": 30
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^background-/.test",
+          "lineNumber": 31
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/-color$/.test",
+          "lineNumber": 32
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/-color-/.test",
+          "lineNumber": 33
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/gradient/.test",
+          "lineNumber": 34
+        },
+        {
+          "caller": "getCategory",
+          "callee": "cleanVal.startsWith",
+          "lineNumber": 35
+        },
+        {
+          "caller": "getCategory",
+          "callee": "cleanVal.startsWith",
+          "lineNumber": 36
+        },
+        {
+          "caller": "getCategory",
+          "callee": "cleanVal.startsWith",
+          "lineNumber": 37
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^font-/.test",
+          "lineNumber": 41
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^radius-/.test",
+          "lineNumber": 42
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/-radius$/.test",
+          "lineNumber": 42
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^spacing-/.test",
+          "lineNumber": 44
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^gap-/.test",
+          "lineNumber": 45
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^padding-/.test",
+          "lineNumber": 46
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/^margin-/.test",
+          "lineNumber": 47
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/column/.test",
+          "lineNumber": 48
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/row/.test",
+          "lineNumber": 49
+        },
+        {
+          "caller": "getCategory",
+          "callee": "/grid-/.test",
+          "lineNumber": 50
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "fs.existsSync",
+          "lineNumber": 64
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "fs.readFileSync",
+          "lineNumber": 66
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "content.split",
+          "lineNumber": 67
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "yaml.load",
+          "lineNumber": 72
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "console.error",
+          "lineNumber": 74
+        },
+        {
+          "caller": "traverse",
+          "callee": "Object.entries(obj).forEach",
+          "lineNumber": 84
+        },
+        {
+          "caller": "traverse",
+          "callee": "Object.entries",
+          "lineNumber": 84
+        },
+        {
+          "caller": "traverse",
+          "callee": "traverse",
+          "lineNumber": 86
+        },
+        {
+          "caller": "traverse",
+          "callee": "tokens.set",
+          "lineNumber": 88
+        },
+        {
+          "caller": "traverse",
+          "callee": "String",
+          "lineNumber": 88
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "AUTHORITATIVE_CATEGORIES.forEach",
+          "lineNumber": 93
+        },
+        {
+          "caller": "parseDefinedTokens",
+          "callee": "traverse",
+          "lineNumber": 95
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "fs.existsSync",
+          "lineNumber": 109
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "fs.readdirSync(dir).reduce",
+          "lineNumber": 111
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "fs.readdirSync",
+          "lineNumber": 111
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "path.join",
+          "lineNumber": 114
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "fs.statSync",
+          "lineNumber": 115
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "stat?.isDirectory",
+          "lineNumber": 117
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "results.push",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "getSourceFiles",
+          "lineNumber": 118
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "extensions.includes",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "path.extname",
+          "lineNumber": 119
+        },
+        {
+          "caller": "getSourceFiles",
+          "callee": "results.push",
+          "lineNumber": 120
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 5,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    }
+  ]
+}

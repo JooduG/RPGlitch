@@ -1,0 +1,1302 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 18,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "src/ui/organisms/ProfileHeader.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 235,
+      "nonEmptyLines": 225,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/organisms/Storyboard.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 118,
+      "nonEmptyLines": 109,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/organisms/StoryboardDynamicTitle.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 195,
+      "nonEmptyLines": 174,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/organisms/Storymode.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 167,
+      "nonEmptyLines": 161,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/organisms/StorymodeFeed.svelte",
+      "language": "svelte",
+      "fileCategory": "code",
+      "totalLines": 300,
+      "nonEmptyLines": 263,
+      "metrics": {}
+    },
+    {
+      "path": "src/ui/utils/field-path.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 38,
+      "nonEmptyLines": 36,
+      "functions": [
+        {
+          "name": "get_value",
+          "startLine": 12,
+          "endLine": 19,
+          "params": [
+            "obj",
+            "path"
+          ]
+        },
+        {
+          "name": "set_value",
+          "startLine": 28,
+          "endLine": 38,
+          "params": [
+            "obj",
+            "path",
+            "val"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_value",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "set_value",
+          "line": 28,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_value",
+          "callee": "path\n    .split(\".\")\n    .reduce",
+          "lineNumber": 15
+        },
+        {
+          "caller": "get_value",
+          "callee": "path\n    .split",
+          "lineNumber": 15
+        },
+        {
+          "caller": "set_value",
+          "callee": "path.split",
+          "lineNumber": 30
+        },
+        {
+          "caller": "set_value",
+          "callee": "keys.pop",
+          "lineNumber": 31
+        },
+        {
+          "caller": "set_value",
+          "callee": "keys.reduce",
+          "lineNumber": 33
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/utils/index.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 10,
+      "nonEmptyLines": 9,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/utils/markdown.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 43,
+      "functions": [
+        {
+          "name": "parse_markdown",
+          "startLine": 9,
+          "endLine": 43,
+          "params": [
+            "text"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "parse_markdown",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "parse_markdown",
+          "callee": "String",
+          "lineNumber": 11
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "textStr.split",
+          "lineNumber": 12
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "paragraphs.map",
+          "lineNumber": 13
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "p.replace",
+          "lineNumber": 14
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "regex.exec",
+          "lineNumber": 20
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "tokens.push",
+          "lineNumber": 22
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "normalized.substring",
+          "lineNumber": 24
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "tokens.push",
+          "lineNumber": 28
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "tokens.push",
+          "lineNumber": 30
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "tokens.push",
+          "lineNumber": 32
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "tokens.push",
+          "lineNumber": 34
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "tokens.push",
+          "lineNumber": 39
+        },
+        {
+          "caller": "parse_markdown",
+          "callee": "normalized.substring",
+          "lineNumber": 39
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/utils/safe-html.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 17,
+      "nonEmptyLines": 17,
+      "functions": [
+        {
+          "name": "safe_html",
+          "startLine": 7,
+          "endLine": 17,
+          "params": [
+            "node",
+            "content"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "safe_html",
+          "line": 7,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "update_content",
+          "callee": "node.appendChild",
+          "lineNumber": 11
+        },
+        {
+          "caller": "update_content",
+          "callee": "sanitizeToFragment",
+          "lineNumber": 11
+        },
+        {
+          "caller": "safe_html",
+          "callee": "update_content",
+          "lineNumber": 13
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/utils/safe-html.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 56,
+      "nonEmptyLines": 56,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/utils/ui-helpers.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 355,
+      "nonEmptyLines": 304,
+      "functions": [
+        {
+          "name": "get_css_value",
+          "startLine": 19,
+          "endLine": 22,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "try_direct_var_resolve",
+          "startLine": 30,
+          "endLine": 44,
+          "params": [
+            "trimmed",
+            "context"
+          ]
+        },
+        {
+          "name": "get_measure_el",
+          "startLine": 54,
+          "endLine": 78,
+          "params": []
+        },
+        {
+          "name": "prepare_measure",
+          "startLine": 88,
+          "endLine": 115,
+          "params": [
+            "value",
+            "prop",
+            "sentinel",
+            "context"
+          ]
+        },
+        {
+          "name": "resolve_px",
+          "startLine": 126,
+          "endLine": 166,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "resolve_ms",
+          "startLine": 176,
+          "endLine": 226,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "resolve_number",
+          "startLine": 236,
+          "endLine": 271,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "resolve_string",
+          "startLine": 282,
+          "endLine": 312,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "mockPlugins",
+          "startLine": 323,
+          "endLine": 328,
+          "params": []
+        },
+        {
+          "name": "getRpgList",
+          "startLine": 336,
+          "endLine": 355,
+          "params": [
+            "key"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "clamp",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "generateSecureSeed",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "generateUUID",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "pickRandom",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "resolve_px",
+          "line": 126,
+          "isDefault": false
+        },
+        {
+          "name": "resolve_ms",
+          "line": 176,
+          "isDefault": false
+        },
+        {
+          "name": "resolve_number",
+          "line": 236,
+          "isDefault": false
+        },
+        {
+          "name": "resolve_string",
+          "line": 282,
+          "isDefault": false
+        },
+        {
+          "name": "parse_ms",
+          "line": 318,
+          "isDefault": false
+        },
+        {
+          "name": "mockPlugins",
+          "line": 323,
+          "isDefault": false
+        },
+        {
+          "name": "getRpgList",
+          "line": 336,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_css_value",
+          "callee": "String(value).trim",
+          "lineNumber": 20
+        },
+        {
+          "caller": "get_css_value",
+          "callee": "String",
+          "lineNumber": 20
+        },
+        {
+          "caller": "get_css_value",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 21
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 33
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 33
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "trimmed.endsWith",
+          "lineNumber": 33
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "trimmed.startsWith",
+          "lineNumber": 36
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "trimmed.slice(4, -1).trim",
+          "lineNumber": 36
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "trimmed.slice",
+          "lineNumber": 36
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "varName.includes",
+          "lineNumber": 37
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "window.getComputedStyle(context).getPropertyValue(varName).trim",
+          "lineNumber": 40
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "window.getComputedStyle(context).getPropertyValue",
+          "lineNumber": 40
+        },
+        {
+          "caller": "try_direct_var_resolve",
+          "callee": "window.getComputedStyle",
+          "lineNumber": 40
+        },
+        {
+          "caller": "get_measure_el",
+          "callee": "document.createElement",
+          "lineNumber": 58
+        },
+        {
+          "caller": "get_measure_el",
+          "callee": "document.body.appendChild",
+          "lineNumber": 65
+        },
+        {
+          "caller": "get_measure_el",
+          "callee": "/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test",
+          "lineNumber": 71
+        },
+        {
+          "caller": "get_measure_el",
+          "callee": "targetParent.appendChild",
+          "lineNumber": 74
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "get_measure_el",
+          "lineNumber": 89
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "get_css_value",
+          "lineNumber": 92
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "el.style.setProperty",
+          "lineNumber": 98
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "el.style.setProperty",
+          "lineNumber": 99
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "window.getComputedStyle(el).getPropertyValue(\"--proxy\").trim",
+          "lineNumber": 100
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "window.getComputedStyle(el).getPropertyValue",
+          "lineNumber": 100
+        },
+        {
+          "caller": "prepare_measure",
+          "callee": "window.getComputedStyle",
+          "lineNumber": 100
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "String(value).trim",
+          "lineNumber": 130
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "String",
+          "lineNumber": 130
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "trimmed.match",
+          "lineNumber": 134
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "trimmed.includes",
+          "lineNumber": 135
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "trimmed.includes",
+          "lineNumber": 135
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "parseFloat",
+          "lineNumber": 136
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "isNaN",
+          "lineNumber": 137
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "try_direct_var_resolve",
+          "lineNumber": 141
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "fastResolved.match",
+          "lineNumber": 143
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "fastResolved.includes",
+          "lineNumber": 144
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "fastResolved.includes",
+          "lineNumber": 144
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "parseFloat",
+          "lineNumber": 145
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "prepare_measure",
+          "lineNumber": 151
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "window.getComputedStyle",
+          "lineNumber": 153
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "parseFloat",
+          "lineNumber": 157
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "parseFloat",
+          "lineNumber": 157
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "parseFloat",
+          "lineNumber": 161
+        },
+        {
+          "caller": "resolve_px",
+          "callee": "isNaN",
+          "lineNumber": 162
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "String(value).trim",
+          "lineNumber": 180
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "String",
+          "lineNumber": 180
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "trimmed.match",
+          "lineNumber": 184
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "trimmed.includes",
+          "lineNumber": 185
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "trimmed.includes",
+          "lineNumber": 185
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "parseFloat",
+          "lineNumber": 187
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "try_direct_var_resolve",
+          "lineNumber": 196
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "direct.match",
+          "lineNumber": 198
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "direct.includes",
+          "lineNumber": 199
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "direct.includes",
+          "lineNumber": 199
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "parseFloat",
+          "lineNumber": 201
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "prepare_measure",
+          "lineNumber": 209
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "window.getComputedStyle",
+          "lineNumber": 211
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "parseFloat",
+          "lineNumber": 214
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "parseFloat",
+          "lineNumber": 214
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "computed.match",
+          "lineNumber": 218
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "parseFloat",
+          "lineNumber": 221
+        },
+        {
+          "caller": "resolve_ms",
+          "callee": "parseFloat",
+          "lineNumber": 221
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "String(value).trim",
+          "lineNumber": 240
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "String",
+          "lineNumber": 240
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "parseFloat",
+          "lineNumber": 244
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "isNaN",
+          "lineNumber": 245
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "trimmed.includes",
+          "lineNumber": 245
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "trimmed.includes",
+          "lineNumber": 245
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "try_direct_var_resolve",
+          "lineNumber": 248
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "parseFloat",
+          "lineNumber": 250
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "isNaN",
+          "lineNumber": 251
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "fastResolved.includes",
+          "lineNumber": 251
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "fastResolved.includes",
+          "lineNumber": 251
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "prepare_measure",
+          "lineNumber": 258
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "window.getComputedStyle",
+          "lineNumber": 260
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "parseFloat",
+          "lineNumber": 262
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "parseFloat",
+          "lineNumber": 262
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "parseFloat",
+          "lineNumber": 266
+        },
+        {
+          "caller": "resolve_number",
+          "callee": "isNaN",
+          "lineNumber": 267
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "String(value).trim",
+          "lineNumber": 285
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "String",
+          "lineNumber": 285
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "try_direct_var_resolve",
+          "lineNumber": 289
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "direct.includes",
+          "lineNumber": 290
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "direct.replace",
+          "lineNumber": 291
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "get_css_value",
+          "lineNumber": 295
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "get_measure_el",
+          "lineNumber": 296
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "el.style.setProperty",
+          "lineNumber": 301
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "el.style.setProperty",
+          "lineNumber": 302
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "window.getComputedStyle(el).getPropertyValue(\"--proxy\").trim",
+          "lineNumber": 303
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "window.getComputedStyle(el).getPropertyValue",
+          "lineNumber": 303
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "window.getComputedStyle",
+          "lineNumber": 303
+        },
+        {
+          "caller": "resolve_string",
+          "callee": "resolved.replace",
+          "lineNumber": 307
+        },
+        {
+          "caller": "getRpgList",
+          "callee": "Array.isArray",
+          "lineNumber": 340
+        },
+        {
+          "caller": "getRpgList",
+          "callee": "list[0].startsWith",
+          "lineNumber": 340
+        },
+        {
+          "caller": "getRpgList",
+          "callee": "console.warn",
+          "lineNumber": 342
+        },
+        {
+          "caller": "getRpgList",
+          "callee": "JSON.parse",
+          "lineNumber": 346
+        },
+        {
+          "caller": "getRpgList",
+          "callee": "console.warn",
+          "lineNumber": 348
+        },
+        {
+          "caller": "getRpgList",
+          "callee": "Array.isArray",
+          "lineNumber": 352
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 11,
+        "functionCount": 10,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "src/ui/utils/ui-helpers.test.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 334,
+      "nonEmptyLines": 284,
+      "callGraph": [
+        {
+          "caller": "resolveMockValue",
+          "callee": "val.trim",
+          "lineNumber": 32
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "trimmed.match",
+          "lineNumber": 35
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "varMatch[1].trim",
+          "lineNumber": 37
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "varMatch[2]?.trim",
+          "lineNumber": 38
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "originalGetComputedStyle(current).getPropertyValue",
+          "lineNumber": 44
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "originalGetComputedStyle",
+          "lineNumber": 44
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "resolveMockValue",
+          "lineNumber": 49
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "resolveMockValue",
+          "lineNumber": 50
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "trimmed.includes",
+          "lineNumber": 55
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "trimmed.includes",
+          "lineNumber": 56
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "trimmed.includes",
+          "lineNumber": 57
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "trimmed.includes",
+          "lineNumber": 58
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "trimmed.endsWith",
+          "lineNumber": 62
+        },
+        {
+          "caller": "resolveMockValue",
+          "callee": "parseFloat",
+          "lineNumber": 63
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "stylelint.config.cjs",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 58,
+      "nonEmptyLines": 49,
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "svelte.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 22,
+      "nonEmptyLines": 18,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "tasks/tracks/understand-anything-plugin-2026-07-06.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 53,
+      "nonEmptyLines": 42,
+      "sections": [
+        {
+          "heading": "Understand Anything",
+          "level": 1,
+          "line": 10
+        },
+        {
+          "heading": "🏛️ Eternal (The Soul)",
+          "level": 2,
+          "line": 12
+        },
+        {
+          "heading": "Objective",
+          "level": 3,
+          "line": 14
+        },
+        {
+          "heading": "Success Criteria",
+          "level": 3,
+          "line": 17
+        },
+        {
+          "heading": "Boundaries",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "🔧 Future (The Muscle)",
+          "level": 2,
+          "line": 26
+        },
+        {
+          "heading": "Tasks",
+          "level": 3,
+          "line": 28
+        },
+        {
+          "heading": "🛰️ Present (The State)",
+          "level": 2,
+          "line": 44
+        },
+        {
+          "heading": "Active Task",
+          "level": 3,
+          "line": 46
+        },
+        {
+          "heading": "Pulse",
+          "level": 3,
+          "line": 49
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 10
+      }
+    },
+    {
+      "path": "types.d.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 166,
+      "nonEmptyLines": 136,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "vite.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 179,
+      "nonEmptyLines": 169,
+      "functions": [
+        {
+          "name": "designTokenSync",
+          "startLine": 11,
+          "endLine": 37,
+          "params": []
+        },
+        {
+          "name": "perchanceBase64Vault",
+          "startLine": 40,
+          "endLine": 107,
+          "params": []
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "buildStart",
+          "callee": "console.log",
+          "lineNumber": 16
+        },
+        {
+          "caller": "buildStart",
+          "callee": "execSync",
+          "lineNumber": 17
+        },
+        {
+          "caller": "buildStart",
+          "callee": "console.error",
+          "lineNumber": 21
+        },
+        {
+          "caller": "handleHotUpdate",
+          "callee": "file.endsWith",
+          "lineNumber": 25
+        },
+        {
+          "caller": "handleHotUpdate",
+          "callee": "console.log",
+          "lineNumber": 27
+        },
+        {
+          "caller": "handleHotUpdate",
+          "callee": "execSync",
+          "lineNumber": 28
+        },
+        {
+          "caller": "handleHotUpdate",
+          "callee": "console.error",
+          "lineNumber": 32
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "path.resolve",
+          "lineNumber": 44
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "fs.existsSync",
+          "lineNumber": 46
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "fs.readFileSync",
+          "lineNumber": 47
+        },
+        {
+          "caller": "toBase64",
+          "callee": "Buffer.from(str, \"utf8\").toString",
+          "lineNumber": 49
+        },
+        {
+          "caller": "toBase64",
+          "callee": "Buffer.from",
+          "lineNumber": 49
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "html.replace",
+          "lineNumber": 52
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "cssContent.trim",
+          "lineNumber": 53
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "toBase64",
+          "lineNumber": 54
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "b64.match",
+          "lineNumber": 55
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "JSON.stringify",
+          "lineNumber": 56
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "html.replace",
+          "lineNumber": 73
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "attributes.includes",
+          "lineNumber": 74
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "attributes.includes",
+          "lineNumber": 75
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "jsContent.trim",
+          "lineNumber": 76
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "toBase64",
+          "lineNumber": 78
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "b64.match",
+          "lineNumber": 79
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "JSON.stringify",
+          "lineNumber": 80
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "attributes.includes",
+          "lineNumber": 81
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "attributes.includes",
+          "lineNumber": 81
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "fs.writeFileSync",
+          "lineNumber": 99
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "console.log",
+          "lineNumber": 100
+        },
+        {
+          "caller": "closeBundle",
+          "callee": "console.error",
+          "lineNumber": 103
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "vitest.config.js",
+      "language": "javascript",
+      "fileCategory": "code",
+      "totalLines": 43,
+      "nonEmptyLines": 39,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

@@ -1,0 +1,1941 @@
+{
+  "schemaVersion": 1,
+  "algorithm": "louvain",
+  "totalFiles": 175,
+  "totalBatches": 13,
+  "exportsByPath": {
+    ".agents/skills/design/scripts/audit-design.js": [
+      "auditCodebaseTokens",
+      "findUnusedTokens"
+    ],
+    ".agents/skills/design/scripts/audit-google-design.js": [],
+    ".agents/skills/design/scripts/audit-svelte.js": [],
+    ".agents/skills/design/scripts/forge-svelte.js": [],
+    ".agents/skills/design/scripts/sync-css.js": [
+      "syncToCss"
+    ],
+    ".agents/skills/design/scripts/sync-css.test.js": [],
+    ".agents/skills/design/scripts/token-utils.js": [
+      "PATHS",
+      "AUTHORITATIVE_CATEGORIES",
+      "getCategory",
+      "parseDefinedTokens",
+      "getSourceFiles"
+    ],
+    ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js": [
+      "nomenclatureRules"
+    ],
+    ".agents/skills/local-dispatcher/scripts/audit-project.js": [
+      "safeStatSync",
+      "getTemplateStructure",
+      "validateAgainstStructure",
+      "skillRules",
+      "ruleRules",
+      "workflowRules",
+      "projectRules"
+    ],
+    ".agents/skills/local-dispatcher/scripts/audit-security.js": [],
+    ".agents/skills/local-dispatcher/scripts/sync-ignores.js": [
+      "syncIgnores"
+    ],
+    ".agents/skills/premades/assets/premades-nsfw.js": [
+      "premade"
+    ],
+    ".agents/skills/release/scripts/deploy-perchance.js": [],
+    ".agents/skills/simulation/scripts/simulation-audit.js": [
+      "SimulationAudit"
+    ],
+    ".agents/skills/simulation/scripts/simulation-audit.test.js": [],
+    ".agents/skills/simulation/scripts/test-setup.js": [
+      "mock_llm_success"
+    ],
+    ".agents/skills/swarm/scripts/cli.js": [],
+    ".gitattributes": [],
+    ".htmlhintrc": [],
+    ".markdownlint-cli2.mjs": [],
+    ".npmrc": [],
+    "eslint.config.js": [],
+    "playwright.config.js": [],
+    "RPGlitch.code-workspace": [],
+    "scripts/local-understand-phase2.js": [],
+    "src/App.svelte": [],
+    "src/data/db.js": [
+      "init",
+      "db"
+    ],
+    "src/data/db.test.js": [],
+    "src/data/index.js": [
+      "seed_premades",
+      "stories",
+      "entities",
+      "prune",
+      "db",
+      "init",
+      "STORAGE_VERSION",
+      "ENTITY_TEMPLATES",
+      "get_random_signature_key",
+      "normalize",
+      "coerce_temporal_array",
+      "create_new",
+      "format_premade",
+      "premade",
+      "LISTS",
+      "NARRATIVE_STYLES"
+    ],
+    "src/data/lists.js": [
+      "LISTS"
+    ],
+    "src/data/narrative-styles.js": [
+      "NARRATIVE_STYLES"
+    ],
+    "src/data/normalizer.js": [
+      "STORAGE_VERSION",
+      "ENTITY_TEMPLATES",
+      "get_random_signature_key",
+      "normalize",
+      "coerce_temporal_array",
+      "create_new",
+      "format_premade",
+      "detox_prose"
+    ],
+    "src/data/normalizer.test.js": [],
+    "src/data/premades.js": [
+      "premade"
+    ],
+    "src/data/repository.js": [
+      "seed_premades",
+      "entities",
+      "stories",
+      "prune",
+      "hydrate"
+    ],
+    "src/engine/boot.js": [
+      "reset_bootstrap_guard",
+      "AppBootstrap"
+    ],
+    "src/engine/boot.test.js": [],
+    "src/engine/chrono.svelte.js": [
+      "ChronoStore",
+      "Chrono"
+    ],
+    "src/engine/chrono.test.js": [],
+    "src/engine/config.js": [
+      "APP_VERSION",
+      "SESSION_ID_KEY",
+      "KV_SETTINGS_KEY",
+      "DROPDOWN_MAX_HEIGHT",
+      "TELEMETRY_TYPES",
+      "CONFIG",
+      "{ ROLES, ENTITIES, MESSAGES, VIEWS, THEME }",
+      "ERROR_MESSAGES"
+    ],
+    "src/engine/config.test.js": [],
+    "src/engine/index.js": [
+      "AppBootstrap",
+      "Chrono",
+      "session_driver",
+      "ERROR_MESSAGES",
+      "CONFIG",
+      "APP_VERSION",
+      "SESSION_ID_KEY",
+      "KV_SETTINGS_KEY",
+      "TELEMETRY_TYPES",
+      "log",
+      "generateUUID",
+      "generateSecureSeed",
+      "pickRandom",
+      "clamp",
+      "ind",
+      "guardedTransition"
+    ],
+    "src/engine/session.svelte.js": [
+      "session_driver"
+    ],
+    "src/engine/transition-guard.js": [
+      "guardedTransition"
+    ],
+    "src/engine/transition-guard.test.js": [],
+    "src/engine/utils.js": [
+      "generateUUID",
+      "generateSecureSeed",
+      "pickRandom",
+      "clamp",
+      "log",
+      "ind"
+    ],
+    "src/engine/utils.test.js": [],
+    "src/intelligence/context.svelte.js": [
+      "context_broker"
+    ],
+    "src/intelligence/context.test.js": [],
+    "src/intelligence/fragments.js": [
+      "NAME_PREFIXES",
+      "ENTITY_FRAGMENTS",
+      "format_key_as_label",
+      "ENTITY_CATALOG",
+      "build_profile_sections",
+      "PROFILE_SECTIONS_BY_TYPE"
+    ],
+    "src/intelligence/index.js": [
+      "context_broker",
+      "ENTITY_CATALOG",
+      "ENTITY_FRAGMENTS",
+      "NAME_PREFIXES",
+      "PROFILE_SECTIONS_BY_TYPE",
+      "gamemaster",
+      "clean_xml",
+      "clean_image_prompts",
+      "clean_text",
+      "escapeXml",
+      "parse_message",
+      "parse_think_block",
+      "strip_cognition_blocks",
+      "wrap_dialogue",
+      "prompt_builder",
+      "PROTOCOL_LIBRARY",
+      "temporal_engine",
+      "dynamics_engine",
+      "DYNAMICS_META"
+    ],
+    "src/intelligence/kernel.js": [
+      "gamemaster"
+    ],
+    "src/intelligence/kernel.test.js": [],
+    "src/intelligence/parser.js": [
+      "parse_think_block",
+      "strip_cognition_blocks",
+      "clean_image_prompts",
+      "wrap_dialogue",
+      "parse_message",
+      "escapeXml",
+      "clean_text",
+      "clean_xml"
+    ],
+    "src/intelligence/parser.test.js": [],
+    "src/intelligence/prompts.js": [
+      "PROTOCOL_LIBRARY",
+      "prompt_builder"
+    ],
+    "src/intelligence/prompts.test.js": [],
+    "src/intelligence/temporal.js": [
+      "create",
+      "score",
+      "format",
+      "resolve",
+      "weave_resonance",
+      "DYNAMICS_META",
+      "dynamics_engine",
+      "apply_state_mutations",
+      "temporal_engine"
+    ],
+    "src/intelligence/temporal.test.js": [],
+    "src/main.js": [],
+    "src/media/audio.svelte.js": [
+      "VoiceEngine",
+      "Audio"
+    ],
+    "src/media/index.js": [
+      "Audio",
+      "VoiceEngine",
+      "get_signature_color",
+      "get_deterministic_color",
+      "get_color_name",
+      "get_signature_label",
+      "resolve_token",
+      "SIGNATURE_COLORS",
+      "PALETTE",
+      "PALETTE_VARS",
+      "TOKENS",
+      "LISTS",
+      "NEGATIVE_PROMPT",
+      "AestheticResolver",
+      "PromptTemplates",
+      "getResolution",
+      "flatten_physical",
+      "safeParsePseudoJson",
+      "ExponentialBackoffRetryer",
+      "CircuitBreaker",
+      "visual_engine",
+      "VisualEngine"
+    ],
+    "src/media/optics.js": [
+      "NEGATIVE_PROMPT",
+      "safeParsePseudoJson",
+      "flattenToParagraph",
+      "flatten_physical",
+      "AestheticResolver",
+      "PromptTemplates",
+      "getResolution"
+    ],
+    "src/media/resilience.js": [
+      "ExponentialBackoffRetryer",
+      "CircuitBreaker"
+    ],
+    "src/media/resilience.test.js": [],
+    "src/media/tokens.js": [
+      "TOKENS",
+      "PALETTE",
+      "PALETTE_VARS",
+      "SIGNATURE_COLORS",
+      "resolve_token",
+      "get_deterministic_color",
+      "get_color_name",
+      "get_signature_label",
+      "get_signature_color"
+    ],
+    "src/media/tokens.test.js": [],
+    "src/media/visual.svelte.js": [
+      "VisualEngine",
+      "visual_engine"
+    ],
+    "src/platform/index.js": [
+      "llm_service",
+      "sanitize_llm",
+      "sanitizeToFragment",
+      "Security",
+      "Shield",
+      "Snitch",
+      "sanitize",
+      "escape",
+      "checkRefusal",
+      "clean",
+      "validateImage"
+    ],
+    "src/platform/security.js": [
+      "sanitize",
+      "sanitizeToFragment",
+      "escape",
+      "checkRefusal",
+      "clean",
+      "validateImage",
+      "Security",
+      "Shield",
+      "Snitch"
+    ],
+    "src/platform/security.test.js": [],
+    "src/platform/transport.js": [
+      "sanitize_llm",
+      "llm_service"
+    ],
+    "src/RPGlitch-left-panel.perchance": [],
+    "src/state/app.svelte.js": [
+      "AppStore",
+      "app"
+    ],
+    "src/state/app.test.js": [],
+    "src/state/index.js": [
+      "app",
+      "runtime",
+      "controlState",
+      "simulationState",
+      "uiState",
+      "simulation_log"
+    ],
+    "src/state/log.svelte.js": [
+      "SimulationLogStore",
+      "simulation_log"
+    ],
+    "src/state/runtime.svelte.js": [
+      "runtime"
+    ],
+    "src/state/runtime.test.js": [],
+    "src/state/status.svelte.js": [
+      "simulationState",
+      "uiState",
+      "controlState"
+    ],
+    "src/state/status.test.js": [],
+    "src/ui/actions/click-outside.js": [
+      "click_outside"
+    ],
+    "src/ui/actions/index.js": [
+      "auto_resize",
+      "click_outside",
+      "use_actions"
+    ],
+    "src/ui/actions/resize.js": [
+      "auto_resize"
+    ],
+    "src/ui/actions/use-actions.js": [
+      "use_actions"
+    ],
+    "src/ui/atoms/Backdrop.svelte": [],
+    "src/ui/atoms/Button.svelte": [],
+    "src/ui/atoms/DataBox.svelte": [],
+    "src/ui/atoms/Dropdown.svelte": [],
+    "src/ui/atoms/DynamicsMeter.svelte": [],
+    "src/ui/atoms/FitText.svelte": [],
+    "src/ui/atoms/ImagePreview.svelte": [],
+    "src/ui/atoms/index.js": [
+      "Backdrop",
+      "Button",
+      "DataBox",
+      "Dropdown",
+      "imagePreview",
+      "openImagePreview",
+      "closeImagePreview",
+      "ImagePreview",
+      "Modal",
+      "ProfilePicture",
+      "ScrollArea",
+      "Skeleton",
+      "Slider",
+      "TextField",
+      "Toggle",
+      "tooltip_state",
+      "show_tooltip",
+      "hide_tooltip",
+      "tooltip",
+      "Tooltip",
+      "DynamicsMeter"
+    ],
+    "src/ui/atoms/Modal.svelte": [],
+    "src/ui/atoms/ProfilePicture.svelte": [],
+    "src/ui/atoms/ScrollArea.svelte": [],
+    "src/ui/atoms/Skeleton.svelte": [],
+    "src/ui/atoms/Slider.svelte": [],
+    "src/ui/atoms/TextField.svelte": [],
+    "src/ui/atoms/Toggle.svelte": [],
+    "src/ui/atoms/Tooltip.svelte": [],
+    "src/ui/molecules/AudioWing.svelte": [],
+    "src/ui/molecules/DevTelemetryBlock.svelte": [],
+    "src/ui/molecules/DevWing.svelte": [],
+    "src/ui/molecules/Dialog.svelte": [],
+    "src/ui/molecules/EntityCard.svelte": [],
+    "src/ui/molecules/ImportEntity.svelte": [],
+    "src/ui/molecules/index.js": [
+      "AudioWing",
+      "DevWing",
+      "Dialog",
+      "Message",
+      "VisualWing",
+      "DevTelemetryBlock",
+      "EntityCard",
+      "StoryCard",
+      "UnifiedConsole",
+      "ImportEntity"
+    ],
+    "src/ui/molecules/Message.svelte": [],
+    "src/ui/molecules/StoryCard.svelte": [],
+    "src/ui/molecules/UnifiedConsole.svelte": [],
+    "src/ui/molecules/VisualWing.svelte": [],
+    "src/ui/molecules/VisualWing.test.js": [],
+    "src/ui/motion/engine.svelte.js": [
+      "motion",
+      "spring"
+    ],
+    "src/ui/motion/index.js": [
+      "motion",
+      "spring",
+      "pulse",
+      "roll",
+      "shimmy",
+      "spin",
+      "stab",
+      "kinetic_scroll",
+      "typewriter",
+      "Typewriter"
+    ],
+    "src/ui/motion/kinetic.svelte.js": [
+      "shimmy",
+      "pulse",
+      "spin",
+      "roll",
+      "stab",
+      "kinetic_scroll"
+    ],
+    "src/ui/motion/kinetic.test.js": [],
+    "src/ui/motion/Typewriter.svelte": [],
+    "src/ui/motion/typewriter.svelte.js": [
+      "typewriter"
+    ],
+    "src/ui/organisms/CardHand.svelte": [],
+    "src/ui/organisms/index.js": [
+      "Profile",
+      "ProfileArray",
+      "Storyboard",
+      "StoryboardDynamicTitle",
+      "Storymode",
+      "StorymodeFeed",
+      "CardHand",
+      "Layout",
+      "ProfileHeader"
+    ],
+    "src/ui/organisms/Layout.svelte": [],
+    "src/ui/organisms/Profile.svelte": [],
+    "src/ui/organisms/profile.svelte.js": [
+      "ProfileState"
+    ],
+    "src/ui/organisms/profile.test.js": [],
+    "src/ui/organisms/ProfileArray.svelte": [],
+    "src/ui/organisms/ProfileHeader.svelte": [],
+    "src/ui/organisms/Storyboard.svelte": [],
+    "src/ui/organisms/StoryboardDynamicTitle.svelte": [],
+    "src/ui/organisms/Storymode.svelte": [],
+    "src/ui/organisms/StorymodeFeed.svelte": [],
+    "src/ui/utils/field-path.js": [
+      "get_value",
+      "set_value"
+    ],
+    "src/ui/utils/index.js": [],
+    "src/ui/utils/markdown.js": [
+      "parse_markdown"
+    ],
+    "src/ui/utils/safe-html.js": [
+      "safe_html"
+    ],
+    "src/ui/utils/safe-html.test.js": [],
+    "src/ui/utils/ui-helpers.js": [
+      "clamp",
+      "generateSecureSeed",
+      "generateUUID",
+      "pickRandom",
+      "resolve_px",
+      "resolve_ms",
+      "resolve_number",
+      "resolve_string",
+      "parse_ms",
+      "mockPlugins",
+      "getRpgList"
+    ],
+    "src/ui/utils/ui-helpers.test.js": [],
+    "stylelint.config.cjs": [],
+    "svelte.config.js": [],
+    "types.d.ts": [],
+    "vite.config.js": [],
+    "vitest.config.js": []
+  },
+  "batches": [
+    {
+      "batchIndex": 1,
+      "files": [
+        {
+          "path": ".agents/skills/simulation/scripts/simulation-audit.js",
+          "language": "javascript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/simulation/scripts/simulation-audit.test.js",
+          "language": "javascript",
+          "sizeLines": 85,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/premades.js",
+          "language": "javascript",
+          "sizeLines": 582,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/repository.js",
+          "language": "javascript",
+          "sizeLines": 241,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/context.svelte.js",
+          "language": "javascript",
+          "sizeLines": 328,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/prompts.js",
+          "language": "javascript",
+          "sizeLines": 692,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/temporal.js",
+          "language": "javascript",
+          "sizeLines": 407,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".agents/skills/simulation/scripts/simulation-audit.js": [
+          "src/data/premades.js",
+          "src/intelligence/context.svelte.js",
+          "src/intelligence/prompts.js"
+        ],
+        ".agents/skills/simulation/scripts/simulation-audit.test.js": [
+          ".agents/skills/simulation/scripts/simulation-audit.js"
+        ],
+        "src/data/premades.js": [],
+        "src/data/repository.js": [
+          "src/data/premades.js"
+        ],
+        "src/intelligence/context.svelte.js": [],
+        "src/intelligence/prompts.js": [],
+        "src/intelligence/temporal.js": [
+          "src/intelligence/prompts.js"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 2,
+      "files": [
+        {
+          "path": ".agents/skills/design/scripts/audit-design.js",
+          "language": "javascript",
+          "sizeLines": 211,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/design/scripts/sync-css.js",
+          "language": "javascript",
+          "sizeLines": 155,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/design/scripts/sync-css.test.js",
+          "language": "javascript",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/design/scripts/token-utils.js",
+          "language": "javascript",
+          "sizeLines": 125,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".agents/skills/design/scripts/audit-design.js": [
+          ".agents/skills/design/scripts/token-utils.js"
+        ],
+        ".agents/skills/design/scripts/sync-css.js": [
+          ".agents/skills/design/scripts/token-utils.js"
+        ],
+        ".agents/skills/design/scripts/sync-css.test.js": [
+          ".agents/skills/design/scripts/token-utils.js"
+        ],
+        ".agents/skills/design/scripts/token-utils.js": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 3,
+      "files": [
+        {
+          "path": "src/ui/motion/engine.svelte.js",
+          "language": "javascript",
+          "sizeLines": 162,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/motion/kinetic.svelte.js",
+          "language": "javascript",
+          "sizeLines": 399,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/motion/kinetic.test.js",
+          "language": "javascript",
+          "sizeLines": 87,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/ui/motion/engine.svelte.js": [],
+        "src/ui/motion/kinetic.svelte.js": [
+          "src/ui/motion/engine.svelte.js"
+        ],
+        "src/ui/motion/kinetic.test.js": [
+          "src/ui/motion/kinetic.svelte.js"
+        ]
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 4,
+      "files": [
+        {
+          "path": ".github/workflows/jules-auto.yml",
+          "language": "yaml",
+          "sizeLines": 154,
+          "fileCategory": "infra"
+        }
+      ],
+      "batchImportData": {
+        ".github/workflows/jules-auto.yml": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 5,
+      "files": [
+        {
+          "path": ".agents/skills/simulation/data/bayes-prompt-engineering.md",
+          "language": "markdown",
+          "sizeLines": 365,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/simulation/data/memory-idea.md",
+          "language": "markdown",
+          "sizeLines": 42,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/simulation/data/perchance-ai-chat.md",
+          "language": "markdown",
+          "sizeLines": 401,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/simulation/data/somatic-psychology-engine.md",
+          "language": "markdown",
+          "sizeLines": 165,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        ".agents/skills/simulation/data/bayes-prompt-engineering.md": [],
+        ".agents/skills/simulation/data/memory-idea.md": [],
+        ".agents/skills/simulation/data/perchance-ai-chat.md": [],
+        ".agents/skills/simulation/data/somatic-psychology-engine.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 6,
+      "files": [
+        {
+          "path": ".markdownlint-cli2.jsonc",
+          "language": "jsonc",
+          "sizeLines": 6,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".markdownlint.json",
+          "language": "json",
+          "sizeLines": 18,
+          "fileCategory": "config"
+        },
+        {
+          "path": "DESIGN.md",
+          "language": "markdown",
+          "sizeLines": 882,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "GEMINI.md",
+          "language": "markdown",
+          "sizeLines": 292,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "README.md",
+          "language": "markdown",
+          "sizeLines": 105,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "ignores.master.json",
+          "language": "json",
+          "sizeLines": 73,
+          "fileCategory": "config"
+        },
+        {
+          "path": "jsconfig.json",
+          "language": "json",
+          "sizeLines": 72,
+          "fileCategory": "config"
+        },
+        {
+          "path": "package.json",
+          "language": "json",
+          "sizeLines": 206,
+          "fileCategory": "config"
+        },
+        {
+          "path": "setup.sh",
+          "language": "shell",
+          "sizeLines": 57,
+          "fileCategory": "script"
+        },
+        {
+          "path": "skills-lock.json",
+          "language": "json",
+          "sizeLines": 31,
+          "fileCategory": "config"
+        }
+      ],
+      "batchImportData": {
+        ".markdownlint-cli2.jsonc": [],
+        ".markdownlint.json": [],
+        "DESIGN.md": [],
+        "GEMINI.md": [],
+        "README.md": [],
+        "ignores.master.json": [],
+        "jsconfig.json": [],
+        "package.json": [],
+        "setup.sh": [],
+        "skills-lock.json": []
+      },
+      "neighborMap": {
+        "ignores.master.json": [
+          {
+            "path": "stylelint.config.cjs",
+            "batchIndex": 13,
+            "symbols": []
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 7,
+      "files": [
+        {
+          "path": "tasks/ETERNAL.md",
+          "language": "markdown",
+          "sizeLines": 44,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "tasks/FUTURE.md",
+          "language": "markdown",
+          "sizeLines": 26,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "tasks/PRESENT.md",
+          "language": "markdown",
+          "sizeLines": 94,
+          "fileCategory": "docs"
+        }
+      ],
+      "batchImportData": {
+        "tasks/ETERNAL.md": [],
+        "tasks/FUTURE.md": [],
+        "tasks/PRESENT.md": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 8,
+      "files": [
+        {
+          "path": ".agents/config.yaml",
+          "language": "yaml",
+          "sizeLines": 110,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".agents/skills/audio/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 89,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/design/data/interaction-audit.md",
+          "language": "markdown",
+          "sizeLines": 42,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/design/scripts/audit-google-design.js",
+          "language": "javascript",
+          "sizeLines": 60,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/design/scripts/audit-svelte.js",
+          "language": "javascript",
+          "sizeLines": 139,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/design/scripts/forge-svelte.js",
+          "language": "javascript",
+          "sizeLines": 69,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/design/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 109,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
+          "language": "javascript",
+          "sizeLines": 206,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/local-dispatcher/scripts/audit-project.js",
+          "language": "javascript",
+          "sizeLines": 512,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/local-dispatcher/scripts/audit-security.js",
+          "language": "javascript",
+          "sizeLines": 119,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/local-dispatcher/scripts/sync-ignores.js",
+          "language": "javascript",
+          "sizeLines": 98,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/local-dispatcher/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 74,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/premades/assets/premades-nsfw.js",
+          "language": "javascript",
+          "sizeLines": 582,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/premades/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 85,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/release/scripts/deploy-perchance.js",
+          "language": "javascript",
+          "sizeLines": 625,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/release/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 64,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/sfw-premades/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 44,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/simulation/scripts/test-setup.js",
+          "language": "javascript",
+          "sizeLines": 90,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/simulation/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 122,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".agents/skills/swarm/scripts/cli.js",
+          "language": "javascript",
+          "sizeLines": 260,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".agents/skills/swarm/SKILL.md",
+          "language": "markdown",
+          "sizeLines": 50,
+          "fileCategory": "docs"
+        },
+        {
+          "path": ".gemini/settings.json",
+          "language": "json",
+          "sizeLines": 7,
+          "fileCategory": "config"
+        },
+        {
+          "path": ".gitattributes",
+          "language": "unknown",
+          "sizeLines": 19,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".htmlhintrc",
+          "language": "unknown",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": ".markdownlint-cli2.mjs",
+          "language": "javascript",
+          "sizeLines": 20,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".agents/config.yaml": [],
+        ".agents/skills/audio/SKILL.md": [],
+        ".agents/skills/design/data/interaction-audit.md": [],
+        ".agents/skills/design/scripts/audit-google-design.js": [],
+        ".agents/skills/design/scripts/audit-svelte.js": [],
+        ".agents/skills/design/scripts/forge-svelte.js": [],
+        ".agents/skills/design/SKILL.md": [],
+        ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js": [],
+        ".agents/skills/local-dispatcher/scripts/audit-project.js": [],
+        ".agents/skills/local-dispatcher/scripts/audit-security.js": [],
+        ".agents/skills/local-dispatcher/scripts/sync-ignores.js": [],
+        ".agents/skills/local-dispatcher/SKILL.md": [],
+        ".agents/skills/premades/assets/premades-nsfw.js": [],
+        ".agents/skills/premades/SKILL.md": [],
+        ".agents/skills/release/scripts/deploy-perchance.js": [],
+        ".agents/skills/release/SKILL.md": [],
+        ".agents/skills/sfw-premades/SKILL.md": [],
+        ".agents/skills/simulation/scripts/test-setup.js": [],
+        ".agents/skills/simulation/SKILL.md": [],
+        ".agents/skills/swarm/scripts/cli.js": [],
+        ".agents/skills/swarm/SKILL.md": [],
+        ".gemini/settings.json": [],
+        ".gitattributes": [],
+        ".htmlhintrc": [],
+        ".markdownlint-cli2.mjs": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 9,
+      "files": [
+        {
+          "path": ".npmrc",
+          "language": "unknown",
+          "sizeLines": 5,
+          "fileCategory": "code"
+        },
+        {
+          "path": "eslint.config.js",
+          "language": "javascript",
+          "sizeLines": 178,
+          "fileCategory": "code"
+        },
+        {
+          "path": "playwright.config.js",
+          "language": "javascript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "RPGlitch.code-workspace",
+          "language": "code-workspace",
+          "sizeLines": 15,
+          "fileCategory": "code"
+        },
+        {
+          "path": "scripts/local-understand-phase2.js",
+          "language": "javascript",
+          "sizeLines": 211,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/App.svelte",
+          "language": "svelte",
+          "sizeLines": 196,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/db.js",
+          "language": "javascript",
+          "sizeLines": 69,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/db.test.js",
+          "language": "javascript",
+          "sizeLines": 55,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/index.js",
+          "language": "javascript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/lists.js",
+          "language": "javascript",
+          "sizeLines": 137,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/narrative-styles.js",
+          "language": "javascript",
+          "sizeLines": 849,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/normalizer.js",
+          "language": "javascript",
+          "sizeLines": 249,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/data/normalizer.test.js",
+          "language": "javascript",
+          "sizeLines": 238,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/boot.js",
+          "language": "javascript",
+          "sizeLines": 68,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/boot.test.js",
+          "language": "javascript",
+          "sizeLines": 119,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/chrono.svelte.js",
+          "language": "javascript",
+          "sizeLines": 265,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/chrono.test.js",
+          "language": "javascript",
+          "sizeLines": 143,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/config.js",
+          "language": "javascript",
+          "sizeLines": 86,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/config.test.js",
+          "language": "javascript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/index.js",
+          "language": "javascript",
+          "sizeLines": 7,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/session.svelte.js",
+          "language": "javascript",
+          "sizeLines": 235,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/transition-guard.js",
+          "language": "javascript",
+          "sizeLines": 70,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/transition-guard.test.js",
+          "language": "javascript",
+          "sizeLines": 131,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/utils.js",
+          "language": "javascript",
+          "sizeLines": 69,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/engine/utils.test.js",
+          "language": "javascript",
+          "sizeLines": 41,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        ".npmrc": [],
+        "eslint.config.js": [
+          "svelte.config.js"
+        ],
+        "playwright.config.js": [],
+        "RPGlitch.code-workspace": [],
+        "scripts/local-understand-phase2.js": [],
+        "src/App.svelte": [],
+        "src/data/db.js": [],
+        "src/data/db.test.js": [],
+        "src/data/index.js": [],
+        "src/data/lists.js": [],
+        "src/data/narrative-styles.js": [],
+        "src/data/normalizer.js": [],
+        "src/data/normalizer.test.js": [],
+        "src/engine/boot.js": [
+          "src/App.svelte"
+        ],
+        "src/engine/boot.test.js": [],
+        "src/engine/chrono.svelte.js": [],
+        "src/engine/chrono.test.js": [
+          "src/engine/chrono.svelte.js"
+        ],
+        "src/engine/config.js": [],
+        "src/engine/config.test.js": [
+          "src/engine/config.js"
+        ],
+        "src/engine/index.js": [],
+        "src/engine/session.svelte.js": [],
+        "src/engine/transition-guard.js": [],
+        "src/engine/transition-guard.test.js": [],
+        "src/engine/utils.js": [],
+        "src/engine/utils.test.js": [
+          "src/engine/utils.js"
+        ]
+      },
+      "neighborMap": {
+        "eslint.config.js": [
+          {
+            "path": "svelte.config.js",
+            "batchIndex": 13,
+            "symbols": []
+          }
+        ],
+        "src/data/normalizer.js": [
+          {
+            "path": "src/intelligence/parser.js",
+            "batchIndex": 10,
+            "symbols": [
+              "parse_think_block",
+              "strip_cognition_blocks",
+              "clean_image_prompts",
+              "wrap_dialogue",
+              "parse_message",
+              "escapeXml",
+              "clean_text",
+              "clean_xml"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 10,
+      "files": [
+        {
+          "path": "src/index.html",
+          "language": "html",
+          "sizeLines": 116,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/intelligence/context.test.js",
+          "language": "javascript",
+          "sizeLines": 363,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/fragments.js",
+          "language": "javascript",
+          "sizeLines": 392,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/index.js",
+          "language": "javascript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/kernel.js",
+          "language": "javascript",
+          "sizeLines": 523,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/kernel.test.js",
+          "language": "javascript",
+          "sizeLines": 420,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/parser.js",
+          "language": "javascript",
+          "sizeLines": 217,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/parser.test.js",
+          "language": "javascript",
+          "sizeLines": 221,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/prompts.test.js",
+          "language": "javascript",
+          "sizeLines": 434,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/intelligence/temporal.test.js",
+          "language": "javascript",
+          "sizeLines": 291,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/main.js",
+          "language": "javascript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/audio.svelte.js",
+          "language": "javascript",
+          "sizeLines": 551,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/design.css",
+          "language": "css",
+          "sizeLines": 767,
+          "fileCategory": "markup"
+        },
+        {
+          "path": "src/media/index.js",
+          "language": "javascript",
+          "sizeLines": 16,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/optics.js",
+          "language": "javascript",
+          "sizeLines": 381,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/resilience.js",
+          "language": "javascript",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/resilience.test.js",
+          "language": "javascript",
+          "sizeLines": 90,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/tokens.js",
+          "language": "javascript",
+          "sizeLines": 345,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/tokens.test.js",
+          "language": "javascript",
+          "sizeLines": 95,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/media/visual.svelte.js",
+          "language": "javascript",
+          "sizeLines": 454,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/platform/index.js",
+          "language": "javascript",
+          "sizeLines": 2,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/platform/security.js",
+          "language": "javascript",
+          "sizeLines": 125,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/platform/security.test.js",
+          "language": "javascript",
+          "sizeLines": 215,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/platform/transport.js",
+          "language": "javascript",
+          "sizeLines": 320,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/RPGlitch-left-panel.perchance",
+          "language": "perchance",
+          "sizeLines": 18,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/index.html": [],
+        "src/intelligence/context.test.js": [],
+        "src/intelligence/fragments.js": [],
+        "src/intelligence/index.js": [],
+        "src/intelligence/kernel.js": [],
+        "src/intelligence/kernel.test.js": [],
+        "src/intelligence/parser.js": [
+          "src/data/normalizer.js"
+        ],
+        "src/intelligence/parser.test.js": [],
+        "src/intelligence/prompts.test.js": [],
+        "src/intelligence/temporal.test.js": [],
+        "src/main.js": [],
+        "src/media/audio.svelte.js": [],
+        "src/media/design.css": [],
+        "src/media/index.js": [],
+        "src/media/optics.js": [],
+        "src/media/resilience.js": [],
+        "src/media/resilience.test.js": [],
+        "src/media/tokens.js": [],
+        "src/media/tokens.test.js": [],
+        "src/media/visual.svelte.js": [],
+        "src/platform/index.js": [],
+        "src/platform/security.js": [],
+        "src/platform/security.test.js": [],
+        "src/platform/transport.js": [],
+        "src/RPGlitch-left-panel.perchance": []
+      },
+      "neighborMap": {
+        "src/intelligence/parser.js": [
+          {
+            "path": "src/data/normalizer.js",
+            "batchIndex": 9,
+            "symbols": [
+              "STORAGE_VERSION",
+              "ENTITY_TEMPLATES",
+              "get_random_signature_key",
+              "normalize",
+              "coerce_temporal_array",
+              "create_new",
+              "format_premade",
+              "detox_prose"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "batchIndex": 11,
+      "files": [
+        {
+          "path": "src/state/app.svelte.js",
+          "language": "javascript",
+          "sizeLines": 473,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/app.test.js",
+          "language": "javascript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/index.js",
+          "language": "javascript",
+          "sizeLines": 4,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/log.svelte.js",
+          "language": "javascript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/runtime.svelte.js",
+          "language": "javascript",
+          "sizeLines": 476,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/runtime.test.js",
+          "language": "javascript",
+          "sizeLines": 97,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/status.svelte.js",
+          "language": "javascript",
+          "sizeLines": 130,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/state/status.test.js",
+          "language": "javascript",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/actions/click-outside.js",
+          "language": "javascript",
+          "sizeLines": 23,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/actions/index.js",
+          "language": "javascript",
+          "sizeLines": 3,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/actions/resize.js",
+          "language": "javascript",
+          "sizeLines": 92,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/actions/use-actions.js",
+          "language": "javascript",
+          "sizeLines": 74,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Backdrop.svelte",
+          "language": "svelte",
+          "sizeLines": 67,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Button.svelte",
+          "language": "svelte",
+          "sizeLines": 154,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/DataBox.svelte",
+          "language": "svelte",
+          "sizeLines": 78,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Dropdown.svelte",
+          "language": "svelte",
+          "sizeLines": 199,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/DynamicsMeter.svelte",
+          "language": "svelte",
+          "sizeLines": 214,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/FitText.svelte",
+          "language": "svelte",
+          "sizeLines": 80,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/ImagePreview.svelte",
+          "language": "svelte",
+          "sizeLines": 370,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/index.js",
+          "language": "javascript",
+          "sizeLines": 14,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Modal.svelte",
+          "language": "svelte",
+          "sizeLines": 155,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/ProfilePicture.svelte",
+          "language": "svelte",
+          "sizeLines": 137,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/ScrollArea.svelte",
+          "language": "svelte",
+          "sizeLines": 77,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Skeleton.svelte",
+          "language": "svelte",
+          "sizeLines": 74,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Slider.svelte",
+          "language": "svelte",
+          "sizeLines": 308,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/state/app.svelte.js": [],
+        "src/state/app.test.js": [],
+        "src/state/index.js": [],
+        "src/state/log.svelte.js": [],
+        "src/state/runtime.svelte.js": [],
+        "src/state/runtime.test.js": [],
+        "src/state/status.svelte.js": [],
+        "src/state/status.test.js": [],
+        "src/ui/actions/click-outside.js": [],
+        "src/ui/actions/index.js": [],
+        "src/ui/actions/resize.js": [],
+        "src/ui/actions/use-actions.js": [],
+        "src/ui/atoms/Backdrop.svelte": [],
+        "src/ui/atoms/Button.svelte": [],
+        "src/ui/atoms/DataBox.svelte": [],
+        "src/ui/atoms/Dropdown.svelte": [],
+        "src/ui/atoms/DynamicsMeter.svelte": [],
+        "src/ui/atoms/FitText.svelte": [],
+        "src/ui/atoms/ImagePreview.svelte": [],
+        "src/ui/atoms/index.js": [],
+        "src/ui/atoms/Modal.svelte": [],
+        "src/ui/atoms/ProfilePicture.svelte": [],
+        "src/ui/atoms/ScrollArea.svelte": [],
+        "src/ui/atoms/Skeleton.svelte": [],
+        "src/ui/atoms/Slider.svelte": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 12,
+      "files": [
+        {
+          "path": "src/ui/atoms/TextField.svelte",
+          "language": "svelte",
+          "sizeLines": 370,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Toggle.svelte",
+          "language": "svelte",
+          "sizeLines": 172,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/atoms/Tooltip.svelte",
+          "language": "svelte",
+          "sizeLines": 243,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/AudioWing.svelte",
+          "language": "svelte",
+          "sizeLines": 136,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/DevTelemetryBlock.svelte",
+          "language": "svelte",
+          "sizeLines": 742,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/DevWing.svelte",
+          "language": "svelte",
+          "sizeLines": 157,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/Dialog.svelte",
+          "language": "svelte",
+          "sizeLines": 141,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/EntityCard.svelte",
+          "language": "svelte",
+          "sizeLines": 514,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/ImportEntity.svelte",
+          "language": "svelte",
+          "sizeLines": 269,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/index.js",
+          "language": "javascript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/Message.svelte",
+          "language": "svelte",
+          "sizeLines": 625,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/StoryCard.svelte",
+          "language": "svelte",
+          "sizeLines": 173,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/UnifiedConsole.svelte",
+          "language": "svelte",
+          "sizeLines": 773,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/VisualWing.svelte",
+          "language": "svelte",
+          "sizeLines": 483,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/molecules/VisualWing.test.js",
+          "language": "javascript",
+          "sizeLines": 129,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/motion/index.js",
+          "language": "javascript",
+          "sizeLines": 11,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/motion/Typewriter.svelte",
+          "language": "svelte",
+          "sizeLines": 313,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/motion/typewriter.svelte.js",
+          "language": "javascript",
+          "sizeLines": 45,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/CardHand.svelte",
+          "language": "svelte",
+          "sizeLines": 342,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/index.js",
+          "language": "javascript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/Layout.svelte",
+          "language": "svelte",
+          "sizeLines": 121,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/Profile.svelte",
+          "language": "svelte",
+          "sizeLines": 571,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/profile.svelte.js",
+          "language": "javascript",
+          "sizeLines": 378,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/profile.test.js",
+          "language": "javascript",
+          "sizeLines": 114,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/ProfileArray.svelte",
+          "language": "svelte",
+          "sizeLines": 331,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/ui/atoms/TextField.svelte": [],
+        "src/ui/atoms/Toggle.svelte": [],
+        "src/ui/atoms/Tooltip.svelte": [],
+        "src/ui/molecules/AudioWing.svelte": [],
+        "src/ui/molecules/DevTelemetryBlock.svelte": [],
+        "src/ui/molecules/DevWing.svelte": [],
+        "src/ui/molecules/Dialog.svelte": [],
+        "src/ui/molecules/EntityCard.svelte": [],
+        "src/ui/molecules/ImportEntity.svelte": [],
+        "src/ui/molecules/index.js": [],
+        "src/ui/molecules/Message.svelte": [],
+        "src/ui/molecules/StoryCard.svelte": [],
+        "src/ui/molecules/UnifiedConsole.svelte": [],
+        "src/ui/molecules/VisualWing.svelte": [],
+        "src/ui/molecules/VisualWing.test.js": [],
+        "src/ui/motion/index.js": [],
+        "src/ui/motion/Typewriter.svelte": [],
+        "src/ui/motion/typewriter.svelte.js": [
+          "src/ui/motion/Typewriter.svelte"
+        ],
+        "src/ui/organisms/CardHand.svelte": [],
+        "src/ui/organisms/index.js": [],
+        "src/ui/organisms/Layout.svelte": [],
+        "src/ui/organisms/Profile.svelte": [],
+        "src/ui/organisms/profile.svelte.js": [],
+        "src/ui/organisms/profile.test.js": [
+          "src/ui/organisms/profile.svelte.js"
+        ],
+        "src/ui/organisms/ProfileArray.svelte": []
+      },
+      "neighborMap": {}
+    },
+    {
+      "batchIndex": 13,
+      "files": [
+        {
+          "path": "src/ui/organisms/ProfileHeader.svelte",
+          "language": "svelte",
+          "sizeLines": 235,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/Storyboard.svelte",
+          "language": "svelte",
+          "sizeLines": 118,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/StoryboardDynamicTitle.svelte",
+          "language": "svelte",
+          "sizeLines": 195,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/Storymode.svelte",
+          "language": "svelte",
+          "sizeLines": 167,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/organisms/StorymodeFeed.svelte",
+          "language": "svelte",
+          "sizeLines": 300,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/field-path.js",
+          "language": "javascript",
+          "sizeLines": 38,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/index.js",
+          "language": "javascript",
+          "sizeLines": 10,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/markdown.js",
+          "language": "javascript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/safe-html.js",
+          "language": "javascript",
+          "sizeLines": 17,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/safe-html.test.js",
+          "language": "javascript",
+          "sizeLines": 56,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/ui-helpers.js",
+          "language": "javascript",
+          "sizeLines": 355,
+          "fileCategory": "code"
+        },
+        {
+          "path": "src/ui/utils/ui-helpers.test.js",
+          "language": "javascript",
+          "sizeLines": 334,
+          "fileCategory": "code"
+        },
+        {
+          "path": "stylelint.config.cjs",
+          "language": "javascript",
+          "sizeLines": 58,
+          "fileCategory": "code"
+        },
+        {
+          "path": "svelte.config.js",
+          "language": "javascript",
+          "sizeLines": 22,
+          "fileCategory": "code"
+        },
+        {
+          "path": "tasks/tracks/understand-anything-plugin-2026-07-06.md",
+          "language": "markdown",
+          "sizeLines": 53,
+          "fileCategory": "docs"
+        },
+        {
+          "path": "types.d.ts",
+          "language": "typescript",
+          "sizeLines": 166,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vite.config.js",
+          "language": "javascript",
+          "sizeLines": 179,
+          "fileCategory": "code"
+        },
+        {
+          "path": "vitest.config.js",
+          "language": "javascript",
+          "sizeLines": 43,
+          "fileCategory": "code"
+        }
+      ],
+      "batchImportData": {
+        "src/ui/organisms/ProfileHeader.svelte": [],
+        "src/ui/organisms/Storyboard.svelte": [],
+        "src/ui/organisms/StoryboardDynamicTitle.svelte": [],
+        "src/ui/organisms/Storymode.svelte": [],
+        "src/ui/organisms/StorymodeFeed.svelte": [],
+        "src/ui/utils/field-path.js": [],
+        "src/ui/utils/index.js": [],
+        "src/ui/utils/markdown.js": [],
+        "src/ui/utils/safe-html.js": [],
+        "src/ui/utils/safe-html.test.js": [],
+        "src/ui/utils/ui-helpers.js": [],
+        "src/ui/utils/ui-helpers.test.js": [],
+        "stylelint.config.cjs": [
+          "ignores.master.json"
+        ],
+        "svelte.config.js": [],
+        "tasks/tracks/understand-anything-plugin-2026-07-06.md": [],
+        "types.d.ts": [],
+        "vite.config.js": [],
+        "vitest.config.js": []
+      },
+      "neighborMap": {
+        "stylelint.config.cjs": [
+          {
+            "path": "ignores.master.json",
+            "batchIndex": 6,
+            "symbols": []
+          }
+        ],
+        "svelte.config.js": [
+          {
+            "path": "eslint.config.js",
+            "batchIndex": 9,
+            "symbols": []
+          }
+        ]
+      }
+    }
+  ]
+}
