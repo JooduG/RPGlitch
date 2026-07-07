@@ -9,7 +9,7 @@ const batchesData = JSON.parse(fs.readFileSync(batchesPath, 'utf8'));
 const jsconfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'jsconfig.json'), 'utf8'));
 const aliasPaths = jsconfig.compilerOptions.paths;
 
-const extractScript = "C:/Users/johng/.gemini/config/skills/understand-anything/understand/extract-structure.mjs";
+const extractScript = "C:/Users/johng/.gemini/config/plugins/understand-anything/skills/understand/extract-structure.mjs";
 const pluginRoot = "C:\\Users\\johng\\.gemini\\config\\plugins\\understand-anything";
 
 console.log(`Processing ${batchesData.batches.length} batches deterministically...`);
@@ -121,7 +121,8 @@ for (const batch of batchesData.batches) {
       // Fallback: Regex-based import parsing for JavaScript/Svelte files
       try {
         const content = fs.readFileSync(res.path, 'utf8');
-        const importRegex = /import\s+(?:(?:[\w*\s{},]*)\s+from\s+)?['"]([^'"]+)['"]/g;
+        const importRegex = /import\s+[^;]*?from\s+['"]([^'"]+)['"]/g;
+        const sideEffectImportRegex = /import\s+['"]([^'"]+)['"]/g;
         const requireRegex = /require\(['"]([^'"]+)['"]\)/g;
 
         const resolveAlias = (importPath) => {
@@ -159,26 +160,39 @@ for (const batch of batchesData.batches) {
                     const barrelContent = fs.readFileSync(finalResolved, 'utf8');
                     // Simple heuristic: if the imported string contains pickRandom and barrel exports from engine, route to engine.
                     // This is hard to do perfectly statically without a full AST parser, so we use a robust regex fallback.
-                    const exportRegex = /export\s+\*\s+from\s+['"]([^'"]+)['"]/g;
+                    const exportRegex = /export\s+(?:\*|{[^}]+})\s+from\s+['"]([^'"]+)['"]/g;
                     let bMatch;
                     while ((bMatch = exportRegex.exec(barrelContent)) !== null) {
                         const subPath = bMatch[1];
                         if (subPath.startsWith('@')) {
                             const subAlias = resolveAlias(subPath);
                             if (subAlias) {
-                                // Just a simple heuristics check: does the subPath alias contain the function? We don't have function name here.
-                                // Instead, we add ALL barrel exports as possible transitive imports.
-                                const subFinal = path.join(projectRoot, subAlias);
-                                let relPath = path.relative(projectRoot, subFinal).replace(/\\/g, '/');
-                                const targetId = `file:${relPath}`;
-                                if (!edges.some(e => e.source === fileId && e.target === targetId && e.type === "imports") && fileId !== targetId) {
-                                  edges.push({
-                                    source: fileId,
-                                    target: targetId,
-                                    type: "imports",
-                                    direction: "forward",
-                                    weight: 0.5
-                                  });
+                                let subFinal = path.join(projectRoot, subAlias);
+                                const exts = ['', '.js', '.svelte', '.ts', '.svelte.js', '/index.js', '/index.svelte', '/index.svelte.js'];
+                                let resolvedSubFinal = null;
+                                for (const ext of exts) {
+                                  const checkPath = subFinal + ext;
+                                  if (fs.existsSync(checkPath)) {
+                                    try {
+                                      if (fs.statSync(checkPath).isFile()) {
+                                        resolvedSubFinal = checkPath;
+                                        break;
+                                      }
+                                    } catch (e) {}
+                                  }
+                                }
+                                if (resolvedSubFinal) {
+                                  let relPath = path.relative(projectRoot, resolvedSubFinal).replace(/\\/g, '/');
+                                  const targetId = `file:${relPath}`;
+                                  if (!edges.some(e => e.source === fileId && e.target === targetId && e.type === "imports") && fileId !== targetId) {
+                                    edges.push({
+                                      source: fileId,
+                                      target: targetId,
+                                      type: "imports",
+                                      direction: "forward",
+                                      weight: 0.5
+                                    });
+                                  }
                                 }
                             }
                         }
@@ -222,6 +236,9 @@ for (const batch of batchesData.batches) {
         };
         
         while ((match = importRegex.exec(content)) !== null) {
+          processImport(match[1]);
+        }
+        while ((match = sideEffectImportRegex.exec(content)) !== null) {
           processImport(match[1]);
         }
         while ((match = requireRegex.exec(content)) !== null) {
