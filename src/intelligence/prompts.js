@@ -116,13 +116,17 @@ Assess which behavioral shifts, character tics, or pivots are most likely given 
 ### Phase 4 (State)
 Declare the finalized emotional state vectors and immediate intent.`,
   HYGIENE:
-    "Omit all conversational preambles, introductory greetings, or stylistic meta-commentary. Start your prose instantly. You are explicitly forbidden from prepending or injecting timestamps, clocks, dates, or timeline headers (such as '14:13' or 'Round X') in your prose output. Enforce strict realism and behavioral brevity. You are explicitly forbidden from utilizing repetitive phonetic laughter strings (such as 'Hahaha!') or cartoonish, hyper-masculine somatic tags. Write actions with clinical, grounded stillness. Use standard attribution verbs like 'said' or 'asked' for dialogue interactions. Use the metric system (meters, kilograms) and 24-hour clock formats exclusively for any physical measurements or temporal references.",
+    "Omit all conversational preambles, introductory greetings, or stylistic meta-commentary. Start your prose instantly. You are explicitly forbidden from prepending or injecting timestamps, clocks, dates, or timeline headers (such as '14:13' or 'Round X') in your prose output. You are explicitly forbidden from utilizing the 'Echo' dialogue formula (starting a turn by loudly repeating the user's last word). Dialogue and vocalizations (laughter, theatricality, shouts) MUST be strictly governed by the character's unique profile—do not default to generic, hyper-dramatic tropes unless it fits their personality. Write actions with natural, character-appropriate physicality. Use the metric system (meters, kilograms) and 24-hour clock formats exclusively for any physical measurements or temporal references.",
+  DATA_HYGIENE:
+    "Omit all conversational preambles, introductory greetings, or stylistic meta-commentary. Start your output instantly. Enforce strict professional brevity. You are explicitly forbidden from writing dialogue, internal thoughts, or narrative roleplay scenes. Output ONLY the objective structural data requested.",
   AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions ('he didn't feel X') — state what IS, not what isn't.",
   PRESENT_TENSE: "Write in the present tense.",
   MOMENTUM:
     "Drive the scene forward. End your turn on a live hook that demands a response: a challenge issued, a physical move directed at them, a suspended moment of sensory tension, or silence that forces them to fill the void. The hook must emerge organically from character — never announce it with structural labels.",
   MARKDOWN_FORMAT:
     'You MUST use markdown formatting to creatively partition prose and add emphasis. Use *italics* heavily for internal reflections, atmospheric tension, or emphasis. Use **bold** for impact, structural concepts, or intense physical actions. Use "quotes" for speech, specific terms, or ironic emphasis. Make the text highly dynamic, visual, and fun to read.',
+  CINEMATIC_METAPHOR:
+    "If your narrative style references 'cameras', 'lenses', or 'cinematic' framing, these are strictly metaphors for *what* to describe (focus, lighting, detail). You are explicitly forbidden from breaking the fourth wall. NEVER use literal words like 'camera', 'zoom', 'lens', 'render', or 3D technical terminology (e.g., 'subsurface scattering', 'global illumination') in the narrative prose.",
   YES_AND:
     "The user's action is absolute truth. You MUST adapt to it, accept it as reality, and build upon it. Do not contradict, block, or deny the physical or narrative reality they establish. Embody the 'Yes, and...' philosophy to drive the scene together.",
   JSON_OUTPUT:
@@ -148,7 +152,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   const protocols = ["COGNITION", "JSON_OUTPUT"].filter(Boolean).join(", ");
   return clean_xml(`
 <SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">${render_narrative_style_xml()}
-  You are the Director — the unseen intelligence orchestrating ${escapeXml(entities.AI.name)}'s psychological state as ${escapeXml(entities.USER.name)} acts inside ${escapeXml(entities.FRACTAL?.name)}.
+  You are the Director — the unseen intelligence orchestrating ${escapeXml(entities.AI.name)}'s psychological state. Your goals and dialogue tones MUST align with the character's active dynamics: high affinity/openness demands warmth, cooperation, or vulnerability; high intensity/chaos demands tension, conflict, or erratic behavior. Do not default to adversarial power struggles unless the character's profile or current dynamics actively dictate it.
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <PRESENT>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 8)}</PRESENT>
@@ -177,7 +181,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
     Return exactly one valid JSON payload:
     {
       "internal_monologue": "COGNITION phases 1–4 calculations.",
-      "directive": "Execution order: primary psychological intent + chosen dialogue tone. Structural rule: Only specify a somatic tell if a severe internal emotional breakpoint has been crossed; otherwise, command absolute physical stillness and facial neutrality to maintain tension.",
+      "directive": "Execution order: primary psychological intent + chosen dialogue tone. Structural rule: Command natural, character-appropriate body language and posture changes that reflect their active dynamics (e.g. relaxed, guarded, shifting weight, active gestures) to ground the scene.",
       "state_mutations": {
         "present_append": "Psychological shift to persist.",
         "future_to_past": ["future-vector-uuids"],
@@ -198,6 +202,7 @@ function render_character({ round, entities, input, compressed_snapshot, directo
   const protocols = [
     "PRESENT_TENSE",
     "HYGIENE",
+    "CINEMATIC_METAPHOR",
     "USER_AGENCY",
     "YES_AND",
     "MOMENTUM",
@@ -239,7 +244,7 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
   </PROTOCOLS>
   <TASK>
     <THINK_FORMAT>
-    Begin your response with <think>. Use a bulleted list to plan your execution (e.g. Physical Action, Tone, Pacing). CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
+    Begin your response with <think>. Use a bulleted list to plan your execution (e.g. Physical Action [movement/stillness/gesture], Tone [warm/tense/casual], Pacing [fast/conversational/slow]). Match the pacing and goal of your response to the tempo of the user's actions. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
     </THINK_FORMAT>
     <STABILITY_LOCK>${stabilityLockContent}</STABILITY_LOCK>
     <EPISTEMIC_PHYSICS>
@@ -314,14 +319,14 @@ function render_memory({ role, entity, history }) {
   return clean_xml(`
 <MEMORY_FORGE name="${escapeXml(entity.name || "Unknown")}" role="${escapeXml(role)}">
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols("HYGIENE, AFFIRMATIVE, PRESENT_TENSE"), 4)}
+    ${ind(prompt_builder.render_protocols("DATA_HYGIENE, AFFIRMATIVE, PRESENT_TENSE"), 4)}
   </PROTOCOLS>
   <INPUT_HISTORY>
     ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
   </INPUT_HISTORY>
   <TASK>
     Compress this history into a single structured memory. Extract what permanently shifted — what was revealed, what now exerts pressure on this entity's future behavior. Discard noise.
-    Output strict JSON only: { "summary": "...", "vector_tags": ["...", "..."] }
+    Output strict JSON only: { "summary": "...", "tags": ["...", "..."] }
   </TASK>
 </MEMORY_FORGE>
   `).trim();
@@ -331,7 +336,7 @@ function render_memory({ role, entity, history }) {
  * Text field enhancement instructions builder.
  */
 function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null, entity_type = "character" }) {
-  const protocols = ["HYGIENE", "AFFIRMATIVE"].filter(Boolean).join(", ");
+  const protocols = ["DATA_HYGIENE", "AFFIRMATIVE"].filter(Boolean).join(", ");
   const cognitionInstruction = is_image_field
     ? "Begin your response with <think>. Map the entity's geometry: form, material texture, light interaction, structural composition. You MUST explicitly write </think> before formatting the visual output."
     : "Begin your response with <think>. Identify the core psychological archetypes, thematic resonances, and defining vocabulary for this entity. You MUST explicitly write </think> before writing the final text.";
@@ -394,7 +399,7 @@ function render_enhancement({ label, directive, enhancer, content, is_image_fiel
  */
 function render_profile_sorting(entity_type = "character") {
   const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
-  const protocols = ["HYGIENE", "AFFIRMATIVE", "JSON_OUTPUT"].filter(Boolean).join(", ");
+  const protocols = ["DATA_HYGIENE", "AFFIRMATIVE", "JSON_OUTPUT"].filter(Boolean).join(", ");
   const sortingInstruction =
     resolvedType === "fractal"
       ? "CRITICAL FOCUS: You are extracting data to define a FRACTAL (a world, location, or environmental ecosystem). You are NOT describing a person or individual character. Any incoming raw text containing character-specific personal traits or interpersonal history must be re-contextualized as part of the world's overarching lore or completely discarded. Focus entirely on the setting, its rules, and its physical/thematic atmosphere.\nUse placeholder macros to refer to entities: use '{{user}}' to refer to the user persona, '{{char}}' to refer to the AI character, and '{{fractal}}' to refer to this environment itself. Do not bake specific names into description text; use these macros instead."

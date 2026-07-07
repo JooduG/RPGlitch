@@ -95,7 +95,7 @@ describe("context_broker", () => {
           {
             id: "v_state",
             requires: { state_anchor: "active" },
-            vector_tags: ["apple"],
+            tags: ["apple"],
             directive: "The state is active",
           },
         ],
@@ -113,7 +113,7 @@ describe("context_broker", () => {
           {
             id: "v_state",
             requires: { state_anchor: "active" },
-            vector_tags: ["apple"],
+            tags: ["apple"],
             directive: "The state is active",
           },
         ],
@@ -131,17 +131,17 @@ describe("context_broker", () => {
           {
             id: "v_chrono_req",
             requires: { round: 3 },
-            vector_tags: ["banana"],
+            tags: ["banana"],
           },
           {
             id: "v_chrono_meta",
             meta: { round: 4 },
-            vector_tags: ["banana"],
+            tags: ["banana"],
           },
           {
             id: "v_chrono_meta_thresh",
             meta: { round_threshold: 5 },
-            vector_tags: ["banana"],
+            tags: ["banana"],
           },
         ],
       };
@@ -157,7 +157,7 @@ describe("context_broker", () => {
           {
             id: "v_chrono_req_ok",
             requires: { round: 3 },
-            vector_tags: ["banana"],
+            tags: ["banana"],
           },
         ],
       };

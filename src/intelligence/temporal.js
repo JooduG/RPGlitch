@@ -11,7 +11,7 @@
  * - Future (Impulses): Prophecies, Curses, Dreams, Impending Doom, Plans.
  */
 
-import { CONFIG, session_driver, TELEMETRY_TYPES } from "@engine";
+import { session_driver } from "@engine";
 import { prompt_builder } from "./prompts.js";
 import { llm_service } from "@platform";
 import { simulation_log as log_store } from "@state";
@@ -31,8 +31,7 @@ import { simulation_log as log_store } from "@state";
  * @property {string} directive - The narrative payload.
  * @property {string} type - "past" | "future".
  * @property {number} base_weight - Narrative gravity (1-10).
- * @property {Array<{id: string, word: string}>} dynamics_tags - Associated dynamics identifiers.
- * @property {string[]} vector_tags - Secondary classification tags.
+ * @property {string[]} tags - Semantic keywords for clustering and retrieval.
  * @property {Object} meta - Opaque metadata container.
  * @property {number} [emotional_weight] - Optional emotional intensity override.
  * @property {number} [_relevance] - Calculated RAG score (transient).
@@ -53,8 +52,7 @@ export function create(directive, type = "future", weight = 5) {
     directive,
     type,
     base_weight: weight,
-    dynamics_tags: [],
-    vector_tags: [],
+    tags: [],
     meta: {},
   };
 }
@@ -70,31 +68,16 @@ export function score(vectors, input) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
   if (!input) return [...vectors].sort((a, b) => b.timestamp - a.timestamp);
 
-  // dynamics_scan was deprecated. Future enhancements will use Director's historical_search_keys.
-  const active_ids = new Set();
-  const active_words = new Set();
-
   const input_lower = input.toLowerCase();
 
   const scored = vectors.map((v) => {
     // Start with the base weight (narrative gravity)
     let relevance = v.base_weight ?? v.emotional_weight ?? 5;
 
-    v.dynamics_tags?.forEach((tag) => {
-      const tag_id = typeof tag === "string" ? tag : tag.id;
-      const tag_word = typeof tag === "string" ? null : tag.word?.toLowerCase();
-
-      if (active_ids.has(tag_id)) {
-        relevance += CONFIG.DYNAMICS.RELEVANCE_DYNAMICS_BONUS;
-      }
-      if (tag_word && active_words.has(tag_word)) {
-        relevance += CONFIG.DYNAMICS.RELEVANCE_TRIGGER_BONUS;
-      }
-    });
-
-    v.vector_tags?.forEach((t) => {
-      if (input_lower.includes(t)) {
-        relevance += CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
+    // Future enhancements will use Director's historical_search_keys to boost tag relevance.
+    v.tags?.forEach((t) => {
+      if (input_lower.includes(t.toLowerCase())) {
+        relevance += 3;
       }
     });
 
@@ -169,8 +152,8 @@ export function resolve(entity, vector_id, resolution = null) {
   vector.timestamp = Date.now();
 
   if (resolution) {
-    if (!vector.vector_tags) vector.vector_tags = [];
-    vector.vector_tags.push("resolution:" + resolution.toLowerCase());
+    if (!vector.tags) vector.tags = [];
+    vector.tags.push("resolution:" + resolution.toLowerCase());
     // Optionally update text if resolution brings new clarity
     // vector.directive = `[Fulfilled] ${vector.directive}`;
   }
@@ -180,20 +163,20 @@ export function resolve(entity, vector_id, resolution = null) {
 
   // Telemetry
   session_driver.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
-    type: TELEMETRY_TYPES.VECTOR_RESOLUTION,
+    type: "VECTOR_RESOLUTION",
     vector,
     resolution,
   });
 }
 
 /**
- * Generates a Resonance record (Historical Anchor) from a slice of history.
+ * Generates a Memory record (Historical Anchor) from a slice of history.
  * @param {SimulationEntity} target_entity
  * @param {any[]} history_slice
  * @param {string} [role]
  * @returns {Promise<TemporalVector | null>}
  */
-export async function weave_resonance(target_entity, history_slice, role = "character") {
+export async function forge_memory(target_entity, history_slice, role = "character") {
   if (!target_entity) return null;
   try {
     const payload = prompt_builder.build_memory_prompt(role, target_entity, history_slice);
@@ -213,7 +196,7 @@ export async function weave_resonance(target_entity, history_slice, role = "char
 
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     if (stripped.length > 65536) {
-      console.warn("[TemporalEngine] Skipping resonance weave: payload exceeds 64KB safety limit.");
+      console.warn("[TemporalEngine] Skipping memory forge: payload exceeds 64KB safety limit.");
       return null;
     }
 
@@ -223,81 +206,30 @@ export async function weave_resonance(target_entity, history_slice, role = "char
     if (first_brace === -1 || last_brace === -1) return null;
 
     const json_string = stripped.substring(first_brace, last_brace + 1);
-    let resonance;
+    let memory;
     try {
-      resonance = JSON.parse(json_string);
+      memory = JSON.parse(json_string);
     } catch (e) {
-      console.warn("[TemporalEngine] Malformed JSON in resonance weave:", e);
+      console.warn("[TemporalEngine] Malformed JSON in memory forge:", e);
       return null;
     }
 
-    if (!resonance || !resonance.summary?.trim()) return null;
+    if (!memory || !memory.summary?.trim()) return null;
 
     return {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
-      directive: resonance.summary,
+      directive: memory.summary,
       type: "past",
       base_weight: 5, // Default for recent session memories
-      dynamics_tags: [],
-      vector_tags: (resonance.vector_tags || resonance.tags || []).map((t) => String(t).toLowerCase()),
+      tags: (memory.vector_tags || memory.tags || []).map((t) => String(t).toLowerCase()),
       meta: {},
     };
   } catch (err) {
-    console.error("[TemporalEngine] Resonance weave failed.", err);
+    console.error("[TemporalEngine] Resonance forge failed.", err);
     return null;
   }
 }
-
-export const DYNAMICS_META = {
-  // Character (Somatic) axes
-  chaos: { label: "Chaos", desc: "Randomness vs Control" },
-  intensity: { label: "Intensity", desc: "Internal Energy / Adrenaline" },
-  openness: { label: "Openness", desc: "Receptivity vs Guardedness" },
-  affinity: { label: "Affinity", desc: "Inter-Entity Bond / Empathy" },
-
-  // Fractal (Environmental) axes
-  velocity: { label: "Velocity", desc: "Environmental Pacing / Speed" },
-  entropy: { label: "Entropy", desc: "Structural Reality / Weirdness" },
-};
-
-export const dynamics_engine = {
-  /**
-   * Evaluates and settles physics (Gravity & Clamping).
-   * Used after the Director applies explicit state mutations to settle the physics before the next turn.
-   * @param {Record<string, number>} dynamics - The current dynamics state for an entity
-   * @param {Record<string, number>} baselines - The baseline gravitational centers
-   * @param {number} active_entropy - The current world entropy (0-100)
-   * @param {number} base_gravity - The baseline gravity strength (e.g. 0.1)
-   */
-  settle_physics(dynamics, baselines, active_entropy = 50, base_gravity = 0.1) {
-    if (!dynamics) return;
-
-    // 1. Gravity Pull
-    const variance = (active_entropy / 100) * 0.05;
-
-    Object.keys(dynamics).forEach((axis) => {
-      const target = baselines[axis] ?? 50;
-      const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
-      const applied_gravity = Math.max(0, Math.min(1, randomized_gravity)); // Clamp [0, 1]
-
-      dynamics[axis] += (target - dynamics[axis]) * applied_gravity;
-    });
-
-    // 2. Settlement (Clamp to 0-100 bounds)
-    Object.keys(dynamics).forEach((axis) => {
-      dynamics[axis] = Math.max(0, Math.min(100, Math.round(dynamics[axis])));
-    });
-  },
-
-  /**
-   * @param {any} entity - The entity to extract baselines from.
-   * @returns {Record<string, number>} The entity's baseline dynamics.
-   */
-  _get_baselines(entity) {
-    return entity?.dynamics_baseline || {};
-  },
-};
 
 /**
  * Applies explicit state mutations generated by the Director to an entity.
@@ -333,13 +265,13 @@ export const temporal_engine = {
   score,
   format,
   resolve,
-  weave_resonance,
+  forge_memory,
   apply_state_mutations,
-  _is_weaving: false,
+  _is_consolidating: false,
 
   /**
-   * BATCH CONSOLIDATION (The Weaving Cycle)
-   * Evicts old messages and weaves them into the Temporal Fabric.
+   * BATCH CONSOLIDATION (The Forging Cycle)
+   * Evicts old messages and compresses them into the Temporal Archive.
    * @param {SessionDriver} Session
    * @param {Database} db
    * @param {EntityRepository} entities
@@ -348,8 +280,8 @@ export const temporal_engine = {
    * @returns {Promise<void>}
    */
   consolidate: async (Session, db, entities, runtime, app) => {
-    if (temporal_engine._is_weaving) return;
-    temporal_engine._is_weaving = true;
+    if (temporal_engine._is_consolidating) return;
+    temporal_engine._is_consolidating = true;
 
     try {
       const story_id = Session.require_active();
@@ -358,22 +290,22 @@ export const temporal_engine = {
         (/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated && m.role !== "system",
       );
 
-      if (unconsolidated.length >= 12) {
+      if (unconsolidated.length >= 15) {
         const slice = unconsolidated.slice(0, 10);
-        app.log(`Temporal: Weaving ${slice.length} turns into the Historical Fabric...`, "system");
+        app.log(`[TemporalEngine] Forging ${slice.length} turns into the Historical Archive...`, "system");
 
         const ai = runtime.active_ai;
         if (ai) {
-          const resonance = await weave_resonance(ai, slice, "character");
-          if (resonance) {
+          const memory = await forge_memory(ai, slice, "character");
+          if (memory) {
             if (!Array.isArray(ai.past)) ai.past = [];
-            ai.past = [...ai.past, resonance];
+            ai.past = [...ai.past, memory];
             await runtime.update_entity("character", ai.id, { past: ai.past });
 
             // Telemetry
-            await session_driver.log_system_entry(`Memory Weaved: ${resonance.directive.substring(0, 50)}...`, "system", {
-              type: TELEMETRY_TYPES.MEMORY_FORMATION,
-              vectors: { past: [resonance], future: [] },
+            await session_driver.log_system_entry(`Memory Forged: ${memory.directive.substring(0, 50)}...`, "system", {
+              type: "MEMORY_FORMATION",
+              vectors: { past: [memory], future: [] },
               turns_count: slice.length,
             });
           }
@@ -386,9 +318,9 @@ export const temporal_engine = {
         log_store?.refresh();
       }
     } catch (err) {
-      console.error("[TemporalEngine] Consolidation weave failed:", err);
+      console.error("[TemporalEngine] Consolidation forge failed:", err);
     } finally {
-      temporal_engine._is_weaving = false;
+      temporal_engine._is_consolidating = false;
     }
   },
 
@@ -401,7 +333,7 @@ export const temporal_engine = {
     const fractal = runtime.active_fractal;
     if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
       runtime.add_vector("Continue the journey.", "FRACTAL", true);
-      app?.log("temporal_engine: Seeded momentum impulse", "system");
+      app?.log("[TemporalEngine] Seeded momentum impulse", "system");
     }
   },
 };

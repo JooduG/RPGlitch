@@ -172,12 +172,17 @@
     app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
 
     try {
-      const url = await app.visual.generate(prompt_value, {
+      const payload = await app.visual.generate(prompt_value, {
         mode: profileState.char.type,
         no_background: profileState.noBackground,
         negativePrompt: profileState.char.modifiers.negative_prompt || undefined,
+        returnPayload: true,
       });
-      if (url) profileState.char.profile_picture = url;
+      if (payload?.url) {
+        profileState.char.profile_picture = payload.url;
+        if (payload.metadata?.seed) profileState.char.modifiers.profile_picture_seed = payload.metadata.seed;
+        if (payload.metadata?.negativePrompt) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
+      }
     } catch (err) {
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
     } finally {

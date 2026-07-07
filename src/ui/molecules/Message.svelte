@@ -9,7 +9,7 @@
   import { Audio, get_signature_color } from "@media";
   import { Typewriter } from "@motion";
   import { app, runtime } from "@state";
-  import { Chrono, TELEMETRY_TYPES } from "@engine";
+  import { Chrono } from "@engine";
 
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
@@ -66,10 +66,7 @@
   let is_fractal = $derived(sender === "fractal");
   let is_telemetry = $derived(
     sender === "system" &&
-      (meta?.type === TELEMETRY_TYPES.DYNAMICS_DELTA ||
-        meta?.type === TELEMETRY_TYPES.STORY_START ||
-        meta?.type === TELEMETRY_TYPES.VECTOR_RESOLUTION ||
-        meta?.type === TELEMETRY_TYPES.MEMORY_FORMATION),
+      (meta?.type === "DYNAMICS_DELTA" || meta?.type === "STORY_START" || meta?.type === "VECTOR_RESOLUTION" || meta?.type === "MEMORY_FORMATION"),
   );
 
   let entity = $derived(

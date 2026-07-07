@@ -24,9 +24,9 @@ When working on infrastructure or styling, enforce the [Infrastructure](#03-infr
 
 We bridge creative prose and mechanical truth through these layers:
 
-1. **The Spec (plan)**: Deep lore, taxonomies, and character archetypes.
-2. **The State (Live)**: Reactive Svelte 5 Runes mirroring physical and psychological reality.
-3. **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
+1. **ETERNAL (The Spec)**: Deep lore, taxonomies, and character archetypes.
+2. **PRESENT (The State)**: Reactive Svelte 5 Runes mirroring physical and psychological reality.
+3. **PAST (The Echo)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
 
 ---
 
@@ -58,8 +58,8 @@ A **Round** is the macro-state of the simulation. It increments only when the us
 
 - **The Absolute Interrupt**: Human input finalizes the current loop and births the next one.
 - **Temporal Tracking**: Use the round integer to track the session's linear progression.
-- **The State (Live)**: Svelte 5 Reactive Runes mirroring the world's physical and psychological reality.
-- **The Echo (History)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
+- **PRESENT (The State)**: Svelte 5 Reactive Runes mirroring the world's physical and psychological reality.
+- **PAST (The Echo)**: Persistent logs (Dexie.js / Pinecone) that provide context and weight to every decision.
 - **Completion**: A `round` is over when all turns for that round are complete.
 
 ##### The Turn
@@ -162,7 +162,7 @@ The following hierarchy and protocols govern all **AI Characters** within the si
 - **Temporal Awareness**: The AI MUST respect the field-level taxonomy:
   - **Eternal**: Baseline traits (Physical: Permanent Visual Features / Non-Physical: Core Essence).
   - **Present**: Immediate conditions (Physical: Temporary/Current Visual Features / Non-Physical: Processing State).
-  - **Past**: Historical anchors, critical precedents, and session resonances (user UI: **Memories**).
+  - **Past**: Historical anchors, critical precedents, and session memories (user UI: **Memories**).
   - **Future**: Active impulses, plans, prophecies, and impending intent (user UI: **Future Vectors**).
 - **Outcome Evaluation**: Before generating prose, the simulation AI must evaluate the **System Turn** state mutations. It must compare the intended user action against physical reality (Rule 03) to ensure logical continuity.
 - **Atmospheric Signaling**: Statistical signals (stress, entropy, intensity) must be expressed through body language or internal logic within `<think>` blocks. Internal mechanics MUST stay invisible to the narrative output. The [Simulation](./.agents/skills/simulation) skill bridges mechanics and prose.
@@ -193,7 +193,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [Skill Router](./.agents/skills/local-dispatcher/SKILL.md): Local Skill Routing & Domain Orchestration.
   - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
   - [Design](./.agents/skills/design/SKILL.md): The Chalk Regime, UI, Motion, and Tailwind Aesthetics.
-  - [Security](./.agents/skills/security/SKILL.md): Adversarial Audit & Security.
+  - [Security](file:///C:/Users/johng/.gemini/config/skills/security/SKILL.md): Adversarial Audit & Security.
 
 ---
 
@@ -268,7 +268,7 @@ We operate within the **Nordic Collection**.
 - **Entity Fragments**: The four-quadrant state architecture: **Eternal** (Baseline), **Present** (Immediate), **Past** (History), and **Future** (Intent).
 - **Enhancement**: The process of refining raw entity data into high-fidelity fragments using the **3rd-Person Affirmative** law. Primarily targets `non_physical` fields and `vector` arrays.
 - **Optics**: Physical fragments and image-prompts optimized for geometric and texture precision. Strictly synthesized from `physical` fields, excluding narrative traits.
-- **Past Vectors**: (User UI: **Memories**) Historical anchors, critical precedents, and session resonances. Stored in the `past` vector array.
+- **Past Memories**: (User UI: **Memories**) Historical anchors, critical precedents, and session memories. Stored in the `past` vector array.
 - **Future Vectors**: Active impulses, plans, prophecies, and impending intent. Stored in the `future` vector array.
 - **Entity**: The fundamental unit of the simulation. An `entity` is either a `character` or a `fractal`.
 - **Fractal**: World, setting, or environmental entity.

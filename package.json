@@ -15,7 +15,7 @@
     "deploy:audit": "npm run tool:summarize:parallel audit:design audit:google-design audit:nomenclature audit:security audit:svelte audit:project",
     "// --- CHECKS & LINTING --- //": "",
     "verify": "npm run tool:summarize:sequential lint audit test",
-    "check": "run npm verify",
+    "check": "npm run verify",
     "clean": "npm run tool:summarize:parallel audit:security lint audit:backlog",
     "lint:prettier:fix": "prettier --write .",
     "lint:prettier": "prettier --check .",

@@ -15,7 +15,7 @@
  * 3. Physics      : Updates global runtime physics based on simulation results.
  */
 import { db, entities, prune } from "@data";
-import { generateUUID, session_driver, TELEMETRY_TYPES } from "@engine";
+import { generateUUID, session_driver } from "@engine";
 import { context_broker, dynamics_engine, prompt_builder, temporal_engine } from "@intelligence";
 import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
@@ -42,7 +42,7 @@ function parse_director_json(raw_text) {
     }
     return payload;
   } catch (e) {
-    console.warn("[gamemaster] Failed to parse Director JSON:", e);
+    console.warn("[GameMaster] Failed to parse Director JSON:", e);
     return null;
   }
 }
@@ -107,7 +107,7 @@ function validate_and_repair_response(response) {
 
     result.text = processedSegments.join("");
   } catch (err) {
-    console.warn("[gamemaster] Validation check failed:", err);
+    console.warn("[GameMaster] Validation check failed:", err);
     result.text = response || "";
     result.violated = false;
   }
@@ -169,7 +169,7 @@ export const gamemaster = {
 
     if (deltas.length > 0 || meta) {
       await session_driver.log_system_entry(log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot", "system", {
-        type: TELEMETRY_TYPES.DYNAMICS_DELTA,
+        type: "DYNAMICS_DELTA",
         deltas,
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
@@ -245,7 +245,7 @@ export const gamemaster = {
       };
 
       // 4. DIRECTOR PASS (Shot 1)
-      app.log("gamemaster: Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
+      app.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
       const directorPrompt = prompt_builder.build_director_prompt(payload, snapshot);
 
       const directorRaw = await this.execute_with_retry(
@@ -320,7 +320,7 @@ export const gamemaster = {
       runtime.fractal = snapshot.fractal?.dynamics;
 
       // 5. TRANSITION & LOGGING
-      app.log("gamemaster: Routing to LLM (Character Pass)...", "system");
+      app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
       runtime.turn_type = "AI_TURN";
 
       let directorMonologue = "";
@@ -439,7 +439,7 @@ export const gamemaster = {
       const payload = await context_broker.hydrate(app.prologue || "", "prologue");
       const result = prompt_builder.synthesize(payload, {});
       if (!result.system) return null;
-      app.log("gamemaster: Generating prologue...", "system");
+      app.log("[GameMaster] Generating prologue...", "system");
       const nodeId = generateUUID();
       const response = await this.execute_with_retry(async () => {
         return await llm_service.generate({
@@ -458,7 +458,7 @@ export const gamemaster = {
         round: 0,
         turn_type: "SYSTEM_TURN",
       });
-      app.log("gamemaster: Prologue established (Round 0).", "system");
+      app.log("[GameMaster] Prologue established (Round 0).", "system");
 
       // Cleanly end the prologue fractal stream before initiating the AI follow-up hook
       app.end_stream();
@@ -491,7 +491,7 @@ export const gamemaster = {
 
     const { system } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
     if (!system) return null;
-    app.log("gamemaster: Generating epilogue...", "system");
+    app.log("[GameMaster] Generating epilogue...", "system");
     const nodeId = generateUUID();
     const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     const response = await this.execute_with_retry(async () => {
@@ -506,7 +506,7 @@ export const gamemaster = {
       return await fn();
     } catch (error) {
       if (retries === 0) throw error;
-      app.log(`gamemaster: Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
+      app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
 
       // Communicate retry gracefully in the UI
       if (app.streaming.active) {

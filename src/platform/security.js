@@ -1,5 +1,5 @@
 import DOMPurify from "dompurify";
-import { CONFIG } from "@engine";
+
 /**
  * src/core/security.js
  * 🛡️ SECURITY: The Shield
@@ -34,7 +34,8 @@ export const escape = (str) => {
 export const checkRefusal = (text) => {
   if (!text) return false;
   const lower = String(text).toLowerCase();
-  return CONFIG.MESSAGES.REFUSAL_TRIGGERS.some((trigger) => lower.includes(String(trigger).toLowerCase()));
+  const REFUSAL_TRIGGERS = ["i cannot", "i can't", "cannot generate", "policy", "guidelines", "sorry, but"];
+  return REFUSAL_TRIGGERS.some((trigger) => lower.includes(String(trigger).toLowerCase()));
 };
 /**
  * @param {any} text

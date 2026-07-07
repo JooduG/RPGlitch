@@ -234,7 +234,7 @@ export const context_broker = {
       .join("\n");
   },
   /**
-   * Dynamically resolves FUTURE_VECTOR items based on chronos state constraints.
+   * Dynamically resolves FUTURE_VECTOR items based on temporal_engine state constraints.
    * @param {any} entity
    */
   async manage_vector_lifecycle(entity) {

@@ -39,7 +39,7 @@ export class ChronoStore {
         await gamemaster.execute_prologue(story_id);
         app.log("Prologue generated and opening turn executed.", "system");
       } catch (e) {
-        console.error("Chrono: Prologue Failed", e);
+        console.error("[Chrono] Prologue Failed:", e);
         app.log("Error: Prologue Failed.", "error");
         throw e;
       } finally {
@@ -132,7 +132,7 @@ export class ChronoStore {
    * 1. Locks UI (Loading)
    * 2. Processes Physics (Security)
    * 3. Generates Narrative (Engine)
-   * 4. Echo Resonance (Data)
+   * 4. PAST: Commit to Memory (Data)
    * 5. Anchoring State (Runtime)
    * 6. Unlocks UI
    * @param {string|null} input
@@ -214,7 +214,7 @@ export class ChronoStore {
           });
           app.log("Generation complete.", "system");
         } catch (e) {
-          console.error("Chrono: Generation Failed", e);
+          console.error("[Chrono] Generation Failed:", e);
           app.log("Error: Generation Failed.", "error");
           throw e;
         } finally {
@@ -222,9 +222,9 @@ export class ChronoStore {
           app.end_stream();
         }
 
-        // 4. ECHO: Commit to Resonance (Echo/Scholar) - Timeline Safety Lock
+        // 4. PAST: Commit to Memory (Echo) - Timeline Safety Lock
         simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
-        app.log("Echo recording temporal resonance...", "db");
+        app.log("Recording memory...", "db");
 
         // 5. ANCHOR: Persist the timeline
         await runtime.save(runtime.round);

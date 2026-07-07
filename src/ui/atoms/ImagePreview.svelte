@@ -143,6 +143,7 @@
 {#if state.active}
   <Modal
     variant="lightbox"
+    z_index="500"
     on_close={closeImagePreview}
     class="
       flex
@@ -226,7 +227,7 @@
         md:w-lg
       "
       >
-        {#if state.metadata.prompt}
+        {#if state.metadata.prompt !== undefined && state.metadata.prompt !== null}
           <div class="flex flex-col gap-2 text-left">
             <TextField value={state.metadata.prompt?.trim() || ""} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
               {#snippet status()}
@@ -252,7 +253,7 @@
           </div>
         {/if}
 
-        {#if state.metadata.negativePrompt}
+        {#if state.metadata.negativePrompt !== undefined && state.metadata.negativePrompt !== null}
           <div class="flex flex-col gap-2 text-left">
             <TextField
               value={state.metadata.negativePrompt?.trim() || ""}
@@ -288,7 +289,7 @@
           {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
             <div class="flex flex-1 flex-col gap-2">
               <TextField
-                value={String(state.metadata.seed).trim()}
+                value={state.metadata.seed === 0 ? "Random" : String(state.metadata.seed).trim()}
                 is_edit={false}
                 always_expanded={false}
                 syncId="image-preview-meta"
@@ -313,22 +314,6 @@
                       <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
                     </svg>
                   </Button>
-                {/snippet}
-              </TextField>
-            </div>
-          {/if}
-          {#if state.metadata.resolution}
-            <div class="flex flex-1 flex-col gap-2">
-              <TextField
-                value={state.metadata.resolution?.trim() || ""}
-                is_edit={false}
-                always_expanded={false}
-                syncId="image-preview-meta"
-                signature_color="var(--color-frozen)"
-                class="font-mono text-lg **:data-[mode='readonly']:text-center!"
-              >
-                {#snippet status()}
-                  <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Resolution</span>
                 {/snippet}
               </TextField>
             </div>

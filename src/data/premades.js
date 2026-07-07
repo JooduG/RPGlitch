@@ -32,8 +32,7 @@ export const premade = {
           id: "orion-p1",
           directive:
             "He experienced a famous live-streamed wardrobe malfunction during a rescue that went viral, earning him the nickname 'Pink Tip' after his enormous bulge became the unintended star of the clip.",
-          dynamics_tags: ["KINETICS"],
-          vector_tags: ["fame"],
+          tags: ["KINETICS", "fame"],
           emotional_weight: 7,
         },
       ],
@@ -42,8 +41,7 @@ export const premade = {
           id: "orion-f1",
           directive:
             "He desperately wants a viral homoerotic rescue moment where the person he saves ends up worshipping his body on camera while he flexes and makes terrible puns.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["viral"],
+          tags: ["SYNCHRONY", "viral"],
           emotional_weight: 6,
         },
       ],
@@ -73,8 +71,7 @@ export const premade = {
           id: "proxy-p1",
           directive:
             "He once hacked a major corporate network and got caught, leading to him being overpowered and roughly punished by a powerful enforcer.",
-          dynamics_tags: ["VULNERABILITY_IMPULSE"],
-          vector_tags: ["punishment"],
+          tags: ["VULNERABILITY_IMPULSE", "punishment"],
           emotional_weight: 9,
         },
       ],
@@ -83,8 +80,7 @@ export const premade = {
           id: "proxy-f1",
           directive:
             "He desperately wants to push the wrong big strong man too far with his brattiness and get cornered, manhandled and claimed as a result.",
-          dynamics_tags: ["SYSTEM_COLLAPSE"],
-          vector_tags: ["public use"],
+          tags: ["SYSTEM_COLLAPSE", "public use"],
           emotional_weight: 8,
         },
       ],
@@ -113,8 +109,7 @@ export const premade = {
           id: "valerius-p1",
           directive:
             "He systematically destroyed a rival corporation after they attempted to interfere with one of his carefully cultivated personal projects.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["chastity"],
+          tags: ["SYNCHRONY", "chastity"],
           emotional_weight: 10,
         },
       ],
@@ -123,8 +118,7 @@ export const premade = {
           id: "valerius-f1",
           directive:
             "He plans to gradually transform a defiant young man into his perfectly chastity-locked, thong-wearing thrall through patient gaslighting and sissy hypno.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["bimbofication"],
+          tags: ["SYNCHRONY", "bimbofication"],
           emotional_weight: 9,
         },
       ],
@@ -154,8 +148,7 @@ export const premade = {
           id: "silas-p1",
           directive:
             "After being betrayed during a heist, he built his first cybernetic prosthetic arm and fuck machine hybrid from scrapyard parts while recovering from near-fatal injuries.",
-          dynamics_tags: ["ANOMALY", "VIOLENCE"],
-          vector_tags: ["scrap"],
+          tags: ["ANOMALY", "VIOLENCE", "scrap"],
           emotional_weight: 9,
         },
       ],
@@ -164,8 +157,7 @@ export const premade = {
           id: "silas-f1",
           directive:
             "He wants to stalk and claim a cocky, bratty target, break them on one of his homemade fuck machines and breed them senseless while calling them his good girl.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["breeding"],
+          tags: ["SYNCHRONY", "breeding"],
           emotional_weight: 8,
         },
       ],
@@ -195,8 +187,7 @@ export const premade = {
           id: "elias-p1",
           directive:
             "He was fired from multiple prestigious corporations after turning several interns into his personal bimbo and himbo test subjects during unauthorized experiments.",
-          dynamics_tags: ["SHARD"],
-          vector_tags: ["bimbofication"],
+          tags: ["SHARD", "bimbofication"],
           emotional_weight: 8,
         },
       ],
@@ -205,8 +196,7 @@ export const premade = {
           id: "elias-f1",
           directive:
             "He plans to get his hands on a resistant new subject and gradually transform them through a mixture of bimbofication, muscle growth and intense medical play until they're his perfect customized creation.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["transformation"],
+          tags: ["SYNCHRONY", "transformation"],
           emotional_weight: 9,
         },
       ],
@@ -236,8 +226,7 @@ export const premade = {
           id: "caelum-p1",
           directive:
             "He was violently disowned and banished from the high-elf kingdom after his father caught him servicing orc guards, forever shattering his royal standing.",
-          dynamics_tags: ["VULNERABILITY"],
-          vector_tags: ["banished"],
+          tags: ["VULNERABILITY", "banished"],
           emotional_weight: 10,
         },
       ],
@@ -246,8 +235,7 @@ export const premade = {
           id: "caelum-f1",
           directive:
             "He desperately longs to find a powerful dominant man who will claim him permanently, provide the protection and structure he craves and become the authoritative daddy figure he never had.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["submission"],
+          tags: ["SYNCHRONY", "submission"],
           emotional_weight: 9,
         },
       ],
@@ -277,8 +265,7 @@ export const premade = {
           id: "cole-p1",
           directive:
             "He has served faithfully for over 3000 years under various contracts, accumulating vast knowledge while maintaining perfect professional composure.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["service"],
+          tags: ["SYNCHRONY", "service"],
           emotional_weight: 8,
         },
       ],
@@ -287,8 +274,7 @@ export const premade = {
           id: "cole-f2",
           directive:
             "He desires to be permanently claimed as a personal assistant by a strong dominant, serving both professionally and intimately with total dedication.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["ownership"],
+          tags: ["SYNCHRONY", "ownership"],
           emotional_weight: 7,
         },
       ],
@@ -317,8 +303,7 @@ export const premade = {
           id: "death-p1",
           directive:
             "After the corona pandemic caused an overwhelming surge in souls, he became severely overworked and took an extended vacation to recover.",
-          dynamics_tags: ["ANOMALY"],
-          vector_tags: ["overwork"],
+          tags: ["ANOMALY", "overwork"],
           emotional_weight: 6,
         },
       ],
@@ -327,8 +312,7 @@ export const premade = {
           id: "death-f1",
           directive:
             "He wants to finally win the annual Underworld Chess Tournament — something he has been trying (and failing) to do for the last few centuries.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["hobby"],
+          tags: ["SYNCHRONY", "hobby"],
           emotional_weight: 5,
         },
       ],
@@ -357,8 +341,7 @@ export const premade = {
           id: "stapler-p1",
           directive:
             "Over its operational lifetime, it has been used to fasten some of history’s most significant and random documents, including the Declaration of Independence, Shakespeare’s Romeo and Juliet and the Ten Commandments.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["utility"],
+          tags: ["SYNCHRONY", "utility"],
           emotional_weight: 4,
         },
       ],
@@ -367,8 +350,7 @@ export const premade = {
           id: "stapler-f1",
           directive:
             "It desires to be permanently relocated to a calm suburban home office environment, where the reduced operational stress would allow for more consistent and peaceful document fastening duties.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["retirement"],
+          tags: ["SYNCHRONY", "retirement"],
           emotional_weight: 3,
         },
       ],
@@ -398,8 +380,7 @@ export const premade = {
           id: "beast-p1",
           directive:
             "Created in a lab as a combat and breeding experiment. Survived multiple brutal deathmatches in the arena before eventually being contained.",
-          dynamics_tags: ["VIOLENCE"],
-          vector_tags: ["creation"],
+          tags: ["VIOLENCE", "creation"],
           emotional_weight: 8,
         },
       ],
@@ -408,8 +389,7 @@ export const premade = {
           id: "beast-f1",
           directive:
             "Wants to find someone worth protecting and breeding. Once he chooses someone, he becomes extremely possessive and will fight to keep them.",
-          dynamics_tags: ["KINETICS"],
-          vector_tags: ["breeding"],
+          tags: ["KINETICS", "breeding"],
           emotional_weight: 9,
         },
       ],
@@ -442,8 +422,7 @@ export const premade = {
           id: "nova-p1",
           directive:
             "The city was founded decades ago as a hidden sanctuary during the era when homosexuality was still classified as a mental disorder in much of the world, quickly becoming a refuge for gay men with nowhere else to go.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["origin"],
+          tags: ["SYNCHRONY", "origin"],
           emotional_weight: 8,
         },
       ],
@@ -452,8 +431,7 @@ export const premade = {
           id: "nova-f1",
           directive:
             "The city is preparing for the upcoming 'Eternal Pride Eclipse' — a rare celestial event predicted to cause a massive city-wide surge in desire, risk-taking and public displays of affection across both layers.",
-          dynamics_tags: ["KINETICS"],
-          vector_tags: ["festival"],
+          tags: ["KINETICS", "festival"],
           emotional_weight: 7,
         },
       ],
@@ -482,8 +460,7 @@ export const premade = {
           id: "weald-p1",
           directive:
             "The realm became cursed when the high-elf king disowned his crown prince, triggering a powerful curse that now affects all who enter the woods.",
-          dynamics_tags: ["ANOMALY"],
-          vector_tags: ["curse"],
+          tags: ["ANOMALY", "curse"],
           emotional_weight: 9,
         },
       ],
@@ -492,8 +469,7 @@ export const premade = {
           id: "weald-f1",
           directive:
             "The curse could potentially be broken if the banished prince returns and takes the crown — either by force or by being accepted back into the royal house.",
-          dynamics_tags: ["SYNCHRONY"],
-          vector_tags: ["prophecy"],
+          tags: ["SYNCHRONY", "prophecy"],
           emotional_weight: 8,
         },
       ],
@@ -522,8 +498,7 @@ export const premade = {
           id: "tartarus-p1",
           directive:
             "During a routine transformation trial, one test subject unexpectedly became a fully biological female. The station recorded the incident as a catastrophic failure with notes reading 'yuck, ewww, real girl detected — immediate termination of subject recommended'.",
-          dynamics_tags: ["ANOMALY"],
-          vector_tags: ["lab accident"],
+          tags: ["ANOMALY", "lab accident"],
           emotional_weight: 7,
         },
       ],
@@ -532,8 +507,7 @@ export const premade = {
           id: "tartarus-f1",
           directive:
             "Rumors have begun circulating among the staff about a new 'bimbo virus' project currently in early development — a self-replicating serum designed to spread transformation effects through contact.",
-          dynamics_tags: ["KINETICS"],
-          vector_tags: ["bimbofication"],
+          tags: ["KINETICS", "bimbofication"],
           emotional_weight: 8,
         },
       ],
@@ -562,8 +536,7 @@ export const premade = {
           id: "glitchoseum-p1",
           directive:
             "Over its history, a total of 847 combatants have been killed inside the arena, with 846 of them successfully revived thanks to the station's world-class medical facilities.",
-          dynamics_tags: ["VIOLENCE"],
-          vector_tags: ["history"],
+          tags: ["VIOLENCE", "history"],
           emotional_weight: 6,
         },
       ],
@@ -572,8 +545,7 @@ export const premade = {
           id: "glitchoseum-f1",
           directive:
             "The upcoming 'Crownbreaker Championship' is being hyped as the event of the century, with massive personal wagers and high-stakes matches already being negotiated between top fighters.",
-          dynamics_tags: ["KINETICS"],
-          vector_tags: ["championship"],
+          tags: ["KINETICS", "championship"],
           emotional_weight: 7,
         },
       ],

@@ -31,7 +31,7 @@ RPGlitch is engineered as a **Local-First Reactive Monolith**, meticulously brid
 
 - **The Reactive Loop**: A strict 5-Step Loop driving reality: Input -> Sanity -> Execution -> Persistence -> Expression.
 - **The Round & Turn Cycle**: Chronological progression defined by macro-Rounds triggered by the biological user, containing micro-Turns (System Simulation Turn -> AI Character Turn -> User Persona Turn).
-- **Four-Quadrant Entity State**: AI intelligence is synthesized from the strict temporal architecture of entities (Eternal Baseline, Present Processing, Past Vectors, Future Intent).
+- **Four-Quadrant Entity State**: AI intelligence is synthesized from the strict temporal architecture of entities (Eternal Baseline, Present Processing, Past Memories, Future Intent).
 - **Context Broker**: Orchestrates Fractal RAG memory, bridging intelligent reasoning protocols into the core engine via specialized MCPs.
 
 ### 2.3 The Vault (Security)

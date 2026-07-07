@@ -39,11 +39,11 @@
         return {
           ...val,
           emotional_weight: val.emotional_weight ?? 5,
-          vector_tags: val.vector_tags ?? [],
+          tags: val.tags ?? val.vector_tags ?? [],
         };
       }
       // This case should be rare now as state.add_vector_item handles initialization
-      return { directive: String(val || ""), emotional_weight: 5, vector_tags: [] };
+      return { directive: String(val || ""), emotional_weight: 5, tags: [] };
     });
   });
 
@@ -51,11 +51,11 @@
 
   /** @param {number} i @param {string} raw */
   function update_tags(i, raw) {
-    const vector_tags = raw
+    const tags = raw
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-    state.patch_vector_item(path, i, { vector_tags });
+    state.patch_vector_item(path, i, { tags });
   }
 </script>
 
@@ -207,12 +207,12 @@
 
                   focus:opacity-100
                 "
-                value={item.vector_tags.join(", ")}
+                value={item.tags.join(", ")}
                 placeholder="TAGS (COMMA SEPARATED)..."
                 onchange={(e) => update_tags(i, e.currentTarget.value)}
               />
             {:else}
-              {#each item.vector_tags as tag (tag)}
+              {#each item.tags as tag (tag)}
                 <span
                   class="
                     flex

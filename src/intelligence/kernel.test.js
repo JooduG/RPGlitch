@@ -1,4 +1,4 @@
-import { session_driver, TELEMETRY_TYPES } from "@engine";
+import { session_driver } from "@engine";
 import { context_broker, dynamics_engine, gamemaster, prompt_builder } from "@intelligence";
 import { llm_service } from "@platform";
 import { runtime } from "@state";
@@ -80,6 +80,9 @@ vi.mock("@intelligence/temporal.js", () => ({
     consolidate: vi.fn(),
     apply_state_mutations: vi.fn(),
   },
+}));
+
+vi.mock("@intelligence/dynamics.js", () => ({
   dynamics_engine: {
     settle_physics: vi.fn().mockImplementation((dynamics) => {
       if (dynamics) dynamics.intensity = 60; // Mutate to verify change
@@ -112,7 +115,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         expect.stringContaining("Intensity +10"),
         "system",
         expect.objectContaining({
-          type: TELEMETRY_TYPES.DYNAMICS_DELTA,
+          type: "DYNAMICS_DELTA",
           deltas: expect.arrayContaining([
             expect.objectContaining({
               axis: "intensity",

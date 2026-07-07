@@ -6,8 +6,6 @@
    */
   import { DataBox, tooltip } from "@atoms";
 
-  import { TELEMETRY_TYPES } from "@engine";
-
   /**
    * @typedef {Object} TelemetryMeta
    * @property {string} [type] - The type of telemetry event.
@@ -72,7 +70,7 @@
     animate-[slide-in_150ms_cubic-bezier(0.4,0,0.2,1)]
   "
 >
-  {#if meta.type === TELEMETRY_TYPES.STORY_START}
+  {#if meta.type === "STORY_START"}
     <div class="rounded-sm border border-(--state-dev-accent)/20 bg-(--state-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
       <div class="flex items-center gap-2">
         <div class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"></div>
@@ -82,13 +80,9 @@
     </div>
   {:else}
     <DataBox
-      label={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION
-        ? "Memory Weave"
-        : meta.type === TELEMETRY_TYPES.DYNAMICS_DELTA
-          ? "System Update"
-          : "Simulation Telemetry"}
+      label={meta.type === "MEMORY_FORMATION" ? "Memory Forged" : meta.type === "DYNAMICS_DELTA" ? "System Update" : "Simulation Telemetry"}
       height="auto"
-      isResonating={meta.type === TELEMETRY_TYPES.MEMORY_FORMATION || meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
+      isResonating={meta.type === "MEMORY_FORMATION" || meta.type === "VECTOR_RESOLUTION"}
     >
       <div
         class="
@@ -97,7 +91,7 @@
         gap-4
       "
       >
-        {#if meta.type === TELEMETRY_TYPES.MEMORY_FORMATION}
+        {#if meta.type === "MEMORY_FORMATION"}
           <!-- [#] WEAVED STATE (Memory Consolidation) -->
           <div
             class="
@@ -217,7 +211,7 @@
               </div>
             </div>
           </div>
-        {:else if meta.type === TELEMETRY_TYPES.VECTOR_RESOLUTION}
+        {:else if meta.type === "VECTOR_RESOLUTION"}
           <!-- [#] VECTOR RESOLUTION -->
           <div class="mb-4">
             <span

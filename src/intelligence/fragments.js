@@ -117,16 +117,12 @@ export const ENTITY_FRAGMENTS = {
         directive:
           "Define this character's timeless psychology using present-tense state declarations: core beliefs, personality drivers, cognitive patterns, and communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe reactive moments or specific events. Provide a dense, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
-        emotional_weight: 10,
-        density_multiplier: 1,
       },
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
         directive:
           "Define this environment as a timeless metaphysical substrate. Use present-tense state declarations: what laws govern this world, what forces are always in play, what atmosphere is structurally constant. Cover: physical constants, ambient metaphysical rules, defining sensory essence, and unbreakable world logic. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe a moment of observation. Provide a dense, high-fidelity paragraph outlining these baseline constants.",
         enhancer: "METAPHYSICAL_ARCHITECT",
-        emotional_weight: 10,
-        density_multiplier: 1,
       },
     },
     physical: {
@@ -151,16 +147,12 @@ export const ENTITY_FRAGMENTS = {
         directive:
           "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. Provide a dense, punchy summary snippet.",
         enhancer: "TACTICAL_ANALYZER",
-        emotional_weight: 5,
-        density_multiplier: 1.5,
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
         directive:
           "Capture what has changed from this environment's eternal baseline in this specific moment. State the active anomaly, current pressure, or immediate shift in the world's physics or atmosphere. TEMPORAL LAW: Only write what is true RIGHT NOW — stable conditions belong in Eternal. Provide a short, high-fidelity statement of immediate fluctuations.",
         enhancer: "ECOSYSTEM_ANALYZER",
-        emotional_weight: 5,
-        density_multiplier: 1.5,
       },
     },
     physical: {
@@ -185,8 +177,7 @@ export const ENTITY_FRAGMENTS = {
     fields: {
       directive:
         "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state. Write in active future tense. These are live impulses, not past observations.",
-      dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
-      vector_tags: "Semantic keywords for clustering and retrieval.",
+      tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },
@@ -197,8 +188,7 @@ export const ENTITY_FRAGMENTS = {
     fields: {
       directive:
         "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague. Write in past tense. These are anchored historical facts, not active states.",
-      dynamics_tags: "Automatically extracted thematic triggers (e.g. IMPACT).",
-      vector_tags: "Semantic keywords for clustering and retrieval.",
+      tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },
@@ -322,6 +312,7 @@ function build_entity_catalog() {
   });
   return catalog;
 }
+
 /**
  * Flat registry of all entity fields, keyed by dot-notation ID.
  * Used by `intelligence_broker.js` to iterate fields and resolve entity data.

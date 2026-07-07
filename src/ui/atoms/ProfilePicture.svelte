@@ -33,6 +33,7 @@
   const calculate_initials = (str) => {
     if (!str) return "?";
     const words = str
+      .replace(/['’]/g, "")
       .replace(/[^\p{L}\s]/gu, " ")
       .trim()
       .split(/\s+/);

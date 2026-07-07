@@ -16,7 +16,7 @@
  * LlmService has no opinion on prompt content. It injects no rules and knows
  * nothing about the narrative. It only sends and receives.
  */
-import { ERROR_MESSAGES } from "@engine";
+
 import { strip_cognition_blocks, escapeXml } from "@intelligence";
 import { app } from "@state";
 
@@ -235,7 +235,7 @@ export const llm_service = {
       const err_string = String(err);
       if (err_string.includes("stream keep alive") || err_string.includes("timeout")) {
         console.error("[llm_service] Network error:", err);
-        throw new Error(`${ERROR_MESSAGES.CONNECTION_LOST}`, { cause: err });
+        throw new Error(`Connection lost with the Abyss.`, { cause: err });
       }
       throw err;
     }

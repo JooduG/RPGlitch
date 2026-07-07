@@ -1,4 +1,3 @@
-import { CONFIG } from "@engine";
 import { temporal_engine } from "@intelligence";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -42,10 +41,7 @@ describe("temporal_engine", () => {
       const entry = temporal_engine.create("He felt a strange vibe.");
 
       expect(entry).toHaveProperty("id");
-      expect(entry.directive).toBe("He felt a strange vibe.");
-      expect(entry.dynamics_tags).toEqual([]);
-      expect(entry.vector_tags).toEqual([]);
-      expect(Array.isArray(entry.vector_tags)).toBe(true);
+      expect(Array.isArray(entry.tags)).toBe(true);
       expect(typeof entry.timestamp).toBe("number");
       expect(entry.base_weight).toBe(5); // Default weight
     });
@@ -65,8 +61,7 @@ describe("temporal_engine", () => {
           directive: "A",
           type: "past",
           base_weight: 5,
-          dynamics_tags: [],
-          vector_tags: ["iron"],
+          tags: ["iron"],
           meta: {},
           emotional_weight: 5,
         },
@@ -75,7 +70,7 @@ describe("temporal_engine", () => {
       const scored = temporal_engine.score(entries, "Iron kiss");
 
       // Base (5) + Vector Tag (3) = 8
-      const expected = 5 + CONFIG.DYNAMICS.RELEVANCE_VECTOR_BONUS;
+      const expected = 5 + 3;
 
       expect(scored[0]._relevance).toBe(expected);
     });
@@ -91,8 +86,7 @@ describe("temporal_engine", () => {
             directive: "Goal",
             type: "future",
             base_weight: 5,
-            dynamics_tags: [],
-            vector_tags: [],
+            tags: [],
             meta: {},
           },
         ],
@@ -104,7 +98,7 @@ describe("temporal_engine", () => {
       expect(entity.future).toHaveLength(0);
       expect(entity.past).toHaveLength(1);
       expect(entity.past[0].directive).toBe("Goal");
-      expect(entity.past[0].vector_tags).toContain("resolution:success");
+      expect(entity.past[0].tags).toContain("resolution:success");
     });
   });
 
@@ -119,8 +113,7 @@ describe("temporal_engine", () => {
             directive: "Goal",
             type: "future",
             base_weight: 5,
-            dynamics_tags: [],
-            vector_tags: [],
+            tags: [],
             meta: {},
           },
         ],
@@ -155,8 +148,7 @@ describe("temporal_engine", () => {
           directive: "Core memory",
           type: "past",
           base_weight: 5,
-          dynamics_tags: [],
-          vector_tags: [],
+          tags: [],
           meta: {},
           emotional_weight: 10,
         },
@@ -166,8 +158,7 @@ describe("temporal_engine", () => {
           directive: "Major memory",
           type: "past",
           base_weight: 5,
-          dynamics_tags: [],
-          vector_tags: [],
+          tags: [],
           meta: {},
           emotional_weight: 8,
         },
@@ -177,8 +168,7 @@ describe("temporal_engine", () => {
           directive: "Minor memory",
           type: "past",
           base_weight: 5,
-          dynamics_tags: [],
-          vector_tags: [],
+          tags: [],
           meta: {},
           emotional_weight: 4,
         },
@@ -199,8 +189,7 @@ describe("temporal_engine", () => {
           directive: "Prophecy",
           type: "future",
           base_weight: 5,
-          dynamics_tags: [],
-          vector_tags: [],
+          tags: [],
           meta: {},
           emotional_weight: 5,
         },
@@ -212,22 +201,21 @@ describe("temporal_engine", () => {
     });
   });
 
-  describe("weave_resonance (Historical Condensation)", () => {
+  describe("forge_memory (Historical Condensation)", () => {
     it("successfully condenses history into a resonance via LLM", async () => {
       const mockEntity = /** @type {any} */ ({ name: "Viper" });
       const mockHistory = [{ role: "user", content: "test message" }];
-      const mockResonance = {
+      const mockMemory = {
         summary: "A significant event happened.",
-        vector_tags: ["event"],
+        tags: ["event"],
       };
 
-      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockResonance));
+      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockMemory));
 
-      const result = await temporal_engine.weave_resonance(mockEntity, mockHistory, "character");
+      const result = await temporal_engine.forge_memory(mockEntity, mockHistory, "character");
 
-      expect(result?.directive).toBe(mockResonance.summary);
-      expect(result?.vector_tags).toEqual(["event"]);
-      expect(result?.dynamics_tags).toEqual([]);
+      expect(result?.directive).toBe(mockMemory.summary);
+      expect(result?.tags).toEqual(["event"]);
       expect(result?.timestamp).toBe(Date.now());
     });
 
@@ -235,29 +223,29 @@ describe("temporal_engine", () => {
       const jsonStr = JSON.stringify({ summary: "First object" });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${jsonStr} noise after`);
 
-      const result = await temporal_engine.weave_resonance(/** @type {any} */ ({ name: "Viper" }), []);
+      const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
 
       expect(result?.directive).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
-      const nestedResonance = {
+      const nestedMemory = {
         summary: "Event with nested info.",
         details: { depth: 2, meta: "data" },
       };
-      const response = `Here is the JSON: ${JSON.stringify(nestedResonance)} and some noise.`;
+      const response = `Here is the JSON: ${JSON.stringify(nestedMemory)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
 
-      const result = await temporal_engine.weave_resonance(/** @type {any} */ ({ name: "Viper" }), []);
+      const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
 
-      expect(result?.directive).toBe(nestedResonance.summary);
-      expect(JSON.stringify(result?.directive)).not.toBe(JSON.stringify(nestedResonance)); // summary is text
+      expect(result?.directive).toBe(nestedMemory.summary);
+      expect(JSON.stringify(result?.directive)).not.toBe(JSON.stringify(nestedMemory)); // summary is text
     });
 
     it("returns null and logs error if LLM fails", async () => {
       vi.mocked(llm_service.generate).mockRejectedValue(new Error("LLM Down"));
 
-      const result = await temporal_engine.weave_resonance(/** @type {any} */ ({ name: "Viper" }), []);
+      const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
 
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalled();

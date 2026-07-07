@@ -8,6 +8,7 @@ export {
   coerce_temporal_array,
   create_new,
   format_premade,
+  detox_prose,
 } from "./normalizer.js";
 export { premade } from "./premades.js";
 export { LISTS } from "./lists.js";

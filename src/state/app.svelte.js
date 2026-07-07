@@ -7,7 +7,7 @@
 import { closeImagePreview, openImagePreview } from "@atoms";
 import { generateUUID, resolve_px } from "@utils";
 import { db, entities, normalize } from "@data";
-import { log as engineLog, KV_SETTINGS_KEY, guardedTransition } from "@engine";
+import { log as engineLog, guardedTransition } from "@engine";
 import { visual_engine } from "@media";
 import { runtime, simulationState, uiState } from "@state";
 
@@ -234,7 +234,7 @@ export class AppStore {
     this.init_viewport();
 
     try {
-      const entry = await db.kv_settings.get(KV_SETTINGS_KEY);
+      const entry = await db.kv_settings.get("rpg_settings");
       if (entry && entry.value) {
         this.settings = { ...this.settings, ...entry.value };
       }
@@ -307,7 +307,7 @@ export class AppStore {
     if (typeof window === "undefined" || !this.settings) return;
     try {
       await db.kv_settings.put({
-        key: KV_SETTINGS_KEY,
+        key: "rpg_settings",
         value: $state.snapshot(this.settings),
       });
     } catch (e) {

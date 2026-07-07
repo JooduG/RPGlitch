@@ -304,7 +304,7 @@ export class ProfileState {
       directive: "",
       type: path,
       emotional_weight: 5,
-      vector_tags: [],
+      tags: [],
     };
 
     set_value(this.char, path, [newItem, ...items]);

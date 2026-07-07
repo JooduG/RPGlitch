@@ -13,4 +13,5 @@ export {
   wrap_dialogue,
 } from "./parser.js";
 export { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";
-export { temporal_engine, dynamics_engine, DYNAMICS_META } from "./temporal.js";
+export { temporal_engine } from "./temporal.js";
+export { dynamics_engine, DYNAMICS_META } from "./dynamics.js";

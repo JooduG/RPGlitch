@@ -5,7 +5,7 @@
  */
 import MarkdownIt from "markdown-it";
 import { sanitize } from "@platform";
-import { detox_prose } from "../data/normalizer.js";
+import { detox_prose } from "@data";
 
 const md = new MarkdownIt({
   html: false,
