@@ -140,12 +140,12 @@
     {
       "source": "document:README.md",
       "target": "document:GEMINI.md",
-      "type": "documents"
+      "type": "related"
     },
     {
       "source": "document:README.md",
       "target": "document:DESIGN.md",
-      "type": "documents"
+      "type": "related"
     }
   ]
 }
