@@ -1,0 +1,928 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/state/app.svelte.js",
+      "type": "file",
+      "name": "app.svelte.js",
+      "filePath": "src/state/app.svelte.js",
+      "summary": "Deterministic extraction for src/state/app.svelte.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/app.test.js",
+      "type": "file",
+      "name": "app.test.js",
+      "filePath": "src/state/app.test.js",
+      "summary": "Deterministic extraction for src/state/app.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/state/index.js",
+      "summary": "Deterministic extraction for src/state/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/log.svelte.js",
+      "type": "file",
+      "name": "log.svelte.js",
+      "filePath": "src/state/log.svelte.js",
+      "summary": "Deterministic extraction for src/state/log.svelte.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/runtime.svelte.js",
+      "type": "file",
+      "name": "runtime.svelte.js",
+      "filePath": "src/state/runtime.svelte.js",
+      "summary": "Deterministic extraction for src/state/runtime.svelte.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/runtime.test.js",
+      "type": "file",
+      "name": "runtime.test.js",
+      "filePath": "src/state/runtime.test.js",
+      "summary": "Deterministic extraction for src/state/runtime.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/status.svelte.js",
+      "type": "file",
+      "name": "status.svelte.js",
+      "filePath": "src/state/status.svelte.js",
+      "summary": "Deterministic extraction for src/state/status.svelte.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/state/status.test.js",
+      "type": "file",
+      "name": "status.test.js",
+      "filePath": "src/state/status.test.js",
+      "summary": "Deterministic extraction for src/state/status.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/actions/click-outside.js",
+      "type": "file",
+      "name": "click-outside.js",
+      "filePath": "src/ui/actions/click-outside.js",
+      "summary": "Deterministic extraction for src/ui/actions/click-outside.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/actions/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/ui/actions/index.js",
+      "summary": "Deterministic extraction for src/ui/actions/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/actions/resize.js",
+      "type": "file",
+      "name": "resize.js",
+      "filePath": "src/ui/actions/resize.js",
+      "summary": "Deterministic extraction for src/ui/actions/resize.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/actions/use-actions.js",
+      "type": "file",
+      "name": "use-actions.js",
+      "filePath": "src/ui/actions/use-actions.js",
+      "summary": "Deterministic extraction for src/ui/actions/use-actions.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Backdrop.svelte",
+      "type": "file",
+      "name": "Backdrop.svelte",
+      "filePath": "src/ui/atoms/Backdrop.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Backdrop.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Button.svelte",
+      "type": "file",
+      "name": "Button.svelte",
+      "filePath": "src/ui/atoms/Button.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Button.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/DataBox.svelte",
+      "type": "file",
+      "name": "DataBox.svelte",
+      "filePath": "src/ui/atoms/DataBox.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/DataBox.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Dropdown.svelte",
+      "type": "file",
+      "name": "Dropdown.svelte",
+      "filePath": "src/ui/atoms/Dropdown.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Dropdown.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/DynamicsMeter.svelte",
+      "type": "file",
+      "name": "DynamicsMeter.svelte",
+      "filePath": "src/ui/atoms/DynamicsMeter.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/DynamicsMeter.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/FitText.svelte",
+      "type": "file",
+      "name": "FitText.svelte",
+      "filePath": "src/ui/atoms/FitText.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/FitText.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/ImagePreview.svelte",
+      "type": "file",
+      "name": "ImagePreview.svelte",
+      "filePath": "src/ui/atoms/ImagePreview.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/ImagePreview.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/ui/atoms/index.js",
+      "summary": "Deterministic extraction for src/ui/atoms/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Modal.svelte",
+      "type": "file",
+      "name": "Modal.svelte",
+      "filePath": "src/ui/atoms/Modal.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Modal.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/ProfilePicture.svelte",
+      "type": "file",
+      "name": "ProfilePicture.svelte",
+      "filePath": "src/ui/atoms/ProfilePicture.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/ProfilePicture.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/ScrollArea.svelte",
+      "type": "file",
+      "name": "ScrollArea.svelte",
+      "filePath": "src/ui/atoms/ScrollArea.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/ScrollArea.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Skeleton.svelte",
+      "type": "file",
+      "name": "Skeleton.svelte",
+      "filePath": "src/ui/atoms/Skeleton.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Skeleton.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/atoms/Slider.svelte",
+      "type": "file",
+      "name": "Slider.svelte",
+      "filePath": "src/ui/atoms/Slider.svelte",
+      "summary": "Deterministic extraction for src/ui/atoms/Slider.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/state/app.svelte.js:StreamingState",
+      "type": "class",
+      "name": "StreamingState",
+      "filePath": "src/state/app.svelte.js",
+      "summary": "Class StreamingState",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/state/app.svelte.js:AppStore",
+      "type": "class",
+      "name": "AppStore",
+      "filePath": "src/state/app.svelte.js",
+      "summary": "Class AppStore",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/state/log.svelte.js:SimulationLogStore",
+      "type": "class",
+      "name": "SimulationLogStore",
+      "filePath": "src/state/log.svelte.js",
+      "summary": "Class SimulationLogStore",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "type": "function",
+      "name": "createRuntimeStore",
+      "filePath": "src/state/runtime.svelte.js",
+      "summary": "Function createRuntimeStore",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:src/state/status.svelte.js:UIStateStore",
+      "type": "class",
+      "name": "UIStateStore",
+      "filePath": "src/state/status.svelte.js",
+      "summary": "Class UIStateStore",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/actions/click-outside.js:click_outside",
+      "type": "function",
+      "name": "click_outside",
+      "filePath": "src/ui/actions/click-outside.js",
+      "summary": "Function click_outside",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/actions/resize.js:auto_resize",
+      "type": "function",
+      "name": "auto_resize",
+      "filePath": "src/ui/actions/resize.js",
+      "summary": "Function auto_resize",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/actions/use-actions.js:use_actions",
+      "type": "function",
+      "name": "use_actions",
+      "filePath": "src/ui/actions/use-actions.js",
+      "summary": "Function use_actions",
+      "tags": [],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "class:src/state/app.svelte.js:StreamingState",
+      "target": "file:src/state/app.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "class:src/state/app.svelte.js:AppStore",
+      "target": "file:src/state/app.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:loading",
+      "target": "function:src/state/app.svelte.js:uiState.set_loading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:busy",
+      "target": "function:src/state/app.svelte.js:uiState.set_loading",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:generateUUID",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:logTimeFormatter.format",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:this.logs.unshift",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:this.logs.pop",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:engineLog",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:log",
+      "target": "function:src/state/app.svelte.js:type.toUpperCase",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init",
+      "target": "function:src/state/app.svelte.js:this.init_viewport",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init",
+      "target": "function:src/state/app.svelte.js:db.kv_settings.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init",
+      "target": "function:src/state/app.svelte.js:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:this._viewport_cleanup.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:cleanup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:getBreakpoint",
+      "target": "function:src/state/app.svelte.js:resolve_px",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:getBreakpoint",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:Object.keys(queries).forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:Object.keys",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:window.matchMedia",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:listener",
+      "target": "function:src/state/app.svelte.js:this.log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:mql.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:this._viewport_cleanup.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:init_viewport",
+      "target": "function:src/state/app.svelte.js:mql.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:load_entities",
+      "target": "function:src/state/app.svelte.js:Promise.all",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:load_entities",
+      "target": "function:src/state/app.svelte.js:entities.list",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/app.svelte.js:load_entities",
+      "target": "function:src/state/app.svelte.js:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "class:src/state/log.svelte.js:SimulationLogStore",
+      "target": "file:src/state/log.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/state/log.svelte.js:refresh",
+      "target": "function:src/state/log.svelte.js:session_driver.load_log",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/log.svelte.js:add",
+      "target": "function:src/state/log.svelte.js:this.feed.some",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "file:src/state/runtime.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:coerce_story_key",
+      "target": "function:src/state/runtime.svelte.js:/^\\d+$/.test",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:coerce_story_key",
+      "target": "function:src/state/runtime.svelte.js:Number",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:$state",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:$effect.root",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:$effect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:db.stories\n              .update(coerce_story_key(simulation_story_id), {\n                round: _round,\n                last_played: Date.now(),\n                ai_dynamics: $state.snapshot(_ai),\n                fractal_dynamics: $state.snapshot(_fractal),\n              })\n              .catch",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:db.stories\n              .update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:coerce_story_key",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:$state.snapshot",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:init_effects",
+      "target": "function:src/state/runtime.svelte.js:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:teardown_effects",
+      "target": "function:src/state/runtime.svelte.js:runtime_cleanup",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:snapshot_entities",
+      "target": "function:src/state/runtime.svelte.js:$state.snapshot",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:active_story",
+      "target": "function:src/state/runtime.svelte.js:coerce_story_key",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:api._get_entity_by_role",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:temporal_engine.create",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entity.future.unshift",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entity.future.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:simulation_log_data.by_story_id[story_id].push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:Date.now",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entity.future.shift",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:db.kv_settings.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:coerce_story_key",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:db.stories.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:Promise.all",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entities.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:Object.assign",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:String",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:console.warn",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:db.stories.update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:$state.snapshot",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:console.error",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entities.upsert",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entities.update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:targets.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/state/runtime.svelte.js:createRuntimeStore",
+      "target": "function:src/state/runtime.svelte.js:entities.remove",
+      "type": "calls"
+    },
+    {
+      "source": "class:src/state/status.svelte.js:UIStateStore",
+      "target": "file:src/state/status.svelte.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/state/status.svelte.js:set_intent_active",
+      "target": "function:src/state/status.svelte.js:simulationState.set_intent_active",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/click-outside.js:click_outside",
+      "target": "file:src/ui/actions/click-outside.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/actions/click-outside.js:handleClick",
+      "target": "function:src/ui/actions/click-outside.js:document.body.contains",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/click-outside.js:handleClick",
+      "target": "function:src/ui/actions/click-outside.js:node.contains",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/click-outside.js:handleClick",
+      "target": "function:src/ui/actions/click-outside.js:handler",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/click-outside.js:click_outside",
+      "target": "function:src/ui/actions/click-outside.js:document.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/click-outside.js:destroy",
+      "target": "function:src/ui/actions/click-outside.js:document.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:auto_resize",
+      "target": "file:src/ui/actions/resize.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:cancelAnimationFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:requestAnimationFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:resolve_px",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:node.closest",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:scope.querySelectorAll",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:siblings.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:getComputedStyle",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:parseFloat",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:Math.max",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:metrics.push",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:update",
+      "target": "function:src/ui/actions/resize.js:metrics.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:auto_resize",
+      "target": "function:src/ui/actions/resize.js:node.addEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:auto_resize",
+      "target": "function:src/ui/actions/resize.js:observer.observe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:auto_resize",
+      "target": "function:src/ui/actions/resize.js:mutationObserver.observe",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:auto_resize",
+      "target": "function:src/ui/actions/resize.js:update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:destroy",
+      "target": "function:src/ui/actions/resize.js:cancelAnimationFrame",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:destroy",
+      "target": "function:src/ui/actions/resize.js:node.removeEventListener",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:destroy",
+      "target": "function:src/ui/actions/resize.js:observer.disconnect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/resize.js:destroy",
+      "target": "function:src/ui/actions/resize.js:mutationObserver.disconnect",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:use_actions",
+      "target": "file:src/ui/actions/use-actions.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:new_actions.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:Array.isArray",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:instances.get",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:existing.update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:next_instances.set",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:instances.delete",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:action",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:node.setAttribute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:node.removeAttribute",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:instances.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:update",
+      "target": "function:src/ui/actions/use-actions.js:result?.destroy",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:use_actions",
+      "target": "function:src/ui/actions/use-actions.js:update",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:use_actions",
+      "target": "function:src/ui/actions/use-actions.js:instances.forEach",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/actions/use-actions.js:use_actions",
+      "target": "function:src/ui/actions/use-actions.js:result?.destroy",
+      "type": "calls"
+    },
+    {
+      "source": "file:src/state/app.svelte.js",
+      "target": "file:src/state/app.test.js",
+      "type": "tested_by"
+    },
+    {
+      "source": "file:src/state/runtime.svelte.js",
+      "target": "file:src/state/runtime.test.js",
+      "type": "tested_by"
+    },
+    {
+      "source": "file:src/state/status.svelte.js",
+      "target": "file:src/state/status.test.js",
+      "type": "tested_by"
+    }
+  ]
+}
