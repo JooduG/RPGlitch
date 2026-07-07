@@ -1,0 +1,49 @@
+{
+  "nodes": [
+    {
+      "id": "document:.agents/skills/simulation/data/bayes-prompt-engineering.md",
+      "type": "document",
+      "name": "bayes-prompt-engineering.md",
+      "filePath": ".agents/skills/simulation/data/bayes-prompt-engineering.md",
+      "summary": "Deterministic extraction for .agents/skills/simulation/data/bayes-prompt-engineering.md",
+      "tags": [
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.agents/skills/simulation/data/memory-idea.md",
+      "type": "document",
+      "name": "memory-idea.md",
+      "filePath": ".agents/skills/simulation/data/memory-idea.md",
+      "summary": "Deterministic extraction for .agents/skills/simulation/data/memory-idea.md",
+      "tags": [
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.agents/skills/simulation/data/perchance-ai-chat.md",
+      "type": "document",
+      "name": "perchance-ai-chat.md",
+      "filePath": ".agents/skills/simulation/data/perchance-ai-chat.md",
+      "summary": "Deterministic extraction for .agents/skills/simulation/data/perchance-ai-chat.md",
+      "tags": [
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.agents/skills/simulation/data/somatic-psychology-engine.md",
+      "type": "document",
+      "name": "somatic-psychology-engine.md",
+      "filePath": ".agents/skills/simulation/data/somatic-psychology-engine.md",
+      "summary": "Deterministic extraction for .agents/skills/simulation/data/somatic-psychology-engine.md",
+      "tags": [
+        "markdown"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": []
+}
