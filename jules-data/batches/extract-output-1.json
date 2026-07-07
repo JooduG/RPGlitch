@@ -110,18 +110,13 @@
           "name": "prune",
           "startLine": 219,
           "endLine": 223,
-          "params": [
-            "vectors",
-            "type"
-          ]
+          "params": ["vectors", "type"]
         },
         {
           "name": "hydrate",
           "startLine": 228,
           "endLine": 241,
-          "params": [
-            "snapshot"
-          ]
+          "params": ["snapshot"]
         }
       ],
       "exports": [
@@ -451,26 +446,19 @@
           "name": "get_sanitized_text",
           "startLine": 38,
           "endLine": 53,
-          "params": [
-            "msg"
-          ]
+          "params": ["msg"]
         },
         {
           "name": "get_path_value",
           "startLine": 60,
           "endLine": 73,
-          "params": [
-            "obj",
-            "path"
-          ]
+          "params": ["obj", "path"]
         },
         {
           "name": "to_data_points",
           "startLine": 79,
           "endLine": 101,
-          "params": [
-            "entity"
-          ]
+          "params": ["entity"]
         }
       ],
       "exports": [
@@ -785,20 +773,13 @@
           "name": "physical_to_xml",
           "startLine": 19,
           "endLine": 29,
-          "params": [
-            "raw",
-            "tagName"
-          ]
+          "params": ["raw", "tagName"]
         },
         {
           "name": "val",
           "startLine": 34,
           "endLine": 37,
-          "params": [
-            "text",
-            "owner",
-            "entities"
-          ]
+          "params": ["text", "owner", "entities"]
         },
         {
           "name": "extract_pov_directive",
@@ -816,9 +797,7 @@
           "name": "format_dynamics_attrs",
           "startLine": 86,
           "endLine": 92,
-          "params": [
-            "dynObj"
-          ]
+          "params": ["dynObj"]
         },
         {
           "name": "render_director",
@@ -836,9 +815,7 @@
           "name": "render_narrator",
           "startLine": 264,
           "endLine": 308,
-          "params": [
-            "mode"
-          ]
+          "params": ["mode"]
         },
         {
           "name": "render_memory",
@@ -2116,54 +2093,37 @@
           "name": "create",
           "startLine": 49,
           "endLine": 60,
-          "params": [
-            "directive"
-          ]
+          "params": ["directive"]
         },
         {
           "name": "score",
           "startLine": 69,
           "endLine": 109,
-          "params": [
-            "vectors",
-            "input"
-          ]
+          "params": ["vectors", "input"]
         },
         {
           "name": "format",
           "startLine": 121,
           "endLine": 154,
-          "params": [
-            "vectors",
-            "input"
-          ]
+          "params": ["vectors", "input"]
         },
         {
           "name": "resolve",
           "startLine": 162,
           "endLine": 187,
-          "params": [
-            "entity",
-            "vector_id"
-          ]
+          "params": ["entity", "vector_id"]
         },
         {
           "name": "weave_resonance",
           "startLine": 196,
           "endLine": 250,
-          "params": [
-            "target_entity",
-            "history_slice"
-          ]
+          "params": ["target_entity", "history_slice"]
         },
         {
           "name": "apply_state_mutations",
           "startLine": 308,
           "endLine": 329,
-          "params": [
-            "entity",
-            "mutations"
-          ]
+          "params": ["entity", "mutations"]
         }
       ],
       "exports": [

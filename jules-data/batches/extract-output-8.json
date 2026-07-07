@@ -170,17 +170,13 @@
           "name": "scan",
           "startLine": 67,
           "endLine": 94,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 99,
           "endLine": 121,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "callGraph": [
@@ -338,9 +334,7 @@
           "name": "forge",
           "startLine": 21,
           "endLine": 65,
-          "params": [
-            "name"
-          ]
+          "params": ["name"]
         }
       ],
       "callGraph": [
@@ -554,34 +548,25 @@
           "name": "getBase",
           "startLine": 22,
           "endLine": 37,
-          "params": [
-            "filename"
-          ]
+          "params": ["filename"]
         },
         {
           "name": "findTestSubject",
           "startLine": 39,
           "endLine": 51,
-          "params": [
-            "filename",
-            "dir"
-          ]
+          "params": ["filename", "dir"]
         },
         {
           "name": "scan",
           "startLine": 117,
           "endLine": 155,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 160,
           "endLine": 184,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "exports": [
@@ -821,87 +806,61 @@
           "name": "safeStatSync",
           "startLine": 25,
           "endLine": 35,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         },
         {
           "name": "cleanHeaderLabel",
           "startLine": 45,
           "endLine": 50,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "isHeaderMatch",
           "startLine": 55,
           "endLine": 83,
-          "params": [
-            "templateHeader",
-            "actualLevel",
-            "actualText",
-            "_projectName"
-          ]
+          "params": ["templateHeader", "actualLevel", "actualText", "_projectName"]
         },
         {
           "name": "stripCodeBlocks",
           "startLine": 88,
           "endLine": 90,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "getTemplateStructure",
           "startLine": 97,
           "endLine": 143,
-          "params": [
-            "type"
-          ]
+          "params": ["type"]
         },
         {
           "name": "validateAgainstStructure",
           "startLine": 151,
           "endLine": 222,
-          "params": [
-            "content",
-            "structure",
-            "report"
-          ]
+          "params": ["content", "structure", "report"]
         },
         {
           "name": "auditSkill",
           "startLine": 231,
           "endLine": 304,
-          "params": [
-            "skillName"
-          ]
+          "params": ["skillName"]
         },
         {
           "name": "createTemplateRule",
           "startLine": 329,
           "endLine": 352,
-          "params": [
-            "id",
-            "type"
-          ]
+          "params": ["id", "type"]
         },
         {
           "name": "scan",
           "startLine": 403,
           "endLine": 430,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 435,
           "endLine": 489,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "exports": [
@@ -1681,17 +1640,13 @@
           "name": "scan",
           "startLine": 47,
           "endLine": 74,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 79,
           "endLine": 101,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         }
       ],
       "callGraph": [
@@ -2206,26 +2161,19 @@
           "name": "log",
           "startLine": 55,
           "endLine": 58,
-          "params": [
-            "emoji",
-            "message"
-          ]
+          "params": ["emoji", "message"]
         },
         {
           "name": "fatal",
           "startLine": 63,
           "endLine": 66,
-          "params": [
-            "message"
-          ]
+          "params": ["message"]
         },
         {
           "name": "prompt_user",
           "startLine": 71,
           "endLine": 79,
-          "params": [
-            "question"
-          ]
+          "params": ["question"]
         },
         {
           "name": "pre_flight",
@@ -2243,9 +2191,7 @@
           "name": "attempt_login",
           "startLine": 482,
           "endLine": 578,
-          "params": [
-            "page"
-          ]
+          "params": ["page"]
         },
         {
           "name": "main",
@@ -3376,9 +3322,7 @@
           "name": "mock_llm_success",
           "startLine": 71,
           "endLine": 75,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         }
       ],
       "exports": [
@@ -3515,9 +3459,7 @@
           "name": "parseArgs",
           "startLine": 22,
           "endLine": 33,
-          "params": [
-            "args"
-          ]
+          "params": ["args"]
         },
         {
           "name": "getActiveTrack",
@@ -3529,17 +3471,13 @@
           "name": "getTrackFile",
           "startLine": 65,
           "endLine": 83,
-          "params": [
-            "trackId"
-          ]
+          "params": ["trackId"]
         },
         {
           "name": "parseTasksMarkdown",
           "startLine": 85,
           "endLine": 124,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         },
         {
           "name": "commandPlan",
@@ -3551,9 +3489,7 @@
           "name": "commandDispatch",
           "startLine": 131,
           "endLine": 179,
-          "params": [
-            "args"
-          ]
+          "params": ["args"]
         },
         {
           "name": "commandStatus",

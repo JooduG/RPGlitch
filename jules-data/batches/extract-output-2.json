@@ -14,17 +14,13 @@
           "name": "scan",
           "startLine": 56,
           "endLine": 83,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         },
         {
           "name": "auditFile",
           "startLine": 88,
           "endLine": 108,
-          "params": [
-            "filePath"
-          ]
+          "params": ["filePath"]
         },
         {
           "name": "auditCodebaseTokens",
@@ -373,17 +369,13 @@
           "name": "flattenFrontmatter",
           "startLine": 41,
           "endLine": 71,
-          "params": [
-            "data"
-          ]
+          "params": ["data"]
         },
         {
           "name": "buildJsBridge",
           "startLine": 77,
           "endLine": 119,
-          "params": [
-            "flat_data"
-          ]
+          "params": ["flat_data"]
         },
         {
           "name": "syncToCss",
@@ -717,9 +709,7 @@
           "name": "getCategory",
           "startLine": 25,
           "endLine": 56,
-          "params": [
-            "name"
-          ]
+          "params": ["name"]
         },
         {
           "name": "parseDefinedTokens",
@@ -731,9 +721,7 @@
           "name": "getSourceFiles",
           "startLine": 108,
           "endLine": 125,
-          "params": [
-            "dir"
-          ]
+          "params": ["dir"]
         }
       ],
       "exports": [

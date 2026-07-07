@@ -183,17 +183,13 @@
           "name": "ensureModifiers",
           "startLine": 18,
           "endLine": 36,
-          "params": [
-            "char"
-          ]
+          "params": ["char"]
         },
         {
           "name": "handleCreativeAction",
           "startLine": 41,
           "endLine": 63,
-          "params": [
-            "ctx"
-          ]
+          "params": ["ctx"]
         }
       ],
       "callGraph": [
@@ -304,9 +300,7 @@
           "name": "typewriter",
           "startLine": 17,
           "endLine": 45,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         }
       ],
       "exports": [

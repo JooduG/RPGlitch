@@ -6,9 +6,7 @@
       "name": "ProfileHeader.svelte",
       "filePath": "src/ui/organisms/ProfileHeader.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/ProfileHeader.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -17,9 +15,7 @@
       "name": "Storyboard.svelte",
       "filePath": "src/ui/organisms/Storyboard.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/Storyboard.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -28,9 +24,7 @@
       "name": "StoryboardDynamicTitle.svelte",
       "filePath": "src/ui/organisms/StoryboardDynamicTitle.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/StoryboardDynamicTitle.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -39,9 +33,7 @@
       "name": "Storymode.svelte",
       "filePath": "src/ui/organisms/Storymode.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/Storymode.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -50,9 +42,7 @@
       "name": "StorymodeFeed.svelte",
       "filePath": "src/ui/organisms/StorymodeFeed.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/StorymodeFeed.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -61,9 +51,7 @@
       "name": "field-path.js",
       "filePath": "src/ui/utils/field-path.js",
       "summary": "Deterministic extraction for src/ui/utils/field-path.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -90,9 +78,7 @@
       "name": "index.js",
       "filePath": "src/ui/utils/index.js",
       "summary": "Deterministic extraction for src/ui/utils/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -101,9 +87,7 @@
       "name": "markdown.js",
       "filePath": "src/ui/utils/markdown.js",
       "summary": "Deterministic extraction for src/ui/utils/markdown.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -121,9 +105,7 @@
       "name": "safe-html.js",
       "filePath": "src/ui/utils/safe-html.js",
       "summary": "Deterministic extraction for src/ui/utils/safe-html.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -141,9 +123,7 @@
       "name": "safe-html.test.js",
       "filePath": "src/ui/utils/safe-html.test.js",
       "summary": "Deterministic extraction for src/ui/utils/safe-html.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -152,9 +132,7 @@
       "name": "ui-helpers.js",
       "filePath": "src/ui/utils/ui-helpers.js",
       "summary": "Deterministic extraction for src/ui/utils/ui-helpers.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -253,9 +231,7 @@
       "name": "ui-helpers.test.js",
       "filePath": "src/ui/utils/ui-helpers.test.js",
       "summary": "Deterministic extraction for src/ui/utils/ui-helpers.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -264,9 +240,7 @@
       "name": "stylelint.config.cjs",
       "filePath": "stylelint.config.cjs",
       "summary": "Deterministic extraction for stylelint.config.cjs",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -275,9 +249,7 @@
       "name": "svelte.config.js",
       "filePath": "svelte.config.js",
       "summary": "Deterministic extraction for svelte.config.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -286,9 +258,7 @@
       "name": "understand-anything-plugin-2026-07-06.md",
       "filePath": "tasks/tracks/understand-anything-plugin-2026-07-06.md",
       "summary": "Deterministic extraction for tasks/tracks/understand-anything-plugin-2026-07-06.md",
-      "tags": [
-        "markdown"
-      ],
+      "tags": ["markdown"],
       "complexity": "simple"
     },
     {
@@ -297,9 +267,7 @@
       "name": "types.d.ts",
       "filePath": "types.d.ts",
       "summary": "Deterministic extraction for types.d.ts",
-      "tags": [
-        "typescript"
-      ],
+      "tags": ["typescript"],
       "complexity": "simple"
     },
     {
@@ -308,9 +276,7 @@
       "name": "vite.config.js",
       "filePath": "vite.config.js",
       "summary": "Deterministic extraction for vite.config.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -337,9 +303,7 @@
       "name": "vitest.config.js",
       "filePath": "vitest.config.js",
       "summary": "Deterministic extraction for vitest.config.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -348,9 +312,7 @@
       "name": "ignores.master.json",
       "filePath": "ignores.master.json",
       "summary": "Auto-generated placeholder for missing target node",
-      "tags": [
-        "unknown"
-      ],
+      "tags": ["unknown"],
       "complexity": "simple"
     }
   ],

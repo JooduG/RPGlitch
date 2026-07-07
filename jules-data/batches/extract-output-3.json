@@ -14,9 +14,7 @@
           "name": "spring",
           "startLine": 160,
           "endLine": 162,
-          "params": [
-            "initialValue"
-          ]
+          "params": ["initialValue"]
         }
       ],
       "classes": [
@@ -24,19 +22,7 @@
           "name": "KineticSpring",
           "startLine": 38,
           "endLine": 151,
-          "methods": [
-            "constructor",
-            "value",
-            "value",
-            "stiffness",
-            "stiffness",
-            "damping",
-            "damping",
-            "precision",
-            "precision",
-            "set",
-            "update"
-          ],
+          "methods": ["constructor", "value", "value", "stiffness", "stiffness", "damping", "damping", "precision", "precision", "set", "update"],
           "properties": []
         }
       ],
@@ -112,66 +98,49 @@
           "name": "get_target",
           "startLine": 18,
           "endLine": 18,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "createKineticAction",
           "startLine": 30,
           "endLine": 96,
-          "params": [
-            "node",
-            "config"
-          ]
+          "params": ["node", "config"]
         },
         {
           "name": "shimmy",
           "startLine": 104,
           "endLine": 129,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "pulse",
           "startLine": 138,
           "endLine": 179,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "spin",
           "startLine": 188,
           "endLine": 225,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "roll",
           "startLine": 234,
           "endLine": 271,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "stab",
           "startLine": 280,
           "endLine": 301,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         },
         {
           "name": "kinetic_scroll",
           "startLine": 310,
           "endLine": 399,
-          "params": [
-            "node"
-          ]
+          "params": ["node"]
         }
       ],
       "exports": [

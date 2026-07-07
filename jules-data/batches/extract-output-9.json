@@ -357,9 +357,7 @@
           "name": "sanitize_html",
           "startLine": 10,
           "endLine": 10,
-          "params": [
-            "val"
-          ]
+          "params": ["val"]
         },
         {
           "name": "get_random_signature_key",
@@ -377,9 +375,7 @@
           "name": "coerce_temporal_array",
           "startLine": 176,
           "endLine": 183,
-          "params": [
-            "val"
-          ]
+          "params": ["val"]
         },
         {
           "name": "create_new",
@@ -391,18 +387,13 @@
           "name": "format_premade",
           "startLine": 207,
           "endLine": 215,
-          "params": [
-            "entity",
-            "type"
-          ]
+          "params": ["entity", "type"]
         },
         {
           "name": "detox_prose",
           "startLine": 224,
           "endLine": 249,
-          "params": [
-            "rawText"
-          ]
+          "params": ["rawText"]
         }
       ],
       "exports": [
@@ -1429,9 +1420,7 @@
           "name": "guardedTransition",
           "startLine": 33,
           "endLine": 70,
-          "params": [
-            "callback"
-          ]
+          "params": ["callback"]
         }
       ],
       "exports": [
@@ -1531,34 +1520,25 @@
           "name": "pickRandom",
           "startLine": 35,
           "endLine": 39,
-          "params": [
-            "array"
-          ]
+          "params": ["array"]
         },
         {
           "name": "clamp",
           "startLine": 48,
           "endLine": 48,
-          "params": [
-            "n"
-          ]
+          "params": ["n"]
         },
         {
           "name": "log",
           "startLine": 55,
           "endLine": 60,
-          "params": [
-            "...args"
-          ]
+          "params": ["...args"]
         },
         {
           "name": "ind",
           "startLine": 65,
           "endLine": 69,
-          "params": [
-            "text",
-            "spaces"
-          ]
+          "params": ["text", "spaces"]
         }
       ],
       "exports": [

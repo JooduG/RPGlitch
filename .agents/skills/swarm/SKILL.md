@@ -16,7 +16,7 @@ As the `swarm` specialist, you are the conductor of parallel intelligence and th
 
 ## Overview
 
-The `swarm` skill governs the coordination of multiple sub-agents for high-velocity implementation, as well as the orchestration of large-scale technical operations via the Jules extension. 
+The `swarm` skill governs the coordination of multiple sub-agents for high-velocity implementation, as well as the orchestration of large-scale technical operations via the Jules extension.
 
 ### Strategic Context
 

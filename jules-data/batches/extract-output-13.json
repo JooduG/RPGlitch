@@ -54,20 +54,13 @@
           "name": "get_value",
           "startLine": 12,
           "endLine": 19,
-          "params": [
-            "obj",
-            "path"
-          ]
+          "params": ["obj", "path"]
         },
         {
           "name": "set_value",
           "startLine": 28,
           "endLine": 38,
-          "params": [
-            "obj",
-            "path",
-            "val"
-          ]
+          "params": ["obj", "path", "val"]
         }
       ],
       "exports": [
@@ -140,9 +133,7 @@
           "name": "parse_markdown",
           "startLine": 9,
           "endLine": 43,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         }
       ],
       "exports": [
@@ -237,10 +228,7 @@
           "name": "safe_html",
           "startLine": 7,
           "endLine": 17,
-          "params": [
-            "node",
-            "content"
-          ]
+          "params": ["node", "content"]
         }
       ],
       "exports": [
@@ -298,18 +286,13 @@
           "name": "get_css_value",
           "startLine": 19,
           "endLine": 22,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "try_direct_var_resolve",
           "startLine": 30,
           "endLine": 44,
-          "params": [
-            "trimmed",
-            "context"
-          ]
+          "params": ["trimmed", "context"]
         },
         {
           "name": "get_measure_el",
@@ -321,44 +304,31 @@
           "name": "prepare_measure",
           "startLine": 88,
           "endLine": 115,
-          "params": [
-            "value",
-            "prop",
-            "sentinel",
-            "context"
-          ]
+          "params": ["value", "prop", "sentinel", "context"]
         },
         {
           "name": "resolve_px",
           "startLine": 126,
           "endLine": 166,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "resolve_ms",
           "startLine": 176,
           "endLine": 226,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "resolve_number",
           "startLine": 236,
           "endLine": 271,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "resolve_string",
           "startLine": 282,
           "endLine": 312,
-          "params": [
-            "value"
-          ]
+          "params": ["value"]
         },
         {
           "name": "mockPlugins",
@@ -370,9 +340,7 @@
           "name": "getRpgList",
           "startLine": 336,
           "endLine": 355,
-          "params": [
-            "key"
-          ]
+          "params": ["key"]
         }
       ],
       "exports": [

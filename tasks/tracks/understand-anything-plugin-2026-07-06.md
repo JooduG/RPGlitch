@@ -12,20 +12,24 @@ description: Integrate Understand-Anything plugin into Antigravity IDE
 ## 🏛️ Eternal (The Soul)
 
 ### Objective
+
 Integrate the "Understand-Anything" knowledge graph pipeline as a developer tool (Antigravity IDE plugin) to map the RPGlitch engine. This will be used for architectural analysis and impact planning without altering the runtime engine.
 
 ### Success Criteria
+
 - Plugin is installed in `~/.understand-anything/repo` and symlinked to `.gemini/config/plugins/understand-anything`.
 - Initial `/understand` analysis runs successfully.
 - Knowledge graph is generated at `.understand-anything/knowledge-graph.json`.
 
 ### Boundaries
+
 - **Always**: Keep the analysis pipeline isolated from RPGlitch runtime code.
 - **Never**: Commit `.understand-anything` output files to the repository (ensure it's ignored).
 
 ## 🔧 Future (The Muscle)
 
 ### Tasks
+
 - [~] Phase 1: Track Setup
   - [x] Create `tasks/tracks/understand-anything-plugin-2026-07-06.md`
   - [x] Update `tasks/FUTURE.md`
@@ -44,10 +48,11 @@ Integrate the "Understand-Anything" knowledge graph pipeline as a developer tool
 ## 🛰️ Present (The State)
 
 ### Active Task
+
 Executing installation script.
 
 ### Pulse
 
-| Timestamp        | Action                          | Status |
-| :--------------- | :------------------------------ | :----- |
+| Timestamp        | Action                          | Status  |
+| :--------------- | :------------------------------ | :------ |
 | 2026-07-06 19:14 | Initialized track documentation | ✅ Done |

@@ -4,9 +4,7 @@
     "type": "config",
     "name": "config.yaml",
     "filePath": ".agents/config.yaml",
-    "tags": [
-      "yaml"
-    ],
+    "tags": ["yaml"],
     "summary": "Analysis of .agents/config.yaml",
     "complexity": "simple"
   },
@@ -15,9 +13,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/audio/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/audio/SKILL.md",
     "complexity": "simple"
   },
@@ -26,9 +22,7 @@
     "type": "document",
     "name": "interaction-audit.md",
     "filePath": ".agents/skills/design/data/interaction-audit.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/design/data/interaction-audit.md",
     "complexity": "simple"
   },
@@ -37,9 +31,7 @@
     "type": "file",
     "name": "audit-google-design.js",
     "filePath": ".agents/skills/design/scripts/audit-google-design.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/design/scripts/audit-google-design.js",
     "complexity": "simple"
   },
@@ -48,9 +40,7 @@
     "type": "file",
     "name": "audit-svelte.js",
     "filePath": ".agents/skills/design/scripts/audit-svelte.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/design/scripts/audit-svelte.js",
     "complexity": "simple"
   },
@@ -59,9 +49,7 @@
     "type": "file",
     "name": "forge-svelte.js",
     "filePath": ".agents/skills/design/scripts/forge-svelte.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/design/scripts/forge-svelte.js",
     "complexity": "simple"
   },
@@ -70,9 +58,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/design/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/design/SKILL.md",
     "complexity": "simple"
   },
@@ -81,9 +67,7 @@
     "type": "file",
     "name": "audit-nomenclature.js",
     "filePath": ".agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/local-dispatcher/scripts/audit-nomenclature.js",
     "complexity": "simple"
   },
@@ -92,9 +76,7 @@
     "type": "file",
     "name": "audit-project.js",
     "filePath": ".agents/skills/local-dispatcher/scripts/audit-project.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/local-dispatcher/scripts/audit-project.js",
     "complexity": "simple"
   },
@@ -103,9 +85,7 @@
     "type": "file",
     "name": "audit-security.js",
     "filePath": ".agents/skills/local-dispatcher/scripts/audit-security.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/local-dispatcher/scripts/audit-security.js",
     "complexity": "simple"
   },
@@ -114,9 +94,7 @@
     "type": "file",
     "name": "sync-ignores.js",
     "filePath": ".agents/skills/local-dispatcher/scripts/sync-ignores.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/local-dispatcher/scripts/sync-ignores.js",
     "complexity": "simple"
   },
@@ -125,9 +103,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/local-dispatcher/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/local-dispatcher/SKILL.md",
     "complexity": "simple"
   },
@@ -136,9 +112,7 @@
     "type": "file",
     "name": "premades-nsfw.js",
     "filePath": ".agents/skills/premades/assets/premades-nsfw.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/premades/assets/premades-nsfw.js",
     "complexity": "simple"
   },
@@ -147,9 +121,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/premades/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/premades/SKILL.md",
     "complexity": "simple"
   },
@@ -158,9 +130,7 @@
     "type": "file",
     "name": "deploy-perchance.js",
     "filePath": ".agents/skills/release/scripts/deploy-perchance.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/release/scripts/deploy-perchance.js",
     "complexity": "simple"
   },
@@ -169,9 +139,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/release/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/release/SKILL.md",
     "complexity": "simple"
   },
@@ -180,9 +148,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/sfw-premades/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/sfw-premades/SKILL.md",
     "complexity": "simple"
   },
@@ -191,9 +157,7 @@
     "type": "file",
     "name": "test-setup.js",
     "filePath": ".agents/skills/simulation/scripts/test-setup.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/simulation/scripts/test-setup.js",
     "complexity": "simple"
   },
@@ -202,9 +166,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/simulation/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/simulation/SKILL.md",
     "complexity": "simple"
   },
@@ -213,9 +175,7 @@
     "type": "file",
     "name": "cli.js",
     "filePath": ".agents/skills/swarm/scripts/cli.js",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .agents/skills/swarm/scripts/cli.js",
     "complexity": "simple"
   },
@@ -224,9 +184,7 @@
     "type": "document",
     "name": "SKILL.md",
     "filePath": ".agents/skills/swarm/SKILL.md",
-    "tags": [
-      "markdown"
-    ],
+    "tags": ["markdown"],
     "summary": "Analysis of .agents/skills/swarm/SKILL.md",
     "complexity": "simple"
   },
@@ -235,9 +193,7 @@
     "type": "config",
     "name": "settings.json",
     "filePath": ".gemini/settings.json",
-    "tags": [
-      "json"
-    ],
+    "tags": ["json"],
     "summary": "Analysis of .gemini/settings.json",
     "complexity": "simple"
   },
@@ -246,9 +202,7 @@
     "type": "file",
     "name": ".gitattributes",
     "filePath": ".gitattributes",
-    "tags": [
-      "unknown"
-    ],
+    "tags": ["unknown"],
     "summary": "Analysis of .gitattributes",
     "complexity": "simple"
   },
@@ -257,9 +211,7 @@
     "type": "file",
     "name": ".htmlhintrc",
     "filePath": ".htmlhintrc",
-    "tags": [
-      "unknown"
-    ],
+    "tags": ["unknown"],
     "summary": "Analysis of .htmlhintrc",
     "complexity": "simple"
   },
@@ -268,9 +220,7 @@
     "type": "file",
     "name": ".markdownlint-cli2.mjs",
     "filePath": ".markdownlint-cli2.mjs",
-    "tags": [
-      "javascript"
-    ],
+    "tags": ["javascript"],
     "summary": "Analysis of .markdownlint-cli2.mjs",
     "complexity": "simple"
   },

@@ -35,9 +35,7 @@
           "name": "format_key_as_label",
           "startLine": 235,
           "endLine": 241,
-          "params": [
-            "key"
-          ]
+          "params": ["key"]
         },
         {
           "name": "build_entity_catalog",
@@ -424,17 +422,13 @@
           "name": "parse_director_json",
           "startLine": 31,
           "endLine": 48,
-          "params": [
-            "raw_text"
-          ]
+          "params": ["raw_text"]
         },
         {
           "name": "validate_and_repair_response",
           "startLine": 57,
           "endLine": 115,
-          "params": [
-            "response"
-          ]
+          "params": ["response"]
         }
       ],
       "exports": [
@@ -1042,65 +1036,49 @@
           "name": "parse_think_block",
           "startLine": 21,
           "endLine": 52,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "strip_cognition_blocks",
           "startLine": 58,
           "endLine": 61,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "clean_image_prompts",
           "startLine": 67,
           "endLine": 93,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "wrap_dialogue",
           "startLine": 101,
           "endLine": 138,
-          "params": [
-            "html"
-          ]
+          "params": ["html"]
         },
         {
           "name": "parse_message",
           "startLine": 145,
           "endLine": 168,
-          "params": [
-            "rawText"
-          ]
+          "params": ["rawText"]
         },
         {
           "name": "escapeXml",
           "startLine": 175,
           "endLine": 185,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         },
         {
           "name": "clean_text",
           "startLine": 194,
           "endLine": 203,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "clean_xml",
           "startLine": 208,
           "endLine": 217,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         }
       ],
       "exports": [
@@ -1482,28 +1460,14 @@
           "name": "VoiceEngine",
           "startLine": 56,
           "endLine": 292,
-          "methods": [
-            "constructor",
-            "_loadVoices",
-            "_getRegionLabel",
-            "speak",
-            "preview",
-            "stop"
-          ],
+          "methods": ["constructor", "_loadVoices", "_getRegionLabel", "speak", "preview", "stop"],
           "properties": []
         },
         {
           "name": "AudioEffectsEngine",
           "startLine": 301,
           "endLine": 479,
-          "methods": [
-            "constructor",
-            "initSettings",
-            "saveAllSettings",
-            "setVolume",
-            "unlock",
-            "play"
-          ],
+          "methods": ["constructor", "initSettings", "saveAllSettings", "setVolume", "unlock", "play"],
           "properties": []
         }
       ],
@@ -2122,42 +2086,31 @@
           "name": "safeParsePseudoJson",
           "startLine": 22,
           "endLine": 66,
-          "params": [
-            "raw"
-          ]
+          "params": ["raw"]
         },
         {
           "name": "parseListTokens",
           "startLine": 73,
           "endLine": 82,
-          "params": [
-            "items"
-          ]
+          "params": ["items"]
         },
         {
           "name": "formatDimension",
           "startLine": 90,
           "endLine": 95,
-          "params": [
-            "label",
-            "items"
-          ]
+          "params": ["label", "items"]
         },
         {
           "name": "flattenToParagraph",
           "startLine": 102,
           "endLine": 123,
-          "params": [
-            "val"
-          ]
+          "params": ["val"]
         },
         {
           "name": "flatten_physical",
           "startLine": 133,
           "endLine": 151,
-          "params": [
-            "raw"
-          ]
+          "params": ["raw"]
         },
         {
           "name": "buildDimensionsContext",
@@ -2169,9 +2122,7 @@
           "name": "getResolution",
           "startLine": 366,
           "endLine": 381,
-          "params": [
-            "mode"
-          ]
+          "params": ["mode"]
         }
       ],
       "exports": [
@@ -2676,26 +2627,14 @@
           "name": "ExponentialBackoffRetryer",
           "startLine": 25,
           "endLine": 61,
-          "methods": [
-            "constructor",
-            "retry"
-          ],
+          "methods": ["constructor", "retry"],
           "properties": []
         },
         {
           "name": "CircuitBreaker",
           "startLine": 67,
           "endLine": 157,
-          "methods": [
-            "constructor",
-            "isClosed",
-            "isOpen",
-            "isHalfOpen",
-            "execute",
-            "_onSuccess",
-            "_onFailure",
-            "_evaluateState"
-          ],
+          "methods": ["constructor", "isClosed", "isOpen", "isHalfOpen", "execute", "_onSuccess", "_onFailure", "_evaluateState"],
           "properties": []
         }
       ],
@@ -2794,49 +2733,37 @@
           "name": "_hash",
           "startLine": 232,
           "endLine": 238,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         },
         {
           "name": "resolve_token",
           "startLine": 244,
           "endLine": 248,
-          "params": [
-            "color"
-          ]
+          "params": ["color"]
         },
         {
           "name": "get_deterministic_color",
           "startLine": 254,
           "endLine": 261,
-          "params": [
-            "seed"
-          ]
+          "params": ["seed"]
         },
         {
           "name": "get_color_name",
           "startLine": 267,
           "endLine": 280,
-          "params": [
-            "hex"
-          ]
+          "params": ["hex"]
         },
         {
           "name": "get_signature_label",
           "startLine": 288,
           "endLine": 306,
-          "params": [
-            "entity"
-          ]
+          "params": ["entity"]
         },
         {
           "name": "get_signature_color",
           "startLine": 314,
           "endLine": 345,
-          "params": [
-            "entity"
-          ]
+          "params": ["entity"]
         }
       ],
       "exports": [
@@ -3560,49 +3487,37 @@
           "name": "sanitize",
           "startLine": 11,
           "endLine": 14,
-          "params": [
-            "dirty"
-          ]
+          "params": ["dirty"]
         },
         {
           "name": "sanitizeToFragment",
           "startLine": 18,
           "endLine": 21,
-          "params": [
-            "dirty"
-          ]
+          "params": ["dirty"]
         },
         {
           "name": "escape",
           "startLine": 25,
           "endLine": 28,
-          "params": [
-            "str"
-          ]
+          "params": ["str"]
         },
         {
           "name": "checkRefusal",
           "startLine": 34,
           "endLine": 38,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "clean",
           "startLine": 42,
           "endLine": 42,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         },
         {
           "name": "validateImage",
           "startLine": 50,
           "endLine": 89,
-          "params": [
-            "file"
-          ]
+          "params": ["file"]
         }
       ],
       "exports": [
@@ -3862,9 +3777,7 @@
           "name": "sanitize_llm",
           "startLine": 35,
           "endLine": 48,
-          "params": [
-            "text"
-          ]
+          "params": ["text"]
         }
       ],
       "exports": [

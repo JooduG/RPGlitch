@@ -6,9 +6,7 @@
       "name": "app.svelte.js",
       "filePath": "src/state/app.svelte.js",
       "summary": "Deterministic extraction for src/state/app.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -17,9 +15,7 @@
       "name": "app.test.js",
       "filePath": "src/state/app.test.js",
       "summary": "Deterministic extraction for src/state/app.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -28,9 +24,7 @@
       "name": "index.js",
       "filePath": "src/state/index.js",
       "summary": "Deterministic extraction for src/state/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -39,9 +33,7 @@
       "name": "log.svelte.js",
       "filePath": "src/state/log.svelte.js",
       "summary": "Deterministic extraction for src/state/log.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -50,9 +42,7 @@
       "name": "runtime.svelte.js",
       "filePath": "src/state/runtime.svelte.js",
       "summary": "Deterministic extraction for src/state/runtime.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -61,9 +51,7 @@
       "name": "runtime.test.js",
       "filePath": "src/state/runtime.test.js",
       "summary": "Deterministic extraction for src/state/runtime.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -72,9 +60,7 @@
       "name": "status.svelte.js",
       "filePath": "src/state/status.svelte.js",
       "summary": "Deterministic extraction for src/state/status.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -83,9 +69,7 @@
       "name": "status.test.js",
       "filePath": "src/state/status.test.js",
       "summary": "Deterministic extraction for src/state/status.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -94,9 +78,7 @@
       "name": "click-outside.js",
       "filePath": "src/ui/actions/click-outside.js",
       "summary": "Deterministic extraction for src/ui/actions/click-outside.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -105,9 +87,7 @@
       "name": "index.js",
       "filePath": "src/ui/actions/index.js",
       "summary": "Deterministic extraction for src/ui/actions/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -116,9 +96,7 @@
       "name": "resize.js",
       "filePath": "src/ui/actions/resize.js",
       "summary": "Deterministic extraction for src/ui/actions/resize.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -127,9 +105,7 @@
       "name": "use-actions.js",
       "filePath": "src/ui/actions/use-actions.js",
       "summary": "Deterministic extraction for src/ui/actions/use-actions.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -138,9 +114,7 @@
       "name": "Backdrop.svelte",
       "filePath": "src/ui/atoms/Backdrop.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Backdrop.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -149,9 +123,7 @@
       "name": "Button.svelte",
       "filePath": "src/ui/atoms/Button.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Button.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -160,9 +132,7 @@
       "name": "DataBox.svelte",
       "filePath": "src/ui/atoms/DataBox.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/DataBox.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -171,9 +141,7 @@
       "name": "Dropdown.svelte",
       "filePath": "src/ui/atoms/Dropdown.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Dropdown.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -182,9 +150,7 @@
       "name": "DynamicsMeter.svelte",
       "filePath": "src/ui/atoms/DynamicsMeter.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/DynamicsMeter.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -193,9 +159,7 @@
       "name": "FitText.svelte",
       "filePath": "src/ui/atoms/FitText.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/FitText.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -204,9 +168,7 @@
       "name": "ImagePreview.svelte",
       "filePath": "src/ui/atoms/ImagePreview.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/ImagePreview.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -215,9 +177,7 @@
       "name": "index.js",
       "filePath": "src/ui/atoms/index.js",
       "summary": "Deterministic extraction for src/ui/atoms/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -226,9 +186,7 @@
       "name": "Modal.svelte",
       "filePath": "src/ui/atoms/Modal.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Modal.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -237,9 +195,7 @@
       "name": "ProfilePicture.svelte",
       "filePath": "src/ui/atoms/ProfilePicture.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/ProfilePicture.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -248,9 +204,7 @@
       "name": "ScrollArea.svelte",
       "filePath": "src/ui/atoms/ScrollArea.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/ScrollArea.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -259,9 +213,7 @@
       "name": "Skeleton.svelte",
       "filePath": "src/ui/atoms/Skeleton.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Skeleton.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -270,9 +222,7 @@
       "name": "Slider.svelte",
       "filePath": "src/ui/atoms/Slider.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Slider.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {

@@ -6,13 +6,7 @@
       "name": "bayes-prompt-engineering.md",
       "filePath": ".agents/skills/simulation/data/bayes-prompt-engineering.md",
       "summary": "A comprehensive guide on Bayes’ Theorem, its mathematical foundation, and its applications in Large Language Models (LLMs) and prompt engineering.",
-      "tags": [
-        "markdown",
-        "prompt-engineering",
-        "bayesian",
-        "simulation",
-        "llms"
-      ],
+      "tags": ["markdown", "prompt-engineering", "bayesian", "simulation", "llms"],
       "complexity": "simple"
     },
     {
@@ -21,13 +15,7 @@
       "name": "memory-idea.md",
       "filePath": ".agents/skills/simulation/data/memory-idea.md",
       "summary": "Instructions and formatting guidelines for extracting new facts and events from current context to generate concise memory narratives and keywords for Lorebook migration.",
-      "tags": [
-        "markdown",
-        "memory",
-        "lorebook",
-        "simulation",
-        "prompt-engineering"
-      ],
+      "tags": ["markdown", "memory", "lorebook", "simulation", "prompt-engineering"],
       "complexity": "simple"
     },
     {
@@ -36,13 +24,7 @@
       "name": "perchance-ai-chat.md",
       "filePath": ".agents/skills/simulation/data/perchance-ai-chat.md",
       "summary": "Technical reference and AI coding agent understanding guide for the Perchance AI Chat platform, detailing slash commands, character instructions, and messages.",
-      "tags": [
-        "markdown",
-        "perchance",
-        "chat-engine",
-        "simulation",
-        "technical-spec"
-      ],
+      "tags": ["markdown", "perchance", "chat-engine", "simulation", "technical-spec"],
       "complexity": "simple"
     },
     {
@@ -51,13 +33,7 @@
       "name": "somatic-psychology-engine.md",
       "filePath": ".agents/skills/simulation/data/somatic-psychology-engine.md",
       "summary": "Executive summary and technical specification for the RPGlitch Somatic Psychology & Trauma Engine (SPTE), translating dynamic emotional states into physical actions and adapting to user pacing.",
-      "tags": [
-        "markdown",
-        "psychology",
-        "trauma-engine",
-        "simulation",
-        "rpglitch"
-      ],
+      "tags": ["markdown", "psychology", "trauma-engine", "simulation", "rpglitch"],
       "complexity": "simple"
     }
   ],

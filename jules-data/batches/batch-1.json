@@ -6,9 +6,7 @@
       "name": "simulation-audit.js",
       "filePath": ".agents/skills/simulation/scripts/simulation-audit.js",
       "summary": "Deterministic extraction for .agents/skills/simulation/scripts/simulation-audit.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -17,9 +15,7 @@
       "name": "simulation-audit.test.js",
       "filePath": ".agents/skills/simulation/scripts/simulation-audit.test.js",
       "summary": "Deterministic extraction for .agents/skills/simulation/scripts/simulation-audit.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -28,9 +24,7 @@
       "name": "premades.js",
       "filePath": "src/data/premades.js",
       "summary": "Deterministic extraction for src/data/premades.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -39,9 +33,7 @@
       "name": "repository.js",
       "filePath": "src/data/repository.js",
       "summary": "Deterministic extraction for src/data/repository.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -50,9 +42,7 @@
       "name": "context.svelte.js",
       "filePath": "src/intelligence/context.svelte.js",
       "summary": "Deterministic extraction for src/intelligence/context.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -61,9 +51,7 @@
       "name": "prompts.js",
       "filePath": "src/intelligence/prompts.js",
       "summary": "Deterministic extraction for src/intelligence/prompts.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -72,9 +60,7 @@
       "name": "temporal.js",
       "filePath": "src/intelligence/temporal.js",
       "summary": "Deterministic extraction for src/intelligence/temporal.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {

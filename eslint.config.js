@@ -49,6 +49,7 @@ export default defineConfig([
       "**/yarn.lock",
       "**/tmp/**",
       "tmp/**/*",
+      "**/.understand-anything/**",
     ],
     // @agent:ignore-end
   },

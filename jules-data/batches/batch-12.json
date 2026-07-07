@@ -6,9 +6,7 @@
       "name": "TextField.svelte",
       "filePath": "src/ui/atoms/TextField.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/TextField.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -17,9 +15,7 @@
       "name": "Toggle.svelte",
       "filePath": "src/ui/atoms/Toggle.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Toggle.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -28,9 +24,7 @@
       "name": "Tooltip.svelte",
       "filePath": "src/ui/atoms/Tooltip.svelte",
       "summary": "Deterministic extraction for src/ui/atoms/Tooltip.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -39,9 +33,7 @@
       "name": "AudioWing.svelte",
       "filePath": "src/ui/molecules/AudioWing.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/AudioWing.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -50,9 +42,7 @@
       "name": "DevTelemetryBlock.svelte",
       "filePath": "src/ui/molecules/DevTelemetryBlock.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/DevTelemetryBlock.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -61,9 +51,7 @@
       "name": "DevWing.svelte",
       "filePath": "src/ui/molecules/DevWing.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/DevWing.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -72,9 +60,7 @@
       "name": "Dialog.svelte",
       "filePath": "src/ui/molecules/Dialog.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/Dialog.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -83,9 +69,7 @@
       "name": "EntityCard.svelte",
       "filePath": "src/ui/molecules/EntityCard.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/EntityCard.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -94,9 +78,7 @@
       "name": "ImportEntity.svelte",
       "filePath": "src/ui/molecules/ImportEntity.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/ImportEntity.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -105,9 +87,7 @@
       "name": "index.js",
       "filePath": "src/ui/molecules/index.js",
       "summary": "Deterministic extraction for src/ui/molecules/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -116,9 +96,7 @@
       "name": "Message.svelte",
       "filePath": "src/ui/molecules/Message.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/Message.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -127,9 +105,7 @@
       "name": "StoryCard.svelte",
       "filePath": "src/ui/molecules/StoryCard.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/StoryCard.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -138,9 +114,7 @@
       "name": "UnifiedConsole.svelte",
       "filePath": "src/ui/molecules/UnifiedConsole.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/UnifiedConsole.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -149,9 +123,7 @@
       "name": "VisualWing.svelte",
       "filePath": "src/ui/molecules/VisualWing.svelte",
       "summary": "Deterministic extraction for src/ui/molecules/VisualWing.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -160,9 +132,7 @@
       "name": "VisualWing.test.js",
       "filePath": "src/ui/molecules/VisualWing.test.js",
       "summary": "Deterministic extraction for src/ui/molecules/VisualWing.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -171,9 +141,7 @@
       "name": "index.js",
       "filePath": "src/ui/motion/index.js",
       "summary": "Deterministic extraction for src/ui/motion/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -182,9 +150,7 @@
       "name": "Typewriter.svelte",
       "filePath": "src/ui/motion/Typewriter.svelte",
       "summary": "Deterministic extraction for src/ui/motion/Typewriter.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -193,9 +159,7 @@
       "name": "typewriter.svelte.js",
       "filePath": "src/ui/motion/typewriter.svelte.js",
       "summary": "Deterministic extraction for src/ui/motion/typewriter.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -204,9 +168,7 @@
       "name": "CardHand.svelte",
       "filePath": "src/ui/organisms/CardHand.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/CardHand.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -215,9 +177,7 @@
       "name": "index.js",
       "filePath": "src/ui/organisms/index.js",
       "summary": "Deterministic extraction for src/ui/organisms/index.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -226,9 +186,7 @@
       "name": "Layout.svelte",
       "filePath": "src/ui/organisms/Layout.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/Layout.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -237,9 +195,7 @@
       "name": "Profile.svelte",
       "filePath": "src/ui/organisms/Profile.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/Profile.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
@@ -248,9 +204,7 @@
       "name": "profile.svelte.js",
       "filePath": "src/ui/organisms/profile.svelte.js",
       "summary": "Deterministic extraction for src/ui/organisms/profile.svelte.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -259,9 +213,7 @@
       "name": "profile.test.js",
       "filePath": "src/ui/organisms/profile.test.js",
       "summary": "Deterministic extraction for src/ui/organisms/profile.test.js",
-      "tags": [
-        "javascript"
-      ],
+      "tags": ["javascript"],
       "complexity": "simple"
     },
     {
@@ -270,9 +222,7 @@
       "name": "ProfileArray.svelte",
       "filePath": "src/ui/organisms/ProfileArray.svelte",
       "summary": "Deterministic extraction for src/ui/organisms/ProfileArray.svelte",
-      "tags": [
-        "svelte"
-      ],
+      "tags": ["svelte"],
       "complexity": "simple"
     },
     {
