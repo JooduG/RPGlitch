@@ -134,9 +134,19 @@
     },
     {
       "source": "config:package.json",
-      "target": "config:skills-lock.json",
+      "target": "config:ignores.master.json",
       "type": "configures"
     },
+    {
+      "source": "config:package.json",
+      "target": "config:jsconfig.json",
+      "type": "configures"
+    },
+    {
+      "source": "config:package.json",
+      "target": "config:skills-lock.json",
+      "type": "configures"
+    }
     {
       "source": "document:README.md",
       "target": "document:GEMINI.md",
