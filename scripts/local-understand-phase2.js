@@ -261,7 +261,7 @@ for (const batch of batchesData.batches) {
       }
     }
     const edgeCount = uniqueEdges.length;
-    fs.writeFileSync(finalBatchPath, JSON.stringify([...nodes, ...uniqueEdges], null, 2));
+    fs.writeFileSync(finalBatchPath, JSON.stringify({ nodes, edges: uniqueEdges }, null, 2));
 
     console.log(`[Batch ${batchIndex}] Wrote ${nodes.length} nodes and ${edgeCount} edges.`);
     
