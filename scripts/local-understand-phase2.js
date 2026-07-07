@@ -132,6 +132,7 @@ for (const batch of batchesData.batches) {
         const resolveAlias = (importPath) => {
           if (!importPath.startsWith('@')) return null;
           for (const [aliasPattern, targetPaths] of Object.entries(aliasPaths)) {
+            if (!Array.isArray(targetPaths) || targetPaths.length === 0) continue;
             if (aliasPattern.endsWith('/*')) {
               const baseAlias = aliasPattern.slice(0, -2);
               if (importPath.startsWith(baseAlias + '/')) {
