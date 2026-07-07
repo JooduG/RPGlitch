@@ -6,13 +6,8 @@ const projectRoot = process.cwd();
 const intermediateDir = path.join(projectRoot, '.understand-anything', 'intermediate');
 const batchesPath = path.join(intermediateDir, 'batches.json');
 const batchesData = JSON.parse(fs.readFileSync(batchesPath, 'utf8'));
-let aliasPaths = {};
-try {
-  const jsconfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'jsconfig.json'), 'utf8'));
-  aliasPaths = jsconfig?.compilerOptions?.paths || {};
-} catch (err) {
-  console.warn("Warning: Could not parse jsconfig.json paths:", err.message);
-}
+const jsconfig = JSON.parse(fs.readFileSync(path.join(projectRoot, 'jsconfig.json'), 'utf8'));
+const aliasPaths = jsconfig.compilerOptions.paths;
 
 const extractScript = "C:/Users/johng/.gemini/config/skills/understand-anything/understand/extract-structure.mjs";
 const pluginRoot = "C:\\Users\\johng\\.gemini\\config\\plugins\\understand-anything";
@@ -132,7 +127,6 @@ for (const batch of batchesData.batches) {
         const resolveAlias = (importPath) => {
           if (!importPath.startsWith('@')) return null;
           for (const [aliasPattern, targetPaths] of Object.entries(aliasPaths)) {
-            if (!Array.isArray(targetPaths) || targetPaths.length === 0) continue;
             if (aliasPattern.endsWith('/*')) {
               const baseAlias = aliasPattern.slice(0, -2);
               if (importPath.startsWith(baseAlias + '/')) {
