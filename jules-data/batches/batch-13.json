@@ -341,6 +341,17 @@
         "javascript"
       ],
       "complexity": "simple"
+    },
+    {
+      "id": "file:ignores.master.json",
+      "type": "file",
+      "name": "ignores.master.json",
+      "filePath": "ignores.master.json",
+      "summary": "Auto-generated placeholder for missing target node",
+      "tags": [
+        "unknown"
+      ],
+      "complexity": "simple"
     }
   ],
   "edges": [
@@ -355,119 +366,14 @@
       "type": "defined_in"
     },
     {
-      "source": "function:src/ui/utils/field-path.js:get_value",
-      "target": "function:src/ui/utils/field-path.js:path\n    .split(\".\")\n    .reduce",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/field-path.js:get_value",
-      "target": "function:src/ui/utils/field-path.js:path\n    .split",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/field-path.js:set_value",
-      "target": "function:src/ui/utils/field-path.js:path.split",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/field-path.js:set_value",
-      "target": "function:src/ui/utils/field-path.js:keys.pop",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/field-path.js:set_value",
-      "target": "function:src/ui/utils/field-path.js:keys.reduce",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/markdown.js:parse_markdown",
       "target": "file:src/ui/utils/markdown.js",
       "type": "defined_in"
     },
     {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:String",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:textStr.split",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:paragraphs.map",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:p.replace",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:regex.exec",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:tokens.push",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:normalized.substring",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:tokens.push",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:tokens.push",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:tokens.push",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:tokens.push",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:tokens.push",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/markdown.js:parse_markdown",
-      "target": "function:src/ui/utils/markdown.js:normalized.substring",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/safe-html.js:safe_html",
       "target": "file:src/ui/utils/safe-html.js",
       "type": "defined_in"
-    },
-    {
-      "source": "function:src/ui/utils/safe-html.js:update_content",
-      "target": "function:src/ui/utils/safe-html.js:node.appendChild",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/safe-html.js:update_content",
-      "target": "function:src/ui/utils/safe-html.js:sanitizeToFragment",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/safe-html.js:safe_html",
-      "target": "function:src/ui/utils/safe-html.js:update_content",
-      "type": "calls"
     },
     {
       "source": "function:src/ui/utils/ui-helpers.js:get_css_value",
@@ -520,91 +426,6 @@
       "type": "defined_in"
     },
     {
-      "source": "function:src/ui/utils/ui-helpers.js:get_css_value",
-      "target": "function:src/ui/utils/ui-helpers.js:String(value).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:get_css_value",
-      "target": "function:src/ui/utils/ui-helpers.js:String",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:get_css_value",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.startsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.startsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.startsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.endsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.startsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.slice(4, -1).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.slice",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:varName.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle(context).getPropertyValue(varName).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle(context).getPropertyValue",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:get_measure_el",
-      "target": "function:src/ui/utils/ui-helpers.js:document.createElement",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:get_measure_el",
-      "target": "function:src/ui/utils/ui-helpers.js:document.body.appendChild",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:get_measure_el",
-      "target": "function:src/ui/utils/ui-helpers.js:/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:get_measure_el",
-      "target": "function:src/ui/utils/ui-helpers.js:targetParent.appendChild",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
       "target": "function:src/ui/utils/ui-helpers.js:get_measure_el",
       "type": "calls"
@@ -615,88 +436,8 @@
       "type": "calls"
     },
     {
-      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
-      "target": "function:src/ui/utils/ui-helpers.js:el.style.setProperty",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
-      "target": "function:src/ui/utils/ui-helpers.js:el.style.setProperty",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle(el).getPropertyValue(\"--proxy\").trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle(el).getPropertyValue",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:String(value).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:String",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:isNaN",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
       "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:fastResolved.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:fastResolved.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:fastResolved.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
       "type": "calls"
     },
     {
@@ -705,83 +446,8 @@
       "type": "calls"
     },
     {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
-      "target": "function:src/ui/utils/ui-helpers.js:isNaN",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:String(value).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:String",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
       "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:direct.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:direct.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:direct.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
       "type": "calls"
     },
     {
@@ -790,88 +456,8 @@
       "type": "calls"
     },
     {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:computed.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:String(value).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:String",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:isNaN",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
       "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:isNaN",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:fastResolved.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:fastResolved.includes",
       "type": "calls"
     },
     {
@@ -880,53 +466,8 @@
       "type": "calls"
     },
     {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:parseFloat",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
-      "target": "function:src/ui/utils/ui-helpers.js:isNaN",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:String(value).trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:String",
-      "type": "calls"
-    },
-    {
       "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
       "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:direct.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:direct.replace",
       "type": "calls"
     },
     {
@@ -937,136 +478,6 @@
     {
       "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
       "target": "function:src/ui/utils/ui-helpers.js:get_measure_el",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:el.style.setProperty",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:el.style.setProperty",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle(el).getPropertyValue(\"--proxy\").trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle(el).getPropertyValue",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:window.getComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
-      "target": "function:src/ui/utils/ui-helpers.js:resolved.replace",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
-      "target": "function:src/ui/utils/ui-helpers.js:Array.isArray",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
-      "target": "function:src/ui/utils/ui-helpers.js:list[0].startsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
-      "target": "function:src/ui/utils/ui-helpers.js:console.warn",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
-      "target": "function:src/ui/utils/ui-helpers.js:JSON.parse",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
-      "target": "function:src/ui/utils/ui-helpers.js:console.warn",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
-      "target": "function:src/ui/utils/ui-helpers.js:Array.isArray",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:val.trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:trimmed.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:varMatch[1].trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:varMatch[2]?.trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:originalGetComputedStyle(current).getPropertyValue",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:originalGetComputedStyle",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:trimmed.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:trimmed.endsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:src/ui/utils/ui-helpers.test.js:resolveMockValue",
-      "target": "function:src/ui/utils/ui-helpers.test.js:parseFloat",
       "type": "calls"
     },
     {
@@ -1083,151 +494,6 @@
       "source": "function:vite.config.js:perchanceBase64Vault",
       "target": "file:vite.config.js",
       "type": "defined_in"
-    },
-    {
-      "source": "function:vite.config.js:buildStart",
-      "target": "function:vite.config.js:console.log",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:buildStart",
-      "target": "function:vite.config.js:execSync",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:buildStart",
-      "target": "function:vite.config.js:console.error",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:handleHotUpdate",
-      "target": "function:vite.config.js:file.endsWith",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:handleHotUpdate",
-      "target": "function:vite.config.js:console.log",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:handleHotUpdate",
-      "target": "function:vite.config.js:execSync",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:handleHotUpdate",
-      "target": "function:vite.config.js:console.error",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:path.resolve",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:fs.existsSync",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:fs.readFileSync",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:toBase64",
-      "target": "function:vite.config.js:Buffer.from(str, \"utf8\").toString",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:toBase64",
-      "target": "function:vite.config.js:Buffer.from",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:html.replace",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:cssContent.trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:toBase64",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:b64.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:JSON.stringify",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:html.replace",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:attributes.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:attributes.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:jsContent.trim",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:toBase64",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:b64.match",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:JSON.stringify",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:attributes.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:attributes.includes",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:fs.writeFileSync",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:console.log",
-      "type": "calls"
-    },
-    {
-      "source": "function:vite.config.js:closeBundle",
-      "target": "function:vite.config.js:console.error",
-      "type": "calls"
     },
     {
       "source": "file:src/ui/utils/safe-html.js",
