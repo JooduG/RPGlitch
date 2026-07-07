@@ -1,0 +1,13 @@
+[
+  {
+    "id": "pipeline:.github/workflows/jules-auto.yml",
+    "type": "pipeline",
+    "name": ".github/workflows/jules-auto.yml",
+    "filePath": ".github/workflows/jules-auto.yml",
+    "metadata": {
+      "language": "yaml",
+      "fileCategory": "infra",
+      "totalLines": 154
+    }
+  }
+]

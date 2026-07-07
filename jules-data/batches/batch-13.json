@@ -1,0 +1,509 @@
+{
+  "nodes": [
+    {
+      "id": "file:src/ui/organisms/ProfileHeader.svelte",
+      "type": "file",
+      "name": "ProfileHeader.svelte",
+      "filePath": "src/ui/organisms/ProfileHeader.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/ProfileHeader.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/Storyboard.svelte",
+      "type": "file",
+      "name": "Storyboard.svelte",
+      "filePath": "src/ui/organisms/Storyboard.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/Storyboard.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/StoryboardDynamicTitle.svelte",
+      "type": "file",
+      "name": "StoryboardDynamicTitle.svelte",
+      "filePath": "src/ui/organisms/StoryboardDynamicTitle.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/StoryboardDynamicTitle.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/Storymode.svelte",
+      "type": "file",
+      "name": "Storymode.svelte",
+      "filePath": "src/ui/organisms/Storymode.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/Storymode.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/organisms/StorymodeFeed.svelte",
+      "type": "file",
+      "name": "StorymodeFeed.svelte",
+      "filePath": "src/ui/organisms/StorymodeFeed.svelte",
+      "summary": "Deterministic extraction for src/ui/organisms/StorymodeFeed.svelte",
+      "tags": [
+        "svelte"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/field-path.js",
+      "type": "file",
+      "name": "field-path.js",
+      "filePath": "src/ui/utils/field-path.js",
+      "summary": "Deterministic extraction for src/ui/utils/field-path.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/field-path.js:get_value",
+      "type": "function",
+      "name": "get_value",
+      "filePath": "src/ui/utils/field-path.js",
+      "summary": "Function get_value",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/field-path.js:set_value",
+      "type": "function",
+      "name": "set_value",
+      "filePath": "src/ui/utils/field-path.js",
+      "summary": "Function set_value",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/index.js",
+      "type": "file",
+      "name": "index.js",
+      "filePath": "src/ui/utils/index.js",
+      "summary": "Deterministic extraction for src/ui/utils/index.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/markdown.js",
+      "type": "file",
+      "name": "markdown.js",
+      "filePath": "src/ui/utils/markdown.js",
+      "summary": "Deterministic extraction for src/ui/utils/markdown.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/markdown.js:parse_markdown",
+      "type": "function",
+      "name": "parse_markdown",
+      "filePath": "src/ui/utils/markdown.js",
+      "summary": "Function parse_markdown",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/safe-html.js",
+      "type": "file",
+      "name": "safe-html.js",
+      "filePath": "src/ui/utils/safe-html.js",
+      "summary": "Deterministic extraction for src/ui/utils/safe-html.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/safe-html.js:safe_html",
+      "type": "function",
+      "name": "safe_html",
+      "filePath": "src/ui/utils/safe-html.js",
+      "summary": "Function safe_html",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/safe-html.test.js",
+      "type": "file",
+      "name": "safe-html.test.js",
+      "filePath": "src/ui/utils/safe-html.test.js",
+      "summary": "Deterministic extraction for src/ui/utils/safe-html.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/ui-helpers.js",
+      "type": "file",
+      "name": "ui-helpers.js",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Deterministic extraction for src/ui/utils/ui-helpers.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:get_css_value",
+      "type": "function",
+      "name": "get_css_value",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function get_css_value",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
+      "type": "function",
+      "name": "try_direct_var_resolve",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function try_direct_var_resolve",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:get_measure_el",
+      "type": "function",
+      "name": "get_measure_el",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function get_measure_el",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "type": "function",
+      "name": "prepare_measure",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function prepare_measure",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:resolve_px",
+      "type": "function",
+      "name": "resolve_px",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function resolve_px",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:resolve_ms",
+      "type": "function",
+      "name": "resolve_ms",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function resolve_ms",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:resolve_number",
+      "type": "function",
+      "name": "resolve_number",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function resolve_number",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:resolve_string",
+      "type": "function",
+      "name": "resolve_string",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function resolve_string",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:mockPlugins",
+      "type": "function",
+      "name": "mockPlugins",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function mockPlugins",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:src/ui/utils/ui-helpers.js:getRpgList",
+      "type": "function",
+      "name": "getRpgList",
+      "filePath": "src/ui/utils/ui-helpers.js",
+      "summary": "Function getRpgList",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:src/ui/utils/ui-helpers.test.js",
+      "type": "file",
+      "name": "ui-helpers.test.js",
+      "filePath": "src/ui/utils/ui-helpers.test.js",
+      "summary": "Deterministic extraction for src/ui/utils/ui-helpers.test.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:stylelint.config.cjs",
+      "type": "file",
+      "name": "stylelint.config.cjs",
+      "filePath": "stylelint.config.cjs",
+      "summary": "Deterministic extraction for stylelint.config.cjs",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:svelte.config.js",
+      "type": "file",
+      "name": "svelte.config.js",
+      "filePath": "svelte.config.js",
+      "summary": "Deterministic extraction for svelte.config.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:tasks/tracks/understand-anything-plugin-2026-07-06.md",
+      "type": "document",
+      "name": "understand-anything-plugin-2026-07-06.md",
+      "filePath": "tasks/tracks/understand-anything-plugin-2026-07-06.md",
+      "summary": "Deterministic extraction for tasks/tracks/understand-anything-plugin-2026-07-06.md",
+      "tags": [
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:types.d.ts",
+      "type": "file",
+      "name": "types.d.ts",
+      "filePath": "types.d.ts",
+      "summary": "Deterministic extraction for types.d.ts",
+      "tags": [
+        "typescript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vite.config.js",
+      "type": "file",
+      "name": "vite.config.js",
+      "filePath": "vite.config.js",
+      "summary": "Deterministic extraction for vite.config.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:vite.config.js:designTokenSync",
+      "type": "function",
+      "name": "designTokenSync",
+      "filePath": "vite.config.js",
+      "summary": "Function designTokenSync",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:vite.config.js:perchanceBase64Vault",
+      "type": "function",
+      "name": "perchanceBase64Vault",
+      "filePath": "vite.config.js",
+      "summary": "Function perchanceBase64Vault",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:vitest.config.js",
+      "type": "file",
+      "name": "vitest.config.js",
+      "filePath": "vitest.config.js",
+      "summary": "Deterministic extraction for vitest.config.js",
+      "tags": [
+        "javascript"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:ignores.master.json",
+      "type": "file",
+      "name": "ignores.master.json",
+      "filePath": "ignores.master.json",
+      "summary": "Auto-generated placeholder for missing target node",
+      "tags": [
+        "unknown"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "function:src/ui/utils/field-path.js:get_value",
+      "target": "file:src/ui/utils/field-path.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/field-path.js:set_value",
+      "target": "file:src/ui/utils/field-path.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/markdown.js:parse_markdown",
+      "target": "file:src/ui/utils/markdown.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/safe-html.js:safe_html",
+      "target": "file:src/ui/utils/safe-html.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:get_css_value",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:get_measure_el",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:mockPlugins",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:getRpgList",
+      "target": "file:src/ui/utils/ui-helpers.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "target": "function:src/ui/utils/ui-helpers.js:get_measure_el",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "target": "function:src/ui/utils/ui-helpers.js:get_css_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
+      "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_px",
+      "target": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
+      "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_ms",
+      "target": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
+      "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_number",
+      "target": "function:src/ui/utils/ui-helpers.js:prepare_measure",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
+      "target": "function:src/ui/utils/ui-helpers.js:try_direct_var_resolve",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
+      "target": "function:src/ui/utils/ui-helpers.js:get_css_value",
+      "type": "calls"
+    },
+    {
+      "source": "function:src/ui/utils/ui-helpers.js:resolve_string",
+      "target": "function:src/ui/utils/ui-helpers.js:get_measure_el",
+      "type": "calls"
+    },
+    {
+      "source": "file:stylelint.config.cjs",
+      "target": "file:ignores.master.json",
+      "type": "imports"
+    },
+    {
+      "source": "function:vite.config.js:designTokenSync",
+      "target": "file:vite.config.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "function:vite.config.js:perchanceBase64Vault",
+      "target": "file:vite.config.js",
+      "type": "defined_in"
+    },
+    {
+      "source": "file:src/ui/utils/safe-html.js",
+      "target": "file:src/ui/utils/safe-html.test.js",
+      "type": "tested_by"
+    },
+    {
+      "source": "file:src/ui/utils/ui-helpers.js",
+      "target": "file:src/ui/utils/ui-helpers.test.js",
+      "type": "tested_by"
+    }
+  ]
+}
