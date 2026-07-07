@@ -1,0 +1,180 @@
+[
+  {
+    "node": {
+      "id": "document:tasks/ETERNAL.md",
+      "type": "document",
+      "path": "tasks/ETERNAL.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 44,
+      "nonEmptyLines": 28,
+      "sections": [
+        {
+          "heading": "🏛️ Eternal (The Soul)",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. The Vision",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "Core Tenets",
+          "level": 3,
+          "line": 12
+        },
+        {
+          "heading": "2. Technical Soul",
+          "level": 2,
+          "line": 18
+        },
+        {
+          "heading": "2.1 The Map & Infrastructure",
+          "level": 3,
+          "line": 22
+        },
+        {
+          "heading": "2.2 The Physics (Simulation Engine)",
+          "level": 3,
+          "line": 30
+        },
+        {
+          "heading": "2.3 The Vault (Security)",
+          "level": 3,
+          "line": 37
+        },
+        {
+          "heading": "3. Product Dream",
+          "level": 2,
+          "line": 42
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    },
+    "edges": []
+  },
+  {
+    "node": {
+      "id": "document:tasks/FUTURE.md",
+      "type": "document",
+      "path": "tasks/FUTURE.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 26,
+      "nonEmptyLines": 19,
+      "sections": [
+        {
+          "heading": "🔧 TRACK: understand-anything-plugin-2026-07-06",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "Goal",
+          "level": 2,
+          "line": 3
+        },
+        {
+          "heading": "Steps",
+          "level": 2,
+          "line": 7
+        },
+        {
+          "heading": "Phase 1: Track Setup",
+          "level": 3,
+          "line": 9
+        },
+        {
+          "heading": "Phase 2: Installation",
+          "level": 3,
+          "line": 14
+        },
+        {
+          "heading": "Phase 3: Initialization & Audit",
+          "level": 3,
+          "line": 18
+        },
+        {
+          "heading": "Phase 4: Native Antigravity Integration",
+          "level": 3,
+          "line": 22
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 7
+      }
+    },
+    "edges": []
+  },
+  {
+    "node": {
+      "id": "document:tasks/PRESENT.md",
+      "type": "document",
+      "path": "tasks/PRESENT.md",
+      "language": "markdown",
+      "fileCategory": "docs",
+      "totalLines": 94,
+      "nonEmptyLines": 75,
+      "sections": [
+        {
+          "heading": "🛰️ Present (The State)",
+          "level": 1,
+          "line": 1
+        },
+        {
+          "heading": "1. Vision Gaps",
+          "level": 2,
+          "line": 8
+        },
+        {
+          "heading": "Core Vision",
+          "level": 3,
+          "line": 10
+        },
+        {
+          "heading": "Technical Soul",
+          "level": 3,
+          "line": 16
+        },
+        {
+          "heading": "2.0 Active Focus",
+          "level": 2,
+          "line": 22
+        },
+        {
+          "heading": "🗺️ Roadmap (Tracks)",
+          "level": 2,
+          "line": 34
+        },
+        {
+          "heading": "🧠 Pulse (History)",
+          "level": 2,
+          "line": 40
+        },
+        {
+          "heading": "🧹 Backlog (Automated)",
+          "level": 2,
+          "line": 85
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "sectionCount": 8
+      }
+    },
+    "edges": []
+  }
+]
