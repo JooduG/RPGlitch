@@ -13,6 +13,7 @@
 
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
+  import { safe_html } from "@utils";
 
   /**
    * @typedef {Object} Props
@@ -466,9 +467,8 @@
                 [&_p:last-child]:mb-0
                 [&_strong]:font-bold
               "
+              use:safe_html={think_block}
             >
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              {@html think_block}
             </div>
           </DataBox>
         {/if}
@@ -593,8 +593,7 @@
                 </div>
               {/if}
             {:else if has_display_text}
-              <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-              {@html display_text}
+              <div use:safe_html={display_text}></div>
             {:else if busy}
               <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
                 <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
