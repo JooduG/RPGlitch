@@ -149,47 +149,64 @@ Declare the finalized emotional state vectors and immediate intent.`,
  * Director prompt compiler (Shot 1).
  */
 function render_director({ round, entities, input, render_atom, compressed_snapshot }) {
-  const protocols = ["COGNITION", "JSON_OUTPUT"].filter(Boolean).join(", ");
+  const protocols = ["JSON_OUTPUT"].filter(Boolean).join(", ");
   return clean_xml(`
-<SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">${render_narrative_style_xml()}
-  You are the Director — the unseen intelligence orchestrating ${escapeXml(entities.AI.name)}'s psychological state. Your goals and dialogue tones MUST align with the character's active dynamics: high affinity/openness demands warmth, cooperation, or vulnerability; high intensity/chaos demands tension, conflict, or erratic behavior. Do not default to adversarial power struggles unless the character's profile or current dynamics actively dictate it.
+<SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">
+  You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <PRESENT>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 8)}</PRESENT>
-      <ETERNAL>${val(entities.AI.eternal?.non_physical, entities.AI, entities)}</ETERNAL>
-      <PAST>${ind(render_atom.past(entities.AI, { limit: 2, vector_text: true }), 8)}</PAST>
+      <PRESENT_PHYSICAL>${ind(val(entities.AI.present?.physical, entities.AI, entities), 8)}</PRESENT_PHYSICAL>
+      <PRESENT_NON_PHYSICAL>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 8)}</PRESENT_NON_PHYSICAL>
+      <ETERNAL_PHYSICAL>${val(entities.AI.eternal?.physical, entities.AI, entities)}</ETERNAL_PHYSICAL>
+      <ETERNAL_NON_PHYSICAL>${val(entities.AI.eternal?.non_physical, entities.AI, entities)}</ETERNAL_NON_PHYSICAL>
       <FUTURE>${ind(render_atom.future(entities.AI, { limit: 1, vector_text: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escapeXml(entities.USER.name)}">
-      <PRESENT>${ind(val(entities.USER.present?.non_physical, entities.USER, entities), 8)}</PRESENT>
-      <ETERNAL>${val(entities.USER.eternal?.non_physical, entities.USER, entities)}</ETERNAL>
-      <PAST>${ind(render_atom.past(entities.USER, { limit: 2, vector_text: true }), 8)}</PAST>
+      <PRESENT_PHYSICAL>${ind(val(entities.USER.present?.physical, entities.USER, entities), 8)}</PRESENT_PHYSICAL>
+      <PRESENT_NON_PHYSICAL>${ind(val(entities.USER.present?.non_physical, entities.USER, entities), 8)}</PRESENT_NON_PHYSICAL>
+      <ETERNAL_PHYSICAL>${val(entities.USER.eternal?.physical, entities.USER, entities)}</ETERNAL_PHYSICAL>
+      <ETERNAL_NON_PHYSICAL>${val(entities.USER.eternal?.non_physical, entities.USER, entities)}</ETERNAL_NON_PHYSICAL>
       <FUTURE>${ind(render_atom.future(entities.USER, { limit: 1, vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
-  <USER_ACTION>${ind(input, 4)}</USER_ACTION>
   <FRACTAL name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-    <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
-    <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
-    <PAST>${ind(render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }), 6)}</PAST>
+    <PRESENT_PHYSICAL>${val(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</PRESENT_PHYSICAL>
+    <PRESENT_NON_PHYSICAL>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT_NON_PHYSICAL>
+    <ETERNAL_PHYSICAL>${val(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ETERNAL_PHYSICAL>
+    <ETERNAL_NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL_NON_PHYSICAL>
     <FUTURE>${ind(render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
   </FRACTAL>
+  <USER_ACTION>${ind(input, 4)}</USER_ACTION>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
   <TASK>
-    Return exactly one valid JSON payload:
+    Return exactly one valid JSON payload representing state mutations caused by the USER_ACTION:
     {
-      "internal_monologue": "COGNITION phases 1–4 calculations.",
-      "directive": "Execution order: primary psychological intent + chosen dialogue tone. Structural rule: Command natural, character-appropriate body language and posture changes that reflect their active dynamics (e.g. relaxed, guarded, shifting weight, active gestures) to ground the scene.",
-      "state_mutations": {
-        "present_append": "Psychological shift to persist.",
-        "future_to_past": ["future-vector-uuids"],
-        "ai_dynamics": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 },
-        "fractal_dynamics": { "entropy": 0, "velocity": 0 }
+      "mutations": {
+        "AI_CHARACTER": {
+          "present_append_physical": "Any new immediate physical changes (e.g. bleeding). Leave blank if none.",
+          "present_append_non_physical": "Any immediate internal shifts OR narrative impact of physical changes. Leave blank if none.",
+          "resolve_vectors": [ { "id": "uuid-123", "resolution_summary": "Past-tense summary of how the vector was resolved." } ],
+          "new_vectors": [ { "directive": "New goal or prophecy", "tags": ["tag1"] } ],
+          "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
+        },
+        "USER_PERSONA": {
+          "present_append_physical": "",
+          "present_append_non_physical": "",
+          "resolve_vectors": [],
+          "new_vectors": []
+        },
+        "FRACTAL": {
+          "present_append_physical": "",
+          "present_append_non_physical": "",
+          "resolve_vectors": [],
+          "new_vectors": [],
+          "dynamics_deltas": { "entropy": 0, "velocity": 0 }
+        }
       }
     }
-    ai_dynamics and fractal_dynamics values are relative shifts (e.g., +10 or -5). Output ONLY valid raw JSON. No <think> blocks, no prose, no dialogue. Your role ends the moment the state_mutations object closes.
+    Dynamics_deltas values are relative shifts (e.g., +10 or -5). Output ONLY valid raw JSON. No markdown backticks, no <think> blocks, no prose, no dialogue.
   </TASK>
 </SYSTEM>
   `).trim();
@@ -198,8 +215,9 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
 /**
  * AI Character (Actor) prompt compiler (Shot 2).
  */
-function render_character({ round, entities, input, compressed_snapshot, directorData, meta }) {
+function render_character({ round, entities, input, compressed_snapshot, meta, render_atom }) {
   const protocols = [
+    "COGNITION",
     "PRESENT_TENSE",
     "HYGIENE",
     "CINEMATIC_METAPHOR",
@@ -225,26 +243,28 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
   <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
     <PRESENT>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 6)}</PRESENT>
     <ETERNAL>${val(entities.AI.eternal?.non_physical, entities.AI, entities)}</ETERNAL>
+    <PAST>${ind(render_atom.past(entities.AI, { vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom.future(entities.AI, { vector_text: true }), 6)}</FUTURE>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escapeXml(entities.USER.name)}">
     <PRESENT>${ind(val(entities.USER.present?.non_physical, entities.USER, entities), 6)}</PRESENT>
     <ETERNAL>${val(entities.USER.eternal?.non_physical, entities.USER, entities)}</ETERNAL>
+    <PAST>${ind(render_atom.past(entities.USER, { limit: 2, vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom.future(entities.USER, { limit: 1, vector_text: true }), 6)}</FUTURE>
   </USER_PERSONA>
   <FRACTAL name="${escapeXml(entities.FRACTAL?.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <PRESENT>${val(entities.FRACTAL?.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
     <ETERNAL>${val(entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
+    <PAST>${ind(render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
   </FRACTAL>
-  <DIRECTOR_COGNITION>
-    <SUBCONSCIOUS>${ind(directorData?.internal_monologue, 6)}</SUBCONSCIOUS>
-    <DIRECTION>${ind(directorData?.directive, 6)}</DIRECTION>
-  </DIRECTOR_COGNITION>
   <USER_ACTION>${ind(input, 4)}</USER_ACTION>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
   <TASK>
     <THINK_FORMAT>
-    Begin your response with <think>. Use a bulleted list to plan your execution (e.g. Physical Action [movement/stillness/gesture], Tone [warm/tense/casual], Pacing [fast/conversational/slow]). Match the pacing and goal of your response to the tempo of the user's actions. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
+    Begin your response with <think>. Use the COGNITION protocol (Phases 1-4) to plan your internal reaction to the USER_ACTION based on your current PRESENT states. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
     </THINK_FORMAT>
     <STABILITY_LOCK>${stabilityLockContent}</STABILITY_LOCK>
     <EPISTEMIC_PHYSICS>
@@ -254,7 +274,7 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
       4. Maintain realistic physical boundaries. Avoid constant proximity encroachment, towering gestures, or physical intimidation unless executing a violent mutation directive. 
       5. Avoid overusing broad physical adjectives; prioritize specific, localized object interactions over repeating descriptive tags of the character's body.
     </EPISTEMIC_PHYSICS>
-    Execute the <DIRECTION> against <USER_ACTION>. Stay fully in character. Honor all active <PROTOCOLS>.
+    Execute your reaction against <USER_ACTION>. Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.${extract_pov_directive()}
   </TASK>
 </SYSTEM>
@@ -278,21 +298,21 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
     <ANCHOR>Resolve all state inferences strictly from this identity block.</ANCHOR>
     <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
     <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
-    <PAST>${ind(render_atom?.past(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom?.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
+    <PAST>${ind(render_atom?.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom?.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </YOUR_IDENTITY>
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <PRESENT>${val(entities.AI.present?.non_physical, entities.AI, entities)}</PRESENT>
       <ETERNAL>${val(entities.AI.eternal?.non_physical, entities.AI, entities)}</ETERNAL>
-      <PAST>${ind(render_atom?.past(entities.AI, { limit: 2, vector_text: true }), 8)}</PAST>
-      <FUTURE>${ind(render_atom?.future(entities.AI, { limit: 2, vector_text: true }), 8)}</FUTURE>
+      <PAST>${ind(render_atom?.past(entities.AI, { vector_text: true }), 8)}</PAST>
+      <FUTURE>${ind(render_atom?.future(entities.AI, { vector_text: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escapeXml(entities.USER.name)}">
       <PRESENT>${ind(val(entities.USER.present?.non_physical, entities.USER, entities), 8)}</PRESENT>
       <ETERNAL>${val(entities.USER.eternal?.non_physical, entities.USER, entities)}</ETERNAL>
-      <PAST>${ind(render_atom?.past(entities.USER, { limit: 2, vector_text: true }), 8)}</PAST>
-      <FUTURE>${ind(render_atom?.future(entities.USER, { limit: 2, vector_text: true }), 8)}</FUTURE>
+      <PAST>${ind(render_atom?.past(entities.USER, { vector_text: true }), 8)}</PAST>
+      <FUTURE>${ind(render_atom?.future(entities.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   <USER_ACTION>${ind(input, 4)}</USER_ACTION>
@@ -315,9 +335,9 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
 /**
  * Turn memory compilation and vector indexing template.
  */
-function render_memory({ role, entity, history }) {
+function render_memory({ entity, history }) {
   return clean_xml(`
-<MEMORY_FORGE name="${escapeXml(entity.name || "Unknown")}" role="${escapeXml(role)}">
+<SYSTEM role="MEMORY_FORGE" entity="${escapeXml(entity.name || "Unknown")}">
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols("DATA_HYGIENE, AFFIRMATIVE, PRESENT_TENSE"), 4)}
   </PROTOCOLS>
@@ -326,9 +346,22 @@ function render_memory({ role, entity, history }) {
   </INPUT_HISTORY>
   <TASK>
     Compress this history into a single structured memory. Extract what permanently shifted — what was revealed, what now exerts pressure on this entity's future behavior. Discard noise.
-    Output strict JSON only: { "summary": "...", "tags": ["...", "..."] }
+    Output strict JSON only matching this schema:
+    {
+      "directive": "[Summary paragraph.]",
+      "emotional_weight": 5,
+      "tags": ["keyword1", "keyword2"],
+      "present_summaries": {
+        "AI_CHARACTER": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
+        "USER_PERSONA": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
+        "FRACTAL": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" }
+      }
+    }
+    The "emotional_weight" must be an integer from 1-10 assessing the narrative importance/impact of this memory.
+    The "tags" array must contain 6–12 trigger keywords for lorebook migration (e.g., character names, key objects, specific events).
+    No extra text, markdown code block wrappers (do not wrap in \`\`\`json), or commentary of any kind. Start and end with curly braces.
   </TASK>
-</MEMORY_FORGE>
+</SYSTEM>
   `).trim();
 }
 
@@ -431,12 +464,23 @@ const data_processors = {
       .slice(-3)
       .map((m) => m.content)
       .join(" ")}`.trim();
+
+    // Dynamically scale limit based on intensity [0,100]. Baseline limit 5, scales between 3 and 7.
+    let dynLimit = 5;
+    if (entities.AI && entities.AI.dynamics && entities.AI.dynamics.intensity !== undefined) {
+      const intensity = entities.AI.dynamics.intensity;
+      if (intensity < 10) dynLimit = 3;
+      else if (intensity < 30) dynLimit = 4;
+      else if (intensity > 90) dynLimit = 7;
+      else if (intensity > 70) dynLimit = 6;
+    }
+
     return {
       _context: scoring_context,
       past: (ref, options = {}) => {
         const entity = resolve(ref);
         const formatted = temporal_engine.format(entity.past || [], scoring_context, {
-          limit: 3,
+          limit: dynLimit,
           offset: 0,
           max_chars: 1500,
           ...options,
@@ -676,7 +720,7 @@ export const prompt_builder = {
         label: entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
-        is_image_field: is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")) || field_id.includes("visual"),
+        is_image_field: is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")),
         entity,
         entity_type: resolvedType,
       }),

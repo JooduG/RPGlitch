@@ -10,10 +10,12 @@
   /**
    * @typedef {Object} VectorItem
    * @property {string} id
-   * @property {number} timestamp
-   * @property {string} text
-   * @property {string} type
+   * @property {number} [timestamp]
+   * @property {string} directive
+   * @property {string} [type]
    * @property {number} emotional_weight
+   * @property {string[]} [tags]
+   * @property {string[]} [vector_tags]
    */
 
   /**

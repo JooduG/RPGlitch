@@ -174,6 +174,7 @@ export const gamemaster = {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
         vectors: meta?.vectors,
+        mutations: meta?.mutations,
         signals: active_signals,
         signal_prompts: meta?.signal_prompts,
         flags: meta?.flags,
@@ -280,27 +281,39 @@ export const gamemaster = {
       const directorData = parse_director_json(directorText) || {};
 
       // 4.1 Apply State Mutations
-      if (directorData.state_mutations) {
-        temporal_engine.apply_state_mutations(runtime.active_ai, directorData.state_mutations);
-
-        if (directorData.state_mutations.ai_dynamics) {
-          if (!snapshot.ai) snapshot.ai = {};
-          if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...runtime.ai };
-          Object.entries(directorData.state_mutations.ai_dynamics).forEach(([k, delta]) => {
-            const val = Number(delta);
-            if (!isNaN(val)) {
-              const current = snapshot.ai.dynamics[k] || 50;
-              snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
-            }
-          });
+      if (directorData.mutations) {
+        if (directorData.mutations.AI_CHARACTER && runtime.active_ai) {
+          temporal_engine.apply_state_mutations(runtime.active_ai, directorData.mutations.AI_CHARACTER);
+          if (directorData.mutations.AI_CHARACTER.dynamics_deltas) {
+            if (!snapshot.ai) snapshot.ai = {};
+            if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...runtime.ai };
+            Object.entries(directorData.mutations.AI_CHARACTER.dynamics_deltas).forEach(([k, delta]) => {
+              const val = Number(delta);
+              if (!isNaN(val)) {
+                const current = snapshot.ai.dynamics[k] || 50;
+                snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
+              }
+            });
+          }
         }
-        if (directorData.state_mutations.fractal_dynamics) {
-          if (!snapshot.fractal) snapshot.fractal = {};
-          if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...runtime.fractal };
-          Object.entries(directorData.state_mutations.fractal_dynamics).forEach(([k, delta]) => {
-            const current = snapshot.fractal.dynamics[k] || 50;
-            snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + Number(delta)));
-          });
+
+        if (directorData.mutations.USER_PERSONA && runtime.active_user) {
+          temporal_engine.apply_state_mutations(runtime.active_user, directorData.mutations.USER_PERSONA);
+        }
+
+        if (directorData.mutations.FRACTAL && runtime.active_fractal) {
+          temporal_engine.apply_state_mutations(runtime.active_fractal, directorData.mutations.FRACTAL);
+          if (directorData.mutations.FRACTAL.dynamics_deltas) {
+            if (!snapshot.fractal) snapshot.fractal = {};
+            if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...runtime.fractal };
+            Object.entries(directorData.mutations.FRACTAL.dynamics_deltas).forEach(([k, delta]) => {
+              const val = Number(delta);
+              if (!isNaN(val)) {
+                const current = snapshot.fractal.dynamics[k] || 50;
+                snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
+              }
+            });
+          }
         }
       }
 
@@ -313,6 +326,7 @@ export const gamemaster = {
       final_meta.fractal = snapshot.fractal?.dynamics;
       final_meta.flags = snapshot.flags;
       final_meta.signals = snapshot.signals;
+      final_meta.mutations = directorData.mutations;
 
       await this.capture_dynamics_delta(snapshot, final_meta);
 
@@ -345,7 +359,14 @@ export const gamemaster = {
       // 6. GENERATION: Call the model with retry logic
       const validationResult = await this.execute_with_retry(
         async () => {
-          const { temperature, top_p, repetition_penalty, max_tokens, model, onToken, json, signal, silent, raw } = llm_options;
+          const { top_p, repetition_penalty, max_tokens, model, onToken, json, signal, silent, raw } = llm_options;
+          let temperature = llm_options.temperature || 0.8;
+
+          if (payload.entities.AI?.dynamics?.chaos !== undefined) {
+            const chaos = payload.entities.AI.dynamics.chaos;
+            const chaosOffset = ((chaos - 50) / 50) * 0.1;
+            temperature = Math.max(0.4, Math.min(1.5, temperature + chaosOffset));
+          }
 
           const generated_text = await llm_service.generate(
             {

@@ -316,11 +316,17 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Mock LLM to return valid JSON for Director and then the respective text for Character
       vi.mocked(llm_service.generate)
-        .mockResolvedValueOnce(JSON.stringify({ internal_monologue: "think" })) // Turn 1 Director
+        .mockResolvedValueOnce(
+          JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } }),
+        ) // Turn 1 Director
         .mockResolvedValueOnce("<think>Unclosed block") // Turn 1 Character
-        .mockResolvedValueOnce(JSON.stringify({ internal_monologue: "think" })) // Turn 2 Director
+        .mockResolvedValueOnce(
+          JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } }),
+        ) // Turn 2 Director
         .mockResolvedValueOnce("<think>Clean block</think> Normal text") // Turn 2 Character
-        .mockResolvedValueOnce(JSON.stringify({ internal_monologue: "think" })) // Turn 3 Director
+        .mockResolvedValueOnce(
+          JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } }),
+        ) // Turn 3 Director
         .mockResolvedValueOnce("<think>Clean block</think> Normal text"); // Turn 3 Character
 
       // Turn 1: Broken output, needs repair
@@ -407,7 +413,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       vi.mocked(llm_service.generate).mockImplementation(async () => {
         callCount++;
         if (callCount === 1) {
-          return JSON.stringify({ internal_monologue: "think" });
+          return JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } });
         }
         expect(runtime.ai?.intensity).not.toBe(50);
         return "shoot kill attack";

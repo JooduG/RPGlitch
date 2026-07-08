@@ -121,8 +121,8 @@ describe("temporal_engine", () => {
       });
 
       const mutations = {
-        present_append: "Now they are angry.",
-        future_to_past: ["v1"],
+        present_append_non_physical: "Now they are angry.",
+        resolve_vectors: [{ id: "v1", resolution_summary: "Resolved via anger" }],
       };
 
       const result = temporal_engine.apply_state_mutations(entity, mutations);

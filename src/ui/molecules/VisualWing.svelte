@@ -188,7 +188,6 @@
       });
       if (payload?.url) {
         profileState.char.profile_picture = payload.url;
-        if (payload.metadata?.seed !== undefined) profileState.char.modifiers.profile_picture_seed = payload.metadata.seed;
         if (payload.metadata?.negativePrompt !== undefined) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
       }
     } catch (err) {

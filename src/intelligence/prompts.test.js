@@ -143,7 +143,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.system).not.toContain("<PAST>");
+      expect(result.system).toContain("<PAST>");
     });
 
     it("synthesize() respects prologue mode", () => {
@@ -160,7 +160,7 @@ describe("prompt_builder (Refactored)", () => {
 
     it("build_memory_prompt() targets specific entity refinement", () => {
       const result = prompt_builder.build_memory_prompt("AI", { name: "Viper" }, []);
-      expect(result.system).toContain('<MEMORY_FORGE name="Viper" role="AI">');
+      expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE" entity="Viper">');
     });
 
     it("synthesize() prunes empty tags and formats entity blocks cleanly", () => {
@@ -226,8 +226,8 @@ describe("prompt_builder (Refactored)", () => {
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
-      expect(result.system).not.toContain("<PAST>");
-      expect(result.system).toContain("<DIRECTION>");
+      expect(result.system).toContain("<PAST>");
+      expect(result.system).not.toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).toContain("<USER_ACTION>");
       expect(result.system).toContain("Check the console.");

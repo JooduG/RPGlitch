@@ -145,7 +145,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Current State of Mind",
         directive:
-          "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. Provide a dense, punchy summary snippet.",
+          "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. *Note: If the character has a temporary physical condition with narrative relevance (e.g. bleeding, injured), include its psychological impact here.* TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. Provide a dense, punchy summary snippet.",
         enhancer: "TACTICAL_ANALYZER",
       },
       fractal: {
@@ -159,7 +159,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
-          'Output a list describing this character\'s current physical appearance for image generation. CURRENT STATE ONLY — layered over the eternal physical baseline. Baseline keys to include: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Use Perchance dynamic syntax {A|B} for variable features. CRITICAL BOUNDARY: Focus exclusively on immediate, visible temporary items, layers, and expressions. Do not include hidden status properties or psychological thoughts. Hard cap at 15 lines maximum.',
+          'Output a list describing this character\'s current physical appearance for image generation. CURRENT STATE ONLY — layered over the eternal physical baseline. Baseline keys to include: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Use Perchance dynamic syntax {A|B} for variable features. CRITICAL BOUNDARY: Focus exclusively on immediate, visible temporary items, layers, and expressions. Do not include hidden status properties or psychological thoughts. *Note: For physical states that also have narrative relevance (e.g. bleeding), ensure they are also tracked in the non-physical state for the AI Director.* Hard cap at 15 lines maximum.',
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {

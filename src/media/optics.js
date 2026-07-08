@@ -3,6 +3,7 @@
  * 👁️ OPTICS LAYER — UPGRADED ENHANCEMENT SCRIBE
  * High-fidelity prompt engineering, dynamic syntax integration, and artistic refinement.
  * Merges photorealistic collection specs with adaptive multi-medium rendering flexibility.
+ * NOTE: If a physical condition (e.g. bleeding) carries narrative weight, it MUST be mirrored into the non_physical field for the AI Director.
  */
 
 export const NEGATIVE_PROMPT =

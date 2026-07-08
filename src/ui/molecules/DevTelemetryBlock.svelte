@@ -5,6 +5,7 @@
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
   import { DataBox, tooltip } from "@atoms";
+  import { runtime } from "@state";
 
   /**
    * @typedef {Object} TelemetryMeta
@@ -40,6 +41,8 @@
     future: meta.vectors?.future || [],
   };
   // svelte-ignore state_referenced_locally
+  let mutations = meta.mutations || null;
+  // svelte-ignore state_referenced_locally
   let signals = Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {});
   // svelte-ignore state_referenced_locally
   let deltas = meta.deltas || [];
@@ -62,6 +65,14 @@
   function get_explanation(signal_id) {
     return `Active Signal: ${signal_id}`;
   }
+
+  const get_entity_name = (key) => {
+    const k = String(key).toUpperCase();
+    if (k.includes("AI") || k.includes("CHARACTER")) return runtime.active_ai?.name || "AI CHARACTER";
+    if (k.includes("USER") || k.includes("PERSONA")) return runtime.active_user?.name || "USER PERSONA";
+    if (k.includes("FRACTAL") || k.includes("ENVIRONMENT")) return runtime.active_fractal?.name || "FRACTAL";
+    return key.replace("_", " ");
+  };
 </script>
 
 <div
@@ -305,7 +316,7 @@
                   
                 "
                 >
-                  AI CHARACTER
+                  {get_entity_name("ai")}
                 </header>
                 {#each Object.entries(ai) as [axis, val] (axis)}
                   {@const delta = get_delta("ai", axis)}
@@ -414,7 +425,7 @@
                   
                 "
                 >
-                  FRACTAL
+                  {get_entity_name("fractal")}
                 </header>
                 {#each Object.entries(fractal) as [axis, val] (axis)}
                   {@const delta = get_delta("fractal", axis)}
@@ -502,8 +513,41 @@
             {/if}
           </div>
 
-          <!-- VECTOR FABRIC -->
-          {#if vectors.future.length > 0 || vectors.past.length > 0}
+          <!-- AMENDMENTS -->
+          {#if mutations}
+            <div class="flex flex-col gap-4 pt-4">
+              {#each Object.entries(mutations) as [entity_key, mods] (entity_key)}
+                {#if mods.present_append_physical?.trim() || mods.present_append_non_physical?.trim()}
+                  <div class="flex flex-col">
+                    <header
+                      class="mb-2 border-b border-(--state-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase"
+                    >
+                      {get_entity_name(entity_key)} AMENDMENTS
+                    </header>
+                    <div class="flex flex-col gap-2">
+                      {#if mods.present_append_physical?.trim()}
+                        <div
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                        >
+                          <span class="font-mono text-(--state-dev-accent)">PHYSICAL</span>
+                          <span class="text-slate-50">{mods.present_append_physical}</span>
+                        </div>
+                      {/if}
+                      {#if mods.present_append_non_physical?.trim()}
+                        <div
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                        >
+                          <span class="font-mono text-(--state-dev-accent)">NON-PHYSICAL</span>
+                          <span class="text-slate-50">{mods.present_append_non_physical}</span>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+              {/each}
+            </div>
+          {/if}
+          {#if meta.type !== "DYNAMICS_DELTA" && (vectors.future.length > 0 || vectors.past.length > 0)}
             <div
               class="
               grid

@@ -214,16 +214,18 @@ export async function forge_memory(target_entity, history_slice, role = "charact
       return null;
     }
 
-    if (!memory || !memory.summary?.trim()) return null;
+    if (!memory || (!memory.directive?.trim() && !memory.summary?.trim())) return null;
 
     return {
       id: crypto.randomUUID(),
       timestamp: Date.now(),
-      directive: memory.summary,
-      type: "past",
-      base_weight: 5, // Default for recent session memories
+      type: (memory.type || "past").toLowerCase(),
+      directive: memory.directive || memory.summary || "",
+      base_weight: memory.base_weight ?? 5,
+      emotional_weight: memory.emotional_weight ?? 5,
       tags: (memory.vector_tags || memory.tags || []).map((t) => String(t).toLowerCase()),
-      meta: {},
+      present_summaries: memory.present_summaries || null,
+      meta: memory.meta || {},
     };
   } catch (err) {
     console.error("[TemporalEngine] Resonance forge failed.", err);
@@ -241,18 +243,45 @@ export function apply_state_mutations(entity, mutations) {
   if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
-  // 1. Present Append (Psychological/State shifts)
-  if (mutations.present_append?.trim()) {
+  // 1. Present Append (Physical)
+  if (mutations.present_append_physical?.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    const current = entity.present.non_physical || "";
-    entity.present.non_physical = current ? `${current}\n${mutations.present_append.trim()}` : mutations.present_append.trim();
+    const current = entity.present.physical || "";
+    entity.present.physical = current ? `${current}\n${mutations.present_append_physical.trim()}` : mutations.present_append_physical.trim();
     changed = true;
   }
 
-  // 2. Future to Past shifts (Resolving intent/prophecy)
-  if (Array.isArray(mutations.future_to_past) && mutations.future_to_past.length > 0) {
-    mutations.future_to_past.forEach((uuid) => {
-      resolve(entity, uuid, "DIRECTOR_RESOLUTION");
+  // 2. Present Append (Non-Physical)
+  if (mutations.present_append_non_physical?.trim()) {
+    if (!entity.present) entity.present = { physical: "", non_physical: "" };
+    const current = entity.present.non_physical || "";
+    entity.present.non_physical = current
+      ? `${current}\n${mutations.present_append_non_physical.trim()}`
+      : mutations.present_append_non_physical.trim();
+    changed = true;
+  }
+
+  // 3. Resolve Vectors (Future to Past shifts)
+  if (Array.isArray(mutations.resolve_vectors) && mutations.resolve_vectors.length > 0) {
+    mutations.resolve_vectors.forEach((v) => {
+      resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION");
+      changed = true;
+    });
+  }
+
+  // 4. New Vectors (Future or Past)
+  if (Array.isArray(mutations.new_vectors) && mutations.new_vectors.length > 0) {
+    if (!Array.isArray(entity.future)) entity.future = [];
+    if (!Array.isArray(entity.past)) entity.past = [];
+    mutations.new_vectors.forEach((v) => {
+      if (!v.directive?.trim()) return;
+      const new_vector = create(v.directive, v.type || "future", v.weight || 5);
+      new_vector.tags = v.tags || [];
+      if (new_vector.type === "past") {
+        entity.past.push(new_vector);
+      } else {
+        entity.future.push(new_vector);
+      }
       changed = true;
     });
   }
@@ -290,17 +319,41 @@ export const temporal_engine = {
         (/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated && m.role !== "system",
       );
 
-      if (unconsolidated.length >= 15) {
-        const slice = unconsolidated.slice(0, 10);
+      if (unconsolidated.length >= 12) {
+        const slice = unconsolidated.slice(0, 8);
         app.log(`[TemporalEngine] Forging ${slice.length} turns into the Historical Archive...`, "system");
 
         const ai = runtime.active_ai;
         if (ai) {
           const memory = await forge_memory(ai, slice, "character");
           if (memory) {
+            // Push Memory Vector to AI's past
             if (!Array.isArray(ai.past)) ai.past = [];
             ai.past = [...ai.past, memory];
             await runtime.update_entity("character", ai.id, { past: ai.past });
+
+            // Apply Present Summaries to ALL entities
+            if (memory.present_summaries) {
+              const summaries = memory.present_summaries;
+
+              if (summaries.AI_CHARACTER && runtime.active_ai) {
+                if (summaries.AI_CHARACTER.physical) runtime.active_ai.present.physical = summaries.AI_CHARACTER.physical;
+                if (summaries.AI_CHARACTER.non_physical) runtime.active_ai.present.non_physical = summaries.AI_CHARACTER.non_physical;
+                await runtime.update_entity("character", runtime.active_ai.id, { present: runtime.active_ai.present });
+              }
+
+              if (summaries.USER_PERSONA && runtime.active_user) {
+                if (summaries.USER_PERSONA.physical) runtime.active_user.present.physical = summaries.USER_PERSONA.physical;
+                if (summaries.USER_PERSONA.non_physical) runtime.active_user.present.non_physical = summaries.USER_PERSONA.non_physical;
+                await runtime.update_entity("character", runtime.active_user.id, { present: runtime.active_user.present });
+              }
+
+              if (summaries.FRACTAL && runtime.active_fractal) {
+                if (summaries.FRACTAL.physical) runtime.active_fractal.present.physical = summaries.FRACTAL.physical;
+                if (summaries.FRACTAL.non_physical) runtime.active_fractal.present.non_physical = summaries.FRACTAL.non_physical;
+                await runtime.update_entity("fractal", runtime.active_fractal.id, { present: runtime.active_fractal.present });
+              }
+            }
 
             // Telemetry
             await session_driver.log_system_entry(`Memory Forged: ${memory.directive.substring(0, 50)}...`, "system", {
@@ -332,8 +385,7 @@ export const temporal_engine = {
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;
     if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
-      runtime.add_vector("Continue the journey.", "FRACTAL", true);
-      app?.log("[TemporalEngine] Seeded momentum impulse", "system");
+      app?.log("[TemporalEngine] Placeholder momentum active (No vectors found)", "system");
     }
   },
 };

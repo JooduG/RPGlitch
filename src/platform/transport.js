@@ -64,7 +64,7 @@ export const llm_service = {
   async enhance(payload) {
     // Use raw: true so generate() returns unprocessed output
     // enhance() owns its own sanitization pass so it isn't double-stripped.
-    const result = await this.generate(payload, { silent: true, raw: true });
+    const result = await this.generate(payload, { silent: true, raw: true, temperature: 0.5 });
     return typeof result === "string" ? sanitize_llm(result) : result;
   },
 
