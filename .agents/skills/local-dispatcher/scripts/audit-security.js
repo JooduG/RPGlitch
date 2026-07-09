@@ -35,6 +35,13 @@ const securityRules = [
     message: "🚨 Potential Secret Leak! Verify that variables are environment-bound and NOT hardcoded.",
     validate: (line) => !line.includes("process.env"),
   },
+  {
+    id: "SECURITY_DOMPURIFY_CONFIG",
+    severity: "HERESY",
+    regex: /DOMPurify\.sanitize\s*\(/,
+    message: "🚨 DOMPurify Compliance Violation! You MUST include SANITIZE_NAMED_PROPS: true to prevent DOM Clobbering (Rule 06).",
+    validate: (line) => !line.includes("SANITIZE_NAMED_PROPS: true"),
+  },
 ];
 
 let scanned = 0;
