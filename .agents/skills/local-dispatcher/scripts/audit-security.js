@@ -40,7 +40,19 @@ const securityRules = [
     severity: "HERESY",
     regex: /DOMPurify\.sanitize\s*\(/,
     message: "🚨 DOMPurify Compliance Violation! You MUST include SANITIZE_NAMED_PROPS: true to prevent DOM Clobbering (Rule 06).",
-    validate: (line) => !line.includes("SANITIZE_NAMED_PROPS: true"),
+    validate: (() => {
+      const cache = new Map();
+      return (line, filePath) => {
+        const content = fs.readFileSync(filePath, "utf-8");
+        const fileLines = content.split("\n");
+        const lastIndex = cache.get(filePath) ?? -1;
+        const lineIndex = fileLines.indexOf(line, lastIndex + 1);
+        cache.set(filePath, lineIndex);
+        if (lineIndex === -1) return true;
+        const context = fileLines.slice(lineIndex, lineIndex + 10).join("\n");
+        return !context.includes("SANITIZE_NAMED_PROPS: true");
+      };
+    })(),
   },
 ];
 
