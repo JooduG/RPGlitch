@@ -468,7 +468,7 @@
                 [&_strong]:font-bold
               "
             >
-              <div class="think-block-container" use:safe_html={think_block}></div>
+              <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
             </div>
           </DataBox>
         {/if}
@@ -593,7 +593,7 @@
                 </div>
               {/if}
             {:else if has_display_text}
-              <div class="display-text-container inline" style="display: contents" use:safe_html={display_text}></div>
+              <div class="display-text-container" style="display: contents" use:safe_html={display_text}></div>
             {:else if busy}
               <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
                 <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
