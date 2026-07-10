@@ -19,6 +19,14 @@ const GREEN = "\x1b[32m";
 
 const securityRules = [
   {
+    id: "SECURITY_SVELTE_HTML",
+    severity: "HERESY",
+    regex: /\{@html\s+/,
+    message: "🚨 Svelte {@html ...} Compliance Violation! Use `use:safe_html` action to prevent DOM Clobbering in static components.",
+    validate: (line, filePath) => path.basename(filePath) !== "Typewriter.svelte",
+  },
+
+  {
     id: "SECURITY_DEBUG_LOG",
     severity: "DEBT",
     regex: /console\.log\(|alert\(|debugger;/,
@@ -72,7 +80,7 @@ function scan(dir) {
       scan(fullPath);
     } else {
       const ext = path.extname(fullPath);
-      if (ext === ".js" || ext === ".ts") {
+      if (ext === ".js" || ext === ".ts" || ext === ".svelte") {
         scanned++;
         auditFile(fullPath);
       }
