@@ -83,6 +83,7 @@ components:
   duration-standard: 300ms
   ease-out: cubic-bezier(0, 0, 0.2, 1)
   ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
+  ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1)
   spacing-golden-ratio: "1.618"
   spacing-icon-medium: calc(var(--spacing-spacing-unit) * 8)
   spacing-icon-small: calc(var(--spacing-spacing-unit) * 4)
@@ -987,6 +988,64 @@ div[class*="profile-header"] input,
   to {
     backdrop-filter: blur(16px) brightness(0.9) saturate(0.4);
     background: radial-gradient(circle at center, rgba(22, 36, 59, 0.3), rgba(0, 0, 0, 0.3));
+  }
+}
+
+/* --- Profile Card Edit-Mode Transitions --- */
+
+/* Main card sliding to the left when wings open */
+@keyframes main-card-slide-left {
+  from {
+    transform: translateX(33.33%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Main card sliding back to center when wings close */
+@keyframes main-card-slide-center {
+  from {
+    transform: translateX(-33.33%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Wing container sliding out to the right from behind the main card */
+@keyframes wing-slide-out {
+  from {
+    transform: translateX(-220%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Wing container sliding back in to the left when closing */
+@keyframes wing-slide-in {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(-220%);
+    opacity: 0;
+  }
+}
+
+/* Edit wings sliding down vertically inside an already open wings container */
+@keyframes wing-item-slide-down {
+  from {
+    transform: translateY(-15px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
   }
 }
 ```

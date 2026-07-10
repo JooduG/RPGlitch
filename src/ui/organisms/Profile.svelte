@@ -11,6 +11,7 @@
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileArray, ProfileHeader } from "@organisms";
   import { app, runtime } from "@state";
+  import { fade } from "svelte/transition";
   import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
@@ -37,7 +38,7 @@
 
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profileState.char, "var(--color-gunmetal)"));
-  const has_wings = $derived(profileState.is_editing || app.settings.dev_mode);
+  const has_wings = $derived(!app.transitioning_profile && !profileState.is_packing_up && (profileState.is_editing || app.settings.dev_mode));
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
   const target_morph_name = $derived.by(() => {
     if (!profileState.char?.id) return undefined;
@@ -57,7 +58,7 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex h-full overflow-y-auto overflow-x-hidden rounded-2xl border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent " +
+    "flex h-full overflow-y-auto overflow-x-hidden rounded-2xl border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent relative z-10 " +
       (app.viewport.mobile || app.viewport.mini ? "col-span-full flex-col " : has_wings ? "modal-profile-grid-main " : "modal-profile-grid-flat ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
@@ -247,6 +248,7 @@
     >
       <div
         class={main_card_class}
+        style:animation={has_wings ? "main-card-slide-left var(--motion-elastic) forwards" : "main-card-slide-center var(--motion-elastic) forwards"}
         style:background-color="color-mix(in srgb, var(--signature-color) 1%, var(--color-glass-sunken))"
         style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
         style:backdrop-filter="var(--blur-mist)"
@@ -372,23 +374,27 @@
         </div>
       </div>
 
-      {#if has_wings}
-        <aside
-          data-wings-container
-          class="col-[9/12] flex scrollbar-none flex-col items-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden"
-          style:animation="slide-in-left var(--motion-elastic) forwards"
-        >
-          <div class="my-auto flex w-full flex-col gap-4">
-            {#if profileState.is_editing}
+      <!-- Wing Container stays in DOM to animate exit -->
+      <aside
+        data-wings-container
+        class="relative z-0 col-[9/12] flex scrollbar-none flex-col items-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden"
+        style:animation={has_wings ? "wing-slide-out var(--motion-elastic) forwards" : "wing-slide-in var(--motion-elastic) forwards"}
+        style:pointer-events={has_wings ? "auto" : "none"}
+      >
+        <div class="my-auto flex w-full flex-col gap-4">
+          {#if profileState.is_editing}
+            <div transition:fade={{ duration: 250 }}>
               <VisualWing {profileState} />
+            </div>
+            <div transition:fade={{ duration: 250 }}>
               <AudioWing {profileState} />
-            {/if}
-            {#if app.settings.dev_mode}
-              <DevWing {profileState} />
-            {/if}
-          </div>
-        </aside>
-      {/if}
+            </div>
+          {/if}
+          {#if app.settings.dev_mode}
+            <DevWing {profileState} />
+          {/if}
+        </div>
+      </aside>
     </div>
   </Modal>
 {/if}

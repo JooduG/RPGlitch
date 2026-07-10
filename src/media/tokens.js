@@ -76,6 +76,7 @@ export const TOKENS = {
   "duration-fast": "150ms",
   "duration-slow": "500ms",
   "duration-standard": "300ms",
+  "ease-elastic": "cubic-bezier(0.34, 1.56, 0.64, 1)",
   "ease-out": "cubic-bezier(0, 0, 0.2, 1)",
   "ease-standard": "cubic-bezier(0.4, 0, 0.2, 1)",
   "empty-fill": "rgb(23 23 23 / 0.6)",

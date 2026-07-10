@@ -11,11 +11,11 @@ import { get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };
-
 export class ProfileState {
   is_editing = $state(false);
   is_saving = $state(false);
   show_delete_confirm = $state(false);
+  is_packing_up = $state(false);
   /** @type {string | null} */
   hovered_section = $state(null);
   active_field = $state(DEFAULT_FIELD);
@@ -103,7 +103,16 @@ export class ProfileState {
     if (this.is_editing) {
       this.cancel();
     } else {
-      app.toggle_profile(false);
+      const active_wings = this.is_editing || app.settings.dev_mode;
+      if (active_wings) {
+        this.is_packing_up = true;
+        setTimeout(() => {
+          this.is_packing_up = false;
+          app.toggle_profile(false);
+        }, 500); // 500ms matches --duration-slow / motion-elastic
+      } else {
+        app.toggle_profile(false);
+      }
     }
   }
 

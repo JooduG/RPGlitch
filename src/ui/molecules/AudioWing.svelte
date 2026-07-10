@@ -74,6 +74,7 @@
     p-padding-standard
     [backdrop-filter:var(--blur-mist)]
   "
+  style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
   <!-- VOICE SELECTOR -->
   <div
