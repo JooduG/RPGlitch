@@ -23,7 +23,7 @@ const securityRules = [
     severity: "HERESY",
     regex: /\{@html\s+/,
     message: "🚨 Svelte {@html ...} Compliance Violation! Use `use:safe_html` action to prevent DOM Clobbering in static components.",
-    validate: (line, filePath) => !filePath.endsWith("Typewriter.svelte"),
+    validate: (line, filePath) => path.basename(filePath) !== "Typewriter.svelte",
   },
 
   {
