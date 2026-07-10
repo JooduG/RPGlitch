@@ -170,7 +170,7 @@ export default defineConfig([
       "better-tailwindcss/no-unknown-classes": [
         "warn",
         {
-          ignore: [],
+          ignore: ["scroll-area-viewport", "think-block-container", "display-text-container"],
         },
       ],
       "better-tailwindcss/enforce-consistent-line-wrapping": "off",
