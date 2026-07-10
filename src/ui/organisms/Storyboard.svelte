@@ -58,8 +58,12 @@
         w-full
         items-center
         justify-center
-        [view-transition-name:entity-morph-ai]
       "
+      style:view-transition-name={app.transitioning_profile
+        ? app.transition_target_id === app.selected_ai?.id
+          ? "entity-morph-ai"
+          : undefined
+        : "entity-morph-ai"}
     >
       {@render Slot(
         "ai",
@@ -79,8 +83,12 @@
         w-full
         items-center
         justify-center
-        [view-transition-name:entity-morph-fractal]
       "
+      style:view-transition-name={app.transitioning_profile
+        ? app.transition_target_id === app.selected_fractal?.id
+          ? "entity-morph-fractal"
+          : undefined
+        : "entity-morph-fractal"}
     >
       {@render Slot(
         "fractal",
@@ -100,8 +108,12 @@
         w-full
         items-center
         justify-center
-        [view-transition-name:entity-morph-user]
       "
+      style:view-transition-name={app.transitioning_profile
+        ? app.transition_target_id === app.selected_user?.id
+          ? "entity-morph-user"
+          : undefined
+        : "entity-morph-user"}
     >
       {@render Slot(
         "user",

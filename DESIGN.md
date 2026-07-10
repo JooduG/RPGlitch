@@ -777,6 +777,9 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 }
 
 /* Enforce uniform mechanical interpolation rates */
+::view-transition-group(card-slot-ai),
+::view-transition-group(card-slot-user),
+::view-transition-group(card-slot-fractal),
 ::view-transition-group(entity-morph-ai),
 ::view-transition-group(entity-morph-user),
 ::view-transition-group(entity-morph-fractal) {
@@ -784,14 +787,108 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   animation-timing-function: var(--ease-standard);
 }
 
-/* Instruct the browser to crossfade elements smoothly without layout pops */
-::view-transition-old(entity-morph-ai),
-::view-transition-new(entity-morph-ai),
-::view-transition-old(entity-morph-user),
-::view-transition-new(entity-morph-user) {
+/* --- 3D Profile Flip Transition (Nordic Collection) --- */
+
+/* Elevate active transition groups above inactive bystander cards */
+:root.is-profile-opening-ai::view-transition-group(card-slot-ai),
+:root.is-profile-closing-ai::view-transition-group(card-slot-ai),
+:root.is-profile-opening-ai::view-transition-group(entity-morph-ai),
+:root.is-profile-closing-ai::view-transition-group(entity-morph-ai),
+:root.is-profile-opening-user::view-transition-group(card-slot-user),
+:root.is-profile-closing-user::view-transition-group(card-slot-user),
+:root.is-profile-opening-user::view-transition-group(entity-morph-user),
+:root.is-profile-closing-user::view-transition-group(entity-morph-user),
+:root.is-profile-opening-fractal::view-transition-group(card-slot-fractal),
+:root.is-profile-closing-fractal::view-transition-group(card-slot-fractal),
+:root.is-profile-opening-fractal::view-transition-group(entity-morph-fractal),
+:root.is-profile-closing-fractal::view-transition-group(entity-morph-fractal) {
+  z-index: var(--z-index-max);
+}
+
+/* Match root transition duration to the card flip duration during profile toggle */
+:root[class*="is-profile-"]::view-transition-old(root),
+:root[class*="is-profile-"]::view-transition-new(root) {
+  animation-duration: var(--duration-slow);
+}
+
+/* AI */
+:root.is-profile-opening-ai::view-transition-old(card-slot-ai),
+:root.is-profile-closing-ai::view-transition-old(card-slot-ai),
+:root.is-profile-opening-ai::view-transition-old(entity-morph-ai),
+:root.is-profile-closing-ai::view-transition-old(entity-morph-ai),
+/* USER */
+:root.is-profile-opening-user::view-transition-old(card-slot-user),
+:root.is-profile-closing-user::view-transition-old(card-slot-user),
+:root.is-profile-opening-user::view-transition-old(entity-morph-user),
+:root.is-profile-closing-user::view-transition-old(entity-morph-user),
+/* FRACTAL */
+:root.is-profile-opening-fractal::view-transition-old(card-slot-fractal),
+:root.is-profile-closing-fractal::view-transition-old(card-slot-fractal),
+:root.is-profile-opening-fractal::view-transition-old(entity-morph-fractal),
+:root.is-profile-closing-fractal::view-transition-old(entity-morph-fractal) {
+  animation: var(--duration-slow) var(--ease-standard) both profile-flip-out;
+  backface-visibility: hidden;
   height: 100%;
   width: 100%;
-  object-fit: cover;
+}
+
+/* AI */
+:root.is-profile-opening-ai::view-transition-new(card-slot-ai),
+:root.is-profile-closing-ai::view-transition-new(card-slot-ai),
+:root.is-profile-opening-ai::view-transition-new(entity-morph-ai),
+:root.is-profile-closing-ai::view-transition-new(entity-morph-ai),
+/* USER */
+:root.is-profile-opening-user::view-transition-new(card-slot-user),
+:root.is-profile-closing-user::view-transition-new(card-slot-user),
+:root.is-profile-opening-user::view-transition-new(entity-morph-user),
+:root.is-profile-closing-user::view-transition-new(entity-morph-user),
+/* FRACTAL */
+:root.is-profile-opening-fractal::view-transition-new(card-slot-fractal),
+:root.is-profile-closing-fractal::view-transition-new(card-slot-fractal),
+:root.is-profile-opening-fractal::view-transition-new(entity-morph-fractal),
+:root.is-profile-closing-fractal::view-transition-new(entity-morph-fractal) {
+  animation: var(--duration-slow) var(--ease-standard) both profile-flip-in;
+  backface-visibility: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+@keyframes profile-flip-out {
+  0% {
+    transform: perspective(1200px) rotateY(0deg);
+    filter: drop-shadow(0 0 0 transparent);
+    opacity: 1;
+  }
+  49.9% {
+    transform: perspective(1200px) rotateY(90deg);
+    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
+    opacity: 1;
+  }
+  50%,
+  100% {
+    transform: perspective(1200px) rotateY(90deg);
+    filter: none;
+    opacity: 0;
+  }
+}
+
+@keyframes profile-flip-in {
+  0%,
+  50% {
+    transform: perspective(1200px) rotateY(-90deg);
+    filter: none;
+    opacity: 0;
+  }
+  50.1% {
+    transform: perspective(1200px) rotateY(-90deg);
+    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
+    opacity: 1;
+  }
+  100% {
+    transform: perspective(1200px) rotateY(0deg);
+    filter: drop-shadow(0 0 0 transparent);
+    opacity: 1;
+  }
 }
 
 /* --- Suppress Wrapper Interference During Deck Swaps --- */
@@ -878,5 +975,18 @@ div[class*="profile-header"] input,
   font-family: var(--font-heading) !important;
   font-weight: 700 !important;
   line-height: inherit !important;
+}
+
+/* --- BACKDROP BLUR ANIMATION (Profile Modal) --- */
+@keyframes backdrop-blur-in {
+  from {
+    backdrop-filter: blur(0) brightness(1) saturate(1);
+    background: radial-gradient(circle at center, rgba(22, 36, 59, 0), rgba(0, 0, 0, 0));
+  }
+
+  to {
+    backdrop-filter: blur(16px) brightness(0.9) saturate(0.4);
+    background: radial-gradient(circle at center, rgba(22, 36, 59, 0.3), rgba(0, 0, 0, 0.3));
+  }
 }
 ```

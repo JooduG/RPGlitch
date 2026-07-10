@@ -24,6 +24,20 @@
 
     ...rest
   } = $props();
+
+  const is_profile = $derived(className === "profile");
+
+  /**
+   * Custom transition to avoid Svelte transition engine conflicts
+   * with the browser's View Transition API for the profile modal backdrop.
+   * @param {HTMLElement} node
+   */
+  function backdropTransition(node) {
+    if (is_profile) {
+      return {};
+    }
+    return fade(node, { duration: 150 });
+  }
 </script>
 
 <div
@@ -33,12 +47,12 @@
     inset-0
     cursor-pointer
     overflow-y-auto
-    bg-[radial-gradient(circle_at_center,rgba(22,36,59,0.3),rgba(0,0,0,0.3))]
+    {is_profile ? 'bg-transparent' : 'bg-[radial-gradient(circle_at_center,rgba(22,36,59,0.3),rgba(0,0,0,0.3))]'}
     select-none
     [-webkit-tap-highlight-color:transparent]
 
     {is_pass_through ? 'pointer-events-none' : 'pointer-events-auto'}
-    {is_blurred
+    {is_blurred && !is_profile
     ? `
       backdrop-blur-lg
       backdrop-brightness-90
@@ -53,7 +67,8 @@
     : ''}
     {className}"
   style:z-index={z_index}
-  transition:fade={{ duration: 150 }}
+  style:animation={is_profile && is_blurred ? "backdrop-blur-in var(--duration-slow, 500ms) var(--ease-standard, ease) both" : undefined}
+  transition:backdropTransition
   use:use_actions={actions}
 >
   <div class="flex min-h-full w-full items-center justify-center p-4 sm:p-8">

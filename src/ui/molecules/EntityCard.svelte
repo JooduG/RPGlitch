@@ -51,6 +51,23 @@
 
   // --- TRANSITION LOGIC ---
   const transition_name = $derived.by(() => {
+    // If we are actively transitioning a profile modal, only the active morphing card gets the name!
+    // Inactive card slots must suppress their names to prevent them from being isolated from the root.
+    if (app.transitioning_profile) {
+      if (app.profile_open) {
+        return undefined;
+      }
+      if (entity?.id === app.transition_target_id) {
+        return "card-slot-" + type;
+      }
+      return undefined;
+    }
+
+    // 0. Profile open for this entity: suppress transition name to prevent duplicate errors
+    if (app.profile_open && app.editing_entity?.id === entity?.id) {
+      return undefined;
+    }
+
     // 1. Launching Library Card: Takes ownership of the slot's transition name to morph into the panel.
     if (variant === "library") {
       return is_launching ? "card-slot-" + type : undefined;
@@ -244,6 +261,7 @@
   class:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
+  style:opacity={app.profile_open && app.editing_entity?.id === entity?.id && variant !== "library" ? 0 : undefined}
   role="button"
   tabindex={disabled ? -1 : 0}
   aria-label={variant === "library" ? (is_empty ? "Create New" : disabled ? "Already selected" : "Select " + name) : a11y_label}

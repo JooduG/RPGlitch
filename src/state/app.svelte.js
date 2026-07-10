@@ -5,10 +5,11 @@
  * ZERO NESTING - Flattened Schema only.
  */
 import { closeImagePreview, openImagePreview } from "@atoms";
+import { tick } from "svelte";
 import { generateUUID, resolve_px } from "@utils";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, guardedTransition } from "@engine";
-import { visual_engine } from "@media";
+import { visual_engine, get_signature_color } from "@media";
 import { runtime, simulationState, uiState } from "@state";
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
@@ -65,6 +66,9 @@ export class AppStore {
   view = $state("storyboard"); // 'storyboard' | 'storymode'
   control_panel_open = $state(false);
   profile_open = $state(false);
+  transitioning_profile = $state(false);
+  /** @type {string | null} */
+  transition_target_id = $state(null);
   viewport = $state({
     mini: false,
     mobile: false,
@@ -365,15 +369,46 @@ export class AppStore {
    * @param {boolean | null} force_state
    * @param {any} entity
    */
-  toggle_profile = (force_state = null, entity = null) => {
-    if (force_state !== null) this.profile_open = force_state;
-    else this.profile_open = !this.profile_open;
-    if (entity) {
-      this.editing_entity = normalize(entity);
+  toggle_profile = async (force_state = null, entity = null) => {
+    const targetEntity = entity || this.editing_entity;
+    if (targetEntity) {
+      const signatureColor = get_signature_color(targetEntity);
+      if (signatureColor && typeof document !== "undefined") {
+        document.documentElement.style.setProperty("--active-signature-color", signatureColor);
+      }
     }
+    const isOpening = force_state !== null ? force_state : !this.profile_open;
+    let activeType = "user"; // Default fallback
+    if (targetEntity) {
+      if (targetEntity.id === this.selected_ai?.id) activeType = "ai";
+      else if (targetEntity.id === this.selected_user?.id) activeType = "user";
+      else if (targetEntity.id === this.selected_fractal?.id) activeType = "fractal";
+      else activeType = "none";
+    }
+    if (targetEntity) {
+      this.transition_target_id = targetEntity.id;
+    }
+    this.transitioning_profile = true;
+
+    // Force Svelte to flush state changes so inactive cards lose their view-transition-names
+    // synchronously in the DOM before startViewTransition takes its old snapshot.
+    await tick();
+
+    guardedTransition(
+      () => {
+        this.profile_open = isOpening;
+        if (entity) {
+          this.editing_entity = normalize(entity);
+        }
+      },
+      { className: isOpening ? `is-profile-opening-${activeType}` : `is-profile-closing-${activeType}` },
+    ).finally(() => {
+      this.transitioning_profile = false;
+      this.transition_target_id = null;
+    });
   };
   close_profile = () => {
-    this.profile_open = false;
+    this.toggle_profile(false);
   };
   open_profile = (/** @type {any} */ entity) => {
     this.toggle_profile(true, entity);

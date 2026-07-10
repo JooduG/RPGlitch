@@ -39,6 +39,21 @@
   const signature_color = $derived(get_signature_color(profileState.char, "var(--color-gunmetal)"));
   const has_wings = $derived(profileState.is_editing || app.settings.dev_mode);
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
+  const target_morph_name = $derived.by(() => {
+    if (!profileState.char?.id) return undefined;
+    let type = "";
+    if (app.selected_ai?.id === profileState.char.id) type = "ai";
+    else if (app.selected_user?.id === profileState.char.id) type = "user";
+    else if (app.selected_fractal?.id === profileState.char.id) type = "fractal";
+
+    if (!type) return undefined;
+    if (app.view === "storyboard") {
+      return "card-slot-" + type;
+    } else if (app.view === "storymode") {
+      return "entity-morph-" + type;
+    }
+    return undefined;
+  });
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
@@ -238,6 +253,7 @@
         style:--signature-color={signature_color}
         style:--scrollbar-thumb="color-mix(in srgb, var(--signature-color) 40%, var(--color-gunmetal))"
         style:--scrollbar-thumb-hover="color-mix(in srgb, var(--signature-color) 60%, var(--color-frisk))"
+        style:view-transition-name={target_morph_name}
         use:click_outside={handle_click_outside}
       >
         <div class={avatar_container_class}>
