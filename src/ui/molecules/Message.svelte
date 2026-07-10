@@ -488,9 +488,10 @@
                 <button
                   type="button"
                   class="
+                    mx-auto
                     mb-2
                     block
-                    w-full
+                    w-fit
                     overflow-hidden
                     rounded-lg
                     bg-neutral-900/50
@@ -539,7 +540,7 @@
                     alt="Attachment"
                     class="
                       mx-auto
-                      max-h-[280px]
+                      max-h-[480px]
                       w-auto
                       max-w-full
                       cursor-zoom-in
