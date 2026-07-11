@@ -107,7 +107,13 @@ export class VisualEngine {
         const hasPhysical = entity.eternal?.physical || entity.present?.physical;
         if (!entity.modifiers?.prompt && !hasPhysical) {
           console.warn(`[VisualEngine] Bare-name fallback for entity "${entity.name}". No physical attributes defined.`);
-          finalPrompt = `${entity.name}, ${AestheticResolver.flatten(entity)}`;
+          const tags = Array.isArray(entity.tags) ? entity.tags.join(", ") : "";
+          const nonPhysical = [entity.eternal?.non_physical, entity.present?.non_physical]
+            .filter(Boolean)
+            .map((s) => String(s).slice(0, 150))
+            .join(", ");
+          const fallbackFeatures = [tags, nonPhysical].filter(Boolean).join(", ");
+          finalPrompt = `${entity.name}${fallbackFeatures ? `, ${fallbackFeatures}` : ""}, ${AestheticResolver.flatten(entity)}`;
         } else {
           finalPrompt = entity.modifiers?.prompt || AestheticResolver.flatten(entity) || entity.name;
         }

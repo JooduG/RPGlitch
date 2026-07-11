@@ -58,6 +58,10 @@ The core engine uses a strictly decoupled data flow. Do not cross the streams:
 4. **Generate (`src/intelligence/kernel.js`)**: The linguistic handoff.
 5. **Consolidate (`src/intelligence/temporal.js`)**: Update L1/L2 memory and persist the state back to Dexie.
 
+### The Runtime Mandate (Long-Term Evolutionary Goal)
+
+Gradually shift `runtime.svelte.js` from doing imperative `sync`/`refresh`/`notify` work itself toward pure coordination. `runtime` should eventually rely on commands or events rather than long imperative call chains, relying heavily on Svelte 5 `$derived` and `$effect` capabilities instead of manual synchronization.
+
 ---
 
 ## 5.0 IMMERSION PROTOCOLS

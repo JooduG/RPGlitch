@@ -56,6 +56,10 @@ Delegate technical composition details strictly to your dedicated local speciali
 - **Zero Hallucination Tolerance**: If a variable or constant does not exist, initialize it cleanly inside the `DESIGN.md` registry.
 - **Deterministic Assembly**: Enforce clear, logical classification. Use precise tokens (e.g., "Physics Token Default Spring" or "T3 Ambient Organic Variable") to bypass structural terminology degradation.
 
+### Next-Gen Tooling (Evolutionary Mandate)
+
+As the project grows, continuously consider adopting advanced hygiene tools for dependency enforcement (e.g., `dependency-cruiser` to strictly lock import boundaries) and unused asset detection (e.g., `knip` to proactively prune dead files and exports).
+
 ## Usage
 
 ```bash
