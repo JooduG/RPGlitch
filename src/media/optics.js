@@ -201,6 +201,48 @@ export const AestheticResolver = {
 
     return cleanLines.join(",\n");
   },
+  /**
+   * Deterministic flattening of traits from entity fields to plain comma-separated tags
+   * suitable for raw stable diffusion prompts (no JSON quotes or syntax).
+   * @param {any} entity
+   */
+  flatten(entity = {}) {
+    const eternalObj = safeParsePseudoJson(entity.eternal?.physical || "");
+    const presentObj = safeParsePseudoJson(entity.present?.physical || "");
+
+    const merged = {};
+
+    const mergeInputSource = (sourceObj, fallbackLabel) => {
+      if (sourceObj.__raw_prose__) {
+        merged[fallbackLabel] = sourceObj.__raw_prose__;
+      } else {
+        Object.entries(sourceObj).forEach(([k, v]) => {
+          merged[k] = v;
+        });
+      }
+    };
+
+    mergeInputSource(eternalObj, "eternal");
+    mergeInputSource(presentObj, "present");
+
+    const colorName = get_signature_label(entity);
+    if (colorName) {
+      merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
+    }
+
+    const isLandscape = entity.type === "fractal" || entity.type === "scene";
+    merged.preset = isLandscape
+      ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
+      : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
+
+    // Flatten values to a comma-separated string
+    return Object.values(merged)
+      .flatMap((v) => (Array.isArray(v) ? v : [v]))
+      .map((v) => String(v).trim())
+      .filter(Boolean)
+      .join(", ")
+      .replace(/,([^\s])/g, ", $1");
+  },
 };
 
 /**

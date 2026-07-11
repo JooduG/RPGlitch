@@ -165,13 +165,18 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
       <FUTURE>${ind(render_atom.future(entities.USER, { limit: 1, vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
+  ${
+    entities.FRACTAL
+      ? `
   <FRACTAL name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <PRESENT_PHYSICAL>${val(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</PRESENT_PHYSICAL>
     <PRESENT_NON_PHYSICAL>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT_NON_PHYSICAL>
     <ETERNAL_PHYSICAL>${val(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ETERNAL_PHYSICAL>
     <ETERNAL_NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL_NON_PHYSICAL>
     <FUTURE>${ind(render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
-  </FRACTAL>
+  </FRACTAL>`.trim()
+      : ""
+  }
   <USER_ACTION>${ind(input, 4)}</USER_ACTION>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}

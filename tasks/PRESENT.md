@@ -33,7 +33,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
-- [~] refactor-architecture-guidelines-2026-07-11: Create docs/architecture.md establishing state ownership and allowed import layers
+- [x] refactor-architecture-guidelines-2026-07-11: Create docs/architecture.md establishing state ownership and allowed import layers (Integrated into GEMINI.md)
 - [x] integrate-author-styles-2026-06-30: Integrate Author Style Profiles
 - [x] prompt-pipeline-rebuild-2026-06-30: Rebuild prompt pipeline natural language
 
@@ -41,6 +41,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 | Reference (ISO 8601) | Task                                                                                                                        | Skill Invoked         | Outcome            |
 | :------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :-------------------- | :----------------- |
+| 2026-07-11 15:02     | Refactor Backlog Generator & Config Links                                                                                   | `/02-implement`       | ✅ Done            |
+| 2026-07-11 14:38     | Milestone 2: Code Stability & Logic Polish                                                                                  | `/02-implement`       | ✅ Done            |
 | 2026-07-11 14:18     | Consolidate Imperative Refreshes & Inline Wrappers                                                                          | `/02-implement`       | ✅ Done            |
 | 2026-07-11 14:07     | Plan and draft state ownership & import guidelines (docs/architecture.md)                                                   | `planning`            | ✅ Done            |
 | 2026-07-10 18:54     | Smooth out background blur/dimming transition and suppress inactive card view-transition-names to prevent snapping          | `design`, `svelte`    | ✅ Done            |
@@ -75,9 +77,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 <!-- BACKLOG_START -->
 
-Last Swept: 2026-06-07 16:40
+Last Swept: 2026-07-11 15:04
 
-- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:37**: ?\s*(.*)$/);
-- [ ] **.agents/skills/legislative/scripts/sync-backlog.js:52**: tags...");
-
+No active AI debt found.
 <!-- BACKLOG_END -->

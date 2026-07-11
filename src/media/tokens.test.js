@@ -2,7 +2,7 @@
  * Unit tests for Tokens and Color Generation logic
  * Ported from legacy entities.test.js
  */
-import { get_signature_color, get_signature_label, get_deterministic_color } from "@media";
+import { get_signature_color, get_signature_label, get_deterministic_color, AestheticResolver } from "@media";
 import { describe, expect, test } from "vitest";
 describe("Tokens Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => get_signature_color(e);
@@ -90,6 +90,49 @@ describe("Tokens Color Generation", () => {
     });
     test("get_signature_label returns safe default for null entity", () => {
       expect(get_signature_label(null)).toBe("Frozen");
+    });
+  });
+
+  describe("AestheticResolver.flatten", () => {
+    test("flattens empty entity to default preset", () => {
+      const entity = {};
+      const result = AestheticResolver.flatten(entity);
+      expect(result).toBe(
+        "coral rose aesthetic, professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
+      );
+    });
+
+    test("flattens character with physical details and signature color", () => {
+      const entity = {
+        type: "character",
+        signature_color: "Electric Cyan",
+        eternal: {
+          physical: '{"height": "1.8m", "eyes": "glow blue"}',
+        },
+        present: {
+          physical: '{"wears": "dark cloak"}',
+        },
+      };
+      const result = AestheticResolver.flatten(entity);
+      expect(result).toContain("1.8m");
+      expect(result).toContain("glow blue");
+      expect(result).toContain("dark cloak");
+      expect(result).toContain("electric cyan aesthetic");
+      expect(result).toContain("professional portrait camera configuration");
+    });
+
+    test("flattens fractal scene with landscape presets", () => {
+      const entity = {
+        type: "fractal",
+        signature_color: "Void Black",
+        eternal: {
+          physical: '{"atmosphere": "sub-zero facility"}',
+        },
+      };
+      const result = AestheticResolver.flatten(entity);
+      expect(result).toContain("sub-zero facility");
+      expect(result).toContain("void black aesthetic");
+      expect(result).toContain("cinematic wide-angle environmental frame");
     });
   });
 });

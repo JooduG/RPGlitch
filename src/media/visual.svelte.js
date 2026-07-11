@@ -107,9 +107,9 @@ export class VisualEngine {
         const hasPhysical = entity.eternal?.physical || entity.present?.physical;
         if (!entity.modifiers?.prompt && !hasPhysical) {
           console.warn(`[VisualEngine] Bare-name fallback for entity "${entity.name}". No physical attributes defined.`);
-          finalPrompt = `${entity.name}, ${AestheticResolver.extract(entity)}`;
+          finalPrompt = `${entity.name}, ${AestheticResolver.flatten(entity)}`;
         } else {
-          finalPrompt = entity.modifiers?.prompt || AestheticResolver.extract(entity) || entity.name;
+          finalPrompt = entity.modifiers?.prompt || AestheticResolver.flatten(entity) || entity.name;
         }
 
         /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
@@ -119,6 +119,12 @@ export class VisualEngine {
         }
       } else {
         finalPrompt = String(target);
+      }
+
+      // 1.1 Empty Prompt Safe-Guard
+      if (!finalPrompt || !finalPrompt.trim()) {
+        console.warn("[VisualEngine] Empty visual prompt detected. Synthesizing generic aesthetic prompt.");
+        finalPrompt = "professional portrait configuration, sharp details, high-end studio layout, realistic textures";
       }
 
       // 2. Execute Resilient Generation

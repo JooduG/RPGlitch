@@ -430,5 +430,26 @@ describe("prompt_builder (Refactored)", () => {
       const dirResult = prompt_builder.build_director_prompt(mockPayload, mockSnapshot);
       expect(dirResult.system).not.toContain("</USER_ACTION>");
     });
+
+    it("should safely build prompts even if entities.FRACTAL is undefined", () => {
+      const mockPayloadNoFractal = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: undefined,
+        },
+        simulation_log: [],
+        input: "Run simulation",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      // Should not throw an error
+      const dirResult = prompt_builder.build_director_prompt(mockPayloadNoFractal, mockSnapshot);
+      expect(dirResult.system).not.toContain("<FRACTAL");
+
+      const charResult = prompt_builder.build_character_prompt(mockPayloadNoFractal, mockSnapshot, {});
+      expect(charResult.system).not.toContain("<FRACTAL");
+    });
   });
 });

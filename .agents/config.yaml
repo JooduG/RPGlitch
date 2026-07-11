@@ -5,9 +5,9 @@ skills:
   global_dir: C:/Users/johng/.gemini/config/skills
 
   orchestration_and_governance:
-    master-skill-router: .agents/skills/executive/SKILL.md
+    master-skill-router: C:/Users/johng/.gemini/config/skills/master-dispatcher/SKILL.md
     swarm: .agents/skills/swarm/SKILL.md
-    legislative: .agents/skills/legislative/SKILL.md
+    legislative: C:/Users/johng/.gemini/config/skills/legislative/SKILL.md
     security: C:/Users/johng/.gemini/config/skills/security/SKILL.md
     simulation: .agents/skills/simulation/SKILL.md
     context: C:/Users/johng/.gemini/config/skills/context/SKILL.md
