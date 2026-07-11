@@ -420,10 +420,9 @@ export const gamemaster = {
       }
       final_meta.structural_errors = runtime.structural_errors; // Expose updated count in returned meta
 
-      await session_driver.log_turn(validationResult.text, character_name, role, {
+      await session_driver.log_message(validationResult.text, role, character_name, "AI_TURN", {
         id: nodeId,
         round: runtime.round,
-        turn_type: "AI_TURN",
         sino_logic_violation: final_meta.sino_logic_violation,
       });
       // 8. TRANSITION: Open the window for User
@@ -474,10 +473,9 @@ export const gamemaster = {
       // Prologue stays at Round 0
       runtime.round = 0;
       runtime.turn_type = "SYSTEM_TURN";
-      await session_driver.log_turn(response, fractal_name, "fractal", {
+      await session_driver.log_message(response, "fractal", fractal_name, "SYSTEM_TURN", {
         id: nodeId,
         round: 0,
-        turn_type: "SYSTEM_TURN",
       });
       app.log("[GameMaster] Prologue established (Round 0).", "system");
 
@@ -518,7 +516,7 @@ export const gamemaster = {
     const response = await this.execute_with_retry(async () => {
       return await llm_service.generate({ system, role: "fractal", node_id: nodeId });
     });
-    await session_driver.log_turn(response, fractal_name, "fractal", { id: nodeId });
+    await session_driver.log_message(response, "fractal", fractal_name, "AI_TURN", { id: nodeId });
     app.end_stream();
     return response;
   },

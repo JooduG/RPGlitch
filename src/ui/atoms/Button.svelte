@@ -5,7 +5,7 @@
    * High-performance, multi-variant interaction layer.
    * Headless refactor powered by bits-ui/Button and Svelte 5.
    */
-  import { controlState } from "@state";
+  import { simulationState } from "@state";
   import { Button } from "bits-ui";
 
   let {
@@ -46,7 +46,7 @@
       className?.toLowerCase().includes("interrupt"),
   );
 
-  let is_disabled = $derived(disabled || (controlState.intent_active && !is_interrupt_btn));
+  let is_disabled = $derived(disabled || (simulationState.intent_active && !is_interrupt_btn));
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
   const height_class = $derived(cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10");

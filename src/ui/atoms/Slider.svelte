@@ -20,7 +20,7 @@
    */
 
   import { use_actions } from "@actions";
-  import { controlState } from "@state";
+  import { simulationState } from "@state";
   import { Slider } from "bits-ui";
 
   /** @type {Props} */
@@ -62,7 +62,7 @@
   // Diagnostic identifier
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider");
 
-  let is_disabled = $derived(disabled || controlState.intent_active);
+  let is_disabled = $derived(disabled || simulationState.intent_active);
 
   /**
    * Adapts bits-ui number value to the backward compatible HTMLInputElement event structure.
@@ -294,7 +294,7 @@
       px-2 py-1.5
       text-center font-sans text-xs/normal tracking-normal whitespace-normal text-slate-50 normal-case
       shadow-lg
-      transition-[opacity,transform] duration-150 ease-(--ease-out)
+      transition-[opacity,transform] duration-150 ease-out
       {is_hovered || is_active ? 'scale-100 opacity-100' : 'scale-95 opacity-0'}
     "
     style="left: {tooltip_pos.x}px; top: {tooltip_pos.y}px;"

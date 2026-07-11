@@ -196,9 +196,7 @@ export class AppStore {
     return this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
   }
   /** Legacy alias for storyboard readiness */
-  get storyboard_ready() {
-    return this.is_ready;
-  }
+
   // --- TELEMETRY (DevMode HUD) ---
   /**
    * @type {any[]}

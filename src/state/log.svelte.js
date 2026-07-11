@@ -39,5 +39,20 @@ export class SimulationLogStore {
     if (entry.id && this.feed.some((m) => m.id === entry.id)) return;
     this.feed = [...this.feed, entry];
   }
+
+  /**
+   * @param {string|number} id
+   * @param {Partial<LogEntry>} updates
+   */
+  update(id, updates) {
+    this.feed = this.feed.map((entry) => (entry.id === id ? { ...entry, ...updates } : entry));
+  }
+
+  /**
+   * @param {string|number} id
+   */
+  remove(id) {
+    this.feed = this.feed.filter((entry) => entry.id !== id);
+  }
 }
 export const simulation_log = new SimulationLogStore();

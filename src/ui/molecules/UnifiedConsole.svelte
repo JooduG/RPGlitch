@@ -110,7 +110,7 @@
       await new Promise((resolve) => setTimeout(resolve, 60));
     }
 
-    await session_driver.log_turn(content, entity_name, role, { turn_type: "SYSTEM_TURN" });
+    await session_driver.log_message(content, role, entity_name, "SYSTEM_TURN");
     app.end_stream();
     log_action(`Mock ${role} transition complete`);
   }
@@ -511,21 +511,16 @@
                               if (result?.imageUrl) {
                                 const entity = runtime.active_ai || app.selected_ai;
                                 const entity_name = entity?.name || "AI";
-
                                 const caption = result.caption || "Here, caught this moment for you.";
-
-                                await session_driver.log_turn(caption, entity_name, "ai", {
-                                  turn_type: "AI_TURN",
-                                  attachments: [
-                                    {
-                                      src: result.imageUrl,
-                                      metadata: {
-                                        ...result.metadata,
-                                        prompt: result.refinedPrompt,
-                                      },
+                                await session_driver.log_message(caption, "ai", entity_name, "AI_TURN", {}, [
+                                  {
+                                    src: result.imageUrl,
+                                    metadata: {
+                                      ...result.metadata,
+                                      prompt: result.refinedPrompt,
                                     },
-                                  ],
-                                });
+                                  },
+                                ]);
                               } else {
                                 console.warn("[PHOTO] No imageUrl returned");
                               }

@@ -12,7 +12,7 @@
    * @property {(e: Event) => void} [onchange] - Change callback.
    */
 
-  import { controlState } from "@state";
+  import { simulationState } from "@state";
   import { use_actions } from "@actions";
   import { Switch } from "bits-ui";
 
@@ -33,7 +33,7 @@
   // Derived identifier for testing
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);
 
-  let is_disabled = $derived(disabled || controlState.intent_active);
+  let is_disabled = $derived(disabled || simulationState.intent_active);
 </script>
 
 <label
@@ -118,7 +118,7 @@
                 bg-slate-50
                 transition-[transform,background-color,filter]
                 duration-300
-                ease-(--ease-out)
+                ease-out
 
                 group-data-[state=checked]:bg-white
                 group-data-[state=checked]:shadow-[0_0_4px_rgba(255,255,255,0.3)]

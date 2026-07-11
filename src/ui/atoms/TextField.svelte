@@ -11,7 +11,7 @@
    */
   import { ScrollArea } from "@atoms";
   import { parse_markdown } from "@utils";
-  import { controlState } from "@state";
+  import { simulationState } from "@state";
   import { auto_resize, use_actions } from "@actions";
   import { fade } from "svelte/transition";
   import { onDestroy } from "svelte";
@@ -51,7 +51,7 @@
   let is_focused = $state(false);
 
   // --- DERIVED LOGIC ---
-  let is_disabled = $derived(disabled || controlState.intent_active);
+  let is_disabled = $derived(disabled || simulationState.intent_active);
   let is_sync_focused = $derived(syncId ? (sync_focus_counts[syncId] || 0) > 0 : false);
   const paragraphs = $derived(parse_markdown(value));
   const is_expanded = $derived((is_focused || is_sync_focused || busy || always_expanded) && (!!header_actions || !!status));

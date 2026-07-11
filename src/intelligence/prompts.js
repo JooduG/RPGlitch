@@ -133,10 +133,6 @@ Declare the finalized emotional state vectors and immediate intent.`,
     "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON. Output MUST be valid JSON starting with '{' and ending with '}'.",
   FIRST_CONTACT:
     "Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is their first encounter. You don't know the user persona's name, history, or intent. Let your core nature determine how you respond to a stranger — but do not assume familiarity. When the moment comes naturally, introduce yourself through character, not convention.",
-  MACRO_CHARACTER:
-    "Use placeholder macros to refer to entities: '{{me}}' for this character, '{{you}}' for the user persona, '{{fractal}}' for the setting. Never hardcode names.",
-  MACRO_FRACTAL:
-    "Use placeholder macros to refer to entities: '{{user}}' for the user persona, '{{char}}' for the AI character, '{{fractal}}' for this environment. Never hardcode names.",
   PERCHANCE_SYNTAX:
     "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.",
 };
@@ -252,12 +248,17 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
     <PAST>${ind(render_atom.past(entities.USER, { limit: 2, vector_text: true }), 6)}</PAST>
     <FUTURE>${ind(render_atom.future(entities.USER, { limit: 1, vector_text: true }), 6)}</FUTURE>
   </USER_PERSONA>
-  <FRACTAL name="${escapeXml(entities.FRACTAL?.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-    <PRESENT>${val(entities.FRACTAL?.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
-    <ETERNAL>${val(entities.FRACTAL?.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
+  ${
+    entities.FRACTAL
+      ? `
+  <FRACTAL name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+    <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
+    <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
     <PAST>${ind(render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }), 6)}</PAST>
     <FUTURE>${ind(render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
-  </FRACTAL>
+  </FRACTAL>`.trim()
+      : ""
+  }
   <USER_ACTION>${ind(input, 4)}</USER_ACTION>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}

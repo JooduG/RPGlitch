@@ -64,7 +64,7 @@ export const session_driver = {
     await session_driver.set_active(story_id);
 
     // Initial system entry
-    await db.simulation_log.add({
+    const entry = {
       story_id,
       role: "system",
       type: "text",
@@ -73,9 +73,10 @@ export const session_driver = {
       round: 0,
       meta: { type: "STORY_START" },
       created_at: Date.now(),
-    });
+    };
+    entry.id = await db.simulation_log.add(entry);
+    simulation_log.add(entry);
 
-    simulation_log.refresh();
     return story_id;
   },
 
@@ -110,8 +111,8 @@ export const session_driver = {
       const entry = logs[i];
       if (entry.role === "user") break;
       await db.simulation_log.delete(entry.id);
+      simulation_log.remove(entry.id);
     }
-    simulation_log.refresh();
   },
 
   /**
@@ -121,7 +122,7 @@ export const session_driver = {
   delete_log_entry: async function (id) {
     const key = isNaN(Number(id)) ? id : Number(id);
     await db.simulation_log.delete(key);
-    simulation_log.refresh();
+    simulation_log.remove(key);
   },
 
   /**
@@ -132,7 +133,7 @@ export const session_driver = {
   edit_log_entry: async function (id, new_text) {
     const key = isNaN(Number(id)) ? id : Number(id);
     await db.simulation_log.update(key, { text: new_text });
-    simulation_log.refresh();
+    simulation_log.update(key, { text: new_text });
   },
 
   /**
@@ -147,7 +148,7 @@ export const session_driver = {
     if (entry && entry.attachments && entry.attachments[attachment_index]) {
       entry.attachments[attachment_index] = new_attachment;
       await db.simulation_log.put(entry);
-      simulation_log.refresh();
+      simulation_log.update(key, { attachments: entry.attachments });
     }
   },
 
@@ -179,8 +180,8 @@ export const session_driver = {
     if (meta && meta.id) {
       entry.id = meta.id;
     }
-    await db.simulation_log.add(entry);
-    simulation_log.refresh();
+    entry.id = await db.simulation_log.add(entry);
+    simulation_log.add(entry);
   },
 
   /**
@@ -190,17 +191,6 @@ export const session_driver = {
    * @param {string} role
    * @param {any} [meta]
    */
-  log_turn: async function (text, character_name, role, meta = {}) {
-    const { attachments, ...rest_meta } = meta;
-    return await this.log_message(
-      text,
-      role,
-      character_name,
-      rest_meta.turn_type || (role === "user" ? "USER_TURN" : "AI_TURN"),
-      rest_meta,
-      attachments || [],
-    );
-  },
 
   /**
    * Fetch history for a story.
@@ -220,7 +210,7 @@ export const session_driver = {
    */
   log_system_entry: async function (text, role = "system", meta = {}) {
     const story_id = session_driver.require_active();
-    await db.simulation_log.add({
+    const entry = {
       story_id,
       role,
       type: "text",
@@ -229,7 +219,8 @@ export const session_driver = {
       round: runtime.round,
       meta: $state.snapshot(meta),
       created_at: Date.now(),
-    });
-    simulation_log.refresh();
+    };
+    entry.id = await db.simulation_log.add(entry);
+    simulation_log.add(entry);
   },
 };

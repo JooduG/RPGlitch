@@ -240,6 +240,59 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 ---
 
+#### 7. State Ownership & Layer Boundaries
+
+To prevent circular dependencies and architectural collapse, RPGlitch adheres to strict layer definitions, import hierarchies, and state ownership models.
+
+##### 7.1 Semantic Folder Glossary
+
+- **`src/ui`**: The sensory expression layer (Svelte components). Responsible for rendering the DOM, capturing user inputs, and subscribing to reactive state. Contains atomic sub-directories (`atoms`, `molecules`, `organisms`, `templates`).
+- **`src/state`**: The centralized nervous system (`app.svelte.js`, `runtime.svelte.js`, `status.svelte.js`). Owns all Svelte 5 Runes. Exposes reactive properties for the UI to consume and methods for the engine to mutate.
+- **`src/engine`**: The physical logic layer. Handles chronological progression (Rounds/Turns), turn orchestration, sanitization pipelines, physics calculations, and procedural state mutations. **Pure JS only**.
+- **`src/intelligence`**: The AI Kernel (Prompts, Context Broker, LLM interface). Responsible for bridging the gap between narrative intent, memories (RAG), and the LLM execution pipeline.
+- **`src/data`**: The persistence layer. Exclusively handles IndexedDB (`Dexie.js`) interactions, entity schemas, and normalized data repositories.
+- **`src/media`**: Internal sensory assets, visual synthesis pipelines (image generation parameters), and the aesthetic Chalk Regime token configuration.
+- **`src/platform`**: External integrations, environmental APIs (Perchance iframe bridges, WebSockets), and raw DOM safety protocols (`DOMPurify`).
+
+##### 7.2 Import Boundaries (The Flow of Truth)
+
+The engine follows a strict unidirectional import hierarchy to prevent circular coupling.
+
+- **Positive Laws (Allowed Imports)**:
+  - `ui` may import from ANY layer (e.g., `@state`, `@engine`, `@utils`).
+  - `state` may import from `engine`, `intelligence`, `data`, `platform`, `media`, `utils`.
+  - `engine` may import from `intelligence`, `data`, `platform`, `media`, `utils`.
+  - `data` may import from `platform`, `utils`.
+- **Negative Laws (Forbidden Imports)**:
+  - **The Downward Rule**: Lower-level layers MUST NEVER import from higher-level layers.
+  - `engine`, `data`, or `platform` MUST NEVER import from `ui` or `state`.
+  - `state` MUST NEVER import from `ui`.
+  - If the engine needs to trigger a UI update, it must return data or trigger a callback; it cannot mutate UI stores directly or import UI types.
+
+##### 7.3 State Ownership Matrix
+
+In Svelte 5, state must have a single owner. Do not duplicate state across layers.
+
+| State Domain                                          | Owner Store (File)                     | Description & Mutators                                                                     | Observers      |
+| :---------------------------------------------------- | :------------------------------------- | :----------------------------------------------------------------------------------------- | :------------- |
+| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime` (`runtime.svelte.js`)        | Contains live clones of DB entities. Mutated by `load()` operations and physical dynamics. | `ui`, `engine` |
+| **Chronology** (`round`, `story_id`)                  | `runtime` (`runtime.svelte.js`)        | The macro heartbeat of the simulation.                                                     | `ui`, `engine` |
+| **Simulation Phase** (`idle`, `generating`, `locked`) | `simulationState` (`status.svelte.js`) | Tracks the AI execution status and simulation lock (STASIS).                               | `ui`, `engine` |
+| **UI Flow & Modals** (`view`, `profile_open`)         | `AppStore` (`app.svelte.js`)           | Ephemeral layout state. Mutated by UI interactions.                                        | `ui`           |
+| **Audio Context**                                     | `audio_engine` (`media/`)              | Browser audio context. Must be initialized by user gesture.                                | `ui`           |
+
+##### 7.4 Lifecycle Glossary
+
+To maintain consistency in asynchronous chains, use standardized verbs for initialization and state mutations.
+
+- **`initialize`**: Setting up a service or store for the first time in a session (e.g., connecting to the DB).
+- **`load`**: Pulling static data from persistence (`src/data`) into memory (`src/state`) without executing physics (e.g., `load(entity_id)`).
+- **`sync`**: Reconciling the reactive state with the database, ensuring both layers reflect the same truth (often used before turn generation).
+- **`refresh`**: Triggering an imperative UI or state recalculation when `$derived` runes are insufficient (avoid if possible).
+- **`boot`**: The global application startup sequence (`engine/boot.js`).
+
+---
+
 ## 04-Aesthetics
 
 ### ⚖️ The High Law

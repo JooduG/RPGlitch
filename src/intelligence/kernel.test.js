@@ -31,7 +31,7 @@ vi.mock("@platform/transport.js", () => ({
 vi.mock("@engine/session.svelte.js", () => ({
   session_driver: {
     load_log: vi.fn().mockResolvedValue([]),
-    log_turn: vi.fn().mockResolvedValue({}),
+    log_message: vi.fn().mockResolvedValue({}),
     log_system_entry: vi.fn().mockResolvedValue({}),
   },
 }));
@@ -252,13 +252,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       expect(result.response).toBe("<think>Analyzing user state</think>");
-      expect(session_driver.log_turn).toHaveBeenCalledWith(
+      expect(session_driver.log_message).toHaveBeenCalledWith(
         "<think>Analyzing user state</think>",
         expect.any(String),
         expect.any(String),
-        expect.objectContaining({
-          turn_type: "AI_TURN",
-        }),
+        "AI_TURN",
+        expect.any(Object),
       );
     });
 
@@ -271,10 +270,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       expect(result.response).toBe("<think>thought block containing 中文</think> Normal spacing and some  character bleed.");
-      expect(session_driver.log_turn).toHaveBeenCalledWith(
+      expect(session_driver.log_message).toHaveBeenCalledWith(
         "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
         expect.any(String),
         expect.any(String),
+        "AI_TURN",
         expect.objectContaining({
           sino_logic_violation: true,
         }),
@@ -290,10 +290,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       expect(result.response).toBe("No think block here.   Multiple   spaces   remain   intact.");
-      expect(session_driver.log_turn).toHaveBeenCalledWith(
+      expect(session_driver.log_message).toHaveBeenCalledWith(
         "No think block here.   Multiple   spaces   remain   intact.",
         expect.any(String),
         expect.any(String),
+        "AI_TURN",
         expect.not.objectContaining({
           sino_logic_violation: true,
         }),

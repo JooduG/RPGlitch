@@ -112,19 +112,3 @@ class UIStateStore {
 }
 
 export const uiState = new UIStateStore();
-
-// Compatibility alias to support existing references to controlState without breaking them
-export const controlState = {
-  get intent_active() {
-    return simulationState.intent_active;
-  },
-  set intent_active(value) {
-    simulationState.intent_active = value;
-  },
-  /**
-   * @param {boolean} active
-   */
-  set_intent_active(active) {
-    simulationState.set_intent_active(active);
-  },
-};

@@ -3,7 +3,7 @@
 import { session_driver } from "@engine";
 import { gamemaster } from "@intelligence";
 import { Shield } from "@platform";
-import { app, controlState, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State
+import { app, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State
 
 export class ChronoStore {
   error = $state(null);
@@ -13,8 +13,8 @@ export class ChronoStore {
    * @param {{ ai: any, user: any, fractal: any }} selection - { ai, user, fractal }
    */
   async start(selection) {
-    if (app.simulation.loading || controlState.intent_active) return;
-    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    if (app.simulation.loading || simulationState.intent_active) return;
+    simulationState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     app.simulation.loading = true;
 
     try {
@@ -51,7 +51,7 @@ export class ChronoStore {
       this.error = /** @type {Error} */ (e).message;
     } finally {
       app.simulation.loading = false;
-      controlState.set_intent_active(false); // Release Intent Lock
+      simulationState.set_intent_active(false); // Release Intent Lock
     }
   }
 
@@ -60,7 +60,7 @@ export class ChronoStore {
    * @param {string} text
    */
   async send(text) {
-    if (app.simulation.loading || controlState.intent_active || !text.trim()) return;
+    if (app.simulation.loading || simulationState.intent_active || !text.trim()) return;
     await this.advance_turn(text);
   }
 
@@ -68,7 +68,7 @@ export class ChronoStore {
    * Retry the last AI turn.
    */
   async retry() {
-    if (app.simulation.loading || controlState.intent_active) return;
+    if (app.simulation.loading || simulationState.intent_active) return;
     try {
       await session_driver.regenerate();
       await this.advance_turn(null, { is_retry: true });
@@ -81,7 +81,7 @@ export class ChronoStore {
    * Continue the story (AI generates next part).
    */
   async continue() {
-    if (app.simulation.loading || controlState.intent_active) return;
+    if (app.simulation.loading || simulationState.intent_active) return;
     try {
       await this.advance_turn(null, { is_continue: true });
     } catch (e) {
@@ -122,9 +122,6 @@ export class ChronoStore {
    * @param {string} character_name
    * @param {string} role
    */
-  async log_turn(text, character_name, role) {
-    await session_driver.log_turn(text, character_name, role);
-  }
 
   /**
    * ADVANCE TURN
@@ -139,14 +136,14 @@ export class ChronoStore {
    * @param {object} options
    */
   async advance_turn(input = null, options = {}) {
-    if (app.simulation.loading || controlState.intent_active) return; // Prevent double-clicks
+    if (app.simulation.loading || simulationState.intent_active) return; // Prevent double-clicks
     const story_id = runtime.story_id;
     if (!story_id) {
       console.error("[Chrono] No active story found.");
       return;
     }
     // 1. STASIS: Lock the Universe
-    controlState.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    simulationState.set_intent_active(true); // Exact sub-millisecond Intent Lock
     app.simulation.loading = true;
     simulationState.lock(); // Phase 1: System Lock
     app.log("Shield scanning causality and physics...", "system");
@@ -181,7 +178,7 @@ export class ChronoStore {
       });
       app.simulation.loading = false;
       simulationState.unlock();
-      controlState.set_intent_active(false); // Release Intent Lock
+      simulationState.set_intent_active(false); // Release Intent Lock
       return;
     }
 
@@ -254,7 +251,7 @@ export class ChronoStore {
         app.streaming.role = "ai";
         app.simulation.loading = false;
         simulationState.unlock();
-        controlState.set_intent_active(false); // Release Intent Lock
+        simulationState.set_intent_active(false); // Release Intent Lock
       }
     })();
   }

@@ -104,7 +104,13 @@ export class VisualEngine {
         /** @type {any} */
         const entity = await this._resolveEntity(entityId);
 
-        finalPrompt = entity.modifiers?.prompt || AestheticResolver.extract(entity) || entity.name;
+        const hasPhysical = entity.eternal?.physical || entity.present?.physical;
+        if (!entity.modifiers?.prompt && !hasPhysical) {
+          console.warn(`[VisualEngine] Bare-name fallback for entity "${entity.name}". No physical attributes defined.`);
+          finalPrompt = `${entity.name}, ${AestheticResolver.extract(entity)}`;
+        } else {
+          finalPrompt = entity.modifiers?.prompt || AestheticResolver.extract(entity) || entity.name;
+        }
 
         /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
         // Store the entity's custom negative prompt for use in generation

@@ -1,7 +1,7 @@
 import { Chrono } from "@engine";
 import { gamemaster } from "@intelligence";
 import { Shield } from "@platform";
-import { app, runtime, controlState, simulationState } from "@state";
+import { app, runtime, simulationState } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock Security/Shield and Engine to avoid network requests and db access
@@ -40,7 +40,7 @@ describe("Chrono Intent Lock State Lifecycle", () => {
     app.streaming.content = "";
     app.streaming.abort_controller = null;
     simulationState.phase = "idle";
-    controlState.set_intent_active(false);
+    simulationState.set_intent_active(false);
     runtime.story_id = "test-story-id";
     runtime.round = 0;
     runtime.save = vi.fn().mockResolvedValue(undefined);
@@ -60,7 +60,7 @@ describe("Chrono Intent Lock State Lifecycle", () => {
     expect(advancePromise).toBeInstanceOf(Promise);
 
     // Verify intent lock triggers immediately (exact sub-millisecond)
-    expect(controlState.intent_active).toBe(true);
+    expect(simulationState.intent_active).toBe(true);
     expect(app.simulation.loading).toBe(true);
 
     // Complete the call to advance_turn
@@ -73,7 +73,7 @@ describe("Chrono Intent Lock State Lifecycle", () => {
     await new Promise((resolve) => setTimeout(resolve, 10));
 
     // Verify intent lock and loading are cleanly released
-    expect(controlState.intent_active).toBe(false);
+    expect(simulationState.intent_active).toBe(false);
     expect(app.simulation.loading).toBe(false);
     expect(simulationState.phase).toBe("idle");
   });
