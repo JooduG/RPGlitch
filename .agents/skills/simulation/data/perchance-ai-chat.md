@@ -221,7 +221,7 @@ The following concepts were extracted from the legacy generator's UI template st
 ### 8.5 Floating / Draggable Window System
 
 - **Concept**: A dynamic JS class that builds OS-style draggable and resizable windows for advanced settings without disrupting the chat context.
-- **Agent Instructions**: If requested, do NOT use legacy DOM manipulation for this. Implement a Svelte 5 `<Modal>` or `<FloatingWindow>` component utilizing `svelte/motion` and pointer events for dragging, keeping the state purely reactive and aligned with the Chalk Regime aesthetics.
+- **Agent Instructions**: If requested, do NOT use legacy DOM manipulation for this. Implement a Svelte 5 `<Modal>` or `<FloatingWindow>` component utilizing `svelte/motion` and pointer events for dragging, keeping the state purely reactive and aligned with the aesthetics.
 
 ### 8.6 PNG / TavernAI Character Importers (EXIF Reading)
 

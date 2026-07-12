@@ -1,10 +1,9 @@
 /**
  * src/core/engine/config.js
  * ⚔️ The Single Source of Truth for Global Architecture.
- * Aligning with the Chalk Regime (Nordic Collection).
  */
 
-export const APP_VERSION = "0.3.0 (Chalk Regime)";
+export const APP_VERSION = "0.3.0";
 export const SESSION_ID_KEY = "active_session_id";
 
 export const CONFIG = {

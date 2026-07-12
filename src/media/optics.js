@@ -372,7 +372,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
       case "selfie":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
         anchor =
-          "RAW photograph or stylized illustration, a modern front-facing wide-angle camera selfie shot layout, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
+          "RAW photograph, a modern front-facing wide-angle camera selfie shot layout, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
         realism = "cinematic framing, clear focus distribution, naturalistic lightning features, smartphone camera simulation layer";
         break;
       case "ai":

@@ -8,7 +8,6 @@
   import { Backdrop } from "@atoms";
   import { simulationState } from "@state";
   import { use_actions } from "@actions";
-
   import { Dialog } from "bits-ui";
 
   let {
@@ -64,6 +63,7 @@
             is_blurred={blur}
             {is_pass_through}
             class={variant}
+            data-modal-backdrop={variant}
           >
             <Dialog.Content
               {...rest}
@@ -85,7 +85,6 @@
                     {...contentProps}
                     data-modal-variant={variant}
                     class="
-                      pointer-events-auto
                       relative
                       flex
                       h-auto
@@ -141,7 +140,9 @@
                       `
                       : ''}
                       {className}"
-                    onclick={(/** @type {MouseEvent} */ e) => e.stopPropagation()}
+                    onclick={(/** @type {MouseEvent} */ e) => {
+                      if (variant !== "lightbox") e.stopPropagation();
+                    }}
                     use:use_actions={actions}
                   >
                     {@render children?.()}

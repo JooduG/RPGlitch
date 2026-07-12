@@ -3,7 +3,7 @@
    * @file src/ui/profile/AudioWing.svelte
    * ðŸ”Š THE SONIC IDENTITY
    * Manages character voice selection and parameters.
-   * Part of the RPGlitch "Chalk Regime" UI collection.
+   * Part of the RPGlitch UI.
    */
   import { Button, Dropdown, Slider, tooltip } from "@atoms";
   import { Audio } from "@media";

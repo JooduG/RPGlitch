@@ -44,7 +44,7 @@
     ...rest
   } = $props();
 
-  // Logic Calculations for Nordic Gradient Track
+  // Logic Calculations for Gradient Track
   const center_val = $derived(neutral ?? (min + max) / 2);
   const val_pct = $derived(((value - min) / (max - min)) * 100);
   const center_pct = $derived(((center_val - min) / (max - min)) * 100);

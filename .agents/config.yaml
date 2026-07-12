@@ -29,8 +29,8 @@ skills:
   design_and_sensory:
     design: .agents/skills/design/SKILL.md
     audio: .agents/skills/audio/SKILL.md
-    image-generation: C:/Users/johng/.gemini/config/skills/image/SKILL.md
-    ai-text-generation: C:/Users/johng/.gemini/config/skills/text/SKILL.md
+    perchance-plugin-image: C:/Users/johng/.gemini/config/skills/image/SKILL.md
+    perchance-plugin-text: C:/Users/johng/.gemini/config/skills/text/SKILL.md
 
   verification_and_qa:
     test: C:/Users/johng/.gemini/config/skills/test/SKILL.md

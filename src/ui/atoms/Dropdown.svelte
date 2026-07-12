@@ -1,7 +1,7 @@
 <script>
   /**
    * @file Dropdown.svelte
-   * 💧 THE CHALK REGIME SELECT PRIMITIVE
+   * THE SELECT PRIMITIVE
    * Standalone dropdown select atom using bits-ui/Select and Svelte 5.
    */
   import { ScrollArea } from "@atoms";

@@ -7,6 +7,7 @@
 import { pickRandom } from "@utils";
 import { SIGNATURE_COLORS } from "@media";
 import { Security } from "@platform";
+
 const sanitize_html = (/** @type {any} */ val) => Security.sanitize(val);
 export const STORAGE_VERSION = 3;
 /**

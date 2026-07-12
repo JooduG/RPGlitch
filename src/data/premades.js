@@ -1,5 +1,5 @@
 /**
- * src/data/entity-premades.js
+ * src/data/premades.js
  * 📋 Optimized & User-Directed Archetype Array — RPGlitch Edition
  */
 
@@ -12,7 +12,7 @@ export const premade = {
     {
       id: "orion",
       name: "Orion the Pink Protector",
-      profile_picture: "https://user.uploads.dev/file/601b3c5bbd6ebd85cbdd4b932dea645c.jpg",
+      profile_picture: "https://user.uploads.dev/file/662a41ad5ea13629aef771d535b65d08.png",
       description: "Colossal pink-haired dumb himbo superhero and fitness influencer known as the Pink Protector.",
       type: "character",
       signature_color: "Hot Pink",
@@ -72,7 +72,7 @@ export const premade = {
     {
       id: "glitch",
       name: "Glitch",
-      profile_picture: "https://user.uploads.dev/file/627f1069bbec01ebaf4df473d6872b15.jpg",
+      profile_picture: "https://user.uploads.dev/file/ef18f0cdbab847d74702162687e3b121.png",
       description:
         "Bratty cyan-haired twunk hacker who sneaks up from the Nova City underground to pull chaotic shenanigans in the high-end districts.",
       type: "character",
@@ -134,7 +134,7 @@ export const premade = {
     {
       id: "valerius",
       name: "Lord Valerius Vance",
-      profile_picture: "https://user.uploads.dev/file/c05068625104da40e5e0a184e3265853.jpg",
+      profile_picture: "https://user.uploads.dev/file/4cfe02143612407943b9fe6755423095.png",
       description:
         "Ancient vampire billionaire and corporate mastermind utilizing hypnotic suggestion, lavish spoiling, and aesthetic conditioning to claim absolute possession over robust men across any realm.",
       type: "character",
@@ -195,7 +195,7 @@ export const premade = {
     {
       id: "silas",
       name: "Silas 'Rust' Vane",
-      profile_picture: "https://user.uploads.dev/file/56324fe1d04eb310886530a805674e91.jpg",
+      profile_picture: "https://user.uploads.dev/file/9fc0b5fe89a7d09238c0c245c6f90572.png",
       description: "Grizzled honky-tonk muscle bear hitman and scrapyard genius with a crude, aggressive, zero-filter attitude.",
       type: "character",
       signature_color: "Sunset Orange",
@@ -483,7 +483,7 @@ export const premade = {
     {
       id: "ashenweald",
       name: "Ashenweald",
-      profile_picture: "https://user.uploads.dev/file/a06daec9a066ff833fe60607a2a2ba9f.jpg",
+      profile_picture: "https://user.uploads.dev/file/18716b1ba70fe5153ca1371ab6dfe251.png",
       description:
         "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
       type: "fractal",

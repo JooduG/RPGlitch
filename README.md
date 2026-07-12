@@ -102,4 +102,4 @@ If you are a human operator triggering a swarm sequence, consult the `/swarm` gl
 ## 🗺️ Documentation & Rules
 
 - [Sovereign Rules & Foundations](GEMINI.md)
-- [Design System & The Chalk Regime](DESIGN.md)
+- [Design System](DESIGN.md)

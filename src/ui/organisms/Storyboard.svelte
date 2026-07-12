@@ -4,7 +4,7 @@
    * ❄️ THE STORYBOARD CONSOLE
    * Visual orchestration of active entities and narrative focus.
    * Refactored: Mariana Trench SOTA Refactor
-   * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
+   * Standard: Ultra-Lean DOM
    */
 
   import { Skeleton } from "@atoms";

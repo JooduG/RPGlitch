@@ -133,11 +133,11 @@ components:
   empty-fill: "rgb(23 23 23 / 0.6)"
 ---
 
-# ⚔️ RPGlitch Design System: The Chalk Regime
+# ⚔️ RPGlitch Design System
 
 > "Depth is the ultimate luxury. Precision is the baseline of sovereignty."
 
-The RPGlitch Design System, formally designated as the **Chalk Regime**, is a high-fidelity aesthetic framework optimized for the **Nordic Collection**. It envisions the application as a high-end research terminal situated within a sub-zero facility—cool, deep, and elegant.
+The RPGlitch Design System is a high-fidelity aesthetic framework optimized. It envisions the application as a high-end research terminal situated within a sub-zero facility—cool, deep, and elegant.
 
 ## ❄️ The Nordic Collection (Vision)
 
@@ -153,10 +153,10 @@ The interface is a high-end research terminal in a frozen facility.
 All imagery in the RPGlitch ecosystem must adhere to the following stylistic constraints:
 
 - **Macro/Micro Focus**: Prefer zoomed-in, high-detail shots (e.g., macro photo of ice crystals, zoomed-in texture of natural fabrics).
-- **Color Consistency**: Images should reflect the Abyssal/Nordic palette. If a theme changes, images must be updated to match.
+- **Color Consistency**: Images should reflect the palette. If a theme changes, images must be updated to match.
 - **Atmospheric**: Use images that feel quiet and atmospheric, avoiding gaudy or high-action content.
 
-## 📐 The Chalk Regime (Laws)
+## 📐 Laws
 
 ### 1. Token Sovereignty & IDE Alignment
 
@@ -193,7 +193,7 @@ All interface copy must be clinical and concise. Use UI/UX keywords consistently
 
 ### Headless Component Foundations
 
-The Chalk Regime UI layers have been migrated from raw DOM manipulations to standardized headless components powered by `bits-ui`. The layout aesthetics are strictly preserved using semantic selectors and data attributes mapped directly from the library engines:
+The UI layers have been migrated from raw DOM manipulations to standardized headless components powered by `bits-ui`. The layout aesthetics are strictly preserved using semantic selectors and data attributes mapped directly from the library engines:
 
 - **Tooltip Layer**: Powered by `bits-ui/Tooltip`. Container overlays query `.tooltip-container[data-side="bottom"]` and compile portalled tracking at `z-index: var(--z-index-max)` to ensure clearing modal context bounds cleanly.
 - **Modal Framework**: Driven by `bits-ui/Dialog`. Manages focus-trapping, portal distribution, and Escape-key dismissals natively. Transitions map via custom snippets into native `fly` / `scale` states.
@@ -237,7 +237,7 @@ Use the following H2/H3 structure for specific screen prompts to ensure the Stit
 
 - **Description**: Semantic description of the element (e.g., "A pill-shaped primary button with whisper-soft shadows").
 - **Intent**: What this element should achieve (e.g., "Directs user to the research log").
-- **Tokens**: Reference specific Chalk Regime tokens.
+- **Tokens**: Reference specific tokens.
 ```
 
 ---
@@ -788,7 +788,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   animation-timing-function: var(--ease-standard);
 }
 
-/* --- 3D Profile Flip Transition (Nordic Collection) --- */
+/* --- 3D Profile Flip Transition --- */
 
 /* Elevate active transition groups above inactive bystander cards */
 :root.is-profile-opening-ai::view-transition-group(card-slot-ai),
@@ -978,7 +978,37 @@ div[class*="profile-header"] input,
   line-height: inherit !important;
 }
 
-/* --- BACKDROP BLUR ANIMATION (Profile Modal) --- */
+/* --- PROFILE BACKDROP — View Transition Group Rules --- */
+/* The profile backdrop is given view-transition-name="profile-backdrop" in Backdrop.svelte. */
+/* This gives the browser its own group to morph it independently, in perfect sync            */
+/* with the card flip, driven by the same startViewTransition() call. No separate CSS         */
+/* animation is needed — the VT API cross-fades the snapshots using backdrop-blur-in.        */
+
+::view-transition-group(profile-backdrop) {
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-standard);
+}
+
+/* Opening: the "old" state is no backdrop (none), the "new" state is blurred. */
+:root[class*="is-profile-opening-"]::view-transition-old(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+  animation-direction: reverse;
+}
+
+:root[class*="is-profile-opening-"]::view-transition-new(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+}
+
+/* Closing: the "old" state is blurred, the "new" state is no backdrop (none). */
+:root[class*="is-profile-closing-"]::view-transition-old(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+}
+
+:root[class*="is-profile-closing-"]::view-transition-new(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+  animation-direction: reverse;
+}
+
 @keyframes backdrop-blur-in {
   from {
     backdrop-filter: blur(0) brightness(1) saturate(1);

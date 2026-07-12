@@ -11,7 +11,7 @@ The engine aims to provide a seamless, minimalist interface for deep narrative i
 
 ### Core Tenets
 
-- **Atmospheric Canvas**: The "Chalk Regime" aesthetic focuses visual weight strictly on narrative and imagination.
+- **Atmospheric Canvas**: The aesthetic focuses visual weight strictly on narrative and imagination.
 - **Agentic Pacing**: Autonomous orchestration of story beats, environmental friction, and state transitions without constant manual prompting.
 - **Local Sovereignty**: Zero-latency, browser-resident memory, where the user's local machine is the absolute host of their reality.
 
@@ -23,7 +23,7 @@ RPGlitch is engineered as a **Local-First Reactive Monolith**, meticulously brid
 
 - **Framework**: Svelte 5 (Runes exclusively). The absolute source of reactive truth (`$state`, `$derived`, `$effect`).
 - **Build Target**: Vite 8 with `vite-plugin-singlefile`. Built explicitly for the **Perchance Two-Panel Paradigm** (a zero-backend, single-HTML file deployment).
-- **Aesthetics**: Tailwind CSS v4 driven by "The Chalk Regime" token registry, prioritizing deep minimalism and immersive micro-motion.
+- **Aesthetics**: Tailwind CSS v4 driven by token registry, prioritizing deep minimalism and immersive micro-motion.
 - **UI Architecture**: Headless components (`bits-ui`) paired with atomic Svelte 5 elements to build dialogs, modals, and sensory layers.
 - **Persistence**: Dexie.js (IndexedDB) for robust local history, memory, and entity states.
 

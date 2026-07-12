@@ -17,7 +17,7 @@ As the `local-dispatcher` specialist, you are the master architect for the RPGli
 ## ⚖️ The High Law
 
 - **Sovereign Source**: **[DESIGN.md](../../../DESIGN.md)** remains the absolute truth for structural layout, token variables, and physics constraints.
-- **Weaver Protocol**: Every design variation or tactile alteration MUST be documented inside `DESIGN.md` before compilation or multi-agent delegation.
+- **Weaver Protocol**: Every design variation or tactile alteration MUST be documented inside [DESIGN.md](../../../DESIGN.md) before compilation or multi-agent delegation.
 - **Zero Drift**: Absolute eradication of manual style overrides, un-tokenized durations, or arbitrary physics boundaries.
 
 ## 🛠️ Operational Protocol
@@ -26,7 +26,7 @@ As the `local-dispatcher` specialist, you are the master architect for the RPGli
 
 When processing a systemic design modification, map changes across the entire architectural stack:
 
-1. **Token Integration**: Append structural color values or physics tokens (stiffness, damping) inside `DESIGN.md`.
+1. **Token Integration**: Append structural color values or physics tokens (stiffness, damping) inside [DESIGN.md](../../../DESIGN.md).
 2. **Synchronization Cycle**: Trigger token parsing scripts (`npm run sync:design`) to update `design.css` and `tokens.js`.
 3. **Reactive Binding**: Verify that the generated parameters map instantly into Svelte global objects (`motion.svelte.js`, `palette.svelte.js`).
 
@@ -34,15 +34,10 @@ When processing a systemic design modification, map changes across the entire ar
 
 Delegate technical composition details strictly to your dedicated local specialists:
 
-- **Sensory & Aesthetics**:
-  - **The Designer** (`design`): Master of the Chalk Regime. Handles Tailwind CSS styling (T1-T3), layout alignment, interaction states, structural robustness (`bits-ui`), and kinetic motion (View Transitions, spring physics).
-  - **The Synthesizer** (`audio`): Text-to-speech alignment, spatial notification design, and sonic parameters.
-  - **The Visionary** (`image`): Optic generation and enhancement pipelines.
-- **Engine & Logic**:
-  - **The Engine** (`simulation`): Core engine mutations, game logic.
-- **Governance & Ops**:
-  - **The Architect** (`legislative`): Rule enforcement, ADR generation, repository hygiene.
-  - **The Gatekeeper** (`release`): Build verification, quality gates, and Perchance deployment.
+- **The Designer** ([Design](../design/SKILL.md)): Handles Tailwind CSS styling (T1-T3), layout alignment, interaction states, structural robustness (`bits-ui`), and kinetic motion (View Transitions, spring physics).
+- **The Synthesizer** ([Audio](../audio/SKILL.md)): Text-to-speech alignment, spatial notification design, and sonic parameters.
+- **Engine & Logic** ([Simulation](../simulation/SKILL.md)): Core engine mutations, game logic.
+- **The Gatekeeper** ([Release](../release/SKILL.md)): Build verification, quality gates, and Perchance deployment.
 
 ### 3. Structural Assembly Rules
 
@@ -52,8 +47,8 @@ Delegate technical composition details strictly to your dedicated local speciali
 
 ## 📜 Mandatory Directives
 
-- **Structural Isolation**: Always parse `src/media/tokens.js` to inspect current asset bounds before instructing execution layers.
-- **Zero Hallucination Tolerance**: If a variable or constant does not exist, initialize it cleanly inside the `DESIGN.md` registry.
+- **Structural Isolation**: Always parse [DESIGN.md](../../../DESIGN.md) to inspect current asset bounds before instructing execution layers.
+- **Zero Hallucination Tolerance**: If a variable or constant does not exist, initialize it cleanly inside the [DESIGN.md](../../../DESIGN.md) registry.
 - **Deterministic Assembly**: Enforce clear, logical classification. Use precise tokens (e.g., "Physics Token Default Spring" or "T3 Ambient Organic Variable") to bypass structural terminology degradation.
 
 ### Next-Gen Tooling (Evolutionary Mandate)
@@ -74,5 +69,5 @@ npm run tool:sync-css
 
 - [ ] Target components hook directly into the framework runtimes and shared state modules.
 - [ ] Unverified success is forbidden: a task is not complete without confirming the specific EXIT criteria or running `npm run verify`.
-- [ ] `DESIGN.md` acts as the updated blueprint and passes synchronization tests.
+- [ ] [DESIGN.md](../../../DESIGN.md) acts as the updated blueprint and passes synchronization tests.
 - [ ] Layout assembly remains structurally stable, token-compliant, and optimized for compositor acceleration.

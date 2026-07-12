@@ -6,7 +6,6 @@
    * 1. Generates a randomized "cinematic" title- [x] Phase 3: Quality Gate Refinement (Allow 0, 100%)
    * - [/] Phase 4: Final Verification & Interaction Pass-through
    * 2. Supports direct editing via contenteditable.
-   * 3. Harmonized with Chalk Regime and Chess Grid.
    */
   import { tooltip } from "@atoms";
   import { pickRandom } from "@engine";
@@ -157,7 +156,7 @@
 >
   {#if is_custom}
     <span
-      class="[text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]"
+      class="text-shadow-[0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]"
       >{custom_title}</span
     >
   {:else}
@@ -181,7 +180,7 @@
           px-2
           font-['Satisfy',cursive]
           whitespace-normal
-          [text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]
+          text-shadow-[0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]
         ">{part.text}</span
         >
       {/if}

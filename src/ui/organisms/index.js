@@ -8,3 +8,4 @@ export { default as CardHand } from "./CardHand.svelte";
 export { default as Layout } from "./Layout.svelte";
 export { default as ProfileHeader } from "./ProfileHeader.svelte";
 export * from "./profile.svelte.js";
+export { ProfileState } from "./profile.svelte.js";

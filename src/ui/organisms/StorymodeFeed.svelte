@@ -5,7 +5,7 @@
    * Logic:
    * 1. Renders the sequential story log entries.
    * 2. Manages auto-scroll and turn-state visualization.
-   * 3. Integrated with Nordic Collection & Chess Grid.
+   * 3. Integrated with design language & Chess Grid.
    * 4. Progressive sentence-by-sentence text-to-speech parsing with cognition shield filters.
    */
   import { tick } from "svelte";

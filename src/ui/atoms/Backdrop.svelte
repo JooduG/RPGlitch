@@ -67,7 +67,7 @@
     : ''}
     {className}"
   style:z-index={z_index}
-  style:animation={is_profile && is_blurred ? "backdrop-blur-in var(--duration-slow, 500ms) var(--ease-standard, ease) both" : undefined}
+  style:view-transition-name={is_profile ? "profile-backdrop" : undefined}
   transition:backdropTransition
   use:use_actions={actions}
 >

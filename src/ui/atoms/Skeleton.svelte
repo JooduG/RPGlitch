@@ -2,7 +2,7 @@
   /**
    * @file Skeleton.svelte
    * 🕹️ SOTA ATOMIC SKELETON
-   * A high-fidelity placeholder component designed for the Chalk Regime.
+   * A high-fidelity placeholder component.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
   import { use_actions } from "@actions";

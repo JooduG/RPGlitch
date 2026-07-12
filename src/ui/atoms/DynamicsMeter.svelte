@@ -7,7 +7,7 @@
    */
   import { Button, tooltip } from "@atoms";
   import { Meter } from "bits-ui";
-  import { clamp } from "@engine/utils.js";
+  import { clamp } from "@engine";
 
   /**
    * @typedef {Object} Props

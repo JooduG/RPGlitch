@@ -52,7 +52,7 @@ const forge = (name, type = "atoms") => {
 
 <style>
   .${componentName.toLowerCase()} {
-    /* Chalk Regime Tokens Here */
+    /* Tokens Here */
   }
 </style>`;
 

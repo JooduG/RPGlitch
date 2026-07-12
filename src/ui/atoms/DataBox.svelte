@@ -3,7 +3,7 @@
    * @file src/ui/devmode/DataBox.svelte
    * 📦 DATABOX ATOM
    * A standardized frosted container for informational blocks.
-   * Part of the RPGlitch "Chalk Regime" UI collection.
+   * Part of the RPGlitch UI collection.
    */
 
   import { ScrollArea } from "@atoms";

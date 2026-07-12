@@ -2,7 +2,7 @@
   /**
    * @file src/ui/atoms/ScrollArea.svelte
    * 📜 THE ATOMIC SCROLLAREA
-   * Custom scroll container powered by bits-ui/ScrollArea & Chalk Regime design tokens.
+   * Custom scroll container powered by bits-ui/ScrollArea & design tokens.
    */
   import { ScrollArea } from "bits-ui";
 

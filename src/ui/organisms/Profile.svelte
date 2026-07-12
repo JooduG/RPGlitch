@@ -2,17 +2,16 @@
   /**
    * @file src/ui/organisms/Profile.svelte
    * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
-   * Chalk Regime UI · Flat DOM · Bolted Architecture
+   * Flat DOM · Bolted Architecture
    */
   import { auto_resize, click_outside } from "@actions";
   import { Button, Modal, ProfilePicture, TextField, tooltip } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
-  import { ProfileArray, ProfileHeader } from "@organisms";
+  import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
   import { app, runtime } from "@state";
   import { fade } from "svelte/transition";
-  import { ProfileState } from "./profile.svelte.js";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -175,7 +174,8 @@
       target.closest("[data-dropdown-menu]") ||
       target.closest(".dropdown-portal-wrapper") ||
       target.closest(".tooltip-portal") ||
-      target.closest("[data-modal-variant='lightbox']")
+      target.closest("[data-modal-variant='lightbox']") ||
+      target.closest("[data-modal-backdrop='lightbox']")
     )
       return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;

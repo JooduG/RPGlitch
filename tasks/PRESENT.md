@@ -9,7 +9,7 @@ This document describes the current distance between the existing engine state a
 
 ### Core Vision
 
-- [x] **Atmospheric Canvas**: Nordic Collection is fully implemented and styled using Chalk Regime tokens.
+- [x] **Atmospheric Canvas**: Fully implemented and styled using tokens.
 - [x] **Agentic Pacing**: Chrono engine turn loop is fully wired, unified, and integrated with the UI console.
 - [x] **Local Sovereignty**: Dexie.js upgraded to Version 12, pruning all speculative, unused data properties and enforcing Twin-Cylinder schema structures.
 

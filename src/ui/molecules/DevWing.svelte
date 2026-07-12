@@ -3,7 +3,7 @@
    * @file src/ui/devmode/DevWing.svelte
    * DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
-   * Part of the RPGlitch "Chalk Regime" UI collection.
+   * Part of the RPGlitch UI.
    */
   import { DataBox, DynamicsMeter } from "@atoms";
   import { DYNAMICS_META } from "@intelligence";

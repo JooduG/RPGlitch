@@ -3,7 +3,7 @@
    * @file UnifiedConsole.svelte
    * 🎛️ THE SOVEREIGN CORE CONSOLE
    * Polymorphic command control system merging GlassPill, StoryboardPill, ControlPanel, and InputBar.
-   * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
+   * Standard: Ultra-Lean DOM
    */
   import { tick } from "svelte";
   import { click_outside } from "@actions";
@@ -255,7 +255,9 @@
         (target.closest(".menu") ||
           target.closest("[data-dropdown-menu]") ||
           target.closest(".dropdown-portal-wrapper") ||
-          target.closest(".tooltip-portal"))
+          target.closest(".tooltip-portal") ||
+          target.closest("[data-backdrop]") ||
+          target.closest("[data-modal-variant]"))
       ) {
         return;
       }

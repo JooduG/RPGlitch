@@ -2,7 +2,7 @@
   /**
    * @file Message.svelte
    * ❄️ THE SIMULATION MESSAGE
-   * Renders parsed messages in a Unified Nordic Chassis.
+   * Renders parsed messages in a Unified Chassis.
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
@@ -10,7 +10,6 @@
   import { Typewriter } from "@motion";
   import { app, runtime } from "@state";
   import { Chrono } from "@engine";
-
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
   import { safe_html } from "@utils";

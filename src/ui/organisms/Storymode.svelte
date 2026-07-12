@@ -4,7 +4,7 @@
    * THE MAIN STAGE
    * Container for the active game session, simulation log, and side panels.
    * Refactored: Mariana Trench SOTA Refactor
-   * Standard: Ultra-Lean DOM & Chalk Regime Enforcement
+   * Standard: Ultra-Lean DOM
    */
   import { ProfilePicture, Skeleton, tooltip } from "@atoms";
   import { get_signature_color } from "@media";

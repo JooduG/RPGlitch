@@ -39,7 +39,7 @@
       tooltip_state.text = text;
       tooltip_state.target = target;
       tooltip_state.active = true;
-    }, 400); // Standard Nordic response (400ms)
+    }, 400); // Standard response (400ms)
   }
 
   /**

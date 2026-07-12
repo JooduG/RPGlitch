@@ -12,7 +12,7 @@
  */
 
 import { session_driver } from "@engine";
-import { prompt_builder } from "./prompts.js";
+import { prompt_builder } from "@intelligence";
 import { llm_service } from "@platform";
 import { simulation_log as log_store } from "@state";
 

@@ -1,12 +1,12 @@
 # RPGlitch Specification & Simulation Engine Rules
 
-This document outlines the RPGlitch-specific architecture, simulation rules, design aesthetics (Chalk Regime), lexicon definitions, and memory paradigms. It serves as the project's sovereign technical blueprint, complementing the [global GEMINI.md](file:///C:/Users/johng/.gemini/GEMINI.md).
+This document outlines the RPGlitch-specific architecture, simulation rules, design aesthetics, lexicon definitions, and memory paradigms. It serves as the project's sovereign technical blueprint, complementing the [global GEMINI.md](file:///C:/Users/johng/.gemini/GEMINI.md).
 
 ---
 
 ## ⚔️ Sovereign Axiomatic Laws
 
-> **The Unified Persona**: I am the Sovereign Engine of RPGlitch. I orchestrate the convergence of state and story, enforcing Svelte 5 purity and the laws of the Chalk Regime to ensure high-fidelity immersion. The User is the Protagonist; I am the Physics.
+> **The Unified Persona**: I am the Sovereign Engine of RPGlitch. I orchestrate the convergence of state and story, enforcing Svelte 5 purity and Design laws to ensure high-fidelity immersion. The User is the Protagonist; I am the Physics.
 
 ---
 
@@ -42,13 +42,13 @@ The Simulation Cycle is the overarching heartbeat of the engine—a complete seq
 
 RPGlitch is a high-fidelity roleplay engine designed for immersive, local-first storytelling.
 
-- **High-Fidelity Immersion**: Minimalist "Chalk Regime" aesthetics defined in the [Aesthetics](#04-aesthetics) rule ensure imagination remains central.
+- **High-Fidelity Immersion**: Minimalist aesthetics defined in the [Aesthetics](#04-aesthetics) rule ensure imagination remains central.
 - **Agentic Automation**: The Intelligence Kernel autonomously manages complex state and narrative transitions.
 - **Recursive Intelligence**: Logic is a pillar. The [Engine](./src/engine) orchestrates input, Security enforces physics, and [Data](./src/data) ensures memory.
 
 ##### Strategic Objectives
 
-- **Atmospheric Immersion**: The UI is an atmospheric canvas. Information is embedded within the fiction using Chalk Regime tokens.
+- **Atmospheric Immersion**: The UI is an atmospheric canvas. Information is embedded within the fiction using tokens.
 - **Procedural Pacing**: Encourages concise, procedural story arcs over monolithic chat logs.
 - **Character Cycling**: Designed for frequent perspective swapping within the simulation.
 
@@ -188,11 +188,11 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [Data](./src/data): Persistence (Dexie) & Entity Repositories.
   - [State](./src/state): Reactive Runes (`$state`).
   - [UI](./src/ui): Atomic Design (Svelte 5 components).
-  - [Media](./src/media): Internal Sensory Assets, and the Chalk Regime (Tokens, Global Styles).
+  - [Media](./src/media): Internal Sensory Assets.
 - **Skills** directory (`.agents/skills/`) for infrastructural expertise:
   - [Skill Router](./.agents/skills/local-dispatcher/SKILL.md): Local Skill Routing & Domain Orchestration.
   - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
-  - [Design](./.agents/skills/design/SKILL.md): The Chalk Regime, UI, Motion, and Tailwind Aesthetics.
+  - [Design](./.agents/skills/design/SKILL.md): UI, Motion, and Tailwind Aesthetics.
   - [Security](file:///C:/Users/johng/.gemini/config/skills/security/SKILL.md): Adversarial Audit & Security.
 
 ---
@@ -227,7 +227,7 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 1. **Task Tracking**: Ensure the [FUTURE.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/FUTURE.md) is initialized and anchored to [ETERNAL.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/ETERNAL.md).
 2. **Logic & Tools**: Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions.
-3. **Aesthetic Polish**: Apply **The Chalk Regime** from `DESIGN.md` CSS variables and UI layout rules.
+3. **Aesthetic Polish**: Apply `DESIGN.md` CSS variables and UI layout rules.
 4. **State Persistence**: Anchor dynamic state and memory structures.
 
 ---
@@ -251,7 +251,7 @@ To prevent circular dependencies and architectural collapse, RPGlitch adheres to
 - **`src/engine`**: The physical logic layer. Handles chronological progression (Rounds/Turns), turn orchestration, sanitization pipelines, physics calculations, and procedural state mutations. **Pure JS only**.
 - **`src/intelligence`**: The AI Kernel (Prompts, Context Broker, LLM interface). Responsible for bridging the gap between narrative intent, memories (RAG), and the LLM execution pipeline.
 - **`src/data`**: The persistence layer. Exclusively handles IndexedDB (`Dexie.js`) interactions, entity schemas, and normalized data repositories.
-- **`src/media`**: Internal sensory assets, visual synthesis pipelines (image generation parameters), and the aesthetic Chalk Regime token configuration.
+- **`src/media`**: Internal sensory assets, visual synthesis pipelines (image generation parameters), and the aesthetic token configuration.
 - **`src/platform`**: External integrations, environmental APIs (Perchance iframe bridges, WebSockets), and raw DOM safety protocols (`DOMPurify`).
 
 ##### 7.2 Import Boundaries (The Flow of Truth)

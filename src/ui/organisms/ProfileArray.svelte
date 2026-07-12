@@ -3,7 +3,7 @@
    * @file src/ui/profile/ProfileArray.svelte
    * THE VECTOR ARRAY INSTRUMENT
    * A high-fidelity list orchestrator for entity characteristics.
-   * Part of the RPGlitch "Chalk Regime" UI collection.
+   * Part of the RPGlitch UI.
    */
   import { Button, TextField, tooltip } from "@atoms";
 

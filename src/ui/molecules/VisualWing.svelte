@@ -3,7 +3,7 @@
    * @file src/ui/profile/VisualWing.svelte
    * ❄️ THE ENTITY SHOWCASE ENGINE
    * Manages signature colors, generation prompts, and image modifiers.
-   * Part of the RPGlitch "Chalk Regime" UI collection.
+   * Part of the RPGlitch UI.
    */
   import { Button, TextField, Toggle, NumberField, tooltip } from "@atoms";
   import { prompt_builder, strip_cognition_blocks } from "@intelligence";
@@ -189,6 +189,7 @@
       if (payload?.url) {
         profileState.char.profile_picture = payload.url;
         if (payload.metadata?.negativePrompt !== undefined) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
+        if (payload.metadata?.seed !== undefined) profileState.char.modifiers.profile_picture_seed = payload.metadata.seed;
       }
     } catch (err) {
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
@@ -258,10 +259,10 @@
           transition-all
           duration-(--duration-fast)
           ease-(--motion-dissolve)
-          has-[:not(:disabled)]:hover:z-20
-          has-[:not(:disabled)]:hover:shadow-standard
-          has-[:not(:disabled)]:hover:brightness-125
-          has-[:not(:disabled)]:active:scale-[0.96]
+          has-not-disabled:hover:z-20
+          has-not-disabled:hover:shadow-standard
+          has-not-disabled:hover:brightness-125
+          has-not-disabled:active:scale-[0.96]
           {current_label === name
           ? `
             z-25
@@ -506,7 +507,7 @@
       <NumberField
         id="seed-input"
         bind:value={profileState.char.modifiers.profile_picture_seed}
-        disabled={!profileState.is_editing}
+        disabled={!profileState.is_editing || is_prompt_busy}
         oninput={() => (profileState._user_mutated = true)}
         placeholder="Seed"
         class="w-full"

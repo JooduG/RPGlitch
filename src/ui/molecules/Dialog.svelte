@@ -3,7 +3,7 @@
    * @file Dialog.svelte
    * 🛡️ THE UNIFIED SYSTEM DIALOG
    * Standardizes Alert and Confirm into a single bits-ui/AlertDialog primitive.
-   * Svelte 5 runes · Chalk Regime · Fully accessible.
+   * Svelte 5 runes · Fully accessible.
    */
   import { Backdrop, Button } from "@atoms";
   import { resolve_ms, resolve_px } from "@utils";

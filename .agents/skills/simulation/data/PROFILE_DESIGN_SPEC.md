@@ -2,7 +2,7 @@
 
 ## 1. Overview
 
-The **Entity Profile** serves as the central hub for defining, managing, and visualizing Characters and Fractals within the RPGlitch simulation engine. It bridges the gap between raw data (The Echo) and the user's sensory experience (The State), presenting complex temporal and physical attributes in an intuitive, immersive interface aligned with the Chalk Regime aesthetics.
+The **Entity Profile** serves as the central hub for defining, managing, and visualizing Characters and Fractals within the RPGlitch simulation engine. It bridges the gap between raw data (The Echo) and the user's sensory experience (The State), presenting complex temporal and physical attributes in an intuitive, immersive interface aligned with the aesthetics.
 
 This specification outlines the data structure and the specific capabilities available across the profile's different operational modes.
 

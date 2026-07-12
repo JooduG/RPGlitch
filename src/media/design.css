@@ -674,7 +674,7 @@
   animation-timing-function: var(--ease-standard);
 }
 
-/* --- 3D Profile Flip Transition (Nordic Collection) --- */
+/* --- 3D Profile Flip Transition --- */
 
 /* Elevate active transition groups above inactive bystander cards */
 :root.is-profile-opening-ai::view-transition-group(card-slot-ai),
@@ -864,7 +864,37 @@ div[class*="profile-header"] input,
   line-height: inherit !important;
 }
 
-/* --- BACKDROP BLUR ANIMATION (Profile Modal) --- */
+/* --- PROFILE BACKDROP — View Transition Group Rules --- */
+/* The profile backdrop is given view-transition-name="profile-backdrop" in Backdrop.svelte. */
+/* This gives the browser its own group to morph it independently, in perfect sync            */
+/* with the card flip, driven by the same startViewTransition() call. No separate CSS         */
+/* animation is needed — the VT API cross-fades the snapshots using backdrop-blur-in.        */
+
+::view-transition-group(profile-backdrop) {
+  animation-duration: var(--duration-slow);
+  animation-timing-function: var(--ease-standard);
+}
+
+/* Opening: the "old" state is no backdrop (none), the "new" state is blurred. */
+:root[class*="is-profile-opening-"]::view-transition-old(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+  animation-direction: reverse;
+}
+
+:root[class*="is-profile-opening-"]::view-transition-new(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+}
+
+/* Closing: the "old" state is blurred, the "new" state is no backdrop (none). */
+:root[class*="is-profile-closing-"]::view-transition-old(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+}
+
+:root[class*="is-profile-closing-"]::view-transition-new(profile-backdrop) {
+  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
+  animation-direction: reverse;
+}
+
 @keyframes backdrop-blur-in {
   from {
     backdrop-filter: blur(0) brightness(1) saturate(1);

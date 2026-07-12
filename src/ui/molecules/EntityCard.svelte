@@ -3,7 +3,7 @@
    * @file EntityCard.svelte
    * ðŸƒ THE UNIFIED TAROT
    * Highly flexible consolidated card component supporting drawer library and storyboard slot/panel variants.
-   * Standard: Ultra-Lean DOM, Svelte 5 `$props`, and Chalk Regime Enforcement.
+   * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
   import { Button, ProfilePicture, tooltip } from "@atoms";
