@@ -38,7 +38,13 @@
           overflow-hidden
         "
         style:--signature-color={signature_color}
-        style:view-transition-name={app.profile_open && app.editing_entity?.id === entity?.id ? undefined : "entity-morph-ai"}
+        style:view-transition-name={app.profile_open
+          ? undefined
+          : app.transitioning_profile
+            ? app.transition_target_id === entity?.id
+              ? "entity-morph-ai"
+              : undefined
+            : "entity-morph-ai"}
       >
         <button
           class="
@@ -127,7 +133,13 @@
           overflow-hidden
         "
         style:--signature-color={signature_color}
-        style:view-transition-name={app.profile_open && app.editing_entity?.id === entity?.id ? undefined : "entity-morph-user"}
+        style:view-transition-name={app.profile_open
+          ? undefined
+          : app.transitioning_profile
+            ? app.transition_target_id === entity?.id
+              ? "entity-morph-user"
+              : undefined
+            : "entity-morph-user"}
       >
         <button
           class="

@@ -40,15 +40,12 @@
    * @returns {import('svelte/transition').TransitionConfig}
    */
   function profileTransition(_node) {
-    const duration = 500;
+    // Return a dummy transition. Svelte won't interpolate CSS, which allows
+    // the View Transition API to capture the fully blurred backdrop instantly
+    // and naturally crossfade it, preventing the 300ms "snap" when VT ends.
     return {
-      duration,
-      easing: cubicOut,
-      css: (t) => `
-        backdrop-filter: blur(${t * 16}px) brightness(${1 - t * 0.1}) saturate(${1 - t * 0.6});
-        background: radial-gradient(circle at center, rgb(22 36 59 / ${t * 0.3}), rgb(0 0 0 / ${t * 0.3}));
-        opacity: 1;
-      `,
+      duration: 0,
+      css: () => "",
     };
   }
 
