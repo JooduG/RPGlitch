@@ -131,6 +131,8 @@ Before signing off on any prompt architecture refactor or rendering modification
 3. **Macro Uniformity**: Confirm that player strings are successfully intercepted and remapped via `parse_macros` (`{{me}}`, `{{you}}`, `{{fractal}}`) depending on the resolving entity's role.
 4. **Asset Tracking Verification**: Confirm that all new data tokens allocated for rendering pipeline parameters explicitly include a programmatic negative filter to enforce the monochrome-cold style schema.
 5. **Test Suite Invariants**: Ensure the system handles all `Vitest` structural errors gracefully, triggering a robust `STABILITY_LOCK` directive if structural formatting counts indicate consecutive token degradation.
+6. **Reasoning Verification**: For complex engine transitions or prompt overrides, leverage `mcp-sequentialthinking-tools` to map, evaluate, and trace sequential thought steps before modifying the engine.
+7. **Svelte Verification**: Use the `svelte` MCP server to cross-reference Svelte 5 runes implementations during code changes in the intelligence and prompt state layers.
 
 ---
 

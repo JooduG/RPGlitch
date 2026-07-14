@@ -52,7 +52,7 @@
     [-webkit-tap-highlight-color:transparent]
 
     {is_pass_through ? 'pointer-events-none' : 'pointer-events-auto'}
-    {is_blurred && !is_profile
+    {is_blurred
     ? `
       backdrop-blur-lg
       backdrop-brightness-90

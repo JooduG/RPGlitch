@@ -81,6 +81,10 @@ The `design` skill maintains several scripts for token integrity:
 - `audit-design.js` / `audit-google-design.js`: Token validation.
 - `audit-svelte.js`: Validates component structures.
 
+### Visual & Browser Audit
+
+- **Visual Verification**: Proactively use the `chrome-devtools` MCP server to inspect active page states, evaluate CSS variables, capture screen configurations, and perform audits on Svelte components under dynamic states to ensure visual accuracy and zero bleed.
+
 ### Mandatory Directives
 
 - **Zero Jitter**: Animate only compositor properties (`transform`, `opacity`). Never animate `height` or `width`.
@@ -99,6 +103,7 @@ The `design` skill maintains several scripts for token integrity:
 - [ ] CLS verified at < 0.1 for all state transitions.
 - [ ] Interaction locking prevents input during busy states.
 - [ ] Audits passed with zero violations.
+- [ ] Visual design verified via `chrome-devtools` screenshot captures or browser inspection (where applicable).
 
 ---
 

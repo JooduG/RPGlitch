@@ -40,7 +40,7 @@ skills:
     provenance: C:/Users/johng/.gemini/config/skills/provenance/SKILL.md
 
   delivery_and_workflow:
-    release: .agents/skills/release/SKILL.md
+    perchance-deployment: .agents/skills/perchance-deployment/SKILL.md
     git: C:/Users/johng/.gemini/config/skills/git/SKILL.md
 
 # ⚡ Workflows (Standard Operating Procedures)
@@ -59,7 +59,6 @@ workflows:
     refactor: C:/Users/johng/.gemini/config/global_workflows/refactor.md
     revert: C:/Users/johng/.gemini/config/global_workflows/revert.md
     test: C:/Users/johng/.gemini/config/global_workflows/test.md
-    classify: C:/Users/johng/.gemini/config/global_workflows/classify.md
 
   reminders:
     continue: C:/Users/johng/.gemini/config/global_workflows/continue.md

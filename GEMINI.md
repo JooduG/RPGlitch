@@ -190,10 +190,15 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [UI](./src/ui): Atomic Design (Svelte 5 components).
   - [Media](./src/media): Internal Sensory Assets.
 - **Skills** directory (`.agents/skills/`) for infrastructural expertise:
-  - [Skill Router](./.agents/skills/local-dispatcher/SKILL.md): Local Skill Routing & Domain Orchestration.
+  - [Local Development Scripts](./.agents/skills/local-scripts/SKILL.md): Local Scripts.
   - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
   - [Design](./.agents/skills/design/SKILL.md): UI, Motion, and Tailwind Aesthetics.
   - [Security](file:///C:/Users/johng/.gemini/config/skills/security/SKILL.md): Adversarial Audit & Security.
+- **MCP Server Ecosystem**: Leverage specialized workspace-integrated model context protocol (MCP) servers for autonomous tasks:
+  - `chrome-devtools`: Headless browser automation, UI testing, console audits, and screenshots.
+  - `firecrawl-mcp`: Web research, data extraction, scraping, and real-time documentation retrieval.
+  - `mcp-sequentialthinking-tools`: Multi-step debugging, dynamic course correction, and planning scratchpads.
+  - `svelte`: Official Svelte 5 logic and code verification.
 
 ---
 
@@ -290,6 +295,16 @@ To maintain consistency in asynchronous chains, use standardized verbs for initi
 - **`sync`**: Reconciling the reactive state with the database, ensuring both layers reflect the same truth (often used before turn generation).
 - **`refresh`**: Triggering an imperative UI or state recalculation when `$derived` runes are insufficient (avoid if possible).
 - **`boot`**: The global application startup sequence (`engine/boot.js`).
+
+---
+
+#### 8. The Local Development Protocols
+
+To maintain absolute sync between logic, persistence, and aesthetics, the protocol acts as the central connective tissue for RPGlitch.
+
+- **Centralized Logic**: To orchestrate token distributions (syncing `DESIGN.md` CSS vars with Svelte logic) and physics limits.
+- **Trigger**: Run `npm run sync:design` after any modifications to `DESIGN.md` or core constraints to guarantee coherence across the `.svelte` components and memory structures.
+- **Utility Scripts**: All operational scripts that support the Weaver Protocol (e.g., automated synchronizers, schema validators) are located in `.agents/skills/local-scripts/scripts`. Use the `local-scripts` agent skill exclusively to retrieve and execute these tools.
 
 ---
 
