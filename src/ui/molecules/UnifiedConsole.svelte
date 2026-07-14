@@ -38,12 +38,12 @@
 
   // --- ACCORDION SECTIONS STATE ---
   let open_sections = $state({
-    audio: true,
+    audio: false,
     storyboard: false,
     storymode: false,
     library: false,
-    style: true,
-    advanced: true,
+    style: false,
+    advanced: false,
   });
 
   const author_options = Object.values(NARRATIVE_STYLES)
@@ -170,14 +170,12 @@
           fractal: app.selected_fractal || { id: "dev_fractal", name: "Dev Fractal" },
         };
         motion.intensity = 0.4;
-        app.set_view("storymode");
         await Chrono.start(selection);
         refresh_stories();
         return;
       }
       if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
       motion.intensity = 0.4;
-      app.set_view("storymode");
       await Chrono.start({
         ai: app.selected_ai,
         user: app.selected_user,

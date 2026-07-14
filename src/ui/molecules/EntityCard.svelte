@@ -1,7 +1,7 @@
 <script>
   /**
    * @file EntityCard.svelte
-   * ðŸƒ THE UNIFIED TAROT
+   * THE UNIFIED CARD
    * Highly flexible consolidated card component supporting drawer library and storyboard slot/panel variants.
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */

@@ -57,6 +57,13 @@ Before writing any UI code, you MUST fetch the current state of the bridge:
 - **Stable Fields**: Use `min-height` derived from `spacing` tokens to prevent collapse.
 - **Boundary Control**: Use `max-height` and `overflow-y: auto` with `.no-scrollbar`.
 
+#### Warning & Confirmation Modal Standards
+
+- For small warning, deletion, or action confirmation modals (e.g., "delete all?"):
+  - **Header Title**: Left-aligned (`text-left`).
+  - **Body Description**: Left-aligned (`text-left`).
+  - **Footer Actions/Buttons**: Right-aligned (`flex justify-end gap-2`).
+
 ### 4. Interactive Feedback & Busy States
 
 - **Interaction Locking**: Disable input, set `cursor: wait`, and apply `opacity: var(--opacity-whisper)` during busy states.
@@ -69,6 +76,14 @@ See `data/interaction-audit.md` for specific hover/active state standards.
 - **Hover**: Standard is `hover:brightness-125`.
 - **Active / Press**: Discrete click uses `active:scale-[0.96]`. Continuous drag uses `active:scale-[1.1]`. Add `transform` to transition list.
 - **View Transitions**: Use the Native View Transitions API (`document.startViewTransition`) for macro transitions instead of heavy node-cloning.
+
+#### Transition Synchronization Rules (Svelte vs View Transitions)
+
+- **No Dual Animations**: Never declare `view-transition-name` on an element that also runs a Svelte transition directive (`transition:`, `in:`, `out:`). The browser's View Transition snapshots and Svelte's transition keyframes run on separate timelines. When they fight over properties (like opacity or backdrop-filter), it produces a visual flicker or snap at the end of the transition.
+- **Backdrop & Overlay Animating**: For background overlays and backdrops (like profile modal backdrops):
+  - Do not use a separate `view-transition-name`. Keep the backdrop within the root view transition group.
+  - Animate the entrance/exit using a Svelte CSS transition (`transition:backdropTransition` using `css: (t) => ...` callback) directly on the live element.
+  - **Unconditional Classes**: Ensure final styling classes (e.g. Tailwind `backdrop-blur-lg` or radial background gradients) are applied unconditionally. Svelte overrides these properties during keyframe execution, and when the keyframes end and are removed, the static classes seamlessly maintain the end-state with zero snap.
 
 ---
 

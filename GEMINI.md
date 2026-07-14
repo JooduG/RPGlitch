@@ -326,6 +326,18 @@ We operate within the **Nordic Collection**.
 - **Token Sovereignty**: Derive physics from the Token Registry. However, **Tailwind v4 IDE IntelliSense is the absolute source of truth** for syntax. Never fight the IDE's shorthand suggestions.
 - **The Weaver Protocol**: Any change to the aesthetic must first be recorded in `DESIGN.md` and then synchronized via `npm run sync:design`.
 
+#### 📐 III. Transition Synchronization Rules
+
+- Never assign `view-transition-name` to elements that concurrently execute Svelte transition directives (`transition:`, `in:`, `out:`). This dual-engine setup causes visual snapping/flicker upon transition completion.
+- For animated backdrops/overlays, animate the live element via Svelte CSS transitions, keep the element inside the root transition group, and apply static layout/blur classes unconditionally so they take over seamlessly when Svelte's animation keyframes terminate.
+
+#### 📐 IV. Action Confirmation Modal Alignment Standards
+
+- All confirmation, warning, or action verification dialogs of compact size must follow these alignment specifications:
+  - Header / Title: Left-aligned
+  - Body Description: Left-aligned
+  - Footer Action Buttons: Right-aligned
+
 ---
 
 ## 📖 The RPGlitch Lexicon

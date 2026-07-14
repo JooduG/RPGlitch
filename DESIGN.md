@@ -860,11 +860,13 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     filter: drop-shadow(0 0 0 transparent);
     opacity: 1;
   }
+
   49.9% {
     transform: perspective(1200px) rotateY(90deg);
     filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
     opacity: 1;
   }
+
   50%,
   100% {
     transform: perspective(1200px) rotateY(90deg);
@@ -880,11 +882,13 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     filter: none;
     opacity: 0;
   }
+
   50.1% {
     transform: perspective(1200px) rotateY(-90deg);
     filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
     opacity: 1;
   }
+
   100% {
     transform: perspective(1200px) rotateY(0deg);
     filter: drop-shadow(0 0 0 transparent);
@@ -978,49 +982,6 @@ div[class*="profile-header"] input,
   line-height: inherit !important;
 }
 
-/* --- PROFILE BACKDROP — View Transition Group Rules --- */
-/* The profile backdrop is given view-transition-name="profile-backdrop" in Backdrop.svelte. */
-/* This gives the browser its own group to morph it independently, in perfect sync            */
-/* with the card flip, driven by the same startViewTransition() call. No separate CSS         */
-/* animation is needed — the VT API cross-fades the snapshots using backdrop-blur-in.        */
-
-::view-transition-group(profile-backdrop) {
-  animation-duration: var(--duration-slow);
-  animation-timing-function: var(--ease-standard);
-}
-
-/* Opening: the "old" state is no backdrop (none), the "new" state is blurred. */
-:root[class*="is-profile-opening-"]::view-transition-old(profile-backdrop) {
-  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
-  animation-direction: reverse;
-}
-
-:root[class*="is-profile-opening-"]::view-transition-new(profile-backdrop) {
-  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
-}
-
-/* Closing: the "old" state is blurred, the "new" state is no backdrop (none). */
-:root[class*="is-profile-closing-"]::view-transition-old(profile-backdrop) {
-  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
-}
-
-:root[class*="is-profile-closing-"]::view-transition-new(profile-backdrop) {
-  animation: var(--duration-slow) var(--ease-standard) both backdrop-blur-in;
-  animation-direction: reverse;
-}
-
-@keyframes backdrop-blur-in {
-  from {
-    backdrop-filter: blur(0) brightness(1) saturate(1);
-    background: radial-gradient(circle at center, rgba(22, 36, 59, 0), rgba(0, 0, 0, 0));
-  }
-
-  to {
-    backdrop-filter: blur(16px) brightness(0.9) saturate(0.4);
-    background: radial-gradient(circle at center, rgba(22, 36, 59, 0.3), rgba(0, 0, 0, 0.3));
-  }
-}
-
 /* --- Profile Card Edit-Mode Transitions --- */
 
 /* Main card sliding to the left when wings open */
@@ -1028,6 +989,7 @@ div[class*="profile-header"] input,
   from {
     transform: translateX(33.33%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -1038,6 +1000,7 @@ div[class*="profile-header"] input,
   from {
     transform: translateX(-33.33%);
   }
+
   to {
     transform: translateX(0);
   }
@@ -1049,6 +1012,7 @@ div[class*="profile-header"] input,
     transform: translateX(-220%);
     opacity: 0;
   }
+
   to {
     transform: translateX(0);
     opacity: 1;
@@ -1061,6 +1025,7 @@ div[class*="profile-header"] input,
     transform: translateX(0);
     opacity: 1;
   }
+
   to {
     transform: translateX(-220%);
     opacity: 0;
@@ -1073,6 +1038,7 @@ div[class*="profile-header"] input,
     transform: translateY(-15px);
     opacity: 0;
   }
+
   to {
     transform: translateY(0);
     opacity: 1;

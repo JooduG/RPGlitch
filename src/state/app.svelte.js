@@ -335,8 +335,9 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
-    guardedTransition(() => {
+    guardedTransition(async () => {
       this.view = view;
+      await tick();
     });
   };
   open_card_hand = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
@@ -393,11 +394,12 @@ export class AppStore {
     await tick();
 
     guardedTransition(
-      () => {
+      async () => {
         this.profile_open = isOpening;
         if (entity) {
           this.editing_entity = normalize(entity);
         }
+        await tick();
       },
       { className: isOpening ? `is-profile-opening-${activeType}` : `is-profile-closing-${activeType}` },
     ).finally(() => {
