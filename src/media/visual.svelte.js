@@ -156,7 +156,7 @@ export class VisualEngine {
 
             let timeoutId;
             const timeoutPromise = new Promise((_, reject) => {
-              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 45000);
+              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 90000);
             });
             // Catch rejection on the timeout promise itself to prevent unhandled promise rejection warnings
             timeoutPromise.catch(() => {});

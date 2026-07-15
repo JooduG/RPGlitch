@@ -68,15 +68,19 @@ export class CircuitBreaker {
   /**
    *
    */
-  constructor(options = { failureThreshold: 3, successThreshold: 2, recoveryTimeout: 30000 }) {
+  constructor(options = { failureThreshold: 3, successThreshold: 2, recoveryTimeout: 30000, maxConcurrent: 3 }) {
     this.failureThreshold = options.failureThreshold ?? 3;
     this.successThreshold = options.successThreshold ?? 2;
     this.recoveryTimeout = options.recoveryTimeout ?? 30000; // 30s default
+    this.maxConcurrent = options.maxConcurrent ?? 3;
 
     this.state = "CLOSED"; // CLOSED, OPEN, HALF_OPEN
     this.failureCount = 0;
     this.successCount = 0;
     this.lastFailureTime = 0;
+
+    this.queue = [];
+    this.activeCount = 0;
   }
 
   /**
@@ -109,13 +113,42 @@ export class CircuitBreaker {
       throw new Error("Circuit breaker is OPEN. Service is temporarily unavailable.");
     }
 
+    return new Promise((resolve, reject) => {
+      this.queue.push({ fn, resolve, reject });
+      this._processQueue();
+    });
+  }
+
+  /**
+   * Processes the queue up to the concurrency limit
+   */
+  async _processQueue() {
+    if (this.activeCount >= this.maxConcurrent || this.queue.length === 0) {
+      return;
+    }
+
+    if (this.isOpen) {
+      // If circuit is open, clear queue to prevent backlog execution immediately after recovery
+      while (this.queue.length > 0) {
+        const { reject } = this.queue.shift();
+        reject(new Error("Circuit breaker opened. Dropping queued request."));
+      }
+      return;
+    }
+
+    this.activeCount++;
+    const { fn, resolve, reject } = this.queue.shift();
+
     try {
       const result = await fn();
       this._onSuccess();
-      return result;
+      resolve(result);
     } catch (err) {
       this._onFailure();
-      throw err;
+      reject(err);
+    } finally {
+      this.activeCount--;
+      this._processQueue(); // Process next item
     }
   }
 
