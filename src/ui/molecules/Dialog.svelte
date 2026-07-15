@@ -87,7 +87,6 @@
                     gap-gap-standard
                     overflow-hidden
                     rounded-standard
-                    border
                     bg-glass-elevated
                     p-padding-standard
                     duration-300
@@ -106,7 +105,6 @@
                   style="
                     --dialog-width: 90vw;
 
-                    border-color: color-mix(in_srgb, var(--color-frozen) 10%, transparent);
                     backdrop-filter: var(--blur-mist);
                     transition-property: filter;
                   "
@@ -123,7 +121,7 @@
                     </p>
                   </AlertDialog.Description>
 
-                  <footer class="flex justify-end gap-gap-standard">
+                  <footer class="flex w-full justify-end gap-gap-standard">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
                         <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />

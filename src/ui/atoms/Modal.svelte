@@ -99,7 +99,6 @@
                       overflow-x-hidden
                       overflow-y-auto
                       rounded-xl
-                      border
                       bg-glass-elevated
                       p-4
                       transition-[filter]
