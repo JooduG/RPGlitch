@@ -121,7 +121,7 @@
                     </p>
                   </AlertDialog.Description>
 
-                  <footer class="flex w-full justify-end gap-gap-standard">
+                  <footer class="flex w-full justify-end gap-gap-standard outline-none">
                     <AlertDialog.Action>
                       {#snippet child({ props: actionProps })}
                         <Button {...actionProps} variant={action.variant} onclick={handle_confirm} label={action.label} disabled={busy} />

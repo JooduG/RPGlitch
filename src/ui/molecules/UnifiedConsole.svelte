@@ -320,10 +320,10 @@
                 >
                   <div class="min-h-0 overflow-hidden">
                     <div class="grid grid-cols-1 gap-x-6 gap-y-4 pt-2 pb-4 sm:grid-cols-2">
-                      <Toggle label="CALL MODE" bind:value={app.settings.call_mode} onchange={() => app.save_settings()} />
+                      <Toggle label="USER PERSONA MICROPHONE" bind:value={app.settings.call_mode} onchange={() => app.save_settings()} />
                       <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
                       <Toggle
-                        label="CHARACTER VOICE"
+                        label="AI CHARACTER VOICE"
                         bind:value={Audio.voice_enabled}
                         onchange={() => {
                           if (!Audio.voice_enabled) Audio.voice.stop();

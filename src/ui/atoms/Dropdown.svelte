@@ -59,7 +59,7 @@
       focus-visible:outline-offset-1
       focus-visible:outline-white
 
-      active:scale-[0.96]
+      active:scale-[0.99]
 
       disabled:pointer-events-none
       disabled:cursor-not-allowed

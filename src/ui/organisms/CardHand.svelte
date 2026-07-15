@@ -86,7 +86,7 @@
   async function handle_create_new() {
     const type = card_hand_type === "fractal" ? "fractal" : "character";
     const plan = create_new(type, {
-      name: `New ${card_hand_type ? card_hand_type.toUpperCase() : type.toUpperCase()}`,
+      name: `New ${type === "character" ? "Character" : "Fractal"}`,
     });
 
     try {

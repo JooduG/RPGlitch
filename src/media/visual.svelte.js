@@ -150,6 +150,7 @@ export class VisualEngine {
               negativePrompt: effectiveNegativePrompt,
               seed: effectiveSeed,
               // Map custom resolution parameters directly to the strict string formats expected by Perchance
+              shape: effectiveResolution,
               resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
             });
@@ -318,6 +319,9 @@ export class VisualEngine {
         const captionMatch = refined?.match(/<caption\s+text="([^"]+)"/i) || refined?.match(/<caption>([\s\S]*?)<\/caption>/i);
         caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
       }
+
+      // Add a slight delay to allow the text-engine's API rate-limit lock to clear before hitting the image generation queue
+      await new Promise((r) => setTimeout(r, 2000));
 
       const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
       if (payload && payload.url) {
