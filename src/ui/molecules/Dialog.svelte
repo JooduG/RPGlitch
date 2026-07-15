@@ -113,12 +113,12 @@
                   in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
                   out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
                 >
-                  <AlertDialog.Title class="m-0 p-0">
+                  <AlertDialog.Title class="m-0 p-0 text-left">
                     <h6 class="m-0 uppercase">{title}</h6>
                   </AlertDialog.Title>
 
-                  <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0">
-                    <p class="m-0 text-base leading-relaxed whitespace-pre-wrap text-frisk">
+                  <AlertDialog.Description class="m-0 min-h-0 flex-1 p-0 text-left">
+                    <p class="m-0 text-left text-base leading-relaxed whitespace-pre-wrap text-frisk">
                       {message}
                     </p>
                   </AlertDialog.Description>
