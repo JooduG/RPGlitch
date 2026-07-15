@@ -5,8 +5,9 @@
  */
 import { NARRATIVE_STYLES } from "@data";
 import { ind } from "@engine";
-import { ENTITY_CATALOG, ENTITY_FRAGMENTS, escapeXml, clean_xml, strip_cognition_blocks, temporal_engine } from "@intelligence";
-import { safeParsePseudoJson } from "@media";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
+import { escapeXml, clean_xml, strip_cognition_blocks, safeParsePseudoJson } from "./parser.js";
+import { temporal_engine } from "./temporal.js";
 import { app } from "@state";
 
 // ============================================================================
@@ -361,6 +362,10 @@ function render_memory({ entity, history }) {
         "AI_CHARACTER": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
         "USER_PERSONA": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
         "FRACTAL": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" }
+      },
+      "eternal_mutations": {
+        "AI_CHARACTER": { "physical": "Permanent physical change (e.g. scar) or leave empty", "non_physical": "Permanent psychological shift or leave empty" },
+        "USER_PERSONA": { "physical": "Permanent physical change (e.g. scar) or leave empty", "non_physical": "Permanent psychological shift or leave empty" }
       }
     }
     The "emotional_weight" must be an integer from 1-10 assessing the narrative importance/impact of this memory.

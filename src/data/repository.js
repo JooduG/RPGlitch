@@ -8,10 +8,12 @@
  * @property {string} fractal_name
  * @property {string} signature_color
  */
-import { db, normalize, premade, STORAGE_VERSION } from "@data";
+import { db } from "./db.js";
+import { normalize, STORAGE_VERSION } from "./normalizer.js";
+import { premade } from "./premades.js";
+
 const error = console.error;
-import { premade as localPremade } from "./premades.js";
-const premadeEntityMap = new Map((localPremade?.entities || []).map((e) => [e.id, e]));
+const premadeEntityMap = new Map((premade?.entities || []).map((e) => [e.id, e]));
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
 // ============================================================================

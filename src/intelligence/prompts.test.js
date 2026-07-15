@@ -1,4 +1,4 @@
-import { prompt_builder } from "@intelligence";
+import { prompt_builder } from "./prompts.js";
 import { app } from "@state";
 import { describe, expect, it } from "vitest";
 

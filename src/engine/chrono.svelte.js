@@ -1,6 +1,6 @@
 // ⏳ CHRONO: The Heartbeat of Time
 // Manages the strict turn-based progression of the simulation.
-import { session_driver } from "@engine";
+import { session_driver } from "./session.svelte.js";
 import { gamemaster } from "@intelligence";
 import { Shield } from "@platform";
 import { app, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State

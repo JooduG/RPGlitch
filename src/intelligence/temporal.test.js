@@ -1,4 +1,4 @@
-import { temporal_engine } from "@intelligence";
+import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 

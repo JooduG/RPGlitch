@@ -1,5 +1,5 @@
 import { db } from "@data";
-import { SESSION_ID_KEY } from "@engine";
+import { SESSION_ID_KEY } from "./config.js";
 import { runtime, simulation_log } from "@state";
 
 /**

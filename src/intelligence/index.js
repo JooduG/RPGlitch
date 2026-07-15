@@ -10,6 +10,8 @@ export {
   parse_think_block,
   strip_cognition_blocks,
   wrap_dialogue,
+  safeParsePseudoJson,
+  merge_prose_into_field,
 } from "./parser.js";
 export { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";
 export { temporal_engine } from "./temporal.js";

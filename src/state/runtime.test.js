@@ -1,4 +1,5 @@
-import { app, runtime } from "@state";
+import { runtime } from "./runtime.svelte.js";
+import { app } from "./app.svelte.js";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 
 describe("Narrative Vector System", () => {

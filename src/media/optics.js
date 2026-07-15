@@ -10,61 +10,8 @@ export const NEGATIVE_PROMPT =
   "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
 
 import { LISTS } from "@data";
-import { escapeXml, PROTOCOL_LIBRARY } from "@intelligence";
-import { get_signature_label } from "@media";
-
-/**
- * High-fidelity parser that safely extracts configurations from fields.
- * Gracefully processes rigid JSON, loose unquoted key-value configurations,
- * and automatically falls back to raw text blocks if no clear parameters are detected.
- * @param {string} raw
- * @returns {Record<string, string>}
- */
-export const safeParsePseudoJson = (raw) => {
-  if (!raw) return {};
-  const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
-  if (!cleanRaw) return {};
-
-  // Tier 1: Try parsing standard JSON or braced setups
-  try {
-    let standardFormat = cleanRaw;
-    if (!standardFormat.startsWith("{") && standardFormat.includes(":")) {
-      standardFormat = `{ ${standardFormat.replace(/,\s*$/, "")} }`;
-    }
-    if (standardFormat.startsWith("{")) {
-      const parsed = JSON.parse(standardFormat);
-      if (typeof parsed === "object" && parsed !== null) return parsed;
-    }
-  } catch (_e) {
-    /* Structure is unbraced or fractured */
-  }
-
-  // Tier 2: Process line-by-line configuration if colons exist
-  if (cleanRaw.includes(":")) {
-    const extracted = {};
-    const lines = cleanRaw.split(/[\n,]+/);
-    const propertyRegex = /"([^"]+)"\s*:\s*"([^"]*)"/;
-    const looseRegex = /([^:]+)\s*:\s*([^,]+)/;
-
-    lines.forEach((line) => {
-      let match = line.match(propertyRegex);
-      if (match && match[1]) {
-        extracted[match[1]] = match[2].trim();
-      } else {
-        match = line.match(looseRegex);
-        if (match && match[1]) {
-          const k = match[1].replace(/["']/g, "").trim();
-          const v = match[2].replace(/["']/g, "").trim();
-          if (k && v) extracted[k] = v;
-        }
-      }
-    });
-    if (Object.keys(extracted).length > 0) return extracted;
-  }
-
-  // Tier 3: Complete Fallback — Field holds raw text prose description sentence!
-  return { __raw_prose__: cleanRaw };
-};
+import { escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson } from "@intelligence";
+import { get_signature_label } from "./tokens.js";
 
 /**
  * Safely parses list tokens, gracefully falling back to raw arrays.

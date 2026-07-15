@@ -1,4 +1,4 @@
-import { clean_image_prompts, escapeXml, strip_cognition_blocks, parse_think_block, parse_message, wrap_dialogue } from "@intelligence";
+import { clean_image_prompts, escapeXml, strip_cognition_blocks, parse_think_block, parse_message, wrap_dialogue } from "./parser.js";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {

@@ -6,7 +6,8 @@
 import { generateSecureSeed } from "@utils";
 import { db, entities } from "@data";
 import { strip_cognition_blocks } from "@intelligence";
-import { AestheticResolver, CircuitBreaker, ExponentialBackoffRetryer, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "@media";
+import { AestheticResolver, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "./optics.js";
+import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
 import { llm_service } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
 

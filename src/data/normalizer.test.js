@@ -1,4 +1,12 @@
-import { coerce_temporal_array, create_new, ENTITY_TEMPLATES, format_premade, get_random_signature_key, normalize, STORAGE_VERSION } from "@data";
+import {
+  coerce_temporal_array,
+  create_new,
+  ENTITY_TEMPLATES,
+  format_premade,
+  get_random_signature_key,
+  normalize,
+  STORAGE_VERSION,
+} from "./normalizer.js";
 import { Security } from "@platform";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 

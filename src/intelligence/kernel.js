@@ -16,7 +16,10 @@
  */
 import { db, entities, prune } from "@data";
 import { generateUUID, session_driver } from "@engine";
-import { context_broker, dynamics_engine, prompt_builder, temporal_engine } from "@intelligence";
+import { context_broker } from "./context.svelte.js";
+import { dynamics_engine } from "./dynamics.js";
+import { prompt_builder } from "./prompts.js";
+import { temporal_engine } from "./temporal.js";
 import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
 /**
@@ -362,10 +365,10 @@ export const gamemaster = {
           const { top_p, repetition_penalty, max_tokens, model, onToken, json, signal, silent, raw } = llm_options;
           let temperature = llm_options.temperature || 0.8;
 
-          if (payload.entities.AI?.dynamics?.chaos !== undefined) {
-            const chaos = payload.entities.AI.dynamics.chaos;
-            const chaosOffset = ((chaos - 50) / 50) * 0.1;
-            temperature = Math.max(0.4, Math.min(1.5, temperature + chaosOffset));
+          const rawChaos = payload.entities.AI?.dynamics?.chaos;
+          if (typeof rawChaos === "number" && !isNaN(rawChaos)) {
+            const chaos = Math.max(0, Math.min(100, rawChaos));
+            temperature = 0.4 + chaos * 0.008;
           }
 
           const generated_text = await llm_service.generate(

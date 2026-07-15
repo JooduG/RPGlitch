@@ -21,7 +21,9 @@
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-import { clean_text, ENTITY_CATALOG, temporal_engine } from "@intelligence";
+import { clean_text } from "./parser.js";
+import { ENTITY_CATALOG } from "./fragments.js";
+import { temporal_engine } from "./temporal.js";
 import { app, runtime } from "@state";
 
 const RAW_CACHE = new Map();

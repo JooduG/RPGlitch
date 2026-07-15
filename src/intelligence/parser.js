@@ -215,3 +215,94 @@ export function clean_xml(str) {
   } while (prev !== curr);
   return curr.replace(/\n{3,}/g, "\n");
 }
+
+/**
+ * High-fidelity parser that safely extracts configurations from fields.
+ * Gracefully processes rigid JSON, loose unquoted key-value configurations,
+ * and automatically falls back to raw text blocks if no clear parameters are detected.
+ * @param {string} raw
+ * @returns {Record<string, string>}
+ */
+export const safeParsePseudoJson = (raw) => {
+  if (!raw) return {};
+  const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  if (!cleanRaw) return {};
+
+  // Tier 1: Try parsing standard JSON or braced setups
+  try {
+    let standardFormat = cleanRaw;
+    if (!standardFormat.startsWith("{") && standardFormat.includes(":")) {
+      standardFormat = `{ ${standardFormat.replace(/,\s*$/, "")} }`;
+    }
+    if (standardFormat.startsWith("{")) {
+      const parsed = JSON.parse(standardFormat);
+      if (typeof parsed === "object" && parsed !== null) return parsed;
+    }
+  } catch (_e) {
+    /* Structure is unbraced or fractured */
+  }
+
+  // Tier 2: Process line-by-line configuration if colons exist
+  if (cleanRaw.includes(":")) {
+    const extracted = {};
+    const lines = cleanRaw.split(/[\n,]+/);
+    const propertyRegex = /"([^"]+)"\s*:\s*"([^"]*)"/;
+    const looseRegex = /([^:]+)\s*:\s*([^,]+)/;
+
+    lines.forEach((line) => {
+      let match = line.match(propertyRegex);
+      if (match && match[1]) {
+        extracted[match[1]] = match[2].trim();
+      } else {
+        match = line.match(looseRegex);
+        if (match && match[1]) {
+          const k = match[1].replace(/["']/g, "").trim();
+          const v = match[2].replace(/["']/g, "").trim();
+          if (k && v) extracted[k] = v;
+        }
+      }
+    });
+    if (Object.keys(extracted).length > 0) return extracted;
+  }
+
+  // Tier 3: Complete Fallback — Field holds raw text prose description sentence!
+  return { __raw_prose__: cleanRaw };
+};
+
+/**
+ * Merges raw prose into an existing field (either pseudo-JSON or plain text)
+ * and reserializes it securely without destructive appends.
+ * @param {string} current_field_value - The existing data in the field (e.g. from entity.present.physical)
+ * @param {string} new_prose - The new prose or text to merge in
+ * @returns {string} - The updated field content serialized
+ */
+export const merge_prose_into_field = (current_field_value, new_prose) => {
+  if (!new_prose || !new_prose.trim()) return current_field_value || "";
+
+  const parsed = safeParsePseudoJson(current_field_value);
+  const clean_new_prose = new_prose.trim();
+
+  if (parsed.__raw_prose__) {
+    // If it was already just prose, append it cleanly
+    const existing = parsed.__raw_prose__.trim();
+    if (!existing) return clean_new_prose;
+    return `${existing}\n${clean_new_prose}`;
+  }
+
+  // It's an object / pseudo-JSON. Inject the new prose.
+  // We use a generic key like 'status' or 'condition' to hold unstructured updates.
+  // We'll map it to 'condition' for now or append to an existing string.
+
+  if (parsed.condition) {
+    parsed.condition = `${parsed.condition}, ${clean_new_prose}`;
+  } else {
+    parsed.condition = clean_new_prose;
+  }
+
+  // Reserialize to clean unbracketed format to maintain the pseudo-JSON style
+  const lines = Object.entries(parsed)
+    .map(([k, v]) => `"${k}": "${String(v).replace(/"/g, '\\"')}"`)
+    .join(",\n");
+
+  return lines;
+};

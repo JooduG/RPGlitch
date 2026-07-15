@@ -12,7 +12,8 @@
  */
 
 import { session_driver } from "@engine";
-import { prompt_builder } from "@intelligence";
+import { prompt_builder } from "./prompts.js";
+import { merge_prose_into_field } from "./parser.js";
 import { llm_service } from "@platform";
 import { simulation_log as log_store } from "@state";
 
@@ -225,6 +226,7 @@ export async function forge_memory(target_entity, history_slice, role = "charact
       emotional_weight: memory.emotional_weight ?? 5,
       tags: (memory.vector_tags || memory.tags || []).map((t) => String(t).toLowerCase()),
       present_summaries: memory.present_summaries || null,
+      eternal_mutations: memory.eternal_mutations || null,
       meta: memory.meta || {},
     };
   } catch (err) {
@@ -246,18 +248,14 @@ export function apply_state_mutations(entity, mutations) {
   // 1. Present Append (Physical)
   if (mutations.present_append_physical?.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    const current = entity.present.physical || "";
-    entity.present.physical = current ? `${current}\n${mutations.present_append_physical.trim()}` : mutations.present_append_physical.trim();
+    entity.present.physical = merge_prose_into_field(entity.present.physical, mutations.present_append_physical);
     changed = true;
   }
 
   // 2. Present Append (Non-Physical)
   if (mutations.present_append_non_physical?.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    const current = entity.present.non_physical || "";
-    entity.present.non_physical = current
-      ? `${current}\n${mutations.present_append_non_physical.trim()}`
-      : mutations.present_append_non_physical.trim();
+    entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, mutations.present_append_non_physical);
     changed = true;
   }
 
@@ -352,6 +350,59 @@ export const temporal_engine = {
                 if (summaries.FRACTAL.physical) runtime.active_fractal.present.physical = summaries.FRACTAL.physical;
                 if (summaries.FRACTAL.non_physical) runtime.active_fractal.present.non_physical = summaries.FRACTAL.non_physical;
                 await runtime.update_entity("fractal", runtime.active_fractal.id, { present: runtime.active_fractal.present });
+              }
+            }
+
+            // Apply Eternal Mutations
+            if (memory.eternal_mutations) {
+              const e_muts = memory.eternal_mutations;
+
+              if (e_muts.AI_CHARACTER && runtime.active_ai) {
+                let eternalChanged = false;
+                if (e_muts.AI_CHARACTER.physical) {
+                  runtime.active_ai.eternal.physical = merge_prose_into_field(runtime.active_ai.eternal.physical, e_muts.AI_CHARACTER.physical);
+                  eternalChanged = true;
+                }
+                if (e_muts.AI_CHARACTER.non_physical) {
+                  runtime.active_ai.eternal.non_physical = merge_prose_into_field(
+                    runtime.active_ai.eternal.non_physical,
+                    e_muts.AI_CHARACTER.non_physical,
+                  );
+                  eternalChanged = true;
+                }
+                if (eternalChanged) {
+                  await runtime.update_entity("character", runtime.active_ai.id, { eternal: runtime.active_ai.eternal });
+                  if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
+                }
+              }
+
+              if (e_muts.USER_PERSONA && runtime.active_user) {
+                let eternalChanged = false;
+                if (e_muts.USER_PERSONA.physical) {
+                  runtime.active_user.eternal.physical = merge_prose_into_field(runtime.active_user.eternal.physical, e_muts.USER_PERSONA.physical);
+                  eternalChanged = true;
+                }
+                if (e_muts.USER_PERSONA.non_physical) {
+                  runtime.active_user.eternal.non_physical = merge_prose_into_field(
+                    runtime.active_user.eternal.non_physical,
+                    e_muts.USER_PERSONA.non_physical,
+                  );
+                  eternalChanged = true;
+                }
+                if (eternalChanged) {
+                  await runtime.update_entity("character", runtime.active_user.id, { eternal: runtime.active_user.eternal });
+                  if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
+                }
+              }
+
+              // Only push Memory Vector to AI's past if it was changed or generally just make sure we save the tag.
+              // Wait, the memory vector is already in ai.past (it's pushed above). We just need to update it in the ai entity if the tag was added.
+              if (memory.tags.includes("eternal-shift")) {
+                const vectorIdx = ai.past.findIndex((v) => v.id === memory.id);
+                if (vectorIdx !== -1) {
+                  ai.past[vectorIdx] = memory;
+                  await runtime.update_entity("character", ai.id, { past: ai.past });
+                }
               }
             }
 

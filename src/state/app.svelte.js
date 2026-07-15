@@ -10,7 +10,8 @@ import { generateUUID, resolve_px } from "@utils";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, guardedTransition } from "@engine";
 import { visual_engine, get_signature_color } from "@media";
-import { runtime, simulationState, uiState } from "@state";
+import { runtime } from "./runtime.svelte.js";
+import { simulationState, uiState } from "./status.svelte.js";
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./status.svelte.js').CardHandState} CardHandState */

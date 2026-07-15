@@ -1,5 +1,8 @@
 import { session_driver } from "@engine";
-import { context_broker, dynamics_engine, gamemaster, prompt_builder } from "@intelligence";
+import { context_broker } from "./context.svelte.js";
+import { dynamics_engine } from "./dynamics.js";
+import { gamemaster } from "./kernel.js";
+import { prompt_builder } from "./prompts.js";
 import { llm_service } from "@platform";
 import { runtime } from "@state";
 import { beforeEach, describe, expect, it, vi } from "vitest";

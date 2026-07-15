@@ -2,7 +2,8 @@
  * Unit tests for Tokens and Color Generation logic
  * Ported from legacy entities.test.js
  */
-import { get_signature_color, get_signature_label, get_deterministic_color, AestheticResolver } from "@media";
+import { get_signature_color, get_signature_label, get_deterministic_color } from "./tokens.js";
+import { AestheticResolver } from "./optics.js";
 import { describe, expect, test } from "vitest";
 describe("Tokens Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => get_signature_color(e);

@@ -1,4 +1,4 @@
-import { app } from "@state";
+import { app } from "./app.svelte.js";
 import { beforeEach, describe, expect, it } from "vitest";
 describe("AppStore Telemetry", () => {
   beforeEach(() => {
