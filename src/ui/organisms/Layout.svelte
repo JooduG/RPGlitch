@@ -23,7 +23,7 @@
   let container_class = $derived(
     app.viewport.mobile
       ? mode === "storymode"
-        ? "h-grid-height w-grid-width grid-cols-2 grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content] overflow-y-auto"
+        ? "h-grid-height w-grid-width grid-cols-2 grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content] overflow-hidden"
         : "h-grid-height w-grid-width grid-cols-1 grid-rows-[min-content_auto_auto_auto_min-content] overflow-y-auto"
       : mode === "storymode"
         ? "h-screen w-screen grid-cols-12 grid-rows-12"
@@ -54,7 +54,7 @@
   let center_class = $derived(
     app.viewport.mobile
       ? mode === "storymode"
-        ? "inset-auto col-span-full row-3 h-auto items-center overflow-auto"
+        ? "inset-auto col-span-full row-3 h-full items-center overflow-hidden"
         : "inset-auto col-span-full row-3 h-auto items-center"
       : mode === "storymode"
         ? `col-[3/11] row-[1/13] h-full ${align_class}`

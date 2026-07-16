@@ -632,6 +632,7 @@
           onclick={app.toggle_control_panel}
           data-testid="settings-button"
           actions={[roll, tooltip]}
+          class="touch-target-coarse"
           style="view-transition-name: console-settings-node"
         >
           <svg
@@ -646,7 +647,7 @@
         </Button>
 
         <Button
-          class="group"
+          class="group touch-target-coarse"
           data-ready={ready_to_begin}
           variant="invisible"
           busy={!ready_to_begin}
@@ -674,6 +675,7 @@
           disabled={app.control_panel_open}
           onclick={() => storyboard.shuffle()}
           actions={[shimmy, tooltip]}
+          class="touch-target-coarse"
           style="view-transition-name: console-right-flank"
         >
           <svg viewBox="0 0 24 24" class="block size-icon-medium">
@@ -690,6 +692,7 @@
           onclick={() => app.toggle_control_panel()}
           aria-label="Settings"
           actions={[roll, tooltip]}
+          class="touch-target-coarse"
           style="view-transition-name: console-settings-node"
         >
           <svg
@@ -740,7 +743,7 @@
             onclick={() => app.trigger_interrupt()}
             aria-label="Interrupt Generation"
             actions={[tooltip]}
-            class="text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
+            class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
             style="view-transition-name: console-right-flank"
           >
             <svg class="block size-icon-medium" viewBox="0 0 24 24">
@@ -754,6 +757,7 @@
             disabled={!value.trim() || is_locked || app.control_panel_open}
             aria-label="Send Message"
             actions={[stab, tooltip]}
+            class="touch-target-coarse"
             style="view-transition-name: console-right-flank"
           >
             <svg class="block size-icon-medium" viewBox="0 0 24 24">

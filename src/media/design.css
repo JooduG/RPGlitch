@@ -61,10 +61,10 @@
   --spacing-column-unit: calc(var(--spacing-grid-width) / 12);
   --spacing-gap-standard: calc(var(--spacing-spacing-unit) * 4);
   --spacing-gap-tight: calc(var(--spacing-spacing-unit) * 2);
-  --spacing-grid-height: clamp(20rem, 100vh, var(--spacing-grid-height-max));
-  --spacing-grid-height-max: clamp(25rem, calc(var(--spacing-golden-ratio) * 100vw), 100vh);
+  --spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max));
+  --spacing-grid-height-max: clamp(25rem, calc(var(--spacing-golden-ratio) * 100vw), 100dvh);
   --spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max));
-  --spacing-grid-width-max: clamp(50rem, calc(var(--spacing-golden-ratio) * 100vh), 100vw);
+  --spacing-grid-width-max: clamp(50rem, calc(var(--spacing-golden-ratio) * 100dvh), 100vw);
   --spacing-padding-standard: calc(var(--spacing-spacing-unit) * 4);
   --spacing-padding-tight: calc(var(--spacing-spacing-unit) * 2);
   --spacing-row-unit: calc(var(--spacing-grid-height) / 12);
@@ -375,6 +375,31 @@
 .interactable:active {
   transform: var(--scale-sink);
   filter: brightness(var(--brightness-dim));
+}
+
+/* --- CAPABILITY & POINTER RESPONSIVENESS --- */
+
+/* Prevent scale/brightness transitions on touchscreens to avoid sticky hovers */
+@media (hover: none) {
+  .interactable:hover,
+  button:hover,
+  [role="button"]:hover,
+  a:hover {
+    transform: none !important;
+    filter: none !important;
+  }
+}
+
+/* Sniff coarse pointer to expand target sizes (WCAG 2.2 Success Criterion 2.5.8 compliant) */
+@media (pointer: coarse) {
+  .touch-target-coarse {
+    min-width: 44px !important;
+    min-height: 44px !important;
+    padding: 0.75rem !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 /* --- TEXT SHADOW UTILITIES --- */

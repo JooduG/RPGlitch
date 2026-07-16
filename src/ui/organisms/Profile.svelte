@@ -340,6 +340,7 @@
                   footer_el?.focus();
                   profileState.enhance_profile(entity_type);
                 }}
+                class="touch-target-coarse"
               >
                 {#if Array.from(profileState.busy_fields).some((f) => f !== "visual-prompt")}
                   <span class="animate-pulse">ENHANCING...</span>
@@ -349,6 +350,7 @@
               </Button>
               <Button
                 variant="secondary"
+                class="touch-target-coarse"
                 onclick={() => {
                   footer_el?.focus();
                   profileState.save(entity_type);
@@ -356,6 +358,7 @@
               >
               <Button
                 variant="danger"
+                class="touch-target-coarse"
                 onclick={() => {
                   footer_el?.focus();
                   profileState.show_delete_confirm = true;
@@ -364,6 +367,7 @@
             {:else}
               <Button
                 variant="secondary"
+                class="touch-target-coarse"
                 onclick={() => {
                   footer_el?.focus();
                   profileState.start_editing();

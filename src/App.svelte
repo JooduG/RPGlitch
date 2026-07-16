@@ -29,10 +29,10 @@
 </script>
 
 <main
-  class="relative z-10 h-screen w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left"
+  class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left"
   data-view={app.view}
 >
-  <div class="pointer-events-none fixed inset-0 z-0 h-screen w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
+  <div class="pointer-events-none fixed inset-0 z-0 h-dvh w-screen overflow-hidden bg-neutral-900" aria-hidden="true">
     <div data-bg="gradient"></div>
 
     <div
@@ -156,7 +156,7 @@
 
   [data-dev="grid"][data-view="storymode"] {
     width: 100vw;
-    height: 100vh;
+    height: 100dvh;
   }
 
   [data-dev="grid"] [data-axis="col"] {

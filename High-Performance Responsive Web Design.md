@@ -9,13 +9,13 @@ Modern frontend architectures require web layouts to adapt dynamically to divers
 Framework state-driven swapping relies on browser APIs (primarily window.matchMedia) wrapped in component-level hooks like useMediaQuery to output a reactive boolean. This state is propagated down the virtual tree to conditionally render entirely different component structures.  
 `// Framework state-driven layout orchestration`  
 `function AdaptiveLayout() {`  
-  `const isMobile = useMediaQuery("(max-width: 768px)", false);`
+`const isMobile = useMediaQuery("(max-width: 768px)", false);`
 
-  `return isMobile ? (`  
-    `<MobileNavigation />`  
-  `) : (`  
-    `<DesktopNavigation />`  
-  `);`  
+`return isMobile ? (`  
+`<MobileNavigation />`  
+`) : (`  
+`<DesktopNavigation />`  
+`);`  
 `}`
 
 In server-side rendered (SSR) environments, this paradigm presents architectural trade-offs. Because the server is oblivious to the actual client-side viewport width during HTML generation, it must render a default state or empty placeholder.  
@@ -25,9 +25,9 @@ Some frameworks and specialized DOM libraries attempt to bypass these limitation
 Additionally, alternative libraries such as Juris.js implement a different hydration model. Juris.js builds its client-side markup off-screen in a staging element, tracking outstanding promises, and then executes a wholesale replacement of the target container once all data is loaded. This eliminates the requirement for exact DOM alignment and prevents hydration mismatch failures altogether.  
 To handle dynamic state styles efficiently without inline styles, frameworks like Vue 3.2 support direct compiler bindings using v-bind() within CSS styles. This allows state values to be compiled into native CSS custom properties dynamically written to the component root:  
 `<template>`  
-  `<div class="dynamic-wrapper">`  
-    `<slot />`  
-  `</div>`  
+`<div class="dynamic-wrapper">`  
+`<slot />`  
+`</div>`  
 `</template>`
 
 `<script setup>`  
@@ -36,8 +36,8 @@ To handle dynamic state styles efficiently without inline styles, frameworks lik
 
 `<style scoped>`  
 `.dynamic-wrapper {`  
-  `display: flex;`  
-  `justify-content: v-bind('flexAlignment');`  
+`display: flex;`  
+`justify-content: v-bind('flexAlignment');`  
 `}`  
 `</style>`
 
@@ -49,13 +49,13 @@ Native CSS media and container queries resolve directly within the browser's ren
 This approach ensures zero hydration mismatches, as the identical DOM node structure is delivered to the client and styled instantly by the browser. However, this requires maintaining redundant elements in the document tree simultaneously (such as mobile and desktop navigation variants), which can increase the initial HTML payload size.  
 Furthermore, styling layout shifts purely through native CSS can result in less maintainable files when major structural modifications require divergent HTML structures. This requires developers to duplicate nodes or coordinate multiple utility classes across wide layout breakpoints.
 
-| Architectural Criterion | Framework State-Driven Swapping | State-To-Selector Compilers (Tasty) | Native CSS Media/Container Queries |
-| :---- | :---- | :---- | :---- |
-| **Rendering Performance** | Low; triggers CPU-bound client execution, DOM updates, and reflows. | Medium-High; leverages cached selector mappings to skip engine compilation. | Ultra-High; executed directly by the browser's C++ layout engine during layout paint. |
-| **Layout Thrashing & Shifts** | High; client-side re-execution after hydration causes delayed structural shifting. | Low; styles compile quickly to minimize visible paint gaps. | Zero; layout shifts resolve prior to first contentful paint. |
-| **Hydration Safety (SSR)** | Fragile; prone to mismatch errors unless deferred using two-pass client rendering. | Safe; generates deterministic selector lists that map to stable DOM templates. | Absolute; server HTML matches client DOM exactly; only visual styles vary. |
-| **DOM Tree Payload** | Optimized; only renders active node subtrees in the document. | Standard; compiles states directly onto pre-existing layout structures. | Redundant; requires keeping duplicate layout-specific nodes in the DOM. |
-| **Execution Mechanics** | React Native/Virtual DOM diffing hooks run on the main JavaScript thread. | Computes state-to-selector structures during layout rendering passes. | Computed natively by the browser layout engine with GPU acceleration. |
+| Architectural Criterion       | Framework State-Driven Swapping                                                    | State-To-Selector Compilers (Tasty)                                            | Native CSS Media/Container Queries                                                    |
+| :---------------------------- | :--------------------------------------------------------------------------------- | :----------------------------------------------------------------------------- | :------------------------------------------------------------------------------------ |
+| **Rendering Performance**     | Low; triggers CPU-bound client execution, DOM updates, and reflows.                | Medium-High; leverages cached selector mappings to skip engine compilation.    | Ultra-High; executed directly by the browser's C++ layout engine during layout paint. |
+| **Layout Thrashing & Shifts** | High; client-side re-execution after hydration causes delayed structural shifting. | Low; styles compile quickly to minimize visible paint gaps.                    | Zero; layout shifts resolve prior to first contentful paint.                          |
+| **Hydration Safety (SSR)**    | Fragile; prone to mismatch errors unless deferred using two-pass client rendering. | Safe; generates deterministic selector lists that map to stable DOM templates. | Absolute; server HTML matches client DOM exactly; only visual styles vary.            |
+| **DOM Tree Payload**          | Optimized; only renders active node subtrees in the document.                      | Standard; compiles states directly onto pre-existing layout structures.        | Redundant; requires keeping duplicate layout-specific nodes in the DOM.               |
+| **Execution Mechanics**       | React Native/Virtual DOM diffing hooks run on the main JavaScript thread.          | Computes state-to-selector structures during layout rendering passes.          | Computed natively by the browser layout engine with GPU acceleration.                 |
 
 ## **Viewport vs. Component-Driven Layouts**
 
@@ -75,79 +75,79 @@ Negative lookahead behavior is modeled by combining :has() with :not():
 While versatile, :has() requires careful performance optimization. Anchoring :has() to highly general or broad selectors (such as :root:has(...), body:has(...), or \*:has(...)) can degrade rendering performance.  
 This is because the browser's styling engine must re-evaluate the target subtree whenever DOM mutations or style updates occur within the document. Restricting :has() evaluation to narrow scopes (such as .card-wrapper:has(.card-image)) bounds the selector matching tree, maintaining rapid layout passes even on lower-end consumer hardware.  
 `/* ==========================================================================`  
-   `Pattern A: Viewport-Driven Responsive Grid Layout`  
-   `========================================================================== */`  
+`Pattern A: Viewport-Driven Responsive Grid Layout`  
+`========================================================================== */`  
 `.article-grid {`  
-  `display: grid;`  
-  `grid-template-columns: 1fr;`  
-  `gap: 1.5rem;`  
+`display: grid;`  
+`grid-template-columns: 1fr;`  
+`gap: 1.5rem;`  
 `}`
 
 `.article-card {`  
-  `display: flex;`  
-  `flex-direction: column;`  
-  `background-color: var(--color-surface);`  
+`display: flex;`  
+`flex-direction: column;`  
+`background-color: var(--color-surface);`  
 `}`
 
 `.article-image {`  
-  `width: 100%;`  
-  `height: 180px;`  
-  `object-fit: cover;`  
+`width: 100%;`  
+`height: 180px;`  
+`object-fit: cover;`  
 `}`
 
 `/* Global viewport breakpoint modifications */`  
 `@media (min-width: 768px) {`  
-  `.article-grid {`  
-    `grid-template-columns: repeat(3, 1fr);`  
-  `}`  
-    
-  `.article-card {`  
-    `flex-direction: row;`  
-  `}`  
-    
-  `.article-image {`  
-    `width: 250px;`  
-    `height: auto;`  
-  `}`  
+`.article-grid {`  
+`grid-template-columns: repeat(3, 1fr);`  
+`}`
+
+`.article-card {`  
+`flex-direction: row;`  
+`}`
+
+`.article-image {`  
+`width: 250px;`  
+`height: auto;`  
+`}`  
 `}`
 
 `/* ==========================================================================`  
-   `Pattern B: Component-Driven Responsive Container Layout (with :has())`  
-   `========================================================================== */`  
+`Pattern B: Component-Driven Responsive Container Layout (with :has())`  
+`========================================================================== */`  
 `.card-container {`  
-  `container-type: inline-size;`  
-  `width: 100%;`  
+`container-type: inline-size;`  
+`width: 100%;`  
 `}`
 
 `.article-card-component {`  
-  `display: grid;`  
-  `grid-template-columns: 1fr;`  
-  `gap: 1.25rem;`  
-  `border: 1px solid var(--color-border);`  
+`display: grid;`  
+`grid-template-columns: 1fr;`  
+`gap: 1.25rem;`  
+`border: 1px solid var(--color-border);`  
 `}`
 
 `/* Scoped layout modifications utilizing relative child queries */`  
 `.article-card-component:has(.featured-badge) {`  
-  `border: 2px solid var(--color-primary-accent);`  
+`border: 2px solid var(--color-primary-accent);`  
 `}`
 
 `/* Parent container-relative viewport adjustments */`  
 `@container (min-width: 500px) {`  
-  `.article-card-component {`  
-    `grid-template-columns: auto 1fr;`  
-  `}`  
-    
-  `.article-image-wrapper {`  
-    `width: 120px;`  
-    `height: 120px;`  
-  `}`  
+`.article-card-component {`  
+`grid-template-columns: auto 1fr;`  
+`}`
+
+`.article-image-wrapper {`  
+`width: 120px;`  
+`height: 120px;`  
+`}`  
 `}`
 
 `@container (min-width: 850px) {`  
-  `.article-card-component {`  
-    `grid-template-columns: 300px 1fr;`  
-    `font-size: var(--text-lg);`  
-  `}`  
+`.article-card-component {`  
+`grid-template-columns: 300px 1fr;`  
+`font-size: var(--text-lg);`  
+`}`  
 `}`
 
 ## **Layout Engines & Token-Based Fluid Math**
@@ -159,19 +159,19 @@ Tailwind CSS v4 relies on modern browser APIs: native cascade layers (@layer), r
 `@import "tailwindcss";`
 
 `@theme {`  
-  `--color-primary: #3b82f6;`  
-  `--spacing-fluid-1: clamp(1rem, 2vw + 0.5rem, 3rem);`  
+`--color-primary: #3b82f6;`  
+`--spacing-fluid-1: clamp(1rem, 2vw + 0.5rem, 3rem);`  
 `}`
 
 Under the hood, Tailwind v4 uses Lightning CSS to process nested code blocks, bundle imports, and perform vendor prefix transformations at build time. This build-time compilation allows utility classes (such as col-span-1 and col-span-2) to be generated on-demand, keeping production CSS bundles optimized.  
 Conversely, native modern CSS offers maximum specification compliance and requires zero compilation or build-step dependencies. Developers can structure their applications using CSS nesting, CSS Grid with CSS Subgrid, and native Cascade Layers (@layer) to precisely isolate resets, components, and utility tokens. Subgrid allows nested child grids to align perfectly to the track definitions of their parent elements, providing design consistency across nested components that utility frameworks struggle to model cleanly.
 
-| Specification Axis | Tailwind CSS v4+ Utility Architecture | Native Modern CSS Engine |
-| :---- | :---- | :---- |
-| **Configuration Architecture** | CSS-first declarative configurations using @theme syntax. | Native CSS variables and custom properties declared directly in @layer. |
-| **Cascading Hierarchy Control** | Standardizes specificity with native Cascade Layers (theme, base, components, utilities). | Custom cascade layers using the @layer directive. |
-| **Grid Sub-Alignment** | Uses utility tokens (grid, grid-cols-\*) to declare grid boundaries. | Full layout integration using CSS Subgrid (grid-template-columns: \[span\_111\](start\_span)\[span\_111\](end\_span)\[span\_113\](start\_span)\[span\_113\](end\_span)subgrid). |
-| **Compilation Tooling** | Requires Lightning CSS parsing, PosCSS configurations, or Rsbuild bundling. | Pure browser evaluation; zero compilation, dependencies, or setup overhead. |
+| Specification Axis              | Tailwind CSS v4+ Utility Architecture                                                     | Native Modern CSS Engine                                                                                                                                                        |
+| :------------------------------ | :---------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Configuration Architecture**  | CSS-first declarative configurations using @theme syntax.                                 | Native CSS variables and custom properties declared directly in @layer.                                                                                                         |
+| **Cascading Hierarchy Control** | Standardizes specificity with native Cascade Layers (theme, base, components, utilities). | Custom cascade layers using the @layer directive.                                                                                                                               |
+| **Grid Sub-Alignment**          | Uses utility tokens (grid, grid-cols-\*) to declare grid boundaries.                      | Full layout integration using CSS Subgrid (grid-template-columns: \[span\_111\](start\_span)\[span\_111\](end\_span)\[span\_113\](start\_span)\[span\_113\](end\_span)subgrid). |
+| **Compilation Tooling**         | Requires Lightning CSS parsing, PosCSS configurations, or Rsbuild bundling.               | Pure browser evaluation; zero compilation, dependencies, or setup overhead.                                                                                                     |
 
 ### **Token-Based Fluid Scaling Math**
 
@@ -180,13 +180,13 @@ To generate a type scale, designers apply modular ratios. The base size S\_{0} i
 S\_{n} \= S\_{0} \\times R^{n}  
 The table below outlines common modular scales used in fluid token development:
 
-| Modular Scale Ratio Name | Multiplier Ratio (R) | Typical Layout Application |
-| :---- | :---- | :---- |
-| **Major Second** | 1.125 | Subtle, highly condensed dashboard typography. |
-| **Major Third** | 1.250 | Balanced editorial typography scale. |
-| **Perfect Fourth** | 1.333 | Clear structural hierarchy for documentation scales. |
-| **Perfect Fifth** | 1.500 | Dramatic, large-scale layout separations. |
-| **Golden Ratio** | 1.618 | Classical geometric typographic layouts. |
+| Modular Scale Ratio Name | Multiplier Ratio (R) | Typical Layout Application                           |
+| :----------------------- | :------------------- | :--------------------------------------------------- |
+| **Major Second**         | 1.125                | Subtle, highly condensed dashboard typography.       |
+| **Major Third**          | 1.250                | Balanced editorial typography scale.                 |
+| **Perfect Fourth**       | 1.333                | Clear structural hierarchy for documentation scales. |
+| **Perfect Fifth**        | 1.500                | Dramatic, large-scale layout separations.            |
+| **Golden Ratio**         | 1.618                | Classical geometric typographic layouts.             |
 
 To scale a style token fluidly between a minimum size S\_{min} (at viewport width V\_{min}) and a maximum size S\_{max} (at viewport width V\_{max}), we calculate the slope and intercept:  
 m \= \\frac{S\_{max} \- S\_{min}}{V\_{max} \- V\_{min}} \\times 100 b \= S\_{min} \- \\left( m \\times \\frac{V\_{min}}{100} \\right)  
@@ -210,7 +210,7 @@ Because em values inherit and compound down the subtree, they can introduce unpr
 Relying purely on viewport-relative values (such as font-size: 4vw) is also discouraged. Viewport-only units scale down to unreadable sizes on mobile screens and do not respond to accessibility zoom commands. To satisfy WCAG guidelines, layouts must pair viewport units with relative units using a calc() addition within a clamp() wrapper:  
 `/* Accessible fluid typography scaling */`  
 `h1 {`  
-  `font-size: clamp(2.25rem, calc(1.5rem + 3vw), 4.5rem);`  
+`font-size: clamp(2.25rem, calc(1.5rem + 3vw), 4.5rem);`  
 `}`
 
 This ensures that even when the viewport width approaches zero, the text retains its baseline legibility and scales proportionally when zoomed.
@@ -219,7 +219,7 @@ This ensures that even when the viewport width approaches zero, the text retains
 
 High-profile design systems (such as Apple's layout specifications) use a hybrid typography strategy:
 
-- **Fluid scaling with clamp()**: Reserved for display text (hero modules, headings) to dramatically occupy visual space.  
+- **Fluid scaling with clamp()**: Reserved for display text (hero modules, headings) to dramatically occupy visual space.
 - **Discrete breakpoint stepping**: Applied to body, caption, and reading text.
 
 Reading comfort is governed by physical reading distance rather than screen size. Humans maintain a similar physical distance from a desktop monitor as they do from a handheld mobile device.  
@@ -229,8 +229,8 @@ Scaling body text down fluidly on mobile devices compromises legibility, while s
 
 On mobile platforms, browser UI components—such as dynamic address bars—expand or retract as users scroll, causing layout shifts when containers are sized using standard viewport height units (vh). The CSS Values and Units Module Level 4 resolved this by introducing dynamic viewport units:
 
-- **Small Viewport Height (svh)**: Represents the viewport height assuming all browser dynamic interface elements are fully expanded (i.e., the smallest possible display canvas).  
-- **Large Viewport Height (lvh)**: Represents the viewport height assuming all dynamic interface elements are collapsed (i.e., the largest possible display canvas).  
+- **Small Viewport Height (svh)**: Represents the viewport height assuming all browser dynamic interface elements are fully expanded (i.e., the smallest possible display canvas).
+- **Large Viewport Height (lvh)**: Represents the viewport height assuming all dynamic interface elements are collapsed (i.e., the largest possible display canvas).
 - **Dynamic Viewport Height (dvh)**: Evaluates dynamically in real-time, matching the actual visible viewport boundaries as the browser chrome expands and retracts.
 
 To prevent layout shifts and clipping issues, layouts should use dvh units on full-viewport interactive elements.
@@ -241,43 +241,43 @@ To prevent layout shifts and clipping issues, layouts should use dvh units on fu
 
 Modern CSS media features allow developers to query system-level parameters:
 
-- prefers-reduced-motion: Identifies users who have enabled motion reduction at the OS level. This feature is used to collapse transition animations to zero or replace parallax animations with static alternatives.  
-- prefers-color-scheme: Queries if the user prefers a light or dark theme, allowing automatic design adjustments.  
+- prefers-reduced-motion: Identifies users who have enabled motion reduction at the OS level. This feature is used to collapse transition animations to zero or replace parallax animations with static alternatives.
+- prefers-color-scheme: Queries if the user prefers a light or dark theme, allowing automatic design adjustments.
 - dynamic-range: Queries whether the display supports High Dynamic Range (HDR) content. On displays matching dynamic-range: high, layouts can display highly saturated, wide-color-gamut colors (like Display-P3) and higher peak brightness.
 
 Widescreen layouts can utilize the CSS property dynamic-range-limit to prevent visual fatigue. Mixed-content dashboards that present bright HDR media elements alongside standard SDR content can experience harsh, mismatched contrast points.  
 Using dynamic-range-limit properties with keyword values such as standard, constrained, or no-limit, developers can cap peak brightness values. The dynamic-range-limit-mix() function allows these limits to be blended for precise control over high-luminance displays:  
 `/* Dynamic range limitation for HDR-capable screens */`  
 `.gallery-thumbnail {`  
-  `dynamic-range-limit: dynamic-range-limit-mix(standard 70%, constrained 30%);`  
+`dynamic-range-limit: dynamic-range-limit-mix(standard 70%, constrained 30%);`  
 `}`
 
 `.gallery-thumbnail:focus {`  
-  `dynamic-range-limit: no-limit;`  
-  `transition: dynamic-range-limit 0.4s ease-in-out;`  
+`dynamic-range-limit: no-limit;`  
+`transition: dynamic-range-limit 0.4s ease-in-out;`  
 `}`
 
 ### **The Native light-dark() CSS Function**
 
 To streamline theme switching, the native light-dark() function enables defining light and dark values for a property in a single line, eliminating the need for nested media queries.  
 `:root {`  
-  `color-scheme: light dark;`  
+`color-scheme: light dark;`  
 `}`
 
 `.app-card {`  
-  `background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));`  
-  `border-color: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.15));`  
+`background-color: light-dark(var(--color-neutral-100), var(--color-neutral-900));`  
+`border-color: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.15));`  
 `}`
 
 The function reads the element's computed color-scheme value. This allows developers to override themes locally. For example, setting .dark-section { color-scheme: dark; } overrides the root theme locally, causing all nested light-dark() instances inside that container to evaluate to their dark color options.  
 Compared to class-swapping patterns (e.g., toggling a .dark class via JavaScript), light-dark() requires less styling code and bypasses the execution cycles needed for DOM class mutations, preventing flashing issues during page loads.
 
-| Theme Optimization Axis | Native CSS light-dark() Function | Class-Swapping Architecture (.dark class) |
-| :---- | :---- | :---- |
-| **Parsing Target** | Color values and image URL parameters. | All CSS layout properties and animation rules. |
-| **Overriding Scope** | Inherited; respects parent element's color-scheme value. | Manual; requires applying scoping classes down the tree. |
-| **Hydration Safety** | High; resolves natively inside the browser styling pipeline. | Medium; prone to layout flashes if server and client preferences disagree. |
-| **JavaScript Dependency** | None; operates directly on browser engine preferences. | Required; relies on scripting to toggling class parameters on elements. |
+| Theme Optimization Axis   | Native CSS light-dark() Function                             | Class-Swapping Architecture (.dark class)                                  |
+| :------------------------ | :----------------------------------------------------------- | :------------------------------------------------------------------------- |
+| **Parsing Target**        | Color values and image URL parameters.                       | All CSS layout properties and animation rules.                             |
+| **Overriding Scope**      | Inherited; respects parent element's color-scheme value.     | Manual; requires applying scoping classes down the tree.                   |
+| **Hydration Safety**      | High; resolves natively inside the browser styling pipeline. | Medium; prone to layout flashes if server and client preferences disagree. |
+| **JavaScript Dependency** | None; operates directly on browser engine preferences.       | Required; relies on scripting to toggling class parameters on elements.    |
 
 ## **Interactive & Touch Constraints**
 
@@ -286,9 +286,9 @@ Compared to class-swapping patterns (e.g., toggling a .dark class via JavaScript
 To support touch interaction on smaller displays, interface components must meet physical size minimums. The WCAG 2.2 Success Criterion 2.5.8 (Target Size Minimum) establishes that interactive elements must have a physical footprint of at least 24 \\times 24 CSS pixels, unless the target has a combined target size and spacing clearance that prevents adjacent target overlaps.  
 `/* WCAG 2.2 Success Criterion 2.5.8 Compliant Touch Target */`  
 `.interactive-action-target {`  
-  `min-width: 24px;`  
-  `min-height: 24px;`  
-  `box-sizing: border-box;`  
+`min-width: 24px;`  
+`min-height: 24px;`  
+`box-sizing: border-box;`  
 `}`
 
 To prevent spacing issues, layouts should use touch buffers. For example, a small 16\\text{px} button can achieve compliance by using transparent borders or padding to expand its touch area to the required 24\\text{px} footprint, preventing adjacent layout shifts.
@@ -297,30 +297,30 @@ To prevent spacing issues, layouts should use touch buffers. For example, a smal
 
 Instead of relying on viewport-width breakpoints to guess device type, modern layouts query pointer precision and hover capabilities using CSS media queries.
 
-- @media (pointer: coarse): Sniffs coarse input surfaces (like touchscreens) to increase padding and touch target sizes.  
-- @media (pointer: fine): Target precise controls (such as mice or trackpads), permitting smaller target densities and closer element positioning.  
+- @media (pointer: coarse): Sniffs coarse input surfaces (like touchscreens) to increase padding and touch target sizes.
+- @media (pointer: fine): Target precise controls (such as mice or trackpads), permitting smaller target densities and closer element positioning.
 - @media (hover: hover): Sniffs support for native hover states, preventing visual bugs where touch taps trigger sticky hover states on mobile screens.
 
 `/* Basic action target structure */`  
 `.action-target {`  
-  `padding: 0.5rem;`  
+`padding: 0.5rem;`  
 `}`
 
 `/* Optimize touch targets for coarse, less precise inputs */`  
 `@media (pointer: coarse) {`  
-  `.action-target {`  
-    `padding: 0.85rem;`  
-    `min-width: 44px; /* Matches iOS Human Interface Guidelines */`  
-    `min-height: 44px;`  
-  `}`  
+`.action-target {`  
+`padding: 0.85rem;`  
+`min-width: 44px; /* Matches iOS Human Interface Guidelines */`  
+`min-height: 44px;`  
+`}`  
 `}`
 
 `/* Safe application of hover styles to prevent sticky tap behaviors */`  
 `@media (hover: hover) {`  
-  `.action-target:hover {`  
-    `background-color: var(--color-interactive-highlight);`  
-    `transform: translateY(-1px);`  
-  `}`  
+`.action-target:hover {`  
+`background-color: var(--color-interactive-highlight);`  
+`transform: translateY(-1px);`  
+`}`  
 `}`
 
 ## **Architectural Synthesis**
@@ -330,7 +330,7 @@ Native CSS features—such as container queries, cascade layers, the :has() rela
 However, framework state-driven rendering remains useful for scenarios that require deep logical changes, such as rendering completely different component trees for mobile and desktop screens. It also simplifies managing state transitions within complex component systems.  
 For maximum performance, accessibility, and maintainability, teams should use a hybrid approach:
 
-- Use **native CSS** for presentation, styling, continuous fluid typography, and container-relative layouts.  
+- Use **native CSS** for presentation, styling, continuous fluid typography, and container-relative layouts.
 - Reserve **framework state** for critical, functional changes that alter the fundamental layout and behavior of the application.
 
 ## **Works cited**
