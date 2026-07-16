@@ -123,10 +123,10 @@ components:
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
-  spacing-storyboard-character-card-height: clamp(20rem, calc(var(--spacing-row-unit) * 5), 28rem)
-  spacing-storyboard-character-card-width: clamp(14rem, calc(var(--spacing-column-unit) * 2), 18rem)
-  spacing-storyboard-fractal-card-height: clamp(12rem, calc(var(--spacing-row-unit) * 4), 18rem)
-  spacing-storyboard-fractal-card-width: clamp(16rem, calc(var(--spacing-column-unit) * 4), 24rem)
+  spacing-storyboard-character-card-height: max(20rem, calc(var(--spacing-row-unit) * 5))
+  spacing-storyboard-character-card-width: max(14rem, calc(var(--spacing-column-unit) * 2))
+  spacing-storyboard-fractal-card-height: max(12rem, calc(var(--spacing-row-unit) * 4))
+  spacing-storyboard-fractal-card-width: max(16rem, calc(var(--spacing-column-unit) * 4))
   scan-animation: scan var(--duration-ambient) linear infinite
   title-shadow-ambient: 0 0 calc(var(--spacing-spacing-unit) * 5) var(--color-void-black)
   z-index-max: "999"
