@@ -2,10 +2,7 @@
 
 ## Goal
 
-Fix visual jitter, snapping, ghostly cross-fading, and disjointed button morphing when transitioning between Storyboard and Storymode by:
-
-1. Decoupling nested parent/child `view-transition-name` properties.
-2. Overriding default cross-fade animations to make the persistent console and cards transition as solid blocks of machinery.
+Fix visual jitter, snapping, ghostly cross-fading, and disjointed button morphing when transitioning between Storyboard and Storymode.
 
 ## Steps
 
@@ -16,3 +13,5 @@ Fix visual jitter, snapping, ghostly cross-fading, and disjointed button morphin
 - [x] Edit DESIGN.md to add base overrides that disable cross-fade for card-slot-ai, card-slot-user, and unified-console.
 - [x] Run design token synchronization (npm run sync).
 - [x] Verify changes using npm run verify.
+- [x] d7da065 Option A architectural hoist: EntityCards + UnifiedConsole mounted once in App.svelte; Storyboard/Storymode stripped to center content only; card-slot-fractal added to CSS suppression.
+- [x] Integrate flushSync into view transition triggers and enforce rigid-body overrides with important tags.

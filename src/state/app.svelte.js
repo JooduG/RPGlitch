@@ -5,7 +5,7 @@
  * ZERO NESTING - Flattened Schema only.
  */
 import { closeImagePreview, openImagePreview } from "@atoms";
-import { tick } from "svelte";
+import { flushSync } from "svelte";
 import { generateUUID, resolve_px } from "@utils";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, guardedTransition } from "@engine";
@@ -330,9 +330,10 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
-    guardedTransition(async () => {
-      this.view = view;
-      await tick();
+    guardedTransition(() => {
+      flushSync(() => {
+        this.view = view;
+      });
     });
   };
   open_card_hand = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
@@ -382,19 +383,20 @@ export class AppStore {
     if (targetEntity) {
       this.transition_target_id = targetEntity.id;
     }
-    this.transitioning_profile = true;
-
     // Force Svelte to flush state changes so inactive cards lose their view-transition-names
     // synchronously in the DOM before startViewTransition takes its old snapshot.
-    await tick();
+    flushSync(() => {
+      this.transitioning_profile = true;
+    });
 
     guardedTransition(
-      async () => {
-        this.profile_open = isOpening;
-        if (entity) {
-          this.editing_entity = normalize(entity);
-        }
-        await tick();
+      () => {
+        flushSync(() => {
+          this.profile_open = isOpening;
+          if (entity) {
+            this.editing_entity = normalize(entity);
+          }
+        });
       },
       { className: isOpening ? `is-profile-opening-${activeType}` : `is-profile-closing-${activeType}` },
     ).finally(() => {

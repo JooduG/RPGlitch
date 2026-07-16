@@ -11,7 +11,7 @@
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
   import { app } from "@state";
-  import { tick } from "svelte";
+  import { flushSync } from "svelte";
 
   /**
    * @typedef {Object} Props
@@ -135,11 +135,12 @@
     }
 
     guardedTransition(
-      async () => {
-        is_launching = false; // Remove view-transition-name from old element before capture
-        if (root_el) root_el.style.removeProperty("view-transition-name"); // Bulletproof DOM strip
-        select_handler();
-        await tick();
+      () => {
+        flushSync(() => {
+          is_launching = false; // Remove view-transition-name from old element before capture
+          if (root_el) root_el.style.removeProperty("view-transition-name"); // Bulletproof DOM strip
+          select_handler();
+        });
         launch_triggered = false;
       },
       { className: "is-swapping-card" },

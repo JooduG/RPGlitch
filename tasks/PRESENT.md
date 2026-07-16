@@ -41,7 +41,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601) | Task                                                                                                                        | Skill Invoked              | Outcome            |
-| :------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :------------------------- | :----------------- |
+| 2026-07-16 22:20     | Integrated flushSync and CSS important overrides to ensure solid-state view transitions                   | `/02-implement`, `svelte`  | ✅ Done            |
+| 2026-07-16 20:22     | Option A: Persistent layout hoist — EntityCards + UnifiedConsole mounted once in App.svelte to eliminate fade (d7da065)     | `/02-implement`, `svelte`  | ✅ Done            |
 | 2026-07-16 20:05     | Resolved disjointed inner button morphing and ghostly cross-fading for persistent console/cards                             | `/02-implement`            | ✅ Done            |
 | 2026-07-16 19:58     | Prevent ghostly cross-fade for persistent elements during view changes to make them look solid                              | `/02-implement`            | ✅ Done            |
 | 2026-07-16 19:45     | Fixed transition snapping between Storyboard and Storymode views                                                            | `/02-implement`            | ✅ Done            |
@@ -84,7 +85,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🧹 Backlog (Automated)
 <!-- BACKLOG_START -->
-Last Swept: 2026-07-16 20:27
+Last Swept: 2026-07-16 22:21
 
 No active AI debt found.
 <!-- BACKLOG_END -->

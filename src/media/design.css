@@ -702,7 +702,8 @@
 ::view-transition-old(card-slot-fractal),
 ::view-transition-old(unified-console) {
   animation: none;
-  opacity: 0;
+  opacity: 0 !important;
+  mix-blend-mode: normal !important;
 }
 
 ::view-transition-new(card-slot-ai),
@@ -710,7 +711,10 @@
 ::view-transition-new(card-slot-fractal),
 ::view-transition-new(unified-console) {
   animation: none;
-  mix-blend-mode: normal;
+  opacity: 1 !important;
+  mix-blend-mode: normal !important;
+  height: 100% !important;
+  width: 100% !important;
 }
 
 /* --- 3D Profile Flip Transition --- */
