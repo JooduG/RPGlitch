@@ -240,7 +240,7 @@
   on_confirm={hard_reset}
 />
 
-<div class="relative flex h-[calc(var(--spacing-row-unit)*0.5)] w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
+<div class="relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
     <Backdrop z_index="40" is_blurred={true} onclick={() => (app.control_panel_open = false)} />
   {/if}
@@ -267,25 +267,25 @@
       flex flex-col
       items-center
       {app.control_panel_open ? 'justify-end' : 'justify-center'}
-      max-h-[calc(var(--spacing-row-unit)*9)]
       bg-glass-elevated
-      shadow-2xl shadow-black/50
-      [backdrop-filter:var(--blur-mist)]
+      shadow-2xl
+      shadow-black/50 [backdrop-filter:var(--blur-mist)]
       transition-all
       duration-500
       ease-in-out
+      md:max-h-[calc(var(--spacing-row-unit)*9)]
 
       {app.control_panel_open
-      ? 'w-[calc(var(--spacing-column-unit)*6)] rounded-[calc(var(--spacing-row-unit)*0.5)] p-4'
-      : 'min-h-[calc(var(--spacing-row-unit)*0.5)] rounded-[calc(var(--spacing-row-unit)*0.5)] px-4 py-2'}
+      ? 'w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*6)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
+      : 'h-full w-full rounded-none px-4 py-2 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
       ? `
-      w-[calc(var(--spacing-column-unit)*6)]
       border-(--signature-color,var(--color-slate-600))
       shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
+      md:w-[calc(var(--spacing-column-unit)*6)]
     `
       : !app.control_panel_open
-        ? 'w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
+        ? 'md:w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
         : ''}
   "
     style:--signature-color={app.view === "storymode" ? signature_color : undefined}
@@ -299,11 +299,11 @@
     >
       <div class="flex min-h-0 w-full flex-col overflow-hidden">
         <div
-          class="mx-auto flex min-h-0 w-[calc(var(--spacing-column-unit)*6-2rem)] flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity {app.control_panel_open
+          class="mx-auto flex min-h-0 w-full flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*6-2rem)] {app.control_panel_open
             ? 'opacity-100 delay-300 duration-200'
             : 'delay-0 duration-150'}"
         >
-          <ScrollArea class="min-h-0">
+          <ScrollArea class="min-h-0 w-full">
             <div class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
               <!-- DECK A: AUDIO -->
               <div class="w-full">

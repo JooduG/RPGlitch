@@ -125,7 +125,7 @@
                         max-w-none!
                         overflow-visible!
                         border-none!
-                        bg-transparent
+                        bg-transparent!
                         p-0!
                         shadow-none!
                         backdrop-blur-none!

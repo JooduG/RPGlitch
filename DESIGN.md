@@ -68,11 +68,7 @@ components:
   blur-mist: blur(calc(var(--spacing-spacing-unit) * 4))
   spacing-border-width-base: var(--spacing-spacing-pixel)
   spacing-border-width-thick: var(--spacing-spacing-unit)
-  breakpoint-desktop: 80rem
-  breakpoint-high-density: 120rem
-  breakpoint-mini: 30rem
   breakpoint-mobile: 48rem
-  breakpoint-tablet: 64rem
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"

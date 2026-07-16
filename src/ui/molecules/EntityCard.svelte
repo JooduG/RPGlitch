@@ -187,7 +187,7 @@
     relative
     cursor-pointer
     overflow-visible
-    rounded-2xl
+    rounded-none
     border
     border-(--signature-color)
     bg-black/15
@@ -201,8 +201,8 @@
     after:absolute
     after:inset-0
     after:z-10
-
     after:rounded-[inherit]
+
     after:border
     after:border-transparent
     after:shadow-[inset_0_0_0_1px_transparent]
@@ -213,6 +213,7 @@
     hover:brightness-glow
     active:scale-sink
     active:brightness-dim
+    md:rounded-2xl
 
     {disabled
     ? `
@@ -253,14 +254,13 @@
   "
   class:w-[calc(var(--spacing-storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
-  class:w-full={variant !== "library"}
-  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
-  class:h-[12rem]={type === "fractal" && variant !== "library"}
-  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
   class:w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
+  class:w-full={variant !== "library"}
+  class:h-full={variant !== "library"}
+  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
+  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
   class:md:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
-  class:h-[18rem]={type !== "fractal" && variant !== "library"}
   class:md:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}

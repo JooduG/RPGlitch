@@ -71,10 +71,7 @@ export class AppStore {
   /** @type {string | null} */
   transition_target_id = $state(null);
   viewport = $state({
-    mini: false,
     mobile: false,
-    tablet: false,
-    desktop: false,
     is_touch: false,
   });
   // --- ENTITY SELECTION STATE (STORYBOARD) ---
@@ -266,10 +263,7 @@ export class AppStore {
     };
 
     const queries = {
-      mini: `(max-width: ${getBreakpoint("mini") || "30rem"})`,
-      mobile: `(max-width: ${getBreakpoint("mobile") || "48rem"})`,
-      tablet: `(max-width: ${getBreakpoint("tablet") || "64rem"})`,
-      desktop: `(max-width: ${getBreakpoint("desktop") || "80rem"})`,
+      mobile: `(width < ${getBreakpoint("mobile") || "48rem"})`,
     };
 
     Object.keys(queries).forEach((key) => {

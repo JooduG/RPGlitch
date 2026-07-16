@@ -69,8 +69,8 @@
         "ai",
         app.selected_ai,
         "AI Character",
-        "var(--spacing-storyboard-character-card-width)",
-        "var(--spacing-storyboard-character-card-height)",
+        app.viewport.mobile ? "100%" : "var(--spacing-storyboard-character-card-width)",
+        app.viewport.mobile ? "100%" : "var(--spacing-storyboard-character-card-height)",
       )}
     </div>
   {/snippet}
@@ -94,8 +94,8 @@
         "fractal",
         app.selected_fractal,
         "Fractal",
-        "var(--spacing-storyboard-fractal-card-width)",
-        "var(--spacing-storyboard-fractal-card-height)",
+        app.viewport.mobile ? "100%" : "var(--spacing-storyboard-fractal-card-width)",
+        app.viewport.mobile ? "100%" : "var(--spacing-storyboard-fractal-card-height)",
       )}
     </div>
   {/snippet}
@@ -119,8 +119,8 @@
         "user",
         app.selected_user,
         "User Persona",
-        "var(--spacing-storyboard-character-card-width)",
-        "var(--spacing-storyboard-character-card-height)",
+        app.viewport.mobile ? "100%" : "var(--spacing-storyboard-character-card-width)",
+        app.viewport.mobile ? "100%" : "var(--spacing-storyboard-character-card-height)",
       )}
     </div>
   {/snippet}

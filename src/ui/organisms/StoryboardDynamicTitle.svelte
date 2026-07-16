@@ -128,7 +128,6 @@
     max-w-[100vw]
     cursor-text
     px-4
-    py-2
     text-center
     text-[clamp(1.8rem,5vw,4.5rem)]
     font-normal

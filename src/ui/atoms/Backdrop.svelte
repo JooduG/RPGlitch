@@ -7,7 +7,6 @@
    */
   import { use_actions } from "@actions";
   import { fade } from "svelte/transition";
-  import { cubicOut } from "svelte/easing";
 
   let {
     // State
@@ -93,7 +92,7 @@
   transition:backdropTransition
   use:use_actions={actions}
 >
-  <div class="flex min-h-full w-full items-center justify-center p-4 sm:p-8">
+  <div class="flex min-h-full w-full items-center justify-center {is_profile ? 'p-0' : 'p-4 sm:p-8'}">
     <div class="contents {is_pass_through ? '*:pointer-events-auto' : ''}">
       {@render children?.()}
     </div>

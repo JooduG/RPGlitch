@@ -57,21 +57,27 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex h-full overflow-y-auto overflow-x-hidden rounded-2xl border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent relative z-10 " +
-      (app.viewport.mobile || app.viewport.mini ? "col-span-full flex-col " : has_wings ? "modal-profile-grid-main " : "modal-profile-grid-flat ") +
+    "flex h-full overflow-y-auto overflow-x-hidden border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent relative z-10 " +
+      (app.viewport.mobile
+        ? "col-span-full flex-col rounded-none "
+        : has_wings
+          ? "modal-profile-grid-main rounded-2xl "
+          : "modal-profile-grid-flat rounded-none ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
   const avatar_container_class = $derived(
-    "sticky top-0 z-20 flex shrink-0 items-stretch " +
+    "sticky top-0 z-20 flex shrink-0 items-stretch transition-all duration-300 " +
       (entity_type === "fractal" ? "h-12 min-h-50 w-full " : "h-full w-avatar-medium-size ") +
-      (app.viewport.mobile || app.viewport.mini ? "h-auto w-auto items-center justify-center p-4" : ""),
+      (app.viewport.mobile ? "h-auto w-auto items-center justify-center" : ""),
   );
 
   const profile_pic_wrapper_class = $derived(
-    "overflow-hidden border-solid " +
-      (entity_type === "fractal" ? "h-full w-full rounded-none border-0 border-b " : "h-full w-full rounded-none border-0 border-r ") +
-      (app.viewport.mobile || app.viewport.mini ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
+    "overflow-hidden border-solid transition-all duration-300 " +
+      (entity_type === "fractal"
+        ? "h-full w-full border-0 border-b " + (has_wings && !app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
+        : "h-full w-full border-0 border-r " + (has_wings && !app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
+      (app.viewport.mobile ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
   );
 
   const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4");
@@ -79,34 +85,34 @@
   const main_layout_class = $derived("grow p-0");
 
   const footer_layout_class = $derived(
-    "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile || app.viewport.mini ? "w-full flex-col items-stretch" : "justify-end"),
+    "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile ? "w-full flex-col items-stretch" : "justify-end"),
   );
 
-  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile || app.viewport.mini ? "flex flex-col gap-4" : "grid gap-x-2 gap-y-4"));
+  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-4" : "grid gap-x-2 gap-y-4"));
 
-  const entity_body_grid_cols = $derived(app.viewport.mobile || app.viewport.mini ? undefined : "2rem 1fr");
+  const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
   // --- MARKUP CONTEXT SANITIZERS ---
   const get_section_class = (arrayField) => {
     let cls = "relative flex min-w-0 flex-col items-center justify-center overflow-hidden text-center transition-all duration-300 ";
     cls += profileState.is_editing && arrayField ? "cursor-pointer " : "cursor-default ";
-    if (app.viewport.mobile || app.viewport.mini) cls += "border-b pr-0 pb-2";
+    if (app.viewport.mobile) cls += "pr-0 pb-2";
     return cls;
   };
 
   const get_inner_section_style = (id) => {
-    const shouldTranslate = id === "eternal" && !(app.viewport.mobile || app.viewport.mini);
+    const shouldTranslate = id === "eternal" && !app.viewport.mobile;
     return shouldTranslate ? "transform: translateY(1rem);" : "";
   };
 
   const get_hint_span_class = () => {
     let cls = "pointer-events-none shrink-0 font-mono text-base tracking-widest whitespace-nowrap text-white ";
-    if (app.viewport.mobile || app.viewport.mini) cls += "text-center";
+    if (app.viewport.mobile) cls += "text-center";
     return cls;
   };
 
   const get_label_span_class = () => {
-    return app.viewport.mobile || app.viewport.mini ? "" : "block rotate-180";
+    return app.viewport.mobile ? "" : "block rotate-180";
   };
 
   const get_fields_container_class = (fieldsLength) => {
@@ -241,9 +247,10 @@
     is_pass_through={true}
   >
     <div
-      class="m-auto my-8 grid h-auto w-grid-width grid-cols-12"
+      class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
+        app.viewport.mobile ? "h-dvh grid-rows-[1fr_auto] gap-y-4 pb-4" : has_wings ? "my-auto h-[90dvh] grid-rows-1" : "h-dvh grid-rows-1"
+      }`}
       data-mobile={app.viewport.mobile}
-      data-mini={app.viewport.mini}
       role="presentation"
     >
       <div
@@ -381,21 +388,36 @@
       <!-- Wing Container stays in DOM to animate exit -->
       <aside
         data-wings-container
-        class="relative z-0 col-[9/12] flex scrollbar-none flex-col items-center gap-4 overflow-y-auto [&::-webkit-scrollbar]:hidden"
-        style:animation={has_wings ? "wing-slide-out var(--motion-elastic) forwards" : "wing-slide-in var(--motion-elastic) forwards"}
+        class={"relative z-0 flex scrollbar-none gap-4 [&::-webkit-scrollbar]:hidden " +
+          (app.viewport.mobile ? "col-span-full w-full items-start overflow-x-auto" : "col-[9/12] flex-col items-center overflow-y-auto")}
+        style:animation={has_wings && !app.viewport.mobile
+          ? "wing-slide-out var(--motion-elastic) forwards"
+          : !app.viewport.mobile
+            ? "wing-slide-in var(--motion-elastic) forwards"
+            : ""}
         style:pointer-events={has_wings ? "auto" : "none"}
       >
-        <div class="my-auto flex w-full flex-col gap-4">
+        <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4 pb-8" : "my-auto w-full flex-col")}>
           {#if profileState.is_editing}
-            <div transition:fade={{ duration: 250 }}>
+            <div
+              style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
+              class={app.viewport.mobile ? "max-w-sm" : "w-full"}
+              transition:fade={{ duration: 250 }}
+            >
               <VisualWing {profileState} />
             </div>
-            <div transition:fade={{ duration: 250 }}>
+            <div
+              style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
+              class={app.viewport.mobile ? "max-w-sm" : "w-full"}
+              transition:fade={{ duration: 250 }}
+            >
               <AudioWing {profileState} />
             </div>
           {/if}
           {#if app.settings.dev_mode}
-            <DevWing {profileState} />
+            <div style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""} class={app.viewport.mobile ? "max-w-sm" : "w-full"}>
+              <DevWing {profileState} />
+            </div>
           {/if}
         </div>
       </aside>
@@ -410,7 +432,7 @@
 
       <div
         class={get_section_class(arrayField)}
-        style:border-color={app.viewport.mobile || app.viewport.mini ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
+        style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
         data-section={section.id}
         onclick={() => arrayField && profileState.add_vector_item(arrayField.key)}
         onmouseenter={() => (profileState.hovered_section = section.id)}
@@ -427,8 +449,8 @@
             {/if}
             <span
               class={get_label_span_class()}
-              style:text-orientation={app.viewport.mobile || app.viewport.mini ? undefined : "mixed"}
-              style:writing-mode={app.viewport.mobile || app.viewport.mini ? undefined : "vertical-rl"}>{section.label}</span
+              style:text-orientation={app.viewport.mobile ? undefined : "mixed"}
+              style:writing-mode={app.viewport.mobile ? undefined : "vertical-rl"}>{section.label}</span
             >
           </h6>
         </div>

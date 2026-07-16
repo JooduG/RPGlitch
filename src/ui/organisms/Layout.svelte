@@ -24,7 +24,7 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "h-grid-height w-grid-width grid-cols-2 grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content] overflow-hidden"
-        : "h-grid-height w-grid-width grid-cols-12 grid-rows-[min-content_auto_auto_min-content] gap-y-4 px-4 py-2 overflow-y-auto"
+        : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
       : mode === "storymode"
         ? "h-screen w-screen grid-cols-12 grid-rows-12"
         : "h-grid-height w-grid-width grid-cols-12 grid-rows-12",
@@ -33,10 +33,12 @@
   // ── HEADER CLASS MATRIX ──────────────────────────────────────────────────
   let header_class = $derived(
     app.viewport.mobile
-      ? "relative inset-auto col-span-full row-start-1 h-auto items-center"
+      ? mode === "storymode"
+        ? "relative inset-auto col-span-full row-start-1 h-auto items-center"
+        : "relative inset-auto col-[1/13] row-[1/3] h-full items-center justify-center"
       : mode === "storymode"
         ? "absolute right-0 left-0 col-[1/13] row-start-2 items-end self-stretch"
-        : "absolute right-0 left-0 col-[2/12] row-start-2 items-end self-stretch",
+        : "absolute right-0 left-0 col-[2/12] row-[1/4] inset-y-0 items-end pb-[calc(var(--spacing-row-unit)*0.5)]",
   );
 
   // ── LEFT ASIDE CLASS MATRIX ──────────────────────────────────────────────
@@ -44,7 +46,7 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "col-[1/2] row-2 h-full items-center bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--color-void-black))]"
-        : "inset-auto col-[1/7] row-3 h-auto items-center"
+        : "relative inset-auto col-[1/7] row-[6/12] h-full items-center justify-center"
       : mode === "storymode"
         ? `col-[1/3] row-[1/13] h-full ${align_class}`
         : `col-[2/4] row-[3/11] h-full ${align_class}`,
@@ -55,7 +57,7 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "inset-auto col-span-full row-3 h-full items-center overflow-hidden"
-        : "inset-auto col-span-full row-2 h-auto items-center"
+        : "relative inset-auto col-[1/13] row-[3/6] h-full items-center justify-center"
       : mode === "storymode"
         ? `col-[3/11] row-[1/13] h-full ${align_class}`
         : `col-[4/10] row-[3/11] h-full ${align_class}`,
@@ -66,7 +68,7 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "col-[2/3] row-2 h-full items-center"
-        : "inset-auto col-[7/13] row-3 h-auto items-center"
+        : "relative inset-auto col-[7/13] row-[6/12] h-full items-center justify-center"
       : mode === "storymode"
         ? `col-[11/13] row-[1/13] h-full ${align_class}`
         : `col-[10/12] row-[3/11] h-full ${align_class}`,
@@ -77,10 +79,10 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "relative inset-auto col-span-full row-4 h-auto items-center"
-        : "relative inset-auto col-span-full row-4 h-auto items-center"
+        : "relative inset-auto col-[1/13] row-start-12 h-full items-end justify-center"
       : mode === "storymode"
         ? "col-[1/13] row-start-11 h-row-unit items-start self-stretch"
-        : "col-[2/12] row-start-11 h-row-unit items-start self-stretch",
+        : "col-[2/12] row-start-10 h-row-unit items-end self-stretch",
   );
 </script>
 
