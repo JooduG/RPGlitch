@@ -330,11 +330,14 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
-    guardedTransition(() => {
-      flushSync(() => {
-        this.view = view;
-      });
-    });
+    guardedTransition(
+      () => {
+        flushSync(() => {
+          this.view = view;
+        });
+      },
+      { className: "is-switching-view" },
+    );
   };
   open_card_hand = (/** @type {'ai' | 'user' | 'fractal' | null} */ type) => {
     this.card_hand.type = type;

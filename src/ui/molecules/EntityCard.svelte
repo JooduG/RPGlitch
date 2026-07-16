@@ -112,7 +112,7 @@
     // to guarantee zero duplicate transition name errors during snapshot capture.
     try {
       const targetName = "card-slot-" + type;
-      const elements = document.querySelectorAll(".entity-card-root");
+      const elements = document.querySelectorAll("[data-card-root]");
       elements.forEach((/** @type {any} */ el) => {
         const styleAttr = el.getAttribute("style") || "";
         const hasTransitionName = styleAttr.includes("view-transition-name");
@@ -182,6 +182,7 @@
 
 <div
   bind:this={root_el}
+  data-card-root
   class="
     group
     @container

@@ -810,6 +810,14 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   animation-timing-function: var(--ease-standard);
 }
 
+/* Clip view transition groups to match the cards' rounded corners */
+::view-transition-group(card-slot-ai),
+::view-transition-group(card-slot-user),
+::view-transition-group(card-slot-fractal) {
+  border-radius: var(--radius-standard, 1rem) !important;
+  overflow: hidden !important;
+}
+
 /* Base overrides for persistent elements (defaults for view transitions) */
 ::view-transition-old(card-slot-ai),
 ::view-transition-old(card-slot-user),
@@ -829,6 +837,23 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   mix-blend-mode: normal !important;
   height: 100% !important;
   width: 100% !important;
+}
+
+/* Suppress all conflicting CSS layout/opacity transitions when a view transition is active */
+:root.is-switching-view *,
+:root.is-switching-view *::before,
+:root.is-switching-view *::after,
+:root[class*="is-profile-"] *,
+:root[class*="is-profile-"] *::before,
+:root[class*="is-profile-"] *::after,
+:root.is-swapping-card *,
+:root.is-swapping-card *::before,
+:root.is-swapping-card *::after,
+html:active-view-transition *,
+html:active-view-transition *::before,
+html:active-view-transition *::after {
+  transition: none !important;
+  animation-duration: 0s !important;
 }
 
 /* --- 3D Profile Flip Transition --- */

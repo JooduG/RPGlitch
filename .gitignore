@@ -32,6 +32,7 @@
 **/yarn.lock
 **/tmp/**
 tmp/**/*
+**/view-transitions-svelte.md
 **/.understand-anything/**
 !**/*rpglitch-left-panel.txt
 !**/templates/**
