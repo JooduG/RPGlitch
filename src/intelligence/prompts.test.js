@@ -451,5 +451,28 @@ describe("prompt_builder (Refactored)", () => {
       const charResult = prompt_builder.build_character_prompt(mockPayloadNoFractal, mockSnapshot, {});
       expect(charResult.system).not.toContain("<FRACTAL");
     });
+
+    it("build_director_prompt() includes DYNAMICS_LEGEND with all axis descriptions", () => {
+      const mockPayload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const result = prompt_builder.build_director_prompt(mockPayload, mockSnapshot);
+      expect(result.system).toContain("<DYNAMICS_LEGEND>");
+      expect(result.system).toContain("chaos");
+      expect(result.system).toContain("intensity");
+      expect(result.system).toContain("openness");
+      expect(result.system).toContain("affinity");
+      expect(result.system).toContain("velocity");
+      expect(result.system).toContain("entropy");
+    });
   });
 });

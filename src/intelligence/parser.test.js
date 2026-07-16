@@ -1,4 +1,12 @@
-import { clean_image_prompts, escapeXml, strip_cognition_blocks, parse_think_block, parse_message, wrap_dialogue } from "./parser.js";
+import {
+  clean_image_prompts,
+  escapeXml,
+  strip_cognition_blocks,
+  parse_think_block,
+  parse_message,
+  wrap_dialogue,
+  escape_unescaped_json_quotes,
+} from "./parser.js";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {
@@ -217,5 +225,38 @@ describe("parse_message updated behavior", () => {
     const input = 'Orion twitched. "Hey *twink*."';
     const { displayText } = parse_message(input);
     expect(displayText).toBe('<p>Orion twitched. <span class="dialogue">&ldquo;Hey <em>twink</em>.&rdquo;</span></p>');
+  });
+});
+
+describe("escape_unescaped_json_quotes", () => {
+  it("should escape unescaped interior double-quotes in JSON strings", () => {
+    const input = `{ "mutations": { "AI_CHARACTER": { "present_append_physical": "He said "Hello" to me" } } }`;
+    const expected = `{ "mutations": { "AI_CHARACTER": { "present_append_physical": "He said \\"Hello\\" to me" } } }`;
+    expect(escape_unescaped_json_quotes(input)).toBe(expected);
+  });
+
+  it("should leave already escaped quotes untouched", () => {
+    const input = `{ "mutations": { "AI_CHARACTER": { "present_append_physical": "He said \\"Hello\\" to me" } } }`;
+    expect(escape_unescaped_json_quotes(input)).toBe(input);
+  });
+
+  it("should handle nested commas inside quotes correctly by not stopping at them", () => {
+    const input = `{ "mutations": { "AI_CHARACTER": { "present_append_physical": "He said "Hello, friend" to me", "resolve_vectors": [] } } }`;
+    const expected = `{ "mutations": { "AI_CHARACTER": { "present_append_physical": "He said \\"Hello, friend\\" to me", "resolve_vectors": [] } } }`;
+    expect(escape_unescaped_json_quotes(input)).toBe(expected);
+  });
+
+  it("should handle unescaped quotes with trailing braces or brackets", () => {
+    const input = `{ "directive": "Say "hello"" }`;
+    const expected = `{ "directive": "Say \\"hello\\"" }`;
+    expect(escape_unescaped_json_quotes(input)).toBe(expected);
+  });
+});
+
+describe("parse_message XML entity sanitization pass", () => {
+  it("should sanitize leaking &quot; and &apos; XML entities before wrapping dialogue", () => {
+    const input = "Orion said, &quot;I&apos;m fine.&quot;";
+    const { displayText } = parse_message(input);
+    expect(displayText).toBe('<p>Orion said, <span class="dialogue">&ldquo;I\'m fine.&rdquo;</span></p>');
   });
 });

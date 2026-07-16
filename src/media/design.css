@@ -8,12 +8,12 @@
 
 @theme {
   /* --- COLORS --- */
+  --color-adrenaline-pink: #ec4899;
   --color-background-gradient-1: #0b101a;
   --color-background-gradient-2: #14182b;
   --color-background-gradient-3: #1e1b38;
   --color-background-gradient-4: #16243b;
   --color-chalk: #171717;
-  --color-coral-rose: #fb7185;
   --color-crimson-red: #ef4444;
   --color-deep-indigo: #818cf8;
   --color-electric-cyan: #11aecc;
@@ -25,17 +25,17 @@
   --color-glass-peak: #fff9;
   --color-glass-sunken: #17171799;
   --color-gunmetal: #334155;
-  --color-hot-pink: #ec4899;
   --color-lemon-yellow: #fde047;
-  --color-lime-green: #84cc16;
-  --color-neon-teal: #14b8a6;
-  --color-ocean-blue: #3b82f6;
+  --color-proud-purple: #a855f7;
   --color-pumpkin-amber: #fbbf24;
   --color-pure-white: #fff;
-  --color-royal-purple: #a855f7;
+  --color-rusty-orange: #f97316;
+  --color-scientific-teal: #14b8a6;
   --color-signature-color: #475569;
-  --color-sunset-orange: #f97316;
+  --color-soft-rose: #fb7185;
+  --color-space-blue: #3b82f6;
   --color-swatch-color: #475569;
+  --color-toxic-green: #84cc16;
   --color-twilight-violet: #c084fc;
   --color-void-black: #000;
 

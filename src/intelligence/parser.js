@@ -156,6 +156,9 @@ export function parse_message(rawText) {
   // 3. Render Markdown
   let rendered = sanitize(md.render(text).trim());
 
+  // Dedicated sanitization pass to strip out leaking historical XML formatting tokens
+  rendered = rendered.replace(/&quot;/g, '"').replace(/&apos;/g, "'");
+
   // 4. Wrap Dialogue Quotes
   rendered = wrap_dialogue(rendered);
 
@@ -306,3 +309,17 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
 
   return lines;
 };
+
+/**
+ * Replaces unescaped interior double-quotes with backslashed equivalents (\")
+ * inside JSON string values.
+ * @param {string} json_string
+ * @returns {string}
+ */
+export function escape_unescaped_json_quotes(json_string) {
+  if (typeof json_string !== "string") return json_string;
+  return json_string.replace(/:\s*"([\s\S]*?)"(?=,\s*"[^"]+"\s*:|\s*\}|\s*\]|$)/g, (match, value) => {
+    const escapedValue = value.replace(/(?<!\\)"/g, '\\"');
+    return `: "${escapedValue}"`;
+  });
+}

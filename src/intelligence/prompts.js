@@ -5,14 +5,49 @@
  */
 import { NARRATIVE_STYLES } from "@data";
 import { ind } from "@engine";
+import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { escapeXml, clean_xml, strip_cognition_blocks, safeParsePseudoJson } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
 import { app } from "@state";
 
 // ============================================================================
-// 1. UTILITIES
+// 1. UTILITIES & CACHES
 // ============================================================================
+
+let cached_dynamics_legend = null;
+const protocols_cache = new Map();
+
+const NARRATOR_PROLOGUE_TEXT =
+  "You see everything. Open the scene. Use your <think> block to establish the following: What does this Fractal demand of those who enter it? What specifically brought <AI_CHARACTER> here? What brought <USER_PERSONA> here? Unless ETERNAL or PAST context explicitly states a prior relationship, treat this as a first encounter — strangers with no shared history.\nStructure the narrative flow strictly into this sequence:\n1. Present the Fractal and its current state. Introduce the atmosphere.\n2. Place <USER_PERSONA> inside the Fractal. Connect their presence to the environment using a red thread from their profile.\n3. Place <AI_CHARACTER> inside the Fractal. Establish what they are doing right now.\n4. Trigger the encounter between the two. End the prologue the moment before they interact.\nNo dialogue.";
+
+const NARRATOR_EPILOGUE_TEXT =
+  "You see everything. Close the scene. Use your <think> block to identify every unresolved thread — emotional, physical, narrative — that the scene generated. For each active FUTURE vector, assess whether it was fulfilled, fractured, or transformed by events. Then write the epilogue: resolve these loose ends. Show the concrete aftermath — what has changed, what was broken, what was built. Leave the world visibly different from when the scene began. End on lingering sensation, not summary. No dialogue.";
+
+/**
+ * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
+ */
+function build_dynamics_legend() {
+  if (cached_dynamics_legend !== null) return cached_dynamics_legend;
+  if (!DYNAMICS_META) return "";
+
+  const definitions = Object.entries(DYNAMICS_META)
+    .map(([key, meta]) => `    - ${key} (${meta.label}): ${meta.desc}`)
+    .join("\n");
+
+  cached_dynamics_legend = `
+<DYNAMICS_LEGEND>
+  Scale: 0 (minimum) to 100 (maximum)
+  Axes:
+${definitions}
+  Laws:
+  1. Calibrate dynamics_deltas conservatively. Standard: +1 to +4. Extreme/narrative-altering: +8 to +12.
+  2. Adjust deltas carefully near boundaries (near 5 or 95) to prevent clipping at 0 or 100.
+  3. Ensure present_append text matches the mathematical intensity of the selected dynamics_deltas.
+</DYNAMICS_LEGEND>`.trim();
+
+  return cached_dynamics_legend;
+}
 
 /**
  * Helper to transform physical data to XML nodes.
@@ -147,9 +182,14 @@ Declare the finalized emotional state vectors and immediate intent.`,
  */
 function render_director({ round, entities, input, render_atom, compressed_snapshot }) {
   const protocols = ["JSON_OUTPUT"].filter(Boolean).join(", ");
+  const dynamicsLegend = build_dynamics_legend();
+
   return clean_xml(`
 <SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">
   You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
+  
+  ${ind(dynamicsLegend, 2)}
+
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <PRESENT_PHYSICAL>${ind(val(entities.AI.present?.physical, entities.AI, entities), 8)}</PRESENT_PHYSICAL>
@@ -294,11 +334,8 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
  * @param {"prologue"|"epilogue"} mode
  */
 function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
-  const prologueText =
-    "You see everything. Open the scene. Use your <think> block to establish the following: What does this Fractal demand of those who enter it? What specifically brought <AI_CHARACTER> here? What brought <USER_PERSONA> here? Unless ETERNAL or PAST context explicitly states a prior relationship, treat this as a first encounter — strangers with no shared history.\nStructure the narrative flow strictly into this sequence:\n1. Present the Fractal and its current state. Introduce the atmosphere.\n2. Place <USER_PERSONA> inside the Fractal. Connect their presence to the environment using a red thread from their profile.\n3. Place <AI_CHARACTER> inside the Fractal. Establish what they are doing right now.\n4. Trigger the encounter between the two. End the prologue the moment before they interact.\nNo dialogue.";
-  const epilogueText =
-    "You see everything. Close the scene. Use your <think> block to identify every unresolved thread — emotional, physical, narrative — that the scene generated. For each active FUTURE vector, assess whether it was fulfilled, fractured, or transformed by events. Then write the epilogue: resolve these loose ends. Show the concrete aftermath — what has changed, what was broken, what was built. Leave the world visibly different from when the scene began. End on lingering sensation, not summary. No dialogue.";
-  const taskText = mode === "prologue" ? `${prologueText}\n    Input: ${escapeXml(input?.trim() || "The scene begins.")}` : epilogueText;
+  const taskText =
+    mode === "prologue" ? `${NARRATOR_PROLOGUE_TEXT}\n    Input: ${escapeXml(input?.trim() || "The scene begins.")}` : NARRATOR_EPILOGUE_TEXT;
   let basePrompt = clean_xml(`
 <SYSTEM role="${escapeXml(entities.FRACTAL.name)}"${round != null ? ` round="${escapeXml(String(round))}"` : ""} mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
   <YOUR_IDENTITY name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
@@ -650,21 +687,25 @@ export const prompt_builder = {
   create_render_atom: data_processors.create_render_atom,
   render_history: data_processors.render_history,
   render_protocols(selection) {
-    return selection
-      ? selection
-          .split(",")
-          .map((k) => {
-            const key = k.trim().toUpperCase();
-            const rule = PROTOCOL_LIBRARY[key];
-            if (!rule) return "";
-            if (rule.includes("\n")) {
-              return `<${key}>\n${rule}\n</${key}>`;
-            }
-            return `<${key}>${rule}</${key}>`;
-          })
-          .filter(Boolean)
-          .join("\n")
-      : "";
+    if (!selection) return "";
+    if (protocols_cache.has(selection)) {
+      return protocols_cache.get(selection);
+    }
+    const rendered = selection
+      .split(",")
+      .map((k) => {
+        const key = k.trim().toUpperCase();
+        const rule = PROTOCOL_LIBRARY[key];
+        if (!rule) return "";
+        if (rule.includes("\n")) {
+          return `<${key}>\n${rule}\n</${key}>`;
+        }
+        return `<${key}>${rule}</${key}>`;
+      })
+      .filter(Boolean)
+      .join("\n");
+    protocols_cache.set(selection, rendered);
+    return rendered;
   },
   clean(str) {
     return typeof str === "string"

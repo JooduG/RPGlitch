@@ -176,7 +176,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         vectors: { past: [], future: [] },
       },
     });
-    vi.mocked(llm_service.generate).mockResolvedValue("Identified.");
+    vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
 
     const result = await gamemaster.execute_turn("story-123", {
       input: "Hello",
@@ -247,7 +247,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("appends missing think block closure", async () => {
-      vi.mocked(llm_service.generate).mockResolvedValue("<think>Analyzing user state");
+      vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("<think>Analyzing user state");
 
       const result = await gamemaster.execute_turn("story-123", {
         input: "Hello",
@@ -265,7 +265,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("scrubs Chinese character bleed outside think block but keeps inside characters and spacing intact", async () => {
-      vi.mocked(llm_service.generate).mockResolvedValue("<think>thought block containing 中文</think> Normal spacing and some 中文 character bleed.");
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce("{}")
+        .mockResolvedValueOnce("<think>thought block containing 中文</think> Normal spacing and some 中文 character bleed.");
 
       const result = await gamemaster.execute_turn("story-123", {
         input: "Hello",
@@ -285,7 +287,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("handles normal English text and preserves spacing exactly", async () => {
-      vi.mocked(llm_service.generate).mockResolvedValue("No think block here.   Multiple   spaces   remain   intact.");
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce("{}")
+        .mockResolvedValueOnce("No think block here.   Multiple   spaces   remain   intact.");
 
       const result = await gamemaster.execute_turn("story-123", {
         input: "Hello",
@@ -428,6 +432,26 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
       expect(callCount).toBe(2);
+    });
+
+    it("handles invalid JSON or missing brackets from Director by falling back to raw internal_monologue", async () => {
+      let callCount = 0;
+      vi.mocked(llm_service.generate).mockImplementation(async () => {
+        callCount++;
+        if (callCount === 1) {
+          // Return raw prose missing brackets (representing invalid JSON/missing brackets)
+          return "Orion looks angry and the room is dark";
+        }
+        return "Character response text";
+      });
+
+      const result = await gamemaster.execute_turn("story-123", {
+        input: "Action input",
+        role: "ai",
+      });
+
+      expect(callCount).toBe(2);
+      expect(result.response).toBe("<think>\n## Cognition\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
     });
   });
 });

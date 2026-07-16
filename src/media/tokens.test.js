@@ -14,9 +14,9 @@ describe("Tokens Color Generation", () => {
       expect(result).toBe("var(--color-electric-cyan)");
     });
     test("returns hex value for entity with pink signature_color", () => {
-      const entity = { signature_color: "Hot Pink" };
+      const entity = { signature_color: "Adrenaline Pink" };
       const result = get_signature(entity);
-      expect(result).toBe("var(--color-hot-pink)");
+      expect(result).toBe("var(--color-adrenaline-pink)");
     });
     test("returns hex value for entity with emerald signature_color", () => {
       const entity = { signature_color: "Emerald Green" };
@@ -99,7 +99,7 @@ describe("Tokens Color Generation", () => {
       const entity = {};
       const result = AestheticResolver.flatten(entity);
       expect(result).toBe(
-        "coral rose aesthetic, professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
+        "adrenaline pink aesthetic, professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
       );
     });
 

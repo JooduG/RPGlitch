@@ -39,47 +39,49 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🧠 Pulse (History)
 
-| Reference (ISO 8601) | Task                                                                                                                        | Skill Invoked         | Outcome            |
-| :------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :-------------------- | :----------------- |
-| 2026-07-15 14:56     | Session initialization via `/00-status`                                                                                     | `/00-status`          | 🔄 Active          |
-| 2026-07-14 13:55     | Restored and anchored workspace MCP ecosystem (DevTools, FireCrawl, Sequential Thinking, Svelte)                            | `legislative`         | ✅ Done            |
-| 2026-07-11 15:02     | Refactor Backlog Generator & Config Links                                                                                   | `/02-implement`       | ✅ Done            |
-| 2026-07-11 14:38     | Milestone 2: Code Stability & Logic Polish                                                                                  | `/02-implement`       | ✅ Done            |
-| 2026-07-11 14:18     | Consolidate Imperative Refreshes & Inline Wrappers                                                                          | `/02-implement`       | ✅ Done            |
-| 2026-07-11 14:07     | Plan and draft state ownership & import guidelines (docs/architecture.md)                                                   | `planning`            | ✅ Done            |
-| 2026-07-10 18:54     | Smooth out background blur/dimming transition and suppress inactive card view-transition-names to prevent snapping          | `design`, `svelte`    | ✅ Done            |
-| 2026-07-10 18:08     | Unify profile modal opening with a horizontal 3D card-flip and zoom transition                                              | `/02-implement`       | ✅ Done            |
-| 2026-07-10 14:33     | Optimize in-message image sizes and shrink-wrap containers                                                                  | `design`              | ✅ Done            |
-| 2026-07-06 23:18     | Approved native Antigravity MCP integration plan                                                                            | `planning`            | ✅ Done            |
-| 2026-07-06 19:16     | Completed setup and installation of Understand-Anything plugin                                                              | `/02-implement`       | ✅ Done            |
-| 2026-07-06 19:14     | Initialized plan for Understand-Anything plugin integration                                                                 | `planning`            | ✅ Done            |
-| 2026-06-30 22:25     | Rebuild prompt pipeline natural language across prompts.js, author-styles.js, fragments.js, optics.js, and lists.js         | `/02-implement`       | ✅ Done            |
-| 2026-06-30 07:09     | Refactor heteronormative/gender-specific phrasing in author styles                                                          | `/02-implement`       | ✅ Done            |
-| 2026-06-30 01:10     | Implemented Author Style Profiles Accordion and visible chat prompt injection                                               | `/02-implement`       | ✅ Done            |
-| 2026-06-30 00:50     | Initialize plan for Author Style Profiles integration                                                                       | `planning`            | ✅ Done            |
-| 2026-06-29 20:50     | Implemented Director AI 2-Shot pipeline & removed dynamics_scan                                                             | `/02-implement`       | ✅ Done            |
-| 2026-06-29 20:25     | Initialize plan for 2-Shot Private Inner Voice (inner-voice)                                                                | `planning`            | ✅ Done            |
-| 2026-06-23 23:07     | Prompt efficiency refactor: removed dialogue bold bias, token efficiency & XML properties                                   | `/02-implement`       | ✅ Done            |
-| 2026-06-23 22:22     | Archival of completed feature-macro-engine track and initialization of clean slate.                                         | `legislative`         | ✅ Done            |
-| 2026-06-22 12:15     | Critical analysis of prompt efficiency from console logs in scribbles.md                                                    | `review`              | ✅ Done            |
-| 2026-06-21 16:18     | Plan Universal Macro Parsing Engine and Enhance Profile Feature                                                             | `planning`            | ✅ Done            |
-| 2026-06-18 01:02     | Upgrade image generation: port LISTS, Scribe/Refine JSON pipeline, per-entity negative_prompt field in VisualWing           | `optics`, `image`     | ✅ Done `cfacdbad` |
-| 2026-06-17 19:27     | Fix PHOTO image display: log via `attachments[]` not markdown text (stripped by parser); add `start_generation` busy state  | `debug`, `simulation` | ✅ Done            |
-| 2026-06-17 19:20     | Fix PHOTO button: `simulation_story.by_id` never populated in `runtime.sync()` — `active_story` always returned `undefined` | `debug`, `simulation` | ✅ Done            |
-| 2026-06-15 22:02     | Execute drawer-rename and archive pending backlog tracks                                                                    | `legislative`         | ✅ Done            |
-| 2026-06-15 21:49     | Resolve StoryCard vertical cutoff in Library accordion                                                                      | `debug`, `svelte`     | ✅ Done            |
-| 2026-06-15 17:50     | Fixed Svelte 5 derived_inert errors and AI Chinese language bleed on Perchance                                              | debug, svelte         | ✅ Done            |
-| 2026-06-13 01:56     | Volume slider layout alignment & mute status text polish                                                                    | ui, design            | ✅ Done            |
-| 2026-06-13 03:10     | Tailwind v4 Native Design Token Refactor                                                                                    | design, ui            | ✅ Done            |
-| 2026-06-13 05:07     | Fix Perchance style and import template discrepancies                                                                       | design, ui            | ✅ Done            |
-| 2026-06-13 05:22     | Analyze Perchance flex layout and CSS selector corruption                                                                   | debug, css            | ✅ Done            |
-| 2026-06-13 20:54     | Sensory Cortex & Enhancer Refactor                                                                                          | svelte, design        | ✅ Done            |
+| Reference (ISO 8601) | Task                                                                                                                        | Skill Invoked            | Outcome            |
+| :------------------- | :-------------------------------------------------------------------------------------------------------------------------- | :----------------------- | :----------------- |
+| 2026-07-16 03:55     | Address 3 technical issues in scribbles.md (JSON parsing, XML entities, invalid Director JSON fallback)                     | `planning`, `javascript` | ✅ Done            |
+| 2026-07-16 02:15     | Deconstruct, merge, and clean up duplicate analyses in scribbles.md while highlighting conflicts                            | `/deconstruct`           | ✅ Done            |
+| 2026-07-15 14:56     | Session initialization via `/00-status`                                                                                     | `/00-status`             | 🔄 Active          |
+| 2026-07-14 13:55     | Restored and anchored workspace MCP ecosystem (DevTools, FireCrawl, Sequential Thinking, Svelte)                            | `legislative`            | ✅ Done            |
+| 2026-07-11 15:02     | Refactor Backlog Generator & Config Links                                                                                   | `/02-implement`          | ✅ Done            |
+| 2026-07-11 14:38     | Milestone 2: Code Stability & Logic Polish                                                                                  | `/02-implement`          | ✅ Done            |
+| 2026-07-11 14:18     | Consolidate Imperative Refreshes & Inline Wrappers                                                                          | `/02-implement`          | ✅ Done            |
+| 2026-07-11 14:07     | Plan and draft state ownership & import guidelines (docs/architecture.md)                                                   | `planning`               | ✅ Done            |
+| 2026-07-10 18:54     | Smooth out background blur/dimming transition and suppress inactive card view-transition-names to prevent snapping          | `design`, `svelte`       | ✅ Done            |
+| 2026-07-10 18:08     | Unify profile modal opening with a horizontal 3D card-flip and zoom transition                                              | `/02-implement`          | ✅ Done            |
+| 2026-07-10 14:33     | Optimize in-message image sizes and shrink-wrap containers                                                                  | `design`                 | ✅ Done            |
+| 2026-07-06 23:18     | Approved native Antigravity MCP integration plan                                                                            | `planning`               | ✅ Done            |
+| 2026-07-06 19:16     | Completed setup and installation of Understand-Anything plugin                                                              | `/02-implement`          | ✅ Done            |
+| 2026-07-06 19:14     | Initialized plan for Understand-Anything plugin integration                                                                 | `planning`               | ✅ Done            |
+| 2026-06-30 22:25     | Rebuild prompt pipeline natural language across prompts.js, author-styles.js, fragments.js, optics.js, and lists.js         | `/02-implement`          | ✅ Done            |
+| 2026-06-30 07:09     | Refactor heteronormative/gender-specific phrasing in author styles                                                          | `/02-implement`          | ✅ Done            |
+| 2026-06-30 01:10     | Implemented Author Style Profiles Accordion and visible chat prompt injection                                               | `/02-implement`          | ✅ Done            |
+| 2026-06-30 00:50     | Initialize plan for Author Style Profiles integration                                                                       | `planning`               | ✅ Done            |
+| 2026-06-29 20:50     | Implemented Director AI 2-Shot pipeline & removed dynamics_scan                                                             | `/02-implement`          | ✅ Done            |
+| 2026-06-29 20:25     | Initialize plan for 2-Shot Private Inner Voice (inner-voice)                                                                | `planning`               | ✅ Done            |
+| 2026-06-23 23:07     | Prompt efficiency refactor: removed dialogue bold bias, token efficiency & XML properties                                   | `/02-implement`          | ✅ Done            |
+| 2026-06-23 22:22     | Archival of completed feature-macro-engine track and initialization of clean slate.                                         | `legislative`            | ✅ Done            |
+| 2026-06-22 12:15     | Critical analysis of prompt efficiency from console logs in scribbles.md                                                    | `review`                 | ✅ Done            |
+| 2026-06-21 16:18     | Plan Universal Macro Parsing Engine and Enhance Profile Feature                                                             | `planning`               | ✅ Done            |
+| 2026-06-18 01:02     | Upgrade image generation: port LISTS, Scribe/Refine JSON pipeline, per-entity negative_prompt field in VisualWing           | `optics`, `image`        | ✅ Done `cfacdbad` |
+| 2026-06-17 19:27     | Fix PHOTO image display: log via `attachments[]` not markdown text (stripped by parser); add `start_generation` busy state  | `debug`, `simulation`    | ✅ Done            |
+| 2026-06-17 19:20     | Fix PHOTO button: `simulation_story.by_id` never populated in `runtime.sync()` — `active_story` always returned `undefined` | `debug`, `simulation`    | ✅ Done            |
+| 2026-06-15 22:02     | Execute drawer-rename and archive pending backlog tracks                                                                    | `legislative`            | ✅ Done            |
+| 2026-06-15 21:49     | Resolve StoryCard vertical cutoff in Library accordion                                                                      | `debug`, `svelte`        | ✅ Done            |
+| 2026-06-15 17:50     | Fixed Svelte 5 derived_inert errors and AI Chinese language bleed on Perchance                                              | debug, svelte            | ✅ Done            |
+| 2026-06-13 01:56     | Volume slider layout alignment & mute status text polish                                                                    | ui, design               | ✅ Done            |
+| 2026-06-13 03:10     | Tailwind v4 Native Design Token Refactor                                                                                    | design, ui               | ✅ Done            |
+| 2026-06-13 05:07     | Fix Perchance style and import template discrepancies                                                                       | design, ui               | ✅ Done            |
+| 2026-06-13 05:22     | Analyze Perchance flex layout and CSS selector corruption                                                                   | debug, css               | ✅ Done            |
+| 2026-06-13 20:54     | Sensory Cortex & Enhancer Refactor                                                                                          | svelte, design           | ✅ Done            |
 
 ## 🧹 Backlog (Automated)
 
 <!-- BACKLOG_START -->
 
-Last Swept: 2026-07-14 16:00
+Last Swept: 2026-07-16 03:54
 
 No active AI debt found.
 <!-- BACKLOG_END -->

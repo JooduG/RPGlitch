@@ -20,6 +20,7 @@ import { context_broker } from "./context.svelte.js";
 import { dynamics_engine } from "./dynamics.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
+import { escape_unescaped_json_quotes } from "./parser.js";
 import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
 /**
@@ -32,21 +33,31 @@ import { app, runtime, simulationState } from "@state";
  * @returns {any}
  */
 function parse_director_json(raw_text) {
+  if (!raw_text || !raw_text.trim()) return null;
+  const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
   try {
-    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     const first_brace = stripped.indexOf("{");
     const last_brace = stripped.lastIndexOf("}");
-    if (first_brace === -1 || last_brace === -1) return null;
-    const json_string = stripped.substring(first_brace, last_brace + 1);
-    const sanitized_json = json_string.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
-    const payload = JSON.parse(sanitized_json);
-    if (payload.prose) {
-      delete payload.prose;
+    if (first_brace === -1 || last_brace === -1) {
+      console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
+      return { internal_monologue: stripped };
     }
-    return payload;
+    const json_string = stripped.substring(first_brace, last_brace + 1);
+    const cleaned_json = escape_unescaped_json_quotes(json_string);
+    const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
+    try {
+      const payload = JSON.parse(sanitized_json);
+      if (payload.prose) {
+        delete payload.prose;
+      }
+      return payload;
+    } catch (parse_err) {
+      console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
+      return { internal_monologue: stripped };
+    }
   } catch (e) {
-    console.warn("[GameMaster] Failed to parse Director JSON:", e);
-    return null;
+    console.warn("[GameMaster] Failed to parse Director JSON, returning fallback:", e);
+    return { internal_monologue: stripped };
   }
 }
 

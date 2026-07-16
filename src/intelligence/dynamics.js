@@ -25,7 +25,7 @@ export const dynamics_engine = {
   settle_physics(dynamics, baselines, active_entropy = 50, base_gravity = 0.1) {
     if (!dynamics) return;
 
-    // 1. Gravity Pull
+    // 1. Gravity Pull & Settlement (Clamp to 0-100 bounds)
     const variance = (active_entropy / 100) * 0.05;
 
     Object.keys(dynamics).forEach((axis) => {
@@ -33,12 +33,8 @@ export const dynamics_engine = {
       const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
       const applied_gravity = Math.max(0, Math.min(1, randomized_gravity)); // Clamp [0, 1]
 
-      dynamics[axis] += (target - dynamics[axis]) * applied_gravity;
-    });
-
-    // 2. Settlement (Clamp to 0-100 bounds)
-    Object.keys(dynamics).forEach((axis) => {
-      dynamics[axis] = Math.max(0, Math.min(100, Math.round(dynamics[axis])));
+      const next_val = dynamics[axis] + (target - dynamics[axis]) * applied_gravity;
+      dynamics[axis] = Math.max(0, Math.min(100, Math.round(next_val)));
     });
   },
 
