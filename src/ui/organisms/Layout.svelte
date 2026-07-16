@@ -47,7 +47,7 @@
         : "inset-auto col-span-full row-2 h-auto items-center"
       : mode === "storymode"
         ? `col-[1/3] row-[1/13] h-full ${align_class}`
-        : `col-[2/4] row-[2/12] h-full ${align_class}`,
+        : `col-[2/4] row-[3/11] h-full ${align_class}`,
   );
 
   // ── CENTER MAIN CLASS MATRIX ─────────────────────────────────────────────
@@ -58,7 +58,7 @@
         : "inset-auto col-span-full row-3 h-auto items-center"
       : mode === "storymode"
         ? `col-[3/11] row-[1/13] h-full ${align_class}`
-        : `col-[4/10] row-[2/12] h-full ${align_class}`,
+        : `col-[4/10] row-[3/11] h-full ${align_class}`,
   );
 
   // ── RIGHT ASIDE CLASS MATRIX ────────────────────────────────────────────
@@ -69,7 +69,7 @@
         : "inset-auto col-span-full row-4 h-auto items-center"
       : mode === "storymode"
         ? `col-[11/13] row-[1/13] h-full ${align_class}`
-        : `col-[10/12] row-[2/12] h-full ${align_class}`,
+        : `col-[10/12] row-[3/11] h-full ${align_class}`,
   );
 
   // ── FOOTER CLASS MATRIX ──────────────────────────────────────────────────
