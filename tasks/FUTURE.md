@@ -1,27 +1,30 @@
-# Implementation Plan: Address Parser and Director Issues
+# Implementation Plan: Responsive Design Refactor
 
 ## Goal
-
-Address the 3 issues described in `scribbles.md`:
-
-1. JSON quote-escaping robustness: Automatically replace raw unescaped interior double-quotes with clean backslashed equivalents (`\"`) in JSON strings before parsing them.
-2. Sanitize leaking XML formatting tokens: Strip leaking tokens like `&quot;` and `&apos;` in `parse_message` right before calling `wrap_dialogue`.
-3. Fallback block for Director JSON failure: Intercept raw text prose if model generation drops brackets or outputs invalid JSON, mapping it to `internal_monologue` so it is not lost.
+Implement a hybrid responsive design layout and touch-accessible optimizations across RPGlitch.
 
 ## Research & Audit
-
 - **Files affected**:
-  - `src/intelligence/parser.js`
-  - `src/intelligence/kernel.js`
-  - `src/intelligence/parser.test.js`
-  - `src/intelligence/kernel.test.js`
+  - `DESIGN.md`
+  - `src/App.svelte`
+  - `src/ui/organisms/Layout.svelte`
+  - `src/ui/molecules/UnifiedConsole.svelte`
+  - `src/ui/organisms/Profile.svelte`
 
 ## Steps
 
-- [x] Implement JSON quote-escaping function in `parser.js`
-- [x] Add XML entity sanitization in `parse_message` in `parser.js`
-- [x] Update `parse_director_json` in `kernel.js` with fallback logic
-- [x] Add parser unit tests in `parser.test.js`
-- [x] Add kernel unit tests in `kernel.test.js`
-- [x] Run `npm run verify` to verify local CI success
-- [x] Update `scribbles.md` to check items as complete
+### Phase 1: Foundation (Design Tokens)
+- [ ] Update layout heights in `DESIGN.md` to use `dvh` units
+- [ ] Add coarse pointer query variables and hover guards in `DESIGN.md`
+- [ ] Compile design tokens using `npm run sync`
+- [ ] Verify `npm run verify` and design tests pass
+
+### Phase 2: Chassis & Viewport (App Shell)
+- [ ] Update `src/App.svelte` container to use `h-[100dvh]`
+- [ ] Adjust `src/ui/organisms/Layout.svelte` grid columns/rows for mobile scroll safety
+
+### Phase 3: Molecules & Controls (Touch Targets)
+- [ ] Expand interactive targets to 44x44px under `@media (pointer: coarse)` in `UnifiedConsole.svelte`
+- [ ] Refine mobile tabs and layout details in `Profile.svelte`
+- [ ] Limit hover effects to pointers with hover support (`@media (hover: hover)`)
+- [ ] Run full project verification `npm run verify`
