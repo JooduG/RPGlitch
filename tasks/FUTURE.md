@@ -1,35 +1,18 @@
-# Implementation Plan: Responsive Design Refactor
+# Implementation Plan: Clean & Solid View Transitions
 
 ## Goal
 
-Implement a hybrid responsive design layout and touch-accessible optimizations across RPGlitch.
+Fix visual jitter, snapping, ghostly cross-fading, and disjointed button morphing when transitioning between Storyboard and Storymode by:
 
-## Research & Audit
-
-- **Files affected**:
-  - `DESIGN.md`
-  - `src/App.svelte`
-  - `src/ui/organisms/Layout.svelte`
-  - `src/ui/molecules/UnifiedConsole.svelte`
-  - `src/ui/organisms/Profile.svelte`
+1. Decoupling nested parent/child `view-transition-name` properties.
+2. Overriding default cross-fade animations to make the persistent console and cards transition as solid blocks of machinery.
 
 ## Steps
 
-### Phase 1: Foundation (Design Tokens)
-
-- [ ] Update layout heights in `DESIGN.md` to use `dvh` units
-- [ ] Add coarse pointer query variables and hover guards in `DESIGN.md`
-- [ ] Compile design tokens using `npm run sync`
-- [ ] Verify `npm run verify` and design tests pass
-
-### Phase 2: Chassis & Viewport (App Shell)
-
-- [ ] Update `src/App.svelte` container to use `h-[100dvh]`
-- [ ] Adjust `src/ui/organisms/Layout.svelte` grid columns/rows for mobile scroll safety
-
-### Phase 3: Molecules & Controls (Touch Targets)
-
-- [ ] Expand interactive targets to 44x44px under `@media (pointer: coarse)` in `UnifiedConsole.svelte`
-- [ ] Refine mobile tabs and layout details in `Profile.svelte`
-- [ ] Limit hover effects to pointers with hover support (`@media (hover: hover)`)
-- [ ] Run full project verification `npm run verify`
+- [x] Edit Storyboard.svelte to update the wrapper div view-transition-name properties.
+- [x] Edit Storymode.svelte to update the wrapper div view-transition-name properties.
+- [x] Edit UnifiedConsole.svelte to assign view-transition-name: unified-console to the console inner chassis.
+- [x] Remove individual view-transition-names from UnifiedConsole.svelte inner buttons/controls.
+- [x] Edit DESIGN.md to add base overrides that disable cross-fade for card-slot-ai, card-slot-user, and unified-console.
+- [x] Run design token synchronization (npm run sync).
+- [x] Verify changes using npm run verify.

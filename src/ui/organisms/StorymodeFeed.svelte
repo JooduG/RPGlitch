@@ -245,7 +245,6 @@
     gap-0
     overflow-hidden
     px-0
-    py-4
   "
   bind:this={scroll_ref}
 >

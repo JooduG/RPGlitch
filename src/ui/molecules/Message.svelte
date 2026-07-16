@@ -193,11 +193,7 @@
       p-4
       transition-all
       duration-200
-      {is_user
-      ? 'justify-end pr-[calc(var(--spacing-column-unit)*0.5)]'
-      : is_ai
-        ? 'justify-start pl-[calc(var(--spacing-column-unit)*0.5)]'
-        : 'justify-center'}
+      {is_user ? 'justify-end pr-column-unit' : is_ai ? 'justify-start pl-column-unit' : 'justify-center'}
     "
   >
     <!-- svelte-ignore a11y_no_noninteractive_tabindex -->
@@ -241,7 +237,7 @@
           before:opacity-100
         `}
 
-        {is_fractal ? 'w-[calc(var(--spacing-column-unit)*6)]' : 'w-[calc(var(--spacing-column-unit)*5.5)]'}
+        w-[calc(var(--spacing-column-unit)*5)]
       "
       style="--signature-color: {signature_color};"
       tabindex="0"

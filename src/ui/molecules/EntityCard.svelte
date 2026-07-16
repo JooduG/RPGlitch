@@ -467,7 +467,7 @@
     {/if}
   </div>
 
-  {#if !is_empty && variant === "panel"}
+  {#if !is_empty && variant === "panel" && app.view !== "storymode"}
     <nav
       class="
       pointer-events-auto

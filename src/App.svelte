@@ -3,11 +3,15 @@
    * @file App.svelte
    * THE CORE SHELL
    * Central view orchestration shell executing view-switching logic natively.
+   * Refactored: Option A — persistent layout hoist.
+   * EntityCards and UnifiedConsole are mounted ONCE here and never destroyed
+   * during view transitions, enabling true View Transition API morphing.
    */
-  import { ImagePreview, Tooltip } from "@atoms";
+  import { ImagePreview, Skeleton, Tooltip } from "@atoms";
+  import { UnifiedConsole, EntityCard } from "@molecules";
   import { motion } from "@motion";
-  import { Profile, Storyboard, Storymode } from "@organisms";
-  import { app } from "@state";
+  import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
+  import { app, runtime } from "@state";
 
   // --- DERIVED RUNES ---
 
@@ -18,6 +22,12 @@
 
   $effect(() => {
     app.load_entities();
+  });
+
+  $effect(() => {
+    if (!runtime.is_ready) {
+      runtime.sync();
+    }
   });
 
   // Centralized State Reset: Restores engine physics velocity when streaming begins
@@ -52,10 +62,125 @@
 
   <ImagePreview />
 
-  {#if app.view === "storyboard"}
-    <Storyboard />
-  {:else if app.view === "storymode"}
-    <Storymode />
+  <!--
+    PERSISTENT LAYOUT — single instance always in the DOM.
+    mode drives column sizing via CSS class matrix in Layout.svelte.
+    Only center/header snippets are swapped between views.
+  -->
+  <Layout mode={app.view === "storymode" ? "storymode" : "storyboard"}>
+    {#snippet header()}
+      {#if app.view === "storyboard" && app.entities_loaded}
+        <Storyboard />
+      {/if}
+    {/snippet}
+
+    {#snippet left()}
+      {#if !app.entities_loaded}
+        <Skeleton variant="card" width="100%" height="100%" />
+      {:else}
+        {@const entity = app.selected_ai}
+        <div
+          class="flex h-full w-full items-center justify-center {app.view === 'storymode'
+            ? 'p-2 transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]'
+            : ''}"
+          style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-ai" : undefined}
+        >
+          <EntityCard
+            variant={app.view === "storymode" ? "panel" : entity ? "panel" : "slot"}
+            type="ai"
+            {entity}
+            role_label="AI Character"
+            on_select={() => {
+              if (entity) {
+                app.toggle_profile(true, entity);
+              } else if (app.view === "storyboard") {
+                app.open_card_hand("ai");
+              }
+            }}
+            on_swap={() => app.open_card_hand("ai")}
+            on_view_profile={() => app.toggle_profile(true, entity)}
+          />
+        </div>
+      {/if}
+    {/snippet}
+
+    {#snippet center()}
+      {#if app.view === "storyboard"}
+        {#if !app.entities_loaded}
+          <Skeleton variant="card" width="100%" height="100%" />
+        {:else}
+          {@const entity = app.selected_fractal}
+          <div
+            class="flex h-full w-full items-center justify-center"
+            style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-fractal" : undefined}
+          >
+            <EntityCard
+              variant={entity ? "panel" : "slot"}
+              type="fractal"
+              {entity}
+              role_label="Fractal"
+              on_select={() => {
+                if (entity) {
+                  app.toggle_profile(true, entity);
+                } else {
+                  app.open_card_hand("fractal");
+                }
+              }}
+              on_swap={() => app.open_card_hand("fractal")}
+              on_view_profile={() => app.toggle_profile(true, entity)}
+            />
+          </div>
+        {/if}
+      {:else if app.view === "storymode"}
+        <div class="relative flex h-full w-full flex-col overflow-hidden">
+          {#if !app.entities_loaded}
+            <Skeleton variant="card" width="100%" height="100%" />
+          {:else}
+            <Storymode />
+          {/if}
+        </div>
+      {/if}
+    {/snippet}
+
+    {#snippet right()}
+      {#if !app.entities_loaded}
+        <Skeleton variant="card" width="100%" height="100%" />
+      {:else}
+        {@const entity = app.selected_user}
+        <div
+          class="flex h-full w-full items-center justify-center {app.view === 'storymode'
+            ? 'p-2 transition-transform duration-300 md:translate-x-[calc(-0.5*var(--spacing-column-unit))]'
+            : ''}"
+          style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-user" : undefined}
+        >
+          <EntityCard
+            variant={app.view === "storymode" ? "panel" : entity ? "panel" : "slot"}
+            type="user"
+            {entity}
+            role_label="User Persona"
+            on_select={() => {
+              if (entity) {
+                app.toggle_profile(true, entity);
+              } else if (app.view === "storyboard") {
+                app.open_card_hand("user");
+              }
+            }}
+            on_swap={() => app.open_card_hand("user")}
+            on_view_profile={() => app.toggle_profile(true, entity)}
+          />
+        </div>
+      {/if}
+    {/snippet}
+
+    {#snippet footer()}
+      {#if app.entities_loaded}
+        <UnifiedConsole />
+      {/if}
+    {/snippet}
+  </Layout>
+
+  {#if app.entities_loaded}
+    <CardHand />
   {/if}
 
   {#if app.profile_open}
@@ -152,11 +277,6 @@
     );
     background-size: calc(100% / 12) calc(100% / 12);
     background-repeat: repeat;
-  }
-
-  [data-dev="grid"][data-view="storymode"] {
-    width: 100vw;
-    height: 100dvh;
   }
 
   [data-dev="grid"] [data-axis="col"] {

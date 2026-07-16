@@ -23,11 +23,9 @@
   let container_class = $derived(
     app.viewport.mobile
       ? mode === "storymode"
-        ? "h-screen w-screen grid-cols-2 grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content] overflow-hidden"
+        ? "h-[100dvh] w-grid-width grid-cols-2 grid-rows-[min-content_16rem_1fr_min-content] overflow-hidden"
         : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
-      : mode === "storymode"
-        ? "h-screen w-screen grid-cols-12 grid-rows-12"
-        : "h-grid-height w-grid-width grid-cols-12 grid-rows-12",
+      : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden",
   );
 
   // ── HEADER CLASS MATRIX ──────────────────────────────────────────────────

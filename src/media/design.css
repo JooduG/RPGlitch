@@ -690,9 +690,27 @@
 ::view-transition-group(card-slot-fractal),
 ::view-transition-group(entity-morph-ai),
 ::view-transition-group(entity-morph-user),
-::view-transition-group(entity-morph-fractal) {
+::view-transition-group(entity-morph-fractal),
+::view-transition-group(unified-console) {
   animation-duration: var(--duration-slow);
   animation-timing-function: var(--ease-standard);
+}
+
+/* Base overrides for persistent elements (defaults for view transitions) */
+::view-transition-old(card-slot-ai),
+::view-transition-old(card-slot-user),
+::view-transition-old(card-slot-fractal),
+::view-transition-old(unified-console) {
+  animation: none;
+  opacity: 0;
+}
+
+::view-transition-new(card-slot-ai),
+::view-transition-new(card-slot-user),
+::view-transition-new(card-slot-fractal),
+::view-transition-new(unified-console) {
+  animation: none;
+  mix-blend-mode: normal;
 }
 
 /* --- 3D Profile Flip Transition --- */

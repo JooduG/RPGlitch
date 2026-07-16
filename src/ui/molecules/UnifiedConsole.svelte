@@ -275,19 +275,20 @@
       md:max-h-[calc(var(--spacing-row-unit)*9)]
 
       {app.control_panel_open
-      ? 'absolute bottom-0 w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*6)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
+      ? 'absolute bottom-0 w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
       : 'relative h-auto w-full rounded-none px-4 py-2 md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
       ? `
       border-(--signature-color,var(--color-slate-600))
       shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
-      md:w-[calc(var(--spacing-column-unit)*6)]
+      md:w-[calc(var(--spacing-column-unit)*5)]
     `
       : !app.control_panel_open
         ? 'md:w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
         : ''}
   "
     style:--signature-color={app.view === "storymode" ? signature_color : undefined}
+    style:view-transition-name="unified-console"
     data-testid="unified-console"
   >
     <!-- ACCORDION SETTINGS (VERTICAL EXPANSION) -->
@@ -298,7 +299,7 @@
     >
       <div class="flex min-h-0 w-full flex-col overflow-hidden">
         <div
-          class="mx-auto flex min-h-0 w-full flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*6-2rem)] {app.control_panel_open
+          class="mx-auto flex min-h-0 w-full flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
             ? 'opacity-100 delay-300 duration-200'
             : 'delay-0 duration-150'}"
         >
@@ -632,7 +633,6 @@
           data-testid="settings-button"
           actions={[roll, tooltip]}
           class="touch-target-coarse"
-          style="view-transition-name: console-settings-node"
         >
           <svg
             viewBox="0 0 24 24"
@@ -653,7 +653,6 @@
           disabled={app.control_panel_open}
           onclick={storyboard.begin}
           actions={[pulse]}
-          style="view-transition-name: console-center-axis"
         >
           <h6
             class="m-0 tracking-widest transition-all duration-300 {ready_to_begin
@@ -675,7 +674,6 @@
           onclick={() => storyboard.shuffle()}
           actions={[shimmy, tooltip]}
           class="touch-target-coarse"
-          style="view-transition-name: console-right-flank"
         >
           <svg viewBox="0 0 24 24" class="block size-icon-medium">
             <path
@@ -692,7 +690,6 @@
           aria-label="Settings"
           actions={[roll, tooltip]}
           class="touch-target-coarse"
-          style="view-transition-name: console-settings-node"
         >
           <svg
             class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
@@ -732,7 +729,6 @@
           rows="1"
           disabled={app.control_panel_open}
           aria-label="Input message"
-          style="view-transition-name: console-center-axis"
         ></textarea>
 
         {#if app.streaming.active}
@@ -743,7 +739,6 @@
             aria-label="Interrupt Generation"
             actions={[tooltip]}
             class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
-            style="view-transition-name: console-right-flank"
           >
             <svg class="block size-icon-medium" viewBox="0 0 24 24">
               <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
@@ -757,7 +752,6 @@
             aria-label="Send Message"
             actions={[stab, tooltip]}
             class="touch-target-coarse"
-            style="view-transition-name: console-right-flank"
           >
             <svg class="block size-icon-medium" viewBox="0 0 24 24">
               <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
