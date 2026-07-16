@@ -285,7 +285,7 @@
       shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
     `
       : !app.control_panel_open
-        ? 'w-[calc(var(--spacing-column-unit)*4)]'
+        ? 'w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
         : ''}
   "
     style:--signature-color={app.view === "storymode" ? signature_color : undefined}

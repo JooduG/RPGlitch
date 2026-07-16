@@ -253,12 +253,15 @@
   "
   class:w-[calc(var(--spacing-storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
-  class:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
-  class:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
+  class:w-full={variant !== "library"}
+  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
+  class:h-[12rem]={type === "fractal" && variant !== "library"}
+  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
   class:w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
-  class:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
-  class:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
+  class:md:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
+  class:h-[18rem]={type !== "fractal" && variant !== "library"}
+  class:md:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   style:opacity={app.profile_open && app.editing_entity?.id === entity?.id && variant !== "library" ? 0 : undefined}
