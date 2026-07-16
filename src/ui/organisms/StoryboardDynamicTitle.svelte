@@ -124,14 +124,13 @@
   class="
     pointer-events-none
     z-40
-    block
-    max-w-[100vw]
+    inline-block
+    max-w-[90vw]
     cursor-text
     px-4
     text-center
-    text-[clamp(1.8rem,5vw,4.5rem)]
+    text-[clamp(1.5rem,3.2vw,2.6rem)]
     font-normal
-    text-balance
     transition-all
     duration-300
     select-none

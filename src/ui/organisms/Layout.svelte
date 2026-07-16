@@ -23,7 +23,7 @@
   let container_class = $derived(
     app.viewport.mobile
       ? mode === "storymode"
-        ? "h-grid-height w-grid-width grid-cols-2 grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content] overflow-hidden"
+        ? "h-screen w-screen grid-cols-2 grid-rows-[min-content_calc(var(--spacing-spacing-unit)*24)_1fr_min-content] overflow-hidden"
         : "h-grid-height w-grid-width grid-cols-12 grid-rows-12 overflow-hidden"
       : mode === "storymode"
         ? "h-screen w-screen grid-cols-12 grid-rows-12"
@@ -38,7 +38,7 @@
         : "relative inset-auto col-[1/13] row-[1/3] h-full items-center justify-center"
       : mode === "storymode"
         ? "absolute right-0 left-0 col-[1/13] row-start-2 items-end self-stretch"
-        : "absolute right-0 left-0 col-[2/12] row-[1/4] inset-y-0 items-end pb-[calc(var(--spacing-row-unit)*0.5)]",
+        : "col-[2/12] row-[1/4] h-full items-end pb-[calc(var(--spacing-row-unit)*0.5)]",
   );
 
   // ── LEFT ASIDE CLASS MATRIX ──────────────────────────────────────────────

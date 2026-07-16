@@ -60,9 +60,7 @@
     "flex h-full overflow-y-auto overflow-x-hidden border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent relative z-10 " +
       (app.viewport.mobile
         ? "col-span-full flex-col rounded-none "
-        : has_wings
-          ? "modal-profile-grid-main rounded-2xl "
-          : "modal-profile-grid-flat rounded-none ") +
+        : (has_wings ? "modal-profile-grid-main" : "modal-profile-grid-flat") + " rounded-2xl ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
@@ -75,8 +73,8 @@
   const profile_pic_wrapper_class = $derived(
     "overflow-hidden border-solid transition-all duration-300 " +
       (entity_type === "fractal"
-        ? "h-full w-full border-0 border-b " + (has_wings && !app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
-        : "h-full w-full border-0 border-r " + (has_wings && !app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
+        ? "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
+        : "h-full w-full border-0 border-r " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
       (app.viewport.mobile ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
   );
 
@@ -96,7 +94,7 @@
   const get_section_class = (arrayField) => {
     let cls = "relative flex min-w-0 flex-col items-center justify-center overflow-hidden text-center transition-all duration-300 ";
     cls += profileState.is_editing && arrayField ? "cursor-pointer " : "cursor-default ";
-    if (app.viewport.mobile) cls += "pr-0 pb-2";
+    if (app.viewport.mobile) cls += "pr-0";
     return cls;
   };
 
@@ -188,9 +186,11 @@
 
     if (profileState.is_dirty) {
       show_close_confirm = true;
+      event.preventDefault();
       return;
     }
 
+    event.preventDefault();
     profileState.handle_close();
   }
 </script>
@@ -248,7 +248,7 @@
   >
     <div
       class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
-        app.viewport.mobile ? "h-dvh grid-rows-[1fr_auto] gap-y-4 pb-4" : has_wings ? "my-auto h-[90dvh] grid-rows-1" : "h-dvh grid-rows-1"
+        app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4" : "h-dvh grid-rows-1") : "my-auto h-[90dvh] grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
       role="presentation"
@@ -388,8 +388,8 @@
       <!-- Wing Container stays in DOM to animate exit -->
       <aside
         data-wings-container
-        class={"relative z-0 flex scrollbar-none gap-4 [&::-webkit-scrollbar]:hidden " +
-          (app.viewport.mobile ? "col-span-full w-full items-start overflow-x-auto" : "col-[9/12] flex-col items-center overflow-y-auto")}
+        class={"relative isolate z-0 flex scrollbar-none gap-4 [&::-webkit-scrollbar]:hidden " +
+          (app.viewport.mobile ? "col-span-full w-full items-start overflow-x-visible" : "col-[9/12] flex-col items-center overflow-y-auto")}
         style:animation={has_wings && !app.viewport.mobile
           ? "wing-slide-out var(--motion-elastic) forwards"
           : !app.viewport.mobile
@@ -397,7 +397,7 @@
             : ""}
         style:pointer-events={has_wings ? "auto" : "none"}
       >
-        <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4 pb-8" : "my-auto w-full flex-col")}>
+        <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4" : "my-auto w-full flex-col")}>
           {#if profileState.is_editing}
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
@@ -408,13 +408,15 @@
             </div>
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
-              class={app.viewport.mobile ? "max-w-sm" : "w-full"}
+              class={"flex flex-col gap-4 " + (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-4" : "w-full")}
               transition:fade={{ duration: 250 }}
             >
               <AudioWing {profileState} />
+              {#if app.settings.dev_mode}
+                <DevWing {profileState} />
+              {/if}
             </div>
-          {/if}
-          {#if app.settings.dev_mode}
+          {:else if app.settings.dev_mode}
             <div style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""} class={app.viewport.mobile ? "max-w-sm" : "w-full"}>
               <DevWing {profileState} />
             </div>

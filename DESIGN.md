@@ -954,30 +954,32 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   }
 }
 
-/* Fix profile panel side grid positioning */
-[data-wings-container] {
-  grid-column: 9 / 12 !important;
-  display: flex !important;
-  flex-direction: column !important;
-  justify-content: center !important;
-  align-items: center !important;
-  gap: 1rem !important;
-}
+@media (width >= 48rem) {
+  /* Fix profile panel side grid positioning */
+  [data-wings-container] {
+    grid-column: 9 / 12 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 1rem !important;
+  }
 
-/* Force all 3 wing section containers to maintain flex states and respect vertical gaps */
-[data-wings-container] section {
-  display: flex !important;
-  flex-direction: column !important;
-  gap: var(--spacing-gap-standard, 1rem) !important;
-}
+  /* Force all 3 wing section containers to maintain flex states and respect vertical gaps */
+  [data-wings-container] section {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: var(--spacing-gap-standard, 1rem) !important;
+  }
 
-/* Force standard desktop view margins */
-.modal-profile-grid-main {
-  grid-column: 2 / 8 !important;
-}
+  /* Force standard desktop view margins */
+  .modal-profile-grid-main {
+    grid-column: 2 / 8 !important;
+  }
 
-.modal-profile-grid-flat {
-  grid-column: 4 / 10 !important;
+  .modal-profile-grid-flat {
+    grid-column: 4 / 10 !important;
+  }
 }
 
 /* Force right alignment on utility control bars */

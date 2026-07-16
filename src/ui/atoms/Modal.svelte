@@ -55,8 +55,19 @@
         {#if activeOpen}
           <Backdrop
             {...overlayProps}
+            onpointerdown={(/** @type {PointerEvent} */ e) => {
+              // Intercept the bits-ui overlay pointerdown to stop it from closing the Profile modal.
+              // The Profile manages its own outside clicks via `click_outside`.
+              if (variant === "profile") {
+                e.preventDefault();
+              } else if (overlayProps.onpointerdown) {
+                overlayProps.onpointerdown(e);
+              }
+            }}
             onclick={() => {
-              open = false;
+              if (variant !== "profile") {
+                open = false;
+              }
             }}
             {z_index}
             busy={is_busy}

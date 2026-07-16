@@ -82,10 +82,11 @@
           <div class="relative z-20 flex h-full w-full items-center justify-center">
             <ProfilePicture
               {entity}
-              contain={true}
+              contain={false}
               landscape={false}
-              class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!"
+              class="object-top [&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none! [&_img]:object-top"
             />
+            <div class="pointer-events-none absolute inset-0 z-20 bg-linear-to-t from-black/90 via-black/10 to-transparent"></div>
           </div>
         </button>
       </article>
@@ -107,11 +108,6 @@
         <Skeleton variant="card" width="100%" height="100%" />
       {:else}
         <StorymodeFeed />
-        <div class="pointer-events-none absolute bottom-0 z-30 w-full pb-row-unit">
-          <div class="pointer-events-auto">
-            <UnifiedConsole />
-          </div>
-        </div>
       {/if}
     </div>
   {/snippet}
@@ -177,13 +173,20 @@
           <div class="relative z-20 flex h-full w-full items-center justify-center">
             <ProfilePicture
               {entity}
-              contain={true}
+              contain={false}
               landscape={false}
-              class="[&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none!"
+              class="object-top [&_.profile-placeholder]:bg-transparent! [&_.profile-placeholder]:bg-none! [&_img]:object-top"
             />
+            <div class="pointer-events-none absolute inset-0 z-20 bg-linear-to-t from-black/90 via-black/10 to-transparent"></div>
           </div>
         </button>
       </article>
+    {/if}
+  {/snippet}
+
+  {#snippet footer()}
+    {#if app.entities_loaded}
+      <UnifiedConsole />
     {/if}
   {/snippet}
 </Layout>

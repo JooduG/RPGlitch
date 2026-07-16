@@ -471,32 +471,29 @@
     <nav
       class="
       pointer-events-auto
-      invisible
       absolute
-      top-2
-      right-2
+      top-[clamp(0.25rem,4cqi,0.5rem)]
+      right-[clamp(0.25rem,4cqi,0.5rem)]
       z-50
       flex
-      -translate-y-1
-      opacity-0
+      opacity-50
       transition-all
       duration-300
       ease-in-out
 
-      group-hover:visible
-      group-hover:translate-y-0
-      group-hover:opacity-100
+      focus-within:opacity-100
+      hover:opacity-100
     "
     >
       <Button
         class="
         flex
-        h-12
-        w-12
+        h-[clamp(2rem,18cqi,3rem)]
+        w-[clamp(2rem,18cqi,3rem)]
         items-center
         justify-center
         rounded-full
-        p-0
+        p-0!
       "
         actions={[[tooltip, { text: `Swap ${entity?.name || name}` }]]}
         variant="secondary"
@@ -507,7 +504,7 @@
         }}
         tabindex="-1"
       >
-        <svg viewBox="0 0 24 24" class="size-icon-medium">
+        <svg viewBox="0 0 24 24" class="h-[clamp(1.25rem,10cqi,1.75rem)] w-[clamp(1.25rem,10cqi,1.75rem)] fill-white text-white">
           <path d="M16,17.01V10H14V17.01H11L15,21L19,17.01H16M9,3L5,6.99H8V14H10V6.99H13L9,3Z" />
         </svg></Button
       >

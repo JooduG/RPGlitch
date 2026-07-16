@@ -262,10 +262,9 @@
       app.control_panel_open = false;
     }}
     class="
-      pointer-events-auto absolute bottom-0
+      pointer-events-auto
       z-50
       flex flex-col
-      items-center
       {app.control_panel_open ? 'justify-end' : 'justify-center'}
       bg-glass-elevated
       shadow-2xl
@@ -276,8 +275,8 @@
       md:max-h-[calc(var(--spacing-row-unit)*9)]
 
       {app.control_panel_open
-      ? 'w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*6)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
-      : 'h-full w-full rounded-none px-4 py-2 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
+      ? 'absolute bottom-0 w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*6)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
+      : 'relative h-auto w-full rounded-none px-4 py-2 md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
     {!app.control_panel_open && is_focused && app.view === 'storymode'
       ? `
       border-(--signature-color,var(--color-slate-600))
