@@ -33,21 +33,21 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "relative inset-auto col-span-full row-start-1 h-auto items-center"
-        : "relative inset-auto col-[1/13] row-[1/3] h-full items-center justify-center"
+        : "relative inset-auto col-start-1 col-end-13 row-start-1 row-end-3 self-end items-center justify-center"
       : mode === "storymode"
-        ? "absolute right-0 left-0 col-[1/13] row-start-2 items-end self-stretch"
-        : "col-[2/12] row-[1/4] h-full items-end pb-[calc(var(--spacing-row-unit)*0.5)]",
+        ? "absolute right-0 left-0 col-start-1 col-end-13 row-start-2 items-end self-stretch"
+        : "col-start-2 col-end-12 row-start-1 row-end-4 self-end pb-[calc(var(--spacing-row-unit)*0.5)]",
   );
 
   // ── LEFT ASIDE CLASS MATRIX ──────────────────────────────────────────────
   let left_class = $derived(
     app.viewport.mobile
       ? mode === "storymode"
-        ? "col-[1/2] row-2 h-full items-center bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--color-void-black))]"
-        : "relative inset-auto col-[1/7] row-[6/12] h-full items-center justify-center"
+        ? "col-start-1 col-end-2 row-start-2 h-full items-center bg-[radial-gradient(circle_at_top_center,var(--color-slate-700),var(--color-void-black))]"
+        : "relative inset-auto col-start-1 col-end-7 row-start-6 row-end-12 h-full items-center justify-center"
       : mode === "storymode"
-        ? `col-[1/3] row-[1/13] h-full ${align_class}`
-        : `col-[2/4] row-[3/11] h-full ${align_class}`,
+        ? `col-start-1 col-end-3 row-start-1 row-end-13 h-full ${align_class}`
+        : `col-start-2 col-end-4 row-start-3 row-end-11 h-full ${align_class}`,
   );
 
   // ── CENTER MAIN CLASS MATRIX ─────────────────────────────────────────────
@@ -55,21 +55,21 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "inset-auto col-span-full row-3 h-full items-center overflow-hidden"
-        : "relative inset-auto col-[1/13] row-[3/6] h-full items-center justify-center"
+        : "relative inset-auto col-start-1 col-end-13 row-start-3 row-end-6 h-full items-center justify-center"
       : mode === "storymode"
-        ? `col-[3/11] row-[1/13] h-full ${align_class}`
-        : `col-[4/10] row-[3/11] h-full ${align_class}`,
+        ? `col-start-3 col-end-11 row-start-1 row-end-13 h-full ${align_class}`
+        : `col-start-4 col-end-10 row-start-3 row-end-11 h-full ${align_class}`,
   );
 
   // ── RIGHT ASIDE CLASS MATRIX ────────────────────────────────────────────
   let right_class = $derived(
     app.viewport.mobile
       ? mode === "storymode"
-        ? "col-[2/3] row-2 h-full items-center"
-        : "relative inset-auto col-[7/13] row-[6/12] h-full items-center justify-center"
+        ? "col-start-2 col-end-3 row-start-2 h-full items-center"
+        : "relative inset-auto col-start-7 col-end-13 row-start-6 row-end-12 h-full items-center justify-center"
       : mode === "storymode"
-        ? `col-[11/13] row-[1/13] h-full ${align_class}`
-        : `col-[10/12] row-[3/11] h-full ${align_class}`,
+        ? `col-start-11 col-end-13 row-start-1 row-end-13 h-full ${align_class}`
+        : `col-start-10 col-end-12 row-start-3 row-end-11 h-full ${align_class}`,
   );
 
   // ── FOOTER CLASS MATRIX ──────────────────────────────────────────────────
@@ -77,10 +77,10 @@
     app.viewport.mobile
       ? mode === "storymode"
         ? "relative inset-auto col-span-full row-4 h-auto items-center"
-        : "relative inset-auto col-[1/13] row-start-12 h-full items-end justify-center"
+        : "relative inset-auto col-start-1 col-end-13 row-start-12 h-full items-end justify-center"
       : mode === "storymode"
-        ? "col-[1/13] row-start-11 h-row-unit items-start self-stretch"
-        : "col-[2/12] row-start-10 h-row-unit items-end self-stretch",
+        ? "col-start-1 col-end-13 row-start-11 h-row-unit items-start self-stretch"
+        : "col-start-2 col-end-12 row-start-10 h-row-unit items-end self-stretch",
   );
 </script>
 
