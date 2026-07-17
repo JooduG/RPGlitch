@@ -119,48 +119,49 @@
   }
 </script>
 
-<h2
-  class="
-    pointer-events-none
-    z-40
-    inline-block
-    max-w-[90vw]
-    cursor-text
-    px-4
-    text-center
-    text-[clamp(1.5rem,3.2vw,2.6rem)]
-    font-normal
-    transition-all
-    duration-300
-    select-none
+<div class="flex w-full justify-center">
+  <h2
+    class="
+      pointer-events-none
+      z-40
+      inline-block
+      max-w-[90vw]
+      cursor-text
+      px-4
+      text-center
+      text-[clamp(1.5rem,3.2vw,2.6rem)]
+      font-normal
+      transition-all
+      duration-300
+      select-none
 
-    hover:rounded-md
-    hover:bg-white/5
+      hover:rounded-md
+      hover:bg-white/5
 
-    focus:rounded-md
-    focus:bg-black/20
-    focus:shadow-md
-    focus:outline-none
+      focus:rounded-md
+      focus:bg-black/20
+      focus:shadow-md
+      focus:outline-none
 
-    [&>span]:pointer-events-auto
-  "
-  style="font-family: Satisfy, cursive;"
-  use:tooltip={{ text: "Double-click to re-roll title" }}
-  contenteditable="true"
-  aria-label="Story Title"
-  oninput={handle_input}
-  ondblclick={handle_reset}
->
-  {#if is_custom}
-    <span
-      class="text-shadow-[0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]"
-      >{custom_title}</span
-    >
-  {:else}
-    {#each title_parts as part, i (i)}
-      {#if part.color}
-        <span
-          class="
+      [&>span]:pointer-events-auto
+    "
+    style="font-family: Satisfy, cursive;"
+    use:tooltip={{ text: "Double-click to re-roll title" }}
+    contenteditable="true"
+    aria-label="Story Title"
+    oninput={handle_input}
+    ondblclick={handle_reset}
+  >
+    {#if is_custom}
+      <span
+        class="text-shadow-[0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]"
+        >{custom_title}</span
+      >
+    {:else}
+      {#each title_parts as part, i (i)}
+        {#if part.color}
+          <span
+            class="
             inline
             px-2
             font-['Satisfy',cursive]
@@ -168,22 +169,23 @@
             text-(--signature-color)
             [text-shadow:0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]
           "
-          style:--signature-color={part.color}>{part.text}</span
-        >
-      {:else}
-        <span
-          class="
+            style:--signature-color={part.color}>{part.text}</span
+          >
+        {:else}
+          <span
+            class="
           inline
           px-2
           font-['Satisfy',cursive]
           whitespace-normal
           text-shadow-[0_var(--spacing-spacing-pixel)_var(--spacing-spacing-pixel)_var(--color-void-black),0_0_var(--spacing-spacing-unit)_var(--color-void-black)]
         ">{part.text}</span
-        >
-      {/if}
-    {/each}
-  {/if}
-</h2>
+          >
+        {/if}
+      {/each}
+    {/if}
+  </h2>
+</div>
 
 <style>
   /* Ensure Satisfy loads even if index.html is bypassed */

@@ -248,7 +248,7 @@
   "
   bind:this={scroll_ref}
 >
-  <ScrollArea style="height: 100%; width: 100%;">
+  <ScrollArea data-id="storymode-scroll-area" style="height: 100%; width: 100%;">
     {#each visible_feed as entry, index (entry.id)}
       <Message
         id={entry.id}
@@ -297,3 +297,13 @@
     <div class="h-[calc(var(--spacing-row-unit)*2)] w-full shrink-0"></div>
   </ScrollArea>
 </div>
+
+<style>
+  :global([data-id="storymode-scroll-area"] > [data-orientation="vertical"]) {
+    position: fixed !important;
+    right: 0 !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    height: 100dvh !important;
+  }
+</style>
