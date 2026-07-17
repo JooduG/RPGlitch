@@ -79,7 +79,7 @@
   type="button"
   class="
     pointer-events-auto
-    relative
+    {cover ? '' : 'relative'}
     inline-flex
     {height_class}
     {width_class}

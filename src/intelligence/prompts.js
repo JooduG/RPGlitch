@@ -218,12 +218,12 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   </FRACTAL>`.trim()
       : ""
   }
-  <USER_ACTION>${ind(input, 4)}</USER_ACTION>
+  ${input?.trim() ? `<USER_ACTION>${ind(input, 4)}</USER_ACTION>` : ""}
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
   <TASK>
-    Return exactly one valid JSON payload representing state mutations caused by the USER_ACTION:
+    Return exactly one valid JSON payload representing state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}:
     {
       "mutations": {
         "AI_CHARACTER": {
@@ -305,13 +305,13 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
   </FRACTAL>`.trim()
       : ""
   }
-  <USER_ACTION>${ind(input, 4)}</USER_ACTION>
+  ${input?.trim() ? `<USER_ACTION>${ind(input, 4)}</USER_ACTION>` : ""}
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
   <TASK>
     <THINK_FORMAT>
-    Begin your response with <think>. Use the COGNITION protocol (Phases 1-4) to plan your internal reaction to the USER_ACTION based on your current PRESENT states. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
+    Begin your response with <think>. Use the COGNITION protocol (Phases 1-4) to plan your internal reaction to the ${input?.trim() ? "USER_ACTION" : "current situation"} based on your current PRESENT states. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
     </THINK_FORMAT>
     <STABILITY_LOCK>${stabilityLockContent}</STABILITY_LOCK>
     <EPISTEMIC_PHYSICS>
@@ -321,7 +321,7 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
       4. Maintain realistic physical boundaries. Avoid constant proximity encroachment, towering gestures, or physical intimidation unless executing a violent mutation directive. 
       5. Avoid overusing broad physical adjectives; prioritize specific, localized object interactions over repeating descriptive tags of the character's body.
     </EPISTEMIC_PHYSICS>
-    Execute your reaction against <USER_ACTION>. Stay fully in character. Honor all active <PROTOCOLS>.
+    ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.${extract_pov_directive()}
   </TASK>
 </SYSTEM>
@@ -359,7 +359,7 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
       <FUTURE>${ind(render_atom?.future(entities.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
-  <USER_ACTION>${ind(input, 4)}</USER_ACTION>
+  ${input?.trim() ? `<USER_ACTION>${ind(input, 4)}</USER_ACTION>` : ""}
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols("COGNITION, PRESENT_TENSE, HYGIENE, MOMENTUM, MARKDOWN_FORMAT"), 4)}
   </PROTOCOLS>

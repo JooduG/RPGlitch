@@ -42,7 +42,7 @@
     group
     relative
     flex
-    w-auto
+    w-full
     transform-[translateZ(0)]
     cursor-pointer
     items-center
