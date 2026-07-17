@@ -5,7 +5,6 @@
  */
 
 import { context_broker } from "../../../../src/intelligence/context.svelte.js";
-
 import { prompt_builder } from "../../../../src/intelligence/prompts.js";
 import { premade } from "../../../../src/data/premades.js";
 
