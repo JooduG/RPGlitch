@@ -35,7 +35,6 @@
     "**/yarn.lock",
     "**/tmp/**",
     "tmp/**/*",
-    "**/view-transitions-svelte.md",
     "**/.understand-anything/**"
   ],
   "geminiignore": [
@@ -54,7 +53,7 @@
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],
-    "markdownlint": ["**/modern-web-guidance/guides/**", "view-transitions-svelte.md"],
+    "markdownlint": ["**/modern-web-guidance/guides/**"],
     "prettier": [],
     "stylelint": []
   },

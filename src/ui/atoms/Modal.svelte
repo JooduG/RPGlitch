@@ -59,7 +59,8 @@
               // Intercept the bits-ui overlay pointerdown to stop it from closing the Profile modal.
               // The Profile manages its own outside clicks via `click_outside`.
               if (variant === "profile") {
-                e.preventDefault();
+                // Do not call e.preventDefault() as it breaks text input focus bubbling.
+                // Simply swallowing the event from bits-ui is enough.
               } else if (overlayProps.onpointerdown) {
                 overlayProps.onpointerdown(e);
               }

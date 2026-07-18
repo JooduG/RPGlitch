@@ -49,7 +49,6 @@ export default defineConfig([
       "**/yarn.lock",
       "**/tmp/**",
       "tmp/**/*",
-      "**/view-transitions-svelte.md",
       "**/.understand-anything/**",
     ],
     // @agent:ignore-end
