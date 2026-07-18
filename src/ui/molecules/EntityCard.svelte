@@ -12,6 +12,19 @@
   import { motion } from "@motion";
   import { app } from "@state";
   import { flushSync } from "svelte";
+  import { NARRATIVE_STYLES } from "@data";
+
+  const get_style_initials = (styleId) => {
+    const style = NARRATIVE_STYLES[styleId] || NARRATIVE_STYLES.default;
+    const name = style.name;
+    if (!name || name === "No Narrative Style") return "?";
+    return name
+      .split(/[\s_-]+/)
+      .map((w) => w.charAt(0))
+      .join("")
+      .slice(0, 3)
+      .toUpperCase();
+  };
 
   /**
    * @typedef {Object} Props
@@ -511,6 +524,46 @@
         </svg></Button
       >
     </nav>
+  {/if}
+
+  {#if type === "fractal" && entity?.narrative_style && entity.narrative_style !== "default" && variant === "panel"}
+    {@const style_details = NARRATIVE_STYLES[entity.narrative_style]}
+    {#if style_details}
+      <div
+        use:tooltip={{ text: `Narrative Style: ${style_details.name}` }}
+        class="
+          pointer-events-auto
+          absolute
+          top-[clamp(0.25rem,4cqi,0.5rem)]
+          left-[clamp(0.25rem,4cqi,0.5rem)]
+          z-50
+          flex
+          h-[clamp(2rem,18cqi,3rem)]
+          w-[clamp(2rem,18cqi,3rem)]
+          items-center
+          justify-center
+          overflow-hidden
+          rounded-xl
+          border
+          border-solid
+          border-(--signature-color)
+          bg-black/40
+          opacity-70
+          shadow-md
+          transition-all
+          duration-300
+          ease-in-out
+          hover:opacity-100
+        "
+      >
+        <div
+          class="absolute inset-0 flex items-center justify-center font-heading text-[clamp(0.75rem,8cqi,1.1rem)] font-bold text-white uppercase select-none"
+          style="background-color: {signature_color};"
+        >
+          {get_style_initials(entity.narrative_style)}
+        </div>
+      </div>
+    {/if}
   {/if}
 </div>
 

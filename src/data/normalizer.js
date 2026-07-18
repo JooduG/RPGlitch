@@ -51,6 +51,7 @@ export const ENTITY_TEMPLATES = {
     present: { physical: "", non_physical: "" },
     past: [],
     future: [],
+    narrative_style: "",
   },
 };
 /**
@@ -95,6 +96,7 @@ export const normalize = (base = {}) => {
     visuals = null, // [BACKWARD COMPAT] Legacy object
     voice = {},
     custom_data = {},
+    narrative_style = "",
   } = base;
 
   const norm_is_premade = is_premade ?? isPremade ?? 0;
@@ -127,6 +129,7 @@ export const normalize = (base = {}) => {
       return SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
     })(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
+    narrative_style: sanitize_html(String(narrative_style)).trim(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {

@@ -15,6 +15,7 @@
     description = $bindable(""),
     is_editing = false,
     active_field = "",
+    entity_type = "character",
     on_focus_field = () => {},
     signature_color = "var(--color-frozen)",
     class: className = "",
@@ -133,7 +134,7 @@
       <h1
         class="
           block
-          text-right
+          {entity_type === 'fractal' ? 'text-left' : 'text-right'}
           leading-[1.1]
         "
         style="color: {signature_color}; filter: drop-shadow(0 8px 24px rgb(0 0 0 / 0.4));"
@@ -219,7 +220,7 @@
       class="
         m-0
         rounded-md
-        text-right
+        {entity_type === 'fractal' ? 'text-left' : 'text-right'}
         font-sans
         text-base
         leading-normal

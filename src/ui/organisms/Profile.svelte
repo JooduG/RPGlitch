@@ -5,13 +5,24 @@
    * Flat DOM · Bolted Architecture
    */
   import { auto_resize, click_outside } from "@actions";
-  import { Button, Modal, ProfilePicture, TextField, tooltip } from "@atoms";
+  import { Button, Modal, ProfilePicture, TextField, tooltip, Dropdown } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
   import { app, runtime } from "@state";
   import { fade } from "svelte/transition";
+  import { NARRATIVE_STYLES } from "@data";
+
+  const get_style_initials = (name) => {
+    if (!name || name === "No Narrative Style") return "?";
+    return name
+      .split(/[\s_-]+/)
+      .map((w) => w.charAt(0))
+      .join("")
+      .slice(0, 3)
+      .toUpperCase();
+  };
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -37,6 +48,19 @@
 
   // --- DERIVED ---
   const signature_color = $derived(get_signature_color(profileState.char, "var(--color-gunmetal)"));
+
+  const author_options = Object.values(NARRATIVE_STYLES)
+    .sort((a, b) => {
+      if (a.id === "default") return -1;
+      if (b.id === "default") return 1;
+      return a.name.localeCompare(b.name);
+    })
+    .map((style) => ({
+      value: style.id,
+      label: style.name,
+      tag: style.tags ? style.tags.join(", ") : "",
+      tooltip: style.tags ? style.tags.join(", ") : undefined,
+    }));
   const has_wings = $derived(!app.transitioning_profile && !profileState.is_packing_up && (profileState.is_editing || app.settings.dev_mode));
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
   const target_morph_name = $derived.by(() => {
@@ -57,7 +81,7 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex h-full overflow-y-auto overflow-x-hidden border border-solid transition-all duration-300 scrollbar-thin scrollbar-track-transparent relative z-10 " +
+    "flex h-full overflow-hidden border border-solid transition-all duration-300 relative z-10 " +
       (app.viewport.mobile
         ? "col-span-full flex-col rounded-none "
         : (has_wings ? "modal-profile-grid-main" : "modal-profile-grid-flat") + " rounded-2xl ") +
@@ -66,7 +90,7 @@
 
   const avatar_container_class = $derived(
     "sticky top-0 z-20 flex shrink-0 items-stretch transition-all duration-300 " +
-      (entity_type === "fractal" ? "h-12 min-h-50 w-full " : "h-full w-avatar-medium-size ") +
+      (entity_type === "fractal" ? "h-12 min-h-64 w-full " : "h-full w-avatar-medium-size ") +
       (app.viewport.mobile ? "h-auto w-auto items-center justify-center" : ""),
   );
 
@@ -78,7 +102,9 @@
       (app.viewport.mobile ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
   );
 
-  const info_container_class = $derived("flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4");
+  const info_container_class = $derived(
+    "flex min-w-0 flex-1 flex-col p-4 pb-0 gap-4 overflow-y-auto overflow-x-hidden scrollbar-thin scrollbar-track-transparent",
+  );
 
   const main_layout_class = $derived("grow p-0");
 
@@ -265,7 +291,7 @@
         style:view-transition-name={target_morph_name}
         use:click_outside={handle_click_outside}
       >
-        <div class={avatar_container_class}>
+        <div class={avatar_container_class + " relative"}>
           <button
             class={[
               profile_pic_wrapper_class,
@@ -320,6 +346,43 @@
           >
             <ProfilePicture entity={profileState.char} contain={true} landscape={entity_type !== "character"} />
           </button>
+          {#if entity_type === "fractal" && !app.viewport.mobile}
+            {@const is_default_style = !profileState.char.narrative_style || profileState.char.narrative_style === "default"}
+            {#if profileState.is_editing || !is_default_style}
+              <Dropdown
+                bind:value={profileState.char.narrative_style}
+                items={author_options}
+                label="Select Narrative Style"
+                uppercase={false}
+                matchWidth={false}
+                dropdownHeight="max-h-80"
+                dropdownWidth="w-80"
+                align="center"
+                disabled={!profileState.is_editing}
+                trigger_class="group/stylecard absolute right-8 -bottom-10 z-30 flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profileState.is_editing
+                  ? 'hover:brightness-110'
+                  : ''} disabled:pointer-events-none disabled:cursor-default"
+                trigger_style="width: calc(var(--spacing-storyboard-character-card-width) * 0.5); height: calc(var(--spacing-storyboard-character-card-width) * 0.5); border-color: {signature_color};"
+              >
+                {#snippet trigger_content({ selected_item })}
+                  <div
+                    class="absolute inset-0 flex items-center justify-center rounded-[inherit] font-heading text-xl font-bold text-white uppercase select-none"
+                    style="background-color: {signature_color};"
+                  >
+                    {get_style_initials(selected_item?.label || "No Narrative Style")}
+                  </div>
+
+                  {#if profileState.is_editing}
+                    <div
+                      class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/stylecard:opacity-100"
+                    >
+                      <span class="text-[10px] font-bold tracking-widest text-white uppercase">EDIT</span>
+                    </div>
+                  {/if}
+                {/snippet}
+              </Dropdown>
+            {/if}
+          {/if}
         </div>
 
         <div class={info_container_class}>
@@ -329,8 +392,36 @@
             is_editing={profileState.is_editing}
             active_field={profileState.active_field?.key}
             {signature_color}
+            {entity_type}
+            class={entity_type === "fractal" && !app.viewport.mobile ? "pl-10" : ""}
             on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profileState.set_active_field(key, label)}
           />
+
+          {#if entity_type === "fractal" && app.viewport.mobile}
+            {@const active_style = NARRATIVE_STYLES[profileState.char.narrative_style] || NARRATIVE_STYLES.default}
+            {@const is_default_style = !profileState.char.narrative_style || profileState.char.narrative_style === "default"}
+            {#if profileState.is_editing || !is_default_style}
+              <div class="mt-2 flex w-full flex-col gap-1">
+                <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
+                {#if profileState.is_editing}
+                  <div class="relative flex w-full max-w-sm rounded-md">
+                    <Dropdown
+                      bind:value={profileState.char.narrative_style}
+                      items={author_options}
+                      label="Select Narrative Style"
+                      uppercase={false}
+                      matchWidth={false}
+                      dropdownHeight="max-h-80"
+                    />
+                  </div>
+                {:else}
+                  <span class="text-sm text-slate-300 italic">
+                    {active_style.name}
+                  </span>
+                {/if}
+              </div>
+            {/if}
+          {/if}
 
           <main class={main_layout_class}>
             {@render EntityBody()}

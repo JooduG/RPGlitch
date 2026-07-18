@@ -154,7 +154,7 @@
                     group
                     pointer-events-none
                     relative
-                    z-max
+                    z-99999
                     flex
                     flex-col
                     items-center

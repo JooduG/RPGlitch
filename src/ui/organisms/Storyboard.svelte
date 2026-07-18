@@ -10,6 +10,7 @@
   import { pickRandom } from "@engine";
   import { get_signature_color } from "@media";
   import { app } from "@state";
+  import { NARRATIVE_STYLES } from "@data";
 
   // ============================================
   // LOCAL STATE
@@ -46,7 +47,7 @@
 
     if (has_entities && has_fractal) {
       const prefix = pickRandom(PREFIXES.STANDARD);
-      /** @type {Array<{text: string, color?: string}>} */
+      /** @type {Array<{text: string, color?: string, no_gap?: boolean}>} */
       const parts = [{ text: `${prefix} ` }];
 
       if (ai && user && ai.id === user.id) {
@@ -62,13 +63,24 @@
       }
 
       parts.push({ text: " in " });
-      parts.push({ text: fractal.name, color: get_color(fractal) });
+
+      let fractal_text = fractal.name;
+      if (fractal.narrative_style && fractal.narrative_style !== "default") {
+        const style = NARRATIVE_STYLES[fractal.narrative_style];
+        if (style) {
+          const is_director = style.tags?.includes("director");
+          const credit = is_director ? ", directed by " : ", as told by ";
+          fractal_text += credit + style.name;
+        }
+      }
+      parts.push({ text: fractal_text, color: get_color(fractal) });
+
       return parts;
     }
 
     if (has_entities) {
       const prefix = pickRandom(PREFIXES.STANDARD);
-      /** @type {Array<{text: string, color?: string}>} */
+      /** @type {Array<{text: string, color?: string, no_gap?: boolean}>} */
       const parts = [{ text: `${prefix} ` }];
 
       if (ai && user && ai.id === user.id) {
@@ -87,7 +99,19 @@
 
     if (has_fractal) {
       const prefix = pickRandom(PREFIXES.FRACTAL);
-      return [{ text: `${prefix} ` }, { text: fractal.name, color: get_color(fractal) }];
+      let fractal_text = fractal.name;
+
+      if (fractal.narrative_style && fractal.narrative_style !== "default") {
+        const style = NARRATIVE_STYLES[fractal.narrative_style];
+        if (style) {
+          const is_director = style.tags?.includes("director");
+          const credit = is_director ? ", directed by " : ", as told by ";
+          fractal_text += credit + style.name;
+        }
+      }
+
+      const parts = [{ text: `${prefix} ` }, { text: fractal_text, color: get_color(fractal) }];
+      return parts;
     }
 
     return [{ text: "Your story begins here..." }];

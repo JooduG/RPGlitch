@@ -4,19 +4,24 @@
    * THE SELECT PRIMITIVE
    * Standalone dropdown select atom using bits-ui/Select and Svelte 5.
    */
-  import { ScrollArea } from "@atoms";
+  import { ScrollArea, tooltip } from "@atoms";
   import { Select } from "bits-ui";
   import { scale } from "svelte/transition";
 
   let {
     // State
     value = $bindable(),
-    items = [], // Array of { value: string, label: string, region?: string, tag?: string, disabled?: boolean }
+    items = [], // Array of { value: string, label: string, region?: string, tag?: string, disabled?: boolean, tooltip?: string }
     label = "Select Option",
     disabled = false,
     uppercase = true,
     matchWidth = false,
+    dropdownWidth = undefined,
     dropdownHeight = "max-h-36",
+    align = "start",
+    trigger_class = "",
+    trigger_style = "",
+    trigger_content = undefined,
 
     // Callbacks
     onchange = undefined,
@@ -28,7 +33,8 @@
 
 <Select.Root type="single" bind:value onValueChange={(val) => onchange?.(val)} {disabled}>
   <Select.Trigger
-    class="
+    class={trigger_class ||
+      `
       group/trigger
       inline-flex
       min-h-12
@@ -48,7 +54,7 @@
       font-sans
       text-sm
       text-white
-      {uppercase ? 'uppercase' : ''}
+      ${uppercase ? "uppercase" : ""}
       transition-[background-color,color,box-shadow,transform,filter,border-color]
       duration-500
       ease-out
@@ -67,40 +73,45 @@
       disabled:grayscale
 
       data-[state=open]:brightness-110
-    "
+    `}
+    style={trigger_style}
     aria-label={label}
   >
-    <span
-      class="
-        flex-1
-        truncate
-      "
-    >
-      {selected_item ? selected_item.label : label}
-      {#if selected_item && (selected_item.region || selected_item.tag)}
-        <span class="opacity-50"> - {selected_item.region || selected_item.tag}</span>
-      {/if}
-    </span>
-    <svg
-      viewBox="0 0 24 24"
-      class="
-        size-4
-        shrink-0
-        opacity-60
-        transition-transform
-        duration-150
-        ease-in-out
+    {#if trigger_content}
+      {@render trigger_content({ selected_item, label })}
+    {:else}
+      <span
+        class="
+          flex-1
+          truncate
+        "
+      >
+        {selected_item ? selected_item.label : label}
+        {#if selected_item && (selected_item.region || selected_item.tag)}
+          <span class="opacity-50"> - {selected_item.region || selected_item.tag}</span>
+        {/if}
+      </span>
+      <svg
+        viewBox="0 0 24 24"
+        class="
+          size-4
+          shrink-0
+          opacity-60
+          transition-transform
+          duration-150
+          ease-in-out
 
-        group-data-[state=open]/trigger:rotate-180
-        group-data-[state=open]/trigger:opacity-100
-      "
-    >
-      <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
-    </svg>
+          group-data-[state=open]/trigger:rotate-180
+          group-data-[state=open]/trigger:opacity-100
+        "
+      >
+        <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+      </svg>
+    {/if}
   </Select.Trigger>
 
   <Select.Portal>
-    <Select.Content sideOffset={8} align="start">
+    <Select.Content sideOffset={8} {align}>
       {#snippet child({ wrapperProps, props })}
         <div {...wrapperProps}>
           <div
@@ -110,7 +121,7 @@
               z-max
               flex
               {dropdownHeight}
-              {matchWidth ? 'w-(--bits-select-anchor-width)' : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
+              {dropdownWidth ? dropdownWidth : matchWidth ? 'w-(--bits-select-anchor-width)' : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
               flex-col
                 overflow-hidden
                 rounded-xl
@@ -176,6 +187,7 @@
                     disabled={item.disabled}
                   >
                     <span
+                      use:tooltip={item.tooltip ? { text: item.tooltip, placement: "left" } : undefined}
                       class="
                           flex-1
                           truncate

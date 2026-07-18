@@ -9,7 +9,7 @@ import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { escapeXml, clean_xml, strip_cognition_blocks, safeParsePseudoJson } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
-import { app } from "@state";
+import { app, runtime } from "@state";
 
 // ============================================================================
 // 1. UTILITIES & CACHES
@@ -77,7 +77,10 @@ const val = (text, owner, entities) => {
  * This is injected directly into the TASK block to fight LLM recency bias.
  */
 function extract_pov_directive() {
-  const styleKey = typeof app !== "undefined" && app.settings?.narrative_style;
+  const styleKey =
+    runtime?.active_fractal?.narrative_style && runtime.active_fractal.narrative_style !== "default"
+      ? runtime.active_fractal.narrative_style
+      : typeof app !== "undefined" && app.settings?.narrative_style;
   if (!styleKey || styleKey === "default" || !NARRATIVE_STYLES[styleKey]) return "";
 
   const engine = NARRATIVE_STYLES[styleKey].narrative_engine;
@@ -94,7 +97,10 @@ function extract_pov_directive() {
  * Renders the active author style XML block.
  */
 function render_narrative_style_xml() {
-  const styleKey = typeof app !== "undefined" && app.settings?.narrative_style;
+  const styleKey =
+    runtime?.active_fractal?.narrative_style && runtime.active_fractal.narrative_style !== "default"
+      ? runtime.active_fractal.narrative_style
+      : typeof app !== "undefined" && app.settings?.narrative_style;
   if (!styleKey || styleKey === "default" || !NARRATIVE_STYLES[styleKey]) return "";
 
   const styleDef = NARRATIVE_STYLES[styleKey];

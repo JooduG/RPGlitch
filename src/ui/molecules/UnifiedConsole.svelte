@@ -7,8 +7,8 @@
    */
   import { tick } from "svelte";
   import { click_outside } from "@actions";
-  import { Backdrop, Button, Dropdown, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
-  import { db, stories, NARRATIVE_STYLES } from "@data";
+  import { Backdrop, Button, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
+  import { db, stories } from "@data";
   import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color, visual_engine } from "@media";
@@ -42,21 +42,8 @@
     storyboard: false,
     storymode: false,
     library: false,
-    style: false,
     advanced: false,
   });
-
-  const author_options = Object.values(NARRATIVE_STYLES)
-    .sort((a, b) => {
-      if (a.id === "default") return -1;
-      if (b.id === "default") return 1;
-      return a.name.localeCompare(b.name);
-    })
-    .map((style) => ({
-      value: style.id,
-      label: style.name,
-      tag: style.tags ? style.tags.join(", ") : "",
-    }));
 
   // --- MUTE STATE ---
   let previous_volume = $state(1.0);
@@ -376,50 +363,6 @@
                           show_value_tooltip={true}
                         />
                       </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- DECK F: NARRATIVE STYLE -->
-              <div class="w-full">
-                <button
-                  type="button"
-                  onclick={() => (open_sections.style = !open_sections.style)}
-                  class="group flex w-full items-center justify-between py-2 text-left text-xs font-bold tracking-widest text-slate-400 uppercase transition-colors hover:text-white"
-                >
-                  Narrative Style
-                  <span class="opacity-50 transition-transform {open_sections.style ? 'rotate-180' : ''}">▼</span>
-                </button>
-                <div
-                  class="grid transition-[grid-template-rows] duration-300 ease-in-out {open_sections.style ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
-                >
-                  <div class="min-h-0 overflow-hidden">
-                    <div class="flex flex-col gap-4 pt-2 pb-4">
-                      <Dropdown
-                        bind:value={app.settings.narrative_style}
-                        items={author_options}
-                        onchange={() => app.save_settings()}
-                        label="Select Writing Style"
-                        uppercase={false}
-                        matchWidth={true}
-                        dropdownHeight="max-h-80"
-                      />
-                      {#if app.settings.narrative_style && app.settings.narrative_style !== "default"}
-                        <div class="flex flex-col gap-2 rounded-xl border border-white/5 bg-black/30 p-3">
-                          <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase">
-                            {NARRATIVE_STYLES[app.settings.narrative_style]?.name} Prompt Profile
-                          </span>
-                          <p class="m-0 text-xs leading-relaxed text-slate-300 italic">
-                            {NARRATIVE_STYLES[app.settings.narrative_style]?.description}
-                          </p>
-                          <textarea
-                            readonly
-                            class="h-32 w-full resize-y rounded-lg border border-white/5 bg-black/40 p-2 font-mono text-[10px] text-slate-400 focus:outline-none"
-                            value={NARRATIVE_STYLES[app.settings.narrative_style]?.narrative_engine}
-                          ></textarea>
-                        </div>
-                      {/if}
                     </div>
                   </div>
                 </div>
