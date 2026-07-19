@@ -2,7 +2,7 @@
 // Manages the strict turn-based progression of the simulation.
 import { session_driver } from "./session.svelte.js";
 import { gamemaster } from "@intelligence";
-import { Shield } from "@platform";
+import { Security } from "@platform";
 import { app, runtime, simulation_log, simulationState } from "@state"; // [R5] Unified State
 
 export class ChronoStore {
@@ -157,7 +157,7 @@ export class ChronoStore {
       // We pass the current runtime character context to the Shield
       if (input && runtime.character) {
         // Pass Fractal State for Causality Checks
-        shieldContext = await Shield.process(input, runtime.character, runtime.active_fractal || {});
+        shieldContext = await Security.process(input, runtime.character, runtime.active_fractal || {});
         // 🛑 CAUSALITY CHECK
         if (shieldContext && shieldContext.causality && shieldContext.causality.result === "failure") {
           app.log(`Causality Violation: ${shieldContext.causality.constraint}`, "error");

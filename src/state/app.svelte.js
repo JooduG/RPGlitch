@@ -6,7 +6,8 @@
  */
 import { closeImagePreview, openImagePreview } from "@atoms";
 import { flushSync } from "svelte";
-import { generateUUID, resolve_px } from "@utils";
+import { generateUUID } from "@engine";
+import { resolve_px } from "@utils";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, guardedTransition } from "@engine";
 import { visual_engine, get_signature_color } from "@media";

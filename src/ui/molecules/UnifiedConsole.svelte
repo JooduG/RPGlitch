@@ -16,7 +16,7 @@
   import { motion, pulse, roll, shimmy, stab } from "@motion";
   import { llm_service } from "@platform";
   import { app, runtime, simulationState, simulation_log } from "@state";
-  import { pickRandom } from "@utils";
+  import { pickRandom } from "@engine";
 
   // --- CORE VIEW ENGINE STATE ---
   let ready_to_begin = $derived(app.is_ready);

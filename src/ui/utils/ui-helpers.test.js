@@ -1,4 +1,5 @@
-import { generateSecureSeed, generateUUID, resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
+import { generateSecureSeed, generateUUID } from "@engine";
+import { resolve_ms, resolve_number, resolve_px, resolve_string } from "@utils";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 describe("dom utilities", () => {

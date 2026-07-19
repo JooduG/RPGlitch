@@ -1,15 +1,11 @@
 /**
  * src/ui/utils/ui-helpers.js
  * UNIFIED UI & DOM UTILITIES
- * Standardized methods for resolving/measuring CSS values, handling Perchance
- * lists and environments, and re-exporting stateless engine logic.
+ * Standardized methods for resolving/measuring CSS values and handling Perchance
+ * lists and environments.
  */
 
-import { clamp, generateSecureSeed, generateUUID, pickRandom } from "@engine";
 import { LISTS } from "@data";
-
-// Re-export pure engine utilities
-export { clamp, generateSecureSeed, generateUUID, pickRandom };
 
 /**
  * Prepares a CSS value for measurement, wrapping raw variables in var().
@@ -115,6 +111,63 @@ function prepare_measure(value, prop, sentinel, context) {
 }
 
 /**
+ * @typedef {Object} ResolveSpec
+ * @property {string} prop - The CSS property to probe on the measure element.
+ * @property {string} sentinel - Sentinel value injected to detect resolution failure.
+ * @property {(computed: string) => (number | string | null)} parseComputed - Parses the browser's computed value into the target type.
+ * @property {(raw: string) => (number | string | null)} parseDirect - Parses a raw (non-variable) input string directly.
+ * @property {(direct: string) => (number | string | null)} parseResolvedVar - Parses a value already resolved from a CSS variable.
+ */
+
+/**
+ * Core CSS-value resolver shared by all typed variants (px/ms/number/string).
+ * Pipeline: null/number shortcut -> direct parse -> fast variable resolve -> browser measure -> fallback.
+ *
+ * @param {string | number | undefined} value - The CSS value or variable name (e.g., "--my-var" or "var(--my-var)" or "1rem")
+ * @param {number | string} fallback - Value to return if resolution fails
+ * @param {HTMLElement | null} context - Optional element context for variable resolution
+ * @param {ResolveSpec} spec - Type-specific parse/probe configuration
+ * @returns {number | string}
+ */
+function resolve_css(value, fallback, context, spec) {
+  if (value === undefined || value === null) return fallback;
+  if (typeof value === "number") return value;
+
+  const trimmed = String(value).trim();
+  if (!trimmed) return fallback;
+
+  // 1. Try direct parse for simple values (skip if variable/calc present)
+  if (!trimmed.includes("var") && !trimmed.includes("calc")) {
+    const direct = spec.parseDirect(trimmed);
+    if (direct !== null && direct !== undefined) return direct;
+  }
+
+  // 2. Fast Path: Direct Variable Resolution from context
+  const fastResolved = try_direct_var_resolve(trimmed, context);
+  if (fastResolved && !fastResolved.includes("calc") && !fastResolved.includes("var")) {
+    const parsed = spec.parseResolvedVar(fastResolved);
+    if (parsed !== null && parsed !== undefined) return parsed;
+  }
+
+  // 3. Browser Resolution (Measurement Element)
+  const el = prepare_measure(trimmed, spec.prop, spec.sentinel, context);
+  if (el) {
+    const style = window.getComputedStyle(el);
+    const computed = spec.prop.startsWith("--") ? style.getPropertyValue(spec.prop).trim() : style[spec.prop];
+    if (typeof computed === "string") {
+      // Detect failure: if it stayed at sentinel, it definitely failed.
+      if (parseFloat(computed) === parseFloat(spec.sentinel)) {
+        return fallback;
+      }
+      const result = spec.parseComputed(computed);
+      if (result !== null && result !== undefined) return result;
+    }
+  }
+
+  return fallback;
+}
+
+/**
  * Resolves a CSS value (handles variables, units like rem/em, clamp, etc.) to pixels.
  * Uses a dummy element to let the browser resolve the computed value.
  *
@@ -124,45 +177,23 @@ function prepare_measure(value, prop, sentinel, context) {
  * @returns {number}
  */
 export function resolve_px(value, fallback = 0, context = null) {
-  if (value === undefined || value === null) return fallback;
-  if (typeof value === "number") return value;
-
-  const trimmed = String(value).trim();
-  if (!trimmed) return fallback;
-
-  // 1. Try direct parse for simple pixel values or raw numbers
-  const match = trimmed.match(/^([-.\d]+)(px)?$/);
-  if (match && !trimmed.includes("var") && !trimmed.includes("calc")) {
-    const direct = parseFloat(match[1]);
-    if (!isNaN(direct)) return direct;
-  }
-
-  // 2. Fast Path: Direct Variable Resolution from context
-  const fastResolved = try_direct_var_resolve(trimmed, context);
-  if (fastResolved) {
-    const match = fastResolved.match(/^([-.\d]+)(px)?$/);
-    if (match && !fastResolved.includes("calc") && !fastResolved.includes("var")) {
-      return parseFloat(match[1]);
-    }
-  }
-
-  // 3. Browser Resolution (Measurement Element)
-  const sentinel = "1.234px";
-  const el = prepare_measure(trimmed, "paddingTop", sentinel, context);
-  if (el) {
-    const computed = window.getComputedStyle(el).paddingTop;
-
-    // Detect failure: if it stayed at sentinel, it definitely failed.
-    // (Note: prepare_measure already does proxy detection for variables)
-    if (parseFloat(computed) === parseFloat(sentinel)) {
-      return fallback;
-    }
-
-    const result = parseFloat(computed);
-    return isNaN(result) ? fallback : result;
-  }
-
-  return fallback;
+  const pxRegex = /^([-.\d]+)(px)?$/;
+  const parsePx = (s) => {
+    const m = s.match(pxRegex);
+    return m ? parseFloat(m[1]) : null;
+  };
+  return /** @type {number} */ (
+    resolve_css(value, fallback, context, {
+      prop: "paddingTop",
+      sentinel: "1.234px",
+      parseDirect: parsePx,
+      parseResolvedVar: parsePx,
+      parseComputed: (c) => {
+        const n = parseFloat(c);
+        return isNaN(n) ? null : n;
+      },
+    })
+  );
 }
 
 /**
@@ -174,55 +205,27 @@ export function resolve_px(value, fallback = 0, context = null) {
  * @returns {number}
  */
 export function resolve_ms(value, fallback = 0, context = null) {
-  if (value === undefined || value === null) return fallback;
-  if (typeof value === "number") return value;
-
-  const trimmed = String(value).trim();
-  if (!trimmed) return fallback;
-
-  // 1. Try direct parse for simple ms/s values or raw numbers
-  const match = trimmed.match(/^([-.\d]+)(ms|s)?$/);
-  if (match && !trimmed.includes("var") && !trimmed.includes("calc")) {
-    const [, val, unit] = match;
+  const toMs = (val, unit) => {
     const numeric = parseFloat(val);
-    if (!unit) {
-      // CSS durations (except 0) require a unit.
-      return numeric === 0 ? 0 : fallback;
-    }
+    if (!unit) return numeric === 0 ? 0 : null; // CSS durations (except 0) require a unit
     return unit === "ms" ? numeric : numeric * 1000;
-  }
-
-  // 2. Fast Path: Direct Variable Resolution from context
-  const direct = try_direct_var_resolve(trimmed, context);
-  if (direct) {
-    const compMatch = direct.match(/^([-.\d]+)(s|ms)?$/);
-    if (compMatch && !direct.includes("calc") && !direct.includes("var")) {
-      const [, val, unit] = compMatch;
-      const numeric = parseFloat(val);
-      if (!unit) return numeric === 0 ? 0 : fallback;
-      return unit === "ms" ? numeric : numeric * 1000;
-    }
-  }
-
-  // 3. Browser Resolution
-  const sentinel = "1.234s";
-  const el = prepare_measure(trimmed, "transitionDuration", sentinel, context);
-  if (el) {
-    const computed = window.getComputedStyle(el).transitionDuration;
-
-    // Detect failure: if it stayed at sentinel, it definitely failed.
-    if (parseFloat(computed) === parseFloat(sentinel)) {
-      return fallback;
-    }
-
-    const compMatch = computed.match(/([-.\d]+)(s|ms)/);
-    if (compMatch) {
-      const [, val, unit] = compMatch;
-      return unit === "ms" ? parseFloat(val) : parseFloat(val) * 1000;
-    }
-  }
-
-  return fallback;
+  };
+  const parseMs = (s) => {
+    const m = s.match(/^([-.\d]+)(ms|s)?$/);
+    return m ? toMs(m[1], m[2]) : null;
+  };
+  return /** @type {number} */ (
+    resolve_css(value, fallback, context, {
+      prop: "transitionDuration",
+      sentinel: "1.234s",
+      parseDirect: parseMs,
+      parseResolvedVar: parseMs,
+      parseComputed: (c) => {
+        const m = c.match(/([-.\d]+)(s|ms)/);
+        return m ? toMs(m[1], m[2]) : null;
+      },
+    })
+  );
 }
 
 /**
@@ -234,40 +237,19 @@ export function resolve_ms(value, fallback = 0, context = null) {
  * @returns {number}
  */
 export function resolve_number(value, fallback = 0, context = null) {
-  if (value === undefined || value === null) return fallback;
-  if (typeof value === "number") return value;
-
-  const trimmed = String(value).trim();
-  if (!trimmed) return fallback;
-
-  // 1. Try direct parse for simple numbers
-  const direct = parseFloat(trimmed);
-  if (!isNaN(direct) && !trimmed.includes("var") && !trimmed.includes("calc")) return direct;
-
-  // 2. Fast Path: Direct Variable Resolution from context
-  const fastResolved = try_direct_var_resolve(trimmed, context);
-  if (fastResolved) {
-    const numeric = parseFloat(fastResolved);
-    if (!isNaN(numeric) && !fastResolved.includes("calc") && !fastResolved.includes("var")) {
-      return numeric;
-    }
-  }
-
-  // 3. Browser Resolution
-  const sentinel = "1.234";
-  const el = prepare_measure(trimmed, "flexGrow", sentinel, context);
-  if (el) {
-    const computed = window.getComputedStyle(el).flexGrow;
-
-    if (parseFloat(computed) === parseFloat(sentinel)) {
-      return fallback;
-    }
-
-    const result = parseFloat(computed);
-    return isNaN(result) ? fallback : result;
-  }
-
-  return fallback;
+  const parseNum = (s) => {
+    const n = parseFloat(s);
+    return isNaN(n) ? null : n;
+  };
+  return /** @type {number} */ (
+    resolve_css(value, fallback, context, {
+      prop: "flexGrow",
+      sentinel: "1.234",
+      parseDirect: parseNum,
+      parseResolvedVar: parseNum,
+      parseComputed: (c) => parseNum(c),
+    })
+  );
 }
 
 /**
@@ -280,52 +262,23 @@ export function resolve_number(value, fallback = 0, context = null) {
  * @returns {string}
  */
 export function resolve_string(value, fallback = "", context = null) {
-  if (value === undefined || value === null) return fallback;
+  const cleanStr = (s) => s.replace(/['"]/g, "");
+  // String path differs slightly: the fast-path guard also rejects "var(" chains and the SENTINEL placeholder.
+  const parseVar = (s) => (s && s !== "SENTINEL" && !s.includes("var(") ? cleanStr(s) : null);
 
-  const trimmed = String(value).trim();
-  if (!trimmed) return fallback;
-
-  // 1. Fast Path: Direct Variable Resolution from context
-  const direct = try_direct_var_resolve(trimmed, context);
-  if (direct && direct !== "SENTINEL" && !direct.includes("var(")) {
-    return direct.replace(/['"]/g, "");
-  }
-
-  // 2. Browser Resolution (Measurement Element)
-  const cssValue = get_css_value(trimmed);
-  const el = get_measure_el(context);
-  if (el) {
-    if (typeof el.dataset !== "undefined") {
-      el.dataset.resolveValue = cssValue;
-    }
-    el.style.setProperty("--proxy", "SENTINEL");
-    el.style.setProperty("--proxy", cssValue);
-    const resolved = window.getComputedStyle(el).getPropertyValue("--proxy").trim();
-
-    // If it's valid, it should be different from SENTINEL and not empty (unless original was empty)
-    if (resolved && resolved !== "SENTINEL") {
-      return resolved.replace(/['"]/g, "");
-    }
-  }
-
-  return fallback;
+  // resolve_string's direct path: only meaningful if the raw value is a plain string (no variable/calc).
+  // parseFloat-style parsing doesn't apply; we return the cleaned string only when there's no variable/calc.
+  // Reuse resolve_css but with a direct-parse that returns null (so it falls through to measure el).
+  return /** @type {string} */ (
+    resolve_css(value, fallback, context, {
+      prop: "--proxy",
+      sentinel: "SENTINEL",
+      parseDirect: () => null, // resolve_string has no direct-parse shortcut: raw inputs may be variable names.
+      parseResolvedVar: parseVar,
+      parseComputed: (c) => (c && c !== "SENTINEL" ? cleanStr(c) : null),
+    })
+  );
 }
-
-/**
- * @deprecated Use resolve_ms instead.
- * Parses CSS time strings into raw milliseconds.
- */
-export const parse_ms = resolve_ms;
-
-/**
- * Exposes mock implementations for Perchance plugins in local development.
- */
-export const mockPlugins = () => {
-  const w = /** @type {any} */ (window);
-  if (!w["pluginAi"]) w["pluginAi"] = async () => "Mock AI Response";
-  if (!w["pluginTextToImage"]) w["pluginTextToImage"] = async () => "https://via.placeholder.com/512x768";
-  if (!w["pluginUpload"]) w["pluginUpload"] = async () => "https://via.placeholder.com/150";
-};
 
 /**
  * Safely accesses Perchance lists.

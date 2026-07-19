@@ -1,16 +1,9 @@
 $meta
-  title = RPGlitch
-  description = RPGlitch
+  title = RPGlitchen
+  description = RPGlitchen
   header
     mode = minimal
 
 // --- IMPORTS ---
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
-
-// --- EXPORTS TO JS ---
-pluginAi = async (opts) => { return await ai(opts); }
-pluginTextToImage = async (opts) => { return await textToImage(opts); }
-
-// --- MAIN OUTPUT ---
-$output = [{import:apps/rpglitch/index.html}]

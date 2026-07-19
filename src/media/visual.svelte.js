@@ -3,7 +3,7 @@
  * 🎨 VISUAL ENGINE (Reactive Class)
  * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
-import { generateSecureSeed } from "@utils";
+import { generateSecureSeed } from "@engine";
 import { db, entities } from "@data";
 import { strip_cognition_blocks } from "@intelligence";
 import { AestheticResolver, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "./optics.js";

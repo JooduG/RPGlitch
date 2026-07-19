@@ -38,11 +38,6 @@ export const checkRefusal = (text) => {
   return REFUSAL_TRIGGERS.some((trigger) => lower.includes(String(trigger).toLowerCase()));
 };
 /**
- * @param {any} text
- */
-export const clean = (text) => (text ? text.trim() : "");
-
-/**
  * Validates an image file for size, type, and magic numbers.
  * @param {File} file - The file to validate.
  * @param {any} [options] - Validation options (maxSize, allowedTypes).
@@ -94,15 +89,7 @@ export const Security = {
   sanitizeToFragment,
   escape,
   checkRefusal,
-  clean,
   validateImage,
-  /**
-   * @param {any} _prompt
-   * @param {any} [_options]
-   */
-  authorizeVisuals: (prompt, _options = {}) => {
-    return !checkRefusal(prompt);
-  },
   /**
    * 🛡️ PROCESS (Causality & Physics Scan)
    * Evaluates if an action is possible within the current simulation context.
@@ -118,9 +105,6 @@ export const Security = {
     };
   },
 };
-// Backward Compatibility Alias
-export const Shield = Security;
-export const Snitch = Security;
 export default {
   Security,
 };

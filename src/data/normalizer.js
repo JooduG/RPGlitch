@@ -4,7 +4,7 @@
  * Enforces the strict "Twin-Cylinder" data structure across the app.
  * ZERO BACKWARDS COMPATIBILITY.
  */
-import { pickRandom } from "@utils";
+import { pickRandom } from "@engine";
 import { SIGNATURE_COLORS } from "@media";
 import { Security } from "@platform";
 
