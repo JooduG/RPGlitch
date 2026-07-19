@@ -58,6 +58,7 @@
     .map((style) => ({
       value: style.id,
       label: style.name,
+      portrait: style.portrait,
       tag: style.tags ? style.tags.join(", ") : "",
       tooltip: style.tags ? style.tags.join(", ") : undefined,
     }));
@@ -366,10 +367,19 @@
               >
                 {#snippet trigger_content({ selected_item })}
                   <div
-                    class="absolute inset-0 flex items-center justify-center rounded-[inherit] font-heading text-xl font-bold text-white uppercase select-none"
+                    class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-xl font-bold text-white uppercase select-none"
                     style="background-color: {signature_color};"
                   >
-                    {get_style_initials(selected_item?.label || "No Narrative Style")}
+                    {#if selected_item?.portrait}
+                      <img
+                        src={selected_item.portrait}
+                        alt={selected_item.label}
+                        class="h-full w-full object-cover object-center"
+                        draggable="false"
+                      />
+                    {:else}
+                      {get_style_initials(selected_item?.label || "No Narrative Style")}
+                    {/if}
                   </div>
 
                   {#if profileState.is_editing}

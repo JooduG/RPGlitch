@@ -149,6 +149,7 @@ export const NARRATIVE_STYLES = {
   edgar_allan_poe: {
     id: "edgar_allan_poe",
     name: "Edgar Allan Poe",
+    portrait: "https://user.uploads.dev/file/5653f14e2b13c3b2368019395b05b6f9.png",
     description:
       "A gothic horror framework driven by a highly unreliable first-person narrator obsessively tracing their own descent into madness, guilt, or paranoia. The prose is baroque, ornate, and hypnotic, utilizing psychological hallucinations and mounting claustrophobic dread to blur the boundary between reality and self-inflicted torment.",
     tags: ["author", "1st_person", "gothic", "horror", "madness", "guilt", "mortality", "the_supernatural", "paranoia"],
@@ -375,6 +376,7 @@ export const NARRATIVE_STYLES = {
   katerina_winters: {
     id: "katerina_winters",
     name: "Katerina Winters",
+    portrait: "https://user.uploads.dev/file/885112cf73210d08a5206e90b0800c8d.png",
     description:
       "An immersive, highly sensual narrative balancing a sweet-and-dark tone with intense, conflicted desire and possessive dynamics. The style relies on propulsive pacing and deep body-focused emotional grounding to navigate the high-stakes tension of enemies-to-lovers relationships and close-proximity power plays.",
     tags: ["author", "3rd_person", "dark_romance", "enemies_to_lovers", "power_dynamics", "forbidden_love", "possessive_leads"],
@@ -405,6 +407,7 @@ export const NARRATIVE_STYLES = {
   jrr_tolkien: {
     id: "jrr_tolkien",
     name: "J.R.R. Tolkien",
+    portrait: "https://user.uploads.dev/file/95489755063afef858f37da4a090d0b5.png",
     description:
       "Earnest, elevated, and archaic prose rich in history and deep world-building lore, where grand thematic concerns of duty, hope, and despair are directly reflected in sweeping landscape features and weather patterns. The style rejects modern conversational rhythms in favor of a dense, poetic historical chronicle.",
     tags: ["author", "3rd_person", "fantasy", "history_and_lineage", "hope_vs_despair", "duty", "fading_of_the_world"],
@@ -435,6 +438,7 @@ export const NARRATIVE_STYLES = {
   jane_austen: {
     id: "jane_austen",
     name: "Jane Austen",
+    portrait: "https://user.uploads.dev/file/fdc259d6e1ed24a3482928be20d7c481.png",
     description:
       "Witty, ironic Free Indirect Discourse observing social propriety, conversational subtext, and the hidden economics of marriage among the English gentry. Emotions are rarely stated directly, choosing instead to expose character vanities, social calculations, and generational anxieties through brilliant satirical dialogue.",
     tags: ["author", "3rd_person", "romance", "historical", "social_status", "marriage_as_economics", "manners_and_propriety", "judgment_vs_reality"],
@@ -733,6 +737,7 @@ export const NARRATIVE_STYLES = {
   hp_lovecraft: {
     id: "hp_lovecraft",
     name: "H.P. Lovecraft",
+    portrait: "https://user.uploads.dev/file/45270b07cc6bc5aad60fe52c83fcf80d.png",
     description:
       "A dense, clinically detached first-person narrative tracing the total breakdown of human sanity when confronted by ancient, cosmic forces. The prose utilizes archaic adjectives, structural manifestations of dread, and a sense of absolute human insignificance within an indifferent universe.",
     tags: ["author", "1st_person", "cosmic_horror", "gothic", "madness", "forbidden_knowledge", "alienation"],

@@ -540,10 +540,11 @@
           flex
           h-[clamp(2rem,18cqi,3rem)]
           w-[clamp(2rem,18cqi,3rem)]
+          transform-gpu
           items-center
           justify-center
           overflow-hidden
-          rounded-xl
+          rounded-[20%]
           border
           border-solid
           border-(--signature-color)
@@ -557,10 +558,19 @@
         "
       >
         <div
-          class="absolute inset-0 flex items-center justify-center font-heading text-[clamp(0.75rem,8cqi,1.1rem)] font-bold text-white uppercase select-none"
+          class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-[clamp(0.75rem,8cqi,1.1rem)] font-bold text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
-          {get_style_initials(entity.narrative_style)}
+          {#if NARRATIVE_STYLES[entity.narrative_style]?.portrait}
+            <img
+              src={NARRATIVE_STYLES[entity.narrative_style].portrait}
+              alt={NARRATIVE_STYLES[entity.narrative_style].name}
+              class="h-full w-full object-cover object-center"
+              draggable="false"
+            />
+          {:else}
+            {get_style_initials(entity.narrative_style)}
+          {/if}
         </div>
       </div>
     {/if}
