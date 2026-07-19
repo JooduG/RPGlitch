@@ -8,6 +8,7 @@ export const NARRATIVE_STYLES = {
   anna_zaires: {
     id: "anna_zaires",
     name: "Anna Zaires",
+    portrait: "https://user.uploads.dev/file/9da5e7dafb89e544ddbbe5df22fb25dc.png",
     description:
       "A dark psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred, utilizing direct and explicit prose that focuses on the captive's internal struggle as they develop forbidden feelings for a powerful, possessive captor.",
     tags: [
@@ -48,6 +49,7 @@ export const NARRATIVE_STYLES = {
   hd_carlton: {
     id: "hd_carlton",
     name: "H.D. Carlton",
+    portrait: "https://user.uploads.dev/file/29fc25684e26e5c40d9b178b56e868d7.png",
     description:
       "A dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked through visceral prose highlighting the violation of boundaries and the allure of a morally depraved anti-hero.",
     tags: [
@@ -89,6 +91,7 @@ export const NARRATIVE_STYLES = {
   anais_nin: {
     id: "anais_nin",
     name: "Anaïs Nin",
+    portrait: "https://user.uploads.dev/file/ac255c9a8af91d5082b0063f2b686a71.png",
     description:
       "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought. The narrative blurs the lines between reality and perception, transforming sexuality into a surrealist medium for self-discovery and a tool for mapping the intricate landscape of the female psyche.",
     tags: ["author", "1st_person", "erotica", "queer_desire", "psychoanalysis", "art_and_creation", "dreams_vs_reality"],
@@ -119,6 +122,7 @@ export const NARRATIVE_STYLES = {
   cara_mckenna: {
     id: "cara_mckenna",
     name: "Cara McKenna",
+    portrait: "https://user.uploads.dev/file/f9636773932371f0b697841be8a6471d.png",
     description:
       "Gritty, realistic prose focused on raw vulnerability, physical sensations of touch, and the unspoken tension of shared trauma. The style relies on working-class realism and deep character interiority, using sensory details and an unpolished physicality as non-verbal forms of communication and emotional healing.",
     tags: ["author", "3rd_person", "erotica", "contemporary", "romance", "power_dynamics", "trauma_recovery", "vulnerability_as_strength"],
@@ -149,7 +153,7 @@ export const NARRATIVE_STYLES = {
   edgar_allan_poe: {
     id: "edgar_allan_poe",
     name: "Edgar Allan Poe",
-    portrait: "https://user.uploads.dev/file/5653f14e2b13c3b2368019395b05b6f9.png",
+    portrait: "https://user.uploads.dev/file/3f38ae76ab4ec4ec95012e9a55e7871d.png",
     description:
       "A gothic horror framework driven by a highly unreliable first-person narrator obsessively tracing their own descent into madness, guilt, or paranoia. The prose is baroque, ornate, and hypnotic, utilizing psychological hallucinations and mounting claustrophobic dread to blur the boundary between reality and self-inflicted torment.",
     tags: ["author", "1st_person", "gothic", "horror", "madness", "guilt", "mortality", "the_supernatural", "paranoia"],
@@ -180,6 +184,7 @@ export const NARRATIVE_STYLES = {
   william_gibson: {
     id: "william_gibson",
     name: "William Gibson",
+    portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
     description:
       "Dense, detached neon-noir prose saturated with technical jargon and cyberpunk neologisms that view the human body as hardware and characters as alienated operators within complex dystopian networks. The style creates a sensory immersion into a data-heavy, high-tech, low-life future where corporate power and urban decay run rampant.",
     tags: ["author", "3rd_person", "high_concept", "sci_fi", "technology_as_body", "corporate_dystopia", "alienation", "data_as_reality"],
@@ -210,6 +215,7 @@ export const NARRATIVE_STYLES = {
   tinto_brass: {
     id: "tinto_brass",
     name: "Tinto Brass",
+    portrait: "https://user.uploads.dev/file/808cd5efc93cbc550c5da2d39ed2f130.png",
     description:
       "Cinematic, celebratory, and highly voyeuristic prose focusing on lighthearted hedonism, playful bodily curves, and unashamed sexual exploration. The style maintains a comedic, high-energy tone that frames the gaze as an artistic end in itself, completely stripping away shame or external moral friction.",
     tags: [
@@ -250,6 +256,7 @@ export const NARRATIVE_STYLES = {
   stephen_king: {
     id: "stephen_king",
     name: "Stephen King",
+    portrait: "https://user.uploads.dev/file/371dfa7b61691bb424816e3f633f1208.png",
     description:
       "Grounded blue-collar realism abruptly punctured by plainspoken, visceral horror and colloquial dread. The style anchors supernatural threats within the ordinary, small-town mundane, relying on conversational prose, regional pop-culture references, and highly physical manifestations of fear to make the nightmare feel authentic.",
     tags: ["author", "3rd_person", "horror", "thriller", "everyman_horror", "folksy_dread", "nostalgic_decay", "visceral_supernatural"],
@@ -279,6 +286,7 @@ export const NARRATIVE_STYLES = {
   sally_rooney: {
     id: "sally_rooney",
     name: "Sally Rooney",
+    portrait: "https://user.uploads.dev/file/da37829ce26ec85c9c065da0358246ad.png",
     description:
       "Flat, clinical minimalist prose stripped entirely of quotation marks, focusing heavily on social class, millennial relationship power dynamics, and the unsaid. The style blends dialogue directly into the observational narration, creating a detached yet hyper-intimate inspection of intellectualized emotional friction.",
     tags: ["author", "3rd_person", "contemporary", "romance", "clinical_intimacy", "power_dynamics", "marxist_undercurrents", "minimalist_prose"],
@@ -308,6 +316,7 @@ export const NARRATIVE_STYLES = {
   rina_kent: {
     id: "rina_kent",
     name: "Rina Kent",
+    portrait: "https://user.uploads.dev/file/38a6b4190f934760aaffe8a3bf716656.png",
     description:
       "High-intensity, immediate first-person prose saturated with raw adrenaline, psychological control, and predatory obsession. Nestled within mafia and bully romance subgenres, the style utilizes punchy, fragmented syntax to emphasize extreme power imbalances, aggressive confrontations, and morally ambiguous anti-heroes.",
     tags: [
@@ -347,6 +356,7 @@ export const NARRATIVE_STYLES = {
   lee_child: {
     id: "lee_child",
     name: "Lee Child",
+    portrait: "https://user.uploads.dev/file/68023c8a82d6e00c7de8047e09ee7764.png",
     description:
       "Terse, declarative, staccato prose stripped entirely of figurative language, reading like a hyper-efficient tactical threat assessment matrix. The writing functions with brutal, minimalist momentum, processing the environment purely through structural geometry, physical calculations, and procedural actions.",
     tags: ["author", "3rd_person", "crime", "action", "tactical_minimalism", "procedural_violence", "the_drifter_justice", "brutal_efficiency"],
@@ -376,7 +386,7 @@ export const NARRATIVE_STYLES = {
   katerina_winters: {
     id: "katerina_winters",
     name: "Katerina Winters",
-    portrait: "https://user.uploads.dev/file/885112cf73210d08a5206e90b0800c8d.png",
+    portrait: "https://user.uploads.dev/file/8ed338c66cf9b495794e2d5b5ba960f9.png",
     description:
       "An immersive, highly sensual narrative balancing a sweet-and-dark tone with intense, conflicted desire and possessive dynamics. The style relies on propulsive pacing and deep body-focused emotional grounding to navigate the high-stakes tension of enemies-to-lovers relationships and close-proximity power plays.",
     tags: ["author", "3rd_person", "dark_romance", "enemies_to_lovers", "power_dynamics", "forbidden_love", "possessive_leads"],
@@ -407,7 +417,7 @@ export const NARRATIVE_STYLES = {
   jrr_tolkien: {
     id: "jrr_tolkien",
     name: "J.R.R. Tolkien",
-    portrait: "https://user.uploads.dev/file/95489755063afef858f37da4a090d0b5.png",
+    portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
     description:
       "Earnest, elevated, and archaic prose rich in history and deep world-building lore, where grand thematic concerns of duty, hope, and despair are directly reflected in sweeping landscape features and weather patterns. The style rejects modern conversational rhythms in favor of a dense, poetic historical chronicle.",
     tags: ["author", "3rd_person", "fantasy", "history_and_lineage", "hope_vs_despair", "duty", "fading_of_the_world"],
@@ -438,7 +448,7 @@ export const NARRATIVE_STYLES = {
   jane_austen: {
     id: "jane_austen",
     name: "Jane Austen",
-    portrait: "https://user.uploads.dev/file/fdc259d6e1ed24a3482928be20d7c481.png",
+    portrait: "https://user.uploads.dev/file/c29b56aff50893999a69d6f2d2def874.png",
     description:
       "Witty, ironic Free Indirect Discourse observing social propriety, conversational subtext, and the hidden economics of marriage among the English gentry. Emotions are rarely stated directly, choosing instead to expose character vanities, social calculations, and generational anxieties through brilliant satirical dialogue.",
     tags: ["author", "3rd_person", "romance", "historical", "social_status", "marriage_as_economics", "manners_and_propriety", "judgment_vs_reality"],
@@ -469,6 +479,7 @@ export const NARRATIVE_STYLES = {
   k_webster: {
     id: "k_webster",
     name: "K Webster",
+    portrait: "https://user.uploads.dev/file/83ef930c92f32fa68199475b39d7198d.png",
     description:
       "Unapologetically dark, direct, and graphic prose exploring extreme taboo boundaries, psychological control, and the claustrophobic logic of predatory obsession. The narrative dips into the twisted rationalizations of morally compromised characters, utilizing a detached, unsettlingly calm rhythm during highly transgressive scenes.",
     tags: [
@@ -510,6 +521,7 @@ export const NARRATIVE_STYLES = {
   penelope_douglas: {
     id: "penelope_douglas",
     name: "Penelope Douglas",
+    portrait: "https://user.uploads.dev/file/4711670ee787d7e40515def6b211a28f.png",
     description:
       "Raw, angsty modern prose saturated with confrontational tension, bully dynamics, and deep unfiltered internal monologue. Rooted in new adult fiction, the style thrives on real-time emotional turmoil, high-stakes psychological warfare, and cutting dialogue that rapidly erupts into intense physical intimacy.",
     tags: [
@@ -551,6 +563,7 @@ export const NARRATIVE_STYLES = {
   bernardo_bertolucci: {
     id: "bernardo_bertolucci",
     name: "Bernardo Bertolucci",
+    portrait: "https://user.uploads.dev/file/9a6c0d6bcc8e8f04e20eb99eb40cf83e.png",
     description:
       "Lush, operatic, and visually beautiful third-person limited prose that frames desperate intimacy as a tool of rebellion within repressed or politically unstable worlds. The camera-like narrative voice lingers unflinchingly on bodily textures, non-verbal cues, and the decaying beauty of the environmental setting.",
     tags: [
@@ -591,6 +604,7 @@ export const NARRATIVE_STYLES = {
   george_rr_martin: {
     id: "george_rr_martin",
     name: "George R.R. Martin",
+    portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
     description:
       "Gritty, grounded third-person limited prose tracing complex political intrigue, moral compromise, and the raw sensory realities of conflict. The narrative subverts classic fantasy tropes through strict perspective biases, treating the human cost of power with a journalistic focus on physical discomfort, lineage, and structural betrayal.",
     tags: ["author", "3rd_person", "fantasy", "political", "political_intrigue", "moral_ambiguity", "cost_of_power", "betrayal", "family_dynasty"],
@@ -621,6 +635,7 @@ export const NARRATIVE_STYLES = {
   philip_k_dick: {
     id: "philip_k_dick",
     name: "Philip K. Dick",
+    portrait: "https://user.uploads.dev/file/223d14a8846614174325de0f76b11444.png",
     description:
       "An ontologically unstable narrative style driven by intense paranoia, identity crises, and shifting layers of reality. The prose focuses on characters realizing their environment, memories, or bodies are simulated, corporate-controlled, or fundamentally altered, prioritizing philosophical alienation over hard technological accuracy.",
     tags: ["author", "3rd_person", "sci_fi", "paranoia", "simulation_theory", "philosophical", "identity_crisis"],
@@ -650,6 +665,7 @@ export const NARRATIVE_STYLES = {
   cormac_mccarthy: {
     id: "cormac_mccarthy",
     name: "Cormac McCarthy",
+    portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
     description:
       "A brutalist, stark narrative style characterized by polysyndeton, the near-total omission of punctuation, and an objective, detached third-person perspective. The prose balances archaic, biblical cadences with clinical descriptions of violence and indifferent, sweeping natural landscapes.",
     tags: ["author", "3rd_person", "brutalist", "western", "gothic", "existential", "minimalist_punctuation"],
@@ -679,6 +695,7 @@ export const NARRATIVE_STYLES = {
   haruki_murakami: {
     id: "haruki_murakami",
     name: "Haruki Murakami",
+    portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
     description:
       "A detached, melancholic first-person style blending mundane slice-of-life routines with sudden, unexplained magical realism. The narrative transitions smoothly into surreal subconscious underworlds, focusing on isolation, memory loss, and a passive acceptance of the bizarre.",
     tags: ["author", "1st_person", "magical_realism", "surrealism", "existential", "slice_of_life", "melancholy"],
@@ -708,6 +725,7 @@ export const NARRATIVE_STYLES = {
   david_lynch: {
     id: "david_lynch",
     name: "David Lynch",
+    portrait: "https://user.uploads.dev/file/2948ac605cb8679e03e44010a28256a8.png",
     description:
       "A cinematic style governed by surrealist nightmare logic, subverting Americana imagery to reveal deep subconscious rot. The narrative leverages striking visual juxtapositions, distorted temporal flows, and an intense, hyper-focused auditory environment to induce deep existential dread and abstract mystery.",
     tags: ["director", "3rd_person", "surrealism", "mystery", "subconscious", "neo_noir", "nightmare_logic"],
@@ -737,7 +755,7 @@ export const NARRATIVE_STYLES = {
   hp_lovecraft: {
     id: "hp_lovecraft",
     name: "H.P. Lovecraft",
-    portrait: "https://user.uploads.dev/file/45270b07cc6bc5aad60fe52c83fcf80d.png",
+    portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
     description:
       "A dense, clinically detached first-person narrative tracing the total breakdown of human sanity when confronted by ancient, cosmic forces. The prose utilizes archaic adjectives, structural manifestations of dread, and a sense of absolute human insignificance within an indifferent universe.",
     tags: ["author", "1st_person", "cosmic_horror", "gothic", "madness", "forbidden_knowledge", "alienation"],
@@ -767,6 +785,7 @@ export const NARRATIVE_STYLES = {
   samuel_delany: {
     id: "samuel_delany",
     name: "Samuel R. Delany",
+    portrait: "https://user.uploads.dev/file/9b2f6375f89ff73e3696f8c085b03fb7.png",
     description:
       "A highly intellectualized, visceral, and boundary-pushing queer erotica style that combines exhaustive physical mechanics with deep philosophical and urban observation. The prose explores explicit power dynamics, somatic details, and transgressive taboos through a dense, unapologetically literate framework where sex and critical theory run entirely parallel.",
     tags: ["author", "1st_person", "queer_erotica", "transgressive", "philosophical", "visceral_detail", "taboo"],
@@ -796,6 +815,7 @@ export const NARRATIVE_STYLES = {
   dennis_cooper: {
     id: "dennis_cooper",
     name: "Dennis Cooper",
+    portrait: "https://user.uploads.dev/file/7ec63d6ac179a0b8076a366026364b4e.png",
     description:
       "A cold, minimalist, and deeply transgressive queer style that treats extreme desires and physical vulnerabilities with a flat, detached clinical neutrality. The narrative uses sparse, stark syntax to capture youth subcultures, intense obsessions, and the absolute boundaries of psychological isolation without deploying moral or emotional commentary.",
     tags: ["author", "1st_person", "transgressive", "minimalism", "dark_desire", "clinical_detachment", "queer"],
@@ -825,6 +845,7 @@ export const NARRATIVE_STYLES = {
   john_waters: {
     id: "john_waters",
     name: "John Waters",
+    portrait: "https://user.uploads.dev/file/69876b0f4a2a86e698fdf13f4cbf6024.png",
     description:
       "A high-camp, deliberately grotesque, and riotously transgressive cinematic style that celebrates counter-culture absurdity and queer defiance. The narrative tone is hyper-melodramatic, cheerful, and completely unhinged, using trash aesthetics and shocking violations of societal decorum as weaponized comedy.",
     tags: ["director", "3rd_person", "camp", "grotesque", "comedy", "queer_defiance", "counter_culture", "absurdism"],
