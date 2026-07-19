@@ -1,6 +1,6 @@
 # RPGlitch Specification & Simulation Engine Rules
 
-This document outlines the RPGlitch-specific architecture, simulation rules, design aesthetics, lexicon definitions, and memory paradigms. It serves as the project's sovereign technical blueprint, complementing the [global GEMINI.md](file:///C:/Users/johng/.gemini/GEMINI.md).
+This document outlines the RPGlitch-specific architecture, simulation rules, design aesthetics, lexicon definitions, and memory paradigms. It serves as the project's sovereign technical blueprint, complementing the global GEMINI.md.
 
 ---
 
@@ -181,7 +181,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Build Tool**: Vite 8 (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
 - **Persistence**: Dexie.js (IndexedDB).
-- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see [global GEMINI.md compliance](file:///C:/Users/johng/.gemini/GEMINI.md#06-compliance)).
+- **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see global GEMINI.md §06 Compliance).
 - **Simulation** building blocks:
   - [Engine](./src/engine): Logic & Round Orchestration (DynamicsEngine).
   - [Intelligence](./src/intelligence): The AI Kernel.
@@ -193,7 +193,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
   - [Local Development Scripts](./.agents/skills/local-scripts/SKILL.md): Local Scripts.
   - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
   - [Design](./.agents/skills/design/SKILL.md): UI, Motion, and Tailwind Aesthetics.
-  - [Security](file:///C:/Users/johng/.gemini/config/skills/security/SKILL.md): Adversarial Audit & Security.
+  - Security: Adversarial Audit & Security (global skill).
 - **MCP Server Ecosystem**: Leverage specialized workspace-integrated model context protocol (MCP) servers for autonomous tasks:
   - `chrome-devtools`: Headless browser automation, UI testing, console audits, and screenshots.
   - `firecrawl-mcp`: Web research, data extraction, scraping, and real-time documentation retrieval.
@@ -208,7 +208,7 @@ The project follows a sovereign modular structure to ensure local-first resilien
 
 #### 3. Svelte 5 Sovereignty & Security
 
-See [Svelte](file:///C:/Users/johng/.gemini/config/skills/svelte/SKILL.md).
+See the global Svelte skill.
 
 - **Forbidden**: `export let`, `$:`, `writable()`, `readable()`, `<slot />`, `createEventDispatcher`.
 - **Mandate**: Use Svelte 5 Runes exclusively (`$state()`, `$derived()`, `$effect()`, `{@render snippet}`). State over DOM—NEVER read UI state from HTML elements.
@@ -230,7 +230,7 @@ See [Svelte](file:///C:/Users/johng/.gemini/config/skills/svelte/SKILL.md).
 
 Once a plan is approved and grounded, execute using this atomic sequence:
 
-1. **Task Tracking**: Ensure the [FUTURE.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/FUTURE.md) is initialized and anchored to [ETERNAL.md](file:///C:/Users/johng/source/repos/RPGlitch/tasks/ETERNAL.md).
+1. **Task Tracking**: Ensure the [FUTURE.md](./tasks/FUTURE.md) is initialized and anchored to [ETERNAL.md](./tasks/ETERNAL.md).
 2. **Logic & Tools**: Wire up **Svelte 5 Runes**. When building Perchance Bridges, use `window.exposed` safely. Consolidate tools; do not proliferate narrow functions.
 3. **Aesthetic Polish**: Apply `DESIGN.md` CSS variables and UI layout rules.
 4. **State Persistence**: Anchor dynamic state and memory structures.
@@ -241,7 +241,7 @@ Once a plan is approved and grounded, execute using this atomic sequence:
 
 - **Relative Resolution**: Internal references MUST use relative paths (e.g., `[PRESENT.md](./tasks/PRESENT.md)`).
 - **Absolute Grounding**: Technical explanations MUST map to actual file paths and line numbers.
-- **Navigator Protocol**: Adhere to the **Context Protocol** defined in [global GEMINI.md](file:///C:/Users/johng/.gemini/GEMINI.md).
+- **Navigator Protocol**: Adhere to the **Context Protocol** defined in the global GEMINI.md.
 
 ---
 
@@ -369,4 +369,4 @@ We operate within the **Nordic Collection**.
 > **CRITICAL DISTINCTION**:
 >
 > - **Application Memory** (**Temporal Engine**, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
-> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the [Developer Database](file:///C:/Users/johng/.gemini/config/skills/developer-database/SKILL.md) skill.
+> - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global Developer Database skill.

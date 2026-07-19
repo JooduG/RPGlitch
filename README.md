@@ -90,11 +90,14 @@ RPGlitch distinguishes **application memory** (what ships in the app) from **dev
 
 ---
 
-## 🛸 Sovereign Swarm Operations (Globalized via MCP)
+## 🛸 Sovereign Swarm Operations
 
-RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in parallel. Swarm operations have been globalized and are now handled via MCP tools (`mcp_swarm_swarm_plan`, `mcp_swarm_swarm_dispatch`, `mcp_swarm_swarm_merge`).
+RPGlitch utilizes an agentic "Swarm" to handle complex, multi-file features in parallel. Swarm operations are available through two interfaces:
 
-If you are a human operator triggering a swarm sequence, consult the `/swarm` global workflow.
+- **MCP Tools** (globalized): `mcp_swarm_swarm_plan`, `mcp_swarm_swarm_dispatch`, `mcp_swarm_swarm_merge` — for use within MCP-enabled agents.
+- **CLI Scripts** (local fallback): `npm run swarm:plan`, `npm run swarm:dispatch`, `npm run swarm:status`, `npm run swarm:merge`, `npm run swarm:cancel` — for use in a terminal or non-MCP environment.
+
+Both interfaces drive the same underlying swarm lifecycle. Consult the `/swarm` global workflow or the local `swarm` skill (`.agents/skills/swarm/SKILL.md`) for the full procedure.
 
 ---
 

@@ -42,7 +42,10 @@
   /* --- TYPOGRAPHY --- */
   --font-base: "Inter", sans-serif;
   --font-heading: "Ubuntu", sans-serif;
+  --font-height-base: 1.5;
   --font-mono: "JetBrains Mono", monospace;
+  --font-spacing-tight: -0.01em;
+  --font-weight-bold: 700;
   --text-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem);
   --text-h1: clamp(3rem, 5vw + 2rem, 6rem);
   --text-h2: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem);
@@ -54,6 +57,7 @@
   --text-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
 
   /* --- ROUNDED --- */
+  --radius-full: 9999px;
   --radius-sharp: 0.25rem;
   --radius-standard: 1rem;
 
@@ -82,6 +86,7 @@
   --duration-slow: 500ms;
   --duration-standard: 300ms;
   --ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-in: cubic-bezier(0.42, 0, 1, 1);
   --ease-out: cubic-bezier(0, 0, 0.2, 1);
   --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
   --empty-fill: rgb(23 23 23 / 0.6);
@@ -296,7 +301,7 @@
 
   sup,
   sub {
-    font-size: var(--font-size-nano);
+    font-size: var(--text-nano);
     line-height: 0;
     position: relative;
     vertical-align: baseline;
@@ -311,12 +316,12 @@
   }
 
   small {
-    font-size: var(--font-size-small);
+    font-size: var(--text-small);
   }
 
   code {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-small);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
     background: var(--glass-sunken);
     padding: var(--spacing-pixel) var(--spacing-unit);
     border-radius: var(--radius-sharp);
@@ -399,19 +404,6 @@
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
-
-@utility mask-border-solid {
-  /* stylelint-disable property-no-vendor-prefix */
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  /* stylelint-enable property-no-vendor-prefix */
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-}
 
 .text-shadow-outline {
   text-shadow:
@@ -652,7 +644,7 @@
 
   100% {
     /* Translate downward toward the orbital hand workspace with a slight tilt */
-    transform: translateY(calc(var(--row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
+    transform: translateY(calc(var(--spacing-row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
     opacity: 0;
     filter: brightness(0.4) blur(2px);
   }
@@ -661,7 +653,7 @@
 @keyframes card-swap-ascent {
   0% {
     /* Emerge from the lower deck coordinates slightly scaled down */
-    transform: translateY(calc(var(--row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
+    transform: translateY(calc(var(--spacing-row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
     opacity: 0;
     filter: brightness(1.5) blur(4px);
   }
@@ -817,7 +809,7 @@ html:active-view-transition *::after {
 
   49.9% {
     transform: perspective(1200px) rotateY(90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
+    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--color-signature-color));
     opacity: 1;
   }
 
@@ -839,7 +831,7 @@ html:active-view-transition *::after {
 
   50.1% {
     transform: perspective(1200px) rotateY(-90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
+    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--color-signature-color));
     opacity: 1;
   }
 

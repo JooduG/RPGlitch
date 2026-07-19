@@ -41,7 +41,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601) | Task | Skill Invoked | Outcome |
-| 2026-07-18 17:57 | Session initialization via `/00-status` | `/00-status` | 🔄 Active |
+| 2026-07-18 17:57 | Session initialization via `/00-status` | `/00-status` | ✅ Done |
 | 2026-07-17 20:02 | Session initialization via `/00-status` | `/00-status` | ✅ Done |
 | 2026-07-16 22:20 | Integrated flushSync and CSS important overrides to ensure solid-state view transitions | `/02-implement`, `svelte` | ✅ Done |
 | 2026-07-16 20:22 | Option A: Persistent layout hoist — EntityCards + UnifiedConsole mounted once in App.svelte to eliminate fade (d7da065) | `/02-implement`, `svelte` | ✅ Done |
@@ -51,7 +51,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 | 2026-07-16 03:55 | Address 3 technical issues in scribbles.md (JSON parsing, XML entities, invalid Director JSON fallback) | `planning`, `javascript` | ✅ Done |
 | 2026-07-16 02:15 | Deconstruct, merge, and clean up duplicate analyses in scribbles.md while highlighting conflicts | `/deconstruct` | ✅ Done |
 | 2026-07-16 07:42 | Complete responsive design track refactor and mobile optimizations | `/02-implement` / `design` | ✅ Done |
-| 2026-07-15 14:56 | Session initialization via `/00-status` | `/00-status` | 🔄 Active |
+| 2026-07-15 14:56 | Session initialization via `/00-status` | `/00-status` | ✅ Done |
 | 2026-07-14 13:55 | Restored and anchored workspace MCP ecosystem (DevTools, FireCrawl, Sequential Thinking, Svelte) | `legislative` | ✅ Done |
 | 2026-07-11 15:02 | Refactor Backlog Generator & Config Links | `/02-implement` | ✅ Done |
 | 2026-07-11 14:38 | Milestone 2: Code Stability & Logic Polish | `/02-implement` | ✅ Done |

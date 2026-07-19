@@ -45,9 +45,13 @@ typography:
   text-h6: clamp(1rem, 1vw + 0.9rem, 1.25rem)
   text-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem)
   text-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem)
+  font-height-base: 1.5
+  font-spacing-tight: -0.01em
+  font-weight-bold: 700
 rounded:
   radius-sharp: 0.25rem
   radius-standard: 1rem
+  radius-full: 9999px
 spacing:
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
   spacing-gap-standard: calc(var(--spacing-spacing-unit) * 4)
@@ -68,6 +72,7 @@ components:
   blur-mist: blur(calc(var(--spacing-spacing-unit) * 4))
   spacing-border-width-base: var(--spacing-spacing-pixel)
   spacing-border-width-thick: var(--spacing-spacing-unit)
+  ease-in: cubic-bezier(0.42, 0, 1, 1)
   breakpoint-mobile: 48rem
   brightness-dim: "0.9"
   brightness-glow: "1.1"
@@ -410,7 +415,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 
   sup,
   sub {
-    font-size: var(--font-size-nano);
+    font-size: var(--text-nano);
     line-height: 0;
     position: relative;
     vertical-align: baseline;
@@ -425,12 +430,12 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   }
 
   small {
-    font-size: var(--font-size-small);
+    font-size: var(--text-small);
   }
 
   code {
-    font-family: var(--font-family-mono);
-    font-size: var(--font-size-small);
+    font-family: var(--font-mono);
+    font-size: var(--text-small);
     background: var(--glass-sunken);
     padding: var(--spacing-pixel) var(--spacing-unit);
     border-radius: var(--radius-sharp);
@@ -513,19 +518,6 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 }
 
 /* --- TEXT SHADOW UTILITIES --- */
-
-@utility mask-border-solid {
-  /* stylelint-disable property-no-vendor-prefix */
-  -webkit-mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  -webkit-mask-composite: xor;
-  /* stylelint-enable property-no-vendor-prefix */
-  mask:
-    linear-gradient(#fff 0 0) content-box,
-    linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-}
 
 .text-shadow-outline {
   text-shadow:
@@ -766,7 +758,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 
   100% {
     /* Translate downward toward the orbital hand workspace with a slight tilt */
-    transform: translateY(calc(var(--row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
+    transform: translateY(calc(var(--spacing-row-unit, 20px) * 8)) scale(0.7) rotate(-5deg);
     opacity: 0;
     filter: brightness(0.4) blur(2px);
   }
@@ -775,7 +767,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 @keyframes card-swap-ascent {
   0% {
     /* Emerge from the lower deck coordinates slightly scaled down */
-    transform: translateY(calc(var(--row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
+    transform: translateY(calc(var(--spacing-row-unit, 20px) * 6)) scale(0.75) rotate(5deg);
     opacity: 0;
     filter: brightness(1.5) blur(4px);
   }
@@ -931,7 +923,7 @@ html:active-view-transition *::after {
 
   49.9% {
     transform: perspective(1200px) rotateY(90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
+    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--color-signature-color));
     opacity: 1;
   }
 
@@ -953,7 +945,7 @@ html:active-view-transition *::after {
 
   50.1% {
     transform: perspective(1200px) rotateY(-90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--active-signature-color, var(--color-signature-color)));
+    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--color-signature-color));
     opacity: 1;
   }
 
