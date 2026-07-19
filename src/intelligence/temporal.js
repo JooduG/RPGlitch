@@ -13,7 +13,7 @@
 
 import { session_driver } from "@engine";
 import { prompt_builder } from "./prompts.js";
-import { merge_prose_into_field } from "./parser.js";
+import { merge_prose_into_field, extract_json_block } from "./parser.js";
 import { llm_service } from "@platform";
 import { simulation_log as log_store } from "@state";
 
@@ -98,13 +98,13 @@ export function score(vectors, input) {
  * @param {string} input
  * @param {Object} [options]
  * @param {number} [options.limit]
- * @param {boolean} [options.vector_directive]
+ * @param {boolean} [options.vector_text]
  * @param {number} [options.offset]
  * @returns {string}
  */
 export function format(vectors, input, options = {}) {
   const limit = options.limit || 3;
-  const show_directive = options.vector_directive ?? true;
+  const show_directive = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
 
   const offset = options.offset || 0;
@@ -201,12 +201,8 @@ export async function forge_memory(target_entity, history_slice, role = "charact
       return null;
     }
 
-    // Robust JSON extraction for potentially nested structures
-    const first_brace = stripped.indexOf("{");
-    const last_brace = stripped.lastIndexOf("}");
-    if (first_brace === -1 || last_brace === -1) return null;
-
-    const json_string = stripped.substring(first_brace, last_brace + 1);
+    const json_string = extract_json_block(raw_text);
+    if (!json_string) return null;
     let memory;
     try {
       memory = JSON.parse(json_string);

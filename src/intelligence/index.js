@@ -6,6 +6,7 @@ export {
   clean_image_prompts,
   clean_text,
   escapeXml,
+  extract_json_block,
   parse_message,
   parse_think_block,
   strip_cognition_blocks,

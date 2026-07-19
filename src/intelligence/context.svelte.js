@@ -21,7 +21,7 @@
  * the Hydration phase: pulling raw state from the runtime and repository,
  * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-import { clean_text } from "./parser.js";
+import { clean_text, strip_cognition_blocks } from "./parser.js";
 import { ENTITY_CATALOG } from "./fragments.js";
 import { temporal_engine } from "./temporal.js";
 import { app, runtime } from "@state";
@@ -43,7 +43,7 @@ function get_sanitized_text(msg) {
   const raw = msg.text || msg.content || "";
   if (RAW_CACHE.has(raw)) return RAW_CACHE.get(raw);
 
-  const sanitized = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  const sanitized = strip_cognition_blocks(raw).trim();
 
   if (RAW_CACHE.size >= MAX_CACHE_SIZE) {
     const firstKey = RAW_CACHE.keys().next().value;

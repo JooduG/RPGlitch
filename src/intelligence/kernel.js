@@ -20,7 +20,7 @@ import { context_broker } from "./context.svelte.js";
 import { dynamics_engine } from "./dynamics.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
-import { escape_unescaped_json_quotes } from "./parser.js";
+import { escape_unescaped_json_quotes, extract_json_block } from "./parser.js";
 import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
 /**
@@ -34,14 +34,12 @@ import { app, runtime, simulationState } from "@state";
  */
 function parse_director_json(raw_text) {
   if (!raw_text || !raw_text.trim()) return null;
-  const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-  const first_brace = stripped.indexOf("{");
-  const last_brace = stripped.lastIndexOf("}");
-  if (first_brace === -1 || last_brace === -1) {
+  const json_string = extract_json_block(raw_text);
+  if (!json_string) {
+    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
     return { internal_monologue: stripped };
   }
-  const json_string = stripped.substring(first_brace, last_brace + 1);
   const cleaned_json = escape_unescaped_json_quotes(json_string);
   const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
   try {
@@ -52,7 +50,7 @@ function parse_director_json(raw_text) {
     return payload;
   } catch (parse_err) {
     console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-    return { internal_monologue: stripped };
+    return { internal_monologue: raw_text.replace(/```json\n?|```/g, "").trim() };
   }
 }
 

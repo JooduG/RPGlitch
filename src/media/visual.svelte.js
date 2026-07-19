@@ -313,7 +313,7 @@ export class VisualEngine {
 
       const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
       const extracted = match?.[1] || refined || "";
-      const cleanPrompt = this._cleanPrompt(extracted.replace(/<think>[\s\S]*?<\/think>/gi, ""));
+      const cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
 
       let caption = null;
       if (vTarget === "selfie") {

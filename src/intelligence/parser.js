@@ -60,6 +60,22 @@ export function strip_cognition_blocks(text) {
   return text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
 }
 /**
+ * Extracts the outermost JSON object from a raw LLM response.
+ * Strips markdown code fences and isolates the substring between
+ * the first "{" and last "}".
+ * @param {string} raw
+ * @returns {string|null} The extracted JSON string, or null if no braces found.
+ */
+export function extract_json_block(raw) {
+  if (!raw) return null;
+  const stripped = raw.replace(/```json\n?|```/g, "").trim();
+  const first_brace = stripped.indexOf("{");
+  const last_brace = stripped.lastIndexOf("}");
+  if (first_brace === -1 || last_brace === -1) return null;
+  return stripped.substring(first_brace, last_brace + 1);
+}
+
+/**
  * Removes <image_prompt> tags from text.
  * @param {string|null|undefined} text
  * @returns {string}
@@ -228,7 +244,7 @@ export function clean_xml(str) {
  */
 export const safeParsePseudoJson = (raw) => {
   if (!raw) return {};
-  const cleanRaw = raw.replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
+  const cleanRaw = strip_cognition_blocks(raw).trim();
   if (!cleanRaw) return {};
 
   // Tier 1: Try parsing standard JSON or braced setups

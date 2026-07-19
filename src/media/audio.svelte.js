@@ -6,6 +6,7 @@
  */
 import { getRpgList } from "@utils";
 import { db } from "@data";
+import { strip_cognition_blocks } from "@intelligence";
 import { SvelteSet } from "svelte/reactivity";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
@@ -163,9 +164,7 @@ export class VoiceEngine {
       this.stop();
     }
 
-    const speechReadyText = text
-      .replace(/<think>[\s\S]*?<\/think>/gi, "")
-      .replace(/<think>[\s\S]*/gi, "")
+    const speechReadyText = strip_cognition_blocks(text)
       .replace(/[*_#`~]/g, "")
       .replace(/\[\[(.*?)\]\]/g, "$1")
       .replace(/<[^>]*>/g, "")
