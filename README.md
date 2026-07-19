@@ -67,27 +67,26 @@ The system architecture prioritizes offline-first resilience and agentic automat
 
 - **State Management:** IndexedDB via Dexie.js (Single source of truth)
 - **UI Framework:** Svelte 5 (Runes) + Tailwind CSS v4
-- **Bundler:** Vite 6
+- **Bundler:** Vite 8
 - **Security:** DOMPurify (XSS prevention)
 
 ## 🧠 Living Memory & Data Sovereignty
 
-RPGlitch operates a dual-layer memory system to ensure the simulation is both technically sharp and historically aware.
+RPGlitch distinguishes **application memory** (what ships in the app) from **development memory** (agent-side infrastructure used while building it).
 
-### 1. 🔥 Working Memory (Pinecone)
+### 🧊 Application Memory (ships in the app)
 
-- **Purpose**: Active context grounding and RAG.
-- **Content**: Current Rules, Skills, Workflows, and Core Logic patterns.
-- **Namespaces**:
-- `knowledge-base.meta`: The Constitution (Rules/Skills).
-- `knowledge-base.src`: High-fidelity code patterns.
-- `knowledge-base.external`: Official documentation and community patterns.
+- **Purpose**: In-simulation state, entity history, and narrative continuity.
+- **Tech**: Dexie.js over IndexedDB (local-first, browser-resident).
+- **Scope**: Lives in `src/data/`. See the `simulation` skill for the four-quadrant Entity Fragment architecture (Eternal / Present / Past / Future).
+- **Persistence**: Survives reloads; the user's machine is the absolute host of their reality.
 
-### 2. ❄️ Cold Storage (Supabase)
+### 🔥 Development Memory (agent infrastructure, not shipped)
 
-- **Purpose**: Historical decision tracking and archiving.
-- **Content**: Archived task plans, research logs, and architectural post-mortems.
-- **Usage**: Conflict resolution and understanding the "Why" behind past shifts.
+- **Working Memory (Pinecone)**: Active context grounding and RAG for the coding agent. Namespaces: `knowledge-base.meta` (constitution), `knowledge-base.src` (code patterns), `knowledge-base.external` (third-party docs).
+- **Cold Storage (Supabase)**: Historical decision tracking — archived task plans, research logs, architectural post-mortems — for conflict resolution and understanding the "Why" behind past shifts.
+
+> See `GEMINI.md` → Memory Protocol for the authoritative distinction.
 
 ---
 

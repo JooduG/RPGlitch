@@ -178,7 +178,7 @@ The following hierarchy and protocols govern all **AI Characters** within the si
 The project follows a sovereign modular structure to ensure local-first resilience and reactive clarity.
 
 - **Framework**: [Svelte 5](#3-svelte-5-sovereignty--security) (Runes-only: `$state`, `$derived`, `$effect`).
-- **Build Tool**: Vite 6 (LTS) (with `vite-plugin-singlefile` for Perchance).
+- **Build Tool**: Vite 8 (with `vite-plugin-singlefile` for Perchance).
 - **Environment**: Perchance Two-Panel Paradigm. No Node.js backend. Rely entirely on **Just-In-Time (JIT) Compilation** and **ESM/CDN imports** (via `esm.sh`) for external libraries.
 - **Persistence**: Dexie.js (IndexedDB).
 - **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see [global GEMINI.md compliance](file:///C:/Users/johng/.gemini/GEMINI.md#06-compliance)).
@@ -303,7 +303,7 @@ To maintain consistency in asynchronous chains, use standardized verbs for initi
 To maintain absolute sync between logic, persistence, and aesthetics, the protocol acts as the central connective tissue for RPGlitch.
 
 - **Centralized Logic**: To orchestrate token distributions (syncing `DESIGN.md` CSS vars with Svelte logic) and physics limits.
-- **Trigger**: Run `npm run sync:design` after any modifications to `DESIGN.md` or core constraints to guarantee coherence across the `.svelte` components and memory structures.
+- **Trigger**: Run `npm run sync` after any modifications to `DESIGN.md` or core constraints to guarantee coherence across the `.svelte` components and memory structures.
 - **Utility Scripts**: All operational scripts that support the Weaver Protocol (e.g., automated synchronizers, schema validators) are located in `.agents/skills/local-scripts/scripts`. Use the `local-scripts` agent skill exclusively to retrieve and execute these tools.
 
 ---
@@ -324,7 +324,7 @@ We operate within the **Nordic Collection**.
 #### 📐 II. The Law (Constraints)
 
 - **Token Sovereignty**: Derive physics from the Token Registry. However, **Tailwind v4 IDE IntelliSense is the absolute source of truth** for syntax. Never fight the IDE's shorthand suggestions.
-- **The Weaver Protocol**: Any change to the aesthetic must first be recorded in `DESIGN.md` and then synchronized via `npm run sync:design`.
+- **The Weaver Protocol**: Any change to the aesthetic must first be recorded in `DESIGN.md` and then synchronized via `npm run sync`.
 
 #### 📐 III. Transition Synchronization Rules
 

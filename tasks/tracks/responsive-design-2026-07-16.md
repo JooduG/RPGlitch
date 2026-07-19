@@ -25,7 +25,7 @@ RPGlitch requires high-fidelity responsiveness across diverse screen formats. Th
 
 ## Boundaries
 
-- **ALWAYS**: Use `DESIGN.md` as the single source of truth for tokens. Run `npm run sync:design` to compile.
+- **ALWAYS**: Use `DESIGN.md` as the single source of truth for tokens. Run `npm run sync` to compile.
 - **NEVER**: Hardcode layout pixel definitions inside `.svelte` templates. Use responsive tokens or CSS classes.
 - **ASK**: If altering Svelte 5 runtime stasis structures or introducing new viewport breakpoints.
 

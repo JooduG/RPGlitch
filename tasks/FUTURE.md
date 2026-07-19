@@ -1,17 +1,32 @@
-# Implementation Plan: Clean & Solid View Transitions
+# 📜 FUTURE (The Muscle)
 
-## Goal
+> **Role**: Active implementation blueprint for the _current_ track.
+> **Status**: Empty — no active track.
 
-Fix visual jitter, snapping, ghostly cross-fading, and disjointed button morphing when transitioning between Storyboard and Storymode.
+This file holds the implementation plan for whatever track is currently in
+progress. When a track completes, its content is archived to
+`tasks/tracks/<track_id>.md` (or `antigravity-ide/archive/` per the global
+GEMINI.md archival law) and this file is reset.
 
-## Steps
+## 🚀 Active Mission
 
-- [x] Edit Storyboard.svelte to update the wrapper div view-transition-name properties.
-- [x] Edit Storymode.svelte to update the wrapper div view-transition-name properties.
-- [x] Edit UnifiedConsole.svelte to assign view-transition-name: unified-console to the console inner chassis.
-- [x] Remove individual view-transition-names from UnifiedConsole.svelte inner buttons/controls.
-- [x] Edit DESIGN.md to add base overrides that disable cross-fade for card-slot-ai, card-slot-user, and unified-console.
-- [x] Run design token synchronization (npm run sync).
-- [x] Verify changes using npm run verify.
-- [x] d7da065 Option A architectural hoist: EntityCards + UnifiedConsole mounted once in App.svelte; Storyboard/Storymode stripped to center content only; card-slot-fractal added to CSS suppression.
-- [x] Integrate flushSync into view transition triggers and enforce rigid-body overrides with important tags.
+_None. Initialize a new track via `/01-plan` or pick one from the roadmap in
+`tasks/PRESENT.md`._
+
+## 🗺️ Roadmap (Tracks)
+
+The canonical roadmap lives in [`PRESENT.md`](./PRESENT.md). Update that file
+when tracks are added or promoted.
+
+## 📝 Notes
+
+- The previous content of this file (the "Clean & Solid View Transitions" plan,
+  covering Storyboard/Storymode view-transition-name cleanup, the Option A
+  persistent-layout hoist, flushSync integration, and rigid-body CSS overrides)
+  was fully completed and its outcome is logged in the Pulse section of
+  [`PRESENT.md`](./PRESENT.md) (entries dated 2026-07-16 19:45–22:20).
+- That plan was never migrated to a `tasks/tracks/<id>.md` file. Per the global
+  `GEMINI.md` §Archival Law, completed blueprints should be archived — if you
+  want a permanent record, move the old content to your archive location
+  (`antigravity-ide/archive/` per global convention) before starting the next
+  track.

@@ -243,8 +243,8 @@ Use the following H2/H3 structure for specific screen prompts to ensure the Stit
 The **Weaver** is the bridge between the Architect's intent and the Engine's reality.
 
 1. **The Source**: All changes start in **DESIGN.md**.
-2. **The Sync**: `npm run sync:design` triggers the Weaver to generate `design.css` and `tokens.js`.
-3. **The Audit**: `npm run audit:css` (The Warden) ensures 100% compliance across the codebase.
+2. **The Sync**: `npm run sync` triggers the Weaver to generate `design.css` and `tokens.js`.
+3. **The Audit**: `npm run audit:design` (The Warden) ensures 100% compliance across the codebase.
 4. **The Handoff**: Automatic build gate verification secures token compliance prior to deployment.
 
 ---
