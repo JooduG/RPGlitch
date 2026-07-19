@@ -17,7 +17,7 @@
  * nothing about the narrative. It only sends and receives.
  */
 
-import { strip_cognition_blocks, escapeXml } from "@intelligence";
+import { escapeXml, collapse_history } from "@intelligence";
 import { app } from "@state";
 
 /************************************************************************************
@@ -297,24 +297,13 @@ export const llm_service = {
    * @returns {string}
    */
   _format_history: (messages) => {
-    if (!Array.isArray(messages) || messages.length === 0) return "";
-    /** @type {any[]} */
-    const collapsed = [];
-    for (const m of messages) {
-      // Guard against system role telemetry leaks
-      if (m.role === "system") continue;
-
-      const roleAttr = m.role === "user" ? "USER_PERSONA" : m.role === "prologue" ? "FRACTAL" : "AI_CHARACTER";
-      const label = m.character_name || (m.role === "user" ? "User" : m.role === "prologue" ? "Fractal" : "Character");
-      const text = strip_cognition_blocks(m.content || m.text || "").trim();
-      if (!text) continue;
-
-      if (collapsed.length > 0 && collapsed[collapsed.length - 1].label === label) {
-        collapsed[collapsed.length - 1].text += `\n\n${text}`;
-      } else {
-        collapsed.push({ roleAttr, label, text });
-      }
-    }
-    return collapsed.map((c) => `  <entry role="${escapeXml(c.roleAttr)}" name="${escapeXml(c.label)}">${escapeXml(c.text)}</entry>`).join("\n");
+    const collapsed = collapse_history(messages, { separator: "\n\n" });
+    if (collapsed.length === 0) return "";
+    return collapsed
+      .map((c) => {
+        const label = c.name || (c.role === "USER_PERSONA" ? "User" : c.role === "FRACTAL" ? "Fractal" : "Character");
+        return `  <entry role="${escapeXml(c.role)}" name="${escapeXml(label)}">${escapeXml(c.content)}</entry>`;
+      })
+      .join("\n");
   },
 };

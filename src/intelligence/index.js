@@ -13,6 +13,6 @@ export {
   safeParsePseudoJson,
   merge_prose_into_field,
 } from "./parser.js";
-export { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";
+export { prompt_builder, PROTOCOL_LIBRARY, collapse_history } from "./prompts.js";
 export { temporal_engine } from "./temporal.js";
 export { dynamics_engine, DYNAMICS_META } from "./dynamics.js";

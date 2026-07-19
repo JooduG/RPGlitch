@@ -76,12 +76,24 @@ const val = (text, owner, entities) => {
  * Extracts the explicit POV directive from the active narrative style.
  * This is injected directly into the TASK block to fight LLM recency bias.
  */
-function extract_pov_directive() {
+
+/**
+ * Resolves the active narrative style key from fractal or app settings.
+ * Returns "" if no valid style is active.
+ * @returns {string}
+ */
+function resolve_active_style_key() {
   const styleKey =
     runtime?.active_fractal?.narrative_style && runtime.active_fractal.narrative_style !== "default"
       ? runtime.active_fractal.narrative_style
       : typeof app !== "undefined" && app.settings?.narrative_style;
   if (!styleKey || styleKey === "default" || !NARRATIVE_STYLES[styleKey]) return "";
+  return styleKey;
+}
+
+function extract_pov_directive() {
+  const styleKey = resolve_active_style_key();
+  if (!styleKey) return "";
 
   const engine = NARRATIVE_STYLES[styleKey].narrative_engine;
   if (!engine) return "";
@@ -97,11 +109,8 @@ function extract_pov_directive() {
  * Renders the active author style XML block.
  */
 function render_narrative_style_xml() {
-  const styleKey =
-    runtime?.active_fractal?.narrative_style && runtime.active_fractal.narrative_style !== "default"
-      ? runtime.active_fractal.narrative_style
-      : typeof app !== "undefined" && app.settings?.narrative_style;
-  if (!styleKey || styleKey === "default" || !NARRATIVE_STYLES[styleKey]) return "";
+  const styleKey = resolve_active_style_key();
+  if (!styleKey) return "";
 
   const styleDef = NARRATIVE_STYLES[styleKey];
   const authorStyleContent = styleDef.narrative_engine;
@@ -125,13 +134,47 @@ function render_narrative_style_xml() {
 /**
  * Compiles dynamic system parameter keys into inline attributes.
  */
-const format_dynamics_attrs = (dynObj) => {
+function format_dynamics_attrs(dynObj) {
   if (!dynObj) return "";
   const attrs = Object.entries(dynObj)
     .map(([k, v]) => `${escapeXml(k)}="${Math.round(v)}"`)
     .join(" ");
   return attrs ? ` ${attrs}` : "";
-};
+}
+
+/**
+ * Collapses conversation history into role-grouped entries, skipping system
+ * messages and merging consecutive entries with the same role and character name.
+ * Shared between prompt rendering and transport-layer formatting.
+ * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
+ * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
+ * @returns {Array<{role: string, name: string, content: string}>}
+ */
+export function collapse_history(messages, options = {}) {
+  const { separator = "\n", stripBoldQuotes = false } = options;
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+
+  const collapsed = [];
+  for (const m of messages) {
+    if (m.role === "system") continue;
+    const lowerRole = (m.role || "").toLowerCase();
+    const role = lowerRole === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lowerRole) ? "FRACTAL" : "AI_CHARACTER";
+    const name = m.character_name || "";
+    let content = strip_cognition_blocks(m.content || m.text || "").trim();
+    if (stripBoldQuotes) {
+      content = content.replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
+    }
+    if (!content) continue;
+
+    const last = collapsed[collapsed.length - 1];
+    if (last && last.role === role && last.name === name) {
+      last.content += `${separator}${content}`;
+    } else {
+      collapsed.push({ role, name, content });
+    }
+  }
+  return collapsed;
+}
 
 // ============================================================================
 // 2. PROTOCOLS
@@ -558,24 +601,7 @@ const data_processors = {
   },
   render_history(simulation_log, count = 10, offset = 0) {
     if (!simulation_log || typeof simulation_log === "string") return simulation_log || "";
-    if (!Array.isArray(simulation_log)) return "";
-    const collapsed = simulation_log.reduce((acc, m) => {
-      if (m.role === "system") return acc;
-      const lowerRole = (m.role || "").toLowerCase();
-      const role = lowerRole === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lowerRole) ? "FRACTAL" : "AI_CHARACTER";
-      const content = strip_cognition_blocks(m.content || m.text || "").replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
-      const last = acc[acc.length - 1];
-      if (last && last.role === role && last.name === (m.character_name || "")) {
-        last.content += `\n${content}`;
-      } else {
-        acc.push({
-          role,
-          name: m.character_name || "",
-          content,
-        });
-      }
-      return acc;
-    }, []);
+    const collapsed = collapse_history(simulation_log, { separator: "\n", stripBoldQuotes: true });
     const start = Math.max(0, collapsed.length - (count + offset));
     const end = Math.max(0, collapsed.length - offset);
     return collapsed

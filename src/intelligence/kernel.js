@@ -35,28 +35,23 @@ import { app, runtime, simulationState } from "@state";
 function parse_director_json(raw_text) {
   if (!raw_text || !raw_text.trim()) return null;
   const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+  const first_brace = stripped.indexOf("{");
+  const last_brace = stripped.lastIndexOf("}");
+  if (first_brace === -1 || last_brace === -1) {
+    console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
+    return { internal_monologue: stripped };
+  }
+  const json_string = stripped.substring(first_brace, last_brace + 1);
+  const cleaned_json = escape_unescaped_json_quotes(json_string);
+  const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
   try {
-    const first_brace = stripped.indexOf("{");
-    const last_brace = stripped.lastIndexOf("}");
-    if (first_brace === -1 || last_brace === -1) {
-      console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
-      return { internal_monologue: stripped };
+    const payload = JSON.parse(sanitized_json);
+    if (payload.prose) {
+      delete payload.prose;
     }
-    const json_string = stripped.substring(first_brace, last_brace + 1);
-    const cleaned_json = escape_unescaped_json_quotes(json_string);
-    const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
-    try {
-      const payload = JSON.parse(sanitized_json);
-      if (payload.prose) {
-        delete payload.prose;
-      }
-      return payload;
-    } catch (parse_err) {
-      console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-      return { internal_monologue: stripped };
-    }
-  } catch (e) {
-    console.warn("[GameMaster] Failed to parse Director JSON, returning fallback:", e);
+    return payload;
+  } catch (parse_err) {
+    console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
     return { internal_monologue: stripped };
   }
 }
@@ -128,6 +123,32 @@ function validate_and_repair_response(response) {
   return result;
 }
 
+/**
+ * Computes dynamics deltas for a single target (ai or fractal) and appends to the shared accumulators.
+ * @param {string} target - "ai" | "fractal"
+ * @param {Record<string, number>} dynamics - New dynamics values
+ * @param {any} runtimeTarget - The runtime object to read old values from (runtime.ai / runtime.fractal)
+ * @param {any} contributors - snapshot.contributors map
+ * @param {string} contributorPrefix - "AI" | "FRACTAL"
+ * @param {any[]} deltas - Accumulator
+ * @param {string[]} log_strings - Accumulator
+ */
+function compute_deltas(target, dynamics, runtimeTarget, contributors, contributorPrefix, deltas, log_strings) {
+  Object.entries(dynamics).forEach(([axis, val]) => {
+    const old_val = /** @type {any} */ (runtimeTarget)?.[axis] ?? 50;
+    const diff = val - old_val;
+    if (diff !== 0) {
+      let cause = contributors?.[`${contributorPrefix}.${axis}`]?.join(", ") || "GM";
+      if (cause === "GM") cause = null;
+
+      deltas.push({ axis, target, old_val, new_val: val, diff, cause });
+
+      const capitalizedAxis = axis.charAt(0).toUpperCase() + axis.slice(1);
+      log_strings.push(`${capitalizedAxis} ${diff > 0 ? "+" : ""}${diff}`);
+    }
+  });
+}
+
 export const gamemaster = {
   /**
    * CAPTURE DYNAMICS DELTA
@@ -146,36 +167,12 @@ export const gamemaster = {
 
     // AI Deltas
     if (snapshot.ai?.dynamics) {
-      Object.entries(snapshot.ai.dynamics).forEach(([axis, val]) => {
-        const old_val = /** @type {any} */ (runtime.ai)?.[axis] ?? 50;
-        const diff = val - old_val;
-        if (diff !== 0) {
-          let cause = snapshot.contributors?.[`AI.${axis}`]?.join(", ") || "GM";
-          if (cause === "GM") cause = null;
-
-          deltas.push({ axis, target: "ai", old_val, new_val: val, diff, cause });
-
-          const capitalizedAxis = axis.charAt(0).toUpperCase() + axis.slice(1);
-          log_strings.push(`${capitalizedAxis} ${diff > 0 ? "+" : ""}${diff}`);
-        }
-      });
+      compute_deltas("ai", snapshot.ai.dynamics, runtime.ai, snapshot.contributors, "AI", deltas, log_strings);
     }
 
     // Fractal Deltas
     if (snapshot.fractal?.dynamics) {
-      Object.entries(snapshot.fractal.dynamics).forEach(([axis, val]) => {
-        const old_val = /** @type {any} */ (runtime.fractal)?.[axis] ?? 50;
-        const diff = val - old_val;
-        if (diff !== 0) {
-          let cause = snapshot.contributors?.[`FRACTAL.${axis}`]?.join(", ") || "GM";
-          if (cause === "GM") cause = null;
-
-          deltas.push({ axis, target: "fractal", old_val, new_val: val, diff, cause });
-
-          const capitalizedAxis = axis.charAt(0).toUpperCase() + axis.slice(1);
-          log_strings.push(`${capitalizedAxis} ${diff > 0 ? "+" : ""}${diff}`);
-        }
-      });
+      compute_deltas("fractal", snapshot.fractal.dynamics, runtime.fractal, snapshot.contributors, "FRACTAL", deltas, log_strings);
     }
 
     // Signals

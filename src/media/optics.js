@@ -101,42 +101,52 @@ export const flatten_physical = (raw) => {
 /**
  * Resolves specs based on active character context properties.
  */
+/**
+ * Builds the merged aesthetic property map shared by extract() and flatten().
+ * Parses eternal/present physical fields, injects color-aesthetic and camera preset.
+ * @param {any} entity
+ * @returns {Record<string, any>}
+ */
+function build_aesthetic_map(entity = {}) {
+  const eternalObj = safeParsePseudoJson(entity.eternal?.physical || "");
+  const presentObj = safeParsePseudoJson(entity.present?.physical || "");
+
+  const merged = {};
+
+  const mergeInputSource = (sourceObj, fallbackLabel) => {
+    if (sourceObj.__raw_prose__) {
+      merged[fallbackLabel] = sourceObj.__raw_prose__;
+    } else {
+      Object.entries(sourceObj).forEach(([k, v]) => {
+        merged[k] = v;
+      });
+    }
+  };
+
+  mergeInputSource(eternalObj, "eternal");
+  mergeInputSource(presentObj, "present");
+
+  const colorName = get_signature_label(entity);
+  if (colorName) {
+    merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
+  }
+
+  const isLandscape = entity.type === "fractal" || entity.type === "scene";
+  merged.preset = isLandscape
+    ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
+    : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
+
+  return merged;
+}
+
 export const AestheticResolver = {
   /**
    * Deterministic extraction of traits from entity fields.
    * @param {any} entity
    */
   extract(entity = {}) {
-    const eternalObj = safeParsePseudoJson(entity.eternal?.physical || "");
-    const presentObj = safeParsePseudoJson(entity.present?.physical || "");
+    const merged = build_aesthetic_map(entity);
 
-    const merged = {};
-
-    // Map properties sequentially, preserving nested raw streams under descriptive headers
-    const mergeInputSource = (sourceObj, fallbackLabel) => {
-      if (sourceObj.__raw_prose__) {
-        merged[fallbackLabel] = sourceObj.__raw_prose__;
-      } else {
-        Object.entries(sourceObj).forEach(([k, v]) => {
-          merged[k] = v;
-        });
-      }
-    };
-
-    mergeInputSource(eternalObj, "eternal");
-    mergeInputSource(presentObj, "present");
-
-    const colorName = get_signature_label(entity);
-    if (colorName) {
-      merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
-    }
-
-    const isLandscape = entity.type === "fractal" || entity.type === "scene";
-    merged.preset = isLandscape
-      ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
-      : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
-
-    // Map compiled fields out into ultra-clean unbracketed properties
     const cleanLines = Object.entries(merged)
       .map(([k, v]) => {
         const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
@@ -154,35 +164,8 @@ export const AestheticResolver = {
    * @param {any} entity
    */
   flatten(entity = {}) {
-    const eternalObj = safeParsePseudoJson(entity.eternal?.physical || "");
-    const presentObj = safeParsePseudoJson(entity.present?.physical || "");
+    const merged = build_aesthetic_map(entity);
 
-    const merged = {};
-
-    const mergeInputSource = (sourceObj, fallbackLabel) => {
-      if (sourceObj.__raw_prose__) {
-        merged[fallbackLabel] = sourceObj.__raw_prose__;
-      } else {
-        Object.entries(sourceObj).forEach(([k, v]) => {
-          merged[k] = v;
-        });
-      }
-    };
-
-    mergeInputSource(eternalObj, "eternal");
-    mergeInputSource(presentObj, "present");
-
-    const colorName = get_signature_label(entity);
-    if (colorName) {
-      merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
-    }
-
-    const isLandscape = entity.type === "fractal" || entity.type === "scene";
-    merged.preset = isLandscape
-      ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
-      : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
-
-    // Flatten values to a comma-separated string
     return Object.values(merged)
       .flatMap((v) => (Array.isArray(v) ? v : [v]))
       .map((v) => String(v).trim())
