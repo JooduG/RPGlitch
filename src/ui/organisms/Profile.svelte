@@ -297,7 +297,9 @@
             class={[
               profile_pic_wrapper_class,
               "flex appearance-none items-center justify-center p-0 outline-none",
-              profileState.is_editing && profileState.char?.profile_picture ? "cursor-pointer transition-opacity hover:opacity-80" : "cursor-default",
+              profileState.is_editing && profileState.char?.profile_picture
+                ? "cursor-pointer transition-[filter] duration-200 hover:brightness-110"
+                : "cursor-default",
             ]}
             style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
             style:background="transparent"
@@ -384,7 +386,7 @@
 
                   {#if profileState.is_editing}
                     <div
-                      class="absolute inset-0 z-20 flex items-center justify-center bg-black/50 opacity-0 transition-opacity group-hover/stylecard:opacity-100"
+                      class="absolute inset-0 z-20 flex items-center justify-center bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
                     >
                       <span class="text-[10px] font-bold tracking-widest text-white uppercase">EDIT</span>
                     </div>

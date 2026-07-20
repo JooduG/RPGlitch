@@ -491,8 +491,8 @@
                     rounded-lg
                     bg-neutral-900/50
                     p-2
-                    transition-colors
-                    hover:bg-neutral-900/80
+                    transition-[filter] duration-200
+                    hover:brightness-110
                   "
                   onclick={() => {
                     const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
