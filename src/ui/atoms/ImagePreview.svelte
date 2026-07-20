@@ -62,7 +62,7 @@
 </script>
 
 <script>
-  import { Modal, Button, TextField, tooltip } from "@atoms";
+  import { Modal, Button, TextField, NumberField, tooltip } from "@atoms";
 
   const copyCanvas = (node, sourceCanvas) => {
     const draw = (src) => {
@@ -142,9 +142,11 @@
     variant="lightbox"
     z_index="500"
     on_close={closeImagePreview}
-    class="flex max-h-[95vh] flex-col items-stretch justify-center gap-4 overflow-hidden border-none bg-transparent p-4 shadow-none md:flex-row"
+    class="flex max-h-[95vh] flex-col items-stretch justify-center gap-4 overflow-hidden border-none bg-transparent shadow-none md:flex-row"
   >
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center">
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <!-- svelte-ignore a11y_click_events_have_key_events -->
+    <div class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center" onclick={(e) => e.stopPropagation()}>
       {#if state.canvas}
         <div
           role="img"
@@ -162,20 +164,23 @@
 
       {#if state.caption && !state.metadata}
         <div
-          class="z-50 mt-4 max-w-[80%] rounded bg-black/30 p-4 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
+          class="z-50 mt-4 max-w-[80%] rounded bg-black/30 text-center text-[clamp(0.9rem,0.8vw+0.8rem,1.1rem)] text-[#f2f7fa] shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
         >
           {state.caption}
         </div>
       {/if}
     </div>
 
-    {#if state.metadata}
+    {#if state.metadata && (state.metadata.prompt || state.metadata.negativePrompt || state.metadata.seed != null)}
+      <!-- svelte-ignore a11y_no_static_element_interactions -->
+      <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
         class="pointer-events-auto flex w-full shrink-0 flex-col gap-gap-standard overflow-y-auto rounded-standard bg-glass-elevated p-padding-standard [backdrop-filter:var(--blur-mist)] md:w-lg"
+        onclick={(e) => e.stopPropagation()}
       >
-        {#if state.metadata.prompt !== undefined && state.metadata.prompt !== null}
+        {#if state.metadata.prompt}
           <div class="flex flex-col gap-2 text-left">
-            <TextField value={state.metadata.prompt?.trim() || ""} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
+            <TextField value={state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
               {#snippet status()}
                 <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
               {/snippet}
@@ -199,10 +204,10 @@
           </div>
         {/if}
 
-        {#if state.metadata.negativePrompt !== undefined && state.metadata.negativePrompt !== null}
+        {#if state.metadata.negativePrompt}
           <div class="flex flex-col gap-2 text-left">
             <TextField
-              value={state.metadata.negativePrompt?.trim() || ""}
+              value={state.metadata.negativePrompt.trim()}
               is_edit={false}
               always_expanded={false}
               signature_color="var(--color-frozen)"
@@ -231,43 +236,17 @@
           </div>
         {/if}
 
-        <div class="flex gap-4">
-          {#if state.metadata.seed !== undefined}
-            <div class="flex flex-1 flex-col gap-2">
-              <button
-                type="button"
-                class="group/seed flex w-full cursor-pointer items-center justify-between rounded-standard border border-white/10 bg-black/20 px-3 py-2 transition-all duration-(--duration-fast) hover:border-white/30 hover:bg-white/10"
-                onclick={handleCopySeed}
-                use:tooltip
-                aria-label="Click to copy"
-                onmousedown={(e) => e.preventDefault()}
-              >
-                <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Seed</span>
-                <span class="font-mono text-lg text-slate-200 group-hover/seed:text-white">
-                  {state.metadata.seed === null || state.metadata.seed === undefined ? "Random" : state.metadata.seed}
-                </span>
-              </button>
-            </div>
-          {/if}
-        </div>
-
-        {#if !(state.metadata && (state.metadata.prompt || state.metadata.negativePrompt))}
-          <div role="none" class="pointer-events-auto mt-6 cursor-auto" onclick={(e) => e.stopPropagation()} onkeydown={handleKeydownStub}>
-            <Button variant="secondary" onclick={handleDownload}>
-              <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
-                <path
-                  d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></path>
-                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
-              </svg>
-              Download
-            </Button>
-          </div>
+        {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
+          <NumberField
+            value={state.metadata.seed}
+            placeholder="Seed"
+            readonly={true}
+            actions={[tooltip]}
+            aria-label="Click to copy seed"
+            onclick={handleCopySeed}
+            onkeydown={handleKeydownStub}
+            class="w-full text-lg"
+          />
         {/if}
 
         <div class="mt-auto flex flex-row gap-4">

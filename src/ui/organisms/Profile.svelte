@@ -620,7 +620,7 @@
                       {#each sortedEntries as [k, v] (k)}
                         {#if v && String(v).trim()}
                           <div
-                            class="flex min-w-[95px] grow flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
                           >
                             <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
                               >{k}</span

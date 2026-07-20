@@ -32,6 +32,7 @@ function ensureModifiers(char) {
     char.modifiers.no_background ??= false;
     char.modifiers.flipped ??= false;
     char.modifiers.profile_picture_seed ??= 0;
+    char.modifiers.last_generated_seed ??= null;
     char.modifiers.color_name ??= "";
   }
 }

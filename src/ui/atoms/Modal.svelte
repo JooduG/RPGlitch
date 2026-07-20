@@ -112,7 +112,6 @@
                       overflow-y-auto
                       rounded-xl
                       bg-glass-elevated
-                      p-4
                       transition-[filter]
                       duration-300
                       [&::-webkit-scrollbar]:hidden
@@ -152,7 +151,7 @@
                       : ''}
                       {className}"
                     onclick={(/** @type {MouseEvent} */ e) => {
-                      e.stopPropagation();
+                      if (variant !== "lightbox") e.stopPropagation();
                     }}
                     use:use_actions={actions}
                   >
