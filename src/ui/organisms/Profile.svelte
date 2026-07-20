@@ -500,7 +500,7 @@
             : ""}
         style:pointer-events={has_wings ? "auto" : "none"}
       >
-        <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4" : "my-auto w-full flex-col")}>
+        <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4" : "w-full flex-col")}>
           {#if profileState.is_editing}
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
