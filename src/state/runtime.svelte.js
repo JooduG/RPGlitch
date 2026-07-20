@@ -100,6 +100,7 @@ function createRuntimeStore() {
       noBackground: false,
       flipped: false,
       profile_picture_seed: 0,
+      last_generated_seed: null,
       colorName: "",
     },
   });

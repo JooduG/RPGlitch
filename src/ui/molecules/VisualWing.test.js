@@ -23,6 +23,7 @@ function ensureModifiers(char) {
       no_background: false,
       flipped: false,
       profile_picture_seed: 0,
+      last_generated_seed: null,
       color_name: "",
     };
   } else {

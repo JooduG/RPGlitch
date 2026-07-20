@@ -34,6 +34,7 @@ export const ENTITY_TEMPLATES = {
       no_background: false,
       flipped: false,
       profile_picture_seed: 0,
+      last_generated_seed: null,
       color_name: "",
     },
     past: [],
@@ -149,6 +150,7 @@ export const normalize = (base = {}) => {
       no_background: !!(modifiers?.no_background ?? modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
+      last_generated_seed: modifiers?.last_generated_seed ?? null,
       color_name: sanitize_html(modifiers?.color_name ?? modifiers?.colorName ?? visuals?.colorName ?? visuals?.color_name ?? "").trim(),
     },
     // --- DYNAMICS (Physics Sliders) ---

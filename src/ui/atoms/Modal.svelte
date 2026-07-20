@@ -152,7 +152,7 @@
                       : ''}
                       {className}"
                     onclick={(/** @type {MouseEvent} */ e) => {
-                      if (variant !== "lightbox") e.stopPropagation();
+                      e.stopPropagation();
                     }}
                     use:use_actions={actions}
                   >

@@ -312,7 +312,7 @@
                     ? {
                         prompt: profileState.char.modifiers.prompt,
                         negativePrompt: profileState.char.modifiers.negative_prompt,
-                        seed: profileState.char.modifiers.profile_picture_seed,
+                        seed: profileState.char.modifiers.last_generated_seed,
                       }
                     : null,
                   on_reroll: () => {
@@ -332,7 +332,7 @@
                         if (payload?.url) {
                           profileState.char.profile_picture = payload.url;
                           if (payload.metadata?.seed !== undefined) {
-                            modifiers.profile_picture_seed = payload.metadata.seed;
+                            modifiers.last_generated_seed = payload.metadata.seed;
                           }
                         }
                       })
@@ -386,9 +386,9 @@
 
                   {#if profileState.is_editing}
                     <div
-                      class="absolute inset-0 z-20 flex items-center justify-center bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
+                      class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
                     >
-                      <span class="text-[10px] font-bold tracking-widest text-white uppercase">EDIT</span>
+                      <span class="text-[10px] font-bold tracking-widest text-white uppercase">SWAP</span>
                     </div>
                   {/if}
                 {/snippet}

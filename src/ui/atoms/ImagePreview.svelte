@@ -62,7 +62,7 @@
 </script>
 
 <script>
-  import { Modal, Button, TextField, NumberField, tooltip } from "@atoms";
+  import { Modal, Button, TextField, tooltip } from "@atoms";
 
   const copyCanvas = (node, sourceCanvas) => {
     const draw = (src) => {
@@ -234,29 +234,19 @@
         <div class="flex gap-4">
           {#if state.metadata.seed !== undefined}
             <div class="flex flex-1 flex-col gap-2">
-              <div class="flex items-center justify-between px-2">
+              <button
+                type="button"
+                class="group/seed flex w-full cursor-pointer items-center justify-between rounded-standard border border-white/10 bg-black/20 px-3 py-2 transition-all duration-(--duration-fast) hover:border-white/30 hover:bg-white/10"
+                onclick={handleCopySeed}
+                use:tooltip
+                aria-label="Click to copy"
+                onmousedown={(e) => e.preventDefault()}
+              >
                 <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Seed</span>
-                <Button
-                  variant="invisible"
-                  size="small"
-                  square={true}
-                  aria-label="Copy Seed"
-                  actions={[tooltip]}
-                  class="py-0! opacity-80 hover:opacity-100"
-                  onclick={handleCopySeed}
-                >
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-                  </svg>
-                </Button>
-              </div>
-              <NumberField
-                value={state.metadata.seed === null || state.metadata.seed === undefined ? null : state.metadata.seed}
-                placeholder={state.metadata.seed === null || state.metadata.seed === undefined ? "Random" : "Seed"}
-                readonly={true}
-                class="w-full text-lg"
-              />
+                <span class="font-mono text-lg text-slate-200 group-hover/seed:text-white">
+                  {state.metadata.seed === null || state.metadata.seed === undefined ? "Random" : state.metadata.seed}
+                </span>
+              </button>
             </div>
           {/if}
         </div>

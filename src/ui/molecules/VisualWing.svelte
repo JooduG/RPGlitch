@@ -60,6 +60,7 @@
         no_background: false,
         flipped: false,
         profile_picture_seed: null,
+        last_generated_seed: null,
         color_name: "",
       };
       return;
@@ -71,6 +72,7 @@
     if (profileState.char.modifiers.profile_picture_seed === 0 || profileState.char.modifiers.profile_picture_seed === undefined) {
       profileState.char.modifiers.profile_picture_seed = null;
     }
+    profileState.char.modifiers.last_generated_seed ??= null;
     profileState.char.modifiers.color_name ??= "";
   };
 
@@ -189,7 +191,7 @@
       if (payload?.url) {
         profileState.char.profile_picture = payload.url;
         if (payload.metadata?.negativePrompt !== undefined) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
-        if (payload.metadata?.seed !== undefined) profileState.char.modifiers.profile_picture_seed = payload.metadata.seed;
+        if (payload.metadata?.seed !== undefined) profileState.char.modifiers.last_generated_seed = payload.metadata.seed;
       }
     } catch (err) {
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");

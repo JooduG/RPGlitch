@@ -47,6 +47,7 @@ describe("content-normaliser.js", () => {
           no_background: false,
           flipped: false,
           profile_picture_seed: 0,
+          last_generated_seed: null,
           color_name: "",
         },
         voice: {
@@ -87,6 +88,7 @@ describe("content-normaliser.js", () => {
         no_background: true,
         flipped: true,
         profile_picture_seed: 123,
+        last_generated_seed: null,
         color_name: "Blue",
       });
     });
