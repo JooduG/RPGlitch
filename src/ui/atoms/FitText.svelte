@@ -11,6 +11,7 @@
   let container = $state();
   let content = $state();
   let font_size = $state(96);
+  let calculating = false;
 
   /**
    * @param {ResizeObserverEntry[]} [entries]
@@ -21,6 +22,9 @@
     // Abort if the container has no physical footprint (0-width bug)
     if (entries && entries[0] && entries[0].contentRect.width === 0) return;
     if (container.clientWidth === 0) return;
+
+    if (calculating) return;
+    calculating = true;
 
     // Reset to maximum limit
     font_size = max_size;
@@ -33,6 +37,8 @@
       await tick();
       loops++;
     }
+
+    calculating = false;
   }
 
   // Observe node dimensions reactively
