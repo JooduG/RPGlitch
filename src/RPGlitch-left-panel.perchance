@@ -4,6 +4,5 @@ $meta
   header
     mode = minimal
 
-// --- IMPORTS ---
 ai = {import:ai-text-plugin}
 textToImage = {import:text-to-image-plugin}
