@@ -885,7 +885,10 @@ html:active-view-transition *::after {
     grid-column: 9 / 12 !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: center !important;
+    /* safe center: centers content when it fits within the scroll area,
+       but starts from the top (no clipping) when content overflows. */
+    justify-content: safe center !important;
+    min-height: 0 !important;
     align-items: center !important;
     gap: 1rem !important;
   }

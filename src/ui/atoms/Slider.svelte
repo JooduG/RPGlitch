@@ -273,7 +273,7 @@
                   active:scale-[1.1]
                 `}
               "
-              style="{thumbProps.style}; top: 50%; transform: translate(-50%, -50%);"
+              style="{thumbProps.style}; top: 50%; transform: translateY(-50%);"
             >
             </span>
           {/snippet}

@@ -7,7 +7,6 @@
 import { getRpgList } from "@utils";
 import { db } from "@data";
 import { strip_cognition_blocks } from "@intelligence";
-import { SvelteSet } from "svelte/reactivity";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 
@@ -49,8 +48,44 @@ if (typeof window !== "undefined") {
 
 /************************************************************************************
  * [SECTION: VOICE ENGINE]
- * Low-level wrapper for window.speechSynthesis with resilient queuing.
+ * Kokoro-82M neural TTS powered by kokoro-js (Transformers.js).
+ * Runs 100% in-browser via WASM or WebGPU. Falls back to Web Speech API if
+ * Kokoro fails to load (e.g. no WebGPU/WASM support or model download blocked).
  ************************************************************************************/
+
+/** Kokoro voice definitions (sorted: male first, then female, alphabetical within each group). */
+const KOKORO_VOICES = [
+  // Male voices (am_* / bm_*)
+  { uri: "am_adam", name: "Adam" },
+  { uri: "bm_daniel", name: "Daniel" },
+  { uri: "am_echo", name: "Echo" },
+  { uri: "bm_fable", name: "Fable" },
+  { uri: "am_fenrir", name: "Fenrir" },
+  { uri: "bm_george", name: "George" },
+  { uri: "am_liam", name: "Liam" },
+  { uri: "bm_lewis", name: "Lewis" },
+  { uri: "am_michael", name: "Michael" },
+  { uri: "am_onyx", name: "Onyx" },
+  { uri: "am_puck", name: "Puck" },
+  { uri: "am_santa", name: "Santa" },
+  // Female voices (af_* / bf_*)
+  { uri: "bf_alice", name: "Alice" },
+  { uri: "af_alloy", name: "Alloy" },
+  { uri: "af_aoede", name: "Aoede" },
+  { uri: "af_bella", name: "Bella" },
+  { uri: "bf_emma", name: "Emma" },
+  { uri: "af_heart", name: "Heart" },
+  { uri: "bf_isabella", name: "Isabella" },
+  { uri: "af_jessica", name: "Jessica" },
+  { uri: "af_kore", name: "Kore" },
+  { uri: "bf_lily", name: "Lily" },
+  { uri: "af_nicole", name: "Nicole" },
+  { uri: "af_nova", name: "Nova" },
+  { uri: "af_river", name: "River" },
+  { uri: "af_sarah", name: "Sarah" },
+  { uri: "af_sky", name: "Sky" },
+];
+
 /**
  * Handles vocal synthesis engine configuration and lifecycle management.
  */
@@ -60,6 +95,9 @@ export class VoiceEngine {
   activeMessageId = $state(null);
 
   isSpeaking = $state(false);
+  isLoading = $state(false);
+  loadProgress = $state(0);
+  modelReady = $state(false);
   /** @type {any[]} */
   voices = $state([]);
   /** @type {string | null} */
@@ -69,95 +107,142 @@ export class VoiceEngine {
   pitch = $state(1.0);
   enabled = $state(false); // Defaulting strictly to off
 
-  // --- PRIVATE TYPE MATRIX ---
+  // --- PRIVATE ---
+  /** @type {any | null} KokoroTTS instance */
+  #tts = null;
+  /** @type {boolean} */
+  #useFallback = false;
   /** @type {SpeechSynthesis | null} */
-  _synth = null;
-  /** @type {SpeechSynthesisUtterance | null} */
-  _utterance = null;
+  #fallbackSynth = null;
   /** @type {Array<{ text: string, voiceUri: string|null }>} */
   #queue = [];
   /** @type {boolean} */
   #isProcessing = false;
+  /** @type {AudioContext | null} */
+  #audioContext = null;
+  /** @type {GainNode | null} */
+  #gainNode = null;
+  /** @type {AudioBufferSourceNode | null} */
+  #currentSource = null;
 
   /**
-   * Initializes the speech synthesis interface and binds platform event triggers.
+   * Initializes the voice engine with Kokoro voice list.
    */
   constructor() {
-    if (typeof window !== "undefined") {
-      this._synth = window.speechSynthesis;
-      this._loadVoices();
-      if (this._synth && /** @type {any} */ (this._synth).onvoiceschanged !== undefined) {
-        /** @type {any} */ (this._synth).onvoiceschanged = () => this._loadVoices();
-      }
+    this.voices = KOKORO_VOICES.map((v) => ({
+      name: v.name,
+      uri: v.uri,
+      supportsParams: true,
+    }));
+
+    if (!this.selectedVoice) {
+      this.selectedVoice = "af_heart";
     }
   }
 
   /**
-   * Loads, filters, and filters out clone duplicates from the platform voice array.
+   * Public method to explicitly trigger model download.
+   * Returns a promise that resolves when loading is complete.
    */
-  _loadVoices() {
-    if (!this._synth) return;
-    let rawVoices = /** @type {SpeechSynthesis} */ (this._synth).getVoices();
-
-    const seenIdentities = new SvelteSet();
-
-    this.voices = rawVoices
-      .filter((v) => v.lang.startsWith("en") || v.lang.startsWith("sv"))
-      .map((v) => ({
-        name: v.name,
-        uri: v.voiceURI,
-        lang: v.lang,
-        localService: v.localService,
-        default: v.default,
-        region: this._getRegionLabel(v.lang),
-        supportsParams: !v.name.includes("Natural"),
-        _ref: v,
-      }))
-      .filter((v) => {
-        const cleanToken = v.name
-          .replace(/Microsoft|Google|Desktop|Mobile|Speech|Natural|Voice|Online/gi, "")
-          .replace(/\s+-\s+.*/g, "")
-          .trim();
-
-        const coreIdentifier = cleanToken.split(/\s+/)[0]?.toLowerCase() || v.name.toLowerCase();
-
-        if (seenIdentities.has(coreIdentifier)) return false;
-        seenIdentities.add(coreIdentifier);
-        return true;
-      })
-      .sort((/** @type {any} */ a, /** @type {any} */ b) => {
-        const regionSort = a.region.localeCompare(b.region);
-        if (regionSort !== 0) return regionSort;
-        return a.name.localeCompare(b.name);
-      });
-
-    if (!this.selectedVoice && this.voices.length > 0) {
-      const preferred = this.voices.find((v) => v.name.includes("Google US English")) || this.voices[0];
-      this.selectedVoice = preferred.uri;
-    }
+  async loadModel() {
+    await this.#ensureModel();
   }
 
   /**
-   * @param {string} lang
+   * Lazily loads the Kokoro TTS model from CDN.
+   * Falls back to Web Speech API if loading fails.
    */
-  _getRegionLabel(lang) {
+  async #ensureModel() {
+    if (this.#tts || this.#useFallback) return;
+
+    this.isLoading = true;
     try {
-      const displayNames = new Intl.DisplayNames(["en"], { type: "region" });
-      const regionCode = lang.split("-")[1];
-      return regionCode ? displayNames.of(regionCode) : "Global";
-    } catch {
-      return "Global";
+      const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
+
+      const hasWebGPU = typeof navigator !== "undefined" && "gpu" in navigator;
+      const device = hasWebGPU ? "webgpu" : "wasm";
+      const dtype = hasWebGPU ? "fp32" : "q8";
+
+      /** @type {Record<string, number>} */
+      const fileProgress = {};
+
+      this.#tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
+        dtype,
+        device,
+        progress_callback: (/** @type {any} */ data) => {
+          if (data.status === "progress" || data.status === "download") {
+            if (data.file && typeof data.progress === "number") {
+              fileProgress[data.file] = data.progress;
+              const values = Object.values(fileProgress);
+              const avg = values.reduce((a, b) => a + b, 0) / values.length;
+              this.loadProgress = Math.round(avg);
+            }
+          }
+        },
+      });
+      this.loadProgress = 100;
+      this.modelReady = true;
+    } catch (err) {
+      console.warn("[VoiceEngine] Kokoro failed to load, falling back to Web Speech API:", err);
+      this.#useFallback = true;
+      this.#initFallback();
+      this.modelReady = true;
+    } finally {
+      this.isLoading = false;
     }
   }
 
   /**
-   * Appends sanitized narrative segments to the custom engine execution queue.
+   * Initializes the Web Speech API fallback.
+   */
+  #initFallback() {
+    if (typeof window === "undefined" || !window.speechSynthesis) return;
+    this.#fallbackSynth = window.speechSynthesis;
+    // Load platform voices for fallback
+    const loadFallback = () => {
+      const raw = this.#fallbackSynth.getVoices();
+      if (
+        raw.length > 0 &&
+        !this.voices.some((v) => v.uri.startsWith("af_") || v.uri.startsWith("am_") || v.uri.startsWith("bf_") || v.uri.startsWith("bm_"))
+      ) {
+        this.voices = raw
+          .filter((v) => v.lang.startsWith("en"))
+          .map((v) => ({
+            name: v.name,
+            uri: v.voiceURI,
+            supportsParams: !v.name.includes("Natural"),
+            _ref: v,
+          }));
+        if (!this.selectedVoice && this.voices.length > 0) {
+          this.selectedVoice = this.voices[0].uri;
+        }
+      }
+    };
+    loadFallback();
+    this.#fallbackSynth.onvoiceschanged = loadFallback;
+  }
+
+  /**
+   * Ensures an AudioContext is available for Kokoro playback.
+   */
+  #ensureAudioContext() {
+    if (this.#audioContext) return;
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    this.#audioContext = new AudioCtx();
+    this.#gainNode = this.#audioContext.createGain();
+    this.#gainNode.gain.setValueAtTime(this.volume, this.#audioContext.currentTime);
+    this.#gainNode.connect(this.#audioContext.destination);
+  }
+
+  /**
+   * Appends sanitized narrative segments to the voice execution queue.
    * @param {string} text
    * @param {boolean} [clearQueue=true]
    * @param {boolean} [force=false]
    */
   speak(text, clearQueue = true, force = false) {
-    if (!this._synth || !text) return;
+    if (!text) return;
     if (!this.enabled && !force) return;
 
     if (clearQueue) {
@@ -187,106 +272,182 @@ export class VoiceEngine {
   }
 
   /**
-   * Processes the structured sequential speech array block-by-block.
+   * Processes the queue sequentially, generating audio for each chunk.
    */
-  #processQueue() {
-    if (!this._synth) return;
-
+  async #processQueue() {
     if (this.#queue.length === 0) {
       this.#isProcessing = false;
       this.isSpeaking = false;
       this.activeMessageId = null;
-      this._utterance = null;
       return;
     }
 
     this.#isProcessing = true;
     this.isSpeaking = true;
 
-    const currentItem = this.#queue[0];
-    const utterance = new SpeechSynthesisUtterance(currentItem.text);
-    this._utterance = utterance;
+    await this.#ensureModel();
 
-    const voice = this.voices.find((v) => v.uri === currentItem.voiceUri) || this.voices[0];
-    if (voice) {
-      utterance.voice = voice._ref;
+    if (this.#useFallback) {
+      this.#processFallback();
+      return;
     }
 
+    const currentItem = this.#queue[0];
+
+    try {
+      const audio = await this.#tts.generate(currentItem.text, {
+        voice: currentItem.voiceUri || "af_heart",
+        speed: this.rate,
+      });
+
+      // Check if we were stopped while generating
+      if (!this.#isProcessing) return;
+
+      this.#playAudio(audio.audio, audio.sampling_rate || 24000);
+
+      // Wait for playback to finish
+      await new Promise((resolve) => {
+        if (!this.#currentSource) {
+          resolve(undefined);
+          return;
+        }
+        this.#currentSource.onended = () => resolve(undefined);
+      });
+    } catch (err) {
+      console.warn("[VoiceEngine] Kokoro generation error:", err);
+    }
+
+    this.#queue.shift();
+    setTimeout(() => this.#processQueue(), 40);
+  }
+
+  /**
+   * Plays raw audio data through the AudioContext.
+   * @param {Float32Array|number[]} audioData
+   * @param {number} sampleRate
+   */
+  #playAudio(audioData, sampleRate) {
+    this.#ensureAudioContext();
+    if (!this.#audioContext) return;
+
+    const ctx = this.#audioContext;
+    const buffer = ctx.createBuffer(1, audioData.length, sampleRate);
+    buffer.getChannelData(0).set(audioData);
+
+    const source = ctx.createBufferSource();
+    source.buffer = buffer;
+    source.connect(this.#gainNode);
+
+    if (ctx.state === "suspended") ctx.resume();
+
+    source.start(0);
+    this.#currentSource = source;
+  }
+
+  /**
+   * Fallback processing using Web Speech API.
+   */
+  #processFallback() {
+    if (!this.#fallbackSynth) {
+      this.#isProcessing = false;
+      this.isSpeaking = false;
+      return;
+    }
+
+    if (this.#queue.length === 0) {
+      this.#isProcessing = false;
+      this.isSpeaking = false;
+      this.activeMessageId = null;
+      return;
+    }
+
+    const currentItem = this.#queue[0];
+    const utterance = new SpeechSynthesisUtterance(currentItem.text);
+    const voice = this.voices.find((v) => v.uri === currentItem.voiceUri) || this.voices[0];
+    if (voice?._ref) utterance.voice = voice._ref;
     utterance.volume = this.volume;
     utterance.rate = this.rate;
     utterance.pitch = this.pitch;
 
-    let isSettled = false;
-
-    /**
-     * Advances the internal execution pointer safely.
-     * @param {boolean} wasInterrupted
-     */
-    const advanceQueue = (wasInterrupted) => {
-      if (isSettled) return;
-      isSettled = true;
-
+    let settled = false;
+    const advance = (interrupted) => {
+      if (settled) return;
+      settled = true;
       this.#queue.shift();
-
-      const stepDelay = wasInterrupted ? 250 : 40;
-      setTimeout(() => this.#processQueue(), stepDelay);
+      setTimeout(() => this.#processFallback(), interrupted ? 250 : 40);
     };
 
-    utterance.onend = () => {
-      advanceQueue(false);
-    };
-
-    utterance.onerror = (/** @type {any} */ e) => {
-      const isInterrupted = e && (e.error === "interrupted" || e.error === "canceled");
-      if (isInterrupted) {
-        console.warn("[AudioEngine] System channel reset detected. Applying hardware backoff recovery delay.", e);
-      } else {
-        console.warn("[AudioEngine] Managed synthesis track error:", e);
-      }
-      advanceQueue(isInterrupted);
-    };
-
-    try {
-      /** @type {SpeechSynthesis} */ (this._synth).speak(utterance);
-    } catch (err) {
-      console.warn("[AudioEngine] Native channel speech invocation failed:", err);
-      advanceQueue(true);
-    }
+    utterance.onend = () => advance(false);
+    utterance.onerror = (e) => advance(e?.error === "interrupted" || e?.error === "canceled");
+    this.#fallbackSynth.speak(utterance);
   }
 
   /**
+   * Previews a voice with a short sample phrase.
    * @param {string} uri
    * @param {number} [rate]
    * @param {number} [pitch]
    */
-  preview(uri, rate = 1.0, pitch = 1.0) {
-    if (!this._synth) return;
+  async preview(uri, rate = 1.0, pitch = 1.0) {
     this.stop();
-    const voice = this.voices.find((v) => v.uri === uri) || this.voices[0];
+    const voice = this.voices.find((v) => v.uri === uri);
     if (!voice) return;
 
+    await this.#ensureModel();
+
+    if (this.#useFallback) {
+      if (!this.#fallbackSynth) return;
+      this.isSpeaking = true;
+      const utterance = new SpeechSynthesisUtterance("Previewing voice system.");
+      const v = this.voices.find((v) => v.uri === uri) || this.voices[0];
+      if (v?._ref) utterance.voice = v._ref;
+      utterance.rate = rate;
+      utterance.pitch = pitch;
+      utterance.onend = () => (this.isSpeaking = false);
+      utterance.onerror = () => (this.isSpeaking = false);
+      this.#fallbackSynth.speak(utterance);
+      return;
+    }
+
     this.isSpeaking = true;
-    const utterance = new SpeechSynthesisUtterance("Previewing voice system.");
-    utterance.voice = voice._ref;
-    utterance.rate = rate;
-    utterance.pitch = pitch;
-    utterance.onend = () => (this.isSpeaking = false);
-    utterance.onerror = () => (this.isSpeaking = false);
-    /** @type {SpeechSynthesis} */ (this._synth).speak(utterance);
+    try {
+      const audio = await this.#tts.generate("Previewing voice system.", {
+        voice: uri,
+        speed: rate,
+      });
+      this.#playAudio(audio.audio, audio.sampling_rate || 24000);
+      if (this.#currentSource) {
+        this.#currentSource.onended = () => (this.isSpeaking = false);
+      }
+    } catch (err) {
+      console.warn("[VoiceEngine] Preview failed:", err);
+      this.isSpeaking = false;
+    }
   }
 
   /**
-   * Cancels active audio playback streams immediately and flushes memory slots.
+   * Cancels active audio playback and flushes the queue.
    */
   stop() {
     this.#queue = [];
     this.#isProcessing = false;
-    if (this._synth) {
-      /** @type {SpeechSynthesis} */ (this._synth).cancel();
+
+    if (this.#currentSource) {
+      try {
+        this.#currentSource.onended = null;
+        this.#currentSource.stop();
+      } catch {
+        /* empty */
+      }
+      this.#currentSource = null;
     }
+
+    if (this.#fallbackSynth) {
+      this.#fallbackSynth.cancel();
+    }
+
     this.isSpeaking = false;
     this.activeMessageId = null;
-    this._utterance = null;
   }
 }
 

@@ -82,10 +82,10 @@
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---
   const main_card_class = $derived(
-    "flex h-full overflow-hidden border border-solid transition-all duration-300 relative z-10 " +
+    "flex overflow-hidden border border-solid transition-all duration-300 relative z-10 " +
       (app.viewport.mobile
-        ? "col-span-full flex-col rounded-none "
-        : (has_wings ? "modal-profile-grid-main" : "modal-profile-grid-flat") + " rounded-2xl ") +
+        ? "col-span-full h-full flex-col rounded-none "
+        : (has_wings ? "modal-profile-grid-main my-auto h-[90dvh]" : "modal-profile-grid-flat h-full") + " rounded-2xl ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
@@ -275,7 +275,13 @@
   >
     <div
       class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
-        app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4" : "h-dvh grid-rows-1") : "my-auto h-[90dvh] grid-rows-1"
+        app.viewport.mobile
+          ? has_wings
+            ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4"
+            : "h-dvh grid-rows-1"
+          : has_wings
+            ? "my-auto h-dvh grid-rows-1"
+            : "my-auto h-[90dvh] grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
       role="presentation"

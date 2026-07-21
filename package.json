@@ -95,6 +95,7 @@
     "dexie": "^4.4.3",
     "dompurify": "^3.4.7",
     "firecrawl-mcp": "^3.22.3",
+    "kokoro-js": "^1.2.1",
     "markdown-it": "^14.2.0",
     "mcp-sequentialthinking-tools": "^0.0.5",
     "tailwindcss": "^4.3.0"

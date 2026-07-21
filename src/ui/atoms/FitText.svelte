@@ -11,34 +11,49 @@
   let container = $state();
   let content = $state();
   let font_size = $state(96);
-  let calculating = false;
+  let last_container_width = 0;
+  let is_calculating = false;
 
   /**
+   * Fits the text by reducing font_size until content fits within the container.
+   * Uses requestAnimationFrame batching to break the synchronous ResizeObserver
+   * loop that occurs when font_size changes trigger further resize observations.
    * @param {ResizeObserverEntry[]} [entries]
    */
-  async function calculate_fit(entries) {
+  function calculate_fit(entries) {
     if (!container || !content) return;
 
     // Abort if the container has no physical footprint (0-width bug)
     if (entries && entries[0] && entries[0].contentRect.width === 0) return;
     if (container.clientWidth === 0) return;
 
-    if (calculating) return;
-    calculating = true;
+    // Skip re-calculation if the container width hasn't changed AND we already have a fitted size.
+    // This prevents the oscillation loop: ResizeObserver fires when font_size changes,
+    // but if the container width is stable, the current font_size is still correct.
+    if (container.clientWidth === last_container_width && font_size < max_size) return;
+    last_container_width = container.clientWidth;
 
-    // Reset to maximum limit
-    font_size = max_size;
-    await tick();
+    // Guard against re-entrancy within the same frame
+    if (is_calculating) return;
+    is_calculating = true;
 
-    let loops = 0;
-    // Observe container vs content overflow
-    while ((content.scrollWidth > container.clientWidth || content.scrollHeight > container.clientHeight) && font_size > 12 && loops < 50) {
-      font_size -= 2;
-      await tick();
-      loops++;
-    }
+    requestAnimationFrame(async () => {
+      try {
+        // Reset to maximum limit
+        font_size = max_size;
+        await tick();
 
-    calculating = false;
+        let loops = 0;
+        // Observe container vs content overflow
+        while ((content.scrollWidth > container.clientWidth || content.scrollHeight > container.clientHeight) && font_size > 12 && loops < 50) {
+          font_size -= 2;
+          await tick();
+          loops++;
+        }
+      } finally {
+        is_calculating = false;
+      }
+    });
   }
 
   // Observe node dimensions reactively
