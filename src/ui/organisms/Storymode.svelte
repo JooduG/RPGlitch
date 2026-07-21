@@ -36,6 +36,7 @@
   $effect(() => {
     if (app.streaming.active && !was_streaming) {
       spoken_character_cursor = 0;
+      Audio.voice.stop();
 
       const activeRole = app.streaming.role;
       if (activeRole === "ai" || activeRole === "fractal") {
@@ -44,7 +45,6 @@
         if (entity && entity.voice) {
           Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
           Audio.voice.rate = entity.voice.rate ?? 1.0;
-          Audio.voice.pitch = entity.voice.pitch ?? 1.0;
         }
       }
     }
@@ -200,6 +200,9 @@
    */
   async function execute_delete() {
     if (delete_target_id) {
+      if (Audio.voice.activeMessageId === delete_target_id) {
+        Audio.voice.stop();
+      }
       await Chrono.delete_log_entry(delete_target_id.toString());
       delete_target_id = null;
     }

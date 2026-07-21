@@ -57,7 +57,9 @@ export function parse_think_block(text) {
  */
 export function strip_cognition_blocks(text) {
   if (!text) return "";
-  return text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
+  let clean = text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
+  clean = clean.replace(/^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i, "");
+  return clean.trim();
 }
 /**
  * Extracts the outermost JSON object from a raw LLM response.

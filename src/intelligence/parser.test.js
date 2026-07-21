@@ -37,6 +37,14 @@ describe("strip_cognition_blocks", () => {
     const input = "Just regular text.";
     expect(strip_cognition_blocks(input)).toBe(input);
   });
+
+  it("should strip Mattis prefix anchor without deleting body text on single-line or multi-line responses", () => {
+    const inputSingle = "Mattis. {{me}} is an earnest, hyper-masculine protector.";
+    expect(strip_cognition_blocks(inputSingle)).toBe("{{me}} is an earnest, hyper-masculine protector.");
+
+    const inputMulti = "Mattis. Archetypes: The Titan. Vocabulary: Gains.\n\nThe character state description.";
+    expect(strip_cognition_blocks(inputMulti)).toBe("The character state description.");
+  });
 });
 
 describe("parse_think_block", () => {

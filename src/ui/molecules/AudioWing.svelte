@@ -22,11 +22,10 @@
     /** Ensure the voice state object is initialized correctly. */
     if (!profileState.char) return;
     if (!profileState.char.voice) {
-      profileState.char.voice = { uri: "af_heart", rate: 1.0, pitch: 1.0 };
+      profileState.char.voice = { uri: "am_adam", rate: 1.0 };
     } else {
-      profileState.char.voice.uri ??= "af_heart";
+      profileState.char.voice.uri ??= "am_adam";
       profileState.char.voice.rate ??= 1.0;
-      profileState.char.voice.pitch ??= 1.0;
     }
   });
 
@@ -204,7 +203,7 @@
         aria-label="Preview Voice"
         square
         disabled={!selected_voice}
-        onclick={() => Audio.voice.preview(profileState.char.voice.uri, profileState.char.voice.rate, profileState.char.voice.pitch)}
+        onclick={() => Audio.voice.preview(profileState.char.voice.uri, profileState.char.voice.rate)}
         variant="secondary"
       >
         <svg viewBox="0 0 24 24" class="size-icon-small">

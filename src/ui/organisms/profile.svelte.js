@@ -247,6 +247,110 @@ export class ProfileState {
   }
 
   /**
+   * AI-enhanced text generation for a specific vector item in an array (e.g. past[0]).
+   * @param {string} path - Array path ('past' or 'future')
+   * @param {number} index - Index of item to enhance
+   */
+  async enhance_vector_item(path, index) {
+    const itemKey = `${path}[${index}]`;
+    const items = get_value(this.char, path) || [];
+    const item = items[index];
+    const directive = typeof item === "string" ? item : item?.directive;
+
+    if (!directive || this.busy_fields.has(itemKey) || this.busy_fields.has(path)) return;
+
+    this.busy_fields.add(itemKey);
+    this.busy_fields.add(path);
+
+    try {
+      const type = this.char.type === "user" ? "character" : this.char.type || "character";
+      const payload = prompt_builder.build_enhancement(path, directive, this.char.name || "", type, false, this.char);
+      const result = await llm_service.enhance(payload);
+
+      if (result) {
+        let clean_result = strip_cognition_blocks(result).trim();
+        let json_str = clean_result.replace(/```json\n?|```/g, "").trim();
+
+        const start_arr = json_str.indexOf("[");
+        const end_arr = json_str.lastIndexOf("]");
+        const start_obj = json_str.indexOf("{");
+        const end_obj = json_str.lastIndexOf("}");
+
+        let patch = {};
+
+        if (start_arr >= 0 && end_arr > start_arr) {
+          try {
+            const parsed = JSON.parse(json_str.substring(start_arr, end_arr + 1));
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              const currentItems = [...(get_value(this.char, path) || [])];
+
+              parsed.forEach((v, idx) => {
+                const targetIdx = index + idx;
+                const dir = typeof v === "string" ? v : v.directive || v.text || "";
+                if (!dir) return;
+
+                const tags = Array.isArray(v.tags) ? v.tags : [];
+                const emotional_weight = typeof v.emotional_weight === "number" ? v.emotional_weight : 5;
+
+                if (targetIdx < currentItems.length) {
+                  const existing = currentItems[targetIdx];
+                  currentItems[targetIdx] = {
+                    ...existing,
+                    directive: dir,
+                    tags: tags.length > 0 ? tags : existing.tags || [],
+                    emotional_weight: typeof v.emotional_weight === "number" ? emotional_weight : (existing.emotional_weight ?? 5),
+                  };
+                } else {
+                  currentItems.push({
+                    id: generateUUID(),
+                    timestamp: Date.now(),
+                    directive: dir,
+                    type: path,
+                    emotional_weight,
+                    tags,
+                  });
+                }
+              });
+
+              set_value(this.char, path, currentItems);
+              this._user_mutated = true;
+              return;
+            }
+          } catch (_e) {
+            // Keep clean_result as fallback
+          }
+        } else if (start_obj >= 0 && end_obj > start_obj) {
+          try {
+            const parsed = JSON.parse(json_str.substring(start_obj, end_obj + 1));
+            if (parsed && typeof parsed === "object") {
+              if (parsed.directive || parsed.text) patch.directive = parsed.directive || parsed.text;
+              if (Array.isArray(parsed.tags) && parsed.tags.length > 0) patch.tags = parsed.tags;
+              if (typeof parsed.emotional_weight === "number") patch.emotional_weight = parsed.emotional_weight;
+            }
+          } catch (_e) {
+            // Keep clean_result as fallback
+          }
+        }
+
+        if (!patch.directive) {
+          clean_result = clean_result.replace(/^"(.*)"$/, "$1").trim();
+          if (clean_result) patch.directive = clean_result;
+        }
+
+        if (patch.directive) {
+          this.patch_vector_item(path, index, patch);
+          this._user_mutated = true;
+        }
+      }
+    } catch (err) {
+      console.error("Vector item enhance failed:", err);
+    } finally {
+      this.busy_fields.delete(itemKey);
+      this.busy_fields.delete(path);
+    }
+  }
+
+  /**
    * AI-enhanced text generation for the entire profile.
    * @param {"character" | "fractal"} entity_type
    */

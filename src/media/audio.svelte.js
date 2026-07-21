@@ -104,7 +104,6 @@ export class VoiceEngine {
   selectedVoice = $state(null);
   volume = $state(1.0);
   rate = $state(1.0);
-  pitch = $state(1.0);
   enabled = $state(false); // Defaulting strictly to off
 
   // --- PRIVATE ---
@@ -159,7 +158,7 @@ export class VoiceEngine {
     try {
       const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
 
-      const hasWebGPU = typeof navigator !== "undefined" && "gpu" in navigator;
+      const hasWebGPU = typeof navigator !== "undefined" && Boolean(/** @type {any} */ (navigator).gpu);
       const device = hasWebGPU ? "webgpu" : "wasm";
       const dtype = hasWebGPU ? "fp32" : "q8";
 
@@ -264,10 +263,41 @@ export class VoiceEngine {
     this.#queue.push({
       text: speechReadyText,
       voiceUri: this.selectedVoice,
+      messageId: this.activeMessageId,
     });
 
     if (!this.#isProcessing) {
       this.#processQueue();
+    } else {
+      this.#pregenerateQueue();
+    }
+  }
+
+  /**
+   * Pre-generates audio for queued items in the background to eliminate playback pauses.
+   */
+  #pregenerateQueue() {
+    if (this.#useFallback || !this.#tts) return;
+
+    for (const item of this.#queue) {
+      if (!item.audioPromise && !item.audioData) {
+        const itemMsgId = item.messageId;
+        item.audioPromise = (async () => {
+          try {
+            const res = await this.#tts.generate(item.text, {
+              voice: item.voiceUri || "am_adam",
+              speed: this.rate,
+            });
+            if (this.activeMessageId && itemMsgId && itemMsgId !== this.activeMessageId) {
+              return null;
+            }
+            return res;
+          } catch (e) {
+            console.warn("[VoiceEngine] Background generation error:", e);
+            return null;
+          }
+        })();
+      }
     }
   }
 
@@ -292,33 +322,57 @@ export class VoiceEngine {
       return;
     }
 
+    this.#pregenerateQueue();
+
     const currentItem = this.#queue[0];
+    if (!currentItem) {
+      this.#isProcessing = false;
+      this.isSpeaking = false;
+      return;
+    }
+
+    // Discard chunk if messageId does not match activeMessageId
+    if (currentItem.messageId && this.activeMessageId && currentItem.messageId !== this.activeMessageId) {
+      this.#queue.shift();
+      this.#processQueue();
+      return;
+    }
 
     try {
-      const audio = await this.#tts.generate(currentItem.text, {
-        voice: currentItem.voiceUri || "af_heart",
-        speed: this.rate,
-      });
+      const audio = currentItem.audioData
+        ? currentItem.audioData
+        : currentItem.audioPromise
+          ? await currentItem.audioPromise
+          : await this.#tts.generate(currentItem.text, {
+              voice: currentItem.voiceUri || "am_adam",
+              speed: this.rate,
+            });
 
-      // Check if we were stopped while generating
-      if (!this.#isProcessing) return;
+      // Check if we were stopped or activeMessageId changed while generating
+      if (!this.#isProcessing || (currentItem.messageId && this.activeMessageId && currentItem.messageId !== this.activeMessageId)) {
+        return;
+      }
 
-      this.#playAudio(audio.audio, audio.sampling_rate || 24000);
+      if (audio?.audio) {
+        this.#playAudio(audio.audio, audio.sampling_rate || 24000);
 
-      // Wait for playback to finish
-      await new Promise((resolve) => {
-        if (!this.#currentSource) {
-          resolve(undefined);
-          return;
-        }
-        this.#currentSource.onended = () => resolve(undefined);
-      });
+        // Wait for playback to finish
+        await new Promise((resolve) => {
+          if (!this.#currentSource) {
+            resolve(undefined);
+            return;
+          }
+          this.#currentSource.onended = () => resolve(undefined);
+        });
+      }
     } catch (err) {
       console.warn("[VoiceEngine] Kokoro generation error:", err);
     }
 
-    this.#queue.shift();
-    setTimeout(() => this.#processQueue(), 40);
+    if (this.#isProcessing) {
+      this.#queue.shift();
+      setTimeout(() => this.#processQueue(), 5);
+    }
   }
 
   /**
@@ -367,7 +421,6 @@ export class VoiceEngine {
     if (voice?._ref) utterance.voice = voice._ref;
     utterance.volume = this.volume;
     utterance.rate = this.rate;
-    utterance.pitch = this.pitch;
 
     let settled = false;
     const advance = (interrupted) => {
@@ -386,9 +439,8 @@ export class VoiceEngine {
    * Previews a voice with a short sample phrase.
    * @param {string} uri
    * @param {number} [rate]
-   * @param {number} [pitch]
    */
-  async preview(uri, rate = 1.0, pitch = 1.0) {
+  async preview(uri, rate = 1.0) {
     this.stop();
     const voice = this.voices.find((v) => v.uri === uri);
     if (!voice) return;
@@ -402,7 +454,6 @@ export class VoiceEngine {
       const v = this.voices.find((v) => v.uri === uri) || this.voices[0];
       if (v?._ref) utterance.voice = v._ref;
       utterance.rate = rate;
-      utterance.pitch = pitch;
       utterance.onend = () => (this.isSpeaking = false);
       utterance.onerror = () => (this.isSpeaking = false);
       this.#fallbackSynth.speak(utterance);

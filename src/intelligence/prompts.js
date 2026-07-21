@@ -507,12 +507,14 @@ function render_enhancement({
     ? "Begin your response with Mattis. Map the entity's geometry: form, material texture, light interaction, structural composition. You MUST explicitly write Mattis before formatting the visual output."
     : is_array_field
       ? `Begin your response with Mattis. Identify the key narrative beats, causal chains, and emotional residue. Generate 3-5 distinct ${field_id === "past" ? "memories" : "impulses"} based on the entity context. You MUST explicitly write Mattis before formatting the output.`
-      : "Begin your response with Mattis. Identify the core psychological archetypes, thematic resonances, and defining vocabulary for this entity. You MUST explicitly write Mattis before writing the final text.";
+      : field_id.includes("present")
+        ? "Begin your response with Mattis. Summarize the entity's immediate emotional pressure, active mental focus, and present behavioral drivers. Focus strictly on THIS moment — DO NOT repeat core eternal traits. You MUST explicitly write Mattis before writing the final text."
+        : "Begin your response with Mattis. Summarize the entity's timeless core identity, psychological drivers, and cognitive patterns. Focus strictly on permanent baseline traits — DO NOT include temporary scene actions. You MUST explicitly write Mattis before writing the final text.";
   const formatInstruction = is_image_field
     ? `Return a flat configuration block of comma-separated property lines. Do NOT include curly braces or square brackets. Output keys and values wrapped in double quotes following this exact syntax: "key": "value", — Every comma inside a value MUST be followed by a space (e.g., "powerful, athletic"). No markdown code blocks.\nAvoid numerical weighting syntax (e.g. "(masterpiece:1.2)"). Control emphasis through descriptive adjectives and sentence positioning. ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}\nWrite descriptive prose incorporating concrete matrix descriptors. No keyword soup.`
     : is_array_field
-      ? 'Return a JSON array of objects, each with: "directive" (string), "tags" (array of strings), "emotional_weight" (integer 1-10). Generate 3-5 entries. No prose outside the array.'
-      : "Write standard narrative prose in the third-person POV. DO NOT write comma-separated lists.";
+      ? 'Return a JSON array of objects, each with: "directive" (string), "tags" (array of 3-6 concrete trigger keywords: entity names, key items, specific actions, or locations that match user inputs for memory retrieval), "emotional_weight" (integer 1-10). Generate 3-5 entries. No prose outside the array.'
+      : "Write a dense character profile state summary in the third-person POV. Describe character traits, emotional state, mental focus, and internal drivers. DO NOT write active story scenes, plot actions, dialogue, or atmospheric scene descriptions. DO NOT write comma-separated lists.";
   const macroInstruction = !is_image_field
     ? entity_type === "fractal"
       ? "Use placeholder macros to refer to entities: '{{user}}' for the user persona, '{{char}}' for the AI character, '{{fractal}}' for this environment. Never hardcode names."

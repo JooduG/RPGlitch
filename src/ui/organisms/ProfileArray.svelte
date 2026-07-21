@@ -27,13 +27,13 @@
    */
 
   /** @type {Props} */
-  let { state, path, signature_color, sublabel = "Vector" } = $props();
+  let { state: profileState, path, signature_color, sublabel = "Vector" } = $props();
 
   // --- DERIVED STATE ---
 
   /** Normalized array of vector objects. */
   const items = $derived.by(() => {
-    const raw = state.get_safe_value(path) || [];
+    const raw = profileState.get_safe_value(path) || [];
     const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
 
     return arr.map((val) => {
@@ -49,15 +49,41 @@
     });
   });
 
+  let editing_tag_key = $state(null);
+
   // --- HANDLERS ---
 
+  /** @param {number} i @param {number} tag_idx */
+  function remove_tag(i, tag_idx) {
+    const current = items[i]?.tags || [];
+    const updated = current.filter((_, idx) => idx !== tag_idx);
+    profileState.patch_vector_item(path, i, { tags: updated });
+  }
+
+  /** @param {number} i @param {number} tag_idx @param {string} new_val */
+  function update_tag_at(i, tag_idx, new_val) {
+    const clean = new_val.trim();
+    const current = [...(items[i]?.tags || [])];
+    if (!clean) {
+      current.splice(tag_idx, 1);
+    } else {
+      current[tag_idx] = clean;
+    }
+    profileState.patch_vector_item(path, i, { tags: current });
+    editing_tag_key = null;
+  }
+
   /** @param {number} i @param {string} raw */
-  function update_tags(i, raw) {
-    const tags = raw
+  function add_tag(i, raw) {
+    const clean = raw.trim();
+    if (!clean) return;
+    const current = items[i]?.tags || [];
+    const new_tags = clean
       .split(",")
       .map((t) => t.trim())
       .filter(Boolean);
-    state.patch_vector_item(path, i, { tags });
+    const combined = Array.from(new Set([...current, ...new_tags]));
+    profileState.patch_vector_item(path, i, { tags: combined });
   }
 </script>
 
@@ -78,80 +104,271 @@
     "
     >
       <TextField
-        is_edit={state.is_editing}
+        is_edit={profileState.is_editing}
+        active={profileState.active_field?.key === `${path}[${i}]`}
+        busy={profileState.busy_fields.has(`${path}[${i}]`)}
         {signature_color}
         value={item.directive}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
-          state.patch_vector_item(path, i, { directive: e.currentTarget.value })}
+          profileState.patch_vector_item(path, i, { directive: e.currentTarget.value })}
         placeholder="Enter {sublabel.toLowerCase()} detail..."
         weight={item.emotional_weight}
-        onfocus={() => state.set_active_field(`${path}[${i}]`, sublabel)}
-        onblur={() => state.reset_active_field()}
+        onfocus={() => profileState.set_active_field(`${path}[${i}]`, sublabel)}
       >
         {#snippet status()}
           <div
             class="
-              mr-4
-              grid
+              flex
+              w-full
+              flex-wrap
+              items-center
+              gap-1
+              py-0.5
+            "
+          >
+            {#each item.tags as tag, tag_idx (tag)}
+              {@const tagKey = `${path}[${i}]-${tag_idx}`}
+              {#if editing_tag_key === tagKey && profileState.is_editing}
+                <input
+                  type="text"
+                  style="font-size: 9px !important; line-height: 1.2 !important;"
+                  class="
+                    max-w-30
+                    min-w-12.5
+                    rounded-sm
+                    border
+                    border-solid
+                    border-white/40
+                    bg-white/10
+                    px-1.5
+                    py-0.5
+                    font-mono
+                    tracking-widest
+                    text-white
+                    uppercase
+                    outline-none
+                  "
+                  value={tag}
+                  onkeydown={(e) => {
+                    if (e.key === "Enter") {
+                      e.preventDefault();
+                      update_tag_at(i, tag_idx, e.currentTarget.value);
+                    } else if (e.key === "Escape") {
+                      editing_tag_key = null;
+                    }
+                  }}
+                  onblur={(e) => update_tag_at(i, tag_idx, e.currentTarget.value)}
+                />
+              {:else}
+                <span
+                  class="
+                    group/tag
+                    flex
+                    items-center
+                    gap-1
+                    rounded-sm
+                    border
+                    border-white/10
+                    bg-white/10
+                    px-1.5
+                    py-0.5
+                    font-mono
+                    text-[9px]
+                    tracking-widest
+                    whitespace-nowrap
+                    text-white
+                    uppercase
+                    opacity-90
+                    drop-shadow-sm
+                    {profileState.is_editing ? 'cursor-pointer hover:bg-white/20' : ''}
+                  "
+                >
+                  <span
+                    role="button"
+                    tabindex="0"
+                    onclick={() => {
+                      if (profileState.is_editing) editing_tag_key = tagKey;
+                    }}
+                    onkeydown={(e) => {
+                      if (profileState.is_editing && (e.key === "Enter" || e.key === " ")) {
+                        editing_tag_key = tagKey;
+                      }
+                    }}>{tag}</span
+                  >
+                  {#if profileState.is_editing}
+                    <button
+                      type="button"
+                      class="
+                        flex
+                        size-3
+                        items-center
+                        justify-center
+                        rounded-full
+                        text-white/50
+                        hover:bg-white/20
+                        hover:text-white
+                      "
+                      onclick={(e) => {
+                        e.stopPropagation();
+                        remove_tag(i, tag_idx);
+                      }}
+                      aria-label="Remove tag {tag}"
+                    >
+                      &times;
+                    </button>
+                  {/if}
+                </span>
+              {/if}
+            {/each}
+
+            {#if profileState.is_editing}
+              <input
+                type="text"
+                style="font-size: 9px !important; line-height: 1.2 !important;"
+                class="
+                  max-w-30
+                  min-w-16
+                  rounded-sm
+                  border
+                  border-dashed
+                  border-white/20
+                  bg-transparent
+                  px-1.5
+                  py-0.5
+                  font-mono
+                  tracking-widest
+                  text-white
+                  uppercase
+                  opacity-70
+                  transition-opacity
+                  duration-200
+                  outline-none
+                  placeholder:text-white/40
+                  focus:border-solid
+                  focus:bg-white/10
+                  focus:opacity-100
+                "
+                placeholder="+ TAG..."
+                onkeydown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    add_tag(i, e.currentTarget.value);
+                    e.currentTarget.value = "";
+                  }
+                }}
+                onblur={(e) => {
+                  if (e.currentTarget.value.trim()) {
+                    add_tag(i, e.currentTarget.value);
+                    e.currentTarget.value = "";
+                  }
+                }}
+              />
+            {/if}
+          </div>
+        {/snippet}
+
+        {#snippet header_actions()}
+          <div
+            class="
+              flex
               h-full
-              min-w-16
-              grid-cols-[1.5rem_2rem_1.5rem]
-              place-items-center
-              self-center
+              items-center
+              gap-1.5
               select-none
             "
-            use:tooltip={{ text: "Influence weight of this vector" }}
           >
-            {#if state.is_editing}
-              <Button
-                variant="invisible"
-                flank={true}
-                size="small"
-                square
+            {#if profileState.is_editing}
+              <div
                 class="
-                  col-start-1
+                  flex
+                  items-center
+                  gap-1
+                  rounded-sm
+                  border
+                  border-white/10
+                  bg-white/10
+                  px-1.5
+                  py-0.5
                 "
-                onclick={() => state.update_vector_weight(path, i, -1)}
-                aria-label="Decrease Weight"
+                use:tooltip={{ text: "Influence weight of this vector" }}
               >
-                <svg
-                  viewBox="0 0 24 24"
-                  class="size-icon-small"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"><path d="M5 12h14" /></svg
+                <span
+                  class="
+                    pointer-events-none
+                    font-mono
+                    text-xs
+                    leading-none
+                    font-bold
+                    text-white
+                  ">{item.emotional_weight}</span
                 >
-              </Button>
+
+                <div class="flex flex-col gap-[1px]">
+                  <button
+                    type="button"
+                    class="
+                      flex
+                      h-2.5
+                      w-3
+                      items-center
+                      justify-center
+                      rounded-xs
+                      text-white/60
+                      hover:bg-white/20
+                      hover:text-white
+                    "
+                    onclick={() => profileState.update_vector_weight(path, i, 1)}
+                    aria-label="Increase Weight"
+                  >
+                    <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="18 15 12 9 6 15"></polyline></svg>
+                  </button>
+                  <button
+                    type="button"
+                    class="
+                      flex
+                      h-2.5
+                      w-3
+                      items-center
+                      justify-center
+                      rounded-xs
+                      text-white/60
+                      hover:bg-white/20
+                      hover:text-white
+                    "
+                    onclick={() => profileState.update_vector_weight(path, i, -1)}
+                    aria-label="Decrease Weight"
+                  >
+                    <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                  </button>
+                </div>
+              </div>
+            {:else}
+              <span
+                class="
+                  pointer-events-none
+                  font-mono
+                  text-xs
+                  leading-none
+                  font-bold
+                  text-white
+                  opacity-90
+                  drop-shadow-xs
+                "
+                use:tooltip={{ text: "Influence weight of this vector" }}>{item.emotional_weight}</span
+              >
             {/if}
 
-            <span
-              class="
-                pointer-events-none
-                z-20
-                col-start-2
-                flex
-                h-full
-                min-w-3
-                items-center
-                justify-center
-                text-center
-                font-mono
-                text-sm
-                leading-none
-                text-white
-              ">{item.emotional_weight}</span
-            >
-
-            {#if state.is_editing}
+            {#if profileState.is_editing}
               <Button
                 variant="invisible"
-                flank={true}
                 size="small"
                 square
+                aria-label="Enhance with AI"
+                actions={[tooltip]}
+                tooltip="Enhance {sublabel} with AI"
+                disabled={profileState.busy_fields.has(path) || profileState.busy_fields.has(`${path}[${i}]`) || !item.directive}
+                onclick={() => profileState.enhance_vector_item(path, i)}
                 class="
-                  col-start-3
                   text-slate-400
                   opacity-0
                   transition-colors
@@ -160,120 +377,48 @@
                   hover:text-white!
                   hover:opacity-100!
                 "
-                onclick={() => state.update_vector_weight(path, i, 1)}
-                aria-label="Increase Weight"
               >
                 <svg
                   viewBox="0 0 24 24"
-                  class="size-icon-small"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"><path d="M12 5v14M5 12h14" /></svg
+                  class="size-icon-small fill-none stroke-current stroke-2"
+                  style="stroke-linecap: round; stroke-linejoin: round;"
                 >
+                  <path d="M12 2L4.5 20.29l.71.71L12 18l6.79 3 .71-.71z" fill="currentColor"></path>
+                </svg>
+              </Button>
+              <Button
+                variant="invisible"
+                size="small"
+                square
+                actions={[tooltip]}
+                tooltip="Remove {sublabel}"
+                aria-label="Remove {sublabel}"
+                onclick={() => profileState.remove_vector_item(path, i)}
+              >
+                <svg
+                  viewBox="0 0 24 24"
+                  class="
+                    size-icon-small
+                    fill-none
+                    stroke-current
+                    stroke-2
+                    [stroke-linecap:round]
+                    [stroke-linejoin:round]
+                  "
+                  fill="none"
+                >
+                  <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor"></path>
+                </svg>
               </Button>
             {/if}
           </div>
-
-          <div
-            class="
-            flex
-            h-full
-            flex-1
-            items-center
-            gap-2
-            overflow-hidden
-          "
-          >
-            {#if state.is_editing}
-              <input
-                type="text"
-                class="
-                  w-full
-                  border-none
-                  bg-transparent
-                  p-0
-                  font-mono
-                  text-[10px]
-                  tracking-widest
-                  text-white
-                  uppercase
-                  opacity-80
-                  transition-opacity
-                  duration-200
-                  outline-none
-
-                  placeholder:text-white
-                  placeholder:opacity-30
-
-                  focus:opacity-100
-                "
-                value={item.tags.join(", ")}
-                placeholder="TAGS (COMMA SEPARATED)..."
-                onchange={(e) => update_tags(i, e.currentTarget.value)}
-              />
-            {:else}
-              {#each item.tags as tag (tag)}
-                <span
-                  class="
-                    flex
-                    h-[calc(100%-0.25rem)]
-                    items-center
-                    rounded-sm
-                    border
-                    border-white/10
-                    bg-white/10
-                    px-2
-                    py-1
-                    text-[10px]
-                    tracking-widest
-                    whitespace-nowrap
-                    text-white
-                    uppercase
-                    opacity-90
-                    drop-shadow-md
-                  ">{tag}</span
-                >
-              {/each}
-            {/if}
-          </div>
-        {/snippet}
-
-        {#snippet header_actions()}
-          {#if state.is_editing}
-            <Button
-              variant="invisible"
-              size="small"
-              square
-              actions={[tooltip]}
-              tooltip="Remove {sublabel}"
-              aria-label="Remove {sublabel}"
-              onclick={() => state.remove_vector_item(path, i)}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                class="
-                  size-icon-small
-                  fill-none
-                  stroke-current
-                  stroke-2
-                  [stroke-linecap:round]
-                  [stroke-linejoin:round]
-                "
-                fill="none"
-              >
-                <polyline points="3 6 5 6 21 6" stroke="currentColor"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" stroke="currentColor"></path>
-              </svg>
-            </Button>
-          {/if}
         {/snippet}
       </TextField>
     </div>
   {/each}
 
-  {#if items.length === 0 && !state.is_editing}
+  {#if items.length === 0 && !profileState.is_editing}
     <div
       class="
         flex

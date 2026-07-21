@@ -371,17 +371,6 @@
                   ">RETRYING</span
                 >
                 <span class="font-mono text-[10px] tracking-widest text-slate-400 uppercase opacity-80">Attempt {app.visual.attempts}</span>
-              {:else}
-                <span
-                  class="
-                    animate-pulse
-                    font-mono
-                    text-[0.625rem]
-                    tracking-widest
-                    text-inherit
-                    uppercase
-                  ">GENERATING</span
-                >
               {/if}
             </div>
           </div>

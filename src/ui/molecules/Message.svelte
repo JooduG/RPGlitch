@@ -147,7 +147,6 @@
     if (entity && entity.voice) {
       Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
       Audio.voice.rate = entity.voice.rate ?? 1.0;
-      Audio.voice.pitch = entity.voice.pitch ?? 1.0;
     }
 
     Audio.voice.speak(clean_markdown, true, true);
@@ -535,7 +534,7 @@
                     alt="Attachment"
                     class="
                       mx-auto
-                      max-h-[480px]
+                      max-h-120
                       w-auto
                       max-w-full
                       cursor-zoom-in

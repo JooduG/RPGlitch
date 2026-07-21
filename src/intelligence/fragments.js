@@ -126,7 +126,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Personality, Behaviour & Traits",
         directive:
-          "Timeless psychology: core beliefs, personality drivers, cognitive patterns, communication tics. Must hold true in any scene — if it shifts during play, it belongs in Present. No reactive moments or specific events. Dense, high-fidelity paragraph.",
+          "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Must hold true in any scene — if it shifts during play, it belongs in Present. No reactive moments or specific events. Dense, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
       },
       fractal: {
@@ -140,7 +140,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Body & Form",
         directive:
-          'Permanent physical features for image generation. No clothing, expressions, or poses. MANDATORY: gender, age_range, ethnicity. Keys: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "" }. Visible body details only — no traits, skills, gear, or morality. Max 15 lines.',
+          'Permanent physical features for image generation. No clothing, expressions, or poses. MANDATORY: gender, age_range (or age), ethnicity. Keys: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "" }. Visible body details and identifying skin accents/scars only — no traits, skills, gear, or morality. Max 15 lines.',
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
@@ -156,7 +156,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Current State of Mind",
         directive:
-          "What's shifted from the eternal baseline right now: immediate emotional pressure, active mental focus, behavioral drivers. Include psychological impact of temporary physical conditions (e.g. bleeding). True in THIS moment only — if always true, it belongs in Eternal. Dense, punchy summary.",
+          "What's shifted from the eternal baseline right now: immediate emotional pressure, active mental focus, present behavioral drivers. DO NOT restate permanent baseline traits from Eternal. True in THIS moment only — if always true, it belongs in Eternal. Dense, punchy summary.",
         enhancer: "TACTICAL_ANALYZER",
       },
       fractal: {
@@ -170,7 +170,7 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
-          'Current physical appearance for image generation, layered over eternal baseline. Keys: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Use {A|B} syntax for variables. Visible temporary items and expressions only — no hidden properties or thoughts. Narrative-relevant conditions (e.g. bleeding) must also go in non-physical. Max 15 lines.',
+          'Current physical appearance for image generation, layered over eternal baseline. Keys: { "clothing": "", "colors": "", "expression": "", "skin_exposure": "", "posture": "", "condition": "" }. Use {A|B} syntax for variables. Visible temporary items, expressions, and poses only — no hidden properties or thoughts. Narrative-relevant conditions (e.g. bleeding) must also go in non-physical. Max 15 lines.',
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
@@ -188,7 +188,7 @@ export const ENTITY_FRAGMENTS = {
     fields: {
       directive:
         "One active trajectory or narrative impulse: a clear intent, building pressure, or impending event. What drives this entity toward its next state change. Must be distinct from Present. Active future tense — live impulses, not past observations.",
-      tags: "Semantic keywords for clustering and retrieval.",
+      tags: "3-6 concrete, high-relevance trigger keywords (entity names, key items, specific actions, or locations) used for semantic retrieval matching.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },
@@ -199,7 +199,7 @@ export const ENTITY_FRAGMENTS = {
     fields: {
       directive:
         "One formative memory or critical precedent: a specific anchored event or established fact. Capture the residue it exerts on current behavior. Specific over vague. Past tense — anchored historical facts, not active states.",
-      tags: "Semantic keywords for clustering and retrieval.",
+      tags: "3-6 concrete, high-relevance trigger keywords (entity names, key items, specific actions, or locations) used for semantic retrieval matching.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },

@@ -53,7 +53,6 @@ describe("content-normaliser.js", () => {
         voice: {
           uri: "",
           rate: 1.0,
-          pitch: 1.0,
         },
       });
       expect(result.signature_color).toBeDefined();

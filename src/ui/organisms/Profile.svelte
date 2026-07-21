@@ -130,12 +130,6 @@
     return shouldTranslate ? "transform: translateY(1rem);" : "";
   };
 
-  const get_hint_span_class = () => {
-    let cls = "pointer-events-none shrink-0 font-mono text-base tracking-widest whitespace-nowrap text-white ";
-    if (app.viewport.mobile) cls += "text-center";
-    return cls;
-  };
-
   const get_label_span_class = () => {
     return app.viewport.mobile ? "" : "block rotate-180";
   };
@@ -550,13 +544,16 @@
         onmouseleave={() => (profileState.hovered_section = null)}
         role="presentation"
       >
-        <div class="flex w-full flex-col items-center" style={get_inner_section_style(section.id)}>
+        <div class="relative flex w-full flex-col items-center" style={get_inner_section_style(section.id)}>
           <h6
-            class="m-0 flex flex-col items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
+            class="relative m-0 flex items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
             style="color: var(--signature-color); text-shadow: none;"
           >
             {#if profileState.is_editing && profileState.hovered_section === section.id && arrayField}
-              <span class={get_hint_span_class()} style:animation="add-hint-fade var(--motion-elastic) forwards">+</span>
+              <span
+                class="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-base tracking-widest text-white"
+                style:animation="add-hint-fade var(--motion-elastic) forwards">+</span
+              >
             {/if}
             <span
               class={get_label_span_class()}
@@ -644,20 +641,17 @@
                 <TextField
                   id={fieldId}
                   is_edit={profileState.is_editing}
+                  active={profileState.active_field?.key === field.key}
                   syncId={section.label}
                   {signature_color}
-                  data-active={profileState.active_field?.key === field.key ? true : undefined}
                   placeholder={field.description}
                   value={raw}
                   oninput={(e) => profileState.set_field_value(field.key, e.target.value)}
                   busy={profileState.busy_fields.has(field.key)}
                   onfocus={() => profileState.set_active_field(field.key, field.label || section.label)}
-                  onblur={() => profileState.reset_active_field()}
                 >
                   {#snippet status()}
-                    {#if profileState.busy_fields.has(field.key)}
-                      <span class="mt-2 block animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                    {:else if field.sublabel}
+                    {#if field.sublabel}
                       <span class="font-mono text-[10px] tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
                     {/if}
                   {/snippet}

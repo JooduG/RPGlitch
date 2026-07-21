@@ -164,7 +164,6 @@ export const normalize = (base = {}) => {
     voice: {
       uri: voice?.uri || "",
       rate: voice?.rate || 1.0,
-      pitch: voice?.pitch || 1.0,
     },
     // --- INTERNAL ---
     custom_data: custom_data || {},

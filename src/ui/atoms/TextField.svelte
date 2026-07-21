@@ -26,6 +26,7 @@
     is_edit = false,
     busy = false,
     disabled = false,
+    active = false,
     weight = 0, // 0-10 for line prominence and atmospheric glow
     always_expanded = false,
 
@@ -51,10 +52,10 @@
   let is_focused = $state(false);
 
   // --- DERIVED LOGIC ---
-  let is_disabled = $derived(disabled || simulationState.intent_active);
+  let is_disabled = $derived(disabled || busy || simulationState.intent_active);
   let is_sync_focused = $derived(syncId ? (sync_focus_counts[syncId] || 0) > 0 : false);
   const paragraphs = $derived(parse_markdown(value));
-  const is_expanded = $derived((is_focused || is_sync_focused || busy || always_expanded) && (!!header_actions || !!status));
+  const is_expanded = $derived((is_focused || is_sync_focused || active || busy || always_expanded) && (!!header_actions || !!status));
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
@@ -102,11 +103,13 @@
   let headerStyle = $derived(
     no_background
       ? "display: none !important;"
-      : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; overflow: hidden; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background-color: var(--state-dev-accent) !important; padding-left: 1rem; padding-right: 1rem; opacity: " +
+      : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background-color: var(--state-dev-accent) !important; padding-left: 1rem; padding-right: 1rem; opacity: " +
           (is_expanded ? "1 !important" : "0.6") +
-          "; height: " +
+          "; min-height: " +
           (is_expanded ? "1.5rem !important" : "0.5rem !important") +
-          ";" +
+          "; height: " +
+          (is_expanded ? "auto !important" : "0.5rem !important") +
+          "; py-1;" +
           (is_expanded ? "border-bottom: 1px solid rgb(255 255 255 / 0.1);" : ""),
   );
 </script>
@@ -145,14 +148,14 @@
     : ''}
     {!is_expanded
     ? `
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgb(23_23_23/0.6))]
-      before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--state-dev-accent)_40%),transparent_40%)]
-      before:opacity-30
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_calc(4%+16%*var(--state-weight-intensity)),rgb(23_23_23/0.6))]
+      before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--state-dev-accent)_60%),transparent_50%)]
+      before:opacity-[calc(0.2+0.6*var(--state-weight-intensity))]
     `
     : `
       overflow-visible!
       border-transparent
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgb(23_23_23/0.6))]
+      bg-[color-mix(in_srgb,var(--state-dev-accent)_calc(10%+22%*var(--state-weight-intensity)),rgb(23_23_23/0.65))]
       before:bg-[linear-gradient(to_bottom,var(--state-dev-accent),color-mix(in_srgb,var(--state-dev-accent),transparent_60%)_30%,transparent_80%)]
       before:opacity-100
     `}
@@ -182,10 +185,33 @@
   aria-disabled={is_disabled || busy}
 >
   <header style={headerStyle}>
+    {#if busy}
+      <div
+        class="
+          pointer-events-none
+          absolute
+          inset-0
+          z-30
+          overflow-hidden
+          rounded-t-xl
+        "
+      >
+        <div
+          data-shimmer
+          class="
+            h-full
+            w-1/2
+            bg-[linear-gradient(90deg,transparent_0%,rgba(255,255,255,0.95)_50%,transparent_100%)]
+            opacity-100
+            drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]
+          "
+        ></div>
+      </div>
+    {/if}
     {#if is_expanded}
       {#if status}
         <div
-          style="margin-right: 1rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+          style="margin-right: 0.75rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0;"
           in:fade={{ duration: 200, delay: 0 }}
         >
           {@render status()}
@@ -211,7 +237,7 @@
         m-0
         box-border
         block
-        min-h-[48px]
+        min-h-12
         w-full
         resize-none
         scrollbar-thin
@@ -259,7 +285,7 @@
           m-0
           box-border
           flex
-          min-h-[48px]
+          min-h-12
           w-full
           flex-col
           overflow-visible
@@ -366,5 +392,19 @@
       opacity: var(--opacity-solid);
       transform: scale(1);
     }
+  }
+
+  @keyframes header-shimmer {
+    0% {
+      transform: translateX(-100%);
+    }
+
+    100% {
+      transform: translateX(250%);
+    }
+  }
+
+  [data-shimmer] {
+    animation: header-shimmer 1s linear infinite !important;
   }
 </style>
