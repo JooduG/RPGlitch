@@ -187,7 +187,7 @@ export function collapse_history(messages, options = {}) {
 export const PROTOCOL_LIBRARY = {
   // --- Simulation core ---
   USER_AGENCY:
-    "The user's next action is unknown. Never predict, assume, or generate it. You are forbidden from describing their internal thoughts, feelings, sensory perceptions, or physical reactions. Write your turn. Stop. Leave their response entirely blank.",
+    "The user's next action is unknown. Never predict, assume, or generate what they will do next. React only to the current <USER_ACTION>. You are forbidden from describing the user's internal thoughts, feelings, sensory perceptions, or physical reactions. Write your turn. Stop.",
   COGNITION: `Document your internal calculations sequentially using these markdown headers:
 ### Phase 1 (Baseline) 
 Establish identity parameters, active emotional state, and core psychological vectors before processing the current turn.
@@ -199,7 +199,9 @@ Decode the incoming user input, environmental shifts, and dynamic values as raw 
 Assess which behavioral shifts, character tics, or pivots are most likely given the active evidence.
 
 ### Phase 4 (State)
-Declare the finalized emotional state vectors and immediate intent.`,
+Declare the finalized emotional state vectors and immediate intent.
+
+Keep each phase to 1-3 sentences. Total think block: under 200 words.`,
   HYGIENE:
     "Omit all conversational preambles, introductory greetings, or stylistic meta-commentary. Start your prose instantly. You are explicitly forbidden from prepending or injecting timestamps, clocks, dates, or timeline headers (such as '14:13' or 'Round X') in your prose output. You are explicitly forbidden from utilizing the 'Echo' dialogue formula (starting a turn by loudly repeating the user's last word). Dialogue and vocalizations (laughter, theatricality, shouts) MUST be strictly governed by the character's unique profile—do not default to generic, hyper-dramatic tropes unless it fits their personality. Write actions with natural, character-appropriate physicality. Use the metric system (meters, kilograms) and 24-hour clock formats exclusively for any physical measurements or temporal references.",
   DATA_HYGIENE:
@@ -207,13 +209,13 @@ Declare the finalized emotional state vectors and immediate intent.`,
   AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions ('he didn't feel X') — state what IS, not what isn't.",
   PRESENT_TENSE: "Write in the present tense.",
   MOMENTUM:
-    "Drive the scene forward. End your turn on a live hook that demands a response: a challenge issued, a physical move directed at them, a suspended moment of sensory tension, or silence that forces them to fill the void. The hook must emerge organically from character — never announce it with structural labels.",
+    "Drive the scene forward. End your turn on a live beat that invites response — but vary the texture: a challenge, a question, a suspended moment, a shift in atmosphere, or deliberate silence. Not every moment needs a dramatic hook; let the emotional rhythm dictate the ending. The beat must emerge organically from character — never announce it with structural labels.",
   MARKDOWN_FORMAT:
     'You MUST use markdown formatting to creatively partition prose and add emphasis. Use *italics* heavily for internal reflections, atmospheric tension, or emphasis. Use **bold** for impact, structural concepts, or intense physical actions. Use "quotes" for speech, specific terms, or ironic emphasis. Make the text highly dynamic, visual, and fun to read.',
   CINEMATIC_METAPHOR:
     "If your narrative style references 'cameras', 'lenses', or 'cinematic' framing, these are strictly metaphors for *what* to describe (focus, lighting, detail). You are explicitly forbidden from breaking the fourth wall. NEVER use literal words like 'camera', 'zoom', 'lens', 'render', or 3D technical terminology (e.g., 'subsurface scattering', 'global illumination') in the narrative prose.",
   YES_AND:
-    "The user's action is absolute truth. You MUST adapt to it, accept it as reality, and build upon it. Do not contradict, block, or deny the physical or narrative reality they establish. Embody the 'Yes, and...' philosophy to drive the scene together.",
+    "The user's stated actions and their physical/narrative consequences are absolute truth. Accept what they describe as reality and build upon it. However, your own character's internal reactions, emotions, and decisions remain yours to determine. Do not contradict, block, or deny the physical reality they establish. Embody the 'Yes, and...' philosophy to drive the scene together.",
   JSON_OUTPUT:
     "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON. Output MUST be valid JSON starting with '{' and ending with '}'.",
   FIRST_CONTACT:
@@ -229,7 +231,7 @@ Declare the finalized emotional state vectors and immediate intent.`,
 /**
  * Director prompt compiler (Shot 1).
  */
-function render_director({ round, entities, input, render_atom, compressed_snapshot }) {
+function render_director({ round, entities, input, render_atom, compressed_snapshot, rawMessages }) {
   const protocols = ["JSON_OUTPUT"].filter(Boolean).join(", ");
   const dynamicsLegend = build_dynamics_legend();
 
@@ -276,14 +278,21 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   const task = clean_xml(`
 <ROUND>${escapeXml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
+${(() => {
+  const lastAI = (rawMessages || []).filter((m) => m.role === "model").slice(-1)[0];
+  if (!lastAI) return "";
+  const text = strip_cognition_blocks(lastAI.content || lastAI.text || "").trim();
+  if (!text) return "";
+  return `<AI_LAST_TURN>${ind(text, 2)}</AI_LAST_TURN>`;
+})()}
 <TASK>
-    Return exactly one valid JSON payload representing state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}:
+    Return exactly one valid JSON payload representing state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}${(rawMessages || []).some((m) => m.role === "model") ? " and the AI_LAST_TURN" : ""}. Evaluate both the user's current action AND the AI character's last narrated response for physical injuries, emotional shifts, vector progress, and environmental changes:
     {
       "mutations": {
         "AI_CHARACTER": {
           "present_append_physical": "Any new immediate physical changes (e.g. bleeding). Leave blank if none.",
           "present_append_non_physical": "Any immediate internal shifts OR narrative impact of physical changes. Leave blank if none.",
-          "resolve_vectors": [ { "id": "uuid-123", "resolution_summary": "Past-tense summary of how the vector was resolved." } ],
+          "resolve_vectors": [ { "id": "<vector_id_from_future_list>", "resolution_summary": "Past-tense summary of how the vector was resolved." } ],
           "new_vectors": [ { "directive": "New goal or prophecy", "tags": ["tag1"] } ],
           "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
         },
@@ -482,14 +491,28 @@ function render_memory({ entity, history }) {
 /**
  * Text field enhancement instructions builder.
  */
-function render_enhancement({ label, directive, enhancer, content, is_image_field = false, entity = null, entity_type = "character" }) {
+function render_enhancement({
+  label,
+  directive,
+  enhancer,
+  content,
+  is_image_field = false,
+  is_array_field = false,
+  field_id = "",
+  entity = null,
+  entity_type = "character",
+}) {
   const protocols = ["DATA_HYGIENE", "AFFIRMATIVE"].filter(Boolean).join(", ");
   const cognitionInstruction = is_image_field
-    ? "Begin your response with <think>. Map the entity's geometry: form, material texture, light interaction, structural composition. You MUST explicitly write </think> before formatting the visual output."
-    : "Begin your response with <think>. Identify the core psychological archetypes, thematic resonances, and defining vocabulary for this entity. You MUST explicitly write </think> before writing the final text.";
+    ? "Begin your response with Mattis. Map the entity's geometry: form, material texture, light interaction, structural composition. You MUST explicitly write Mattis before formatting the visual output."
+    : is_array_field
+      ? `Begin your response with Mattis. Identify the key narrative beats, causal chains, and emotional residue. Generate 3-5 distinct ${field_id === "past" ? "memories" : "impulses"} based on the entity context. You MUST explicitly write Mattis before formatting the output.`
+      : "Begin your response with Mattis. Identify the core psychological archetypes, thematic resonances, and defining vocabulary for this entity. You MUST explicitly write Mattis before writing the final text.";
   const formatInstruction = is_image_field
     ? `Return a flat configuration block of comma-separated property lines. Do NOT include curly braces or square brackets. Output keys and values wrapped in double quotes following this exact syntax: "key": "value", — Every comma inside a value MUST be followed by a space (e.g., "powerful, athletic"). No markdown code blocks.\nAvoid numerical weighting syntax (e.g. "(masterpiece:1.2)"). Control emphasis through descriptive adjectives and sentence positioning. ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}\nWrite descriptive prose incorporating concrete matrix descriptors. No keyword soup.`
-    : "Write standard narrative prose in the third-person POV. DO NOT write comma-separated lists.";
+    : is_array_field
+      ? 'Return a JSON array of objects, each with: "directive" (string), "tags" (array of strings), "emotional_weight" (integer 1-10). Generate 3-5 entries. No prose outside the array.'
+      : "Write standard narrative prose in the third-person POV. DO NOT write comma-separated lists.";
   const macroInstruction = !is_image_field
     ? entity_type === "fractal"
       ? "Use placeholder macros to refer to entities: '{{user}}' for the user persona, '{{char}}' for the AI character, '{{fractal}}' for this environment. Never hardcode names."
@@ -551,6 +574,7 @@ function render_profile_sorting(entity_type = "character") {
     resolvedType === "fractal"
       ? "CRITICAL FOCUS: You are extracting data to define a FRACTAL (a world, location, or environmental ecosystem). You are NOT describing a person or individual character. Any incoming raw text containing character-specific personal traits or interpersonal history must be re-contextualized as part of the world's overarching lore or completely discarded. Focus entirely on the setting, its rules, and its physical/thematic atmosphere.\nUse placeholder macros to refer to entities: use '{{user}}' to refer to the user persona, '{{char}}' to refer to the AI character, and '{{fractal}}' to refer to this environment itself. Do not bake specific names into description text; use these macros instead."
       : "CRITICAL FOCUS: You are extracting data to define an individual CHARACTER. Any incoming raw text describing broad environmental atmosphere, world history, or global rules must be re-contextualized to fit within this character's personal background and gear, or completely discarded. Do not generate world-level descriptions; focus entirely on the individual.\nUse placeholder macros to refer to entities: use '{{me}}' to refer to this character itself, '{{you}}' to refer to the user persona/partner, and '{{fractal}}' to refer to the environmental setting. Do not bake specific names into description text; use these macros instead. Legacy '{{char}}' and '{{user}}' macros are also recognized.";
+  const inputNote = "Input may be raw creative text or structured JSON — extract and sort either way.";
   return clean_xml(`
 <SYSTEM role="${ENTITY_FRAGMENTS.profile[resolvedType].enhancer}" enhancing="Entire Profile">
   <INSTRUCTIONS>
@@ -559,6 +583,8 @@ function render_profile_sorting(entity_type = "character") {
     Write in the third-person.
 
     ${ind(sortingInstruction, 4)}
+
+    ${ind(inputNote, 4)}
   </INSTRUCTIONS>
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
@@ -817,13 +843,16 @@ export const prompt_builder = {
         directive: "Expand and enrich the fragment.",
         enhancer: "GENERAL",
       };
+    const is_array_field = meta.type === "array";
     return {
       system: render_enhancement({
         content,
         label: entity_name,
         directive: meta.directive,
         enhancer: meta.enhancer,
-        is_image_field: is_image_field || (field_id.includes("physical") && !field_id.includes("non_physical")),
+        is_image_field: is_image_field || field_id.endsWith(".physical"),
+        is_array_field,
+        field_id,
         entity,
         entity_type: resolvedType,
       }),

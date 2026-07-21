@@ -291,10 +291,14 @@ export const temporal_engine = {
   forge_memory,
   apply_state_mutations,
   _is_consolidating: false,
+  _consolidation_rotation_index: 0,
+  _consolidation_targets: ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"],
 
   /**
    * BATCH CONSOLIDATION (The Forging Cycle)
    * Evicts old messages and compresses them into the Temporal Archive.
+   * Rotates through AI → User → Fractal on each cycle so each entity gets
+   * memory vectors at a staggered cadence.
    * @param {SessionDriver} Session
    * @param {Database} db
    * @param {EntityRepository} entities
@@ -315,16 +319,28 @@ export const temporal_engine = {
 
       if (unconsolidated.length >= 12) {
         const slice = unconsolidated.slice(0, 8);
-        app.log(`[TemporalEngine] Forging ${slice.length} turns into the Historical Archive...`, "system");
 
-        const ai = runtime.active_ai;
-        if (ai) {
-          const memory = await forge_memory(ai, slice, "character");
+        // Determine which entity gets the memory vector this cycle
+        const target_key =
+          temporal_engine._consolidation_targets[temporal_engine._consolidation_rotation_index % temporal_engine._consolidation_targets.length];
+        temporal_engine._consolidation_rotation_index++;
+
+        const targetMap = {
+          AI_CHARACTER: { entity: runtime.active_ai, role: "character", type: "character" },
+          USER_PERSONA: { entity: runtime.active_user, role: "user", type: "character" },
+          FRACTAL: { entity: runtime.active_fractal, role: "fractal", type: "fractal" },
+        };
+        const target = targetMap[target_key];
+
+        app.log(`[TemporalEngine] Forging ${slice.length} turns into ${target_key}'s Historical Archive...`, "system");
+
+        if (target.entity) {
+          const memory = await forge_memory(target.entity, slice, target.role);
           if (memory) {
-            // Push Memory Vector to AI's past
-            if (!Array.isArray(ai.past)) ai.past = [];
-            ai.past = [...ai.past, memory];
-            await runtime.update_entity("character", ai.id, { past: ai.past });
+            // Push Memory Vector to target's past
+            if (!Array.isArray(target.entity.past)) target.entity.past = [];
+            target.entity.past = [...target.entity.past, memory];
+            await runtime.update_entity(target.type, target.entity.id, { past: target.entity.past });
 
             // Apply Present Summaries to ALL entities
             if (memory.present_summaries) {
@@ -349,7 +365,7 @@ export const temporal_engine = {
               }
             }
 
-            // Apply Eternal Mutations
+            // Apply Eternal Mutations to ALL entities
             if (memory.eternal_mutations) {
               const e_muts = memory.eternal_mutations;
 
@@ -391,20 +407,20 @@ export const temporal_engine = {
                 }
               }
 
-              // Only push Memory Vector to AI's past if it was changed or generally just make sure we save the tag.
-              // Wait, the memory vector is already in ai.past (it's pushed above). We just need to update it in the ai entity if the tag was added.
+              // Update the memory vector in the target's past if the tag was added
               if (memory.tags.includes("eternal-shift")) {
-                const vectorIdx = ai.past.findIndex((v) => v.id === memory.id);
+                const vectorIdx = target.entity.past.findIndex((v) => v.id === memory.id);
                 if (vectorIdx !== -1) {
-                  ai.past[vectorIdx] = memory;
-                  await runtime.update_entity("character", ai.id, { past: ai.past });
+                  target.entity.past[vectorIdx] = memory;
+                  await runtime.update_entity(target.type, target.entity.id, { past: target.entity.past });
                 }
               }
             }
 
             // Telemetry
-            await session_driver.log_system_entry(`Memory Forged: ${memory.directive.substring(0, 50)}...`, "system", {
+            await session_driver.log_system_entry(`Memory Forged (${target_key}): ${memory.directive.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
+              target: target_key,
               vectors: { past: [memory], future: [] },
               turns_count: slice.length,
             });

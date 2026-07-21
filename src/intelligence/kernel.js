@@ -38,7 +38,8 @@ function parse_director_json(raw_text) {
   if (!json_string) {
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
-    return { internal_monologue: stripped };
+    app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
+    return { internal_monologue: stripped, _parse_error: true };
   }
   const cleaned_json = escape_unescaped_json_quotes(json_string);
   const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
@@ -50,7 +51,8 @@ function parse_director_json(raw_text) {
     return payload;
   } catch (parse_err) {
     console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-    return { internal_monologue: raw_text.replace(/```json\n?|```/g, "").trim() };
+    app.log("[GameMaster] Director JSON parse failed — using raw prose fallback", "warn");
+    return { internal_monologue: raw_text.replace(/```json\n?|```/g, "").trim(), _parse_error: true };
   }
 }
 
@@ -220,6 +222,14 @@ export const gamemaster = {
           content: m.text || m.content || "",
           character_name: m.character_name,
         }));
+
+      // Exclude the last message if it's the current user input (it's already in <USER_ACTION>)
+      if (input && simulation_log.length > 0) {
+        const last = simulation_log[simulation_log.length - 1];
+        if (last.role === "user" && last.content.trim() === input.trim()) {
+          simulation_log.pop();
+        }
+      }
       const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = runtime.structural_errors || 0;
@@ -264,7 +274,7 @@ export const gamemaster = {
             {
               system: directorPrompt.system,
               task: directorPrompt.task,
-              messages: simulation_log,
+              messages: [],
               role: "system",
               node_id: nodeId + "-director",
             },

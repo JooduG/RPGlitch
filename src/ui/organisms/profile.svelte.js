@@ -208,8 +208,36 @@ export class ProfileState {
       const result = await llm_service.enhance(payload);
       if (result) {
         const clean_result = strip_cognition_blocks(result).trim();
-        set_value(this.char, key, clean_result);
-        this._user_mutated = true;
+
+        // Array fields (past/future) return JSON arrays of vector objects
+        const is_array_field = key === "past" || key === "future";
+        if (is_array_field) {
+          const json_str = clean_result.replace(/```json\n?|```/g, "").trim();
+          const start = json_str.indexOf("[");
+          const end = json_str.lastIndexOf("]");
+          if (start >= 0 && end >= 0) {
+            try {
+              const parsed = JSON.parse(json_str.substring(start, end + 1));
+              if (Array.isArray(parsed)) {
+                const vectors = parsed.map((v) => {
+                  const directive = typeof v === "string" ? v : v.directive || v.text || "";
+                  return {
+                    ...temporal_engine.create(directive, key),
+                    tags: Array.isArray(v.tags) ? v.tags : [],
+                    emotional_weight: v.emotional_weight ?? v.base_weight ?? 5,
+                  };
+                });
+                set_value(this.char, key, vectors);
+                this._user_mutated = true;
+              }
+            } catch (e) {
+              console.error("Array enhancement JSON parse failed:", e);
+            }
+          }
+        } else {
+          set_value(this.char, key, clean_result);
+          this._user_mutated = true;
+        }
       }
     } catch (err) {
       console.error("Enhance failed:", err);

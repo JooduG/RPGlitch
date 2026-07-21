@@ -298,20 +298,21 @@ export const safeParsePseudoJson = (raw) => {
 export const merge_prose_into_field = (current_field_value, new_prose) => {
   if (!new_prose || !new_prose.trim()) return current_field_value || "";
 
+  const MAX_FIELD_CHARS = 2000;
   const parsed = safeParsePseudoJson(current_field_value);
   const clean_new_prose = new_prose.trim();
 
   if (parsed.__raw_prose__) {
     // If it was already just prose, append it cleanly
     const existing = parsed.__raw_prose__.trim();
-    if (!existing) return clean_new_prose;
-    return `${existing}\n${clean_new_prose}`;
+    let result = !existing ? clean_new_prose : `${existing}\n${clean_new_prose}`;
+    if (result.length > MAX_FIELD_CHARS) {
+      result = result.substring(result.length - MAX_FIELD_CHARS);
+    }
+    return result;
   }
 
   // It's an object / pseudo-JSON. Inject the new prose.
-  // We use a generic key like 'status' or 'condition' to hold unstructured updates.
-  // We'll map it to 'condition' for now or append to an existing string.
-
   if (parsed.condition) {
     parsed.condition = `${parsed.condition}, ${clean_new_prose}`;
   } else {
@@ -319,9 +320,13 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   }
 
   // Reserialize to clean unbracketed format to maintain the pseudo-JSON style
-  const lines = Object.entries(parsed)
+  let lines = Object.entries(parsed)
     .map(([k, v]) => `"${k}": "${String(v).replace(/"/g, '\\"')}"`)
     .join(",\n");
+
+  if (lines.length > MAX_FIELD_CHARS) {
+    lines = lines.substring(lines.length - MAX_FIELD_CHARS);
+  }
 
   return lines;
 };

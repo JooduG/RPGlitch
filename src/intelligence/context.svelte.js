@@ -154,8 +154,8 @@ export const context_broker = {
         }
       );
       const data_points = to_data_points(raw);
-      // Lexical filtering for AI relevance
-      const filtered = role === "AI" ? context_broker.lexical_filter(data_points, active_vector) : data_points;
+      // Lexical filtering for relevance against active vector
+      const filtered = context_broker.lexical_filter(data_points, active_vector);
       // Safety boot-strap
       if (filtered.length === 0) {
         filtered.push({

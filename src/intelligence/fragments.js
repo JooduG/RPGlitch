@@ -80,6 +80,19 @@ export const NAME_PREFIXES = [
   "prof.",
 ];
 
+/** Shared sorting directive for both character and fractal profile imports. */
+const PROFILE_SORTING_DIRECTIVE = `Extract and sort the raw text into a flat JSON object with these keys:
+name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).
+
+- description: HUMAN EYES ONLY. Never used in simulation. Dump raw instructions or OOC info here.
+- signature_color: Pick from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.
+- eternal_physical: Permanent visual features/architecture.
+- eternal_non_physical: Core essence/philosophy.
+- present_physical: Temporary visual features/current state.
+- present_non_physical: Current processing state/mood.
+- past: Historical anchors, precedents, lore.
+- future: Active impulses, plans, prophecies, intent.`;
+
 /************************************************************************************
  * [SECTION: ENTITY FRAGMENTS]
  * ----------------------------------------------------------------------------------
@@ -101,13 +114,11 @@ export const ENTITY_FRAGMENTS = {
   profile: {
     character: {
       enhancer: "NARRATIVE_STRUCTURER",
-      directive:
-        "You are an expert narrative structurer. Extract and sort the raw text below into a flat entity JSON schema.\n\nReturn a single flat JSON object matching the exact keys required for the schema: name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).\n\nSCHEMA DEFINITIONS:\n- description: This field is strictly for HUMAN EYES ONLY (metadata, creator notes, etc). It is NEVER used in the simulation. Feel free to dump unformatted raw instructions or OOC info here.\n- signature_color: Choose the most fitting color from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.\n- eternal_physical: Baseline traits. Permanent visual features/architecture.\n- eternal_non_physical: Baseline traits. Core essence/philosophy.\n- present_physical: Immediate conditions. Temporary visual features/current state.\n- present_non_physical: Immediate conditions. Current processing state/mood.\n- past: Historical anchors, critical precedents, and lore. (Array of strings).\n- future: Active impulses, plans, prophecies, and impending intent. (Array of strings).",
+      directive: PROFILE_SORTING_DIRECTIVE,
     },
     fractal: {
       enhancer: "NARRATIVE_STRUCTURER",
-      directive:
-        "You are an expert narrative structurer. Extract and sort the raw text below into a flat entity JSON schema.\n\nReturn a single flat JSON object matching the exact keys required for the schema: name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).\n\nSCHEMA DEFINITIONS:\n- description: This field is strictly for HUMAN EYES ONLY (metadata, creator notes, etc). It is NEVER used in the simulation. Feel free to dump unformatted raw instructions or OOC info here.\n- signature_color: Choose the most fitting color from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.\n- eternal_physical: Baseline traits. Permanent visual features/architecture.\n- eternal_non_physical: Baseline traits. Core essence/philosophy.\n- present_physical: Immediate conditions. Temporary visual features/current state.\n- present_non_physical: Immediate conditions. Current processing state/mood.\n- past: Historical anchors, critical precedents, and lore. (Array of strings).\n- future: Active impulses, plans, prophecies, and impending intent. (Array of strings).",
+      directive: PROFILE_SORTING_DIRECTIVE,
     },
   },
   eternal: {
@@ -115,13 +126,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Personality, Behaviour & Traits",
         directive:
-          "Define this character's timeless psychology using present-tense state declarations: core beliefs, personality drivers, cognitive patterns, and communication tics. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe reactive moments or specific events. Provide a dense, high-fidelity paragraph.",
+          "Timeless psychology: core beliefs, personality drivers, cognitive patterns, communication tics. Must hold true in any scene — if it shifts during play, it belongs in Present. No reactive moments or specific events. Dense, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
       },
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
         directive:
-          "Define this environment as a timeless metaphysical substrate. Use present-tense state declarations: what laws govern this world, what forces are always in play, what atmosphere is structurally constant. Cover: physical constants, ambient metaphysical rules, defining sensory essence, and unbreakable world logic. TEMPORAL LAW: Every statement must hold true in any scene at any time — if a condition shifts during play, it belongs in Present. Never describe a moment of observation. Provide a dense, high-fidelity paragraph outlining these baseline constants.",
+          "Timeless metaphysical substrate: governing laws, constant forces, structural atmosphere. Physical constants, ambient rules, defining sensory essence, unbreakable world logic. Must hold true in any scene — if it shifts, it belongs in Present. No moments of observation. Dense, high-fidelity paragraph.",
         enhancer: "METAPHYSICAL_ARCHITECT",
       },
     },
@@ -129,13 +140,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Body & Form",
         directive:
-          'Output a list describing this character\'s permanent physical features for photorealistic image generation. PERMANENT FEATURES ONLY — no clothing, expressions, or poses. MANDATORY: specify gender, age_range, and ethnicity. Baseline keys to include: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "" }. CRITICAL BOUNDARY: Focus exclusively on immediate, visible physical body details. You are strictly forbidden from inventing attributes, qualities, character traits, or non-visual RPG sheet parameters (e.g., intelligence, skills, gear, mood, morality). Hard cap at 15 lines maximum.',
+          'Permanent physical features for image generation. No clothing, expressions, or poses. MANDATORY: gender, age_range, ethnicity. Keys: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "" }. Visible body details only — no traits, skills, gear, or morality. Max 15 lines.',
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
         directive:
-          'Output a list describing this environment\'s permanent physical geography for photorealistic image generation. PERMANENT GEOGRAPHY ONLY — no weather, lighting, or atmospheric events. Baseline keys to include: { "terrain": "", "architecture": "", "materials": "", "landmarks": "", "scale": "" }. CRITICAL BOUNDARY: Focus exclusively on concrete, visible physical features of the landscape. Do not invent lore notes, invisible parameters, historical logs, or background summaries. Hard cap at 15 lines maximum.',
+          'Permanent physical geography for image generation. No weather, lighting, or atmospheric events. Keys: { "terrain": "", "architecture": "", "materials": "", "landmarks": "", "scale": "" }. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.',
         enhancer: "SPATIAL_RENDERER",
       },
     },
@@ -145,13 +156,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Current State of Mind",
         directive:
-          "Capture what has shifted from this character's eternal baseline in this specific moment. State the immediate emotional pressure, active mental focus, and what is driving behavior right now. *Note: If the character has a temporary physical condition with narrative relevance (e.g. bleeding, injured), include its psychological impact here.* TEMPORAL LAW: Only write what is true in THIS moment — if it is always true, it belongs in Eternal. Anchor in specific behavioral signals where possible. Provide a dense, punchy summary snippet.",
+          "What's shifted from the eternal baseline right now: immediate emotional pressure, active mental focus, behavioral drivers. Include psychological impact of temporary physical conditions (e.g. bleeding). True in THIS moment only — if always true, it belongs in Eternal. Dense, punchy summary.",
         enhancer: "TACTICAL_ANALYZER",
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
         directive:
-          "Capture what has changed from this environment's eternal baseline in this specific moment. State the active anomaly, current pressure, or immediate shift in the world's physics or atmosphere. TEMPORAL LAW: Only write what is true RIGHT NOW — stable conditions belong in Eternal. Provide a short, high-fidelity statement of immediate fluctuations.",
+          "What's changed from the eternal baseline right now: active anomaly, current pressure, immediate shift in physics or atmosphere. True RIGHT NOW only — stable conditions belong in Eternal. Short, high-fidelity statement.",
         enhancer: "ECOSYSTEM_ANALYZER",
       },
     },
@@ -159,13 +170,13 @@ export const ENTITY_FRAGMENTS = {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
         directive:
-          'Output a list describing this character\'s current physical appearance for image generation. CURRENT STATE ONLY — layered over the eternal physical baseline. Baseline keys to include: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Use Perchance dynamic syntax {A|B} for variable features. CRITICAL BOUNDARY: Focus exclusively on immediate, visible temporary items, layers, and expressions. Do not include hidden status properties or psychological thoughts. *Note: For physical states that also have narrative relevance (e.g. bleeding), ensure they are also tracked in the non-physical state for the AI Director.* Hard cap at 15 lines maximum.',
+          'Current physical appearance for image generation, layered over eternal baseline. Keys: { "clothing": "", "colors": "", "skin_exposure": "", "posture": "", "condition": "" }. Use {A|B} syntax for variables. Visible temporary items and expressions only — no hidden properties or thoughts. Narrative-relevant conditions (e.g. bleeding) must also go in non-physical. Max 15 lines.',
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
         directive:
-          'Output a list describing this environment\'s current atmospheric state for image generation. TRANSIENT CONDITIONS ONLY — layered over the eternal physical baseline. Baseline keys to include: { "lighting": "", "weather": "", "atmosphere": "", "events": "" }. Use Perchance dynamic syntax {A|B} for variable features. CRITICAL BOUNDARY: Focus exclusively on momentary sensory environmental elements visible right now. Hard cap at 15 lines maximum.',
+          'Current atmospheric state for image generation, layered over eternal baseline. Keys: { "lighting": "", "weather": "", "atmosphere": "", "events": "" }. Use {A|B} syntax for variables. Momentary sensory elements only. Max 15 lines.',
         enhancer: "ATMOSPHERIC_TRACKER",
       },
     },
@@ -176,7 +187,7 @@ export const ENTITY_FRAGMENTS = {
     type: "array",
     fields: {
       directive:
-        "State one active trajectory or narrative impulse. Express as a clear, specific intent, building pressure, or impending event. Define what drives this entity toward its next significant state change. One vector per entry — must be distinct from the Present state. Write in active future tense. These are live impulses, not past observations.",
+        "One active trajectory or narrative impulse: a clear intent, building pressure, or impending event. What drives this entity toward its next state change. Must be distinct from Present. Active future tense — live impulses, not past observations.",
       tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
@@ -187,7 +198,7 @@ export const ENTITY_FRAGMENTS = {
     type: "array",
     fields: {
       directive:
-        "State one formative memory or critical precedent. Express as a specific, anchored event or established fact from history. Capture what this memory left behind — the residue it exerts on current behavior. One memory per entry — specific over vague. Write in past tense. These are anchored historical facts, not active states.",
+        "One formative memory or critical precedent: a specific anchored event or established fact. Capture the residue it exerts on current behavior. Specific over vague. Past tense — anchored historical facts, not active states.",
       tags: "Semantic keywords for clustering and retrieval.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
