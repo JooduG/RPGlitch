@@ -224,13 +224,13 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(payload, snapshot);
 
       // Verify presence of tags without strict whitespace dependency
-      expect(result.system).toContain('<SYSTEM role="Viper" round="5"');
+      expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
       expect(result.system).toContain("<PAST>");
       expect(result.system).not.toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
-      expect(result.system).toContain("<USER_ACTION>");
-      expect(result.system).toContain("Check the console.");
+      expect(result.task).toContain("<USER_ACTION>");
+      expect(result.task).toContain("Check the console.");
 
       // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();
@@ -257,12 +257,12 @@ describe("prompt_builder (Refactored)", () => {
 
       // Errors = 1
       let result = prompt_builder.synthesize(payload, snapshot);
-      expect(result.system).toContain("WARNING: Structural drift detected in previous output.");
+      expect(result.task).toContain("WARNING: Structural drift detected in previous output.");
 
       // Errors = 3
       payload.meta.structural_errors = 3;
       result = prompt_builder.synthesize(payload, snapshot);
-      expect(result.system).toContain("CRITICAL: Structural formatting has critically collapsed.");
+      expect(result.task).toContain("CRITICAL: Structural formatting has critically collapsed.");
     });
 
     it("build_epilogue() renders a contextually-hydrated closing sequence", () => {
@@ -299,7 +299,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('<USER_PERSONA name="Ghost">');
       expect(result.system).toContain("Ghost Current Mood");
       expect(result.system).toContain("Void Collapsing");
-      expect(result.system).toContain("End on lingering sensation, not summary.");
+      expect(result.task).toContain("End on lingering sensation, not summary.");
     });
 
     it("build_enhancement() formats physical properties to XML correctly", () => {
@@ -399,7 +399,7 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
       const charResult = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
-      expect(charResult.system).toContain("Your perception ends at your sensory horizon");
+      expect(charResult.task).toContain("Your perception ends at your sensory horizon");
 
       const epilogueResult = prompt_builder.build_epilogue(mockPayload.entities, {}, []);
       expect(epilogueResult.system).not.toContain("Your perception ends at your sensory horizon");

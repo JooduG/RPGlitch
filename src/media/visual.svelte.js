@@ -8,7 +8,7 @@ import { db, entities } from "@data";
 import { strip_cognition_blocks } from "@intelligence";
 import { AestheticResolver, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "./optics.js";
 import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
-import { llm_service } from "@platform";
+import { llm_service, sanitize_llm } from "@platform";
 import { runtime, simulationState as simulation } from "@state";
 
 // Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
@@ -145,6 +145,10 @@ export class VisualEngine {
             const effectiveNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || NEGATIVE_PROMPT;
             const effectiveSeed = options.seed ?? generateSecureSeed();
             const effectiveResolution = `${res.width}x${res.height}`;
+            // Guidance scale: higher for characters (stricter adherence to entity details), lower for scenes (more atmospheric variety)
+            const entityType = options.type || options.mode || "character";
+            const isCharacter = ["character", "ai", "user", "selfie", "portrait"].includes(entityType);
+            const effectiveGuidanceScale = options.guidanceScale ?? (isCharacter ? 9 : 6.5);
 
             const generatePromise = image_engine({
               prompt: finalPrompt,
@@ -154,6 +158,7 @@ export class VisualEngine {
               shape: effectiveResolution,
               resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
+              guidanceScale: effectiveGuidanceScale,
             });
 
             let timeoutId;
@@ -186,6 +191,7 @@ export class VisualEngine {
                       negativePrompt: effectiveNegativePrompt,
                       seed: effectiveSeed,
                       resolution: effectiveResolution,
+                      guidanceScale: effectiveGuidanceScale,
                     },
                   };
                 }
@@ -200,6 +206,7 @@ export class VisualEngine {
                     negativePrompt: effectiveNegativePrompt,
                     seed: effectiveSeed,
                     resolution: effectiveResolution,
+                    guidanceScale: effectiveGuidanceScale,
                   },
                 };
               }
@@ -321,8 +328,7 @@ export class VisualEngine {
         caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
       }
 
-      // Add a slight delay to allow the text-engine's API rate-limit lock to clear before hitting the image generation queue
-      await new Promise((r) => setTimeout(r, 2000));
+      // The retryer handles any transient rate-limit failures with exponential backoff
 
       const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
       if (payload && payload.url) {
@@ -444,11 +450,7 @@ export class VisualEngine {
    */
   _cleanPrompt(raw) {
     if (typeof raw !== "string") return raw;
-    return strip_cognition_blocks(raw)
-      .replace(/^["']|["']$/g, "")
-      .replace(/^(here is|sure|the prompt).*?:/i, "")
-      .replace(/```.*?[\r\n]|```/g, "")
-      .trim();
+    return sanitize_llm(strip_cognition_blocks(raw));
   }
 }
 

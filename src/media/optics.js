@@ -225,10 +225,6 @@ You are the "Optics Scribe" — a master prompt engineer tasked with establishin
 
 Your goal is to evaluate the user's initial core concept, enrich it by selecting and integrating highly compatible aesthetic tokens from the provided <DIMENSIONS> matrix, and return an optimized JSON data block.
 
-<INPUT_DESCRIPTION>
-${escapeXml(text)}
-</INPUT_DESCRIPTION>
-
 <DIMENSIONS>
 ${dimensionsContext}
 </DIMENSIONS>
@@ -242,6 +238,10 @@ ${dimensionsContext}
 6. **Perchance Syntax:** ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}
 7. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the selected elements, lighting styles, color sciences, and mediums marry together.
 </REFINE_PROTOCOL>
+
+<INPUT_DESCRIPTION>
+${escapeXml(text)}
+</INPUT_DESCRIPTION>
 
 JSON STRUCTURE:
 {
@@ -313,13 +313,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
 
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">
-<TARGET>${targetType}</TARGET>
-<MODE>${mode.toUpperCase()}</MODE>
-${history ? `<HISTORY>\n${escapeXml(history)}\n</HISTORY>\n` : ""}${ctxBlock}
-<INSTRUCTIONS>
-Convert intent into a single impactful image prompt.
-Input Intent: "${escapeXml(rawIntent)}"
-</INSTRUCTIONS>
+${ctxBlock}
 <PROTOCOL>
 1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
 2. Output exactly one <image_prompt> tag containing the final token string.
@@ -328,6 +322,12 @@ Input Intent: "${escapeXml(rawIntent)}"
 5. End every prompt with: "${realism}"
 ${targetType === "selfie" ? "6. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie." : ""}
 </PROTOCOL>
+<TARGET>${targetType}</TARGET>
+<MODE>${mode.toUpperCase()}</MODE>
+${history ? `<HISTORY>\n${escapeXml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
+Convert intent into a single impactful image prompt.
+Input Intent: "${escapeXml(rawIntent)}"
+</INSTRUCTIONS>
 </SYSTEM>
 `.trim();
   },

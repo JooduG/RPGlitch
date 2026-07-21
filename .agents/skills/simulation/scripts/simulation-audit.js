@@ -61,7 +61,9 @@ export const SimulationAudit = {
     return {
       payload,
       director_prompt: director_prompt.system,
+      director_task: director_prompt.task,
       character_prompt: character_prompt.system,
+      character_task: character_prompt.task,
     };
   },
 

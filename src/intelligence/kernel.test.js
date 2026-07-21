@@ -165,9 +165,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
     vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
     vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
       system: "DIRECTOR_PROMPT",
+      task: "DIRECTOR_TASK",
     });
     vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
       system: "CHARACTER_PROMPT",
+      task: "CHARACTER_TASK",
       meta: {
         ai: {},
         fractal: {},
@@ -191,7 +193,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
   });
 
   it("execute_epilogue() executes a targeted epilogue completion with full context", async () => {
-    vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "EPILOGUE", messages: [] });
+    vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "EPILOGUE", task: "EPILOGUE_TASK", messages: [] });
     vi.mocked(llm_service.generate).mockResolvedValue("And so it ends.");
     vi.mocked(session_driver.load_log).mockResolvedValue([{ text: "Scene start" }]);
 
@@ -233,9 +235,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
         system: "DIRECTOR_PROMPT",
+        task: "DIRECTOR_TASK",
       });
       vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
         system: "CHARACTER_PROMPT",
+        task: "CHARACTER_TASK",
         meta: {
           ai: {},
           fractal: {},
@@ -371,9 +375,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
         system: "DIRECTOR_PROMPT",
+        task: "DIRECTOR_TASK",
       });
       vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
         system: "CHARACTER_PROMPT",
+        task: "CHARACTER_TASK",
         meta: {
           ai: { intensity: 50 },
           fractal: { entropy: 50 },

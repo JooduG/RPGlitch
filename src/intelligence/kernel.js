@@ -263,6 +263,7 @@ export const gamemaster = {
           return await llm_service.generate(
             {
               system: directorPrompt.system,
+              task: directorPrompt.task,
               messages: simulation_log,
               role: "system",
               node_id: nodeId + "-director",
@@ -380,6 +381,7 @@ export const gamemaster = {
           const generated_text = await llm_service.generate(
             {
               system: characterPrompt.system,
+              task: characterPrompt.task,
               messages: simulation_log,
               role,
               node_id: nodeId,
@@ -473,6 +475,7 @@ export const gamemaster = {
       const response = await this.execute_with_retry(async () => {
         return await llm_service.generate({
           system: result.system,
+          task: result.task,
           role: "fractal",
           node_id: nodeId,
         });
@@ -517,13 +520,13 @@ export const gamemaster = {
     const raw_messages = await session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
-    const { system } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
+    const { system, task } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
     if (!system) return null;
     app.log("[GameMaster] Generating epilogue...", "system");
     const nodeId = generateUUID();
     const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
     const response = await this.execute_with_retry(async () => {
-      return await llm_service.generate({ system, role: "fractal", node_id: nodeId });
+      return await llm_service.generate({ system, task, role: "fractal", node_id: nodeId });
     });
     await session_driver.log_message(response, "fractal", fractal_name, "AI_TURN", { id: nodeId });
     app.end_stream();

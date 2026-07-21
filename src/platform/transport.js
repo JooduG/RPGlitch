@@ -74,9 +74,10 @@ export const llm_service = {
    * network resilience, and raw token orchestration.
    *
    * @param {Object}  payload                       - The prompt payload.
-   * @param {string}  [payload.system]               - The system prompt string.
+   * @param {string}  [payload.system]               - The system prompt string (stable prefix).
+   * @param {string}  [payload.task]                - The task directive (volatile, placed after history for cache efficiency).
    * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} [payload.messages] - Conversation history.
-   * @param {string}  [payload.startWith]           - Text to prepend to the model response.
+   * @param {string}  [payload.startWith]            - Text to force the model response to begin with (native plugin option).
    * @param {string}  [payload.role]                - Optional role for the generation (e.g., 'ai', 'fractal').
    * @param {string}  [payload.node_id]             - UI node ID for the stream.
    * @param {any}  [payload.params]              - Generation parameters.
@@ -156,17 +157,15 @@ export const llm_service = {
     const chat_history = llm_service._format_history(payload.messages || []);
 
     // 2. Assemble the final instruction block
+    //    Structure: [stable system prefix] → [append-only conversation history] → [volatile task directive]
+    //    This ordering maximizes prefix-cache hits: the system block and all prior
+    //    history entries form a cached prefix; only the newest entry + task change per turn.
     let instruction = payload.system || "";
     if (chat_history) {
-      if (instruction.endsWith("</SYSTEM>")) {
-        instruction =
-          instruction.substring(0, instruction.length - 10) + `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>\n</SYSTEM>`;
-      } else {
-        instruction += `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`;
-      }
+      instruction += `\n\n<CONVERSATION_HISTORY>\n${chat_history}\n</CONVERSATION_HISTORY>`;
     }
-    if (payload.startWith) {
-      instruction += `\n\n[START RESPONSE WITH]\n${payload.startWith}`;
+    if (payload.task) {
+      instruction += `\n\n${payload.task}`;
     }
 
     try {
@@ -178,6 +177,7 @@ export const llm_service = {
         max_tokens: options.max_tokens ?? payload.params?.max_tokens,
         model: options.model ?? payload.params?.model,
         stop_sequences: payload.stopSequences || [],
+        startWith: payload.startWith || undefined,
         signal: options.signal,
         silent: options.silent,
       };

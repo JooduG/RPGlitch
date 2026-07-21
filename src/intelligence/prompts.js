@@ -233,8 +233,8 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   const protocols = ["JSON_OUTPUT"].filter(Boolean).join(", ");
   const dynamicsLegend = build_dynamics_legend();
 
-  return clean_xml(`
-<SYSTEM role="DIRECTOR" round="${escapeXml(String(round))}">
+  const system = clean_xml(`
+<SYSTEM role="DIRECTOR">
   You are the Director — the unseen intelligence orchestrating the mechanical state of the simulation.
   
   ${ind(dynamicsLegend, 2)}
@@ -267,11 +267,16 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   </FRACTAL>`.trim()
       : ""
   }
-  ${input?.trim() ? `<USER_ACTION>${ind(input, 4)}</USER_ACTION>` : ""}
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
-  <TASK>
+</SYSTEM>
+  `).trim();
+
+  const task = clean_xml(`
+<ROUND>${escapeXml(String(round))}</ROUND>
+${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
+<TASK>
     Return exactly one valid JSON payload representing state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}:
     {
       "mutations": {
@@ -299,8 +304,9 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
     }
     Dynamics_deltas values are relative shifts (e.g., +10 or -5). Output ONLY valid raw JSON. No markdown backticks, no <think> blocks, no prose, no dialogue.
   </TASK>
-</SYSTEM>
   `).trim();
+
+  return { system, task };
 }
 
 /**
@@ -328,8 +334,11 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
       : meta?.structural_errors >= 1
         ? "WARNING: Structural drift detected in previous output. Maintain disciplined XML closures and clean markdown boundaries."
         : "";
-  return clean_xml(`
-<SYSTEM role="${escapeXml(entities.AI.name)}" round="${escapeXml(String(round))}">${render_narrative_style_xml()}
+  // Split into stable system prefix + volatile task directive for prefix-cache efficiency.
+  // The system block (entity defs, protocols) forms a cached prefix between turns;
+  // conversation history is injected after it (append-only); the task goes at the very end.
+  const system = clean_xml(`
+<SYSTEM role="${escapeXml(entities.AI.name)}">${render_narrative_style_xml()}
 You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name)}.
   <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
     <PRESENT>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 6)}</PRESENT>
@@ -354,11 +363,16 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
   </FRACTAL>`.trim()
       : ""
   }
-  ${input?.trim() ? `<USER_ACTION>${ind(input, 4)}</USER_ACTION>` : ""}
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
-  <TASK>
+</SYSTEM>
+  `).trim();
+
+  const task = clean_xml(`
+<ROUND>${escapeXml(String(round))}</ROUND>
+${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
+<TASK>
     <THINK_FORMAT>
     Begin your response with <think>. Use the COGNITION protocol (Phases 1-4) to plan your internal reaction to the ${input?.trim() ? "USER_ACTION" : "current situation"} based on your current PRESENT states. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
     </THINK_FORMAT>
@@ -373,8 +387,9 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.${extract_pov_directive()}
   </TASK>
-</SYSTEM>
   `).trim();
+
+  return { system, task };
 }
 
 /**
@@ -385,8 +400,8 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
 function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
   const taskText =
     mode === "prologue" ? `${NARRATOR_PROLOGUE_TEXT}\n    Input: ${escapeXml(input?.trim() || "The scene begins.")}` : NARRATOR_EPILOGUE_TEXT;
-  let basePrompt = clean_xml(`
-<SYSTEM role="${escapeXml(entities.FRACTAL.name)}"${round != null ? ` round="${escapeXml(String(round))}"` : ""} mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
+  const system = clean_xml(`
+<SYSTEM role="${escapeXml(entities.FRACTAL.name)}" mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
   <YOUR_IDENTITY name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
     <ANCHOR>Resolve all state inferences strictly from this identity block.</ANCHOR>
     <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
@@ -408,21 +423,23 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
       <FUTURE>${ind(render_atom?.future(entities.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
-  ${input?.trim() ? `<USER_ACTION>${ind(input, 4)}</USER_ACTION>` : ""}
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols("COGNITION, PRESENT_TENSE, HYGIENE, MOMENTUM, MARKDOWN_FORMAT"), 4)}
   </PROTOCOLS>
-  <TASK>
+</SYSTEM>
+  `).trim();
+
+  const task = clean_xml(`
+${round != null ? `<ROUND>${escapeXml(String(round))}</ROUND>\n` : ""}${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>\n` : ""}
+<TASK>
     <THINK_FORMAT>
     Begin your response with <think>. ALL internal calculations, phases, and markdown headers MUST be placed strictly INSIDE this block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
     </THINK_FORMAT>
     ${taskText}${extract_pov_directive()}
   </TASK>
-</SYSTEM>
   `).trim();
-  // Strip out duplicate <USER_ACTION> from prologueText if it was appended there
-  basePrompt = basePrompt.replace(/\n\s+Input:.*?(?=\n)/g, "");
-  return basePrompt;
+
+  return { system, task };
 }
 
 /**
@@ -661,14 +678,14 @@ export const prompt_builder = {
   },
   build_director_prompt(payload, snapshot) {
     const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
+    const rendered = render_director({
+      ...payload,
+      render_atom,
+      compressed_snapshot: snapshot,
+    });
     return {
-      system: prompt_builder.clean(
-        render_director({
-          ...payload,
-          render_atom,
-          compressed_snapshot: snapshot,
-        }),
-      ),
+      system: prompt_builder.clean(rendered.system),
+      task: prompt_builder.clean(rendered.task),
       meta: {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
@@ -679,15 +696,15 @@ export const prompt_builder = {
     const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
     // Inject director's memory retrieval keys if they fetched anything new.
     // For now, we just pass the standard history payload through create_render_atom.
+    const rendered = render_character({
+      ...payload,
+      render_atom,
+      compressed_snapshot: snapshot,
+      directorData,
+    });
     return {
-      system: prompt_builder.clean(
-        render_character({
-          ...payload,
-          render_atom,
-          compressed_snapshot: snapshot,
-          directorData,
-        }),
-      ),
+      system: prompt_builder.clean(rendered.system),
+      task: prompt_builder.clean(rendered.task),
       meta: {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
@@ -702,14 +719,14 @@ export const prompt_builder = {
   synthesize(payload, snapshot) {
     const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
     if (payload.type === "prologue") {
+      const rendered = render_narrator("prologue", {
+        ...payload,
+        render_atom,
+        compressed_snapshot: snapshot,
+      });
       return {
-        system: prompt_builder.clean(
-          render_narrator("prologue", {
-            ...payload,
-            render_atom,
-            compressed_snapshot: snapshot,
-          }),
-        ),
+        system: prompt_builder.clean(rendered.system),
+        task: prompt_builder.clean(rendered.task),
         meta: {},
       };
     }
@@ -765,19 +782,21 @@ export const prompt_builder = {
         eternal: {},
       },
     };
-    return {
-      system: render_narrator("epilogue", {
-        entities: safeEntities,
-        render_atom: prompt_builder.create_render_atom(safeEntities, "", recent_history),
-        compressed_snapshot: {
-          ai: {
-            dynamics: dynamics?.ai,
-          },
-          fractal: {
-            dynamics: dynamics?.fractal,
-          },
+    const rendered = render_narrator("epilogue", {
+      entities: safeEntities,
+      render_atom: prompt_builder.create_render_atom(safeEntities, "", recent_history),
+      compressed_snapshot: {
+        ai: {
+          dynamics: dynamics?.ai,
         },
-      }),
+        fractal: {
+          dynamics: dynamics?.fractal,
+        },
+      },
+    });
+    return {
+      system: prompt_builder.clean(rendered.system),
+      task: prompt_builder.clean(rendered.task),
       messages: [],
     };
   },
