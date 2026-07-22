@@ -33,7 +33,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
-- [~] prompt-pipeline-optimization-2026-07-22: Optimize prompt synthesis, prefix caching, protocol library tokens, and history caching across the Intelligence Kernel.
+- [~] feature-2026-07-22-storymode-enhancements: Storymode & UI Feature Enhancements (Core UI refinements, dual entity import, Ghostwriter prompt compiler, dynamic peak & prologue/epilogue inline image generation, Prologue/Epilogue layout, and Fractal female premade voices).
+- [x] prompt-pipeline-optimization-2026-07-22: Optimize prompt synthesis, prefix caching, protocol library tokens, and history caching across the Intelligence Kernel.
 - [x] responsive-design-2026-07-16: Refactor layout structures, typography tokens, and target sizes for dynamic responsiveness.
 - [x] refactor-architecture-guidelines-2026-07-11: Create docs/architecture.md establishing state ownership and allowed import layers (Integrated into GEMINI.md)
 - [x] integrate-author-styles-2026-06-30: Integrate Author Style Profiles
@@ -42,7 +43,8 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601) | Task | Skill Invoked | Outcome |
-| 2026-07-22 14:37 | Initialize prompt-pipeline-optimization-2026-07-22 track | `/01-plan`, `planning` | 🔄 Active |
+| 2026-07-22 18:58 | Initialize feature-2026-07-22-storymode-enhancements track | `/01-plan`, `planning` | 🔄 Active |
+| 2026-07-22 14:37 | Initialize prompt-pipeline-optimization-2026-07-22 track | `/01-plan`, `planning` | ✅ Done |
 | 2026-07-22 13:31 | Session initialization via `/00-status` | `/00-status` | ✅ Done |
 | 2026-07-21 20:15 | Session initialization via `/00-status` | `/00-status` | ✅ Done |
 | 2026-07-18 17:57 | Session initialization via `/00-status` | `/00-status` | ✅ Done |

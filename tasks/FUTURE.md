@@ -1,41 +1,42 @@
 # 📜 FUTURE (The Muscle)
 
 > **Role**: Active implementation blueprint for the _current_ track.
-> **Status**: Active (`prompt-pipeline-optimization-2026-07-22`).
+> **Status**: Active (`feature-2026-07-22-storymode-enhancements`).
 
-This file mirrors the active implementation plan from [`tasks/tracks/prompt-pipeline-optimization-2026-07-22.md`](./tracks/prompt-pipeline-optimization-2026-07-22.md).
+This file mirrors the active implementation plan from [`tasks/tracks/feature-2026-07-22-storymode-enhancements.md`](./tracks/feature-2026-07-22-storymode-enhancements.md).
 
-## 🚀 Active Mission: Prompt Pipeline Optimization
+## 🚀 Active Mission: Storymode & UI Feature Enhancements
 
-Track ID: `prompt-pipeline-optimization-2026-07-22`
+Track ID: `feature-2026-07-22-storymode-enhancements`
 
-### Phase 1: Protocol Library Consolidation & Deduplication (Pillar 4)
+### Phase 1: Quick Console & Dev Tool Refinements
 
-- [x] **RED**: Add protocol length & formatting assertion tests in `prompts.test.js`.
-- [x] **GREEN**: Refactor `PROTOCOL_LIBRARY` in `src/intelligence/prompts.js` to deduplicate rules.
-- [x] **REFACTOR**: Verify test suite passes (`npm test`).
+- [ ] **RED**: Write UI & reactivity state test assertions for UnifiedConsole, DevWing, and DynamicsMeter.
+- [ ] **GREEN**: Implement UnifiedConsole 1-row accordion layout, STASIS cog wheel unlock, button renaming, left-aligned JSON link, and `DynamicsMeter.svelte` reactive `$effect` binding.
+- [ ] **GREEN**: Merge DevMode and Grid overlay toggles in `AppStore`.
+- [ ] **REFACTOR**: Verify test suite passes (`npm test`).
 
-### Phase 2: Prefix-Cache System Prompt Re-ordering (Pillar 1)
+### Phase 2: Entity Import Flow & Profile Animation Consistency
 
-- [x] **RED**: Add system prompt structure test in `prompts.test.js`.
-- [x] **GREEN**: Re-order `render_character` in `src/intelligence/prompts.js` to separate static `<SYSTEM>` from volatile `<SCENE_STATE>`.
-- [x] **REFACTOR**: Verify `prompts.test.js` and `kernel.test.js` pass cleanly.
+- [ ] **RED**: Write dual entity normalizer unit test for combined Character + Fractal JSON payload.
+- [ ] **GREEN**: Update `normalizer.js` to process and extract both Character and Fractal from single imported data payloads.
+- [ ] **GREEN**: Clean up import card animation in `CardHand.svelte` and streamline Import Modal UI.
+- [ ] **GREEN**: Synchronize Storymode profile modal opening with Storyboard 3D card-flip transition.
+- [ ] **REFACTOR**: Verify import & transition tests pass.
 
-### Phase 3: Shot 1 (Director) Protocol & Token Compaction
+### Phase 3: Advanced Storymode Features & Ghostwriter
 
-- [x] **RED**: Add Director prompt schema test in `prompts.test.js`.
-- [x] **GREEN**: Update `render_director` to supply `JSON_OUTPUT` protocol while preserving non-physical state vectors.
-- [x] **REFACTOR**: Verify `kernel.test.js` passes cleanly.
+- [ ] **RED**: Write unit tests for Ghostwriter prompt compiler (`render_ghostwriter`) and Director image trigger flag (`<TRIGGER_IMAGE>`).
+- [ ] **GREEN**: Implement `render_ghostwriter` in `src/intelligence/prompts.js` swapping `<YOUR_IDENTITY>` and `<USER_PERSONA>`, and integrate Ghostwriter trigger in UnifiedConsole.
+- [ ] **GREEN**: Update Director prompt to trigger `<TRIGGER_IMAGE>true</TRIGGER_IMAGE>` on substantial/cinematic events.
+- [ ] **GREEN**: Build Prologue & Epilogue Fractal Message component layout (3 entity cards top row, epilogue narrative, and generated image bottom).
+- [ ] **REFACTOR**: Verify prompt pipeline and layout tests pass.
 
-### Phase 4: History Cache Key Optimization (Pillar 3)
+### Phase 4: Audio & Voice Expansion
 
-- [x] **RED**: Add test in `context.test.js` for message text caching by ID.
-- [x] **GREEN**: Update text caching in `src/intelligence/context.svelte.js` to key by message ID.
-- [x] **REFACTOR**: Verify all intelligence tests pass.
-
-### Phase 5: Verification & Full Suite Audit
-
-- [x] **VERIFY**: Run full local verification (`npm test`).
+- [ ] **RED**: Write unit test verifying premade Fractal entities have valid female voice configurations.
+- [ ] **GREEN**: Add default female Kokoro voice presets (`bf_emma`, `af_bella`, `af_sarah`) to `src/data/premades.js` for `Nova City`, `Ashenweald`, and `Project Tartarus`.
+- [ ] **REFACTOR**: Verify full test suite passes cleanly (`npm test`).
 
 ## 🗺️ Roadmap (Tracks)
 
