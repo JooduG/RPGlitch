@@ -15,6 +15,72 @@ import { app, runtime, simulationState as simulation } from "@state";
 let cachedImageEngine = null;
 
 /**
+ * Extracts a valid image URL string (Base64 dataUrl, blob, or image src) from Perchance plugin outputs.
+ * Strictly ignores HTML iframe embed URLs (containing /embed).
+ * @param {any} data
+ * @returns {string | null}
+ */
+function extractValidImageUrl(data) {
+  if (!data) return null;
+  if (typeof data === "string") {
+    if (data.includes("/embed?") || data.includes("perchance.org/embed")) return null;
+    return data;
+  }
+  const pluginOutput = data.textToImagePluginOutput;
+  if (pluginOutput) {
+    if (pluginOutput.dataUrl && typeof pluginOutput.dataUrl === "string") return pluginOutput.dataUrl;
+    if (pluginOutput.src && typeof pluginOutput.src === "string" && !pluginOutput.src.includes("/embed")) return pluginOutput.src;
+    if (pluginOutput.canvas && typeof pluginOutput.canvas.toDataURL === "function") {
+      try {
+        return pluginOutput.canvas.toDataURL("image/png");
+      } catch (_e) {
+        /* ignore */
+      }
+    }
+  }
+
+  if (data.dataUrl && typeof data.dataUrl === "string") return data.dataUrl;
+  if (data.image) {
+    const imgUrl = typeof data.image === "string" ? data.image : data.image.src || data.image.dataUrl;
+    if (imgUrl && typeof imgUrl === "string" && !imgUrl.includes("/embed")) return imgUrl;
+  }
+  if (data.url && typeof data.url === "string" && !data.url.includes("/embed")) return data.url;
+  if (data.src && typeof data.src === "string" && !data.src.includes("/embed")) return data.src;
+  if (data.href && typeof data.href === "string" && !data.href.includes("/embed")) return data.href;
+
+  if (typeof data === "object" && data.querySelector) {
+    const imgEl = data.querySelector("img");
+    if (imgEl && imgEl.src && !imgEl.src.includes("/embed")) return imgEl.src;
+    const canvasEl = data.querySelector("canvas");
+    if (canvasEl && typeof canvasEl.toDataURL === "function") {
+      try {
+        return canvasEl.toDataURL("image/png");
+      } catch (_e) {
+        /* ignore */
+      }
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Polls Perchance image plugin output until a valid image string URL is ready.
+ * @param {any} data
+ * @param {number} [timeoutMs]
+ * @returns {Promise<string | null>}
+ */
+async function waitForImageFromPluginOutput(data, timeoutMs = 20000) {
+  const startTime = Date.now();
+  while (Date.now() - startTime < timeoutMs) {
+    const validUrl = extractValidImageUrl(data);
+    if (validUrl) return validUrl;
+    await new Promise((r) => setTimeout(r, 250));
+  }
+  return null;
+}
+
+/**
  * Normalizes image sources, converting cross-origin blob URLs to portable Base64 data URLs.
  * @param {any} imgSource
  * @returns {Promise<string|null>}
@@ -22,7 +88,7 @@ let cachedImageEngine = null;
 async function normalizeImageUrl(imgSource) {
   if (!imgSource) return null;
   let raw = typeof imgSource === "string" ? imgSource : imgSource.src || imgSource.dataUrl || imgSource.url || null;
-  if (!raw || typeof raw !== "string") return null;
+  if (!raw || typeof raw !== "string" || raw.includes("/embed")) return null;
 
   if (raw.startsWith("blob:")) {
     try {
@@ -232,31 +298,17 @@ export class VisualEngine {
                 if (data.error) {
                   throw new Error(`Text-to-image failed: ${data.error}`);
                 }
-                let rawImg = typeof data === "string" ? data : data.dataUrl || data.url || data.src || data.image || data.href || null;
-                const img = await normalizeImageUrl(rawImg);
-                if (!img || typeof img !== "string") {
-                  throw new Error("Text-to-image failed: no valid image string URL returned");
-                }
-
-                if (options.returnPayload) {
-                  return {
-                    url: img,
-                    metadata: {
-                      prompt: finalPrompt,
-                      negativePrompt: effectiveNegativePrompt,
-                      seed: effectiveSeed,
-                      resolution: effectiveResolution,
-                      guidanceScale: effectiveGuidanceScale,
-                    },
-                  };
-                }
-                return img;
               }
 
-              const normData = await normalizeImageUrl(data);
+              const rawImg = await waitForImageFromPluginOutput(data, 25000);
+              const img = await normalizeImageUrl(rawImg);
+              if (!img || typeof img !== "string") {
+                throw new Error("Text-to-image failed: no valid image string URL returned");
+              }
+
               if (options.returnPayload) {
                 return {
-                  url: normData,
+                  url: img,
                   metadata: {
                     prompt: finalPrompt,
                     negativePrompt: effectiveNegativePrompt,
@@ -266,7 +318,7 @@ export class VisualEngine {
                   },
                 };
               }
-              return data;
+              return img;
             } finally {
               clearTimeout(timeoutId);
             }
