@@ -15,6 +15,33 @@ import { app, runtime, simulationState as simulation } from "@state";
 let cachedImageEngine = null;
 
 /**
+ * Normalizes image sources, converting cross-origin blob URLs to portable Base64 data URLs.
+ * @param {any} imgSource
+ * @returns {Promise<string|null>}
+ */
+async function normalizeImageUrl(imgSource) {
+  if (!imgSource) return null;
+  let raw = typeof imgSource === "string" ? imgSource : imgSource.src || imgSource.dataUrl || imgSource.url || null;
+  if (!raw || typeof raw !== "string") return null;
+
+  if (raw.startsWith("blob:")) {
+    try {
+      const res = await fetch(raw);
+      const blob = await res.blob();
+      return await new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(typeof reader.result === "string" ? reader.result : raw);
+        reader.onerror = () => resolve(raw);
+        reader.readAsDataURL(blob);
+      });
+    } catch (_e) {
+      return raw;
+    }
+  }
+  return raw;
+}
+
+/**
  * Lazily searches and caches the hosted Perchance text-to-image plugin infrastructure.
  * Safely insulates cross-origin boundary lookups to prevent Same-Origin Policy crashes.
  * @returns {Function | null}
@@ -189,10 +216,8 @@ export class VisualEngine {
                 if (data.error) {
                   throw new Error(`Text-to-image failed: ${data.error}`);
                 }
-                let img = typeof data === "string" ? data : data.dataUrl || data.url || data.src || data.image || data.href || null;
-                if (img && typeof img === "object") {
-                  img = img.src || img.dataUrl || img.url || null;
-                }
+                let rawImg = typeof data === "string" ? data : data.dataUrl || data.url || data.src || data.image || data.href || null;
+                const img = await normalizeImageUrl(rawImg);
                 if (!img || typeof img !== "string") {
                   throw new Error("Text-to-image failed: no valid image string URL returned");
                 }
@@ -212,9 +237,10 @@ export class VisualEngine {
                 return img;
               }
 
+              const normData = await normalizeImageUrl(data);
               if (options.returnPayload) {
                 return {
-                  url: data,
+                  url: normData,
                   metadata: {
                     prompt: finalPrompt,
                     negativePrompt: effectiveNegativePrompt,

@@ -95,26 +95,26 @@
     </header>
   {/if}
 
-  <aside class="relative z-50 flex min-h-0 flex-col justify-center transition-all duration-300 {left_class}">
+  <aside class="relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {left_class}">
     {#if left}
       {@render left()}
     {/if}
   </aside>
 
-  <main class="relative flex min-h-0 flex-col justify-center transition-all duration-300 {center_class}">
+  <main class="relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {center_class}">
     {#if center}
       {@render center()}
     {/if}
   </main>
 
-  <aside class="relative z-50 flex min-h-0 flex-col justify-center transition-all duration-300 {right_class}">
+  <aside class="relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {right_class}">
     {#if right}
       {@render right()}
     {/if}
   </aside>
 
   {#if footer}
-    <footer class="z-30 flex justify-center {footer_class}">
+    <footer class="relative z-40 flex justify-center {footer_class}">
       {@render footer()}
     </footer>
   {/if}
