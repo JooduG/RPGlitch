@@ -398,7 +398,7 @@
       duration-300
       ease-in-out
 
-      {variant === 'library'
+      {variant === 'library' || variant === 'message'
       ? `
         h-auto
         min-h-[40%]
@@ -427,7 +427,7 @@
         [-webkit-line-clamp:3]
         [line-clamp:3]
 
-        {variant === 'library'
+        {variant === 'library' || variant === 'message'
         ? `
           text-sm
           leading-snug
@@ -452,7 +452,7 @@
         `
         : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span
     >
-    {#if !is_empty && variant !== "library"}
+    {#if !is_empty && variant !== "library" && variant !== "message"}
       <p
         class="
           mt-2
@@ -474,7 +474,7 @@
           [line-clamp:3]
           [text-shadow:0_1px_3px_rgba(0,0,0,0.8)]
 
-          {variant === 'library'
+          {variant === 'library' || variant === 'message'
           ? `
             m-0
             max-h-0

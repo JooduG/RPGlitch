@@ -139,7 +139,18 @@ export class VisualEngine {
         return await this.retryer.retry(
           async () => {
             const image_engine = findImageEngine();
-            if (!image_engine) throw new Error("Image plugin missing");
+            if (!image_engine) {
+              const is_mockable =
+                typeof window !== "undefined" &&
+                !(typeof process !== "undefined" && process.env.VITEST) &&
+                (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || import.meta.env.DEV);
+
+              if (is_mockable) {
+                console.warn("[VisualEngine] Image plugin not found. Synthesizing local mock preview image.");
+                return this._mock_generate(finalPrompt, options);
+              }
+              throw new Error("Image plugin missing");
+            }
 
             const res = getResolution(options.mode);
             const effectiveNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || NEGATIVE_PROMPT;
@@ -336,8 +347,15 @@ export class VisualEngine {
 
       const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
       const extracted = match?.[1] || refined || "";
-      const cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
-      console.log("[VisualEngine] visualize: Extracted prompt:", cleanPrompt?.substring(0, 100));
+      let cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
+
+      if ((!cleanPrompt || cleanPrompt.length < 10) && (vTarget === "scene" || vTarget === "fractal")) {
+        const fractalDesc = AestheticResolver.flatten(fractal);
+        cleanPrompt = `RAW photograph or structured artistic rendering of ${fractal?.name || "an environment"}, ${fractalDesc || "high architectural definition, crisp spatial depth details, professional landscape layout alignment"}`;
+        console.log("[VisualEngine] visualize: Fallback prompt synthesized for scene:", cleanPrompt.substring(0, 100));
+      } else {
+        console.log("[VisualEngine] visualize: Extracted prompt:", cleanPrompt?.substring(0, 100));
+      }
 
       let caption = null;
       if (vTarget === "selfie") {
@@ -365,6 +383,51 @@ export class VisualEngine {
     } finally {
       simulation.stop_typing();
     }
+  }
+
+  /**
+   * Generates an aesthetic SVG data URL for local dev & mock testing when image plugin is missing.
+   * @param {string} prompt
+   * @param {any} [options]
+   * @returns {any}
+   */
+  _mock_generate(prompt, options = {}) {
+    const res = getResolution(options.mode);
+    const width = res.width || 768;
+    const height = res.height || 512;
+    const isScene = options.mode === "scene" || options.mode === "fractal" || options.mode === "landscape";
+    const label = isScene ? "SCENE PREVIEW" : "ENTITY PREVIEW";
+    const cleanP = String(prompt || "")
+      .substring(0, 50)
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
+      <defs>
+        <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="${isScene ? "#0f172a" : "#18181b"}"/>
+          <stop offset="50%" stop-color="${isScene ? "#1e1b4b" : "#09090b"}"/>
+          <stop offset="100%" stop-color="#020617"/>
+        </linearGradient>
+      </defs>
+      <rect width="100%" height="100%" fill="url(#g)"/>
+      <circle cx="${width / 2}" cy="${height / 2 - 20}" r="60" fill="none" stroke="#a855f7" stroke-width="2" opacity="0.3"/>
+      <text x="50%" y="45%" dominant-baseline="middle" text-anchor="middle" fill="#c084fc" font-family="sans-serif" font-size="22" font-weight="bold">${label}</text>
+      <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" fill="#94a3b8" font-family="sans-serif" font-size="14">${cleanP}...</text>
+    </svg>`;
+    const dataUrl = `data:image/svg+xml;base64,${btoa(svg)}`;
+    if (options.returnPayload) {
+      return {
+        url: dataUrl,
+        metadata: {
+          prompt,
+          negativePrompt: options.negativePrompt || NEGATIVE_PROMPT,
+          seed: options.seed || 12345,
+          resolution: `${width}x${height}`,
+          guidanceScale: 7,
+        },
+      };
+    }
+    return dataUrl;
   }
 
   /**
