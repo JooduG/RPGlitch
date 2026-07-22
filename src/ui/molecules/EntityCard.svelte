@@ -28,7 +28,7 @@
 
   /**
    * @typedef {Object} Props
-   * @property {"library" | "slot" | "panel"} [variant] - Visual variant layout
+   * @property {"library" | "slot" | "panel" | "message"} [variant] - Visual variant layout
    * @property {any} [entity] - Entity data object
    * @property {"ai" | "user" | "fractal"} [type] - Entity archetype role
    * @property {boolean} [disabled] - Disabled interaction state (mostly library)
@@ -81,9 +81,9 @@
       return undefined;
     }
 
-    // 1. Launching Library Card: Takes ownership of the slot's transition name to morph into the panel.
-    if (variant === "library") {
-      return is_launching ? "card-slot-" + type : undefined;
+    // 1. Library or Message Card: No transition name
+    if (variant === "library" || variant === "message") {
+      return undefined;
     }
 
     // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when card hand, profile, or modal is open
@@ -271,10 +271,10 @@
   class:h-[calc(var(--spacing-storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
   class:w-full={variant !== "library"}
   class:h-full={variant !== "library"}
-  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library"}
-  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library"}
-  class:md:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library"}
-  class:md:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library"}
+  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library" && variant !== "message"}
+  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library" && variant !== "message"}
+  class:md:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library" && variant !== "message"}
+  class:md:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library" && variant !== "message"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   style:opacity={app.profile_open && app.editing_entity?.id === entity?.id && variant !== "library" ? 0 : undefined}
