@@ -374,14 +374,22 @@ export class VisualEngine {
         return { imageUrl: null, refinedPrompt: null, caption: null };
       }
 
-      const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
-      const extracted = match?.[1] || refined || "";
+      const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)(?:<\/image_prompt>|$)/i);
+      let extracted = match?.[1] ? match[1] : refined || "";
       let cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
 
-      if ((!cleanPrompt || cleanPrompt.length < 10) && (vTarget === "scene" || vTarget === "fractal")) {
+      const boilerplatePrefixes = [
+        "RAW photograph or structured artistic rendering of an landscape environment or interior layout space",
+        "RAW photograph, a modern front-facing wide-angle camera selfie shot layout",
+      ];
+      const isJustBoilerplate = boilerplatePrefixes.some(
+        (prefix) => cleanPrompt.trim() === prefix.trim() || (cleanPrompt.trim().startsWith(prefix) && cleanPrompt.trim().length < prefix.length + 20),
+      );
+
+      if ((!cleanPrompt || cleanPrompt.length < 20 || isJustBoilerplate) && (vTarget === "scene" || vTarget === "fractal")) {
         const fractalDesc = AestheticResolver.flatten(fractal);
         cleanPrompt = `RAW photograph or structured artistic rendering of ${fractal?.name || "an environment"}, ${fractalDesc || "high architectural definition, crisp spatial depth details, professional landscape layout alignment"}`;
-        console.log("[VisualEngine] visualize: Fallback prompt synthesized for scene:", cleanPrompt.substring(0, 100));
+        console.log("[VisualEngine] visualize: Synthesized rich fallback prompt for scene:", cleanPrompt.substring(0, 100));
       } else {
         console.log("[VisualEngine] visualize: Extracted prompt:", cleanPrompt?.substring(0, 100));
       }
