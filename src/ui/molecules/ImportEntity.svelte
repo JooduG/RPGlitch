@@ -1,5 +1,5 @@
 <script>
-  import { Button, Modal, Toggle } from "@atoms";
+  import { Button, Modal, TextField, Toggle } from "@atoms";
   import { llm_service } from "@platform";
   import { app, runtime, simulationState } from "@state";
   import { prompt_builder, strip_cognition_blocks } from "@intelligence";
@@ -198,42 +198,6 @@
       } else {
         await runtime.save_entity(type, entity);
       }
-    }
-  }
-
-  async function import_single_entity(type, data) {
-    const base = create_new(type, {
-      name: data.name || data.data?.name || (type === "character" ? "Imported Character" : "Imported Fractal"),
-      tagline: data.tagline || data.data?.creator_notes || data.data?.personality || "",
-      description: data.description || data.data?.description || data.data?.scenario || "",
-    });
-
-    const entity = {
-      ...base,
-      name: data.name || data.data?.name || base.name,
-      tagline: data.tagline || data.data?.creator_notes || data.data?.personality || base.tagline,
-      profile_picture: image_data || data.profile_picture || data.avatar || base.profile_picture,
-      eternal: {
-        physical: data.physical || data.data?.appearance || data.appearance || "",
-        non_physical: data.non_physical || data.data?.personality || data.description || data.data?.description || "",
-      },
-      present: {
-        physical: data.present_physical || "",
-        non_physical: data.present_non_physical || "",
-      },
-      past: Array.isArray(data.past) ? data.past : [],
-      future: Array.isArray(data.future) ? data.future : [],
-    };
-
-    if (image_data && validateImage(image_data)) {
-      entity.profile_picture = image_data;
-    }
-
-    const existing = await runtime.get_entity(type, entity.id);
-    if (existing) {
-      await runtime.update_entity(type, entity.id, entity);
-    } else {
-      await runtime.save_entity(type, entity);
     }
   }
 </script>

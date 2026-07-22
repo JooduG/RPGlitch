@@ -9,7 +9,7 @@
   import { Audio, get_signature_color } from "@media";
   import { Typewriter } from "@motion";
   import { app, runtime } from "@state";
-  import { Chrono } from "@engine";
+  import { session_driver } from "@engine";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock } from "@molecules";
   import { safe_html } from "@utils";
@@ -457,9 +457,9 @@
                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 {:else}
-                  <div class="absolute inset-0 bg-gradient-to-br from-amber-950/80 to-slate-950"></div>
+                  <div class="absolute inset-0 bg-linear-to-br from-amber-950/80 to-slate-950"></div>
                 {/if}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
                 <div class="relative z-10 flex w-full flex-col p-2 text-center">
                   <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{a.name}</span>
                   <span class="font-mono text-[8px] font-semibold tracking-widest text-amber-300/80 uppercase">AI CHARACTER</span>
@@ -480,9 +480,9 @@
                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 {:else}
-                  <div class="absolute inset-0 bg-gradient-to-br from-purple-950/80 to-slate-950"></div>
+                  <div class="absolute inset-0 bg-linear-to-br from-purple-950/80 to-slate-950"></div>
                 {/if}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
                 <div class="relative z-10 flex w-full flex-col p-2 text-center">
                   <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{f.name}</span>
                   <span class="font-mono text-[8px] font-semibold tracking-widest text-purple-300/80 uppercase">FRACTAL</span>
@@ -503,9 +503,9 @@
                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
                 {:else}
-                  <div class="absolute inset-0 bg-gradient-to-br from-cyan-950/80 to-slate-950"></div>
+                  <div class="absolute inset-0 bg-linear-to-br from-cyan-950/80 to-slate-950"></div>
                 {/if}
-                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
                 <div class="relative z-10 flex w-full flex-col p-2 text-center">
                   <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{u.name}</span>
                   <span class="font-mono text-[8px] font-semibold tracking-widest text-cyan-300/80 uppercase">USER PERSONA</span>
@@ -514,10 +514,6 @@
             {/if}
           </div>
         {/if}
-
-        <div class="prose max-w-none text-slate-100">
-          <RenderText text={content} {is_user} {should_use_typewriter} {on_typewriter_finish} />
-        </div>
 
         {#if app.settings.dev_mode && think_block}
           <DataBox label="Thoughts" isCode={false} class="mb-4">
