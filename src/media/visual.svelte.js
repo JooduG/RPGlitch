@@ -188,12 +188,28 @@ export class VisualEngine {
             const isCharacter = ["character", "ai", "user", "selfie", "portrait"].includes(entityType);
             const effectiveGuidanceScale = options.guidanceScale ?? (isCharacter ? 9 : 6.5);
 
+            const shapeMap = {
+              landscape: "landscape",
+              scene: "landscape",
+              fractal: "landscape",
+              portrait: "portrait",
+              character: "portrait",
+              selfie: "portrait",
+              user: "portrait",
+              ai: "portrait",
+              square: "square",
+            };
+            const effectiveShape =
+              options.shape ||
+              shapeMap[options.mode] ||
+              shapeMap[options.type] ||
+              (res.width > res.height ? "landscape" : res.width < res.height ? "portrait" : "square");
+
             const generatePromise = image_engine({
               prompt: finalPrompt,
               negativePrompt: effectiveNegativePrompt,
               seed: effectiveSeed,
-              // Map custom resolution parameters directly to the strict string formats expected by Perchance
-              shape: effectiveResolution,
+              shape: effectiveShape,
               resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
               guidanceScale: effectiveGuidanceScale,
