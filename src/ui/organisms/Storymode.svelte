@@ -140,11 +140,29 @@
     return list;
   });
 
+  let user_scrolled_up = $state(false);
+
+  $effect(() => {
+    if (!scroll_ref) return;
+    const el = scroll_ref.querySelector(".scroll-area-viewport");
+    if (!el) return;
+
+    const handle_scroll = () => {
+      const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      user_scrolled_up = distanceToBottom > 10;
+    };
+
+    el.addEventListener("scroll", handle_scroll, { passive: true });
+    return () => el.removeEventListener("scroll", handle_scroll);
+  });
+
+  let last_feed_length = $state(0);
+
   // Advanced Kinetic Viewport Auto-Scroll Controller
   $effect(() => {
     // Read dependencies to trigger effect
-    const isActive = app.streaming.active;
-    const _len = visible_feed.length;
+    const _isActive = app.streaming.active;
+    const current_len = visible_feed.length;
 
     if (!scroll_ref) return;
     const el = scroll_ref.querySelector(".scroll-area-viewport");
@@ -162,15 +180,22 @@
       }
     };
 
-    // Trigger immediate scroll on major state changes
-    tick().then(() => scroll_to_bottom(true));
+    // Reset scroll lock when a new message is posted to the feed (e.g. USER message submission)
+    if (current_len > last_feed_length) {
+      user_scrolled_up = false;
+      tick().then(() => scroll_to_bottom(false));
+    }
+    last_feed_length = current_len;
 
-    // Track dynamic height expansion during streaming
-    if (isActive) {
+    // Trigger immediate scroll on major state changes if user hasn't scrolled up manually
+    if (!user_scrolled_up) {
+      tick().then(() => scroll_to_bottom(true));
+    }
+
+    // Track dynamic height expansion (user typing, AI streaming, layout rendering)
+    if (!user_scrolled_up) {
       const observer = new MutationObserver(() => {
-        // Only auto-scroll if the user hasn't scrolled far up manually
-        const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 200;
-        if (isNearBottom) {
+        if (!user_scrolled_up) {
           scroll_to_bottom(false); // Instant scroll to prevent animation fighting
         }
       });

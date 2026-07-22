@@ -20,7 +20,7 @@ import { context_broker } from "./context.svelte.js";
 import { dynamics_engine } from "./dynamics.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
-import { escape_unescaped_json_quotes, extract_json_block } from "./parser.js";
+import { escape_unescaped_json_quotes, extract_json_block, parse_think_block } from "./parser.js";
 import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
 /**
@@ -39,7 +39,8 @@ function parse_director_json(raw_text) {
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
     app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
-    return { internal_monologue: stripped, _parse_error: true };
+    const extractedThink = parse_think_block(stripped).think;
+    return { internal_monologue: extractedThink || stripped, _parse_error: true };
   }
   const cleaned_json = escape_unescaped_json_quotes(json_string);
   const sanitized_json = cleaned_json.replace(/:\s*\+([0-9]+(?:\.[0-9]+)?)/g, ": $1");
@@ -52,7 +53,9 @@ function parse_director_json(raw_text) {
   } catch (parse_err) {
     console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
     app.log("[GameMaster] Director JSON parse failed — using raw prose fallback", "warn");
-    return { internal_monologue: raw_text.replace(/```json\n?|```/g, "").trim(), _parse_error: true };
+    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+    const extractedThink = parse_think_block(stripped).think;
+    return { internal_monologue: extractedThink || stripped, _parse_error: true };
   }
 }
 
@@ -183,7 +186,9 @@ export const gamemaster = {
         type: "DYNAMICS_DELTA",
         deltas,
         ai: snapshot.ai?.dynamics,
+        ai_name: snapshot.ai?.name || runtime.active_ai?.name,
         fractal: snapshot.fractal?.dynamics,
+        fractal_name: snapshot.fractal?.name || runtime.active_fractal?.name,
         vectors: meta?.vectors,
         mutations: meta?.mutations,
         signals: active_signals,
@@ -359,10 +364,22 @@ export const gamemaster = {
 
       let directorMonologue = "";
       if (directorData.internal_monologue) {
-        let thinkContent = `## Cognition\n${directorData.internal_monologue}`;
-        if (directorData.intent) thinkContent += `\n\n## Intent\n${directorData.intent}`;
-        if (directorData.somatic_tells) thinkContent += `\n\n## Somatic Tells\n${directorData.somatic_tells}`;
-        if (directorData.dialogue_direction) thinkContent += `\n\n## Dialogue Direction\n${directorData.dialogue_direction}`;
+        const cleanMonologue = String(directorData.internal_monologue)
+          .replace(/<\/?think>/gi, "")
+          .trim();
+        let thinkContent = `## Cognition\n${cleanMonologue}`;
+        if (directorData.intent)
+          thinkContent += `\n\n## Intent\n${String(directorData.intent)
+            .replace(/<\/?think>/gi, "")
+            .trim()}`;
+        if (directorData.somatic_tells)
+          thinkContent += `\n\n## Somatic Tells\n${String(directorData.somatic_tells)
+            .replace(/<\/?think>/gi, "")
+            .trim()}`;
+        if (directorData.dialogue_direction)
+          thinkContent += `\n\n## Dialogue Direction\n${String(directorData.dialogue_direction)
+            .replace(/<\/?think>/gi, "")
+            .trim()}`;
         directorMonologue = `<think>\n${thinkContent}\n</think>\n\n`;
       }
 
@@ -411,7 +428,11 @@ export const gamemaster = {
           );
 
           // Prepend the director's monologue to the final text so it gets saved and validated properly
-          const full_text = directorMonologue + (generated_text || "");
+          let clean_generated = generated_text || "";
+          if (directorMonologue && clean_generated.trim().startsWith("<think>")) {
+            clean_generated = clean_generated.replace(/^<think>[\s\S]*?<\/think>\s*/i, "");
+          }
+          const full_text = directorMonologue + clean_generated;
 
           const vResult = validate_and_repair_response(full_text);
           if (vResult.refused) {

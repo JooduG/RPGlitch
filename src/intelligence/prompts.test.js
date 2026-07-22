@@ -1,4 +1,4 @@
-import { prompt_builder } from "./prompts.js";
+import { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";
 import { app } from "@state";
 import { describe, expect, it } from "vitest";
 
@@ -54,9 +54,25 @@ describe("prompt_builder (Refactored)", () => {
     it("render_protocols() should return XML-tagged protocols", () => {
       const out = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
       expect(out).toContain("<MOMENTUM>Drive the scene forward.");
-      expect(out).toContain("never announce it with structural labels.</MOMENTUM>");
-      expect(out).toContain("<HYGIENE>Omit all conversational preambles");
-      expect(out).toContain("or temporal references.</HYGIENE>");
+      expect(out).toContain("no structural labels.</MOMENTUM>");
+      expect(out).toContain("<HYGIENE>Omit conversational preambles");
+      expect(out).toContain("24h clocks.</HYGIENE>");
+    });
+  });
+
+  describe("Protocol Library Consolidation", () => {
+    it("should ensure core protocols are compacted and deduplicated", () => {
+      // Assert length limits to prevent token bloat
+      expect(PROTOCOL_LIBRARY.HYGIENE.length).toBeLessThan(300);
+      expect(PROTOCOL_LIBRARY.COGNITION.length).toBeLessThan(500);
+      expect(PROTOCOL_LIBRARY.USER_AGENCY.length).toBeLessThan(200);
+      expect(PROTOCOL_LIBRARY.MOMENTUM.length).toBeLessThan(250);
+      expect(PROTOCOL_LIBRARY.MARKDOWN_FORMAT.length).toBeLessThan(200);
+
+      // Verify that HYGIENE and DATA_HYGIENE use the deduplicated BASE_HYGIENE prefix
+      const baseHygiene = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
+      expect(PROTOCOL_LIBRARY.HYGIENE).toContain(baseHygiene);
+      expect(PROTOCOL_LIBRARY.DATA_HYGIENE).toContain(baseHygiene);
     });
   });
 
@@ -143,7 +159,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(mockPayload, mockSnapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.system).toContain("<PAST>");
+      expect(result.task).toContain("<PAST>");
     });
 
     it("synthesize() respects prologue mode", () => {
@@ -178,7 +194,92 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).not.toContain("<PAST>");
       expect(result.system).not.toContain("<FUTURE>");
-      expect(result.system).not.toContain("<ETERNAL>");
+    });
+  });
+
+  describe("Prefix-Cache System Prompt Re-ordering", () => {
+    it("should separate static SYSTEM from volatile SCENE_STATE in character prompt", () => {
+      const payload = {
+        round: 5,
+        entities: {
+          AI: {
+            name: "Viper",
+            present: { non_physical: "Volatile Present" },
+            eternal: { non_physical: "Static Eternal" },
+            past: [{ directive: "Volatile Past", base_weight: 9 }],
+            future: [{ directive: "Volatile Future", base_weight: 9 }],
+          },
+          USER: {
+            name: "Ghost",
+            present: { non_physical: "User Present" },
+            eternal: { non_physical: "User Eternal" },
+            past: [],
+            future: [],
+          },
+          FRACTAL: {
+            name: "Void",
+            present: { non_physical: "Void Present" },
+            eternal: { non_physical: "Void Eternal" },
+            past: [],
+            future: [],
+          },
+        },
+        simulation_log: [],
+        input: "Check the console.",
+      };
+      const snapshot = {
+        ai: { dynamics: { intensity: 50, openness: 60 } },
+        fractal: { dynamics: { entropy: 10 } },
+        flags: {},
+      };
+
+      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
+
+      // SYSTEM should contain only static eternal traits, protocols, style
+      expect(result.system).toContain('<SYSTEM role="Viper">');
+      expect(result.system).toContain("Static Eternal");
+      expect(result.system).not.toContain("Volatile Present");
+      expect(result.system).not.toContain("Volatile Past");
+      expect(result.system).toContain("<PROTOCOLS>");
+      expect(result.system).not.toContain('intensity="50"');
+
+      // SCENE_STATE should contain dynamics, present, past, future
+      expect(result.task).toContain("<SCENE_STATE>");
+      expect(result.task).toContain("Volatile Present");
+      expect(result.task).toContain("Volatile Past");
+      expect(result.task).toContain('intensity="50"');
+    });
+  });
+
+  describe("Shot 1 (Director) Protocol & Token Compaction", () => {
+    it("should include non-physical traits and exclude verbose protocols in Director prompt", () => {
+      const payload = {
+        round: 1,
+        entities: {
+          AI: {
+            name: "Viper",
+            present: { non_physical: "Volatile Mental State" },
+            eternal: { non_physical: "Static Mental State" },
+            future: [{ directive: "Future Goal" }],
+          },
+          USER: { name: "Ghost", present: {}, eternal: {}, future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
+
+      const result = prompt_builder.build_director_prompt(payload, snapshot);
+
+      // Should include non-physical state for dynamics resolution
+      expect(result.system).toContain("Volatile Mental State");
+      expect(result.system).toContain("Static Mental State");
+      expect(result.system).toContain("Future Goal");
+
+      // Should ONLY include JSON_OUTPUT protocol, not verbose prose protocols
+      expect(result.system).toContain("<JSON_OUTPUT>");
+      expect(result.system).not.toContain("<HYGIENE>");
+      expect(result.system).not.toContain("<COGNITION>");
     });
   });
 
@@ -225,8 +326,9 @@ describe("prompt_builder (Refactored)", () => {
 
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper">');
-      expect(result.system).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
-      expect(result.system).toContain("<PAST>");
+      expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
+      expect(result.task).toContain("<PAST>");
       expect(result.system).not.toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.task).toContain("<USER_ACTION>");

@@ -245,7 +245,7 @@ export const llm_service = {
    * Centralized mock message generator for Local Dev & Control Panel tests.
    */
   get_mock_message: () => {
-    return `<think>Here's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
+    return `<think>Evaluating physical variables and drafting response vector.</think>\n\nHere's a "long quote, with *italics* and **bold** and even ***both***". Just the *italics* and just the **bold** and here's ***both***.`;
   },
 
   /**

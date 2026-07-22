@@ -184,12 +184,13 @@ The project follows a sovereign modular structure to ensure local-first resilien
 - **Security**: Validation & Physics via **DOMPurify** sanitization boundaries (see global GEMINI.md §06 Compliance).
 - **Simulation** building blocks:
   - [Engine](./src/engine): Logic & Round Orchestration (DynamicsEngine).
-  - [Intelligence](./src/intelligence): The AI Kernel.
+  - [Intelligence](./src/intelligence): The AI Kernel (Prefix Caching & Prompt Architecture).
   - [Data](./src/data): Persistence (Dexie) & Entity Repositories.
   - [State](./src/state): Reactive Runes (`$state`).
   - [UI](./src/ui): Atomic Design (Svelte 5 components).
-  - [Media](./src/media): Internal Sensory Assets.
+  - [Media](./src/media): Internal Sensory Assets & Kokoro-82M Neural TTS.
 - **Skills** directory (`.agents/skills/`) for infrastructural expertise:
+  - [Audio](./.agents/skills/audio/SKILL.md): Soundscape & Neural Voice (Kokoro TTS).
   - [Local Development Scripts](./.agents/skills/local-scripts/SKILL.md): Local Scripts.
   - [Simulation](./.agents/skills/simulation/SKILL.md): Narrative Bridges & Game Logic.
   - [Design](./.agents/skills/design/SKILL.md): UI, Motion, and Tailwind Aesthetics.

@@ -192,6 +192,24 @@ describe("context_broker", () => {
     });
   });
 
+  describe("History Cache Key Optimization", () => {
+    it("should key text caching by message ID instead of raw text or reference", async () => {
+      const history1 = [{ id: "msg1", role: "model", content: "Initial <think>process</think> message.", character_name: "AI" }];
+
+      const payload1 = await context_broker.hydrate("input", "simulation", history1);
+      expect(payload1.simulation_log).toContain("[AI]: Initial message.");
+
+      // Same ID but different reference and different content.
+      // Since it's keyed by ID, it should return the cached value.
+      const history2 = [{ id: "msg1", role: "model", content: "Changed content entirely.", character_name: "AI" }];
+
+      const payload2 = await context_broker.hydrate("input", "simulation", history2);
+      // It should return the old text because the cache hit the ID
+      expect(payload2.simulation_log).toContain("[AI]: Initial message.");
+      expect(payload2.simulation_log).not.toContain("Changed content entirely");
+    });
+  });
+
   describe("lexical_filter", () => {
     it("should return data_points as is if objective is null or empty", () => {
       const data_points = [

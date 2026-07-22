@@ -92,6 +92,20 @@
   let is_streaming_target = $derived(!!(app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)));
   let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));
 
+  // Track when this specific message becomes an active stream target
+  $effect(() => {
+    if (is_streaming_target) {
+      was_streaming = true;
+    }
+  });
+
+  // If another message becomes the active stream target while this message is still typing, force-finish this typewriter animation
+  $effect(() => {
+    if (app.streaming.active && !is_streaming_target && was_streaming && !is_typing_finished) {
+      is_typing_finished = true;
+    }
+  });
+
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
   let clean_markdown = $derived(clean_image_prompts(strip_cognition_blocks(text)).trim());
 
@@ -445,7 +459,6 @@
                 [&_h1]:font-bold
                 [&_h1]:text-white
 
-                [&_h2]:mt-4
                 [&_h2]:mb-1
                 [&_h2]:text-base
                 [&_h2]:font-bold

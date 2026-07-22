@@ -21,34 +21,64 @@ const md = new MarkdownIt({
 export function parse_think_block(text) {
   if (!text) return { content: "", think: null };
 
-  // 1. Match all closed blocks
-  const matches = [...text.matchAll(/<think>([\s\S]*?)<\/think>/gi)];
-  let closedThink = matches
-    .map((m) => m[1].trim())
-    .filter(Boolean)
-    .join("\n\n");
+  let thinkAccumulator = [];
+
+  // 1. Match and extract closed <think>...</think> blocks
+  const closedThinkRegex = /<think>([\s\S]*?)<\/think>/gi;
+  let match;
+  while ((match = closedThinkRegex.exec(text)) !== null) {
+    // Strip inner <think> or </think> tags if any got captured due to tag nesting
+    const rawBlock = match[1].replace(/<\/?think>/gi, "").trim();
+    if (rawBlock) {
+      thinkAccumulator.push(rawBlock);
+    }
+  }
+
+  // Clean all closed <think>...</think> blocks from content
   let content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
 
   // 2. Check for an unclosed partial block (streaming)
-  // If there is a <think> tag that has not been closed, it will be the last one
-  const lowerText = text.toLowerCase();
-  const lastThinkIndex = lowerText.lastIndexOf("<think>");
-  if (lastThinkIndex !== -1) {
-    const postThink = text.substring(lastThinkIndex + 7);
-    if (!postThink.toLowerCase().includes("</think>")) {
-      // It's unclosed. The preceding text might have closed think blocks.
-      const streamingThink = postThink.trim();
-      const finalThink = [closedThink, streamingThink].filter(Boolean).join("\n\n");
+  const thinkOpeners = (text.match(/<think>/gi) || []).length;
+  const thinkClosers = (text.match(/<\/think>/gi) || []).length;
+
+  if (thinkOpeners > thinkClosers) {
+    const lowerText = text.toLowerCase();
+    const lastThinkIndex = lowerText.lastIndexOf("<think>");
+    if (lastThinkIndex !== -1) {
+      const postThink = text.substring(lastThinkIndex + 7);
+      const streamingThink = postThink.replace(/<\/?think>/gi, "").trim();
+      if (streamingThink) {
+        thinkAccumulator.push(streamingThink);
+      }
 
       // Clean content by removing everything from the unclosed <think> onwards
       const precedingText = text.substring(0, lastThinkIndex);
       content = precedingText.replace(/<think>[\s\S]*?<\/think>/gi, "");
-
-      return { content, think: finalThink || null };
     }
   }
 
-  return { content, think: closedThink || null };
+  // 3. Final safety pass: strip any lingering/stray <think> or </think> tags from content
+  content = content.replace(/<\/?think>/gi, "");
+
+  const cleanBody = (str) => str.replace(/^##\s*\w+\n?/gm, "").trim();
+  const uniqueThinks = [];
+  for (const block of thinkAccumulator.filter(Boolean)) {
+    const body = cleanBody(block);
+    if (!body) continue;
+    const isDuplicate = uniqueThinks.some((existing) => {
+      const existingBody = cleanBody(existing);
+      return existingBody === body || existingBody.includes(body) || body.includes(existingBody);
+    });
+    if (!isDuplicate) {
+      uniqueThinks.push(block);
+    }
+  }
+  const finalThink = uniqueThinks.join("\n\n");
+
+  return {
+    content,
+    think: finalThink || null,
+  };
 }
 /**
  * Strips all <think> blocks and optional trailing newlines.

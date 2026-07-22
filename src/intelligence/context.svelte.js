@@ -28,7 +28,7 @@ import { app, runtime } from "@state";
 
 const RAW_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;
-const SNAPSHOT_ITEM_CACHE = new WeakMap();
+const SNAPSHOT_ITEM_CACHE = new Map();
 
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
@@ -40,9 +40,10 @@ const SNAPSHOT_ITEM_CACHE = new WeakMap();
 function get_sanitized_text(msg) {
   if (!msg || typeof msg !== "object") return "";
 
-  const raw = msg.text || msg.content || "";
-  if (RAW_CACHE.has(raw)) return RAW_CACHE.get(raw);
+  const cacheKey = msg.id || msg.text || msg.content || "";
+  if (RAW_CACHE.has(cacheKey)) return RAW_CACHE.get(cacheKey);
 
+  const raw = msg.text || msg.content || "";
   const sanitized = strip_cognition_blocks(raw).trim();
 
   if (RAW_CACHE.size >= MAX_CACHE_SIZE) {
@@ -50,7 +51,7 @@ function get_sanitized_text(msg) {
     RAW_CACHE.delete(firstKey);
   }
 
-  RAW_CACHE.set(raw, sanitized);
+  RAW_CACHE.set(cacheKey, sanitized);
   return sanitized;
 }
 /**
@@ -221,15 +222,19 @@ export const context_broker = {
     if (!history.length) return null;
     return history
       .map((m) => {
-        if (m && typeof m === "object") {
-          const cached = SNAPSHOT_ITEM_CACHE.get(m);
+        if (m && typeof m === "object" && m.id) {
+          const cached = SNAPSHOT_ITEM_CACHE.get(m.id);
           if (cached !== undefined) return cached;
         }
         const owner = m.character_name || (m.role === "user" ? "User" : "AI");
         const stripped = get_sanitized_text(m);
         const formatted = `[${owner}]: ${clean_text(stripped, 500)}`;
-        if (m && typeof m === "object") {
-          SNAPSHOT_ITEM_CACHE.set(m, formatted);
+        if (m && typeof m === "object" && m.id) {
+          if (SNAPSHOT_ITEM_CACHE.size >= MAX_CACHE_SIZE) {
+            const firstKey = SNAPSHOT_ITEM_CACHE.keys().next().value;
+            SNAPSHOT_ITEM_CACHE.delete(firstKey);
+          }
+          SNAPSHOT_ITEM_CACHE.set(m.id, formatted);
         }
         return formatted;
       })

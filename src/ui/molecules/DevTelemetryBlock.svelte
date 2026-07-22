@@ -31,22 +31,36 @@
   /** @type {Props} */
   let { meta = {} } = $props();
 
-  // svelte-ignore state_referenced_locally
-  let ai = meta.ai || meta.dynamics || meta.snapshot?.ai || {};
-  // svelte-ignore state_referenced_locally
-  let fractal = meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {};
-  // svelte-ignore state_referenced_locally
-  let vectors = {
+  let ai = $derived(meta.ai || meta.dynamics || meta.snapshot?.ai || {});
+  let fractal = $derived(meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {});
+  let vectors = $derived({
     past: meta.vectors?.past || [],
     future: meta.vectors?.future || [],
-  };
-  // svelte-ignore state_referenced_locally
-  let mutations = meta.mutations || null;
-  // svelte-ignore state_referenced_locally
-  let signals = Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {});
-  // svelte-ignore state_referenced_locally
-  let deltas = meta.deltas || [];
-  let active_dynamics = Array.from(new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))]));
+  });
+  let mutations = $derived(meta.mutations || null);
+  let signals = $derived(Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {}));
+  let deltas = $derived(meta.deltas || []);
+  let active_dynamics = $derived(Array.from(new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))])));
+
+  let has_explicit_deltas = $derived(Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA");
+
+  let changed_ai = $derived.by(() => {
+    const entries = Object.entries(ai);
+    if (!has_explicit_deltas) return entries;
+    return entries.filter(([axis]) => {
+      const delta = get_delta("ai", axis);
+      return delta && delta.diff !== 0;
+    });
+  });
+
+  let changed_fractal = $derived.by(() => {
+    const entries = Object.entries(fractal);
+    if (!has_explicit_deltas) return entries;
+    return entries.filter(([axis]) => {
+      const delta = get_delta("fractal", axis);
+      return delta && delta.diff !== 0;
+    });
+  });
 
   /** @param {number} val */
   function get_pct(val) {
@@ -68,9 +82,11 @@
 
   const get_entity_name = (key) => {
     const k = String(key).toUpperCase();
-    if (k.includes("AI") || k.includes("CHARACTER")) return runtime.active_ai?.name || "AI CHARACTER";
-    if (k.includes("USER") || k.includes("PERSONA")) return runtime.active_user?.name || "USER PERSONA";
-    if (k.includes("FRACTAL") || k.includes("ENVIRONMENT")) return runtime.active_fractal?.name || "FRACTAL";
+    if (k.includes("AI") || k.includes("CHARACTER")) return meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
+    if (k.includes("USER") || k.includes("PERSONA"))
+      return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
+    if (k.includes("FRACTAL") || k.includes("ENVIRONMENT"))
+      return meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
     return key.replace("_", " ");
   };
 </script>
@@ -215,7 +231,7 @@
                       font-mono
                     "
                     >
-                      NO_MEMORIES_WEAVED
+                      NO MEMORIES WEAVED
                     </div>
                   {/each}
                 </div>
@@ -287,231 +303,235 @@
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
           <!-- [T] DYNAMICS GRID -->
-          <div
-            class="
-            grid
-            grid-cols-2
-            gap-4
-          "
-          >
-            {#if Object.keys(ai).length > 0}
-              <div
-                class="
-                flex
-                flex-col
-                gap-2
-              "
-              >
-                <header
+          {#if Object.keys(ai).length > 0 || Object.keys(fractal).length > 0}
+            <div
+              class="
+              grid
+              grid-cols-2
+              gap-4
+            "
+            >
+              {#if Object.keys(ai).length > 0}
+                <div
                   class="
-                  mb-2
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
+                  flex
+                  flex-col
+                  gap-2
                 "
                 >
-                  {get_entity_name("ai")}
-                </header>
-                {#each Object.entries(ai) as [axis, val] (axis)}
-                  {@const delta = get_delta("ai", axis)}
-                  <div class="relative flex flex-col gap-1">
-                    <div
-                      class="
-                      flex
-                      items-center
-                      justify-between
-                      gap-4
-                    "
-                    >
-                      <span
-                        class="
-                      min-w-20
-                      text-xs
-                      text-slate-400
-                      lowercase
-                    ">{axis}</span
-                      >
+                  <header
+                    class="
+                    mb-2
+                    border-b
+                    border-(--state-dev-accent)/20
+                    pb-1
+                    text-xs
+                    font-bold
+                    tracking-widest
+                    text-(--state-dev-accent)
+                    uppercase
+                  "
+                  >
+                    {get_entity_name("ai")}
+                  </header>
+                  {#each changed_ai as [axis, val] (axis)}
+                    {@const delta = get_delta("ai", axis)}
+                    <div class="relative flex flex-col gap-1">
                       <div
                         class="
-                      flex
-                      flex-1
-                      items-center
-                      gap-4
-                    "
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                      "
                       >
+                        <span
+                          class="
+                        min-w-20
+                        text-xs
+                        text-slate-400
+                        lowercase
+                      ">{axis}</span
+                        >
                         <div
                           class="
-                        relative
-                        h-1.5
+                        flex
                         flex-1
-                        overflow-hidden
-                        rounded-full
-                        bg-white/5
+                        items-center
+                        gap-4
                       "
                         >
                           <div
                             class="
-                          absolute
-                          h-full
-                          transition-all
-                          duration-300
+                          relative
+                          h-1.5
+                          flex-1
+                          overflow-hidden
+                          rounded-full
+                          bg-white/5
                         "
-                            style="
-                          left: 0%;
-                          width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
-                          background: var(--state-dev-accent);
-                        "
-                          ></div>
-                          {#if delta}
+                          >
                             <div
                               class="
                             absolute
-                            z-10
                             h-full
-                            opacity-40
                             transition-all
                             duration-300
                           "
                               style="
-                            left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
-                            width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
+                            left: 0%;
+                            width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
                             background: var(--state-dev-accent);
                           "
                             ></div>
-                          {/if}
-                        </div>
-                        <div class="flex flex-col items-end gap-0.5">
-                          <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
-                            <span class="text-slate-50">{get_pct(val)}</span>
                             {#if delta}
-                              <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
-                                ({delta.diff > 0 ? "+" : ""}{delta.diff})
-                              </span>
+                              <div
+                                class="
+                              absolute
+                              z-10
+                              h-full
+                              opacity-40
+                              transition-all
+                              duration-300
+                            "
+                                style="
+                              left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
+                              width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
+                              background: var(--state-dev-accent);
+                            "
+                              ></div>
                             {/if}
+                          </div>
+                          <div class="flex flex-col items-end gap-0.5">
+                            <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
+                              <span class="text-slate-50">{get_pct(val)}</span>
+                              {#if delta}
+                                <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
+                                  ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                                </span>
+                              {/if}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                {/each}
-              </div>
-            {/if}
+                  {:else}
+                    <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
+                  {/each}
+                </div>
+              {/if}
 
-            {#if Object.keys(fractal).length > 0}
-              <div
-                class="
-                flex
-                flex-col
-                gap-2
-              "
-              >
-                <header
+              {#if Object.keys(fractal).length > 0}
+                <div
                   class="
-                  mb-2
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
+                  flex
+                  flex-col
+                  gap-2
                 "
                 >
-                  {get_entity_name("fractal")}
-                </header>
-                {#each Object.entries(fractal) as [axis, val] (axis)}
-                  {@const delta = get_delta("fractal", axis)}
-                  <div class="relative flex flex-col gap-1">
-                    <div
-                      class="
-                      flex
-                      items-center
-                      justify-between
-                      gap-4
-                    "
-                    >
-                      <span
-                        class="
-                      min-w-20
-                      text-xs
-                      text-slate-400
-                      lowercase
-                    ">{axis}</span
-                      >
+                  <header
+                    class="
+                    mb-2
+                    border-b
+                    border-(--state-dev-accent)/20
+                    pb-1
+                    text-xs
+                    font-bold
+                    tracking-widest
+                    text-(--state-dev-accent)
+                    uppercase
+                  "
+                  >
+                    {get_entity_name("fractal")}
+                  </header>
+                  {#each changed_fractal as [axis, val] (axis)}
+                    {@const delta = get_delta("fractal", axis)}
+                    <div class="relative flex flex-col gap-1">
                       <div
                         class="
-                      flex
-                      flex-1
-                      items-center
-                      gap-4
-                    "
+                        flex
+                        items-center
+                        justify-between
+                        gap-4
+                      "
                       >
+                        <span
+                          class="
+                        min-w-20
+                        text-xs
+                        text-slate-400
+                        lowercase
+                      ">{axis}</span
+                        >
                         <div
                           class="
-                        relative
-                        h-1.5
+                        flex
                         flex-1
-                        overflow-hidden
-                        rounded-full
-                        bg-white/5
+                        items-center
+                        gap-4
                       "
                         >
                           <div
                             class="
-                          absolute
-                          h-full
-                          transition-all
-                          duration-300
+                          relative
+                          h-1.5
+                          flex-1
+                          overflow-hidden
+                          rounded-full
+                          bg-white/5
                         "
-                            style="
-                          left: 0%;
-                          width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
-                          background: var(--state-dev-accent);
-                        "
-                          ></div>
-                          {#if delta}
+                          >
                             <div
                               class="
                             absolute
-                            z-10
                             h-full
-                            opacity-40
                             transition-all
                             duration-300
                           "
                               style="
-                            left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
-                            width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
+                            left: 0%;
+                            width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
                             background: var(--state-dev-accent);
                           "
                             ></div>
-                          {/if}
-                        </div>
-                        <div class="flex flex-col items-end gap-0.5">
-                          <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
-                            <span class="text-slate-50">{get_pct(val)}</span>
                             {#if delta}
-                              <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
-                                ({delta.diff > 0 ? "+" : ""}{delta.diff})
-                              </span>
+                              <div
+                                class="
+                              absolute
+                              z-10
+                              h-full
+                              opacity-40
+                              transition-all
+                              duration-300
+                            "
+                                style="
+                              left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
+                              width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
+                              background: var(--state-dev-accent);
+                            "
+                              ></div>
                             {/if}
+                          </div>
+                          <div class="flex flex-col items-end gap-0.5">
+                            <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
+                              <span class="text-slate-50">{get_pct(val)}</span>
+                              {#if delta}
+                                <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
+                                  ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                                </span>
+                              {/if}
+                            </div>
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                {/each}
-              </div>
-            {/if}
-          </div>
+                  {:else}
+                    <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          {/if}
 
           <!-- AMENDMENTS -->
           {#if mutations}
@@ -626,7 +646,7 @@
                       font-mono
                     "
                     >
-                      NO_PAST_MEMORIES
+                      NO PAST MEMORIES
                     </div>
                   {/each}
                 </div>
@@ -702,7 +722,7 @@
                       font-mono
                     "
                     >
-                      NO_FUTURE_VECTORS
+                      NO FUTURE VECTORS
                     </div>
                   {/each}
                 </div>

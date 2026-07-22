@@ -31,6 +31,9 @@
   const profileState = new ProfileState();
   /** @type {HTMLElement | undefined} */
   let footer_el = $state();
+  /** @type {HTMLElement | undefined} */
+  let info_container_el = $state();
+  let previous_scroll_top = $state(0);
 
   // Local safety interlock rune for unsaved changes
   let show_close_confirm = $state(false);
@@ -397,7 +400,7 @@
           {/if}
         </div>
 
-        <div class={info_container_class}>
+        <div class={info_container_class} bind:this={info_container_el}>
           <ProfileHeader
             bind:name={profileState.char.name}
             bind:description={profileState.char.description}
@@ -447,7 +450,6 @@
                 aria-label="Warning: Overwrites all fields using AI enhancement. Existing macros are preserved."
                 disabled={profileState.is_saving || profileState.busy_fields.size > 0}
                 onclick={() => {
-                  footer_el?.focus();
                   profileState.enhance_profile(entity_type);
                 }}
                 class="touch-target-coarse"
@@ -462,7 +464,6 @@
                 variant="secondary"
                 class="touch-target-coarse"
                 onclick={() => {
-                  footer_el?.focus();
                   profileState.save(entity_type);
                 }}>Save</Button
               >
@@ -470,7 +471,6 @@
                 variant="danger"
                 class="touch-target-coarse"
                 onclick={() => {
-                  footer_el?.focus();
                   profileState.show_delete_confirm = true;
                 }}>Delete</Button
               >
@@ -479,8 +479,11 @@
                 variant="secondary"
                 class="touch-target-coarse"
                 onclick={() => {
-                  footer_el?.focus();
+                  previous_scroll_top = info_container_el?.scrollTop || 0;
                   profileState.start_editing();
+                  setTimeout(() => {
+                    if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
+                  }, 0);
                 }}>Edit</Button
               >
             {/if}

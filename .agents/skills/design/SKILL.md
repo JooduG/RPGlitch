@@ -87,7 +87,7 @@ See `data/interaction-audit.md` for specific hover/active state standards.
 
 ---
 
-## 5.0 THE WARDEN'S QUALITY GATE (AUDIT)
+## 5.0 MANDATORY DIRECTIVES & QUALITY GATE
 
 Run `npm run audit:design` to verify zero heresy.
 The `design` skill maintains several scripts for token integrity:

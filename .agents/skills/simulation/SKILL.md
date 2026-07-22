@@ -55,11 +55,11 @@ Data flows strictly linearly through the Intelligence loop. Do not cross the str
 2. **Simulate (`dynamics.js`)**: Calculate emotional velocity, decay constants, and intensity thresholds.
 3. **Synthesize (`prompts.js`)**: Construct the precise target context block through specialized formatting hooks. Isolate physical traits for asset tokenization.
 4. **Generate (`kernel.js`)**: Hand off the sanitized text object layout to the client transport stream engine and dispatch physical tag strings to the platform text-to-image pipeline tools.
-5. **Consolidate (`temporal.js`)**: Extract key shifts into transactional frames, log newly instantiated asset hashes into your indexes, and persist states back to long-term storage layers.
+5. **Consolidate (`temporal.js` & `context.svelte.js`)**: Extract key shifts into transactional frames, log newly instantiated asset hashes into your indexes, and persist states back to long-term storage layers. Message caching explicitly uses the `message.id` as the cache key instead of transient object references to optimize history evaluation speeds.
 
 ---
 
-## 5.0 THE MULTI-SHOT SYNTHESIS ARCHITECTURE
+## 5.0 OPERATIONAL PROTOCOL (MULTI-SHOT SYNTHESIS ARCHITECTURE)
 
 The generation framework operates via distinct pipeline phases. Maintain absolute execution boundaries:
 
@@ -67,11 +67,15 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 
 - **Objective**: Evaluates raw state mutations and spatial physics consequences of the user's action before any narrative text generation occurs.
 - **Format Constraints**: Demands a single, valid JSON payload wrapped strictly inside a `<SYSTEM role="DIRECTOR">` block.
-- **Output Validation**: Restricts return values purely to objective mutation definitions: `present_append_physical`, `present_append_non_physical`, `resolve_vectors`, `new_vectors`, and numerical `dynamics_deltas`. Absolutely no narrative prose or dialogue allowed at this stage.
+- **Prompt Architecture**: Supplies only the `JSON_OUTPUT` prose protocol to minimize tokens, but retains critical entity attributes including `PRESENT_NON_PHYSICAL`, `ETERNAL_NON_PHYSICAL`, and `FUTURE` vectors to ensure accurate physics calculations.
+- **Output Validation**: Restricts return values purely to objective mutation definitions (`present_append_physical`, `new_vectors`, numerical `dynamics_deltas`). Absolutely no narrative prose or dialogue allowed at this stage.
 
 ### Shot 2: The Actor Pipeline (`render_character`)
 
 - **Objective**: Generates the in-character prose response using localized sensory filters.
+- **Prompt Architecture (Prefix Caching)**: The prompt payload is strictly bifurcated to maximize LLM prefix caching.
+  - **`<SYSTEM>`**: A completely static prefix containing eternal identity, narrative style, epistemic physics, and protocols. This achieves a ~100% cache hit rate between turns.
+  - **`<SCENE_STATE>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`) and all `present`/`past`/`future` vectors.
 - **Format Constraints**: Leverages a dual-layer strategy. It mandates an explicit `<think>` block containing the four-stage cognition sequence, which MUST be explicitly terminated with a closing `</think>` tag before generating exactly two paragraphs of novel-style prose.
 
 ### Shot 3: The Asset Pipeline (`render_visual`)
@@ -81,7 +85,7 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 
 ---
 
-## 6.0 THE CORE PROTOCOL LIBRARY
+## 6.0 MANDATORY DIRECTIVES & QUALITY GATE (PROTOCOL LIBRARY)
 
 Every operational directive compiled inside `PROTOCOL_LIBRARY` must be treated as a rigid system invariant:
 
@@ -136,7 +140,7 @@ Before signing off on any prompt architecture refactor or rendering modification
 
 ---
 
-## 10.0 CANON VALIDATION REGISTER
+## 10.0 VERIFICATION (Definition of Done)
 
 - [ ] Director generation schemas verified as strict JSON output without markdown wrapper backticks.
 - [ ] Actor generation outputs verified as strictly segregated via closed `</think>` tags.

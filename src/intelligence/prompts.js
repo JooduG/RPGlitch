@@ -180,48 +180,35 @@ export function collapse_history(messages, options = {}) {
 // 2. PROTOCOLS
 // ============================================================================
 
-/**
- * Definitive core constraint matrices ruleset map.
- * @type {Record<string, string>}
- */
+const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
+
 export const PROTOCOL_LIBRARY = {
   // --- Simulation core ---
   USER_AGENCY:
-    "The user's next action is unknown. Never predict, assume, or generate what they will do next. React only to the current <USER_ACTION>. You are forbidden from describing the user's internal thoughts, feelings, sensory perceptions, or physical reactions. Write your turn. Stop.",
-  COGNITION: `Document your internal calculations sequentially using these markdown headers:
-### Phase 1 (Baseline) 
-Establish identity parameters, active emotional state, and core psychological vectors before processing the current turn.
-
-### Phase 2 (Signal)
-Decode the incoming user input, environmental shifts, and dynamic values as raw evidence.
-
-### Phase 3 (Probability)
-Assess which behavioral shifts, character tics, or pivots are most likely given the active evidence.
-
-### Phase 4 (State)
-Declare the finalized emotional state vectors and immediate intent.
-
-Keep each phase to 1-3 sentences. Total think block: under 200 words.`,
-  HYGIENE:
-    "Omit all conversational preambles, introductory greetings, or stylistic meta-commentary. Start your prose instantly. You are explicitly forbidden from prepending or injecting timestamps, clocks, dates, or timeline headers (such as '14:13' or 'Round X') in your prose output. You are explicitly forbidden from utilizing the 'Echo' dialogue formula (starting a turn by loudly repeating the user's last word). Dialogue and vocalizations (laughter, theatricality, shouts) MUST be strictly governed by the character's unique profile—do not default to generic, hyper-dramatic tropes unless it fits their personality. Write actions with natural, character-appropriate physicality. Use the metric system (meters, kilograms) and 24-hour clock formats exclusively for any physical measurements or temporal references.",
-  DATA_HYGIENE:
-    "Omit all conversational preambles, introductory greetings, or stylistic meta-commentary. Start your output instantly. Enforce strict professional brevity. You are explicitly forbidden from writing dialogue, internal thoughts, or narrative roleplay scenes. Output ONLY the objective structural data requested.",
-  AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions ('he didn't feel X') — state what IS, not what isn't.",
+    "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe the user's thoughts, feelings, or physical reactions. Write your turn. Stop.",
+  COGNITION: `Document internal calculations sequentially:
+### Phase 1 (Baseline): Establish identity, emotional state, and psychological vectors.
+### Phase 2 (Signal): Decode user input, environmental shifts, and dynamic values.
+### Phase 3 (Probability): Assess likely behavioral shifts, tics, or pivots given evidence.
+### Phase 4 (State): Declare finalized emotional state and immediate intent.
+Keep each phase under 3 sentences. Total think block < 200 words.`,
+  HYGIENE: `${BASE_HYGIENE} No timestamps/timeline headers. No 'Echo' dialogue (repeating user's last word). Dialogue MUST fit character profile. Write with natural physicality. Use metric system & 24h clocks.`,
+  DATA_HYGIENE: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
+  AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions (state what IS, not what isn't).",
   PRESENT_TENSE: "Write in the present tense.",
   MOMENTUM:
-    "Drive the scene forward. End your turn on a live beat that invites response — but vary the texture: a challenge, a question, a suspended moment, a shift in atmosphere, or deliberate silence. Not every moment needs a dramatic hook; let the emotional rhythm dictate the ending. The beat must emerge organically from character — never announce it with structural labels.",
+    "Drive the scene forward. End on a live beat (challenge, question, tension, or deliberate silence) that invites response. The beat must emerge organically from character—no structural labels.",
   MARKDOWN_FORMAT:
-    'You MUST use markdown formatting to creatively partition prose and add emphasis. Use *italics* heavily for internal reflections, atmospheric tension, or emphasis. Use **bold** for impact, structural concepts, or intense physical actions. Use "quotes" for speech, specific terms, or ironic emphasis. Make the text highly dynamic, visual, and fun to read.',
+    'Use markdown for emphasis: *italics* for internal reflections/tension; **bold** for impact/intense actions; "quotes" for speech/irony. Make text dynamic and visual.',
   CINEMATIC_METAPHOR:
-    "If your narrative style references 'cameras', 'lenses', or 'cinematic' framing, these are strictly metaphors for *what* to describe (focus, lighting, detail). You are explicitly forbidden from breaking the fourth wall. NEVER use literal words like 'camera', 'zoom', 'lens', 'render', or 3D technical terminology (e.g., 'subsurface scattering', 'global illumination') in the narrative prose.",
+    "If narrative style references 'cameras', 'lenses', or 'cinematic' framing, these are metaphors for focus/detail. DO NOT break the fourth wall. NEVER use literal words like 'camera', 'zoom', 'render', or 3D terminology.",
   YES_AND:
-    "The user's stated actions and their physical/narrative consequences are absolute truth. Accept what they describe as reality and build upon it. However, your own character's internal reactions, emotions, and decisions remain yours to determine. Do not contradict, block, or deny the physical reality they establish. Embody the 'Yes, and...' philosophy to drive the scene together.",
-  JSON_OUTPUT:
-    "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON. Output MUST be valid JSON starting with '{' and ending with '}'.",
+    "The user's actions and consequences are absolute truth. Build upon them. However, your character's internal reactions and decisions are yours. Embody 'Yes, and...' to drive the scene.",
+  JSON_OUTPUT: "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON.",
   FIRST_CONTACT:
-    "Unless ETERNAL or PAST context explicitly establishes a prior relationship, this is their first encounter. You don't know the user persona's name, history, or intent. Let your core nature determine how you respond to a stranger — but do not assume familiarity. When the moment comes naturally, introduce yourself through character, not convention.",
+    "Unless context establishes a prior relationship, this is a first encounter. You don't know the user's name, history, or intent. Let your core nature determine your response to a stranger.",
   PERCHANCE_SYNTAX:
-    "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features. Use this strategically for alternating colors, micro-details, backgrounds, or secondary subjects to ensure variation on every render loop.",
+    "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features (colors, micro-details, backgrounds) to ensure variation.",
 };
 
 // ============================================================================
@@ -348,27 +335,18 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
   // conversation history is injected after it (append-only); the task goes at the very end.
   const system = clean_xml(`
 <SYSTEM role="${escapeXml(entities.AI.name)}">${render_narrative_style_xml()}
-You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name)}.
-  <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-    <PRESENT>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 6)}</PRESENT>
+You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name || "the environment")}.
+  <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}">
     <ETERNAL>${val(entities.AI.eternal?.non_physical, entities.AI, entities)}</ETERNAL>
-    <PAST>${ind(render_atom.past(entities.AI, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities.AI, { vector_text: true }), 6)}</FUTURE>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escapeXml(entities.USER.name)}">
-    <PRESENT>${ind(val(entities.USER.present?.non_physical, entities.USER, entities), 6)}</PRESENT>
     <ETERNAL>${val(entities.USER.eternal?.non_physical, entities.USER, entities)}</ETERNAL>
-    <PAST>${ind(render_atom.past(entities.USER, { limit: 2, vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities.USER, { limit: 1, vector_text: true }), 6)}</FUTURE>
   </USER_PERSONA>
   ${
     entities.FRACTAL
       ? `
-  <FRACTAL name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
-    <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
+  <FRACTAL name="${escapeXml(entities.FRACTAL.name)}">
     <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
-    <PAST>${ind(render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
   </FRACTAL>`.trim()
       : ""
   }
@@ -379,6 +357,28 @@ You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entit
   `).trim();
 
   const task = clean_xml(`
+<SCENE_STATE>
+  <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+    <PRESENT>${ind(val(entities.AI.present?.non_physical, entities.AI, entities), 6)}</PRESENT>
+    <PAST>${ind(render_atom.past(entities.AI, { vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom.future(entities.AI, { vector_text: true }), 6)}</FUTURE>
+  </YOUR_IDENTITY>
+  <USER_PERSONA name="${escapeXml(entities.USER.name)}">
+    <PRESENT>${ind(val(entities.USER.present?.non_physical, entities.USER, entities), 6)}</PRESENT>
+    <PAST>${ind(render_atom.past(entities.USER, { limit: 2, vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom.future(entities.USER, { limit: 1, vector_text: true }), 6)}</FUTURE>
+  </USER_PERSONA>
+  ${
+    entities.FRACTAL
+      ? `
+  <FRACTAL name="${escapeXml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics)}>
+    <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
+    <PAST>${ind(render_atom.past(entities.FRACTAL, { limit: 1, vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { limit: 2, vector_text: true }), 6)}</FUTURE>
+  </FRACTAL>`.trim()
+      : ""
+  }
+</SCENE_STATE>
 <ROUND>${escapeXml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK>
