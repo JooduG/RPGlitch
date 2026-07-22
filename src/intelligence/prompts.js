@@ -924,12 +924,4 @@ export const prompt_builder = {
   },
 };
 
-export {
-  render_director,
-  render_character,
-  render_ghostwriter,
-  render_narrator,
-  render_enhancement,
-  render_profile_sorting,
-  build_dynamics_legend,
-};
+export { render_director, render_character, render_ghostwriter, render_narrator, render_enhancement, render_profile_sorting, build_dynamics_legend };

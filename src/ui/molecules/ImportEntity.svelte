@@ -216,16 +216,8 @@
             <span class="text-xs font-bold tracking-widest uppercase">Upload File</span>
           </Button>
           <div class="flex items-center gap-4 text-sm text-slate-400">
-            <Toggle
-              label="Character"
-              bind:value={import_character}
-              disabled={is_loading}
-            />
-            <Toggle
-              label="Fractal"
-              bind:value={import_fractal}
-              disabled={is_loading}
-            />
+            <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
+            <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
           </div>
         </div>
 

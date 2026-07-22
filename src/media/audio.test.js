@@ -1,11 +1,11 @@
 /**
- * @file src/data/premades_fractal_voices.test.js
- * Unit tests verifying premade Fractal entities have female Kokoro voice configurations.
+ * @file src/media/audio.test.js
+ * Unit tests verifying audio engine and premade voice configurations.
  */
 import { describe, expect, it } from "vitest";
-import { premade } from "./premades.js";
+import { premade } from "../data/premades.js";
 
-describe("Premade Fractal Voices", () => {
+describe("Audio & Voice Configurations", () => {
   it("assigns valid female voice configurations to all premade fractals", () => {
     const fractals = premade.entities.filter((e) => e.type === "fractal");
     expect(fractals.length).toBeGreaterThan(0);
