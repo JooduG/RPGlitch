@@ -86,9 +86,8 @@
       return is_launching ? "card-slot-" + type : undefined;
     }
 
-    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when the card hand is open for this specific type
-    // to guarantee zero duplicate transition name errors during snapshot capture.
-    if (app.card_hand.open && app.card_hand.type === type) {
+    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when card hand, profile, or modal is open
+    if (app.card_hand.open || app.profile_open || app.transitioning_profile) {
       return undefined;
     }
 
