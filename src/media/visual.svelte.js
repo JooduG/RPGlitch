@@ -320,6 +320,7 @@ export class VisualEngine {
         mode: "visualize",
       });
 
+      console.log("[VisualEngine] visualize: LLM prompt extraction starting for target:", vTarget);
       const refined = await llm_service.generate(
         {
           system: system,
@@ -328,11 +329,15 @@ export class VisualEngine {
         { silent: true },
       );
 
-      if (!refined) return { imageUrl: null, refinedPrompt: null, caption: null };
+      if (!refined) {
+        console.warn("[VisualEngine] visualize: LLM returned empty/null for image prompt extraction.");
+        return { imageUrl: null, refinedPrompt: null, caption: null };
+      }
 
       const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
       const extracted = match?.[1] || refined || "";
       const cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
+      console.log("[VisualEngine] visualize: Extracted prompt:", cleanPrompt?.substring(0, 100));
 
       let caption = null;
       if (vTarget === "selfie") {
@@ -342,7 +347,9 @@ export class VisualEngine {
 
       // The retryer handles any transient rate-limit failures with exponential backoff
 
+      console.log("[VisualEngine] visualize: Calling this.generate() for image...");
       const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
+      console.log("[VisualEngine] visualize: generate() returned:", typeof payload, payload ? (payload.url ? "(has url)" : "(no url)") : "(null)");
       if (payload && payload.url) {
         return {
           imageUrl: payload.url,

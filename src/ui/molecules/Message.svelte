@@ -442,30 +442,18 @@
       <!-- CARD BODY -->
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
-          <div class="my-4 flex w-full flex-wrap items-center justify-center gap-4 py-2 md:gap-6">
+          <div class="my-4 flex w-full flex-wrap items-end justify-center gap-4 py-2 md:gap-6">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
-              <div class="h-36 w-24 shrink-0">
-                <EntityCard entity={a} type="ai" variant="message" onclick={() => app.open_profile(a)} onViewProfile={() => app.open_profile(a)} />
-              </div>
+              <EntityCard entity={a} type="ai" variant="library" onclick={() => app.open_profile(a)} onViewProfile={() => app.open_profile(a)} />
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
-              <div class="h-36 w-56 shrink-0">
-                <EntityCard
-                  entity={f}
-                  type="fractal"
-                  variant="message"
-                  onclick={() => app.open_profile(f)}
-                  onViewProfile={() => app.open_profile(f)}
-                />
-              </div>
+              <EntityCard entity={f} type="fractal" variant="library" onclick={() => app.open_profile(f)} onViewProfile={() => app.open_profile(f)} />
             {/if}
             {#if runtime.active_user || app.selected_user}
               {@const u = runtime.active_user || app.selected_user}
-              <div class="h-36 w-24 shrink-0">
-                <EntityCard entity={u} type="user" variant="message" onclick={() => app.open_profile(u)} onViewProfile={() => app.open_profile(u)} />
-              </div>
+              <EntityCard entity={u} type="user" variant="library" onclick={() => app.open_profile(u)} onViewProfile={() => app.open_profile(u)} />
             {/if}
           </div>
         {/if}

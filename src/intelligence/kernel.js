@@ -521,9 +521,21 @@ export const gamemaster = {
       let prologueAttachments = [];
       if (visual_engine) {
         try {
+          console.log("[Prologue] Requesting scene image via visual_engine.visualize...");
           const imgResult = await visual_engine.visualize(story_id, response, "scene");
+          console.log(
+            "[Prologue] visualize result:",
+            JSON.stringify({
+              imageUrl: imgResult?.imageUrl ? "(present)" : null,
+              refinedPrompt: imgResult?.refinedPrompt?.substring(0, 80),
+              caption: imgResult?.caption,
+            }),
+          );
           if (imgResult?.imageUrl) {
             prologueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
+            console.log("[Prologue] Image attached successfully.");
+          } else {
+            console.warn("[Prologue] visualize returned no imageUrl — scene image skipped.");
           }
         } catch (err) {
           console.warn("[Prologue Image Error]", err);
