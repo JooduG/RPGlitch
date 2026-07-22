@@ -7,7 +7,7 @@
   import { validateImage } from "@platform";
   import { temporal_engine } from "@intelligence";
 
-  let { open = $bindable(false) } = $props();
+  let { open = $bindable(false), target_type = "character" } = $props();
 
   let raw_text = $state("");
   let image_data = $state(null);
@@ -15,6 +15,18 @@
   let import_fractal = $state(false);
   let is_loading = $state(false);
   let error_message = $state("");
+
+  $effect(() => {
+    if (open) {
+      if (target_type === "fractal") {
+        import_character = false;
+        import_fractal = true;
+      } else {
+        import_character = true;
+        import_fractal = false;
+      }
+    }
+  });
 
   async function handle_file_upload(e) {
     const file = e.target.files?.[0];
@@ -214,8 +226,22 @@
             <span class="text-xs font-bold tracking-widest uppercase">Upload File</span>
           </Button>
           <div class="flex items-center gap-4 text-sm text-slate-400">
-            <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
-            <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
+            <Toggle
+              label="Character"
+              bind:value={import_character}
+              onchange={() => {
+                if (import_character) import_fractal = false;
+              }}
+              disabled={is_loading}
+            />
+            <Toggle
+              label="Fractal"
+              bind:value={import_fractal}
+              onchange={() => {
+                if (import_fractal) import_character = false;
+              }}
+              disabled={is_loading}
+            />
           </div>
         </div>
 

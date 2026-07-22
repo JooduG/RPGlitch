@@ -42,21 +42,15 @@
   let deltas = $derived(meta.deltas || []);
   let active_dynamics = $derived(Array.from(new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))])));
 
-  let has_explicit_deltas = $derived(Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA");
-
   let changed_ai = $derived.by(() => {
-    const entries = Object.entries(ai);
-    if (!has_explicit_deltas) return entries;
-    return entries.filter(([axis]) => {
+    return Object.entries(ai).filter(([axis]) => {
       const delta = get_delta("ai", axis);
       return delta && delta.diff !== 0;
     });
   });
 
   let changed_fractal = $derived.by(() => {
-    const entries = Object.entries(fractal);
-    if (!has_explicit_deltas) return entries;
-    return entries.filter(([axis]) => {
+    return Object.entries(fractal).filter(([axis]) => {
       const delta = get_delta("fractal", axis);
       return delta && delta.diff !== 0;
     });
@@ -81,13 +75,10 @@
   }
 
   const get_entity_name = (key) => {
-    const k = String(key).toUpperCase();
-    if (k.includes("AI") || k.includes("CHARACTER")) return meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
-    if (k.includes("USER") || k.includes("PERSONA"))
-      return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
-    if (k.includes("FRACTAL") || k.includes("ENVIRONMENT"))
-      return meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
-    return key.replace("_", " ");
+    if (key === "ai") return meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
+    if (key === "fractal") return meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
+    if (key === "user") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
+    return key;
   };
 </script>
 
@@ -303,7 +294,7 @@
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
           <!-- [T] DYNAMICS GRID -->
-          {#if Object.keys(ai).length > 0 || Object.keys(fractal).length > 0}
+          {#if Object.keys(ai).length > 0 || Object.keys(fractal).length > 0 || meta.type === "DYNAMICS_DELTA"}
             <div
               class="
               grid
@@ -311,7 +302,7 @@
               gap-4
             "
             >
-              {#if Object.keys(ai).length > 0}
+              {#if Object.keys(ai).length > 0 || meta.type === "DYNAMICS_DELTA"}
                 <div
                   class="
                   flex
@@ -421,7 +412,7 @@
                 </div>
               {/if}
 
-              {#if Object.keys(fractal).length > 0}
+              {#if Object.keys(fractal).length > 0 || meta.type === "DYNAMICS_DELTA"}
                 <div
                   class="
                   flex

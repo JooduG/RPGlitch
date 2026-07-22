@@ -205,7 +205,7 @@
     rounded-none
     border
     border-(--signature-color)
-    bg-black/15
+    bg-slate-950/95
     shadow-sm
     transition-all
     duration-300
@@ -252,7 +252,6 @@
       hover:after:border-(--signature-color,var(--color-slate-50))
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
     `}
-    {is_empty && !disabled ? 'opacity-60' : ''}
     {is_pressing && !disabled
     ? `
       scale-96
@@ -265,7 +264,7 @@
       animate-[rack-pull-eject_0.35s_cubic-bezier(0.4,0,0.2,1)_forwards]
     `
     : ''}
-    {variant === 'library' ? 'backdrop-blur-none' : 'backdrop-blur-md'}
+    backdrop-blur-md
   "
   class:w-[calc(var(--spacing-storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
@@ -354,6 +353,12 @@
   >
     {#if !is_empty}
       <ProfilePicture {entity} />
+    {:else if variant === "library" && role_label.toLowerCase().includes("import")}
+      <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]" style="stroke-linecap: round; stroke-linejoin: round;">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+        <polyline points="7 10 12 15 17 10"></polyline>
+        <line x1="12" y1="15" x2="12" y2="3"></line>
+      </svg>
     {:else if variant === "library"}
       <svg viewBox="0 0 24 24" class="h-20 w-20 fill-none stroke-current stroke-[1.5]">
         <path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" />
@@ -384,8 +389,9 @@
       overflow-hidden
       rounded-b-[inherit]
       bg-linear-to-t
-      from-black/90
-      via-black/40
+      from-black/95
+      via-black/75
+      via-45%
       to-transparent
       text-center
       opacity-100
@@ -427,7 +433,7 @@
           text-sm
           leading-snug
           tracking-wide
-          [text-shadow:0_1px_2px_var(--color-void-black)]
+          [text-shadow:0_1px_3px_#000,0_2px_6px_#000,0_0_2px_#000]
         `
         : `
           text-[clamp(1rem,12cqi,1.5rem)]

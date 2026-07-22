@@ -7,7 +7,7 @@
    */
   import { Backdrop } from "@atoms";
   import { create_new, entities as repository } from "@data";
-  import { EntityCard } from "@molecules";
+  import { EntityCard, ImportEntity } from "@molecules";
   import { motion } from "@motion";
   import { app } from "@state";
 
@@ -17,6 +17,7 @@
 
   /** @type {number | null} */
   let hovered_index = $state(null);
+  let show_import_modal = $state(false);
 
   // Deferral state for symmetric unmount
   let render_active = $state(false);
@@ -48,7 +49,12 @@
   );
 
   const total_cards = $derived(entity_list.length);
-  const factory_angle = $derived(-((total_cards / 2) * (total_cards > 6 ? 2.5 : 3) + 3));
+  const card_step = $derived(Math.max(1.8, Math.min(3.2, 45 / Math.max(1, total_cards))));
+
+  // Center premade cards at angle 0; place action cards predictably to the left
+  const first_card_angle = $derived(-((total_cards - 1) / 2) * card_step);
+  const create_angle = $derived(first_card_angle - card_step);
+  const import_angle = $derived(create_angle - card_step);
 
   /** @type {Record<string, string>} */
   const TITLES = {
@@ -99,6 +105,10 @@
       const error = /** @type {Error} */ (err);
       app.log(`Factory initialization failed: ${error.message}`, "error");
     }
+  }
+
+  function handle_open_import() {
+    show_import_modal = true;
   }
 
   /** @param {any} entity */
@@ -196,6 +206,7 @@
       "
       style:--total-count={total_cards}
     >
+      <!-- IMPORT CARD -->
       <div
         class="
           pointer-events-auto
@@ -209,7 +220,63 @@
           hover:z-50!
         "
         role="presentation"
-        style:transform="rotate({factory_angle}deg) translateY(0)"
+        style:transform="rotate({import_angle}deg) translateY(0)"
+        style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
+        style:z-index="0"
+        onmouseenter={() => (hovered_index = -2)}
+        onmouseleave={() => (hovered_index = null)}
+      >
+        <button
+          class="
+            absolute
+            inset-0
+            z-0
+            h-full
+            w-full
+            cursor-pointer
+            border-none
+            bg-none
+            opacity-0
+
+            disabled:pointer-events-none
+            disabled:cursor-default
+          "
+          aria-label="Import"
+          onclick={handle_open_import}
+        ></button>
+        <div
+          class="
+            relative
+            z-10
+            h-full
+            w-full
+            rounded-md
+            transition-all
+            duration-300
+            ease-in-out
+            will-change-transform
+          "
+          style:transform={hovered_index === -2 ? `rotate(${-import_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)` : "none"}
+        >
+          <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" onclick={handle_open_import} />
+        </div>
+      </div>
+
+      <!-- CREATE NEW CARD -->
+      <div
+        class="
+          pointer-events-auto
+          absolute
+          bottom-0
+          left-1/2
+          ml-[calc(-0.425*var(--spacing-column-unit))]
+          h-[calc(var(--spacing-row-unit)*2.8)]
+          w-[calc(var(--spacing-column-unit)*0.85)]
+
+          hover:z-50!
+        "
+        role="presentation"
+        style:transform="rotate({create_angle}deg) translateY(0)"
         style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
         style:z-index="0"
         onmouseenter={() => (hovered_index = -1)}
@@ -245,16 +312,14 @@
             ease-in-out
             will-change-transform
           "
-          style:transform={hovered_index === -1
-            ? `rotate(${-factory_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
-            : "none"}
+          style:transform={hovered_index === -1 ? `rotate(${-create_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)` : "none"}
         >
           <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
         </div>
       </div>
 
       {#each entity_list as entity, idx (entity.id)}
-        {@const dynamic_angle = (idx - (total_cards - 1) / 2) * (total_cards > 6 ? 2.5 : 3)}
+        {@const dynamic_angle = (idx - (total_cards - 1) / 2) * card_step}
         {@const is_hovered = hovered_index === idx}
 
         <div
@@ -311,14 +376,12 @@
               {is_disabled(entity)
               ? `
                 pointer-events-none
-                opacity-30
                 brightness-[0.2]
                 grayscale-[0.9]
               `
               : ''}
               {hovered_index !== null && !is_hovered && !is_disabled(entity)
               ? `
-                opacity-50
                 blur-[1px]
                 brightness-[0.35]
                 grayscale-[0.4]
@@ -340,3 +403,5 @@
     </div>
   </div>
 {/if}
+
+<ImportEntity bind:open={show_import_modal} target_type={card_hand_type === "fractal" ? "fractal" : "character"} />

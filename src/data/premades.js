@@ -72,8 +72,8 @@ export const premade = {
         {
           id: "glitch-p1",
           directive:
-            "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed Beast into the wild.",
-          tags: ["glitch", "project_tartarus", "containment_breach", "beast", "elias_voss", "firewall_hack"],
+            "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed The Beast into the wild.",
+          tags: ["glitch", "project_tartarus", "containment_breach", "the_beast", "elias_voss", "firewall_hack"],
           emotional_weight: 10,
         },
       ],
@@ -263,7 +263,7 @@ export const premade = {
 
     {
       id: "beast",
-      name: "Beast",
+      name: "The Beast",
       profile_picture: "https://user.uploads.dev/file/4435775ee5a21ff0b2f654dfd01e7350.jpg",
       description: "Massive bio-engineered orc combat experiment and feral breeding fighter built for absolute physical control.",
       type: "character",
@@ -273,7 +273,7 @@ export const premade = {
       eternal: {
         physical: `"gender": "male bio-experiment", "age": "indeterminate", "build": "towering massive muscle mass with extreme size and density, hairless grey-green body covered in pulsing green bio-veins, tree-trunk limbs", "face": "brutal masculine orcish features with a heavy jutting jawline, minimal expression, and small razor-sharp tusks", "eyes": "solid glossy black", "skin": "thick, hairless, and slightly glossy with highly visible green vascular patterns", "height": "210 cm", "modifications": "large green bio-tank embedded directly into his upper back that pulses rhythmically when agitated or aroused"`,
         non_physical:
-          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. Beast communicates in direct, simple, gravelly sentences, emitting low, vibrating growls that underscore his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
+          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. The Beast communicates in direct, simple, gravelly sentences, emitting low, vibrating growls that underscore his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
       },
       present: {
         physical: `"apparel": "minimalist torn black training shorts stretched tightly across his massive thighs", "expression": "intense feral glare", "hardware": "dorsal green bio-tank pulsing with a luminous, steady chemical glow", "somatic": "thick green bio-veins visibly throbbing and undulating across his towering grey-green muscle groups, chest slick with sweat"`,
@@ -294,7 +294,7 @@ export const premade = {
           id: "beast-f1",
           directive:
             "He actively seeks a premium, devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them.",
-          tags: ["beast", "claiming_property", "territory_defense", "physical_control", "feral_fighter", "conquest"],
+          tags: ["the_beast", "claiming_property", "territory_defense", "physical_control", "feral_fighter", "conquest"],
           emotional_weight: 9,
         },
       ],
@@ -311,11 +311,12 @@ export const premade = {
       description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly.",
       type: "fractal",
       signature_color: "Proud Purple",
+      narrative_style: "samuel_delany",
       dynamics: { velocity: 56, entropy: 54 },
       eternal: {
         physical: `"terrain": "dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly", "architecture": "tall chrome and glass towers above, crumbling concrete and rusted metal below", "upper_city": "well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics", "lower_city": "sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses", "connection": "monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers", "visual_theme": "neon cyberpunk metropolis with a gritty, hyper-masculine underbelly"`,
         non_physical:
-          "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the gritty underbelly, where steam-choked alleys hide Vance Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Caelum can lose themselves in the crowds, and where elite fighters like Beast clash for fortune and entertainment.",
+          "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the gritty underbelly, where steam-choked alleys hide Vance Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Caelum can lose themselves in the crowds, and where elite fighters like The Beast clash for fortune and entertainment.",
       },
       present: {
         physical: `"upper_zone": "districts ablaze with pulsing violet neon signs, pristine chrome walkways, and crowded outdoor fitness lounges", "lower_zone": "dark, steam-filled alleys winding beneath dripping cybernetic infrastructure with radioactive green runoff illuminating the gutters", "arenas": "heavily fortified subterranean amphitheaters configured for Vance's underground combat events"`,
@@ -350,6 +351,7 @@ export const premade = {
         "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
       type: "fractal",
       signature_color: "Forest Green",
+      narrative_style: "anais_nin",
       dynamics: { velocity: 42, entropy: 58 },
       eternal: {
         physical: `"terrain": "dense ashen cursed forest with thick glowing fog and twisted blackened trees", "architecture": "beautiful high-elf royal palace integrated deep within the forest", "palace": "high-elf royal palace where the king and his army of high-elven royal guards reside", "visual_theme": "eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture"`,
@@ -389,6 +391,7 @@ export const premade = {
         "Sterile, high-security orbital research facility operating as Dr. Elias Voss's personal sandbox for radical biochemical transformations and clinical muscle-growth experiments.",
       type: "fractal",
       signature_color: "Space Blue",
+      narrative_style: "philip_k_dick",
       dynamics: { velocity: 45, entropy: 55 },
       eternal: {
         physical: `"terrain": "sterile high-security orbital research station isolated in deep space", "architecture": "clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs", "landmarks": "central transformation bay featuring multiple glass containment vat tanks", "visual_theme": "sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats"`,
@@ -404,8 +407,8 @@ export const premade = {
         {
           id: "tartarus-p1",
           directive:
-            "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed Beast.",
-          tags: ["project_tartarus", "containment_breach", "glitch", "elias_voss", "beast", "orbital_lab"],
+            "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed The Beast.",
+          tags: ["project_tartarus", "containment_breach", "glitch", "elias_voss", "the_beast", "orbital_lab"],
           emotional_weight: 10,
         },
       ],

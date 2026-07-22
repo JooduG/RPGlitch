@@ -12,7 +12,7 @@
   import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color, visual_engine } from "@media";
-  import { Dialog, ImportEntity, StoryCard } from "@molecules";
+  import { Dialog, StoryCard } from "@molecules";
   import { motion, pulse, roll, shimmy, stab } from "@motion";
   import { llm_service } from "@platform";
   import { app, runtime, simulationState, simulation_log } from "@state";
@@ -117,8 +117,6 @@
       refresh_stories();
     }
   });
-
-  let show_import_modal = $state(false);
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---
   const storyboard = {
@@ -388,26 +386,6 @@
                       <div class="flex flex-col gap-6 pt-2 pb-4">
                         <div class="w-full">
                           <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
-                        </div>
-
-                        <div class="flex flex-col gap-2">
-                          <div class="flex flex-wrap gap-2">
-                            <Button variant="primary" size="small" disabled={simulationState.busy} onclick={() => (show_import_modal = true)}>
-                              <svg
-                                viewBox="0 0 24 24"
-                                class="size-3.5 fill-none stroke-current stroke-2"
-                                style="stroke-linecap: round; stroke-linejoin: round;"
-                              >
-                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                                <polyline points="7 10 12 15 17 10"></polyline>
-                                <line x1="12" y1="15" x2="12" y2="3"></line>
-                              </svg>
-                              <span class="text-xs font-bold tracking-widest uppercase">Import</span>
-                            </Button>
-                          </div>
-                          {#if simulationState.busy}
-                            <span class="mt-1 animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">Importing...</span>
-                          {/if}
                         </div>
                       </div>
                     </div>
@@ -703,6 +681,5 @@
         {/if}
       {/if}
     </div>
-    <ImportEntity bind:open={show_import_modal} />
   </div>
 </div>
