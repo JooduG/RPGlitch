@@ -192,6 +192,47 @@
         }
       }
 
+      const existing = await runtime.get_entity(type, entity.id);
+      if (existing) {
+        await runtime.update_entity(type, entity.id, entity);
+      } else {
+        await runtime.save_entity(type, entity);
+      }
+    }
+  }
+
+  async function import_single_entity(type, data) {
+    const base = create_new(type, {
+      name: data.name || data.data?.name || (type === "character" ? "Imported Character" : "Imported Fractal"),
+      tagline: data.tagline || data.data?.creator_notes || data.data?.personality || "",
+      description: data.description || data.data?.description || data.data?.scenario || "",
+    });
+
+    const entity = {
+      ...base,
+      name: data.name || data.data?.name || base.name,
+      tagline: data.tagline || data.data?.creator_notes || data.data?.personality || base.tagline,
+      profile_picture: image_data || data.profile_picture || data.avatar || base.profile_picture,
+      eternal: {
+        physical: data.physical || data.data?.appearance || data.appearance || "",
+        non_physical: data.non_physical || data.data?.personality || data.description || data.data?.description || "",
+      },
+      present: {
+        physical: data.present_physical || "",
+        non_physical: data.present_non_physical || "",
+      },
+      past: Array.isArray(data.past) ? data.past : [],
+      future: Array.isArray(data.future) ? data.future : [],
+    };
+
+    if (image_data && validateImage(image_data)) {
+      entity.profile_picture = image_data;
+    }
+
+    const existing = await runtime.get_entity(type, entity.id);
+    if (existing) {
+      await runtime.update_entity(type, entity.id, entity);
+    } else {
       await runtime.save_entity(type, entity);
     }
   }
@@ -206,7 +247,7 @@
     on_close={() => (open = false)}
   >
     <div class="flex h-full flex-col gap-6 font-mono">
-      <div class="flex items-center justify-between border-b border-white/10 pb-3">
+      <div class="flex items-center justify-between">
         <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">IMPORT ENTITY CARD</h5>
         <div class="flex items-center gap-6 text-xs text-slate-300">
           <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
@@ -222,20 +263,13 @@
         {/if}
 
         <div class="flex flex-col gap-2">
-          <label for="import-json-input" class="text-[10px] font-bold tracking-wider text-slate-400 uppercase">RAW ENTITY DATA / CHARACTER CARD</label
-          >
-          <textarea
-            id="import-json-input"
+          <TextField
+            is_edit={true}
             bind:value={raw_text}
             placeholder="Paste raw entity JSON here, or click Upload File to parse a Character Card PNG / JSON file..."
             disabled={is_loading}
-            class="
-              h-52 w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent
-              rounded-xl
-              border border-white/10 bg-slate-950/80 p-4 font-mono
-              text-xs leading-relaxed text-slate-200 shadow-inner outline-none placeholder:text-slate-600 focus:border-cyan-400/60
-            "
-          ></textarea>
+            class="min-h-52"
+          />
         </div>
 
         {#if image_data}
@@ -249,7 +283,7 @@
         {/if}
       </div>
 
-      <div class="flex items-center justify-between border-t border-white/10 pt-4">
+      <div class="flex items-center justify-between pt-2">
         <Button onclick={trigger_file_input} variant="secondary" size="small" disabled={is_loading}>
           <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
             <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>

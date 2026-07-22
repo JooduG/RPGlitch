@@ -442,34 +442,13 @@
       <!-- CARD BODY -->
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
-          <div class="mb-5 flex w-full items-center justify-center gap-4 rounded-xl border border-white/10 bg-slate-950/70 p-3 shadow-inner">
-            {#if runtime.active_user || app.selected_user}
-              {@const u = runtime.active_user || app.selected_user}
-              <button
-                type="button"
-                onclick={() => app.open_profile(u)}
-                class="group relative flex h-24 w-18 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border border-white/20 bg-slate-900 shadow-md transition-all duration-300 hover:scale-105 hover:border-cyan-400/80 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none active:scale-95"
-              >
-                {#if u.profile_picture}
-                  <img
-                    src={u.profile_picture}
-                    alt={u.name}
-                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                {/if}
-                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent"></div>
-                <span
-                  class="relative z-10 w-full truncate p-1.5 text-center font-mono text-[9px] font-bold tracking-wider text-slate-100 uppercase drop-shadow"
-                  >{u.name}</span
-                >
-              </button>
-            {/if}
+          <div class="my-4 flex w-full items-center justify-center gap-3 py-2 md:gap-5">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
               <button
                 type="button"
                 onclick={() => app.open_profile(a)}
-                class="group relative flex h-24 w-18 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border border-white/20 bg-slate-900 shadow-md transition-all duration-300 hover:scale-105 hover:border-amber-400/80 focus:ring-2 focus:ring-amber-400/50 focus:outline-none active:scale-95"
+                class="group relative flex h-48 w-32 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-2xl border border-white/20 bg-slate-950 shadow-xl transition-all duration-300 hover:scale-105 hover:border-amber-400/90 hover:shadow-amber-500/20 focus:ring-2 focus:ring-amber-400/50 focus:outline-none active:scale-95"
               >
                 {#if a.profile_picture}
                   <img
@@ -477,12 +456,14 @@
                     alt={a.name}
                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
+                {:else}
+                  <div class="absolute inset-0 bg-gradient-to-br from-amber-950/80 to-slate-950"></div>
                 {/if}
-                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent"></div>
-                <span
-                  class="relative z-10 w-full truncate p-1.5 text-center font-mono text-[9px] font-bold tracking-wider text-slate-100 uppercase drop-shadow"
-                  >{a.name}</span
-                >
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="relative z-10 flex w-full flex-col p-2 text-center">
+                  <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{a.name}</span>
+                  <span class="font-mono text-[8px] font-semibold tracking-widest text-amber-300/80 uppercase">AI CHARACTER</span>
+                </div>
               </button>
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
@@ -490,7 +471,7 @@
               <button
                 type="button"
                 onclick={() => app.open_profile(f)}
-                class="group relative flex h-24 w-18 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border border-white/20 bg-slate-900 shadow-md transition-all duration-300 hover:scale-105 hover:border-purple-400/80 focus:ring-2 focus:ring-purple-400/50 focus:outline-none active:scale-95"
+                class="group relative flex h-48 w-32 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-2xl border border-white/20 bg-slate-950 shadow-xl transition-all duration-300 hover:scale-105 hover:border-purple-400/90 hover:shadow-purple-500/20 focus:ring-2 focus:ring-purple-400/50 focus:outline-none active:scale-95"
               >
                 {#if f.profile_picture}
                   <img
@@ -498,16 +479,45 @@
                     alt={f.name}
                     class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
                   />
+                {:else}
+                  <div class="absolute inset-0 bg-gradient-to-br from-purple-950/80 to-slate-950"></div>
                 {/if}
-                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent"></div>
-                <span
-                  class="relative z-10 w-full truncate p-1.5 text-center font-mono text-[9px] font-bold tracking-wider text-slate-100 uppercase drop-shadow"
-                  >{f.name}</span
-                >
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="relative z-10 flex w-full flex-col p-2 text-center">
+                  <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{f.name}</span>
+                  <span class="font-mono text-[8px] font-semibold tracking-widest text-purple-300/80 uppercase">FRACTAL</span>
+                </div>
+              </button>
+            {/if}
+            {#if runtime.active_user || app.selected_user}
+              {@const u = runtime.active_user || app.selected_user}
+              <button
+                type="button"
+                onclick={() => app.open_profile(u)}
+                class="group relative flex h-48 w-32 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-2xl border border-white/20 bg-slate-950 shadow-xl transition-all duration-300 hover:scale-105 hover:border-cyan-400/90 hover:shadow-cyan-500/20 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none active:scale-95"
+              >
+                {#if u.profile_picture}
+                  <img
+                    src={u.profile_picture}
+                    alt={u.name}
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
+                {:else}
+                  <div class="absolute inset-0 bg-gradient-to-br from-cyan-950/80 to-slate-950"></div>
+                {/if}
+                <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
+                <div class="relative z-10 flex w-full flex-col p-2 text-center">
+                  <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{u.name}</span>
+                  <span class="font-mono text-[8px] font-semibold tracking-widest text-cyan-300/80 uppercase">USER PERSONA</span>
+                </div>
               </button>
             {/if}
           </div>
         {/if}
+
+        <div class="prose max-w-none text-slate-100">
+          <RenderText text={content} {is_user} {should_use_typewriter} {on_typewriter_finish} />
+        </div>
 
         {#if app.settings.dev_mode && think_block}
           <DataBox label="Thoughts" isCode={false} class="mb-4">
@@ -560,71 +570,73 @@
             <div class="mb-4">
               {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
                 {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
-                <button
-                  type="button"
-                  class="
-                    mx-auto
-                    mb-2
-                    block
-                    w-fit
-                    overflow-hidden
-                    rounded-lg
-                    bg-neutral-900/50
-                    p-2
-                    transition-[filter] duration-200
-                    hover:brightness-110
-                  "
-                  onclick={() => {
-                    const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
-                    if (!previewOptions.metadata) previewOptions.metadata = {};
-                    previewOptions.signature_color = signature_color;
-
-                    if (previewOptions.metadata?.prompt) {
-                      previewOptions.on_reroll = async () => {
-                        app.busy = true;
-                        try {
-                          const payload = await app.visual.generate(previewOptions.metadata.prompt, {
-                            seed: null,
-                            resolution: previewOptions.metadata.resolution,
-                            negativePrompt: previewOptions.metadata.negativePrompt,
-                            mode: "selfie",
-                            returnPayload: true,
-                          });
-                          if (payload?.url && id) {
-                            const newAttachment = {
-                              src: payload.url,
-                              metadata: payload.metadata,
-                              signature_color,
-                            };
-                            await Chrono.update_log_attachment(id, attach_idx, newAttachment);
-                            app.open_image_preview(newAttachment);
-                          }
-                        } finally {
-                          app.busy = false;
-                        }
-                      };
-                    }
-
-                    app.open_image_preview(previewOptions);
-                  }}
-                  aria-label="View Attachment"
-                  use:tooltip
-                >
-                  <img
-                    {src}
-                    alt="Attachment"
+                {#if src}
+                  <button
+                    type="button"
                     class="
                       mx-auto
-                      max-h-120
-                      w-auto
-                      max-w-full
-                      cursor-zoom-in
-                      rounded-sm
-                      object-contain
-                      shadow-sm
+                      mb-2
+                      block
+                      w-fit
+                      overflow-hidden
+                      rounded-lg
+                      bg-neutral-900/50
+                      p-2
+                      transition-[filter] duration-200
+                      hover:brightness-110
                     "
-                  />
-                </button>
+                    onclick={() => {
+                      const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+                      if (!previewOptions.metadata) previewOptions.metadata = {};
+                      previewOptions.signature_color = signature_color;
+
+                      if (previewOptions.metadata?.prompt) {
+                        previewOptions.on_reroll = async () => {
+                          app.busy = true;
+                          try {
+                            const payload = await app.visual.generate(previewOptions.metadata.prompt, {
+                              seed: null,
+                              resolution: previewOptions.metadata.resolution,
+                              negativePrompt: previewOptions.metadata.negativePrompt,
+                              mode: "selfie",
+                              returnPayload: true,
+                            });
+                            if (payload?.url && id) {
+                              const newAttachment = {
+                                src: payload.url,
+                                metadata: payload.metadata,
+                                signature_color,
+                              };
+                              await session_driver.update_log_attachment(id, attach_idx, newAttachment);
+                              app.open_image_preview(newAttachment);
+                            }
+                          } finally {
+                            app.busy = false;
+                          }
+                        };
+                      }
+
+                      app.open_image_preview(previewOptions);
+                    }}
+                    aria-label="View Attachment"
+                    use:tooltip
+                  >
+                    <img
+                      {src}
+                      alt="Attachment {attach_idx + 1}"
+                      class="
+                        mx-auto
+                        max-h-120
+                        w-auto
+                        max-w-full
+                        cursor-zoom-in
+                        rounded-sm
+                        object-contain
+                        shadow-sm
+                      "
+                    />
+                  </button>
+                {/if}
               {/each}
             </div>
           {/if}
