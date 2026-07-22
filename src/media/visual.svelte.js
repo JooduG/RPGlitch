@@ -189,9 +189,12 @@ export class VisualEngine {
                 if (data.error) {
                   throw new Error(`Text-to-image failed: ${data.error}`);
                 }
-                const img = typeof data === "string" ? data : data.dataUrl || data.url || data.image || data.src || data.href || null;
-                if (!img) {
-                  throw new Error("Text-to-image failed: no image data returned");
+                let img = typeof data === "string" ? data : data.dataUrl || data.url || data.src || data.image || data.href || null;
+                if (img && typeof img === "object") {
+                  img = img.src || img.dataUrl || img.url || null;
+                }
+                if (!img || typeof img !== "string") {
+                  throw new Error("Text-to-image failed: no valid image string URL returned");
                 }
 
                 if (options.returnPayload) {

@@ -64,30 +64,21 @@
 
   // --- TRANSITION LOGIC ---
   const transition_name = $derived.by(() => {
-    // If we are actively transitioning a profile modal, only the active morphing card gets the name!
-    // Inactive card slots must suppress their names to prevent them from being isolated from the root.
+    // 0. ALWAYS suppress transition_name when ANY backdrop/modal/panel is open to prevent browser top-layer stacking isolation
+    if (app.control_panel_open || app.card_hand.open || app.profile_open) {
+      return undefined;
+    }
+
+    // 1. If actively transitioning profile, only target gets the transition name
     if (app.transitioning_profile) {
-      if (app.profile_open) {
-        return undefined;
-      }
       if (entity?.id === app.transition_target_id) {
         return "card-slot-" + type;
       }
       return undefined;
     }
 
-    // 0. Profile open for this entity: suppress transition name to prevent duplicate errors
-    if (app.profile_open && app.editing_entity?.id === entity?.id) {
-      return undefined;
-    }
-
-    // 1. Library or Message Card: No transition name
+    // 2. Library or Message Card: No transition name
     if (variant === "library" || variant === "message") {
-      return undefined;
-    }
-
-    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when card hand, profile, modal, or control panel is open
-    if (app.card_hand.open || app.profile_open || app.transitioning_profile || app.control_panel_open) {
       return undefined;
     }
 

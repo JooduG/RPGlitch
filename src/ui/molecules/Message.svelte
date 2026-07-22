@@ -521,8 +521,9 @@
         {#if attachments.length > 0}
           <div class="mb-4">
             {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
-              {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
-              {#if src}
+              {@const rawSrc = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
+              {@const src = typeof rawSrc === "object" && rawSrc !== null ? rawSrc.src || rawSrc.url || rawSrc.dataUrl || "" : String(rawSrc || "")}
+              {#if src && src !== "[object HTMLImageElement]" && src !== "[object Object]"}
                 <button
                   type="button"
                   class="
