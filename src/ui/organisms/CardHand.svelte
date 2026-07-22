@@ -152,6 +152,7 @@
       duration-300
       ease-in-out
 
+      {show_import_modal ? 'pointer-events-none opacity-0 transition-opacity duration-200' : ''}
       {is_visible
       ? `
         translate-y-0
@@ -203,7 +204,8 @@
         max-w-(--grid-width-max)
         origin-bottom
         pb-[calc(var(--spacing-row-unit)*0.2)]
-        {show_import_modal ? 'pointer-events-none opacity-0 transition-opacity duration-200' : 'transition-all duration-300'}
+        transition-all
+        duration-300
       "
       style:--total-count={total_cards}
     >

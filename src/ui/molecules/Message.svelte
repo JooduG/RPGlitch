@@ -11,7 +11,7 @@
   import { app, runtime } from "@state";
   import { session_driver } from "@engine";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
-  import { DevTelemetryBlock } from "@molecules";
+  import { DevTelemetryBlock, EntityCard } from "@molecules";
   import { safe_html } from "@utils";
 
   /**
@@ -442,75 +442,24 @@
       <!-- CARD BODY -->
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
-          <div class="my-4 flex w-full items-center justify-center gap-3 py-2 md:gap-5">
+          <div class="my-6 flex w-full flex-wrap items-center justify-center gap-4 py-2 md:gap-6">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
-              <button
-                type="button"
-                onclick={() => app.open_profile(a)}
-                class="group relative flex h-48 w-32 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-2xl border border-white/20 bg-slate-950 shadow-xl transition-all duration-300 hover:scale-105 hover:border-amber-400/90 hover:shadow-amber-500/20 focus:ring-2 focus:ring-amber-400/50 focus:outline-none active:scale-95"
-              >
-                {#if a.profile_picture}
-                  <img
-                    src={a.profile_picture}
-                    alt={a.name}
-                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                {:else}
-                  <div class="absolute inset-0 bg-linear-to-br from-amber-950/80 to-slate-950"></div>
-                {/if}
-                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
-                <div class="relative z-10 flex w-full flex-col p-2 text-center">
-                  <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{a.name}</span>
-                  <span class="font-mono text-[8px] font-semibold tracking-widest text-amber-300/80 uppercase">AI CHARACTER</span>
-                </div>
-              </button>
+              <div class="h-44 w-32 shrink-0">
+                <EntityCard entity={a} type="ai" variant="slot" onclick={() => app.open_profile(a)} />
+              </div>
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
-              <button
-                type="button"
-                onclick={() => app.open_profile(f)}
-                class="group relative flex h-48 w-32 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-2xl border border-white/20 bg-slate-950 shadow-xl transition-all duration-300 hover:scale-105 hover:border-purple-400/90 hover:shadow-purple-500/20 focus:ring-2 focus:ring-purple-400/50 focus:outline-none active:scale-95"
-              >
-                {#if f.profile_picture}
-                  <img
-                    src={f.profile_picture}
-                    alt={f.name}
-                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                {:else}
-                  <div class="absolute inset-0 bg-linear-to-br from-purple-950/80 to-slate-950"></div>
-                {/if}
-                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
-                <div class="relative z-10 flex w-full flex-col p-2 text-center">
-                  <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{f.name}</span>
-                  <span class="font-mono text-[8px] font-semibold tracking-widest text-purple-300/80 uppercase">FRACTAL</span>
-                </div>
-              </button>
+              <div class="h-44 w-72 shrink-0">
+                <EntityCard entity={f} type="fractal" variant="slot" onclick={() => app.open_profile(f)} />
+              </div>
             {/if}
             {#if runtime.active_user || app.selected_user}
               {@const u = runtime.active_user || app.selected_user}
-              <button
-                type="button"
-                onclick={() => app.open_profile(u)}
-                class="group relative flex h-48 w-32 shrink-0 cursor-pointer flex-col justify-end overflow-hidden rounded-2xl border border-white/20 bg-slate-950 shadow-xl transition-all duration-300 hover:scale-105 hover:border-cyan-400/90 hover:shadow-cyan-500/20 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none active:scale-95"
-              >
-                {#if u.profile_picture}
-                  <img
-                    src={u.profile_picture}
-                    alt={u.name}
-                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
-                  />
-                {:else}
-                  <div class="absolute inset-0 bg-linear-to-br from-cyan-950/80 to-slate-950"></div>
-                {/if}
-                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/40 to-transparent"></div>
-                <div class="relative z-10 flex w-full flex-col p-2 text-center">
-                  <span class="truncate font-mono text-[10px] font-extrabold tracking-wider text-slate-100 uppercase drop-shadow-md">{u.name}</span>
-                  <span class="font-mono text-[8px] font-semibold tracking-widest text-cyan-300/80 uppercase">USER PERSONA</span>
-                </div>
-              </button>
+              <div class="h-44 w-32 shrink-0">
+                <EntityCard entity={u} type="user" variant="slot" onclick={() => app.open_profile(u)} />
+              </div>
             {/if}
           </div>
         {/if}

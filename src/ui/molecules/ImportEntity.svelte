@@ -206,14 +206,14 @@
   <Modal
     variant="standard"
     z_index="1000"
-    class="w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl border border-white/10 bg-[color-mix(in_srgb,var(--color-slate-950)_95%,transparent)] p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)]"
+    class="w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-[color-mix(in_srgb,var(--color-slate-950)_95%,transparent)] p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)]"
     busy={is_loading}
     on_close={() => (open = false)}
   >
-    <div class="flex h-full flex-col gap-6 font-mono">
+    <div class="flex h-full flex-col gap-6 font-sans">
       <div class="flex items-center justify-between">
-        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">IMPORT ENTITY CARD</h5>
-        <div class="flex items-center gap-6 text-xs text-slate-300">
+        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">IMPORT ENTITY</h5>
+        <div class="flex items-center gap-6 font-mono text-xs text-slate-300">
           <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
           <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
         </div>
@@ -221,7 +221,7 @@
 
       <div class="flex flex-1 flex-col gap-4">
         {#if error_message}
-          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 font-mono text-xs text-red-400">
+          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
             {error_message}
           </div>
         {/if}
@@ -230,7 +230,7 @@
           <TextField
             is_edit={true}
             bind:value={raw_text}
-            placeholder="Paste raw entity JSON here, or click Upload File to parse a Character Card PNG / JSON file..."
+            placeholder="Paste raw text, lore, character descriptions, or raw entity JSON here, or click Upload File to parse a Character Card PNG / JSON file..."
             disabled={is_loading}
             class="min-h-52"
           />
