@@ -86,8 +86,8 @@
       return undefined;
     }
 
-    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when card hand, profile, or modal is open
-    if (app.card_hand.open || app.profile_open || app.transitioning_profile) {
+    // 2. Panel/Slot Card: Holds the transition name normally, EXCEPT when card hand, profile, modal, or control panel is open
+    if (app.card_hand.open || app.profile_open || app.transitioning_profile || app.control_panel_open) {
       return undefined;
     }
 

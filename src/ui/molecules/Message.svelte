@@ -586,12 +586,6 @@
                       object-contain
                       shadow-sm
                     "
-                    onerror={(e) => {
-                      const target = /** @type {HTMLElement | null} */ (e.currentTarget);
-                      if (target && target.parentElement) {
-                        target.parentElement.style.display = "none";
-                      }
-                    }}
                   />
                 </button>
               {/if}
