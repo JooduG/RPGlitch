@@ -491,7 +491,8 @@ ${round != null ? `<ROUND>${escapeXml(String(round))}</ROUND>\n` : ""}${input?.t
     <THINK_FORMAT>
     Begin your response with <think>. ALL internal calculations, phases, and markdown headers MUST be placed strictly INSIDE this block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
     </THINK_FORMAT>
-    ${taskText}${extract_pov_directive()}
+    ${taskText}
+    <POV_DIRECTIVE>CRITICAL MANDATE: You are the FRACTAL (the world/narrator). Write strictly in third-person omniscient narrator POV. DO NOT write in first-person ("I", "my") as an individual character.</POV_DIRECTIVE>
   </TASK>
   `).trim();
 

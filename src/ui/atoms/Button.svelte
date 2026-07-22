@@ -40,13 +40,16 @@
     element?.focus();
   }
 
-  const is_interrupt_btn = $derived(
+  const is_exempt_btn = $derived(
     label?.toLowerCase().includes("interrupt") ||
+      label?.toLowerCase().includes("settings") ||
       rest["aria-label"]?.toLowerCase().includes("interrupt") ||
-      className?.toLowerCase().includes("interrupt"),
+      rest["aria-label"]?.toLowerCase().includes("settings") ||
+      className?.toLowerCase().includes("interrupt") ||
+      className?.toLowerCase().includes("settings"),
   );
 
-  let is_disabled = $derived(disabled || (simulationState.intent_active && !is_interrupt_btn));
+  let is_disabled = $derived(disabled || (simulationState.intent_active && !is_exempt_btn));
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
   const height_class = $derived(cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10");

@@ -442,33 +442,69 @@
       <!-- CARD BODY -->
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
-          <div class="mb-4 flex w-full items-center justify-around rounded-lg border border-white/10 bg-black/40 p-2">
+          <div class="mb-5 flex w-full items-center justify-center gap-4 rounded-xl border border-white/10 bg-slate-950/70 p-3 shadow-inner">
             {#if runtime.active_user || app.selected_user}
               {@const u = runtime.active_user || app.selected_user}
-              <div class="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                onclick={() => app.open_profile(u)}
+                class="group relative flex h-24 w-18 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border border-white/20 bg-slate-900 shadow-md transition-all duration-300 hover:scale-105 hover:border-cyan-400/80 focus:ring-2 focus:ring-cyan-400/50 focus:outline-none active:scale-95"
+              >
                 {#if u.profile_picture}
-                  <img src={u.profile_picture} alt={u.name} class="h-8 w-8 rounded-full border border-white/20 object-cover" />
+                  <img
+                    src={u.profile_picture}
+                    alt={u.name}
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 {/if}
-                <span class="max-w-20 truncate font-mono text-[9px] tracking-wider text-slate-300 uppercase">{u.name}</span>
-              </div>
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent"></div>
+                <span
+                  class="relative z-10 w-full truncate p-1.5 text-center font-mono text-[9px] font-bold tracking-wider text-slate-100 uppercase drop-shadow"
+                  >{u.name}</span
+                >
+              </button>
             {/if}
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
-              <div class="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                onclick={() => app.open_profile(a)}
+                class="group relative flex h-24 w-18 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border border-white/20 bg-slate-900 shadow-md transition-all duration-300 hover:scale-105 hover:border-amber-400/80 focus:ring-2 focus:ring-amber-400/50 focus:outline-none active:scale-95"
+              >
                 {#if a.profile_picture}
-                  <img src={a.profile_picture} alt={a.name} class="h-8 w-8 rounded-full border border-white/20 object-cover" />
+                  <img
+                    src={a.profile_picture}
+                    alt={a.name}
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 {/if}
-                <span class="max-w-20 truncate font-mono text-[9px] tracking-wider text-slate-300 uppercase">{a.name}</span>
-              </div>
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent"></div>
+                <span
+                  class="relative z-10 w-full truncate p-1.5 text-center font-mono text-[9px] font-bold tracking-wider text-slate-100 uppercase drop-shadow"
+                  >{a.name}</span
+                >
+              </button>
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
-              <div class="flex flex-col items-center gap-1">
+              <button
+                type="button"
+                onclick={() => app.open_profile(f)}
+                class="group relative flex h-24 w-18 cursor-pointer flex-col justify-end overflow-hidden rounded-xl border border-white/20 bg-slate-900 shadow-md transition-all duration-300 hover:scale-105 hover:border-purple-400/80 focus:ring-2 focus:ring-purple-400/50 focus:outline-none active:scale-95"
+              >
                 {#if f.profile_picture}
-                  <img src={f.profile_picture} alt={f.name} class="h-8 w-8 rounded-full border border-white/20 object-cover" />
+                  <img
+                    src={f.profile_picture}
+                    alt={f.name}
+                    class="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                  />
                 {/if}
-                <span class="max-w-20 truncate font-mono text-[9px] tracking-wider text-slate-300 uppercase">{f.name}</span>
-              </div>
+                <div class="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent"></div>
+                <span
+                  class="relative z-10 w-full truncate p-1.5 text-center font-mono text-[9px] font-bold tracking-wider text-slate-100 uppercase drop-shadow"
+                  >{f.name}</span
+                >
+              </button>
             {/if}
           </div>
         {/if}
@@ -522,8 +558,8 @@
 
           {#if attachments.length > 0}
             <div class="mb-4">
-              {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src)}
-                {@const src = typeof attachment === "string" ? attachment : attachment.src}
+              {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
+                {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
                 <button
                   type="button"
                   class="

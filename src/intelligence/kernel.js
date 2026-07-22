@@ -598,7 +598,7 @@ export const gamemaster = {
       response,
       "fractal",
       fractal_name,
-      "AI_TURN",
+      "SYSTEM_TURN",
       {
         id: nodeId,
         is_epilogue: true,
@@ -627,12 +627,15 @@ export const gamemaster = {
     const payload = await context_broker.hydrate(input_text || "", "simulation", simulation_log);
     const ghostPrompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
 
-    const result = await llm_service.generate({
-      system: ghostPrompt.system,
-      task: ghostPrompt.task,
-      messages: [],
-      role: "user",
-    });
+    const result = await llm_service.generate(
+      {
+        system: ghostPrompt.system,
+        task: ghostPrompt.task,
+        messages: [],
+        role: "user",
+      },
+      { silent: true },
+    );
 
     const cleanResult = strip_cognition_blocks(typeof result === "string" ? result : result?.text || "").trim();
     return cleanResult;

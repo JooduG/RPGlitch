@@ -8,8 +8,8 @@ import { db, entities } from "@data";
 import { strip_cognition_blocks } from "@intelligence";
 import { AestheticResolver, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "./optics.js";
 import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
-import { llm_service, sanitize_llm } from "@platform";
-import { runtime, simulationState as simulation } from "@state";
+import { llm_service, sanitize_llm } from "@platform/transport.js";
+import { app, runtime, simulationState as simulation } from "@state";
 
 // Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
 let cachedImageEngine = null;
@@ -280,12 +280,24 @@ export class VisualEngine {
    * @param {any} [options]
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
-    const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : typeof storyId === "number" ? storyId : null;
-    const story = typeof dbKey === "number" && Number.isInteger(dbKey) && dbKey > 0 ? await db.stories.get(dbKey) : runtime.active_story;
-
+    let story = null;
+    if (storyId) {
+      const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : storyId;
+      try {
+        story = await db.stories.get(dbKey);
+      } catch (_e) {
+        /* ignore */
+      }
+    }
+    if (!story && runtime.active_story) {
+      story = runtime.active_story;
+    }
     if (!story) {
-      console.warn("[VISUALIZE] No active story!");
-      return { imageUrl: null, refinedPrompt: null };
+      story = {
+        ai_id: runtime.active_ai?.id || app.selected_ai?.id,
+        user_id: runtime.active_user?.id || app.selected_user?.id,
+        fractal_id: runtime.active_fractal?.id || app.selected_fractal?.id,
+      };
     }
 
     const targetTypeMap = { fractal: "scene", scene: "scene", user: "user", selfie: "selfie" };
@@ -405,6 +417,7 @@ export class VisualEngine {
    * @param {string} id
    */
   async _resolveEntity(id) {
+    if (!id) return { name: "Unknown", description: "" };
     return (await entities.get("character", id)) || (await entities.get("fractal", id)) || { name: "Unknown", description: "" };
   }
 

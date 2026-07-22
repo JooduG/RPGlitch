@@ -29,6 +29,7 @@ vi.mock("@platform/transport.js", () => ({
   llm_service: {
     generate: vi.fn(),
   },
+  sanitize_llm: vi.fn((text) => text),
 }));
 
 vi.mock("@engine/session.svelte.js", () => ({
