@@ -181,34 +181,32 @@
     {/if}
   </div>
 
-  {#key is_editing}
-    <Meter.Root
-      {value}
-      min={0}
-      max={100}
+  <Meter.Root
+    {value}
+    min={0}
+    max={100}
+    class="
+      meter-progress
+      absolute
+      bottom-0
+      left-0
+      z-0
+      h-1
+      w-full
+      overflow-hidden
+      bg-electric-cyan/20
+    "
+  >
+    <div
       class="
-        meter-progress
-        absolute
-        bottom-0
-        left-0
-        z-0
-        h-px
-        w-full
-        overflow-hidden
-        bg-electric-cyan/10
+        h-full
+        bg-electric-cyan
+        shadow-[0_0_8px_var(--color-electric-cyan)]
+        transition-[width]
+        duration-150
+        ease-in-out
       "
-    >
-      <div
-        class="
-          h-full
-          bg-electric-cyan
-          shadow-[0_0_8px_var(--color-electric-cyan)]
-          transition-[width]
-          duration-150
-          ease-in-out
-        "
-        style="width: {percentage}%;"
-      ></div>
-    </Meter.Root>
-  {/key}
+      style="width: {percentage}%;"
+    ></div>
+  </Meter.Root>
 </div>

@@ -273,8 +273,9 @@ ${(() => {
   return `<AI_LAST_TURN>${ind(text, 2)}</AI_LAST_TURN>`;
 })()}
 <TASK>
-    Return exactly one valid JSON payload representing state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}${(rawMessages || []).some((m) => m.role === "model") ? " and the AI_LAST_TURN" : ""}. Evaluate both the user's current action AND the AI character's last narrated response for physical injuries, emotional shifts, vector progress, and environmental changes:
+    Return exactly one valid JSON payload representing state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}${(rawMessages || []).some((m) => m.role === "model") ? " and the AI_LAST_TURN" : ""}. Evaluate both the user's current action AND the AI character's last narrated response for physical injuries, emotional shifts, vector progress, environmental changes, and whether a cinematic image should be triggered:
     {
+      "trigger_image": false,
       "mutations": {
         "AI_CHARACTER": {
           "present_append_physical": "Any new immediate physical changes (e.g. bleeding). Leave blank if none.",
@@ -396,6 +397,52 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.${extract_pov_directive()}
   </TASK>
+  `).trim();
+
+  return { system, task };
+}
+
+/**
+ * Ghostwriter prompt compiler.
+ * Inverse identity mapping: YOUR_IDENTITY is User Persona, USER_PERSONA is AI Character.
+ */
+function render_ghostwriter({ entities, input = "" }) {
+  const user_name = entities?.USER?.name || "User Persona";
+  const ai_name = entities?.AI?.name || "AI Character";
+  const fractal_name = entities?.FRACTAL?.name || "Environment";
+
+  const system = clean_xml(`
+<SYSTEM role="${escapeXml(user_name)}">
+You are drafting on behalf of ${escapeXml(user_name)} in an active scene with ${escapeXml(ai_name)} inside ${escapeXml(fractal_name)}.
+  <YOUR_IDENTITY name="${escapeXml(user_name)}">
+    <ETERNAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
+  </YOUR_IDENTITY>
+  <USER_PERSONA name="${escapeXml(ai_name)}">
+    <ETERNAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
+  </USER_PERSONA>
+  ${
+    entities?.FRACTAL
+      ? `
+  <FRACTAL name="${escapeXml(entities.FRACTAL.name)}">
+    <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
+  </FRACTAL>`.trim()
+      : ""
+  }
+  <PROTOCOLS>
+    ${ind(prompt_builder.render_protocols("USER_AGENCY, CINEMATIC_METAPHOR, PRESENT_TENSE, MARKDOWN_FORMAT"), 4)}
+  </PROTOCOLS>
+</SYSTEM>
+  `).trim();
+
+  const task = clean_xml(`
+<TASK>
+${
+  input?.trim()
+    ? `Enhance, expand, and polish the following draft text for ${escapeXml(user_name)} into a vivid, atmospheric action/dialogue:\n\n${escapeXml(input)}`
+    : `Draft a compelling, in-character next action or vocal response for ${escapeXml(user_name)} in response to ${escapeXml(ai_name)}.`
+}
+Output only the raw text response or action. No preamble, no meta-commentary, no XML wrappers.
+</TASK>
   `).trim();
 
   return { system, task };
@@ -872,4 +919,17 @@ export const prompt_builder = {
       ],
     };
   },
+  build_ghostwriter(entities, input = "") {
+    return render_ghostwriter({ entities, input });
+  },
+};
+
+export {
+  render_director,
+  render_character,
+  render_ghostwriter,
+  render_narrator,
+  render_enhancement,
+  render_profile_sorting,
+  build_dynamics_legend,
 };

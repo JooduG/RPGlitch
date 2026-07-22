@@ -441,6 +441,38 @@
 
       <!-- CARD BODY -->
       <div class="relative p-4">
+        {#if meta?.is_prologue || meta?.is_epilogue}
+          <div class="mb-4 flex w-full items-center justify-around rounded-lg bg-black/40 p-2 border border-white/10">
+            {#if runtime.active_user || app.selected_user}
+              {@const u = runtime.active_user || app.selected_user}
+              <div class="flex flex-col items-center gap-1">
+                {#if u.profile_picture}
+                  <img src={u.profile_picture} alt={u.name} class="h-8 w-8 rounded-full object-cover border border-white/20" />
+                {/if}
+                <span class="font-mono text-[9px] tracking-wider text-slate-300 uppercase truncate max-w-20">{u.name}</span>
+              </div>
+            {/if}
+            {#if runtime.active_ai || app.selected_ai}
+              {@const a = runtime.active_ai || app.selected_ai}
+              <div class="flex flex-col items-center gap-1">
+                {#if a.profile_picture}
+                  <img src={a.profile_picture} alt={a.name} class="h-8 w-8 rounded-full object-cover border border-white/20" />
+                {/if}
+                <span class="font-mono text-[9px] tracking-wider text-slate-300 uppercase truncate max-w-20">{a.name}</span>
+              </div>
+            {/if}
+            {#if runtime.active_fractal || app.selected_fractal}
+              {@const f = runtime.active_fractal || app.selected_fractal}
+              <div class="flex flex-col items-center gap-1">
+                {#if f.profile_picture}
+                  <img src={f.profile_picture} alt={f.name} class="h-8 w-8 rounded-full object-cover border border-white/20" />
+                {/if}
+                <span class="font-mono text-[9px] tracking-wider text-slate-300 uppercase truncate max-w-20">{f.name}</span>
+              </div>
+            {/if}
+          </div>
+        {/if}
+
         {#if app.settings.dev_mode && think_block}
           <DataBox label="Thoughts" isCode={false} class="mb-4">
             <div

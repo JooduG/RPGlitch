@@ -220,6 +220,89 @@ export const format_premade = (entity, type) => {
 };
 
 /**
+ * Normalizes an imported payload (JSON file / card / array) supporting dual entity extraction.
+ * Extracts both Character and Fractal entities if present or if a single card contains both character and scene context.
+ * @param {any} payload
+ * @returns {{ characters: any[], fractals: any[] }}
+ */
+export function normalize_import_payload(payload) {
+  const characters = [];
+  const fractals = [];
+
+  if (!payload || typeof payload !== "object") {
+    return { characters, fractals };
+  }
+
+  // Handle container object with explicit arrays
+  if (Array.isArray(payload.characters) || Array.isArray(payload.entities) || Array.isArray(payload.fractals)) {
+    const chars = Array.isArray(payload.characters) ? payload.characters : [];
+    const fracs = Array.isArray(payload.fractals) ? payload.fractals : [];
+    const general = Array.isArray(payload.entities) ? payload.entities : [];
+
+    chars.forEach((c) => characters.push(normalize({ ...c, type: "character" })));
+    fracs.forEach((f) => fractals.push(normalize({ ...f, type: "fractal" })));
+    general.forEach((item) => {
+      if (item.type === "fractal" || item.narrative_style) {
+        fractals.push(normalize({ ...item, type: "fractal" }));
+      } else {
+        characters.push(normalize({ ...item, type: "character" }));
+      }
+    });
+    return { characters, fractals };
+  }
+
+  // Handle direct array of objects
+  if (Array.isArray(payload)) {
+    payload.forEach((item) => {
+      if (!item || typeof item !== "object") return;
+      if (item.type === "fractal" || item.narrative_style) {
+        fractals.push(normalize({ ...item, type: "fractal" }));
+      } else {
+        characters.push(normalize({ ...item, type: "character" }));
+      }
+    });
+    return { characters, fractals };
+  }
+
+  // Handle single object / card
+  const isExplicitFractal = payload.type === "fractal" || (payload.narrative_style && !payload.type);
+  if (isExplicitFractal) {
+    fractals.push(normalize({ ...payload, type: "fractal" }));
+  } else {
+    // Treat primary payload as Character
+    const charEntity = normalize({ ...payload, type: "character" });
+    characters.push(charEntity);
+
+    // If payload contains scene/world/fractal info or nested object, extract Fractal too!
+    const sceneData = payload.scene || payload.fractal || payload.world || payload.environment;
+    if (sceneData && typeof sceneData === "object") {
+      fractals.push(normalize({ ...sceneData, type: "fractal", name: sceneData.name || `${charEntity.name}'s World` }));
+    } else if (typeof sceneData === "string" && sceneData.trim().length > 0) {
+      fractals.push(
+        normalize({
+          name: `${charEntity.name}'s Setting`,
+          type: "fractal",
+          description: sceneData,
+          eternal: { non_physical: sceneData },
+        }),
+      );
+    } else if (payload.description || payload.eternal?.non_physical) {
+      // Create associated Fractal setting from card context for seamless dual import
+      fractals.push(
+        normalize({
+          name: `${charEntity.name}'s Realm`,
+          type: "fractal",
+          description: payload.description || "Imported environment backdrop.",
+          eternal: { non_physical: payload.eternal?.non_physical || payload.description || "" },
+        }),
+      );
+    }
+  }
+
+  return { characters, fractals };
+}
+
+/**
  * 🧼 GLOBAL PROSE DETOX LAYER
  * Programmatically intercepts and scrubs clichéd AI tropes.
  * Handles structural inflection matching (e.g., purr/purrs/purred/purring).

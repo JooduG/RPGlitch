@@ -312,6 +312,7 @@ export const premade = {
       type: "fractal",
       signature_color: "Proud Purple",
       narrative_style: "samuel_delany",
+      voice: { uri: "af_nova", rate: 1.0 },
       dynamics: { velocity: 56, entropy: 54 },
       eternal: {
         physical: `"terrain": "dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly", "architecture": "tall chrome and glass towers above, crumbling concrete and rusted metal below", "upper_city": "well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics", "lower_city": "sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses", "connection": "monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers", "visual_theme": "neon cyberpunk metropolis with a gritty, hyper-masculine underbelly"`,
@@ -352,6 +353,7 @@ export const premade = {
       type: "fractal",
       signature_color: "Forest Green",
       narrative_style: "anais_nin",
+      voice: { uri: "af_sarah", rate: 0.95 },
       dynamics: { velocity: 42, entropy: 58 },
       eternal: {
         physical: `"terrain": "dense ashen cursed forest with thick glowing fog and twisted blackened trees", "architecture": "beautiful high-elf royal palace integrated deep within the forest", "palace": "high-elf royal palace where the king and his army of high-elven royal guards reside", "visual_theme": "eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture"`,
@@ -392,6 +394,7 @@ export const premade = {
       type: "fractal",
       signature_color: "Space Blue",
       narrative_style: "philip_k_dick",
+      voice: { uri: "bf_emma", rate: 1.05 },
       dynamics: { velocity: 45, entropy: 55 },
       eternal: {
         physical: `"terrain": "sterile high-security orbital research station isolated in deep space", "architecture": "clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs", "landmarks": "central transformation bay featuring multiple glass containment vat tanks", "visual_theme": "sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats"`,

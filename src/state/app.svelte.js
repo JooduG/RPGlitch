@@ -245,6 +245,28 @@ export class AppStore {
   }
 
   /**
+   * Persist app settings to IndexedDB storage and sync dev grid visibility.
+   */
+  save_settings = async () => {
+    if (typeof window === "undefined" || !this.settings) return;
+    this.settings.dev_grid_visible = this.settings.dev_mode;
+    try {
+      await db.kv_settings.put({ id: "rpg_settings", value: $state.snapshot(this.settings) });
+    } catch (e) {
+      console.error("[Security] Settings Save Failed:", e);
+    }
+    // Global Sync for non-Svelte legacy components
+    if (typeof window !== "undefined") {
+      window.RPGLITCH_CONFIG = {
+        sound: this.settings.sound,
+        auto_scroll: this.settings.auto_scroll,
+        text_speed: this.settings.stream_text ? 30 : 0,
+        dev_mode: this.settings.dev_mode,
+      };
+    }
+  };
+
+  /**
    * Centralized Viewport Observer
    * Syncs with design.css tokens.
    */
@@ -301,26 +323,6 @@ export class AppStore {
       console.error("[AppStore] Failed to load lobby entities:", e);
     }
   }
-  save_settings = async () => {
-    if (typeof window === "undefined" || !this.settings) return;
-    try {
-      await db.kv_settings.put({
-        key: "rpg_settings",
-        value: $state.snapshot(this.settings),
-      });
-    } catch (e) {
-      console.error("[Security] Settings Save Failed:", e);
-    }
-    // Global Sync for non-Svelte legacy components
-    if (typeof window !== "undefined") {
-      window.RPGLITCH_CONFIG = {
-        sound: this.settings.sound,
-        auto_scroll: this.settings.auto_scroll,
-        text_speed: this.settings.stream_text ? 30 : 0,
-        dev_mode: this.settings.dev_mode,
-      };
-    }
-  };
   streaming = new StreamingState();
   /************************************************************************************
    * [SECTION: UI ACTIONS]

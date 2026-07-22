@@ -27,6 +27,7 @@
   let is_focused = $state(false);
   /** @type {HTMLTextAreaElement | undefined} */
   let textarea = $state();
+  let is_ghostwriting = $state(false);
 
   let is_locked = $derived(simulationState.busy);
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
@@ -455,7 +456,7 @@
                         <Button label="MOCK PROLOGUE" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("fractal")} />
                         <Button label="MOCK TURN" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("ai")} />
 
-                        <Button label="STORYBOARD" variant="secondary" size="small" onclick={() => app.set_view("storyboard")} />
+                        <Button label="Return to Storyboard" variant="secondary" size="small" onclick={() => app.set_view("storyboard")} />
 
                         <Button
                           label="END STORY"
@@ -517,22 +518,19 @@
                     : 'grid-rows-[0fr]'}"
                 >
                   <div class="min-h-0 overflow-hidden">
-                    <div class="grid grid-cols-1 gap-x-6 gap-y-4 pt-2 pb-4 sm:grid-cols-2">
+                    <div class="flex w-full items-center justify-between gap-4 pt-2 pb-4">
                       <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
-                      <Toggle label="GRID OVERLAYS" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
-                      <div class="mt-2 flex w-full justify-center pt-4 sm:col-span-2">
-                        <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
-                          <svg
-                            class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-                            viewBox="0 0 24 24"
-                          >
-                            <path d="M3 6h18" />
-                            <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                          </svg>
-                          <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
-                        </Button>
-                      </div>
+                      <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
+                        <svg
+                          class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                          viewBox="0 0 24 24"
+                        >
+                          <path d="M3 6h18" />
+                          <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
+                          <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
+                        <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
+                      </Button>
                     </div>
                   </div>
                 </div>
@@ -648,9 +646,37 @@
           onblur={() => (is_focused = false)}
           placeholder="Type a message..."
           rows="1"
-          disabled={app.control_panel_open}
+          disabled={app.control_panel_open || is_ghostwriting}
           aria-label="Input message"
         ></textarea>
+
+        <Button
+          variant="invisible"
+          onclick={async () => {
+            if (is_locked || is_ghostwriting) return;
+            is_ghostwriting = true;
+            try {
+              const draft = await gamemaster.execute_ghostwriter(value);
+              if (draft) {
+                value = draft;
+                await tick();
+                adjust_height();
+              }
+            } catch (e) {
+              console.error("[Ghostwriter Error]", e);
+            } finally {
+              is_ghostwriting = false;
+            }
+          }}
+          disabled={is_locked || is_ghostwriting || app.control_panel_open}
+          aria-label="Ghostwriter Assist"
+          actions={[tooltip]}
+          class="touch-target-coarse text-amber-400 hover:text-amber-300"
+        >
+          <svg class="block size-icon-medium" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2 8.6 4.5 10 7 7.5 5.6zm12 9.8L17 14l-1.4 2.5L13 15l2.5 1.4L17 19l1.4-2.5L21 18l-1.5-2.6zM20 2l-2.5 1.4L15 2l1.4 2.5L15 7l2.5-1.4L20 7l-1.4-2.5L20 2zM9.5 11l-7 7 2.5 2.5 7-7-2.5-2.5zm6.3-4.3c-.4-.4-1-.4-1.4 0l-1.2 1.2 2.5 2.5 1.2-1.2c.4-.4.4-1 0-1.4l-1.1-1.1z" />
+          </svg>
+        </Button>
 
         {#if app.streaming.active}
           <Button

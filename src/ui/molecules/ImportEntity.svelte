@@ -205,16 +205,6 @@
 {#if open}
   <Modal variant="standard" busy={is_loading} on_close={() => (open = false)}>
     <div class="flex h-full flex-col gap-4">
-      <div class="flex items-center justify-between">
-        <h3 class="m-0 text-lg font-semibold uppercase">Import Entities</h3>
-        <Button variant="invisible" onclick={() => (open = false)} square size="small" aria-label="Close">
-          <svg viewBox="0 0 24 24" class="size-icon-small" fill="none" stroke="currentColor">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </Button>
-      </div>
-
       <div class="flex flex-1 flex-col gap-4 overflow-hidden">
         <div class="flex items-center gap-4">
           <Button onclick={trigger_file_input} variant="primary" size="small" disabled={is_loading}>
@@ -229,17 +219,11 @@
             <Toggle
               label="Character"
               bind:value={import_character}
-              onchange={() => {
-                if (import_character) import_fractal = false;
-              }}
               disabled={is_loading}
             />
             <Toggle
               label="Fractal"
               bind:value={import_fractal}
-              onchange={() => {
-                if (import_fractal) import_character = false;
-              }}
               disabled={is_loading}
             />
           </div>
@@ -252,7 +236,6 @@
         {/if}
 
         <div class="flex flex-1 flex-col gap-2 overflow-hidden">
-          <span class="text-xs text-slate-400 uppercase">Raw Data</span>
           <div class="relative flex-1 overflow-hidden">
             <textarea
               bind:value={raw_text}

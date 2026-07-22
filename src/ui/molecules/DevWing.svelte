@@ -85,10 +85,11 @@
       gap-2
     "
   >
-    <details>
+    <details class="w-full text-left">
       <summary
         class="
           cursor-pointer
+          text-left
           font-mono
           text-[10px]
           tracking-widest

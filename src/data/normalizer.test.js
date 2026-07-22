@@ -5,6 +5,7 @@ import {
   format_premade,
   get_random_signature_key,
   normalize,
+  normalize_import_payload,
   STORAGE_VERSION,
 } from "./normalizer.js";
 import { Security } from "@platform";
@@ -242,6 +243,44 @@ describe("content-normaliser.js", () => {
       const key = get_random_signature_key();
       expect(Object.keys(PALETTE)).toContain(key);
       expect(key).not.toBe("default");
+    });
+  });
+
+  describe("normalize_import_payload()", () => {
+    it("should extract both Character and Fractal from single card payload", () => {
+      const cardPayload = {
+        name: "Shadow Agent",
+        type: "character",
+        description: "Infiltrator operating in Neon City slums",
+        scene: {
+          name: "Neon City Slums",
+          type: "fractal",
+          description: "Rain-slicked cyberpunk alleyways",
+        },
+      };
+
+      const { characters, fractals } = normalize_import_payload(cardPayload);
+      expect(characters).toHaveLength(1);
+      expect(characters[0].name).toBe("Shadow Agent");
+      expect(characters[0].type).toBe("character");
+
+      expect(fractals).toHaveLength(1);
+      expect(fractals[0].name).toBe("Neon City Slums");
+      expect(fractals[0].type).toBe("fractal");
+    });
+
+    it("should extract dual entities when a character payload includes background description", () => {
+      const cardPayload = {
+        name: "Solaris",
+        type: "character",
+        description: "Sun priestess from the High Temple",
+      };
+
+      const { characters, fractals } = normalize_import_payload(cardPayload);
+      expect(characters).toHaveLength(1);
+      expect(fractals).toHaveLength(1);
+      expect(fractals[0].type).toBe("fractal");
+      expect(fractals[0].name).toBe("Solaris's Realm");
     });
   });
 });
