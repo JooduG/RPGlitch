@@ -516,87 +516,87 @@
               </div>
             {/if}
           {/if}
+        {/if}
 
-          {#if attachments.length > 0}
-            <div class="mb-4">
-              {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
-                {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
-                {#if src}
-                  <button
-                    type="button"
+        {#if attachments.length > 0}
+          <div class="mb-4">
+            {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
+              {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
+              {#if src}
+                <button
+                  type="button"
+                  class="
+                    mx-auto
+                    mb-2
+                    block
+                    w-fit
+                    overflow-hidden
+                    rounded-lg
+                    bg-neutral-900/50
+                    p-2
+                    transition-[filter] duration-200
+                    hover:brightness-110
+                  "
+                  onclick={() => {
+                    const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+                    if (!previewOptions.metadata) previewOptions.metadata = {};
+                    previewOptions.signature_color = signature_color;
+
+                    if (previewOptions.metadata?.prompt) {
+                      previewOptions.on_reroll = async () => {
+                        app.busy = true;
+                        try {
+                          const payload = await app.visual.generate(previewOptions.metadata.prompt, {
+                            seed: null,
+                            resolution: previewOptions.metadata.resolution,
+                            negativePrompt: previewOptions.metadata.negativePrompt,
+                            mode: "selfie",
+                            returnPayload: true,
+                          });
+                          if (payload?.url && id) {
+                            const newAttachment = {
+                              src: payload.url,
+                              metadata: payload.metadata,
+                              signature_color,
+                            };
+                            await session_driver.update_log_attachment(id, attach_idx, newAttachment);
+                            app.open_image_preview(newAttachment);
+                          }
+                        } finally {
+                          app.busy = false;
+                        }
+                      };
+                    }
+
+                    app.open_image_preview(previewOptions);
+                  }}
+                  aria-label="View Attachment"
+                  use:tooltip
+                >
+                  <img
+                    {src}
+                    alt="Attachment {attach_idx + 1}"
                     class="
                       mx-auto
-                      mb-2
-                      block
-                      w-fit
-                      overflow-hidden
-                      rounded-lg
-                      bg-neutral-900/50
-                      p-2
-                      transition-[filter] duration-200
-                      hover:brightness-110
+                      max-h-120
+                      w-auto
+                      max-w-full
+                      cursor-zoom-in
+                      rounded-sm
+                      object-contain
+                      shadow-sm
                     "
-                    onclick={() => {
-                      const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
-                      if (!previewOptions.metadata) previewOptions.metadata = {};
-                      previewOptions.signature_color = signature_color;
-
-                      if (previewOptions.metadata?.prompt) {
-                        previewOptions.on_reroll = async () => {
-                          app.busy = true;
-                          try {
-                            const payload = await app.visual.generate(previewOptions.metadata.prompt, {
-                              seed: null,
-                              resolution: previewOptions.metadata.resolution,
-                              negativePrompt: previewOptions.metadata.negativePrompt,
-                              mode: "selfie",
-                              returnPayload: true,
-                            });
-                            if (payload?.url && id) {
-                              const newAttachment = {
-                                src: payload.url,
-                                metadata: payload.metadata,
-                                signature_color,
-                              };
-                              await session_driver.update_log_attachment(id, attach_idx, newAttachment);
-                              app.open_image_preview(newAttachment);
-                            }
-                          } finally {
-                            app.busy = false;
-                          }
-                        };
+                    onerror={(e) => {
+                      const target = /** @type {HTMLElement | null} */ (e.currentTarget);
+                      if (target && target.parentElement) {
+                        target.parentElement.style.display = "none";
                       }
-
-                      app.open_image_preview(previewOptions);
                     }}
-                    aria-label="View Attachment"
-                    use:tooltip
-                  >
-                    <img
-                      {src}
-                      alt="Attachment {attach_idx + 1}"
-                      class="
-                        mx-auto
-                        max-h-120
-                        w-auto
-                        max-w-full
-                        cursor-zoom-in
-                        rounded-sm
-                        object-contain
-                        shadow-sm
-                      "
-                      onerror={(e) => {
-                        const target = /** @type {HTMLElement | null} */ (e.currentTarget);
-                        if (target && target.parentElement) {
-                          target.parentElement.style.display = "none";
-                        }
-                      }}
-                    />
-                  </button>
-                {/if}
-              {/each}
-            </div>
-          {/if}
+                  />
+                </button>
+              {/if}
+            {/each}
+          </div>
         {/if}
 
         {#if is_editing}
