@@ -33,6 +33,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 ## 🗺️ Roadmap (Tracks)
 
+- [x] fix-2026-07-22-storymode-bugs: Storymode & Import UX Bug Fixes (Import modal styling/z-index, Prologue/Epilogue 3-card layout & inline images, Audio playback non-interruption, Session reset on End Story, Ghostwriter function binding, and Library deduplication).
 - [x] feature-2026-07-22-storymode-enhancements: Storymode & UI Feature Enhancements (Core UI refinements, dual entity import, Ghostwriter prompt compiler, dynamic peak & prologue/epilogue inline image generation, Prologue/Epilogue layout, and Fractal female premade voices).
 - [x] prompt-pipeline-optimization-2026-07-22: Optimize prompt synthesis, prefix caching, protocol library tokens, and history caching across the Intelligence Kernel.
 - [x] responsive-design-2026-07-16: Refactor layout structures, typography tokens, and target sizes for dynamic responsiveness.

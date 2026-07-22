@@ -1,13 +1,20 @@
-# 📜 FUTURE (The Muscle)
+# Track: Storymode & Import UX Bug Fixes
 
-> **Role**: Active implementation blueprint for the _current_ track.
-> **Status**: Completed (`fix-2026-07-22-storymode-bugs`).
+## ETERNAL (The Spec)
 
-This file mirrors the completed implementation plan from [`tasks/tracks/fix-2026-07-22-storymode-bugs.md`](./tracks/fix-2026-07-22-storymode-bugs.md).
+### Objective
+Fix all reported Storymode, Import modal, Prologue/Epilogue layout, Audio playback interruption, End Story session state reset, and Ghostwriter execution issues.
 
-## ✅ Completed Mission: Storymode & Import UX Bug Fixes
+### Success Criteria
+- [x] Import modal UI redesigned with proper padding, min-width, glassmorphic styling, and clean z-index separation so cardhand slots stay behind backdrop blur.
+- [x] `execute_prologue()` and `execute_epilogue()` in `kernel.js` explicitly attach `is_prologue: true` / `is_epilogue: true` to message metadata AND generate inline scene image attachments.
+- [x] `Message.svelte` 3-entity header row (`[User Persona] [AI Character] [Fractal]`) renders for all prologue and epilogue messages.
+- [x] Audio engine speech synthesis/playing does NOT get cancelled prematurely when an AI turn begins while a Fractal message is speaking.
+- [x] Ending a story or clicking "Return to Storyboard" resets `runtime.story_id` so clicking "Begin Story" starts a fresh new story session instead of appending to the old session.
+- [x] Library accordion in `UnifiedConsole.svelte` deduplicates stories by `story_id`.
+- [x] `gamemaster.execute_ghostwriter()` is cleanly bound and exported on the `gamemaster` singleton object in `kernel.js` and `index.js`.
 
-Track ID: `fix-2026-07-22-storymode-bugs`
+## FUTURE (Implementation Plan)
 
 ### Phase 1: Import Modal & CardHand Overlay Z-Index Fix
 - [x] Fix z-index stacking and backdrop blur in `CardHand.svelte` and `ImportEntity.svelte`.

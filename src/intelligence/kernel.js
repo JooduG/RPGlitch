@@ -20,9 +20,10 @@ import { context_broker } from "./context.svelte.js";
 import { dynamics_engine } from "./dynamics.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
-import { escape_unescaped_json_quotes, extract_json_block, parse_think_block } from "./parser.js";
+import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
 import { llm_service, Security } from "@platform";
 import { app, runtime, simulationState } from "@state";
+import { visual_engine } from "@media";
 /**
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
  */
@@ -516,10 +517,31 @@ export const gamemaster = {
       // Prologue stays at Round 0
       runtime.round = 0;
       runtime.turn_type = "SYSTEM_TURN";
-      await session_driver.log_message(response, "fractal", fractal_name, "SYSTEM_TURN", {
-        id: nodeId,
-        round: 0,
-      });
+
+      let prologueAttachments = [];
+      if (visual_engine) {
+        try {
+          const imgResult = await visual_engine.visualize(story_id, response, "scene");
+          if (imgResult?.imageUrl) {
+            prologueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
+          }
+        } catch (err) {
+          console.warn("[Prologue Image Error]", err);
+        }
+      }
+
+      await session_driver.log_message(
+        response,
+        "fractal",
+        fractal_name,
+        "SYSTEM_TURN",
+        {
+          id: nodeId,
+          round: 0,
+          is_prologue: true,
+        },
+        prologueAttachments,
+      );
       app.log("[GameMaster] Prologue established (Round 0).", "system");
 
       // Cleanly end the prologue fractal stream before initiating the AI follow-up hook
@@ -559,9 +581,61 @@ export const gamemaster = {
     const response = await this.execute_with_retry(async () => {
       return await llm_service.generate({ system, task, role: "fractal", node_id: nodeId });
     });
-    await session_driver.log_message(response, "fractal", fractal_name, "AI_TURN", { id: nodeId });
+
+    let epilogueAttachments = [];
+    if (visual_engine) {
+      try {
+        const imgResult = await visual_engine.visualize(story_id, response, "scene");
+        if (imgResult?.imageUrl) {
+          epilogueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
+        }
+      } catch (err) {
+        console.warn("[Epilogue Image Error]", err);
+      }
+    }
+
+    await session_driver.log_message(
+      response,
+      "fractal",
+      fractal_name,
+      "AI_TURN",
+      {
+        id: nodeId,
+        is_epilogue: true,
+      },
+      epilogueAttachments,
+    );
     app.end_stream();
     return response;
+  },
+  /**
+   * EXECUTE GHOSTWRITER
+   * Compiles and executes a Ghostwriter prompt on behalf of the User Persona.
+   * @param {string} input_text
+   * @returns {Promise<string>}
+   */
+  async execute_ghostwriter(input_text = "") {
+    const story_id = runtime.story_id;
+    const raw_messages = story_id ? await session_driver.load_log(story_id) : [];
+    const simulation_log = raw_messages
+      .filter((m) => !m.meta?.consolidated && m.role !== "system")
+      .map((m) => ({
+        role: m.role === "user" ? "user" : "model",
+        content: m.text || m.content || "",
+        character_name: m.character_name,
+      }));
+    const payload = await context_broker.hydrate(input_text || "", "simulation", simulation_log);
+    const ghostPrompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
+
+    const result = await llm_service.generate({
+      system: ghostPrompt.system,
+      task: ghostPrompt.task,
+      messages: [],
+      role: "user",
+    });
+
+    const cleanResult = strip_cognition_blocks(typeof result === "string" ? result : result?.text || "").trim();
+    return cleanResult;
   },
   async execute_with_retry(fn, retries = 3, delay = 1000) {
     try {

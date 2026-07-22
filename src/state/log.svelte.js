@@ -27,7 +27,10 @@ export class SimulationLogStore {
    * Synchronize with persistence.
    */
   async refresh() {
-    if (!runtime.story_id) return;
+    if (!runtime.story_id) {
+      this.feed = [];
+      return;
+    }
     const msgs = await session_driver.load_log(runtime.story_id);
     this.feed = msgs;
   }

@@ -178,19 +178,22 @@ export const stories = {
         .toArray();
       const fractalMap = new Map(fractals.map((f) => [f.id, f]));
 
-      return allStories.map((story) => {
-        const fractal = fractalMap.get(story.fractal_id);
-        // Simple, flat return. No .visuals nesting here.
-        return {
-          id: story.id,
-          title: story.title || "Untitled Fragment",
-          state: story.isConcluded ? "concluded" : "active",
-          lastPlayed: story.updated_at,
-          fractal_profile_picture: fractal?.profile_picture || "",
-          fractal_name: fractal?.name || "The Void",
-          signature_color: fractal?.signature_color || "default",
-        };
-      });
+      const uniqueMap = new Map();
+      for (const story of allStories) {
+        if (!uniqueMap.has(story.id)) {
+          const fractal = fractalMap.get(story.fractal_id);
+          uniqueMap.set(story.id, {
+            id: story.id,
+            title: story.title || "Untitled Fragment",
+            state: story.isConcluded ? "concluded" : "active",
+            lastPlayed: story.updated_at,
+            fractal_profile_picture: fractal?.profile_picture || "",
+            fractal_name: fractal?.name || "The Void",
+            signature_color: fractal?.signature_color || "default",
+          });
+        }
+      }
+      return Array.from(uniqueMap.values());
     } catch (err) {
       error("Archive Failure: Failed to list narrative records.", err);
       return [];

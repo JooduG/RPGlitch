@@ -456,14 +456,27 @@
                         <Button label="MOCK PROLOGUE" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("fractal")} />
                         <Button label="MOCK TURN" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("ai")} />
 
-                        <Button label="Return to Storyboard" variant="secondary" size="small" onclick={() => app.set_view("storyboard")} />
+                        <Button
+                          label="Return to Storyboard"
+                          variant="secondary"
+                          size="small"
+                          onclick={async () => {
+                            await session_driver.clear_active();
+                            app.set_view("storyboard");
+                          }}
+                        />
 
                         <Button
                           label="END STORY"
                           variant="danger"
                           size="small"
                           class="ml-auto"
-                          onclick={() => gamemaster.execute_epilogue(runtime.story_id)}
+                          onclick={async () => {
+                            if (runtime.story_id) {
+                              await gamemaster.execute_epilogue(runtime.story_id);
+                              refresh_stories();
+                            }
+                          }}
                         />
                       </div>
                     </div>

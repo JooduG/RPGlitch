@@ -203,6 +203,9 @@
         max-w-(--grid-width-max)
         origin-bottom
         pb-[calc(var(--spacing-row-unit)*0.2)]
+        transition-all
+        duration-300
+        {show_import_modal ? 'pointer-events-none opacity-20 blur-md' : ''}
       "
       style:--total-count={total_cards}
     >

@@ -36,6 +36,20 @@ export const session_driver = {
       // also log to history
       await db.sessions.add({ session_id: id, timestamp: Date.now() });
     }
+    await simulation_log.refresh();
+  },
+
+  /**
+   * Clear active session state.
+   */
+  clear_active: async function () {
+    _active_id = null;
+    runtime.story_id = null;
+    runtime.round = 0;
+    if (typeof window !== "undefined") {
+      await db.kv_settings.put({ key: SESSION_ID_KEY, value: null });
+    }
+    await simulation_log.refresh();
   },
 
   /**
@@ -78,17 +92,6 @@ export const session_driver = {
     simulation_log.add(entry);
 
     return story_id;
-  },
-
-  /**
-   * Clear active session
-   */
-  clear_active: async function () {
-    _active_id = null;
-    runtime.story_id = null;
-    if (typeof window !== "undefined") {
-      await db.kv_settings.delete(SESSION_ID_KEY);
-    }
   },
 
   /**

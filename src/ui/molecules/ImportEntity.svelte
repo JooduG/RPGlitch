@@ -7,7 +7,7 @@
   import { validateImage } from "@platform";
   import { temporal_engine } from "@intelligence";
 
-  let { open = $bindable(false), target_type = "character" } = $props();
+  let { open = $bindable(false), target_type: _target_type = "character" } = $props();
 
   let raw_text = $state("");
   let image_data = $state(null);
@@ -18,13 +18,8 @@
 
   $effect(() => {
     if (open) {
-      if (target_type === "fractal") {
-        import_character = false;
-        import_fractal = true;
-      } else {
-        import_character = true;
-        import_fractal = false;
-      }
+      import_character = true;
+      import_fractal = true;
     }
   });
 
@@ -203,10 +198,16 @@
 </script>
 
 {#if open}
-  <Modal variant="standard" busy={is_loading} on_close={() => (open = false)}>
-    <div class="flex h-full flex-col gap-4">
+  <Modal
+    variant="standard"
+    z_index="1000"
+    class="w-[clamp(24rem,92vw,42rem)] max-w-2xl rounded-2xl border border-white/10 bg-slate-950/90 p-6 shadow-2xl"
+    busy={is_loading}
+    on_close={() => (open = false)}
+  >
+    <div class="flex h-full flex-col gap-5 p-2">
       <div class="flex flex-1 flex-col gap-4 overflow-hidden">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center justify-between gap-4">
           <Button onclick={trigger_file_input} variant="primary" size="small" disabled={is_loading}>
             <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
               <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
@@ -215,43 +216,43 @@
             </svg>
             <span class="text-xs font-bold tracking-widest uppercase">Upload File</span>
           </Button>
-          <div class="flex items-center gap-4 text-sm text-slate-400">
+          <div class="flex items-center gap-6 text-sm text-slate-300">
             <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
             <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
           </div>
         </div>
 
         {#if error_message}
-          <div class="rounded bg-red-500/10 p-2 text-sm text-red-500">
+          <div class="rounded-lg border border-red-500/20 bg-red-500/10 p-3 text-xs text-red-400">
             {error_message}
           </div>
         {/if}
 
-        <div class="flex flex-1 flex-col gap-2 overflow-hidden">
+        <div class="flex min-h-44 flex-1 flex-col gap-2 overflow-hidden">
           <div class="relative flex-1 overflow-hidden">
             <textarea
               bind:value={raw_text}
               placeholder="Paste raw entity JSON here or upload a Character Card..."
               disabled={is_loading}
               class="
-                h-full w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent
+                h-48 w-full resize-none scrollbar-thin scrollbar-thumb-slate-700 scrollbar-track-transparent
                 rounded-xl
-                border border-transparent bg-[color-mix(in_srgb,#475569_8%,rgb(23_23_23/0.6))] p-4 font-sans
-                text-sm text-slate-50 outline-none
+                border border-white/10 bg-slate-900/60 p-4 font-sans
+                text-sm text-slate-100 outline-none placeholder:text-slate-500 focus:border-amber-400/50
               "
             ></textarea>
           </div>
         </div>
 
         {#if image_data}
-          <div class="flex items-center gap-2">
-            <img src={image_data} alt="Import Avatar" class="h-10 w-10 rounded object-cover shadow-standard" />
-            <span class="text-xs text-slate-400">Image successfully loaded. It will be assigned as the avatar.</span>
+          <div class="flex items-center gap-3 rounded-lg border border-white/10 bg-white/5 p-2.5">
+            <img src={image_data} alt="Import Avatar" class="h-10 w-10 rounded-lg object-cover shadow-standard" />
+            <span class="text-xs text-slate-300">Image loaded successfully. It will be assigned as the entity avatar.</span>
           </div>
         {/if}
       </div>
 
-      <div class="flex items-center justify-end">
+      <div class="flex items-center justify-end border-t border-white/5 pt-2">
         <Button variant="primary" size="small" onclick={handle_import} disabled={is_loading || (!import_character && !import_fractal)}>
           {#if is_loading}
             <span class="text-xs font-bold tracking-widest uppercase">Importing...</span>
@@ -261,7 +262,7 @@
               <polyline points="7 10 12 15 17 10"></polyline>
               <line x1="12" y1="15" x2="12" y2="3"></line>
             </svg>
-            <span class="text-xs font-bold tracking-widest uppercase">Import</span>
+            <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
           {/if}
         </Button>
       </div>
