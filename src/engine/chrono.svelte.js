@@ -136,6 +136,7 @@ export class ChronoStore {
    * @param {object} options
    */
   async advance_turn(input = null, options = {}) {
+    if (simulationState.phase === "locked") return;
     if (app.simulation.loading || simulationState.intent_active) return; // Prevent double-clicks
     const story_id = runtime.story_id;
     if (!story_id) {

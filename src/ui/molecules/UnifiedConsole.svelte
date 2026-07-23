@@ -30,6 +30,7 @@
   let is_ghostwriting = $state(false);
 
   let is_locked = $derived(simulationState.busy);
+  let story_locked = $derived(simulationState.phase === "locked");
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
 
   // --- CONTROL PANEL STATE ---
@@ -70,6 +71,11 @@
     await session_driver.set_active(String(id));
     await runtime.sync(String(id));
     await simulation_log.refresh();
+    if (simulation_log.feed.some((e) => e.meta?.is_epilogue)) {
+      simulationState.lock();
+    } else {
+      simulationState.unlock();
+    }
     app.set_view("storymode");
     app.toggle_control_panel();
   }
@@ -178,6 +184,7 @@
     is_ending_story = true;
     try {
       await gamemaster.execute_epilogue(runtime.story_id);
+      simulationState.lock();
       refresh_stories();
     } catch (e) {
       console.error("[End Story Error]", e);
@@ -279,15 +286,17 @@
       {app.control_panel_open
       ? 'absolute bottom-0 w-full rounded-none p-4 md:w-[calc(var(--spacing-column-unit)*5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'
       : 'relative h-auto w-full rounded-none px-4 py-2 md:absolute md:bottom-0 md:h-auto md:min-h-[calc(var(--spacing-row-unit)*0.5)] md:rounded-[calc(var(--spacing-row-unit)*0.5)]'}
-    {!app.control_panel_open && is_focused && app.view === 'storymode'
-      ? `
+    {!app.control_panel_open && story_locked
+      ? 'md:w-[max(20rem,calc(var(--spacing-column-unit)*3))]'
+      : !app.control_panel_open && is_focused && app.view === 'storymode'
+        ? `
       border-(--signature-color,var(--color-slate-600))
       shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
       md:w-[calc(var(--spacing-column-unit)*5)]
     `
-      : !app.control_panel_open
-        ? 'md:w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
-        : ''}
+        : !app.control_panel_open
+          ? 'md:w-[max(24rem,calc(var(--spacing-column-unit)*4))]'
+          : ''}
   "
     style:--signature-color={app.view === "storymode" ? signature_color : undefined}
     style:view-transition-name="unified-console"
@@ -702,6 +711,36 @@
             />
           </svg>
         </Button>
+      {:else if story_locked}
+        <Button
+          flank={true}
+          variant={app.control_panel_open ? "secondary" : "invisible"}
+          onclick={() => app.toggle_control_panel()}
+          aria-label="Settings"
+          actions={[roll, tooltip]}
+          class="touch-target-coarse"
+        >
+          <svg
+            class="block size-icon-medium {app.control_panel_open ? 'rotate-90 opacity-100 transition-transform' : 'transition-transform'}"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill="currentColor"
+              d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+            />
+          </svg>
+        </Button>
+
+        <Button
+          label="Return to Storyboard"
+          variant="secondary"
+          size="small"
+          class="flex-1"
+          onclick={async () => {
+            await session_driver.clear_active();
+            app.set_view("storyboard");
+          }}
+        />
       {:else}
         <Button
           flank={true}

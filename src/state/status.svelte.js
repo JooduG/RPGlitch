@@ -46,7 +46,7 @@ export const simulationState = $state({
 
   // Streamlined busy lock property that combines phase and intent lock
   get busy() {
-    return this.phase !== "idle" || this.intent_active;
+    return this.phase === "generating" || this.intent_active;
   },
 
   // Actions

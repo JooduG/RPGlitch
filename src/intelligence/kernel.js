@@ -578,7 +578,7 @@ export const gamemaster = {
     let epilogueAttachments = [];
     if (visual_engine) {
       try {
-        const imgResult = await visual_engine.visualize(story_id, response, "fractal");
+        const imgResult = await visual_engine.visualize(story_id, response, "characters", { silent: true });
         if (imgResult?.imageUrl) {
           epilogueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
         }

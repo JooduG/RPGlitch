@@ -1,0 +1,230 @@
+import { db } from "@data";
+import { SESSION_ID_KEY } from "./config.js";
+import { runtime, simulation_log, simulationState } from "@state";
+
+/**
+ * SESSION (Simulation & Gamemaster)
+ * Handles persistence and state for the active story.
+ */
+
+/** @type {string | null} */
+let _active_id = null;
+
+export const session_driver = {
+  get active_id() {
+    return _active_id;
+  },
+
+  /**
+   * Get the active story ID or throw.
+   * @returns {string}
+   */
+  require_active: function () {
+    if (!_active_id) throw new Error("No active session found.");
+    return _active_id;
+  },
+
+  /**
+   * Set active session ID and persist it.
+   * @param {string} id
+   */
+  set_active: async function (id) {
+    _active_id = id;
+    runtime.story_id = id;
+    if (typeof window !== "undefined") {
+      await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
+      // also log to history
+      await db.sessions.add({ session_id: id, timestamp: Date.now() });
+    }
+    await simulation_log.refresh();
+  },
+
+  /**
+   * Clear active session state.
+   */
+  clear_active: async function () {
+    _active_id = null;
+    simulationState.unlock();
+    runtime.story_id = null;
+    runtime.round = 0;
+    if (typeof window !== "undefined") {
+      await db.kv_settings.put({ key: SESSION_ID_KEY, value: null });
+    }
+    await simulation_log.refresh();
+  },
+
+  /**
+   * Create a new session entry from a character/fractal selection
+   * @param {any} selection
+   * @returns {Promise<string>}
+   */
+  create_from_selection: async function (selection) {
+    const ai_entity = selection.ai_id ? await db.entities.get(selection.ai_id) : null;
+    const fractal_entity = selection.fractal_id ? await db.entities.get(selection.fractal_id) : null;
+
+    const id = await db.stories.add({
+      title: selection.story_title || "New Story",
+      ai_id: selection.ai_id,
+      user_id: selection.user_id,
+      fractal_id: selection.fractal_id,
+      entity_snapshots: {
+        ai: { dynamics: ai_entity?.dynamics || {} },
+        fractal: { dynamics: fractal_entity?.dynamics || {} },
+      },
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      round: 0,
+    });
+    const story_id = id.toString();
+    await session_driver.set_active(story_id);
+
+    // Initial system entry
+    const entry = {
+      story_id,
+      role: "system",
+      type: "text",
+      text: `Story Started: ${selection.story_title}`,
+      turn_type: "SYSTEM_TURN",
+      round: 0,
+      meta: { type: "STORY_START" },
+      created_at: Date.now(),
+    };
+    entry.id = await db.simulation_log.add(entry);
+    simulation_log.add(entry);
+
+    return story_id;
+  },
+
+  /**
+   * Send user input (Log it)
+   * @param {string} text
+   * @returns {Promise<void>}
+   */
+  send: async function (text) {
+    const character_name = runtime.active_user?.name || "User";
+    return await this.log_message(text, "user", character_name, "USER_TURN");
+  },
+
+  /**
+   * Remove last turn to allow regeneration
+   */
+  regenerate: async function () {
+    const story_id = session_driver.require_active();
+    const logs = await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
+    for (let i = logs.length - 1; i >= 0; i--) {
+      const entry = logs[i];
+      if (entry.role === "user") break;
+      await db.simulation_log.delete(entry.id);
+      simulation_log.remove(entry.id);
+    }
+  },
+
+  /**
+   * Delete a log entry
+   * @param {string | number} id
+   */
+  delete_log_entry: async function (id) {
+    const key = isNaN(Number(id)) ? id : Number(id);
+    await db.simulation_log.delete(key);
+    simulation_log.remove(key);
+  },
+
+  /**
+   * Edit a log entry
+   * @param {string | number} id
+   * @param {string} new_text
+   */
+  edit_log_entry: async function (id, new_text) {
+    const key = isNaN(Number(id)) ? id : Number(id);
+    await db.simulation_log.update(key, { text: new_text });
+    simulation_log.update(key, { text: new_text });
+  },
+
+  /**
+   * Update an attachment in a log entry
+   * @param {string | number} id
+   * @param {number} attachment_index
+   * @param {any} new_attachment
+   */
+  update_log_attachment: async function (id, attachment_index, new_attachment) {
+    const key = isNaN(Number(id)) ? id : Number(id);
+    const entry = await db.simulation_log.get(key);
+    if (entry && entry.attachments && entry.attachments[attachment_index]) {
+      entry.attachments[attachment_index] = new_attachment;
+      await db.simulation_log.put(entry);
+      simulation_log.update(key, { attachments: entry.attachments });
+    }
+  },
+
+  /**
+   * Add a message to the simulation log
+   * @param {string} text
+   * @param {string} role
+   * @param {string} character_name
+   * @param {string} [turn_type]
+   * @param {any} [meta]
+   */
+  log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}, attachments = []) {
+    const story_id = session_driver.require_active();
+    /** @type {any} */
+    const entry = {
+      story_id,
+      role,
+      type: "text",
+      character_name,
+      text,
+      turn_type,
+      round: runtime.round,
+      meta: $state.snapshot(meta),
+      created_at: Date.now(),
+    };
+    if (attachments && attachments.length > 0) {
+      entry.attachments = attachments;
+    }
+    if (meta && meta.id) {
+      entry.id = meta.id;
+    }
+    entry.id = await db.simulation_log.add(entry);
+    simulation_log.add(entry);
+  },
+
+  /**
+   * Legacy wrapper for log_message matching Intelligence Kernel's expected signature.
+   * @param {string} text
+   * @param {string} character_name
+   * @param {string} role
+   * @param {any} [meta]
+   */
+
+  /**
+   * Fetch history for a story.
+   * @param {string} story_id
+   * @returns {Promise<any[]>}
+   */
+  load_log: async function (story_id) {
+    if (!story_id) return [];
+    return await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
+  },
+
+  /**
+   * Add a system/telemetry log entry
+   * @param {string} text
+   * @param {string} [role]
+   * @param {any} [meta]
+   */
+  log_system_entry: async function (text, role = "system", meta = {}) {
+    const story_id = session_driver.require_active();
+    const entry = {
+      story_id,
+      role,
+      type: "text",
+      text,
+      turn_type: "SYSTEM_TURN",
+      round: runtime.round,
+      meta: $state.snapshot(meta),
+      created_at: Date.now(),
+    };
+    entry.id = await db.simulation_log.add(entry);
+    simulation_log.add(entry);
+  },
+};

@@ -436,7 +436,7 @@ function render_ghostwriter({ entities, input = "" }) {
 
   const system = clean_xml(`
 <SYSTEM role="${escapeXml(user_name)}">
-You are drafting on behalf of ${escapeXml(user_name)} in an active scene with ${escapeXml(ai_name)} inside ${escapeXml(fractal_name)}.
+You are drafting on behalf of ${escapeXml(user_name)} in an active scene with ${escapeXml(ai_name)} inside ${escapeXml(fractal_name)}.${extract_pov_directive(entities?.USER)}
   <YOUR_IDENTITY name="${escapeXml(user_name)}">
     <ETERNAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
   </YOUR_IDENTITY>

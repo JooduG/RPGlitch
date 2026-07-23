@@ -28,6 +28,7 @@
 
   // Streaming trackers for sequential speech queue feeding
   let was_streaming = $state(false);
+  let last_streaming_role = $state(null);
   let spoken_character_cursor = $state(0);
 
   // --- DERIVATIONS ---
@@ -36,9 +37,16 @@
   $effect(() => {
     if (app.streaming.active && !was_streaming) {
       spoken_character_cursor = 0;
-      Audio.voice.stop();
 
       const activeRole = app.streaming.role;
+      // Only hard-stop voice on same-role transitions (e.g., retry).
+      // For cross-role transitions (fractal → ai), let the queue drain naturally —
+      // the activeMessageId mechanism skips old sentences at sentence boundaries.
+      if (last_streaming_role === activeRole) {
+        Audio.voice.stop();
+      }
+      last_streaming_role = activeRole;
+
       if (activeRole === "ai" || activeRole === "fractal") {
         const entity = activeRole === "ai" ? runtime.active_ai || app.selected_ai : runtime.active_fractal || app.selected_fractal;
 
