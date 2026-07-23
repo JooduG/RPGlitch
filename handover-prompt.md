@@ -59,6 +59,7 @@ You are working on **RPGlitch**, an AI roleplay engine built with **Svelte 5 + V
 **Objective**: `[Describe the high-level objective for this turn or feature]`
 
 ### Requirements & Guidelines
+
 - `[Detail requirement 1]`
 - `[Detail requirement 2]`
 - `[Detail requirement 3]`

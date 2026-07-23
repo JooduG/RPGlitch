@@ -171,6 +171,22 @@
     },
   };
 
+  let is_ending_story = $state(false);
+
+  async function handle_end_story() {
+    if (is_ending_story || !runtime.story_id) return;
+    is_ending_story = true;
+    try {
+      await gamemaster.execute_epilogue(runtime.story_id);
+      refresh_stories();
+    } catch (e) {
+      console.error("[End Story Error]", e);
+      app.log(`End Story failed: ${e.message || e}`, "error");
+    } finally {
+      is_ending_story = false;
+    }
+  }
+
   function adjust_height() {
     if (!textarea) return;
     textarea.style.height = "auto";
@@ -428,9 +444,12 @@
                                 await session_driver.log_message("", "ai", entity?.name || "AI", "AI_TURN", {}, [
                                   { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
                                 ]);
+                              } else {
+                                app.log("AI Portrait generation failed. Please try again.", "error");
                               }
                             } catch (err) {
                               console.error("[AI Portrait Error]", err);
+                              app.log(`AI Portrait failed: ${err.message || err}`, "error");
                             } finally {
                               simulationState.complete();
                             }
@@ -452,9 +471,12 @@
                                 await session_driver.log_message("", "user", entity?.name || "User", "USER_TURN", {}, [
                                   { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
                                 ]);
+                              } else {
+                                app.log("User Portrait generation failed. Please try again.", "error");
                               }
                             } catch (err) {
                               console.error("[User Portrait Error]", err);
+                              app.log(`User Portrait failed: ${err.message || err}`, "error");
                             } finally {
                               simulationState.complete();
                             }
@@ -480,9 +502,12 @@
                                 await session_driver.log_message("", "fractal", entity?.name || "Fractal", "SYSTEM_TURN", {}, [
                                   { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
                                 ]);
+                              } else {
+                                app.log("Fractal generation failed. Please try again.", "error");
                               }
                             } catch (err) {
                               console.error("[Fractal Error]", err);
+                              app.log(`Fractal failed: ${err.message || err}`, "error");
                             } finally {
                               simulationState.complete();
                             }
@@ -508,9 +533,12 @@
                                 await session_driver.log_message("", "fractal", fractal?.name || "Scene", "SYSTEM_TURN", {}, [
                                   { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
                                 ]);
+                              } else {
+                                app.log("Group Shot generation failed. Please try again.", "error");
                               }
                             } catch (err) {
                               console.error("[Group Shot Error]", err);
+                              app.log(`Group Shot failed: ${err.message || err}`, "error");
                             } finally {
                               simulationState.complete();
                             }
@@ -534,12 +562,9 @@
                           variant="danger"
                           size="small"
                           class="ml-auto"
-                          onclick={async () => {
-                            if (runtime.story_id) {
-                              await gamemaster.execute_epilogue(runtime.story_id);
-                              refresh_stories();
-                            }
-                          }}
+                          loading={is_ending_story}
+                          disabled={is_ending_story || is_locked}
+                          onclick={handle_end_story}
                         />
                       </div>
                     </div>

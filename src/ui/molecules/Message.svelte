@@ -500,7 +500,6 @@
                 [&_h3]:text-slate-300
 
                 [&_p]:mb-4
-                [&_p:last-child]:mb-0
                 [&_strong]:font-bold
               "
             >
@@ -569,7 +568,7 @@
         {/if}
 
         {#if attachments.length > 0}
-          <div class="mt-4 flex justify-center">
+          <div class="flex justify-center">
             {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
               {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
               {#if src}
@@ -582,7 +581,6 @@
                     overflow-hidden
                     rounded-lg
                     bg-neutral-900/50
-                    p-2
                     transition-[filter] duration-200
                     hover:brightness-110
                   "

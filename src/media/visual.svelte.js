@@ -93,6 +93,15 @@ export class VisualEngine {
     this.isLoading = true;
     this.error = null;
     this.attempts = 0;
+
+    // Auto-recover circuit breaker for user-initiated requests.
+    // Image generation is always explicitly triggered by the user, so we
+    // should never permanently block them — just let the retryer handle
+    // transient failures.
+    if (this.breaker.isOpen) {
+      this.breaker.state = "HALF_OPEN";
+      this.breaker.successCount = 0;
+    }
     this.isOffline = this.breaker.isOpen;
 
     try {
@@ -157,9 +166,18 @@ export class VisualEngine {
 
             const res = getResolution(options.mode);
             const baseNegativePrompt = options.negativePrompt?.trim() || "";
-            const isPortraitMode = ["character", "ai", "user", "selfie", "portrait"].includes(options.mode || options.type || "");
-            const styleKey = isPortraitMode ? resolve_portrait_visual_style_key(options._entity || {}) : resolve_story_visual_style_key();
+            // If _entity is provided (profile editor), use portrait resolver.
+            // Otherwise (storymode via visualize), use story resolver (fractal's style).
+            const styleKey = options._entity ? resolve_portrait_visual_style_key(options._entity) : resolve_story_visual_style_key();
             const vsTokens = resolve_visual_engine_tokens(styleKey);
+
+            // Inject positive style tokens into the prompt if available
+            const vsPositive = [vsTokens.medium, vsTokens.palette, vsTokens.camera || vsTokens.composition, vsTokens.texture]
+              .filter(Boolean)
+              .join(", ");
+            if (vsPositive && styleKey !== "none" && !finalPrompt.includes(vsTokens.medium || "\x00")) {
+              finalPrompt = `${vsPositive}, ${finalPrompt}`;
+            }
 
             const vsNeg = styleKey !== "none" ? vsTokens.negative_prompt || "" : "";
             const rawNegSources = [baseNegativePrompt, vsNeg, NEGATIVE_PROMPT].filter(Boolean).join(", ");
@@ -182,7 +200,6 @@ export class VisualEngine {
               prompt: finalPrompt,
               negativePrompt: effectiveNegativePrompt,
               seed: effectiveSeed,
-              shape: effectiveResolution,
               resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
               guidanceScale: effectiveGuidanceScale,
@@ -190,7 +207,7 @@ export class VisualEngine {
 
             let timeoutId;
             const timeoutPromise = new Promise((_, reject) => {
-              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 90000);
+              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 60000);
             });
             timeoutPromise.catch(() => {});
 
@@ -353,11 +370,20 @@ export class VisualEngine {
       });
 
       console.log("[VisualEngine] visualize: LLM prompt extraction starting for target:", vTarget);
-      const refined = await llm_service.generate({ system, messages: [] }, { silent: true });
+      let refined = null;
+      try {
+        const extractionTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 45000));
+        refined = await Promise.race([llm_service.generate({ system, messages: [] }, { silent: true }), extractionTimeout]);
+      } catch (extractErr) {
+        console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", extractErr.message);
+      }
 
       if (!refined) {
-        console.warn("[VisualEngine] visualize: LLM returned empty/null for image prompt extraction.");
-        return { imageUrl: null, refinedPrompt: null, caption: null };
+        console.warn("[VisualEngine] visualize: LLM returned empty/null, synthesizing fallback prompt.");
+        const fallbackEntity = vTarget === "user" ? user : vTarget === "fractal" || vTarget === "characters" ? fractal : ai;
+        const fallbackDesc = AestheticResolver.flatten(fallbackEntity);
+        const fallbackName = fallbackEntity?.name || vTarget;
+        refined = `<image_prompt>${visualPrompt}, ${fallbackName}, ${fallbackDesc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
       }
 
       const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);

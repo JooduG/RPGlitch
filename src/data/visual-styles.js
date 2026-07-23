@@ -35,10 +35,10 @@ export const VISUAL_STYLES = {
       "Ultra-realistic RAW photography with natural lighting, film grain, and shallow depth of field. Captures subjects as lifelike photographs with crisp texture definition.",
     tags: ["photography", "realistic", "default", "raw", "lifelike", "8k"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>RAW photograph, photorealistic 8k rendering</medium>
-<palette>kodak vision3 color profile, natural lighting, fine film grain</palette>
-<camera>85mm prime f/1.2 lens, shallow depth of field</camera>
-<texture>crisp asset definition, micro-detailed surface textures</texture>
+<medium>RAW photograph, photorealistic 8k rendering, structured visual rendering</medium>
+<palette>kodak vision3 color profile, natural lighting, fine film grain, naturalistic lighting features</palette>
+<camera>85mm prime f/1.2 lens, shallow depth of field, cinematic framing, professional portrait composition</camera>
+<texture>crisp asset definition, micro-detailed surface textures, clear focus distribution, professional aesthetic layout</texture>
 <negative_prompt>anime, illustration, 3d render, cartoon, drawing, painting</negative_prompt>
 </VISUAL_ENGINE>`,
   },

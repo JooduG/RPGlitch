@@ -290,8 +290,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
     let ctxBlock;
-    let anchor = "RAW photograph or structured visual rendering of a character";
-    let realism = "clear focus, defined textures, professional aesthetic layout";
+    let subject;
 
     const physical_to_xml = (raw, tagName) => {
       if (!raw) return "";
@@ -334,34 +333,30 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     switch (targetType) {
       case "fractal":
         ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, medium context, and background lighting structures.</RESTRICTION>`;
-        anchor = "RAW photograph or structured artistic rendering of an landscape environment or interior layout space";
-        realism = "high architectural definition, crisp spatial depth details, professional landscape layout alignment";
+        subject = "a landscape environment or interior layout space";
         break;
       case "characters":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<NARRATIVE_CONTEXT>The image must depict the specific scene, action, or moment described in the INSTRUCTIONS. The characters should be engaged in the narrative situation — not simply standing or posing. Use their physical descriptions to render their appearance, but compose them into the dramatic or emotional beat of the scene.</NARRATIVE_CONTEXT>`;
-        anchor =
-          "RAW photograph or structured artistic rendering of a scene featuring the AI character and the user persona together within the fractal environment, depicted in the specific moment and action described by the narrative intent";
-        realism =
-          "balanced composition with clear character placement, environmental depth, professional cinematic staging, dramatic lighting matching the scene's mood, natural interaction between characters";
+        subject =
+          "a scene featuring the AI character and the user persona together within the fractal environment, depicted in the specific moment and action described by the narrative intent";
         break;
       case "character":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
-        anchor =
-          "RAW photograph or structured visual rendering of a character within their environment, framed to emphasize the character with the fractal setting visible in the background";
-        realism = "cinematic framing, clear focus distribution, naturalistic lighting features, professional portrait composition";
+        subject = "a character within their environment, framed to emphasize the character with the fractal setting visible in the background";
         break;
       case "selfie":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
-        anchor =
-          "RAW photograph, a modern front-facing wide-angle camera selfie shot layout, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
-        realism = "cinematic framing, clear focus distribution, naturalistic lightning features, smartphone camera simulation layer";
+        subject =
+          "a modern front-facing wide-angle camera selfie shot, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
         break;
       case "user":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona profile context.</RESTRICTION>`;
+        subject = "a solo character portrait of the user persona";
         break;
       case "ai":
       default:
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character profile context.</RESTRICTION>`;
+        subject = "a solo character portrait of the AI character";
         break;
     }
 
@@ -372,11 +367,9 @@ ${visualEngineBlock}
 <PROTOCOL>
 1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
 2. Output exactly one <image_prompt> tag containing the final token string.
-3. The image_prompt MUST start with "${anchor}" and use continuous, descriptive details or tokens.
-4. Allow alternative artistic formats (like anime or illustrations) to map cleanly if requested by the input intent context.
-5. End every prompt with: "${realism}"
-6. The <VISUAL_ENGINE> block defines the exclusive aesthetic style for this image. You MUST incorporate its medium, palette, camera, and texture directives into the image prompt to ensure stylistic cohesion.${vsNegPrompt ? `\n7. You MUST include the visual engine's negative prompt tokens ("${escapeXml(vsNegPrompt)}") in your negativePrompt output.` : ""}
-${targetType === "selfie" ? `${vsNegPrompt ? "8" : "6"}. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie.` : ""}
+3. The image_prompt MUST depict ${subject}. Use continuous, descriptive details or tokens that reflect the active visual style's medium and texture.
+4. The <VISUAL_ENGINE> block defines the exclusive aesthetic style for this image. You MUST incorporate its medium, palette, camera, and texture directives into the image prompt to ensure stylistic cohesion.${vsNegPrompt ? `\n5. You MUST include the visual engine's negative prompt tokens ("${escapeXml(vsNegPrompt)}") in your negativePrompt output.` : ""}
+${targetType === "selfie" ? `${vsNegPrompt ? "6" : "5"}. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie.` : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
