@@ -1,40 +1,41 @@
 /**
- * @file text_parser.js
- * @description Logic for parsing raw LLM output into structured UI data.
- * Handles: Think blocks, Image prompts, and Markdown.
+ * @file src/intelligence/parser.js
+ * 📋 PARSER & TEXT UTILITIES — Parsing raw LLM output into structured UI data.
+ * Handles: Think blocks, Image prompts, Pseudo-JSON, XML sanitization, and Markdown rendering.
  */
-import MarkdownIt from "markdown-it";
-import { sanitize } from "@platform";
+
 import { detox_prose } from "@data";
+import { sanitize } from "@platform";
+import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
   html: false,
   breaks: true,
   linkify: true,
 });
+
 /**
  * Extracts <think> blocks from text.
- * Handles partial tags during streaming and merges multiple blocks.
+ * Handles partial tags during streaming and merges multiple blocks cleanly.
  * @param {string|null|undefined} text
  * @returns {{ content: string, think: string|null }}
  */
 export function parse_think_block(text) {
   if (!text) return { content: "", think: null };
 
-  let thinkAccumulator = [];
+  const thinkAccumulator = [];
 
   // 1. Match and extract closed <think>...</think> blocks
   const closedThinkRegex = /<think>([\s\S]*?)<\/think>/gi;
   let match;
   while ((match = closedThinkRegex.exec(text)) !== null) {
-    // Strip inner <think> or </think> tags if any got captured due to tag nesting
     const rawBlock = match[1].replace(/<\/?think>/gi, "").trim();
     if (rawBlock) {
       thinkAccumulator.push(rawBlock);
     }
   }
 
-  // Clean all closed <think>...</think> blocks from content
+  // Clean closed <think>...</think> blocks from content
   let content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
 
   // 2. Check for an unclosed partial block (streaming)
@@ -51,7 +52,6 @@ export function parse_think_block(text) {
         thinkAccumulator.push(streamingThink);
       }
 
-      // Clean content by removing everything from the unclosed <think> onwards
       const precedingText = text.substring(0, lastThinkIndex);
       content = precedingText.replace(/<think>[\s\S]*?<\/think>/gi, "");
     }
@@ -80,6 +80,7 @@ export function parse_think_block(text) {
     think: finalThink || null,
   };
 }
+
 /**
  * Strips all <think> blocks and optional trailing newlines.
  * @param {string|null|undefined} text
@@ -91,10 +92,10 @@ export function strip_cognition_blocks(text) {
   clean = clean.replace(/^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i, "");
   return clean.trim();
 }
+
 /**
  * Extracts the outermost JSON object from a raw LLM response.
- * Strips markdown code fences and isolates the substring between
- * the first "{" and last "}".
+ * Strips markdown code fences and isolates the substring between the first "{" and last "}".
  * @param {string} raw
  * @returns {string|null} The extracted JSON string, or null if no braces found.
  */
@@ -108,7 +109,7 @@ export function extract_json_block(raw) {
 }
 
 /**
- * Removes <image_prompt> tags from text.
+ * Removes <image_prompt> tags and Markdown images from text.
  * @param {string|null|undefined} text
  * @returns {string}
  */
@@ -118,31 +119,26 @@ export function clean_image_prompts(text) {
   // 1. Remove Markdown image syntax ![alt](url)
   let result = text.replace(/!\[.*?\]\(.*?\)/g, "");
 
-  // Shared attribute-matching regex string to prevent ReDoS (linear scanning)
+  // Shared attribute-matching regex string to prevent ReDoS
   const attrRegex = "(?:\\s+[^\"'>\\s]+(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\"'>\\s]+))?)*";
 
-  // 2. Remove self-closing tags with potential quoted '>' in attributes
-  // Matches <tag ... /> where attributes can have quoted strings
-  // We handle image_prompt specifically to avoid over-matching other tags
-  // Note: Standard JS regex doesn't support atomic groups (++) or possessive quantifiers (*+) in all environments
+  // 2. Remove self-closing tags
   result = result.replace(new RegExp(`<image_prompt${attrRegex}\\s*\\/>`, "gi"), "");
 
-  // 3. Iteratively remove the innermost <image_prompt>...</image_prompt> and <image>...</image> pairs
+  // 3. Iteratively remove innermost <image_prompt>...</image_prompt> and <image>...</image> pairs
   let previous = "";
   while (previous !== result) {
     previous = result;
-    // Handle <image_prompt>...</image_prompt>
     result = result.replace(new RegExp(`<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`, "gi"), "");
-    // Handle <image>...</image>
     result = result.replace(new RegExp(`<image${attrRegex}\\s*>(?:(?!<image)[\\s\\S])*?<\\/image\\s*>`, "gi"), "");
   }
 
   return result;
 }
+
 /**
  * Stateful parser to wrap text inside double quotes with a `<span class="dialogue">` tag.
- * Preserves inner HTML tags (like `<em>`) by splitting the HTML and only running quote
- * replacement on text nodes. Converts straight quotes to curly smart quotes.
+ * Preserves inner HTML tags (like `<em>`) by splitting the HTML and running quote replacement on text nodes.
  * @param {string} html
  * @returns {string}
  */
@@ -156,7 +152,6 @@ export function wrap_dialogue(html) {
       continue;
     }
 
-    // Normalize escaped double quotes inside text nodes
     const text = parts[i].replace(/&quot;/g, '"');
     let newText = "";
     let lastIndex = 0;
@@ -188,7 +183,7 @@ export function wrap_dialogue(html) {
 /**
  * Master parser that runs all passes.
  * @param {string|null|undefined} rawText
- * @returns {{ displayText: string, think: string|null, sceneData: object|null }}
+ * @returns {{ displayText: string, think: string|null }}
  */
 export function parse_message(rawText) {
   // 1. Remove Image Prompts (Artifacts)
@@ -198,19 +193,17 @@ export function parse_message(rawText) {
   const thinkResult = parse_think_block(text);
   text = thinkResult.content;
 
-  // 🧪 ANTI-CLICHÉ LAYER: Intercept and clean text right here to keep thoughts pure
+  // 3. Anti-Cliche Layer
   text = detox_prose(text);
 
-  // 3. Render Markdown
+  // 4. Render Markdown
   let rendered = sanitize(md.render(text).trim());
-
-  // Dedicated sanitization pass to strip out leaking historical XML formatting tokens
   rendered = rendered.replace(/&quot;/g, '"').replace(/&apos;/g, "'");
 
-  // 4. Wrap Dialogue Quotes
+  // 5. Wrap Dialogue Quotes
   rendered = wrap_dialogue(rendered);
 
-  let rendered_think = thinkResult.think ? sanitize(md.render(thinkResult.think).trim()) : null;
+  const rendered_think = thinkResult.think ? sanitize(md.render(thinkResult.think).trim()) : null;
 
   return {
     displayText: rendered,
@@ -231,7 +224,7 @@ export function escapeXml(str) {
     .replace(/'/g, "&apos;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/\[/g, "&#91;") // Optional: hardening against internal tagging
+    .replace(/\[/g, "&#91;")
     .replace(/\]/g, "&#93;");
 }
 
@@ -255,6 +248,8 @@ export function clean_text(text, limit = 500) {
 
 /**
  * Recursively cleans empty XML tags from a string.
+ * @param {string} str
+ * @returns {string}
  */
 export function clean_xml(str) {
   let prev;
@@ -316,16 +311,16 @@ export const safeParsePseudoJson = (raw) => {
     if (Object.keys(extracted).length > 0) return extracted;
   }
 
-  // Tier 3: Complete Fallback — Field holds raw text prose description sentence!
+  // Tier 3: Complete Fallback
   return { __raw_prose__: cleanRaw };
 };
 
 /**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)
  * and reserializes it securely without destructive appends.
- * @param {string} current_field_value - The existing data in the field (e.g. from entity.present.physical)
- * @param {string} new_prose - The new prose or text to merge in
- * @returns {string} - The updated field content serialized
+ * @param {string} current_field_value
+ * @param {string} new_prose
+ * @returns {string}
  */
 export const merge_prose_into_field = (current_field_value, new_prose) => {
   if (!new_prose || !new_prose.trim()) return current_field_value || "";
@@ -335,7 +330,6 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   const clean_new_prose = new_prose.trim();
 
   if (parsed.__raw_prose__) {
-    // If it was already just prose, append it cleanly
     const existing = parsed.__raw_prose__.trim();
     let result = !existing ? clean_new_prose : `${existing}\n${clean_new_prose}`;
     if (result.length > MAX_FIELD_CHARS) {
@@ -344,14 +338,12 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
     return result;
   }
 
-  // It's an object / pseudo-JSON. Inject the new prose.
   if (parsed.condition) {
     parsed.condition = `${parsed.condition}, ${clean_new_prose}`;
   } else {
     parsed.condition = clean_new_prose;
   }
 
-  // Reserialize to clean unbracketed format to maintain the pseudo-JSON style
   let lines = Object.entries(parsed)
     .map(([k, v]) => `"${k}": "${String(v).replace(/"/g, '\\"')}"`)
     .join(",\n");

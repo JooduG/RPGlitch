@@ -3,9 +3,12 @@
  * 🎨 VISUAL ENGINE (Reactive Class)
  * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
-import { generateSecureSeed } from "@engine";
+
 import { db, entities } from "@data";
+import { generateSecureSeed } from "@engine";
 import { strip_cognition_blocks } from "@intelligence";
+import { llm_service, sanitize_llm } from "@platform/transport.js";
+import { app, runtime, simulationState as simulation } from "@state";
 import {
   AestheticResolver,
   getResolution,
@@ -16,8 +19,6 @@ import {
   resolve_visual_engine_tokens,
 } from "./optics.js";
 import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
-import { llm_service, sanitize_llm } from "@platform/transport.js";
-import { app, runtime, simulationState as simulation } from "@state";
 
 // Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
 let cachedImageEngine = null;
@@ -60,20 +61,14 @@ function findImageEngine() {
   return null;
 }
 
-/**
- *
- */
 export class VisualEngine {
-  // --- Reactive State (Runes) ---
+  // --- Reactive State (Svelte 5 Runes) ---
   isLoading = $state(false);
   /** @type {string | null} */
   error = $state(null);
   attempts = $state(0);
-  isOffline = $state(false); // Circuit breaker status
+  isOffline = $state(false);
 
-  /**
-   *
-   */
   constructor() {
     this.retryer = new ExponentialBackoffRetryer({
       maxAttempts: 3,
@@ -92,6 +87,7 @@ export class VisualEngine {
    * Handles character resolution, prompt optimization, and resilient generation.
    * @param {string} target
    * @param {any} [options]
+   * @returns {Promise<any>}
    */
   async generate(target, options = {}) {
     this.isLoading = true;
@@ -107,10 +103,9 @@ export class VisualEngine {
       const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
 
       if (typeof target === "string" && !isUuid) {
-        finalPrompt = target.trim(); // Clean raw inputs
+        finalPrompt = target.trim();
       } else if (typeof target === "string") {
         entityId = target;
-        /** @type {any} */
         const entity = await this._resolveEntity(entityId);
 
         const hasPhysical = entity.eternal?.physical || entity.present?.physical;
@@ -127,17 +122,16 @@ export class VisualEngine {
           finalPrompt = entity.modifiers?.prompt || AestheticResolver.flatten(entity) || entity.name;
         }
 
-        /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
+        options.type = entity.type || "character";
         if (!options._entity) options._entity = entity;
-        // Store the entity's custom negative prompt for use in generation
         if (!options.negativePrompt && entity.modifiers?.negative_prompt) {
-          /** @type {any} */ (options).negativePrompt = entity.modifiers.negative_prompt;
+          options.negativePrompt = entity.modifiers.negative_prompt;
         }
       } else {
         finalPrompt = String(target);
       }
 
-      // 1.1 Empty Prompt Safe-Guard
+      // 1.1 Empty Prompt Safeguard
       if (!finalPrompt || !finalPrompt.trim()) {
         console.warn("[VisualEngine] Empty visual prompt detected. Synthesizing generic aesthetic prompt.");
         finalPrompt = "professional portrait configuration, sharp details, high-end studio layout, realistic textures";
@@ -147,14 +141,14 @@ export class VisualEngine {
       const result = await this.breaker.execute(async () => {
         return await this.retryer.retry(
           async () => {
-            const image_engine = findImageEngine();
-            if (!image_engine) {
-              const is_mockable =
+            const imageEngine = findImageEngine();
+            if (!imageEngine) {
+              const isMockable =
                 typeof window !== "undefined" &&
                 !(typeof process !== "undefined" && process.env.VITEST) &&
                 (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1" || import.meta.env.DEV);
 
-              if (is_mockable) {
+              if (isMockable) {
                 console.warn("[VisualEngine] Image plugin not found. Synthesizing local mock preview image.");
                 return this._mock_generate(finalPrompt, options);
               }
@@ -162,25 +156,32 @@ export class VisualEngine {
             }
 
             const res = getResolution(options.mode);
-            const baseNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || "";
-            // Inject style-specific negative prompts from the visual engine
+            const baseNegativePrompt = options.negativePrompt?.trim() || "";
             const isPortraitMode = ["character", "ai", "user", "selfie", "portrait"].includes(options.mode || options.type || "");
             const styleKey = isPortraitMode ? resolve_portrait_visual_style_key(options._entity || {}) : resolve_story_visual_style_key();
             const vsTokens = resolve_visual_engine_tokens(styleKey);
-            const vsNeg = vsTokens.negative_prompt || "";
-            const effectiveNegativePrompt = [baseNegativePrompt, vsNeg, NEGATIVE_PROMPT].filter(Boolean).join(", ");
+
+            const vsNeg = styleKey !== "none" ? vsTokens.negative_prompt || "" : "";
+            const rawNegSources = [baseNegativePrompt, vsNeg, NEGATIVE_PROMPT].filter(Boolean).join(", ");
+            const deduplicatedNegTokens = Array.from(
+              new Set(
+                rawNegSources
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean),
+              ),
+            );
+            const effectiveNegativePrompt = deduplicatedNegTokens.join(", ");
             const effectiveSeed = options.seed ?? generateSecureSeed();
             const effectiveResolution = `${res.width}x${res.height}`;
-            // Guidance scale: higher for characters (stricter adherence to entity details), lower for scenes (more atmospheric variety)
             const entityType = options.type || options.mode || "character";
             const isCharacter = ["character", "ai", "user", "selfie", "portrait", "characters"].includes(entityType);
             const effectiveGuidanceScale = options.guidanceScale ?? (isCharacter ? 9 : 7);
 
-            const generatePromise = image_engine({
+            const generatePromise = imageEngine({
               prompt: finalPrompt,
               negativePrompt: effectiveNegativePrompt,
               seed: effectiveSeed,
-              // Map custom resolution parameters directly to the strict string formats expected by Perchance
               shape: effectiveResolution,
               resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
@@ -191,7 +192,6 @@ export class VisualEngine {
             const timeoutPromise = new Promise((_, reject) => {
               timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 90000);
             });
-            // Catch rejection on the timeout promise itself to prevent unhandled promise rejection warnings
             timeoutPromise.catch(() => {});
 
             try {
@@ -243,7 +243,7 @@ export class VisualEngine {
               clearTimeout(timeoutId);
             }
           },
-          (/** @type {number} */ attempt) => {
+          (attempt) => {
             this.attempts = attempt;
             console.warn(`[VisualEngine] Retry attempt ${attempt}...`);
           },
@@ -270,30 +270,28 @@ export class VisualEngine {
   }
 
   /**
-   * Refines raw text into structured { prompt, negativePrompt } visual tokens
-   * using an internalized Scribe-parsing block to handle logging artifacts safely.
+   * Refines raw text into structured { prompt, negativePrompt } visual tokens.
    * @param {string} text
    * @param {string} [type]
+   * @param {any} [entity]
    * @returns {Promise<{ prompt: string, negativePrompt: string } | null>}
    */
-  async enhance(text, type = "character") {
+  async enhance(text, type = "character", entity = null) {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = PromptTemplates.ENHANCE(text, type);
+          const system = PromptTemplates.ENHANCE(text, type, entity);
 
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
 
-          // Internalized structural parse loop
           const parsed = this._parseRefineResponse(result);
           if (parsed) return parsed;
 
-          // Fallback: treat raw result as plain-text prompt only
           const cleanPrompt = this._cleanPrompt(result);
           return cleanPrompt ? { prompt: cleanPrompt, negativePrompt: "" } : null;
         },
-        (/** @type {number} */ attempt) => {
+        (attempt) => {
           console.warn(`[VisualEngine] Enhancement retry ${attempt}...`);
         },
       );
@@ -306,15 +304,17 @@ export class VisualEngine {
    * @param {string} visualPrompt
    * @param {any} [targetType]
    * @param {any} [options]
+   * @returns {Promise<{ imageUrl: any, refinedPrompt: string | null, caption: string | null, metadata?: any }>}
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
     const { silent = false } = options;
     let story = null;
+
     if (storyId) {
       const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : storyId;
       try {
         story = await db.stories.get(dbKey);
-      } catch (_e) {
+      } catch (_) {
         /* ignore */
       }
     }
@@ -330,11 +330,14 @@ export class VisualEngine {
     }
 
     const targetTypeMap = { fractal: "fractal", user: "user", selfie: "selfie", characters: "characters" };
-    const vTarget = /** @type {any} */ (targetTypeMap)[targetType] || "character";
+    const vTarget = targetTypeMap[targetType] || "character";
 
     const targetIdMap = { fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
-    const targetId = /** @type {any} */ (targetIdMap)[targetType] || story.ai_id;
-    if (!silent) simulation.start_typing(targetType === "fractal" || targetType === "characters" ? "fractal" : targetType || "ai", targetId);
+    const targetId = targetIdMap[targetType] || story.ai_id;
+
+    if (!silent) {
+      simulation.start_typing(targetType === "fractal" || targetType === "characters" ? "fractal" : targetType || "ai", targetId);
+    }
 
     try {
       const ai = await this._resolveEntity(story.ai_id);
@@ -350,13 +353,7 @@ export class VisualEngine {
       });
 
       console.log("[VisualEngine] visualize: LLM prompt extraction starting for target:", vTarget);
-      const refined = await llm_service.generate(
-        {
-          system: system,
-          messages: [],
-        },
-        { silent: true },
-      );
+      const refined = await llm_service.generate({ system, messages: [] }, { silent: true });
 
       if (!refined) {
         console.warn("[VisualEngine] visualize: LLM returned empty/null for image prompt extraction.");
@@ -381,11 +378,10 @@ export class VisualEngine {
         caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
       }
 
-      // The retryer handles any transient rate-limit failures with exponential backoff
-
       console.log("[VisualEngine] visualize: Calling this.generate() for image...");
       const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
       console.log("[VisualEngine] visualize: generate() returned:", typeof payload, payload ? (payload.url ? "(has url)" : "(no url)") : "(null)");
+
       if (payload && payload.url) {
         return {
           imageUrl: payload.url,
@@ -449,13 +445,10 @@ export class VisualEngine {
   }
 
   /**
-   * Triggers manual file upload. Supports native Perchance upload-plugin when hosted,
-   * and falls back to a secure HTML5 local file picker with Zero-Trust image checks
-   * when running locally or offline.
+   * Triggers manual file upload via Zero-Trust image checks.
    * @returns {Promise<string | null>}
    */
   async upload() {
-    // Secure local fallback
     try {
       const { validateImage } = await import("@platform/security.js");
       return new Promise((resolve) => {
@@ -503,6 +496,7 @@ export class VisualEngine {
 
   /**
    * @param {string} id
+   * @returns {Promise<any>}
    */
   async _resolveEntity(id) {
     if (!id) return { name: "Unknown", description: "" };
@@ -520,7 +514,7 @@ export class VisualEngine {
   }
 
   /**
-   * Localized JSON isolation peeler to separate incoming text streams flawlessly.
+   * Localized JSON isolation peeler to separate incoming text streams.
    * @param {string} raw
    * @returns {{ prompt: string, negativePrompt: string } | null}
    */
@@ -548,6 +542,7 @@ export class VisualEngine {
 
   /**
    * @param {string} raw
+   * @returns {string}
    */
   _cleanPrompt(raw) {
     if (typeof raw !== "string") return raw;

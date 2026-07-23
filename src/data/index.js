@@ -11,6 +11,5 @@ export {
   detox_prose,
 } from "./normalizer.js";
 export { premade } from "./premades.js";
-export { LISTS } from "./lists.js";
 export { NARRATIVE_STYLES } from "./narrative-styles.js";
 export { VISUAL_STYLES } from "./visual-styles.js";

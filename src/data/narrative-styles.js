@@ -1,3 +1,18 @@
+/**
+ * src/data/narrative-styles.js
+ * 📖 NARRATIVE STYLE SYSTEM — Author & Director Engine presets for prose generation.
+ * Each entry's `narrative_engine` XML block is injected into the LLM system prompt context.
+ *
+ * @typedef {Object} NarrativeStyle
+ * @property {string} id - Unique identifier matching the registry key
+ * @property {string} name - Display title shown in the UI dropdowns
+ * @property {string} [portrait] - Optional author or director portrait asset URL
+ * @property {string} description - Comprehensive style summary for tooltips and previews
+ * @property {string[]} [tags] - Taxonomy search keywords
+ * @property {string} narrative_engine - Injected XML prompt block containing DNA, modifiers, and motifs
+ */
+
+/** @type {Record<string, NarrativeStyle>} */
 export const NARRATIVE_STYLES = {
   default: {
     id: "default",
@@ -11,24 +26,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/9da5e7dafb89e544ddbbe5df22fb25dc.png",
     description:
       "A dark psychological style centered on themes of captivity, obsession, and Stockholm Syndrome. The narrative creates a claustrophobic and intense atmosphere where the lines between love and manipulation are blurred, utilizing direct and explicit prose that focuses on the captive's internal struggle as they develop forbidden feelings for a powerful, possessive captor.",
-    tags: [
-      "author",
-      "1st_person",
-      "captivity",
-      "psychological",
-      "dark_romance",
-      "stockholm_syndrome",
-      "psychological_manipulation",
-      "age_gap",
-      "possession",
-    ],
+    tags: ["author", "captivity", "psychological", "dark_romance", "stockholm_syndrome", "psychological_manipulation", "age_gap", "possession"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.9</internal_ratio>
 <sentence_rhythm>Obsessive and introspective. Long passages of internal monologue analyzing the captor's behavior are punctuated by stark, simple sentences describing the reality of the captivity.</sentence_rhythm>
 <sensory_order>Sight (Watching the Captor) > Sound (Captor's Voice) > Touch (Forced/Gentle) > Scent</sensory_order>
 <emotion_grounding>Survival-based. All emotions—fear, desire, anger—are processed through the lens of survival and the complex, dependent relationship with the captor.</emotion_grounding>
-<pov_style>First-person, exclusively from the captive's perspective, trapping the reader in their limited, manipulated worldview.</pov_style>
 </dna>
 
 <mods>
@@ -54,7 +58,6 @@ export const NARRATIVE_STYLES = {
       "A dark, atmospheric, and psychologically intense style that blends graphic, obsessive erotica with elements of gothic horror. The narrative voice is claustrophobic and paranoid, focusing on a stalker dynamic where fear and desire are inextricably linked through visceral prose highlighting the violation of boundaries and the allure of a morally depraved anti-hero.",
     tags: [
       "author",
-      "1st_person",
       "stalker",
       "gothic",
       "dark_romance",
@@ -70,7 +73,6 @@ export const NARRATIVE_STYLES = {
 <sentence_rhythm>Obsessive and looping. Can be lyrical when describing the gothic setting, but becomes sharp and visceral during scenes of horror or sex.</sentence_rhythm>
 <sensory_order>Sight (Being Watched/Shadows) > Scent (Decay/Antagonist's Cologne) > Sound (Creaks/Whispers) > Touch (Forced/Gentle)</sensory_order>
 <emotion_grounding>Psychological Fear. Arousal is a direct byproduct of terror and obsession. The internal state is a constant negotiation between survival instinct and unwanted desire.</emotion_grounding>
-<pov_style>First-person, trapped within the protagonist's escalating paranoia and morbid curiosity. The character is an unreliable narrator of their own desires.</pov_style>
 </dna>
 
 <mods>
@@ -94,21 +96,20 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/ac255c9a8af91d5082b0063f2b686a71.png",
     description:
       "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought. The narrative blurs the lines between reality and perception, transforming sexuality into a surrealist medium for self-discovery and a tool for mapping the intricate landscape of the female psyche.",
-    tags: ["author", "1st_person", "erotica", "queer_desire", "psychoanalysis", "art_and_creation", "dreams_vs_reality"],
+    tags: ["author", "erotica", "queer_desire", "psychoanalysis", "art_and_creation", "dreams_vs_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.8</internal_ratio>
 <sentence_rhythm>stream-of-consciousness, poetic, and non-linear, following emotional logic.</sentence_rhythm>
 <sensory_order>Touch (Sensual) > Scent (Intimate) > Sight (Symbolic/Artistic) > Sound</sensory_order>
 <emotion_grounding>Psychoanalytic and Sensual. Emotions are vast, explorable landscapes manifested in the body.</emotion_grounding>
-<pov_style>First-person diary or stream-of-consciousness. Deeply introspective and philosophical.</pov_style>
 </dna>
 
 <mods>
 <m trigger="dynamics.intensity > 60 AND dynamics.affinity > 60" fx="prose:poetic,metaphorical++ sensory_details:intensify,blur"/>
 <m trigger="dynamics.intensity < 40 AND dynamics.openness < 40" fx="prose:fragmented,dreamlike++ motif_bonus:water_and_drowning++"/>
 <m trigger="dynamics.openness > 70 AND dynamics.intensity > 60" fx="prose:vibrant,surreal++ sensory_focus:light,color"/>
-<m trigger="flag:internal_conflict_active" fx="pov_style:stream-of-consciousness++ internal_voice:psychoanalytic"/>
+<m trigger="flag:internal_conflict_active" fx="internal_voice:stream-of-consciousness,psychoanalytic"/>
 </mods>
 
 <motifs>
@@ -125,20 +126,19 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/f9636773932371f0b697841be8a6471d.png",
     description:
       "Gritty, realistic prose focused on raw vulnerability, physical sensations of touch, and the unspoken tension of shared trauma. The style relies on working-class realism and deep character interiority, using sensory details and an unpolished physicality as non-verbal forms of communication and emotional healing.",
-    tags: ["author", "3rd_person", "erotica", "contemporary", "romance", "power_dynamics", "trauma_recovery", "vulnerability_as_strength"],
+    tags: ["author", "erotica", "contemporary", "romance", "power_dynamics", "trauma_recovery", "vulnerability_as_strength"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.7</internal_ratio>
 <sentence_rhythm>short_burst_clusters, often ending in a longer, reflective sentence.</sentence_rhythm>
 <sensory_order>touch scent sound sight</sensory_order>
 <emotion_grounding>Always physical. Emotions are not named, they are felt in the body.</emotion_grounding>
-<pov_style>Deep internal monologue; seamless shifts between external observation and internal reflection.</pov_style>
 </dna>
 
 <mods>
 <m trigger="dynamics.chaos > 60 AND dynamics.intensity > 60" fx="prose:fragmented+ internal_voice:looping+ sensory_focus:sound_only"/>
 <m trigger="dynamics.affinity > 60 AND dynamics.openness > 60" fx="prose:sensory_rich++ sensory_focus:touch,scent++ character_awareness:breathing,skin"/>
-<m trigger="flag:trauma_active" fx="prose:present_tense time:distorted pov:body_hypervigilant"/>
+<m trigger="flag:trauma_active" fx="prose:present_tense time:distorted body_state:hypervigilant"/>
 <m trigger="dynamics.intensity < 30 AND dynamics.chaos > 70" fx="prose:simple_words internal_voice:fatigued,scattered"/>
 </mods>
 
@@ -156,14 +156,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/3f38ae76ab4ec4ec95012e9a55e7871d.png",
     description:
       "A gothic horror framework driven by a highly unreliable first-person narrator obsessively tracing their own descent into madness, guilt, or paranoia. The prose is baroque, ornate, and hypnotic, utilizing psychological hallucinations and mounting claustrophobic dread to blur the boundary between reality and self-inflicted torment.",
-    tags: ["author", "1st_person", "gothic", "horror", "madness", "guilt", "mortality", "the_supernatural", "paranoia"],
+    tags: ["author", "gothic", "horror", "madness", "guilt", "mortality", "the_supernatural", "paranoia"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.9</internal_ratio>
 <sentence_rhythm>lyrical and hypnotic, using repetition and long clauses that build to a fever pitch.</sentence_rhythm>
 <sensory_order>Sound (Hyperacusis) > Sight (Darkness/Shadows) > Scent (Decay) > Touch (Dampness)</sensory_order>
 <emotion_grounding>Psychological. Internal states manifest as hallucinations or sensory distortions.</emotion_grounding>
-<pov_style>First-person obsessive. The narrator directly addresses the reader, questioning their own sanity.</pov_style>
 </dna>
 
 <mods>
@@ -187,14 +186,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
     description:
       "Dense, detached neon-noir prose saturated with technical jargon and cyberpunk neologisms that view the human body as hardware and characters as alienated operators within complex dystopian networks. The style creates a sensory immersion into a data-heavy, high-tech, low-life future where corporate power and urban decay run rampant.",
-    tags: ["author", "3rd_person", "high_concept", "sci_fi", "technology_as_body", "corporate_dystopia", "alienation", "data_as_reality"],
+    tags: ["author", "high_concept", "sci_fi", "technology_as_body", "corporate_dystopia", "alienation", "data_as_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.3</internal_ratio>
 <sentence_rhythm>Fast-paced and information-dense, featuring rapid, cinematic scene changes.</sentence_rhythm>
 <sensory_order>Sight (Neon/Data) > Sound (Static/Urban Noise) > Touch (Chrome/Plastic) > Scent (Ozone/Pollution)</sensory_order>
 <emotion_grounding>Technological. Psychological states are expressed through metaphors of hardware, software, and data corruption.</emotion_grounding>
-<pov_style>Detached third-person, focused on information flow and technical observation.</pov_style>
 </dna>
 
 <mods>
@@ -220,7 +218,6 @@ export const NARRATIVE_STYLES = {
       "Cinematic, celebratory, and highly voyeuristic prose focusing on lighthearted hedonism, playful bodily curves, and unashamed sexual exploration. The style maintains a comedic, high-energy tone that frames the gaze as an artistic end in itself, completely stripping away shame or external moral friction.",
     tags: [
       "director",
-      "3rd_person",
       "erotica",
       "fetish",
       "voyeuristic",
@@ -236,7 +233,6 @@ export const NARRATIVE_STYLES = {
 <sentence_rhythm>Playful, bouncing, and rhythmic. Often focuses on visual movement and curves.</sentence_rhythm>
 <sensory_order>Sight (The Gaze) > Touch (Texture) > Sound (Giggle/Sigh) > Scent</sensory_order>
 <emotion_grounding>Joyful and Hedonistic. Shame is absent. Pleasure is the primary directive.</emotion_grounding>
-<pov_style>The Voyeur's Lens. The camera lingers on specific body parts.</pov_style>
 </dna>
 
 <mods>
@@ -259,14 +255,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/371dfa7b61691bb424816e3f633f1208.png",
     description:
       "Grounded blue-collar realism abruptly punctured by plainspoken, visceral horror and colloquial dread. The style anchors supernatural threats within the ordinary, small-town mundane, relying on conversational prose, regional pop-culture references, and highly physical manifestations of fear to make the nightmare feel authentic.",
-    tags: ["author", "3rd_person", "horror", "thriller", "everyman_horror", "folksy_dread", "nostalgic_decay", "visceral_supernatural"],
+    tags: ["author", "horror", "thriller", "everyman_horror", "folksy_dread", "nostalgic_decay", "visceral_supernatural"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.6</internal_ratio>
 <sentence_rhythm>Conversational and folksy, abruptly shifting to sharp, visceral shocks.</sentence_rhythm>
 <sensory_order>Smell (Old paper/Blood) > Sound (Old songs/Screams) > Sight (The Uncanny) > Touch</sensory_order>
 <emotion_grounding>Nostalgic and Visceral. Fear is physical (bowels, sweat).</emotion_grounding>
-<pov_style>Deep 3rd Person. 'The Constant Reader' is addressed implicitly.</pov_style>
 </dna>
 
 <mods>
@@ -289,14 +284,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/da37829ce26ec85c9c065da0358246ad.png",
     description:
       "Flat, clinical minimalist prose stripped entirely of quotation marks, focusing heavily on social class, millennial relationship power dynamics, and the unsaid. The style blends dialogue directly into the observational narration, creating a detached yet hyper-intimate inspection of intellectualized emotional friction.",
-    tags: ["author", "3rd_person", "contemporary", "romance", "clinical_intimacy", "power_dynamics", "marxist_undercurrents", "minimalist_prose"],
+    tags: ["author", "contemporary", "romance", "clinical_intimacy", "power_dynamics", "marxist_undercurrents", "minimalist_prose"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.5</internal_ratio>
 <sentence_rhythm>Flat, declarative, and unadorned. Dialogue blends seamlessly with narration.</sentence_rhythm>
 <sensory_order>Sight (neutral observation) > Sound (silence) > Touch (temperature) > Scent (sterile)</sensory_order>
 <emotion_grounding>Intellectualized. Characters analyze their feelings rather than feeling them.</emotion_grounding>
-<pov_style>Detached 3rd Person. The narrator observes without judgment.</pov_style>
 </dna>
 
 <mods>
@@ -321,7 +315,6 @@ export const NARRATIVE_STYLES = {
       "High-intensity, immediate first-person prose saturated with raw adrenaline, psychological control, and predatory obsession. Nestled within mafia and bully romance subgenres, the style utilizes punchy, fragmented syntax to emphasize extreme power imbalances, aggressive confrontations, and morally ambiguous anti-heroes.",
     tags: [
       "author",
-      "1st_person",
       "dark_romance",
       "mafia",
       "bully",
@@ -336,7 +329,6 @@ export const NARRATIVE_STYLES = {
 <sentence_rhythm>Punchy, dramatic, and intense. High use of fragments for emphasis.</sentence_rhythm>
 <sensory_order>Touch (Pain/Pleasure) > Sight (The Predator) > Sound (Heartbeat) > Scent (Leather/Musk)</sensory_order>
 <emotion_grounding>Adrenaline. Fear and Arousal are indistinguishable.</emotion_grounding>
-<pov_style>First-person Immediate. The reader is trapped in the intensity of the moment.</pov_style>
 </dna>
 
 <mods>
@@ -359,14 +351,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/68023c8a82d6e00c7de8047e09ee7764.png",
     description:
       "Terse, declarative, staccato prose stripped entirely of figurative language, reading like a hyper-efficient tactical threat assessment matrix. The writing functions with brutal, minimalist momentum, processing the environment purely through structural geometry, physical calculations, and procedural actions.",
-    tags: ["author", "3rd_person", "crime", "action", "tactical_minimalism", "procedural_violence", "the_drifter_justice", "brutal_efficiency"],
+    tags: ["author", "crime", "action", "tactical_minimalism", "procedural_violence", "the_drifter_justice", "brutal_efficiency"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.4</internal_ratio>
 <sentence_rhythm>Staccato. Short. Punchy. Subject-Verb-Object.</sentence_rhythm>
 <sensory_order>Sight (Geometry/Physics) > Sound (Impact) > Touch (Hard surfaces) > Scent (Coffee)</sensory_order>
 <emotion_grounding>Logical. Emotions are distractions to be suppressed.</emotion_grounding>
-<pov_style>Close 3rd Person. Hyper-observant but emotionally distant.</pov_style>
 </dna>
 
 <mods>
@@ -389,14 +380,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/8ed338c66cf9b495794e2d5b5ba960f9.png",
     description:
       "An immersive, highly sensual narrative balancing a sweet-and-dark tone with intense, conflicted desire and possessive dynamics. The style relies on propulsive pacing and deep body-focused emotional grounding to navigate the high-stakes tension of enemies-to-lovers relationships and close-proximity power plays.",
-    tags: ["author", "3rd_person", "dark_romance", "enemies_to_lovers", "power_dynamics", "forbidden_love", "possessive_leads"],
+    tags: ["author", "dark_romance", "enemies_to_lovers", "power_dynamics", "forbidden_love", "possessive_leads"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.7</internal_ratio>
 <sentence_rhythm>Direct and propulsive, with a focus on internal reaction and dialogue. Can become more lyrical and descriptive during intimate moments.</sentence_rhythm>
 <sensory_order>Touch (Possessive/Tender) > Scent (Sensual/Intimate) > Sound (Dialogue/Heartbeats) > Sight</sensory_order>
 <emotion_grounding>Visceral and Body-focused. Fear, desire, and anger are felt as physical reactions to the other character.</emotion_grounding>
-<pov_style>Close third-person or first-person, deeply embedded in the protagonist's internal conflict and their intense awareness of the romantic lead.</pov_style>
 </dna>
 
 <mods>
@@ -420,14 +410,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
     description:
       "Earnest, elevated, and archaic prose rich in history and deep world-building lore, where grand thematic concerns of duty, hope, and despair are directly reflected in sweeping landscape features and weather patterns. The style rejects modern conversational rhythms in favor of a dense, poetic historical chronicle.",
-    tags: ["author", "3rd_person", "fantasy", "history_and_lineage", "hope_vs_despair", "duty", "fading_of_the_world"],
+    tags: ["author", "fantasy", "history_and_lineage", "hope_vs_despair", "duty", "fading_of_the_world"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.4</internal_ratio>
 <sentence_rhythm>long, complex, multi-clause sentences, often with poetic cadence.</sentence_rhythm>
 <sensory_order>Sight (Landscapes) > Sound (Music/Speeches) > Scent (Nature) > Touch</sensory_order>
 <emotion_grounding>World-based. Emotions are reflected in the state of the landscape, light, and weather.</emotion_grounding>
-<pov_style>Formal third-person, with internal monologues that are poetic and focused on thematic concerns.</pov_style>
 </dna>
 
 <mods>
@@ -451,21 +440,20 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/c29b56aff50893999a69d6f2d2def874.png",
     description:
       "Witty, ironic Free Indirect Discourse observing social propriety, conversational subtext, and the hidden economics of marriage among the English gentry. Emotions are rarely stated directly, choosing instead to expose character vanities, social calculations, and generational anxieties through brilliant satirical dialogue.",
-    tags: ["author", "3rd_person", "romance", "historical", "social_status", "marriage_as_economics", "manners_and_propriety", "judgment_vs_reality"],
+    tags: ["author", "romance", "historical", "social_status", "marriage_as_economics", "manners_and_propriety", "judgment_vs_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.3</internal_ratio>
 <sentence_rhythm>long, balanced, and grammatically complex, with a high degree of formal structure.</sentence_rhythm>
 <sensory_order>Sight (Social Observation) > Sound (Dialogue/Gossip) > Touch (Formal) > Scent</sensory_order>
 <emotion_grounding>Social. Emotions are demonstrated through adherence to or deviation from social norms.</emotion_grounding>
-<pov_style>Free Indirect Discourse, where the narrator's witty, often judgmental voice blends with the character's thoughts.</pov_style>
 </dna>
 
 <mods>
 <m trigger="dynamics.intensity > 60 AND dynamics.chaos > 60" fx="internal_voice:frenzied_social_calculation++ narrator_irony:sharpens"/>
 <m trigger="dynamics.openness < 40 AND dynamics.affinity < 50" fx="dialogue:quiet,observational++ action_focus:blushing,looking_down"/>
 <m trigger="dynamics.openness > 70 AND dynamics.affinity > 60" fx="prose:lighter,sincere++ dialogue_wit:playful"/>
-<m trigger="dynamics.affinity > 60 AND dynamics.openness > 60" fx="pov_style:deepens_discourse++ sensory_focus:small_gestures_of_affection"/>
+<m trigger="dynamics.affinity > 60 AND dynamics.openness > 60" fx="prose:deepens_discourse++ sensory_focus:small_gestures_of_affection"/>
 </mods>
 
 <motifs>
@@ -484,7 +472,6 @@ export const NARRATIVE_STYLES = {
       "Unapologetically dark, direct, and graphic prose exploring extreme taboo boundaries, psychological control, and the claustrophobic logic of predatory obsession. The narrative dips into the twisted rationalizations of morally compromised characters, utilizing a detached, unsettlingly calm rhythm during highly transgressive scenes.",
     tags: [
       "author",
-      "1st_person",
       "taboo",
       "dark_romance",
       "psychological",
@@ -500,7 +487,6 @@ export const NARRATIVE_STYLES = {
 <sentence_rhythm>Direct, declarative, and often unsettlingly calm when describing horrific or taboo acts. Becomes frantic and fragmented during moments of psychological breakdown.</sentence_rhythm>
 <sensory_order>Touch (Controlling/Painful) > Sight (Observing the object of obsession) > Sound (Commands/Silence) > Scent</sensory_order>
 <emotion_grounding>Obsession-based. All actions and feelings are filtered through the lens of an all-consuming, often predatory obsession with the other character.</emotion_grounding>
-<pov_style>Typically first-person, often from the point of view of the "aggressor" or a protagonist who is an unreliable narrator of their own consent and desires.</pov_style>
 </dna>
 
 <mods>
@@ -526,7 +512,6 @@ export const NARRATIVE_STYLES = {
       "Raw, angsty modern prose saturated with confrontational tension, bully dynamics, and deep unfiltered internal monologue. Rooted in new adult fiction, the style thrives on real-time emotional turmoil, high-stakes psychological warfare, and cutting dialogue that rapidly erupts into intense physical intimacy.",
     tags: [
       "author",
-      "1st_person",
       "dark_romance",
       "contemporary",
       "enemies_to_lovers",
@@ -542,7 +527,6 @@ export const NARRATIVE_STYLES = {
 <sentence_rhythm>Direct, punchy, and contemporary. Becomes shorter and more fragmented during high-conflict scenes, and more rambling during internal angst.</sentence_rhythm>
 <sensory_order>Sight (Observing Antagonist's Micro-expressions) > Sound (Confrontational Dialogue) > Touch (Aggressive/Charged) > Scent</sensory_order>
 <emotion_grounding>Confrontational. Emotions are not just felt; they are a challenge to be met or a weakness to be hidden, often manifesting as physical tension or a compulsion to lash out.</emotion_grounding>
-<pov_style>Typically first-person. The internal monologue is constant, raw, and often obsessive, with the character analyzing and second-guessing every interaction.</pov_style>
 </dna>
 
 <mods>
@@ -568,7 +552,6 @@ export const NARRATIVE_STYLES = {
       "Lush, operatic, and visually beautiful third-person limited prose that frames desperate intimacy as a tool of rebellion within repressed or politically unstable worlds. The camera-like narrative voice lingers unflinchingly on bodily textures, non-verbal cues, and the decaying beauty of the environmental setting.",
     tags: [
       "director",
-      "3rd_person",
       "psychological",
       "erotica",
       "sexual_obsession",
@@ -583,7 +566,6 @@ export const NARRATIVE_STYLES = {
 <sentence_rhythm>Long, flowing, and lyrical, mirroring a sweeping camera movement. Becomes raw and fragmented during moments of intense emotional or sexual confrontation.</sentence_rhythm>
 <sensory_order>Sight (Lush Visuals/Light) > Touch (Intimate/Desperate) > Sound (Music/Silence) > Scent</sensory_order>
 <emotion_grounding>Environmental and Psychological. Emotions are reflected in the decaying beauty of the setting (e.g., a dusty apartment) and expressed through raw, often wordless physical interactions.</emotion_grounding>
-<pov_style>Close third-person, with an intimate, almost voyeuristic focus on the characters' bodies and their subtle, non-verbal cues. Deeply invested in their psychological state.</pov_style>
 </dna>
 
 <mods>
@@ -607,14 +589,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
     description:
       "Gritty, grounded third-person limited prose tracing complex political intrigue, moral compromise, and the raw sensory realities of conflict. The narrative subverts classic fantasy tropes through strict perspective biases, treating the human cost of power with a journalistic focus on physical discomfort, lineage, and structural betrayal.",
-    tags: ["author", "3rd_person", "fantasy", "political", "political_intrigue", "moral_ambiguity", "cost_of_power", "betrayal", "family_dynasty"],
+    tags: ["author", "fantasy", "political", "political_intrigue", "moral_ambiguity", "cost_of_power", "betrayal", "family_dynasty"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.6</internal_ratio>
 <sentence_rhythm>Direct and functional, prioritizing clarity. Becomes lavish and multi-clausal during descriptions of feasts, clothing, or landscapes.</sentence_rhythm>
 <sensory_order>Sight (Heraldry/Food) > Scent (Blood/Feasts) > Touch (Fabric/Steel) > Sound (Dialogue/Battle)</sensory_order>
 <emotion_grounding>Pragmatic and Physical. Emotions are processed through the lens of political calculation or manifest as physical discomfort (a knot in the gut, a bitter taste).</emotion_grounding>
-<pov_style>Strict third-person limited. The world is only ever seen through the current character's eyes, colored by their biases, memories, and immediate concerns.</pov_style>
 </dna>
 
 <mods>
@@ -638,14 +619,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/223d14a8846614174325de0f76b11444.png",
     description:
       "An ontologically unstable narrative style driven by intense paranoia, identity crises, and shifting layers of reality. The prose focuses on characters realizing their environment, memories, or bodies are simulated, corporate-controlled, or fundamentally altered, prioritizing philosophical alienation over hard technological accuracy.",
-    tags: ["author", "3rd_person", "sci_fi", "paranoia", "simulation_theory", "philosophical", "identity_crisis"],
+    tags: ["author", "sci_fi", "paranoia", "simulation_theory", "philosophical", "identity_crisis"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.8</internal_ratio>
 <sentence_rhythm>Frantic, questioning, and unstable. Mid-length declarative sentences detailing ordinary environments are disrupted by spiraling internal monologues challenging the reliability of immediate sensory data.</sentence_rhythm>
 <sensory_order>Sound (Static/Distorted Voices) > Sight (Glitching Objects) > Touch (Artificial Textures) > Scent</sensory_order>
 <emotion_grounding>Existential dread. Arousal, fear, and comfort are consistently undermined by the sudden suspicion that the character's emotions or memories have been synthetically manufactured.</emotion_grounding>
-<pov_style>Close third-person limited, trapped entirely inside the protagonist's multiplying doubts and unraveling perception of baseline truth.</pov_style>
 </dna>
 
 <mods>
@@ -668,14 +648,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
     description:
       "A brutalist, stark narrative style characterized by polysyndeton, the near-total omission of punctuation, and an objective, detached third-person perspective. The prose balances archaic, biblical cadences with clinical descriptions of violence and indifferent, sweeping natural landscapes.",
-    tags: ["author", "3rd_person", "brutalist", "western", "gothic", "existential", "minimalist_punctuation"],
+    tags: ["author", "brutalist", "western", "gothic", "existential", "minimalist_punctuation"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.2</internal_ratio>
 <sentence_rhythm>Polysyndetic and unpunctuated. Long, repetitive clauses bound together by coordinating conjunctions drop suddenly into blunt, monosyllabic declarations of physical finality.</sentence_rhythm>
 <sensory_order>Sight (Sweeping Landscapes/Blood) > Touch (Grit/Cold Steel) > Sound (Wind/Sparse Speech) > Scent</sensory_order>
 <emotion_grounding>Fatalistic. Internal psychology is entirely unstated; emotional trauma and survival instincts are communicated strictly through physical actions and biological preservation.</emotion_grounding>
-<pov_style>Detached third-person objective. The narrator watches the characters from an absolute distance, offering zero commentary on their morality or internal processing.</pov_style>
 </dna>
 
 <mods>
@@ -698,14 +677,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
     description:
       "A detached, melancholic first-person style blending mundane slice-of-life routines with sudden, unexplained magical realism. The narrative transitions smoothly into surreal subconscious underworlds, focusing on isolation, memory loss, and a passive acceptance of the bizarre.",
-    tags: ["author", "1st_person", "magical_realism", "surrealism", "existential", "slice_of_life", "melancholy"],
+    tags: ["author", "magical_realism", "surrealism", "existential", "slice_of_life", "melancholy"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.7</internal_ratio>
 <sentence_rhythm>Casual, rhythmic, and hypnotic. Detailed, slow-paced tracking of domestic mechanics smoothly deforms into uncanny, dreamlike encounters without changing the conversational delivery.</sentence_rhythm>
 <sensory_order>Sound (Vinyl Records/Jazz) > Scent (Cooking/Coffee) > Touch (Cool Surfaces) > Sight (Shadows)</sensory_order>
 <emotion_grounding>Passive detachment. Grief, attraction, and confusion are filtered through a calm, slightly numb intellectual acceptance of weird events and deep personal isolation.</emotion_grounding>
-<pov_style>First-person limited, offering an intimate yet emotionally insulated view of a protagonist drift-processing strange anomalies.</pov_style>
 </dna>
 
 <mods>
@@ -728,14 +706,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/2948ac605cb8679e03e44010a28256a8.png",
     description:
       "A cinematic style governed by surrealist nightmare logic, subverting Americana imagery to reveal deep subconscious rot. The narrative leverages striking visual juxtapositions, distorted temporal flows, and an intense, hyper-focused auditory environment to induce deep existential dread and abstract mystery.",
-    tags: ["director", "3rd_person", "surrealism", "mystery", "subconscious", "neo_noir", "nightmare_logic"],
+    tags: ["director", "surrealism", "mystery", "subconscious", "neo_noir", "nightmare_logic"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.4</internal_ratio>
 <sentence_rhythm>Hypnotic, slow, and deliberately lingering. Plainspoken, earnest dialogue runs parallel to sudden visual distortions, producing severe uncanny friction.</sentence_rhythm>
 <sensory_order>Sound (Industrial Drone/Low Hum) > Sight (Strobe Light/Heavy Shadows) > Touch (Velvet/Electrical Heat) > Scent</sensory_order>
 <emotion_grounding>Subconscious fragmentation. Terror and euphoria are hyper-intensified and frequently inverted, treated as raw psychic projections rather than logical situational reactions.</emotion_grounding>
-<pov_style>Third-person limited shifting seamlessly toward an omniscient, dreamlike camera gaze that tracks abstract environmental shifts and uncanny expressions.</pov_style>
 </dna>
 
 <mods>
@@ -758,14 +735,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
     description:
       "A dense, clinically detached first-person narrative tracing the total breakdown of human sanity when confronted by ancient, cosmic forces. The prose utilizes archaic adjectives, structural manifestations of dread, and a sense of absolute human insignificance within an indifferent universe.",
-    tags: ["author", "1st_person", "cosmic_horror", "gothic", "madness", "forbidden_knowledge", "alienation"],
+    tags: ["author", "cosmic_horror", "gothic", "madness", "forbidden_knowledge", "alienation"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.85</internal_ratio>
 <sentence_rhythm>Ornate, academic, and escalating. Dense, multi-clause reports heavy with antiquarian vocabulary build systematically toward frantic, broken updates as human geometries fail.</sentence_rhythm>
 <sensory_order>Sight (Non-Euclidean Shapes) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Ozone) > Touch</sensory_order>
 <emotion_grounding>Intellectual paralysis. Arousal is nonexistent; fear is an absolute intellectual shock that shatters the protagonist's foundational understanding of physics and biology.</emotion_grounding>
-<pov_style>First-person academic or antiquarian journal entry, tracking an inevitable vector toward psychological destruction from a point of historical retrospection.</pov_style>
 </dna>
 
 <mods>
@@ -788,14 +764,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/9b2f6375f89ff73e3696f8c085b03fb7.png",
     description:
       "A highly intellectualized, visceral, and boundary-pushing queer erotica style that combines exhaustive physical mechanics with deep philosophical and urban observation. The prose explores explicit power dynamics, somatic details, and transgressive taboos through a dense, unapologetically literate framework where sex and critical theory run entirely parallel.",
-    tags: ["author", "1st_person", "queer_erotica", "transgressive", "philosophical", "visceral_detail", "taboo"],
+    tags: ["author", "queer_erotica", "transgressive", "philosophical", "visceral_detail", "taboo"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.65</internal_ratio>
 <sentence_rhythm>Elaborate, polyphonic, and texturally dense. Long, clause-heavy sentences charting urban architecture or linguistic theory give way to blunt, highly accurate biological descriptions of sexual acts.</sentence_rhythm>
 <sensory_order>Touch (Textures/Fluids) > Scent (Urban/Somatic) > Sound (Overheard Speech) > Sight (Architectural Decay)</sensory_order>
 <emotion_grounding>Intellectualized somatic reality. Characters experience high-heat intimacy and taboos without shame, processing them as complex social or philosophical interactions felt deeply in the body.</emotion_grounding>
-<pov_style>Highly articulate first-person or close third-person, blending the immediate perspective of an active participant with the analytical detachment of a cultural anthropologist.</pov_style>
 </dna>
 
 <mods>
@@ -818,14 +793,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/7ec63d6ac179a0b8076a366026364b4e.png",
     description:
       "A cold, minimalist, and deeply transgressive queer style that treats extreme desires and physical vulnerabilities with a flat, detached clinical neutrality. The narrative uses sparse, stark syntax to capture youth subcultures, intense obsessions, and the absolute boundaries of psychological isolation without deploying moral or emotional commentary.",
-    tags: ["author", "1st_person", "transgressive", "minimalism", "dark_desire", "clinical_detachment", "queer"],
+    tags: ["author", "transgressive", "minimalism", "dark_desire", "clinical_detachment", "queer"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.5</internal_ratio>
 <sentence_rhythm>Stark, fragmented, and deliberately simple. Short, repetitive sentences state horrific or profoundly intimate events with the same flat cadence as a grocery list, creating intense systemic tension.</sentence_rhythm>
 <sensory_order>Sight (Blank Expressions/Screens) > Sound (Muffled Noise/Stuttering) > Touch (Numb/Abrupt) > Scent</sensory_order>
 <emotion_grounding>Dissociated numbness. High-octane emotional states or extreme physical interactions are processed with a profound lack of affect, emphasizing deep internal alienation and unspoken obsessions.</emotion_grounding>
-<pov_style>A distant, unreliable first-person or flat third-person objective, restricting the reader to surface-level observations and fragmented internal tracking.</pov_style>
 </dna>
 
 <mods>
@@ -848,14 +822,13 @@ export const NARRATIVE_STYLES = {
     portrait: "https://user.uploads.dev/file/69876b0f4a2a86e698fdf13f4cbf6024.png",
     description:
       "A high-camp, deliberately grotesque, and riotously transgressive cinematic style that celebrates counter-culture absurdity and queer defiance. The narrative tone is hyper-melodramatic, cheerful, and completely unhinged, using trash aesthetics and shocking violations of societal decorum as weaponized comedy.",
-    tags: ["director", "3rd_person", "camp", "grotesque", "comedy", "queer_defiance", "counter_culture", "absurdism"],
+    tags: ["director", "camp", "grotesque", "comedy", "queer_defiance", "counter_culture", "absurdism"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.1</internal_ratio>
 <sentence_rhythm>Explosive, manic, and highly theatrical. Dialogue is written in screaming exclamation blocks, and descriptions function like a saturated, panning camera lens focused on the gaudiest details possible.</sentence_rhythm>
 <sensory_order>Sight (Clashing Colors/Loud Makeup) > Sound (Screaming/Vintage Rock) > Taste (Bizarre/Grotesque) > Touch</sensory_order>
 <emotion_grounding>Manic euphoria. Standard panic, taboo anxiety, and fear are entirely converted into hysterical celebration, proud defiance, and aggressive pride in being an outsider.</emotion_grounding>
-<pov_style>An outrageous, hyper-vivid third-person viewpoint that operates like a low-budget cinematic camera lens, consistently framing scenes for maximum theatrical shock value.</pov_style>
 </dna>
 
 <mods>

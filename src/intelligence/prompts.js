@@ -1,21 +1,24 @@
 /**
  * src/intelligence/prompts.js
- * @description Centralized assembly line for the Intelligence Kernel.
+ * 🧠 INTELLIGENCE KERNEL PROMPT SYNTHESIZER
+ * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
 import { NARRATIVE_STYLES } from "@data";
 import { ind } from "@engine";
+import { app, runtime } from "@state";
 import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
-import { escapeXml, clean_xml, strip_cognition_blocks, safeParsePseudoJson } from "./parser.js";
+import { clean_xml, escapeXml, safeParsePseudoJson, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
-import { app, runtime } from "@state";
 
 // ============================================================================
 // 1. UTILITIES & CACHES
 // ============================================================================
 
+/** @type {string | null} */
 let cached_dynamics_legend = null;
+/** @type {Map<string, string>} */
 const protocols_cache = new Map();
 
 const NARRATOR_PROLOGUE_TEXT =
@@ -26,6 +29,7 @@ const NARRATOR_EPILOGUE_TEXT =
 
 /**
  * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
+ * @returns {string}
  */
 function build_dynamics_legend() {
   if (cached_dynamics_legend !== null) return cached_dynamics_legend;
@@ -51,6 +55,9 @@ ${definitions}
 
 /**
  * Helper to transform physical data to XML nodes.
+ * @param {any} raw
+ * @param {string} tagName
+ * @returns {string}
  */
 function physical_to_xml(raw, tagName) {
   if (!raw) return "";
@@ -66,16 +73,15 @@ function physical_to_xml(raw, tagName) {
 
 /**
  * Safely evaluates, parses, and escapes an entity fragment value.
+ * @param {any} text
+ * @param {any} owner
+ * @param {any} entities
+ * @returns {string}
  */
 const val = (text, owner, entities) => {
   if (!text) return "";
   return escapeXml(prompt_builder.parse_macros(String(text).trim(), owner, entities));
 };
-
-/**
- * Extracts the explicit POV directive from the active narrative style.
- * This is injected directly into the TASK block to fight LLM recency bias.
- */
 
 /**
  * Resolves the active narrative style key from fractal or app settings.
@@ -91,20 +97,27 @@ function resolve_active_style_key() {
   return styleKey;
 }
 
+/**
+ * Extracts the explicit POV directive from an entity profile.
+ * @param {any} entity
+ * @returns {string}
+ */
 function extract_pov_directive(entity) {
   if (!entity) return "";
-  const pov = entity.pov;
+  const name = entity.name || "your character";
+  const pov = entity.pov || (entity.type === "fractal" ? "3rd_person" : "1st_person");
   if (pov === "1st_person") {
-    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: Write strictly in first-person POV ('I', 'me', 'my') through your character's eyes.</POV_DIRECTIVE>`;
+    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: Write strictly in first-person POV ('I', 'me', 'my') through ${escapeXml(name)}'s eyes. Refer to yourself directly as 'I', 'me', and 'my'. NEVER refer to yourself in the third person (e.g. '${escapeXml(name)} walked', '${escapeXml(name)} felt').</POV_DIRECTIVE>`;
   }
   if (pov === "3rd_person") {
-    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: Write strictly in third-person limited POV ('he', 'she', 'they', entity name).</POV_DIRECTIVE>`;
+    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: Write strictly in third-person limited POV ('he', 'she', 'they', '${escapeXml(name)}'). NEVER refer to yourself in the first person ('I', 'me', 'my').</POV_DIRECTIVE>`;
   }
   return "";
 }
 
 /**
  * Renders the active author style XML block.
+ * @returns {string}
  */
 function render_narrative_style_xml() {
   const styleKey = resolve_active_style_key();
@@ -131,6 +144,8 @@ function render_narrative_style_xml() {
 
 /**
  * Compiles dynamic system parameter keys into inline attributes.
+ * @param {Record<string, number>} [dynObj]
+ * @returns {string}
  */
 function format_dynamics_attrs(dynObj) {
   if (!dynObj) return "";
@@ -181,7 +196,6 @@ export function collapse_history(messages, options = {}) {
 const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
 
 export const PROTOCOL_LIBRARY = {
-  // --- Simulation core ---
   USER_AGENCY:
     "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe the user's thoughts, feelings, or physical reactions. Write your turn. Stop.",
   COGNITION: `Document internal calculations sequentially:
@@ -207,6 +221,10 @@ Keep each phase under 3 sentences. Total think block < 200 words.`,
     "Unless context establishes a prior relationship, this is a first encounter. You don't know the user's name, history, or intent. Let your core nature determine your response to a stranger.",
   PERCHANCE_SYNTAX:
     "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features (colors, micro-details, backgrounds) to ensure variation.",
+  POV_FIRST_PERSON:
+    "CRITICAL POV MANDATE: You MUST write your narrative prose in the first-person ('I', 'me', 'my'). Describe actions, thoughts, and physical sensations as experienced directly by yourself ('I opened the door', 'My heart raced'). NEVER describe yourself in the third person using your name or 'he/she/they'.",
+  POV_THIRD_PERSON:
+    "CRITICAL POV MANDATE: You MUST write your narrative prose in the third-person limited ('he', 'she', 'they', or entity name). Describe actions from an external third-person perspective ('She opened the door', 'His heart raced'). NEVER use first-person pronouns ('I', 'me', 'my') for narrative prose.",
 };
 
 // ============================================================================
@@ -215,6 +233,8 @@ Keep each phase under 3 sentences. Total think block < 200 words.`,
 
 /**
  * Director prompt compiler (Shot 1).
+ * @param {any} params
+ * @returns {{ system: string, task: string }}
  */
 function render_director({ round, entities, input, render_atom, compressed_snapshot, rawMessages }) {
   const protocols = ["JSON_OUTPUT"].filter(Boolean).join(", ");
@@ -306,8 +326,13 @@ ${(() => {
 
 /**
  * AI Character (Actor) prompt compiler (Shot 2).
+ * @param {any} params
+ * @returns {{ system: string, task: string }}
  */
 function render_character({ round, entities, input, compressed_snapshot, meta, render_atom }) {
+  const aiPov = entities.AI?.pov || "1st_person";
+  const povProtocol = aiPov === "3rd_person" ? "POV_THIRD_PERSON" : "POV_FIRST_PERSON";
+
   const protocols = [
     "COGNITION",
     "PRESENT_TENSE",
@@ -317,6 +342,7 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
     "YES_AND",
     "MOMENTUM",
     "MARKDOWN_FORMAT",
+    povProtocol,
     meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"))
       ? "FIRST_CONTACT"
       : "",
@@ -329,12 +355,10 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
       : meta?.structural_errors >= 1
         ? "WARNING: Structural drift detected in previous output. Maintain disciplined XML closures and clean markdown boundaries."
         : "";
-  // Split into stable system prefix + volatile task directive for prefix-cache efficiency.
-  // The system block (entity defs, protocols) forms a cached prefix between turns;
-  // conversation history is injected after it (append-only); the task goes at the very end.
+
   const system = clean_xml(`
 <SYSTEM role="${escapeXml(entities.AI.name)}">${render_narrative_style_xml()}
-You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name || "the environment")}.
+You are ${escapeXml(entities.AI.name)} in an active scene with ${escapeXml(entities.USER.name)} inside ${escapeXml(entities.FRACTAL?.name || "the environment")}.${extract_pov_directive(entities.AI)}
   <YOUR_IDENTITY name="${escapeXml(entities.AI.name)}">
     <ETERNAL>${val(entities.AI.eternal?.non_physical, entities.AI, entities)}</ETERNAL>
   </YOUR_IDENTITY>
@@ -402,7 +426,8 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 
 /**
  * Ghostwriter prompt compiler.
- * Inverse identity mapping: YOUR_IDENTITY is User Persona, USER_PERSONA is AI Character.
+ * @param {any} params
+ * @returns {{ system: string, task: string }}
  */
 function render_ghostwriter({ entities, input = "" }) {
   const user_name = entities?.USER?.name || "User Persona";
@@ -447,9 +472,10 @@ Output only the raw text response or action. No preamble, no meta-commentary, no
 }
 
 /**
- * Prologue / Epilogue narration compiler (renamed to render_narrator).
- * Shared structure with mode-specific task text pulled from PROTOCOL_LIBRARY.
+ * Prologue / Epilogue narration compiler.
  * @param {"prologue"|"epilogue"} mode
+ * @param {any} params
+ * @returns {{ system: string, task: string }}
  */
 function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
   const taskText =
@@ -498,7 +524,9 @@ ${round != null ? `<ROUND>${escapeXml(String(round))}</ROUND>\n` : ""}${input?.t
 }
 
 /**
- * Turn memory compilation and vector indexing template.
+ * Turn memory compilation template.
+ * @param {any} params
+ * @returns {string}
  */
 function render_memory({ entity, history }) {
   return clean_xml(`
@@ -536,6 +564,8 @@ function render_memory({ entity, history }) {
 
 /**
  * Text field enhancement instructions builder.
+ * @param {any} params
+ * @returns {string}
  */
 function render_enhancement({
   label,
@@ -614,6 +644,8 @@ function render_enhancement({
 
 /**
  * Profile Sorting extraction instructions builder.
+ * @param {string} [entity_type]
+ * @returns {string}
  */
 function render_profile_sorting(entity_type = "character") {
   const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
@@ -653,7 +685,6 @@ const data_processors = {
       .map((m) => m.content)
       .join(" ")}`.trim();
 
-    // Dynamically scale limit based on intensity [0,100]. Baseline limit 5, scales between 3 and 7.
     let dynLimit = 5;
     if (entities.AI && entities.AI.dynamics && entities.AI.dynamics.intensity !== undefined) {
       const intensity = entities.AI.dynamics.intensity;
@@ -718,33 +749,15 @@ export const prompt_builder = {
     return text.replace(/\{\{(.*?)\}\}/g, (match, macro) => {
       const token = macro.toLowerCase().trim();
       if (owner === entities.AI) {
-        const map = {
-          me: ai_name,
-          char: ai_name,
-          you: user_name,
-          user: user_name,
-          fractal: fractal_name,
-        };
+        const map = { me: ai_name, char: ai_name, you: user_name, user: user_name, fractal: fractal_name };
         return map[token] ?? match;
       }
       if (owner === entities.USER) {
-        const map = {
-          me: user_name,
-          user: user_name,
-          you: ai_name,
-          char: ai_name,
-          fractal: fractal_name,
-        };
+        const map = { me: user_name, user: user_name, you: ai_name, char: ai_name, fractal: fractal_name };
         return map[token] ?? match;
       }
       if (owner === entities.FRACTAL) {
-        const map = {
-          fractal: fractal_name,
-          me: fractal_name,
-          you: `${ai_name} and ${user_name}`,
-          char: ai_name,
-          user: user_name,
-        };
+        const map = { fractal: fractal_name, me: fractal_name, you: `${ai_name} and ${user_name}`, char: ai_name, user: user_name };
         return map[token] ?? match;
       }
       return match;
@@ -768,8 +781,6 @@ export const prompt_builder = {
   },
   build_character_prompt(payload, snapshot, directorData) {
     const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
-    // Inject director's memory retrieval keys if they fetched anything new.
-    // For now, we just pass the standard history payload through create_render_atom.
     const rendered = render_character({
       ...payload,
       render_atom,
@@ -804,7 +815,6 @@ export const prompt_builder = {
         meta: {},
       };
     }
-    // Fallback for missing type
     return prompt_builder.build_character_prompt(payload, snapshot, {});
   },
   create_render_atom: data_processors.create_render_atom,
@@ -840,32 +850,16 @@ export const prompt_builder = {
   },
   build_epilogue(entities, dynamics, recent_history = []) {
     const safeEntities = {
-      AI: entities?.AI || {
-        name: "AI",
-        present: {},
-        eternal: {},
-      },
-      USER: entities?.USER || {
-        name: "USER",
-        present: {},
-        eternal: {},
-      },
-      FRACTAL: entities?.FRACTAL || {
-        name: "FRACTAL",
-        present: {},
-        eternal: {},
-      },
+      AI: entities?.AI || { name: "AI", present: {}, eternal: {} },
+      USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
+      FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
     };
     const rendered = render_narrator("epilogue", {
       entities: safeEntities,
       render_atom: prompt_builder.create_render_atom(safeEntities, "", recent_history),
       compressed_snapshot: {
-        ai: {
-          dynamics: dynamics?.ai,
-        },
-        fractal: {
-          dynamics: dynamics?.fractal,
-        },
+        ai: { dynamics: dynamics?.ai },
+        fractal: { dynamics: dynamics?.fractal },
       },
     });
     return {
@@ -876,11 +870,7 @@ export const prompt_builder = {
   },
   build_memory_prompt(role, entity, history) {
     return {
-      system: render_memory({
-        role,
-        entity,
-        history,
-      }),
+      system: render_memory({ role, entity, history }),
       messages: [],
     };
   },
@@ -923,4 +913,4 @@ export const prompt_builder = {
   },
 };
 
-export { render_director, render_character, render_ghostwriter, render_narrator, render_enhancement, render_profile_sorting, build_dynamics_legend };
+export { build_dynamics_legend, render_character, render_director, render_enhancement, render_ghostwriter, render_narrator, render_profile_sorting };

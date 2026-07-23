@@ -10,7 +10,6 @@ export {
   PALETTE_VARS,
   TOKENS,
 } from "./tokens.js";
-export { LISTS } from "@data";
 export {
   NEGATIVE_PROMPT,
   AestheticResolver,

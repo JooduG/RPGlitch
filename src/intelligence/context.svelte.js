@@ -1,5 +1,7 @@
 /**
  * @file src/intelligence/context.svelte.js
+ * 🔌 CONTEXT BROKER — State Adapter & Document Assembler
+ * Hydrates, cleans, and packages raw simulation state into an IntelligencePayload.
  *
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
  *
@@ -13,18 +15,12 @@
  * @property {number} [score]
  * @property {number} [emotional_weight]
  * @property {number} [density_multiplier]
- *
- * 🔌 CONTEXT BROKER    The State Adapter & Document Assembler
- *
- * PURPOSE
- * context_broker is the "Secretary" of the Intelligence Kernel. It handles
- * the Hydration phase: pulling raw state from the runtime and repository,
- * cleaning it, and packaging it into a unified IntelligencePayload.
  */
-import { clean_text, strip_cognition_blocks } from "./parser.js";
-import { ENTITY_CATALOG } from "./fragments.js";
-import { temporal_engine } from "./temporal.js";
+
 import { app, runtime } from "@state";
+import { ENTITY_CATALOG } from "./fragments.js";
+import { clean_text, strip_cognition_blocks } from "./parser.js";
+import { temporal_engine } from "./temporal.js";
 
 const RAW_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;
@@ -33,7 +29,9 @@ const SNAPSHOT_ITEM_CACHE = new Map();
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
+
 /**
+ * Strips cognition blocks from a message and caches the output string.
  * @param {any} msg
  * @returns {string}
  */
@@ -54,6 +52,7 @@ function get_sanitized_text(msg) {
   RAW_CACHE.set(cacheKey, sanitized);
   return sanitized;
 }
+
 /**
  * Resolves a dot-notation path against a nested object.
  * @param {any} obj
@@ -63,10 +62,11 @@ function get_sanitized_text(msg) {
 function get_path_value(obj, path) {
   const parts = path.split(".");
   let current = obj;
-  for (const part of parts) {
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
     if (current && typeof current === "object") {
       current = current[part];
-    } else if (typeof current === "string" && parts.indexOf(part) < parts.length - 1) {
+    } else if (typeof current === "string" && i < parts.length - 1) {
       return current;
     } else {
       return "";
@@ -74,6 +74,7 @@ function get_path_value(obj, path) {
   }
   return current || "";
 }
+
 /**
  * Converts entity data into raw statistical data points.
  * @param {any} entity
@@ -107,11 +108,12 @@ export const context_broker = {
   /**
    * HYDRATION PHASE
    * Pulls and resolves all necessary state for an intelligence turn.
-   * Returns a frozen IntelligencePayload.
+   * Returns a structured IntelligencePayload.
    *
    * @param {string} input - The current user input.
    * @param {string} [type="simulation"] - 'simulation' | 'logic' | 'image'
-   * @param {any[]} [simulation_log] - Recent message log.
+   * @param {any[]} [simulation_log=[]] - Recent message log.
+   * @returns {Promise<any>}
    */
   async hydrate(input, type = "simulation", simulation_log = []) {
     const round = runtime.round ?? 1;
@@ -133,12 +135,13 @@ export const context_broker = {
       { role: "FRACTAL", data: clean.FRACTAL },
     ];
 
-    // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure current turn accuracy
+    // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure turn accuracy
     await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data))).catch((err) =>
       console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
     );
 
     const entities = /** @type {Record<string, any>} */ ({});
+
     // Synchronous hydration of entities
     entries.forEach(({ role, data }) => {
       const raw = /** @type {SimulationEntity} */ (
@@ -155,9 +158,8 @@ export const context_broker = {
         }
       );
       const data_points = to_data_points(raw);
-      // Lexical filtering for relevance against active vector
       const filtered = context_broker.lexical_filter(data_points, active_vector);
-      // Safety boot-strap
+
       if (filtered.length === 0) {
         filtered.push({
           text: `A nascent ${role.toLowerCase()} entity. State: Initializing.`,
@@ -166,13 +168,14 @@ export const context_broker = {
           section: "Present",
         });
       }
-      // Build the structured Fragment view (Sovereign Schema)
+
       /** @type {Record<string, any>} */
       const fragments = {
         eternal: { physical: "", non_physical: "" },
         present: { physical: "", non_physical: "" },
       };
-      filtered.forEach((/** @type {DataPoint} */ f) => {
+
+      filtered.forEach((f) => {
         const layer = f.layer?.toLowerCase();
         const field = f.type === "Physical" ? "physical" : "non_physical";
         if (layer && (layer === "eternal" || layer === "present")) {
@@ -185,6 +188,7 @@ export const context_broker = {
           }
         }
       });
+
       entities[role] = {
         id: raw.id,
         name: raw.name || role,
@@ -194,11 +198,12 @@ export const context_broker = {
         present: fragments.present,
         past: raw.past,
         future: raw.future,
-        dynamics: raw.dynamics, // Pass through for physics calculation
-        dynamics_baseline: raw.dynamics_baseline, // Gravitational center
+        dynamics: raw.dynamics,
+        dynamics_baseline: raw.dynamics_baseline,
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
       };
     });
+
     // 2. Build Unified Payload
     return {
       input,
@@ -214,9 +219,11 @@ export const context_broker = {
       },
     };
   },
+
   /**
    * Creates a dense beat-map of recent history.
    * @param {any[]} history
+   * @returns {string | null}
    */
   assemble_snapshot(history = []) {
     if (!history.length) return null;
@@ -240,9 +247,11 @@ export const context_broker = {
       })
       .join("\n");
   },
+
   /**
    * Dynamically resolves FUTURE_VECTOR items based on temporal_engine state constraints.
    * @param {any} entity
+   * @returns {Promise<void>}
    */
   async manage_vector_lifecycle(entity) {
     if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
@@ -250,11 +259,11 @@ export const context_broker = {
     const vectors_to_resolve = [];
 
     for (const vector of entity.future) {
-      // 1. CHRONO VALIDATION
+      // 1. Chrono Validation
       const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
       if (round_threshold !== undefined && typeof round_threshold === "number") {
         if ((runtime.round ?? 0) < round_threshold) {
-          continue; // immediately block resolution and continue to the next vector
+          continue;
         }
       }
 
@@ -262,10 +271,10 @@ export const context_broker = {
       const has_requires = vector.requires && typeof vector.requires === "object" && Object.keys(vector.requires).length > 0;
 
       if (has_requires) {
-        // 2. STATE EVALUATION
+        // 2. State Evaluation
         let state_checks_passed = true;
         for (const [req_key, req_val] of Object.entries(vector.requires)) {
-          if (req_key === "round") continue; // Handled by Chrono Validation above
+          if (req_key === "round") continue;
 
           let actual_val = get_path_value(runtime, req_key);
           if ((actual_val === undefined || actual_val === "") && app) {
@@ -294,10 +303,12 @@ export const context_broker = {
       }
     }
   },
+
   /**
    * Relevance-based sorting for raw data points.
    * @param {DataPoint[]} data_points
    * @param {string} objective
+   * @returns {DataPoint[]}
    */
   lexical_filter(data_points, objective) {
     if (!objective || !Array.isArray(data_points)) return data_points;
@@ -305,7 +316,7 @@ export const context_broker = {
     const keywords = objective
       .toLowerCase()
       .split(/\W+/)
-      .filter((/** @type {string} */ w) => w.length > 3);
+      .filter((w) => w.length > 3);
 
     if (keywords.length === 0) return data_points;
 
@@ -316,7 +327,7 @@ export const context_broker = {
 
         let hitCount = 0;
         for (const k of keywords) {
-          const regex = new RegExp(k.replace(/[.*+?^${}()|[\\]\\\\]/g, "\\\\$&"), "g");
+          const regex = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
           const matches = text.match(regex);
           if (matches) hitCount += matches.length;
         }

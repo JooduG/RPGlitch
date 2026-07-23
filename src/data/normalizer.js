@@ -39,7 +39,7 @@ export const ENTITY_TEMPLATES = {
     },
     past: [],
     future: [],
-    visual_style: "photorealism",
+    visual_style: "none",
     pov: "1st_person",
   },
   fractal: {
@@ -55,7 +55,7 @@ export const ENTITY_TEMPLATES = {
     past: [],
     future: [],
     narrative_style: "",
-    visual_style: "photorealism",
+    visual_style: "none",
     pov: "3rd_person",
   },
 };
@@ -140,7 +140,7 @@ export const normalize = (base = {}) => {
     visual_style: (() => {
       const parsed = sanitize_html(String(visual_style)).trim();
       if (parsed && parsed !== "default") return parsed;
-      return "photorealism";
+      return "none";
     })(),
     pov: (() => {
       const parsed = sanitize_html(String(pov)).trim();

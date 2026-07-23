@@ -6,6 +6,7 @@
    * @property {"md" | "small"} [size] - Component scale.
    * @property {boolean} [disabled] - Interactive lock state.
    * @property {boolean} [busy] - Async lock state.
+   * @property {boolean} [always_signature] - Use signature color background for both states.
    * @property {any[]} [actions] - Svelte actions.
    * @property {string} [class] - External styling.
    * @property {string} [style] - Inline styling.
@@ -23,6 +24,7 @@
     size = "md",
     disabled = false,
     busy = false,
+    always_signature = false,
     actions = [],
     class: className = "",
     style = "",
@@ -83,7 +85,6 @@
           shrink-0
           cursor-pointer
           rounded-full
-          bg-neutral-900/60
           backdrop-blur-sm
           transition-[background-color,box-shadow,filter,transform]
           duration-300
@@ -94,7 +95,7 @@
           focus-visible:outline-slate-600
           active:scale-[0.96]
 
-          data-[state=checked]:bg-(--signature-color,#555d66)
+          {always_signature ? 'bg-(--signature-color,#555d66)' : 'bg-neutral-900/60 data-[state=checked]:bg-(--signature-color,#555d66)'}
           data-[state=checked]:group-hover/toggle:brightness-125
 
           {size === 'small'
@@ -128,8 +129,8 @@
 
                 {size === 'small'
                 ? `
-                  top-[2px]
-                  left-[2px]
+                  top-0.5
+                  left-0.5
                   size-3
 
                   group-data-[state=checked]:translate-x-3

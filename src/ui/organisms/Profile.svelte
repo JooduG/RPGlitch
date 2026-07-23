@@ -5,7 +5,7 @@
    * Flat DOM · Bolted Architecture
    */
   import { auto_resize, click_outside } from "@actions";
-  import { Button, Modal, ProfilePicture, TextField, tooltip, Dropdown } from "@atoms";
+  import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
@@ -72,11 +72,6 @@
     tag: style.tags ? style.tags.join(", ") : "",
     tooltip: style.description,
   }));
-
-  const pov_options = [
-    { value: "1st_person", label: '1st Person ("I/Me")', tag: "Default" },
-    { value: "3rd_person", label: '3rd Person ("He/She/They")' },
-  ];
 
   const has_wings = $derived(!app.transitioning_profile && !profileState.is_packing_up && (profileState.is_editing || app.settings.dev_mode));
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
@@ -368,49 +363,88 @@
           </button>
           {#if entity_type === "fractal" && !app.viewport.mobile}
             {@const is_default_style = !profileState.char.narrative_style || profileState.char.narrative_style === "default"}
-            {#if profileState.is_editing || !is_default_style}
-              <Dropdown
-                bind:value={profileState.char.narrative_style}
-                items={author_options}
-                label="Select Narrative Style"
-                uppercase={false}
-                matchWidth={false}
-                dropdownHeight="max-h-80"
-                dropdownWidth="w-80"
-                align="center"
-                disabled={!profileState.is_editing}
-                trigger_class="group/stylecard absolute right-8 -bottom-10 z-30 flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profileState.is_editing
-                  ? 'hover:brightness-110'
-                  : ''} disabled:pointer-events-none disabled:cursor-default"
-                trigger_style="width: calc(var(--spacing-storyboard-character-card-width) * 0.5); height: calc(var(--spacing-storyboard-character-card-width) * 0.5); border-color: {signature_color};"
-              >
-                {#snippet trigger_content({ selected_item })}
-                  <div
-                    class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-xl font-bold text-white uppercase select-none"
-                    style="background-color: {signature_color};"
-                  >
-                    {#if selected_item?.portrait}
-                      <img
-                        src={selected_item.portrait}
-                        alt={selected_item.label}
-                        class="h-full w-full object-cover object-center"
-                        draggable="false"
-                      />
-                    {:else}
-                      {get_style_initials(selected_item?.label || "No Narrative Style")}
-                    {/if}
-                  </div>
-
-                  {#if profileState.is_editing}
+            {@const is_default_visual = !profileState.char.visual_style || profileState.char.visual_style === "none"}
+            <div class="absolute right-8 -bottom-6 z-30 flex flex-row items-end gap-3">
+              {#if profileState.is_editing || !is_default_style}
+                <Dropdown
+                  bind:value={profileState.char.narrative_style}
+                  items={author_options}
+                  label="Select Narrative Style"
+                  uppercase={false}
+                  matchWidth={false}
+                  dropdownHeight="max-h-80"
+                  dropdownWidth="w-80"
+                  align="center"
+                  disabled={!profileState.is_editing}
+                  trigger_class="group/stylecard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profileState.is_editing
+                    ? 'hover:brightness-110'
+                    : ''} disabled:pointer-events-none disabled:cursor-default"
+                  trigger_style="width: 4.25rem; height: 4.25rem; border-color: {signature_color};"
+                >
+                  {#snippet trigger_content({ selected_item })}
                     <div
-                      class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
+                      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-lg font-bold text-white uppercase select-none"
+                      style="background-color: {signature_color};"
                     >
-                      <span class="text-[10px] font-bold tracking-widest text-white uppercase">SWAP</span>
+                      {#if selected_item?.portrait}
+                        <img
+                          src={selected_item.portrait}
+                          alt={selected_item.label}
+                          class="h-full w-full object-cover object-center"
+                          draggable="false"
+                        />
+                      {:else}
+                        {get_style_initials(selected_item?.label || "No Narrative Style")}
+                      {/if}
                     </div>
-                  {/if}
-                {/snippet}
-              </Dropdown>
-            {/if}
+
+                    {#if profileState.is_editing}
+                      <div
+                        class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
+                      >
+                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">SWAP</span>
+                      </div>
+                    {/if}
+                  {/snippet}
+                </Dropdown>
+              {/if}
+
+              {#if profileState.is_editing || !is_default_visual}
+                <Dropdown
+                  bind:value={profileState.char.visual_style}
+                  items={visual_style_options}
+                  label="Select Visual Style"
+                  uppercase={false}
+                  matchWidth={false}
+                  dropdownHeight="max-h-80"
+                  dropdownWidth="w-80"
+                  align="center"
+                  disabled={!profileState.is_editing}
+                  trigger_class="group/visualcard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profileState.is_editing
+                    ? 'hover:brightness-110'
+                    : ''} disabled:pointer-events-none disabled:cursor-default"
+                  trigger_style="width: 4.25rem; height: 4.25rem; border-color: {signature_color};"
+                  onchange={() => (profileState._user_mutated = true)}
+                >
+                  {#snippet trigger_content({ selected_item })}
+                    <div
+                      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] px-1 text-center font-heading text-xs font-bold text-white uppercase select-none"
+                      style="background-color: {signature_color};"
+                    >
+                      {get_style_initials(selected_item?.label || "No Visual Style")}
+                    </div>
+
+                    {#if profileState.is_editing}
+                      <div
+                        class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/visualcard:opacity-100"
+                      >
+                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">STYLE</span>
+                      </div>
+                    {/if}
+                  {/snippet}
+                </Dropdown>
+              {/if}
+            </div>
           {/if}
         </div>
 
@@ -422,7 +456,7 @@
             active_field={profileState.active_field?.key}
             {signature_color}
             {entity_type}
-            class={entity_type === "fractal" && !app.viewport.mobile ? "pl-10" : ""}
+            class={entity_type === "fractal" && !app.viewport.mobile ? "pr-44" : ""}
             on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profileState.set_active_field(key, label)}
           />
 
@@ -452,46 +486,30 @@
             {/if}
           {/if}
 
-          {#if entity_type === "fractal"}
-            <div class="mt-2 flex w-full flex-col gap-1">
-              <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
-              {#if profileState.is_editing}
-                <div class="relative flex w-full max-w-sm rounded-md">
-                  <Dropdown
-                    bind:value={profileState.char.visual_style}
-                    items={visual_style_options}
-                    label="Select Visual Style"
-                    uppercase={false}
-                    matchWidth={true}
-                    onchange={() => (profileState._user_mutated = true)}
-                  />
-                </div>
-              {:else}
-                <span class="text-sm text-slate-300 italic">
-                  {VISUAL_STYLES[profileState.char.visual_style]?.name || "Photorealism"}
-                </span>
-              {/if}
-            </div>
-          {:else}
-            <div class="mt-2 flex w-full flex-col gap-1">
-              <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Point of View </span>
-              {#if profileState.is_editing}
-                <div class="relative flex w-full max-w-sm rounded-md">
-                  <Dropdown
-                    bind:value={profileState.char.pov}
-                    items={pov_options}
-                    label="Select POV"
-                    uppercase={false}
-                    matchWidth={true}
-                    onchange={() => (profileState._user_mutated = true)}
-                  />
-                </div>
-              {:else}
-                <span class="text-sm text-slate-300 italic">
-                  {profileState.char.pov === "1st_person" ? '1st Person ("I/Me")' : '3rd Person ("He/She/They")'}
-                </span>
-              {/if}
-            </div>
+          {#if entity_type === "fractal" && app.viewport.mobile}
+            {@const active_vstyle = VISUAL_STYLES[profileState.char.visual_style] || VISUAL_STYLES.none}
+            {@const is_default_vstyle = !profileState.char.visual_style || profileState.char.visual_style === "none"}
+            {#if profileState.is_editing || !is_default_vstyle}
+              <div class="mt-2 flex w-full flex-col gap-1">
+                <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
+                {#if profileState.is_editing}
+                  <div class="relative flex w-full max-w-sm rounded-md">
+                    <Dropdown
+                      bind:value={profileState.char.visual_style}
+                      items={visual_style_options}
+                      label="Select Visual Style"
+                      uppercase={false}
+                      matchWidth={true}
+                      onchange={() => (profileState._user_mutated = true)}
+                    />
+                  </div>
+                {:else}
+                  <span class="text-sm text-slate-300 italic">
+                    {active_vstyle.name}
+                  </span>
+                {/if}
+              </div>
+            {/if}
           {/if}
 
           <main class={main_layout_class}>
@@ -744,6 +762,51 @@
         {/each}
       </div>
     {/each}
+
+    {#if entity_type !== "fractal"}
+      <div class="col-start-2 mt-0 flex w-full items-center justify-center gap-3 py-1">
+        <button
+          type="button"
+          class="cursor-pointer text-xs font-medium transition-colors select-none {profileState.char.pov === '1st_person'
+            ? 'font-semibold text-slate-100'
+            : 'text-slate-400 hover:text-slate-200'}"
+          disabled={!profileState.is_editing}
+          onclick={() => {
+            if (profileState.is_editing) {
+              profileState.char.pov = "1st_person";
+              profileState._user_mutated = true;
+            }
+          }}
+        >
+          1st Person
+        </button>
+        <Toggle
+          value={profileState.char.pov === "3rd_person"}
+          disabled={!profileState.is_editing}
+          always_signature={true}
+          style="--signature-color: {signature_color};"
+          onchange={() => {
+            profileState.char.pov = profileState.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
+            profileState._user_mutated = true;
+          }}
+        />
+        <button
+          type="button"
+          class="cursor-pointer text-xs font-medium transition-colors select-none {profileState.char.pov === '3rd_person'
+            ? 'font-semibold text-slate-100'
+            : 'text-slate-400 hover:text-slate-200'}"
+          disabled={!profileState.is_editing}
+          onclick={() => {
+            if (profileState.is_editing) {
+              profileState.char.pov = "3rd_person";
+              profileState._user_mutated = true;
+            }
+          }}
+        >
+          3rd Person
+        </button>
+      </div>
+    {/if}
   </div>
 {/snippet}
 

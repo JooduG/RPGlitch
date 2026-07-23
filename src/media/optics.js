@@ -1,16 +1,20 @@
 /**
  * src/media/optics.js
- * 👁️ OPTICS LAYER — UPGRADED ENHANCEMENT SCRIBE
- * High-fidelity prompt engineering, dynamic syntax integration, and artistic refinement.
- * Merges photorealistic collection specs with adaptive multi-medium rendering flexibility.
- * NOTE: If a physical condition (e.g. bleeding) carries narrative weight, it MUST be mirrored into the non_physical field for the AI Director.
+ * 👁️ OPTICS LAYER — PROMPT ENGINEERING & VISUAL STYLE ENGINE
+ * High-fidelity prompt engineering, dynamic style resolution, and diffusion matrix optics.
  */
+
+import { VISUAL_STYLES } from "@data";
+import { escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson } from "@intelligence";
+import { app, runtime } from "@state";
+import { get_signature_label } from "./tokens.js";
+
+export const NEGATIVE_PROMPT =
+  "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
 
 /**
  * Resolves the active visual style key for portrait generation.
- * Checks the entity's `visual_style` first. If "default", "", or missing,
- * falls back to the global app settings `visual_style` (defaults to "photorealism").
- * @param {any} entity - The entity being rendered
+ * @param {any} [entity]
  * @returns {string}
  */
 export function resolve_portrait_visual_style_key(entity = {}) {
@@ -18,21 +22,15 @@ export function resolve_portrait_visual_style_key(entity = {}) {
   if (entityStyle && entityStyle !== "default" && entityStyle !== "" && VISUAL_STYLES[entityStyle]) {
     return entityStyle;
   }
-  if (
-    typeof app !== "undefined" &&
-    app.settings?.visual_style &&
-    app.settings.visual_style !== "default" &&
-    VISUAL_STYLES[app.settings.visual_style]
-  ) {
-    return app.settings.visual_style;
+  const appStyle = typeof app !== "undefined" ? app.settings?.visual_style : null;
+  if (appStyle && appStyle !== "default" && VISUAL_STYLES[appStyle]) {
+    return appStyle;
   }
-  return "photorealism";
+  return "none";
 }
 
 /**
  * Resolves the active visual style key for story scene generation.
- * Checks `runtime.active_fractal?.visual_style` first. If "default", "", or missing,
- * falls back to the global app settings `visual_style` (defaults to "photorealism").
  * @returns {string}
  */
 export function resolve_story_visual_style_key() {
@@ -40,85 +38,45 @@ export function resolve_story_visual_style_key() {
   if (fractalStyle && fractalStyle !== "default" && fractalStyle !== "" && VISUAL_STYLES[fractalStyle]) {
     return fractalStyle;
   }
-  if (
-    typeof app !== "undefined" &&
-    app.settings?.visual_style &&
-    app.settings.visual_style !== "default" &&
-    VISUAL_STYLES[app.settings.visual_style]
-  ) {
-    return app.settings.visual_style;
+  const appStyle = typeof app !== "undefined" ? app.settings?.visual_style : null;
+  if (appStyle && appStyle !== "default" && VISUAL_STYLES[appStyle]) {
+    return appStyle;
   }
-  return "photorealism";
+  return "none";
 }
 
 /**
  * Parses a VISUAL_ENGINE XML block into structured token categories.
- * @param {string} engineXml
- * @returns {{ medium: string, palette: string, camera: string, texture: string, negative_prompt: string }}
+ * @param {string} [engineXml]
+ * @returns {{ medium: string, palette: string, camera: string, composition: string, texture: string, negative_prompt: string }}
  */
-export function parse_visual_engine(engineXml) {
-  const result = { medium: "", palette: "", camera: "", texture: "", negative_prompt: "" };
+export function parse_visual_engine(engineXml = "") {
+  const result = { medium: "", palette: "", camera: "", composition: "", texture: "", negative_prompt: "" };
   if (!engineXml) return result;
 
-  const extract = (tag) => {
+  const extractTag = (tag) => {
     const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, "i"));
     return match ? match[1].trim() : "";
   };
 
-  result.medium = extract("medium");
-  result.palette = extract("palette");
-  result.camera = extract("camera");
-  result.texture = extract("texture");
-  result.negative_prompt = extract("negative_prompt");
+  result.medium = extractTag("medium");
+  result.palette = extractTag("palette");
+  result.camera = extractTag("camera");
+  result.composition = extractTag("composition");
+  result.texture = extractTag("texture");
+  result.negative_prompt = extractTag("negative_prompt");
   return result;
 }
 
 /**
  * Resolves the VISUAL_ENGINE tokens for a given visual style key.
  * @param {string} styleKey
- * @returns {{ medium: string, palette: string, camera: string, texture: string, negative_prompt: string }}
+ * @returns {{ medium: string, palette: string, camera: string, composition: string, texture: string, negative_prompt: string }}
  */
 export function resolve_visual_engine_tokens(styleKey) {
-  const style = VISUAL_STYLES[styleKey] || VISUAL_STYLES.photorealism;
+  const style = VISUAL_STYLES[styleKey] || VISUAL_STYLES.none;
   return parse_visual_engine(style.visual_engine);
 }
-
-export const NEGATIVE_PROMPT =
-  "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
-
-import { LISTS, VISUAL_STYLES } from "@data";
-import { escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson } from "@intelligence";
-import { get_signature_label } from "./tokens.js";
-import { app, runtime } from "@state";
-
-/**
- * Safely parses list tokens, gracefully falling back to raw arrays.
- * @param {string[]|string} items
- * @returns {string[]|string}
- */
-const parseListTokens = (items) => {
-  if (Array.isArray(items) && items.length === 1 && typeof items[0] === "string" && items[0].startsWith("[")) {
-    try {
-      return JSON.parse(items[0]);
-    } catch {
-      return items;
-    }
-  }
-  return items;
-};
-
-/**
- * Formats a dimension category for injection into the AI prompt context using clean XML tags.
- * @param {string} label
- * @param {string[]|string} items
- * @returns {string}
- */
-const formatDimension = (label, items) => {
-  if (!items || items.length === 0) return "";
-  const cleanItems = parseListTokens(items);
-  const formattedContent = Array.isArray(cleanItems) ? cleanItems.join(", ") : cleanItems;
-  return `<DIMENSION category="${escapeXml(label)}">\n  ${formattedContent}\n</DIMENSION>`;
-};
 
 /**
  * Recursively flattens nested structures into a cohesive text string.
@@ -139,8 +97,7 @@ export const flattenToParagraph = (val) => {
       .map(([key, value]) => {
         const flatVal = flattenToParagraph(value);
         if (!flatVal) return "";
-        if (!isNaN(Number(key))) return flatVal;
-        return `${key}: ${flatVal}`;
+        return !isNaN(Number(key)) ? flatVal : `${key}: ${flatVal}`;
       })
       .filter(Boolean)
       .join(" ");
@@ -149,11 +106,15 @@ export const flattenToParagraph = (val) => {
 };
 
 /**
- * Collapses a physical field value into a flat comma-separated token string
- * suitable for diffusion model prompts. Transparently handles legacy plain text,
- * standard JSON, and bracketless pseudo-JSON by normalizing on the fly.
- * Enforces a strict space requirement after every comma.
- * @param {string} raw - Raw field value
+ * Ensures clean spacing after commas in token lists.
+ * @param {string} str
+ * @returns {string}
+ */
+const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
+
+/**
+ * Collapses a physical field value into a flat comma-separated token string.
+ * @param {string} raw
  * @returns {string}
  */
 export const flatten_physical = (raw) => {
@@ -161,28 +122,25 @@ export const flatten_physical = (raw) => {
   const parsed = safeParsePseudoJson(raw);
 
   if (parsed.__raw_prose__) {
-    return parsed.__raw_prose__.replace(/,([^\s])/g, ", $1");
+    return normalize_comma_spacing(parsed.__raw_prose__);
   }
 
   if (Object.keys(parsed).length > 0) {
-    return Object.values(parsed)
-      .flatMap((v) => (Array.isArray(v) ? v : [v]))
-      .map((v) => String(v).trim())
-      .filter(Boolean)
-      .join(", ")
-      .replace(/,([^\s])/g, ", $1");
+    return normalize_comma_spacing(
+      Object.values(parsed)
+        .flatMap((v) => (Array.isArray(v) ? v : [v]))
+        .map((v) => String(v).trim())
+        .filter(Boolean)
+        .join(", "),
+    );
   }
 
-  return raw.trim().replace(/,([^\s])/g, ", $1");
+  return normalize_comma_spacing(raw.trim());
 };
 
 /**
- * Resolves specs based on active character context properties.
- */
-/**
  * Builds the merged aesthetic property map shared by extract() and flatten().
- * Parses eternal/present physical fields, injects color-aesthetic and camera preset.
- * @param {any} entity
+ * @param {any} [entity]
  * @returns {Record<string, any>}
  */
 function build_aesthetic_map(entity = {}) {
@@ -209,6 +167,7 @@ function build_aesthetic_map(entity = {}) {
   if (engineTokens.medium) merged._vs_medium = engineTokens.medium;
   if (engineTokens.palette) merged._vs_palette = engineTokens.palette;
   if (engineTokens.camera) merged._vs_camera = engineTokens.camera;
+  if (engineTokens.composition) merged._vs_composition = engineTokens.composition;
   if (engineTokens.texture) merged._vs_texture = engineTokens.texture;
 
   const colorName = get_signature_label(entity);
@@ -216,90 +175,55 @@ function build_aesthetic_map(entity = {}) {
     merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
   }
 
-  const isLandscape = entity.type === "fractal";
-  merged.preset = isLandscape
-    ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
-    : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
-
   return merged;
 }
 
+const VS_ORDERED_KEYS = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_composition", "_vs_texture"];
+
 export const AestheticResolver = {
   /**
-   * Deterministic extraction of traits from entity fields.
-   * @param {any} entity
+   * Deterministic extraction of traits from entity fields into JSON property lines.
+   * @param {any} [entity]
+   * @returns {string}
    */
   extract(entity = {}) {
     const merged = build_aesthetic_map(entity);
+    const orderedKeys = [...VS_ORDERED_KEYS.filter((k) => merged[k]), ...Object.keys(merged).filter((k) => !VS_ORDERED_KEYS.includes(k))];
 
-    const vsKeys = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_texture"];
-    const orderedKeys = [...vsKeys.filter((k) => merged[k]), ...Object.keys(merged).filter((k) => !vsKeys.includes(k))];
-
-    const cleanLines = orderedKeys
+    return orderedKeys
       .map((k) => {
         const v = merged[k];
         if (v === undefined || v === null) return "";
         const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
         if (!valStr) return "";
-        const formattedVal = valStr.replace(/,([^\s])/g, ", $1");
+        const formattedVal = normalize_comma_spacing(valStr);
         const cleanKey = k.replace(/^_vs_/, "");
         return `  "${cleanKey}": "${formattedVal.replace(/"/g, '\\"')}"`;
       })
-      .filter(Boolean);
-
-    return cleanLines.join(",\n");
+      .filter(Boolean)
+      .join(",\n");
   },
+
   /**
-   * Deterministic flattening of traits from entity fields to plain comma-separated tags
-   * suitable for raw stable diffusion prompts (no JSON quotes or syntax).
-   * @param {any} entity
+   * Deterministic flattening of traits from entity fields into plain comma-separated tags.
+   * @param {any} [entity]
+   * @returns {string}
    */
   flatten(entity = {}) {
     const merged = build_aesthetic_map(entity);
-
-    const vsKeys = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_texture"];
-    const vsValues = vsKeys.map((k) => merged[k]).filter(Boolean);
+    const vsValues = VS_ORDERED_KEYS.map((k) => merged[k]).filter(Boolean);
     const otherValues = Object.entries(merged)
-      .filter(([k]) => !vsKeys.includes(k))
+      .filter(([k]) => !VS_ORDERED_KEYS.includes(k))
       .map(([, v]) => v);
 
-    return [...vsValues, ...otherValues]
-      .flatMap((v) => (Array.isArray(v) ? v : [v]))
-      .map((v) => String(v).trim())
-      .filter(Boolean)
-      .join(", ")
-      .replace(/,([^\s])/g, ", $1");
+    return normalize_comma_spacing(
+      [...vsValues, ...otherValues]
+        .flatMap((v) => (Array.isArray(v) ? v : [v]))
+        .map((v) => String(v).trim())
+        .filter(Boolean)
+        .join(", "),
+    );
   },
-};
-
-/**
- * Renders select LISTS dimensions into a structured template context block.
- * Automatically handles cleaning up configuration keys and system properties.
- * @returns {string}
- */
-const buildDimensionsContext = () => {
-  const labelMap = {
-    quality: "Quality Presets",
-    styles: "Artistic Styles",
-    lighting: "Lighting",
-    tech: "Technical Setup",
-    composition: "Composition",
-    artifacts: "Visual Artifacts",
-    glitches: "System Glitches",
-    mediums: "Mediums",
-    camera_and_optics: "Camera & Optics",
-    colors: "Colors & Film Stock",
-    fidelity: "Fidelity & Texture",
-    moods: "Mood & Atmosphere",
-  };
-
-  return Object.entries(LISTS)
-    .map(([key, items]) => {
-      if (key === "settings" || key === "sounds" || key === "mutations" || !items) return "";
-      return formatDimension(labelMap[key] || key, items);
-    })
-    .filter(Boolean)
-    .join("\n");
 };
 
 /**
@@ -307,33 +231,37 @@ const buildDimensionsContext = () => {
  */
 export const PromptTemplates = {
   /**
-   * Refines raw concept data into balanced sentences containing target vocabulary arrays.
-   * Unlocks complete freedom across stylistic mediums (anime, digital painting, photography).
-   *
-   * @param {string} text - Raw content description to enrich
-   * @param {string} [type] - Entity type: "character" | "fractal" | "characters"
-   * @returns {string} The formatted system instruction prompt payload string
+   * Refines raw concept data into balanced sentences containing target vocabulary.
+   * @param {string} text
+   * @param {string} [_type]
+   * @param {any} [entity]
+   * @returns {string}
    */
-  ENHANCE: (text, _type = "character") => {
-    const dimensionsContext = buildDimensionsContext();
+  ENHANCE: (text, _type = "character", entity = null) => {
+    const isPortraitMode = ["character", "ai", "user", "selfie", "portrait"].includes(_type || "");
+    const styleKey = isPortraitMode ? resolve_portrait_visual_style_key(entity || {}) : resolve_story_visual_style_key();
+    const styleObj = VISUAL_STYLES[styleKey] || VISUAL_STYLES.none;
+    const activeStyleBlock = `<ACTIVE_VISUAL_STYLE key="${styleKey}" name="${escapeXml(styleObj.name || styleKey)}">
+${styleObj.visual_engine || "<VISUAL_ENGINE>No automatic visual style tokens forced.</VISUAL_ENGINE>"}
+</ACTIVE_VISUAL_STYLE>`;
 
     return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
 You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and pristine rendering clarity for the generation matrix.
 
-Your goal is to evaluate the user's initial core concept, enrich it by selecting and integrating highly compatible aesthetic tokens from the provided <DIMENSIONS> matrix, and return an optimized JSON data block.
+Your goal is to evaluate the user's initial core concept in <INPUT_DESCRIPTION>, enrich it with vivid sensory, physical, and atmospheric details, integrate the visual properties from <ACTIVE_VISUAL_STYLE>, and return an optimized JSON data block.
 
-<DIMENSIONS>
-${dimensionsContext}
-</DIMENSIONS>
+${activeStyleBlock}
 
 <REFINE_PROTOCOL>
-1. **Aesthetic Ingestion:** Analyze the core thematic style, subjects, and implied format requirements inside the INPUT_DESCRIPTION.
-2. **Dimensional Integration:** Blend the root concept with specific properties drawn from the matching <DIMENSION category="..."> tags. Use these matrix properties to establish the concrete rendering rules of the asset.
-3. **Synthesized Descriptive Sentences:** Synthesize your chosen dimensions and the user's core concepts into natural, continuous descriptive sentences. Avoid compiling fragmented keyword strings or unorganized keyword soup.
-4. **Style Flexibility Rule:** Embrace the user's requested medium choice completely. If the user requests illustration, anime, cgi, pixel art, or photography, adjust your selected lighting and fidelity options to match that chosen artistic format seamlessly.
-5. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground your descriptions using concrete, physical details, textures, or stylistic equivalents instead.
-6. **Perchance Syntax:** ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}
-7. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the selected elements, lighting styles, color sciences, and mediums marry together.
+1. **Concept Enrichment:** Analyze the core subjects, features, clothing, expressions, and environmental setting described in INPUT_DESCRIPTION. Enrich them with vivid, tangible physical details.
+2. **Visual Style Integration & Sovereignty:** You MUST strictly incorporate and honor the provided <ACTIVE_VISUAL_STYLE>.
+   - Seamlessly blend the medium, palette, camera/composition, and texture from <ACTIVE_VISUAL_STYLE> directly into your synthesized descriptive sentences.
+   - Output any negative_prompt tokens defined in <ACTIVE_VISUAL_STYLE> inside your JSON 'negativePrompt' output field.
+   - If <ACTIVE_VISUAL_STYLE> is 'none' (No Visual Style), do NOT force any camera or artistic medium tags onto the prompt. Enrich the prompt using neutral and flexible descriptive language.
+3. **Synthesized Descriptive Sentences:** Synthesize your enriched concepts and active style into natural, continuous descriptive sentences. Avoid compiling fragmented keyword strings or unorganized keyword soup.
+4. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground your descriptions using concrete, physical details, textures, or stylistic equivalents instead.
+5. **Perchance Syntax:** ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}
+6. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the subject details, active style, lighting, colors, and composition marry together.
 </REFINE_PROTOCOL>
 
 <INPUT_DESCRIPTION>
@@ -342,8 +270,8 @@ ${escapeXml(text)}
 
 JSON STRUCTURE:
 {
-  "_thought_process": "<your dimensional breakdown planning: Medium, Camera/Optics style, Lighting approach, Colors, Composition grid, Textures, and Mood environment>",
-  "prompt": "<synthesized descriptive sentences merging the core input elements with target matrix tokens and optional runtime dynamic blocks>",
+  "_thought_process": "<your breakdown planning: Subject features, Active Style integration, Lighting, Colors, Composition, and Textures>",
+  "prompt": "<synthesized descriptive sentences merging the enriched subject details with active style parameters and optional runtime dynamic blocks>",
   "negativePrompt": "<cohesive comma-separated flat tokens to repel, preventing style dilution or contradictions. Use direct visual features only (e.g., 'bright daylight', 'blurry text'). STRICT MANDATE: Never use conversational verbs, instructions, or phrases like 'avoid', 'don't', 'free of', or 'no characters'>"
 }
 
@@ -351,6 +279,13 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
 </OPTICS_REFINE>`.trim();
   },
 
+  /**
+   * Constructs system prompts for image generation tasks.
+   * @param {string} targetType
+   * @param {string} rawIntent
+   * @param {any} [context]
+   * @returns {string}
+   */
   BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, history, mode = "visualize" } = context || {};
 
@@ -388,7 +323,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     const fractalBlock = renderEntity("FRACTAL", fractal);
 
     const storyStyleKey = resolve_story_visual_style_key();
-    const storyStyle = VISUAL_STYLES[storyStyleKey] || VISUAL_STYLES.photorealism;
+    const storyStyle = VISUAL_STYLES[storyStyleKey] || VISUAL_STYLES.none;
     const storyEngineTokens = resolve_visual_engine_tokens(storyStyleKey);
     const visualEngineBlock = storyStyle.visual_engine
       ? `\n<VISUAL_ENGINE style="${escapeXml(storyStyle.name || storyStyleKey)}">${storyStyle.visual_engine}</VISUAL_ENGINE>`
@@ -456,8 +391,10 @@ Input Intent: "${escapeXml(rawIntent)}"
 
 /**
  * Standard resolution mapping for different modes.
+ * @param {"landscape" | "fractal" | "portrait" | "character" | "selfie" | "user" | "ai" | "characters" | string} mode
+ * @returns {{ width: number, height: number }}
  */
-export const getResolution = (/** @type {any} */ mode) => {
+export const getResolution = (mode) => {
   switch (mode) {
     case "landscape":
     case "fractal":

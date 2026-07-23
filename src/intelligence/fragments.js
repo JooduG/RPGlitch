@@ -1,53 +1,11 @@
 /**
  * src/intelligence/fragments.js
- * 📋 Entity Taxonomy — One True Source of Truth for Entity Fields.
+ * 📋 ENTITY TAXONOMY — One True Source of Truth for Entity Fields.
  *
  * Defines the canonical schema for all entity fields across the simulation.
  * Every field carries a UI label, an AI directive, and an enhancer tag.
- *
- * EXPORTS
- * ENTITY_FRAGMENTS   Nested, section-grouped source of truth.
- * Consumed by: UI components, profile builder.
- *
- * ENTITY_CATALOG     Flat dot-keyed map derived from ENTITY_FRAGMENTS.
- * Consumed by: ContextBroker for field iteration.
- *
- * FIELD SCHEMA
- * label      {string}  Display name (UI + prompt).
- * directive  {string}  AI writing instruction for enhancement prompts.
- * enhancer   {string}  Semantic tag for LexicalFilter prioritization.
- *
- * SECTION SCHEMA (UI-only, not consumed by engine)
- * sublabel   {string}  Subtitle shown beneath the section header.
  */
-/**
- * @typedef {Object} EntityField
- * @property {string} [label]
- * @property {string} [directive]
- * @property {string} [enhancer]
- * @property {string} [description]
- * @property {string} [type]
- * @property {string} [sublabel] - Subtitle shown beneath the section header.
- */
-/**
- * @typedef {Object} EntitySection
- * @property {string} [label]
- * @property {string} [sublabel]
- * @property {string} [directive]
- * @property {string} [directive]
- * @property {string} [enhancer]
- * @property {string} [type]
- * @property {Record<string, EntityField | string>} [fields]
- */
-/**
- * @typedef {Object} EntityFragmentRoot
- * @property {string} name
- * @property {string} description
- * @property {EntitySection} eternal
- * @property {EntitySection} present
- * @property {EntitySection} future
- * @property {EntitySection} past
- */
+
 /**
  * Shared entity name stop words and title prefixes for visual initials calculations
  * and prefix-aware name formatting breaks.
@@ -93,24 +51,12 @@ name (string), description (string), signature_color (string), eternal_physical 
 - past: Historical anchors, precedents, lore.
 - future: Active impulses, plans, prophecies, intent.`;
 
-/************************************************************************************
- * [SECTION: ENTITY FRAGMENTS]
- * ----------------------------------------------------------------------------------
- * Source definition. Nested by temporal section -> field key.
- * Temporal sections: Eternal, Present, Past, Future.
- ************************************************************************************/
 /**
  * Canonical taxonomy of all entity fields, grouped by temporal section.
- *
- * ESSENCE TAXONOMY
- * Eternal / Present -> each has `physical` + `non_physical` fields
- * Past / Future     -> each has a single unified field (`vectors`)
- *
- * Note: `physical` fields are excluded from simulation mode prompts by the broker.
  */
 export const ENTITY_FRAGMENTS = {
   name: "Name",
-  description: "Summary of the entity's vibe and role.", // HUMAN EYES ONLY!!
+  description: "Summary of the entity's vibe and role.", // HUMAN EYES ONLY
   profile: {
     character: {
       enhancer: "NARRATIVE_STRUCTURER",
@@ -182,7 +128,7 @@ export const ENTITY_FRAGMENTS = {
     },
   },
   future: {
-    sublabel: "Vector", // Serves as subtitle and array item label
+    sublabel: "Vector",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
@@ -193,7 +139,7 @@ export const ENTITY_FRAGMENTS = {
     },
   },
   past: {
-    sublabel: "Memory", // Serves as subtitle and array item label
+    sublabel: "Memory",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {
@@ -204,32 +150,21 @@ export const ENTITY_FRAGMENTS = {
     },
   },
 };
-/************************************************************************************
- * [SECTION: ENGINE CATALOG]
- * ----------------------------------------------------------------------------------
- * Flattened dot-key map derived from ENTITY_FRAGMENTS for efficient broker lookups.
- * Keys use dot notation: "eternal.non_physical", "past.essence", etc.
- ************************************************************************************/
+
 /**
  * @typedef {Object} CatalogEntry
  * @property {string} id - Dot-notation key, e.g. "eternal.non_physical"
  * @property {string} section_label - Parent section display name, e.g. "Eternal"
  * @property {string} layer_key - Parent section key in uppercase, e.g. "ETERNAL"
- * @property {string} [label] - UI label.
- * @property {string} [directive] - AI instruction.
- * @property {string} [enhancer] - Semantic tag.
- * @property {string} [description] - Fallback description.
- * @property {string} [type] - Field type (e.g., "array").
+ * @property {string} [label] - UI label
+ * @property {string} [directive] - AI instruction
+ * @property {string} [enhancer] - Semantic tag
+ * @property {string} [description] - Fallback description
+ * @property {string} [type] - Field type (e.g., "array")
  */
 
 /**
- * Builds a flat `{ [dotKey]: metadata }` map from the nested ENTITY_FRAGMENTS tree.
- * Each entry is enriched with ID and section metadata.
- *
- * @returns {Record<string, CatalogEntry>} Flat catalog keyed by dot-notation field ID.
- */
-/**
- * Auto-formats object keys into UI labels (e.g. "non_physical" -> "Non-Physical", "future" -> "Future")
+ * Auto-formats object keys into UI labels (e.g. "non_physical" -> "Non-Physical", "future" -> "Future").
  * @param {string} key
  * @returns {string}
  */
@@ -241,6 +176,11 @@ export function format_key_as_label(key) {
     .join(" ");
 }
 
+/**
+ * Builds a flat `{ [dotKey]: metadata }` map from the nested ENTITY_FRAGMENTS tree.
+ * Each entry is enriched with ID and section metadata.
+ * @returns {Record<string, CatalogEntry>} Flat catalog keyed by dot-notation field ID.
+ */
 function build_entity_catalog() {
   /** @type {Record<string, any>} */
   const catalog = {};
@@ -248,7 +188,6 @@ function build_entity_catalog() {
     if (typeof sectionObj === "string" || sectionObj === null || section_key === "profile") return;
     const section = /** @type {any} */ (sectionObj);
 
-    // 1. Process array-type nested fields (if section has explicit fields property)
     if (section.fields && section.type !== "array") {
       Object.entries(section.fields).forEach(([field_key, field]) => {
         const id = `${section_key}.${field_key}`;
@@ -272,7 +211,6 @@ function build_entity_catalog() {
         };
       });
     } else {
-      // 2. Process flattened fields directly on the section
       const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer"].includes(k));
       fieldKeys.forEach((field_key) => {
         const id = `${section_key}.${field_key}`;
@@ -289,7 +227,6 @@ function build_entity_catalog() {
           };
         });
 
-        // Default fallback (character)
         const leafDefault = field.character || field;
         catalog[id] = {
           ...leafDefault,
@@ -300,7 +237,6 @@ function build_entity_catalog() {
       });
     }
 
-    // 3. Add the section itself if it's an array type or has no explicit sub-fields
     const hasFields = section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "directive", "enhancer"].includes(k));
     if (!hasFields || section.type === "array") {
       ["character", "fractal"].forEach((type) => {
@@ -327,10 +263,6 @@ function build_entity_catalog() {
 /**
  * Flat registry of all entity fields, keyed by dot-notation ID.
  * Used by `intelligence_broker.js` to iterate fields and resolve entity data.
- *
- * @example
- * ENTITY_CATALOG["eternal.non_physical"]
- * // -> { label, directive, enhancer, id, section_label: "Eternal", layer_key: "ETERNAL" }
  */
 export const ENTITY_CATALOG = build_entity_catalog();
 
@@ -338,51 +270,48 @@ export const ENTITY_CATALOG = build_entity_catalog();
  * Builds the profile sections layout dynamically based on entity type.
  * Handles leaf-level polymorphism cleanly.
  * @param {string} [entity_type]
+ * @returns {Array<{ id: string, label: string, fields: Array<{ key: string, label: string, sublabel: string | null, description: string, enhancer: string, type?: string, is_physical?: boolean }> }>}
  */
 export function build_profile_sections(entity_type = "character") {
   const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
 
-  return (
-    Object.entries(ENTITY_FRAGMENTS)
-      // Filter out top-level strings (like 'name' and 'description') and the internal 'profile' prompt directive
-      .filter(([sectionKey, section]) => typeof section !== "string" && section !== null && sectionKey !== "profile")
-      .map(([sectionKey, sectionObj]) => {
-        const section = /** @type {any} */ (sectionObj);
-        const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer", "fields"].includes(k));
+  return Object.entries(ENTITY_FRAGMENTS)
+    .filter(([sectionKey, section]) => typeof section !== "string" && section !== null && sectionKey !== "profile")
+    .map(([sectionKey, sectionObj]) => {
+      const section = /** @type {any} */ (sectionObj);
+      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer", "fields"].includes(k));
 
-        const fields =
-          fieldKeys.length > 0 && section.type !== "array"
-            ? fieldKeys.map((fieldKey) => {
-                const field = section[fieldKey];
-                // Resolve leaf-level character/fractal properties
-                const leaf = field[resolvedType] || field;
-                return {
-                  key: `${sectionKey}.${fieldKey}`, // e.g. "eternal.physical"
-                  label: format_key_as_label(fieldKey),
-                  sublabel: leaf.sublabel || null,
-                  description: leaf.directive || leaf.description || "",
-                  enhancer: leaf.enhancer,
-                  type: field.type,
-                  is_physical: fieldKey === "physical",
-                };
-              })
-            : [
-                {
-                  key: sectionKey, // e.g. "past" or "future"
-                  label: format_key_as_label(sectionKey),
-                  sublabel: section.sublabel || null,
-                  description: section.directive || "",
-                  enhancer: section.enhancer,
-                  type: section.type,
-                },
-              ];
-        return {
-          id: sectionKey,
-          label: format_key_as_label(sectionKey),
-          fields,
-        };
-      })
-  );
+      const fields =
+        fieldKeys.length > 0 && section.type !== "array"
+          ? fieldKeys.map((fieldKey) => {
+              const field = section[fieldKey];
+              const leaf = field[resolvedType] || field;
+              return {
+                key: `${sectionKey}.${fieldKey}`,
+                label: format_key_as_label(fieldKey),
+                sublabel: leaf.sublabel || null,
+                description: leaf.directive || leaf.description || "",
+                enhancer: leaf.enhancer,
+                type: field.type,
+                is_physical: fieldKey === "physical",
+              };
+            })
+          : [
+              {
+                key: sectionKey,
+                label: format_key_as_label(sectionKey),
+                sublabel: section.sublabel || null,
+                description: section.directive || "",
+                enhancer: section.enhancer,
+                type: section.type,
+              },
+            ];
+      return {
+        id: sectionKey,
+        label: format_key_as_label(sectionKey),
+        fields,
+      };
+    });
 }
 
 /**

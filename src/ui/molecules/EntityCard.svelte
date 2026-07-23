@@ -12,7 +12,7 @@
   import { motion } from "@motion";
   import { app } from "@state";
   import { flushSync } from "svelte";
-  import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
+  import { NARRATIVE_STYLES } from "@data";
 
   const get_style_initials = (styleId) => {
     const style = NARRATIVE_STYLES[styleId] || NARRATIVE_STYLES.default;
@@ -568,42 +568,6 @@
             {get_style_initials(entity.narrative_style)}
           {/if}
         </div>
-      </div>
-    {/if}
-  {/if}
-
-  {#if entity?.visual_style && entity.visual_style !== "photorealism" && entity.visual_style !== "default" && variant === "panel"}
-    {@const vs_details = VISUAL_STYLES[entity.visual_style]}
-    {#if vs_details}
-      <div
-        use:tooltip={{ text: `Visual Style: ${vs_details.name}` }}
-        class="
-          pointer-events-auto
-          absolute
-          right-[clamp(0.25rem,4cqi,0.5rem)]
-          bottom-[clamp(0.25rem,4cqi,0.5rem)]
-          z-50
-          flex
-          h-[clamp(1.5rem,14cqi,2.25rem)]
-          items-center
-          gap-1
-          rounded-full
-          border
-          border-solid
-          border-(--signature-color)
-          bg-black/60
-          px-2
-          opacity-80
-          shadow-md
-          transition-all
-          duration-300
-          ease-in-out
-          hover:opacity-100
-        "
-      >
-        <span class="font-mono text-[clamp(0.5rem,5cqi,0.75rem)] font-bold tracking-wider whitespace-nowrap text-white uppercase">
-          {vs_details.name}
-        </span>
       </div>
     {/if}
   {/if}

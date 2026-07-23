@@ -1,11 +1,8 @@
 /**
  * src/ui/utils/ui-helpers.js
- * UNIFIED UI & DOM UTILITIES
- * Standardized methods for resolving/measuring CSS values and handling Perchance
- * lists and environments.
+ * 🛠️ UI & CSS RESOLUTION HELPERS
+ * Standardized methods for resolving/measuring CSS values and handling Perchance lists.
  */
-
-import { LISTS } from "@data";
 
 /**
  * Prepares a CSS value for measurement, wrapping raw variables in var().
@@ -34,7 +31,7 @@ function try_direct_var_resolve(trimmed, context) {
 
   try {
     return window.getComputedStyle(context).getPropertyValue(varName).trim();
-  } catch {
+  } catch (_) {
     return null;
   }
 }
@@ -102,10 +99,8 @@ function prepare_measure(value, prop, sentinel, context) {
   }
 
   // 2. Set actual property for unit resolution (e.g. rem -> px)
-  // @ts-ignore - Dynamic property access
-  el.style[prop] = sentinel;
-  // @ts-ignore - Dynamic property access
-  el.style[prop] = cssValue;
+  /** @type {any} */ (el.style)[prop] = sentinel;
+  /** @type {any} */ (el.style)[prop] = cssValue;
 
   return el;
 }
@@ -153,7 +148,7 @@ function resolve_css(value, fallback, context, spec) {
   const el = prepare_measure(trimmed, spec.prop, spec.sentinel, context);
   if (el) {
     const style = window.getComputedStyle(el);
-    const computed = spec.prop.startsWith("--") ? style.getPropertyValue(spec.prop).trim() : style[spec.prop];
+    const computed = spec.prop.startsWith("--") ? style.getPropertyValue(spec.prop).trim() : /** @type {any} */ (style)[spec.prop];
     if (typeof computed === "string") {
       // Detect failure: if it stayed at sentinel, it definitely failed.
       if (parseFloat(computed) === parseFloat(spec.sentinel)) {
@@ -178,7 +173,7 @@ function resolve_css(value, fallback, context, spec) {
  */
 export function resolve_px(value, fallback = 0, context = null) {
   const pxRegex = /^([-.\d]+)(px)?$/;
-  const parsePx = (s) => {
+  const parsePx = (/** @type {string} */ s) => {
     const m = s.match(pxRegex);
     return m ? parseFloat(m[1]) : null;
   };
@@ -199,18 +194,18 @@ export function resolve_px(value, fallback = 0, context = null) {
 /**
  * Resolves a CSS duration value (handles variables, ms, s, etc.) to milliseconds.
  *
- * @param {string | number | undefined} value - The CSS duration or variable name (e.g., "--duration-(--duration-fast)")
+ * @param {string | number | undefined} value - The CSS duration or variable name
  * @param {number} fallback - Value to return if resolution fails
  * @param {HTMLElement | null} [context] - Optional element context for variable resolution
  * @returns {number}
  */
 export function resolve_ms(value, fallback = 0, context = null) {
-  const toMs = (val, unit) => {
+  const toMs = (/** @type {string} */ val, /** @type {string | undefined} */ unit) => {
     const numeric = parseFloat(val);
-    if (!unit) return numeric === 0 ? 0 : null; // CSS durations (except 0) require a unit
+    if (!unit) return numeric === 0 ? 0 : null;
     return unit === "ms" ? numeric : numeric * 1000;
   };
-  const parseMs = (s) => {
+  const parseMs = (/** @type {string} */ s) => {
     const m = s.match(/^([-.\d]+)(ms|s)?$/);
     return m ? toMs(m[1], m[2]) : null;
   };
@@ -231,13 +226,13 @@ export function resolve_ms(value, fallback = 0, context = null) {
 /**
  * Resolves a unitless CSS numeric value (handles variables, etc.).
  *
- * @param {string | number | undefined} value - The CSS value or variable name (e.g., "--my-scale")
+ * @param {string | number | undefined} value - The CSS value or variable name
  * @param {number} fallback - Value to return if resolution fails
  * @param {HTMLElement | null} [context] - Optional element context for variable resolution
  * @returns {number}
  */
 export function resolve_number(value, fallback = 0, context = null) {
-  const parseNum = (s) => {
+  const parseNum = (/** @type {string} */ s) => {
     const n = parseFloat(s);
     return isNaN(n) ? null : n;
   };
@@ -256,24 +251,20 @@ export function resolve_number(value, fallback = 0, context = null) {
  * Resolves a CSS string value (handles variables).
  * Useful for easings, colors (as strings), or other non-numeric tokens.
  *
- * @param {string | undefined} value - The CSS value or variable name (e.g., "--ease-(--ease-out)")
+ * @param {string | undefined} value - The CSS value or variable name
  * @param {string} fallback - Value to return if resolution fails
  * @param {HTMLElement | null} [context] - Optional element context for variable resolution
  * @returns {string}
  */
 export function resolve_string(value, fallback = "", context = null) {
-  const cleanStr = (s) => s.replace(/['"]/g, "");
-  // String path differs slightly: the fast-path guard also rejects "var(" chains and the SENTINEL placeholder.
-  const parseVar = (s) => (s && s !== "SENTINEL" && !s.includes("var(") ? cleanStr(s) : null);
+  const cleanStr = (/** @type {string} */ s) => s.replace(/['"]/g, "");
+  const parseVar = (/** @type {string} */ s) => (s && s !== "SENTINEL" && !s.includes("var(") ? cleanStr(s) : null);
 
-  // resolve_string's direct path: only meaningful if the raw value is a plain string (no variable/calc).
-  // parseFloat-style parsing doesn't apply; we return the cleaned string only when there's no variable/calc.
-  // Reuse resolve_css but with a direct-parse that returns null (so it falls through to measure el).
   return /** @type {string} */ (
     resolve_css(value, fallback, context, {
       prop: "--proxy",
       sentinel: "SENTINEL",
-      parseDirect: () => null, // resolve_string has no direct-parse shortcut: raw inputs may be variable names.
+      parseDirect: () => null,
       parseResolvedVar: parseVar,
       parseComputed: (c) => (c && c !== "SENTINEL" ? cleanStr(c) : null),
     })
@@ -281,15 +272,15 @@ export function resolve_string(value, fallback = "", context = null) {
 }
 
 /**
- * Safely accesses Perchance lists.
+ * Safely accesses Perchance lists from window.lists.
  * Handles both raw arrays and stringified JSON arrays.
  * @param {string} key
  * @returns {any[]}
  */
 export const getRpgList = (key) => {
-  if (LISTS && LISTS[key]) {
-    let list = LISTS[key];
-    // Check if the first element is a stringified JSON array (Perchance quirk)
+  const globalLists = typeof window !== "undefined" && /** @type {any} */ (window).lists ? /** @type {any} */ (window).lists : null;
+  if (globalLists && globalLists[key]) {
+    let list = globalLists[key];
     if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
       if (list[0].length > 65536) {
         console.warn(`[Helpers] getRpgList: JSON string for key '${key}' exceeds 64KB safety limit.`);

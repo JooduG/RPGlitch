@@ -1,21 +1,13 @@
 /**
- * @file src/core/intelligence/temporal-engine.js
- * @description The RPGlitch Temporal Engine (v1).
+ * @file src/intelligence/temporal.js
+ * ⏳ TEMPORAL ENGINE — Temporal Fabric Coordinator
  * Consolidates Past (Historical Anchors) and Future (Active Impulses) into a unified temporal continuum.
- *
- * -----------------------------------------------------------------------------
- * THE TEMPORAL FABRIC
- * -----------------------------------------------------------------------------
- * This engine manages "Temporal Log Entries" (Vectors).
- * - Past (Anchors)  : Backstory, Traumas, Education, Session Memories.
- * - Future (Impulses): Prophecies, Curses, Dreams, Impending Doom, Plans.
  */
 
-import { session_driver } from "@engine";
-import { prompt_builder } from "./prompts.js";
-import { merge_prose_into_field, extract_json_block } from "./parser.js";
 import { llm_service } from "@platform";
 import { simulation_log as log_store } from "@state";
+import { extract_json_block, merge_prose_into_field } from "./parser.js";
+import { prompt_builder } from "./prompts.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -40,7 +32,6 @@ import { simulation_log as log_store } from "@state";
 
 /**
  * Creates a rich Temporal Log Entry (Vector).
- *
  * @param {string} directive - The narrative payload.
  * @param {string} [type="future"] - "past" | "future".
  * @param {number} [weight=5] - 1-10 priority.
@@ -50,7 +41,7 @@ export function create(directive, type = "future", weight = 5) {
   return {
     id: crypto.randomUUID(),
     timestamp: Date.now(),
-    directive,
+    directive: directive || "",
     type,
     base_weight: weight,
     tags: [],
@@ -60,7 +51,6 @@ export function create(directive, type = "future", weight = 5) {
 
 /**
  * RAG Scoring: Ranks a list of vectors based on relevance and base weight.
- * Symmetric logic for both past and future.
  * @param {TemporalVector[]} vectors
  * @param {string} input
  * @returns {TemporalVector[]}
@@ -72,10 +62,8 @@ export function score(vectors, input) {
   const input_lower = input.toLowerCase();
 
   const scored = vectors.map((v) => {
-    // Start with the base weight (narrative gravity)
     let relevance = v.base_weight ?? v.emotional_weight ?? 5;
 
-    // Future enhancements will use Director's historical_search_keys to boost tag relevance.
     v.tags?.forEach((t) => {
       if (input_lower.includes(t.toLowerCase())) {
         relevance += 3;
@@ -100,14 +88,15 @@ export function score(vectors, input) {
  * @param {number} [options.limit]
  * @param {boolean} [options.vector_text]
  * @param {number} [options.offset]
+ * @param {number} [options.max_chars]
  * @returns {string}
  */
 export function format(vectors, input, options = {}) {
   const limit = options.limit || 3;
   const show_directive = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
-
   const offset = options.offset || 0;
+
   const ranked = score(vectors, input).slice(offset);
 
   let running_chars = 0;
@@ -117,7 +106,6 @@ export function format(vectors, input, options = {}) {
     if (selected.length >= limit) break;
 
     const payload_length = (v.directive || "").length;
-
     if (running_chars + payload_length > max_chars && selected.length > 0) {
       break;
     }
@@ -126,7 +114,6 @@ export function format(vectors, input, options = {}) {
     running_chars += payload_length;
   }
 
-  // Maintain reverse-chrono order in the prompt (oldest to newest)
   const sorted = [...selected].reverse();
 
   return sorted
@@ -144,7 +131,7 @@ export function format(vectors, input, options = {}) {
  * @param {string | null} [resolution]
  */
 export function resolve(entity, vector_id, resolution = null) {
-  if (!Array.isArray(entity.future)) return;
+  if (!entity || !Array.isArray(entity.future)) return;
   const index = entity.future.findIndex((v) => v.id === vector_id);
   if (index === -1) return;
 
@@ -155,26 +142,25 @@ export function resolve(entity, vector_id, resolution = null) {
   if (resolution) {
     if (!vector.tags) vector.tags = [];
     vector.tags.push("resolution:" + resolution.toLowerCase());
-    // Optionally update text if resolution brings new clarity
-    // vector.directive = `[Fulfilled] ${vector.directive}`;
   }
 
   if (!Array.isArray(entity.past)) entity.past = [];
   entity.past.push(vector);
 
-  // Telemetry
-  session_driver.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
-    type: "VECTOR_RESOLUTION",
-    vector,
-    resolution,
-  });
+  if (typeof window !== "undefined" && window.exposed?.session_driver) {
+    window.exposed.session_driver.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
+      type: "VECTOR_RESOLUTION",
+      vector,
+      resolution,
+    });
+  }
 }
 
 /**
  * Generates a Memory record (Historical Anchor) from a slice of history.
  * @param {SimulationEntity} target_entity
  * @param {any[]} history_slice
- * @param {string} [role]
+ * @param {string} [role="character"]
  * @returns {Promise<TemporalVector | null>}
  */
 export async function forge_memory(target_entity, history_slice, role = "character") {
@@ -313,14 +299,11 @@ export const temporal_engine = {
     try {
       const story_id = Session.require_active();
       const messages = await Session.load_log(story_id);
-      const unconsolidated = messages.filter(
-        (/** @type {{ role: string; meta: { consolidated: any; }; }} */ m) => !m.meta?.consolidated && m.role !== "system",
-      );
+      const unconsolidated = messages.filter((m) => !m.meta?.consolidated && m.role !== "system");
 
       if (unconsolidated.length >= 12) {
         const slice = unconsolidated.slice(0, 8);
 
-        // Determine which entity gets the memory vector this cycle
         const target_key =
           temporal_engine._consolidation_targets[temporal_engine._consolidation_rotation_index % temporal_engine._consolidation_targets.length];
         temporal_engine._consolidation_rotation_index++;
@@ -337,12 +320,10 @@ export const temporal_engine = {
         if (target.entity) {
           const memory = await forge_memory(target.entity, slice, target.role);
           if (memory) {
-            // Push Memory Vector to target's past
             if (!Array.isArray(target.entity.past)) target.entity.past = [];
             target.entity.past = [...target.entity.past, memory];
             await runtime.update_entity(target.type, target.entity.id, { past: target.entity.past });
 
-            // Apply Present Summaries to ALL entities
             if (memory.present_summaries) {
               const summaries = memory.present_summaries;
 
@@ -365,7 +346,6 @@ export const temporal_engine = {
               }
             }
 
-            // Apply Eternal Mutations to ALL entities
             if (memory.eternal_mutations) {
               const e_muts = memory.eternal_mutations;
 
@@ -407,7 +387,6 @@ export const temporal_engine = {
                 }
               }
 
-              // Update the memory vector in the target's past if the tag was added
               if (memory.tags.includes("eternal-shift")) {
                 const vectorIdx = target.entity.past.findIndex((v) => v.id === memory.id);
                 if (vectorIdx !== -1) {
@@ -417,8 +396,7 @@ export const temporal_engine = {
               }
             }
 
-            // Telemetry
-            await session_driver.log_system_entry(`Memory Forged (${target_key}): ${memory.directive.substring(0, 50)}...`, "system", {
+            await Session.log_system_entry(`Memory Forged (${target_key}): ${memory.directive.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
               target: target_key,
               vectors: { past: [memory], future: [] },

@@ -98,9 +98,7 @@ describe("Tokens Color Generation", () => {
     test("flattens empty entity to default preset", () => {
       const entity = {};
       const result = AestheticResolver.flatten(entity);
-      expect(result).toBe(
-        "RAW photograph, photorealistic 8k rendering, kodak vision3 color profile, natural lighting, fine film grain, 85mm prime f/1.2 lens, shallow depth of field, crisp asset definition, micro-detailed surface textures, adrenaline pink aesthetic, professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
-      );
+      expect(result).toBe("adrenaline pink aesthetic");
     });
 
     test("flattens character with physical details and signature color", () => {
@@ -119,7 +117,6 @@ describe("Tokens Color Generation", () => {
       expect(result).toContain("glow blue");
       expect(result).toContain("dark cloak");
       expect(result).toContain("electric cyan aesthetic");
-      expect(result).toContain("professional portrait camera configuration");
     });
 
     test("flattens fractal scene with landscape presets", () => {
@@ -133,7 +130,6 @@ describe("Tokens Color Generation", () => {
       const result = AestheticResolver.flatten(entity);
       expect(result).toContain("sub-zero facility");
       expect(result).toContain("void black aesthetic");
-      expect(result).toContain("cinematic wide-angle environmental frame");
     });
   });
 });

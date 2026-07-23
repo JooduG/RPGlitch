@@ -132,7 +132,7 @@ export class AppStore {
     dev_mode: false,
     dev_grid_visible: false,
     narrative_style: "default",
-    visual_style: "photorealism",
+    visual_style: "none",
   });
   // --- SENSORY ENGINES ---
   get visual() {

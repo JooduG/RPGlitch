@@ -1,6 +1,15 @@
 /**
- * Metadata for the physics engine sliders (Dynamics)
+ * src/intelligence/dynamics.js
+ * ⚙️ DYNAMICS ENGINE — Physics engine slider metadata & settlement calculations.
  */
+
+/**
+ * @typedef {Object} AxisMeta
+ * @property {string} label - UI display label
+ * @property {string} desc - Axis description for LLM prompt legend calibration
+ */
+
+/** @type {Record<string, AxisMeta>} */
 export const DYNAMICS_META = {
   // Character (Somatic) axes
   chaos: { label: "Chaos", desc: "Randomness vs Control" },
@@ -18,12 +27,12 @@ export const dynamics_engine = {
    * Evaluates and settles physics (Gravity & Clamping).
    * Used after the Director applies explicit state mutations to settle the physics before the next turn.
    * @param {Record<string, number>} dynamics - The current dynamics state for an entity
-   * @param {Record<string, number>} baselines - The baseline gravitational centers
-   * @param {number} active_entropy - The current world entropy (0-100)
-   * @param {number} base_gravity - The baseline gravity strength (e.g. 0.1)
+   * @param {Record<string, number>} [baselines={}] - The baseline gravitational centers
+   * @param {number} [active_entropy=50] - The current world entropy (0-100)
+   * @param {number} [base_gravity=0.1] - The baseline gravity strength (e.g. 0.1)
    */
-  settle_physics(dynamics, baselines, active_entropy = 50, base_gravity = 0.1) {
-    if (!dynamics) return;
+  settle_physics(dynamics, baselines = {}, active_entropy = 50, base_gravity = 0.1) {
+    if (!dynamics || typeof dynamics !== "object") return;
 
     // 1. Gravity Pull & Settlement (Clamp to 0-100 bounds)
     const variance = (active_entropy / 100) * 0.05;

@@ -120,7 +120,7 @@
         if (!has_prompt_text) {
           profileState.char.modifiers.prompt = AestheticResolver.extract(profileState.char);
         } else {
-          const result = await app.visual.enhance(profileState.char.modifiers.prompt, profileState.char.type);
+          const result = await app.visual.enhance(profileState.char.modifiers.prompt, profileState.char.type, profileState.char);
           if (result) {
             let positive = result.prompt || "";
             let negative = result.negativePrompt || "";
@@ -199,7 +199,6 @@
       });
       if (payload?.url) {
         profileState.char.profile_picture = payload.url;
-        if (payload.metadata?.negativePrompt !== undefined) profileState.char.modifiers.negative_prompt = payload.metadata.negativePrompt;
         if (payload.metadata?.seed !== undefined) profileState.char.modifiers.last_generated_seed = payload.metadata.seed;
       }
     } catch (err) {
@@ -251,19 +250,6 @@
 "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
-  <div class="flex flex-col gap-2">
-    <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Visual Style</span>
-    <Dropdown
-      bind:value={profileState.char.visual_style}
-      items={visual_style_options}
-      label="Select Visual Style"
-      uppercase={false}
-      matchWidth={true}
-      disabled={!profileState.is_editing}
-      onchange={() => (profileState._user_mutated = true)}
-    />
-  </div>
-
   <div
     class="
     grid
@@ -314,6 +300,16 @@
       </div>
     {/each}
   </div>
+
+  <Dropdown
+    bind:value={profileState.char.visual_style}
+    items={visual_style_options}
+    label="Select Visual Style"
+    uppercase={false}
+    matchWidth={true}
+    disabled={!profileState.is_editing}
+    onchange={() => (profileState._user_mutated = true)}
+  />
 
   <TextField
     data-active={profileState.active_field?.key === "visual-prompt" ? true : undefined}
