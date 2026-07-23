@@ -445,13 +445,13 @@
           <div class="mb-4 flex h-storyboard-character-card-height w-full items-stretch gap-2 md:gap-4">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
-              <div class="min-w-0 grow">
+              <div class="min-w-0" style="flex-grow: 1">
                 <EntityCard entity={a} type="ai" variant="message" onclick={() => app.open_profile(a)} onViewProfile={() => app.open_profile(a)} />
               </div>
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
-              <div class="min-w-0 grow-2">
+              <div class="min-w-0" style="flex-grow: 2">
                 <EntityCard
                   entity={f}
                   type="fractal"
@@ -463,7 +463,7 @@
             {/if}
             {#if runtime.active_user || app.selected_user}
               {@const u = runtime.active_user || app.selected_user}
-              <div class="min-w-0 grow">
+              <div class="min-w-0" style="flex-grow: 1">
                 <EntityCard entity={u} type="user" variant="message" onclick={() => app.open_profile(u)} onViewProfile={() => app.open_profile(u)} />
               </div>
             {/if}
