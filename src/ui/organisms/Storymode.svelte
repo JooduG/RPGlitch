@@ -111,7 +111,14 @@
     // During image generation, always fall back to "ai" so the busy
     // bubble renders left-aligned regardless of intermediate typing roles.
     if (simulationState.phase === "generating") {
-      if (simulationState.role === "selfie" || simulationState.role === "setting" || simulationState.role === "paparazzi") return "ai";
+      if (
+        simulationState.role === "selfie" ||
+        simulationState.role === "character" ||
+        simulationState.role === "characters" ||
+        simulationState.role === "setting" ||
+        simulationState.role === "paparazzi"
+      )
+        return "ai";
       return simulationState.role ?? "ai";
     }
     return simulationState.role;
@@ -134,6 +141,7 @@
           character_name: active_turn_name ?? "",
           created_at: Date.now(),
           busy: true,
+          meta: { is_prologue: app.streaming.role === "fractal" },
         });
       }
     }

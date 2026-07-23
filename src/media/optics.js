@@ -131,7 +131,7 @@ function build_aesthetic_map(entity = {}) {
     merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
   }
 
-  const isLandscape = entity.type === "fractal" || entity.type === "scene";
+  const isLandscape = entity.type === "fractal";
   merged.preset = isLandscape
     ? "cinematic wide-angle environmental frame, balanced golden ratio architectural composition, immersive lighting, deep background tracking, atmospheric depth layout"
     : "professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures";
@@ -214,7 +214,7 @@ export const PromptTemplates = {
    * Unlocks complete freedom across stylistic mediums (anime, digital painting, photography).
    *
    * @param {string} text - Raw content description to enrich
-   * @param {string} [type] - Entity type: "character" | "fractal" | "scene"
+   * @param {string} [type] - Entity type: "character" | "fractal" | "characters"
    * @returns {string} The formatted system instruction prompt payload string
    */
   ENHANCE: (text, _type = "character") => {
@@ -291,13 +291,23 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     const fractalBlock = renderEntity("FRACTAL", fractal);
 
     switch (targetType) {
-      case "scene":
+      case "fractal":
         ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, medium context, and background lighting structures.</RESTRICTION>`;
         anchor = "RAW photograph or structured artistic rendering of an landscape environment or interior layout space";
         realism = "high architectural definition, crisp spatial depth details, professional landscape layout alignment";
         break;
-      case "user":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona profile context.</RESTRICTION>`;
+      case "characters":
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<NARRATIVE_CONTEXT>The image must depict the specific scene, action, or moment described in the INSTRUCTIONS. The characters should be engaged in the narrative situation — not simply standing or posing. Use their physical descriptions to render their appearance, but compose them into the dramatic or emotional beat of the scene.</NARRATIVE_CONTEXT>`;
+        anchor =
+          "RAW photograph or structured artistic rendering of a scene featuring the AI character and the user persona together within the fractal environment, depicted in the specific moment and action described by the narrative intent";
+        realism =
+          "balanced composition with clear character placement, environmental depth, professional cinematic staging, dramatic lighting matching the scene's mood, natural interaction between characters";
+        break;
+      case "character":
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
+        anchor =
+          "RAW photograph or structured visual rendering of a character within their environment, framed to emphasize the character with the fractal setting visible in the background";
+        realism = "cinematic framing, clear focus distribution, naturalistic lighting features, professional portrait composition";
         break;
       case "selfie":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
@@ -305,9 +315,12 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
           "RAW photograph, a modern front-facing wide-angle camera selfie shot layout, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
         realism = "cinematic framing, clear focus distribution, naturalistic lightning features, smartphone camera simulation layer";
         break;
+      case "user":
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona profile context.</RESTRICTION>`;
+        break;
       case "ai":
       default:
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character profile context.</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character profile context.</RESTRICTION>`;
         break;
     }
 
@@ -339,7 +352,6 @@ Input Intent: "${escapeXml(rawIntent)}"
 export const getResolution = (/** @type {any} */ mode) => {
   switch (mode) {
     case "landscape":
-    case "scene":
     case "fractal":
       return { width: 768, height: 512 };
     case "portrait":
@@ -348,6 +360,8 @@ export const getResolution = (/** @type {any} */ mode) => {
     case "user":
     case "ai":
       return { width: 512, height: 768 };
+    case "characters":
+      return { width: 768, height: 768 };
     default:
       return { width: 768, height: 768 };
   }

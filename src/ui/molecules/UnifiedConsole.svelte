@@ -413,41 +413,104 @@
                     <div class="min-h-0 overflow-hidden">
                       <div class="flex flex-row flex-wrap items-center gap-4 pt-2 pb-4">
                         <Button
-                          label="PHOTO"
+                          label="AI PORTRAIT"
                           variant="secondary"
                           size="small"
                           loading={visual_engine.isLoading}
                           disabled={visual_engine.isLoading || is_locked}
                           onclick={async () => {
                             try {
-                              // Directly set role for guaranteed reactivity before triggering phase change
                               simulationState.role = "ai";
                               simulationState.start_generation("ai");
-
-                              const result = await visual_engine.visualize(
-                                runtime.story_id,
-                                app.prologue || "Taking an outstretched phone selfie portrait capturing the moment",
-                                "selfie",
-                              );
-
+                              const result = await visual_engine.visualize(runtime.story_id, "A character portrait of the AI character", "character");
                               if (result?.imageUrl) {
                                 const entity = runtime.active_ai || app.selected_ai;
-                                const entity_name = entity?.name || "AI";
-                                const caption = result.caption || "Here, caught this moment for you.";
-                                await session_driver.log_message(caption, "ai", entity_name, "AI_TURN", {}, [
-                                  {
-                                    src: result.imageUrl,
-                                    metadata: {
-                                      ...result.metadata,
-                                      prompt: result.refinedPrompt,
-                                    },
-                                  },
+                                await session_driver.log_message("", "ai", entity?.name || "AI", "AI_TURN", {}, [
+                                  { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
                                 ]);
-                              } else {
-                                console.warn("[PHOTO] No imageUrl returned");
                               }
                             } catch (err) {
-                              console.error("[PHOTO ERROR]", err);
+                              console.error("[AI Portrait Error]", err);
+                            } finally {
+                              simulationState.complete();
+                            }
+                          }}
+                        />
+                        <Button
+                          label="USER PORTRAIT"
+                          variant="secondary"
+                          size="small"
+                          loading={visual_engine.isLoading}
+                          disabled={visual_engine.isLoading || is_locked}
+                          onclick={async () => {
+                            try {
+                              simulationState.role = "user";
+                              simulationState.start_generation("user");
+                              const result = await visual_engine.visualize(runtime.story_id, "A character portrait of the user persona", "user");
+                              if (result?.imageUrl) {
+                                const entity = runtime.active_user || app.selected_user;
+                                await session_driver.log_message("", "user", entity?.name || "User", "USER_TURN", {}, [
+                                  { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
+                                ]);
+                              }
+                            } catch (err) {
+                              console.error("[User Portrait Error]", err);
+                            } finally {
+                              simulationState.complete();
+                            }
+                          }}
+                        />
+                        <Button
+                          label="FRACTAL"
+                          variant="secondary"
+                          size="small"
+                          loading={visual_engine.isLoading}
+                          disabled={visual_engine.isLoading || is_locked}
+                          onclick={async () => {
+                            try {
+                              simulationState.role = "fractal";
+                              simulationState.start_generation("fractal");
+                              const result = await visual_engine.visualize(
+                                runtime.story_id,
+                                "An environmental shot of the current setting",
+                                "fractal",
+                              );
+                              if (result?.imageUrl) {
+                                const entity = runtime.active_fractal || app.selected_fractal;
+                                await session_driver.log_message("", "fractal", entity?.name || "Fractal", "SYSTEM_TURN", {}, [
+                                  { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
+                                ]);
+                              }
+                            } catch (err) {
+                              console.error("[Fractal Error]", err);
+                            } finally {
+                              simulationState.complete();
+                            }
+                          }}
+                        />
+                        <Button
+                          label="GROUP SHOT"
+                          variant="secondary"
+                          size="small"
+                          loading={visual_engine.isLoading}
+                          disabled={visual_engine.isLoading || is_locked}
+                          onclick={async () => {
+                            try {
+                              simulationState.role = "fractal";
+                              simulationState.start_generation("fractal");
+                              const result = await visual_engine.visualize(
+                                runtime.story_id,
+                                "A scene featuring both the AI character and the user persona together",
+                                "characters",
+                              );
+                              if (result?.imageUrl) {
+                                const fractal = runtime.active_fractal || app.selected_fractal;
+                                await session_driver.log_message("", "fractal", fractal?.name || "Scene", "SYSTEM_TURN", {}, [
+                                  { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
+                                ]);
+                              }
+                            } catch (err) {
+                              console.error("[Group Shot Error]", err);
                             } finally {
                               simulationState.complete();
                             }

@@ -518,30 +518,8 @@ export const gamemaster = {
       runtime.round = 0;
       runtime.turn_type = "SYSTEM_TURN";
 
-      let prologueAttachments = [];
-      if (visual_engine) {
-        try {
-          console.log("[Prologue] Requesting scene image via visual_engine.visualize...");
-          const imgResult = await visual_engine.visualize(story_id, response, "scene");
-          console.log(
-            "[Prologue] visualize result:",
-            JSON.stringify({
-              imageUrl: imgResult?.imageUrl ? "(present)" : null,
-              refinedPrompt: imgResult?.refinedPrompt?.substring(0, 80),
-              caption: imgResult?.caption,
-            }),
-          );
-          if (imgResult?.imageUrl) {
-            prologueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
-            console.log("[Prologue] Image attached successfully.");
-          } else {
-            console.warn("[Prologue] visualize returned no imageUrl — scene image skipped.");
-          }
-        } catch (err) {
-          console.warn("[Prologue Image Error]", err);
-        }
-      }
-
+      // Log the prologue message immediately with a placeholder attachment so
+      // execute_turn can see it in history. The image is filled in retroactively.
       await session_driver.log_message(
         response,
         "fractal",
@@ -552,16 +530,35 @@ export const gamemaster = {
           round: 0,
           is_prologue: true,
         },
-        prologueAttachments,
+        [{ src: null, metadata: {} }],
       );
       app.log("[GameMaster] Prologue established (Round 0).", "system");
 
       // Cleanly end the prologue fractal stream before initiating the AI follow-up hook
       app.end_stream();
 
-      // 2. The Hook: Trigger immediate AI follow-up to open the scene.
-      // Ensure we transition simulationState to 'ai' role for the hook.
-      return await this.execute_turn(story_id, { role: "ai", is_opening_turn: true });
+      // 2. Fire image generation and the opening turn (Director + Character) in parallel.
+      // The image is attached retroactively via update_log_attachment when it resolves.
+      const imagePromise = visual_engine
+        ? visual_engine
+            .visualize(story_id, response, "characters", { silent: true })
+            .then((imgResult) => {
+              if (imgResult?.imageUrl) {
+                session_driver.update_log_attachment(nodeId, 0, {
+                  src: imgResult.imageUrl,
+                  metadata: imgResult.metadata,
+                });
+              }
+            })
+            .catch((err) => {
+              console.warn("[Prologue Image Error]", err);
+            })
+        : Promise.resolve();
+
+      const turnPromise = this.execute_turn(story_id, { role: "ai", is_opening_turn: true });
+
+      await Promise.all([imagePromise, turnPromise]);
+      return await turnPromise;
     } finally {
       app.busy = false;
       app.end_stream();
@@ -597,7 +594,7 @@ export const gamemaster = {
     let epilogueAttachments = [];
     if (visual_engine) {
       try {
-        const imgResult = await visual_engine.visualize(story_id, response, "scene");
+        const imgResult = await visual_engine.visualize(story_id, response, "fractal");
         if (imgResult?.imageUrl) {
           epilogueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
         }

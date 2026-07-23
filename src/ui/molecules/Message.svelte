@@ -442,16 +442,16 @@
       <!-- CARD BODY -->
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
-          <div class="my-4 flex w-full flex-wrap items-center justify-center gap-4 py-2 md:gap-6">
+          <div class="mb-4 flex h-storyboard-character-card-height w-full items-stretch gap-2 md:gap-4">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
-              <div class="h-40 w-28 shrink-0">
+              <div class="min-w-0 grow">
                 <EntityCard entity={a} type="ai" variant="message" onclick={() => app.open_profile(a)} onViewProfile={() => app.open_profile(a)} />
               </div>
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
-              <div class="h-40 w-64 shrink-0">
+              <div class="min-w-0 grow-2">
                 <EntityCard
                   entity={f}
                   type="fractal"
@@ -463,7 +463,7 @@
             {/if}
             {#if runtime.active_user || app.selected_user}
               {@const u = runtime.active_user || app.selected_user}
-              <div class="h-40 w-28 shrink-0">
+              <div class="min-w-0 grow">
                 <EntityCard entity={u} type="user" variant="message" onclick={() => app.open_profile(u)} onViewProfile={() => app.open_profile(u)} />
               </div>
             {/if}
@@ -518,82 +518,6 @@
           {/if}
         {/if}
 
-        {#if attachments.length > 0}
-          <div class="mb-4">
-            {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
-              {@const rawSrc = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
-              {@const src = typeof rawSrc === "object" && rawSrc !== null ? rawSrc.src || rawSrc.url || rawSrc.dataUrl || "" : String(rawSrc || "")}
-              {#if src && src !== "[object HTMLImageElement]" && src !== "[object Object]"}
-                <button
-                  type="button"
-                  class="
-                    mx-auto
-                    mb-2
-                    block
-                    w-fit
-                    overflow-hidden
-                    rounded-lg
-                    bg-neutral-900/50
-                    p-2
-                    transition-[filter] duration-200
-                    hover:brightness-110
-                  "
-                  onclick={() => {
-                    const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
-                    if (!previewOptions.metadata) previewOptions.metadata = {};
-                    previewOptions.signature_color = signature_color;
-
-                    if (previewOptions.metadata?.prompt) {
-                      previewOptions.on_reroll = async () => {
-                        app.busy = true;
-                        try {
-                          const payload = await app.visual.generate(previewOptions.metadata.prompt, {
-                            seed: null,
-                            resolution: previewOptions.metadata.resolution,
-                            negativePrompt: previewOptions.metadata.negativePrompt,
-                            mode: "selfie",
-                            returnPayload: true,
-                          });
-                          if (payload?.url && id) {
-                            const newAttachment = {
-                              src: payload.url,
-                              metadata: payload.metadata,
-                              signature_color,
-                            };
-                            await session_driver.update_log_attachment(id, attach_idx, newAttachment);
-                            app.open_image_preview(newAttachment);
-                          }
-                        } finally {
-                          app.busy = false;
-                        }
-                      };
-                    }
-
-                    app.open_image_preview(previewOptions);
-                  }}
-                  aria-label="View Attachment"
-                  use:tooltip
-                >
-                  <img
-                    {src}
-                    alt="Attachment {attach_idx + 1}"
-                    class="
-                      mx-auto
-                      max-h-120
-                      w-auto
-                      max-w-full
-                      cursor-zoom-in
-                      rounded-sm
-                      object-contain
-                      shadow-sm
-                    "
-                  />
-                </button>
-              {/if}
-            {/each}
-          </div>
-        {/if}
-
         {#if is_editing}
           <TextField bind:value={local_text} is_edit={true} {signature_color} no_background={true} placeholder="Edit message..." />
         {:else if has_display_text || busy}
@@ -641,6 +565,86 @@
                 <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
               </div>
             {/if}
+          </div>
+        {/if}
+
+        {#if attachments.length > 0}
+          <div class="mt-4 flex justify-center">
+            {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
+              {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
+              {#if src}
+                <button
+                  type="button"
+                  class="
+                    mx-auto
+                    block
+                    w-fit
+                    overflow-hidden
+                    rounded-lg
+                    bg-neutral-900/50
+                    p-2
+                    transition-[filter] duration-200
+                    hover:brightness-110
+                  "
+                  onclick={() => {
+                    const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+                    if (!previewOptions.metadata) previewOptions.metadata = {};
+                    previewOptions.signature_color = signature_color;
+
+                    if (previewOptions.metadata?.prompt) {
+                      previewOptions.on_reroll = async () => {
+                        app.busy = true;
+                        try {
+                          const payload = await app.visual.generate(previewOptions.metadata.prompt, {
+                            seed: null,
+                            resolution: previewOptions.metadata.resolution,
+                            negativePrompt: previewOptions.metadata.negativePrompt,
+                            mode: previewOptions.metadata.mode || "character",
+                            returnPayload: true,
+                          });
+                          if (payload?.url && id) {
+                            const newAttachment = {
+                              src: payload.url,
+                              metadata: payload.metadata,
+                              signature_color,
+                            };
+                            await session_driver.update_log_attachment(id, attach_idx, newAttachment);
+                            app.open_image_preview(newAttachment);
+                          }
+                        } finally {
+                          app.busy = false;
+                        }
+                      };
+                    }
+
+                    app.open_image_preview(previewOptions);
+                  }}
+                  aria-label="View Attachment"
+                  use:tooltip
+                >
+                  <img
+                    {src}
+                    alt="Attachment {attach_idx + 1}"
+                    class="
+                      mx-auto
+                      max-h-120
+                      w-auto
+                      max-w-full
+                      cursor-zoom-in
+                      rounded-sm
+                      object-contain
+                      shadow-sm
+                    "
+                  />
+                </button>
+              {:else}
+                <div class="flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900/50 p-4 opacity-60">
+                  <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                  <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                  <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                </div>
+              {/if}
+            {/each}
           </div>
         {/if}
       </div>

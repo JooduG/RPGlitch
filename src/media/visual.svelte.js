@@ -15,99 +15,6 @@ import { app, runtime, simulationState as simulation } from "@state";
 let cachedImageEngine = null;
 
 /**
- * Extracts a valid image URL string (Base64 dataUrl, blob, or image src) from Perchance plugin outputs.
- * Strictly ignores HTML iframe embed URLs (containing /embed).
- * @param {any} data
- * @returns {string | null}
- */
-function extractValidImageUrl(data) {
-  if (!data) return null;
-  if (typeof data === "string") {
-    if (data.includes("/embed?") || data.includes("perchance.org/embed")) return null;
-    return data;
-  }
-  const pluginOutput = data.textToImagePluginOutput;
-  if (pluginOutput) {
-    if (pluginOutput.dataUrl && typeof pluginOutput.dataUrl === "string") return pluginOutput.dataUrl;
-    if (pluginOutput.src && typeof pluginOutput.src === "string" && !pluginOutput.src.includes("/embed")) return pluginOutput.src;
-    if (pluginOutput.canvas && typeof pluginOutput.canvas.toDataURL === "function") {
-      try {
-        return pluginOutput.canvas.toDataURL("image/png");
-      } catch (_e) {
-        /* ignore */
-      }
-    }
-  }
-
-  if (data.dataUrl && typeof data.dataUrl === "string") return data.dataUrl;
-  if (data.image) {
-    const imgUrl = typeof data.image === "string" ? data.image : data.image.src || data.image.dataUrl;
-    if (imgUrl && typeof imgUrl === "string" && !imgUrl.includes("/embed")) return imgUrl;
-  }
-  if (data.url && typeof data.url === "string" && !data.url.includes("/embed")) return data.url;
-  if (data.src && typeof data.src === "string" && !data.src.includes("/embed")) return data.src;
-  if (data.href && typeof data.href === "string" && !data.href.includes("/embed")) return data.href;
-
-  if (typeof data === "object" && data.querySelector) {
-    const imgEl = data.querySelector("img");
-    if (imgEl && imgEl.src && !imgEl.src.includes("/embed")) return imgEl.src;
-    const canvasEl = data.querySelector("canvas");
-    if (canvasEl && typeof canvasEl.toDataURL === "function") {
-      try {
-        return canvasEl.toDataURL("image/png");
-      } catch (_e) {
-        /* ignore */
-      }
-    }
-  }
-
-  return null;
-}
-
-/**
- * Polls Perchance image plugin output until a valid image string URL is ready.
- * @param {any} data
- * @param {number} [timeoutMs]
- * @returns {Promise<string | null>}
- */
-async function waitForImageFromPluginOutput(data, timeoutMs = 20000) {
-  const startTime = Date.now();
-  while (Date.now() - startTime < timeoutMs) {
-    const validUrl = extractValidImageUrl(data);
-    if (validUrl) return validUrl;
-    await new Promise((r) => setTimeout(r, 250));
-  }
-  return null;
-}
-
-/**
- * Normalizes image sources, converting cross-origin blob URLs to portable Base64 data URLs.
- * @param {any} imgSource
- * @returns {Promise<string|null>}
- */
-async function normalizeImageUrl(imgSource) {
-  if (!imgSource) return null;
-  let raw = typeof imgSource === "string" ? imgSource : imgSource.src || imgSource.dataUrl || imgSource.url || null;
-  if (!raw || typeof raw !== "string" || raw.includes("/embed")) return null;
-
-  if (raw.startsWith("blob:")) {
-    try {
-      const res = await fetch(raw);
-      const blob = await res.blob();
-      return await new Promise((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => resolve(typeof reader.result === "string" ? reader.result : raw);
-        reader.onerror = () => resolve(raw);
-        reader.readAsDataURL(blob);
-      });
-    } catch (_e) {
-      return raw;
-    }
-  }
-  return raw;
-}
-
-/**
  * Lazily searches and caches the hosted Perchance text-to-image plugin infrastructure.
  * Safely insulates cross-origin boundary lookups to prevent Same-Origin Policy crashes.
  * @returns {Function | null}
@@ -251,31 +158,15 @@ export class VisualEngine {
             const effectiveResolution = `${res.width}x${res.height}`;
             // Guidance scale: higher for characters (stricter adherence to entity details), lower for scenes (more atmospheric variety)
             const entityType = options.type || options.mode || "character";
-            const isCharacter = ["character", "ai", "user", "selfie", "portrait"].includes(entityType);
-            const effectiveGuidanceScale = options.guidanceScale ?? (isCharacter ? 9 : 6.5);
-
-            const shapeMap = {
-              landscape: "landscape",
-              scene: "landscape",
-              fractal: "landscape",
-              portrait: "portrait",
-              character: "portrait",
-              selfie: "portrait",
-              user: "portrait",
-              ai: "portrait",
-              square: "square",
-            };
-            const effectiveShape =
-              options.shape ||
-              shapeMap[options.mode] ||
-              shapeMap[options.type] ||
-              (res.width > res.height ? "landscape" : res.width < res.height ? "portrait" : "square");
+            const isCharacter = ["character", "ai", "user", "selfie", "portrait", "characters"].includes(entityType);
+            const effectiveGuidanceScale = options.guidanceScale ?? (isCharacter ? 9 : 7);
 
             const generatePromise = image_engine({
               prompt: finalPrompt,
               negativePrompt: effectiveNegativePrompt,
               seed: effectiveSeed,
-              shape: effectiveShape,
+              // Map custom resolution parameters directly to the strict string formats expected by Perchance
+              shape: effectiveResolution,
               resolution: effectiveResolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
               guidanceScale: effectiveGuidanceScale,
@@ -298,27 +189,41 @@ export class VisualEngine {
                 if (data.error) {
                   throw new Error(`Text-to-image failed: ${data.error}`);
                 }
-              }
+                const img = typeof data === "string" ? data : data.dataUrl || data.url || data.image || data.src || data.href || null;
+                if (!img) {
+                  throw new Error("Text-to-image failed: no image data returned");
+                }
 
-              const rawImg = await waitForImageFromPluginOutput(data, 25000);
-              const img = await normalizeImageUrl(rawImg);
-              if (!img || typeof img !== "string") {
-                throw new Error("Text-to-image failed: no valid image string URL returned");
+                if (options.returnPayload) {
+                  return {
+                    url: img,
+                    metadata: {
+                      prompt: finalPrompt,
+                      negativePrompt: effectiveNegativePrompt,
+                      seed: effectiveSeed,
+                      resolution: effectiveResolution,
+                      guidanceScale: effectiveGuidanceScale,
+                      mode: options.mode,
+                    },
+                  };
+                }
+                return img;
               }
 
               if (options.returnPayload) {
                 return {
-                  url: img,
+                  url: data,
                   metadata: {
                     prompt: finalPrompt,
                     negativePrompt: effectiveNegativePrompt,
                     seed: effectiveSeed,
                     resolution: effectiveResolution,
                     guidanceScale: effectiveGuidanceScale,
+                    mode: options.mode,
                   },
                 };
               }
-              return img;
+              return data;
             } finally {
               clearTimeout(timeoutId);
             }
@@ -388,6 +293,7 @@ export class VisualEngine {
    * @param {any} [options]
    */
   async visualize(storyId, visualPrompt, targetType, options = {}) {
+    const { silent = false } = options;
     let story = null;
     if (storyId) {
       const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : storyId;
@@ -408,12 +314,12 @@ export class VisualEngine {
       };
     }
 
-    const targetTypeMap = { fractal: "scene", scene: "scene", user: "user", selfie: "selfie" };
-    const vTarget = /** @type {any} */ (targetTypeMap)[targetType] || "ai";
+    const targetTypeMap = { fractal: "fractal", user: "user", selfie: "selfie", characters: "characters" };
+    const vTarget = /** @type {any} */ (targetTypeMap)[targetType] || "character";
 
     const targetIdMap = { fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
     const targetId = /** @type {any} */ (targetIdMap)[targetType] || story.ai_id;
-    simulation.start_typing(targetType === "scene" ? "fractal" : targetType || "ai", targetId);
+    if (!silent) simulation.start_typing(targetType === "fractal" || targetType === "characters" ? "fractal" : targetType || "ai", targetId);
 
     try {
       const ai = await this._resolveEntity(story.ai_id);
@@ -442,22 +348,14 @@ export class VisualEngine {
         return { imageUrl: null, refinedPrompt: null, caption: null };
       }
 
-      const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)(?:<\/image_prompt>|$)/i);
-      let extracted = match?.[1] ? match[1] : refined || "";
+      const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
+      const extracted = match?.[1] || refined || "";
       let cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
 
-      const boilerplatePrefixes = [
-        "RAW photograph or structured artistic rendering of an landscape environment or interior layout space",
-        "RAW photograph, a modern front-facing wide-angle camera selfie shot layout",
-      ];
-      const isJustBoilerplate = boilerplatePrefixes.some(
-        (prefix) => cleanPrompt.trim() === prefix.trim() || (cleanPrompt.trim().startsWith(prefix) && cleanPrompt.trim().length < prefix.length + 20),
-      );
-
-      if ((!cleanPrompt || cleanPrompt.length < 20 || isJustBoilerplate) && (vTarget === "scene" || vTarget === "fractal")) {
+      if ((!cleanPrompt || cleanPrompt.length < 10) && (vTarget === "fractal" || vTarget === "characters")) {
         const fractalDesc = AestheticResolver.flatten(fractal);
         cleanPrompt = `RAW photograph or structured artistic rendering of ${fractal?.name || "an environment"}, ${fractalDesc || "high architectural definition, crisp spatial depth details, professional landscape layout alignment"}`;
-        console.log("[VisualEngine] visualize: Synthesized rich fallback prompt for scene:", cleanPrompt.substring(0, 100));
+        console.log("[VisualEngine] visualize: Fallback prompt synthesized for scene:", cleanPrompt.substring(0, 100));
       } else {
         console.log("[VisualEngine] visualize: Extracted prompt:", cleanPrompt?.substring(0, 100));
       }
@@ -486,7 +384,7 @@ export class VisualEngine {
       console.error("[VisualEngine] Visualize error:", err);
       return { imageUrl: null, refinedPrompt: null, caption: null };
     } finally {
-      simulation.stop_typing();
+      if (!silent) simulation.stop_typing();
     }
   }
 
@@ -500,7 +398,7 @@ export class VisualEngine {
     const res = getResolution(options.mode);
     const width = res.width || 768;
     const height = res.height || 512;
-    const isScene = options.mode === "scene" || options.mode === "fractal" || options.mode === "landscape";
+    const isScene = options.mode === "fractal" || options.mode === "landscape";
     const label = isScene ? "SCENE PREVIEW" : "ENTITY PREVIEW";
     const cleanP = String(prompt || "")
       .substring(0, 50)
