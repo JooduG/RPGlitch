@@ -57,9 +57,11 @@ You are working on **RPGlitch**, an AI roleplay engine built with **Svelte 5 + V
 **Objective**: Implement a **Visual Style System** for image generation that mirrors the existing **Narrative Style System** for prose. Users can select visual aesthetics (e.g. Photorealism, Anime, Surrealism, Cyberpunk, Dark Fantasy, Watercolor) whose `<VISUAL_ENGINE>` XML blocks get injected into diffusion prompts.
 
 #### Default Style
+
 - The global default visual style is **`"photorealism"`**.
 
 #### Resolution & Entity Fallback Architecture
+
 The system supports two distinct image generation contexts: **Entity Portrait Generation** (Visual Wing) and **Story Scene Generation** (Storymode).
 
 1. **Entity Schema (`src/data/normalizer.js`)**: Add `visual_style` (string, default `"photorealism"`) to **BOTH** Character and Fractal entity models.
@@ -73,6 +75,7 @@ The system supports two distinct image generation contexts: **Entity Portrait Ge
    - **Exclusive World Style Rule**: The active Fractal's Visual Style is the **EXCLUSIVE** visual style for the story, overriding individual character styles to keep all scene generations aesthetically cohesive.
 
 #### Step-by-Step Implementation Guide
+
 1. **Data Dictionary (`src/data/visual-styles.js`)**:
    - Create and export `VISUAL_STYLES` dictionary structured like `NARRATIVE_STYLES`.
    - Each entry: `id`, `name`, `portrait` (URL), `description`, `tags[]`, and `visual_engine` (XML string).
@@ -107,14 +110,17 @@ The system supports two distinct image generation contexts: **Entity Portrait Ge
 **Objective**: Refactor how Narrative Point of View (POV) is controlled, establish clean defaults, and **PURGE** all legacy implicit/hardcoded POV instructions across the codebase.
 
 #### Rules & Perspective Hierarchy
+
 - **Character Entities**: Default to **`"1st_person"`** (First-Person perspective: "I", "my", "me"). Users can optionally change to `"3rd_person"`.
 - **Fractal Entities**: Forced **`"3rd_person"`** (Third-Person perspective: "he/she/they", entity name). World narration and Narrator turns must always remain an objective observer.
 
 #### Comprehensive Legacy POV Purge Mandate
+
 1. **Purge `extract_pov_directive()` in `src/intelligence/prompts.js`**: Remove or refactor the legacy regex parsing of `<pov_style>` tags from author narrative styles. Author styles in `narrative-styles.js` must NO LONGER dictate POV; POV is strictly owned by the active entity's `pov` setting.
 2. **Purge Hardcoded/Implicit POV Prompts**: Search `src/intelligence/prompts.js` and `src/data/` for any legacy hardcoded references to perspective (e.g. "write in third-person", implicit narrator POV constraints) and replace them with the central `POV_DIRECTIVE` generator.
 
 #### Step-by-Step Implementation Guide
+
 1. **Entity Schema (`src/data/normalizer.js`)**:
    - Add `pov` field (`"1st_person"`, `"3rd_person"`) to the normalized entity model.
    - Default for Characters: **`"1st_person"`**.

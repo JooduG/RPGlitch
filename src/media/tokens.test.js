@@ -99,7 +99,7 @@ describe("Tokens Color Generation", () => {
       const entity = {};
       const result = AestheticResolver.flatten(entity);
       expect(result).toBe(
-        "adrenaline pink aesthetic, professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
+        "RAW photograph, photorealistic 8k rendering, kodak vision3 color profile, natural lighting, fine film grain, 85mm prime f/1.2 lens, shallow depth of field, crisp asset definition, micro-detailed surface textures, adrenaline pink aesthetic, professional portrait camera configuration, natural lighting, sharp subject focus, fine structural details, high-end studio layout, realistic textures",
       );
     });
 

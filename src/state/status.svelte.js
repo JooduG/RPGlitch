@@ -11,6 +11,7 @@ import { app } from "./app.svelte.js";
  * @property {boolean} dev_mode - Enables the Telemetry HUD and system debug overrides.
  * @property {boolean} dev_grid_visible - Toggles the visual chess grid overlay.
  * @property {string} [narrative_style] - The active narrative writing style profile in the session.
+ * @property {string} [visual_style] - The global default visual style for image generation. Defaults to "photorealism".
  */
 
 /**

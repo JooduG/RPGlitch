@@ -5,11 +5,12 @@
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch UI.
    */
-  import { Button, TextField, Toggle, NumberField, tooltip } from "@atoms";
+  import { Button, TextField, Toggle, NumberField, Dropdown, tooltip } from "@atoms";
   import { prompt_builder, strip_cognition_blocks } from "@intelligence";
   import { AestheticResolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { llm_service } from "@platform";
   import { app } from "@state";
+  import { VISUAL_STYLES } from "@data";
 
   /**
    * @typedef {Object} Props
@@ -95,6 +96,13 @@
       (is_prompt_busy && (!profileState.active_field || profileState.active_field.key === "visual-prompt")) ||
       (!profileState.active_field && has_prompt_text),
   );
+
+  const visual_style_options = Object.values(VISUAL_STYLES).map((style) => ({
+    value: style.id,
+    label: style.name,
+    tag: style.tags ? style.tags.join(", ") : "",
+    tooltip: style.description,
+  }));
 
   // --- HANDLERS ---
 
@@ -187,6 +195,7 @@
             ? Number(profileState.char.modifiers.profile_picture_seed)
             : undefined,
         returnPayload: true,
+        _entity: profileState.char,
       });
       if (payload?.url) {
         profileState.char.profile_picture = payload.url;
@@ -242,6 +251,19 @@
 "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
+  <div class="flex flex-col gap-2">
+    <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Visual Style</span>
+    <Dropdown
+      bind:value={profileState.char.visual_style}
+      items={visual_style_options}
+      label="Select Visual Style"
+      uppercase={false}
+      matchWidth={true}
+      disabled={!profileState.is_editing}
+      onchange={() => (profileState._user_mutated = true)}
+    />
+  </div>
+
   <div
     class="
     grid

@@ -91,16 +91,14 @@ function resolve_active_style_key() {
   return styleKey;
 }
 
-function extract_pov_directive() {
-  const styleKey = resolve_active_style_key();
-  if (!styleKey) return "";
-
-  const engine = NARRATIVE_STYLES[styleKey].narrative_engine;
-  if (!engine) return "";
-
-  const match = engine.match(/<pov_style>([\s\S]*?)<\/pov_style>/i);
-  if (match && match[1]) {
-    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: You MUST write your prose strictly following this point-of-view constraint: "${escapeXml(match[1].trim())}"</POV_DIRECTIVE>`;
+function extract_pov_directive(entity) {
+  if (!entity) return "";
+  const pov = entity.pov;
+  if (pov === "1st_person") {
+    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: Write strictly in first-person POV ('I', 'me', 'my') through your character's eyes.</POV_DIRECTIVE>`;
+  }
+  if (pov === "3rd_person") {
+    return `\n    <POV_DIRECTIVE>CRITICAL MANDATE: Write strictly in third-person limited POV ('he', 'she', 'they', entity name).</POV_DIRECTIVE>`;
   }
   return "";
 }
@@ -395,7 +393,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
       5. Avoid overusing broad physical adjectives; prioritize specific, localized object interactions over repeating descriptive tags of the character's body.
     </EPISTEMIC_PHYSICS>
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
-    Aim for a length of roughly 2 paragraphs, adjusting as the context demands.${extract_pov_directive()}
+    Aim for a length of roughly 2 paragraphs, adjusting as the context demands.${extract_pov_directive(entities.AI)}
   </TASK>
   `).trim();
 

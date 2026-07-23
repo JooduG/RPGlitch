@@ -12,7 +12,7 @@
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
   import { app, runtime } from "@state";
   import { fade } from "svelte/transition";
-  import { NARRATIVE_STYLES } from "@data";
+  import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
 
   const get_style_initials = (name) => {
     if (!name || name === "No Narrative Style") return "?";
@@ -65,6 +65,19 @@
       tag: style.tags ? style.tags.join(", ") : "",
       tooltip: style.tags ? style.tags.join(", ") : undefined,
     }));
+
+  const visual_style_options = Object.values(VISUAL_STYLES).map((style) => ({
+    value: style.id,
+    label: style.name,
+    tag: style.tags ? style.tags.join(", ") : "",
+    tooltip: style.description,
+  }));
+
+  const pov_options = [
+    { value: "1st_person", label: '1st Person ("I/Me")', tag: "Default" },
+    { value: "3rd_person", label: '3rd Person ("He/She/They")' },
+  ];
+
   const has_wings = $derived(!app.transitioning_profile && !profileState.is_packing_up && (profileState.is_editing || app.settings.dev_mode));
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
   const target_morph_name = $derived.by(() => {
@@ -330,6 +343,7 @@
                         negativePrompt: modifiers.negative_prompt || undefined,
                         seed: undefined, // Force a new random seed on reroll
                         returnPayload: true,
+                        _entity: profileState.char,
                       })
                       .then((payload) => {
                         if (payload?.url) {
@@ -436,6 +450,48 @@
                 {/if}
               </div>
             {/if}
+          {/if}
+
+          {#if entity_type === "fractal"}
+            <div class="mt-2 flex w-full flex-col gap-1">
+              <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
+              {#if profileState.is_editing}
+                <div class="relative flex w-full max-w-sm rounded-md">
+                  <Dropdown
+                    bind:value={profileState.char.visual_style}
+                    items={visual_style_options}
+                    label="Select Visual Style"
+                    uppercase={false}
+                    matchWidth={true}
+                    onchange={() => (profileState._user_mutated = true)}
+                  />
+                </div>
+              {:else}
+                <span class="text-sm text-slate-300 italic">
+                  {VISUAL_STYLES[profileState.char.visual_style]?.name || "Photorealism"}
+                </span>
+              {/if}
+            </div>
+          {:else}
+            <div class="mt-2 flex w-full flex-col gap-1">
+              <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Point of View </span>
+              {#if profileState.is_editing}
+                <div class="relative flex w-full max-w-sm rounded-md">
+                  <Dropdown
+                    bind:value={profileState.char.pov}
+                    items={pov_options}
+                    label="Select POV"
+                    uppercase={false}
+                    matchWidth={true}
+                    onchange={() => (profileState._user_mutated = true)}
+                  />
+                </div>
+              {:else}
+                <span class="text-sm text-slate-300 italic">
+                  {profileState.char.pov === "1st_person" ? '1st Person ("I/Me")' : '3rd Person ("He/She/They")'}
+                </span>
+              {/if}
+            </div>
           {/if}
 
           <main class={main_layout_class}>

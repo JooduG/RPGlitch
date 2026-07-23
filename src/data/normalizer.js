@@ -39,6 +39,8 @@ export const ENTITY_TEMPLATES = {
     },
     past: [],
     future: [],
+    visual_style: "photorealism",
+    pov: "1st_person",
   },
   fractal: {
     name: "New Fractal",
@@ -53,6 +55,8 @@ export const ENTITY_TEMPLATES = {
     past: [],
     future: [],
     narrative_style: "",
+    visual_style: "photorealism",
+    pov: "3rd_person",
   },
 };
 /**
@@ -98,6 +102,8 @@ export const normalize = (base = {}) => {
     voice = {},
     custom_data = {},
     narrative_style = "",
+    visual_style = "",
+    pov = "",
   } = base;
 
   const norm_is_premade = is_premade ?? isPremade ?? 0;
@@ -131,6 +137,16 @@ export const normalize = (base = {}) => {
     })(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     narrative_style: sanitize_html(String(narrative_style)).trim(),
+    visual_style: (() => {
+      const parsed = sanitize_html(String(visual_style)).trim();
+      if (parsed && parsed !== "default") return parsed;
+      return "photorealism";
+    })(),
+    pov: (() => {
+      const parsed = sanitize_html(String(pov)).trim();
+      if (parsed === "1st_person" || parsed === "3rd_person") return parsed;
+      return type === "fractal" ? "3rd_person" : "1st_person";
+    })(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {

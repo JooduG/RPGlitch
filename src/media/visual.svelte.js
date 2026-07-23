@@ -6,7 +6,15 @@
 import { generateSecureSeed } from "@engine";
 import { db, entities } from "@data";
 import { strip_cognition_blocks } from "@intelligence";
-import { AestheticResolver, getResolution, NEGATIVE_PROMPT, PromptTemplates } from "./optics.js";
+import {
+  AestheticResolver,
+  getResolution,
+  NEGATIVE_PROMPT,
+  PromptTemplates,
+  resolve_portrait_visual_style_key,
+  resolve_story_visual_style_key,
+  resolve_visual_engine_tokens,
+} from "./optics.js";
 import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
 import { llm_service, sanitize_llm } from "@platform/transport.js";
 import { app, runtime, simulationState as simulation } from "@state";
@@ -120,6 +128,7 @@ export class VisualEngine {
         }
 
         /** @type {any} */ (options).type = entity.type || "character"; // Store resolved type
+        if (!options._entity) options._entity = entity;
         // Store the entity's custom negative prompt for use in generation
         if (!options.negativePrompt && entity.modifiers?.negative_prompt) {
           /** @type {any} */ (options).negativePrompt = entity.modifiers.negative_prompt;
@@ -153,7 +162,13 @@ export class VisualEngine {
             }
 
             const res = getResolution(options.mode);
-            const effectiveNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || NEGATIVE_PROMPT;
+            const baseNegativePrompt = /** @type {any} */ (options).negativePrompt?.trim() || "";
+            // Inject style-specific negative prompts from the visual engine
+            const isPortraitMode = ["character", "ai", "user", "selfie", "portrait"].includes(options.mode || options.type || "");
+            const styleKey = isPortraitMode ? resolve_portrait_visual_style_key(options._entity || {}) : resolve_story_visual_style_key();
+            const vsTokens = resolve_visual_engine_tokens(styleKey);
+            const vsNeg = vsTokens.negative_prompt || "";
+            const effectiveNegativePrompt = [baseNegativePrompt, vsNeg, NEGATIVE_PROMPT].filter(Boolean).join(", ");
             const effectiveSeed = options.seed ?? generateSecureSeed();
             const effectiveResolution = `${res.width}x${res.height}`;
             // Guidance scale: higher for characters (stricter adherence to entity details), lower for scenes (more atmospheric variety)

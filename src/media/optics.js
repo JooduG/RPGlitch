@@ -6,12 +6,90 @@
  * NOTE: If a physical condition (e.g. bleeding) carries narrative weight, it MUST be mirrored into the non_physical field for the AI Director.
  */
 
+/**
+ * Resolves the active visual style key for portrait generation.
+ * Checks the entity's `visual_style` first. If "default", "", or missing,
+ * falls back to the global app settings `visual_style` (defaults to "photorealism").
+ * @param {any} entity - The entity being rendered
+ * @returns {string}
+ */
+export function resolve_portrait_visual_style_key(entity = {}) {
+  const entityStyle = entity?.visual_style;
+  if (entityStyle && entityStyle !== "default" && entityStyle !== "" && VISUAL_STYLES[entityStyle]) {
+    return entityStyle;
+  }
+  if (
+    typeof app !== "undefined" &&
+    app.settings?.visual_style &&
+    app.settings.visual_style !== "default" &&
+    VISUAL_STYLES[app.settings.visual_style]
+  ) {
+    return app.settings.visual_style;
+  }
+  return "photorealism";
+}
+
+/**
+ * Resolves the active visual style key for story scene generation.
+ * Checks `runtime.active_fractal?.visual_style` first. If "default", "", or missing,
+ * falls back to the global app settings `visual_style` (defaults to "photorealism").
+ * @returns {string}
+ */
+export function resolve_story_visual_style_key() {
+  const fractalStyle = runtime?.active_fractal?.visual_style;
+  if (fractalStyle && fractalStyle !== "default" && fractalStyle !== "" && VISUAL_STYLES[fractalStyle]) {
+    return fractalStyle;
+  }
+  if (
+    typeof app !== "undefined" &&
+    app.settings?.visual_style &&
+    app.settings.visual_style !== "default" &&
+    VISUAL_STYLES[app.settings.visual_style]
+  ) {
+    return app.settings.visual_style;
+  }
+  return "photorealism";
+}
+
+/**
+ * Parses a VISUAL_ENGINE XML block into structured token categories.
+ * @param {string} engineXml
+ * @returns {{ medium: string, palette: string, camera: string, texture: string, negative_prompt: string }}
+ */
+export function parse_visual_engine(engineXml) {
+  const result = { medium: "", palette: "", camera: "", texture: "", negative_prompt: "" };
+  if (!engineXml) return result;
+
+  const extract = (tag) => {
+    const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, "i"));
+    return match ? match[1].trim() : "";
+  };
+
+  result.medium = extract("medium");
+  result.palette = extract("palette");
+  result.camera = extract("camera");
+  result.texture = extract("texture");
+  result.negative_prompt = extract("negative_prompt");
+  return result;
+}
+
+/**
+ * Resolves the VISUAL_ENGINE tokens for a given visual style key.
+ * @param {string} styleKey
+ * @returns {{ medium: string, palette: string, camera: string, texture: string, negative_prompt: string }}
+ */
+export function resolve_visual_engine_tokens(styleKey) {
+  const style = VISUAL_STYLES[styleKey] || VISUAL_STYLES.photorealism;
+  return parse_visual_engine(style.visual_engine);
+}
+
 export const NEGATIVE_PROMPT =
   "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
 
-import { LISTS } from "@data";
+import { LISTS, VISUAL_STYLES } from "@data";
 import { escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson } from "@intelligence";
 import { get_signature_label } from "./tokens.js";
+import { app, runtime } from "@state";
 
 /**
  * Safely parses list tokens, gracefully falling back to raw arrays.
@@ -126,6 +204,13 @@ function build_aesthetic_map(entity = {}) {
   mergeInputSource(eternalObj, "eternal");
   mergeInputSource(presentObj, "present");
 
+  const styleKey = resolve_portrait_visual_style_key(entity);
+  const engineTokens = resolve_visual_engine_tokens(styleKey);
+  if (engineTokens.medium) merged._vs_medium = engineTokens.medium;
+  if (engineTokens.palette) merged._vs_palette = engineTokens.palette;
+  if (engineTokens.camera) merged._vs_camera = engineTokens.camera;
+  if (engineTokens.texture) merged._vs_texture = engineTokens.texture;
+
   const colorName = get_signature_label(entity);
   if (colorName) {
     merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
@@ -147,12 +232,18 @@ export const AestheticResolver = {
   extract(entity = {}) {
     const merged = build_aesthetic_map(entity);
 
-    const cleanLines = Object.entries(merged)
-      .map(([k, v]) => {
+    const vsKeys = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_texture"];
+    const orderedKeys = [...vsKeys.filter((k) => merged[k]), ...Object.keys(merged).filter((k) => !vsKeys.includes(k))];
+
+    const cleanLines = orderedKeys
+      .map((k) => {
+        const v = merged[k];
+        if (v === undefined || v === null) return "";
         const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
         if (!valStr) return "";
         const formattedVal = valStr.replace(/,([^\s])/g, ", $1");
-        return `  "${k}": "${formattedVal.replace(/"/g, '\\"')}"`;
+        const cleanKey = k.replace(/^_vs_/, "");
+        return `  "${cleanKey}": "${formattedVal.replace(/"/g, '\\"')}"`;
       })
       .filter(Boolean);
 
@@ -166,7 +257,13 @@ export const AestheticResolver = {
   flatten(entity = {}) {
     const merged = build_aesthetic_map(entity);
 
-    return Object.values(merged)
+    const vsKeys = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_texture"];
+    const vsValues = vsKeys.map((k) => merged[k]).filter(Boolean);
+    const otherValues = Object.entries(merged)
+      .filter(([k]) => !vsKeys.includes(k))
+      .map(([, v]) => v);
+
+    return [...vsValues, ...otherValues]
       .flatMap((v) => (Array.isArray(v) ? v : [v]))
       .map((v) => String(v).trim())
       .filter(Boolean)
@@ -290,6 +387,15 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     const userBlock = renderEntity("USER_PERSONA", user);
     const fractalBlock = renderEntity("FRACTAL", fractal);
 
+    const storyStyleKey = resolve_story_visual_style_key();
+    const storyStyle = VISUAL_STYLES[storyStyleKey] || VISUAL_STYLES.photorealism;
+    const storyEngineTokens = resolve_visual_engine_tokens(storyStyleKey);
+    const visualEngineBlock = storyStyle.visual_engine
+      ? `\n<VISUAL_ENGINE style="${escapeXml(storyStyle.name || storyStyleKey)}">${storyStyle.visual_engine}</VISUAL_ENGINE>`
+      : "";
+
+    const vsNegPrompt = storyEngineTokens.negative_prompt;
+
     switch (targetType) {
       case "fractal":
         ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, medium context, and background lighting structures.</RESTRICTION>`;
@@ -327,13 +433,15 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">
 ${ctxBlock}
+${visualEngineBlock}
 <PROTOCOL>
 1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
 2. Output exactly one <image_prompt> tag containing the final token string.
 3. The image_prompt MUST start with "${anchor}" and use continuous, descriptive details or tokens.
 4. Allow alternative artistic formats (like anime or illustrations) to map cleanly if requested by the input intent context.
 5. End every prompt with: "${realism}"
-${targetType === "selfie" ? "6. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie." : ""}
+6. The <VISUAL_ENGINE> block defines the exclusive aesthetic style for this image. You MUST incorporate its medium, palette, camera, and texture directives into the image prompt to ensure stylistic cohesion.${vsNegPrompt ? `\n7. You MUST include the visual engine's negative prompt tokens ("${escapeXml(vsNegPrompt)}") in your negativePrompt output.` : ""}
+${targetType === "selfie" ? `${vsNegPrompt ? "8" : "6"}. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie.` : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
