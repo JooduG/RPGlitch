@@ -25,7 +25,7 @@ In [visual.svelte.js:L269-L343](file:///c:/Users/johng/source/repos/RPGlitch/src
 In [visual.svelte.js:L88-L235](file:///c:/Users/johng/source/repos/RPGlitch/src/media/visual.svelte.js#L88-L235), the engine executes the generation request:
 
 1. **Resolution Selection**: Mode `"selfie"` maps to portrait aspect ratio `512x768` via [getResolution](file:///c:/Users/johng/source/repos/RPGlitch/src/media/optics.js#L356-L371).
-2. **Engine Selection**: [findImageEngine](file:///c:/Users/johng/source/repos/RPGlitch/src/media/visual.svelte.js#L22-L53) scans the DOM context (`window` or parent sandbox frame boundaries) to locate Perchance's hosted image generation plugins (`pluginTextToImage` or `textToImage`).
+2. **Engine Selection**: [findImageEngine](file:///c:/Users/johng/source/repos/RPGlitch/src/media/visual.svelte.js#L22-L53) scans the DOM context (`window` or parent sandbox frame boundaries) to locate Perchance's hosted image generation plugins (`pluginGenerateImage` or `generate_image`).
 3. **Resilience**: The request is executed within a custom [CircuitBreaker](file:///c:/Users/johng/source/repos/RPGlitch/src/media/resilience.js) and [ExponentialBackoffRetryer](file:///c:/Users/johng/source/repos/RPGlitch/src/media/resilience.js) (up to 3 retries, with a 90-second generation timeout safety limit).
 4. **Seed generation**: A secure random seed is generated.
 5. **Negative Prompting**: The engine appends the standard global `NEGATIVE_PROMPT` defined in [optics.js:L9](file:///c:/Users/johng/source/repos/RPGlitch/src/media/optics.js#L9).

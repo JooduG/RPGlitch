@@ -3,13 +3,13 @@
  * 🧪 TEST SETUP  —  Browser Environment Mocking
  *
  * This file configures the global test environment. It provides mocks for
- * browser-native APIs like `window.ai` that are present on Perchance but
+ * browser-native APIs like `window.generate_text` that are present on Perchance but
  * missing in Node/JSDOM.
  */
 
 import { vi } from "vitest";
 
-// Ensure window.ai exists to prevent reference errors in purified simulation code.
+// Ensure window.generate_text exists to prevent reference errors in purified simulation code.
 // In development, we bridge it to our Node.js provider.
 // Mock ResizeObserver for bits-ui primitives in JSDOM
 if (!globalThis.ResizeObserver) {
@@ -58,7 +58,7 @@ if (typeof window !== "undefined") {
     });
   }
 
-  window.ai = vi.fn(async (_instruction, _options = {}) => {
+  window.generate_text = vi.fn(async (_instruction, _options = {}) => {
     // Note: This only runs during tests.
     return "[Simulated AI Response]";
   });
@@ -69,8 +69,8 @@ if (typeof window !== "undefined") {
  * Use this in tests to override the provider and simulate a specific response.
  */
 export const mock_llm_success = (text) => {
-  if (window.ai) {
-    vi.mocked(window.ai).mockResolvedValue(text);
+  if (window.generate_text) {
+    vi.mocked(window.generate_text).mockResolvedValue(text);
   }
 };
 

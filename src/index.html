@@ -34,11 +34,11 @@
         function capturePlugins() {
           let allFound = true;
 
-          if (typeof window.ai === "undefined") {
+          if (typeof window.generate_text === "undefined") {
             try {
-              if (typeof ai !== "undefined") {
-                window.ai = ai;
-                window.pluginAi = ai;
+              if (typeof generate_text !== "undefined") {
+                window.generate_text = generate_text;
+                window.pluginGenerateText = generate_text;
               } else {
                 allFound = false;
               }
@@ -46,14 +46,14 @@
               allFound = false;
             }
           }
-          if (typeof window.textToImage === "undefined") {
+          if (typeof window.generate_image === "undefined") {
             try {
-              if (typeof textToImage !== "undefined") {
-                window.textToImage = textToImage;
-                window.pluginTextToImage = textToImage;
+              if (typeof generate_image !== "undefined") {
+                window.generate_image = generate_image;
+                window.pluginGenerateImage = generate_image;
               } else if (typeof t2i !== "undefined") {
-                window.textToImage = t2i;
-                window.pluginTextToImage = t2i;
+                window.generate_image = t2i;
+                window.pluginGenerateImage = t2i;
               } else {
                 allFound = false;
               }

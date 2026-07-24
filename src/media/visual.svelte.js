@@ -33,24 +33,24 @@ function findImageEngine() {
   if (typeof window === "undefined") return null;
 
   // 1. Check local frame scope immediately
-  if (typeof window.pluginTextToImage === "function") {
-    cachedImageEngine = window.pluginTextToImage;
+  if (typeof window.pluginGenerateImage === "function") {
+    cachedImageEngine = window.pluginGenerateImage;
     return cachedImageEngine;
   }
-  if (typeof window.textToImage === "function") {
-    cachedImageEngine = window.textToImage;
+  if (typeof window.generate_image === "function") {
+    cachedImageEngine = window.generate_image;
     return cachedImageEngine;
   }
 
   // 2. Insulate cross-origin parent lookups behind a secure fence
   try {
     if (typeof window.parent !== "undefined") {
-      if (typeof window.parent.pluginTextToImage === "function") {
-        cachedImageEngine = window.parent.pluginTextToImage;
+      if (typeof window.parent.pluginGenerateImage === "function") {
+        cachedImageEngine = window.parent.pluginGenerateImage;
         return cachedImageEngine;
       }
-      if (typeof window.parent.textToImage === "function") {
-        cachedImageEngine = window.parent.textToImage;
+      if (typeof window.parent.generate_image === "function") {
+        cachedImageEngine = window.parent.generate_image;
         return cachedImageEngine;
       }
     }
@@ -369,7 +369,6 @@ export class VisualEngine {
         mode: "visualize",
       });
 
-      console.log("[VisualEngine] visualize: LLM prompt extraction starting for target:", vTarget);
       let refined = null;
       try {
         const extractionTimeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 45000));
@@ -393,9 +392,6 @@ export class VisualEngine {
       if ((!cleanPrompt || cleanPrompt.length < 10) && (vTarget === "fractal" || vTarget === "characters")) {
         const fractalDesc = AestheticResolver.flatten(fractal);
         cleanPrompt = `RAW photograph or structured artistic rendering of ${fractal?.name || "an environment"}, ${fractalDesc || "high architectural definition, crisp spatial depth details, professional landscape layout alignment"}`;
-        console.log("[VisualEngine] visualize: Fallback prompt synthesized for scene:", cleanPrompt.substring(0, 100));
-      } else {
-        console.log("[VisualEngine] visualize: Extracted prompt:", cleanPrompt?.substring(0, 100));
       }
 
       let caption = null;
@@ -404,9 +400,7 @@ export class VisualEngine {
         caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
       }
 
-      console.log("[VisualEngine] visualize: Calling this.generate() for image...");
       const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
-      console.log("[VisualEngine] visualize: generate() returned:", typeof payload, payload ? (payload.url ? "(has url)" : "(no url)") : "(null)");
 
       if (payload && payload.url) {
         return {

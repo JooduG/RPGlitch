@@ -52,12 +52,6 @@ You are working on **RPGlitch**, an AI roleplay engine built with **Svelte 5 + V
 
 ---
 
-## 🎯 Current Implementation Task
-
-When the "end story" button has been clicked I want the story to be "locked" and can't progresss further. When the story is locked the input field on the unified console is unecessery as well as the ghostwrite and send buttons. Let's shrink the unified console, keep the cog-wheel but replace the input field, ghostwrite button and send button with a "return to storyboard" button.
-
----
-
 ## 🛠️ Verification & Quality Gate
 
 - Run `npm run verify` locally to validate linting and TypeScript compilation.

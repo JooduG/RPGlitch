@@ -39,17 +39,14 @@ declare global {
   /** Result type for image generation plugins */
   type T2IResult = string | T2IObject;
 
-  /** Perchance AI streaming interface */
-  function ai(prompt: string, options?: JsonMap): Promise<string>;
+  /** Perchance AI streaming interface (generate_text) */
+  function generate_text(prompt: string, options?: JsonMap): Promise<string>;
 
-  /** Primary text-to-image generator */
-  function t2i(options: T2IOptions): Promise<T2IResult>;
+  /** Primary text-to-image generator (generate_image) */
+  function generate_image(options: T2IOptions): Promise<T2IResult>;
 
   /** Legacy/Plugin text-to-image interface */
-  function pluginTextToImage(options: T2IOptions): Promise<T2IResult>;
-
-  /** Unified text-to-image interface with prompt overloading */
-  function textToImage(prompt: string | T2IOptions, options?: JsonMap): Promise<T2IResult>;
+  function pluginGenerateImage(options: T2IOptions): Promise<T2IResult>;
 
   /** Asset upload utility */
   function upload(data: unknown, options?: JsonMap): Promise<unknown>;
@@ -138,10 +135,10 @@ declare global {
     Engine: unknown;
     Dexie: typeof Dexie;
     DOMPurify: PurifyKernel;
-    ai: typeof ai;
-    t2i: typeof t2i;
+    generate_text: typeof generate_text;
+    generate_image: typeof generate_image;
     LISTS: RPGLists;
-    pluginTextToImage: typeof pluginTextToImage;
+    pluginGenerateImage: typeof pluginGenerateImage;
     pluginUpload: typeof pluginUpload;
     oc: PerchanceOC;
     update: typeof update;

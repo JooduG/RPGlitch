@@ -5,7 +5,7 @@
  *
  * PURPOSE
  * LlmService is the single point of contact with the Perchance AI plugin
- * (window.ai or window.pluginAi). All callers—the engine, the enhancement UI, Echo—route here.
+ * (window.generate_text or window.pluginGenerateText). All callers—the engine, the enhancement UI, Echo—route here.
  *
  * RESPONSIBILITIES
  * - Streaming : Connects token output to app.start_stream / update_stream / end_stream.
@@ -50,7 +50,7 @@ export function sanitize_llm(text) {
 /************************************************************************************
  * [SECTION: LLM SERVICE]
  * ----------------------------------------------------------------------------------
- * The primary abstraction for window.ai. All prompt execution flows through here.
+ * The primary abstraction for window.generate_text. All prompt execution flows through here.
  ************************************************************************************/
 export const llm_service = {
   /**
@@ -70,7 +70,7 @@ export const llm_service = {
 
   /**
    * CORE GENERATION
-   * The primary abstraction for window.ai. Handles streaming state,
+   * The primary abstraction for window.generate_text. Handles streaming state,
    * network resilience, and raw token orchestration.
    *
    * @param {Object}  payload                       - The prompt payload.
@@ -97,28 +97,28 @@ export const llm_service = {
    */
   generate: async (payload, options = {}) => {
     // [SAFETY] Guard against missing plugin in non-Perchance environments
-    // Integrates window.pluginAi seamlessly as our native production fallback
+    // Integrates window.pluginGenerateText seamlessly as our native production fallback
     const get_ai_engine = () => {
       if (typeof window === "undefined") return null;
       try {
-        if (typeof window.ai === "function") return window.ai;
+        if (typeof window.generate_text === "function") return window.generate_text;
       } catch (_e) {
         /* ignore */
       }
       try {
-        if (typeof window.pluginAi === "function") return window.pluginAi;
+        if (typeof window.pluginGenerateText === "function") return window.pluginGenerateText;
       } catch (_e) {
         /* ignore */
       }
 
       try {
-        if (typeof ai === "function") return ai;
+        if (typeof generate_text === "function") return generate_text; // eslint-disable-line no-undef
       } catch (_e) {
         // ignore
       }
 
       try {
-        if (typeof pluginAi === "function") return pluginAi; // eslint-disable-line no-undef
+        if (typeof pluginGenerateText === "function") return pluginGenerateText; // eslint-disable-line no-undef
       } catch (_e) {
         // ignore
       }
@@ -126,8 +126,8 @@ export const llm_service = {
       // Debug log removed to prevent SecurityError from cross-origin window.parent access.
 
       try {
-        if (typeof window.parent !== "undefined" && typeof window.parent.ai === "function") return window.parent.ai;
-        if (typeof window.parent !== "undefined" && typeof window.parent.pluginAi === "function") return window.parent.pluginAi;
+        if (typeof window.parent !== "undefined" && typeof window.parent.generate_text === "function") return window.parent.generate_text;
+        if (typeof window.parent !== "undefined" && typeof window.parent.pluginGenerateText === "function") return window.parent.pluginGenerateText;
       } catch (_e) {
         // Ignore cross-origin errors if we're somehow sandboxed
       }
@@ -147,7 +147,8 @@ export const llm_service = {
         return await llm_service._mock_generate(payload, options);
       }
 
-      const msg = "LLM Engine Unavailable: window.ai or window.pluginAi not found. This simulation requires the Perchance AI plugin.";
+      const msg =
+        "LLM Engine Unavailable: window.generate_text or window.pluginGenerateText not found. This simulation requires the Perchance AI plugin.";
       if (!options.silent) console.error(msg);
       throw new Error(msg);
     }
