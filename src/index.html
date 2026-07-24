@@ -61,30 +61,6 @@
               allFound = false;
             }
           }
-          if (typeof window.superFetch === "undefined") {
-            try {
-              if (typeof superFetch !== "undefined") {
-                window.superFetch = superFetch;
-                window.pluginSuperFetch = superFetch;
-              } else {
-                allFound = false;
-              }
-            } catch (e) {
-              allFound = false;
-            }
-          }
-          if (typeof window.remember === "undefined") {
-            try {
-              if (typeof remember !== "undefined") {
-                window.remember = remember;
-                window.pluginRemember = remember;
-              } else {
-                allFound = false;
-              }
-            } catch (e) {
-              allFound = false;
-            }
-          }
 
           if (!allFound && polls < MAX_POLLS) {
             polls++;

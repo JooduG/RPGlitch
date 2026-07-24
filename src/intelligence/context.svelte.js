@@ -18,6 +18,7 @@
  */
 
 import { app, runtime } from "@state";
+import { session_driver } from "@engine";
 import { ENTITY_CATALOG } from "./fragments.js";
 import { clean_text, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
@@ -85,6 +86,8 @@ function to_data_points(entity) {
   /** @type {DataPoint[]} */
   const list = [];
   Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
+    if (fieldId.startsWith("character.") || fieldId.startsWith("fractal.")) return;
+
     let val = get_path_value(entity, fieldId);
 
     if (val && typeof val === "string") {
@@ -299,7 +302,7 @@ export const context_broker = {
 
     if (vectors_to_resolve.length > 0) {
       for (const id of vectors_to_resolve) {
-        temporal_engine.resolve(entity, id, "AUTO_RESOLVED");
+        temporal_engine.resolve(entity, id, "AUTO_RESOLVED", session_driver);
       }
     }
   },
@@ -327,9 +330,11 @@ export const context_broker = {
 
         let hitCount = 0;
         for (const k of keywords) {
-          const regex = new RegExp(k.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "g");
-          const matches = text.match(regex);
-          if (matches) hitCount += matches.length;
+          let idx = text.indexOf(k);
+          while (idx !== -1) {
+            hitCount++;
+            idx = text.indexOf(k, idx + k.length);
+          }
         }
 
         const emotional_weight = dp.emotional_weight ?? (layer === "eternal" ? 10 : 5);

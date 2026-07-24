@@ -130,7 +130,7 @@ export function format(vectors, input, options = {}) {
  * @param {string} vector_id
  * @param {string | null} [resolution]
  */
-export function resolve(entity, vector_id, resolution = null) {
+export function resolve(entity, vector_id, resolution = null, session = null) {
   if (!entity || !Array.isArray(entity.future)) return;
   const index = entity.future.findIndex((v) => v.id === vector_id);
   if (index === -1) return;
@@ -147,8 +147,8 @@ export function resolve(entity, vector_id, resolution = null) {
   if (!Array.isArray(entity.past)) entity.past = [];
   entity.past.push(vector);
 
-  if (typeof window !== "undefined" && window.exposed?.session_driver) {
-    window.exposed.session_driver.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
+  if (session?.log_system_entry) {
+    session.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
       type: "VECTOR_RESOLUTION",
       vector,
       resolution,
@@ -223,7 +223,7 @@ export async function forge_memory(target_entity, history_slice, role = "charact
  * @param {any} mutations - The state_mutations JSON block from the Director
  * @returns {boolean} True if any mutations were applied
  */
-export function apply_state_mutations(entity, mutations) {
+export function apply_state_mutations(entity, mutations, session = null) {
   if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
@@ -244,7 +244,7 @@ export function apply_state_mutations(entity, mutations) {
   // 3. Resolve Vectors (Future to Past shifts)
   if (Array.isArray(mutations.resolve_vectors) && mutations.resolve_vectors.length > 0) {
     mutations.resolve_vectors.forEach((v) => {
-      resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION");
+      resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION", session);
       changed = true;
     });
   }

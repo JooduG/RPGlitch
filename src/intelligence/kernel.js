@@ -298,7 +298,7 @@ export const gamemaster = {
       // 4.1 Apply State Mutations
       if (directorData.mutations) {
         if (directorData.mutations.AI_CHARACTER && runtime.active_ai) {
-          temporal_engine.apply_state_mutations(runtime.active_ai, directorData.mutations.AI_CHARACTER);
+          temporal_engine.apply_state_mutations(runtime.active_ai, directorData.mutations.AI_CHARACTER, session_driver);
           if (directorData.mutations.AI_CHARACTER.dynamics_deltas) {
             if (!snapshot.ai) snapshot.ai = {};
             if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...runtime.ai };
@@ -313,11 +313,11 @@ export const gamemaster = {
         }
 
         if (directorData.mutations.USER_PERSONA && runtime.active_user) {
-          temporal_engine.apply_state_mutations(runtime.active_user, directorData.mutations.USER_PERSONA);
+          temporal_engine.apply_state_mutations(runtime.active_user, directorData.mutations.USER_PERSONA, session_driver);
         }
 
         if (directorData.mutations.FRACTAL && runtime.active_fractal) {
-          temporal_engine.apply_state_mutations(runtime.active_fractal, directorData.mutations.FRACTAL);
+          temporal_engine.apply_state_mutations(runtime.active_fractal, directorData.mutations.FRACTAL, session_driver);
           if (directorData.mutations.FRACTAL.dynamics_deltas) {
             if (!snapshot.fractal) snapshot.fractal = {};
             if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...runtime.fractal };

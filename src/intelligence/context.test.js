@@ -57,6 +57,13 @@ vi.mock("@state/app.svelte.js", () => ({
   },
 }));
 
+// Mock session_driver to avoid pulling in Dexie during context tests
+vi.mock("@engine/session.svelte.js", () => ({
+  session_driver: {
+    log_system_entry: vi.fn(),
+  },
+}));
+
 // Mock temporal_engine to intercept resolution calls
 vi.mock("@intelligence/temporal.js", () => ({
   temporal_engine: {
@@ -122,7 +129,7 @@ describe("context_broker", () => {
 
       await context_broker.manage_vector_lifecycle(entity);
 
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_state", "AUTO_RESOLVED");
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_state", "AUTO_RESOLVED", expect.anything());
     });
 
     it("should block resolution if round has not met threshold from requires or meta", async () => {
@@ -164,7 +171,7 @@ describe("context_broker", () => {
       };
 
       await context_broker.manage_vector_lifecycle(entity);
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED");
+      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED", expect.anything());
     });
   });
 

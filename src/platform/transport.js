@@ -52,6 +52,47 @@ export function sanitize_llm(text) {
  * ----------------------------------------------------------------------------------
  * The primary abstraction for window.generate_text. All prompt execution flows through here.
  ************************************************************************************/
+
+let _resolved_ai_engine = null;
+
+function get_ai_engine() {
+  if (_resolved_ai_engine) return _resolved_ai_engine;
+
+  if (typeof window === "undefined") return null;
+  try {
+    if (typeof window.generate_text === "function") return (_resolved_ai_engine = window.generate_text);
+  } catch (_e) {
+    /* ignore */
+  }
+  try {
+    if (typeof window.pluginGenerateText === "function") return (_resolved_ai_engine = window.pluginGenerateText);
+  } catch (_e) {
+    /* ignore */
+  }
+
+  try {
+    if (typeof generate_text === "function") return (_resolved_ai_engine = generate_text); // eslint-disable-line no-undef
+  } catch (_e) {
+    /* ignore */
+  }
+
+  try {
+    if (typeof pluginGenerateText === "function") return (_resolved_ai_engine = pluginGenerateText); // eslint-disable-line no-undef
+  } catch (_e) {
+    /* ignore */
+  }
+
+  try {
+    if (typeof window.parent !== "undefined" && typeof window.parent.generate_text === "function")
+      return (_resolved_ai_engine = window.parent.generate_text);
+    if (typeof window.parent !== "undefined" && typeof window.parent.pluginGenerateText === "function")
+      return (_resolved_ai_engine = window.parent.pluginGenerateText);
+  } catch (_e) {
+    /* Ignore cross-origin errors if we're somehow sandboxed */
+  }
+  return null;
+}
+
 export const llm_service = {
   /**
    * HIGH-FIDELITY STORYMODE ENHANCER
@@ -96,44 +137,6 @@ export const llm_service = {
    * @returns {Promise<string>}
    */
   generate: async (payload, options = {}) => {
-    // [SAFETY] Guard against missing plugin in non-Perchance environments
-    // Integrates window.pluginGenerateText seamlessly as our native production fallback
-    const get_ai_engine = () => {
-      if (typeof window === "undefined") return null;
-      try {
-        if (typeof window.generate_text === "function") return window.generate_text;
-      } catch (_e) {
-        /* ignore */
-      }
-      try {
-        if (typeof window.pluginGenerateText === "function") return window.pluginGenerateText;
-      } catch (_e) {
-        /* ignore */
-      }
-
-      try {
-        if (typeof generate_text === "function") return generate_text; // eslint-disable-line no-undef
-      } catch (_e) {
-        // ignore
-      }
-
-      try {
-        if (typeof pluginGenerateText === "function") return pluginGenerateText; // eslint-disable-line no-undef
-      } catch (_e) {
-        // ignore
-      }
-
-      // Debug log removed to prevent SecurityError from cross-origin window.parent access.
-
-      try {
-        if (typeof window.parent !== "undefined" && typeof window.parent.generate_text === "function") return window.parent.generate_text;
-        if (typeof window.parent !== "undefined" && typeof window.parent.pluginGenerateText === "function") return window.parent.pluginGenerateText;
-      } catch (_e) {
-        // Ignore cross-origin errors if we're somehow sandboxed
-      }
-      return null;
-    };
-
     const ai_engine = get_ai_engine();
 
     if (!ai_engine || typeof ai_engine !== "function") {

@@ -86,10 +86,18 @@ export function parse_think_block(text) {
  * @param {string|null|undefined} text
  * @returns {string}
  */
+const MODEL_ARTIFACT_PATTERNS = [
+  // Certain model variants prepend an authorial tag like "Mattis. Archetypes: ..."
+  // or "Mattis:" before actual content; strip the entire leading artifact.
+  /^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i,
+];
+
 export function strip_cognition_blocks(text) {
   if (!text) return "";
   let clean = text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
-  clean = clean.replace(/^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i, "");
+  for (const pattern of MODEL_ARTIFACT_PATTERNS) {
+    clean = clean.replace(pattern, "");
+  }
   return clean.trim();
 }
 
