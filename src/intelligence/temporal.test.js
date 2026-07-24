@@ -43,12 +43,12 @@ describe("temporal_engine", () => {
       expect(entry).toHaveProperty("id");
       expect(Array.isArray(entry.tags)).toBe(true);
       expect(typeof entry.timestamp).toBe("number");
-      expect(entry.base_weight).toBe(5); // Default weight
+      expect(entry.emotional_weight).toBe(5); // Default weight
     });
 
     it("respects custom base weights", () => {
       const entry = temporal_engine.create("Critical event", "future", 10);
-      expect(entry.base_weight).toBe(10);
+      expect(entry.emotional_weight).toBe(10);
     });
   });
 
@@ -60,10 +60,9 @@ describe("temporal_engine", () => {
           timestamp: 100,
           directive: "A",
           type: "past",
-          base_weight: 5,
+          emotional_weight: 5,
           tags: ["iron"],
           meta: {},
-          emotional_weight: 5,
         },
       ];
 
@@ -85,7 +84,7 @@ describe("temporal_engine", () => {
             timestamp: 100,
             directive: "Goal",
             type: "future",
-            base_weight: 5,
+            emotional_weight: 5,
             tags: [],
             meta: {},
           },
@@ -112,7 +111,7 @@ describe("temporal_engine", () => {
             timestamp: 100,
             directive: "Goal",
             type: "future",
-            base_weight: 5,
+            emotional_weight: 5,
             tags: [],
             meta: {},
           },
@@ -147,30 +146,27 @@ describe("temporal_engine", () => {
           timestamp: 100,
           directive: "Core memory",
           type: "past",
-          base_weight: 5,
+          emotional_weight: 10,
           tags: [],
           meta: {},
-          emotional_weight: 10,
         },
         {
           id: "p2",
           timestamp: 200,
           directive: "Major memory",
           type: "past",
-          base_weight: 5,
+          emotional_weight: 8,
           tags: [],
           meta: {},
-          emotional_weight: 8,
         },
         {
           id: "p3",
           timestamp: 300,
           directive: "Minor memory",
           type: "past",
-          base_weight: 5,
+          emotional_weight: 4,
           tags: [],
           meta: {},
-          emotional_weight: 4,
         },
       ];
 
@@ -188,10 +184,9 @@ describe("temporal_engine", () => {
           timestamp: 100,
           directive: "Prophecy",
           type: "future",
-          base_weight: 5,
+          emotional_weight: 5,
           tags: [],
           meta: {},
-          emotional_weight: 5,
         },
       ];
 

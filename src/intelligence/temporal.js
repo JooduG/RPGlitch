@@ -23,10 +23,9 @@ import { prompt_builder } from "./prompts.js";
  * @property {number} timestamp - Epoch timestamp of creation.
  * @property {string} directive - The narrative payload.
  * @property {string} type - "past" | "future".
- * @property {number} base_weight - Narrative gravity (1-10).
+ * @property {number} emotional_weight - Narrative gravity (1-10), defaults to 5.
  * @property {string[]} tags - Semantic keywords for clustering and retrieval.
  * @property {Object} meta - Opaque metadata container.
- * @property {number} [emotional_weight] - Optional emotional intensity override.
  * @property {number} [_relevance] - Calculated RAG score (transient).
  */
 
@@ -43,14 +42,14 @@ export function create(directive, type = "future", weight = 5) {
     timestamp: Date.now(),
     directive: directive || "",
     type,
-    base_weight: weight,
+    emotional_weight: weight,
     tags: [],
     meta: {},
   };
 }
 
 /**
- * RAG Scoring: Ranks a list of vectors based on relevance and base weight.
+ * RAG Scoring: Ranks a list of vectors based on relevance and emotional weight.
  * @param {TemporalVector[]} vectors
  * @param {string} input
  * @returns {TemporalVector[]}
@@ -62,7 +61,7 @@ export function score(vectors, input) {
   const input_lower = input.toLowerCase();
 
   const scored = vectors.map((v) => {
-    let relevance = v.base_weight ?? v.emotional_weight ?? 5;
+    let relevance = v.emotional_weight ?? 5;
 
     v.tags?.forEach((t) => {
       if (input_lower.includes(t.toLowerCase())) {
@@ -204,8 +203,7 @@ export async function forge_memory(target_entity, history_slice, role = "charact
       timestamp: Date.now(),
       type: (memory.type || "past").toLowerCase(),
       directive: memory.directive || memory.summary || "",
-      base_weight: memory.base_weight ?? 5,
-      emotional_weight: memory.emotional_weight ?? 5,
+      emotional_weight: memory.emotional_weight ?? memory.base_weight ?? 5,
       tags: (memory.vector_tags || memory.tags || []).map((t) => String(t).toLowerCase()),
       present_summaries: memory.present_summaries || null,
       eternal_mutations: memory.eternal_mutations || null,

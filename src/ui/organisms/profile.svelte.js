@@ -224,7 +224,7 @@ export class ProfileState {
                   return {
                     ...temporal_engine.create(directive, key),
                     tags: Array.isArray(v.tags) ? v.tags : [],
-                    emotional_weight: v.emotional_weight ?? v.base_weight ?? 5,
+                    emotional_weight: v.emotional_weight ?? 5,
                   };
                 });
                 set_value(this.char, key, vectors);
@@ -397,7 +397,7 @@ export class ProfileState {
                   return {
                     ...temporal_engine.create(vectorStr, key),
                     id: existing.id || generateUUID(),
-                    emotional_weight: existing.emotional_weight || existing.base_weight || 5,
+                    emotional_weight: existing.emotional_weight || 5,
                   };
                 });
                 set_value(this.char, key, newVectors);

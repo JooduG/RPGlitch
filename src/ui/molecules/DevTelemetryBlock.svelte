@@ -272,7 +272,7 @@
               class="
               font-mono
               text-(--state-dev-accent)
-            ">{meta.vector?.emotional_weight || meta.vector?.base_weight || 0}</span
+            ">{meta.vector?.emotional_weight || 0}</span
             >
             <span
               class="
@@ -617,7 +617,7 @@
                         font-mono
                         text-(--state-dev-accent)
                         
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
+                      ">{v._relevance?.toFixed(1) || v.emotional_weight}</span
                       >
                       <span
                         class="
@@ -693,7 +693,7 @@
                         font-mono
                         text-(--state-dev-accent)
                         
-                      ">{v._relevance?.toFixed(1) || v.base_weight}</span
+                      ">{v._relevance?.toFixed(1) || v.emotional_weight}</span
                       >
                       <span
                         class="

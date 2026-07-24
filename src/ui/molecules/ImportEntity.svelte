@@ -167,7 +167,7 @@
               return {
                 ...temporal_engine.create(vectorStr, key),
                 id: crypto.randomUUID(),
-                base_weight: 5,
+                emotional_weight: 5,
               };
             });
             entity[key] = newVectors;

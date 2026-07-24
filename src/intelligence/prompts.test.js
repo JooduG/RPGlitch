@@ -206,8 +206,8 @@ describe("prompt_builder (Refactored)", () => {
             name: "Viper",
             present: { non_physical: "Volatile Present" },
             eternal: { non_physical: "Static Eternal" },
-            past: [{ directive: "Volatile Past", base_weight: 9 }],
-            future: [{ directive: "Volatile Future", base_weight: 9 }],
+            past: [{ directive: "Volatile Past", emotional_weight: 9 }],
+            future: [{ directive: "Volatile Future", emotional_weight: 9 }],
           },
           USER: {
             name: "Ghost",
@@ -292,8 +292,8 @@ describe("prompt_builder (Refactored)", () => {
             name: "Viper",
             present: { non_physical: "Present" },
             eternal: { non_physical: "Eternal" },
-            past: [{ directive: "P1", base_weight: 9 }],
-            future: [{ directive: "F1", base_weight: 9 }],
+            past: [{ directive: "P1", emotional_weight: 9 }],
+            future: [{ directive: "F1", emotional_weight: 9 }],
           },
           USER: {
             name: "Ghost",
