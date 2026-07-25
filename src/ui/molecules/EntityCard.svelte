@@ -452,18 +452,12 @@
       duration-300
       ease-in-out
 
-      {variant === 'library' || variant === 'message'
+      {app.view === 'storymode' && variant !== 'library' && variant !== 'message'
       ? `
-        opacity-100
-      `
-      : app.view === 'storymode'
-        ? `
         opacity-0
         group-hover:opacity-100
       `
-        : `
-        opacity-100
-      `}
+      : 'opacity-100'}
 
       {variant === 'library' || variant === 'message'
       ? `
@@ -485,7 +479,7 @@
         w-full
         overflow-hidden
         text-center
-        font-(family-name:--font-family-heading)
+        font-heading
         font-bold
         wrap-break-word
         text-(--signature-color,var(--color-slate-50))
@@ -556,7 +550,7 @@
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
     <div class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5">
-      <StyleBadges {entity} class="flex flex-col gap-1.5" size="fixed" />
+      <StyleBadges {entity} class="flex flex-col gap-1.5" />
     </div>
   {/if}
 </div>

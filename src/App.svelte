@@ -353,7 +353,7 @@
               }}
             />
           </div>
-          <StyleBadges entity={app.selected_fractal} />
+          <StyleBadges entity={app.selected_fractal} layout="storymode" class="flex justify-center gap-1.5" />
         </div>
       {:else}
         <div

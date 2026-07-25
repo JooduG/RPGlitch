@@ -4,7 +4,7 @@
    * THE SELECT PRIMITIVE
    * Standalone dropdown select atom using bits-ui/Select and Svelte 5.
    */
-  import { ScrollArea, tooltip } from "@atoms";
+  import { tooltip } from "@atoms";
   import { Select } from "bits-ui";
   import { scale } from "svelte/transition";
 
@@ -31,8 +31,13 @@
   // Dynamically derive the currently selected item
   const selected_item = $derived(items.find((item) => item.value === value));
 
-  // Compute row-based max height if explicit dropdownHeight is not passed
+  // Compute row-based max height if explicit dropdownHeight is not passed.
+  // `computed_height` is the Tailwind class for the outer clip container;
+  // `computed_height_css` is the raw CSS value applied to the scroll container so it
+  // actually constrains (the previous `max-height: inherit` chain resolved to
+  // `none` because Select.Viewport has no max-height of its own).
   const computed_height = $derived(dropdownHeight || `max-h-[min(70vh,calc(${rows}*3.25rem))]`);
+  const computed_height_css = $derived(dropdownHeight || `min(70vh, calc(${rows} * 3.25rem))`);
 </script>
 
 <Select.Root type="single" bind:value onValueChange={(val) => onchange?.(val)} {disabled}>
@@ -143,7 +148,7 @@
                   p-1.5
                 "
             >
-              <ScrollArea style="max-height: inherit;">
+              <div class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
                 {#each items as item (item.value)}
                   <Select.Item
                     class="
@@ -205,7 +210,7 @@
                     </span>
                   </Select.Item>
                 {/each}
-              </ScrollArea>
+              </div>
             </Select.Viewport>
           </div>
         </div>

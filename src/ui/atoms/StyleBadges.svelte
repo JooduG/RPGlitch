@@ -20,8 +20,22 @@
       .toUpperCase();
   };
 
-  /** @type {{ entity?: any, class?: string, size?: "auto" | "fixed" }} */
-  let { entity = undefined, class: className = "flex w-full gap-[var(--spacing-gap-standard)]", size = "auto" } = $props();
+  /**
+   * `layout` controls badge sizing:
+   * - `"storymode"`: badges are half the character card width (square), via a
+   *   literal Tailwind arbitrary class referencing the design-token CSS var.
+   * - default: container-query responsive sizing for the storyboard overlay.
+   * Both branches use LITERAL class strings so Tailwind's scanner generates CSS
+   * for them (dynamically-built classes or inline styles are unreliable here).
+   */
+  /** @type {{ entity?: any, class?: string, layout?: "storymode" | "default" }} */
+  let { entity = undefined, class: className = "flex w-full justify-center gap-1.5", layout = "default" } = $props();
+
+  let badge_size_class = $derived(
+    layout === "storymode"
+      ? "h-[calc(var(--spacing-storyboard-character-card-width)*0.5)] w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]"
+      : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]",
+  );
 
   let style_details = $derived(entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null);
   let vstyle_details = $derived(
@@ -39,7 +53,7 @@
           pointer-events-auto
           relative
           flex
-          {size === 'auto' ? 'aspect-square flex-1' : 'h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]'}
+          {badge_size_class}
           transform-gpu
           items-center
           justify-center
@@ -84,7 +98,7 @@
           pointer-events-auto
           relative
           flex
-          {size === 'auto' ? 'aspect-square flex-1' : 'h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]'}
+          {badge_size_class}
           transform-gpu
           items-center
           justify-center
