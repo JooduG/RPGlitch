@@ -48,8 +48,7 @@ export default defineConfig([
       "**/test-results/**",
       "**/yarn.lock",
       "**/tmp/**",
-      "tmp/**/*",
-      "**/.understand-anything/**",
+      "tmp/**/*"
     ],
     // @agent:ignore-end
   },

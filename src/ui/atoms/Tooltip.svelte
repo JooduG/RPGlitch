@@ -212,7 +212,7 @@
                     class="
                       isolate
                       w-max
-                      max-w-[400px]
+                      max-w-100
                       transform-gpu
                       rounded-md
                       border

@@ -216,6 +216,15 @@ See the global Svelte skill.
 - **Data Boundaries**: All data crossing boundaries MUST be validated using strict raw JS typing and assertions.
 - **Sanitization**: Construct HTML deterministically. `DOMPurify` is strictly mandated for untrusted, external inputs before rendering via `{@html ...}`.
 
+##### 3.1 Svelte MCP Tools & Documentation
+
+You are able to use the Svelte MCP server to access comprehensive Svelte 5 and SvelteKit documentation and tooling.
+
+- **`list-sections`**: Use this FIRST to discover all available documentation sections. Returns a structured list with titles, use_cases, and paths. ALWAYS use this at the start of a chat concerning Svelte/SvelteKit topics.
+- **`get-documentation`**: Retrieves full documentation content. After `list-sections`, analyze the `use_cases` and fetch ALL relevant sections for the user's task.
+- **`svelte-autofixer`**: Analyzes Svelte code for issues. MUST be used whenever writing Svelte code before sending it to the user. Keep calling it until no issues remain.
+- **`playground-link`**: Generates a Svelte Playground link. Ask the user if they want a link after completing code. Only call this after user confirmation and NEVER if code was already written to their project files.
+
 ---
 
 #### 4. Perchance Constraints

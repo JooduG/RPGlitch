@@ -1,7 +1,7 @@
 <script>
   /**
    * @file StoryCard.svelte
-   * ðŸ“– STORY MODULE
+   * STORY MODULE
    * A high-fidelity atmospheric card representing a story archive.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */

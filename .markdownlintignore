@@ -32,5 +32,4 @@
 **/yarn.lock
 **/tmp/**
 tmp/**/*
-**/.understand-anything/**
 **/modern-web-guidance/guides/**

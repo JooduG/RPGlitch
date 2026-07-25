@@ -288,7 +288,7 @@
     bind:this={tooltip_el}
     class="
       pointer-events-none fixed z-9999
-      mb-3 w-max max-w-[400px]
+      mb-3 w-max max-w-100
       -translate-x-1/2 -translate-y-full
       rounded-md border border-slate-600 bg-neutral-900/98
       px-2 py-1.5

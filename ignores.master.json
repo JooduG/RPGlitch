@@ -34,15 +34,11 @@
     "**/test-results/**",
     "**/yarn.lock",
     "**/tmp/**",
-    "tmp/**/*",
-    "**/.understand-anything/**"
-  ],
+    "tmp/**/*"
+    ],
   "geminiignore": [
     "!**/*.env",
     "!**/*.git/**",
-    "!**/*index**",
-    "!**/*mcp.json",
-    "!**/*rpglitch-left-panel.txt",
     "!**/*scribbles**",
     "!**/templates/**",
     "!**/test-results/**",
@@ -66,8 +62,8 @@
       "**/pnpm-lock.yaml": true,
       "**/Thumbs.db": true,
       "**/yarn.lock": true,
-      "**/.env": false,
-      "**/src/**/index.js": true
+      "**/src/**/index.js": true,
+      "**/.gemini/config/skills/**/templates": true
     }
   }
 }
