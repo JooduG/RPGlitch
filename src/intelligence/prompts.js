@@ -569,7 +569,7 @@ function render_enhancement({
   const formatInstruction = is_image_field
     ? 'Return a flat block of comma-separated pseudo-JSON property lines: "key": "value", — Do not include outer curly braces or square brackets. Every comma inside a value MUST be followed by a space (e.g., "hair": "blonde, shoulder-length", "eyes": "blue"). No markdown code blocks.'
     : is_array_field
-      ? 'Return a JSON array of objects, each with: "directive" (string), "tags" (array of 3-6 trigger keywords), "emotional_weight" (integer 1-10). Generate 3-5 entries.'
+      ? 'Return a JSON array of objects, each with: "directive" (string), "emotional_weight" (integer 1-10). Generate 3-5 entries.'
       : "Write a dense profile state summary in third-person POV. Describe character traits, emotional focus, and psychological drivers. DO NOT write active story scenes, dialogue, or comma-separated lists.";
   const macroInstruction = !is_image_field
     ? entity_type === "fractal"

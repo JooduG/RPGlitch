@@ -271,9 +271,8 @@ export function clean_xml(str) {
 }
 
 /**
- * High-fidelity parser that safely extracts configurations from fields.
- * Gracefully processes rigid JSON, loose unquoted key-value configurations,
- * and automatically falls back to raw text blocks if no clear parameters are detected.
+ * High-fidelity parser that extracts pseudo-JSON configurations.
+ * Exclusively parses bracketed [KEY: VALUE] parameters.
  * @param {string} raw
  * @returns {Record<string, string>}
  */
@@ -282,45 +281,33 @@ export const safeParsePseudoJson = (raw) => {
   const cleanRaw = strip_cognition_blocks(raw).trim();
   if (!cleanRaw) return {};
 
-  // Tier 1: Try parsing standard JSON or braced setups
-  try {
-    let standardFormat = cleanRaw;
-    if (!standardFormat.startsWith("{") && standardFormat.includes(":")) {
-      standardFormat = `{ ${standardFormat.replace(/,\s*$/, "")} }`;
+  // Tier 1: Process bracketed configuration [KEY: VALUE] or [KEY: VALUE] [KEY2: VALUE2]
+  if (cleanRaw.includes("[") && cleanRaw.includes("]")) {
+    const bracketExtracted = {};
+    const bracketRegex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
+    let match;
+    while ((match = bracketRegex.exec(cleanRaw)) !== null) {
+      const k = match[1].replace(/["']/g, "").trim();
+      const v = match[2].replace(/^["']|["']$/g, "").trim();
+      if (k && v) bracketExtracted[k] = v;
     }
-    if (standardFormat.startsWith("{")) {
-      const parsed = JSON.parse(standardFormat);
-      if (typeof parsed === "object" && parsed !== null) return parsed;
-    }
-  } catch (_e) {
-    /* Structure is unbraced or fractured */
+    if (Object.keys(bracketExtracted).length > 0) return bracketExtracted;
   }
 
-  // Tier 2: Process line-by-line configuration if colons exist
-  if (cleanRaw.includes(":")) {
-    const extracted = {};
-    const lines = cleanRaw.split(/[\n,]+/);
-    const propertyRegex = /"([^"]+)"\s*:\s*"([^"]*)"/;
-    const looseRegex = /([^:]+)\s*:\s*([^,]+)/;
-
-    lines.forEach((line) => {
-      let match = line.match(propertyRegex);
-      if (match && match[1]) {
-        extracted[match[1]] = match[2].trim();
-      } else {
-        match = line.match(looseRegex);
-        if (match && match[1]) {
-          const k = match[1].replace(/["']/g, "").trim();
-          const v = match[2].replace(/["']/g, "").trim();
-          if (k && v) extracted[k] = v;
-        }
-      }
-    });
-    if (Object.keys(extracted).length > 0) return extracted;
+  // Tier 2: Process quoted key-value pairs "KEY": "VALUE" or JSON {"KEY": "VALUE"}
+  if (cleanRaw.includes('"') && cleanRaw.includes(":")) {
+    const quotedExtracted = {};
+    const quotedRegex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
+    let match;
+    while ((match = quotedRegex.exec(cleanRaw)) !== null) {
+      const k = match[1].trim();
+      const v = match[2].trim();
+      if (k && v) quotedExtracted[k] = v;
+    }
+    if (Object.keys(quotedExtracted).length > 0) return quotedExtracted;
   }
 
-  // Tier 3: Complete Fallback
-  return { __raw_prose__: cleanRaw };
+  return {};
 };
 
 /**
@@ -337,8 +324,9 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   const parsed = safeParsePseudoJson(current_field_value);
   const clean_new_prose = new_prose.trim();
 
-  if (parsed.__raw_prose__) {
-    const existing = parsed.__raw_prose__.trim();
+  // Plain prose field
+  if (!parsed || Object.keys(parsed).length === 0) {
+    const existing = (current_field_value || "").trim();
     let result = !existing ? clean_new_prose : `${existing}\n${clean_new_prose}`;
     if (result.length > MAX_FIELD_CHARS) {
       result = result.substring(result.length - MAX_FIELD_CHARS);
@@ -346,15 +334,17 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
     return result;
   }
 
-  if (parsed.condition) {
-    parsed.condition = `${parsed.condition}, ${clean_new_prose}`;
+  // Pseudo-JSON parameter field
+  if (parsed.CONDITION || parsed.condition) {
+    const key = parsed.CONDITION ? "CONDITION" : "condition";
+    parsed[key] = `${parsed[key]}, ${clean_new_prose}`;
   } else {
-    parsed.condition = clean_new_prose;
+    parsed.CONDITION = clean_new_prose;
   }
 
   let lines = Object.entries(parsed)
-    .map(([k, v]) => `"${k}": "${String(v).replace(/"/g, '\\"')}"`)
-    .join(",\n");
+    .map(([k, v]) => `[${k}: ${String(v).replace(/[[\]]/g, "")}]`)
+    .join(" ");
 
   if (lines.length > MAX_FIELD_CHARS) {
     lines = lines.substring(lines.length - MAX_FIELD_CHARS);

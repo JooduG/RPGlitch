@@ -6,6 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Button, TextField, tooltip } from "@atoms";
+  import { derive_vector_title } from "@utils";
 
   /**
    * @typedef {Object} VectorItem
@@ -27,7 +28,7 @@
    */
 
   /** @type {Props} */
-  let { state: profileState, path, signature_color, sublabel = "Vector" } = $props();
+  let { state: profileState, path, signature_color, sublabel = "Vector", description = "" } = $props();
 
   // --- DERIVED STATE ---
 
@@ -48,63 +49,50 @@
       return { directive: String(val || ""), emotional_weight: 5, tags: [] };
     });
   });
+  // --- EXPANSION STATE ---
+  let expanded_items = $state(/** @type {Set<string|number>} */ (new Set()));
+  let collapsed_items = $state(/** @type {Set<string|number>} */ (new Set()));
 
-  let editing_tag_key = $state(null);
-
-  // --- HANDLERS ---
-
-  /** @param {number} i @param {number} tag_idx */
-  function remove_tag(i, tag_idx) {
-    const current = items[i]?.tags || [];
-    const updated = current.filter((_, idx) => idx !== tag_idx);
-    profileState.patch_vector_item(path, i, { tags: updated });
-  }
-
-  /** @param {number} i @param {number} tag_idx @param {string} new_val */
-  function update_tag_at(i, tag_idx, new_val) {
-    const clean = new_val.trim();
-    const current = [...(items[i]?.tags || [])];
-    if (!clean) {
-      current.splice(tag_idx, 1);
+  /** @param {string|number} key */
+  function toggle_expand(key) {
+    if (profileState.is_editing) return;
+    const defaultExpanded = items.length <= 2;
+    if (defaultExpanded) {
+      const next = new Set(collapsed_items);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      collapsed_items = next;
     } else {
-      current[tag_idx] = clean;
+      const next = new Set(expanded_items);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      expanded_items = next;
     }
-    profileState.patch_vector_item(path, i, { tags: current });
-    editing_tag_key = null;
-  }
-
-  /** @param {number} i @param {string} raw */
-  function add_tag(i, raw) {
-    const clean = raw.trim();
-    if (!clean) return;
-    const current = items[i]?.tags || [];
-    const new_tags = clean
-      .split(",")
-      .map((t) => t.trim())
-      .filter(Boolean);
-    const combined = Array.from(new Set([...current, ...new_tags]));
-    profileState.patch_vector_item(path, i, { tags: combined });
   }
 </script>
 
 <div
   class="
     relative
-  flex
-  w-full
-  flex-col
-  gap-4
-"
+    flex
+    w-full
+    flex-col
+    gap-4
+  "
   style="--accent-color: {signature_color}"
 >
   {#each items as item, i (item.id || i)}
+    {@const itemKey = item.id || i}
+    {@const defaultExpanded = items.length <= 2}
+    {@const isExpanded = profileState.is_editing || (defaultExpanded ? !collapsed_items.has(itemKey) : expanded_items.has(itemKey))}
     <div
       class="
-      animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]
-    "
+        animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]
+      "
     >
       <TextField
         is_edit={profileState.is_editing}
+        collapsed={!isExpanded}
         active={profileState.active_field?.key === `${path}[${i}]`}
         busy={profileState.busy_fields.has(`${path}[${i}]`)}
         {signature_color}
@@ -116,155 +104,23 @@
         onfocus={() => profileState.set_active_field(`${path}[${i}]`, sublabel)}
       >
         {#snippet status()}
-          <div
-            class="
-              flex
-              w-full
-              flex-wrap
-              items-center
-              gap-1
-              py-0.5
-            "
+          {@const title = derive_vector_title(item.directive, 60)}
+          <button
+            type="button"
+            class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left font-sans text-xs leading-tight font-normal text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+            onclick={() => toggle_expand(itemKey)}
           >
-            {#each item.tags as tag, tag_idx (tag)}
-              {@const tagKey = `${path}[${i}]-${tag_idx}`}
-              {#if editing_tag_key === tagKey && profileState.is_editing}
-                <input
-                  type="text"
-                  style="font-size: 9px !important; line-height: 1.2 !important;"
-                  class="
-                    max-w-30
-                    min-w-12.5
-                    rounded-sm
-                    border
-                    border-solid
-                    border-white/40
-                    bg-white/10
-                    px-1.5
-                    py-0.5
-                    font-mono
-                    tracking-widest
-                    text-white
-                    uppercase
-                    outline-none
-                  "
-                  value={tag}
-                  onkeydown={(e) => {
-                    if (e.key === "Enter") {
-                      e.preventDefault();
-                      update_tag_at(i, tag_idx, e.currentTarget.value);
-                    } else if (e.key === "Escape") {
-                      editing_tag_key = null;
-                    }
-                  }}
-                  onblur={(e) => update_tag_at(i, tag_idx, e.currentTarget.value)}
-                />
-              {:else}
-                <span
-                  class="
-                    group/tag
-                    flex
-                    items-center
-                    gap-1
-                    rounded-sm
-                    border
-                    border-white/10
-                    bg-white/10
-                    px-1.5
-                    py-0.5
-                    font-mono
-                    text-[9px]
-                    tracking-widest
-                    whitespace-nowrap
-                    text-white
-                    uppercase
-                    opacity-90
-                    drop-shadow-sm
-                    {profileState.is_editing ? 'cursor-pointer hover:bg-white/20' : ''}
-                  "
-                >
-                  <span
-                    role="button"
-                    tabindex="0"
-                    onclick={() => {
-                      if (profileState.is_editing) editing_tag_key = tagKey;
-                    }}
-                    onkeydown={(e) => {
-                      if (profileState.is_editing && (e.key === "Enter" || e.key === " ")) {
-                        editing_tag_key = tagKey;
-                      }
-                    }}>{tag}</span
-                  >
-                  {#if profileState.is_editing}
-                    <button
-                      type="button"
-                      class="
-                        flex
-                        size-3
-                        items-center
-                        justify-center
-                        rounded-full
-                        text-white/50
-                        hover:bg-white/20
-                        hover:text-white
-                      "
-                      onclick={(e) => {
-                        e.stopPropagation();
-                        remove_tag(i, tag_idx);
-                      }}
-                      aria-label="Remove tag {tag}"
-                    >
-                      &times;
-                    </button>
-                  {/if}
-                </span>
-              {/if}
-            {/each}
-
-            {#if profileState.is_editing}
-              <input
-                type="text"
-                style="font-size: 9px !important; line-height: 1.2 !important;"
-                class="
-                  max-w-30
-                  min-w-16
-                  rounded-sm
-                  border
-                  border-dashed
-                  border-white/20
-                  bg-transparent
-                  px-1.5
-                  py-0.5
-                  font-mono
-                  tracking-widest
-                  text-white
-                  uppercase
-                  opacity-70
-                  transition-opacity
-                  duration-200
-                  outline-none
-                  placeholder:text-white/40
-                  focus:border-solid
-                  focus:bg-white/10
-                  focus:opacity-100
-                "
-                placeholder="+ TAG..."
-                onkeydown={(e) => {
-                  if (e.key === "Enter" || e.key === ",") {
-                    e.preventDefault();
-                    add_tag(i, e.currentTarget.value);
-                    e.currentTarget.value = "";
-                  }
-                }}
-                onblur={(e) => {
-                  if (e.currentTarget.value.trim()) {
-                    add_tag(i, e.currentTarget.value);
-                    e.currentTarget.value = "";
-                  }
-                }}
-              />
+            {#if !profileState.is_editing}
+              <svg
+                viewBox="0 0 24 24"
+                class="my-auto size-3 shrink-0 stroke-current stroke-2 transition-transform duration-200 {isExpanded ? 'rotate-90' : ''}"
+                style="fill: none; stroke-linecap: round; stroke-linejoin: round;"
+              >
+                <polyline points="9 18 15 12 9 6" />
+              </svg>
             {/if}
-          </div>
+            <span class="my-auto cursor-help truncate leading-tight" use:tooltip aria-label={description}>{title || `Empty ${sublabel}`}</span>
+          </button>
         {/snippet}
 
         {#snippet header_actions()}
@@ -281,6 +137,7 @@
               <div
                 class="
                   flex
+                  cursor-help
                   items-center
                   gap-1
                   rounded-sm
@@ -290,7 +147,7 @@
                   px-1.5
                   py-0.5
                 "
-                use:tooltip={{ text: "Influence weight of this vector" }}
+                use:tooltip={{ text: "Influence weight score (1-10) driving relevance" }}
               >
                 <span
                   class="
@@ -345,16 +202,19 @@
             {:else}
               <span
                 class="
-                  pointer-events-none
+                  my-auto
+                  flex
+                  cursor-help
+                  items-center
                   font-mono
                   text-xs
-                  leading-none
+                  leading-tight
                   font-bold
                   text-white
                   opacity-90
                   drop-shadow-xs
                 "
-                use:tooltip={{ text: "Influence weight of this vector" }}>{item.emotional_weight}</span
+                use:tooltip={{ text: "Influence weight score (1-10) driving relevance" }}>{item.emotional_weight}</span
               >
             {/if}
 

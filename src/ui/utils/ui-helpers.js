@@ -297,3 +297,28 @@ export const getRpgList = (key) => {
   }
   return [];
 };
+
+/**
+ * Derives a punchy single-line header title from directive text.
+ * @param {string} text - Raw directive text
+ * @param {number} [maxLen=38] - Target maximum length
+ * @returns {string}
+ */
+export function derive_vector_title(text, maxLen = 38) {
+  if (!text || typeof text !== "string") return "";
+  const cleaned = text
+    .trim()
+    .replace(/^["'“”«»]+|["'“”«»]+$/g, "")
+    .replace(/\s+/g, " ");
+
+  if (!cleaned) return "";
+
+  if (cleaned.length <= maxLen) {
+    return cleaned.replace(/[.,;:]+$/, "");
+  }
+
+  const sub = cleaned.slice(0, maxLen);
+  const lastSpace = sub.lastIndexOf(" ");
+  const truncated = lastSpace > 15 ? sub.slice(0, lastSpace) : sub;
+  return truncated.replace(/[.,;:]+$/, "") + "…";
+}

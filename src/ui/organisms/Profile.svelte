@@ -6,7 +6,7 @@
    */
   import { auto_resize, click_outside } from "@actions";
   import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown } from "@atoms";
-  import { PROFILE_SECTIONS_BY_TYPE } from "@intelligence";
+  import { PROFILE_SECTIONS_BY_TYPE, safeParsePseudoJson } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
@@ -34,9 +34,6 @@
   /** @type {HTMLElement | undefined} */
   let info_container_el = $state();
   let previous_scroll_top = $state(0);
-
-  // Local safety interlock rune for unsaved changes
-  let show_close_confirm = $state(false);
 
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
@@ -130,29 +127,28 @@
     "flex shrink-0 gap-4 pb-4 outline-none " + (app.viewport.mobile ? "w-full flex-col items-stretch" : "justify-end"),
   );
 
-  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-4" : "grid gap-x-2 gap-y-4"));
+  const entity_body_class = $derived("min-w-0 " + (app.viewport.mobile ? "flex flex-col gap-4" : "grid items-center gap-x-2 gap-y-4"));
 
   const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
   // --- MARKUP CONTEXT SANITIZERS ---
   const get_section_class = (arrayField) => {
-    let cls = "relative flex min-w-0 flex-col items-center justify-center overflow-hidden text-center transition-all duration-300 ";
+    let cls = "relative flex w-full min-w-0 flex-col items-center justify-center my-auto overflow-hidden text-center transition-all duration-300 ";
     cls += profileState.is_editing && arrayField ? "cursor-pointer " : "cursor-default ";
     if (app.viewport.mobile) cls += "pr-0";
     return cls;
   };
 
-  const get_inner_section_style = (id) => {
-    const shouldTranslate = id === "eternal" && !app.viewport.mobile;
-    return shouldTranslate ? "transform: translateY(1rem);" : "";
+  const get_inner_section_style = (_id) => {
+    return "display: flex; flex-direction: column; align-items: center; justify-content: center; margin-top: auto; margin-bottom: auto;";
   };
 
   const get_label_span_class = () => {
-    return app.viewport.mobile ? "" : "block rotate-180";
+    return app.viewport.mobile ? "" : "block rotate-180 my-auto";
   };
 
   const get_fields_container_class = (fieldsLength) => {
-    const base = "grid min-w-0 items-stretch gap-4 ";
+    const base = "grid min-w-0 items-stretch gap-4 my-auto ";
     return base + (fieldsLength === 2 ? "grid-cols-2" : "grid-cols-1");
   };
 
@@ -163,26 +159,64 @@
   };
 
   /**
-   * Tokenizes string payloads to detect inline Perchance dynamic variable loops.
+   * Recursively parses string payloads to detect inline Perchance dynamic variable loops.
+   * Supports arbitrary N-flat options like {A|B|C} and nested options like {A|B|{C1|C2}}.
    * @param {string} str
+   * @returns {Array<{isVar: boolean, text?: string, choices?: Array<any>}>}
    */
   const parseVariants = (str) => {
     if (!str) return [];
-    const regex = /\{([^}]+)\}/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-    while ((match = regex.exec(str)) !== null) {
-      if (match.index > lastIndex) {
-        parts.push({ isVar: false, text: str.slice(lastIndex, match.index) });
+
+    const result = [];
+    let i = 0;
+    let textBuffer = "";
+
+    while (i < str.length) {
+      if (str[i] === "{") {
+        if (textBuffer) {
+          result.push({ isVar: false, text: textBuffer });
+          textBuffer = "";
+        }
+
+        let depth = 1;
+        i++;
+        let currentChoice = "";
+        const rawChoices = [];
+
+        while (i < str.length && depth > 0) {
+          const char = str[i];
+          if (char === "{") {
+            depth++;
+            currentChoice += char;
+          } else if (char === "}") {
+            depth--;
+            if (depth > 0) currentChoice += char;
+          } else if (char === "|" && depth === 1) {
+            rawChoices.push(currentChoice.trim());
+            currentChoice = "";
+          } else {
+            currentChoice += char;
+          }
+          i++;
+        }
+
+        if (currentChoice.trim() || rawChoices.length > 0) {
+          rawChoices.push(currentChoice.trim());
+        }
+
+        const parsedChoices = rawChoices.map((c) => parseVariants(c));
+        result.push({ isVar: true, choices: parsedChoices });
+      } else {
+        textBuffer += str[i];
+        i++;
       }
-      parts.push({ isVar: true, choices: match[1].split("|").map((c) => c.trim()) });
-      lastIndex = regex.lastIndex;
     }
-    if (lastIndex < str.length) {
-      parts.push({ isVar: false, text: str.slice(lastIndex) });
+
+    if (textBuffer) {
+      result.push({ isVar: false, text: textBuffer });
     }
-    return parts.length > 0 ? parts : [{ isVar: false, text: str }];
+
+    return result.length > 0 ? result : [{ isVar: false, text: str }];
   };
 
   // --- EFFECTS ---
@@ -209,7 +243,7 @@
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    if (profileState.show_delete_confirm || show_close_confirm) return;
+    if (profileState.show_delete_confirm) return;
     if (target.closest("[data-wings-container] > *")) return;
     if (
       target.closest(".menu") ||
@@ -222,20 +256,18 @@
       return;
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
 
-    if (profileState.is_dirty) {
-      show_close_confirm = true;
-      event.preventDefault();
-      return;
-    }
-
     event.preventDefault();
-    profileState.handle_close();
+    if (profileState.is_editing) {
+      profileState.save(entity_type);
+    } else {
+      profileState.handle_close(entity_type);
+    }
   }
 </script>
 
 <svelte:window
   onkeydown={(e) => {
-    if (!profileState.char?.id || profileState.show_delete_confirm || show_close_confirm) return;
+    if (!profileState.char?.id || profileState.show_delete_confirm) return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
       if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
@@ -261,25 +293,13 @@
     on_confirm={() => profileState.delete(entity_type)}
   />
 
-  <Dialog
-    type="confirm"
-    bind:open={show_close_confirm}
-    title="Discard Unsaved Changes?"
-    message="You have unsaved edits. Closing will discard all modifications made during this editing session."
-    confirm_label="Confirm"
-    on_confirm={() => {
-      show_close_confirm = false;
-      profileState.handle_close();
-    }}
-  />
-
   <Modal
     variant="profile"
     on_close={() => {
-      if (profileState.is_dirty) {
-        show_close_confirm = true;
+      if (profileState.is_editing) {
+        profileState.save(entity_type);
       } else {
-        profileState.handle_close();
+        profileState.handle_close(entity_type);
       }
     }}
     is_pass_through={true}
@@ -540,13 +560,6 @@
                 {/if}
               </Button>
               <Button
-                variant="secondary"
-                class="touch-target-coarse"
-                onclick={() => {
-                  profileState.save(entity_type);
-                }}>Save</Button
-              >
-              <Button
                 variant="danger"
                 class="touch-target-coarse"
                 onclick={() => {
@@ -650,38 +663,33 @@
         {#each section.fields as field (field.key)}
           <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
             {#if field.type === "array"}
-              <ProfileArray state={profileState} path={field.key} sublabel={field.sublabel || field.label} {signature_color} />
+              <ProfileArray
+                state={profileState}
+                path={field.key}
+                sublabel={field.sublabel || field.label}
+                description={field.description}
+                {signature_color}
+              />
             {:else}
               {@const fieldId = `field-${field.key.replace(".", "-")}`}
               {@const raw = profileState.get_safe_value(field.key) || ""}
               {@const parsed = (() => {
-                try {
-                  let cleanRaw = raw.trim();
-                  if (!cleanRaw) return null;
-                  if (!cleanRaw.startsWith("{") && cleanRaw.includes(":")) {
-                    cleanRaw = cleanRaw.replace(/,\s*$/, "");
-                    cleanRaw = `{ ${cleanRaw} }`;
-                  }
-                  if (!cleanRaw.startsWith("{")) return null;
-                  const p = JSON.parse(cleanRaw);
-                  if (typeof p === "object" && p !== null) {
-                    const standardized = {};
-                    Object.entries(p).forEach(([k, v]) => {
-                      if (typeof v === "string") {
-                        standardized[k] = v.replace(/,([^\s])/g, ", $1");
-                      } else {
-                        standardized[k] = v;
-                      }
-                    });
-                    return standardized;
-                  }
-                  return null;
-                } catch {
-                  return null;
+                const res = safeParsePseudoJson(raw);
+                if (res && Object.keys(res).length > 0 && !res.__raw_prose__) {
+                  const standardized = {};
+                  Object.entries(res).forEach(([k, v]) => {
+                    if (typeof v === "string") {
+                      standardized[k] = v.replace(/,([^\s])/g, ", $1");
+                    } else {
+                      standardized[k] = v;
+                    }
+                  });
+                  return standardized;
                 }
+                return null;
               })()}
 
-              {#if field.label && section.id === "eternal"}
+              {#if field.label && (section.id === "eternal" || section.id === "present")}
                 <label
                   class="block w-full text-center text-[10px] font-bold tracking-widest text-(--signature-color) uppercase drop-shadow-md"
                   for={fieldId}>{field.label}</label
@@ -691,33 +699,51 @@
               {#if !profileState.is_editing && parsed}
                 <div
                   id={fieldId}
-                  class="relative flex min-h-20 w-full flex-col gap-2 rounded-standard"
+                  class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300"
                   role="region"
                   aria-label={field.sublabel || field.label}
                   use:auto_resize={{ syncId: section.label }}
                   data-sync-id={section.label}
                 >
-                  {#if profileState.busy_fields.has(field.key)}
-                    <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
-                  {:else}
-                    {@const sortedEntries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
-                    <div class="flex flex-wrap gap-2">
-                      {#each sortedEntries as [k, v] (k)}
-                        {#if v && String(v).trim()}
-                          <div
-                            class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-md border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
-                          >
-                            <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
-                              >{k}</span
-                            >
-                            <span class="text-left text-xs leading-normal text-slate-200">
-                              {@render RenderFormattedValue(String(v))}
-                            </span>
-                          </div>
-                        {/if}
-                      {/each}
-                    </div>
+                  {#if field.sublabel || field.label}
+                    <header
+                      style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--state-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --state-dev-accent: {signature_color};"
+                      class="w-full"
+                    >
+                      <div
+                        style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
+                      >
+                        <span
+                          class="block max-w-full cursor-help truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
+                          use:tooltip
+                          aria-label={field.description}>{field.sublabel || field.label}</span
+                        >
+                      </div>
+                    </header>
                   {/if}
+                  <div class="pt-2">
+                    {#if profileState.busy_fields.has(field.key)}
+                      <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
+                    {:else}
+                      {@const sortedEntries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
+                      <div class="flex flex-wrap gap-2">
+                        {#each sortedEntries as [k, v] (k)}
+                          {#if v && String(v).trim()}
+                            <div
+                              class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
+                            >
+                              <span class="text-left font-mono text-[10px] font-bold tracking-wider text-(--signature-color) uppercase opacity-85"
+                                >{k}</span
+                              >
+                              <span class="text-left text-xs leading-normal text-slate-200">
+                                {@render RenderFormattedValue(String(v))}
+                              </span>
+                            </div>
+                          {/if}
+                        {/each}
+                      </div>
+                    {/if}
+                  </div>
                 </div>
               {:else}
                 <TextField
@@ -734,7 +760,11 @@
                 >
                   {#snippet status()}
                     {#if field.sublabel}
-                      <span class="font-mono text-[10px] tracking-widest text-white uppercase opacity-80">{field.sublabel}</span>
+                      <span
+                        class="block max-w-full cursor-help truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
+                        use:tooltip
+                        aria-label={field.description}>{field.sublabel}</span
+                      >
                     {/if}
                   {/snippet}
 
@@ -815,15 +845,17 @@
   </div>
 {/snippet}
 
-{#snippet RenderFormattedValue(valStr)}
-  {#each parseVariants(valStr) as part, i (i)}
+{#snippet RenderChoiceNodes(nodes)}
+  {#each nodes as part, i (i)}
     {#if part.isVar}
       <span
         class="mx-0.5 inline-flex flex-wrap items-center gap-1 rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
       >
         <span class="mr-0.5 text-[9px] font-bold text-(--signature-color) opacity-70">⌥</span>
-        {#each part.choices as choice, idx (idx)}
-          <span>{choice}</span>
+        {#each part.choices as choiceNodes, idx (idx)}
+          <span class="inline-flex items-center">
+            {@render RenderChoiceNodes(choiceNodes)}
+          </span>
           {#if idx < part.choices.length - 1}
             <span class="mx-0.5 text-[9px] text-(--signature-color)/40">/</span>
           {/if}
@@ -833,6 +865,10 @@
       <span>{part.text}</span>
     {/if}
   {/each}
+{/snippet}
+
+{#snippet RenderFormattedValue(valStr)}
+  {@render RenderChoiceNodes(parseVariants(valStr))}
 {/snippet}
 
 <style>

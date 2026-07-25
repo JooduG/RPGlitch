@@ -97,22 +97,23 @@ export class ProfileState {
   }
 
   /**
-   * Toggles editing mode or closes the profile.
+   * Autosaves any pending edits and closes the profile modal.
+   * @param {"character" | "fractal"} [entity_type]
    */
-  handle_close() {
-    if (this.is_editing) {
-      this.cancel();
-    } else {
-      const active_wings = this.is_editing || app.settings.dev_mode;
-      if (active_wings) {
-        this.is_packing_up = true;
-        setTimeout(() => {
-          this.is_packing_up = false;
-          app.toggle_profile(false);
-        }, 500); // 500ms matches --duration-slow / motion-elastic
-      } else {
+  async handle_close(entity_type = "character") {
+    if (this.is_editing && this._user_mutated) {
+      await this.save(entity_type);
+    }
+    this.is_editing = false;
+    const active_wings = app.settings.dev_mode;
+    if (active_wings) {
+      this.is_packing_up = true;
+      setTimeout(() => {
+        this.is_packing_up = false;
         app.toggle_profile(false);
-      }
+      }, 500); // 500ms matches --duration-slow / motion-elastic
+    } else {
+      app.toggle_profile(false);
     }
   }
 

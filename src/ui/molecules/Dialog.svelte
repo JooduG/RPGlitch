@@ -25,6 +25,11 @@
     confirm_label = "Confirm",
     ok_label = "OK",
 
+    // Input support
+    input_value = $bindable(""),
+    show_input = false,
+    input_placeholder = "",
+
     // Handlers
     on_confirm = () => {},
     on_cancel = () => {},
@@ -58,7 +63,7 @@
   onkeydown={(e) => {
     if (open && e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
-      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
+      if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.tagName === "INPUT" || target.isContentEditable) return;
       e.preventDefault();
       handle_confirm();
     }
@@ -120,6 +125,20 @@
                       {message}
                     </p>
                   </AlertDialog.Description>
+
+                  {#if show_input}
+                    <input
+                      bind:value={input_value}
+                      placeholder={input_placeholder}
+                      class="w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-base text-slate-50 outline-none focus:border-white/40"
+                      onkeydown={(e) => {
+                        if (e.key === "Enter" && !e.shiftKey) {
+                          e.preventDefault();
+                          handle_confirm();
+                        }
+                      }}
+                    />
+                  {/if}
 
                   <footer class="flex w-full justify-end gap-gap-standard outline-none">
                     <AlertDialog.Action>

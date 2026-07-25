@@ -146,6 +146,9 @@ export class VisualEngine {
         finalPrompt = "professional portrait configuration, sharp details, high-end studio layout, realistic textures";
       }
 
+      // 1.2 Perchance Curly-Bracket Sanitization
+      finalPrompt = finalPrompt.replace(/[{}]/g, "");
+
       // 2. Execute Resilient Generation
       const result = await this.breaker.execute(async () => {
         return await this.retryer.retry(
@@ -385,9 +388,18 @@ export class VisualEngine {
         refined = `<image_prompt>${visualPrompt}, ${fallbackName}, ${fallbackDesc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
       }
 
-      const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
-      const extracted = match?.[1] || refined || "";
-      let cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
+      const parsedJson = this._parseRefineResponse(refined);
+      let cleanPrompt;
+      let extractedNegative = null;
+
+      if (parsedJson) {
+        cleanPrompt = this._cleanPrompt(strip_cognition_blocks(parsedJson.prompt));
+        extractedNegative = parsedJson.negativePrompt || null;
+      } else {
+        const match = refined?.match(/<image_prompt[^>]*>([\s\S]*?)<\/image_prompt>/i);
+        const extracted = match?.[1] || refined || "";
+        cleanPrompt = this._cleanPrompt(strip_cognition_blocks(extracted));
+      }
 
       if ((!cleanPrompt || cleanPrompt.length < 10) && (vTarget === "fractal" || vTarget === "characters")) {
         const fractalDesc = AestheticResolver.flatten(fractal);
@@ -400,7 +412,11 @@ export class VisualEngine {
         caption = captionMatch?.[1] || "You wanted a selfie? There you go.";
       }
 
-      const payload = await this.generate(cleanPrompt, { mode: vTarget, returnPayload: true, ...options });
+      const generateOptions = { mode: vTarget, returnPayload: true, ...options };
+      if (extractedNegative && !generateOptions.negativePrompt) {
+        generateOptions.negativePrompt = extractedNegative;
+      }
+      const payload = await this.generate(cleanPrompt, generateOptions);
 
       if (payload && payload.url) {
         return {
@@ -477,7 +493,6 @@ export class VisualEngine {
     const quality = options.quality || 0.85;
 
     try {
-      const { validateImage } = await import("@platform/security.js");
       return new Promise((resolve) => {
         const input = document.createElement("input");
         input.type = "file";
@@ -491,6 +506,7 @@ export class VisualEngine {
           }
 
           try {
+            const { validateImage } = await import("@platform/security.js");
             await validateImage(file, { maxSize: 25 * 1024 * 1024 });
 
             const reader = new globalThis.FileReader();
@@ -621,7 +637,16 @@ export class VisualEngine {
    */
   _cleanPrompt(raw) {
     if (typeof raw !== "string") return raw;
-    return sanitize_llm(strip_cognition_blocks(raw));
+    let cleaned = sanitize_llm(strip_cognition_blocks(raw));
+    if (cleaned.includes("{")) {
+      const promptMatch = cleaned.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+      if (promptMatch && promptMatch[1]) {
+        cleaned = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+      } else {
+        cleaned = cleaned.replace(/[{}]/g, "");
+      }
+    }
+    return cleaned;
   }
 }
 

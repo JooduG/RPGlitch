@@ -6,6 +6,7 @@ import {
   parse_message,
   wrap_dialogue,
   escape_unescaped_json_quotes,
+  safeParsePseudoJson,
 } from "./parser.js";
 import { describe, expect, it } from "vitest";
 
@@ -266,5 +267,32 @@ describe("parse_message XML entity sanitization pass", () => {
     const input = "Orion said, &quot;I&apos;m fine.&quot;";
     const { displayText } = parse_message(input);
     expect(displayText).toBe('<p>Orion said, <span class="dialogue">&ldquo;I\'m fine.&rdquo;</span></p>');
+  });
+});
+
+describe("safeParsePseudoJson", () => {
+  it("should parse bracketed [HEADLINE: item] syntax", () => {
+    const input = "[EXPRESSION: grizzled cynical smirk] [SHIRT: grease-stained tank top]";
+    const result = safeParsePseudoJson(input);
+    expect(result).toEqual({
+      EXPRESSION: "grizzled cynical smirk",
+      SHIRT: "grease-stained tank top",
+    });
+  });
+
+  it("should parse multi-line bracketed [HEADLINE: item] syntax", () => {
+    const input = "[EXPRESSION: grizzled cynical smirk]\n[SHIRT: grease-stained tank top]\n[HARDWARE: hydraulic prosthetic arm]";
+    const result = safeParsePseudoJson(input);
+    expect(result).toEqual({
+      EXPRESSION: "grizzled cynical smirk",
+      SHIRT: "grease-stained tank top",
+      HARDWARE: "hydraulic prosthetic arm",
+    });
+  });
+
+  it("should return empty object for regular prose containing colons", () => {
+    const input = "Beneath his playful teasing: lies a sharp wound.";
+    const result = safeParsePseudoJson(input);
+    expect(result).toEqual({});
   });
 });

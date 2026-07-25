@@ -9,11 +9,11 @@
    * High-performance, reactive text field with markdown rendering and atmospheric effects.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { ScrollArea } from "@atoms";
+  import { Button, ScrollArea, tooltip } from "@atoms";
   import { parse_markdown } from "@utils";
   import { simulationState } from "@state";
   import { auto_resize, use_actions } from "@actions";
-  import { fade } from "svelte/transition";
+  import { fade, slide } from "svelte/transition";
   import { onDestroy } from "svelte";
 
   let {
@@ -29,10 +29,12 @@
     active = false,
     weight = 0, // 0-10 for line prominence and atmospheric glow
     always_expanded = false,
+    collapsed = false,
 
     // Design
     no_background = false,
     signature_color = "#475569",
+    size = "sm", // 'xs' (12px) | 'sm' (14px) | 'md' (16px)
     class: className = "",
     style = "",
 
@@ -51,11 +53,74 @@
   // --- LOCAL STATE ---
   let is_focused = $state(false);
 
+  // --- UNDO / REDO HISTORY ---
+  let history_stack = $state([value]);
+  let history_index = $state(0);
+  let is_internal_change = false;
+
+  $effect(() => {
+    const current = value;
+    if (is_internal_change) return;
+    if (history_stack[history_index] !== current) {
+      const next_stack = history_stack.slice(0, history_index + 1);
+      next_stack.push(current);
+      if (next_stack.length > 50) next_stack.shift();
+      history_stack = next_stack;
+      history_index = history_stack.length - 1;
+    }
+  });
+
+  function undo() {
+    if (history_index > 0) {
+      history_index--;
+      is_internal_change = true;
+      value = history_stack[history_index];
+      oninput?.({ target: { value } });
+      setTimeout(() => {
+        is_internal_change = false;
+      }, 0);
+    }
+  }
+
+  function redo() {
+    if (history_index < history_stack.length - 1) {
+      history_index++;
+      is_internal_change = true;
+      value = history_stack[history_index];
+      oninput?.({ target: { value } });
+      setTimeout(() => {
+        is_internal_change = false;
+      }, 0);
+    }
+  }
+
+  const can_undo = $derived(history_index > 0);
+  const can_redo = $derived(history_index < history_stack.length - 1);
+
+  /** @param {KeyboardEvent} e */
+  function handle_textarea_keydown(e) {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "z") {
+      if (e.shiftKey) {
+        e.preventDefault();
+        redo();
+      } else {
+        e.preventDefault();
+        undo();
+      }
+    } else if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "y") {
+      e.preventDefault();
+      redo();
+    }
+  }
+
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || busy || simulationState.intent_active);
   let is_sync_focused = $derived(syncId ? (sync_focus_counts[syncId] || 0) > 0 : false);
+  const font_size_class = $derived(size === "xs" ? "text-xs" : size === "md" ? "text-base" : "text-sm");
   const paragraphs = $derived(parse_markdown(value));
-  const is_expanded = $derived((is_focused || is_sync_focused || active || busy || always_expanded) && (!!header_actions || !!status));
+  const is_expanded = $derived(
+    (is_focused || is_sync_focused || active || busy || always_expanded || is_edit || !!status) && (!!header_actions || !!status || is_edit),
+  );
   const intensity = $derived(weight / 10);
   const header_opacity = $derived(weight > 0 ? 0.2 + intensity * 0.8 : 0.8);
 
@@ -103,14 +168,10 @@
   let headerStyle = $derived(
     no_background
       ? "display: none !important;"
-      : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem; background-color: var(--state-dev-accent) !important; padding-left: 1rem; padding-right: 1rem; opacity: " +
-          (is_expanded ? "1 !important" : "0.6") +
-          "; min-height: " +
-          (is_expanded ? "1.5rem !important" : "0.5rem !important") +
-          "; height: " +
-          (is_expanded ? "auto !important" : "0.5rem !important") +
-          "; py-1;" +
-          (is_expanded ? "border-bottom: 1px solid rgb(255 255 255 / 0.1);" : ""),
+      : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem;" +
+          (collapsed ? " border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem;" : "") +
+          " background-color: var(--state-dev-accent) !important; padding-left: 0.75rem; padding-right: 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; padding-top: 0.175rem; padding-bottom: 0.175rem;" +
+          (!collapsed ? " border-bottom: 1px solid rgb(255 255 255 / 0.1);" : ""),
   );
 </script>
 
@@ -119,6 +180,7 @@
     group/textfield
     relative
     flex
+    h-full
     w-full
     flex-col
     overflow-hidden
@@ -211,161 +273,191 @@
     {#if is_expanded}
       {#if status}
         <div
-          style="margin-right: 0.75rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0;"
+          style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
           in:fade={{ duration: 200, delay: 0 }}
         >
           {@render status()}
         </div>
       {/if}
-      {#if header_actions}
-        <div
-          style="margin-left: auto; display: flex !important; align-items: center !important; height: 100% !important; flex-shrink: 0 !important;"
-          in:fade={{ duration: 200, delay: 50 }}
-        >
-          {@render header_actions()}
-        </div>
-      {/if}
+      <div
+        style="margin-left: auto; display: flex !important; align-items: center !important; gap: 0.25rem; height: 100% !important; flex-shrink: 0 !important;"
+      >
+        {#if is_edit}
+          <div class="mr-1 flex items-center gap-0.5" in:fade={{ duration: 150 }}>
+            <Button
+              variant="invisible"
+              size="small"
+              square={true}
+              aria-label="Undo (Ctrl+Z)"
+              actions={[tooltip]}
+              tooltip="Undo (Ctrl+Z)"
+              disabled={!can_undo || is_disabled}
+              onclick={undo}
+              class="h-5! w-5! rounded p-0.5! text-slate-400 transition-all duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20"
+            >
+              <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                <path d="M3 7v6h6" />
+                <path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13" />
+              </svg>
+            </Button>
+            <Button
+              variant="invisible"
+              size="small"
+              square={true}
+              aria-label="Redo (Ctrl+Y)"
+              actions={[tooltip]}
+              tooltip="Redo (Ctrl+Y)"
+              disabled={!can_redo || is_disabled}
+              onclick={redo}
+              class="h-5! w-5! rounded p-0.5! text-slate-400 transition-all duration-150 hover:bg-white/20 hover:text-white active:scale-95 disabled:pointer-events-none disabled:opacity-20"
+            >
+              <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+                <path d="M21 7v6h-6" />
+                <path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7" />
+              </svg>
+            </Button>
+          </div>
+        {/if}
+        {#if header_actions}
+          <div style="display: flex !important; align-items: center !important; height: 100% !important;" in:fade={{ duration: 200, delay: 50 }}>
+            {@render header_actions()}
+          </div>
+        {/if}
+      </div>
     {/if}
   </header>
 
-  {#if is_edit}
-    <textarea
-      {...rest}
-      class="
-        relative
-        z-10
-        m-0
-        box-border
-        block
-        min-h-12
-        w-full
-        resize-none
-        scrollbar-thin
-        scrollbar-thumb-slate-700
-        scrollbar-track-transparent
-        overflow-x-hidden
-        overflow-y-auto
-        border-none
-        bg-transparent
-        p-4
-        text-left
-        font-sans
-        text-(length:--font-size-base)
-        leading-normal
-        text-wrap
-        text-slate-50
-        outline-none
-        placeholder:font-normal
-        placeholder:text-slate-600/30
-        placeholder:italic
-        focus:outline-none
-        [&::-webkit-scrollbar]:h-2
-        [&::-webkit-scrollbar]:w-2
-        [&::-webkit-scrollbar-thumb]:rounded-xl
-        [&::-webkit-scrollbar-thumb]:bg-slate-700
-        [&::-webkit-scrollbar-thumb:hover]:bg-slate-50
-        [&::-webkit-scrollbar-track]:bg-transparent
-        {busy ? 'cursor-wait' : ''}"
-      data-mode="edit"
-      bind:value
-      {placeholder}
-      {oninput}
-      onfocus={handle_focus}
-      disabled={is_disabled || busy}
-      use:auto_resize={{ syncId }}
-      data-sync-id={syncId}
-    ></textarea>
-  {:else}
-    <ScrollArea>
-      <div
-        {...rest}
-        class="
-          relative
-          z-10
-          m-0
-          box-border
-          flex
-          min-h-12
-          w-full
-          flex-col
-          overflow-visible
-          border-none
-          bg-transparent
-          p-4
-          text-left
-          font-sans
-          text-(length:--font-size-base)
-          leading-normal
-          text-pretty
-          text-white
-          outline-none
-          focus:outline-none
-          {busy ? 'cursor-wait' : ''}"
-        data-mode="readonly"
-        data-sync-id={syncId}
-        use:auto_resize={{ syncId }}
-        tabindex={is_disabled ? -1 : 0}
-        onfocus={handle_focus}
-        role="textbox"
-        aria-readonly="true"
-        aria-placeholder={placeholder}
-      >
-        {#if paragraphs.length > 0}
-          {#each paragraphs as tokens, i (i)}
-            <p
-              class="
-                m-0
-                w-full
-                {i > 0 ? 'mt-4' : ''}"
-              data-spaced={i > 0}
-            >
-              {#each tokens as token, j (j)}
-                {#if token.type === "text"}
-                  {token.content}
-                {:else if token.type === "strong"}
-                  <strong
-                    class="
-                      font-extrabold
-                      text-(--state-dev-accent)
-                    ">{token.content}</strong
-                  >
-                {:else if token.type === "em"}
-                  <em
-                    class="
-                      italic
-                      opacity-30
-                    ">{token.content}</em
-                  >
-                {:else if token.type === "strong-em"}
-                  <strong
-                    class="
-                      font-extrabold
-                      text-(--state-dev-accent)
-                    "
-                    ><em
-                      class="
-                        italic
-                        opacity-30
-                      ">{token.content}</em
-                    ></strong
-                  >
-                {:else if token.type === "quote"}
-                  <span class="text-[1.05em]">"{token.content}"</span>
-                {/if}
-              {/each}
-            </p>
-          {/each}
-        {:else}
-          <span
+  {#if !collapsed}
+    <div transition:slide={{ duration: 250 }} class="overflow-hidden">
+      {#if is_edit}
+        <textarea
+          {...rest}
+          class="
+            relative
+            z-10
+            m-0
+            box-border
+            block
+            min-h-10
+            w-full
+            resize-none
+            scrollbar-thin
+            scrollbar-thumb-slate-700
+            scrollbar-track-transparent
+            overflow-x-hidden
+            overflow-y-auto
+            border-none
+            bg-transparent
+            p-3
+            text-left
+            font-sans
+            {font_size_class}
+            leading-relaxed
+            text-wrap
+            text-slate-50
+            outline-none
+            placeholder:font-normal
+            placeholder:text-slate-400/60
+            placeholder:italic
+            focus:outline-none
+            [&::-webkit-scrollbar]:h-2
+            [&::-webkit-scrollbar]:w-2
+            [&::-webkit-scrollbar-thumb]:rounded-xl
+            [&::-webkit-scrollbar-thumb]:bg-slate-700
+            [&::-webkit-scrollbar-thumb:hover]:bg-slate-50
+            [&::-webkit-scrollbar-track]:bg-transparent
+            {busy ? 'cursor-wait' : ''}"
+          data-mode="edit"
+          bind:value
+          {placeholder}
+          onfocus={handle_focus}
+          onblur={handle_blur}
+          onkeydown={handle_textarea_keydown}
+          use:use_actions={actions}
+          disabled={is_disabled}
+          use:auto_resize={{ syncId }}
+          data-sync-id={syncId}
+        ></textarea>
+      {:else}
+        <ScrollArea class="w-full" fitContent={true}>
+          <div
+            {...rest}
             class="
-              font-normal
-              text-slate-600/30
-              italic
-            ">{placeholder}</span
+              relative
+              z-10
+              box-border
+              min-h-10
+              w-full
+              p-3
+              text-left
+              font-sans
+              {font_size_class}
+              leading-relaxed
+              text-wrap
+              text-slate-200
+              outline-none
+              select-text
+              {busy ? 'cursor-wait' : 'cursor-text'}"
+            data-mode="view"
+            tabindex="0"
+            role="textbox"
+            aria-readonly="true"
+            onfocus={handle_focus}
+            onblur={handle_blur}
+            use:use_actions={actions}
           >
-        {/if}
-      </div>
-    </ScrollArea>
+            {#if value && String(value).trim()}
+              {#each paragraphs as p, pIdx (pIdx)}
+                <p class="m-0 mb-2 last:mb-0">
+                  {#each p as token, tIdx (tIdx)}
+                    {#if token.type === "text"}
+                      {token.content}
+                    {:else if token.type === "strong"}
+                      <strong
+                        class="
+                          font-bold
+                          text-(--state-dev-accent)
+                        ">{token.content}</strong
+                      >
+                    {:else if token.type === "em"}
+                      <em
+                        class="
+                          italic
+                          opacity-30
+                        ">{token.content}</em
+                      >
+                    {:else if token.type === "strong-em"}
+                      <strong
+                        class="
+                          font-extrabold
+                          text-(--state-dev-accent)
+                        "
+                        ><em
+                          class="
+                            italic
+                            opacity-30
+                          ">{token.content}</em
+                        ></strong
+                      >
+                    {:else if token.type === "quote"}
+                      <span class="text-[1.05em]">"{token.content}"</span>
+                    {/if}
+                  {/each}
+                </p>
+              {/each}
+            {:else}
+              <span
+                class="
+                  font-normal
+                  text-slate-400/60
+                  italic
+                ">{placeholder}</span
+              >
+            {/if}
+          </div>
+        </ScrollArea>
+      {/if}
+    </div>
   {/if}
 </div>
 

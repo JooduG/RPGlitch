@@ -7,7 +7,7 @@
    */
   import FitText from "@atoms/FitText.svelte";
   import { auto_resize } from "@actions";
-  import { ENTITY_FRAGMENTS, NAME_PREFIXES } from "@intelligence";
+  import { ENTITY_FRAGMENTS } from "@intelligence";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -26,22 +26,13 @@
   let name_input = $state();
 
   /**
-   * Formats a name to be bottom-heavy if it consists of exactly 3 words.
+   * Cleans raw name text for header rendering.
    * @param {string} rawName
    * @returns {string}
    */
   function formatName(rawName) {
     if (!rawName) return "";
-    const trimmed = rawName.trim();
-    const words = trimmed.split(/\s+/);
-    if (words.length !== 3) return trimmed;
-
-    const prefixes = NAME_PREFIXES;
-
-    if (prefixes.includes(words[0].toLowerCase())) {
-      return `${words[0]} ${words[1]}\n${words[2]}`;
-    }
-    return `${words[0]}\n${words[1]} ${words[2]}`;
+    return rawName.trim();
   }
 
   // Fine-grained tracking of edit state transitions to capture viewport focus boundaries
@@ -61,7 +52,7 @@
     min-w-0
     shrink-0
     flex-col
-    gap-4
+    gap-2
 
     {className}"
   data-testid="profile-header"
@@ -117,10 +108,10 @@
             w-full
             border-none
             bg-transparent
-            p-4
+            p-3
             text-left
             font-heading
-            text-h3
+            text-2xl
             font-extrabold
             tracking-normal
             outline-none
@@ -135,11 +126,11 @@
         class="
           block
           {entity_type === 'fractal' ? 'text-left' : 'text-right'}
-          leading-[1.1]
+          leading-tight
         "
-        style="color: {signature_color}; filter: drop-shadow(0 8px 24px rgb(0 0 0 / 0.4));"
+        style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
       >
-        <FitText text={formatName(name)} class="text-inherit!" />
+        <FitText text={formatName(name)} max_size={36} class="text-inherit!" />
       </h1>
     {/if}
   </div>
@@ -189,17 +180,17 @@
           [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)]
           border-none
           bg-transparent
-          p-4
+          p-3
           text-left
           font-sans
-          text-base
-          leading-normal
+          text-sm
+          leading-relaxed
           [text-wrap:auto]
           text-slate-50
           outline-none
-          placeholder:text-slate-600
+          placeholder:text-slate-400
           placeholder:italic
-          placeholder:opacity-30
+          placeholder:opacity-60
           [&::-webkit-scrollbar]:h-scrollbar-width
           [&::-webkit-scrollbar]:w-scrollbar-width
           [&::-webkit-scrollbar-thumb]:rounded-standard
@@ -222,12 +213,12 @@
         rounded-md
         {entity_type === 'fractal' ? 'text-left' : 'text-right'}
         font-sans
-        text-base
-        leading-normal
+        text-sm
+        leading-relaxed
         text-balance
         whitespace-pre-wrap
-        text-slate-50
-        opacity-50
+        text-slate-200
+        opacity-75
       "
     >
       {description}

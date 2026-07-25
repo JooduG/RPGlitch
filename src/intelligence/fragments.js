@@ -56,7 +56,7 @@ name (string), description (string), signature_color (string), eternal_physical 
  */
 export const ENTITY_FRAGMENTS = {
   name: "Name",
-  description: "Summary of the entity's vibe and role.", // HUMAN EYES ONLY
+  description: "Summary of the entity's vibe and role (Human eyes only — never used in simulation).",
   profile: {
     character: {
       enhancer: "NARRATIVE_STRUCTURER",
@@ -71,12 +71,15 @@ export const ENTITY_FRAGMENTS = {
     non_physical: {
       character: {
         sublabel: "Personality, Behaviour & Traits",
+        description:
+          "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics.",
         directive:
           "Timeless psychology: core beliefs, personality drivers, cognitive patterns, vocal tone, speech cadence, and communication tics. Must hold true in any scene — if it shifts during play, it belongs in Present. No reactive moments or specific events. Dense, high-fidelity paragraph.",
         enhancer: "COGNITIVE_ARCHITECT",
       },
       fractal: {
         sublabel: "Environmental Physics & Core Laws",
+        description: "Timeless metaphysical substrate: governing laws, constant environmental forces, and structural world atmosphere.",
         directive:
           "Timeless metaphysical substrate: governing laws, constant forces, structural atmosphere. Physical constants, ambient rules, defining sensory essence, unbreakable world logic. Must hold true in any scene — if it shifts, it belongs in Present. No moments of observation. Dense, high-fidelity paragraph.",
         enhancer: "METAPHYSICAL_ARCHITECT",
@@ -85,14 +88,16 @@ export const ENTITY_FRAGMENTS = {
     physical: {
       character: {
         sublabel: "Body & Form",
+        description: "Permanent physical features for image generation (gender, age, ethnicity, build, face, eyes, hair, height).",
         directive:
-          'Permanent physical features for image generation. No clothing, expressions, or poses. MANDATORY: gender, age_range (or age), ethnicity. Keys: { "gender": "", "age_range": "", "ethnicity": "", "build": "", "face": "", "eyes": "", "skin": "", "hair": "", "height": "" }. Visible body details and identifying skin accents/scars only — no traits, skills, gear, or morality. Max 15 lines.',
+          "Permanent physical features for image generation. No clothing, expressions, or poses. Mandatory keys: [GENDER: ...], [AGE: ...], [ETHNICITY: ...]. Optional keys: [BUILD: ...], [FACE: ...], [EYES: ...], [SKIN: ...], [HAIR: ...], [HEIGHT: ...]. Visible body details and identifying skin accents/scars only — no traits, skills, gear, or morality. Max 15 lines.",
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
+        description: "Permanent physical geography for image generation (terrain, architecture, materials, landmarks, scale).",
         directive:
-          'Permanent physical geography for image generation. No weather, lighting, or atmospheric events. Keys: { "terrain": "", "architecture": "", "materials": "", "landmarks": "", "scale": "" }. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.',
+          "Permanent physical geography for image generation. No weather, lighting, or atmospheric events. Keys: [TERRAIN: ...], [ARCHITECTURE: ...], [MATERIALS: ...], [LANDMARKS: ...], [SCALE: ...]. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.",
         enhancer: "SPATIAL_RENDERER",
       },
     },
@@ -101,12 +106,14 @@ export const ENTITY_FRAGMENTS = {
     non_physical: {
       character: {
         sublabel: "Current State of Mind",
+        description: "Current state of mind: immediate emotional pressure, active mental focus, and present behavioral drivers.",
         directive:
           "What's shifted from the eternal baseline right now: immediate emotional pressure, active mental focus, present behavioral drivers. DO NOT restate permanent baseline traits from Eternal. True in THIS moment only — if always true, it belongs in Eternal. Dense, punchy summary.",
         enhancer: "TACTICAL_ANALYZER",
       },
       fractal: {
         sublabel: "Active Anomalies & Volatility",
+        description: "Current environmental state: active anomalies, immediate pressure, and momentary shifts in physics or atmosphere.",
         directive:
           "What's changed from the eternal baseline right now: active anomaly, current pressure, immediate shift in physics or atmosphere. True RIGHT NOW only — stable conditions belong in Eternal. Short, high-fidelity statement.",
         enhancer: "ECOSYSTEM_ANALYZER",
@@ -115,37 +122,44 @@ export const ENTITY_FRAGMENTS = {
     physical: {
       character: {
         sublabel: "Outfit, Appearance & Conditions",
+        description:
+          "Current physical appearance for image generation (clothing, colors, expression, posture, condition). Use {Option A|Option B} for variables.",
         directive:
-          'Current physical appearance for image generation, layered over eternal baseline. Keys: { "clothing": "", "colors": "", "expression": "", "skin_exposure": "", "posture": "", "condition": "" }. Use {A|B} syntax for variables. Visible temporary items, expressions, and poses only — no hidden properties or thoughts. Narrative-relevant conditions (e.g. bleeding) must also go in non-physical. Max 15 lines.',
+          "Current physical appearance for image generation, layered over eternal baseline. Keys: [CLOTHING: ...], [COLORS: ...], [EXPRESSION: ...], [POSTURE: ...], [CONDITION: ...]. Use {A|B} syntax for option variables. Visible temporary items, expressions, and poses only — no hidden properties or thoughts. Narrative-relevant conditions (e.g. bleeding) must also go in non-physical. Max 15 lines.",
         enhancer: "SOMATIC_TRACKER",
       },
       fractal: {
         sublabel: "Active Weather, Lighting & Overlays",
+        description: "Current atmospheric state for image generation (lighting, weather, atmosphere, events). Use {Option A|Option B} for variables.",
         directive:
-          'Current atmospheric state for image generation, layered over eternal baseline. Keys: { "lighting": "", "weather": "", "atmosphere": "", "events": "" }. Use {A|B} syntax for variables. Momentary sensory elements only. Max 15 lines.',
+          "Current atmospheric state for image generation, layered over eternal baseline. Keys: [LIGHTING: ...], [WEATHER: ...], [ATMOSPHERE: ...], [EVENTS: ...]. Use {A|B} syntax for option variables. Momentary sensory elements only. Max 15 lines.",
         enhancer: "ATMOSPHERIC_TRACKER",
       },
     },
   },
   future: {
     sublabel: "Vector",
+    description: "Active trajectory or narrative impulse: clear intent, building pressure, or impending event driving next state change.",
+    directive:
+      "One active trajectory or narrative impulse: a clear intent, building pressure, or impending event. What drives this entity toward its next state change. Must be distinct from Present. Active future tense — live impulses, not past observations.",
     enhancer: "TRAJECTORY_SIMULATOR",
     type: "array",
     fields: {
       directive:
         "One active trajectory or narrative impulse: a clear intent, building pressure, or impending event. What drives this entity toward its next state change. Must be distinct from Present. Active future tense — live impulses, not past observations.",
-      tags: "3-6 concrete, high-relevance trigger keywords (entity names, key items, specific actions, or locations) used for semantic retrieval matching.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },
   past: {
     sublabel: "Memory",
+    description: "Formative memory or critical precedent: specific anchored event or established historical fact.",
+    directive:
+      "One formative memory or critical precedent: a specific anchored event or established fact. Capture the residue it exerts on current behavior. Specific over vague. Past tense — anchored historical facts, not active states.",
     enhancer: "EPISODIC_MEMORY_COMPILER",
     type: "array",
     fields: {
       directive:
         "One formative memory or critical precedent: a specific anchored event or established fact. Capture the residue it exerts on current behavior. Specific over vague. Past tense — anchored historical facts, not active states.",
-      tags: "3-6 concrete, high-relevance trigger keywords (entity names, key items, specific actions, or locations) used for semantic retrieval matching.",
       emotional_weight: "Narrative importance score (1-10) driving relevance.",
     },
   },
@@ -159,7 +173,7 @@ export const ENTITY_FRAGMENTS = {
  * @property {string} [label] - UI label
  * @property {string} [directive] - AI instruction
  * @property {string} [enhancer] - Semantic tag
- * @property {string} [description] - Fallback description
+ * @property {string} [description] - Human readable description / tooltip text
  * @property {string} [type] - Field type (e.g., "array")
  */
 
@@ -211,7 +225,7 @@ function build_entity_catalog() {
         };
       });
     } else {
-      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer"].includes(k));
+      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
       fieldKeys.forEach((field_key) => {
         const id = `${section_key}.${field_key}`;
         const field = section[field_key];
@@ -237,7 +251,8 @@ function build_entity_catalog() {
       });
     }
 
-    const hasFields = section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "directive", "enhancer"].includes(k));
+    const hasFields =
+      section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
     if (!hasFields || section.type === "array") {
       ["character", "fractal"].forEach((type) => {
         const typeKey = `${type}.${section_key}`;
@@ -270,7 +285,7 @@ export const ENTITY_CATALOG = build_entity_catalog();
  * Builds the profile sections layout dynamically based on entity type.
  * Handles leaf-level polymorphism cleanly.
  * @param {string} [entity_type]
- * @returns {Array<{ id: string, label: string, fields: Array<{ key: string, label: string, sublabel: string | null, description: string, enhancer: string, type?: string, is_physical?: boolean }> }>}
+ * @returns {Array<{ id: string, label: string, fields: Array<{ key: string, label: string, sublabel: string | null, description: string, directive: string, enhancer: string, type?: string, is_physical?: boolean }> }>}
  */
 export function build_profile_sections(entity_type = "character") {
   const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
@@ -279,7 +294,9 @@ export function build_profile_sections(entity_type = "character") {
     .filter(([sectionKey, section]) => typeof section !== "string" && section !== null && sectionKey !== "profile")
     .map(([sectionKey, sectionObj]) => {
       const section = /** @type {any} */ (sectionObj);
-      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "enhancer", "fields"].includes(k));
+      const fieldKeys = Object.keys(section).filter(
+        (k) => !["label", "sublabel", "type", "directive", "description", "enhancer", "fields"].includes(k),
+      );
 
       const fields =
         fieldKeys.length > 0 && section.type !== "array"
@@ -290,7 +307,8 @@ export function build_profile_sections(entity_type = "character") {
                 key: `${sectionKey}.${fieldKey}`,
                 label: format_key_as_label(fieldKey),
                 sublabel: leaf.sublabel || null,
-                description: leaf.directive || leaf.description || "",
+                description: leaf.description || leaf.directive || "",
+                directive: leaf.directive || "",
                 enhancer: leaf.enhancer,
                 type: field.type,
                 is_physical: fieldKey === "physical",
@@ -301,7 +319,8 @@ export function build_profile_sections(entity_type = "character") {
                 key: sectionKey,
                 label: format_key_as_label(sectionKey),
                 sublabel: section.sublabel || null,
-                description: section.directive || "",
+                description: section.description || section.directive || "",
+                directive: section.directive || "",
                 enhancer: section.enhancer,
                 type: section.type,
               },

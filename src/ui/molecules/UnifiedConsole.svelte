@@ -38,6 +38,13 @@
 
   // --- CONTROL PANEL STATE ---
   let is_confirming_reset = $state(false);
+  let is_confirming_story_delete = $state(false);
+  /** @type {any} */
+  let pending_story_delete = $state(null);
+  let is_renaming_story = $state(false);
+  /** @type {any} */
+  let pending_rename_story = $state(null);
+  let rename_draft = $state("");
   /** @type {any[]} */
   let story_cache = $state([]);
 
@@ -120,6 +127,50 @@
 
   async function refresh_stories() {
     story_cache = await stories.list();
+  }
+
+  async function delete_story(story) {
+    pending_story_delete = story;
+    is_confirming_story_delete = true;
+  }
+
+  async function start_rename_story(story) {
+    pending_rename_story = story;
+    rename_draft = story.title || "";
+    is_renaming_story = true;
+  }
+
+  async function confirm_rename_story() {
+    if (!pending_rename_story) return;
+    const trimmed = rename_draft.trim();
+    if (trimmed && trimmed !== pending_rename_story.title) {
+      try {
+        await stories.update(pending_rename_story.id, { title: trimmed });
+        await refresh_stories();
+        app.log(`Story renamed to "${trimmed}".`, "system");
+      } catch (err) {
+        app.log(`Rename failed: ${/** @type {Error} */ (err).message}`, "error");
+      }
+    }
+    pending_rename_story = null;
+    rename_draft = "";
+  }
+
+  async function confirm_story_delete() {
+    if (!pending_story_delete) return;
+    try {
+      await stories.delete(pending_story_delete.id);
+      await refresh_stories();
+      app.log(`Story "${pending_story_delete.title}" deleted.`, "system");
+      if (String(runtime.story_id) === String(pending_story_delete.id)) {
+        await session_driver.clear_active();
+        app.set_view("storyboard");
+      }
+    } catch (err) {
+      app.log(`Delete failed: ${/** @type {Error} */ (err).message}`, "error");
+    } finally {
+      pending_story_delete = null;
+    }
   }
 
   $effect(() => {
@@ -252,6 +303,27 @@
   on_confirm={hard_reset}
 />
 
+<Dialog
+  type="confirm"
+  bind:open={is_confirming_story_delete}
+  title="Delete Story?"
+  message={`This will permanently delete "${pending_story_delete?.title ?? ""}" and its entire simulation log. This action cannot be undone.`}
+  confirm_label="Delete"
+  on_confirm={confirm_story_delete}
+/>
+
+<Dialog
+  type="confirm"
+  bind:open={is_renaming_story}
+  title="Rename Story"
+  message={`Enter a new title for "${pending_rename_story?.title ?? ""}":`}
+  confirm_label="Save"
+  show_input={true}
+  input_placeholder="New story title..."
+  bind:input_value={rename_draft}
+  on_confirm={confirm_rename_story}
+/>
+
 <div class="relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
     <Backdrop z_index="40" is_blurred={true} onclick={() => (app.control_panel_open = false)} />
@@ -333,7 +405,7 @@
                   class="grid transition-[grid-template-rows] duration-300 ease-in-out {open_sections.audio ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}"
                 >
                   <div class="min-h-0 overflow-hidden">
-                    <div class="grid grid-cols-1 gap-x-6 gap-y-4 pt-2 pb-4 sm:grid-cols-2">
+                    <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-x-6 gap-y-4 pt-2 pb-4">
                       <Toggle label="USER PERSONA MICROPHONE" bind:value={app.settings.call_mode} onchange={() => app.save_settings()} />
                       <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
                       <Toggle
@@ -602,9 +674,15 @@
                   <div class="min-h-0 overflow-hidden">
                     <div class="flex flex-col gap-4 pt-2 pb-4">
                       {#if story_cache.length > 0}
-                        <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
                           {#each story_cache as story (story.id)}
-                            <StoryCard {story} active={runtime.story_id === String(story.id)} onclick={() => load_story(story.id)} />
+                            <StoryCard
+                              {story}
+                              active={runtime.story_id === String(story.id)}
+                              onclick={() => load_story(story.id)}
+                              ondelete={delete_story}
+                              onrename={start_rename_story}
+                            />
                           {/each}
                         </div>
                       {:else}
@@ -777,8 +855,8 @@
           text-base
           text-inherit
           outline-none
-          placeholder:text-slate-600
-          placeholder:opacity-15
+          placeholder:text-slate-400
+          placeholder:opacity-60
           disabled:cursor-wait
           disabled:opacity-30
         "

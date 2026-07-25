@@ -62,7 +62,7 @@
     ease-in-out
     outline-none
     placeholder:font-normal
-    placeholder:text-slate-600/30
+    placeholder:text-slate-400/60
     placeholder:italic
     [&::-webkit-inner-spin-button]:appearance-none
     [&::-webkit-outer-spin-button]:appearance-none
