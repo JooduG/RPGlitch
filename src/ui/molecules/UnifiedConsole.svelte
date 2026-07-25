@@ -30,6 +30,28 @@
   let textarea = $state();
   let is_ghostwriting = $state(false);
 
+  $effect(() => {
+    const req = app.ghostwrite_request;
+    if (req === 0) return;
+    (async () => {
+      if (is_locked || is_ghostwriting) return;
+      is_ghostwriting = true;
+      try {
+        const draft = await gamemaster.execute_ghostwriter(value);
+        if (draft) {
+          value = draft;
+          await tick();
+          adjust_height();
+        }
+      } catch (e) {
+        console.error("[Ghostwriter Error]", e);
+        app.log(`Ghostwriter failed: ${e.message || e}`, "error");
+      } finally {
+        is_ghostwriting = false;
+      }
+    })();
+  });
+
   let is_locked = $derived(simulationState.busy);
   let story_locked = $derived(simulationState.phase === "locked");
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
@@ -777,37 +799,6 @@
           disabled={app.control_panel_open || is_ghostwriting}
           aria-label="Input message"
         ></textarea>
-
-        <Button
-          variant="invisible"
-          onclick={async () => {
-            if (is_locked || is_ghostwriting) return;
-            is_ghostwriting = true;
-            try {
-              const draft = await gamemaster.execute_ghostwriter(value);
-              if (draft) {
-                value = draft;
-                await tick();
-                adjust_height();
-              }
-            } catch (e) {
-              console.error("[Ghostwriter Error]", e);
-            } finally {
-              is_ghostwriting = false;
-            }
-          }}
-          disabled={is_locked || is_ghostwriting || app.control_panel_open}
-          aria-label="Ghostwriter Assist"
-          actions={[tooltip]}
-          class="touch-target-coarse text-amber-400 hover:text-amber-300"
-        >
-          <svg class="block size-icon-medium" viewBox="0 0 24 24">
-            <path
-              fill="currentColor"
-              d="M7.5 5.6L5 7l1.4-2.5L5 2l2.5 1.4L10 2 8.6 4.5 10 7 7.5 5.6zm12 9.8L17 14l-1.4 2.5L13 15l2.5 1.4L17 19l1.4-2.5L21 18l-1.5-2.6zM20 2l-2.5 1.4L15 2l1.4 2.5L15 7l2.5-1.4L20 7l-1.4-2.5L20 2zM9.5 11l-7 7 2.5 2.5 7-7-2.5-2.5zm6.3-4.3c-.4-.4-1-.4-1.4 0l-1.2 1.2 2.5 2.5 1.2-1.2c.4-.4.4-1 0-1.4l-1.1-1.1z"
-            />
-          </svg>
-        </Button>
 
         {#if app.streaming.active}
           <Button

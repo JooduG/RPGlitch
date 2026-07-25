@@ -11,7 +11,10 @@
   import { UnifiedConsole, EntityCard } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
-  import { app, runtime } from "@state";
+  import { app, runtime, simulationState } from "@state";
+  import { session_driver } from "@engine";
+
+  import { Audio, visual_engine } from "@media";
 
   // --- DERIVED RUNES ---
 
@@ -35,6 +38,169 @@
     if (app.streaming.active) {
       motion.intensity = 1.0;
     }
+  });
+
+  // --- ENTITY MENU ACTION BUILDERS ---
+
+  const is_locked = $derived(simulationState.busy);
+
+  /** Portrait generation helper shared by Photo actions */
+  async function take_photo(subject, prompt, kind) {
+    if (is_locked) return;
+    try {
+      simulationState.role = subject;
+      simulationState.start_generation(subject);
+      const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
+      const entity_map = {
+        ai: runtime.active_ai || app.selected_ai,
+        user: runtime.active_user || app.selected_user,
+        fractal: runtime.active_fractal || app.selected_fractal,
+      };
+      const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
+      const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
+      if (result?.imageUrl) {
+        const entity = entity_map[subject];
+        await session_driver.log_message("", subject, entity?.name || label_map[subject], turn_map[subject], {}, [
+          { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
+        ]);
+      } else {
+        app.log(`${label_map[subject] || subject} photo generation failed. Please try again.`, "error");
+      }
+    } catch (err) {
+      console.error(`[Photo Error: ${subject}]`, err);
+      app.log(`Photo failed: ${err.message || err}`, "error");
+    } finally {
+      simulationState.complete();
+    }
+  }
+
+  /** Group shot helper */
+  async function take_group_photo() {
+    if (is_locked) return;
+    try {
+      simulationState.role = "fractal";
+      simulationState.start_generation("fractal");
+      const result = await visual_engine.visualize(
+        runtime.story_id,
+        "A scene featuring both the AI character and the user persona together",
+        "characters",
+      );
+      if (result?.imageUrl) {
+        const fractal = runtime.active_fractal || app.selected_fractal;
+        await session_driver.log_message("", "fractal", fractal?.name || "Scene", "SYSTEM_TURN", {}, [
+          { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
+        ]);
+      } else {
+        app.log("Group Shot generation failed. Please try again.", "error");
+      }
+    } catch (err) {
+      console.error("[Group Shot Error]", err);
+      app.log(`Group Shot failed: ${err.message || err}`, "error");
+    } finally {
+      simulationState.complete();
+    }
+  }
+
+  /** Ghostwriter trigger — fires a signal the UnifiedConsole watches */
+  function ghostwrite() {
+    if (is_locked) return;
+    app.ghostwrite_request++;
+  }
+
+  // --- ACTION MENU CONFIGS ---
+
+  let storyboard_ai_actions = $derived([
+    { label: "Swap", onSelect: () => app.open_card_hand("ai"), disabled: false },
+    { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: !app.selected_ai },
+  ]);
+
+  let storyboard_user_actions = $derived([
+    { label: "Swap", onSelect: () => app.open_card_hand("user"), disabled: false },
+    { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: !app.selected_user },
+  ]);
+
+  let storyboard_fractal_actions = $derived([
+    { label: "Swap", onSelect: () => app.open_card_hand("fractal"), disabled: false },
+    { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: !app.selected_fractal },
+  ]);
+
+  let ai_actions = $derived.by(() => {
+    if (app.view !== "storymode") return storyboard_ai_actions;
+    return [
+      {
+        label: "Photo",
+        onSelect: () => take_photo("ai", "A character portrait of the AI character", "character"),
+        disabled: is_locked || visual_engine.isLoading,
+      },
+      { separator: true },
+      {
+        label: Audio.voice_enabled ? "Disable Voice" : "Enable Voice",
+        onSelect: () => {
+          Audio.voice_enabled = !Audio.voice_enabled;
+          if (!Audio.voice_enabled) Audio.voice.stop();
+        },
+        disabled: false,
+      },
+      { separator: true },
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: false },
+    ];
+  });
+
+  let user_actions = $derived.by(() => {
+    if (app.view !== "storymode") return storyboard_user_actions;
+    return [
+      {
+        label: "Photo",
+        onSelect: () => take_photo("user", "A character portrait of the user persona", "user"),
+        disabled: is_locked || visual_engine.isLoading,
+      },
+      { separator: true },
+      {
+        label: "Microphone",
+        onSelect: () => {
+          app.settings.call_mode = !app.settings.call_mode;
+          app.save_settings();
+        },
+        disabled: false,
+      },
+      { separator: true },
+      {
+        label: Audio.voice_enabled ? "Disable Voice" : "Enable Voice",
+        onSelect: () => {
+          Audio.voice_enabled = !Audio.voice_enabled;
+          if (!Audio.voice_enabled) Audio.voice.stop();
+        },
+        disabled: false,
+      },
+      { separator: true },
+      { label: "Ghostwrite", onSelect: () => ghostwrite(), disabled: is_locked },
+      { separator: true },
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: false },
+    ];
+  });
+
+  let fractal_actions = $derived.by(() => {
+    if (app.view !== "storymode") return storyboard_fractal_actions;
+    return [
+      {
+        label: "Photo",
+        onSelect: () => take_photo("fractal", "An environmental shot of the current setting", "fractal"),
+        disabled: is_locked || visual_engine.isLoading,
+      },
+      { separator: true },
+      { label: "Group Photo", onSelect: () => take_group_photo(), disabled: is_locked || visual_engine.isLoading },
+      { separator: true },
+      {
+        label: Audio.voice_enabled ? "Disable Voice" : "Enable Voice",
+        onSelect: () => {
+          Audio.voice_enabled = !Audio.voice_enabled;
+          if (!Audio.voice_enabled) Audio.voice.stop();
+        },
+        disabled: false,
+      },
+      { separator: true },
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: false },
+    ];
   });
 </script>
 
@@ -77,28 +243,61 @@
     {#snippet left()}
       {#if !app.entities_loaded}
         <Skeleton variant="card" width="100%" height="100%" />
-      {:else}
-        {@const entity = app.selected_ai}
+      {:else if app.view === "storymode"}
         <div
-          class="flex h-full w-full items-center justify-center {app.view === 'storymode'
-            ? 'p-2 transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]'
-            : ''}"
-          style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-ai" : undefined}
+          class="flex h-full w-full flex-col items-center justify-center gap-gap-standard p-2 pt-0 transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
+        >
+          <div
+            class="flex w-full items-center justify-center"
+            style:view-transition-name={app.transitioning_profile && app.transition_target_id === app.selected_ai?.id ? "entity-morph-ai" : undefined}
+          >
+            <EntityCard
+              variant="panel"
+              type="ai"
+              entity={app.selected_ai}
+              role_label="AI Character"
+              actions={ai_actions}
+              on_select={() => {
+                if (app.selected_ai) app.toggle_profile(true, app.selected_ai);
+              }}
+            />
+          </div>
+          <div
+            class="flex w-full items-center justify-center"
+            style:view-transition-name={app.transitioning_profile && app.transition_target_id === app.selected_fractal?.id
+              ? "entity-morph-fractal"
+              : undefined}
+          >
+            <EntityCard
+              variant="panel"
+              type="fractal"
+              entity={app.selected_fractal}
+              role_label="Fractal"
+              actions={fractal_actions}
+              on_select={() => {
+                if (app.selected_fractal) app.toggle_profile(true, app.selected_fractal);
+              }}
+            />
+          </div>
+        </div>
+      {:else}
+        <div
+          class="flex h-full w-full items-center justify-center"
+          style:view-transition-name={app.transitioning_profile && app.transition_target_id === app.selected_ai?.id ? "entity-morph-ai" : undefined}
         >
           <EntityCard
-            variant={app.view === "storymode" ? "panel" : entity ? "panel" : "slot"}
+            variant={app.selected_ai ? "panel" : "slot"}
             type="ai"
-            {entity}
+            entity={app.selected_ai}
             role_label="AI Character"
+            actions={ai_actions}
             on_select={() => {
-              if (entity) {
-                app.toggle_profile(true, entity);
+              if (app.selected_ai) {
+                app.toggle_profile(true, app.selected_ai);
               } else if (app.view === "storyboard") {
                 app.open_card_hand("ai");
               }
             }}
-            on_swap={() => app.open_card_hand("ai")}
-            on_view_profile={() => app.toggle_profile(true, entity)}
           />
         </div>
       {/if}
@@ -119,6 +318,7 @@
               type="fractal"
               {entity}
               role_label="Fractal"
+              actions={fractal_actions}
               on_select={() => {
                 if (entity) {
                   app.toggle_profile(true, entity);
@@ -126,8 +326,6 @@
                   app.open_card_hand("fractal");
                 }
               }}
-              on_swap={() => app.open_card_hand("fractal")}
-              on_view_profile={() => app.toggle_profile(true, entity)}
             />
           </div>
         {/if}
@@ -158,6 +356,7 @@
             type="user"
             {entity}
             role_label="User Persona"
+            actions={user_actions}
             on_select={() => {
               if (entity) {
                 app.toggle_profile(true, entity);
@@ -165,8 +364,6 @@
                 app.open_card_hand("user");
               }
             }}
-            on_swap={() => app.open_card_hand("user")}
-            on_view_profile={() => app.toggle_profile(true, entity)}
           />
         </div>
       {/if}

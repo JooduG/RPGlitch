@@ -139,6 +139,7 @@ export class AppStore {
     narrative_style: "default",
     visual_style: "none",
   });
+  ghostwrite_request = $state(0);
   // --- SENSORY ENGINES ---
   get visual() {
     return visual_engine;

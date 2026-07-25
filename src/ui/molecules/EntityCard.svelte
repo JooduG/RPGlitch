@@ -6,7 +6,7 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { Button, ProfilePicture, tooltip } from "@atoms";
+  import { ProfilePicture, tooltip } from "@atoms";
   import { guardedTransition } from "@engine";
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
@@ -35,9 +35,7 @@
    * @property {string} [role_label] - Label for empty slot placeholders
    * @property {() => void} [onclick] - Select click handler
    * @property {() => void} [on_select] - Selection callback mapping
-   * @property {() => void} [onViewProfile] - View profile context mapping
-   * @property {() => void} [on_view_profile] - View profile callback mapping
-   * @property {() => void} [on_swap] - Swap callback mapping
+   * @property {any[]} [actions] - Context menu actions (config-driven: { label, onSelect, disabled, separator, danger })
    */
 
   /** @type {Props} */
@@ -49,9 +47,7 @@
     role_label = "",
     onclick = undefined,
     on_select = undefined,
-    onViewProfile = undefined,
-    on_view_profile = undefined,
-    on_swap = undefined,
+    actions = [],
   } = $props();
 
   // --- STATE RUNES ---
@@ -61,6 +57,65 @@
 
   /** @type {HTMLElement | null} */
   let root_el = $state(null);
+
+  // --- CONTEXT MENU STATE ---
+  let menu_open = $state(false);
+  let menu_x = $state(0);
+  let menu_y = $state(0);
+
+  function open_menu_at(x, y) {
+    menu_x = Math.min(x, window.innerWidth - 180);
+    menu_y = Math.min(y, window.innerHeight - 200);
+    menu_open = true;
+  }
+
+  function handle_card_click(e) {
+    if (disabled) return;
+    if (variant !== "library" && !is_empty && actions.length) {
+      e.stopPropagation();
+      open_menu_at(e.clientX, e.clientY);
+      return;
+    }
+    handle_select();
+  }
+
+  function portal_to_body(node) {
+    document.body.appendChild(node);
+    return {
+      destroy() {
+        node.remove();
+      },
+    };
+  }
+
+  let fractal_storymode_ratio = $state("4 / 3");
+
+  $effect(() => {
+    if (type !== "fractal" || app.view !== "storymode" || variant === "library" || variant === "message") return;
+    function update_ratio() {
+      const probe = document.createElement("div");
+      probe.style.cssText =
+        "position:absolute;visibility:hidden;width:var(--spacing-storyboard-fractal-card-width);height:var(--spacing-storyboard-fractal-card-height);";
+      document.body.appendChild(probe);
+      const fw = probe.offsetWidth;
+      const fh = probe.offsetHeight;
+      probe.remove();
+      if (fw > 0 && fh > 0) fractal_storymode_ratio = `${fw} / ${fh}`;
+    }
+    update_ratio();
+    window.addEventListener("resize", update_ratio);
+    return () => window.removeEventListener("resize", update_ratio);
+  });
+
+  function handle_item_click(e, item) {
+    e.stopPropagation();
+    menu_open = false;
+    if (item.onSelect) item.onSelect();
+  }
+
+  function close_menu() {
+    menu_open = false;
+  }
 
   // --- TRANSITION LOGIC ---
   const transition_name = $derived.by(() => {
@@ -101,8 +156,6 @@
 
   // Unified callback event mappings
   let select_handler = $derived(onclick || on_select || (() => {}));
-  let view_profile_handler = $derived(on_view_profile || onViewProfile || (() => {}));
-  let swap_handler = $derived(on_swap || (() => {}));
 
   /**
    * Helper to perform the actual entity selection, wrapped inside guardedTransition.
@@ -260,19 +313,32 @@
   class:h-[calc(var(--spacing-storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
   class:w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
   class:h-[calc(var(--spacing-storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
-  class:w-full={variant !== "library"}
-  class:h-full={variant !== "library"}
-  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" && variant !== "library" && variant !== "message"}
-  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" && variant !== "library" && variant !== "message"}
+  class:w-full={variant !== "library" && !(type === "fractal" && app.view === "storymode" && variant !== "message")}
+  class:h-full={variant !== "library" && !(type === "fractal" && app.view === "storymode" && variant !== "message")}
+  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" &&
+    variant !== "library" &&
+    variant !== "message" &&
+    app.view !== "storymode"}
+  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" &&
+    variant !== "library" &&
+    variant !== "message" &&
+    app.view !== "storymode"}
   class:md:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library" && variant !== "message"}
   class:md:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library" && variant !== "message"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   style:opacity={app.profile_open && app.editing_entity?.id === entity?.id && variant !== "library" ? 0 : undefined}
+  style:width={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message"
+    ? "var(--spacing-storyboard-character-card-width)"
+    : undefined}
+  style:height={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? "auto" : undefined}
+  style:aspect-ratio={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message"
+    ? fractal_storymode_ratio
+    : undefined}
   role="button"
   tabindex={disabled ? -1 : 0}
   aria-label={variant === "library" ? (is_empty ? "Create New" : disabled ? "Already selected" : "Select " + name) : a11y_label}
-  onclick={handle_select}
+  onclick={handle_card_click}
   onanimationend={handle_animation_end}
   onpointerdown={() => !disabled && variant === "library" && (is_pressing = true)}
   onpointerup={() => {
@@ -281,18 +347,17 @@
   onpointerleave={() => {
     is_pressing = false;
   }}
-  oncontextmenu={(/** @type {MouseEvent} */ e) => {
-    e.preventDefault();
-    if (variant === "library") {
-      view_profile_handler();
-    } else if (variant === "panel") {
-      swap_handler();
-    }
-  }}
   onkeydown={(/** @type {KeyboardEvent} */ e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      handle_select();
+      if (variant !== "library" && !is_empty && actions.length) {
+        if (root_el) {
+          const rect = root_el.getBoundingClientRect();
+          open_menu_at(rect.right, rect.bottom);
+        }
+      } else {
+        handle_select();
+      }
     }
   }}
 >
@@ -443,7 +508,7 @@
         `
         : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span
     >
-    {#if !is_empty && variant !== "library" && variant !== "message"}
+    {#if !is_empty && variant !== "library" && variant !== "message" && app.view !== "storymode"}
       <p
         class="
           mt-2
@@ -477,50 +542,6 @@
       </p>
     {/if}
   </div>
-
-  {#if !is_empty && variant === "panel" && app.view !== "storymode"}
-    <nav
-      class="
-      pointer-events-auto
-      absolute
-      top-[clamp(0.25rem,4cqi,0.5rem)]
-      right-[clamp(0.25rem,4cqi,0.5rem)]
-      z-50
-      flex
-      opacity-50
-      transition-all
-      duration-300
-      ease-in-out
-
-      focus-within:opacity-100
-      hover:opacity-100
-    "
-    >
-      <Button
-        class="
-        flex
-        h-[clamp(2rem,18cqi,3rem)]
-        w-[clamp(2rem,18cqi,3rem)]
-        items-center
-        justify-center
-        rounded-full
-        p-0!
-      "
-        actions={[[tooltip, { text: `Swap ${entity?.name || name}` }]]}
-        variant="secondary"
-        aria-label="Swap {entity?.name || name}"
-        onclick={(/** @type {MouseEvent} */ e) => {
-          e.stopPropagation();
-          swap_handler();
-        }}
-        tabindex="-1"
-      >
-        <svg viewBox="0 0 24 24" class="h-[clamp(1.25rem,10cqi,1.75rem)] w-[clamp(1.25rem,10cqi,1.75rem)] fill-white text-white">
-          <path d="M16,17.01V10H14V17.01H11L15,21L19,17.01H16M9,3L5,6.99H8V14H10V6.99H13L9,3Z" />
-        </svg></Button
-      >
-    </nav>
-  {/if}
 
   {#if type === "fractal" && variant === "panel"}
     {@const style_details = entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null}
@@ -612,6 +633,39 @@
     {/if}
   {/if}
 </div>
+
+<svelte:window onclick={close_menu} onkeydown={(e) => e.key === "Escape" && close_menu()} />
+
+{#if menu_open}
+  <div
+    use:portal_to_body
+    class="fixed z-9999 min-w-40 rounded-xl border border-white/10 bg-slate-950/95 p-1 shadow-2xl backdrop-blur-md outline-none"
+    style="left:{menu_x}px;top:{menu_y}px"
+    role="menu"
+    tabindex="-1"
+    onclick={(e) => e.stopPropagation()}
+    onkeydown={(e) => e.key === "Escape" && close_menu()}
+  >
+    {#each actions as item, i (i)}
+      {#if item.separator}
+        <div class="-mx-1 my-1 block h-px bg-white/10"></div>
+      {:else}
+        <button
+          type="button"
+          class="
+            flex h-9 w-full cursor-default items-center gap-2 rounded-md px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-white/10 hover:text-white
+            {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
+          "
+          disabled={item.disabled}
+          onclick={(e) => handle_item_click(e, item)}
+          role="menuitem"
+        >
+          {item.label}
+        </button>
+      {/if}
+    {/each}
+  </div>
+{/if}
 
 <style>
   /* --- KINETIC HARDWARE KEYFRAMES --- */
