@@ -84,17 +84,23 @@
     }
 
     if (!app.streaming.active && was_streaming) {
-      Audio.play("notification");
+      const errored_node = app.streaming.errored_node_id;
 
-      const current_raw_text = app.streaming.text ?? app.streaming.content ?? "";
-      const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
+      if (app.streaming.errored && errored_node && Audio.voice.activeMessageId === errored_node) {
+        Audio.voice.stop();
+      } else {
+        Audio.play("notification");
 
-      const remaining_text = sanitized_stream_track.slice(spoken_character_cursor);
-      const clean_remainder = clean_image_prompts(remaining_text).trim();
+        const current_raw_text = app.streaming.text ?? app.streaming.content ?? "";
+        const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
 
-      if (clean_remainder) {
-        Audio.voice.activeMessageId = app.streaming.nodeId ?? app.streaming.node_id;
-        Audio.voice.speak(clean_remainder, false);
+        const remaining_text = sanitized_stream_track.slice(spoken_character_cursor);
+        const clean_remainder = clean_image_prompts(remaining_text).trim();
+
+        if (clean_remainder) {
+          Audio.voice.activeMessageId = app.streaming.nodeId ?? app.streaming.node_id;
+          Audio.voice.speak(clean_remainder, false);
+        }
       }
     }
 

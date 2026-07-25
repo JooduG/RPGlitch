@@ -42,6 +42,10 @@ class StreamingState {
   role = $state("ai");
   /** @type {AbortController | null} */
   abort_controller = $state(null);
+  /** @type {boolean} */
+  errored = $state(false);
+  /** @type {string | null} */
+  errored_node_id = $state(null);
 
   get text() {
     return this.content;
@@ -478,6 +482,8 @@ export class AppStore {
     this.streaming.node_id = id;
     this.streaming.nodeId = id;
     this.streaming.role = role;
+    this.streaming.errored = false;
+    this.streaming.errored_node_id = null;
   };
   update_stream = (/** @type {string} */ chunk) => {
     this.streaming.content += chunk;
@@ -490,6 +496,10 @@ export class AppStore {
     this.streaming.node_id = null;
     this.streaming.nodeId = null;
     this.streaming.role = "ai";
+  };
+  signal_stream_error = (nodeId) => {
+    this.streaming.errored = true;
+    this.streaming.errored_node_id = nodeId;
   };
   trigger_interrupt = () => {
     if (this.streaming.abort_controller) {

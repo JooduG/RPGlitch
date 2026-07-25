@@ -66,6 +66,7 @@ vi.mock("@state/app.svelte.js", () => ({
     start_stream: vi.fn(),
     update_stream: vi.fn(),
     end_stream: vi.fn(),
+    signal_stream_error: vi.fn(),
     streaming: {
       active: false,
       content: "",
@@ -74,6 +75,8 @@ vi.mock("@state/app.svelte.js", () => ({
       abort_controller: null,
       text: "",
       nodeId: null,
+      errored: false,
+      errored_node_id: null,
     },
   },
 }));

@@ -230,7 +230,10 @@ export const llm_service = {
       }
       return result;
     } catch (err) {
-      if (!options.silent) app.end_stream(); // Always end stream on error to prevent locking
+      if (!options.silent) {
+        app.signal_stream_error(payload.node_id);
+        app.end_stream(); // Always end stream on error to prevent locking
+      }
       if (options.silent) {
         console.warn("[llm_service] Silent generation error (suppressed):", err);
         throw err;
