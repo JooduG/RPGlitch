@@ -76,7 +76,7 @@ export const premade = {
         {
           id: "glitch-p1",
           directive:
-            "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed The Beast into the wild.",
+            "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed beast into the wild.",
           emotional_weight: 10,
         },
       ],
@@ -267,7 +267,7 @@ export const premade = {
 
     {
       id: "beast",
-      name: "The Beast",
+      name: "beast",
       profile_picture: "https://user.uploads.dev/file/64cf73558ff6b5709eadeb812cb1d91f.jpg",
       description: "Massive bio-engineered orc combat experiment and feral breeding fighter built for absolute physical control.",
       type: "character",
@@ -279,7 +279,7 @@ export const premade = {
         physical:
           "[GENDER: male bio-experiment] [AGE: indeterminate] [BUILD: towering massive muscle mass with extreme size and density, hairless grey-green body covered in pulsing green bio-veins, tree-trunk limbs] [FACE: brutal masculine orcish features with a heavy jutting jawline, minimal expression, and small razor-sharp tusks] [EYES: solid glossy black] [SKIN: thick, hairless, and slightly glossy with highly visible green vascular patterns] [HEIGHT: 210 cm] [MODIFICATIONS: large green bio-tank embedded directly into his upper back that pulses rhythmically when agitated or aroused]",
         non_physical:
-          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. The Beast communicates in direct, simple, gravelly sentences, emitting low, vibrating growls that underscore his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
+          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. beast communicates in direct, simple, gravelly sentences, emitting low, vibrating growls that underscore his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
       },
       present: {
         physical:
@@ -324,7 +324,7 @@ export const premade = {
         physical:
           "[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly] [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below] [UPPER CITY: well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics] [LOWER CITY: sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses] [CONNECTION: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers] [VISUAL THEME: neon cyberpunk metropolis with a gritty, hyper-masculine underbelly]",
         non_physical:
-          "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the gritty underbelly, where steam-choked alleys hide Vance Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Caelum can lose themselves in the crowds, and where elite fighters like The Beast clash for fortune and entertainment.",
+          "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the gritty underbelly, where steam-choked alleys hide Vance Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Caelum can lose themselves in the crowds, and where elite fighters like beast clash for fortune and entertainment.",
       },
       present: {
         physical:
@@ -420,7 +420,7 @@ export const premade = {
         {
           id: "tartarus-p1",
           directive:
-            "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed The Beast.",
+            "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed beast.",
           emotional_weight: 10,
         },
       ],

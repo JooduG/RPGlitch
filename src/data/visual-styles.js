@@ -372,4 +372,26 @@ export const VISUAL_STYLES = {
       "<VISUAL_ENGINE>\n<medium>delicate watercolor painting, wet-on-wet technique</medium>\n<palette>soft translucent washes, bleeding pigment edges, pastel undertones with granulating textures</palette>\n<composition>fluid organic framing, gentle vignetting, soft negative space balance</composition>\n<texture>cold-press paper grain texture visible through washes, pooling water marks, dry brush accents</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "photograph, 3d render, sharp hard edges, digital, vector, cel_shaded, camera lens, heavy oil impasto",
   },
+
+  pop_art: {
+    id: "pop_art",
+    label: "Pop Art",
+    concept:
+      "A bold Ben-Day dot speech bubble framing an explosive action starburst, glowing with primary yellow, vibrant magenta, and electric cyan rim lighting.",
+    prompt:
+      "A sleek dark UI style selector icon representing Pop Art style, 24x24 pixel grid layout, centered composition. Isolated on a dark obsidian slate tile canvas (#0D0E12). A bold speech bubble filled with a Ben-Day dot halftone pattern framing an explosive action starburst motif, glowing with bright primary yellow, vibrant magenta, and electric cyan rim lighting. Clean geometric vector paths, emissive pop art line art, subtle atmospheric depth, polished dark mode UI asset token, game icon design.",
+    negativePrompt:
+      "white background, light background, bright background, realistic photo, subtle muted pastel wash, dark moody gothic, photorealistic skin, blurry lines, noisy camera grain, heavy drop shadows",
+  },
+
+  fashion_magazine: {
+    id: "fashion_magazine",
+    label: "Fashion Magazine",
+    concept:
+      "A sleek high-fashion mannequin profile framed by crisp editorial typographic layout guides, glowing with opulent champagne gold, platinum white, and deep rose rim lighting.",
+    prompt:
+      "A sleek dark UI style selector icon representing Fashion Magazine style, 24x24 pixel grid layout, centered composition. Isolated on a dark obsidian slate tile canvas (#0D0E12). A sleek high-fashion mannequin profile framed by crisp editorial typographic layout guides, glowing with opulent champagne gold, platinum white, and deep rose rim lighting. Clean geometric vector paths, emissive high-fashion line art, sleek editorial aesthetic, subtle atmospheric depth, polished dark mode UI asset token, game icon design.",
+    negativePrompt:
+      "white background, light background, bright background, rugged grunge texture, cartoon comic dots, photorealistic human skin pores, sketchy pencil lines, noisy camera grain, heavy drop shadows",
+  },
 };

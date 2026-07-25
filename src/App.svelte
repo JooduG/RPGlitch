@@ -319,7 +319,7 @@
         <Skeleton variant="card" width="100%" height="100%" />
       {:else if app.view === "storymode"}
         <div
-          class="flex h-full w-full flex-col items-center justify-center gap-gap-standard p-2 pt-0 transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
+          class="flex h-full w-full flex-col items-center justify-center gap-gap-standard pt-0 transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
         >
           <div
             class="flex w-full items-center justify-center"
@@ -353,7 +353,7 @@
               }}
             />
           </div>
-          <StyleBadges entity={app.selected_fractal} layout="storymode" class="flex justify-center gap-1.5" />
+          <StyleBadges entity={app.selected_fractal} layout="storymode" class="flex justify-center gap-gap-standard" />
         </div>
       {:else}
         <div
