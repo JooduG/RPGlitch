@@ -7,7 +7,7 @@
    */
   import { tick } from "svelte";
   import { click_outside } from "@actions";
-  import { Backdrop, Button, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
+  import { Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
   import { db, stories } from "@data";
   import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
@@ -21,9 +21,7 @@
   // --- CORE VIEW ENGINE STATE ---
   let models_ready = $derived(app.models_ready);
   let ready_to_begin = $derived(app.is_ready && models_ready);
-  let label_text = $derived(
-    !models_ready ? `DOWNLOADING (${app.models_progress}%)` : ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`,
-  );
+  let label_text = $derived(ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`);
 
   // --- STORYMODE CONSOLE STATE ---
   let value = $state("");
@@ -755,26 +753,30 @@
           </svg>
         </Button>
 
-        <Button
-          class="group touch-target-coarse"
-          data-ready={ready_to_begin}
-          variant="invisible"
-          busy={!ready_to_begin}
-          disabled={app.control_panel_open || !models_ready}
-          onclick={storyboard.begin}
-          actions={[pulse]}
-        >
-          <h6
-            class="m-0 tracking-widest transition-all duration-300 {ready_to_begin
-              ? 'group-hover:scale-105 group-hover:brightness-125'
-              : 'text-slate-400 opacity-80'}"
-            style={ready_to_begin
-              ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
-              : undefined}
+        {#if !models_ready}
+          <ProgressBar value={app.models_progress} class="flex-1" />
+        {:else}
+          <Button
+            class="group touch-target-coarse"
+            data-ready={ready_to_begin}
+            variant="invisible"
+            busy={!ready_to_begin}
+            disabled={app.control_panel_open}
+            onclick={storyboard.begin}
+            actions={[pulse]}
           >
-            {label_text}
-          </h6>
-        </Button>
+            <h6
+              class="m-0 tracking-widest transition-all duration-300 {ready_to_begin
+                ? 'group-hover:scale-105 group-hover:brightness-125'
+                : 'text-slate-400 opacity-80'}"
+              style={ready_to_begin
+                ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
+                : undefined}
+            >
+              {label_text}
+            </h6>
+          </Button>
+        {/if}
 
         <Button
           flank={true}
