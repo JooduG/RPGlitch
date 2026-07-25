@@ -299,6 +299,21 @@ export const getRpgList = (key) => {
 };
 
 /**
+ * Derives up to 3 uppercase initials from a style name.
+ * @param {string} name - Style display name
+ * @returns {string}
+ */
+export function get_style_initials(name) {
+  if (!name || name === "No Narrative Style" || name === "No Visual Style") return "?";
+  return name
+    .split(/[\s_-]+/)
+    .map((w) => w.charAt(0))
+    .join("")
+    .slice(0, 3)
+    .toUpperCase();
+}
+
+/**
  * Derives a punchy single-line header title from directive text.
  * @param {string} text - Raw directive text
  * @param {number} [maxLen=38] - Target maximum length

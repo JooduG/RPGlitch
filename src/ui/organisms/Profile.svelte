@@ -13,16 +13,7 @@
   import { app, runtime, simulationState } from "@state";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
-
-  const get_style_initials = (name) => {
-    if (!name || name === "No Narrative Style") return "?";
-    return name
-      .split(/[\s_-]+/)
-      .map((w) => w.charAt(0))
-      .join("")
-      .slice(0, 3)
-      .toUpperCase();
-  };
+  import { get_style_initials } from "@utils";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -72,6 +63,7 @@
     .map((style) => ({
       value: style.id,
       label: style.name,
+      portrait: style.portrait,
       tag: style.description,
       tooltip: style.description,
     }));
@@ -454,10 +446,19 @@
                     {@const vname = selected_item?.label || "No Visual Style"}
                     {@const vfontsize = vname.length > 12 ? "text-[8px]" : vname.length > 8 ? "text-[9px]" : "text-[10px]"}
                     <div
-                      class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] p-1 text-center font-heading {vfontsize} leading-tight font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
+                      class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-tight font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
                       style="background-color: {signature_color};"
                     >
-                      {vname}
+                      {#if selected_item?.portrait}
+                        <img
+                          src={selected_item.portrait}
+                          alt={selected_item.label}
+                          class="h-full w-full object-cover object-center"
+                          draggable="false"
+                        />
+                      {:else}
+                        {vname}
+                      {/if}
                     </div>
 
                     {#if profileState.is_editing}
