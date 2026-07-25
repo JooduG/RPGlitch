@@ -23,7 +23,7 @@ export const VISUAL_STYLES = {
   none: {
     id: "none",
     name: "No Visual Style",
-    portrait: "/assets/styles/none.webp",
+    portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Raw prompt generation without any visual style tokens or negative prompts injected.",
     tags: ["none", "raw", "unmodified"],
     visual_engine: "",
@@ -33,7 +33,7 @@ export const VISUAL_STYLES = {
   amateur_snap: {
     id: "amateur_snap",
     name: "Amateur Smartphone Snap",
-    portrait: "/assets/styles/amateur_snap.webp",
+    portrait: "https://user.uploads.dev/file/0bb4f7bd1737684ea227e701d3566c5e.png",
     description:
       "Raw everyday smartphone camera shot featuring accidental direct flash glare, candid mirror selfies, awkward angles, and unposed social media realism.",
     tags: ["amateur", "iphone", "snapshot", "mirror_selfie", "candid", "flash_photo", "raw"],
@@ -46,7 +46,7 @@ export const VISUAL_STYLES = {
   anime: {
     id: "anime",
     name: "Anime",
-    portrait: "/assets/styles/anime.webp",
+    portrait: "https://user.uploads.dev/file/293e5b0c1e675dd32d6f0eb968a47e50.png",
     description: "Vibrant cel-shaded anime art style with clean line work, expressive key framing, and stylized proportions.",
     tags: ["anime", "cel_shading", "illustration", "2d", "stylized"],
     visual_engine:
@@ -57,7 +57,7 @@ export const VISUAL_STYLES = {
   blueprint: {
     id: "blueprint",
     name: "Architectural Blueprint",
-    portrait: "/assets/styles/blueprint.webp",
+    portrait: "https://user.uploads.dev/file/b531d8e2c49c83e7fcd7625abceeedd5.png",
     description: "Technical drafting schematic featuring crisp white vector lines, dimension markings, and grid lines on deep cyanotype blue paper.",
     tags: ["blueprint", "technical", "cad", "drafting", "schematic", "architectural"],
     visual_engine:
@@ -68,7 +68,7 @@ export const VISUAL_STYLES = {
   cgi_animation: {
     id: "cgi_animation",
     name: "3D CGI Animation",
-    portrait: "/assets/styles/cgi_animation.webp",
+    portrait: "https://user.uploads.dev/file/27615c2c471da91f2052c4505a945053.png",
     description: "Stylized 3D animated movie aesthetic with soft subsurface scattering, expressive character lighting, and polished studio warmth.",
     tags: ["cgi", "animation", "3d", "stylized", "pixar"],
     visual_engine:
@@ -79,7 +79,7 @@ export const VISUAL_STYLES = {
   charcoal_sketch: {
     id: "charcoal_sketch",
     name: "Charcoal & Graphite",
-    portrait: "/assets/styles/charcoal_sketch.webp",
+    portrait: "https://user.uploads.dev/file/5658673d879658c2dd722fdf1791f688.png",
     description: "Raw charcoal and graphite study with dramatic chiaroscuro, gestural strokes, smudged shading, and heavy paper texture.",
     tags: ["charcoal", "sketch", "graphite", "monochrome", "drawing", "chiaroscuro"],
     visual_engine:
@@ -90,7 +90,7 @@ export const VISUAL_STYLES = {
   claymation: {
     id: "claymation",
     name: "Claymation & Stop-Motion",
-    portrait: "/assets/styles/claymation.webp",
+    portrait: "https://user.uploads.dev/file/1be495044d258e39e940aa68eaa04c5f.png",
     description: "Tactile stop-motion plasticine animation style with visible thumbprints, miniature set depth, and soft physical lighting.",
     tags: ["claymation", "stop_motion", "clay", "tactile", "sculpture", "animation"],
     visual_engine:
@@ -101,7 +101,7 @@ export const VISUAL_STYLES = {
   comic_book: {
     id: "comic_book",
     name: "Comic Book",
-    portrait: "/assets/styles/comic_book.webp",
+    portrait: "https://user.uploads.dev/file/861133eb1b50d4e3c957c0e8402ea5f2.png",
     description: "Bold graphic novel artwork featuring heavy black ink outlines, halftone dot shading, and high-contrast dynamic framing.",
     tags: ["comic_book", "ink", "graphic_novel", "halftone", "bold"],
     visual_engine:
@@ -112,7 +112,7 @@ export const VISUAL_STYLES = {
   cyberpunk: {
     id: "cyberpunk",
     name: "Cyberpunk",
-    portrait: "/assets/styles/cyberpunk.webp",
+    portrait: "https://user.uploads.dev/file/643e256027b322312bea15c98e3f937e.png",
     description: "Neon-soaked dystopian aesthetic with wet rain-slicked asphalt, holographic interfaces, and high-tech urban grime.",
     tags: ["cyberpunk", "neon", "scifi", "dystopian", "chrome"],
     visual_engine:
@@ -123,7 +123,7 @@ export const VISUAL_STYLES = {
   dark_fantasy: {
     id: "dark_fantasy",
     name: "Dark Fantasy",
-    portrait: "/assets/styles/dark_fantasy.webp",
+    portrait: "https://user.uploads.dev/file/9d94edf2d5b3a1964d38faddb22f7537.png",
     description: "Grim dark fantasy art with eldritch atmospheres, ominous gothic architecture, desaturated color tones, and deep shadow play.",
     tags: ["dark_fantasy", "gothic", "eldritch", "ominous", "shadow"],
     visual_engine:
@@ -134,7 +134,7 @@ export const VISUAL_STYLES = {
   disney_2d_classic: {
     id: "disney_2d_classic",
     name: "Classic 2D Animation",
-    portrait: "/assets/styles/disney_2d_classic.webp",
+    portrait: "https://user.uploads.dev/file/ab3d3721f029e356d540c524df0d876d.png",
     description:
       "Golden-age hand-drawn 2D animation featuring ink-and-paint character cels, fluid expressive draftsmanship, painterly gouache backgrounds, and fairytale warmth.",
     tags: ["disney", "2d", "classic_animation", "hand_drawn", "cel_art", "vintage_animation", "fairytale"],
@@ -144,10 +144,23 @@ export const VISUAL_STYLES = {
       "3d render, cgi, photorealistic, raw photograph, sharp digital vector, modern 3d animation, low poly, noisy, anime cel shading, cyberpunk",
   },
 
+  fashion_magazine: {
+    id: "fashion_magazine",
+    name: "Fashion Magazine",
+    portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
+    description:
+      "Sleek high-fashion editorial aesthetic with crisp typographic layout guides, opulent champagne gold and platinum tones, and dramatic studio rim lighting.",
+    tags: ["fashion", "editorial", "magazine", "glamour", "high_fashion"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>high-fashion editorial photography, magazine cover shoot</medium>\n<palette>opulent champagne gold, platinum white, deep rose, dramatic studio rim lighting</palette>\n<camera>85mm fashion editorial lens, crisp studio key light, polished beauty dish lighting</camera>\n<texture>sleek polished editorial print quality, crisp high-fashion detail, flawless editorial finish</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "white background, light background, bright background, rugged grunge texture, cartoon comic dots, photorealistic human skin pores, sketchy pencil lines, noisy camera grain, heavy drop shadows",
+  },
+
   film_noir: {
     id: "film_noir",
     name: "Film Noir",
-    portrait: "/assets/styles/film_noir.webp",
+    portrait: "https://user.uploads.dev/file/26f37e3915eaabab9248491fc3687f2e.png",
     description:
       "Classic 1940s detective cinema aesthetic featuring high-contrast black and white, hard chiaroscuro shadows, and venetian blind light beams.",
     tags: ["film_noir", "monochrome", "detective", "1940s", "shadows"],
@@ -159,7 +172,7 @@ export const VISUAL_STYLES = {
   ink_sketch: {
     id: "ink_sketch",
     name: "Ink & Line Art",
-    portrait: "/assets/styles/ink_sketch.webp",
+    portrait: "https://user.uploads.dev/file/1f4f30768cf1b5b17226f698bdbd72b6.png",
     description: "Detailed monochrome ink drawing with fine nib pen lines, dense crosshatching, stippling, and classical engraving feel.",
     tags: ["ink", "line_art", "sketch", "monochrome", "crosshatching", "drawing"],
     visual_engine:
@@ -170,7 +183,7 @@ export const VISUAL_STYLES = {
   isometric_3d: {
     id: "isometric_3d",
     name: "Isometric 3D / Low-Poly",
-    portrait: "/assets/styles/isometric_3d.webp",
+    portrait: "https://user.uploads.dev/file/5e3cdfcde02ff1d1d9c2c5f0588dd4ae.png",
     description: "Clean orthographic 3D vector aesthetic with geometric low-poly models, soft ambient occlusion, and vibrant flat shading.",
     tags: ["isometric", "low_poly", "vector", "3d", "orthographic", "game_art"],
     visual_engine:
@@ -181,7 +194,7 @@ export const VISUAL_STYLES = {
   notebook_doodle: {
     id: "notebook_doodle",
     name: "Notebook Doodle",
-    portrait: "/assets/styles/notebook_doodle.webp",
+    portrait: "https://user.uploads.dev/file/34dc78c445a2749a4cc1dff08db37033.png",
     description:
       "Casual ballpoint pen and marker doodles drawn in notebook margins, featuring quirky line art, ink bleeds, scribbled shading, and spontaneous hand-drawn energy.",
     tags: ["doodle", "sketch", "notebook", "scribble", "margin_art", "casual", "hand_drawn"],
@@ -194,7 +207,7 @@ export const VISUAL_STYLES = {
   oil_painting: {
     id: "oil_painting",
     name: "Oil Painting",
-    portrait: "/assets/styles/oil_painting.webp",
+    portrait: "https://user.uploads.dev/file/29d4709051646f4e5bffbbd0f34e2048.png",
     description: "Classical fine art oil painting with thick impasto brushwork, layered glazes, rich chiaroscuro, and luminous depth.",
     tags: ["oil_painting", "classical", "impasto", "traditional", "baroque"],
     visual_engine:
@@ -202,10 +215,22 @@ export const VISUAL_STYLES = {
     negative_prompt: "photograph, digital, smooth, flat, cel_shaded, anime, vector, camera lens, 3d render",
   },
 
+  papercraft: {
+    id: "papercraft",
+    name: "Papercraft",
+    portrait: "https://user.uploads.dev/file/db3cb7104f2da620eccc08dc5f535988.png",
+    description:
+      "Layered cut paper art diorama with tactile construction paper textures, dimensional depth stacking, and soft cast shadows between paper layers.",
+    tags: ["papercraft", "paper", "cut_paper", "origami", "diorama", "tactile", "layered"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>layered papercraft illustration, cut paper art diorama</medium>\n<palette>flat colored construction paper layers, soft pastel tones, gentle gradient paper shades</palette>\n<composition>layered depth stacking, dimensional paper cut framing, theatrical diorama perspective</composition>\n<texture>visible paper grain, cut edge drop shadows, layered depth separation, tactile fibrous paper surfaces</texture>\n</VISUAL_ENGINE>",
+    negative_prompt: "photograph, 3d render, smooth glossy surfaces, digital painting, photorealistic, metallic textures, glass, plastic, cel_shaded",
+  },
+
   photorealism: {
     id: "photorealism",
     name: "RAW Photography",
-    portrait: "/assets/styles/photorealism.webp",
+    portrait: "https://user.uploads.dev/file/f3cf9efe77281754064a6629e354d799.png",
     description: "Unfiltered commercial photography captured with high-end medium format optics, natural dynamic range, and rich micro-textures.",
     tags: ["photography", "realistic", "default", "raw", "lifelike", "hasselblad"],
     visual_engine:
@@ -216,7 +241,7 @@ export const VISUAL_STYLES = {
   pixel_art: {
     id: "pixel_art",
     name: "Pixel Art",
-    portrait: "/assets/styles/pixel_art.webp",
+    portrait: "https://user.uploads.dev/file/87f3a245a478d2bdfeb284e5d8a83327.png",
     description: "Retro 16-bit video game sprite aesthetic featuring a limited color palette, crisp blocky pixel grids, and dithered shading.",
     tags: ["pixel_art", "retro", "16bit", "dithered", "indie_game"],
     visual_engine:
@@ -224,10 +249,23 @@ export const VISUAL_STYLES = {
     negative_prompt: "photograph, realistic, smooth, anti-aliased, high resolution, 3d render, oil painting, camera lens, vector",
   },
 
+  pop_art: {
+    id: "pop_art",
+    name: "Pop Art",
+    portrait: "https://user.uploads.dev/file/8859b844589de004573bac55fd49f96e.png",
+    description:
+      "Bold Ben-Day dot pop art with explosive action starbursts, primary yellow, vibrant magenta, and electric cyan in a comic-inspired graphic style.",
+    tags: ["pop_art", "ben_day", "halftone", "bold", "graphic", "warhol", "lichtenstein"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>bold pop art illustration, Ben-Day dot halftone print</medium>\n<palette>primary yellow, vibrant magenta, electric cyan, bold flat primary color blocks</palette>\n<composition>dynamic action starburst framing, comic speech bubble layout, graphic poster composition</composition>\n<texture>Ben-Day dot halftone patterns, thick black ink outlines, flat opaque color blocks, newsprint dot screen</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "white background, light background, bright background, realistic photo, subtle muted pastel wash, dark moody gothic, photorealistic skin, blurry lines, noisy camera grain, heavy drop shadows",
+  },
+
   pulp_illustration: {
     id: "pulp_illustration",
     name: "Retro Pulp Cover",
-    portrait: "/assets/styles/pulp_illustration.webp",
+    portrait: "https://user.uploads.dev/file/a166f0706f17833ab3990b791d9937ab.png",
     description:
       "Vivid 1950s fantasy and sci-fi paperback book illustration featuring dramatic gouache brushwork, high-strung theatrical staging, and saturated pulp action tones.",
     tags: ["pulp", "retro", "50s", "paperback", "sci-fi", "fantasy", "gouache"],
@@ -239,7 +277,7 @@ export const VISUAL_STYLES = {
   retro_synthwave: {
     id: "retro_synthwave",
     name: "Retro Synthwave",
-    portrait: "/assets/styles/retro_synthwave.webp",
+    portrait: "https://user.uploads.dev/file/f2150b87f7133e099c38bbe384a7eaa1.png",
     description: "1980s retro-futuristic outrun visual style with neon grid horizons, wireframe sunsets, chrome surfaces, and CRT scan lines.",
     tags: ["synthwave", "retro", "80s", "neon", "vaporwave", "outrun"],
     visual_engine:
@@ -250,7 +288,7 @@ export const VISUAL_STYLES = {
   risograph: {
     id: "risograph",
     name: "Risograph Print",
-    portrait: "/assets/styles/risograph.webp",
+    portrait: "https://user.uploads.dev/file/cc3c346e67befef2962db45f388fdbf8.png",
     description: "Tactile spot-color print aesthetic featuring overlapping vivid inks, subtle registration misalignment, and dithered paper texture.",
     tags: ["risograph", "printmaking", "retro", "dithered", "tactile", "spot_color"],
     visual_engine:
@@ -261,7 +299,7 @@ export const VISUAL_STYLES = {
   stained_glass: {
     id: "stained_glass",
     name: "Stained Glass",
-    portrait: "/assets/styles/stained_glass.webp",
+    portrait: "https://user.uploads.dev/file/b24924f2fd7d826540b4f2757dad7767.png",
     description: "Gothic cathedral stained glass artwork with backlit translucent jewel-toned glass panels and dark lead came borders.",
     tags: ["stained_glass", "gothic", "mosaic", "glass", "backlit", "artisan"],
     visual_engine:
@@ -272,7 +310,7 @@ export const VISUAL_STYLES = {
   steampunk: {
     id: "steampunk",
     name: "Steampunk & Dieselpunk",
-    portrait: "/assets/styles/steampunk.webp",
+    portrait: "https://user.uploads.dev/file/0f48e8943d5dac6f533b24fa46cc98e3.png",
     description: "Victorian industrial retro-futurism featuring polished brass machinery, copper piping, exposed clockwork gears, and steam vents.",
     tags: ["steampunk", "dieselpunk", "industrial", "brass", "retro_futurism"],
     visual_engine:
@@ -283,7 +321,7 @@ export const VISUAL_STYLES = {
   studio_ghibli: {
     id: "studio_ghibli",
     name: "Studio Ghibli",
-    portrait: "/assets/styles/studio_ghibli.webp",
+    portrait: "https://user.uploads.dev/file/4aaf95f0ba916c7498c960abb4ecd87e.png",
     description: "Warm hand-painted animation style with lush scenic landscapes, soft watercolor wash backgrounds, and nostalgic warmth.",
     tags: ["studio_ghibli", "anime", "hand_painted", "nostalgic", "whimsical"],
     visual_engine:
@@ -294,7 +332,7 @@ export const VISUAL_STYLES = {
   surrealism: {
     id: "surrealism",
     name: "Surrealism",
-    portrait: "/assets/styles/surrealism.webp",
+    portrait: "https://user.uploads.dev/file/fda4ab3f0b48de1fea481d4a8987d8aa.png",
     description: "Dreamlike surrealist painting blending impossible physical geometries, distorted melting perspectives, and subconscious symbolism.",
     tags: ["surrealism", "dreamlike", "abstract", "symbolic", "subconscious"],
     visual_engine:
@@ -305,7 +343,7 @@ export const VISUAL_STYLES = {
   three_d_render: {
     id: "three_d_render",
     name: "3D Render (UE5)",
-    portrait: "/assets/styles/three_d_render.webp",
+    portrait: "https://user.uploads.dev/file/bffd329357dc15037b5af9d2a7dbb45f.png",
     description:
       "High-concept 3D scene powered by Unreal Engine 5 optics, featuring ray-traced global illumination, physically based materials, and ambient occlusion.",
     tags: ["3d_render", "ue5", "unreal_engine", "cgi", "raytracing"],
@@ -317,7 +355,7 @@ export const VISUAL_STYLES = {
   ukiyo_e: {
     id: "ukiyo_e",
     name: "Ukiyo-e Woodblock Print",
-    portrait: "/assets/styles/ukiyo_e.webp",
+    portrait: "https://user.uploads.dev/file/c6978746b0f5ae93937c7890fced148c.png",
     description:
       "Traditional Edo-period Japanese woodblock print featuring organic sumi-e ink contours, flat mineral pigments, and subtle wood grain impressions.",
     tags: ["ukiyo_e", "japanese", "woodblock", "traditional", "print", "hokusai"],
@@ -329,7 +367,7 @@ export const VISUAL_STYLES = {
   vaporwave: {
     id: "vaporwave",
     name: "Vaporwave",
-    portrait: "/assets/styles/vaporwave.webp",
+    portrait: "https://user.uploads.dev/file/f31d7e4611a4d561bfe3becf3404b9dd.png",
     description:
       "Nostalgic 1990s digital collage blending pastel cyan and magenta gradients, classical marble statues, glitch artifacts, and early web aesthetic.",
     tags: ["vaporwave", "90s", "pastel", "glitch", "aesthetic", "lofi"],
@@ -341,7 +379,7 @@ export const VISUAL_STYLES = {
   vhs_found_footage: {
     id: "vhs_found_footage",
     name: "VHS Found Footage",
-    portrait: "/assets/styles/vhs_found_footage.webp",
+    portrait: "https://user.uploads.dev/file/644012b0a426a455889d5a8881d69e72.png",
     description:
       "Low-fi 1990s analog camcorder video capture with magnetic tracking distortion, chromatic edge bleeding, scanlines, and gritty security tape realism.",
     tags: ["vhs", "found_footage", "90s", "analog_horror", "camcorder", "retro", "lofi"],
@@ -353,7 +391,7 @@ export const VISUAL_STYLES = {
   vintage_analog: {
     id: "vintage_analog",
     name: "Vintage 35mm Film",
-    portrait: "/assets/styles/vintage_analog.webp",
+    portrait: "https://user.uploads.dev/file/c7f758d7f2997cf541d721fb428e77cf.png",
     description: "Authentic 35mm film photo with warm Kodak Portra saturation, organic grain structure, soft lens fall-off, and subtle light leaks.",
     tags: ["analog", "35mm", "vintage", "film", "retro", "photography"],
     visual_engine:
@@ -364,34 +402,12 @@ export const VISUAL_STYLES = {
   watercolor: {
     id: "watercolor",
     name: "Watercolor",
-    portrait: "/assets/styles/watercolor.webp",
+    portrait: "https://user.uploads.dev/file/115456547820baafccc89970b7c5fb7a.png",
     description:
       "Delicate watercolor painting featuring soft wet-on-wet washes, pigment diffusion bleeding, granulating textures, and translucent layering.",
     tags: ["watercolor", "painting", "organic", "soft", "translucent"],
     visual_engine:
       "<VISUAL_ENGINE>\n<medium>delicate watercolor painting, wet-on-wet technique</medium>\n<palette>soft translucent washes, bleeding pigment edges, pastel undertones with granulating textures</palette>\n<composition>fluid organic framing, gentle vignetting, soft negative space balance</composition>\n<texture>cold-press paper grain texture visible through washes, pooling water marks, dry brush accents</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "photograph, 3d render, sharp hard edges, digital, vector, cel_shaded, camera lens, heavy oil impasto",
-  },
-
-  pop_art: {
-    id: "pop_art",
-    label: "Pop Art",
-    concept:
-      "A bold Ben-Day dot speech bubble framing an explosive action starburst, glowing with primary yellow, vibrant magenta, and electric cyan rim lighting.",
-    prompt:
-      "A sleek dark UI style selector icon representing Pop Art style, 24x24 pixel grid layout, centered composition. Isolated on a dark obsidian slate tile canvas (#0D0E12). A bold speech bubble filled with a Ben-Day dot halftone pattern framing an explosive action starburst motif, glowing with bright primary yellow, vibrant magenta, and electric cyan rim lighting. Clean geometric vector paths, emissive pop art line art, subtle atmospheric depth, polished dark mode UI asset token, game icon design.",
-    negativePrompt:
-      "white background, light background, bright background, realistic photo, subtle muted pastel wash, dark moody gothic, photorealistic skin, blurry lines, noisy camera grain, heavy drop shadows",
-  },
-
-  fashion_magazine: {
-    id: "fashion_magazine",
-    label: "Fashion Magazine",
-    concept:
-      "A sleek high-fashion mannequin profile framed by crisp editorial typographic layout guides, glowing with opulent champagne gold, platinum white, and deep rose rim lighting.",
-    prompt:
-      "A sleek dark UI style selector icon representing Fashion Magazine style, 24x24 pixel grid layout, centered composition. Isolated on a dark obsidian slate tile canvas (#0D0E12). A sleek high-fashion mannequin profile framed by crisp editorial typographic layout guides, glowing with opulent champagne gold, platinum white, and deep rose rim lighting. Clean geometric vector paths, emissive high-fashion line art, sleek editorial aesthetic, subtle atmospheric depth, polished dark mode UI asset token, game icon design.",
-    negativePrompt:
-      "white background, light background, bright background, rugged grunge texture, cartoon comic dots, photorealistic human skin pores, sketchy pencil lines, noisy camera grain, heavy drop shadows",
   },
 };
