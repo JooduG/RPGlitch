@@ -22,6 +22,15 @@ vi.mock("@intelligence/prompts.js", () => ({
   },
 }));
 
+vi.mock("@intelligence/embeddings.svelte.js", () => ({
+  ensure_embedding: vi.fn(async (v) => {
+    v._embedding = new Float32Array(384);
+    return v._embedding;
+  }),
+  ensure_embeddings: vi.fn(async () => {}),
+  score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
+}));
+
 describe("temporal_engine", () => {
   beforeEach(() => {
     vi.useFakeTimers();
@@ -53,11 +62,11 @@ describe("temporal_engine", () => {
   });
 
   describe("score", () => {
-    it("calculates relevance with dynamics and tag bonuses", () => {
+    it("calculates relevance with emotional weight and tag fallback", () => {
       const entries = [
         {
           id: "t1",
-          timestamp: 100,
+          timestamp: Date.now(),
           directive: "A",
           type: "past",
           emotional_weight: 5,
@@ -68,8 +77,8 @@ describe("temporal_engine", () => {
 
       const scored = temporal_engine.score(entries, "Iron kiss");
 
-      // Base (5) + Vector Tag (3) = 8
-      const expected = 5 + 3;
+      // emotional_weight (5) × (1 + tag_fallback (1 × 0.15)) × recency (1.0) = 5.75
+      const expected = 5 * (1 + 0.15) * 1.0;
 
       expect(scored[0]._relevance).toBe(expected);
     });
@@ -144,7 +153,7 @@ describe("temporal_engine", () => {
         {
           id: "p1",
           timestamp: 100,
-          directive: "Core memory",
+          directive: "Core memory about dragons",
           type: "past",
           emotional_weight: 10,
           tags: [],
@@ -153,7 +162,7 @@ describe("temporal_engine", () => {
         {
           id: "p2",
           timestamp: 200,
-          directive: "Major memory",
+          directive: "Major memory of battle",
           type: "past",
           emotional_weight: 8,
           tags: [],
@@ -162,7 +171,7 @@ describe("temporal_engine", () => {
         {
           id: "p3",
           timestamp: 300,
-          directive: "Minor memory",
+          directive: "Minor memory of weather",
           type: "past",
           emotional_weight: 4,
           tags: [],
@@ -170,11 +179,11 @@ describe("temporal_engine", () => {
         },
       ];
 
-      const result = temporal_engine.format(past, "", { mode: "past" });
+      const result = temporal_engine.format(past, "");
 
-      expect(result).toContain("Core memory");
-      expect(result).toContain("Major memory");
-      expect(result).toContain("Minor memory");
+      expect(result).toContain("Core memory about dragons");
+      expect(result).toContain("Major memory of battle");
+      expect(result).toContain("Minor memory of weather");
     });
 
     it("labels future entries as impulses", () => {
@@ -190,7 +199,7 @@ describe("temporal_engine", () => {
         },
       ];
 
-      const result = temporal_engine.format(future, "", { mode: "future" });
+      const result = temporal_engine.format(future, "");
 
       expect(result).toContain("Prophecy");
     });

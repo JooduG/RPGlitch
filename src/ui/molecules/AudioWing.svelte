@@ -161,7 +161,6 @@
         label="Select Voice"
         uppercase={false}
         matchWidth
-        dropdownHeight="max-h-64"
         trigger_class="
           group/trigger
           inline-flex

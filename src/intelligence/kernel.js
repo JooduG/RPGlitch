@@ -206,6 +206,7 @@ export const gamemaster = {
       // 1. CHRONO: Round management
       temporal_engine.ensure_momentum(runtime, app);
       runtime.turn_type = "SYSTEM_TURN";
+      temporal_engine.set_round(runtime.round);
 
       // 2. HYDRATION: Fetch history and hydrate context
       const raw_messages = await session_driver.load_log(story_id);

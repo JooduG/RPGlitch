@@ -44,8 +44,8 @@ export const checkRefusal = (text) => {
  * @returns {Promise<boolean>} - Resolves if valid, throws error otherwise.
  */
 export const validateImage = async (file, options = {}) => {
-  const maxSize = /** @type {any} */ (options).maxSize ?? 5 * 1024 * 1024; // Default 5MB
-  const allowedTypes = /** @type {any} */ (options).allowedTypes ?? ["image/jpeg", "image/png", "image/webp", "image/gif"];
+  const maxSize = /** @type {any} */ (options).maxSize ?? 25 * 1024 * 1024; // Default 25MB
+  const allowedTypes = /** @type {any} */ (options).allowedTypes ?? ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 
   if (!file) throw new Error("No file provided");
 

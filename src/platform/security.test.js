@@ -195,7 +195,7 @@ describe("validation.js", () => {
     test("should throw error if file is too large", async () => {
       const file = new MockFile([JPEG_HEADER], "large.jpg", {
         type: "image/jpeg",
-        size: 10 * 1024 * 1024,
+        size: 30 * 1024 * 1024,
       });
       await expect(Security.validateImage(file)).rejects.toThrow(/File too large/);
     });

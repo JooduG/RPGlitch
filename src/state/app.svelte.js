@@ -10,7 +10,8 @@ import { generateUUID } from "@engine";
 import { resolve_px } from "@utils";
 import { db, entities, normalize } from "@data";
 import { log as engineLog, guardedTransition } from "@engine";
-import { visual_engine, get_signature_color } from "@media";
+import { visual_engine, get_signature_color, Audio } from "@media";
+import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
 import { simulationState, uiState } from "./status.svelte.js";
 
@@ -191,6 +192,18 @@ export class AppStore {
   // --- READINESS (Derived Logic) ---
   get selected_count() {
     return (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0);
+  }
+  get models_ready() {
+    return embeddings_engine.modelReady && Audio.voice.modelReady;
+  }
+  get models_loading() {
+    return embeddings_engine.isLoading || Audio.voice.isLoading;
+  }
+  get models_progress() {
+    if (this.models_ready) return 100;
+    const embProg = embeddings_engine.modelReady ? 100 : embeddings_engine.loadProgress;
+    const voiceProg = Audio.voice.modelReady ? 100 : Audio.voice.loadProgress;
+    return Math.min(99, Math.round((embProg + voiceProg) / 2));
   }
   get is_ready() {
     return this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);

@@ -1,4 +1,5 @@
 export { context_broker } from "./context.svelte.js";
+export { embeddings_engine } from "./embeddings.svelte.js";
 export { ENTITY_CATALOG, ENTITY_FRAGMENTS, NAME_PREFIXES, PROFILE_SECTIONS_BY_TYPE } from "./fragments.js";
 export { gamemaster } from "./kernel.js";
 export {

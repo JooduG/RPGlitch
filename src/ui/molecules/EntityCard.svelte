@@ -12,7 +12,7 @@
   import { motion } from "@motion";
   import { app } from "@state";
   import { flushSync } from "svelte";
-  import { NARRATIVE_STYLES } from "@data";
+  import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
 
   const get_style_initials = (styleId) => {
     const style = NARRATIVE_STYLES[styleId] || NARRATIVE_STYLES.default;
@@ -522,52 +522,92 @@
     </nav>
   {/if}
 
-  {#if type === "fractal" && entity?.narrative_style && entity.narrative_style !== "default" && variant === "panel"}
-    {@const style_details = NARRATIVE_STYLES[entity.narrative_style]}
-    {#if style_details}
-      <div
-        use:tooltip={{ text: `Narrative Style: ${style_details.name}` }}
-        class="
-          pointer-events-auto
-          absolute
-          top-[clamp(0.25rem,4cqi,0.5rem)]
-          left-[clamp(0.25rem,4cqi,0.5rem)]
-          z-50
-          flex
-          h-[clamp(2rem,18cqi,3rem)]
-          w-[clamp(2rem,18cqi,3rem)]
-          transform-gpu
-          items-center
-          justify-center
-          overflow-hidden
-          rounded-[20%]
-          border
-          border-solid
-          border-(--signature-color)
-          bg-black/40
-          opacity-70
-          shadow-md
-          transition-all
-          duration-300
-          ease-in-out
-          hover:opacity-100
-        "
-      >
-        <div
-          class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-[clamp(0.75rem,8cqi,1.1rem)] font-bold text-white uppercase select-none"
-          style="background-color: {signature_color};"
-        >
-          {#if NARRATIVE_STYLES[entity.narrative_style]?.portrait}
-            <img
-              src={NARRATIVE_STYLES[entity.narrative_style].portrait}
-              alt={NARRATIVE_STYLES[entity.narrative_style].name}
-              class="h-full w-full object-cover object-center"
-              draggable="false"
-            />
-          {:else}
-            {get_style_initials(entity.narrative_style)}
-          {/if}
-        </div>
+  {#if type === "fractal" && variant === "panel"}
+    {@const style_details = entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null}
+    {@const vstyle_details =
+      entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default" ? VISUAL_STYLES[entity.visual_style] : null}
+    {#if style_details || vstyle_details}
+      <div class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5">
+        {#if style_details}
+          <div
+            use:tooltip={{ text: `Narrative Style: ${style_details.name}` }}
+            class="
+              pointer-events-auto
+              relative
+              flex
+              h-[clamp(2rem,18cqi,3rem)]
+              w-[clamp(2rem,18cqi,3rem)]
+              transform-gpu
+              items-center
+              justify-center
+              overflow-hidden
+              rounded-[20%]
+              border
+              border-solid
+              border-(--signature-color)
+              bg-black/40
+              opacity-70
+              shadow-md
+              transition-all
+              duration-300
+              ease-in-out
+              hover:opacity-100
+            "
+          >
+            <div
+              class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-[clamp(0.75rem,8cqi,1.1rem)] font-bold text-white uppercase select-none"
+              style="background-color: {signature_color};"
+            >
+              {#if style_details.portrait}
+                <img src={style_details.portrait} alt={style_details.name} class="h-full w-full object-cover object-center" draggable="false" />
+              {:else}
+                {get_style_initials(entity.narrative_style)}
+              {/if}
+            </div>
+          </div>
+        {/if}
+
+        {#if vstyle_details}
+          {@const vname = vstyle_details.name}
+          {@const vfontsize =
+            vname.length > 12
+              ? "text-[clamp(0.35rem,3.4cqi,0.48rem)]"
+              : vname.length > 8
+                ? "text-[clamp(0.44rem,4.4cqi,0.6rem)]"
+                : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
+          <div
+            use:tooltip={{ text: `Visual Style: ${vstyle_details.name}` }}
+            class="
+              pointer-events-auto
+              relative
+              flex
+              h-[clamp(2rem,18cqi,3rem)]
+              w-[clamp(2rem,18cqi,3rem)]
+              transform-gpu
+              items-center
+              justify-center
+              overflow-hidden
+              rounded-[20%]
+              border
+              border-solid
+              border-(--signature-color)
+              bg-black/40
+              opacity-70
+              shadow-md
+              transition-all
+              duration-300
+              ease-in-out
+              hover:opacity-100
+            "
+          >
+            <div
+              class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] p-0.5 text-center font-heading {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
+              style="background-color: {signature_color};"
+            >
+              {vname}
+            </div>
+          </div>
+        {/if}
       </div>
     {/if}
   {/if}

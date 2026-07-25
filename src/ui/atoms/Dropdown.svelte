@@ -17,7 +17,8 @@
     uppercase = true,
     matchWidth = false,
     dropdownWidth = undefined,
-    dropdownHeight = "max-h-36",
+    dropdownHeight = undefined,
+    rows = 8,
     align = "start",
     trigger_class = "",
     trigger_style = "",
@@ -29,6 +30,9 @@
 
   // Dynamically derive the currently selected item
   const selected_item = $derived(items.find((item) => item.value === value));
+
+  // Compute row-based max height if explicit dropdownHeight is not passed
+  const computed_height = $derived(dropdownHeight || `max-h-[min(70vh,calc(${rows}*3.25rem))]`);
 </script>
 
 <Select.Root type="single" bind:value onValueChange={(val) => onchange?.(val)} {disabled}>
@@ -120,7 +124,7 @@
             class="
               z-max
               flex
-              {dropdownHeight}
+              {computed_height}
               {dropdownWidth ? dropdownWidth : matchWidth ? 'w-(--bits-select-anchor-width)' : 'w-[calc(var(--bits-select-anchor-width)+3.5rem)]'}
               flex-col
                 overflow-hidden

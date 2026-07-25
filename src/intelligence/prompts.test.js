@@ -448,7 +448,7 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
-      expect(result.system).toContain('<STYLE_PROFILE author="anna_zaires">');
+      expect(result.system).toContain('<NARRATIVE_STYLE author="anna_zaires">');
       app.settings.narrative_style = "default";
     });
 
@@ -466,7 +466,7 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
-      expect(result.system).not.toContain("<STYLE_PROFILE");
+      expect(result.system).not.toContain("<NARRATIVE_STYLE");
     });
     it("should prepend author style prompt to render_narrator (prologue) if active", () => {
       app.settings.narrative_style = "william_gibson";
@@ -483,7 +483,7 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, mockSnapshot);
-      expect(result.system).toContain('<STYLE_PROFILE author="william_gibson">');
+      expect(result.system).toContain('<NARRATIVE_STYLE author="william_gibson">');
       app.settings.narrative_style = "default";
     });
 

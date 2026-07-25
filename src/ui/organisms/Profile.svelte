@@ -62,16 +62,22 @@
       value: style.id,
       label: style.name,
       portrait: style.portrait,
-      tag: style.tags ? style.tags.join(", ") : "",
-      tooltip: style.tags ? style.tags.join(", ") : undefined,
+      tag: style.description,
+      tooltip: style.description,
     }));
 
-  const visual_style_options = Object.values(VISUAL_STYLES).map((style) => ({
-    value: style.id,
-    label: style.name,
-    tag: style.tags ? style.tags.join(", ") : "",
-    tooltip: style.description,
-  }));
+  const visual_style_options = Object.values(VISUAL_STYLES)
+    .sort((a, b) => {
+      if (a.id === "none") return -1;
+      if (b.id === "none") return 1;
+      return a.name.localeCompare(b.name);
+    })
+    .map((style) => ({
+      value: style.id,
+      label: style.name,
+      tag: style.description,
+      tooltip: style.description,
+    }));
 
   const has_wings = $derived(!app.transitioning_profile && !profileState.is_packing_up && (profileState.is_editing || app.settings.dev_mode));
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
@@ -372,7 +378,6 @@
                   label="Select Narrative Style"
                   uppercase={false}
                   matchWidth={false}
-                  dropdownHeight="max-h-80"
                   dropdownWidth="w-80"
                   align="center"
                   disabled={!profileState.is_editing}
@@ -402,7 +407,7 @@
                       <div
                         class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
                       >
-                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">SWAP</span>
+                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">NARRATIVE STYLE</span>
                       </div>
                     {/if}
                   {/snippet}
@@ -416,7 +421,6 @@
                   label="Select Visual Style"
                   uppercase={false}
                   matchWidth={false}
-                  dropdownHeight="max-h-80"
                   dropdownWidth="w-80"
                   align="center"
                   disabled={!profileState.is_editing}
@@ -427,18 +431,20 @@
                   onchange={() => (profileState._user_mutated = true)}
                 >
                   {#snippet trigger_content({ selected_item })}
+                    {@const vname = selected_item?.label || "No Visual Style"}
+                    {@const vfontsize = vname.length > 12 ? "text-[8px]" : vname.length > 8 ? "text-[9px]" : "text-[10px]"}
                     <div
-                      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] px-1 text-center font-heading text-xs font-bold text-white uppercase select-none"
+                      class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] p-1 text-center font-heading {vfontsize} leading-tight font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
                       style="background-color: {signature_color};"
                     >
-                      {get_style_initials(selected_item?.label || "No Visual Style")}
+                      {vname}
                     </div>
 
                     {#if profileState.is_editing}
                       <div
                         class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/visualcard:opacity-100"
                       >
-                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">STYLE</span>
+                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">VISUAL STYLE</span>
                       </div>
                     {/if}
                   {/snippet}
@@ -474,7 +480,6 @@
                       label="Select Narrative Style"
                       uppercase={false}
                       matchWidth={false}
-                      dropdownHeight="max-h-80"
                     />
                   </div>
                 {:else}

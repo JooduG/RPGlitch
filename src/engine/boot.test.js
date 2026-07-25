@@ -1,6 +1,3 @@
-import * as repository from "@data";
-import { AppBootstrap, reset_bootstrap_guard } from "@engine/boot.js";
-import { app } from "@state";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("@state/app.svelte.js", () => ({
@@ -15,12 +12,25 @@ vi.mock("@media/audio.svelte.js", () => ({
   Audio: {
     init: vi.fn(),
     _initPromise: null,
+    voice: {
+      loadModel: vi.fn().mockResolvedValue(),
+    },
+  },
+}));
+
+vi.mock("@intelligence", () => ({
+  embeddings_engine: {
+    load_model: vi.fn().mockResolvedValue(),
   },
 }));
 
 vi.mock("@data/repository.js", () => ({
   seed_premades: vi.fn(),
 }));
+
+import * as repository from "@data";
+import { AppBootstrap, reset_bootstrap_guard } from "@engine/boot.js";
+import { app } from "@state";
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: {
     sync: vi.fn(),

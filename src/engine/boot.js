@@ -4,6 +4,7 @@ import App from "../App.svelte";
 import { sanitizeToFragment } from "@platform";
 import { app, runtime } from "@state";
 import { mount } from "svelte";
+import { embeddings_engine } from "@intelligence";
 
 let has_initialized = false;
 
@@ -31,6 +32,10 @@ export const AppBootstrap = {
     try {
       // 1. Seed Premades (Entities/Stories) - Must happen before sync to ensure data exists.
       await seed_premades();
+
+      // Trigger asset pre-downloads on boot without blocking DOM mount
+      embeddings_engine?.load_model?.()?.catch?.((err) => console.warn("[Boot] Embeddings pre-download error:", err));
+      Audio?.voice?.loadModel?.()?.catch?.((err) => console.warn("[Boot] Voice pre-download error:", err));
 
       // Parallel Initialization: Reduce critical path for LCP.
       await Promise.all([runtime.sync(), app.init(), Audio.init()]);

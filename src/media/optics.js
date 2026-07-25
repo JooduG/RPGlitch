@@ -1,7 +1,7 @@
 /**
  * src/media/optics.js
  * 👁️ OPTICS LAYER — PROMPT ENGINEERING & VISUAL STYLE ENGINE
- * High-fidelity prompt engineering, dynamic style resolution, and diffusion matrix optics.
+ * Optimized for FLUX.1 (Rectified Flow), T5-XXL text encoders, and Perchance parameter injection.
  */
 
 import { VISUAL_STYLES } from "@data";
@@ -9,8 +9,11 @@ import { escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson } from "@intelligence"
 import { app, runtime } from "@state";
 import { get_signature_label } from "./tokens.js";
 
-export const NEGATIVE_PROMPT =
-  "low quality, blurry, watermark, text, signature, deformed, mutated, extra limbs, missing limbs, bad anatomy, fused fingers, distorted face, amateur, low resolution, compressed artifacts";
+/**
+ * Modern concise fallback negative prompt optimized for T5-XXL text streams.
+ * Avoids legacy SD 1.5 word-salad tags that cause lexical contamination in FLUX.
+ */
+export const NEGATIVE_PROMPT = "blurry, low resolution, compressed artifacts, text, watermark, bad anatomy, distorted features";
 
 /**
  * Resolves the active visual style key for portrait generation.
@@ -55,7 +58,7 @@ export function parse_visual_engine(engineXml = "") {
   if (!engineXml) return result;
 
   const extractTag = (tag) => {
-    const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`, "i"));
+    const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i"));
     return match ? match[1].trim() : "";
   };
 
@@ -69,41 +72,20 @@ export function parse_visual_engine(engineXml = "") {
 }
 
 /**
- * Resolves the VISUAL_ENGINE tokens for a given visual style key.
+ * Resolves the VISUAL_ENGINE tokens for a given visual style key,
+ * handling both XML-embedded tags and isolated schema properties.
  * @param {string} styleKey
  * @returns {{ medium: string, palette: string, camera: string, composition: string, texture: string, negative_prompt: string }}
  */
 export function resolve_visual_engine_tokens(styleKey) {
   const style = VISUAL_STYLES[styleKey] || VISUAL_STYLES.none;
-  return parse_visual_engine(style.visual_engine);
-}
+  const tokens = parse_visual_engine(style.visual_engine);
 
-/**
- * Recursively flattens nested structures into a cohesive text string.
- * @param {any} val
- * @returns {string}
- */
-export const flattenToParagraph = (val) => {
-  if (val === null || val === undefined) return "";
-  if (typeof val === "string") return val;
-  if (Array.isArray(val)) {
-    return val
-      .map((item) => flattenToParagraph(item))
-      .filter(Boolean)
-      .join(" ");
+  if (style.negative_prompt && typeof style.negative_prompt === "string") {
+    tokens.negative_prompt = style.negative_prompt.trim();
   }
-  if (typeof val === "object") {
-    return Object.entries(val)
-      .map(([key, value]) => {
-        const flatVal = flattenToParagraph(value);
-        if (!flatVal) return "";
-        return !isNaN(Number(key)) ? flatVal : `${key}: ${flatVal}`;
-      })
-      .filter(Boolean)
-      .join(" ");
-  }
-  return String(val);
-};
+  return tokens;
+}
 
 /**
  * Ensures clean spacing after commas in token lists.
@@ -113,7 +95,7 @@ export const flattenToParagraph = (val) => {
 const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
 
 /**
- * Collapses a physical field value into a flat comma-separated token string.
+ * Collapses physical trait objects into clean, natural language descriptive clauses.
  * @param {string} raw
  * @returns {string}
  */
@@ -126,13 +108,14 @@ export const flatten_physical = (raw) => {
   }
 
   if (Object.keys(parsed).length > 0) {
-    return normalize_comma_spacing(
-      Object.values(parsed)
-        .flatMap((v) => (Array.isArray(v) ? v : [v]))
-        .map((v) => String(v).trim())
-        .filter(Boolean)
-        .join(", "),
-    );
+    const clauses = Object.entries(parsed)
+      .map(([k, v]) => {
+        const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        if (!valStr) return "";
+        return `${k.replace(/_/g, " ")}: ${valStr}`;
+      })
+      .filter(Boolean);
+    return normalize_comma_spacing(clauses.join(". "));
   }
 
   return normalize_comma_spacing(raw.trim());
@@ -182,7 +165,7 @@ const VS_ORDERED_KEYS = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_composi
 
 export const AestheticResolver = {
   /**
-   * Deterministic extraction of traits from entity fields into JSON property lines.
+   * Deterministic extraction of traits from entity fields into formatted JSON property lines.
    * @param {any} [entity]
    * @returns {string}
    */
@@ -205,7 +188,7 @@ export const AestheticResolver = {
   },
 
   /**
-   * Deterministic flattening of traits from entity fields into plain comma-separated tags.
+   * Deterministic flattening of entity physical traits into continuous descriptive sentences.
    * @param {any} [entity]
    * @returns {string}
    */
@@ -214,24 +197,22 @@ export const AestheticResolver = {
     const vsValues = VS_ORDERED_KEYS.map((k) => merged[k]).filter(Boolean);
     const otherValues = Object.entries(merged)
       .filter(([k]) => !VS_ORDERED_KEYS.includes(k))
-      .map(([, v]) => v);
+      .map(([k, v]) => {
+        const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        return k.startsWith("_vs_") || k === "aesthetic" ? valStr : `${k.replace(/_/g, " ")}: ${valStr}`;
+      })
+      .filter(Boolean);
 
-    return normalize_comma_spacing(
-      [...vsValues, ...otherValues]
-        .flatMap((v) => (Array.isArray(v) ? v : [v]))
-        .map((v) => String(v).trim())
-        .filter(Boolean)
-        .join(", "),
-    );
+    return normalize_comma_spacing([...vsValues, ...otherValues].join(". "));
   },
 };
 
 /**
- * Authoritative prompt templates optimized for generative diffusion pipelines.
+ * Authoritative prompt templates optimized for modern generative diffusion pipelines.
  */
 export const PromptTemplates = {
   /**
-   * Refines raw concept data into balanced sentences containing target vocabulary.
+   * Refines raw concept data into structured sentences containing visual targets.
    * @param {string} text
    * @param {string} [_type]
    * @param {any} [entity]
@@ -243,25 +224,24 @@ export const PromptTemplates = {
     const styleObj = VISUAL_STYLES[styleKey] || VISUAL_STYLES.none;
     const activeStyleBlock = `<ACTIVE_VISUAL_STYLE key="${styleKey}" name="${escapeXml(styleObj.name || styleKey)}">
 ${styleObj.visual_engine || "<VISUAL_ENGINE>No automatic visual style tokens forced.</VISUAL_ENGINE>"}
+${styleObj.tags && styleObj.tags.length ? `<tags>${escapeXml(styleObj.tags.join(", "))}</tags>` : ""}
+${styleObj.negative_prompt ? `<negative_prompt>${escapeXml(styleObj.negative_prompt)}</negative_prompt>` : ""}
 </ACTIVE_VISUAL_STYLE>`;
 
     return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
-You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and pristine rendering clarity for the generation matrix.
+You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and rendering clarity for modern transformer-based diffusion pipelines (FLUX.1 / T5-XXL).
 
-Your goal is to evaluate the user's initial core concept in <INPUT_DESCRIPTION>, enrich it with vivid sensory, physical, and atmospheric details, integrate the visual properties from <ACTIVE_VISUAL_STYLE>, and return an optimized JSON data block.
+Your goal is to evaluate the user's initial core concept in <INPUT_DESCRIPTION>, enrich it with vivid physical details, integrate the visual directives from <ACTIVE_VISUAL_STYLE>, and output a validated JSON payload.
 
 ${activeStyleBlock}
 
 <REFINE_PROTOCOL>
-1. **Concept Enrichment:** Analyze the core subjects, features, clothing, expressions, and environmental setting described in INPUT_DESCRIPTION. Enrich them with vivid, tangible physical details.
-2. **Visual Style Integration & Sovereignty:** You MUST strictly incorporate and honor the provided <ACTIVE_VISUAL_STYLE>.
-   - Seamlessly blend the medium, palette, camera/composition, and texture from <ACTIVE_VISUAL_STYLE> directly into your synthesized descriptive sentences.
-   - Output any negative_prompt tokens defined in <ACTIVE_VISUAL_STYLE> inside your JSON 'negativePrompt' output field.
-   - If <ACTIVE_VISUAL_STYLE> is 'none' (No Visual Style), do NOT force any camera or artistic medium tags onto the prompt. Enrich the prompt using neutral and flexible descriptive language.
-3. **Synthesized Descriptive Sentences:** Synthesize your enriched concepts and active style into natural, continuous descriptive sentences. Avoid compiling fragmented keyword strings or unorganized keyword soup.
-4. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground your descriptions using concrete, physical details, textures, or stylistic equivalents instead.
+1. **Concept Enrichment:** Analyze core subjects, clothing, lighting, and environmental setting in INPUT_DESCRIPTION. Enrich them with concrete, tangible physical descriptors.
+2. **Visual Style Integration:** Strictly honor <ACTIVE_VISUAL_STYLE>. Seamlessly integrate medium, palette, camera/composition, and texture into natural, cohesive English prose sentences.
+3. **Natural Prose Format:** Output continuous descriptive sentences. Avoid compiling comma-separated "booru" keyword tags or fragmented tag soup.
+4. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground outputs using physical optics and real-world material descriptions.
 5. **Perchance Syntax:** ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}
-6. **Structured Thought Process:** In the "_thought_process" field, record your internal breakdown planning how the subject details, active style, lighting, colors, and composition marry together.
+6. **Thought of Structure:** Write your internal step-by-step composition reasoning in the "_thought_process" key at the top of the JSON payload before generating final prompt strings.
 </REFINE_PROTOCOL>
 
 <INPUT_DESCRIPTION>
@@ -271,8 +251,8 @@ ${escapeXml(text)}
 JSON STRUCTURE:
 {
   "_thought_process": "<your breakdown planning: Subject features, Active Style integration, Lighting, Colors, Composition, and Textures>",
-  "prompt": "<synthesized descriptive sentences merging the enriched subject details with active style parameters and optional runtime dynamic blocks>",
-  "negativePrompt": "<cohesive comma-separated flat tokens to repel, preventing style dilution or contradictions. Use direct visual features only (e.g., 'bright daylight', 'blurry text'). STRICT MANDATE: Never use conversational verbs, instructions, or phrases like 'avoid', 'don't', 'free of', or 'no characters'>"
+  "prompt": "<synthesized natural prose sentences merging enriched subject details with active style parameters and optional runtime parameters>",
+  "negativePrompt": "<cohesive comma-separated flat tokens to exclude. Use concrete visual attributes only. NEVER use conversational phrases or instructions like 'don't include'>"
 }
 
 ${PROTOCOL_LIBRARY.JSON_OUTPUT}
@@ -280,7 +260,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
   },
 
   /**
-   * Constructs system prompts for image generation tasks.
+   * Constructs system prompts for narrative image generation tasks using deterministic JSON forcing.
    * @param {string} targetType
    * @param {string} rawIntent
    * @param {any} [context]
@@ -325,37 +305,38 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     const storyStyle = VISUAL_STYLES[storyStyleKey] || VISUAL_STYLES.none;
     const storyEngineTokens = resolve_visual_engine_tokens(storyStyleKey);
     const visualEngineBlock = storyStyle.visual_engine
-      ? `\n<VISUAL_ENGINE style="${escapeXml(storyStyle.name || storyStyleKey)}">${storyStyle.visual_engine}</VISUAL_ENGINE>`
+      ? `\n<VISUAL_ENGINE style="${escapeXml(storyStyle.name || storyStyleKey)}">\n${storyStyle.visual_engine}${
+          storyStyle.tags && storyStyle.tags.length ? `\n<tags>${escapeXml(storyStyle.tags.join(", "))}</tags>` : ""
+        }\n</VISUAL_ENGINE>`
       : "";
 
-    const vsNegPrompt = storyEngineTokens.negative_prompt;
+    const vsNegPrompt = storyEngineTokens.negative_prompt || NEGATIVE_PROMPT;
 
     switch (targetType) {
       case "fractal":
-        ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, medium context, and background lighting structures.</RESTRICTION>`;
+        ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
         subject = "a landscape environment or interior layout space";
         break;
       case "characters":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<NARRATIVE_CONTEXT>The image must depict the specific scene, action, or moment described in the INSTRUCTIONS. The characters should be engaged in the narrative situation — not simply standing or posing. Use their physical descriptions to render their appearance, but compose them into the dramatic or emotional beat of the scene.</NARRATIVE_CONTEXT>`;
-        subject =
-          "a scene featuring the AI character and the user persona together within the fractal environment, depicted in the specific moment and action described by the narrative intent";
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<NARRATIVE_CONTEXT>The image must depict the specific scene or action described in INSTRUCTIONS. Characters must be dynamically engaged in the narrative beat rather than statically posing.</NARRATIVE_CONTEXT>`;
+        subject = "a scene featuring the AI character and user persona engaged together within the fractal environment";
         break;
       case "character":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
-        subject = "a character within their environment, framed to emphasize the character with the fractal setting visible in the background";
+        subject = "a character framed within their environment, emphasizing their presence with the background fractal setting visible";
         break;
       case "selfie":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
         subject =
-          "a modern front-facing wide-angle camera selfie shot, capturing the primary character from the chest up with one arm stretched out forward toward the lower frame edge, while the environment is fully mapped in the background space";
+          "a modern front-facing wide-angle selfie capture, framing the character from the chest up with one arm reaching toward the lower frame";
         break;
       case "user":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona profile context.</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona context.</RESTRICTION>`;
         subject = "a solo character portrait of the user persona";
         break;
       case "ai":
       default:
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character profile context.</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character context.</RESTRICTION>`;
         subject = "a solo character portrait of the AI character";
         break;
     }
@@ -365,25 +346,34 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
 ${ctxBlock}
 ${visualEngineBlock}
 <PROTOCOL>
-1. Use a <think> block first to systematically analyze the composition, lighting, and textures.
-2. Output exactly one <image_prompt> tag containing the final token string.
-3. The image_prompt MUST depict ${subject}. Use continuous, descriptive details or tokens that reflect the active visual style's medium and texture.
-4. The <VISUAL_ENGINE> block defines the exclusive aesthetic style for this image. You MUST incorporate its medium, palette, camera, and texture directives into the image prompt to ensure stylistic cohesion.${vsNegPrompt ? `\n5. You MUST include the visual engine's negative prompt tokens ("${escapeXml(vsNegPrompt)}") in your negativePrompt output.` : ""}
-${targetType === "selfie" ? `${vsNegPrompt ? "6" : "5"}. Finally, output a short, in-character <caption>...</caption> tag to accompany the selfie.` : ""}
+1. Formulate your internal visual plan inside the "_thought_process" key first.
+2. Synthesize the final image prompt inside "prompt" as continuous, descriptive sentences depicting ${subject}.
+3. Seamlessly incorporate the medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
+4. Pass the designated negative tokens ("${escapeXml(vsNegPrompt)}") inside "negativePrompt".
+${targetType === "selfie" ? '5. Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
 ${history ? `<HISTORY>\n${escapeXml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
-Convert intent into a single impactful image prompt.
+Convert narrative intent into a structured image prompt payload.
 Input Intent: "${escapeXml(rawIntent)}"
 </INSTRUCTIONS>
+
+JSON STRUCTURE:
+{
+  "_thought_process": "<step-by-step composition, lighting, and style analysis>",
+  "prompt": "<synthesized descriptive image prompt>",
+  "negativePrompt": "${escapeXml(vsNegPrompt)}"${targetType === "selfie" ? ',\n  "caption": "<in-character selfie caption>"' : ""}
+}
+
+${PROTOCOL_LIBRARY.JSON_OUTPUT}
 </SYSTEM>
 `.trim();
   },
 };
 
 /**
- * Standard resolution mapping for different modes.
+ * Standard resolution mapping for execution modes.
  * @param {"landscape" | "fractal" | "portrait" | "character" | "selfie" | "user" | "ai" | "characters" | string} mode
  * @returns {{ width: number, height: number }}
  */
@@ -404,3 +394,16 @@ export const getResolution = (mode) => {
       return { width: 768, height: 768 };
   }
 };
+
+/**
+ * Formats Perchance parameter injection blocks for resolution and seed control.
+ * @param {string} mode
+ * @param {number|string} [seed]
+ * @returns {string}
+ */
+export function format_perchance_params(mode, seed = null) {
+  const { width, height } = getResolution(mode);
+  const resParam = `(resolution:::${width}x${height})`;
+  const seedParam = seed !== null && seed !== undefined ? ` (seed:::${seed})` : "";
+  return `${resParam}${seedParam}`;
+}

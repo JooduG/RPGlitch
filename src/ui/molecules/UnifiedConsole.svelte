@@ -19,8 +19,11 @@
   import { pickRandom } from "@engine";
 
   // --- CORE VIEW ENGINE STATE ---
-  let ready_to_begin = $derived(app.is_ready);
-  let label_text = $derived(ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`);
+  let models_ready = $derived(app.models_ready);
+  let ready_to_begin = $derived(app.is_ready && models_ready);
+  let label_text = $derived(
+    !models_ready ? `DOWNLOADING (${app.models_progress}%)` : ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`,
+  );
 
   // --- STORYMODE CONSOLE STATE ---
   let value = $state("");
@@ -679,7 +682,7 @@
           data-ready={ready_to_begin}
           variant="invisible"
           busy={!ready_to_begin}
-          disabled={app.control_panel_open}
+          disabled={app.control_panel_open || !models_ready}
           onclick={storyboard.begin}
           actions={[pulse]}
         >

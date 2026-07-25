@@ -97,12 +97,18 @@
       (!profileState.active_field && has_prompt_text),
   );
 
-  const visual_style_options = Object.values(VISUAL_STYLES).map((style) => ({
-    value: style.id,
-    label: style.name,
-    tag: style.tags ? style.tags.join(", ") : "",
-    tooltip: style.description,
-  }));
+  const visual_style_options = Object.values(VISUAL_STYLES)
+    .sort((a, b) => {
+      if (a.id === "none") return -1;
+      if (b.id === "none") return 1;
+      return a.name.localeCompare(b.name);
+    })
+    .map((style) => ({
+      value: style.id,
+      label: style.name,
+      tag: style.description,
+      tooltip: style.description,
+    }));
 
   // --- HANDLERS ---
 

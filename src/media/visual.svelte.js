@@ -465,16 +465,23 @@ export class VisualEngine {
   }
 
   /**
-   * Triggers manual file upload via Zero-Trust image checks.
+   * Triggers manual file upload via Zero-Trust image checks with automatic canvas compression.
+   * Downscales large images (up to 25MB) to max 1024px to prevent IndexedDB storage exhaustion.
+   * @param {Object} [options]
+   * @param {number} [options.maxDimension=1024]
+   * @param {number} [options.quality=0.85]
    * @returns {Promise<string | null>}
    */
-  async upload() {
+  async upload(options = {}) {
+    const maxDimension = options.maxDimension || 1024;
+    const quality = options.quality || 0.85;
+
     try {
       const { validateImage } = await import("@platform/security.js");
       return new Promise((resolve) => {
         const input = document.createElement("input");
         input.type = "file";
-        input.accept = "image/*";
+        input.accept = "image/jpeg,image/png,image/webp,image/gif,image/avif";
 
         input.onchange = async (e) => {
           const file = /** @type {HTMLInputElement} */ (e.target).files?.[0];
@@ -484,18 +491,66 @@ export class VisualEngine {
           }
 
           try {
-            await validateImage(file);
+            await validateImage(file, { maxSize: 25 * 1024 * 1024 });
+
             const reader = new globalThis.FileReader();
             reader.onload = (event) => {
-              resolve(/** @type {string} */ (event.target?.result) || null);
+              const rawDataUrl = /** @type {string} */ (event.target?.result);
+              if (!rawDataUrl) {
+                resolve(null);
+                return;
+              }
+
+              // Create HTML Image element for canvas compression
+              const img = new Image();
+              img.onload = () => {
+                try {
+                  let width = img.width;
+                  let height = img.height;
+
+                  if (width > maxDimension || height > maxDimension) {
+                    if (width > height) {
+                      height = Math.round((height * maxDimension) / width);
+                      width = maxDimension;
+                    } else {
+                      width = Math.round((width * maxDimension) / height);
+                      height = maxDimension;
+                    }
+                  }
+
+                  const canvas = document.createElement("canvas");
+                  canvas.width = width;
+                  canvas.height = height;
+                  const ctx = canvas.getContext("2d");
+                  if (!ctx) {
+                    resolve(rawDataUrl);
+                    return;
+                  }
+
+                  ctx.drawImage(img, 0, 0, width, height);
+                  const compressedDataUrl = canvas.toDataURL("image/webp", quality);
+                  resolve(compressedDataUrl || rawDataUrl);
+                } catch (canvasErr) {
+                  console.warn("[VisualEngine] Canvas compression fallback:", canvasErr);
+                  resolve(rawDataUrl);
+                }
+              };
+              img.onerror = (imgErr) => {
+                console.error("[VisualEngine] Image loading error:", imgErr);
+                resolve(rawDataUrl);
+              };
+              img.src = rawDataUrl;
             };
             reader.onerror = (err) => {
               console.error("[VisualEngine] Local FileReader error:", err);
+              if (typeof app !== "undefined") app.log("Upload failed: Could not read file.", "error");
               resolve(null);
             };
             reader.readAsDataURL(file);
           } catch (err) {
-            console.error("[VisualEngine] Security validation failed:", err);
+            const msg = /** @type {Error} */ (err).message || String(err);
+            console.error("[VisualEngine] Security validation failed:", msg);
+            if (typeof app !== "undefined") app.log(`Upload failed: ${msg}`, "error");
             resolve(null);
           }
         };

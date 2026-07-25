@@ -83,6 +83,7 @@ vi.mock("@intelligence/temporal.js", () => ({
     ensure_momentum: vi.fn(),
     consolidate: vi.fn(),
     apply_state_mutations: vi.fn(),
+    set_round: vi.fn(),
   },
 }));
 

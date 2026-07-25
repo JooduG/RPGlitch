@@ -19,6 +19,7 @@
 
 import { app, runtime } from "@state";
 import { session_driver } from "@engine";
+import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "./fragments.js";
 import { clean_text, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
@@ -127,8 +128,6 @@ export const context_broker = {
     // Resolve active fractal vector via temporal engine
     const active_vector =
       temporal_engine.format(clean.FRACTAL?.future, null, {
-        mode: "future",
-        limit: 1,
         vector_text: true,
       }) || "Continue the journey.";
 
@@ -142,6 +141,12 @@ export const context_broker = {
     await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data))).catch((err) =>
       console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
     );
+
+    // Pre-embed all temporal vectors for semantic scoring (fire-and-forget, non-blocking)
+    entries.forEach(({ data }) => {
+      if (data?.past?.length) ensure_embeddings(data.past).catch(() => {});
+      if (data?.future?.length) ensure_embeddings(data.future).catch(() => {});
+    });
 
     const entities = /** @type {Record<string, any>} */ ({});
 
