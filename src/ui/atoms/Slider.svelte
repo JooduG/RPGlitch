@@ -20,7 +20,6 @@
    */
 
   import { use_actions } from "@actions";
-  import { simulationState } from "@state";
   import { Slider } from "bits-ui";
 
   /** @type {Props} */
@@ -62,7 +61,7 @@
   // Diagnostic identifier
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-slider` : "generic-slider");
 
-  let is_disabled = $derived(disabled || simulationState.intent_active);
+  let is_disabled = $derived(disabled);
 
   /**
    * Adapts bits-ui number value to the backward compatible HTMLInputElement event structure.

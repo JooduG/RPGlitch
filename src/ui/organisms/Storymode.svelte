@@ -345,7 +345,7 @@
         "
       >
         <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
-        <Button variant="primary" onclick={() => Chrono.retry()} label="Retry Connection" />
+        <Button variant="primary" onclick={() => Chrono.retry()} disabled={simulationState.busy} label="Retry Connection" />
       </div>
     {/if}
 

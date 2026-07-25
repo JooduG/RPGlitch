@@ -13,7 +13,6 @@
    * @property {(e: Event) => void} [onchange] - Change callback.
    */
 
-  import { simulationState } from "@state";
   import { use_actions } from "@actions";
   import { Switch } from "bits-ui";
 
@@ -35,7 +34,7 @@
   // Derived identifier for testing
   const test_id = $derived(label ? `${label.toLowerCase().replace(/\s+/g, "-")}-toggle` : undefined);
 
-  let is_disabled = $derived(disabled || simulationState.intent_active);
+  let is_disabled = $derived(disabled);
 </script>
 
 <label

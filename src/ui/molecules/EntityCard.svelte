@@ -448,10 +448,22 @@
       via-45%
       to-transparent
       text-center
-      opacity-100
       transition-all
       duration-300
       ease-in-out
+
+      {variant === 'library' || variant === 'message'
+      ? `
+        opacity-100
+      `
+      : app.view === 'storymode'
+        ? `
+        opacity-0
+        group-hover:opacity-100
+      `
+        : `
+        opacity-100
+      `}
 
       {variant === 'library' || variant === 'message'
       ? `
@@ -544,7 +556,7 @@
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
     <div class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5">
-      <StyleBadges {entity} class="flex flex-col gap-1.5" />
+      <StyleBadges {entity} class="flex flex-col gap-1.5" size="fixed" />
     </div>
   {/if}
 </div>

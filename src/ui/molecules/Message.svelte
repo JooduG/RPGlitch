@@ -8,7 +8,7 @@
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Typewriter } from "@motion";
-  import { app, runtime } from "@state";
+  import { app, runtime, simulationState } from "@state";
   import { session_driver } from "@engine";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock, EntityCard } from "@molecules";
@@ -337,6 +337,7 @@
                   aria-label="Continue"
                   actions={[tooltip]}
                   onclick={on_continue}
+                  disabled={simulationState.busy}
                   class="text-white/85 transition-colors hover:text-white"
                 >
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
@@ -350,6 +351,7 @@
                   aria-label="Reroll"
                   actions={[tooltip]}
                   onclick={on_regenerate}
+                  disabled={simulationState.busy}
                   class="text-white/85 transition-colors hover:text-white"
                 >
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">

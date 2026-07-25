@@ -11,7 +11,6 @@
    */
   import { Button, ScrollArea, tooltip } from "@atoms";
   import { parse_markdown } from "@utils";
-  import { simulationState } from "@state";
   import { auto_resize, use_actions } from "@actions";
   import { fade, slide } from "svelte/transition";
   import { onDestroy } from "svelte";
@@ -114,7 +113,7 @@
   }
 
   // --- DERIVED LOGIC ---
-  let is_disabled = $derived(disabled || busy || simulationState.intent_active);
+  let is_disabled = $derived(disabled || busy);
   let is_sync_focused = $derived(syncId ? (sync_focus_counts[syncId] || 0) > 0 : false);
   const font_size_class = $derived(size === "xs" ? "text-xs" : size === "md" ? "text-base" : "text-sm");
   const paragraphs = $derived(parse_markdown(value));

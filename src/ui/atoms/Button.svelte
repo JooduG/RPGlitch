@@ -5,7 +5,6 @@
    * High-performance, multi-variant interaction layer.
    * Headless refactor powered by bits-ui/Button and Svelte 5.
    */
-  import { simulationState } from "@state";
   import { Button } from "bits-ui";
 
   let {
@@ -40,16 +39,7 @@
     element?.focus();
   }
 
-  const is_exempt_btn = $derived(
-    label?.toLowerCase().includes("interrupt") ||
-      label?.toLowerCase().includes("settings") ||
-      rest["aria-label"]?.toLowerCase().includes("interrupt") ||
-      rest["aria-label"]?.toLowerCase().includes("settings") ||
-      className?.toLowerCase().includes("interrupt") ||
-      className?.toLowerCase().includes("settings"),
-  );
-
-  let is_disabled = $derived(disabled || (simulationState.intent_active && !is_exempt_btn));
+  let is_disabled = $derived(disabled);
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
   const height_class = $derived(cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10");
