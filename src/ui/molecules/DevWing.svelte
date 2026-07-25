@@ -5,7 +5,7 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.
    */
-  import { DataBox, DynamicsMeter } from "@atoms";
+  import { Accordion, DataBox, DynamicsMeter } from "@atoms";
   import { DYNAMICS_META } from "@intelligence";
 
   /**
@@ -77,36 +77,13 @@
   </div>
 
   <!-- RAW EXPLORER -->
-  <div
-    class="
-      flex
-      w-full
-      flex-col
-      gap-2
-    "
-  >
-    <details class="w-full text-left">
-      <summary
-        class="
-          cursor-pointer
-          text-left
-          font-mono
-          text-[10px]
-          tracking-widest
-          text-cyan-400
-          uppercase
-          transition-[filter]
-          duration-150
-          ease-in-out
-
-          hover:brightness-125
-        ">View JSON Data</summary
-      >
+  <Accordion label="View JSON Data">
+    <div class="pt-2 pb-4">
       <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
         <pre class="font-mono">{JSON.stringify(profileState.char, null, 2)}</pre>
       </DataBox>
-    </details>
-  </div>
+    </div>
+  </Accordion>
 
   <!-- META FOOTER -->
   <footer
