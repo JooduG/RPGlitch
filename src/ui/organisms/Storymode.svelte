@@ -47,13 +47,19 @@
       }
       last_streaming_role = activeRole;
 
+      // Resolve the speaking entity and sync the master voice switch to its per-entity toggle.
+      // This lets each entity own its own voice activation independently.
       if (activeRole === "ai" || activeRole === "fractal") {
         const entity = activeRole === "ai" ? runtime.active_ai || app.selected_ai : runtime.active_fractal || app.selected_fractal;
+
+        Audio.voice.enabled = !!Audio.voice.entity_voice[activeRole];
 
         if (entity && entity.voice) {
           Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
           Audio.voice.rate = entity.voice.rate ?? 1.0;
         }
+      } else if (activeRole === "user") {
+        Audio.voice.enabled = !!Audio.voice.entity_voice.user;
       }
     }
 

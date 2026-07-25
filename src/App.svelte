@@ -8,11 +8,12 @@
    * during view transitions, enabling true View Transition API morphing.
    */
   import { ImagePreview, Skeleton, Tooltip } from "@atoms";
-  import { UnifiedConsole, EntityCard } from "@molecules";
+  import { UnifiedConsole, EntityCard, StyleBadges } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
   import { app, runtime, simulationState } from "@state";
   import { session_driver } from "@engine";
+  import { llm_service } from "@platform";
 
   import { Audio, visual_engine } from "@media";
 
@@ -107,26 +108,92 @@
     app.ghostwrite_request++;
   }
 
+  /** Mock message — streams a placeholder message for the given entity role (devmode only) */
+  async function run_mock(role) {
+    if (is_locked) return;
+    const entity_map = {
+      ai: runtime.active_ai || app.selected_ai,
+      user: runtime.active_user || app.selected_user,
+      fractal: runtime.active_fractal || app.selected_fractal,
+    };
+    const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
+    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
+    const entity = entity_map[role];
+    const content = llm_service.get_mock_message();
+
+    simulationState.start_generation(role);
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    simulationState.complete();
+    app.start_stream("mock-node", role);
+
+    let buffer = "";
+    const words = content.split(" ");
+    for (let i = 0; i < words.length; i++) {
+      buffer += (i === 0 ? "" : " ") + words[i];
+      app.streaming.content = buffer;
+      await new Promise((resolve) => setTimeout(resolve, 60));
+    }
+
+    await session_driver.log_message(content, role, entity?.name || label_map[role], turn_map[role]);
+    app.end_stream();
+  }
+
   // --- ACTION MENU CONFIGS ---
 
-  let storyboard_ai_actions = $derived([
-    { label: "Swap", onSelect: () => app.open_card_hand("ai"), disabled: false },
-    { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: !app.selected_ai },
-  ]);
+  let storyboard_ai_actions = $derived.by(() => {
+    const items = [
+      { label: "Swap", onSelect: () => app.open_card_hand("ai"), disabled: false },
+      {
+        label: Audio.entity_voice.ai ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice.ai,
+        onSelect: () => Audio.toggle_entity_voice("ai"),
+        disabled: false,
+      },
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: !app.selected_ai },
+    ];
+    if (app.settings.dev_mode) {
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("ai"), disabled: is_locked });
+    }
+    return items;
+  });
 
-  let storyboard_user_actions = $derived([
-    { label: "Swap", onSelect: () => app.open_card_hand("user"), disabled: false },
-    { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: !app.selected_user },
-  ]);
+  let storyboard_user_actions = $derived.by(() => {
+    const items = [
+      { label: "Swap", onSelect: () => app.open_card_hand("user"), disabled: false },
+      {
+        label: Audio.entity_voice.user ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice.user,
+        onSelect: () => Audio.toggle_entity_voice("user"),
+        disabled: false,
+      },
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: !app.selected_user },
+    ];
+    if (app.settings.dev_mode) {
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("user"), disabled: is_locked });
+    }
+    return items;
+  });
 
-  let storyboard_fractal_actions = $derived([
-    { label: "Swap", onSelect: () => app.open_card_hand("fractal"), disabled: false },
-    { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: !app.selected_fractal },
-  ]);
+  let storyboard_fractal_actions = $derived.by(() => {
+    const items = [
+      { label: "Swap", onSelect: () => app.open_card_hand("fractal"), disabled: false },
+      {
+        label: Audio.entity_voice.fractal ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice.fractal,
+        onSelect: () => Audio.toggle_entity_voice("fractal"),
+        disabled: false,
+      },
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: !app.selected_fractal },
+    ];
+    if (app.settings.dev_mode) {
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("fractal"), disabled: is_locked });
+    }
+    return items;
+  });
 
   let ai_actions = $derived.by(() => {
     if (app.view !== "storymode") return storyboard_ai_actions;
-    return [
+    const items = [
       {
         label: "Photo",
         onSelect: () => take_photo("ai", "A character portrait of the AI character", "character"),
@@ -134,21 +201,23 @@
       },
       { separator: true },
       {
-        label: Audio.voice_enabled ? "Disable Voice" : "Enable Voice",
-        onSelect: () => {
-          Audio.voice_enabled = !Audio.voice_enabled;
-          if (!Audio.voice_enabled) Audio.voice.stop();
-        },
+        label: Audio.entity_voice.ai ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice.ai,
+        onSelect: () => Audio.toggle_entity_voice("ai"),
         disabled: false,
       },
       { separator: true },
       { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: false },
     ];
+    if (app.settings.dev_mode) {
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("ai"), disabled: is_locked });
+    }
+    return items;
   });
 
   let user_actions = $derived.by(() => {
     if (app.view !== "storymode") return storyboard_user_actions;
-    return [
+    const items = [
       {
         label: "Photo",
         onSelect: () => take_photo("user", "A character portrait of the user persona", "user"),
@@ -157,6 +226,7 @@
       { separator: true },
       {
         label: "Microphone",
+        active: app.settings.call_mode,
         onSelect: () => {
           app.settings.call_mode = !app.settings.call_mode;
           app.save_settings();
@@ -165,11 +235,9 @@
       },
       { separator: true },
       {
-        label: Audio.voice_enabled ? "Disable Voice" : "Enable Voice",
-        onSelect: () => {
-          Audio.voice_enabled = !Audio.voice_enabled;
-          if (!Audio.voice_enabled) Audio.voice.stop();
-        },
+        label: Audio.entity_voice.user ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice.user,
+        onSelect: () => Audio.toggle_entity_voice("user"),
         disabled: false,
       },
       { separator: true },
@@ -177,11 +245,15 @@
       { separator: true },
       { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: false },
     ];
+    if (app.settings.dev_mode) {
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("user"), disabled: is_locked });
+    }
+    return items;
   });
 
   let fractal_actions = $derived.by(() => {
     if (app.view !== "storymode") return storyboard_fractal_actions;
-    return [
+    const items = [
       {
         label: "Photo",
         onSelect: () => take_photo("fractal", "An environmental shot of the current setting", "fractal"),
@@ -191,16 +263,18 @@
       { label: "Group Photo", onSelect: () => take_group_photo(), disabled: is_locked || visual_engine.isLoading },
       { separator: true },
       {
-        label: Audio.voice_enabled ? "Disable Voice" : "Enable Voice",
-        onSelect: () => {
-          Audio.voice_enabled = !Audio.voice_enabled;
-          if (!Audio.voice_enabled) Audio.voice.stop();
-        },
+        label: Audio.entity_voice.fractal ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice.fractal,
+        onSelect: () => Audio.toggle_entity_voice("fractal"),
         disabled: false,
       },
       { separator: true },
       { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: false },
     ];
+    if (app.settings.dev_mode) {
+      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("fractal"), disabled: is_locked });
+    }
+    return items;
   });
 </script>
 
@@ -279,6 +353,7 @@
               }}
             />
           </div>
+          <StyleBadges entity={app.selected_fractal} />
         </div>
       {:else}
         <div

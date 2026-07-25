@@ -10,7 +10,7 @@
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
-  import { app, runtime } from "@state";
+  import { app, runtime, simulationState } from "@state";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
 
@@ -570,6 +570,7 @@
               <Button
                 variant="secondary"
                 class="touch-target-coarse"
+                disabled={simulationState.busy}
                 onclick={() => {
                   previous_scroll_top = info_container_el?.scrollTop || 0;
                   profileState.start_editing();

@@ -11,10 +11,9 @@
   import { db, stories } from "@data";
   import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
-  import { Audio, get_signature_color, visual_engine } from "@media";
+  import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
   import { motion, pulse, roll, shimmy, stab } from "@motion";
-  import { llm_service } from "@platform";
   import { app, runtime, simulationState, simulation_log } from "@state";
   import { pickRandom } from "@engine";
 
@@ -31,10 +30,14 @@
   let is_ghostwriting = $state(false);
 
   $effect(() => {
+    // Snapshot the request count synchronously so it's the only reactive dep here.
     const req = app.ghostwrite_request;
     if (req === 0) return;
+    // Mark as consumed immediately to prevent the effect from re-firing when
+    // is_ghostwriting toggles back to false after the draft returns.
+    app.ghostwrite_request = 0;
     (async () => {
-      if (is_locked || is_ghostwriting) return;
+      if (is_locked) return;
       is_ghostwriting = true;
       try {
         const draft = await gamemaster.execute_ghostwriter(value);
@@ -99,35 +102,6 @@
     }
     app.set_view("storymode");
     app.toggle_control_panel();
-  }
-
-  async function run_mock(role) {
-    const is_fractal = role === "fractal";
-    const entity_name = is_fractal
-      ? app.selected_fractal?.name || runtime.active_fractal?.name || "Fractal"
-      : app.selected_ai?.name || runtime.active_ai?.name || "AI";
-
-    const content = llm_service.get_mock_message();
-
-    app.toggle_control_panel();
-    simulationState.start_generation(role);
-
-    await new Promise((resolve) => setTimeout(resolve, 2500));
-
-    simulationState.complete();
-    app.start_stream("mock-node", role);
-
-    let buffer = "";
-    const words = content.split(" ");
-    for (let i = 0; i < words.length; i++) {
-      buffer += (i === 0 ? "" : " ") + words[i];
-      app.streaming.content = buffer;
-      await new Promise((resolve) => setTimeout(resolve, 60));
-    }
-
-    await session_driver.log_message(content, role, entity_name, "SYSTEM_TURN");
-    app.end_stream();
-    log_action(`Mock ${role} transition complete`);
   }
 
   async function hard_reset() {
@@ -405,15 +379,7 @@
               <!-- DECK A: AUDIO -->
               <Accordion label="Audio">
                 <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-x-6 gap-y-4 pt-2 pb-4">
-                  <Toggle label="USER PERSONA MICROPHONE" bind:value={app.settings.call_mode} onchange={() => app.save_settings()} />
                   <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
-                  <Toggle
-                    label="AI CHARACTER VOICE"
-                    bind:value={Audio.voice_enabled}
-                    onchange={() => {
-                      if (!Audio.voice_enabled) Audio.voice.stop();
-                    }}
-                  />
                   <div class="flex w-full items-center gap-4">
                     <button
                       type="button"
@@ -465,153 +431,42 @@
               </Accordion>
 
               <!-- DECK B: STORYBOARD (Contextual) -->
-              <Accordion label="Storyboard">
-                <div class="flex flex-col gap-6 pt-2 pb-4">
-                  <div class="w-full">
-                    <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
+              {#if app.view === "storyboard"}
+                <Accordion label="Storyboard">
+                  <div class="flex flex-col gap-6 pt-2 pb-4">
+                    <div class="w-full">
+                      <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
+                    </div>
                   </div>
-                </div>
-              </Accordion>
+                </Accordion>
+              {/if}
 
               <!-- DECK C: STORYMODE (Contextual) -->
-              <Accordion label="Storymode">
-                <div class="flex flex-row flex-wrap items-center gap-4 pt-2 pb-4">
-                  <Button
-                    label="AI PORTRAIT"
-                    variant="secondary"
-                    size="small"
-                    loading={visual_engine.isLoading}
-                    disabled={visual_engine.isLoading || is_locked}
-                    onclick={async () => {
-                      try {
-                        simulationState.role = "ai";
-                        simulationState.start_generation("ai");
-                        const result = await visual_engine.visualize(runtime.story_id, "A character portrait of the AI character", "character");
-                        if (result?.imageUrl) {
-                          const entity = runtime.active_ai || app.selected_ai;
-                          await session_driver.log_message("", "ai", entity?.name || "AI", "AI_TURN", {}, [
-                            { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
-                          ]);
-                        } else {
-                          app.log("AI Portrait generation failed. Please try again.", "error");
-                        }
-                      } catch (err) {
-                        console.error("[AI Portrait Error]", err);
-                        app.log(`AI Portrait failed: ${err.message || err}`, "error");
-                      } finally {
-                        simulationState.complete();
-                      }
-                    }}
-                  />
-                  <Button
-                    label="USER PORTRAIT"
-                    variant="secondary"
-                    size="small"
-                    loading={visual_engine.isLoading}
-                    disabled={visual_engine.isLoading || is_locked}
-                    onclick={async () => {
-                      try {
-                        simulationState.role = "user";
-                        simulationState.start_generation("user");
-                        const result = await visual_engine.visualize(runtime.story_id, "A character portrait of the user persona", "user");
-                        if (result?.imageUrl) {
-                          const entity = runtime.active_user || app.selected_user;
-                          await session_driver.log_message("", "user", entity?.name || "User", "USER_TURN", {}, [
-                            { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
-                          ]);
-                        } else {
-                          app.log("User Portrait generation failed. Please try again.", "error");
-                        }
-                      } catch (err) {
-                        console.error("[User Portrait Error]", err);
-                        app.log(`User Portrait failed: ${err.message || err}`, "error");
-                      } finally {
-                        simulationState.complete();
-                      }
-                    }}
-                  />
-                  <Button
-                    label="FRACTAL"
-                    variant="secondary"
-                    size="small"
-                    loading={visual_engine.isLoading}
-                    disabled={visual_engine.isLoading || is_locked}
-                    onclick={async () => {
-                      try {
-                        simulationState.role = "fractal";
-                        simulationState.start_generation("fractal");
-                        const result = await visual_engine.visualize(runtime.story_id, "An environmental shot of the current setting", "fractal");
-                        if (result?.imageUrl) {
-                          const entity = runtime.active_fractal || app.selected_fractal;
-                          await session_driver.log_message("", "fractal", entity?.name || "Fractal", "SYSTEM_TURN", {}, [
-                            { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
-                          ]);
-                        } else {
-                          app.log("Fractal generation failed. Please try again.", "error");
-                        }
-                      } catch (err) {
-                        console.error("[Fractal Error]", err);
-                        app.log(`Fractal failed: ${err.message || err}`, "error");
-                      } finally {
-                        simulationState.complete();
-                      }
-                    }}
-                  />
-                  <Button
-                    label="GROUP SHOT"
-                    variant="secondary"
-                    size="small"
-                    loading={visual_engine.isLoading}
-                    disabled={visual_engine.isLoading || is_locked}
-                    onclick={async () => {
-                      try {
-                        simulationState.role = "fractal";
-                        simulationState.start_generation("fractal");
-                        const result = await visual_engine.visualize(
-                          runtime.story_id,
-                          "A scene featuring both the AI character and the user persona together",
-                          "characters",
-                        );
-                        if (result?.imageUrl) {
-                          const fractal = runtime.active_fractal || app.selected_fractal;
-                          await session_driver.log_message("", "fractal", fractal?.name || "Scene", "SYSTEM_TURN", {}, [
-                            { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
-                          ]);
-                        } else {
-                          app.log("Group Shot generation failed. Please try again.", "error");
-                        }
-                      } catch (err) {
-                        console.error("[Group Shot Error]", err);
-                        app.log(`Group Shot failed: ${err.message || err}`, "error");
-                      } finally {
-                        simulationState.complete();
-                      }
-                    }}
-                  />
-                  <Button label="MOCK PROLOGUE" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("fractal")} />
-                  <Button label="MOCK TURN" variant="invisible" size="small" class="opacity-30" onclick={() => run_mock("ai")} />
+              {#if app.view === "storymode"}
+                <Accordion label="Storymode">
+                  <div class="flex flex-row flex-wrap items-center gap-4 pt-2 pb-4">
+                    <Button
+                      label="Return to Storyboard"
+                      variant="secondary"
+                      size="small"
+                      onclick={async () => {
+                        await session_driver.clear_active();
+                        app.set_view("storyboard");
+                      }}
+                    />
 
-                  <Button
-                    label="Return to Storyboard"
-                    variant="secondary"
-                    size="small"
-                    onclick={async () => {
-                      await session_driver.clear_active();
-                      app.set_view("storyboard");
-                    }}
-                  />
-
-                  <Button
-                    label="END STORY"
-                    variant="danger"
-                    size="small"
-                    class="ml-auto"
-                    loading={is_ending_story}
-                    disabled={is_ending_story || is_locked}
-                    onclick={handle_end_story}
-                  />
-                </div>
-              </Accordion>
+                    <Button
+                      label="END STORY"
+                      variant="danger"
+                      size="small"
+                      class="ml-auto"
+                      loading={is_ending_story}
+                      disabled={is_ending_story || is_locked}
+                      onclick={handle_end_story}
+                    />
+                  </div>
+                </Accordion>
+              {/if}
 
               <!-- DECK D: LIBRARY (Always available) -->
               <Accordion label="Library">

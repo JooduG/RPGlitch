@@ -104,7 +104,9 @@ export class VoiceEngine {
   selectedVoice = $state(null);
   volume = $state(1.0);
   rate = $state(1.0);
-  enabled = $state(false); // Defaulting strictly to off
+  enabled = $state(false); // Master voice switch (default off)
+  /** Per-entity voice toggles: { ai: bool, user: bool, fractal: bool }. */
+  entity_voice = $state({ ai: false, user: false, fractal: false });
 
   // --- PRIVATE ---
   /** @type {any | null} KokoroTTS instance */
@@ -545,6 +547,13 @@ class AudioEffectsEngine {
       if (entry && entry.value) {
         this.notifications_enabled = entry.value.notificationsEnabled === true;
         Audio.voice.enabled = entry.value.voiceEnabled === true;
+        if (entry.value.entityVoice && typeof entry.value.entityVoice === "object") {
+          Audio.voice.entity_voice = {
+            ai: entry.value.entityVoice.ai === true,
+            user: entry.value.entityVoice.user === true,
+            fractal: entry.value.entityVoice.fractal === true,
+          };
+        }
         if (entry.value.masterVolume !== undefined) {
           Audio.voice.volume = entry.value.masterVolume;
         }
@@ -567,6 +576,7 @@ class AudioEffectsEngine {
         value: {
           notificationsEnabled: this.notifications_enabled,
           voiceEnabled: Audio.voice.enabled,
+          entityVoice: Audio.voice.entity_voice,
           masterVolume: Audio.voice.volume,
         },
       });
@@ -742,6 +752,35 @@ export const Audio = new (class {
   set voice_enabled(v) {
     this.voice.enabled = !!v;
     this.#effects.saveAllSettings();
+  }
+
+  /**
+   * Returns per-entity voice activation state ({ ai, user, fractal }).
+   */
+  get entity_voice() {
+    return this.voice.entity_voice;
+  }
+
+  /**
+   * Toggles a specific entity's voice and persists settings.
+   * @param {"ai" | "user" | "fractal"} role
+   * @param {boolean} value
+   */
+  set_entity_voice(role, value) {
+    this.voice.entity_voice[role] = !!value;
+    this.#effects.saveAllSettings();
+  }
+
+  /**
+   * Toggles a specific entity's voice and persists settings.
+   * @param {"ai" | "user" | "fractal"} role
+   * @returns {boolean} the new value
+   */
+  toggle_entity_voice(role) {
+    const next = !this.voice.entity_voice[role];
+    this.set_entity_voice(role, next);
+    if (!next) this.voice.stop();
+    return next;
   }
 
   /**

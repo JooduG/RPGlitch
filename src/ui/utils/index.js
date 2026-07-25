@@ -8,3 +8,4 @@ export * from "./ui-helpers.js";
 export * from "./field-path.js";
 export * from "./markdown.js";
 export * from "./safe-html.js";
+export * from "./context-menu.svelte.js";

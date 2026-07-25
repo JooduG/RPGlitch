@@ -6,7 +6,6 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import { Backdrop } from "@atoms";
-  import { simulationState } from "@state";
   import { use_actions } from "@actions";
   import { Dialog } from "bits-ui";
 
@@ -31,8 +30,11 @@
     ...rest
   } = $props();
 
-  // Determine active busy state using the unified simulationState if busy is not explicitly passed
-  let is_busy = $derived(busy !== null ? busy : simulationState.busy);
+  // Determine active busy state. Defaults to false — modals stay interactive
+  // during generation so the user can browse/view. Individual action buttons
+  // inside already auto-disable via simulationState.intent_active. Only pass
+  // busy={true} explicitly when whole-modal graying is desired (e.g. local loading).
+  let is_busy = $derived(busy !== null ? busy : false);
 
   // Bind dialog open state
   let open = $state(true);

@@ -63,6 +63,7 @@
 
 <script>
   import { Modal, Button, TextField, NumberField, tooltip } from "@atoms";
+  import { simulationState } from "@state";
 
   const copyCanvas = (node, sourceCanvas) => {
     const draw = (src) => {
@@ -254,6 +255,7 @@
             <Button
               variant="primary"
               onclick={handleReroll}
+              disabled={simulationState.busy}
               class="flex-1 bg-emerald-500! py-3 font-bold tracking-widest text-white! uppercase hover:bg-emerald-600!"
             >
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
