@@ -444,6 +444,20 @@
       <!-- CARD BODY -->
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
+          {#if app.story_title}
+            <h2
+              class="
+                mb-4
+                text-center
+                text-[clamp(1.3rem,2.8vw,2.2rem)]
+                font-normal
+                text-slate-50/90
+              "
+              style="font-family: Satisfy, cursive;"
+            >
+              {app.story_title}
+            </h2>
+          {/if}
           <div class="mb-4 flex h-storyboard-character-card-height w-full items-stretch gap-2 md:gap-4">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
