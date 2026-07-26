@@ -10,11 +10,12 @@
   import { get_style_initials } from "@utils";
 
   /**
-   * `layout` controls badge sizing:
+   * `layout` controls badge sizing & interaction:
    * - `"storymode"`: badges are ~half the character card width total, sized via
    *   inline style using the same dynamic CSS variable the cards use. No Tailwind
    *   size class is used (Tailwind's !important on arbitrary classes would
-   *   override the inline style).
+   *   override the inline style). Includes the entity-card-style hover overlay
+   *   (name in signature color on dark gradient) + zoom. No tooltip in this mode.
    * - default: container-query responsive sizing for the storyboard overlay.
    */
   /** @type {{ entity?: any, class?: string, layout?: "storymode" | "default" }} */
@@ -22,15 +23,18 @@
 
   let is_storymode = $derived(layout === "storymode");
 
-  let badge_size_class = $derived(layout === "storymode" ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]");
+  let badge_size_class = $derived(is_storymode ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]");
 
-  // Fix 1:1 aspect ratio — use aspect-ratio:1/1 with height from the CSS variable
-  // and width: auto so flex doesn't shrink it independently of height.
+  // In storymode, set only the height and use aspect-ratio for a perfect 1:1 square.
+  // flex-shrink: 0 prevents the flex container from compressing the width.
   let badge_size_style = $derived(
-    layout === "storymode" ? "height: calc(var(--spacing-storyboard-character-card-width) * 0.5); aspect-ratio: 1 / 1;" : "",
+    is_storymode ? "height: calc(var(--spacing-storyboard-character-card-width) * 0.5); aspect-ratio: 1 / 1; flex-shrink: 0;" : "",
   );
 
-  let opacity_class = $derived(layout === "storymode" ? "opacity-100" : "opacity-70 hover:opacity-100");
+  let opacity_class = $derived(is_storymode ? "opacity-100" : "opacity-70 hover:opacity-100");
+
+  // Storymode hover zoom — same utilities the entity cards use
+  let hover_zoom_class = $derived(is_storymode ? "hover:scale-lift hover:brightness-glow" : "");
 
   let style_details = $derived(entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null);
   let vstyle_details = $derived(
@@ -40,10 +44,10 @@
 </script>
 
 {#if style_details || vstyle_details}
-  <div class="pointer-events-none flex {className}" style="--signature-color: {signature_color};">
+  <div class="pointer-events-none flex {className}" style={is_storymode ? `--signature-color: ${signature_color};` : ""}>
     {#if style_details}
       <div
-        use:tooltip={{ text: `Narrative Style: ${style_details.name}` }}
+        use:tooltip={is_storymode ? null : { text: `Narrative Style: ${style_details.name}` }}
         style={badge_size_style}
         class="
           group
@@ -61,11 +65,11 @@
           border-(--signature-color)
           bg-black/40
           {opacity_class}
+          {hover_zoom_class}
           shadow-md
           transition-all
           duration-300
           ease-in-out
-          {is_storymode ? 'hover:scale-lift hover:brightness-glow' : ''}
           md:rounded-2xl
         "
       >
@@ -79,6 +83,7 @@
             {get_style_initials(style_details.name)}
           {/if}
         </div>
+
         {#if is_storymode}
           <div
             class="
@@ -101,7 +106,7 @@
               to-transparent
               px-1
               pt-4
-              pb-1.5
+              pb-1
               text-center
               opacity-0
               transition-all
@@ -117,17 +122,17 @@
                 overflow-hidden
                 text-center
                 font-heading
-                text-[clamp(0.35rem,3.8cqi,0.55rem)]
-                leading-[1.1]
+                text-[clamp(0.45rem,4.5cqi,0.65rem)]
+                leading-tight
                 font-bold
-                tracking-tight
+                tracking-widest
                 wrap-break-word
                 text-(--signature-color,var(--color-slate-50))
                 uppercase
                 [-webkit-box-orient:vertical]
-                [-webkit-line-clamp:3]
-                [line-clamp:3]
-                [text-shadow:0_1px_3px_#000,0_2px_6px_#000]
+                [-webkit-line-clamp:2]
+                [line-clamp:2]
+                [text-shadow:0_2px_4px_var(--color-void-black)]
               ">{style_details.name}</span
             >
           </div>
@@ -144,7 +149,7 @@
             ? "text-[clamp(0.44rem,4.4cqi,0.6rem)]"
             : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
       <div
-        use:tooltip={{ text: `Visual Style: ${vstyle_details.name}` }}
+        use:tooltip={is_storymode ? null : { text: `Visual Style: ${vstyle_details.name}` }}
         style={badge_size_style}
         class="
           group
@@ -162,11 +167,11 @@
           border-(--signature-color)
           bg-black/40
           {opacity_class}
+          {hover_zoom_class}
           shadow-md
           transition-all
           duration-300
           ease-in-out
-          {is_storymode ? 'hover:scale-lift hover:brightness-glow' : ''}
           md:rounded-2xl
         "
       >
@@ -180,6 +185,7 @@
             {vname}
           {/if}
         </div>
+
         {#if is_storymode}
           <div
             class="
@@ -202,7 +208,7 @@
               to-transparent
               px-1
               pt-4
-              pb-1.5
+              pb-1
               text-center
               opacity-0
               transition-all
@@ -218,17 +224,17 @@
                 overflow-hidden
                 text-center
                 font-heading
-                text-[clamp(0.35rem,3.8cqi,0.55rem)]
-                leading-[1.1]
+                text-[clamp(0.45rem,4.5cqi,0.65rem)]
+                leading-tight
                 font-bold
-                tracking-tight
+                tracking-widest
                 wrap-break-word
                 text-(--signature-color,var(--color-slate-50))
                 uppercase
                 [-webkit-box-orient:vertical]
-                [-webkit-line-clamp:3]
-                [line-clamp:3]
-                [text-shadow:0_1px_3px_#000,0_2px_6px_#000]
+                [-webkit-line-clamp:2]
+                [line-clamp:2]
+                [text-shadow:0_2px_4px_var(--color-void-black)]
               ">{vname}</span
             >
           </div>
