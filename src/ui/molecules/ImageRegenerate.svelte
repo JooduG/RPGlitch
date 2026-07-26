@@ -24,6 +24,10 @@
     is_regenerating = true;
     try {
       const candidates = imageRegenerate.candidates;
+      const signature_color = imageRegenerate.signature_color;
+      const key = imageRegenerate.regenerating_key;
+      if (!key) return;
+
       const firstCandidate = candidates[0];
       const prompt = firstCandidate?.metadata?.prompt || "";
       const mode = firstCandidate?.metadata?.mode || "character";
@@ -49,7 +53,7 @@
         newCandidates.map((c) => ({
           url: c.url,
           metadata: { ...c.metadata, prompt: finalPrompt },
-          signature_color: imageRegenerate.signature_color,
+          signature_color,
         })),
       );
     } catch (err) {
@@ -122,9 +126,12 @@
                           class="flex items-center gap-2 rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
                           onclick={handle_regenerate}
                         >
-                          <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-                            <polyline points="23 4 23 10 17 10" />
-                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                          <svg
+                            viewBox="0 0 24 24"
+                            class="h-4 w-4 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]"
+                          >
+                            <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                            <path d="M21 3v5h-5" />
                           </svg>
                           <span class="font-mono text-xs tracking-widest uppercase">Regenerate</span>
                         </button>

@@ -661,9 +661,9 @@
                   <div
                     class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-(--signature-color,slate-500)/40 bg-(--signature-color,slate-700)/10 text-(--signature-color,slate-300) transition-colors group-hover:scale-110"
                   >
-                    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-                      <polyline points="23 4 23 10 17 10" />
-                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                    <svg viewBox="0 0 24 24" class="h-7 w-7 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]">
+                      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                      <path d="M21 3v5h-5" />
                     </svg>
                   </div>
                   <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click Here</span>
