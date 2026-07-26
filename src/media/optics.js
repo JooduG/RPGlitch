@@ -228,6 +228,11 @@ ${styleObj.tags && styleObj.tags.length ? `<tags>${escapeXml(styleObj.tags.join(
 ${styleObj.negative_prompt ? `<negative_prompt>${escapeXml(styleObj.negative_prompt)}</negative_prompt>` : ""}
 </ACTIVE_VISUAL_STYLE>`;
 
+    const inputDesc =
+      text && text.trim()
+        ? text
+        : `A detailed ${isPortraitMode ? "character portrait" : "scene"} of ${entity?.name || _type || "a subject"}, ${entity?.description || "with distinctive features and dramatic lighting"}.`;
+
     return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
 You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and rendering clarity for modern transformer-based diffusion pipelines (FLUX.1 / T5-XXL).
 
@@ -245,7 +250,7 @@ ${activeStyleBlock}
 </REFINE_PROTOCOL>
 
 <INPUT_DESCRIPTION>
-${escapeXml(text)}
+${escapeXml(inputDesc)}
 </INPUT_DESCRIPTION>
 
 JSON STRUCTURE:

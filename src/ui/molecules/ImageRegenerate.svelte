@@ -6,7 +6,7 @@
    * and pick their favorite. Includes a "Regenerate" button for a 2nd
    * round of generation with LLM-refined prompts.
    */
-  import { imageRegenerate, selectCandidate, closeRegenerate, deliverCandidates, setRegenerateError } from "@state";
+  import { imageRegenerate, selectCandidate, closeRegenerate, deliverCandidates, setRegenerateError, resetForRegenerate } from "@state";
   import { visual_engine } from "@media";
   import { Backdrop } from "@atoms";
   import { Dialog } from "bits-ui";
@@ -15,27 +15,63 @@
   let open = $state(true);
   let is_regenerating = $state(false);
 
+  // True while candidates for the *current* picker session have not yet
+  // been delivered (initial generation still running in the background).
+  let is_initial_loading = $state(false);
+
+  // Close the picker (and clear all state) when the Dialog is dismissed.
   $effect(() => {
     if (!open) closeRegenerate();
   });
 
+  // React to the picker opening: if candidates aren't ready yet, show a
+  // loading state until they arrive (or an error appears).
+  $effect(() => {
+    if (imageRegenerate.picker_open) {
+      is_initial_loading = !imageRegenerate.candidates_ready && !imageRegenerate.error;
+    } else {
+      is_initial_loading = false;
+    }
+  });
+
   async function handle_regenerate() {
     if (is_regenerating) return;
+    const key = imageRegenerate.regenerating_key;
+    if (!key) {
+      setRegenerateError("No image context available to regenerate.");
+      return;
+    }
     is_regenerating = true;
+    const savedCandidates = imageRegenerate.candidates.map((c) => ({
+      url: c.url,
+      metadata: { ...c.metadata },
+      signature_color: c.signature_color,
+    }));
+    resetForRegenerate();
     try {
-      const candidates = imageRegenerate.candidates;
       const signature_color = imageRegenerate.signature_color;
-      const key = imageRegenerate.regenerating_key;
-      if (!key) return;
 
-      const firstCandidate = candidates[0];
+      const firstCandidate = savedCandidates[0];
       const prompt = firstCandidate?.metadata?.prompt || "";
       const mode = firstCandidate?.metadata?.mode || "character";
       const negativePrompt = firstCandidate?.metadata?.negativePrompt;
 
-      const refined = await visual_engine.enhance(prompt, mode);
-      const finalPrompt = refined?.prompt || prompt;
-      const finalNegative = refined?.negativePrompt || negativePrompt;
+      if (!prompt) {
+        setRegenerateError("No prompt found for this image. Cannot regenerate.");
+        return;
+      }
+
+      let finalPrompt = prompt;
+      let finalNegative = negativePrompt;
+      try {
+        const refined = await visual_engine.enhance(prompt, mode);
+        if (refined?.prompt) {
+          finalPrompt = refined.prompt;
+          finalNegative = refined.negativePrompt || negativePrompt;
+        }
+      } catch (enhanceErr) {
+        console.warn("[ImageRegenerate] Prompt enhancement failed, using original prompt:", enhanceErr);
+      }
 
       const newCandidates = await visual_engine.generate_candidates(finalPrompt, {
         mode,
@@ -81,49 +117,85 @@
                   {#if imageRegenerate.error}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <p class="text-lg text-red-400">{imageRegenerate.error}</p>
-                      <button
-                        class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
-                        onclick={() => closeRegenerate()}
-                      >
-                        Close
-                      </button>
+                      <div class="flex gap-4">
+                        <button
+                          class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
+                          onclick={() => {
+                            closeRegenerate();
+                          }}
+                        >
+                          Close
+                        </button>
+                      </div>
                     </div>
-                  {:else if is_regenerating}
+                  {:else if is_initial_loading}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <div class="flex gap-1.5">
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 0ms"></div>
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 150ms"></div>
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 300ms"></div>
                       </div>
-                      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">Regenerating...</p>
+                      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">Generating...</p>
                     </div>
-                  {:else}
-                    <!-- CARD GRID -->
-                    <div class="flex flex-wrap items-center justify-center gap-4 md:gap-8" in:fade={{ duration: 300 }}>
+                  {:else if imageRegenerate.candidates.length >= 2}
+                    <!-- POLAROID CARD GRID -->
+                    <div class="flex flex-wrap items-end justify-center gap-6 md:gap-10" in:fade={{ duration: 300 }}>
                       {#each imageRegenerate.candidates as candidate, i (i)}
+                        {@const letter = String.fromCharCode(65 + i)}
+                        {@const cRes = candidate.metadata?.resolution || "512x768"}
+                        {@const [cW, cH] = cRes.split("x").map(Number)}
+                        {@const ar = cW && cH ? `${cW} / ${cH}` : "2 / 3"}
                         <button
                           type="button"
-                          class="group relative h-72 w-56 cursor-pointer overflow-hidden rounded-none border-2 shadow-2xl transition-all duration-300 ease-out md:h-80 md:w-64 {imageRegenerate.selected_index ===
+                          class="group relative w-56 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out md:w-64 {imageRegenerate.selected_index ===
                           i
-                            ? 'scale-105 border-emerald-400 ring-2 ring-emerald-400/60'
+                            ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
                             : imageRegenerate.selected_index !== null
-                              ? 'scale-95 opacity-40'
-                              : 'border-white/20 hover:scale-[1.02] hover:border-white/40'}"
+                              ? 'scale-95 cursor-default opacity-40'
+                              : 'cursor-pointer hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(0,0,0,0.7)]'}"
+                          style="background: #f5f0e6; border-radius: 2px; transform-origin: bottom center; transform: rotate({i == 0
+                            ? -4
+                            : i == 2
+                              ? 4
+                              : 0}deg);"
                           onclick={() => selectCandidate(i)}
-                          aria-label="Select candidate {i + 1}"
+                          aria-label="Select candidate {letter}"
                         >
-                          <img src={candidate.url} alt="Candidate {i + 1}" class="h-full w-full object-cover" />
-                          <div class="pointer-events-none absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent"></div>
+                          <div class="relative overflow-hidden bg-neutral-200" style="aspect-ratio: {ar};">
+                            <img src={candidate.url} alt="Candidate {letter}" class="h-full w-full object-cover" />
+                            {#if imageRegenerate.selected_index === i}
+                              <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
+                                <div class="rounded-full bg-emerald-400 p-3 text-white shadow-lg">
+                                  <svg
+                                    viewBox="0 0 24 24"
+                                    class="h-6 w-6 fill-none stroke-current stroke-3 [stroke-linecap:round] [stroke-linejoin:round]"
+                                  >
+                                    <polyline
+                                      points="20 6 9 17 4 12"
+                                      stroke="currentColor"
+                                      stroke-width="3"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                    />
+                                  </svg>
+                                </div>
+                              </div>
+                            {/if}
+                          </div>
+                          <!-- Polaroid label area -->
+                          <div class="absolute right-0 bottom-0 left-0 flex h-10 items-center justify-center">
+                            <span class="font-mono text-xl font-bold tracking-widest text-neutral-800 uppercase">{letter}</span>
+                          </div>
                         </button>
                       {/each}
                     </div>
 
                     {#if imageRegenerate.selected_index === null}
-                      <div class="flex flex-col items-center gap-4" in:fade={{ duration: 300 }}>
-                        <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">Choose one</p>
+                      <div class="flex flex-wrap items-center justify-center gap-3" in:fade={{ duration: 300 }}>
+                        <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One — or</span>
                         <button
                           type="button"
-                          class="flex items-center gap-2 rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
+                          class="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
                           onclick={handle_regenerate}
                         >
                           <svg
@@ -133,10 +205,20 @@
                             <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
                             <path d="M21 3v5h-5" />
                           </svg>
-                          <span class="font-mono text-xs tracking-widest uppercase">Regenerate</span>
+                          <span class="font-mono text-xs tracking-widest uppercase">Discard & Regenerate</span>
                         </button>
                       </div>
                     {/if}
+                  {:else}
+                    <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
+                      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No candidates available</p>
+                      <button
+                        class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
+                        onclick={closeRegenerate}
+                      >
+                        Close
+                      </button>
+                    </div>
                   {/if}
                 </div>
               {/snippet}

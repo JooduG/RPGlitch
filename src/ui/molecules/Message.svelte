@@ -538,7 +538,7 @@
 
         {#if is_editing}
           <TextField bind:value={local_text} is_edit={true} {signature_color} no_background={true} placeholder="Edit message..." />
-        {:else if has_display_text || busy}
+        {:else if has_display_text || (busy && attachments.length === 0)}
           <div
             class="
               text-left
@@ -587,13 +587,58 @@
         {/if}
 
         {#if attachments.length > 0}
-          <div class="flex justify-center">
+          <div class="flex justify-center {has_display_text || (should_use_typewriter && (has_display_text || busy)) ? 'mt-4' : ''}">
             {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
               {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
               {@const attach_mode = (typeof attachment === "object" && attachment?.metadata?.mode) || "character"}
               {@const res = getResolution(attach_mode)}
               {@const regenerate_key = `${id}:${attach_idx}`}
-              {#if src}
+              {@const box_h = 480}
+              {@const box_w = Math.round((box_h * res.width) / res.height)}
+              {#if imageRegenerate.hasError(regenerate_key)}
+                <div
+                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4"
+                  style="height: {box_h}px; width: {box_w}px;"
+                >
+                  <p class="text-center text-sm text-red-400">{imageRegenerate.error}</p>
+                </div>
+              {:else if imageRegenerate.isReady(regenerate_key)}
+                <button
+                  type="button"
+                  class="group relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
+                  style="height: {box_h}px; width: {box_w}px;"
+                  onclick={() => openPicker()}
+                  aria-label="Select image from candidates"
+                >
+                  <!-- Mini 3-card spread -->
+                  <div class="relative h-16 w-24 transition-transform duration-200 group-hover:scale-110">
+                    <div
+                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm"
+                      style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;"
+                    ></div>
+                    <div
+                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/50 bg-(--signature-color,slate-600)/20 shadow-md"
+                      style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;"
+                    ></div>
+                    <div
+                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm"
+                      style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;"
+                    ></div>
+                  </div>
+                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click here</span>
+                </button>
+              {:else if imageRegenerate.isRegenerating(regenerate_key)}
+                <div
+                  class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+                  style="height: {box_h}px; width: {box_w}px;"
+                >
+                  <div class="flex gap-1.5">
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                  </div>
+                </div>
+              {:else if src}
                 <button
                   type="button"
                   class="
@@ -602,8 +647,11 @@
                     w-fit
                     overflow-hidden
                     rounded-lg
+                    border
+                    border-(--signature-color,slate-600)/30
                     bg-neutral-900/50
-                    transition-[filter] duration-200
+                    transition-[filter]
+                    duration-200
                     hover:brightness-110
                   "
                   onclick={() => {
@@ -626,7 +674,6 @@
                     app.open_image_preview(previewOptions);
                   }}
                   aria-label="View Attachment"
-                  use:tooltip
                 >
                   <img
                     {src}
@@ -637,52 +684,15 @@
                       w-auto
                       max-w-full
                       cursor-zoom-in
-                      rounded-sm
+                      rounded-lg
                       object-contain
-                      shadow-sm
                     "
                   />
                 </button>
-              {:else if imageRegenerate.hasError(regenerate_key)}
-                <div
-                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-8"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                >
-                  <p class="text-center text-sm text-red-400">{imageRegenerate.error}</p>
-                </div>
-              {:else if imageRegenerate.isReady(regenerate_key)}
-                <button
-                  type="button"
-                  class="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                  onclick={() => openPicker()}
-                  aria-label="Select image from candidates"
-                >
-                  <div
-                    class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-(--signature-color,slate-500)/40 bg-(--signature-color,slate-700)/10 text-(--signature-color,slate-300) transition-colors group-hover:scale-110"
-                  >
-                    <svg viewBox="0 0 24 24" class="h-7 w-7 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]">
-                      <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-                      <path d="M21 3v5h-5" />
-                    </svg>
-                  </div>
-                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click Here</span>
-                </button>
-              {:else if imageRegenerate.isRegenerating(regenerate_key)}
-                <div
-                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                >
-                  <div class="flex gap-1.5">
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-                  </div>
-                </div>
               {:else}
                 <div
-                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                  class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+                  style="height: {box_h}px; width: {box_w}px;"
                 >
                   <div class="flex gap-1.5">
                     <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>

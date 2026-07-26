@@ -146,7 +146,7 @@
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <!-- svelte-ignore a11y_click_events_have_key_events -->
-    <div class="flex min-h-0 min-w-0 flex-1 flex-col items-center justify-center" onclick={(e) => e.stopPropagation()}>
+    <div class="flex min-h-0 min-w-0 flex-1 items-center justify-center overflow-hidden" onclick={(e) => e.stopPropagation()}>
       {#if state.canvas}
         <div
           role="img"
@@ -175,81 +175,83 @@
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
-        class="pointer-events-auto flex w-full shrink-0 flex-col gap-gap-standard overflow-y-auto rounded-standard bg-glass-elevated p-padding-standard [backdrop-filter:var(--blur-mist)] md:w-lg"
+        class="pointer-events-auto flex max-h-[95vh] w-full shrink-0 flex-col gap-gap-standard overflow-hidden rounded-standard bg-glass-elevated p-padding-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-lg"
         onclick={(e) => e.stopPropagation()}
       >
-        {#if state.metadata.prompt}
-          <div class="flex flex-col gap-2 text-left">
-            <TextField value={state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
-              {#snippet status()}
-                <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
-              {/snippet}
-              {#snippet header_actions()}
-                <Button
-                  variant="invisible"
-                  size="small"
-                  square={true}
-                  aria-label="Copy Prompt"
-                  actions={[tooltip]}
-                  class="h-full! py-0! opacity-80 hover:opacity-100"
-                  onclick={handleCopyPrompt}
-                >
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-                  </svg>
-                </Button>
-              {/snippet}
-            </TextField>
-          </div>
-        {/if}
+        <div class="flex scrollbar-none flex-col gap-gap-standard overflow-y-auto [&::-webkit-scrollbar]:hidden">
+          {#if state.metadata.prompt}
+            <div class="flex flex-col gap-2 text-left">
+              <TextField value={state.metadata.prompt.trim()} is_edit={false} always_expanded={false} signature_color="var(--color-frozen)">
+                {#snippet status()}
+                  <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
+                {/snippet}
+                {#snippet header_actions()}
+                  <Button
+                    variant="invisible"
+                    size="small"
+                    square={true}
+                    aria-label="Copy Prompt"
+                    actions={[tooltip]}
+                    class="h-full! py-0! opacity-80 hover:opacity-100"
+                    onclick={handleCopyPrompt}
+                  >
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
+                    </svg>
+                  </Button>
+                {/snippet}
+              </TextField>
+            </div>
+          {/if}
 
-        {#if state.metadata.negativePrompt}
-          <div class="flex flex-col gap-2 text-left">
-            <TextField
-              value={state.metadata.negativePrompt.trim()}
-              is_edit={false}
-              always_expanded={false}
-              signature_color="var(--color-frozen)"
-              class="max-h-40"
-            >
-              {#snippet status()}
-                <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
-              {/snippet}
-              {#snippet header_actions()}
-                <Button
-                  variant="invisible"
-                  size="small"
-                  square={true}
-                  aria-label="Copy Negative Prompt"
-                  actions={[tooltip]}
-                  class="h-full! py-0! opacity-80 hover:opacity-100"
-                  onclick={handleCopyNegativePrompt}
-                >
-                  <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
-                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
-                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
-                  </svg>
-                </Button>
-              {/snippet}
-            </TextField>
-          </div>
-        {/if}
+          {#if state.metadata.negativePrompt}
+            <div class="flex flex-col gap-2 text-left">
+              <TextField
+                value={state.metadata.negativePrompt.trim()}
+                is_edit={false}
+                always_expanded={false}
+                signature_color="var(--color-frozen)"
+                class="max-h-40"
+              >
+                {#snippet status()}
+                  <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
+                {/snippet}
+                {#snippet header_actions()}
+                  <Button
+                    variant="invisible"
+                    size="small"
+                    square={true}
+                    aria-label="Copy Negative Prompt"
+                    actions={[tooltip]}
+                    class="h-full! py-0! opacity-80 hover:opacity-100"
+                    onclick={handleCopyNegativePrompt}
+                  >
+                    <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
+                      <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
+                      <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke="currentColor" stroke-width="2"></path>
+                    </svg>
+                  </Button>
+                {/snippet}
+              </TextField>
+            </div>
+          {/if}
 
-        {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
-          <NumberField
-            value={state.metadata.seed}
-            placeholder="Seed"
-            readonly={true}
-            actions={[tooltip]}
-            aria-label="Click to copy seed"
-            onclick={handleCopySeed}
-            onkeydown={handleKeydownStub}
-            class="w-full text-lg"
-          />
-        {/if}
+          {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
+            <NumberField
+              value={state.metadata.seed}
+              placeholder="Seed"
+              readonly={true}
+              actions={[tooltip]}
+              aria-label="Click to copy seed"
+              onclick={handleCopySeed}
+              onkeydown={handleKeydownStub}
+              class="w-full text-lg"
+            />
+          {/if}
+        </div>
 
-        <div class="mt-auto flex flex-row gap-4">
+        <div class="mt-auto flex shrink-0 flex-row gap-4">
           {#if state.on_regenerate}
             <Button variant="secondary" class="flex-1" onclick={handleRegenerate}>
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">

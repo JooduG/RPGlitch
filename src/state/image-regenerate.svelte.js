@@ -127,11 +127,16 @@ export function selectCandidate(index) {
 }
 
 /**
- * Closes the picker modal but keeps regenerate state (for re-opening).
+ * Closes the picker modal but resets to "regenerating" state so the
+ * inline message placeholder shows ellipses while new candidates generate.
+ * Keeps the same regenerating_key and on_select callback.
  */
-export function closePicker() {
+export function resetForRegenerate() {
   state.picker_open = false;
+  state.candidates_ready = false;
+  state.candidates = [];
   state.selected_index = null;
+  state.error = null;
 }
 
 /**

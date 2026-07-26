@@ -8,7 +8,7 @@ export {
   deliverCandidates,
   openPicker,
   selectCandidate,
-  closePicker,
   closeRegenerate,
   setRegenerateError,
+  resetForRegenerate,
 } from "./image-regenerate.svelte.js";

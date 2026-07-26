@@ -151,7 +151,7 @@
 
   let visible_feed = $derived.by(() => {
     const list = [...simulation_log.feed];
-    if (is_active_turn) {
+    if (is_active_turn && app.streaming.active) {
       const active_id = app.streaming.nodeId ?? app.streaming.node_id ?? "temp";
       if (!list.some((entry) => entry.id === active_id)) {
         list.push({

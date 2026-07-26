@@ -355,10 +355,10 @@ export class VisualEngine {
       };
     }
 
-    const targetTypeMap = { fractal: "fractal", user: "user", selfie: "selfie", characters: "characters" };
+    const targetTypeMap = { ai: "ai", fractal: "fractal", user: "user", selfie: "selfie", characters: "characters" };
     const vTarget = targetTypeMap[targetType] || "character";
 
-    const targetIdMap = { fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
+    const targetIdMap = { ai: story.ai_id, fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
     const targetId = targetIdMap[targetType] || story.ai_id;
 
     if (!silent) {

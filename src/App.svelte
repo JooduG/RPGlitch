@@ -148,7 +148,7 @@
       let finalNegative = negativePrompt;
 
       // Second+ regenerate: re-refine the prompt via LLM
-      if (regenerate_count >= 1) {
+      if (regenerate_count >= 1 && prompt) {
         const refined = await visual_engine.enhance(prompt, mode);
         if (refined?.prompt) {
           finalPrompt = refined.prompt;
@@ -270,7 +270,7 @@
       items.push({ separator: true });
       items.push({
         label: photo_label,
-        onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "fractal" : "character"),
+        onSelect: () => take_photo(type, photo_prompt, type),
         disabled: is_locked || visual_engine.isLoading,
       });
       if (type === "fractal") {
