@@ -356,7 +356,7 @@
         {:else}
           {@const entity = app.selected_fractal}
           <div
-            class="flex h-full w-full items-center justify-center"
+            class="pointer-events-auto flex h-full w-full items-center justify-center"
             style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-fractal" : undefined}
           >
             <EntityCard
@@ -376,7 +376,7 @@
           </div>
         {/if}
       {:else if app.view === "storymode"}
-        <div class="relative flex h-full w-full flex-col overflow-hidden">
+        <div class="pointer-events-auto relative flex h-full w-full flex-col overflow-hidden">
           {#if !app.entities_loaded}
             <Skeleton variant="card" width="100%" height="100%" />
           {:else}

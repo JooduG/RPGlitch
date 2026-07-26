@@ -101,7 +101,7 @@
     {/if}
   </aside>
 
-  <main class="relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {center_class}">
+  <main class="pointer-events-none relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {center_class}">
     {#if center}
       {@render center()}
     {/if}
@@ -114,7 +114,7 @@
   </aside>
 
   {#if footer}
-    <footer class="relative z-40 flex justify-center {footer_class}">
+    <footer class="pointer-events-none relative z-40 flex justify-center {footer_class}">
       {@render footer()}
     </footer>
   {/if}

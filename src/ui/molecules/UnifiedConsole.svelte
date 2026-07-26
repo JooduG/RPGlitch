@@ -309,7 +309,7 @@
   on_confirm={confirm_rename_story}
 />
 
-<div class="relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
+<div class="pointer-events-auto relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
     <Backdrop z_index="40" is_blurred={true} onclick={() => (app.control_panel_open = false)} />
   {/if}
