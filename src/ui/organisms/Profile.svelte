@@ -323,59 +323,10 @@
       >
         <div class={avatar_container_class + " relative"}>
           <button
-            class={[
-              profile_pic_wrapper_class,
-              "flex appearance-none items-center justify-center p-0 outline-none",
-              profileState.is_editing && profileState.char?.profile_picture
-                ? "cursor-pointer transition-[filter] duration-200 hover:brightness-110"
-                : "cursor-default",
-            ]}
+            class={[profile_pic_wrapper_class, "flex appearance-none items-center justify-center p-0 outline-none", "cursor-default"]}
             style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
             style:background="transparent"
-            disabled={!profileState.is_editing || !profileState.char?.profile_picture}
-            onclick={() => {
-              if (profileState.is_editing && profileState.char?.profile_picture) {
-                app.open_image_preview({
-                  src: profileState.char.profile_picture,
-                  metadata: profileState.char.modifiers
-                    ? {
-                        prompt: profileState.char.modifiers.prompt,
-                        negativePrompt: profileState.char.modifiers.negative_prompt,
-                        seed: profileState.char.modifiers.last_generated_seed,
-                      }
-                    : null,
-                  on_reroll: () => {
-                    const modifiers = profileState.char.modifiers;
-                    if (!modifiers || !modifiers.prompt) return;
-                    profileState.busy_fields.add("visual-prompt");
-                    app.log(`[Profile] Rerolling profile picture...`, "system");
-                    app.visual
-                      .generate(modifiers.prompt, {
-                        mode: profileState.char.type,
-                        no_background: profileState.noBackground,
-                        negativePrompt: modifiers.negative_prompt || undefined,
-                        seed: undefined, // Force a new random seed on reroll
-                        returnPayload: true,
-                        _entity: profileState.char,
-                      })
-                      .then((payload) => {
-                        if (payload?.url) {
-                          profileState.char.profile_picture = payload.url;
-                          if (payload.metadata?.seed !== undefined) {
-                            modifiers.last_generated_seed = payload.metadata.seed;
-                          }
-                        }
-                      })
-                      .catch((err) => {
-                        app.log(`Generation failed: ${err.message}`, "error");
-                      })
-                      .finally(() => {
-                        profileState.busy_fields.delete("visual-prompt");
-                      });
-                  },
-                });
-              }
-            }}
+            disabled
           >
             <ProfilePicture entity={profileState.char} contain={true} landscape={entity_type !== "character"} />
           </button>

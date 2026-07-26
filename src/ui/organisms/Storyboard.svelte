@@ -100,6 +100,7 @@
       .map((p) => p.text)
       .join("")
       .trim();
+    app.story_title_parts = is_custom ? [{ text: custom_title }] : title_parts.map((p) => ({ ...p }));
   });
 
   // ============================================

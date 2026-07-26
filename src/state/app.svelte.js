@@ -109,6 +109,7 @@ export class AppStore {
   // --- NARRATIVE CONFIG ---
   prologue = $state(""); // Starting directions/context
   story_title = $state(""); // Synchronized generated or custom title
+  story_title_parts = $state([]); // Structured title parts with per-entity colors
   /** @type {SimulationControl} */
   simulation = {
     get loading() {

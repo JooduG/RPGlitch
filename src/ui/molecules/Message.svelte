@@ -445,17 +445,21 @@
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
           {#if app.story_title}
-            <h2
-              class="
-                mb-4
-                text-center
-                text-[clamp(1.3rem,2.8vw,2.2rem)]
-                font-normal
-                text-slate-50/90
-              "
-              style="font-family: Satisfy, cursive;"
-            >
-              {app.story_title}
+            <h2 class="mb-4 text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal" style="font-family: Satisfy, cursive;">
+              {#if app.story_title_parts.length > 0}
+                {#each app.story_title_parts as part, i (i)}
+                  {#if part.color}
+                    <span
+                      class="inline px-1 whitespace-nowrap text-(--signature-color) [text-shadow:0_0_var(--spacing-spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]"
+                      style:--signature-color={part.color}>{part.text}</span
+                    >
+                  {:else}
+                    <span class="inline px-1 [text-shadow:0_0_var(--spacing-spacing-unit)_var(--color-void-black)]">{part.text}</span>
+                  {/if}
+                {/each}
+              {:else}
+                {app.story_title}
+              {/if}
             </h2>
           {/if}
           <div class="mb-4 flex h-storyboard-character-card-height w-full items-stretch gap-2 md:gap-4">

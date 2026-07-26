@@ -60,6 +60,7 @@
         ? `col-start-3 col-end-11 row-start-1 row-end-13 h-full ${align_class}`
         : `col-start-4 col-end-10 row-start-3 row-end-11 h-full ${align_class}`,
   );
+  let center_pe = $derived(mode === "storymode" ? "" : "pointer-events-none");
 
   // ── RIGHT ASIDE CLASS MATRIX ────────────────────────────────────────────
   let right_class = $derived(
@@ -101,7 +102,7 @@
     {/if}
   </aside>
 
-  <main class="pointer-events-none relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {center_class}">
+  <main class="{center_pe} relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {center_class}">
     {#if center}
       {@render center()}
     {/if}

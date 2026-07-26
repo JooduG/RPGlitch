@@ -144,7 +144,7 @@
 
   /**
    * Factory: builds the context-menu action list for an entity slot.
-   * Storymode adds photo/group-photo/ghostwrite actions; devmode adds mock.
+   * Contextual: image actions and ghostwrite are storymode-only; swap is storyboard-only.
    * @param {"ai" | "user" | "fractal"} type
    * @returns {any[]}
    */
@@ -154,81 +154,102 @@
     const entity_map = { ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal };
     const entity = entity_map[type];
 
-    const items = [];
+    const photo_label = type === "ai" ? "AI Character Image" : type === "user" ? "User Persona Image" : "Fractal Image";
+    const photo_prompt =
+      type === "ai"
+        ? "A character portrait of the AI character"
+        : type === "user"
+          ? "A character portrait of the user persona"
+          : "An environmental shot of the current setting";
+
+    const items = [
+      { label: "Open Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity },
+      {
+        label: "View Profile Picture",
+        onSelect: () =>
+          app.open_image_preview({
+            src: entity?.profile_picture,
+            metadata: entity?.modifiers
+              ? {
+                  prompt: entity.modifiers.prompt,
+                  negativePrompt: entity.modifiers.negative_prompt,
+                  seed: entity.modifiers.last_generated_seed,
+                }
+              : null,
+            on_reroll: () => {
+              const modifiers = entity?.modifiers;
+              if (!modifiers || !modifiers.prompt) return;
+              app.log(`[Profile] Rerolling profile picture...`, "system");
+              app.visual
+                .generate(modifiers.prompt, {
+                  mode: entity.type,
+                  no_background: false,
+                  negativePrompt: modifiers.negative_prompt || undefined,
+                  seed: undefined,
+                  returnPayload: true,
+                  _entity: entity,
+                })
+                .then((payload) => {
+                  if (payload?.url) {
+                    entity.profile_picture = payload.url;
+                    if (payload.metadata?.seed !== undefined) {
+                      modifiers.last_generated_seed = payload.metadata.seed;
+                    }
+                  }
+                })
+                .catch((err) => {
+                  app.log(`Generation failed: ${err.message}`, "error");
+                });
+            },
+          }),
+        disabled: !entity?.profile_picture,
+      },
+      {
+        label: Audio.entity_voice[type] ? "Disable Voice" : "Enable Voice",
+        active: Audio.entity_voice[type],
+        onSelect: () => Audio.toggle_entity_voice(type),
+      },
+    ];
 
     if (in_storymode) {
-      const photo_prompt =
-        type === "ai"
-          ? "A character portrait of the AI character"
-          : type === "user"
-            ? "A character portrait of the user persona"
-            : "An environmental shot of the current setting";
+      items.push({ separator: true });
       items.push({
-        label: "Photo",
+        label: photo_label,
         onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "fractal" : "character"),
         disabled: is_locked || visual_engine.isLoading,
       });
       if (type === "fractal") {
-        items.push(
-          { separator: true },
-          {
-            label: "Group Photo",
-            onSelect: () => take_group_photo(),
-            disabled: is_locked || visual_engine.isLoading,
-          },
-        );
+        items.push({
+          label: "Story Image",
+          onSelect: () => take_group_photo(),
+          disabled: is_locked || visual_engine.isLoading,
+        });
       }
       if (type === "user") {
-        items.push(
-          { separator: true },
-          {
-            label: "Microphone",
-            active: app.settings.call_mode,
-            onSelect: () => {
-              app.settings.call_mode = !app.settings.call_mode;
-              app.save_settings();
-            },
-            disabled: false,
+        items.push({
+          label: app.settings.call_mode ? "Disable Microphone" : "Enable Microphone",
+          active: app.settings.call_mode,
+          onSelect: () => {
+            app.settings.call_mode = !app.settings.call_mode;
+            app.save_settings();
           },
-        );
-      }
-    }
-
-    items.push(
-      { separator: true },
-      {
-        label: "Swap",
-        onSelect: () => app.open_card_hand(type),
-        disabled: false,
-      },
-    );
-
-    items.push({
-      label: Audio.entity_voice[type] ? "Disable Voice" : "Enable Voice",
-      active: Audio.entity_voice[type],
-      onSelect: () => Audio.toggle_entity_voice(type),
-      disabled: false,
-    });
-
-    if (in_storymode && type === "user") {
-      items.push(
-        { separator: true },
-        {
+        });
+        items.push({ separator: true });
+        items.push({
           label: "Ghostwrite",
           onSelect: () => ghostwrite(),
           disabled: is_locked,
-        },
-      );
+        });
+      }
     }
 
-    items.push(
-      { separator: true },
-      {
-        label: "Open Profile",
-        onSelect: () => app.toggle_profile(true, entity),
-        disabled: !entity,
-      },
-    );
+    if (!in_storymode) {
+      items.push({ separator: true });
+      items.push({
+        label: "Swap",
+        onSelect: () => app.open_card_hand(type),
+      });
+    }
 
     if (in_dev) {
       items.push(
