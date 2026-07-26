@@ -26,6 +26,8 @@
       : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]",
   );
 
+  let opacity_class = $derived(layout === "storymode" ? "opacity-100" : "opacity-70 hover:opacity-100");
+
   let style_details = $derived(entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null);
   let vstyle_details = $derived(
     entity?.visual_style && entity.visual_style !== "none" && entity.visual_style !== "default" ? VISUAL_STYLES[entity.visual_style] : null,
@@ -52,12 +54,11 @@
           border-solid
           border-(--signature-color)
           bg-black/40
-          opacity-70
+          {opacity_class}
           shadow-md
           transition-all
           duration-300
           ease-in-out
-          hover:opacity-100
           md:rounded-2xl
         "
       >
@@ -98,12 +99,11 @@
           border-solid
           border-(--signature-color)
           bg-black/40
-          opacity-70
+          {opacity_class}
           shadow-md
           transition-all
           duration-300
           ease-in-out
-          hover:opacity-100
           md:rounded-2xl
         "
       >
