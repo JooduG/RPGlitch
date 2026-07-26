@@ -11,7 +11,7 @@
   import { UnifiedConsole, EntityCard, ImageReroll, StyleBadges } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
-  import { app, runtime, simulationState, openRerollPicker, deliverCandidates, setRerollError } from "@state";
+  import { app, runtime, simulationState, start_reroll, deliver_reroll_candidates, set_reroll_error } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
 
@@ -61,9 +61,10 @@
       simulationState.start_generation(subject);
 
       // Log placeholder message immediately with null src attachment
+      const mode = subject === "fractal" ? "fractal" : "character";
       const placeholderEntry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
         turn_type: turn_map[subject],
-        attachments: [{ src: null, metadata: {} }],
+        attachments: [{ src: null, metadata: { mode } }],
       });
 
       const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
@@ -94,7 +95,7 @@
 
       const placeholderEntry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: {} }],
+        attachments: [{ src: null, metadata: { mode: "characters" } }],
       });
 
       const result = await visual_engine.visualize(
@@ -120,22 +121,22 @@
   }
 
   /**
-   * Reroll orchestration — generates 3 candidates and shows the picker.
+   * Reroll orchestration — generates 3 candidates, shows placeholder states, then opens picker.
    * First reroll: same prompt, 3 new seeds.
    * Second+ reroll: re-refines prompt via LLM, then 3 new images.
+   * The image being rerolled shows "Rerolling..." while generating, then becomes a "Select Image" button.
    * @param {{ prompt: string, negativePrompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, reroll_count?: number }} ctx
    */
   async function reroll_image(ctx) {
     const { prompt, negativePrompt, mode = "character", log_id, attach_idx = 0, signature_color, reroll_count = 0 } = ctx;
 
-    openRerollPicker({
+    start_reroll(log_id, attach_idx, {
       signature_color,
       on_select: (candidate) => {
         if (log_id) {
           session_driver.update_log_attachment(log_id, attach_idx, {
             src: candidate.url,
             metadata: candidate.metadata,
-            signature_color,
           });
         }
       },
@@ -162,11 +163,11 @@
       });
 
       if (candidates.length < 2) {
-        setRerollError("Not enough images generated. Please try again.");
+        set_reroll_error("Not enough images generated. Please try again.");
         return;
       }
 
-      deliverCandidates(
+      deliver_reroll_candidates(
         candidates.map((c) => ({
           url: c.url,
           metadata: { ...c.metadata, prompt: finalPrompt, reroll_count: reroll_count + 1 },
@@ -175,7 +176,7 @@
       );
     } catch (err) {
       console.error("[Reroll Error]", err);
-      setRerollError(`Reroll failed: ${err.message || err}`);
+      set_reroll_error(`Reroll failed: ${err.message || err}`);
     }
   }
 

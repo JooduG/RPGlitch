@@ -4,20 +4,29 @@
    * 🎲 The 3-Card Reroll Picker
    * Vampire-Survivors-style card flip selection. Three image candidates
    * are dealt face-down then revealed simultaneously.
+   * Candidates are already generated before this picker opens — the loading
+   * state lives in the chat message placeholder, not here.
    */
-  import { imageReroll, selectCandidate, closeRerollPicker } from "@state";
+  import { imageReroll, select_reroll_candidate, close_reroll_picker } from "@state";
   import { Backdrop } from "@atoms";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 
-  let open = $state(true);
+  let open = $state(false);
+
+  // Sync dialog open state with picker_active
+  $effect(() => {
+    if (imageReroll.picker_active) {
+      open = true;
+    }
+  });
 
   $effect(() => {
-    if (!open) closeRerollPicker();
+    if (!open) close_reroll_picker();
   });
 </script>
 
-{#if imageReroll.active}
+{#if imageReroll.picker_active}
   <Dialog.Root bind:open preventScroll={false}>
     <Dialog.Portal>
       <Dialog.Overlay forceMount>
@@ -27,35 +36,15 @@
               {#snippet child({ props: contentProps })}
                 <div
                   {...contentProps}
-                  class="relative flex min-h-[60vh] w-[clamp(20rem,90vw,80rem)] flex-col items-center justify-center gap-8"
+                  class="relative flex w-[clamp(20rem,90vw,80rem)] flex-col items-center justify-center gap-8"
                   onclick={(e) => e.stopPropagation()}
                 >
-                  <!-- LOADING STATE -->
-                  {#if imageReroll.loading}
-                    <div class="flex flex-col items-center gap-6" in:fade={{ duration: 200 }}>
-                      <div class="flex gap-6">
-                        {#each Array(3) as _, i (i)}
-                          <div
-                            class="flex h-64 w-48 items-center justify-center rounded-xl border border-white/10 bg-zinc-900/50 backdrop-blur-sm"
-                            style="animation-delay: {i * 150}ms"
-                          >
-                            <div class="flex flex-col items-center gap-2 opacity-60">
-                              <svg viewBox="0 0 24 24" class="h-8 w-8 animate-spin fill-none stroke-current text-white/40">
-                                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25" />
-                                <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
-                              </svg>
-                            </div>
-                          </div>
-                        {/each}
-                      </div>
-                      <p class="font-mono text-sm tracking-widest text-slate-400 uppercase">Generating 3 candidates...</p>
-                    </div>
-                  {:else if imageReroll.error}
+                  {#if imageReroll.error}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <p class="text-lg text-red-400">{imageReroll.error}</p>
                       <button
                         class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
-                        onclick={() => closeRerollPicker()}
+                        onclick={() => close_reroll_picker()}
                       >
                         Close
                       </button>
@@ -67,7 +56,7 @@
                         <button
                           type="button"
                           class="group relative h-72 w-56 cursor-pointer perspective-[1000px] md:h-80 md:w-64"
-                          onclick={() => selectCandidate(i)}
+                          onclick={() => select_reroll_candidate(i)}
                           aria-label="Select candidate {i + 1}"
                         >
                           <div

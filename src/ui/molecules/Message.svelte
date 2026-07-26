@@ -6,9 +6,9 @@
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
-  import { Audio, get_signature_color } from "@media";
+  import { Audio, get_signature_color, getResolution } from "@media";
   import { Typewriter } from "@motion";
-  import { app, runtime, simulationState } from "@state";
+  import { app, runtime, simulationState, imageReroll, open_reroll_picker } from "@state";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock, EntityCard } from "@molecules";
   import { safe_html } from "@utils";
@@ -176,6 +176,17 @@
       was_streaming = true;
     }
   });
+
+  /**
+   * Computes the aspect-ratio CSS string for an image placeholder based on the attachment's mode.
+   * @param {any} attachment
+   * @returns {string}
+   */
+  function placeholder_aspect_ratio(attachment) {
+    const mode = attachment?.metadata?.mode || "character";
+    const res = getResolution(mode);
+    return `${res.width} / ${res.height}`;
+  }
 </script>
 
 {#if is_telemetry}
@@ -588,25 +599,33 @@
 
         {#if attachments.length > 0}
           <div class="flex justify-center">
-            {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
+            {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attach_idx)}
               {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
+              {@const is_rerolling =
+                imageReroll.reroll_log_id === id && imageReroll.reroll_attach_idx === attach_idx && imageReroll.reroll_status === "rerolling"}
+              {@const is_select_ready =
+                imageReroll.reroll_log_id === id && imageReroll.reroll_attach_idx === attach_idx && imageReroll.reroll_status === "select_ready"}
               {#if src}
                 <button
                   type="button"
-                  class="
-                    mx-auto
-                    block
-                    w-fit
-                    overflow-hidden
-                    rounded-lg
-                    bg-neutral-900/50
-                    transition-[filter] duration-200
-                    hover:brightness-110
-                  "
+                  class="relative mx-auto block w-fit overflow-hidden rounded-lg bg-neutral-900/50 transition-[filter] duration-200 hover:brightness-110"
                   onclick={() => {
                     const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
                     if (!previewOptions.metadata) previewOptions.metadata = {};
                     previewOptions.signature_color = signature_color;
+                    if (attachment?.metadata?.prompt && id && app.reroll_image_handler) {
+                      previewOptions.on_reroll = () => {
+                        app.reroll_image_handler({
+                          prompt: attachment.metadata.prompt,
+                          negativePrompt: attachment.metadata.negativePrompt,
+                          mode: attachment.metadata.mode || "character",
+                          log_id: id,
+                          attach_idx,
+                          signature_color,
+                          reroll_count: attachment.metadata.reroll_count || 0,
+                        });
+                      };
+                    }
                     app.open_image_preview(previewOptions);
                   }}
                   aria-label="View Attachment"
@@ -615,58 +634,40 @@
                   <img
                     {src}
                     alt="Attachment {attach_idx + 1}"
-                    class="
-                      mx-auto
-                      max-h-120
-                      w-auto
-                      max-w-full
-                      cursor-zoom-in
-                      rounded-sm
-                      object-contain
-                      shadow-sm
-                    "
+                    class="mx-auto max-h-120 w-auto max-w-full cursor-zoom-in rounded-sm object-contain shadow-sm"
                   />
-                  <!-- Reroll button overlay -->
-                  {#if attachment?.metadata?.prompt && id}
-                    <!-- svelte-ignore a11y_click_events_have_key_events -->
-                    <div
-                      class="absolute top-2 right-2 z-10"
-                      onclick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        if (app.reroll_image_handler) {
-                          app.reroll_image_handler({
-                            prompt: attachment.metadata.prompt,
-                            negativePrompt: attachment.metadata.negativePrompt,
-                            mode: attachment.metadata.mode || "character",
-                            log_id: id,
-                            attach_idx,
-                            signature_color,
-                            reroll_count: attachment.metadata.reroll_count || 0,
-                          });
-                        }
-                      }}
-                      role="button"
-                      tabindex="0"
-                      aria-label="Reroll image"
-                    >
-                      <div
-                        class="flex h-9 w-9 items-center justify-center rounded-lg bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-emerald-600/80"
-                      >
-                        <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-                          <polyline points="23 4 23 10 17 10" />
-                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                        </svg>
-                      </div>
-                    </div>
-                  {/if}
+                </button>
+              {:else if is_select_ready}
+                <button
+                  type="button"
+                  class="relative flex w-full max-w-md items-center justify-center gap-3 rounded-lg border border-emerald-500/30 bg-emerald-950/40 p-6 text-emerald-300 transition-colors hover:bg-emerald-900/50"
+                  style:aspect-ratio={placeholder_aspect_ratio(attachment)}
+                  onclick={() => open_reroll_picker()}
+                  aria-label="Select image from reroll candidates"
+                >
+                  <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+                    <path d="M9 11l3 3l8-8" />
+                    <path d="M20 12v6a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h9" />
+                  </svg>
+                  <span class="font-mono text-sm tracking-widest uppercase">Select Image</span>
                 </button>
               {:else}
-                <div class="relative flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900/50 p-8 opacity-60">
-                  <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-                  <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-                  <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-                  <span class="ml-2 font-mono text-xs tracking-widest text-slate-400 uppercase">Generating image...</span>
+                <div
+                  class="relative flex w-full max-w-md items-center justify-center gap-1.5 rounded-lg bg-neutral-900/50 p-8 opacity-60"
+                  style:aspect-ratio={placeholder_aspect_ratio(attachment)}
+                >
+                  {#if is_rerolling}
+                    <svg viewBox="0 0 24 24" class="h-5 w-5 animate-spin fill-none stroke-current text-emerald-400">
+                      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" opacity="0.25" />
+                      <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" fill="none" />
+                    </svg>
+                    <span class="ml-2 font-mono text-xs tracking-widest text-emerald-400 uppercase">Rerolling...</span>
+                  {:else}
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                    <span class="ml-2 font-mono text-xs tracking-widest text-slate-400 uppercase">Generating image...</span>
+                  {/if}
                 </div>
               {/if}
             {/each}

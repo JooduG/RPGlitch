@@ -149,8 +149,8 @@ export const session_driver = {
     const key = isNaN(Number(id)) ? id : Number(id);
     const entry = await db.simulation_log.get(key);
     if (entry && entry.attachments && entry.attachments[attachment_index]) {
-      entry.attachments[attachment_index] = new_attachment;
-      await db.simulation_log.put(entry);
+      entry.attachments[attachment_index] = $state.snapshot(new_attachment);
+      await db.simulation_log.put($state.snapshot(entry));
       simulation_log.update(key, { attachments: entry.attachments });
     }
   },
@@ -178,7 +178,7 @@ export const session_driver = {
       created_at: Date.now(),
     };
     if (attachments && attachments.length > 0) {
-      entry.attachments = attachments;
+      entry.attachments = $state.snapshot(attachments);
     }
     if (meta && meta.id) {
       entry.id = meta.id;

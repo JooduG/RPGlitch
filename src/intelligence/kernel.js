@@ -515,7 +515,7 @@ export const gamemaster = {
           round: 0,
           is_prologue: true,
         },
-        attachments: [{ src: null, metadata: {} }],
+        attachments: [{ src: null, metadata: { mode: "characters" } }],
       });
       app.log("[GameMaster] Prologue established (Round 0).", "system");
 
