@@ -6,7 +6,7 @@
    * and pick their favorite. Includes a "Regenerate" button for a 2nd
    * round of generation with LLM-refined prompts.
    */
-  import { imageRegenerate, selectCandidate, closeRegenerate, startRegenerate, deliverCandidates, setRegenerateError } from "@state";
+  import { imageRegenerate, selectCandidate, closeRegenerate, deliverCandidates, setRegenerateError } from "@state";
   import { visual_engine } from "@media";
   import { Backdrop } from "@atoms";
   import { Dialog } from "bits-ui";
@@ -24,13 +24,6 @@
     is_regenerating = true;
     try {
       const candidates = imageRegenerate.candidates;
-      const on_select = imageRegenerate.on_select;
-      const signature_color = imageRegenerate.signature_color;
-      const key = imageRegenerate.regenerating_key;
-      if (!key) return;
-
-      startRegenerate(key, { signature_color, on_select });
-
       const firstCandidate = candidates[0];
       const prompt = firstCandidate?.metadata?.prompt || "";
       const mode = firstCandidate?.metadata?.mode || "character";
@@ -56,7 +49,7 @@
         newCandidates.map((c) => ({
           url: c.url,
           metadata: { ...c.metadata, prompt: finalPrompt },
-          signature_color,
+          signature_color: imageRegenerate.signature_color,
         })),
       );
     } catch (err) {
@@ -129,13 +122,9 @@
                           class="flex items-center gap-2 rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
                           onclick={handle_regenerate}
                         >
-                          <svg
-                            viewBox="0 0 24 24"
-                            class="h-4 w-4 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]"
-                          >
-                            <rect x="4" y="3" width="10" height="14" rx="2" />
-                            <rect x="8" y="6" width="10" height="14" rx="2" />
-                            <rect x="12" y="9" width="8" height="12" rx="2" />
+                          <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+                            <polyline points="23 4 23 10 17 10" />
+                            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
                           </svg>
                           <span class="font-mono text-xs tracking-widest uppercase">Regenerate</span>
                         </button>

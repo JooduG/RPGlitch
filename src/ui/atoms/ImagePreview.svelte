@@ -253,9 +253,8 @@
           {#if state.on_regenerate}
             <Button variant="secondary" class="flex-1" onclick={handleRegenerate}>
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
-                <rect x="4" y="3" width="10" height="14" rx="2" />
-                <rect x="8" y="6" width="10" height="14" rx="2" />
-                <rect x="12" y="9" width="8" height="12" rx="2" />
+                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2"></path>
               </svg>
               Regenerate
             </Button>
