@@ -330,6 +330,12 @@ export class VisualEngine {
     const { silent = false } = options;
     let story = null;
 
+    // Defensive: strip cognition blocks from any narrative text passed as visual prompt.
+    // Prologue/epilogue responses contain <think> blocks that must not leak into the image LLM system prompt.
+    if (typeof visualPrompt === "string") {
+      visualPrompt = strip_cognition_blocks(visualPrompt);
+    }
+
     if (storyId) {
       const dbKey = typeof storyId === "string" && /^\d+$/.test(storyId) ? Number(storyId) : storyId;
       try {

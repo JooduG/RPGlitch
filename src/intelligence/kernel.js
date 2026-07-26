@@ -523,7 +523,7 @@ export const gamemaster = {
 
       const imagePromise = visual_engine
         ? visual_engine
-            .visualize(story_id, response, "characters", { silent: true })
+            .visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true })
             .then((imgResult) => {
               if (imgResult?.imageUrl) {
                 session_driver.update_log_attachment(nodeId, 0, {
@@ -579,7 +579,7 @@ export const gamemaster = {
     let epilogueAttachments = [];
     if (visual_engine) {
       try {
-        const imgResult = await visual_engine.visualize(story_id, response, "characters", { silent: true });
+        const imgResult = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true });
         if (imgResult?.imageUrl) {
           epilogueAttachments = [{ src: imgResult.imageUrl, metadata: imgResult.metadata }];
         }

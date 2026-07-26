@@ -11,19 +11,21 @@
 
   /**
    * `layout` controls badge sizing:
-   * - `"storymode"`: badges are half the character card width (square), via a
-   *   literal Tailwind arbitrary class referencing the design-token CSS var.
+   * - `"storymode"`: badges are ~half the character card width total, sized via
+   *   inline style using the same dynamic CSS variable the cards use. No Tailwind
+   *   size class is used (Tailwind's !important on arbitrary classes would
+   *   override the inline style).
    * - default: container-query responsive sizing for the storyboard overlay.
-   * Both branches use LITERAL class strings so Tailwind's scanner generates CSS
-   * for them (dynamically-built classes or inline styles are unreliable here).
    */
   /** @type {{ entity?: any, class?: string, layout?: "storymode" | "default" }} */
   let { entity = undefined, class: className = "flex w-full justify-center gap-1.5", layout = "default" } = $props();
 
-  let badge_size_class = $derived(
+  let badge_size_class = $derived(layout === "storymode" ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]");
+
+  let badge_size_style = $derived(
     layout === "storymode"
-      ? "h-[calc(var(--spacing-storyboard-character-card-width)*0.5)] w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]"
-      : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]",
+      ? "width: calc(var(--spacing-storyboard-character-card-width) * 0.5); height: calc(var(--spacing-storyboard-character-card-width) * 0.5);"
+      : "",
   );
 
   let opacity_class = $derived(layout === "storymode" ? "opacity-100" : "opacity-70 hover:opacity-100");
@@ -40,6 +42,7 @@
     {#if style_details}
       <div
         use:tooltip={{ text: `Narrative Style: ${style_details.name}` }}
+        style={badge_size_style}
         class="
           pointer-events-auto
           relative
@@ -85,6 +88,7 @@
             : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
       <div
         use:tooltip={{ text: `Visual Style: ${vstyle_details.name}` }}
+        style={badge_size_style}
         class="
           pointer-events-auto
           relative
