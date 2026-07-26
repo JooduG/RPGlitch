@@ -593,7 +593,44 @@
               {@const attach_mode = (typeof attachment === "object" && attachment?.metadata?.mode) || "character"}
               {@const res = getResolution(attach_mode)}
               {@const reroll_key = `${id}:${attach_idx}`}
-              {#if src}
+              {#if imageReroll.hasError(reroll_key)}
+                <div
+                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-8"
+                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                >
+                  <p class="text-center text-sm text-red-400">{imageReroll.error}</p>
+                </div>
+              {:else if imageReroll.isRerolling(reroll_key)}
+                <div
+                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
+                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                >
+                  <div class="flex gap-1.5">
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                  </div>
+                  <span class="font-mono text-xs tracking-widest text-slate-400 uppercase">Rerolling...</span>
+                </div>
+              {:else if imageReroll.isReady(reroll_key)}
+                <button
+                  type="button"
+                  class="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
+                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                  onclick={() => openPicker()}
+                  aria-label="Select image from candidates"
+                >
+                  <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-(--signature-color,slate-500)/40 bg-(--signature-color,slate-700)/10 text-(--signature-color,slate-300) transition-colors group-hover:scale-110"
+                  >
+                    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+                      <polyline points="23 4 23 10 17 10" />
+                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                    </svg>
+                  </div>
+                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Select Image</span>
+                </button>
+              {:else if src}
                 <button
                   type="button"
                   class="
@@ -643,43 +680,6 @@
                     "
                   />
                 </button>
-              {:else if imageReroll.hasError(reroll_key)}
-                <div
-                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-8"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                >
-                  <p class="text-center text-sm text-red-400">{imageReroll.error}</p>
-                </div>
-              {:else if imageReroll.isReady(reroll_key)}
-                <button
-                  type="button"
-                  class="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                  onclick={() => openPicker()}
-                  aria-label="Select image from candidates"
-                >
-                  <div
-                    class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-(--signature-color,slate-500)/40 bg-(--signature-color,slate-700)/10 text-(--signature-color,slate-300) transition-colors group-hover:scale-110"
-                  >
-                    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-                      <polyline points="23 4 23 10 17 10" />
-                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                    </svg>
-                  </div>
-                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Select Image</span>
-                </button>
-              {:else if imageReroll.isRerolling(reroll_key)}
-                <div
-                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                >
-                  <div class="flex gap-1.5">
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-                  </div>
-                  <span class="font-mono text-xs tracking-widest text-slate-400 uppercase">Rerolling...</span>
-                </div>
               {:else}
                 <div
                   class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
