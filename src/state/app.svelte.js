@@ -104,7 +104,7 @@ export class AppStore {
   card_hand = $state({
     open: false,
     type: null, // 'ai' | 'user' | 'fractal'
-    reroll_count: 0,
+    regenerate_count: 0,
   });
   // --- NARRATIVE CONFIG ---
   prologue = $state(""); // Starting directions/context
@@ -142,7 +142,7 @@ export class AppStore {
   });
   ghostwrite_request = $state(0);
   /** @type {((ctx: any) => void) | null} */
-  reroll_image_handler = $state(null);
+  regenerate_image_handler = $state(null);
   // --- SENSORY ENGINES ---
   get visual() {
     return visual_engine;
@@ -517,8 +517,8 @@ export class AppStore {
   open_image_preview = (/** @type {any} */ src, caption = "") => {
     openImagePreview(src, caption);
   };
-  reroll_title = () => {
-    this.card_hand.reroll_count++;
+  regenerate_title = () => {
+    this.card_hand.regenerate_count++;
   };
   /**
    * DEBUG: Force Storymode Entry

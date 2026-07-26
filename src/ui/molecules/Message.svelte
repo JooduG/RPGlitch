@@ -8,7 +8,7 @@
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, get_signature_color, getResolution } from "@media";
   import { Typewriter } from "@motion";
-  import { app, runtime, simulationState, imageReroll, openPicker } from "@state";
+  import { app, runtime, simulationState, imageRegenerate, openPicker } from "@state";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock, EntityCard } from "@molecules";
   import { safe_html } from "@utils";
@@ -347,7 +347,7 @@
                   variant="invisible"
                   size="small"
                   square={true}
-                  aria-label="Reroll"
+                  aria-label="Regenerate"
                   actions={[tooltip]}
                   onclick={on_regenerate}
                   disabled={simulationState.busy}
@@ -592,45 +592,8 @@
               {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
               {@const attach_mode = (typeof attachment === "object" && attachment?.metadata?.mode) || "character"}
               {@const res = getResolution(attach_mode)}
-              {@const reroll_key = `${id}:${attach_idx}`}
-              {#if imageReroll.hasError(reroll_key)}
-                <div
-                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-8"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                >
-                  <p class="text-center text-sm text-red-400">{imageReroll.error}</p>
-                </div>
-              {:else if imageReroll.isRerolling(reroll_key)}
-                <div
-                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                >
-                  <div class="flex gap-1.5">
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
-                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
-                  </div>
-                  <span class="font-mono text-xs tracking-widest text-slate-400 uppercase">Rerolling...</span>
-                </div>
-              {:else if imageReroll.isReady(reroll_key)}
-                <button
-                  type="button"
-                  class="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
-                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
-                  onclick={() => openPicker()}
-                  aria-label="Select image from candidates"
-                >
-                  <div
-                    class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-(--signature-color,slate-500)/40 bg-(--signature-color,slate-700)/10 text-(--signature-color,slate-300) transition-colors group-hover:scale-110"
-                  >
-                    <svg viewBox="0 0 24 24" class="h-6 w-6 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
-                      <polyline points="23 4 23 10 17 10" />
-                      <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
-                    </svg>
-                  </div>
-                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Select Image</span>
-                </button>
-              {:else if src}
+              {@const regenerate_key = `${id}:${attach_idx}`}
+              {#if src}
                 <button
                   type="button"
                   class="
@@ -647,16 +610,16 @@
                     const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
                     if (!previewOptions.metadata) previewOptions.metadata = {};
                     previewOptions.signature_color = signature_color;
-                    if (previewOptions.metadata?.prompt && id && app.reroll_image_handler) {
-                      previewOptions.on_reroll = () => {
-                        app.reroll_image_handler({
+                    if (previewOptions.metadata?.prompt && id && app.regenerate_image_handler) {
+                      previewOptions.on_regenerate = () => {
+                        app.regenerate_image_handler({
                           prompt: previewOptions.metadata.prompt,
                           negativePrompt: previewOptions.metadata.negativePrompt,
                           mode: previewOptions.metadata.mode || "character",
                           log_id: id,
                           attach_idx,
                           signature_color,
-                          reroll_count: previewOptions.metadata.reroll_count || 0,
+                          regenerate_count: previewOptions.metadata.regenerate_count || 0,
                         });
                       };
                     }
@@ -680,6 +643,43 @@
                     "
                   />
                 </button>
+              {:else if imageRegenerate.hasError(regenerate_key)}
+                <div
+                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-8"
+                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                >
+                  <p class="text-center text-sm text-red-400">{imageRegenerate.error}</p>
+                </div>
+              {:else if imageRegenerate.isReady(regenerate_key)}
+                <button
+                  type="button"
+                  class="group relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
+                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                  onclick={() => openPicker()}
+                  aria-label="Select image from candidates"
+                >
+                  <div
+                    class="flex h-12 w-12 items-center justify-center rounded-full border-2 border-(--signature-color,slate-500)/40 bg-(--signature-color,slate-700)/10 text-(--signature-color,slate-300) transition-colors group-hover:scale-110"
+                  >
+                    <svg viewBox="0 0 24 24" class="h-7 w-7 fill-none stroke-current stroke-[1.5] [stroke-linecap:round] [stroke-linejoin:round]">
+                      <rect x="4" y="3" width="10" height="14" rx="2" />
+                      <rect x="8" y="6" width="10" height="14" rx="2" />
+                      <rect x="12" y="9" width="8" height="12" rx="2" />
+                    </svg>
+                  </div>
+                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click Here</span>
+                </button>
+              {:else if imageRegenerate.isRegenerating(regenerate_key)}
+                <div
+                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
+                  style="aspect-ratio: {res.width} / {res.height}; max-width: {res.width}px; width: 100%;"
+                >
+                  <div class="flex gap-1.5">
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
+                    <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                  </div>
+                </div>
               {:else}
                 <div
                   class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg bg-neutral-900/50"
@@ -690,7 +690,6 @@
                     <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
                     <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
                   </div>
-                  <span class="font-mono text-xs tracking-widest text-slate-400 uppercase">Generating image...</span>
                 </div>
               {/if}
             {/each}

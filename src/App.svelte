@@ -8,10 +8,10 @@
    * during view transitions, enabling true View Transition API morphing.
    */
   import { ImagePreview, Skeleton, Tooltip } from "@atoms";
-  import { UnifiedConsole, EntityCard, ImageReroll, StyleBadges } from "@molecules";
+  import { UnifiedConsole, EntityCard, ImageRegenerate, StyleBadges } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
-  import { app, runtime, simulationState, startReroll, deliverCandidates, setRerollError } from "@state";
+  import { app, runtime, simulationState, startRegenerate, deliverCandidates, setRegenerateError } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
 
@@ -120,24 +120,24 @@
   }
 
   /**
-   * Reroll orchestration — generates 3 candidates in the background.
-   * The image placeholder shows "Rerolling..." until all 3 are done,
-   * then becomes a "Select Image" button that opens the 3-card picker.
-   * First reroll: same prompt, 3 new seeds.
-   * Second+ reroll: re-refines prompt via LLM, then 3 new images.
-   * @param {{ prompt: string, negativePrompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, reroll_count?: number }} ctx
+   * Regenerate orchestration — generates 3 candidates in the background.
+   * The image placeholder shows "Regenerating..." until all 3 are done,
+   * then becomes a "Click Here" button that opens the 3-card picker.
+   * First regenerate: same prompt, 3 new seeds.
+   * Second+ regenerate: re-refines prompt via LLM, then 3 new images.
+   * @param {{ prompt: string, negativePrompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
    */
-  async function reroll_image(ctx) {
-    const { prompt, negativePrompt, mode = "character", log_id, attach_idx = 0, signature_color, reroll_count = 0 } = ctx;
+  async function regenerate_image(ctx) {
+    const { prompt, negativePrompt, mode = "character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
     const key = `${log_id}:${attach_idx}`;
 
-    startReroll(key, {
+    startRegenerate(key, {
       signature_color,
       on_select: (candidate) => {
         if (log_id) {
           session_driver.update_log_attachment(log_id, attach_idx, {
             src: candidate.url,
-            metadata: { ...candidate.metadata, reroll_count: reroll_count + 1 },
+            metadata: { ...candidate.metadata, regenerate_count: regenerate_count + 1 },
           });
         }
       },
@@ -147,8 +147,8 @@
       let finalPrompt = prompt;
       let finalNegative = negativePrompt;
 
-      // Second+ reroll: re-refine the prompt via LLM
-      if (reroll_count >= 1) {
+      // Second+ regenerate: re-refine the prompt via LLM
+      if (regenerate_count >= 1) {
         const refined = await visual_engine.enhance(prompt, mode);
         if (refined?.prompt) {
           finalPrompt = refined.prompt;
@@ -164,7 +164,7 @@
       });
 
       if (candidates.length < 2) {
-        setRerollError("Not enough images generated. Please try again.");
+        setRegenerateError("Not enough images generated. Please try again.");
         return;
       }
 
@@ -176,8 +176,8 @@
         })),
       );
     } catch (err) {
-      console.error("[Reroll Error]", err);
-      setRerollError(`Reroll failed: ${err.message || err}`);
+      console.error("[Regenerate Error]", err);
+      setRegenerateError(`Regenerate failed: ${err.message || err}`);
     }
   }
 
@@ -187,8 +187,8 @@
     app.ghostwrite_request++;
   }
 
-  // Expose reroll_image to Message.svelte via the app store
-  app.reroll_image_handler = reroll_image;
+  // Expose regenerate_image to Message.svelte via the app store
+  app.regenerate_image_handler = regenerate_image;
 
   /** Mock message — streams a placeholder message for the given entity role (devmode only) */
   async function run_mock(role) {
@@ -348,7 +348,7 @@
   </div>
 
   <ImagePreview />
-  <ImageReroll />
+  <ImageRegenerate />
 
   <!--
     PERSISTENT LAYOUT — single instance always in the DOM.

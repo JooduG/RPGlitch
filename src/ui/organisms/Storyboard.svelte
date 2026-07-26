@@ -37,8 +37,8 @@
   let title_parts = $derived.by(() => {
     if (is_custom && custom_title) return [{ text: custom_title }];
 
-    // Trigger on reroll
-    void app.card_hand.reroll_count;
+    // Trigger on regenerate
+    void app.card_hand.regenerate_count;
 
     const { selected_ai: ai, selected_user: user, selected_fractal: fractal } = app;
     const has_entities = ai || user;
@@ -118,7 +118,7 @@
   function handle_reset() {
     is_custom = false;
     custom_title = "";
-    app.reroll_title();
+    app.regenerate_title();
   }
 </script>
 
@@ -149,7 +149,7 @@
       [&>span]:pointer-events-auto
     "
     style="font-family: Satisfy, cursive;"
-    use:tooltip={{ text: "Double-click to re-roll title" }}
+    use:tooltip={{ text: "Double-click to regenerate title" }}
     contenteditable="true"
     aria-label="Story Title"
     oninput={handle_input}

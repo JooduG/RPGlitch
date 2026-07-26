@@ -188,8 +188,8 @@
         app.selected_fractal = pickRandom(Array.isArray(app.fractal_list) ? app.fractal_list : []);
       }
 
-      if (typeof app.reroll_title === "function") {
-        app.reroll_title();
+      if (typeof app.regenerate_title === "function") {
+        app.regenerate_title();
       }
     },
     async begin() {

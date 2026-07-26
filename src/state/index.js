@@ -3,12 +3,12 @@ export { runtime } from "./runtime.svelte.js";
 export { simulationState, uiState } from "./status.svelte.js";
 export { simulation_log } from "./log.svelte.js";
 export {
-  imageReroll,
-  startReroll,
+  imageRegenerate,
+  startRegenerate,
   deliverCandidates,
   openPicker,
   selectCandidate,
   closePicker,
-  closeReroll,
-  setRerollError,
-} from "./image-reroll.svelte.js";
+  closeRegenerate,
+  setRegenerateError,
+} from "./image-regenerate.svelte.js";

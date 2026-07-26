@@ -4,14 +4,14 @@
    * Managed via Svelte 5 Global Module State.
    */
 
-  /** @type {{ active: boolean, src: string | null, canvas: HTMLCanvasElement | null, caption: string, metadata: any, on_reroll: Function | null, signature_color: string | null }} */
+  /** @type {{ active: boolean, src: string | null, canvas: HTMLCanvasElement | null, caption: string, metadata: any, on_regenerate: Function | null, signature_color: string | null }} */
   let state = $state({
     active: false,
     src: null,
     canvas: null,
     caption: "",
     metadata: null,
-    on_reroll: null,
+    on_regenerate: null,
     signature_color: null,
   });
 
@@ -31,8 +31,8 @@
     get metadata() {
       return state.metadata;
     },
-    get on_reroll() {
-      return state.on_reroll;
+    get on_regenerate() {
+      return state.on_regenerate;
     },
     get signature_color() {
       return state.signature_color;
@@ -46,14 +46,14 @@
       state.caption = caption;
       state.canvas = null;
       state.metadata = null;
-      state.on_reroll = null;
+      state.on_regenerate = null;
       state.signature_color = null;
     } else if (options) {
       state.src = options.src || null;
       state.canvas = options.canvas || null;
       state.caption = options.caption || caption || "";
       state.metadata = options.metadata || null;
-      state.on_reroll = typeof options.on_reroll === "function" ? options.on_reroll : null;
+      state.on_regenerate = typeof options.on_regenerate === "function" ? options.on_regenerate : null;
       state.signature_color = options.signature_color || null;
     }
   };
@@ -129,9 +129,9 @@
     }
   };
 
-  const handleReroll = () => {
-    if (typeof state.on_reroll === "function") {
-      state.on_reroll();
+  const handleRegenerate = () => {
+    if (typeof state.on_regenerate === "function") {
+      state.on_regenerate();
     }
     closeImagePreview();
   };
@@ -250,13 +250,14 @@
         {/if}
 
         <div class="mt-auto flex flex-row gap-4">
-          {#if state.on_reroll}
-            <Button variant="secondary" class="flex-1" onclick={handleReroll}>
+          {#if state.on_regenerate}
+            <Button variant="secondary" class="flex-1" onclick={handleRegenerate}>
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
-                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2"></path>
+                <rect x="4" y="3" width="10" height="14" rx="2" />
+                <rect x="8" y="6" width="10" height="14" rx="2" />
+                <rect x="12" y="9" width="8" height="12" rx="2" />
               </svg>
-              Reroll
+              Regenerate
             </Button>
           {/if}
           <Button variant="secondary" class="flex-1" onclick={handleDownload}>
