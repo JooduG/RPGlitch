@@ -102,7 +102,7 @@ export const session_driver = {
    */
   send: async function (text) {
     const character_name = runtime.active_user?.name || "User";
-    return await this.log_message(text, "user", character_name, "USER_TURN");
+    return await this.log_message(text, "user", character_name, { turn_type: "USER_TURN" });
   },
 
   /**
@@ -164,7 +164,7 @@ export const session_driver = {
    * @param {string} [turn_type]
    * @param {any} [meta]
    */
-  log_message: async function (text, role, character_name, turn_type = "USER_TURN", meta = {}, attachments = []) {
+  log_message: async function (text, role, character_name, { turn_type = "USER_TURN", meta = {}, attachments = [] } = {}) {
     const story_id = session_driver.require_active();
     /** @type {any} */
     const entry = {

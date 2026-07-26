@@ -110,7 +110,7 @@
 
     is_loading = true;
     error_message = "";
-    simulationState.busy = true;
+    simulationState.set_intent_active(true);
 
     try {
       const promises = [];
@@ -138,7 +138,7 @@
       app.log(`Import failed: ${error_message}`, "error");
     } finally {
       is_loading = false;
-      simulationState.busy = false;
+      simulationState.set_intent_active(false);
     }
   }
 

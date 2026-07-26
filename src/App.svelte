@@ -20,7 +20,7 @@
   // --- DERIVED RUNES ---
 
   let fractal_url = $derived(app.selected_fractal?.profile_picture || "");
-  let fractal_opacity = $derived(app.view === "storymode" ? "var(--opacity-muted)" : "var(--opacity-muted)");
+  let fractal_opacity = $derived("var(--opacity-muted)");
 
   // --- LIFECYCLE EFFECTS ---
 
@@ -61,9 +61,10 @@
       const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
       if (result?.imageUrl) {
         const entity = entity_map[subject];
-        await session_driver.log_message("", subject, entity?.name || label_map[subject], turn_map[subject], {}, [
-          { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
-        ]);
+        await session_driver.log_message("", subject, entity?.name || label_map[subject], {
+          turn_type: turn_map[subject],
+          attachments: [{ src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } }],
+        });
       } else {
         app.log(`${label_map[subject] || subject} photo generation failed. Please try again.`, "error");
       }
@@ -88,9 +89,10 @@
       );
       if (result?.imageUrl) {
         const fractal = runtime.active_fractal || app.selected_fractal;
-        await session_driver.log_message("", "fractal", fractal?.name || "Scene", "SYSTEM_TURN", {}, [
-          { src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } },
-        ]);
+        await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
+          turn_type: "SYSTEM_TURN",
+          attachments: [{ src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } }],
+        });
       } else {
         app.log("Group Shot generation failed. Please try again.", "error");
       }
@@ -134,148 +136,117 @@
       await new Promise((resolve) => setTimeout(resolve, 60));
     }
 
-    await session_driver.log_message(content, role, entity?.name || label_map[role], turn_map[role]);
+    await session_driver.log_message(content, role, entity?.name || label_map[role], { turn_type: turn_map[role] });
     app.end_stream();
   }
 
   // --- ACTION MENU CONFIGS ---
 
-  let storyboard_ai_actions = $derived.by(() => {
-    const items = [
-      { label: "Swap", onSelect: () => app.open_card_hand("ai"), disabled: false },
-      {
-        label: Audio.entity_voice.ai ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice.ai,
-        onSelect: () => Audio.toggle_entity_voice("ai"),
-        disabled: false,
-      },
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: !app.selected_ai },
-    ];
-    if (app.settings.dev_mode) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("ai"), disabled: is_locked });
-    }
-    return items;
-  });
+  /**
+   * Factory: builds the context-menu action list for an entity slot.
+   * Storymode adds photo/group-photo/ghostwrite actions; devmode adds mock.
+   * @param {"ai" | "user" | "fractal"} type
+   * @returns {any[]}
+   */
+  function build_actions(type) {
+    const in_storymode = app.view === "storymode";
+    const in_dev = app.settings.dev_mode;
+    const entity_map = { ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal };
+    const entity = entity_map[type];
 
-  let storyboard_user_actions = $derived.by(() => {
-    const items = [
-      { label: "Swap", onSelect: () => app.open_card_hand("user"), disabled: false },
-      {
-        label: Audio.entity_voice.user ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice.user,
-        onSelect: () => Audio.toggle_entity_voice("user"),
-        disabled: false,
-      },
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: !app.selected_user },
-    ];
-    if (app.settings.dev_mode) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("user"), disabled: is_locked });
-    }
-    return items;
-  });
+    const items = [];
 
-  let storyboard_fractal_actions = $derived.by(() => {
-    const items = [
-      { label: "Swap", onSelect: () => app.open_card_hand("fractal"), disabled: false },
-      {
-        label: Audio.entity_voice.fractal ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice.fractal,
-        onSelect: () => Audio.toggle_entity_voice("fractal"),
-        disabled: false,
-      },
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: !app.selected_fractal },
-    ];
-    if (app.settings.dev_mode) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("fractal"), disabled: is_locked });
-    }
-    return items;
-  });
-
-  let ai_actions = $derived.by(() => {
-    if (app.view !== "storymode") return storyboard_ai_actions;
-    const items = [
-      {
+    if (in_storymode) {
+      const photo_prompt =
+        type === "ai"
+          ? "A character portrait of the AI character"
+          : type === "user"
+            ? "A character portrait of the user persona"
+            : "An environmental shot of the current setting";
+      items.push({
         label: "Photo",
-        onSelect: () => take_photo("ai", "A character portrait of the AI character", "character"),
+        onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "fractal" : "character"),
         disabled: is_locked || visual_engine.isLoading,
-      },
+      });
+      if (type === "fractal") {
+        items.push(
+          { separator: true },
+          {
+            label: "Group Photo",
+            onSelect: () => take_group_photo(),
+            disabled: is_locked || visual_engine.isLoading,
+          },
+        );
+      }
+      if (type === "user") {
+        items.push(
+          { separator: true },
+          {
+            label: "Microphone",
+            active: app.settings.call_mode,
+            onSelect: () => {
+              app.settings.call_mode = !app.settings.call_mode;
+              app.save_settings();
+            },
+            disabled: false,
+          },
+        );
+      }
+    }
+
+    items.push(
       { separator: true },
       {
-        label: Audio.entity_voice.ai ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice.ai,
-        onSelect: () => Audio.toggle_entity_voice("ai"),
+        label: "Swap",
+        onSelect: () => app.open_card_hand(type),
         disabled: false,
       },
-      { separator: true },
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_ai), disabled: false },
-    ];
-    if (app.settings.dev_mode) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("ai"), disabled: is_locked });
-    }
-    return items;
-  });
+    );
 
-  let user_actions = $derived.by(() => {
-    if (app.view !== "storymode") return storyboard_user_actions;
-    const items = [
-      {
-        label: "Photo",
-        onSelect: () => take_photo("user", "A character portrait of the user persona", "user"),
-        disabled: is_locked || visual_engine.isLoading,
-      },
-      { separator: true },
-      {
-        label: "Microphone",
-        active: app.settings.call_mode,
-        onSelect: () => {
-          app.settings.call_mode = !app.settings.call_mode;
-          app.save_settings();
+    items.push({
+      label: Audio.entity_voice[type] ? "Disable Voice" : "Enable Voice",
+      active: Audio.entity_voice[type],
+      onSelect: () => Audio.toggle_entity_voice(type),
+      disabled: false,
+    });
+
+    if (in_storymode && type === "user") {
+      items.push(
+        { separator: true },
+        {
+          label: "Ghostwrite",
+          onSelect: () => ghostwrite(),
+          disabled: is_locked,
         },
-        disabled: false,
-      },
-      { separator: true },
-      {
-        label: Audio.entity_voice.user ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice.user,
-        onSelect: () => Audio.toggle_entity_voice("user"),
-        disabled: false,
-      },
-      { separator: true },
-      { label: "Ghostwrite", onSelect: () => ghostwrite(), disabled: is_locked },
-      { separator: true },
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_user), disabled: false },
-    ];
-    if (app.settings.dev_mode) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("user"), disabled: is_locked });
+      );
     }
-    return items;
-  });
 
-  let fractal_actions = $derived.by(() => {
-    if (app.view !== "storymode") return storyboard_fractal_actions;
-    const items = [
-      {
-        label: "Photo",
-        onSelect: () => take_photo("fractal", "An environmental shot of the current setting", "fractal"),
-        disabled: is_locked || visual_engine.isLoading,
-      },
-      { separator: true },
-      { label: "Group Photo", onSelect: () => take_group_photo(), disabled: is_locked || visual_engine.isLoading },
+    items.push(
       { separator: true },
       {
-        label: Audio.entity_voice.fractal ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice.fractal,
-        onSelect: () => Audio.toggle_entity_voice("fractal"),
-        disabled: false,
+        label: "Open Profile",
+        onSelect: () => app.toggle_profile(true, entity),
+        disabled: !entity,
       },
-      { separator: true },
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, app.selected_fractal), disabled: false },
-    ];
-    if (app.settings.dev_mode) {
-      items.push({ separator: true }, { label: "Mock Message", onSelect: () => run_mock("fractal"), disabled: is_locked });
+    );
+
+    if (in_dev) {
+      items.push(
+        { separator: true },
+        {
+          label: "Mock Message",
+          onSelect: () => run_mock(type),
+          disabled: is_locked,
+        },
+      );
     }
+
     return items;
-  });
+  }
+
+  let ai_actions = $derived(build_actions("ai"));
+  let user_actions = $derived(build_actions("user"));
+  let fractal_actions = $derived(build_actions("fractal"));
 </script>
 
 <main

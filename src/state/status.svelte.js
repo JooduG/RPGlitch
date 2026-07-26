@@ -33,59 +33,90 @@ import { app } from "./app.svelte.js";
  * @property {any | null} selected - The specific fate vector currently under resolution.
  */
 
-export const simulationState = $state({
-  /** @type {"idle" | "generating" | "locked"} */
-  phase: "idle",
-  /** @type {"ai" | "system" | "fractal" | "user" | null} */
-  role: null,
-  /** @type {string | number | null} */
-  active_id: null,
-  is_typing: false,
-  /** @type {boolean} */
-  intent_active: false,
+class SimulationStateStore {
+  /** @type {"idle" | "generating" | "locked"} */ #phase = $state("idle");
+  /** @type {"ai" | "system" | "fractal" | "user" | null} */ #role = $state(null);
+  /** @type {string | number | null} */ #active_id = $state(null);
+  #is_typing = $state(false);
+  /** @type {boolean} */ #intent_active = $state(false);
 
-  // Streamlined busy lock property that combines phase and intent lock
+  get phase() {
+    return this.#phase;
+  }
+  set phase(value) {
+    this.#phase = value;
+  }
+
+  get role() {
+    return this.#role;
+  }
+  set role(value) {
+    this.#role = value;
+  }
+
+  get active_id() {
+    return this.#active_id;
+  }
+  set active_id(value) {
+    this.#active_id = value;
+  }
+
+  get is_typing() {
+    return this.#is_typing;
+  }
+  set is_typing(value) {
+    this.#is_typing = value;
+  }
+
+  get intent_active() {
+    return this.#intent_active;
+  }
+  set intent_active(value) {
+    this.#intent_active = value;
+  }
+
   get busy() {
-    return this.phase === "generating" || this.intent_active;
-  },
+    return this.#phase === "generating" || this.#intent_active;
+  }
 
-  // Actions
   start_generation(role = "ai") {
-    this.phase = "generating";
-    this.role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);
-  },
+    this.#phase = "generating";
+    this.#role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);
+  }
   /**
    * @param {"ai" | "system" | "fractal" | "user" | null} role
    * @param {string | number | null} id
    */
   start_typing(role, id) {
-    this.is_typing = true;
-    this.role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);
-    this.active_id = id;
-  },
+    this.#is_typing = true;
+    this.#role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);
+    this.#active_id = id;
+  }
   stop_typing() {
-    this.is_typing = false;
-    this.role = null;
-    this.active_id = null;
-  },
+    this.#is_typing = false;
+    this.#role = null;
+    this.#active_id = null;
+  }
   complete() {
-    this.phase = "idle";
-    this.role = null;
-  },
+    this.#phase = "idle";
+    this.#role = null;
+  }
   lock() {
-    this.phase = "locked";
-  },
+    this.#phase = "locked";
+  }
   unlock() {
-    this.phase = "idle";
-  },
+    this.#phase = "idle";
+  }
   /**
    * Sets the intent lock state.
    * @param {boolean} active
    */
   set_intent_active(active) {
-    this.intent_active = active;
-  },
-});
+    this.#intent_active = active;
+  }
+}
+
+export const simulationState = new SimulationStateStore();
 
 class UIStateStore {
   #loading = $state(false);

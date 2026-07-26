@@ -449,10 +449,13 @@ export const gamemaster = {
       }
       final_meta.structural_errors = runtime.structural_errors;
 
-      await session_driver.log_message(validationResult.text, role, character_name, "AI_TURN", {
-        id: nodeId,
-        round: runtime.round,
-        sino_logic_violation: final_meta.sino_logic_violation,
+      await session_driver.log_message(validationResult.text, role, character_name, {
+        turn_type: "AI_TURN",
+        meta: {
+          id: nodeId,
+          round: runtime.round,
+          sino_logic_violation: final_meta.sino_logic_violation,
+        },
       });
 
       // 8. TRANSITION: Open the window for User
@@ -505,18 +508,15 @@ export const gamemaster = {
       runtime.round = 0;
       runtime.turn_type = "SYSTEM_TURN";
 
-      await session_driver.log_message(
-        response,
-        "fractal",
-        fractal_name,
-        "SYSTEM_TURN",
-        {
+      await session_driver.log_message(response, "fractal", fractal_name, {
+        turn_type: "SYSTEM_TURN",
+        meta: {
           id: nodeId,
           round: 0,
           is_prologue: true,
         },
-        [{ src: null, metadata: {} }],
-      );
+        attachments: [{ src: null, metadata: {} }],
+      });
       app.log("[GameMaster] Prologue established (Round 0).", "system");
 
       app.end_stream();
@@ -588,17 +588,14 @@ export const gamemaster = {
       }
     }
 
-    await session_driver.log_message(
-      response,
-      "fractal",
-      fractal_name,
-      "SYSTEM_TURN",
-      {
+    await session_driver.log_message(response, "fractal", fractal_name, {
+      turn_type: "SYSTEM_TURN",
+      meta: {
         id: nodeId,
         is_epilogue: true,
       },
-      epilogueAttachments,
-    );
+      attachments: epilogueAttachments,
+    });
     app.end_stream();
     return response;
   },

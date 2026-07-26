@@ -264,13 +264,10 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
 
       expect(result.response).toBe("<think>Analyzing user state</think>");
-      expect(session_driver.log_message).toHaveBeenCalledWith(
-        "<think>Analyzing user state</think>",
-        expect.any(String),
-        expect.any(String),
-        "AI_TURN",
-        expect.any(Object),
-      );
+      expect(session_driver.log_message).toHaveBeenCalledWith("<think>Analyzing user state</think>", expect.any(String), expect.any(String), {
+        turn_type: "AI_TURN",
+        meta: expect.any(Object),
+      });
     });
 
     it("scrubs Chinese character bleed outside think block but keeps inside characters and spacing intact", async () => {
@@ -288,10 +285,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         "<think>thought block containing 中文</think> Normal spacing and some  character bleed.",
         expect.any(String),
         expect.any(String),
-        "AI_TURN",
-        expect.objectContaining({
-          sino_logic_violation: true,
-        }),
+        { turn_type: "AI_TURN", meta: expect.objectContaining({ sino_logic_violation: true }) },
       );
     });
 
@@ -310,10 +304,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         "No think block here.   Multiple   spaces   remain   intact.",
         expect.any(String),
         expect.any(String),
-        "AI_TURN",
-        expect.not.objectContaining({
-          sino_logic_violation: true,
-        }),
+        { turn_type: "AI_TURN", meta: expect.not.objectContaining({ sino_logic_violation: true }) },
       );
     });
 

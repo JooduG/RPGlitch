@@ -192,7 +192,7 @@ export class ChronoStore {
     app.streaming.abort_controller = controller;
     app.streaming.active = true;
 
-    (async () => {
+    return (async () => {
       try {
         if (finalInput) {
           try {
