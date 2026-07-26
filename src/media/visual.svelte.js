@@ -442,6 +442,62 @@ export class VisualEngine {
   }
 
   /**
+   * Generates N image candidates concurrently with the same prompt but different seeds.
+   * Retries failures until at least `min_success` candidates succeed.
+   * @param {string} prompt - The (already refined) image prompt.
+   * @param {{ mode?: string, negativePrompt?: string, count?: number, min_success?: number, resolution?: string }} options
+   * @returns {Promise<Array<{ url: string, metadata: any }>>}
+   */
+  async generate_candidates(prompt, options = {}) {
+    const count = options.count ?? 3;
+    const min_success = options.min_success ?? 2;
+    const baseOpts = {
+      mode: options.mode || "character",
+      negativePrompt: options.negativePrompt,
+      returnPayload: true,
+    };
+
+    /** @type {Array<{ url: string, metadata: any } | null>} */
+    const results = new Array(count).fill(null);
+
+    // Fire all generations concurrently
+    const attempts = [];
+    for (let i = 0; i < count; i++) {
+      attempts.push(
+        this.generate(prompt, { ...baseOpts })
+          .then((payload) => {
+            if (payload?.url) return { index: i, payload };
+            return { index: i, payload: null };
+          })
+          .catch(() => ({ index: i, payload: null })),
+      );
+    }
+    const settled = await Promise.all(attempts);
+    for (const s of settled) {
+      if (s.payload) results[s.index] = s.payload;
+    }
+
+    // Retry failures until we have at least min_success
+    const getSuccessCount = () => results.filter((r) => r !== null).length;
+    let retryRound = 0;
+    while (getSuccessCount() < min_success && retryRound < 3) {
+      const failedIndices = results.map((r, i) => (r === null ? i : -1)).filter((i) => i >= 0);
+      const retries = failedIndices.map((i) =>
+        this.generate(prompt, { ...baseOpts })
+          .then((payload) => ({ index: i, payload }))
+          .catch(() => ({ index: i, payload: null })),
+      );
+      const retryResults = await Promise.all(retries);
+      for (const r of retryResults) {
+        if (r.payload?.url) results[r.index] = r.payload;
+      }
+      retryRound++;
+    }
+
+    return results.filter((r) => r !== null);
+  }
+
+  /**
    * Generates an aesthetic SVG data URL for local dev & mock testing when image plugin is missing.
    * @param {string} prompt
    * @param {any} [options]

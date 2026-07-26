@@ -9,3 +9,4 @@ export { default as StoryCard } from "./StoryCard.svelte";
 export { default as UnifiedConsole } from "./UnifiedConsole.svelte";
 export { default as ImportEntity } from "./ImportEntity.svelte";
 export { default as StyleBadges } from "./StyleBadges.svelte";
+export { default as ImageReroll } from "./ImageReroll.svelte";

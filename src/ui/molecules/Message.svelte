@@ -9,7 +9,6 @@
   import { Audio, get_signature_color } from "@media";
   import { Typewriter } from "@motion";
   import { app, runtime, simulationState } from "@state";
-  import { session_driver } from "@engine";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { DevTelemetryBlock, EntityCard } from "@molecules";
   import { safe_html } from "@utils";
@@ -454,7 +453,7 @@
                       style:--signature-color={part.color}>{part.text}</span
                     >
                   {:else}
-                    <span class="inline px-1 [text-shadow:0_0_var(--spacing-spacing-unit)_var(--color-void-black)]">{part.text}</span>
+                    <span class="inline px-1 text-shadow-[0_0_var(--spacing-spacing-unit)_var(--color-void-black)]">{part.text}</span>
                   {/if}
                 {/each}
               {:else}
@@ -608,33 +607,6 @@
                     const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
                     if (!previewOptions.metadata) previewOptions.metadata = {};
                     previewOptions.signature_color = signature_color;
-
-                    if (previewOptions.metadata?.prompt) {
-                      previewOptions.on_reroll = async () => {
-                        app.busy = true;
-                        try {
-                          const payload = await app.visual.generate(previewOptions.metadata.prompt, {
-                            seed: null,
-                            resolution: previewOptions.metadata.resolution,
-                            negativePrompt: previewOptions.metadata.negativePrompt,
-                            mode: previewOptions.metadata.mode || "character",
-                            returnPayload: true,
-                          });
-                          if (payload?.url && id) {
-                            const newAttachment = {
-                              src: payload.url,
-                              metadata: payload.metadata,
-                              signature_color,
-                            };
-                            await session_driver.update_log_attachment(id, attach_idx, newAttachment);
-                            app.open_image_preview(newAttachment);
-                          }
-                        } finally {
-                          app.busy = false;
-                        }
-                      };
-                    }
-
                     app.open_image_preview(previewOptions);
                   }}
                   aria-label="View Attachment"
@@ -654,12 +626,47 @@
                       shadow-sm
                     "
                   />
+                  <!-- Reroll button overlay -->
+                  {#if attachment?.metadata?.prompt && id}
+                    <!-- svelte-ignore a11y_click_events_have_key_events -->
+                    <div
+                      class="absolute top-2 right-2 z-10"
+                      onclick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                        if (app.reroll_image_handler) {
+                          app.reroll_image_handler({
+                            prompt: attachment.metadata.prompt,
+                            negativePrompt: attachment.metadata.negativePrompt,
+                            mode: attachment.metadata.mode || "character",
+                            log_id: id,
+                            attach_idx,
+                            signature_color,
+                            reroll_count: attachment.metadata.reroll_count || 0,
+                          });
+                        }
+                      }}
+                      role="button"
+                      tabindex="0"
+                      aria-label="Reroll image"
+                    >
+                      <div
+                        class="flex h-9 w-9 items-center justify-center rounded-lg bg-black/60 text-white backdrop-blur-sm transition-colors hover:bg-emerald-600/80"
+                      >
+                        <svg viewBox="0 0 24 24" class="h-5 w-5 fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]">
+                          <polyline points="23 4 23 10 17 10" />
+                          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+                        </svg>
+                      </div>
+                    </div>
+                  {/if}
                 </button>
               {:else}
-                <div class="flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900/50 p-4 opacity-60">
+                <div class="relative flex w-full items-center justify-center gap-1.5 rounded-lg bg-neutral-900/50 p-8 opacity-60">
                   <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
                   <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 150ms"></div>
                   <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 300ms"></div>
+                  <span class="ml-2 font-mono text-xs tracking-widest text-slate-400 uppercase">Generating image...</span>
                 </div>
               {/if}
             {/each}

@@ -8,10 +8,10 @@
    * during view transitions, enabling true View Transition API morphing.
    */
   import { ImagePreview, Skeleton, Tooltip } from "@atoms";
-  import { UnifiedConsole, EntityCard, StyleBadges } from "@molecules";
+  import { UnifiedConsole, EntityCard, ImageReroll, StyleBadges } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
-  import { app, runtime, simulationState } from "@state";
+  import { app, runtime, simulationState, openRerollPicker, deliverCandidates, setRerollError } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
 
@@ -45,62 +45,137 @@
 
   const is_locked = $derived(simulationState.busy);
 
-  /** Portrait generation helper shared by Photo actions */
+  /** Portrait generation helper — logs a placeholder message immediately, then fills in the image */
   async function take_photo(subject, prompt, kind) {
     if (is_locked) return;
+    const entity_map = {
+      ai: runtime.active_ai || app.selected_ai,
+      user: runtime.active_user || app.selected_user,
+      fractal: runtime.active_fractal || app.selected_fractal,
+    };
+    const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
+    const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
+    const entity = entity_map[subject];
     try {
       simulationState.role = subject;
       simulationState.start_generation(subject);
+
+      // Log placeholder message immediately with null src attachment
+      const placeholderEntry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
+        turn_type: turn_map[subject],
+        attachments: [{ src: null, metadata: {} }],
+      });
+
       const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
-      const entity_map = {
-        ai: runtime.active_ai || app.selected_ai,
-        user: runtime.active_user || app.selected_user,
-        fractal: runtime.active_fractal || app.selected_fractal,
-      };
-      const label_map = { ai: "AI", user: "User", fractal: "Fractal" };
-      const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
-      if (result?.imageUrl) {
-        const entity = entity_map[subject];
-        await session_driver.log_message("", subject, entity?.name || label_map[subject], {
-          turn_type: turn_map[subject],
-          attachments: [{ src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } }],
+
+      if (result?.imageUrl && placeholderEntry?.id) {
+        await session_driver.update_log_attachment(placeholderEntry.id, 0, {
+          src: result.imageUrl,
+          metadata: { ...result.metadata, prompt: result.refinedPrompt },
         });
-      } else {
-        app.log(`${label_map[subject] || subject} photo generation failed. Please try again.`, "error");
+      } else if (!result?.imageUrl) {
+        app.log(`${label_map[subject] || subject} image generation failed. Please try again.`, "error");
       }
     } catch (err) {
       console.error(`[Photo Error: ${subject}]`, err);
-      app.log(`Photo failed: ${err.message || err}`, "error");
+      app.log(`Image generation failed: ${err.message || err}`, "error");
     } finally {
       simulationState.complete();
     }
   }
 
-  /** Group shot helper */
+  /** Group shot helper — logs placeholder immediately, then fills in the image */
   async function take_group_photo() {
     if (is_locked) return;
     try {
       simulationState.role = "fractal";
       simulationState.start_generation("fractal");
+      const fractal = runtime.active_fractal || app.selected_fractal;
+
+      const placeholderEntry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
+        turn_type: "SYSTEM_TURN",
+        attachments: [{ src: null, metadata: {} }],
+      });
+
       const result = await visual_engine.visualize(
         runtime.story_id,
         "A scene featuring both the AI character and the user persona together",
         "characters",
       );
-      if (result?.imageUrl) {
-        const fractal = runtime.active_fractal || app.selected_fractal;
-        await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
-          turn_type: "SYSTEM_TURN",
-          attachments: [{ src: result.imageUrl, metadata: { ...result.metadata, prompt: result.refinedPrompt } }],
+
+      if (result?.imageUrl && placeholderEntry?.id) {
+        await session_driver.update_log_attachment(placeholderEntry.id, 0, {
+          src: result.imageUrl,
+          metadata: { ...result.metadata, prompt: result.refinedPrompt },
         });
-      } else {
-        app.log("Group Shot generation failed. Please try again.", "error");
+      } else if (!result?.imageUrl) {
+        app.log("Story Image generation failed. Please try again.", "error");
       }
     } catch (err) {
-      console.error("[Group Shot Error]", err);
-      app.log(`Group Shot failed: ${err.message || err}`, "error");
+      console.error("[Story Image Error]", err);
+      app.log(`Story Image failed: ${err.message || err}`, "error");
     } finally {
       simulationState.complete();
+    }
+  }
+
+  /**
+   * Reroll orchestration — generates 3 candidates and shows the picker.
+   * First reroll: same prompt, 3 new seeds.
+   * Second+ reroll: re-refines prompt via LLM, then 3 new images.
+   * @param {{ prompt: string, negativePrompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, reroll_count?: number }} ctx
+   */
+  async function reroll_image(ctx) {
+    const { prompt, negativePrompt, mode = "character", log_id, attach_idx = 0, signature_color, reroll_count = 0 } = ctx;
+
+    openRerollPicker({
+      signature_color,
+      on_select: (candidate) => {
+        if (log_id) {
+          session_driver.update_log_attachment(log_id, attach_idx, {
+            src: candidate.url,
+            metadata: candidate.metadata,
+            signature_color,
+          });
+        }
+      },
+    });
+
+    try {
+      let finalPrompt = prompt;
+      let finalNegative = negativePrompt;
+
+      // Second+ reroll: re-refine the prompt via LLM
+      if (reroll_count >= 1) {
+        const refined = await visual_engine.enhance(prompt, mode);
+        if (refined?.prompt) {
+          finalPrompt = refined.prompt;
+          finalNegative = refined.negativePrompt || negativePrompt;
+        }
+      }
+
+      const candidates = await visual_engine.generate_candidates(finalPrompt, {
+        mode,
+        negativePrompt: finalNegative,
+        count: 3,
+        min_success: 2,
+      });
+
+      if (candidates.length < 2) {
+        setRerollError("Not enough images generated. Please try again.");
+        return;
+      }
+
+      deliverCandidates(
+        candidates.map((c) => ({
+          url: c.url,
+          metadata: { ...c.metadata, prompt: finalPrompt, reroll_count: reroll_count + 1 },
+          signature_color,
+        })),
+      );
+    } catch (err) {
+      console.error("[Reroll Error]", err);
+      setRerollError(`Reroll failed: ${err.message || err}`);
     }
   }
 
@@ -109,6 +184,9 @@
     if (is_locked) return;
     app.ghostwrite_request++;
   }
+
+  // Expose reroll_image to Message.svelte via the app store
+  app.reroll_image_handler = reroll_image;
 
   /** Mock message — streams a placeholder message for the given entity role (devmode only) */
   async function run_mock(role) {
@@ -154,7 +232,7 @@
     const entity_map = { ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal };
     const entity = entity_map[type];
 
-    const photo_label = type === "ai" ? "AI Character Image" : type === "user" ? "User Persona Image" : "Fractal Image";
+    const photo_label = type === "ai" ? "Generate AI Character Image" : type === "user" ? "Generate User Persona Image" : "Generate Fractal Image";
     const photo_prompt =
       type === "ai"
         ? "A character portrait of the AI character"
@@ -176,31 +254,6 @@
                   seed: entity.modifiers.last_generated_seed,
                 }
               : null,
-            on_reroll: () => {
-              const modifiers = entity?.modifiers;
-              if (!modifiers || !modifiers.prompt) return;
-              app.log(`[Profile] Rerolling profile picture...`, "system");
-              app.visual
-                .generate(modifiers.prompt, {
-                  mode: entity.type,
-                  no_background: false,
-                  negativePrompt: modifiers.negative_prompt || undefined,
-                  seed: undefined,
-                  returnPayload: true,
-                  _entity: entity,
-                })
-                .then((payload) => {
-                  if (payload?.url) {
-                    entity.profile_picture = payload.url;
-                    if (payload.metadata?.seed !== undefined) {
-                      modifiers.last_generated_seed = payload.metadata.seed;
-                    }
-                  }
-                })
-                .catch((err) => {
-                  app.log(`Generation failed: ${err.message}`, "error");
-                });
-            },
           }),
         disabled: !entity?.profile_picture,
       },
@@ -220,7 +273,7 @@
       });
       if (type === "fractal") {
         items.push({
-          label: "Story Image",
+          label: "Generate Story Image",
           onSelect: () => take_group_photo(),
           disabled: is_locked || visual_engine.isLoading,
         });
@@ -293,6 +346,7 @@
   </div>
 
   <ImagePreview />
+  <ImageReroll />
 
   <!--
     PERSISTENT LAYOUT — single instance always in the DOM.

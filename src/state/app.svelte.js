@@ -141,6 +141,8 @@ export class AppStore {
     visual_style: "none",
   });
   ghostwrite_request = $state(0);
+  /** @type {((ctx: any) => void) | null} */
+  reroll_image_handler = $state(null);
   // --- SENSORY ENGINES ---
   get visual() {
     return visual_engine;

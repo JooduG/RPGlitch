@@ -186,6 +186,7 @@ export const session_driver = {
     }
     entry.id = await db.simulation_log.add(entry);
     simulation_log.add(entry);
+    return entry;
   },
 
   /**
