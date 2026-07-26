@@ -1,6 +1,6 @@
 import { db } from "@data";
 import { SESSION_ID_KEY } from "./config.js";
-import { runtime, simulation_log, simulationState } from "@state";
+import { runtime, simulation_log } from "@state";
 
 /**
  * SESSION (Simulation & Gamemaster)
@@ -44,7 +44,6 @@ export const session_driver = {
    */
   clear_active: async function () {
     _active_id = null;
-    simulationState.unlock();
     runtime.story_id = null;
     runtime.round = 0;
     if (typeof window !== "undefined") {
@@ -151,8 +150,9 @@ export const session_driver = {
     const entry = await db.simulation_log.get(key);
     if (entry && entry.attachments && entry.attachments[attachment_index]) {
       entry.attachments[attachment_index] = $state.snapshot(new_attachment);
-      await db.simulation_log.put($state.snapshot(entry));
-      simulation_log.update(key, { attachments: entry.attachments });
+      const plainEntry = $state.snapshot(entry);
+      await db.simulation_log.put(plainEntry);
+      simulation_log.update(key, { attachments: plainEntry.attachments });
     }
   },
 

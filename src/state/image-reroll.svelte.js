@@ -1,86 +1,114 @@
 /**
  * @file image-reroll.svelte.js
  * 🎲 Image Reroll State — manages the 3-candidate reroll flow.
+ * Two phases: "rerolling" (placeholder shows "Rerolling...") then
+ * "picker" (3-card modal opens when user clicks "Select Image").
  * Svelte 5 module-level runes state.
  */
 
 /** @typedef {{ url: string, metadata: any, signature_color: string | null }} Candidate */
 
-/**
- * @typedef {Object} RerollContext
- * @property {((c: Candidate, index: number) => void) | null} on_select
- * @property {string | null} signature_color
- */
-
-/** @type {{ reroll_log_id: any, reroll_attach_idx: number | null, reroll_status: "rerolling" | "select_ready" | null, candidates: Candidate[], reroll_context: RerollContext | null, picker_active: boolean, selected_index: number | null, error: string | null }} */
+/** @type {{ rerolling_key: string | null, candidates_ready: boolean, candidates: Candidate[], picker_open: boolean, selected_index: number | null, on_select: ((c: Candidate, index: number) => void) | null, signature_color: string | null, error: string | null }} */
 let state = $state({
-  reroll_log_id: null,
-  reroll_attach_idx: null,
-  reroll_status: null,
+  rerolling_key: null,
+  candidates_ready: false,
   candidates: [],
-  reroll_context: null,
-  picker_active: false,
+  picker_open: false,
   selected_index: null,
+  on_select: null,
+  signature_color: null,
   error: null,
 });
 
 export const imageReroll = {
-  get reroll_log_id() {
-    return state.reroll_log_id;
+  get rerolling_key() {
+    return state.rerolling_key;
   },
-  get reroll_attach_idx() {
-    return state.reroll_attach_idx;
-  },
-  get reroll_status() {
-    return state.reroll_status;
+  get candidates_ready() {
+    return state.candidates_ready;
   },
   get candidates() {
     return state.candidates;
   },
-  get picker_active() {
-    return state.picker_active;
+  get picker_open() {
+    return state.picker_open;
   },
   get selected_index() {
     return state.selected_index;
   },
+  get on_select() {
+    return state.on_select;
+  },
+  get signature_color() {
+    return state.signature_color;
+  },
   get error() {
     return state.error;
+  },
+
+  /**
+   * Is this specific attachment currently being rerolled (generating)?
+   * @param {string} key — `${log_id}:${attach_idx}`
+   * @returns {boolean}
+   */
+  isRerolling(key) {
+    return state.rerolling_key === key && !state.candidates_ready && !state.error;
+  },
+
+  /**
+   * Are candidates ready for this attachment (waiting for user to pick)?
+   * @param {string} key — `${log_id}:${attach_idx}`
+   * @returns {boolean}
+   */
+  isReady(key) {
+    return state.rerolling_key === key && state.candidates_ready && !state.error;
+  },
+
+  /**
+   * Is there an error for this attachment's reroll?
+   * @param {string} key — `${log_id}:${attach_idx}`
+   * @returns {boolean}
+   */
+  hasError(key) {
+    return state.rerolling_key === key && !!state.error;
   },
 };
 
 /**
- * Starts a reroll for a specific attachment — marks it as "rerolling".
- * @param {string | number} log_id
- * @param {number} attach_idx
- * @param {RerollContext & { signature_color?: string | null }} context
+ * Begins rerolling an attachment. The placeholder will show "Rerolling..."
+ * until deliverCandidates() is called.
+ * @param {string} key — `${log_id}:${attach_idx}`
+ * @param {{ on_select: (c: Candidate, index: number) => void, signature_color?: string | null }} opts
  */
-export function start_reroll(log_id, attach_idx, context) {
-  state.reroll_log_id = log_id;
-  state.reroll_attach_idx = attach_idx;
-  state.reroll_status = "rerolling";
+export function startReroll(key, opts) {
+  state.rerolling_key = key;
+  state.candidates_ready = false;
   state.candidates = [];
-  state.reroll_context = context;
-  state.error = null;
-  state.picker_active = false;
+  state.picker_open = false;
   state.selected_index = null;
+  state.on_select = opts.on_select ?? null;
+  state.signature_color = opts.signature_color ?? null;
+  state.error = null;
 }
 
 /**
- * Delivers the generated candidates and marks the attachment as select-ready.
+ * Delivers the generated candidates. The placeholder becomes a "Select Image" button.
  * @param {Candidate[]} candidates
  */
-export function deliver_reroll_candidates(candidates) {
+export function deliverCandidates(candidates) {
   state.candidates = candidates;
-  state.reroll_status = "select_ready";
+  state.candidates_ready = true;
   state.error = null;
 }
 
 /**
- * Opens the 3-card picker modal (candidates must already be delivered).
+ * Opens the 3-card picker modal. Only works if candidates are ready.
  */
-export function open_reroll_picker() {
-  state.picker_active = true;
-  state.selected_index = null;
+export function openPicker() {
+  if (state.candidates_ready && state.candidates.length >= 2) {
+    state.picker_open = true;
+    state.selected_index = null;
+  }
 }
 
 /**
@@ -88,47 +116,43 @@ export function open_reroll_picker() {
  * The actual on_select callback fires immediately.
  * @param {number} index
  */
-export function select_reroll_candidate(index) {
+export function selectCandidate(index) {
   if (index < 0 || index >= state.candidates.length) return;
   state.selected_index = index;
   const candidate = state.candidates[index];
-  const ctx = state.reroll_context;
-  if (ctx && typeof ctx.on_select === "function") {
-    ctx.on_select(candidate, index);
+  if (typeof state.on_select === "function") {
+    state.on_select(candidate, index);
   }
-  setTimeout(() => {
-    clear_reroll();
-  }, 400);
+  setTimeout(() => closeReroll(), 400);
 }
 
 /**
- * Closes the picker modal (without selecting). Reroll state is preserved
- * so the user can reopen the picker via the "Select Image" button.
+ * Closes the picker modal but keeps reroll state (for re-opening).
  */
-export function close_reroll_picker() {
-  state.picker_active = false;
+export function closePicker() {
+  state.picker_open = false;
   state.selected_index = null;
 }
 
 /**
- * Clears all reroll state (after selection or cancellation).
+ * Clears all reroll state entirely.
  */
-export function clear_reroll() {
-  state.reroll_log_id = null;
-  state.reroll_attach_idx = null;
-  state.reroll_status = null;
+export function closeReroll() {
+  state.rerolling_key = null;
+  state.candidates_ready = false;
   state.candidates = [];
-  state.reroll_context = null;
-  state.picker_active = false;
+  state.picker_open = false;
   state.selected_index = null;
+  state.on_select = null;
+  state.signature_color = null;
   state.error = null;
 }
 
 /**
- * Reports an error in the reroll flow.
+ * Reports an error. The placeholder will show the error message.
  * @param {string} msg
  */
-export function set_reroll_error(msg) {
+export function setRerollError(msg) {
   state.error = msg;
-  state.reroll_status = null;
+  state.candidates_ready = false;
 }

@@ -4,11 +4,11 @@ export { simulationState, uiState } from "./status.svelte.js";
 export { simulation_log } from "./log.svelte.js";
 export {
   imageReroll,
-  start_reroll,
-  deliver_reroll_candidates,
-  open_reroll_picker,
-  select_reroll_candidate,
-  close_reroll_picker,
-  clear_reroll,
-  set_reroll_error,
+  startReroll,
+  deliverCandidates,
+  openPicker,
+  selectCandidate,
+  closePicker,
+  closeReroll,
+  setRerollError,
 } from "./image-reroll.svelte.js";

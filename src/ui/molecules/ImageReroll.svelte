@@ -4,29 +4,21 @@
    * 🎲 The 3-Card Reroll Picker
    * Vampire-Survivors-style card flip selection. Three image candidates
    * are dealt face-down then revealed simultaneously.
-   * Candidates are already generated before this picker opens — the loading
-   * state lives in the chat message placeholder, not here.
+   * Candidates are already generated before the picker opens — no loading state here.
    */
-  import { imageReroll, select_reroll_candidate, close_reroll_picker } from "@state";
+  import { imageReroll, selectCandidate, closeReroll } from "@state";
   import { Backdrop } from "@atoms";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 
-  let open = $state(false);
-
-  // Sync dialog open state with picker_active
-  $effect(() => {
-    if (imageReroll.picker_active) {
-      open = true;
-    }
-  });
+  let open = $state(true);
 
   $effect(() => {
-    if (!open) close_reroll_picker();
+    if (!open) closeReroll();
   });
 </script>
 
-{#if imageReroll.picker_active}
+{#if imageReroll.picker_open}
   <Dialog.Root bind:open preventScroll={false}>
     <Dialog.Portal>
       <Dialog.Overlay forceMount>
@@ -36,7 +28,7 @@
               {#snippet child({ props: contentProps })}
                 <div
                   {...contentProps}
-                  class="relative flex w-[clamp(20rem,90vw,80rem)] flex-col items-center justify-center gap-8"
+                  class="relative flex min-h-[60vh] w-[clamp(20rem,90vw,80rem)] flex-col items-center justify-center gap-8"
                   onclick={(e) => e.stopPropagation()}
                 >
                   {#if imageReroll.error}
@@ -44,7 +36,7 @@
                       <p class="text-lg text-red-400">{imageReroll.error}</p>
                       <button
                         class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
-                        onclick={() => close_reroll_picker()}
+                        onclick={() => closeReroll()}
                       >
                         Close
                       </button>
@@ -56,7 +48,7 @@
                         <button
                           type="button"
                           class="group relative h-72 w-56 cursor-pointer perspective-[1000px] md:h-80 md:w-64"
-                          onclick={() => select_reroll_candidate(i)}
+                          onclick={() => selectCandidate(i)}
                           aria-label="Select candidate {i + 1}"
                         >
                           <div

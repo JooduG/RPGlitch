@@ -128,6 +128,13 @@
       e.preventDefault();
     }
   };
+
+  const handleReroll = () => {
+    if (typeof state.on_reroll === "function") {
+      state.on_reroll();
+    }
+    closeImagePreview();
+  };
 </script>
 
 {#if state.active}
@@ -244,18 +251,10 @@
 
         <div class="mt-auto flex flex-row gap-4">
           {#if state.on_reroll}
-            <Button
-              variant="secondary"
-              class="flex-1"
-              onclick={() => {
-                state.on_reroll();
-                closeImagePreview();
-              }}
-            >
+            <Button variant="secondary" class="flex-1" onclick={handleReroll}>
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
-                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                ></path>
+                <polyline points="23 4 23 10 17 10" stroke="currentColor" stroke-width="2"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" stroke="currentColor" stroke-width="2"></path>
               </svg>
               Reroll
             </Button>
