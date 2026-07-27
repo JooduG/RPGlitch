@@ -8,7 +8,13 @@
 
 /** @typedef {{ url: string, metadata: any, signature_color: string | null }} Candidate */
 
-/** @type {{ regenerating_key: string | null, candidates_ready: boolean, candidates: Candidate[], picker_open: boolean, selected_index: number | null, on_select: ((c: Candidate, index: number) => void) | null, signature_color: string | null, error: string | null, last_prompt: string, last_mode: string, last_negative: string }} */
+// Plain module-level variables for prompt persistence — COMPLETELY outside Svelte's $state proxy.
+// This bypasses any reactivity/proxy issues that may clear values between regeneration rounds.
+let _persisted_prompt = "";
+let _persisted_mode = "character";
+let _persisted_negative = "";
+
+/** @type {{ regenerating_key: string | null, candidates_ready: boolean, candidates: Candidate[], picker_open: boolean, selected_index: number | null, on_select: ((c: Candidate, index: number) => void) | null, signature_color: string | null, error: string | null }} */
 let state = $state({
   regenerating_key: null,
   candidates_ready: false,
@@ -18,9 +24,6 @@ let state = $state({
   on_select: null,
   signature_color: null,
   error: null,
-  last_prompt: "",
-  last_mode: "character",
-  last_negative: "",
 });
 
 export const imageRegenerate = {
@@ -49,13 +52,14 @@ export const imageRegenerate = {
     return state.error;
   },
   get last_prompt() {
-    return state.last_prompt;
+    console.log("[ImageRegenerate] last_prompt getter -> ", JSON.stringify(_persisted_prompt).slice(0, 120));
+    return _persisted_prompt;
   },
   get last_mode() {
-    return state.last_mode;
+    return _persisted_mode;
   },
   get last_negative() {
-    return state.last_negative;
+    return _persisted_negative;
   },
 
   /**
@@ -113,9 +117,12 @@ export function deliverCandidates(candidates, meta) {
   state.candidates_ready = true;
   state.error = null;
   if (meta) {
-    if (meta.prompt) state.last_prompt = meta.prompt;
-    if (meta.mode) state.last_mode = meta.mode;
-    if (meta.negativePrompt) state.last_negative = meta.negativePrompt;
+    if (meta.prompt) {
+      _persisted_prompt = meta.prompt;
+      console.log("[ImageRegenerate] deliverCandidates stored prompt:", JSON.stringify(_persisted_prompt).slice(0, 200));
+    }
+    if (meta.mode) _persisted_mode = meta.mode;
+    if (meta.negativePrompt) _persisted_negative = meta.negativePrompt;
   }
 }
 
@@ -145,11 +152,18 @@ export function selectCandidate(index) {
 }
 
 /**
- * Closes the picker modal but resets to "regenerating" state so the
- * inline message placeholder shows ellipses while new candidates generate.
- * Keeps the same regenerating_key and on_select callback.
+ * Closes the picker modal but keeps regenerating_key, on_select, signature_color,
+ * and persisted prompt/mode/negative for subsequent regenerations.
+ * The inline message placeholder will show the "regenerating" loading state.
  */
-export function resetForRegenerate() {
+export function closePicker() {
+  // Capture prompt from candidates BEFORE clearing them, as a safety net
+  if (state.candidates.length > 0 && state.candidates[0]?.metadata?.prompt && !_persisted_prompt) {
+    _persisted_prompt = state.candidates[0].metadata.prompt;
+    _persisted_mode = state.candidates[0].metadata.mode || _persisted_mode;
+    _persisted_negative = state.candidates[0].metadata.negativePrompt || _persisted_negative;
+    console.log("[ImageRegenerate] closePicker captured prompt from candidate:", JSON.stringify(_persisted_prompt).slice(0, 200));
+  }
   state.picker_open = false;
   state.candidates_ready = false;
   state.candidates = [];
@@ -158,7 +172,8 @@ export function resetForRegenerate() {
 }
 
 /**
- * Clears all regenerate state entirely.
+ * Clears all regenerate state entirely. Does NOT clear persisted prompt
+ * (it's a plain variable, persists naturally).
  */
 export function closeRegenerate() {
   state.regenerating_key = null;
@@ -178,4 +193,18 @@ export function closeRegenerate() {
 export function setRegenerateError(msg) {
   state.error = msg;
   state.candidates_ready = false;
+}
+
+/**
+ * Returns the persisted prompt metadata as a plain object.
+ * Useful for callers that want to read all three values at once.
+ * @returns {{ prompt: string, mode: string, negativePrompt: string }}
+ */
+export function getPersistedMeta() {
+  console.log("[ImageRegenerate] getPersistedMeta() -> prompt:", JSON.stringify(_persisted_prompt).slice(0, 200));
+  return {
+    prompt: _persisted_prompt,
+    mode: _persisted_mode,
+    negativePrompt: _persisted_negative,
+  };
 }

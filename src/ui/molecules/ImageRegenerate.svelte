@@ -6,64 +6,49 @@
    * and pick their favorite. Includes a "Regenerate" button for a 2nd
    * round of generation with LLM-refined prompts.
    */
-  import { imageRegenerate, selectCandidate, closeRegenerate, deliverCandidates, setRegenerateError, resetForRegenerate } from "@state";
+  import { imageRegenerate, selectCandidate, closeRegenerate, deliverCandidates, setRegenerateError, closePicker, getPersistedMeta } from "@state";
   import { visual_engine } from "@media";
   import { Backdrop } from "@atoms";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 
-  let open = $state(true);
   let is_regenerating = $state(false);
-
-  // True while candidates for the *current* picker session have not yet
-  // been delivered (initial generation still running in the background).
-  let is_initial_loading = $state(false);
-
-  // Close the picker (and clear all state) when the Dialog is dismissed.
-  $effect(() => {
-    if (!open) closeRegenerate();
-  });
-
-  // React to the picker opening: if candidates aren't ready yet, show a
-  // loading state until they arrive (or an error appears).
-  $effect(() => {
-    if (imageRegenerate.picker_open) {
-      is_initial_loading = !imageRegenerate.candidates_ready && !imageRegenerate.error;
-    } else {
-      is_initial_loading = false;
-    }
-  });
 
   async function handle_regenerate() {
     if (is_regenerating) return;
     const key = imageRegenerate.regenerating_key;
+    console.log("[ImageRegenerate] handle_regenerate START, key:", key);
     if (!key) {
       setRegenerateError("No image context available to regenerate.");
       return;
     }
+
+    // Read persisted meta BEFORE closePicker (plain variables, not $state)
+    const meta = getPersistedMeta();
+    console.log("[ImageRegenerate] persisted meta:", { prompt_len: meta.prompt?.length, mode: meta.mode, neg_len: meta.negativePrompt?.length });
+    console.log("[ImageRegenerate] persisted prompt preview:", JSON.stringify(meta.prompt).slice(0, 300));
+
     is_regenerating = true;
-    resetForRegenerate();
+    closePicker();
     try {
       const signature_color = imageRegenerate.signature_color;
 
-      const prompt = imageRegenerate.last_prompt || "";
-      const mode = imageRegenerate.last_mode || "character";
-      const negativePrompt = imageRegenerate.last_negative || "";
-      console.log("[ImageRegenerate] handle_regenerate: prompt:", JSON.stringify(prompt?.substring(0, 200)), "mode:", mode);
+      const prompt = meta.prompt || "";
+      const mode = meta.mode || "character";
+      const negativePrompt = meta.negativePrompt || "";
 
       if (!prompt) {
+        console.error("[ImageRegenerate] NO PROMPT! meta was:", meta);
         setRegenerateError("No prompt found for this image. Cannot regenerate.");
         return;
       }
 
+      console.log("[ImageRegenerate] enhancing prompt via LLM, mode:", mode);
       let finalPrompt = prompt;
       let finalNegative = negativePrompt;
       try {
         const refined = await visual_engine.enhance(prompt, mode);
-        console.log(
-          "[ImageRegenerate] enhance result:",
-          refined ? { prompt: refined.prompt?.substring(0, 200), negativePrompt: refined.negativePrompt?.substring(0, 100) } : "null",
-        );
+        console.log("[ImageRegenerate] enhance returned:", refined ? { prompt_len: refined.prompt?.length } : "null");
         if (refined?.prompt) {
           finalPrompt = refined.prompt;
           finalNegative = refined.negativePrompt || negativePrompt;
@@ -72,6 +57,7 @@
         console.warn("[ImageRegenerate] Prompt enhancement failed, using original prompt:", enhanceErr);
       }
 
+      console.log("[ImageRegenerate] generating candidates with prompt:", JSON.stringify(finalPrompt).slice(0, 200));
       const newCandidates = await visual_engine.generate_candidates(finalPrompt, {
         mode,
         negativePrompt: finalNegative,
@@ -84,6 +70,7 @@
         return;
       }
 
+      console.log("[ImageRegenerate] delivering", newCandidates.length, "candidates");
       deliverCandidates(
         newCandidates.map((c) => ({
           url: c.url,
@@ -102,7 +89,7 @@
 </script>
 
 {#if imageRegenerate.picker_open}
-  <Dialog.Root bind:open preventScroll={false}>
+  <Dialog.Root open={true} preventScroll={false}>
     <Dialog.Portal>
       <Dialog.Overlay forceMount>
         {#snippet child({ props: overlayProps })}
@@ -128,7 +115,7 @@
                         </button>
                       </div>
                     </div>
-                  {:else if is_initial_loading}
+                  {:else if imageRegenerate.candidates.length < 2}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <div class="flex gap-1.5">
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 0ms"></div>
@@ -145,6 +132,7 @@
                         {@const cRes = candidate.metadata?.resolution || "512x768"}
                         {@const [cW, cH] = cRes.split("x").map(Number)}
                         {@const ar = cW && cH ? `${cW} / ${cH}` : "2 / 3"}
+                        {@const rot = i === 0 ? -4 : i === 2 ? 4 : 0}
                         <button
                           type="button"
                           class="group relative w-56 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out md:w-64 {imageRegenerate.selected_index ===
@@ -153,11 +141,7 @@
                             : imageRegenerate.selected_index !== null
                               ? 'scale-95 cursor-default opacity-40'
                               : 'cursor-pointer hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(0,0,0,0.7)]'}"
-                          style="background: #f5f0e6; border-radius: 2px; transform-origin: bottom center; transform: rotate({i == 0
-                            ? -4
-                            : i == 2
-                              ? 4
-                              : 0}deg);"
+                          style="background: #f5f0e6; border-radius: 2px; transform-origin: bottom center; transform: rotate({rot}deg);"
                           onclick={() => selectCandidate(i)}
                           aria-label="Select candidate {letter}"
                         >

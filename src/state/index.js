@@ -10,5 +10,6 @@ export {
   selectCandidate,
   closeRegenerate,
   setRegenerateError,
-  resetForRegenerate,
+  closePicker,
+  getPersistedMeta,
 } from "./image-regenerate.svelte.js";
