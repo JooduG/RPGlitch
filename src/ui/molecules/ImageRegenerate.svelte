@@ -42,19 +42,14 @@
       return;
     }
     is_regenerating = true;
-    const savedCandidates = imageRegenerate.candidates.map((c) => ({
-      url: c.url,
-      metadata: { ...c.metadata },
-      signature_color: c.signature_color,
-    }));
     resetForRegenerate();
     try {
       const signature_color = imageRegenerate.signature_color;
 
-      const firstCandidate = savedCandidates[0];
-      const prompt = firstCandidate?.metadata?.prompt || "";
-      const mode = firstCandidate?.metadata?.mode || "character";
-      const negativePrompt = firstCandidate?.metadata?.negativePrompt;
+      const prompt = imageRegenerate.last_prompt || "";
+      const mode = imageRegenerate.last_mode || "character";
+      const negativePrompt = imageRegenerate.last_negative || "";
+      console.log("[ImageRegenerate] handle_regenerate: prompt:", JSON.stringify(prompt?.substring(0, 200)), "mode:", mode);
 
       if (!prompt) {
         setRegenerateError("No prompt found for this image. Cannot regenerate.");
@@ -65,6 +60,10 @@
       let finalNegative = negativePrompt;
       try {
         const refined = await visual_engine.enhance(prompt, mode);
+        console.log(
+          "[ImageRegenerate] enhance result:",
+          refined ? { prompt: refined.prompt?.substring(0, 200), negativePrompt: refined.negativePrompt?.substring(0, 100) } : "null",
+        );
         if (refined?.prompt) {
           finalPrompt = refined.prompt;
           finalNegative = refined.negativePrompt || negativePrompt;
@@ -88,9 +87,10 @@
       deliverCandidates(
         newCandidates.map((c) => ({
           url: c.url,
-          metadata: { ...c.metadata, prompt: finalPrompt },
+          metadata: { ...c.metadata, prompt: finalPrompt, mode },
           signature_color,
         })),
+        { prompt: finalPrompt, mode, negativePrompt: finalNegative },
       );
     } catch (err) {
       console.error("[Regenerate Error]", err);

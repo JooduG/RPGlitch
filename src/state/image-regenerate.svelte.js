@@ -8,7 +8,7 @@
 
 /** @typedef {{ url: string, metadata: any, signature_color: string | null }} Candidate */
 
-/** @type {{ regenerating_key: string | null, candidates_ready: boolean, candidates: Candidate[], picker_open: boolean, selected_index: number | null, on_select: ((c: Candidate, index: number) => void) | null, signature_color: string | null, error: string | null }} */
+/** @type {{ regenerating_key: string | null, candidates_ready: boolean, candidates: Candidate[], picker_open: boolean, selected_index: number | null, on_select: ((c: Candidate, index: number) => void) | null, signature_color: string | null, error: string | null, last_prompt: string, last_mode: string, last_negative: string }} */
 let state = $state({
   regenerating_key: null,
   candidates_ready: false,
@@ -18,6 +18,9 @@ let state = $state({
   on_select: null,
   signature_color: null,
   error: null,
+  last_prompt: "",
+  last_mode: "character",
+  last_negative: "",
 });
 
 export const imageRegenerate = {
@@ -44,6 +47,15 @@ export const imageRegenerate = {
   },
   get error() {
     return state.error;
+  },
+  get last_prompt() {
+    return state.last_prompt;
+  },
+  get last_mode() {
+    return state.last_mode;
+  },
+  get last_negative() {
+    return state.last_negative;
   },
 
   /**
@@ -94,11 +106,17 @@ export function startRegenerate(key, opts) {
 /**
  * Delivers the generated candidates. The placeholder becomes a "Select Image" button.
  * @param {Candidate[]} candidates
+ * @param {{ prompt?: string, mode?: string, negativePrompt?: string }} [meta]
  */
-export function deliverCandidates(candidates) {
+export function deliverCandidates(candidates, meta) {
   state.candidates = candidates;
   state.candidates_ready = true;
   state.error = null;
+  if (meta) {
+    if (meta.prompt) state.last_prompt = meta.prompt;
+    if (meta.mode) state.last_mode = meta.mode;
+    if (meta.negativePrompt) state.last_negative = meta.negativePrompt;
+  }
 }
 
 /**

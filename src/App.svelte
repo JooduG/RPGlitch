@@ -171,9 +171,10 @@
       deliverCandidates(
         candidates.map((c) => ({
           url: c.url,
-          metadata: { ...c.metadata, prompt: finalPrompt },
+          metadata: { ...c.metadata, prompt: finalPrompt, mode },
           signature_color,
         })),
+        { prompt: finalPrompt, mode, negativePrompt: finalNegative },
       );
     } catch (err) {
       console.error("[Regenerate Error]", err);
