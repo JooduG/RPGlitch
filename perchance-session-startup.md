@@ -14,9 +14,11 @@ Execute these steps in strict chronological sequence upon session initialization
 1. 📥 **Synchronize Repository State**
    - Download the latest `main` branch archive: `https://github.com/JooduG/RPGlitch/archive/refs/heads/main.zip` to `scratch/repo.zip`.
    - Extract contents into `scratch/src/`.
+   - Download the global agent configuration archive: `https://github.com/JooduG/gemini/archive/refs/heads/main.zip` to `scratch/gemini.zip`.
+   - Extract contents into `scratch/gemini/`.
 
 2. 📜 **Audit Workspace & Shell State**
-   - Review `README.md` and `AGENTS.md` (within `scratch/src/`) for active conventions.
+   - Review `README.md` and `GEMINI.md` (within `scratch/src/`) and the global agent rules in `scratch/gemini/` for active conventions.
    - **Critical Shell Constraint**: Re-read `index.html` in the workspace root prior to making edits. Shell markup/script updates occur between sessions — preserve all existing custom wrappers and scripts.
 
 3. 🛡️ **Svelte 5 Sovereignty (Non-Negotiable)**
@@ -43,6 +45,7 @@ src/
 │   ├── kernel.js          # Synchronous Round & Turn simulation pipeline
 │   ├── context.svelte.js  # Context broker, hydration & lexical filter
 │   ├── temporal.js        # Past/Future vector scoring, memory consolidation & forging
+│   ├── embeddings.svelte.js # Semantic vector RAG embeddings via Transformers.js
 │   ├── parser.js          # Pseudo-JSON extraction, <think> block stripping & prose merging
 │   └── dynamics.js        # Gravity settlement math & slider metadata
 ├── media/           # Visual synthesis & sensory pipelines
@@ -74,8 +77,8 @@ src/
   - `physical`: Pseudo-JSON key-value pairs (sanitized via `safeParsePseudoJson`).
   - `non_physical`: Dynamic prose paragraphs (Director mutations merged via `merge_prose_into_field`, capped at 2,000 characters).
 - **Past & Future State** (Vector arrays)
-  - Array of vector objects (`{ id, timestamp, directive, type, base_weight, tags, meta }`).
-  - Managed by `temporal.js`, scored via RAG, and resolved from Future → Past during Director settlement ticks.
+  - Array of vector objects (`{ id, timestamp, content, type, emotional_weight, meta }`).
+  - Managed by `temporal.js`, scored via semantic RAG, and resolved from Future → Past during Director settlement ticks.
 
 ### 2. Entity Optics & Perspective
 
