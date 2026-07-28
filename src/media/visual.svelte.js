@@ -686,8 +686,13 @@ export class VisualEngine {
             negativePrompt: typeof parsed.negativePrompt === "string" ? parsed.negativePrompt.trim() : "",
           };
         }
-      } catch (_) {
-        // Fall through safely
+      } catch (parseErr) {
+        console.warn(
+          "[VisualEngine._parseRefineResponse] JSON.parse failed:",
+          parseErr.message,
+          "raw slice:",
+          raw.slice(start, Math.min(start + 200, end + 1)),
+        );
       }
     }
     return null;

@@ -156,6 +156,24 @@
         }
       }
 
+      // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
+      // extract the prompt field from it.
+      if (finalPrompt.trim().startsWith("{")) {
+        console.log("[App.regenerate_image] finalPrompt is JSON blob, extracting prompt field...");
+        try {
+          const parsed = JSON.parse(finalPrompt.trim());
+          if (parsed.prompt && typeof parsed.prompt === "string") {
+            finalPrompt = parsed.prompt;
+            if (parsed.negativePrompt) finalNegative = parsed.negativePrompt;
+          }
+        } catch (_e) {
+          const promptMatch = finalPrompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+          if (promptMatch && promptMatch[1]) {
+            finalPrompt = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+          }
+        }
+      }
+
       const candidates = await visual_engine.generate_candidates(finalPrompt, {
         mode,
         negativePrompt: finalNegative,

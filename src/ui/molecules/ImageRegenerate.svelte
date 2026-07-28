@@ -57,6 +57,26 @@
         console.warn("[ImageRegenerate] Prompt enhancement failed, using original prompt:", enhanceErr);
       }
 
+      // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
+      // extract the prompt field from it. This happens when _parseRefineResponse fails to peel the JSON.
+      if (finalPrompt.trim().startsWith("{")) {
+        console.log("[ImageRegenerate] finalPrompt is JSON blob, extracting prompt field...");
+        try {
+          const parsed = JSON.parse(finalPrompt.trim());
+          if (parsed.prompt && typeof parsed.prompt === "string") {
+            console.log("[ImageRegenerate] Extracted prompt from JSON:", JSON.stringify(parsed.prompt).slice(0, 200));
+            finalPrompt = parsed.prompt;
+            if (parsed.negativePrompt) finalNegative = parsed.negativePrompt;
+          }
+        } catch (_e) {
+          const promptMatch = finalPrompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+          if (promptMatch && promptMatch[1]) {
+            finalPrompt = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+            console.log("[ImageRegenerate] Extracted prompt via regex fallback:", JSON.stringify(finalPrompt).slice(0, 200));
+          }
+        }
+      }
+
       console.log("[ImageRegenerate] generating candidates with prompt:", JSON.stringify(finalPrompt).slice(0, 200));
       const newCandidates = await visual_engine.generate_candidates(finalPrompt, {
         mode,
