@@ -1,4 +1,4 @@
-import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter } from "./prompts.js";
+import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter, build_cognitive_state, build_dynamics_calibration } from "./prompts.js";
 import { app } from "@state";
 import { describe, expect, it } from "vitest";
 
@@ -198,7 +198,7 @@ describe("prompt_builder (Refactored)", () => {
   });
 
   describe("Prefix-Cache System Prompt Re-ordering", () => {
-    it("should separate static SYSTEM from volatile SCENE_STATE in character prompt", () => {
+    it("should separate static SYSTEM from volatile FRACTAL_FEED in character prompt", () => {
       const payload = {
         round: 5,
         entities: {
@@ -243,8 +243,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).not.toContain('intensity="50"');
 
-      // SCENE_STATE should contain dynamics, present, past, future
-      expect(result.task).toContain("<SCENE_STATE>");
+      // FRACTAL_FEED should contain dynamics, present, past, future
+      expect(result.task).toContain("<FRACTAL_FEED>");
       expect(result.task).toContain("Volatile Present");
       expect(result.task).toContain("Volatile Past");
       expect(result.task).toContain('intensity="50"');
@@ -327,7 +327,7 @@ describe("prompt_builder (Refactored)", () => {
       // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60">');
+      expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60" certainty="moderate" regulation="stable">');
       expect(result.task).toContain("<PAST>");
       expect(result.system).not.toContain("<DIRECTION>");
       expect(result.system).toContain("<PROTOCOLS>");
@@ -394,7 +394,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_epilogue(entities, dynamics, recent_history);
 
       expect(result.system).toContain('<SYSTEM role="Void" mode="EPILOGUE">');
-      expect(result.system).toContain('<YOUR_IDENTITY name="Void" velocity="85" entropy="90">');
+      expect(result.system).toContain('<YOUR_IDENTITY name="Void" velocity="85" entropy="90" certainty="moderate" regulation="stable">');
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
       expect(result.system).toContain('<AI_CHARACTER name="Viper"');
       expect(result.system).toContain("Viper Present State");
@@ -597,6 +597,206 @@ describe("prompt_builder (Refactored)", () => {
       expect(system).toContain('YOUR_IDENTITY name="Rafael Orion"');
       expect(task).toContain("I step forward and grin.");
       expect(task).toContain("Enhance");
+    });
+  });
+
+  describe("build_cognitive_state()", () => {
+    it("returns grounded when openness is high and chaos is low", () => {
+      expect(build_cognitive_state({ openness: 70, chaos: 30, intensity: 50 })).toContain('certainty="grounded"');
+    });
+
+    it("returns fragile when openness is low and chaos is high", () => {
+      expect(build_cognitive_state({ openness: 30, chaos: 70, intensity: 50 })).toContain('certainty="fragile"');
+    });
+
+    it("returns moderate for neutral dynamics", () => {
+      expect(build_cognitive_state({ openness: 50, chaos: 50, intensity: 50 })).toContain('certainty="moderate"');
+    });
+
+    it("returns strained when intensity and chaos are both high", () => {
+      expect(build_cognitive_state({ openness: 50, chaos: 70, intensity: 80 })).toContain('regulation="strained"');
+    });
+
+    it("returns elevated when intensity is high but chaos is low", () => {
+      expect(build_cognitive_state({ openness: 50, chaos: 30, intensity: 80 })).toContain('regulation="elevated"');
+    });
+
+    it("returns depleted when intensity is very low", () => {
+      expect(build_cognitive_state({ openness: 50, chaos: 50, intensity: 20 })).toContain('regulation="depleted"');
+    });
+
+    it("returns stable for moderate intensity and chaos", () => {
+      expect(build_cognitive_state({ openness: 50, chaos: 50, intensity: 50 })).toContain('regulation="stable"');
+    });
+
+    it("handles null/undefined dynamics gracefully", () => {
+      const result = build_cognitive_state(null);
+      expect(result).toContain('certainty="moderate"');
+      expect(result).toContain('regulation="stable"');
+    });
+  });
+
+  describe("build_dynamics_calibration()", () => {
+    it("generates calibration block for character axes", () => {
+      const result = build_dynamics_calibration({ chaos: 75, intensity: 25, openness: 60, affinity: 40 });
+      expect(result).toContain("<DYNAMICS_CALIBRATION>");
+      expect(result).toContain('Chaos="75"');
+      expect(result).toContain('Intensity="25"');
+      expect(result).toContain('Openness="60"');
+      expect(result).toContain('Affinity="40"');
+    });
+
+    it("describes high values as dominant", () => {
+      const result = build_dynamics_calibration({ chaos: 75, intensity: 50, openness: 50, affinity: 50 });
+      expect(result).toContain("High — this dominates");
+    });
+
+    it("describes low values as suppressed", () => {
+      const result = build_dynamics_calibration({ chaos: 25, intensity: 50, openness: 50, affinity: 50 });
+      expect(result).toContain("Low — this is suppressed");
+    });
+
+    it("describes mid values as balanced", () => {
+      const result = build_dynamics_calibration({ chaos: 50, intensity: 50, openness: 50, affinity: 50 });
+      expect(result).toContain("Balanced — this is your neutral state");
+    });
+
+    it("returns empty string for null/undefined dynamics", () => {
+      expect(build_dynamics_calibration(null)).toBe("");
+      expect(build_dynamics_calibration(undefined)).toBe("");
+    });
+  });
+
+  describe("Phase 4: Cognitive State Attrs in render_character", () => {
+    const mockPayload = {
+      round: 1,
+      entities: {
+        AI: {
+          name: "Viper",
+          present: { non_physical: "Volatile Present" },
+          eternal: { non_physical: "Static Eternal" },
+          past: [],
+          future: [],
+        },
+        USER: {
+          name: "Ghost",
+          present: { non_physical: "User Present" },
+          eternal: { non_physical: "User Eternal" },
+          past: [],
+          future: [],
+        },
+        FRACTAL: {
+          name: "Void",
+          present: { non_physical: "Void Present" },
+          eternal: { non_physical: "Void Eternal" },
+          past: [],
+          future: [],
+        },
+      },
+      simulation_log: [],
+      input: "Hello",
+    };
+
+    it("injects certainty and regulation attrs onto YOUR_IDENTITY tag", () => {
+      const snapshot = {
+        ai: { dynamics: { openness: 70, chaos: 30, intensity: 50 } },
+        fractal: { dynamics: {} },
+        flags: {},
+      };
+      const result = prompt_builder.build_character_prompt(mockPayload, snapshot, {});
+      expect(result.task).toContain('certainty="grounded"');
+      expect(result.task).toContain('regulation="stable"');
+    });
+
+    it("places certainty and regulation attrs on YOUR_IDENTITY before PRESENT", () => {
+      const payload = {
+        ...mockPayload,
+        entities: {
+          ...mockPayload.entities,
+          AI: {
+            ...mockPayload.entities.AI,
+            past: [{ directive: "Viper past 1", emotional_weight: 5 }],
+          },
+        },
+      };
+      const snapshot = {
+        ai: { dynamics: { openness: 30, chaos: 70, intensity: 80 } },
+        fractal: { dynamics: {} },
+        flags: {},
+      };
+      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
+      const identityIdx = result.task.indexOf("<YOUR_IDENTITY");
+      const presentIdx = result.task.indexOf("Volatile Present");
+      // certainty/regulation are attrs on YOUR_IDENTITY, so they appear before PRESENT content
+      expect(identityIdx).toBeLessThan(presentIdx);
+      expect(result.task.substring(identityIdx, presentIdx)).toContain("certainty=");
+      expect(result.task.substring(identityIdx, presentIdx)).toContain("regulation=");
+    });
+
+    it("includes the cognitive ground instruction in EPISTEMIC_PHYSICS", () => {
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+      const result = prompt_builder.build_character_prompt(mockPayload, snapshot, {});
+      expect(result.task).toContain("certainty and regulation attributes reflect");
+      expect(result.task).toContain("do not name them explicitly");
+    });
+
+    it("includes DYNAMICS_CALIBRATION block in FRACTAL_FEED when dynamics are present", () => {
+      const snapshot = {
+        ai: { dynamics: { chaos: 50, intensity: 75, openness: 32, affinity: 69 } },
+        fractal: { dynamics: {} },
+        flags: {},
+      };
+      const result = prompt_builder.build_character_prompt(mockPayload, snapshot, {});
+      expect(result.task).toContain("<DYNAMICS_CALIBRATION>");
+      expect(result.task).toContain('Chaos="50"');
+      expect(result.task).toContain('Intensity="75"');
+    });
+
+    it("omits DYNAMICS_CALIBRATION when no dynamics are present", () => {
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+      const result = prompt_builder.build_character_prompt(mockPayload, snapshot, {});
+      expect(result.task).not.toContain("<DYNAMICS_CALIBRATION>");
+    });
+
+    it("keeps cognitive attrs in volatile task, not static system prefix", () => {
+      const snapshot = {
+        ai: { dynamics: { openness: 70, chaos: 30, intensity: 50 } },
+        fractal: { dynamics: {} },
+        flags: {},
+      };
+      const result = prompt_builder.build_character_prompt(mockPayload, snapshot, {});
+      expect(result.system).not.toContain("certainty=");
+      expect(result.task).toContain("certainty=");
+    });
+  });
+
+  describe("Unified FUTURE block in render_character", () => {
+    it("renders future vectors inside a clean unified FUTURE tag", () => {
+      const payload = {
+        round: 1,
+        entities: {
+          AI: {
+            name: "Viper",
+            present: { non_physical: "Volatile Present" },
+            eternal: { non_physical: "Static Eternal" },
+            past: [],
+            future: [
+              { id: "g1", content: "Seek the artifact", emotional_weight: 8 },
+              { id: "t1", content: "The empire watches", emotional_weight: 5 },
+            ],
+          },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Check the door.",
+      };
+      const snapshot = { ai: { dynamics: { affinity: 50, openness: 50 } }, fractal: { dynamics: {} }, flags: {} };
+      const result = prompt_builder.build_character_prompt(payload, snapshot, {});
+
+      expect(result.task).toContain("<FUTURE>");
+      expect(result.task).toContain("Seek the artifact");
+      expect(result.task).toContain("The empire watches");
     });
   });
 });

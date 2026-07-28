@@ -1,4 +1,4 @@
-import { temporal_engine } from "./temporal.js";
+import { temporal_engine, apply_neuroplasticity } from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -29,6 +29,8 @@ vi.mock("@intelligence/embeddings.svelte.js", () => ({
   }),
   ensure_embeddings: vi.fn(async () => {}),
   score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
+  cosine_similarity: vi.fn(() => 0.5),
+  embed: vi.fn(async () => new Float32Array(384)),
 }));
 
 describe("temporal_engine", () => {
@@ -50,7 +52,8 @@ describe("temporal_engine", () => {
       const entry = temporal_engine.create("He felt a strange vibe.");
 
       expect(entry).toHaveProperty("id");
-      expect(Array.isArray(entry.tags)).toBe(true);
+      expect(typeof entry.content).toBe("string");
+      expect(entry.content).toBe("He felt a strange vibe.");
       expect(typeof entry.timestamp).toBe("number");
       expect(entry.emotional_weight).toBe(5); // Default weight
     });
@@ -62,25 +65,22 @@ describe("temporal_engine", () => {
   });
 
   describe("score", () => {
-    it("calculates relevance with emotional weight and tag fallback", () => {
+    it("calculates relevance with emotional weight and recency", () => {
       const entries = [
         {
           id: "t1",
           timestamp: Date.now(),
-          directive: "A",
+          content: "A",
           type: "past",
           emotional_weight: 5,
-          tags: ["iron"],
           meta: {},
         },
       ];
 
       const scored = temporal_engine.score(entries, "Iron kiss");
 
-      // emotional_weight (5) × (1 + tag_fallback (1 × 0.15)) × recency (1.0) = 5.75
-      const expected = 5 * (1 + 0.15) * 1.0;
-
-      expect(scored[0]._relevance).toBe(expected);
+      // emotional_weight (5) × recency (1.0) = 5
+      expect(scored[0]._relevance).toBe(5);
     });
   });
 
@@ -91,10 +91,9 @@ describe("temporal_engine", () => {
           {
             id: "v1",
             timestamp: 100,
-            directive: "Goal",
+            content: "Goal",
             type: "future",
             emotional_weight: 5,
-            tags: [],
             meta: {},
           },
         ],
@@ -105,8 +104,8 @@ describe("temporal_engine", () => {
 
       expect(entity.future).toHaveLength(0);
       expect(entity.past).toHaveLength(1);
-      expect(entity.past[0].directive).toBe("Goal");
-      expect(entity.past[0].tags).toContain("resolution:success");
+      expect(entity.past[0].content).toBe("Goal");
+      expect(entity.past[0].type).toBe("past");
     });
   });
 
@@ -144,6 +143,57 @@ describe("temporal_engine", () => {
       const entity = /** @type {any} */ ({ present: { non_physical: "" } });
       const result = temporal_engine.apply_state_mutations(entity, null);
       expect(result).toBe(false);
+    });
+
+    it("passes category through from Director new_vectors", () => {
+      const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, future: [], past: [] });
+      const mutations = {
+        new_vectors: [
+          { directive: "Avenge the fallen", category: "goal", tags: ["vengeance"] },
+          { directive: "Storm approaches", category: "threat" },
+        ],
+      };
+      temporal_engine.apply_state_mutations(entity, mutations);
+      expect(entity.future).toHaveLength(2);
+    });
+
+    it("applies present_append_non_physical state mutations", () => {
+      const entity = /** @type {any} */ ({
+        present: { physical: "", non_physical: "Calm." },
+        future: [],
+        past: [],
+      });
+
+      const mutations = { present_append_non_physical: "She smiles." };
+
+      temporal_engine.apply_state_mutations(entity, mutations);
+
+      expect(entity.present.non_physical).toBe("Calm.\nShe smiles.");
+    });
+
+    it("skips amplification when evidence is null or has no _amplifiedTell", () => {
+      const entity = /** @type {any} */ ({
+        present: { physical: "", non_physical: "Calm." },
+        future: [],
+        past: [
+          {
+            id: "w1",
+            timestamp: 100,
+            directive: "Old wound",
+            type: "past",
+            emotional_weight: 9,
+            tags: ["trauma"],
+            meta: {},
+          },
+        ],
+      });
+
+      const mutations = { present_append_non_physical: "She reacts." };
+
+      temporal_engine.apply_state_mutations(entity, mutations, null, null);
+      expect(entity.present.non_physical).not.toContain("The old wound stirs");
+
+      temporal_engine.apply_state_mutations({ ...entity, present: { physical: "", non_physical: "Calm." } }, mutations, null, { confidence: 0.5 });
     });
   });
 
@@ -278,6 +328,180 @@ describe("temporal_engine", () => {
 
       expect(mockSession.require_active).toHaveBeenCalled();
       expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();
+    });
+  });
+
+  describe("apply_neuroplasticity", () => {
+    it("decays trauma vectors by 1 when memory is positive and chaos is low", () => {
+      const entity = {
+        id: "e1",
+        past: [{ id: "t1", emotional_weight: 9, tags: ["trauma", "betrayal"], directive: "Betrayed" }],
+      };
+      const memory = { emotional_weight: 3, tags: ["connection"] };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 40 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(8);
+      expect(runtime.update_entity).toHaveBeenCalledWith("character", "e1", { past: runtime.active_ai.past });
+    });
+
+    it("relapses trauma vectors by 1 when chaos is above 80", () => {
+      const entity = {
+        id: "e1",
+        past: [{ id: "t1", emotional_weight: 8, tags: ["wound", "abandonment"], directive: "Abandoned" }],
+      };
+      const memory = { emotional_weight: 7, tags: ["event"] };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 85 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(9);
+      expect(runtime.update_entity).toHaveBeenCalled();
+    });
+
+    it("clamps decay to minimum of 1", () => {
+      const entity = {
+        id: "e1",
+        past: [{ id: "t1", emotional_weight: 1, tags: ["trauma"], directive: "Already at floor" }],
+      };
+      const memory = { emotional_weight: 2, tags: ["reconciliation"] };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 30 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(1);
+    });
+
+    it("clamps relapse to maximum of 10", () => {
+      const entity = {
+        id: "e1",
+        past: [{ id: "t1", emotional_weight: 10, tags: ["trauma", "wound"], directive: "Already at ceiling" }],
+      };
+      const memory = { emotional_weight: 9, tags: ["event"] };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 90 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(10);
+    });
+
+    it("decays high-weight past vectors when memory is positive", () => {
+      const entity = {
+        id: "e1",
+        past: [
+          { id: "p1", emotional_weight: 9, content: "Won the battle" },
+          { id: "p2", emotional_weight: 5, content: "Walked the dog" },
+        ],
+      };
+      const memory = { emotional_weight: 2, content: "connection" };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 30 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(8);
+      expect(runtime.active_ai.past[1].emotional_weight).toBe(5);
+    });
+
+    it("does not decay when memory is not positive and chaos is below 80", () => {
+      const entity = {
+        id: "e1",
+        past: [{ id: "t1", emotional_weight: 9, content: "Old wound" }],
+      };
+      const memory = { emotional_weight: 7, content: "conflict and tension" };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 50 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(9);
+      expect(runtime.update_entity).not.toHaveBeenCalled();
+    });
+
+    it("is safe when entity.past is empty", () => {
+      const entity = { id: "e1", past: [] };
+      const memory = { emotional_weight: 2, content: "connection" };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 30 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      expect(() => apply_neuroplasticity(entity_targets, memory, runtime)).not.toThrow();
+      expect(runtime.update_entity).not.toHaveBeenCalled();
+    });
+
+    it("is safe when entity_targets is empty", () => {
+      const memory = { emotional_weight: 2, content: "connection" };
+      const runtime = { active_ai: { dynamics: { chaos: 30 } }, update_entity: vi.fn() };
+
+      expect(() => apply_neuroplasticity([], memory, runtime)).not.toThrow();
+      expect(runtime.update_entity).not.toHaveBeenCalled();
+    });
+
+    it("does not apply to non-AI entities", () => {
+      const user_entity = {
+        id: "e2",
+        past: [{ id: "t1", emotional_weight: 9, content: "User trauma" }],
+      };
+      const ai_entity = {
+        id: "e1",
+        past: [{ id: "t2", emotional_weight: 9, content: "AI trauma" }],
+      };
+      const memory = { emotional_weight: 3, content: "connection" };
+      const runtime = {
+        active_ai: { ...ai_entity, dynamics: { chaos: 30 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [
+        { entity: runtime.active_ai, type: "character" },
+        { entity: user_entity, type: "character" },
+      ];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(8);
+      expect(user_entity.past[0].emotional_weight).toBe(9);
+    });
+
+    it("treats memory with reconciliation content as positive regardless of weight", () => {
+      const entity = {
+        id: "e1",
+        past: [{ id: "t1", emotional_weight: 10, content: "Deep scar" }],
+      };
+      const memory = { emotional_weight: 8, content: "reconciliation and healing" };
+      const runtime = {
+        active_ai: { ...entity, dynamics: { chaos: 50 } },
+        update_entity: vi.fn(),
+      };
+      const entity_targets = [{ entity: runtime.active_ai, type: "character" }];
+
+      apply_neuroplasticity(entity_targets, memory, runtime);
+
+      expect(runtime.active_ai.past[0].emotional_weight).toBe(9);
     });
   });
 });

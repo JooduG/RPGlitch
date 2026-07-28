@@ -35,6 +35,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 > **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\.gemini\antigravity-ide\archive\`.
 
+- [x] feature-2026-07-28-bayesian-psychology: Bayesian Psychology Engine — vector categories, attachment presets, evidence classification + trigger amplification, cognitive state signal, goal arbitration tension, neuroplasticity (6 adaptations, 0 new LLM calls, 0 new UI).
 - [x] fix-2026-07-22-storymode-bugs: Storymode & Import UX Bug Fixes (Import modal styling/z-index, Prologue/Epilogue 3-card layout & inline images, Audio playback non-interruption, Session reset on End Story, Ghostwriter function binding, and Library deduplication).
 - [x] feature-2026-07-22-storymode-enhancements: Storymode & UI Feature Enhancements (Core UI refinements, dual entity import, Ghostwriter prompt compiler, dynamic peak & prologue/epilogue inline image generation, Prologue/Epilogue layout, and Fractal female premade voices).
 - [x] prompt-pipeline-optimization-2026-07-22: Optimize prompt synthesis, prefix caching, protocol library tokens, and history caching across the Intelligence Kernel.
@@ -46,6 +47,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 ## 🧠 Pulse (History)
 
 | Reference (ISO 8601) | Task | Skill Invoked | Outcome |
+| 2026-07-28 22:00 | Completed feature-2026-07-28-bayesian-psychology track — 7 phases: vector schema (category/triggers/attachment_style), attachment presets, evidence classification + trigger amplification, cognitive state signal, goal arbitration tension, neuroplasticity decay/relapse, integration verification | `bayesian-psychology`, `tdd` | ✅ Done |
 | 2026-07-24 22:00 | Standardized task artifacts, updated provenance skill, and ingested memory into developer-database | `developer-database`, `provenance` | ✅ Done |
 | 2026-07-24 18:01 | Session initialization via `/00-status` | `/00-status` | ✅ Done |
 | 2026-07-22 19:07 | Completed feature-2026-07-22-storymode-enhancements track | `/02-implement`, `svelte` | ✅ Done |

@@ -75,7 +75,7 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 - **Objective**: Generates the in-character prose response using localized sensory filters.
 - **Prompt Architecture (Prefix Caching)**: The prompt payload is strictly bifurcated to maximize LLM prefix caching.
   - **`<SYSTEM>`**: A completely static prefix containing eternal identity, narrative style, epistemic physics, and protocols. This achieves a ~100% cache hit rate between turns.
-  - **`<SCENE_STATE>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`) and all `present`/`past`/`future` vectors.
+  - **`<FRACTAL_FEED>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`) and all `present`/`past`/`future` vectors.
 - **Format Constraints**: Leverages a dual-layer strategy. It mandates an explicit `<think>` block containing the four-stage cognition sequence, which MUST be explicitly terminated with a closing `</think>` tag before generating exactly two paragraphs of novel-style prose.
 
 ### Shot 3: The Asset Pipeline (`render_visual`)

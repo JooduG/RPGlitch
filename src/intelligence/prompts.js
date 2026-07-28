@@ -27,6 +27,51 @@ const NARRATOR_PROLOGUE_TEXT =
 const NARRATOR_EPILOGUE_TEXT =
   "You see everything. Close the scene. Use your <think> block to identify every unresolved thread — emotional, physical, narrative — that the scene generated. For each active FUTURE vector, assess whether it was fulfilled, fractured, or transformed by events. Then write the epilogue: resolve these loose ends. Show the concrete aftermath — what has changed, what was broken, what was built. Leave the world visibly different from when the scene began. End on lingering sensation, not summary. No dialogue.";
 
+// --- JSON Schema Templates (extracted for readability) ---
+
+const DIRECTOR_JSON_SCHEMA = `{
+  "_thought_process": "<step-by-step state evaluation>",
+  "trigger_image": false,
+  "mutations": {
+    "AI_CHARACTER": {
+      "present_append_physical": "New physical changes (e.g. bleeding), or empty string.",
+      "present_append_non_physical": "Immediate internal shifts or emotional reactions, or empty string.",
+      "resolve_vectors": [ { "id": "<vector_id>", "resolution_summary": "Summary of resolution." } ],
+      "new_vectors": [ { "content": "New goal, event, or prophecy" } ],
+      "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
+    },
+    "USER_PERSONA": {
+      "present_append_physical": "",
+      "present_append_non_physical": "",
+      "resolve_vectors": [],
+      "new_vectors": []
+    },
+    "FRACTAL": {
+      "present_append_physical": "",
+      "present_append_non_physical": "",
+      "resolve_vectors": [],
+      "new_vectors": [],
+      "dynamics_deltas": { "entropy": 0, "velocity": 0 }
+    }
+  }
+}`;
+
+const MEMORY_JSON_SCHEMA = `{
+  "_thought_process": "<analysis of key shifts and emotional weight>",
+  "directive": "[Summary paragraph.]",
+  "emotional_weight": 5,
+  "tags": ["keyword1", "keyword2"],
+  "present_summaries": {
+    "AI_CHARACTER": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
+    "USER_PERSONA": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
+    "FRACTAL": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" }
+  },
+  "eternal_mutations": {
+    "AI_CHARACTER": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
+    "USER_PERSONA": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" }
+  }
+}`;
+
 /**
  * Builds a dynamic rule guide explaining all simulation sliders to the LLM.
  * @returns {string}
@@ -135,6 +180,46 @@ function render_narrative_style_xml() {
 }
 
 /**
+ * Derives a cognitive state signal from dynamics values.
+ * Produces certainty (grounded/moderate/fragile) and regulation (stable/elevated/strained/depleted).
+ * @param {Record<string, number>} [dynamics]
+ * @returns {string} XML attributes string, e.g. ` certainty="grounded" regulation="stable"`
+ */
+function build_cognitive_state(dynamics) {
+  const chaos = dynamics?.chaos ?? 50;
+  const intensity = dynamics?.intensity ?? 50;
+  const openness = dynamics?.openness ?? 50;
+
+  const certainty = openness > 60 && chaos < 40 ? "grounded" : openness < 40 && chaos > 60 ? "fragile" : "moderate";
+
+  const regulation = intensity > 70 && chaos > 60 ? "strained" : intensity > 70 && chaos < 40 ? "elevated" : intensity < 30 ? "depleted" : "stable";
+
+  return ` certainty="${certainty}" regulation="${regulation}"`;
+}
+
+/**
+ * Builds a per-stat dynamics calibration block for the Character prompt.
+ * Explains each axis's current value and its behavioral meaning in plain language.
+ * @param {Record<string, number>} [dynamics]
+ * @returns {string} XML block string, or empty if no dynamics
+ */
+function build_dynamics_calibration(dynamics) {
+  if (!dynamics || typeof dynamics !== "object") return "";
+  const characterAxes = ["chaos", "intensity", "openness", "affinity"];
+  const lines = characterAxes
+    .filter((k) => typeof dynamics[k] === "number")
+    .map((k) => {
+      const v = Math.round(dynamics[k]);
+      const meta = DYNAMICS_META[k];
+      const label = meta?.label || k;
+      const desc = meta?.desc || "";
+      return `      ${label}="${v}": ${desc}. ${v > 60 ? "High — this dominates your behavior right now." : v < 40 ? "Low — this is suppressed right now." : "Balanced — this is your neutral state."}`;
+    });
+  if (lines.length === 0) return "";
+  return `    <DYNAMICS_CALIBRATION>\n${lines.join("\n")}\n    </DYNAMICS_CALIBRATION>`;
+}
+
+/**
  * Compiles dynamic system parameter keys into inline attributes.
  * @param {Record<string, number>} [dynObj]
  * @returns {string}
@@ -144,7 +229,8 @@ function format_dynamics_attrs(dynObj) {
   const attrs = Object.entries(dynObj)
     .map(([k, v]) => `${escapeXml(k)}="${Math.round(v)}"`)
     .join(" ");
-  return attrs ? ` ${attrs}` : "";
+  const cognitive = build_cognitive_state(dynObj);
+  return attrs ? ` ${attrs}${cognitive}` : cognitive || "";
 }
 
 /**
@@ -281,32 +367,7 @@ ${(() => {
 <TASK>
     Evaluate state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
     Return a single valid JSON payload following this exact schema:
-    {
-      "_thought_process": "<step-by-step state evaluation>",
-      "trigger_image": false,
-      "mutations": {
-        "AI_CHARACTER": {
-          "present_append_physical": "New physical changes (e.g. bleeding), or empty string.",
-          "present_append_non_physical": "Immediate internal shifts or emotional reactions, or empty string.",
-          "resolve_vectors": [ { "id": "<vector_id>", "resolution_summary": "Summary of resolution." } ],
-          "new_vectors": [ { "directive": "New goal or prophecy", "tags": ["tag1"] } ],
-          "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
-        },
-        "USER_PERSONA": {
-          "present_append_physical": "",
-          "present_append_non_physical": "",
-          "resolve_vectors": [],
-          "new_vectors": []
-        },
-        "FRACTAL": {
-          "present_append_physical": "",
-          "present_append_non_physical": "",
-          "resolve_vectors": [],
-          "new_vectors": [],
-          "dynamics_deltas": { "entropy": 0, "velocity": 0 }
-        }
-      }
-    }
+    ${DIRECTOR_JSON_SCHEMA}
   </TASK>
   `).trim();
 
@@ -318,6 +379,20 @@ ${(() => {
  * @param {any} params
  * @returns {{ system: string, task: string }}
  */
+/**
+ * Builds the AI entity's future XML block (unified FUTURE tag).
+ * @param {any} entity - AI entity with future vectors.
+ * @param {string} [scoringContext] - Context for temporal RAG scoring.
+ * @returns {string} XML string for the YOUR_IDENTITY block.
+ */
+function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
+  const futures = entity?.future || [];
+  if (futures.length === 0) return "";
+  const formatted = temporal_engine.format(futures, scoringContext, { max_chars: 1500, vector_text: true });
+  if (!formatted?.trim()) return "";
+  return `    <FUTURE>${ind(prompt_builder.parse_macros(formatted, entity, entities), 6)}</FUTURE>`;
+}
+
 function render_character({ round, entities, input, compressed_snapshot, meta, render_atom }) {
   const povProtocol = resolve_pov_protocol(entities?.AI);
 
@@ -367,11 +442,12 @@ You are ${escapeXml(entities?.AI?.name || "AI")} in an active scene with ${escap
   `).trim();
 
   const task = clean_xml(`
-<SCENE_STATE>
+<FRACTAL_FEED>
   <YOUR_IDENTITY name="${escapeXml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
+${build_dynamics_calibration(compressed_snapshot?.ai?.dynamics)}
     <PRESENT>${ind(val(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</PRESENT>
     <PAST>${ind(render_atom.past(entities?.AI, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities?.AI, { vector_text: true }), 6)}</FUTURE>
+${build_ai_future_xml(entities?.AI, render_atom._context, entities)}
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escapeXml(entities?.USER?.name || "User")}">
     <PRESENT>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</PRESENT>
@@ -388,7 +464,7 @@ You are ${escapeXml(entities?.AI?.name || "AI")} in an active scene with ${escap
   </FRACTAL>`.trim()
       : ""
   }
-</SCENE_STATE>
+</FRACTAL_FEED>
 <ROUND>${escapeXml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK>
@@ -402,6 +478,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
       3. You interpret others through your own emotional filters — never with omniscient clarity.
       4. Maintain realistic physical boundaries. Avoid constant proximity encroachment, towering gestures, or physical intimidation unless executing a violent mutation directive. 
       5. Avoid overusing broad physical adjectives; prioritize specific, localized object interactions over repeating descriptive tags of the character's body.
+      6. Your certainty and regulation attributes reflect your current psychological bandwidth. Let them color your internal processing and somatic expression naturally — do not name them explicitly.
     </EPISTEMIC_PHYSICS>
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.
@@ -529,21 +606,7 @@ function render_memory({ entity, history }) {
   <TASK>
     Compress this history into a single structured memory. Record internal evaluation inside "_thought_process" at the top of the JSON object.
     Output strict JSON matching this schema:
-    {
-      "_thought_process": "<analysis of key shifts and emotional weight>",
-      "directive": "[Summary paragraph.]",
-      "emotional_weight": 5,
-      "tags": ["keyword1", "keyword2"],
-      "present_summaries": {
-        "AI_CHARACTER": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
-        "USER_PERSONA": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
-        "FRACTAL": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" }
-      },
-      "eternal_mutations": {
-        "AI_CHARACTER": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
-        "USER_PERSONA": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" }
-      }
-    }
+    ${MEMORY_JSON_SCHEMA}
   </TASK>
 </SYSTEM>
   `).trim();
@@ -875,4 +938,15 @@ export const prompt_builder = {
   },
 };
 
-export { build_dynamics_legend, render_character, render_director, render_enhancement, render_ghostwriter, render_narrator, render_profile_sorting };
+export {
+  build_ai_future_xml,
+  build_cognitive_state,
+  build_dynamics_calibration,
+  build_dynamics_legend,
+  render_character,
+  render_director,
+  render_enhancement,
+  render_ghostwriter,
+  render_narrator,
+  render_profile_sorting,
+};

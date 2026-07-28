@@ -22,10 +22,9 @@ import { prompt_builder } from "./prompts.js";
  * @typedef {Object} TemporalVector
  * @property {string} id - UUID unique identifier.
  * @property {number} timestamp - Epoch timestamp of creation.
- * @property {string} directive - The narrative payload.
+ * @property {string} content - The narrative payload.
  * @property {string} type - "past" | "future".
  * @property {number} emotional_weight - Narrative gravity (1-10), defaults to 5.
- * @property {string[]} tags - Semantic keywords for clustering and retrieval.
  * @property {Object} meta - Opaque metadata container.
  * @property {number} [_relevance] - Calculated RAG score (transient).
  * @property {Float32Array} [_embedding] - Semantic embedding vector (transient, not persisted).
@@ -34,19 +33,18 @@ import { prompt_builder } from "./prompts.js";
 
 /**
  * Creates a rich Temporal Log Entry (Vector).
- * @param {string} directive - The narrative payload.
+ * @param {string} content - The narrative payload.
  * @param {string} [type="future"] - "past" | "future".
  * @param {number} [weight=5] - 1-10 priority.
  * @returns {TemporalVector} A strict Temporal Vector.
  */
-export function create(directive, type = "future", weight = 5) {
+export function create(content, type = "future", weight = 5) {
   return {
     id: crypto.randomUUID(),
     timestamp: Date.now(),
-    directive: directive || "",
+    content: content || "",
     type,
     emotional_weight: weight,
-    tags: [],
     meta: {},
   };
 }
@@ -85,29 +83,17 @@ function compute_relevance(v, semantic_similarity, current_round) {
 }
 
 /**
- * RAG Scoring: Ranks a list of vectors based on semantic relevance, emotional weight, and recency.
- * Falls back to weight-only sorting if embeddings are unavailable.
+ * Scores a collection of Temporal Vectors against an input query context.
+ * Performs linear weighted calculation taking into account emotional_weight and recency.
  * @param {TemporalVector[]} vectors
  * @param {string} input
- * @returns {TemporalVector[]}
+ * @returns {TemporalVector[]} Sorted array of vectors (highest relevance first)
  */
-export function score(vectors, input) {
+export function score(vectors, _input) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
-  if (!input) return [...vectors].sort((a, b) => b.timestamp - a.timestamp);
 
   const scored = vectors.map((v) => {
-    let semantic = 0;
-    if (v._embedding) {
-      semantic = v._similarity ?? 0;
-    } else if (v.tags?.length) {
-      const input_lower = input.toLowerCase();
-      let tag_hits = 0;
-      v.tags.forEach((t) => {
-        if (input_lower.includes(t.toLowerCase())) tag_hits++;
-      });
-      semantic = Math.min(1, tag_hits * 0.15);
-    }
-    const relevance = compute_relevance(v, semantic, _current_round);
+    const relevance = compute_relevance(v, 0, _current_round);
     return { ...v, _relevance: relevance };
   });
 
@@ -200,7 +186,7 @@ function is_duplicate(a, b) {
  * @returns {string}
  */
 export function format(vectors, input, options = {}) {
-  const show_directive = options.vector_text ?? true;
+  const show_text = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
 
@@ -208,27 +194,27 @@ export function format(vectors, input, options = {}) {
 
   let running_chars = 0;
   const selected = [];
-  const selected_directives = [];
+  const selected_texts = [];
 
   for (const v of ranked) {
-    const directive = v.directive || "";
-    if (!directive.trim()) continue;
+    const text = v.content || v.directive || "";
+    if (!text.trim()) continue;
 
-    if (is_duplicate(directive, selected_directives.join(" "))) continue;
+    if (is_duplicate(text, selected_texts.join(" "))) continue;
 
-    const payload_length = directive.length;
+    const payload_length = text.length;
     if (running_chars + payload_length > max_chars && selected.length > 0) {
       break;
     }
 
     selected.push(v);
-    selected_directives.push(directive);
+    selected_texts.push(text);
     running_chars += payload_length;
   }
 
   return selected
     .map((v) => {
-      if (show_directive) return v.directive;
+      if (show_text) return v.content || v.directive || "";
       return "";
     })
     .join("\n");
@@ -249,16 +235,12 @@ export function resolve(entity, vector_id, resolution = null, session = null) {
   vector.type = "past";
   vector.timestamp = Date.now();
 
-  if (resolution) {
-    if (!vector.tags) vector.tags = [];
-    vector.tags.push("resolution:" + resolution.toLowerCase());
-  }
-
   if (!Array.isArray(entity.past)) entity.past = [];
   entity.past.push(vector);
 
   if (session?.log_system_entry) {
-    session.log_system_entry(`Vector Resolved: ${vector.directive.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
+    const text = vector.content || vector.directive || "";
+    session.log_system_entry(`Vector Resolved: ${text.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
       type: "VECTOR_RESOLUTION",
       vector,
       resolution,
@@ -334,6 +316,7 @@ export async function forge_memory(target_entity, history_slice, role = "charact
  * Applies explicit state mutations generated by the Director to an entity.
  * @param {SimulationEntity} entity - The active entity
  * @param {any} mutations - The state_mutations JSON block from the Director
+ * @param {SessionDriver|null} [session=null]
  * @returns {boolean} True if any mutations were applied
  */
 export function apply_state_mutations(entity, mutations, session = null) {
@@ -367,9 +350,9 @@ export function apply_state_mutations(entity, mutations, session = null) {
     if (!Array.isArray(entity.future)) entity.future = [];
     if (!Array.isArray(entity.past)) entity.past = [];
     mutations.new_vectors.forEach((v) => {
-      if (!v.directive?.trim()) return;
-      const new_vector = create(v.directive, v.type || "future", v.weight || 5);
-      new_vector.tags = v.tags || [];
+      const payload = v.content || v.directive;
+      if (!payload?.trim()) return;
+      const new_vector = create(payload, v.type || "future", v.weight || 5);
       ensure_embedding(new_vector).catch(() => {});
       if (new_vector.type === "past") {
         entity.past.push(new_vector);
@@ -381,6 +364,44 @@ export function apply_state_mutations(entity, mutations, session = null) {
   }
 
   return changed;
+}
+
+/**
+ * Neuroplasticity pass: after memory forge, positive memories decay high-weight
+ * trauma vectors; high-chaos turns can relapse them. Modifies entity.past vectors
+ * in-place and persists via runtime.update_entity.
+ * @param {Array<{entity: any, type: string}>} entity_targets
+ * @param {any} memory - The forged memory object.
+ * @param {any} runtime - Runtime state with update_entity and dynamics access.
+ */
+export function apply_neuroplasticity(entity_targets, memory, runtime) {
+  try {
+    const chaos = runtime?.active_ai?.dynamics?.chaos ?? 50;
+    const mem_text = String(memory?.content || memory?.directive || "").toLowerCase();
+    const is_reconciliation = mem_text.includes("reconciliation") || mem_text.includes("healing");
+    const is_positive = (memory?.emotional_weight ?? 5) <= 4 || is_reconciliation;
+
+    const ai_target = entity_targets.find((t) => t.entity === runtime?.active_ai);
+    if (!ai_target || !Array.isArray(ai_target.entity.past)) return;
+
+    let changed = false;
+    for (const v of ai_target.entity.past) {
+      if (v.emotional_weight >= 8) {
+        if (is_positive && chaos < 80) {
+          v.emotional_weight = Math.max(1, v.emotional_weight - 1);
+          changed = true;
+        } else if (chaos > 80) {
+          v.emotional_weight = Math.min(10, v.emotional_weight + 1);
+          changed = true;
+        }
+      }
+    }
+    if (changed) {
+      runtime?.update_entity?.(ai_target.type, ai_target.entity.id, { past: ai_target.entity.past });
+    }
+  } catch (err) {
+    console.error("[TemporalEngine] Neuroplasticity pass failed:", err);
+  }
 }
 
 export const temporal_engine = {
@@ -419,7 +440,7 @@ export const temporal_engine = {
       if (unconsolidated.length >= 8) {
         const slice = unconsolidated.slice(0, 8);
 
-        app.log(`[TemporalEngine] Forging ${slice.length} turns into Historical Archive (all entities)...`, "system");
+        app.log(`[TemporalEngine] Forging ${slice.length} turns into Historical Archive...`, "system");
 
         const memory = await forge_memory(runtime.active_ai || runtime.active_user || runtime.active_fractal, slice, "character");
         if (memory) {
@@ -429,11 +450,14 @@ export const temporal_engine = {
             { entity: runtime.active_fractal, type: "fractal" },
           ].filter((t) => t.entity);
 
-          for (const { entity, type } of entity_targets) {
-            if (!Array.isArray(entity.past)) entity.past = [];
-            entity.past = [...entity.past, { ...memory }];
-            await runtime.update_entity(type, entity.id, { past: entity.past });
+          const forge_source = runtime.active_ai || runtime.active_user || runtime.active_fractal;
+          if (forge_source && Array.isArray(forge_source.past)) {
+            forge_source.past = [...forge_source.past, { ...memory }];
+            const forge_type = runtime.active_ai ? "character" : runtime.active_fractal ? "fractal" : "character";
+            await runtime.update_entity(forge_type, forge_source.id, { past: forge_source.past });
           }
+
+          apply_neuroplasticity(entity_targets, memory, runtime);
 
           if (memory.present_summaries) {
             const summaries = memory.present_summaries;
