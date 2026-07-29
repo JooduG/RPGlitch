@@ -77,6 +77,10 @@ if (typeof window !== "undefined") {
 
 // [DEV] Mock environment setups (if needed in future)
 // 🚀 BOOTSTRAP
+// Import @state first to trigger bridge registration (registers state accessors
+// into the @utils state_bridge so the engine layer can access state without
+// importing @state directly — avoids the downward import rule violation).
+import "@state";
 import { AppBootstrap } from "@engine";
 AppBootstrap.init().then(() => {
   console.info("[Engine] Entry point active. Handing off to Bootstrap.");

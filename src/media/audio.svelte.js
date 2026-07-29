@@ -4,9 +4,8 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { getRpgList } from "@utils";
+import { getRpgList, strip_cognition_blocks } from "@utils";
 import { db } from "@data";
-import { strip_cognition_blocks } from "@intelligence";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
 

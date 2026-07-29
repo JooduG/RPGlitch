@@ -5,8 +5,7 @@
  */
 
 import { VISUAL_STYLES } from "@data";
-import { escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson } from "@intelligence";
-import { app, runtime } from "@state";
+import { escape_xml as escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**
@@ -25,7 +24,7 @@ export function resolve_portrait_visual_style_key(entity = {}) {
   if (entityStyle && entityStyle !== "default" && entityStyle !== "" && VISUAL_STYLES[entityStyle]) {
     return entityStyle;
   }
-  const appStyle = typeof app !== "undefined" ? app.settings?.visual_style : null;
+  const appStyle = state_bridge.app ? state_bridge.app.settings?.visual_style : null;
   if (appStyle && appStyle !== "default" && VISUAL_STYLES[appStyle]) {
     return appStyle;
   }
@@ -37,11 +36,11 @@ export function resolve_portrait_visual_style_key(entity = {}) {
  * @returns {string}
  */
 export function resolve_story_visual_style_key() {
-  const fractalStyle = runtime?.active_fractal?.visual_style;
+  const fractalStyle = state_bridge.runtime?.active_fractal?.visual_style;
   if (fractalStyle && fractalStyle !== "default" && fractalStyle !== "" && VISUAL_STYLES[fractalStyle]) {
     return fractalStyle;
   }
-  const appStyle = typeof app !== "undefined" ? app.settings?.visual_style : null;
+  const appStyle = state_bridge.app?.settings?.visual_style ?? null;
   if (appStyle && appStyle !== "default" && VISUAL_STYLES[appStyle]) {
     return appStyle;
   }

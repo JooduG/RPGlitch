@@ -9,13 +9,12 @@
   import { click_outside } from "@actions";
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
   import { db, stories } from "@data";
-  import { Chrono, session_driver } from "@engine";
+  import { Chrono, pick_random as pickRandom, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
   import { motion, pulse, roll, shimmy, stab } from "@motion";
   import { app, runtime, simulationState, simulation_log } from "@state";
-  import { pickRandom } from "@engine";
 
   // --- CORE VIEW ENGINE STATE ---
   let models_ready = $derived(app.models_ready);

@@ -8,7 +8,7 @@
  * (window.generate_text or window.pluginGenerateText). All callers—the engine, the enhancement UI, Echo—route here.
  *
  * RESPONSIBILITIES
- * - Streaming : Connects token output to app.start_stream / update_stream / end_stream.
+ * - Streaming : Connects token output to stream_bridge.start / update / end.
  * - Sanitization: Strips quotes, code fences, and conversational filler.
  * - Resilience : Classifies network errors and re-throws typed messages.
  *
@@ -17,8 +17,7 @@
  * nothing about the narrative. It only sends and receives.
  */
 
-import { escapeXml, collapse_history } from "@intelligence";
-import { app } from "@state";
+import { collapse_history, escape_xml, stream_bridge } from "@utils";
 
 /************************************************************************************
  * [SECTION: SANITIZATION]
@@ -193,12 +192,12 @@ export const llm_service = {
       const on_chunk = (data) => {
         const chunk = typeof data === "string" ? data : data?.textChunk || "";
         if (!options.silent) {
-          if (!app.streaming.active) {
+          if (!stream_bridge.is_active()) {
             /** @type {any} */
             const role = payload.role || "ai";
-            app.start_stream(payload.node_id || "temp", role);
+            stream_bridge.start(payload.node_id || "temp", role);
           }
-          app.update_stream(chunk);
+          stream_bridge.update(chunk);
         }
         if (options.onToken) options.onToken(chunk);
       };
@@ -231,8 +230,8 @@ export const llm_service = {
       return result;
     } catch (err) {
       if (!options.silent) {
-        app.signal_stream_error(payload.node_id);
-        app.end_stream(); // Always end stream on error to prevent locking
+        stream_bridge.error(payload.node_id);
+        stream_bridge.end(); // Always end stream on error to prevent locking
       }
       if (options.silent) {
         console.warn("[llm_service] Silent generation error (suppressed):", err);
@@ -279,11 +278,11 @@ export const llm_service = {
       if (options.onToken) options.onToken(on_chunk);
 
       if (!options.silent) {
-        if (!app.streaming.active) {
+        if (!stream_bridge.is_active()) {
           const role = payload.role || "ai";
-          app.start_stream(payload.node_id || "temp", role);
+          stream_bridge.start(payload.node_id || "temp", role);
         }
-        app.update_stream(on_chunk);
+        stream_bridge.update(on_chunk);
       }
 
       index = end;
@@ -309,7 +308,7 @@ export const llm_service = {
     return collapsed
       .map((c) => {
         const label = c.name || (c.role === "USER_PERSONA" ? "User" : c.role === "FRACTAL" ? "Fractal" : "Character");
-        return `  <entry role="${escapeXml(c.role)}" name="${escapeXml(label)}">${escapeXml(c.content)}</entry>`;
+        return `  <entry role="${escape_xml(c.role)}" name="${escape_xml(label)}">${escape_xml(c.content)}</entry>`;
       })
       .join("\n");
   },

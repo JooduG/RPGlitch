@@ -5,10 +5,8 @@
  */
 
 import { db, entities } from "@data";
-import { generateSecureSeed } from "@engine";
-import { strip_cognition_blocks } from "@intelligence";
+import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
 import { llm_service, sanitize_llm } from "@platform/transport.js";
-import { app, runtime, simulationState as simulation } from "@state";
 import {
   AestheticResolver,
   getResolution,
@@ -344,14 +342,14 @@ export class VisualEngine {
         /* ignore */
       }
     }
-    if (!story && runtime.active_story) {
-      story = runtime.active_story;
+    if (!story && state_bridge.runtime.active_story) {
+      story = state_bridge.runtime.active_story;
     }
     if (!story) {
       story = {
-        ai_id: runtime.active_ai?.id || app.selected_ai?.id,
-        user_id: runtime.active_user?.id || app.selected_user?.id,
-        fractal_id: runtime.active_fractal?.id || app.selected_fractal?.id,
+        ai_id: state_bridge.runtime.active_ai?.id || state_bridge.app.selected_ai?.id,
+        user_id: state_bridge.runtime.active_user?.id || state_bridge.app.selected_user?.id,
+        fractal_id: state_bridge.runtime.active_fractal?.id || state_bridge.app.selected_fractal?.id,
       };
     }
 
@@ -362,7 +360,7 @@ export class VisualEngine {
     const targetId = targetIdMap[targetType] || story.ai_id;
 
     if (!silent) {
-      simulation.start_typing(targetType === "fractal" || targetType === "characters" ? "fractal" : targetType || "ai", targetId);
+      state_bridge.simulationState.start_typing(targetType === "fractal" || targetType === "characters" ? "fractal" : targetType || "ai", targetId);
     }
 
     try {
@@ -437,7 +435,7 @@ export class VisualEngine {
       console.error("[VisualEngine] Visualize error:", err);
       return { imageUrl: null, refinedPrompt: null, caption: null };
     } finally {
-      if (!silent) simulation.stop_typing();
+      if (!silent) state_bridge.simulationState.stop_typing();
     }
   }
 
@@ -621,14 +619,14 @@ export class VisualEngine {
             };
             reader.onerror = (err) => {
               console.error("[VisualEngine] Local FileReader error:", err);
-              if (typeof app !== "undefined") app.log("Upload failed: Could not read file.", "error");
+              if (state_bridge.app) state_bridge.app.log("Upload failed: Could not read file.", "error");
               resolve(null);
             };
             reader.readAsDataURL(file);
           } catch (err) {
             const msg = /** @type {Error} */ (err).message || String(err);
             console.error("[VisualEngine] Security validation failed:", msg);
-            if (typeof app !== "undefined") app.log(`Upload failed: ${msg}`, "error");
+            if (state_bridge.app) state_bridge.app.log(`Upload failed: ${msg}`, "error");
             resolve(null);
           }
         };
@@ -663,7 +661,7 @@ export class VisualEngine {
    */
   async _cacheImage(id, data, type = "character") {
     await db.entities.update(id, { profile_picture: data, updated_at: Date.now() });
-    await runtime.update_entity(type, id, { profile_picture: data });
+    await state_bridge.runtime.update_entity(type, id, { profile_picture: data });
   }
 
   /**

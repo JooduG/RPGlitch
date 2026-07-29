@@ -7,11 +7,11 @@
    * EntityCards and UnifiedConsole are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
-  import { ImagePreview, Skeleton, Tooltip } from "@atoms";
+  import { ImagePreview, Skeleton, Tooltip, openImagePreview, closeImagePreview } from "@atoms";
   import { UnifiedConsole, EntityCard, ImageRegenerate, StyleBadges } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
-  import { app, runtime, simulationState, startRegenerate, deliverCandidates, setRegenerateError } from "@state";
+  import { app, runtime, simulationState, startRegenerate, deliverCandidates, setRegenerateError, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
 
@@ -40,6 +40,10 @@
       motion.intensity = 1.0;
     }
   });
+
+  // Image Preview Bridge: Wire UI-layer handlers into the state layer's bridge.
+  // This must run once at mount to satisfy the import boundary (state cannot import from ui).
+  register_image_preview_handlers(openImagePreview, closeImagePreview);
 
   // --- ENTITY MENU ACTION BUILDERS ---
 
@@ -159,7 +163,6 @@
       // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
       // extract the prompt field from it.
       if (finalPrompt.trim().startsWith("{")) {
-        console.log("[App.regenerate_image] finalPrompt is JSON blob, extracting prompt field...");
         try {
           const parsed = JSON.parse(finalPrompt.trim());
           if (parsed.prompt && typeof parsed.prompt === "string") {

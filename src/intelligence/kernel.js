@@ -8,10 +8,9 @@
  */
 
 import { db, entities, prune } from "@data";
-import { generateUUID, session_driver } from "@engine";
+import { generate_uuid as generateUUID, state_bridge } from "@utils";
 import { visual_engine } from "@media";
 import { llm_service, Security } from "@platform";
-import { app, runtime, simulationState } from "@state";
 import { context_broker } from "./context.svelte.js";
 import { dynamics_engine } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
@@ -34,7 +33,7 @@ function parse_director_json(raw_text) {
   if (!json_string) {
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     console.warn("[GameMaster] Director JSON missing brackets, falling back to raw prose.");
-    app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
+    state_bridge.app.log("[GameMaster] Director JSON missing brackets — using raw prose fallback", "warn");
     const extractedThink = parse_think_block(stripped).think;
     return { internal_monologue: extractedThink || stripped, _parse_error: true };
   }
@@ -50,7 +49,7 @@ function parse_director_json(raw_text) {
     return payload;
   } catch (parse_err) {
     console.warn("[GameMaster] Director JSON invalid, falling back to raw prose:", parse_err);
-    app.log("[GameMaster] Director JSON parse failed — using raw prose fallback", "warn");
+    state_bridge.app.log("[GameMaster] Director JSON parse failed — using raw prose fallback", "warn");
     const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
     const extractedThink = parse_think_block(stripped).think;
     return { internal_monologue: extractedThink || stripped, _parse_error: true };
@@ -112,7 +111,7 @@ function validate_and_repair_response(response) {
     });
 
     if (result.violated) {
-      app.log("SINO_LOGIC bleed intercepted", "warn");
+      state_bridge.app.log("SINO_LOGIC bleed intercepted", "warn");
     }
 
     result.text = processedSegments.join("");
@@ -162,29 +161,33 @@ export const gamemaster = {
     const log_strings = [];
 
     if (snapshot.ai?.dynamics) {
-      compute_deltas("ai", snapshot.ai.dynamics, runtime.ai, snapshot.contributors, "AI", deltas, log_strings);
+      compute_deltas("ai", snapshot.ai.dynamics, state_bridge.runtime.ai, snapshot.contributors, "AI", deltas, log_strings);
     }
 
     if (snapshot.fractal?.dynamics) {
-      compute_deltas("fractal", snapshot.fractal.dynamics, runtime.fractal, snapshot.contributors, "FRACTAL", deltas, log_strings);
+      compute_deltas("fractal", snapshot.fractal.dynamics, state_bridge.runtime.fractal, snapshot.contributors, "FRACTAL", deltas, log_strings);
     }
 
     const active_signals = Object.keys(snapshot.signals || {});
 
     if (deltas.length > 0 || meta) {
-      await session_driver.log_system_entry(log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot", "system", {
-        type: "DYNAMICS_DELTA",
-        deltas,
-        ai: snapshot.ai?.dynamics,
-        ai_name: snapshot.ai?.name || runtime.active_ai?.name,
-        fractal: snapshot.fractal?.dynamics,
-        fractal_name: snapshot.fractal?.name || runtime.active_fractal?.name,
-        vectors: meta?.vectors,
-        mutations: meta?.mutations,
-        signals: active_signals,
-        signal_prompts: meta?.signal_prompts,
-        flags: meta?.flags,
-      });
+      await state_bridge.session_driver.log_system_entry(
+        log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot",
+        "system",
+        {
+          type: "DYNAMICS_DELTA",
+          deltas,
+          ai: snapshot.ai?.dynamics,
+          ai_name: snapshot.ai?.name || state_bridge.runtime.active_ai?.name,
+          fractal: snapshot.fractal?.dynamics,
+          fractal_name: snapshot.fractal?.name || state_bridge.runtime.active_fractal?.name,
+          vectors: meta?.vectors,
+          mutations: meta?.mutations,
+          signals: active_signals,
+          signal_prompts: meta?.signal_prompts,
+          flags: meta?.flags,
+        },
+      );
     }
   },
 
@@ -197,19 +200,19 @@ export const gamemaster = {
    */
   async execute_turn(story_id, options = {}) {
     const { input = "", role = "ai", ...llm_options } = options;
-    app.busy = true;
+    state_bridge.app.busy = true;
 
     try {
-      simulationState.start_generation(role);
+      state_bridge.simulationState.start_generation(role);
       const nodeId = generateUUID();
 
       // 1. CHRONO: Round management
-      temporal_engine.ensure_momentum(runtime, app);
-      runtime.turn_type = "SYSTEM_TURN";
-      temporal_engine.set_round(runtime.round);
+      temporal_engine.ensure_momentum(state_bridge.runtime, state_bridge.app);
+      state_bridge.runtime.turn_type = "SYSTEM_TURN";
+      temporal_engine.set_round(state_bridge.runtime.round);
 
       // 2. HYDRATION: Fetch history and hydrate context
-      const raw_messages = await session_driver.load_log(story_id);
+      const raw_messages = await state_bridge.session_driver.load_log(story_id);
       const simulation_log = raw_messages
         .filter((m) => !m.meta?.consolidated && m.role !== "system")
         .map((m) => ({
@@ -227,12 +230,12 @@ export const gamemaster = {
 
       const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
       payload.meta = payload.meta || {};
-      payload.meta.structural_errors = runtime.structural_errors || 0;
+      payload.meta.structural_errors = state_bridge.runtime.structural_errors || 0;
 
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
       const snapshot = {
-        ai: { dynamics: { ...(runtime.ai || {}) } },
-        fractal: { dynamics: { ...(runtime.fractal || {}) } },
+        ai: { dynamics: { ...(state_bridge.runtime.ai || {}) } },
+        fractal: { dynamics: { ...(state_bridge.runtime.fractal || {}) } },
         flags: [],
         signals: {},
         signal_prompts: [],
@@ -261,7 +264,7 @@ export const gamemaster = {
       };
 
       // 4. DIRECTOR PASS (Shot 1)
-      app.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
+      state_bridge.app.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
       const directorPrompt = prompt_builder.build_director_prompt(payload, snapshot);
 
       const directorRaw = await this.execute_with_retry(
@@ -298,11 +301,11 @@ export const gamemaster = {
 
       // 4.1 Apply State Mutations
       if (directorData.mutations) {
-        if (directorData.mutations.AI_CHARACTER && runtime.active_ai) {
-          temporal_engine.apply_state_mutations(runtime.active_ai, directorData.mutations.AI_CHARACTER, session_driver);
+        if (directorData.mutations.AI_CHARACTER && state_bridge.runtime.active_ai) {
+          temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, directorData.mutations.AI_CHARACTER, state_bridge.session_driver);
           if (directorData.mutations.AI_CHARACTER.dynamics_deltas) {
             if (!snapshot.ai) snapshot.ai = {};
-            if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...runtime.ai };
+            if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
             Object.entries(directorData.mutations.AI_CHARACTER.dynamics_deltas).forEach(([k, delta]) => {
               const val = Number(delta);
               if (!isNaN(val)) {
@@ -313,15 +316,15 @@ export const gamemaster = {
           }
         }
 
-        if (directorData.mutations.USER_PERSONA && runtime.active_user) {
-          temporal_engine.apply_state_mutations(runtime.active_user, directorData.mutations.USER_PERSONA, session_driver);
+        if (directorData.mutations.USER_PERSONA && state_bridge.runtime.active_user) {
+          temporal_engine.apply_state_mutations(state_bridge.runtime.active_user, directorData.mutations.USER_PERSONA, state_bridge.session_driver);
         }
 
-        if (directorData.mutations.FRACTAL && runtime.active_fractal) {
-          temporal_engine.apply_state_mutations(runtime.active_fractal, directorData.mutations.FRACTAL, session_driver);
+        if (directorData.mutations.FRACTAL && state_bridge.runtime.active_fractal) {
+          temporal_engine.apply_state_mutations(state_bridge.runtime.active_fractal, directorData.mutations.FRACTAL, state_bridge.session_driver);
           if (directorData.mutations.FRACTAL.dynamics_deltas) {
             if (!snapshot.fractal) snapshot.fractal = {};
-            if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...runtime.fractal };
+            if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
             Object.entries(directorData.mutations.FRACTAL.dynamics_deltas).forEach(([k, delta]) => {
               const val = Number(delta);
               if (!isNaN(val)) {
@@ -346,12 +349,12 @@ export const gamemaster = {
 
       await this.capture_dynamics_delta(snapshot, final_meta);
 
-      runtime.ai = snapshot.ai?.dynamics;
-      runtime.fractal = snapshot.fractal?.dynamics;
+      state_bridge.runtime.ai = snapshot.ai?.dynamics;
+      state_bridge.runtime.fractal = snapshot.fractal?.dynamics;
 
       // 5. TRANSITION & LOGGING
-      app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
-      runtime.turn_type = "AI_TURN";
+      state_bridge.app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
+      state_bridge.runtime.turn_type = "AI_TURN";
 
       let directorMonologue = "";
       if (directorData.internal_monologue) {
@@ -375,8 +378,8 @@ export const gamemaster = {
       }
 
       if (directorMonologue) {
-        app.streaming.content = directorMonologue;
-        app.streaming.text = directorMonologue;
+        state_bridge.app.streaming.content = directorMonologue;
+        state_bridge.app.streaming.text = directorMonologue;
         if (typeof llm_options.onToken === "function") {
           llm_options.onToken(directorMonologue);
         }
@@ -424,8 +427,8 @@ export const gamemaster = {
 
           const vResult = validate_and_repair_response(full_text);
           if (vResult.refused) {
-            app.streaming.content = "";
-            app.streaming.text = "";
+            state_bridge.app.streaming.content = "";
+            state_bridge.app.streaming.text = "";
             throw new Error("AI_REFUSAL_DETECTED");
           }
           return vResult;
@@ -436,44 +439,44 @@ export const gamemaster = {
 
       // 6.5. POST-GENERATION PIPELINE
       if (validationResult.violated || validationResult.structural_repair) {
-        runtime.structural_errors = (runtime.structural_errors || 0) + 1;
+        state_bridge.runtime.structural_errors = (state_bridge.runtime.structural_errors || 0) + 1;
       } else {
-        runtime.structural_errors = Math.max(0, (runtime.structural_errors || 0) - 1);
+        state_bridge.runtime.structural_errors = Math.max(0, (state_bridge.runtime.structural_errors || 0) - 1);
       }
 
       // 7. PERSISTENCE: Save the result
-      const character_name = role === "ai" ? runtime.active_ai?.name || "AI" : runtime.active_fractal?.name || "Fractal";
+      const character_name = role === "ai" ? state_bridge.runtime.active_ai?.name || "AI" : state_bridge.runtime.active_fractal?.name || "Fractal";
 
       if (validationResult.violated) {
         final_meta.sino_logic_violation = true;
       }
-      final_meta.structural_errors = runtime.structural_errors;
+      final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      await session_driver.log_message(validationResult.text, role, character_name, {
+      await state_bridge.session_driver.log_message(validationResult.text, role, character_name, {
         turn_type: "AI_TURN",
         meta: {
           id: nodeId,
-          round: runtime.round,
+          round: state_bridge.runtime.round,
           sino_logic_violation: final_meta.sino_logic_violation,
         },
       });
 
       // 8. TRANSITION: Open the window for User
-      runtime.turn_type = "USER_TURN";
+      state_bridge.runtime.turn_type = "USER_TURN";
 
-      app.end_stream();
-      simulationState.complete();
+      state_bridge.app.end_stream();
+      state_bridge.simulationState.complete();
 
-      app.busy = false;
-      simulationState.phase = "idle";
+      state_bridge.app.busy = false;
+      state_bridge.simulationState.phase = "idle";
 
-      await temporal_engine.consolidate(session_driver, db, entities, runtime, app);
+      await temporal_engine.consolidate(state_bridge.session_driver, db, entities, state_bridge.runtime, state_bridge.app);
       return { response: validationResult.text, meta: final_meta };
     } finally {
-      app.busy = false;
-      app.end_stream();
-      if (typeof simulationState !== "undefined") {
-        simulationState.phase = "idle";
+      state_bridge.app.busy = false;
+      state_bridge.app.end_stream();
+      if (state_bridge.simulationState) {
+        state_bridge.simulationState.phase = "idle";
       }
     }
   },
@@ -485,13 +488,13 @@ export const gamemaster = {
    * @returns {Promise<any>}
    */
   async execute_prologue(story_id) {
-    app.busy = true;
+    state_bridge.app.busy = true;
     try {
-      const payload = await context_broker.hydrate(app.prologue || "", "prologue");
+      const payload = await context_broker.hydrate(state_bridge.app.prologue || "", "prologue");
       const result = prompt_builder.synthesize(payload, {});
       if (!result.system) return null;
 
-      app.log("[GameMaster] Generating prologue...", "system");
+      state_bridge.app.log("[GameMaster] Generating prologue...", "system");
       const nodeId = generateUUID();
 
       const response = await this.execute_with_retry(async () => {
@@ -503,12 +506,12 @@ export const gamemaster = {
         });
       });
 
-      const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
+      const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
-      runtime.round = 0;
-      runtime.turn_type = "SYSTEM_TURN";
+      state_bridge.runtime.round = 0;
+      state_bridge.runtime.turn_type = "SYSTEM_TURN";
 
-      await session_driver.log_message(response, "fractal", fractal_name, {
+      await state_bridge.session_driver.log_message(response, "fractal", fractal_name, {
         turn_type: "SYSTEM_TURN",
         meta: {
           id: nodeId,
@@ -517,16 +520,16 @@ export const gamemaster = {
         },
         attachments: [{ src: null, metadata: { mode: "characters" } }],
       });
-      app.log("[GameMaster] Prologue established (Round 0).", "system");
+      state_bridge.app.log("[GameMaster] Prologue established (Round 0).", "system");
 
-      app.end_stream();
+      state_bridge.app.end_stream();
 
       const imagePromise = visual_engine
         ? visual_engine
             .visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true })
             .then((imgResult) => {
               if (imgResult?.imageUrl) {
-                session_driver.update_log_attachment(nodeId, 0, {
+                state_bridge.session_driver.update_log_attachment(nodeId, 0, {
                   src: imgResult.imageUrl,
                   metadata: imgResult.metadata,
                 });
@@ -542,10 +545,10 @@ export const gamemaster = {
       await Promise.all([imagePromise, turnPromise]);
       return await turnPromise;
     } finally {
-      app.busy = false;
-      app.end_stream();
+      state_bridge.app.busy = false;
+      state_bridge.app.end_stream();
       if (typeof simulationState !== "undefined") {
-        simulationState.phase = "idle";
+        state_bridge.simulationState.phase = "idle";
       }
     }
   },
@@ -557,20 +560,20 @@ export const gamemaster = {
    * @returns {Promise<string | null>}
    */
   async execute_epilogue(story_id) {
-    const clean_entities = runtime.snapshot_entities;
+    const clean_entities = state_bridge.runtime.snapshot_entities;
     const current_dynamics = {
-      ai: runtime.ai || { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
-      fractal: runtime.fractal || { velocity: 50, entropy: 50 },
+      ai: state_bridge.runtime.ai || { intensity: 50, openness: 50, chaos: 50, affinity: 50 },
+      fractal: state_bridge.runtime.fractal || { velocity: 50, entropy: 50 },
     };
-    const raw_messages = await session_driver.load_log(story_id);
+    const raw_messages = await state_bridge.session_driver.load_log(story_id);
     const recent_history = raw_messages.slice(-10);
 
     const { system, task } = prompt_builder.build_epilogue(clean_entities, current_dynamics, recent_history);
     if (!system) return null;
 
-    app.log("[GameMaster] Generating epilogue...", "system");
+    state_bridge.app.log("[GameMaster] Generating epilogue...", "system");
     const nodeId = generateUUID();
-    const fractal_name = runtime.active_fractal?.name || "Fractal Entity";
+    const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
     const response = await this.execute_with_retry(async () => {
       return await llm_service.generate({ system, task, role: "fractal", node_id: nodeId });
@@ -588,7 +591,7 @@ export const gamemaster = {
       }
     }
 
-    await session_driver.log_message(response, "fractal", fractal_name, {
+    await state_bridge.session_driver.log_message(response, "fractal", fractal_name, {
       turn_type: "SYSTEM_TURN",
       meta: {
         id: nodeId,
@@ -596,7 +599,7 @@ export const gamemaster = {
       },
       attachments: epilogueAttachments,
     });
-    app.end_stream();
+    state_bridge.app.end_stream();
     return response;
   },
 
@@ -607,8 +610,8 @@ export const gamemaster = {
    * @returns {Promise<string>}
    */
   async execute_ghostwriter(input_text = "") {
-    const story_id = runtime.story_id;
-    const raw_messages = story_id ? await session_driver.load_log(story_id) : [];
+    const story_id = state_bridge.runtime.story_id;
+    const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
     const simulation_log = raw_messages
       .filter((m) => !m.meta?.consolidated && m.role !== "system")
       .map((m) => ({
@@ -645,11 +648,11 @@ export const gamemaster = {
       return await fn();
     } catch (error) {
       if (retries === 0) throw error;
-      app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
+      state_bridge.app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
 
-      if (app.streaming.active) {
-        app.streaming.content = "";
-        app.streaming.text = "_Network interrupted... Retrying connection..._";
+      if (state_bridge.app.streaming.active) {
+        state_bridge.app.streaming.content = "";
+        state_bridge.app.streaming.text = "_Network interrupted... Retrying connection..._";
       }
 
       await new Promise((resolve) => setTimeout(resolve, delay));

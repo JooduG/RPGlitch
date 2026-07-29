@@ -3,7 +3,7 @@
  * 🔌 CONTEXT BROKER — State Adapter & Document Assembler
  * Hydrates, cleans, and packages raw simulation state into an IntelligencePayload.
  *
- * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
+ * @typedef {import('@state/state_bridge.runtime.svelte.js').SimulationEntity} SimulationEntity
  *
  * @typedef {Object} DataPoint
  * @property {string} text
@@ -17,8 +17,7 @@
  * @property {number} [density_multiplier]
  */
 
-import { app, runtime } from "@state";
-import { session_driver } from "@engine";
+import { state_bridge } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "./fragments.js";
 import { clean_text, strip_cognition_blocks } from "./parser.js";
@@ -120,14 +119,14 @@ export const context_broker = {
    * @returns {Promise<any>}
    */
   async hydrate(input, type = "simulation", simulation_log = []) {
-    const round = runtime.round ?? 1;
+    const round = state_bridge.runtime?.round ?? 1;
 
     // 1. Resolve Entities mapping (Role -> Data)
-    const clean = runtime.snapshot_entities;
+    const clean = state_bridge.runtime?.snapshot_entities ?? {};
 
     // Resolve active fractal vector via temporal engine
     const active_vector =
-      temporal_engine.format(clean.FRACTAL?.future, null, {
+      temporal_engine.format(clean?.FRACTAL?.future, null, {
         vector_text: true,
       }) || "Continue the journey.";
 
@@ -270,7 +269,7 @@ export const context_broker = {
       // 1. Chrono Validation
       const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
       if (round_threshold !== undefined && typeof round_threshold === "number") {
-        if ((runtime.round ?? 0) < round_threshold) {
+        if ((state_bridge.runtime?.round ?? 0) < round_threshold) {
           continue;
         }
       }
@@ -284,9 +283,9 @@ export const context_broker = {
         for (const [req_key, req_val] of Object.entries(vector.requires)) {
           if (req_key === "round") continue;
 
-          let actual_val = get_path_value(runtime, req_key);
-          if ((actual_val === undefined || actual_val === "") && app) {
-            actual_val = get_path_value(app, req_key);
+          let actual_val = state_bridge.runtime ? get_path_value(state_bridge.runtime, req_key) : undefined;
+          if ((actual_val === undefined || actual_val === "") && state_bridge.app) {
+            actual_val = get_path_value(state_bridge.app, req_key);
           }
 
           if (actual_val !== req_val) {
@@ -307,7 +306,7 @@ export const context_broker = {
 
     if (vectors_to_resolve.length > 0) {
       for (const id of vectors_to_resolve) {
-        temporal_engine.resolve(entity, id, "AUTO_RESOLVED", session_driver);
+        temporal_engine.resolve(entity, id, "AUTO_RESOLVED", state_bridge.session_driver);
       }
     }
   },

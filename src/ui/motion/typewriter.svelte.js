@@ -18,7 +18,7 @@ export function typewriter(node, initialHtml = "") {
   let destroyed = false;
   // We use Svelte's mount API to instanciate the renderer inside the node
   // The state proxy passes the active chunk down recursively
-  const props = $state({ targetHtml: initialHtml || "" });
+  const props = $state({ target_html: initialHtml || "" });
 
   const component = mount(Typewriter, {
     target: node,
@@ -31,7 +31,7 @@ export function typewriter(node, initialHtml = "") {
      */
     update: function (/** @type {string | null | undefined} */ new_content) {
       if (destroyed) return;
-      props.targetHtml = new_content ?? "";
+      props.target_html = new_content ?? "";
     },
 
     /**

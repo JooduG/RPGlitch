@@ -17,7 +17,6 @@
   async function handle_regenerate() {
     if (is_regenerating) return;
     const key = imageRegenerate.regenerating_key;
-    console.log("[ImageRegenerate] handle_regenerate START, key:", key);
     if (!key) {
       setRegenerateError("No image context available to regenerate.");
       return;
@@ -25,8 +24,6 @@
 
     // Read persisted meta BEFORE closePicker (plain variables, not $state)
     const meta = getPersistedMeta();
-    console.log("[ImageRegenerate] persisted meta:", { prompt_len: meta.prompt?.length, mode: meta.mode, neg_len: meta.negativePrompt?.length });
-    console.log("[ImageRegenerate] persisted prompt preview:", JSON.stringify(meta.prompt).slice(0, 300));
 
     is_regenerating = true;
     closePicker();
@@ -43,12 +40,10 @@
         return;
       }
 
-      console.log("[ImageRegenerate] enhancing prompt via LLM, mode:", mode);
       let finalPrompt = prompt;
       let finalNegative = negativePrompt;
       try {
         const refined = await visual_engine.enhance(prompt, mode);
-        console.log("[ImageRegenerate] enhance returned:", refined ? { prompt_len: refined.prompt?.length } : "null");
         if (refined?.prompt) {
           finalPrompt = refined.prompt;
           finalNegative = refined.negativePrompt || negativePrompt;
@@ -60,11 +55,9 @@
       // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
       // extract the prompt field from it. This happens when _parseRefineResponse fails to peel the JSON.
       if (finalPrompt.trim().startsWith("{")) {
-        console.log("[ImageRegenerate] finalPrompt is JSON blob, extracting prompt field...");
         try {
           const parsed = JSON.parse(finalPrompt.trim());
           if (parsed.prompt && typeof parsed.prompt === "string") {
-            console.log("[ImageRegenerate] Extracted prompt from JSON:", JSON.stringify(parsed.prompt).slice(0, 200));
             finalPrompt = parsed.prompt;
             if (parsed.negativePrompt) finalNegative = parsed.negativePrompt;
           }
@@ -72,12 +65,10 @@
           const promptMatch = finalPrompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
           if (promptMatch && promptMatch[1]) {
             finalPrompt = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-            console.log("[ImageRegenerate] Extracted prompt via regex fallback:", JSON.stringify(finalPrompt).slice(0, 200));
           }
         }
       }
 
-      console.log("[ImageRegenerate] generating candidates with prompt:", JSON.stringify(finalPrompt).slice(0, 200));
       const newCandidates = await visual_engine.generate_candidates(finalPrompt, {
         mode,
         negativePrompt: finalNegative,
@@ -90,7 +81,6 @@
         return;
       }
 
-      console.log("[ImageRegenerate] delivering", newCandidates.length, "candidates");
       deliverCandidates(
         newCandidates.map((c) => ({
           url: c.url,
@@ -161,7 +151,7 @@
                             : imageRegenerate.selected_index !== null
                               ? 'scale-95 cursor-default opacity-40'
                               : 'cursor-pointer hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(0,0,0,0.7)]'}"
-                          style="background: #f5f0e6; border-radius: 2px; transform-origin: bottom center; transform: rotate({rot}deg);"
+                          style="background: #f5f0e6; border-radius: var(--radius-sharp); transform-origin: bottom center; transform: rotate({rot}deg);"
                           onclick={() => selectCandidate(i)}
                           aria-label="Select candidate {letter}"
                         >

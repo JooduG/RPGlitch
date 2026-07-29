@@ -1,6 +1,7 @@
 import {
   clean_image_prompts,
   escapeXml,
+  escape_xml,
   strip_cognition_blocks,
   parse_think_block,
   parse_message,
@@ -200,6 +201,11 @@ describe("text-parser: escapeXml", () => {
   it("should handle multi-line strings", () => {
     const input = "line 1\nline 2";
     expect(escapeXml(input)).toBe(input);
+  });
+
+  it("snake_case escape_xml should produce identical results", () => {
+    const input = "This & that [bracket] <tag>";
+    expect(escape_xml(input)).toBe(escapeXml(input));
   });
 });
 

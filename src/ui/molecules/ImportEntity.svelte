@@ -1,11 +1,9 @@
 <script>
   import { Button, Modal, TextField, Toggle } from "@atoms";
-  import { llm_service } from "@platform";
   import { app, runtime, simulationState } from "@state";
-  import { prompt_builder, strip_cognition_blocks } from "@intelligence";
+  import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
   import { create_new } from "@data";
-  import { validateImage } from "@platform";
-  import { temporal_engine } from "@intelligence";
+  import { llm_service, validateImage } from "@platform";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();
 

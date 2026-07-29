@@ -52,7 +52,6 @@ export const imageRegenerate = {
     return state.error;
   },
   get last_prompt() {
-    console.log("[ImageRegenerate] last_prompt getter -> ", JSON.stringify(_persisted_prompt).slice(0, 120));
     return _persisted_prompt;
   },
   get last_mode() {
@@ -119,7 +118,6 @@ export function deliverCandidates(candidates, meta) {
   if (meta) {
     if (meta.prompt) {
       _persisted_prompt = meta.prompt;
-      console.log("[ImageRegenerate] deliverCandidates stored prompt:", JSON.stringify(_persisted_prompt).slice(0, 200));
     }
     if (meta.mode) _persisted_mode = meta.mode;
     if (meta.negativePrompt) _persisted_negative = meta.negativePrompt;
@@ -162,7 +160,6 @@ export function closePicker() {
     _persisted_prompt = state.candidates[0].metadata.prompt;
     _persisted_mode = state.candidates[0].metadata.mode || _persisted_mode;
     _persisted_negative = state.candidates[0].metadata.negativePrompt || _persisted_negative;
-    console.log("[ImageRegenerate] closePicker captured prompt from candidate:", JSON.stringify(_persisted_prompt).slice(0, 200));
   }
   state.picker_open = false;
   state.candidates_ready = false;
@@ -201,7 +198,6 @@ export function setRegenerateError(msg) {
  * @returns {{ prompt: string, mode: string, negativePrompt: string }}
  */
 export function getPersistedMeta() {
-  console.log("[ImageRegenerate] getPersistedMeta() -> prompt:", JSON.stringify(_persisted_prompt).slice(0, 200));
   return {
     prompt: _persisted_prompt,
     mode: _persisted_mode,

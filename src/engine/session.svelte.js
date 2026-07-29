@@ -1,6 +1,6 @@
 import { db } from "@data";
 import { SESSION_ID_KEY } from "./config.js";
-import { runtime, simulation_log, simulationState } from "@state";
+import { state_bridge } from "@utils";
 
 /**
  * SESSION (Simulation & Gamemaster)
@@ -30,13 +30,13 @@ export const session_driver = {
    */
   set_active: async function (id) {
     _active_id = id;
-    runtime.story_id = id;
+    state_bridge.runtime.story_id = id;
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: id });
       // also log to history
       await db.sessions.add({ session_id: id, timestamp: Date.now() });
     }
-    await simulation_log.refresh();
+    await state_bridge.simulation_log.refresh();
   },
 
   /**
@@ -44,13 +44,13 @@ export const session_driver = {
    */
   clear_active: async function () {
     _active_id = null;
-    simulationState.unlock();
-    runtime.story_id = null;
-    runtime.round = 0;
+    state_bridge.simulationState.unlock();
+    state_bridge.runtime.story_id = null;
+    state_bridge.runtime.round = 0;
     if (typeof window !== "undefined") {
       await db.kv_settings.put({ key: SESSION_ID_KEY, value: null });
     }
-    await simulation_log.refresh();
+    await state_bridge.simulation_log.refresh();
   },
 
   /**
@@ -90,7 +90,7 @@ export const session_driver = {
       created_at: Date.now(),
     };
     entry.id = await db.simulation_log.add(entry);
-    simulation_log.add(entry);
+    state_bridge.simulation_log.add(entry);
 
     return story_id;
   },
@@ -101,7 +101,7 @@ export const session_driver = {
    * @returns {Promise<void>}
    */
   send: async function (text) {
-    const character_name = runtime.active_user?.name || "User";
+    const character_name = state_bridge.runtime.active_user?.name || "User";
     return await this.log_message(text, "user", character_name, { turn_type: "USER_TURN" });
   },
 
@@ -115,7 +115,7 @@ export const session_driver = {
       const entry = logs[i];
       if (entry.role === "user") break;
       await db.simulation_log.delete(entry.id);
-      simulation_log.remove(entry.id);
+      state_bridge.simulation_log.remove(entry.id);
     }
   },
 
@@ -126,7 +126,7 @@ export const session_driver = {
   delete_log_entry: async function (id) {
     const key = isNaN(Number(id)) ? id : Number(id);
     await db.simulation_log.delete(key);
-    simulation_log.remove(key);
+    state_bridge.simulation_log.remove(key);
   },
 
   /**
@@ -137,7 +137,7 @@ export const session_driver = {
   edit_log_entry: async function (id, new_text) {
     const key = isNaN(Number(id)) ? id : Number(id);
     await db.simulation_log.update(key, { text: new_text });
-    simulation_log.update(key, { text: new_text });
+    state_bridge.simulation_log.update(key, { text: new_text });
   },
 
   /**
@@ -153,7 +153,7 @@ export const session_driver = {
       entry.attachments[attachment_index] = $state.snapshot(new_attachment);
       const plainEntry = $state.snapshot(entry);
       await db.simulation_log.put(plainEntry);
-      simulation_log.update(key, { attachments: plainEntry.attachments });
+      state_bridge.simulation_log.update(key, { attachments: plainEntry.attachments });
     }
   },
 
@@ -175,7 +175,7 @@ export const session_driver = {
       character_name,
       text,
       turn_type,
-      round: runtime.round,
+      round: state_bridge.runtime.round,
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };
@@ -186,7 +186,7 @@ export const session_driver = {
       entry.id = meta.id;
     }
     entry.id = await db.simulation_log.add(entry);
-    simulation_log.add(entry);
+    state_bridge.simulation_log.add(entry);
     return entry;
   },
 
@@ -222,11 +222,11 @@ export const session_driver = {
       type: "text",
       text,
       turn_type: "SYSTEM_TURN",
-      round: runtime.round,
+      round: state_bridge.runtime.round,
       meta: $state.snapshot(meta),
       created_at: Date.now(),
     };
     entry.id = await db.simulation_log.add(entry);
-    simulation_log.add(entry);
+    state_bridge.simulation_log.add(entry);
   },
 };

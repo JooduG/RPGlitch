@@ -4,8 +4,8 @@
  * Consolidates Past (Historical Anchors) and Future (Active Impulses) into a unified temporal continuum.
  */
 
+import { generate_uuid as _uuid, state_bridge } from "@utils";
 import { llm_service } from "@platform";
-import { simulation_log as log_store } from "@state";
 import { ensure_embedding, score_by_semantics } from "./embeddings.svelte.js";
 import { extract_json_block, merge_prose_into_field } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
@@ -40,7 +40,7 @@ import { prompt_builder } from "./prompts.js";
  */
 export function create(content, type = "future", weight = 5) {
   return {
-    id: crypto.randomUUID(),
+    id: _uuid(),
     timestamp: Date.now(),
     content: content || "",
     type,
@@ -292,7 +292,7 @@ export async function forge_memory(target_entity, history_slice, role = "charact
     if (!memory || (!memory.directive?.trim() && !memory.summary?.trim())) return null;
 
     const forged = {
-      id: crypto.randomUUID(),
+      id: _uuid(),
       timestamp: Date.now(),
       type: (memory.type || "past").toLowerCase(),
       directive: memory.directive || memory.summary || "",
@@ -545,7 +545,7 @@ export const temporal_engine = {
           msg.meta = { ...msg.meta, consolidated: true };
         }
         await db.simulation_log.bulkPut(slice);
-        log_store?.refresh();
+        state_bridge.simulation_log?.refresh();
       }
     } catch (err) {
       console.error("[TemporalEngine] Consolidation forge failed:", err);

@@ -4,16 +4,28 @@
  * Manages modals, view states, and visual feedback using storyboard/storymode terminology.
  * ZERO NESTING - Flattened Schema only.
  */
-import { closeImagePreview, openImagePreview } from "@atoms";
 import { flushSync } from "svelte";
-import { generateUUID } from "@engine";
-import { resolve_px } from "@utils";
-import { db, entities, normalize } from "@data";
+import { generate_uuid, resolve_px } from "@utils";
 import { log as engineLog, guardedTransition } from "@engine";
+import { db, entities, normalize } from "@data";
 import { visual_engine, get_signature_color, Audio } from "@media";
 import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
 import { simulationState, uiState } from "./status.svelte.js";
+
+/**
+ * Image preview bridge: The state layer cannot import from @atoms (UI layer).
+ * Instead, the UI layer registers its open/close handlers here at boot time.
+ * These stubs delegate to the registered handlers if available.
+ * @type {{ open: ((src: any, caption?: string) => void) | null, close: (() => void) | null }}
+ */
+const _imagePreviewBridge = { open: null, close: null };
+export function register_image_preview_handlers(open, close) {
+  _imagePreviewBridge.open = open;
+  _imagePreviewBridge.close = close;
+}
+const closeImagePreview = () => _imagePreviewBridge.close?.();
+const openImagePreview = (src, caption = "") => _imagePreviewBridge.open?.(src, caption);
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./status.svelte.js').CardHandState} CardHandState */
@@ -230,7 +242,7 @@ export class AppStore {
    */
   log(message, type = "system") {
     const entry = {
-      id: generateUUID(),
+      id: generate_uuid(),
       timestamp: logTimeFormatter.format(Date.now()),
       message,
       type, // 'system' | 'ai' | 'db' | 'error'

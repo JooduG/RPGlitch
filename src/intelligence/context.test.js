@@ -8,54 +8,63 @@ let mockAppState = {
   state_anchor: "",
 };
 
-// Mock runtime store dynamically using lazy getters to survive Vitest hoisted module evaluation
-vi.mock("@state/runtime.svelte.js", () => ({
-  runtime: {
-    get round() {
-      return mockRound;
-    },
-    set round(val) {
-      mockRound = val;
-    },
-    get simulation() {
-      return {
-        get round() {
-          return mockRound;
-        },
-      };
-    },
-    get snapshot_entities() {
-      return {
-        AI: { id: "ai", name: "AI", role: "AI", future: [], past: [], dynamics: {} },
-        USER: { id: "user", name: "USER", role: "USER", future: [], past: [], dynamics: {} },
-        FRACTAL: {
-          id: "fractal",
-          name: "FRACTAL",
-          role: "FRACTAL",
-          future: [],
-          past: [],
-          dynamics: {},
-        },
-      };
-    },
-    get active_ai() {
-      return { future: [] };
-    },
-    get active_user() {
-      return { future: [] };
-    },
-    get active_fractal() {
-      return { future: [] };
-    },
+const _mockRuntime = {
+  get round() {
+    return mockRound;
   },
-}));
+  set round(val) {
+    mockRound = val;
+  },
+  get simulation() {
+    return {
+      get round() {
+        return mockRound;
+      },
+    };
+  },
+  get snapshot_entities() {
+    return {
+      AI: { id: "ai", name: "AI", role: "AI", future: [], past: [], dynamics: {} },
+      USER: { id: "user", name: "USER", role: "USER", future: [], past: [], dynamics: {} },
+      FRACTAL: {
+        id: "fractal",
+        name: "FRACTAL",
+        role: "FRACTAL",
+        future: [],
+        past: [],
+        dynamics: {},
+      },
+    };
+  },
+  get active_ai() {
+    return { future: [] };
+  },
+  get active_user() {
+    return { future: [] };
+  },
+  get active_fractal() {
+    return { future: [] };
+  },
+};
 
-// Mock app store dynamically with a lazy getter pointing to our outer block-scoped variable
-vi.mock("@state/app.svelte.js", () => ({
-  get app() {
-    return mockAppState;
-  },
-}));
+// Mock @utils to provide state_bridge so context.svelte.js can access runtime/app
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    state_bridge: {
+      get app() {
+        return mockAppState;
+      },
+      get runtime() {
+        return _mockRuntime;
+      },
+      get session_driver() {
+        return { log_system_entry: vi.fn() };
+      },
+    },
+  };
+});
 
 // Mock session_driver to avoid pulling in Dexie during context tests
 vi.mock("@engine/session.svelte.js", () => ({

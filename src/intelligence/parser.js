@@ -6,6 +6,7 @@
 
 import { detox_prose } from "@data";
 import { sanitize } from "@platform";
+import { escape_xml, safeParsePseudoJson } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
@@ -221,20 +222,12 @@ export function parse_message(rawText) {
 
 /**
  * Escapes characters for safe use in XML.
+ * Re-exported from @utils for backward compatibility.
  * @param {string|null|undefined} str
  * @returns {string}
  */
-export function escapeXml(str) {
-  if (typeof str !== "string") return "";
-  return str
-    .replace(/&/g, "&amp;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\[/g, "&#91;")
-    .replace(/\]/g, "&#93;");
-}
+export const escapeXml = escape_xml;
+export { escape_xml };
 
 /**
  * Text sanitization for prompt safety.
@@ -272,43 +265,11 @@ export function clean_xml(str) {
 
 /**
  * High-fidelity parser that extracts pseudo-JSON configurations.
- * Exclusively parses bracketed [KEY: VALUE] parameters.
+ * Re-exported from @utils for backward compatibility.
  * @param {string} raw
  * @returns {Record<string, string>}
  */
-export const safeParsePseudoJson = (raw) => {
-  if (!raw) return {};
-  const cleanRaw = strip_cognition_blocks(raw).trim();
-  if (!cleanRaw) return {};
-
-  // Tier 1: Process bracketed configuration [KEY: VALUE] or [KEY: VALUE] [KEY2: VALUE2]
-  if (cleanRaw.includes("[") && cleanRaw.includes("]")) {
-    const bracketExtracted = {};
-    const bracketRegex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
-    let match;
-    while ((match = bracketRegex.exec(cleanRaw)) !== null) {
-      const k = match[1].replace(/["']/g, "").trim();
-      const v = match[2].replace(/^["']|["']$/g, "").trim();
-      if (k && v) bracketExtracted[k] = v;
-    }
-    if (Object.keys(bracketExtracted).length > 0) return bracketExtracted;
-  }
-
-  // Tier 2: Process quoted key-value pairs "KEY": "VALUE" or JSON {"KEY": "VALUE"}
-  if (cleanRaw.includes('"') && cleanRaw.includes(":")) {
-    const quotedExtracted = {};
-    const quotedRegex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
-    let match;
-    while ((match = quotedRegex.exec(cleanRaw)) !== null) {
-      const k = match[1].trim();
-      const v = match[2].trim();
-      if (k && v) quotedExtracted[k] = v;
-    }
-    if (Object.keys(quotedExtracted).length > 0) return quotedExtracted;
-  }
-
-  return {};
-};
+export { safeParsePseudoJson };
 
 /**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)

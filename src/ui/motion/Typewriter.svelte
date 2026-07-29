@@ -14,23 +14,47 @@
   // --- PROP MATRIX BOUNDARIES ---
   let {
     // Legacy single-string input (supports backwards compatibility with Svelte actions)
-    targetHtml = "",
+    target_html = "",
+    // Legacy alias
+    targetHtml = null,
 
     // Core parameters
     text = "",
     words = null,
     class: className = "",
-    typeSpeed = null, // ms per char (null falls back to smart engine pacing)
-    deleteSpeed = null, // ms per char (null falls back to fast engine reverse)
+    type_speed = null, // ms per char (null falls back to smart engine pacing)
+    // Legacy alias
+    typeSpeed = null,
+    delete_speed = null, // ms per char (null falls back to fast engine reverse)
+    // Legacy alias
+    deleteSpeed = null,
     delay = 0, // Delay before initial phrase entry begins
-    pauseDelay = 1000,
+    pause_delay = 1000,
+    // Legacy alias
+    pauseDelay = null,
     loop = false,
     as = "div",
-    showCursor = false,
-    blinkCursor = true,
-    cursorStyle = "line",
-    isFinished = $bindable(false),
+    show_cursor = false,
+    // Legacy alias
+    showCursor = null,
+    blink_cursor = true,
+    // Legacy alias
+    blinkCursor = null,
+    cursor_style = "line",
+    // Legacy alias
+    cursorStyle = null,
+    is_finished = $bindable(false),
   } = $props();
+
+  // Normalize legacy camelCase props to snake_case
+  const _target_html = $derived(targetHtml ?? target_html);
+  const _type_speed = $derived(typeSpeed ?? type_speed);
+  const _delete_speed = $derived(deleteSpeed ?? delete_speed);
+  const _pause_delay = $derived(pauseDelay ?? pause_delay);
+  const _show_cursor = $derived(showCursor ?? show_cursor);
+  const _blink_cursor = $derived(blinkCursor ?? blink_cursor);
+  const _cursor_style = $derived(cursorStyle ?? cursor_style);
+  let _is_finished = $state(is_finished);
 
   // --- UNIFIED REACTIVE TRACKERS ---
   let currentCharIndex = $state(0);
@@ -43,7 +67,7 @@
   const wordsToAnimate = $derived.by(() => {
     if (words && words.length > 0) return words;
     if (text) return [text];
-    if (targetHtml) return [targetHtml];
+    if (_target_html) return [_target_html];
     return [];
   });
 
@@ -131,18 +155,18 @@
 
   // Determine active cursor element style representation
   const cursorGlyph = $derived.by(() => {
-    if (cursorStyle === "block") return "▌";
-    if (cursorStyle === "underscore") return "_";
+    if (_cursor_style === "block") return "▌";
+    if (_cursor_style === "underscore") return "_";
     return "|";
   });
 
   // Secondary evaluation to show trailing typing pointers
-  const shouldShowCursor = $derived(showCursor && !(!loop && currentWordIndex === wordsToAnimate.length - 1 && currentCharIndex >= totalLength));
+  const shouldShowCursor = $derived(_show_cursor && !(!loop && currentWordIndex === wordsToAnimate.length - 1 && currentCharIndex >= totalLength));
 
   // Compute delta progress increments across execution phases
   const activeSpeed = $derived.by(() => {
     if (phase === "typing") {
-      if (typeSpeed !== null && typeSpeed > 0) return 1 / typeSpeed;
+      if (_type_speed !== null && _type_speed > 0) return 1 / _type_speed;
 
       // Inherited smart-acceleration matrix for chat streams
       const remaining = totalLength - currentCharIndex;
@@ -159,7 +183,7 @@
     }
 
     if (phase === "deleting") {
-      if (deleteSpeed !== null && deleteSpeed > 0) return 1 / deleteSpeed;
+      if (_delete_speed !== null && _delete_speed > 0) return 1 / _delete_speed;
       return 0.08 * (motion.isReduced ? 0 : motion.intensity);
     }
 
@@ -240,9 +264,9 @@
         if (phase === "typing") {
           if (currentCharIndex < totalLengthRaw) {
             currentCharIndex = Math.min(totalLengthRaw, currentCharIndex + elapsed * activeSpeedRaw);
-            if (isFinished) isFinished = false;
+            if (_is_finished) _is_finished = false;
           } else {
-            if (!isFinished && !hasMultipleWordsRaw && !loop) isFinished = true;
+            if (!_is_finished && !hasMultipleWordsRaw && !loop) _is_finished = true;
             if (hasMultipleWordsRaw || loop) {
               phase = "pause";
               pauseAccumulator = 0;
@@ -250,7 +274,7 @@
           }
         } else if (phase === "pause") {
           pauseAccumulator += elapsed;
-          if (pauseAccumulator >= pauseDelay) {
+          if (pauseAccumulator >= _pause_delay) {
             if (hasMultipleWordsRaw || loop) {
               phase = "deleting";
             }
@@ -293,7 +317,7 @@
   {@html slicedHtml}
 
   {#if shouldShowCursor}
-    <span class="ml-0.5 inline-block text-(--signature-color) {blinkCursor ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]' : ''}">
+    <span class="ml-0.5 inline-block text-(--signature-color) {_blink_cursor ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]' : ''}">
       {cursorGlyph}
     </span>
   {/if}

@@ -28,14 +28,31 @@ vi.mock("@data/repository.js", () => ({
   seed_premades: vi.fn(),
 }));
 
+// Mock the state bridge so boot.js can access app/runtime without importing @state
+const _mockApp = {
+  log: vi.fn(),
+  init: vi.fn(),
+  settings: { dev_mode: false },
+};
+const _mockRuntime = {
+  sync: vi.fn(),
+  is_ready: false,
+};
+vi.mock("@utils", () => ({
+  state_bridge: {
+    get app() {
+      return _mockApp;
+    },
+    get runtime() {
+      return _mockRuntime;
+    },
+  },
+}));
+
 import * as repository from "@data";
 import { AppBootstrap, reset_bootstrap_guard } from "@engine/boot.js";
-import { app } from "@state";
 vi.mock("@state/runtime.svelte.js", () => ({
-  runtime: {
-    sync: vi.fn(),
-    is_ready: false,
-  },
+  runtime: _mockRuntime,
 }));
 vi.mock("svelte", () => ({
   mount: vi.fn(),
@@ -48,7 +65,7 @@ describe("AppBootstrap", () => {
     document.body.innerHTML = "";
     vi.resetAllMocks();
     reset_bootstrap_guard();
-    app.settings.dev_mode = false;
+    _mockApp.settings.dev_mode = false;
   });
   test("escapes error stack using textContent when initialization fails", async () => {
     const maliciousPayload = "<img src=x onerror=alert(1)>";
@@ -62,7 +79,7 @@ describe("AppBootstrap", () => {
     await AppBootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
     expect(consoleSpy).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure:"), error);
-    expect(app.log).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure: Critical Failure"), "error");
+    expect(_mockApp.log).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure: Critical Failure"), "error");
     consoleSpy.mockRestore();
     const errorStackElement = /** @type {HTMLElement} */ (document.getElementById("user-content-error-stack"));
     expect(errorStackElement).not.toBeNull();
@@ -77,24 +94,23 @@ describe("AppBootstrap", () => {
 
   test("successfully initializes all services in the correct order and mounts the app", async () => {
     const { Audio } = await import("@media/audio.svelte.js");
-    const { runtime } = await import("@state/runtime.svelte.js");
     const { mount } = await import("svelte");
 
-    vi.mocked(runtime).is_ready = true;
+    _mockRuntime.is_ready = true;
 
     await AppBootstrap.init();
 
     // Verify all functions were called
     expect(repository.seed_premades).toHaveBeenCalled();
-    expect(vi.mocked(runtime.sync)).toHaveBeenCalled();
-    expect(app.init).toHaveBeenCalled();
+    expect(vi.mocked(_mockRuntime.sync)).toHaveBeenCalled();
+    expect(_mockApp.init).toHaveBeenCalled();
     expect(Audio.init).toHaveBeenCalled();
     expect(vi.mocked(mount)).toHaveBeenCalled();
 
     // Verify the critical execution order
     const seedPremadesOrder = vi.mocked(repository.seed_premades).mock.invocationCallOrder[0];
-    const runtimeSyncOrder = vi.mocked(runtime.sync).mock.invocationCallOrder[0];
-    const appInitOrder = vi.mocked(app.init).mock.invocationCallOrder[0];
+    const runtimeSyncOrder = vi.mocked(_mockRuntime.sync).mock.invocationCallOrder[0];
+    const appInitOrder = _mockApp.init.mock.invocationCallOrder[0];
     const audioInitOrder = vi.mocked(Audio.init).mock.invocationCallOrder[0];
     const mountOrder = vi.mocked(mount).mock.invocationCallOrder[0];
 
@@ -108,7 +124,7 @@ describe("AppBootstrap", () => {
     expect(mountOrder).toBeGreaterThan(parallelInitMaxOrder);
 
     expect(document.getElementById("svelte-root")).toBeNull();
-    expect(app.log).toHaveBeenCalledWith(expect.stringContaining("System Online"), "system");
+    expect(_mockApp.log).toHaveBeenCalledWith(expect.stringContaining("System Online"), "system");
   });
 
   test("does not use direct innerHTML assignment for the entire error template", async () => {

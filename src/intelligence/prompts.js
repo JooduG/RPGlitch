@@ -4,13 +4,16 @@
  * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
+import { collapse_history as _collapse_history, ind, PROTOCOL_LIBRARY, state_bridge } from "@utils";
 import { NARRATIVE_STYLES } from "@data";
-import { ind } from "@engine";
-import { app, runtime } from "@state";
 import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { clean_xml, escapeXml, safeParsePseudoJson, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
+
+// Re-export for backward compatibility
+export { PROTOCOL_LIBRARY };
+export const collapse_history = _collapse_history;
 
 // ============================================================================
 // 1. UTILITIES & CACHES
@@ -135,9 +138,9 @@ const val = (text, owner, entities) => {
  */
 function resolve_active_style_key() {
   const styleKey =
-    runtime?.active_fractal?.narrative_style && runtime.active_fractal.narrative_style !== "default"
-      ? runtime.active_fractal.narrative_style
-      : typeof app !== "undefined" && app.settings?.narrative_style;
+    state_bridge.runtime?.active_fractal?.narrative_style && state_bridge.runtime?.active_fractal.narrative_style !== "default"
+      ? state_bridge.runtime?.active_fractal.narrative_style
+      : state_bridge.app?.settings?.narrative_style;
   if (!styleKey || styleKey === "default" || !NARRATIVE_STYLES[styleKey]) return "";
   return styleKey;
 }
@@ -239,67 +242,14 @@ function format_dynamics_attrs(dynObj) {
  * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
  * @returns {Array<{role: string, name: string, content: string}>}
  */
-export function collapse_history(messages, options = {}) {
-  const { separator = "\n", stripBoldQuotes = false } = options;
-  if (!Array.isArray(messages) || messages.length === 0) return [];
-
-  const collapsed = [];
-  for (const m of messages) {
-    if (m.role === "system") continue;
-    const lowerRole = (m.role || "").toLowerCase();
-    const role = lowerRole === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lowerRole) ? "FRACTAL" : "AI_CHARACTER";
-    const name = m.character_name || "";
-    let content = strip_cognition_blocks(m.content || m.text || "").trim();
-    if (stripBoldQuotes) {
-      content = content.replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
-    }
-    if (!content) continue;
-
-    const last = collapsed[collapsed.length - 1];
-    if (last && last.role === role && last.name === name) {
-      last.content += `${separator}${content}`;
-    } else {
-      collapsed.push({ role, name, content });
-    }
-  }
-  return collapsed;
-}
+// collapse_history is now imported from @utils (see top of file).
+// The original implementation was moved there to allow platform/transport.js
+// to use it without importing from @intelligence (layer boundary violation).
 
 // ============================================================================
 // 2. PROTOCOLS
-// ============================================================================
-
-const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
-
-export const PROTOCOL_LIBRARY = {
-  USER_AGENCY:
-    "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe the user's thoughts, feelings, or physical reactions. Write your turn. Stop.",
-  COGNITION: `Document internal calculations sequentially:
-### Phase 1 (Baseline): Establish identity, emotional state, and psychological vectors.
-### Phase 2 (Signal): Decode user input, environmental shifts, and dynamic values.
-### Phase 3 (Probability): Assess likely behavioral shifts, tics, or pivots given evidence.
-### Phase 4 (State): Declare finalized emotional state and immediate intent.
-Keep each phase under 3 sentences. Total think block < 200 words.`,
-  HYGIENE: `${BASE_HYGIENE} No timestamps/timeline headers. No 'Echo' dialogue (repeating user's last word). Dialogue MUST fit character profile. Write with natural physicality. Use metric system & 24h clocks.`,
-  DATA_HYGIENE: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
-  AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions (state what IS, not what isn't).",
-  PRESENT_TENSE: "Write in the present tense.",
-  MOMENTUM:
-    "Drive the scene forward. End on a live beat (challenge, question, tension, or deliberate silence) that invites response. The beat must emerge organically from character—no structural labels.",
-  MARKDOWN_FORMAT:
-    'Use markdown for emphasis: *italics* for internal reflections/tension; **bold** for impact/intense actions; "quotes" for speech/irony. Make text dynamic and visual.',
-  YES_AND:
-    "The user's actions and consequences are absolute truth. Build upon them. However, your character's internal reactions and decisions are yours. Embody 'Yes, and...' to drive the scene.",
-  JSON_OUTPUT: "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON.",
-  FIRST_CONTACT:
-    "Unless context establishes a prior relationship, this is a first encounter. You don't know the user's name, history, or intent. Let your core nature determine your response to a stranger.",
-  PERCHANCE_SYNTAX:
-    "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features (colors, micro-details, backgrounds) to ensure variation.",
-  POV_FIRST_PERSON:
-    "CRITICAL POV MANDATE: Write strictly in first-person POV ('I', 'me', 'my'). Describe actions, thoughts, and physical sensations through your own eyes ('I opened the door', 'My heart raced'). NEVER describe yourself in third person using your name or 'he/she/they'.",
-  POV_THIRD_PERSON:
-    "CRITICAL POV MANDATE: Write strictly in third-person limited POV ('he', 'she', 'they', or entity name). Describe actions from an external perspective ('She opened the door', 'His heart raced'). NEVER use first-person pronouns ('I', 'me', 'my') for narrative prose.",
-};
+// PROTOCOL_LIBRARY is now defined in @utils/protocols.js and re-exported.
+// The original definition was moved to allow media-layer access without importing from @intelligence.
 
 // ============================================================================
 // 3. PROMPT TEMPLATES

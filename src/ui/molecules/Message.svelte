@@ -566,7 +566,7 @@
           >
             {#if should_use_typewriter}
               {#if has_display_text}
-                <Typewriter targetHtml={display_text} bind:isFinished={is_typing_finished} />
+                <Typewriter target_html={display_text} bind:is_finished={is_typing_finished} />
               {:else if busy}
                 <div class="flex items-center gap-1 p-2 opacity-60 {is_fractal ? 'justify-center' : ''}">
                   <div class="h-1.5 w-1.5 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>

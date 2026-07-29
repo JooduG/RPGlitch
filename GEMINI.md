@@ -50,19 +50,22 @@ A **Round** tracks linear session progression. It increments strictly when the u
 Turns execute sequentially within a round, allowing asynchronous overlapping where safe:
 
 1. **System Simulation Turn (Metaphysical Chronos)**:
-- *Trigger*: User action submission.
-- *State*: **Lock the system and disable the UI**.
-- *Logic*: **Execute physics, state mutations, and sanitization synchronously**.
-- *Exit*: Package the mutated state kernel for the AI driver.
+
+- _Trigger_: User action submission.
+- _State_: **Lock the system and disable the UI**.
+- _Logic_: **Execute physics, state mutations, and sanitization synchronously**.
+- _Exit_: Package the mutated state kernel for the AI driver.
 
 2. **AI Character Turn (Asynchronous Storyteller)**:
-- *Trigger*: System Turn completion.
-- *Logic*: Process the state kernel and stream the narrative reaction in the background.
-- *Concurrency*: The user may type while the AI streams and can interrupt early by submitting a new action.
+
+- _Trigger_: System Turn completion.
+- _Logic_: Process the state kernel and stream the narrative reaction in the background.
+- _Concurrency_: The user may type while the AI streams and can interrupt early by submitting a new action.
 
 3. **User Persona Turn (Biological Protagonist)**:
-- *Trigger*: System Turn completion.
-- *State*: **Release the UI and enable user input**.
+
+- _Trigger_: System Turn completion.
+- _State_: **Release the UI and enable user input**.
 
 ---
 
@@ -152,12 +155,14 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 #### Import Rules (Unidirectional Flow)
 
 **Allowed Downward Imports**:
+
 - `src/ui/` may import from any layer.
 - `src/state/` may import from `engine`, `intelligence`, `data`, `platform`, `media`, `utils`.
 - `src/engine/` may import from `intelligence`, `data`, `platform`, `media`, `utils`.
 - `src/data/` may import from `platform`, `utils`.
 
-**Forbidden Upward Imports**: 
+**Forbidden Upward Imports**:
+
 - Lower-level layers **MUST NEVER** import from higher-level layers.
 - `src/engine/`, `src/data/`, and `src/platform/` **MUST NEVER** import from `src/ui/` or `src/state/**`.
 - `src/state/` **MUST NEVER** import from `src/ui/**`.
@@ -168,13 +173,13 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 #### State Ownership Matrix
 
-| State Domain | Owner Store File | Description & Mutators | Observers |
-| --- | --- | --- | --- |
-| **Active Entities** (`user`, `ai`, `fractal`) | `runtime.svelte.js` | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
-| **Chronology** (`round`, `story_id`) | `runtime.svelte.js` | Macro heartbeat of the simulation. | `ui`, `engine` |
-| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js` | Execution status and UI lock state (STASIS). | `ui`, `engine` |
-| **UI Flow & Modals** (`view`, `profile_open`) | `app.svelte.js` | Ephemeral layout and view state. | `ui` |
-| **Audio Context** | `src/media/` | Browser audio state. Requires user gesture initialization. | `ui` |
+| State Domain                                          | Owner Store File    | Description & Mutators                                       | Observers      |
+| ----------------------------------------------------- | ------------------- | ------------------------------------------------------------ | -------------- |
+| **Active Entities** (`user`, `ai`, `fractal`)         | `runtime.svelte.js` | Live clones of DB entities. Mutated by `load()` and physics. | `ui`, `engine` |
+| **Chronology** (`round`, `story_id`)                  | `runtime.svelte.js` | Macro heartbeat of the simulation.                           | `ui`, `engine` |
+| **Simulation Phase** (`idle`, `generating`, `locked`) | `status.svelte.js`  | Execution status and UI lock state (STASIS).                 | `ui`, `engine` |
+| **UI Flow & Modals** (`view`, `profile_open`)         | `app.svelte.js`     | Ephemeral layout and view state.                             | `ui`           |
+| **Audio Context**                                     | `src/media/`        | Browser audio state. Requires user gesture initialization.   | `ui`           |
 
 #### Standardized Lifecycle Verbs
 
@@ -189,12 +194,14 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 ### 5. Development Protocols & Navigator Rules
 
 **4-Step Implementation Loop**:
+
 1. **Anchor Tasks**: **Verify `./tasks/FUTURE.md` is initialized and linked to `./tasks/ETERNAL.md**`.
 2. **Wire State**: Connect Svelte 5 Runes and expose safe global bridges via `window.exposed`.
 3. **Apply Styling**: Implement rules from `./DESIGN.md`.
 4. **Anchor Persistence**: Bind dynamic changes to Dexie.js repositories.
 
 **Navigator Protocol**:
+
 - **Relative Resolution**: **Always use relative paths for internal references** (e.g., `./tasks/PRESENT.md`).
 - **Absolute Grounding**: **Map all code claims to specific file paths and line numbers**.
 
@@ -250,5 +257,6 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 
 > [!NOTE]
 > **CRITICAL DISTINCTION**:
+>
 > - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](https://www.google.com/search?q=./.agents/skills/simulation/SKILL.md) skill.
 > - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global Developer Database skill.

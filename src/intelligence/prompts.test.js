@@ -1,6 +1,24 @@
 import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter, build_cognitive_state, build_dynamics_calibration } from "./prompts.js";
-import { app } from "@state";
-import { describe, expect, it } from "vitest";
+import { vi, describe, expect, it } from "vitest";
+
+const _mockApp = {
+  settings: { narrative_style: "default" },
+};
+
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    state_bridge: {
+      get app() {
+        return _mockApp;
+      },
+      get runtime() {
+        return { active_fractal: null };
+      },
+    },
+  };
+});
 
 describe("prompt_builder (Refactored)", () => {
   describe("Static Helpers", () => {
@@ -435,7 +453,7 @@ describe("prompt_builder (Refactored)", () => {
     });
 
     it("should prepend author style prompt to build_character_prompt if app.settings.narrative_style is active", () => {
-      app.settings.narrative_style = "anna_zaires";
+      _mockApp.settings.narrative_style = "anna_zaires";
       const mockPayload = {
         round: 1,
         entities: {
@@ -449,11 +467,11 @@ describe("prompt_builder (Refactored)", () => {
       const mockSnapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mockPayload, mockSnapshot, {});
       expect(result.system).toContain('<NARRATIVE_STYLE author="anna_zaires">');
-      app.settings.narrative_style = "default";
+      _mockApp.settings.narrative_style = "default";
     });
 
     it("should not prepend author style prompt if app.settings.narrative_style is 'default'", () => {
-      app.settings.narrative_style = "default";
+      _mockApp.settings.narrative_style = "default";
       const mockPayload = {
         round: 1,
         entities: {
@@ -469,7 +487,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).not.toContain("<NARRATIVE_STYLE");
     });
     it("should prepend author style prompt to render_narrator (prologue) if active", () => {
-      app.settings.narrative_style = "william_gibson";
+      _mockApp.settings.narrative_style = "william_gibson";
       const mockPayload = {
         round: 1,
         entities: {
@@ -484,7 +502,7 @@ describe("prompt_builder (Refactored)", () => {
       const prologue_payload = { ...mockPayload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, mockSnapshot);
       expect(result.system).toContain('<NARRATIVE_STYLE author="william_gibson">');
-      app.settings.narrative_style = "default";
+      _mockApp.settings.narrative_style = "default";
     });
 
     it("should include EPISTEMIC_PHYSICS in build_character_prompt but not build_epilogue or prologue narrator narration", () => {

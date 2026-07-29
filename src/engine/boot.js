@@ -1,8 +1,8 @@
 import { seed_premades } from "@data";
 import { Audio } from "@media";
+import { state_bridge } from "@utils";
 import App from "../App.svelte";
 import { sanitizeToFragment } from "@platform";
-import { app, runtime } from "@state";
 import { mount } from "svelte";
 import { embeddings_engine } from "@intelligence";
 
@@ -24,7 +24,7 @@ export const reset_bootstrap_guard =
 export const AppBootstrap = {
   async init() {
     if (has_initialized) {
-      app.log("[Engine] AppBootstrap.init() called more than once. Guarding.", "system");
+      state_bridge.app.log("[Engine] AppBootstrap.init() called more than once. Guarding.", "system");
       return;
     }
     has_initialized = true;
@@ -38,7 +38,7 @@ export const AppBootstrap = {
       Audio?.voice?.loadModel?.()?.catch?.((err) => console.warn("[Boot] Voice pre-download error:", err));
 
       // Parallel Initialization: Reduce critical path for LCP.
-      await Promise.all([runtime.sync(), app.init(), Audio.init()]);
+      await Promise.all([state_bridge.runtime.sync(), state_bridge.app.init(), Audio.init()]);
 
       // 5. Mount Svelte App
       mount(App, {
@@ -47,10 +47,10 @@ export const AppBootstrap = {
 
       // 6. Tear down boot illusion
       document.getElementById("svelte-root")?.remove();
-      app.log("[Engine] >> System Online.", "system");
+      state_bridge.app.log("[Engine] >> System Online.", "system");
     } catch (err) {
       console.error("[Engine] 🚫 Critical Failure:", err);
-      app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
+      state_bridge.app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
 
       const error_template = `
                 <div style="background:var(--color-chalk); color:var(--color-crimson-red); padding:calc(var(--spacing-spacing-unit) * 8); font-family:var(--font-mono); height:100vh; overflow:auto;">
