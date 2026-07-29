@@ -26,7 +26,7 @@ describe("dom utilities", () => {
     // JSDOM HACK: JSDOM's getComputedStyle doesn't resolve var(), rem, or calc()
     // We mock the computed style resolution for the measurement element if we're in JSDOM
     if (typeof navigator !== "undefined" && navigator.userAgent.includes("jsdom")) {
-      const originalGetComputedStyle = window.getComputedStyle;
+      const original_get_computed_style = window.getComputedStyle;
 
       /**
        * Recursively resolves CSS variables and basic expressions for JSDOM testing.
@@ -34,27 +34,27 @@ describe("dom utilities", () => {
        * @param {HTMLElement} el
        * @returns {string}
        */
-      const resolveMockValue = (val, el) => {
+      const resolve_mock_value = (val, el) => {
         if (!val) return val;
         const trimmed = val.trim();
 
         // Handle var() resolution
-        const varMatch = trimmed.match(/^var\((--[^,)]+)(?:,([^)]+))?\)$/);
-        if (varMatch) {
-          const varName = varMatch[1].trim();
-          const fallback = varMatch[2]?.trim();
+        const var_match = trimmed.match(/^var\((--[^,)]+)(?:,([^)]+))?\)$/);
+        if (var_match) {
+          const var_name = var_match[1].trim();
+          const fallback = var_match[2]?.trim();
 
           /** @type {HTMLElement | null} */
           let current = el;
           let resolved = "";
           while (current && !resolved) {
-            resolved = originalGetComputedStyle(current).getPropertyValue(varName);
+            resolved = original_get_computed_style(current).getPropertyValue(var_name);
             if (resolved) break;
             current = current.parentElement;
           }
 
-          if (resolved) return resolveMockValue(resolved, el);
-          if (fallback) return resolveMockValue(fallback, el);
+          if (resolved) return resolve_mock_value(resolved, el);
+          if (fallback) return resolve_mock_value(fallback, el);
           return val; // Return original if not found
         }
 
@@ -74,34 +74,34 @@ describe("dom utilities", () => {
       };
 
       vi.spyOn(window, "getComputedStyle").mockImplementation((/** @type {any} */ el) => {
-        const style = originalGetComputedStyle(el);
+        const style = original_get_computed_style(el);
 
         // If it's our measurement element, we simulate resolution
         if (el.style?.zIndex === "-9999") {
-          const mockStyle = {
+          const mock_style = {
             getPropertyValue: (/** @type {string} */ prop) => {
               const val = style.getPropertyValue(prop);
               // If we're asking for a variable, we might need to resolve it
               if (prop.startsWith("--")) {
-                return resolveMockValue(val, el);
+                return resolve_mock_value(val, el);
               }
               return val;
             },
-            paddingTop: resolveMockValue(el.dataset?.resolveValue || style.paddingTop, el),
-            fontSize: resolveMockValue(el.dataset?.resolveValue || style.fontSize, el),
-            transitionDuration: resolveMockValue(el.dataset?.resolveValue || style.transitionDuration, el),
-            flexGrow: resolveMockValue(el.dataset?.resolveValue || style.flexGrow, el),
-            fontFamily: resolveMockValue(el.dataset?.resolveValue || style.fontFamily, el),
+            paddingTop: resolve_mock_value(el.dataset?.resolveValue || style.paddingTop, el),
+            fontSize: resolve_mock_value(el.dataset?.resolveValue || style.fontSize, el),
+            transitionDuration: resolve_mock_value(el.dataset?.resolveValue || style.transitionDuration, el),
+            flexGrow: resolve_mock_value(el.dataset?.resolveValue || style.flexGrow, el),
+            fontFamily: resolve_mock_value(el.dataset?.resolveValue || style.fontFamily, el),
           };
 
           // Ensure fontFamily is quoted if it resolved to a string with spaces or special chars
-          if (mockStyle.fontFamily && !mockStyle.fontFamily.startsWith('"') && !mockStyle.fontFamily.startsWith("'")) {
-            if (mockStyle.fontFamily.includes(" ") || mockStyle.fontFamily.includes("(")) {
-              mockStyle.fontFamily = `"${mockStyle.fontFamily}"`;
+          if (mock_style.fontFamily && !mock_style.fontFamily.startsWith('"') && !mock_style.fontFamily.startsWith("'")) {
+            if (mock_style.fontFamily.includes(" ") || mock_style.fontFamily.includes("(")) {
+              mock_style.fontFamily = `"${mock_style.fontFamily}"`;
             }
           }
 
-          return /** @type {CSSStyleDeclaration} */ (/** @type {any} */ (mockStyle));
+          return /** @type {CSSStyleDeclaration} */ (/** @type {any} */ (mock_style));
         }
         return style;
       });
@@ -114,8 +114,8 @@ describe("dom utilities", () => {
       contextEl.remove();
     }
     // Cleanup any measurement elements
-    const measureEl = document.querySelector('div[style*="zIndex: -9999"]');
-    if (measureEl) measureEl.remove();
+    const measure_el = document.querySelector('div[style*="zIndex: -9999"]');
+    if (measure_el) measure_el.remove();
   });
 
   describe("resolve_px", () => {
@@ -278,35 +278,35 @@ describe("helpers", () => {
     });
 
     it("should throw an error if crypto.getRandomValues is not available", () => {
-      const originalCrypto = globalThis.crypto;
+      const original_crypto = globalThis.crypto;
       Object.defineProperty(globalThis, "crypto", {
-        value: { ...originalCrypto, getRandomValues: undefined },
+        value: { ...original_crypto, getRandomValues: undefined },
         configurable: true,
       });
       expect(() => generateSecureSeed()).toThrow(/crypto.getRandomValues is not available/);
       Object.defineProperty(globalThis, "crypto", {
-        value: originalCrypto,
+        value: original_crypto,
         configurable: true,
       });
     });
 
     it("should use crypto.getRandomValues", () => {
-      const originalCrypto = globalThis.crypto;
-      const mockGetRandomValues = vi.fn((arr) => {
+      const original_crypto = globalThis.crypto;
+      const mock_get_random_values = vi.fn((arr) => {
         arr[0] = 123456;
         return arr;
       });
       Object.defineProperty(globalThis, "crypto", {
-        value: { ...originalCrypto, getRandomValues: mockGetRandomValues },
+        value: { ...original_crypto, getRandomValues: mock_get_random_values },
         configurable: true,
       });
 
       const seed = generateSecureSeed(100);
-      expect(mockGetRandomValues).toHaveBeenCalled();
+      expect(mock_get_random_values).toHaveBeenCalled();
       expect(seed).toBe(123456 % 100);
 
       Object.defineProperty(globalThis, "crypto", {
-        value: originalCrypto,
+        value: original_crypto,
         configurable: true,
       });
     });
@@ -324,16 +324,16 @@ describe("helpers", () => {
       expect(uuid1).not.toBe(uuid2);
     });
     it("should throw an error if crypto.randomUUID is not available", () => {
-      const originalCrypto = globalThis.crypto;
+      const original_crypto = globalThis.crypto;
       // Mock an environment where crypto.randomUUID is missing
       Object.defineProperty(globalThis, "crypto", {
-        value: { ...originalCrypto, randomUUID: undefined },
+        value: { ...original_crypto, randomUUID: undefined },
         configurable: true,
       });
       expect(() => generateUUID()).toThrow(/crypto.randomUUID is not available/);
       // Restore the original crypto object
       Object.defineProperty(globalThis, "crypto", {
-        value: originalCrypto,
+        value: original_crypto,
         configurable: true,
       });
     });

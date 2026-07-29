@@ -1,9 +1,9 @@
 <script>
   import { Button, Modal, TextField, Toggle } from "@atoms";
-  import { app, runtime, simulationState } from "@state";
+  import { app, runtime, simulation_state } from "@state";
   import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
   import { create_new } from "@data";
-  import { llm_service, validateImage } from "@platform";
+  import { llm_service, validate_image } from "@platform";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();
 
@@ -34,45 +34,45 @@
         image_data = null;
       } else {
         // Validate image constraints
-        await validateImage(file);
+        await validate_image(file);
 
         // Read file to get base64 DataURL for the image
         const reader = new globalThis.FileReader();
-        const dataUrlPromise = new Promise((resolve, reject) => {
+        const data_url_promise = new Promise((resolve, reject) => {
           reader.onload = (event) => resolve(event.target?.result || null);
           reader.onerror = (err) => reject(err);
         });
         reader.readAsDataURL(file);
 
-        const dataUrl = await dataUrlPromise;
-        image_data = dataUrl;
+        const data_url = await data_url_promise;
+        image_data = data_url;
 
         // If PNG, attempt to extract tEXt chara chunks
         if (file.name.endsWith(".png")) {
-          const arrayBuffer = await file.arrayBuffer();
-          const buffer = new Uint8Array(arrayBuffer);
+          const array_buffer = await file.array_buffer();
+          const buffer = new Uint8Array(array_buffer);
           let offset = 8;
-          let foundText = false;
+          let found_text = false;
           while (offset < buffer.length) {
             const length = new DataView(buffer.buffer).getUint32(offset, false);
-            const typeStr = String.fromCharCode(...buffer.slice(offset + 4, offset + 8));
+            const type_str = String.fromCharCode(...buffer.slice(offset + 4, offset + 8));
 
-            if (typeStr === "tEXt") {
-              const chunkData = buffer.slice(offset + 8, offset + 8 + length);
-              const nullIdx = chunkData.indexOf(0);
-              if (nullIdx !== -1) {
-                const keyword = String.fromCharCode(...chunkData.slice(0, nullIdx));
+            if (type_str === "tEXt") {
+              const chunk_data = buffer.slice(offset + 8, offset + 8 + length);
+              const null_idx = chunk_data.indexOf(0);
+              if (null_idx !== -1) {
+                const keyword = String.fromCharCode(...chunk_data.slice(0, null_idx));
                 if (keyword === "chara") {
-                  const base64Data = String.fromCharCode(...chunkData.slice(nullIdx + 1));
-                  raw_text = atob(base64Data);
-                  foundText = true;
+                  const base64_data = String.fromCharCode(...chunk_data.slice(null_idx + 1));
+                  raw_text = atob(base64_data);
+                  found_text = true;
                   break;
                 }
               }
             }
             offset += 12 + length;
           }
-          if (!foundText) {
+          if (!found_text) {
             error_message = "No character data found inside PNG. The image was loaded, but you must manually paste the prompt.";
           }
         }
@@ -89,11 +89,11 @@
   }
 
   function trigger_file_input() {
-    const fileInput = document.createElement("input");
-    fileInput.type = "file";
-    fileInput.accept = ".json,.png,.jpg,.jpeg,.webp,.txt";
-    fileInput.onchange = handle_file_upload;
-    fileInput.click();
+    const file_input = document.createElement("input");
+    file_input.type = "file";
+    file_input.accept = ".json,.png,.jpg,.jpeg,.webp,.txt";
+    file_input.onchange = handle_file_upload;
+    file_input.click();
   }
 
   async function handle_import() {
@@ -108,17 +108,17 @@
 
     is_loading = true;
     error_message = "";
-    simulationState.set_intent_active(true);
+    simulation_state.set_intent_active(true);
 
     try {
       const promises = [];
       if (import_character) {
-        const charPayload = prompt_builder.build_profile_sorting_prompt(raw_text, "character");
-        promises.push(llm_service.enhance(charPayload).then((res) => finalize_import("character", res)));
+        const char_payload = prompt_builder.build_profile_sorting_prompt(raw_text, "character");
+        promises.push(llm_service.enhance(char_payload).then((res) => finalize_import("character", res)));
       }
       if (import_fractal) {
-        const fracPayload = prompt_builder.build_profile_sorting_prompt(raw_text, "fractal");
-        promises.push(llm_service.enhance(fracPayload).then((res) => finalize_import("fractal", res)));
+        const frac_payload = prompt_builder.build_profile_sorting_prompt(raw_text, "fractal");
+        promises.push(llm_service.enhance(frac_payload).then((res) => finalize_import("fractal", res)));
       }
 
       await Promise.all(promises);
@@ -136,18 +136,18 @@
       app.log(`Import failed: ${error_message}`, "error");
     } finally {
       is_loading = false;
-      simulationState.set_intent_active(false);
+      simulation_state.set_intent_active(false);
     }
   }
 
   async function finalize_import(type, result) {
     if (!result) return;
 
-    const cleanJsonText = strip_cognition_blocks(result).trim();
-    const startIdx = cleanJsonText.indexOf("{");
-    const endIdx = cleanJsonText.lastIndexOf("}");
-    if (startIdx >= 0 && endIdx >= 0) {
-      const cleanJson = JSON.parse(cleanJsonText.substring(startIdx, endIdx + 1));
+    const clean_json_text = strip_cognition_blocks(result).trim();
+    const start_idx = clean_json_text.indexOf("{");
+    const end_idx = clean_json_text.lastIndexOf("}");
+    if (start_idx >= 0 && end_idx >= 0) {
+      const clean_json = JSON.parse(clean_json_text.substring(start_idx, end_idx + 1));
       const entity = create_new(type);
 
       // Preserve the image extracted from upload if available
@@ -155,35 +155,35 @@
         entity.profile_picture = image_data;
       }
 
-      for (const [key, val] of Object.entries(cleanJson)) {
+      for (const [key, val] of Object.entries(clean_json)) {
         if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
         if (key === "past" || key === "future") {
           if (Array.isArray(val)) {
-            const newVectors = val.map((textStr) => {
-              const vectorStr = typeof textStr === "string" ? textStr : textStr.directive || textStr.text || JSON.stringify(textStr);
+            const new_vectors = val.map((text_str) => {
+              const vector_str = typeof text_str === "string" ? text_str : text_str.directive || text_str.text || JSON.stringify(text_str);
               return {
-                ...temporal_engine.create(vectorStr, key),
+                ...temporal_engine.create(vector_str, key),
                 id: crypto.randomUUID(),
                 emotional_weight: 5,
               };
             });
-            entity[key] = newVectors;
+            entity[key] = new_vectors;
           }
         } else if (typeof val === "object" && !Array.isArray(val)) {
-          for (const [subKey, subVal] of Object.entries(val)) {
+          for (const [sub_key, subVal] of Object.entries(val)) {
             if (typeof subVal === "string") {
               if (!entity[key]) entity[key] = {};
-              entity[key][subKey] = subVal;
+              entity[key][sub_key] = subVal;
             }
           }
         } else if (typeof val === "string") {
           // Map flat LLM keys (e.g., eternal_physical) back to nested DB schema (eternal: { physical })
           if (key.includes("_") && (key.startsWith("eternal_") || key.startsWith("present_"))) {
             const [mainKey, ...rest] = key.split("_");
-            const subKey = rest.join("_");
+            const sub_key = rest.join("_");
             if (!entity[mainKey]) entity[mainKey] = {};
-            entity[mainKey][subKey] = val;
+            entity[mainKey][sub_key] = val;
           } else {
             entity[key] = val;
           }

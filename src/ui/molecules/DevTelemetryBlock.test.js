@@ -4,7 +4,7 @@ import { describe, expect, test } from "vitest";
  * Mirror of DevTelemetryBlock's dynamic filtering logic for unit testing.
  * @param {any} meta
  */
-function processTelemetryMeta(meta = {}) {
+function process_telemetry_meta(meta = {}) {
   const ai = meta.ai || meta.dynamics || meta.snapshot?.ai || {};
   const fractal = meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {};
   const deltas = meta.deltas || [];
@@ -45,7 +45,7 @@ describe("DevTelemetryBlock Telemetry Logic", () => {
       deltas: [{ target: "ai", axis: "intensity", old_val: 55, new_val: 60, diff: 5 }],
     };
 
-    const res = processTelemetryMeta(meta);
+    const res = process_telemetry_meta(meta);
     expect(res.has_any_dynamics_changes).toBe(true);
     expect(res.changed_ai).toEqual([["intensity", 60]]);
     expect(res.changed_fractal).toEqual([]);
@@ -59,7 +59,7 @@ describe("DevTelemetryBlock Telemetry Logic", () => {
       deltas: [],
     };
 
-    const res = processTelemetryMeta(meta);
+    const res = process_telemetry_meta(meta);
     expect(res.has_any_dynamics_changes).toBe(false);
     expect(res.changed_ai).toEqual([]);
     expect(res.changed_fractal).toEqual([]);
@@ -72,7 +72,7 @@ describe("DevTelemetryBlock Telemetry Logic", () => {
       fractal: { velocity: 50 },
     };
 
-    const res = processTelemetryMeta(meta);
+    const res = process_telemetry_meta(meta);
     expect(res.has_any_dynamics_changes).toBe(true);
     expect(res.changed_ai).toEqual([
       ["chaos", 50],

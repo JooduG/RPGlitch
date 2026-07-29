@@ -53,9 +53,9 @@ describe("ProfileState setImage", () => {
 
   it("should update profile_picture and image properties, and trigger persistence with defensive trimming", async () => {
     const state = new ProfileState();
-    const mockDataUrl = "  data:image/png;base64,trimmed123 \n ";
+    const mock_data_url = "  data:image/png;base64,trimmed123 \n ";
 
-    await state.setImage(mockDataUrl);
+    await state.setImage(mock_data_url);
 
     // Assert state update and defensive trim edge-case guard
     expect(state.char.profile_picture).toBe("data:image/png;base64,trimmed123");
@@ -85,7 +85,7 @@ describe("ProfileState enhance_profile", () => {
     const state = new ProfileState();
 
     // Start enhancement
-    const enhanceCall = state.enhance_profile("character");
+    const enhance_call = state.enhance_profile("character");
 
     // Check that busy_fields are populated during enhancement
     expect(state.busy_fields.has("eternal.physical")).toBe(true);
@@ -99,7 +99,7 @@ describe("ProfileState enhance_profile", () => {
 
     // Resolve LLM call
     resolveEnhanceFn(`{"name": "Proxy"}`);
-    await enhanceCall;
+    await enhance_call;
 
     // Check that busy_fields are cleared after enhancement
     expect(state.busy_fields.has("eternal.physical")).toBe(false);

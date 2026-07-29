@@ -38,7 +38,7 @@
    * @param {HTMLElement} _node
    * @returns {import('svelte/transition').TransitionConfig}
    */
-  function profileTransition(_node) {
+  function profile_transition(_node) {
     // Return a dummy transition. Svelte won't interpolate CSS, which allows
     // the View Transition API to capture the fully blurred backdrop instantly
     // and naturally crossfade it, preventing the 300ms "snap" when VT ends.
@@ -54,9 +54,9 @@
    * @param {HTMLElement} node
    * @returns {import('svelte/transition').TransitionConfig}
    */
-  function backdropTransition(node) {
+  function backdrop_transition(node) {
     if (is_profile) {
-      return profileTransition(node);
+      return profile_transition(node);
     }
     return fade(node, { duration: 150 });
   }
@@ -89,7 +89,7 @@
     : ''}
     {className}"
   style:z-index={z_index}
-  transition:backdropTransition
+  transition:backdrop_transition
   use:use_actions={actions}
 >
   <div class="flex min-h-full w-full items-center justify-center {is_profile ? 'p-0' : 'p-4 sm:p-8'}">

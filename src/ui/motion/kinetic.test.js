@@ -33,10 +33,10 @@ describe("kinetic utilities", () => {
     it("cancels existing animation on trigger", () => {
       const action = pulse(node);
       node.dispatchEvent(new MouseEvent("mouseenter"));
-      const firstAnim = /** @type {any} */ (node.animate).mock.results[0].value;
+      const first_anim = /** @type {any} */ (node.animate).mock.results[0].value;
 
       node.dispatchEvent(new MouseEvent("mouseenter"));
-      expect(firstAnim.cancel).toHaveBeenCalled();
+      expect(first_anim.cancel).toHaveBeenCalled();
       action.destroy?.();
     });
 
@@ -49,13 +49,13 @@ describe("kinetic utilities", () => {
 
       // Should have called animate twice (one for pulse, one for return)
       expect(node.animate).toHaveBeenCalledTimes(2);
-      const returnAnim = /** @type {any} */ (node.animate).mock.results[1].value;
+      const return_anim = /** @type {any} */ (node.animate).mock.results[1].value;
 
       // Dataset should stay true (capability flag)
       expect(node.dataset.kinetic).toBe("true");
 
       // Trigger finish
-      if (returnAnim.onfinish) returnAnim.onfinish();
+      if (return_anim.onfinish) return_anim.onfinish();
       expect(node.dataset.kinetic).toBe("true");
       action.destroy?.();
     });
@@ -68,16 +68,16 @@ describe("kinetic utilities", () => {
 
       // 2. Stop (starts return_anim)
       node.dispatchEvent(new MouseEvent("mouseleave"));
-      const returnAnim1 = /** @type {any} */ (node.animate).mock.results[1].value;
+      const return_anim1 = /** @type {any} */ (node.animate).mock.results[1].value;
 
       // 3. Trigger pulse again before return_anim finishes
       node.dispatchEvent(new MouseEvent("mouseenter"));
 
       // return_anim1 should have been cancelled
-      expect(returnAnim1.cancel).toHaveBeenCalled();
+      expect(return_anim1.cancel).toHaveBeenCalled();
       expect(node.dataset.kinetic).toBe("true");
 
-      // 4. Simulate returnAnim1.onfinish (which might still fire if not cancelled correctly,
+      // 4. Simulate return_anim1.onfinish (which might still fire if not cancelled correctly,
       // but our code should have cleared the reference or the listener shouldn't fire if cancelled)
       // Even if it fires, it should have been the reference from the previous call.
 

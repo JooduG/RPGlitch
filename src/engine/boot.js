@@ -2,7 +2,7 @@ import { seed_premades } from "@data";
 import { Audio } from "@media";
 import { state_bridge } from "@utils";
 import App from "../App.svelte";
-import { sanitizeToFragment } from "@platform";
+import { sanitize_to_fragment } from "@platform";
 import { mount } from "svelte";
 import { embeddings_engine } from "@intelligence";
 
@@ -59,7 +59,7 @@ export const AppBootstrap = {
                     <pre id="error-stack" style="background:var(--color-glass-sunken); padding:calc(var(--spacing-spacing-unit) * 4); border-radius:var(--radius-sharp); color:var(--color-crimson-red); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `;
-      const fragment = sanitizeToFragment(error_template);
+      const fragment = sanitize_to_fragment(error_template);
 
       // Use textContent for safety
       const error_stack = fragment.querySelector("#user-content-error-stack");

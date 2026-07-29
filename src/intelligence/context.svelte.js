@@ -39,18 +39,18 @@ const SNAPSHOT_ITEM_CACHE = new Map();
 function get_sanitized_text(msg) {
   if (!msg || typeof msg !== "object") return "";
 
-  const cacheKey = msg.id || msg.text || msg.content || "";
-  if (RAW_CACHE.has(cacheKey)) return RAW_CACHE.get(cacheKey);
+  const cache_key = msg.id || msg.text || msg.content || "";
+  if (RAW_CACHE.has(cache_key)) return RAW_CACHE.get(cache_key);
 
   const raw = msg.text || msg.content || "";
   const sanitized = strip_cognition_blocks(raw).trim();
 
   if (RAW_CACHE.size >= MAX_CACHE_SIZE) {
-    const firstKey = RAW_CACHE.keys().next().value;
-    RAW_CACHE.delete(firstKey);
+    const first_key = RAW_CACHE.keys().next().value;
+    RAW_CACHE.delete(first_key);
   }
 
-  RAW_CACHE.set(cacheKey, sanitized);
+  RAW_CACHE.set(cache_key, sanitized);
   return sanitized;
 }
 
@@ -85,21 +85,21 @@ function to_data_points(entity) {
   if (!entity) return [];
   /** @type {DataPoint[]} */
   const list = [];
-  Object.entries(ENTITY_CATALOG).forEach(([fieldId, metadata]) => {
-    if (fieldId.startsWith("character.") || fieldId.startsWith("fractal.")) return;
+  Object.entries(ENTITY_CATALOG).forEach(([field_id, metadata]) => {
+    if (field_id.startsWith("character.") || field_id.startsWith("fractal.")) return;
 
-    let val = get_path_value(entity, fieldId);
+    let val = get_path_value(entity, field_id);
 
     if (val && typeof val === "string") {
-      const isEternal = metadata.layer_key?.toLowerCase() === "eternal";
-      const isPhysical = fieldId.endsWith(".physical");
+      const is_eternal = metadata.layer_key?.toLowerCase() === "eternal";
+      const is_physical = field_id.endsWith(".physical");
       list.push({
         text: clean_text(val, 2000),
-        type: isPhysical ? "Physical" : (metadata.label ?? "unknown"),
+        type: is_physical ? "Physical" : (metadata.label ?? "unknown"),
         enhancer: metadata.enhancer ?? "SYSTEM",
         section: metadata.section_label || "Present",
         layer: metadata.layer_key,
-        emotional_weight: metadata.emotional_weight ?? (isEternal ? 10 : 5),
+        emotional_weight: metadata.emotional_weight ?? (is_eternal ? 10 : 5),
         density_multiplier: metadata.density_multiplier ?? 1.0,
       });
     }
@@ -245,8 +245,8 @@ export const context_broker = {
         const formatted = `[${owner}]: ${clean_text(stripped, 500)}`;
         if (m && typeof m === "object" && m.id) {
           if (SNAPSHOT_ITEM_CACHE.size >= MAX_CACHE_SIZE) {
-            const firstKey = SNAPSHOT_ITEM_CACHE.keys().next().value;
-            SNAPSHOT_ITEM_CACHE.delete(firstKey);
+            const first_key = SNAPSHOT_ITEM_CACHE.keys().next().value;
+            SNAPSHOT_ITEM_CACHE.delete(first_key);
           }
           SNAPSHOT_ITEM_CACHE.set(m.id, formatted);
         }
@@ -332,11 +332,11 @@ export const context_broker = {
         const text = (dp?.text || "").toLowerCase();
         const layer = (dp?.layer || "").toLowerCase();
 
-        let hitCount = 0;
+        let hit_count = 0;
         for (const k of keywords) {
           let idx = text.indexOf(k);
           while (idx !== -1) {
-            hitCount++;
+            hit_count++;
             idx = text.indexOf(k, idx + k.length);
           }
         }
@@ -344,7 +344,7 @@ export const context_broker = {
         const emotional_weight = dp.emotional_weight ?? (layer === "eternal" ? 10 : 5);
         const density_multiplier = dp.density_multiplier ?? 1.0;
 
-        let score = hitCount * density_multiplier + emotional_weight;
+        let score = hit_count * density_multiplier + emotional_weight;
         if (layer === "eternal") score += 1000;
 
         return { dp, score };

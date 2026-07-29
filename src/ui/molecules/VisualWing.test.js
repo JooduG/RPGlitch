@@ -10,12 +10,12 @@ const TextToImage = {
   generate: vi.fn(),
   upload: vi.fn(),
 };
-// Replicate handleCreativeAction logic for verification
+// Replicate handle_creative_action logic for verification
 // We verify the LOGIC FLOW, since mounting the Svelte 5 component in this Node env is complex.
 /**
  * @param {any} char
  */
-function ensureModifiers(char) {
+function ensure_modifiers(char) {
   if (!char.modifiers) {
     char.modifiers = {
       prompt: "",
@@ -40,12 +40,12 @@ function ensureModifiers(char) {
 /**
  * @param {any} ctx
  */
-async function handleCreativeAction(ctx) {
+async function handle_creative_action(ctx) {
   let { busyField, activeField, char, isEnhanceMode, enhancementType } = ctx;
   if (busyField) return { ...ctx, result: "busy" };
   // Fix Logic under test:
-  const currentTargetKey = activeField?.key; // This used to crash if activeField null
-  busyField = currentTargetKey || "visual-prompt";
+  const current_target_key = activeField?.key; // This used to crash if activeField null
+  busyField = current_target_key || "visual-prompt";
   try {
     if (activeField && isEnhanceMode) {
       if (enhancementType === "generative") {
@@ -64,31 +64,31 @@ async function handleCreativeAction(ctx) {
   }
 }
 describe("VisualWing Stability (Hotfix)", () => {
-  test("ensureModifiers initializes missing modifiers object", () => {
+  test("ensure_modifiers initializes missing modifiers object", () => {
     /** @type {any} */
     const char = {};
-    ensureModifiers(char);
+    ensure_modifiers(char);
     expect(char.modifiers).toBeDefined();
     expect(char.modifiers.prompt).toBe("");
     expect(char.modifiers.negative_prompt).toBe("");
     expect(char.modifiers.no_background).toBe(false);
   });
 
-  test("ensureModifiers preserves existing modifiers and fills missing fields", () => {
+  test("ensure_modifiers preserves existing modifiers and fills missing fields", () => {
     /** @type {any} */
     const char = {
       modifiers: {
         prompt: "Existing prompt",
       },
     };
-    ensureModifiers(char);
+    ensure_modifiers(char);
     expect(char.modifiers.prompt).toBe("Existing prompt");
     expect(char.modifiers.negative_prompt).toBe("");
     expect(char.modifiers.no_background).toBe(false);
     expect(char.modifiers.profile_picture_seed).toBe(0);
   });
 
-  test("handleCreativeAction SAFE when activeField is NULL (Fetch Mode)", async () => {
+  test("handle_creative_action SAFE when activeField is NULL (Fetch Mode)", async () => {
     const context = {
       busyField: null,
       activeField: null, // The crash condition
@@ -96,12 +96,12 @@ describe("VisualWing Stability (Hotfix)", () => {
       isEnhanceMode: false,
       enhancementType: null,
     };
-    const result = await handleCreativeAction(context);
+    const result = await handle_creative_action(context);
     expect(result.result).toBe("success");
     expect(TextToImage.composeBasePrompt).toHaveBeenCalled();
     expect(result.error).toBeUndefined();
   });
-  test("handleCreativeAction runs Enhance when fields present", async () => {
+  test("handle_creative_action runs Enhance when fields present", async () => {
     const context = {
       busyField: null,
       activeField: { key: "visual-prompt", label: "Image Prompt" },
@@ -109,21 +109,21 @@ describe("VisualWing Stability (Hotfix)", () => {
       isEnhanceMode: true,
       enhancementType: "generative",
     };
-    const result = await handleCreativeAction(context);
+    const result = await handle_creative_action(context);
     expect(result.result).toBe("success");
   });
 
-  test("handleCreativeAction writes both prompt and negative_prompt from Refine result", () => {
+  test("handle_creative_action writes both prompt and negative_prompt from Refine result", () => {
     /** @type {any} */
     const char = { modifiers: { prompt: "old prompt", negative_prompt: "" } };
     // Simulate refine result update logic from handle_creative_action
-    const refineResult = {
+    const refine_result = {
       prompt: "RAW photograph of a character, sharp focus, 8k.",
-      negativePrompt: "blurry, low quality, anime",
+      negative_prompt: "blurry, low quality, anime",
     };
-    if (refineResult) {
-      if (refineResult.prompt) char.modifiers.prompt = refineResult.prompt;
-      if (refineResult.negativePrompt) char.modifiers.negative_prompt = refineResult.negativePrompt;
+    if (refine_result) {
+      if (refine_result.prompt) char.modifiers.prompt = refine_result.prompt;
+      if (refine_result.negative_prompt) char.modifiers.negative_prompt = refine_result.negative_prompt;
     }
     expect(char.modifiers.prompt).toBe("RAW photograph of a character, sharp focus, 8k.");
     expect(char.modifiers.negative_prompt).toBe("blurry, low quality, anime");

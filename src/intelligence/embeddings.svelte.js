@@ -7,15 +7,15 @@
 
 let _pipeline = null;
 let _loading = null;
-let _loadProgress = $state(0);
-let _isLoading = $state(false);
-let _modelReady = $state(false);
+let _load_progress = $state(0);
+let _is_loading = $state(false);
+let _model_ready = $state(false);
 
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 const EMBED_DIM = 384;
 
 /** @type {Record<string, number>} */
-const fileProgress = {};
+const file_progress = {};
 
 /**
  * Loads the transformers.js pipeline with progress tracking.
@@ -24,14 +24,14 @@ const fileProgress = {};
  */
 export async function load_model() {
   if (_pipeline) {
-    _modelReady = true;
-    _loadProgress = 100;
-    _isLoading = false;
+    _model_ready = true;
+    _load_progress = 100;
+    _is_loading = false;
     return _pipeline;
   }
   if (_loading) return _loading;
 
-  _isLoading = true;
+  _is_loading = true;
   _loading = (async () => {
     try {
       const transformers = await import("https://esm.sh/@huggingface/transformers@3.5.2");
@@ -39,24 +39,24 @@ export async function load_model() {
         progress_callback: (/** @type {any} */ data) => {
           if (data && (data.status === "progress" || data.status === "download")) {
             if (data.file && typeof data.progress === "number") {
-              fileProgress[data.file] = data.progress;
-              const values = Object.values(fileProgress);
+              file_progress[data.file] = data.progress;
+              const values = Object.values(file_progress);
               const avg = values.reduce((a, b) => a + b, 0) / values.length;
-              _loadProgress = Math.round(avg);
+              _load_progress = Math.round(avg);
             }
           }
         },
       });
-      _loadProgress = 100;
-      _modelReady = true;
+      _load_progress = 100;
+      _model_ready = true;
       return _pipeline;
     } catch (err) {
       console.error("[Embeddings] Failed to load model:", err);
-      _modelReady = true;
-      _loadProgress = 100;
+      _model_ready = true;
+      _load_progress = 100;
       throw err;
     } finally {
-      _isLoading = false;
+      _is_loading = false;
       _loading = null;
     }
   })();
@@ -85,10 +85,10 @@ const MAX_CACHE = 500;
 export async function embed(text) {
   if (!text || !text.trim()) return null;
 
-  const cacheKey = text.trim();
-  if (cacheKey.length > 2000) return null;
+  const cache_key = text.trim();
+  if (cache_key.length > 2000) return null;
 
-  if (_embedding_cache.has(cacheKey)) return _embedding_cache.get(cacheKey);
+  if (_embedding_cache.has(cache_key)) return _embedding_cache.get(cache_key);
 
   try {
     const pipe = await get_pipeline();
@@ -96,10 +96,10 @@ export async function embed(text) {
     const embedding = new Float32Array(output.data);
 
     if (_embedding_cache.size >= MAX_CACHE) {
-      const firstKey = _embedding_cache.keys().next().value;
-      _embedding_cache.delete(firstKey);
+      const first_key = _embedding_cache.keys().next().value;
+      _embedding_cache.delete(first_key);
     }
-    _embedding_cache.set(cacheKey, embedding);
+    _embedding_cache.set(cache_key, embedding);
     return embedding;
   } catch (err) {
     console.warn("[Embeddings] Embed failed for text:", text.substring(0, 60), err);
@@ -180,7 +180,7 @@ export async function score_by_semantics(vectors, context_text) {
  * @returns {boolean}
  */
 export function is_ready() {
-  return _pipeline !== null || _modelReady;
+  return _pipeline !== null || _model_ready;
 }
 
 export const embeddings_engine = {
@@ -192,12 +192,12 @@ export const embeddings_engine = {
   load_model,
   is_ready,
   get loadProgress() {
-    return _loadProgress;
+    return _load_progress;
   },
   get isLoading() {
-    return _isLoading;
+    return _is_loading;
   },
   get modelReady() {
-    return _modelReady || _pipeline !== null;
+    return _model_ready || _pipeline !== null;
   },
 };

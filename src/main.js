@@ -25,8 +25,8 @@ Object.assign(window, { Dexie, DOMPurify });
  * latency (one frame ~16ms) and errors thrown inside callbacks are caught and logged.
  */
 if (typeof window !== "undefined" && typeof ResizeObserver !== "undefined") {
-  const _OrigRO = ResizeObserver;
-  class SafeResizeObserver extends _OrigRO {
+  const _orig_ro = ResizeObserver;
+  class SafeResizeObserver extends _orig_ro {
     /**
      * @param {ResizeObserverCallback} callback
      */
@@ -44,7 +44,7 @@ if (typeof window !== "undefined" && typeof ResizeObserver !== "undefined") {
     }
   }
   // Preserve static props (e.g. any future browser additions)
-  Object.setPrototypeOf(SafeResizeObserver, _OrigRO);
+  Object.setPrototypeOf(SafeResizeObserver, _orig_ro);
   Object.defineProperty(window, "ResizeObserver", {
     value: SafeResizeObserver,
     writable: true,
@@ -61,7 +61,7 @@ if (typeof window !== "undefined") {
     if (msg && String(msg).includes(RO_LOOP)) return true; // suppress
     return _orig_onerror ? _orig_onerror.call(this, msg, source, lineno, colno, error) : false;
   };
-  const _orig_addEventListener = window.addEventListener;
+  const _orig_add_event_listener = window.addEventListener;
   window.addEventListener = function (type, listener, options) {
     if (type === "error") {
       const wrapped = (event) => {
@@ -69,9 +69,9 @@ if (typeof window !== "undefined") {
         if (m && String(m).includes(RO_LOOP)) return;
         return listener.call(this, event);
       };
-      return _orig_addEventListener.call(this, type, wrapped, options);
+      return _orig_add_event_listener.call(this, type, wrapped, options);
     }
-    return _orig_addEventListener.call(this, type, listener, options);
+    return _orig_add_event_listener.call(this, type, listener, options);
   };
 }
 

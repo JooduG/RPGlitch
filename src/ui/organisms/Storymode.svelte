@@ -13,7 +13,7 @@
   import { clean_image_prompts } from "@intelligence";
   import { Audio } from "@media";
   import { Chrono } from "@engine";
-  import { app, runtime, simulation_log, simulationState } from "@state";
+  import { app, runtime, simulation_log, simulation_state } from "@state";
   import { motion } from "@motion";
   import { Dialog } from "@molecules";
   import { Message } from "@organisms";
@@ -39,27 +39,27 @@
     if (app.streaming.active && !was_streaming) {
       spoken_character_cursor = 0;
 
-      const activeRole = app.streaming.role;
+      const active_role = app.streaming.role;
       // Only hard-stop voice on same-role transitions (e.g., retry).
       // For cross-role transitions (fractal → ai), let the queue drain naturally —
       // the activeMessageId mechanism skips old sentences at sentence boundaries.
-      if (last_streaming_role === activeRole) {
+      if (last_streaming_role === active_role) {
         Audio.voice.stop();
       }
-      last_streaming_role = activeRole;
+      last_streaming_role = active_role;
 
       // Resolve the speaking entity and sync the master voice switch to its per-entity toggle.
       // This lets each entity own its own voice activation independently.
-      if (activeRole === "ai" || activeRole === "fractal") {
-        const entity = activeRole === "ai" ? runtime.active_ai || app.selected_ai : runtime.active_fractal || app.selected_fractal;
+      if (active_role === "ai" || active_role === "fractal") {
+        const entity = active_role === "ai" ? runtime.active_ai || app.selected_ai : runtime.active_fractal || app.selected_fractal;
 
-        Audio.voice.enabled = !!Audio.voice.entity_voice[activeRole];
+        Audio.voice.enabled = !!Audio.voice.entity_voice[active_role];
 
         if (entity && entity.voice) {
           Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
           Audio.voice.rate = entity.voice.rate ?? 1.0;
         }
-      } else if (activeRole === "user") {
+      } else if (active_role === "user") {
         Audio.voice.enabled = !!Audio.voice.entity_voice.user;
       }
     }
@@ -80,7 +80,7 @@
         const clean_sentence = clean_image_prompts(structural_sentence).trim();
 
         if (clean_sentence) {
-          Audio.voice.activeMessageId = app.streaming.nodeId ?? app.streaming.node_id;
+          Audio.voice.activeMessageId = app.streaming.node_id ?? app.streaming.node_id;
           Audio.voice.speak(clean_sentence, false);
         }
 
@@ -105,7 +105,7 @@
         const clean_remainder = clean_image_prompts(remaining_text).trim();
 
         if (clean_remainder) {
-          Audio.voice.activeMessageId = app.streaming.nodeId ?? app.streaming.node_id;
+          Audio.voice.activeMessageId = app.streaming.node_id ?? app.streaming.node_id;
           Audio.voice.speak(clean_remainder, false);
         }
       }
@@ -126,23 +126,23 @@
   }
 
   // Turn state orchestration
-  let is_active_turn = $derived(simulationState.phase === "generating" || app.streaming.active);
+  let is_active_turn = $derived(simulation_state.phase === "generating" || app.streaming.active);
   let active_turn_role = $derived.by(() => {
     if (app.streaming.active) return app.streaming.role;
     // During image generation, always fall back to "ai" so the busy
     // bubble renders left-aligned regardless of intermediate typing roles.
-    if (simulationState.phase === "generating") {
+    if (simulation_state.phase === "generating") {
       if (
-        simulationState.role === "selfie" ||
-        simulationState.role === "character" ||
-        simulationState.role === "characters" ||
-        simulationState.role === "setting" ||
-        simulationState.role === "paparazzi"
+        simulation_state.role === "selfie" ||
+        simulation_state.role === "character" ||
+        simulation_state.role === "characters" ||
+        simulation_state.role === "setting" ||
+        simulation_state.role === "paparazzi"
       )
         return "ai";
-      return simulationState.role ?? "ai";
+      return simulation_state.role ?? "ai";
     }
-    return simulationState.role;
+    return simulation_state.role;
   });
   let active_turn_name = $derived.by(() => {
     if (active_turn_role === "ai") return app.selected_ai?.name;
@@ -153,7 +153,7 @@
   let visible_feed = $derived.by(() => {
     const list = [...simulation_log.feed];
     if (is_active_turn && app.streaming.active) {
-      const active_id = app.streaming.nodeId ?? app.streaming.node_id ?? "temp";
+      const active_id = app.streaming.node_id ?? app.streaming.node_id ?? "temp";
       if (!list.some((entry) => entry.id === active_id)) {
         list.push({
           id: active_id,
@@ -177,8 +177,8 @@
     if (!el) return;
 
     const handle_scroll = () => {
-      const distanceToBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      user_scrolled_up = distanceToBottom > 10;
+      const distance_to_bottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+      user_scrolled_up = distance_to_bottom > 10;
     };
 
     el.addEventListener("scroll", handle_scroll, { passive: true });
@@ -190,7 +190,7 @@
   // Advanced Kinetic Viewport Auto-Scroll Controller
   $effect(() => {
     // Read dependencies to trigger effect
-    const _isActive = app.streaming.active;
+    const _is_active = app.streaming.active;
     const current_len = visible_feed.length;
 
     if (!scroll_ref) return;
@@ -346,7 +346,7 @@
         "
       >
         <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
-        <Button variant="primary" onclick={() => Chrono.retry()} disabled={simulationState.busy} label="Retry Connection" />
+        <Button variant="primary" onclick={() => Chrono.retry()} disabled={simulation_state.busy} label="Retry Connection" />
       </div>
     {/if}
 

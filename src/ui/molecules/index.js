@@ -7,6 +7,6 @@ export { default as EntityCard } from "./EntityCard.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
 export { default as ImportModal } from "./ImportModal.svelte";
 export { default as ImageRegenerate } from "./ImageRegenerate.svelte";
-export { imagePreview, openImagePreview, closeImagePreview, default as ImagePreview } from "./ImagePreview.svelte";
+export { image_preview, open_image_preview, close_image_preview, default as ImagePreview } from "./ImagePreview.svelte";
 export * from "./ImageRegenerate.svelte.js";
 export * from "./EntityCardContextMenu.svelte.js";

@@ -13,7 +13,7 @@ import { normalize, STORAGE_VERSION } from "./normalizer.js";
 import { premade } from "./presets/premades.js";
 
 const error = console.error;
-const premadeEntityMap = new Map((premade?.entities || []).map((e) => [e.id, e]));
+const premade_entity_map = new Map((premade?.entities || []).map((e) => [e.id, e]));
 // ============================================================================
 // 1. DATA SEEDING (The Entity Foundry)
 // ============================================================================
@@ -27,19 +27,19 @@ export const seed_premades = async () => {
   if (typeof globalThis !== "undefined") g._seeding = true;
   try {
     const existing = await db.entities.toArray();
-    const toAdd = [];
-    const existingIds = new Set();
+    const to_add = [];
+    const existing_ids = new Set();
     for (const e of existing) {
-      if (e.id != null) existingIds.add(e.id);
-      if (e.originId != null) existingIds.add(e.originId);
+      if (e.id != null) existing_ids.add(e.id);
+      if (e.originId != null) existing_ids.add(e.originId);
     }
     for (const bp of premade.entities) {
       // Check by ID or originId to prevent duplicates of factory stock
-      const hasChild = existingIds.has(bp.id);
-      if (!hasChild) {
+      const has_child = existing_ids.has(bp.id);
+      if (!has_child) {
         // Trust the Normalizer to handle flattening and type-aware dynamics
         const normalized = normalize(bp);
-        toAdd.push({
+        to_add.push({
           ...normalized,
           id: bp.id,
           originId: bp.id,
@@ -52,8 +52,8 @@ export const seed_premades = async () => {
         });
       }
     }
-    if (toAdd.length > 0) {
-      await db.entities.bulkPut(toAdd);
+    if (to_add.length > 0) {
+      await db.entities.bulkPut(to_add);
     }
   } catch (err) {
     error("Foundry Error: Failed to seed the premade gods.", err);
@@ -86,7 +86,7 @@ export const entities = {
   async get(type, id) {
     try {
       let item = await db.entities.get(id);
-      if (!item) item = premadeEntityMap.get(id);
+      if (!item) item = premade_entity_map.get(id);
       return item && item.type === type ? item : null;
     } catch (err) {
       error(`Failed to fetch ${type} [${id}] from the void:`, err);
@@ -104,10 +104,10 @@ export const entities = {
       const id = entity.id || crypto.randomUUID();
       const base = (await db.entities.get(id)) || {};
       // Break the Svelte 5 Proxy chains - deep clone for safety
-      const cleanEntity = JSON.parse(JSON.stringify(entity));
+      const clean_entity = JSON.parse(JSON.stringify(entity));
       const saved = {
         ...base,
-        ...normalize({ ...base, ...cleanEntity }),
+        ...normalize({ ...base, ...clean_entity }),
         id,
         type: type,
         isCustom: 1,
@@ -147,10 +147,10 @@ export const entities = {
    */
   async update(type, id, data) {
     try {
-      const cleanData = JSON.parse(JSON.stringify(data));
+      const clean_data = JSON.parse(JSON.stringify(data));
       const item = await db.entities.get(id);
       if (item && item.type === type) {
-        return db.entities.update(id, cleanData);
+        return db.entities.update(id, clean_data);
       }
     } catch (err) {
       error(`Failed to update ${type} [${id}]:`, err);
@@ -168,21 +168,21 @@ export const stories = {
    */
   async list() {
     try {
-      const allStories = await db.stories.orderBy("updated_at").reverse().toArray();
+      const all_stories = await db.stories.orderBy("updated_at").reverse().toArray();
 
       // Batch fetch fractals to avoid N+1 queries
-      const fractalIds = [...new Set(allStories.filter((s) => s.fractal_id).map((s) => s.fractal_id))];
+      const fractal_ids = [...new Set(all_stories.filter((s) => s.fractal_id).map((s) => s.fractal_id))];
       const fractals = await db.entities
         .where("id")
-        .anyOf(/** @type {any[]} */ (fractalIds))
+        .anyOf(/** @type {any[]} */ (fractal_ids))
         .toArray();
-      const fractalMap = new Map(fractals.map((f) => [f.id, f]));
+      const fractal_map = new Map(fractals.map((f) => [f.id, f]));
 
-      const uniqueMap = new Map();
-      for (const story of allStories) {
-        if (!uniqueMap.has(story.id)) {
-          const fractal = fractalMap.get(story.fractal_id);
-          uniqueMap.set(story.id, {
+      const unique_map = new Map();
+      for (const story of all_stories) {
+        if (!unique_map.has(story.id)) {
+          const fractal = fractal_map.get(story.fractal_id);
+          unique_map.set(story.id, {
             id: story.id,
             title: story.title || "Untitled Fragment",
             state: story.isConcluded ? "concluded" : "active",
@@ -193,7 +193,7 @@ export const stories = {
           });
         }
       }
-      return Array.from(uniqueMap.values());
+      return Array.from(unique_map.values());
     } catch (err) {
       error("Archive Failure: Failed to list narrative records.", err);
       return [];

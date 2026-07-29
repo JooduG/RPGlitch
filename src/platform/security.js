@@ -15,7 +15,7 @@ export const sanitize = (dirty) => {
 /**
  * @param {any} dirty
  */
-export const sanitizeToFragment = (dirty) => {
+export const sanitize_to_fragment = (dirty) => {
   if (typeof window === "undefined") return dirty;
   return DOMPurify.sanitize(dirty, { RETURN_DOM_FRAGMENT: true, SANITIZE_DOM: true, SANITIZE_NAMED_PROPS: true }); // DocumentFragment output
 };
@@ -31,7 +31,7 @@ export const escape = (str) => {
  * Currently a pass-through placeholder that always returns false.
  * @returns {boolean}
  */
-export const checkRefusal = (text) => {
+export const check_refusal = (text) => {
   if (!text) return false;
   const lower = String(text).toLowerCase();
   const REFUSAL_TRIGGERS = ["i cannot", "i can't", "cannot generate", "policy", "guidelines", "sorry, but"];
@@ -40,28 +40,28 @@ export const checkRefusal = (text) => {
 /**
  * Validates an image file for size, type, and magic numbers.
  * @param {File} file - The file to validate.
- * @param {any} [options] - Validation options (maxSize, allowedTypes).
+ * @param {any} [options] - Validation options (max_size, allowed_types).
  * @returns {Promise<boolean>} - Resolves if valid, throws error otherwise.
  */
-export const validateImage = async (file, options = {}) => {
-  const maxSize = /** @type {any} */ (options).maxSize ?? 25 * 1024 * 1024; // Default 25MB
-  const allowedTypes = /** @type {any} */ (options).allowedTypes ?? ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
+export const validate_image = async (file, options = {}) => {
+  const max_size = /** @type {any} */ (options).max_size ?? 25 * 1024 * 1024; // Default 25MB
+  const allowed_types = /** @type {any} */ (options).allowed_types ?? ["image/jpeg", "image/png", "image/webp", "image/gif", "image/avif"];
 
   if (!file) throw new Error("No file provided");
 
   // 1. Size Check
-  if (file.size > maxSize) {
-    throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max limit: ${maxSize / 1024 / 1024}MB`);
+  if (file.size > max_size) {
+    throw new Error(`File too large: ${(file.size / 1024 / 1024).toFixed(2)}MB. Max limit: ${max_size / 1024 / 1024}MB`);
   }
 
   // 2. MIME Type Check
-  if (!allowedTypes.includes(file.type)) {
-    throw new Error(`Invalid file type: ${file.type}. Allowed types: ${allowedTypes.join(", ")}`);
+  if (!allowed_types.includes(file.type)) {
+    throw new Error(`Invalid file type: ${file.type}. Allowed types: ${allowed_types.join(", ")}`);
   }
 
   // 3. Magic Number Verification (File Signature)
   // We read the first 12 bytes to cover JPEG, PNG, GIF, and WebP
-  const buffer = await file.slice(0, 12).arrayBuffer();
+  const buffer = await file.slice(0, 12).array_buffer();
   const header = new Uint8Array(buffer);
   const signatures = {
     "image/jpeg": (/** @type {Uint8Array} */ h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
@@ -86,10 +86,10 @@ export const validateImage = async (file, options = {}) => {
 
 export const Security = {
   sanitize,
-  sanitizeToFragment,
+  sanitize_to_fragment,
   escape,
-  checkRefusal,
-  validateImage,
+  check_refusal,
+  validate_image,
   /**
    * 🛡️ PROCESS (Causality & Physics Scan)
    * Evaluates if an action is possible within the current simulation context.

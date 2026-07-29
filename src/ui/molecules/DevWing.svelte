@@ -10,11 +10,11 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('@organisms/Profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/Profile.svelte.js').ProfileState} profile_state - The profile state controller
    */
 
   /** @type {Props} */
-  let { profileState } = $props();
+  let { profile_state } = $props();
 
   /**
    * Formats timestamps to a standard Swedish/ISO-adjacent format.
@@ -36,7 +36,7 @@
    */
   let active_dynamics = $derived.by(() => {
     const list = [];
-    const entity = profileState.char;
+    const entity = profile_state.char;
     if (entity?.dynamics) {
       for (const key of Object.keys(entity.dynamics)) {
         list.push({
@@ -72,7 +72,7 @@
     "
   >
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
-      <Meter {profileState} {dynamic} />
+      <Meter {profile_state} {dynamic} />
     {/each}
   </div>
 
@@ -80,7 +80,7 @@
   <Accordion label="View JSON Data">
     <div class="pt-2 pb-4">
       <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
-        <pre class="font-mono">{JSON.stringify(profileState.char, null, 2)}</pre>
+        <pre class="font-mono">{JSON.stringify(profile_state.char, null, 2)}</pre>
       </DataBox>
     </div>
   </Accordion>
@@ -110,7 +110,7 @@
           opacity-60
         ">Born:</span
       >
-      <span class="text-slate-50">{format_timestamp(profileState.char.created_at)}</span>
+      <span class="text-slate-50">{format_timestamp(profile_state.char.created_at)}</span>
     </div>
     <div
       class="
@@ -129,7 +129,7 @@
           opacity-60
         ">Sync:</span
       >
-      <span class="text-slate-50">{format_timestamp(profileState.char.updated_at)}</span>
+      <span class="text-slate-50">{format_timestamp(profile_state.char.updated_at)}</span>
     </div>
   </footer>
 </section>

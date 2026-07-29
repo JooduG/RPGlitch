@@ -7,7 +7,7 @@
    */
 
   import { ProfilePicture, StyleBadge } from "@atoms";
-  import { guardedTransition } from "@engine";
+  import { guarded_transition } from "@engine";
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
   import { app } from "@state";
@@ -182,7 +182,7 @@
   let select_handler = $derived(onclick || on_select || (() => {}));
 
   /**
-   * Helper to perform the actual entity selection, wrapped inside guardedTransition.
+   * Helper to perform the actual entity selection, wrapped inside guarded_transition.
    */
   function trigger_selection() {
     if (launch_triggered || !is_launching) return;
@@ -191,30 +191,31 @@
     // Manually strip view-transition-name from any existing panel/slot cards of this type in the DOM
     // to guarantee zero duplicate transition name errors during snapshot capture.
     try {
-      const targetName = "card-slot-" + type;
+      const target_name = "card-slot-" + type;
       const elements = document.querySelectorAll("[data-card-root]");
       elements.forEach((/** @type {any} */ el) => {
-        const styleAttr = el.getAttribute("style") || "";
-        const hasTransitionName = styleAttr.includes("view-transition-name");
-        const currentName = (el.style.getPropertyValue("view-transition-name") || el.style.viewTransitionName || "").trim();
+        const style_attr = el.getAttribute("style") || "";
+        const has_transition_name = style_attr.includes("view-transition-name");
+        const current_name = (el.style.getPropertyValue("view-transition-name") || el.style.viewTransitionName || "").trim();
 
-        const isMatch = currentName === targetName || currentName === `"${targetName}"` || (hasTransitionName && styleAttr.includes(targetName));
+        const is_match =
+          current_name === target_name || current_name === `"${target_name}"` || (has_transition_name && style_attr.includes(target_name));
 
-        if (isMatch && el !== root_el) {
+        if (is_match && el !== root_el) {
           el.style.removeProperty("view-transition-name");
           // Bulletproof fallback: manually strip the property from the style attribute directly
-          const cleanedStyle = styleAttr
+          const cleaned_style = style_attr
             .split(";")
             .filter((/** @type {string} */ part) => !part.trim().startsWith("view-transition-name"))
             .join(";");
-          el.setAttribute("style", cleanedStyle);
+          el.setAttribute("style", cleaned_style);
         }
       });
     } catch (err) {
       console.warn("[ViewTransition] DOM pre-flight sweep failed:", err);
     }
 
-    guardedTransition(
+    guarded_transition(
       () => {
         flushSync(() => {
           is_launching = false; // Remove view-transition-name from old element before capture

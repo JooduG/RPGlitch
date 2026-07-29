@@ -19,7 +19,7 @@
     // Data
     value = $bindable(""),
     placeholder = "Enter text...",
-    syncId = null,
+    sync_id = null,
 
     // State
     is_edit = false,
@@ -114,7 +114,7 @@
 
   // --- DERIVED LOGIC ---
   let is_disabled = $derived(disabled || busy);
-  let is_sync_focused = $derived(syncId ? (sync_focus_counts[syncId] || 0) > 0 : false);
+  let is_sync_focused = $derived(sync_id ? (sync_focus_counts[sync_id] || 0) > 0 : false);
   const font_size_class = $derived(size === "xs" ? "text-xs" : size === "md" ? "text-base" : "text-sm");
   const paragraphs = $derived(parse_markdown(value));
   const is_expanded = $derived(
@@ -128,8 +128,8 @@
   function handle_focus(e) {
     if (is_disabled || busy) return;
     is_focused = true;
-    if (syncId) {
-      sync_focus_counts[syncId] = (sync_focus_counts[syncId] || 0) + 1;
+    if (sync_id) {
+      sync_focus_counts[sync_id] = (sync_focus_counts[sync_id] || 0) + 1;
     }
     onfocus?.(e);
   }
@@ -139,15 +139,15 @@
     const root = /** @type {HTMLElement} */ (e.currentTarget);
     if (e.relatedTarget && root.contains(/** @type {Node} */ (e.relatedTarget))) return;
     is_focused = false;
-    if (syncId) {
-      sync_focus_counts[syncId] = Math.max(0, (sync_focus_counts[syncId] || 0) - 1);
+    if (sync_id) {
+      sync_focus_counts[sync_id] = Math.max(0, (sync_focus_counts[sync_id] || 0) - 1);
     }
     onblur?.(e);
   }
 
   onDestroy(() => {
-    if (is_focused && syncId) {
-      sync_focus_counts[syncId] = Math.max(0, (sync_focus_counts[syncId] || 0) - 1);
+    if (is_focused && sync_id) {
+      sync_focus_counts[sync_id] = Math.max(0, (sync_focus_counts[sync_id] || 0) - 1);
     }
   });
 
@@ -164,7 +164,7 @@
   });
 
   // --- INLINE DESIGN OVERRIDES (Immune to Tailwind Extraction and ESLint Inspections) ---
-  let headerStyle = $derived(
+  let header_style = $derived(
     no_background
       ? "display: none !important;"
       : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem;" +
@@ -245,7 +245,7 @@
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
 >
-  <header style={headerStyle}>
+  <header style={header_style}>
     {#if busy}
       <div
         class="
@@ -374,8 +374,8 @@
           onkeydown={handle_textarea_keydown}
           use:use_actions={actions}
           disabled={is_disabled}
-          use:auto_resize={{ syncId }}
-          data-sync-id={syncId}
+          use:auto_resize={{ sync_id }}
+          data-sync-id={sync_id}
         ></textarea>
       {:else}
         <ScrollArea class="w-full" fitContent={true}>

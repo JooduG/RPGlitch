@@ -14,7 +14,7 @@
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
   import { motion, pulse, roll, shimmy, stab } from "@motion";
-  import { app, runtime, simulationState, simulation_log } from "@state";
+  import { app, runtime, simulation_state, simulation_log } from "@state";
 
   // --- CORE VIEW ENGINE STATE ---
   let models_ready = $derived(app.models_ready);
@@ -54,8 +54,8 @@
     })();
   });
 
-  let is_locked = $derived(simulationState.busy);
-  let story_locked = $derived(simulationState.phase === "locked");
+  let is_locked = $derived(simulation_state.busy);
+  let story_locked = $derived(simulation_state.phase === "locked");
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
 
   // --- CONTROL PANEL STATE ---
@@ -95,9 +95,9 @@
     await runtime.sync(String(id));
     await simulation_log.refresh();
     if (simulation_log.feed.some((e) => e.meta?.is_epilogue)) {
-      simulationState.lock();
+      simulation_state.lock();
     } else {
-      simulationState.unlock();
+      simulation_state.unlock();
     }
     app.set_view("storymode");
     app.toggle_control_panel();
@@ -222,7 +222,7 @@
     is_ending_story = true;
     try {
       await gamemaster.execute_epilogue(runtime.story_id);
-      simulationState.lock();
+      simulation_state.lock();
       refresh_stories();
     } catch (e) {
       console.error("[End Story Error]", e);

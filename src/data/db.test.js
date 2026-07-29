@@ -47,9 +47,9 @@ describe("Database db.js", () => {
     const { db, init } = await import("@data/db.js");
     dbInstance = db;
     await init();
-    const closeSpy = vi.spyOn(db, "close");
+    const close_spy = vi.spyOn(db, "close");
     db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });
-    expect(closeSpy).toHaveBeenCalled();
+    expect(close_spy).toHaveBeenCalled();
     expect(window.location.reload).toHaveBeenCalled();
   });
 });

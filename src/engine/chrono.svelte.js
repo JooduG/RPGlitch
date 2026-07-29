@@ -13,8 +13,8 @@ export class ChronoStore {
    * @param {{ ai: any, user: any, fractal: any }} selection - { ai, user, fractal }
    */
   async start(selection) {
-    if (state_bridge.app.simulation.loading || state_bridge.simulationState.intent_active) return;
-    state_bridge.simulationState.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
+    state_bridge.simulation_state.set_intent_active(true); // Exact sub-millisecond Intent Lock
     state_bridge.app.simulation.loading = true;
 
     try {
@@ -34,7 +34,7 @@ export class ChronoStore {
       state_bridge.app.set_view("storymode");
 
       // 4. Trigger Prologue Generation
-      state_bridge.simulationState.start_generation("fractal");
+      state_bridge.simulation_state.start_generation("fractal");
       try {
         await gamemaster.execute_prologue(story_id);
         state_bridge.app.log("Prologue generated and opening turn executed.", "system");
@@ -43,7 +43,7 @@ export class ChronoStore {
         state_bridge.app.log("Error: Prologue Failed.", "error");
         throw e;
       } finally {
-        state_bridge.simulationState.complete();
+        state_bridge.simulation_state.complete();
         state_bridge.app.end_stream();
       }
     } catch (e) {
@@ -51,7 +51,7 @@ export class ChronoStore {
       this.error = /** @type {Error} */ (e).message;
     } finally {
       state_bridge.app.simulation.loading = false;
-      state_bridge.simulationState.set_intent_active(false); // Release Intent Lock
+      state_bridge.simulation_state.set_intent_active(false); // Release Intent Lock
     }
   }
 
@@ -60,7 +60,7 @@ export class ChronoStore {
    * @param {string} text
    */
   async send(text) {
-    if (state_bridge.app.simulation.loading || state_bridge.simulationState.intent_active || !text.trim()) return;
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active || !text.trim()) return;
     await this.advance_turn(text);
   }
 
@@ -68,7 +68,7 @@ export class ChronoStore {
    * Retry the last AI turn.
    */
   async retry() {
-    if (state_bridge.app.simulation.loading || state_bridge.simulationState.intent_active) return;
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
     try {
       await session_driver.regenerate();
       await this.advance_turn(null, { is_retry: true });
@@ -81,7 +81,7 @@ export class ChronoStore {
    * Continue the story (AI generates next part).
    */
   async continue() {
-    if (state_bridge.app.simulation.loading || state_bridge.simulationState.intent_active) return;
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return;
     try {
       await this.advance_turn(null, { is_continue: true });
     } catch (e) {
@@ -136,35 +136,35 @@ export class ChronoStore {
    * @param {object} options
    */
   async advance_turn(input = null, options = {}) {
-    if (state_bridge.simulationState.phase === "locked") return;
-    if (state_bridge.app.simulation.loading || state_bridge.simulationState.intent_active) return; // Prevent double-clicks
+    if (state_bridge.simulation_state.phase === "locked") return;
+    if (state_bridge.app.simulation.loading || state_bridge.simulation_state.intent_active) return; // Prevent double-clicks
     const story_id = state_bridge.runtime.story_id;
     if (!story_id) {
       console.error("[Chrono] No active story found.");
       return;
     }
     // 1. STASIS: Lock the Universe
-    state_bridge.simulationState.set_intent_active(true); // Exact sub-millisecond Intent Lock
+    state_bridge.simulation_state.set_intent_active(true); // Exact sub-millisecond Intent Lock
     state_bridge.app.simulation.loading = true;
-    state_bridge.simulationState.lock(); // Phase 1: System Lock
+    state_bridge.simulation_state.lock(); // Phase 1: System Lock
     state_bridge.app.log("Shield scanning causality and physics...", "system");
 
     /** @type {any} */
-    let shieldContext = null;
-    let finalInput = input;
+    let shield_context = null;
+    let final_input = input;
 
     try {
       // 2. OBSERVATION: Process Input & Physics (Shield)
       // We pass the current runtime character context to the Shield
       if (input && state_bridge.runtime.character) {
         // Pass Fractal State for Causality Checks
-        shieldContext = await Security.process(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
+        shield_context = await Security.process(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
         // 🛑 CAUSALITY CHECK
-        if (shieldContext && shieldContext.causality && shieldContext.causality.result === "failure") {
-          state_bridge.app.log(`Causality Violation: ${shieldContext.causality.constraint}`, "error");
+        if (shield_context && shield_context.causality && shield_context.causality.result === "failure") {
+          state_bridge.app.log(`Causality Violation: ${shield_context.causality.constraint}`, "error");
           // We override the 'Action' to be a System Constraint.
           // This forces the AI to narrate the failure instead of the action.
-          finalInput = `[SYSTEM]: The user attempted '${input}' but failed because: "${shieldContext.causality.constraint}". Describe this failed attempt briefly and dryly.`;
+          final_input = `[SYSTEM]: The user attempted '${input}' but failed because: "${shield_context.causality.constraint}". Describe this failed attempt briefly and dryly.`;
         }
       }
     } catch (err) {
@@ -178,8 +178,8 @@ export class ChronoStore {
         timestamp: Date.now(),
       });
       state_bridge.app.simulation.loading = false;
-      state_bridge.simulationState.unlock();
-      state_bridge.simulationState.set_intent_active(false); // Release Intent Lock
+      state_bridge.simulation_state.unlock();
+      state_bridge.simulation_state.set_intent_active(false); // Release Intent Lock
       return;
     }
 
@@ -194,20 +194,20 @@ export class ChronoStore {
 
     return (async () => {
       try {
-        if (finalInput) {
+        if (final_input) {
           try {
-            await session_driver.send(finalInput);
+            await session_driver.send(final_input);
           } catch (dbErr) {
             console.error("[Chrono] Database write error during send:", dbErr);
             state_bridge.app.log("Failed to persist user message, but generation continues.", "error");
           }
         }
 
-        state_bridge.simulationState.start_generation(options.role || "ai");
+        state_bridge.simulation_state.start_generation(options.role || "ai");
         try {
           await gamemaster.execute_turn(story_id, {
-            shieldContext,
-            input: finalInput ?? undefined,
+            shield_context,
+            input: final_input ?? undefined,
             signal: controller.signal,
           });
           state_bridge.app.log("Generation complete.", "system");
@@ -216,12 +216,12 @@ export class ChronoStore {
           state_bridge.app.log("Error: Generation Failed.", "error");
           throw e;
         } finally {
-          state_bridge.simulationState.complete();
+          state_bridge.simulation_state.complete();
           state_bridge.app.end_stream();
         }
 
         // 4. PAST: Commit to Memory (Echo) - Timeline Safety Lock
-        state_bridge.simulationState.lock(); // Phase 3: Database Lock (Post-Generation)
+        state_bridge.simulation_state.lock(); // Phase 3: Database Lock (Post-Generation)
         state_bridge.app.log("Recording memory...", "db");
 
         // 5. ANCHOR: Persist the timeline
@@ -251,8 +251,8 @@ export class ChronoStore {
         state_bridge.app.streaming.node_id = null;
         state_bridge.app.streaming.role = "ai";
         state_bridge.app.simulation.loading = false;
-        state_bridge.simulationState.unlock();
-        state_bridge.simulationState.set_intent_active(false); // Release Intent Lock
+        state_bridge.simulation_state.unlock();
+        state_bridge.simulation_state.set_intent_active(false); // Release Intent Lock
       }
     })();
   }

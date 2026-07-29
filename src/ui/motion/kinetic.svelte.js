@@ -27,13 +27,13 @@ const get_target = (node) => /** @type {HTMLElement} */ (node.querySelector("svg
  * @param {(target: HTMLElement, currentAnimation: Animation | null) => void} [config.onStop] - Stop animation hook.
  * @returns {import('svelte/action').ActionReturn}
  */
-function createKineticAction(node, config) {
+function create_kinetic_action(node, config) {
   /** @type {Animation | null} */
   let animation = null;
-  let isHovered = false;
+  let is_hovered = false;
 
   const trigger = () => {
-    isHovered = true;
+    is_hovered = true;
     node.dataset.kinetic = "true";
 
     const intensity = motion.isReduced ? 0 : motion.intensity;
@@ -48,7 +48,7 @@ function createKineticAction(node, config) {
   };
 
   const stop = () => {
-    isHovered = false;
+    is_hovered = false;
     const target = get_target(node);
     if (config.onStop) {
       config.onStop(target, animation);
@@ -60,12 +60,12 @@ function createKineticAction(node, config) {
 
   // Svelte 5 Effect to handle dynamic intensity / reduced motion updates reactively
   /** @type {(() => void) | null} */
-  let cleanupEffect = null;
+  let cleanup_effect = null;
   if (typeof window !== "undefined") {
-    cleanupEffect = $effect.root(() => {
+    cleanup_effect = $effect.root(() => {
       $effect(() => {
         const intensity = motion.isReduced ? 0 : motion.intensity;
-        if (isHovered) {
+        if (is_hovered) {
           if (intensity === 0) {
             if (animation) {
               animation.cancel();
@@ -88,7 +88,7 @@ function createKineticAction(node, config) {
   return {
     destroy() {
       if (animation) animation.cancel();
-      if (cleanupEffect) cleanupEffect();
+      if (cleanup_effect) cleanup_effect();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", stop);
     },
@@ -102,9 +102,9 @@ function createKineticAction(node, config) {
  * @returns {import('svelte/action').ActionReturn}
  */
 export function shimmy(node) {
-  return createKineticAction(node, {
+  return create_kinetic_action(node, {
     animate: (target, intensity) => {
-      const baseDuration = resolve_ms("--duration-(--duration-slow)", 500, node);
+      const base_duration = resolve_ms("--duration-(--duration-slow)", 500, node);
       const animation = target.animate(
         [
           { transform: "translate(0, 0) rotate(0deg)" },
@@ -117,7 +117,7 @@ export function shimmy(node) {
           { transform: "translate(0, 0) rotate(0deg)" },
         ],
         {
-          duration: baseDuration,
+          duration: base_duration,
           easing: "linear",
           iterations: Infinity,
         },
@@ -139,13 +139,13 @@ export function pulse(node) {
   /** @type {Animation | null} */
   let return_anim = null;
 
-  return createKineticAction(node, {
+  return create_kinetic_action(node, {
     animate: (target, intensity) => {
       if (return_anim) {
         return_anim.cancel();
         return_anim = null;
       }
-      const baseDuration = resolve_ms("--duration-(--duration-ambient)", 1000, node);
+      const base_duration = resolve_ms("--duration-(--duration-ambient)", 1000, node);
       const animation = target.animate(
         [
           { transform: "scale(1)", offset: 0 },
@@ -156,7 +156,7 @@ export function pulse(node) {
           { transform: "scale(1)", offset: 1 },
         ],
         {
-          duration: baseDuration,
+          duration: base_duration,
           easing: "ease-in-out",
           iterations: Infinity,
         },
@@ -188,25 +188,25 @@ pulse.is_kinetic = true;
 export function spin(node) {
   const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
   const damping = resolve_number("--spring-damping-default", 0.8, node);
-  const angleSpring = spring(0, { stiffness, damping });
+  const angle_spring = spring(0, { stiffness, damping });
 
   const target = get_target(node);
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    angleSpring.value = 90;
+    angle_spring.value = 90;
   };
 
   const stop = () => {
-    angleSpring.value = 0;
+    angle_spring.value = 0;
   };
 
   /** @type {(() => void) | null} */
-  let cleanupEffect = null;
+  let cleanup_effect = null;
   if (typeof window !== "undefined") {
-    cleanupEffect = $effect.root(() => {
+    cleanup_effect = $effect.root(() => {
       $effect(() => {
-        const val = angleSpring.value;
+        const val = angle_spring.value;
         target.style.transform = `rotate(${val}deg)`;
       });
     });
@@ -217,7 +217,7 @@ export function spin(node) {
 
   return {
     destroy() {
-      if (cleanupEffect) cleanupEffect();
+      if (cleanup_effect) cleanup_effect();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", stop);
     },
@@ -234,25 +234,25 @@ spin.is_kinetic = true;
 export function roll(node) {
   const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
   const damping = resolve_number("--spring-damping-default", 0.8, node);
-  const angleSpring = spring(0, { stiffness, damping });
+  const angle_spring = spring(0, { stiffness, damping });
 
   const target = get_target(node);
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    angleSpring.value = 360;
+    angle_spring.value = 360;
   };
 
   const stop = () => {
-    angleSpring.value = 0;
+    angle_spring.value = 0;
   };
 
   /** @type {(() => void) | null} */
-  let cleanupEffect = null;
+  let cleanup_effect = null;
   if (typeof window !== "undefined") {
-    cleanupEffect = $effect.root(() => {
+    cleanup_effect = $effect.root(() => {
       $effect(() => {
-        const val = angleSpring.value;
+        const val = angle_spring.value;
         target.style.transform = `rotate(${val}deg)`;
       });
     });
@@ -263,7 +263,7 @@ export function roll(node) {
 
   return {
     destroy() {
-      if (cleanupEffect) cleanupEffect();
+      if (cleanup_effect) cleanup_effect();
       node.removeEventListener("mouseenter", trigger);
       node.removeEventListener("mouseleave", stop);
     },
@@ -278,9 +278,9 @@ roll.is_kinetic = true;
  * @returns {import('svelte/action').ActionReturn}
  */
 export function stab(node) {
-  return createKineticAction(node, {
+  return create_kinetic_action(node, {
     animate: (target, intensity) => {
-      const baseDuration = resolve_ms("--duration-(--duration-slow)", 500, node);
+      const base_duration = resolve_ms("--duration-(--duration-slow)", 500, node);
       const easing = resolve_string("--ease-(--ease-out)", "cubic-bezier(0, 0, 0.2, 1)", node);
       const animation = target.animate(
         [
@@ -289,7 +289,7 @@ export function stab(node) {
           { transform: "translateX(0)", offset: 1 },
         ],
         {
-          duration: baseDuration,
+          duration: base_duration,
           easing,
           iterations: Infinity,
         },
@@ -339,8 +339,8 @@ export function kinetic_scroll(node) {
     const intensity = motion.isReduced ? 0 : motion.intensity;
     if (is_down || Math.abs(velocity) < 0.1 || intensity === 0) return;
 
-    const baseFriction = resolve_number("--kinetic-momentum-friction", 0.95, node);
-    const friction = baseFriction * intensity;
+    const base_friction = resolve_number("--kinetic-momentum-friction", 0.95, node);
+    const friction = base_friction * intensity;
 
     node.scrollTop -= velocity * 10 * intensity;
     velocity *= friction;

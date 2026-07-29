@@ -44,7 +44,7 @@ export const session_driver = {
    */
   clear_active: async function () {
     _active_id = null;
-    state_bridge.simulationState.unlock();
+    state_bridge.simulation_state.unlock();
     state_bridge.runtime.story_id = null;
     state_bridge.runtime.round = 0;
     if (typeof window !== "undefined") {
@@ -151,9 +151,9 @@ export const session_driver = {
     const entry = await db.simulation_log.get(key);
     if (entry && entry.attachments && entry.attachments[attachment_index]) {
       entry.attachments[attachment_index] = $state.snapshot(new_attachment);
-      const plainEntry = $state.snapshot(entry);
-      await db.simulation_log.put(plainEntry);
-      state_bridge.simulation_log.update(key, { attachments: plainEntry.attachments });
+      const plain_entry = $state.snapshot(entry);
+      await db.simulation_log.put(plain_entry);
+      state_bridge.simulation_log.update(key, { attachments: plain_entry.attachments });
     }
   },
 

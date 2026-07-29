@@ -10,28 +10,28 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('@organisms/Profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/Profile.svelte.js').ProfileState} profile_state - The profile state controller
    */
 
   /** @type {Props} */
-  let { profileState } = $props();
+  let { profile_state } = $props();
 
   // --- INITIALIZATION ---
 
   $effect(() => {
     /** Ensure the voice state object is initialized correctly. */
-    if (!profileState.char) return;
-    if (!profileState.char.voice) {
-      profileState.char.voice = { uri: "am_adam", rate: 1.0 };
+    if (!profile_state.char) return;
+    if (!profile_state.char.voice) {
+      profile_state.char.voice = { uri: "am_adam", rate: 1.0 };
     } else {
-      profileState.char.voice.uri ??= "am_adam";
-      profileState.char.voice.rate ??= 1.0;
+      profile_state.char.voice.uri ??= "am_adam";
+      profile_state.char.voice.rate ??= 1.0;
     }
   });
 
   // --- DERIVED ---
 
-  const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === profileState.char?.voice?.uri));
+  const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === profile_state.char?.voice?.uri));
 
   // Derived list formatted for the Dropdown atom schema
   const dropdown_items = $derived(
@@ -66,9 +66,9 @@
     "
   >
     <Dropdown
-      bind:value={profileState.char.voice.uri}
+      bind:value={profile_state.char.voice.uri}
       items={dropdown_items}
-      disabled={!profileState.is_editing}
+      disabled={!profile_state.is_editing}
       label="Select Voice"
       uppercase={false}
       matchWidth
@@ -113,7 +113,7 @@
       aria-label="Preview Voice"
       square
       disabled={!selected_voice}
-      onclick={() => Audio.voice.preview(profileState.char.voice.uri, profileState.char.voice.rate)}
+      onclick={() => Audio.voice.preview(profile_state.char.voice.uri, profile_state.char.voice.rate)}
       variant="secondary"
     >
       <svg viewBox="0 0 24 24" class="size-icon-small">
@@ -128,8 +128,8 @@
       min={0.1}
       max={1.9}
       step={0.1}
-      bind:value={profileState.char.voice.rate}
-      disabled={!profileState.is_editing || !selected_voice}
+      bind:value={profile_state.char.voice.rate}
+      disabled={!profile_state.is_editing || !selected_voice}
       label="Rate"
       neutral={1.0}
       style="--empty-fill: var(--signature-color, #555d66)"

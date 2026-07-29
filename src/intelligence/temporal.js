@@ -485,38 +485,38 @@ export const temporal_engine = {
             const e_muts = memory.eternal_mutations;
 
             if (e_muts.AI_CHARACTER && runtime.active_ai) {
-              let eternalChanged = false;
+              let eternal_changed = false;
               if (e_muts.AI_CHARACTER.physical) {
                 runtime.active_ai.eternal.physical = merge_prose_into_field(runtime.active_ai.eternal.physical, e_muts.AI_CHARACTER.physical);
-                eternalChanged = true;
+                eternal_changed = true;
               }
               if (e_muts.AI_CHARACTER.non_physical) {
                 runtime.active_ai.eternal.non_physical = merge_prose_into_field(
                   runtime.active_ai.eternal.non_physical,
                   e_muts.AI_CHARACTER.non_physical,
                 );
-                eternalChanged = true;
+                eternal_changed = true;
               }
-              if (eternalChanged) {
+              if (eternal_changed) {
                 await runtime.update_entity("character", runtime.active_ai.id, { eternal: runtime.active_ai.eternal });
                 if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
               }
             }
 
             if (e_muts.USER_PERSONA && runtime.active_user) {
-              let eternalChanged = false;
+              let eternal_changed = false;
               if (e_muts.USER_PERSONA.physical) {
                 runtime.active_user.eternal.physical = merge_prose_into_field(runtime.active_user.eternal.physical, e_muts.USER_PERSONA.physical);
-                eternalChanged = true;
+                eternal_changed = true;
               }
               if (e_muts.USER_PERSONA.non_physical) {
                 runtime.active_user.eternal.non_physical = merge_prose_into_field(
                   runtime.active_user.eternal.non_physical,
                   e_muts.USER_PERSONA.non_physical,
                 );
-                eternalChanged = true;
+                eternal_changed = true;
               }
-              if (eternalChanged) {
+              if (eternal_changed) {
                 await runtime.update_entity("character", runtime.active_user.id, { eternal: runtime.active_user.eternal });
                 if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
               }
@@ -524,9 +524,9 @@ export const temporal_engine = {
 
             if (memory.tags.includes("eternal-shift")) {
               for (const { entity, type } of entity_targets) {
-                const vectorIdx = entity.past.findIndex((v) => v.id === memory.id);
-                if (vectorIdx !== -1) {
-                  entity.past[vectorIdx] = { ...memory };
+                const vector_idx = entity.past.findIndex((v) => v.id === memory.id);
+                if (vector_idx !== -1) {
+                  entity.past[vector_idx] = { ...memory };
                   await runtime.update_entity(type, entity.id, { past: entity.past });
                 }
               }

@@ -190,11 +190,11 @@ describe("content-normaliser.js", () => {
     });
 
     it("should seed dynamics from templates if missing", () => {
-      const charResult = normalize({ type: "character" });
-      expect(charResult.dynamics).toEqual(ENTITY_TEMPLATES.character.dynamics);
+      const char_result = normalize({ type: "character" });
+      expect(char_result.dynamics).toEqual(ENTITY_TEMPLATES.character.dynamics);
 
-      const fractalResult = normalize({ type: "fractal" });
-      expect(fractalResult.dynamics).toEqual(ENTITY_TEMPLATES.fractal.dynamics);
+      const fractal_result = normalize({ type: "fractal" });
+      expect(fractal_result.dynamics).toEqual(ENTITY_TEMPLATES.fractal.dynamics);
     });
   });
 
@@ -248,7 +248,7 @@ describe("content-normaliser.js", () => {
 
   describe("normalize_import_payload()", () => {
     it("should extract both Character and Fractal from single card payload", () => {
-      const cardPayload = {
+      const card_payload = {
         name: "Shadow Agent",
         type: "character",
         description: "Infiltrator operating in Neon City slums",
@@ -259,7 +259,7 @@ describe("content-normaliser.js", () => {
         },
       };
 
-      const { characters, fractals } = normalize_import_payload(cardPayload);
+      const { characters, fractals } = normalize_import_payload(card_payload);
       expect(characters).toHaveLength(1);
       expect(characters[0].name).toBe("Shadow Agent");
       expect(characters[0].type).toBe("character");
@@ -270,13 +270,13 @@ describe("content-normaliser.js", () => {
     });
 
     it("should extract dual entities when a character payload includes background description", () => {
-      const cardPayload = {
+      const card_payload = {
         name: "Solaris",
         type: "character",
         description: "Sun priestess from the High Temple",
       };
 
-      const { characters, fractals } = normalize_import_payload(cardPayload);
+      const { characters, fractals } = normalize_import_payload(card_payload);
       expect(characters).toHaveLength(1);
       expect(fractals).toHaveLength(1);
       expect(fractals[0].type).toBe("fractal");

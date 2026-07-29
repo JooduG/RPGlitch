@@ -26,7 +26,7 @@ let state = $state({
   error: null,
 });
 
-export const imageRegenerate = {
+export const image_regenerate = {
   get regenerating_key() {
     return state.regenerating_key;
   },
@@ -91,11 +91,11 @@ export const imageRegenerate = {
 
 /**
  * Begins regenerating an attachment. The placeholder will show "Regenerating..."
- * until deliverCandidates() is called.
+ * until deliver_candidates() is called.
  * @param {string} key — `${log_id}:${attach_idx}`
  * @param {{ on_select: (c: Candidate, index: number) => void, signature_color?: string | null }} opts
  */
-export function startRegenerate(key, opts) {
+export function start_regenerate(key, opts) {
   state.regenerating_key = key;
   state.candidates_ready = false;
   state.candidates = [];
@@ -109,9 +109,9 @@ export function startRegenerate(key, opts) {
 /**
  * Delivers the generated candidates. The placeholder becomes a "Select Image" button.
  * @param {Candidate[]} candidates
- * @param {{ prompt?: string, mode?: string, negativePrompt?: string }} [meta]
+ * @param {{ prompt?: string, mode?: string, negative_prompt?: string }} [meta]
  */
-export function deliverCandidates(candidates, meta) {
+export function deliver_candidates(candidates, meta) {
   state.candidates = candidates;
   state.candidates_ready = true;
   state.error = null;
@@ -120,14 +120,14 @@ export function deliverCandidates(candidates, meta) {
       _persisted_prompt = meta.prompt;
     }
     if (meta.mode) _persisted_mode = meta.mode;
-    if (meta.negativePrompt) _persisted_negative = meta.negativePrompt;
+    if (meta.negative_prompt) _persisted_negative = meta.negative_prompt;
   }
 }
 
 /**
  * Opens the 3-card picker modal. Only works if candidates are ready.
  */
-export function openPicker() {
+export function open_picker() {
   if (state.candidates_ready && state.candidates.length >= 2) {
     state.picker_open = true;
     state.selected_index = null;
@@ -139,14 +139,14 @@ export function openPicker() {
  * The actual on_select callback fires immediately.
  * @param {number} index
  */
-export function selectCandidate(index) {
+export function select_candidate(index) {
   if (index < 0 || index >= state.candidates.length) return;
   state.selected_index = index;
   const candidate = state.candidates[index];
   if (typeof state.on_select === "function") {
     state.on_select(candidate, index);
   }
-  setTimeout(() => closeRegenerate(), 400);
+  setTimeout(() => close_regenerate(), 400);
 }
 
 /**
@@ -154,12 +154,12 @@ export function selectCandidate(index) {
  * and persisted prompt/mode/negative for subsequent regenerations.
  * The inline message placeholder will show the "regenerating" loading state.
  */
-export function closePicker() {
+export function close_picker() {
   // Capture prompt from candidates BEFORE clearing them, as a safety net
   if (state.candidates.length > 0 && state.candidates[0]?.metadata?.prompt && !_persisted_prompt) {
     _persisted_prompt = state.candidates[0].metadata.prompt;
     _persisted_mode = state.candidates[0].metadata.mode || _persisted_mode;
-    _persisted_negative = state.candidates[0].metadata.negativePrompt || _persisted_negative;
+    _persisted_negative = state.candidates[0].metadata.negative_prompt || _persisted_negative;
   }
   state.picker_open = false;
   state.candidates_ready = false;
@@ -172,7 +172,7 @@ export function closePicker() {
  * Clears all regenerate state entirely. Does NOT clear persisted prompt
  * (it's a plain variable, persists naturally).
  */
-export function closeRegenerate() {
+export function close_regenerate() {
   state.regenerating_key = null;
   state.candidates_ready = false;
   state.candidates = [];
@@ -187,7 +187,7 @@ export function closeRegenerate() {
  * Reports an error. The placeholder will show the error message.
  * @param {string} msg
  */
-export function setRegenerateError(msg) {
+export function set_regenerate_error(msg) {
   state.error = msg;
   state.candidates_ready = false;
 }
@@ -195,12 +195,12 @@ export function setRegenerateError(msg) {
 /**
  * Returns the persisted prompt metadata as a plain object.
  * Useful for callers that want to read all three values at once.
- * @returns {{ prompt: string, mode: string, negativePrompt: string }}
+ * @returns {{ prompt: string, mode: string, negative_prompt: string }}
  */
-export function getPersistedMeta() {
+export function get_persisted_meta() {
   return {
     prompt: _persisted_prompt,
     mode: _persisted_mode,
-    negativePrompt: _persisted_negative,
+    negative_prompt: _persisted_negative,
   };
 }

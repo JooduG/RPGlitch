@@ -28,13 +28,13 @@
    */
 
   /** @type {Props} */
-  let { state: profileState, path, signature_color, sublabel = "Vector", description = "" } = $props();
+  let { state: profile_state, path, signature_color, sublabel = "Vector", description = "" } = $props();
 
   // --- DERIVED STATE ---
 
   /** Normalized array of vector objects. */
   const items = $derived.by(() => {
-    const raw = profileState.get_safe_value(path) || [];
+    const raw = profile_state.get_safe_value(path) || [];
     const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
 
     return arr.map((val) => {
@@ -55,9 +55,9 @@
 
   /** @param {string|number} key */
   function toggle_expand(key) {
-    if (profileState.is_editing) return;
-    const defaultExpanded = items.length <= 2;
-    if (defaultExpanded) {
+    if (profile_state.is_editing) return;
+    const default_expanded = items.length <= 2;
+    if (default_expanded) {
       const next = new Set(collapsed_items);
       if (next.has(key)) next.delete(key);
       else next.add(key);
@@ -82,38 +82,38 @@
   style="--accent-color: {signature_color}"
 >
   {#each items as item, i (item.id || i)}
-    {@const itemKey = item.id || i}
-    {@const defaultExpanded = items.length <= 2}
-    {@const isExpanded = profileState.is_editing || (defaultExpanded ? !collapsed_items.has(itemKey) : expanded_items.has(itemKey))}
+    {@const item_key = item.id || i}
+    {@const default_expanded = items.length <= 2}
+    {@const is_expanded = profile_state.is_editing || (default_expanded ? !collapsed_items.has(item_key) : expanded_items.has(item_key))}
     <div
       class="
         animate-[slide-down-item_400ms_cubic-bezier(0.23,1,0.32,1)_forwards]
       "
     >
       <TextField
-        is_edit={profileState.is_editing}
-        collapsed={!isExpanded}
-        active={profileState.active_field?.key === `${path}[${i}]`}
-        busy={profileState.busy_fields.has(`${path}[${i}]`)}
+        is_edit={profile_state.is_editing}
+        collapsed={!is_expanded}
+        active={profile_state.active_field?.key === `${path}[${i}]`}
+        busy={profile_state.busy_fields.has(`${path}[${i}]`)}
         {signature_color}
         value={item.directive}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
-          profileState.patch_vector_item(path, i, { directive: e.currentTarget.value })}
+          profile_state.patch_vector_item(path, i, { directive: e.currentTarget.value })}
         placeholder="Enter {sublabel.toLowerCase()} detail..."
         weight={item.emotional_weight}
-        onfocus={() => profileState.set_active_field(`${path}[${i}]`, sublabel)}
+        onfocus={() => profile_state.set_active_field(`${path}[${i}]`, sublabel)}
       >
         {#snippet status()}
           {@const title = derive_vector_title(item.directive, 60)}
           <button
             type="button"
             class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left focus:outline-none"
-            onclick={() => toggle_expand(itemKey)}
+            onclick={() => toggle_expand(item_key)}
           >
-            {#if !profileState.is_editing}
+            {#if !profile_state.is_editing}
               <svg
                 viewBox="0 0 24 24"
-                class="my-auto size-3 shrink-0 stroke-current stroke-2 transition-transform duration-200 {isExpanded ? 'rotate-90' : ''}"
+                class="my-auto size-3 shrink-0 stroke-current stroke-2 transition-transform duration-200 {is_expanded ? 'rotate-90' : ''}"
                 style="fill: none; stroke-linecap: round; stroke-linejoin: round;"
               >
                 <polyline points="9 18 15 12 9 6" />
@@ -137,7 +137,7 @@
               select-none
             "
           >
-            {#if profileState.is_editing}
+            {#if profile_state.is_editing}
               <div
                 class="
                   flex
@@ -178,7 +178,7 @@
                       hover:bg-white/20
                       hover:text-white
                     "
-                    onclick={() => profileState.update_vector_weight(path, i, 1)}
+                    onclick={() => profile_state.update_vector_weight(path, i, 1)}
                     aria-label="Increase Weight"
                   >
                     <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -196,7 +196,7 @@
                       hover:bg-white/20
                       hover:text-white
                     "
-                    onclick={() => profileState.update_vector_weight(path, i, -1)}
+                    onclick={() => profile_state.update_vector_weight(path, i, -1)}
                     aria-label="Decrease Weight"
                   >
                     <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -222,7 +222,7 @@
               >
             {/if}
 
-            {#if profileState.is_editing}
+            {#if profile_state.is_editing}
               <Button
                 variant="invisible"
                 size="small"
@@ -230,8 +230,8 @@
                 aria-label="Enhance with AI"
                 actions={[tooltip]}
                 tooltip="Enhance {sublabel} with AI"
-                disabled={profileState.busy_fields.has(path) || profileState.busy_fields.has(`${path}[${i}]`) || !item.directive}
-                onclick={() => profileState.enhance_vector_item(path, i)}
+                disabled={profile_state.busy_fields.has(path) || profile_state.busy_fields.has(`${path}[${i}]`) || !item.directive}
+                onclick={() => profile_state.enhance_vector_item(path, i)}
                 class="
                   text-slate-400
                   opacity-0
@@ -257,7 +257,7 @@
                 actions={[tooltip]}
                 tooltip="Remove {sublabel}"
                 aria-label="Remove {sublabel}"
-                onclick={() => profileState.remove_vector_item(path, i)}
+                onclick={() => profile_state.remove_vector_item(path, i)}
               >
                 <svg
                   viewBox="0 0 24 24"
@@ -282,7 +282,7 @@
     </div>
   {/each}
 
-  {#if items.length === 0 && !profileState.is_editing}
+  {#if items.length === 0 && !profile_state.is_editing}
     <div
       class="
         flex

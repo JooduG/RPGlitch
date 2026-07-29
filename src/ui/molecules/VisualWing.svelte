@@ -14,11 +14,11 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('@organisms/Profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/Profile.svelte.js').ProfileState} profile_state - The profile state controller
    */
 
   /** @type {Props} */
-  let { profileState } = $props();
+  let { profile_state } = $props();
 
   // --- CONSTANTS ---
 
@@ -53,9 +53,9 @@
    * Ensures the modifiers object exists with all required fields.
    */
   const sync_modifiers = () => {
-    if (!profileState.char) return;
-    if (!profileState.char.modifiers) {
-      profileState.char.modifiers = {
+    if (!profile_state.char) return;
+    if (!profile_state.char.modifiers) {
+      profile_state.char.modifiers = {
         prompt: "",
         negative_prompt: "",
         no_background: false,
@@ -66,15 +66,15 @@
       };
       return;
     }
-    profileState.char.modifiers.prompt ??= "";
-    profileState.char.modifiers.negative_prompt ??= "";
-    profileState.char.modifiers.no_background ??= false;
-    profileState.char.modifiers.flipped ??= false;
-    if (profileState.char.modifiers.profile_picture_seed === 0 || profileState.char.modifiers.profile_picture_seed === undefined) {
-      profileState.char.modifiers.profile_picture_seed = null;
+    profile_state.char.modifiers.prompt ??= "";
+    profile_state.char.modifiers.negative_prompt ??= "";
+    profile_state.char.modifiers.no_background ??= false;
+    profile_state.char.modifiers.flipped ??= false;
+    if (profile_state.char.modifiers.profile_picture_seed === 0 || profile_state.char.modifiers.profile_picture_seed === undefined) {
+      profile_state.char.modifiers.profile_picture_seed = null;
     }
-    profileState.char.modifiers.last_generated_seed ??= null;
-    profileState.char.modifiers.color_name ??= "";
+    profile_state.char.modifiers.last_generated_seed ??= null;
+    profile_state.char.modifiers.color_name ??= "";
   };
 
   sync_modifiers();
@@ -82,19 +82,19 @@
 
   // --- DERIVED ---
 
-  const current_label = $derived(get_signature_label(profileState.char));
+  const current_label = $derived(get_signature_label(profile_state.char));
 
-  const is_prompt_busy = $derived(app.visual.isLoading || profileState.busy_fields.has("visual-prompt"));
+  const is_prompt_busy = $derived(app.visual.isLoading || profile_state.busy_fields.has("visual-prompt"));
 
-  const prompt_value = $derived((profileState.char?.modifiers?.prompt || "").trim());
+  const prompt_value = $derived((profile_state.char?.modifiers?.prompt || "").trim());
 
   /** True when the prompt is freeform text (not a URL or data URI). */
   const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"));
 
   const is_creative_disabled = $derived(
-    !profileState.is_editing ||
-      (is_prompt_busy && (!profileState.active_field || profileState.active_field.key === "visual-prompt")) ||
-      (!profileState.active_field && has_prompt_text),
+    !profile_state.is_editing ||
+      (is_prompt_busy && (!profile_state.active_field || profile_state.active_field.key === "visual-prompt")) ||
+      (!profile_state.active_field && has_prompt_text),
   );
 
   const visual_style_options = Object.values(VISUAL_STYLES)
@@ -117,60 +117,60 @@
    * when no prompt text is present.
    */
   async function handle_creative_action() {
-    const current_key = profileState.active_field?.key || "visual-prompt";
-    if (profileState.busy_fields.has(current_key)) return;
-    profileState.busy_fields.add(current_key);
+    const current_key = profile_state.active_field?.key || "visual-prompt";
+    if (profile_state.busy_fields.has(current_key)) return;
+    profile_state.busy_fields.add(current_key);
 
     try {
       if (current_key === "visual-prompt") {
         if (!has_prompt_text) {
-          profileState.char.modifiers.prompt = AestheticResolver.extract(profileState.char);
+          profile_state.char.modifiers.prompt = AestheticResolver.extract(profile_state.char);
         } else {
-          const result = await app.visual.enhance(profileState.char.modifiers.prompt, profileState.char.type, profileState.char);
+          const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
           if (result) {
             let positive = result.prompt || "";
-            let negative = result.negativePrompt || "";
+            let negative = result.negative_prompt || "";
 
             // Emergency extraction slice if upstream JSON.parse tripped and returned a raw string dump
-            if (!negative && (positive.includes('"prompt"') || positive.includes('"negativePrompt"') || positive.includes('"negative_prompt"'))) {
-              const cleanText = strip_cognition_blocks(positive);
-              const promptMatch = cleanText.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-              const negMatch = cleanText.match(/"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+            if (!negative && (positive.includes('"prompt"') || positive.includes('"negative_prompt"') || positive.includes('"negative_prompt"'))) {
+              const clean_text = strip_cognition_blocks(positive);
+              const prompt_match = clean_text.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+              const neg_match = clean_text.match(/"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
 
-              if (promptMatch && promptMatch[1]) {
-                positive = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+              if (prompt_match && prompt_match[1]) {
+                positive = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
               }
-              if (negMatch && negMatch[1]) {
-                negative = negMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+              if (neg_match && neg_match[1]) {
+                negative = neg_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
               }
             }
 
-            if (positive) profileState.char.modifiers.prompt = positive.trim();
-            if (negative) profileState.char.modifiers.negative_prompt = negative.trim();
+            if (positive) profile_state.char.modifiers.prompt = positive.trim();
+            if (negative) profile_state.char.modifiers.negative_prompt = negative.trim();
           }
         }
-      } else if (profileState.active_field) {
-        const val = profileState.get_safe_value(current_key);
+      } else if (profile_state.active_field) {
+        const val = profile_state.get_safe_value(current_key);
         if (val) {
           const payload = prompt_builder.build_enhancement(
             current_key,
             val,
-            profileState.char.name,
-            profileState.char.type,
+            profile_state.char.name,
+            profile_state.char.type,
             false,
-            profileState.char,
+            profile_state.char,
           );
           const res = await llm_service.enhance(payload);
           if (res) {
             const clean_res = strip_cognition_blocks(res).trim();
-            profileState.set_field_value(current_key, clean_res);
+            profile_state.set_field_value(current_key, clean_res);
           }
         }
       }
     } catch (err) {
       console.error("[VisualWing] Creative action failed:", err);
     } finally {
-      profileState.busy_fields.delete(current_key);
+      profile_state.busy_fields.delete(current_key);
     }
   }
 
@@ -179,38 +179,38 @@
    * as a fallback for direct uploads.
    */
   async function handle_generate() {
-    if (profileState.busy_fields.has("visual-prompt")) return;
+    if (profile_state.busy_fields.has("visual-prompt")) return;
 
     if (!has_prompt_text) {
       await handle_upload_portrait();
       return;
     }
 
-    profileState.busy_fields.add("visual-prompt");
+    profile_state.busy_fields.add("visual-prompt");
     app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
 
     try {
       const payload = await app.visual.generate(prompt_value, {
-        mode: profileState.char.type,
-        no_background: profileState.noBackground,
-        negativePrompt: profileState.char.modifiers.negative_prompt || undefined,
+        mode: profile_state.char.type,
+        no_background: profile_state.noBackground,
+        negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:
-          profileState.char.modifiers.profile_picture_seed !== null &&
-          profileState.char.modifiers.profile_picture_seed !== undefined &&
-          profileState.char.modifiers.profile_picture_seed !== ""
-            ? Number(profileState.char.modifiers.profile_picture_seed)
+          profile_state.char.modifiers.profile_picture_seed !== null &&
+          profile_state.char.modifiers.profile_picture_seed !== undefined &&
+          profile_state.char.modifiers.profile_picture_seed !== ""
+            ? Number(profile_state.char.modifiers.profile_picture_seed)
             : undefined,
         returnPayload: true,
-        _entity: profileState.char,
+        _entity: profile_state.char,
       });
       if (payload?.url) {
-        profileState.char.profile_picture = payload.url;
-        if (payload.metadata?.seed !== undefined) profileState.char.modifiers.last_generated_seed = payload.metadata.seed;
+        profile_state.char.profile_picture = payload.url;
+        if (payload.metadata?.seed !== undefined) profile_state.char.modifiers.last_generated_seed = payload.metadata.seed;
       }
     } catch (err) {
       app.log(`Generation failed: ${/** @type {Error} */ (err).message}`, "error");
     } finally {
-      profileState.busy_fields.delete("visual-prompt");
+      profile_state.busy_fields.delete("visual-prompt");
     }
   }
 
@@ -218,20 +218,20 @@
    * Handles manual image upload via Perchance upload plugin.
    */
   async function handle_upload_portrait() {
-    if (profileState.busy_fields.has("visual-prompt")) return;
-    profileState.busy_fields.add("visual-prompt");
+    if (profile_state.busy_fields.has("visual-prompt")) return;
+    profile_state.busy_fields.add("visual-prompt");
     app.log("[VisualWing] Triggering manual image upload...", "system");
 
     try {
-      const dataUrl = await app.visual.upload();
-      if (dataUrl) {
-        await profileState.setImage(dataUrl);
+      const data_url = await app.visual.upload();
+      if (data_url) {
+        await profile_state.setImage(data_url);
         app.log("[VisualWing] Image upload succeeded and state persisted.", "system");
       }
     } catch (err) {
       app.log(`Upload failed: ${/** @type {Error} */ (err).message}`, "error");
     } finally {
-      profileState.busy_fields.delete("visual-prompt");
+      profile_state.busy_fields.delete("visual-prompt");
     }
   }
 
@@ -299,8 +299,8 @@
           cover={true}
           aria-label={name}
           actions={[tooltip]}
-          onclick={() => (profileState.char.signature_color = name)}
-          disabled={!profileState.is_editing}
+          onclick={() => (profile_state.char.signature_color = name)}
+          disabled={!profile_state.is_editing}
           variant="invisible"
         ></Button>
       </div>
@@ -308,25 +308,25 @@
   </div>
 
   <Dropdown
-    bind:value={profileState.char.visual_style}
+    bind:value={profile_state.char.visual_style}
     items={visual_style_options}
     label="Select Visual Style"
     uppercase={false}
     matchWidth={true}
-    disabled={!profileState.is_editing}
-    onchange={() => (profileState._user_mutated = true)}
+    disabled={!profile_state.is_editing}
+    onchange={() => (profile_state._user_mutated = true)}
   />
 
   <TextField
-    data-active={profileState.active_field?.key === "visual-prompt" ? true : undefined}
-    is_edit={profileState.is_editing}
+    data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
+    is_edit={profile_state.is_editing}
     busy={is_prompt_busy}
-    bind:value={profileState.char.modifiers.prompt}
+    bind:value={profile_state.char.modifiers.prompt}
     placeholder="Image prompt or URL..."
-    disabled={!profileState.is_editing || is_prompt_busy}
+    disabled={!profile_state.is_editing || is_prompt_busy}
     signature_color="var(--color-frozen)"
-    oninput={() => (profileState._user_mutated = true)}
-    onfocus={() => profileState.is_editing && (profileState.active_field = { key: "visual-prompt", label: "Image Prompt" })}
+    oninput={() => (profile_state._user_mutated = true)}
+    onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-prompt", label: "Image Prompt" })}
   >
     {#snippet status()}
       <div class="flex items-center gap-4">
@@ -403,7 +403,7 @@
     {/snippet}
 
     {#snippet header_actions()}
-      {#if profileState.is_editing}
+      {#if profile_state.is_editing}
         <div
           class="
           flex
@@ -453,7 +453,7 @@
             actions={[tooltip]}
             onclick={handle_generate}
             onmousedown={prevent_default}
-            disabled={!profileState.is_editing || is_prompt_busy}
+            disabled={!profile_state.is_editing || is_prompt_busy}
           >
             {#if has_prompt_text}
               <svg
@@ -486,15 +486,15 @@
   </TextField>
 
   <TextField
-    data-active={profileState.active_field?.key === "visual-negative-prompt" ? true : undefined}
-    is_edit={profileState.is_editing}
+    data-active={profile_state.active_field?.key === "visual-negative-prompt" ? true : undefined}
+    is_edit={profile_state.is_editing}
     busy={is_prompt_busy}
-    bind:value={profileState.char.modifiers.negative_prompt}
+    bind:value={profile_state.char.modifiers.negative_prompt}
     placeholder="Negative prompt (avoid these)..."
-    disabled={!profileState.is_editing || is_prompt_busy}
+    disabled={!profile_state.is_editing || is_prompt_busy}
     signature_color="var(--color-frozen)"
-    oninput={() => (profileState._user_mutated = true)}
-    onfocus={() => profileState.is_editing && (profileState.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}
+    oninput={() => (profile_state._user_mutated = true)}
+    onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-negative-prompt", label: "Negative Prompt" })}
   >
     {#snippet status()}
       <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Negative Prompt</span>
@@ -509,21 +509,21 @@
       gap-2
     "
     >
-      <Toggle label="Transparent Background" bind:value={profileState.noBackground} disabled={!profileState.is_editing} />
+      <Toggle label="Transparent Background" bind:value={profile_state.noBackground} disabled={!profile_state.is_editing} />
       <Toggle
         label="Mirror Image"
-        bind:value={profileState.char.modifiers.flipped}
-        disabled={!profileState.is_editing}
-        onchange={() => (profileState._user_mutated = true)}
+        bind:value={profile_state.char.modifiers.flipped}
+        disabled={!profile_state.is_editing}
+        onchange={() => (profile_state._user_mutated = true)}
       />
     </div>
 
     <div class="flex w-32 flex-col justify-end">
       <NumberField
         id="seed-input"
-        bind:value={profileState.char.modifiers.profile_picture_seed}
-        disabled={!profileState.is_editing || is_prompt_busy}
-        oninput={() => (profileState._user_mutated = true)}
+        bind:value={profile_state.char.modifiers.profile_picture_seed}
+        disabled={!profile_state.is_editing || is_prompt_busy}
+        oninput={() => (profile_state._user_mutated = true)}
         placeholder="Seed"
         class="w-full"
       />

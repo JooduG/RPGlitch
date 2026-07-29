@@ -257,25 +257,25 @@ describe("temporal_engine", () => {
 
   describe("forge_memory (Historical Condensation)", () => {
     it("successfully condenses history into a resonance via LLM", async () => {
-      const mockEntity = /** @type {any} */ ({ name: "Viper" });
-      const mockHistory = [{ role: "user", content: "test message" }];
-      const mockMemory = {
+      const mock_entity = /** @type {any} */ ({ name: "Viper" });
+      const mock_history = [{ role: "user", content: "test message" }];
+      const mock_memory = {
         summary: "A significant event happened.",
         tags: ["event"],
       };
 
-      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mockMemory));
+      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mock_memory));
 
-      const result = await temporal_engine.forge_memory(mockEntity, mockHistory, "character");
+      const result = await temporal_engine.forge_memory(mock_entity, mock_history, "character");
 
-      expect(result?.directive).toBe(mockMemory.summary);
+      expect(result?.directive).toBe(mock_memory.summary);
       expect(result?.tags).toEqual(["event"]);
       expect(result?.timestamp).toBe(Date.now());
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
-      const jsonStr = JSON.stringify({ summary: "First object" });
-      vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${jsonStr} noise after`);
+      const json_str = JSON.stringify({ summary: "First object" });
+      vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${json_str} noise after`);
 
       const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
 
@@ -283,17 +283,17 @@ describe("temporal_engine", () => {
     });
 
     it("handles nested JSON structures robustly", async () => {
-      const nestedMemory = {
+      const nested_memory = {
         summary: "Event with nested info.",
         details: { depth: 2, meta: "data" },
       };
-      const response = `Here is the JSON: ${JSON.stringify(nestedMemory)} and some noise.`;
+      const response = `Here is the JSON: ${JSON.stringify(nested_memory)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
 
       const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
 
-      expect(result?.directive).toBe(nestedMemory.summary);
-      expect(JSON.stringify(result?.directive)).not.toBe(JSON.stringify(nestedMemory)); // summary is text
+      expect(result?.directive).toBe(nested_memory.summary);
+      expect(JSON.stringify(result?.directive)).not.toBe(JSON.stringify(nested_memory)); // summary is text
     });
 
     it("returns null and logs error if LLM fails", async () => {
@@ -308,26 +308,26 @@ describe("temporal_engine", () => {
 
   describe("consolidate", () => {
     it("does not crash when simulation_log is a plain array and consolidation is triggered", async () => {
-      const mockMessages = Array(15).fill({ id: 1, meta: {} });
-      const mockSession = {
+      const mock_messages = Array(15).fill({ id: 1, meta: {} });
+      const mock_session = {
         require_active: vi.fn(() => "story_1"),
-        load_log: vi.fn(() => mockMessages),
+        load_log: vi.fn(() => mock_messages),
       };
-      const mockDb = { simulation_log: { bulkPut: vi.fn() } };
-      const mockEntities = { save: vi.fn() };
-      const mockRuntime = { active_ai: { past: [] } };
-      const mockApp = { log: vi.fn() };
+      const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+      const mock_entities = { save: vi.fn() };
+      const mock_runtime = { active_ai: { past: [] } };
+      const mock_app = { log: vi.fn() };
 
       await temporal_engine.consolidate(
-        /** @type {any} */ (mockSession),
-        /** @type {any} */ (mockDb),
-        /** @type {any} */ (mockEntities),
-        /** @type {any} */ (mockRuntime),
-        /** @type {any} */ (mockApp),
+        /** @type {any} */ (mock_session),
+        /** @type {any} */ (mock_db),
+        /** @type {any} */ (mock_entities),
+        /** @type {any} */ (mock_runtime),
+        /** @type {any} */ (mock_app),
       );
 
-      expect(mockSession.require_active).toHaveBeenCalled();
-      expect(mockDb.simulation_log.bulkPut).toHaveBeenCalled();
+      expect(mock_session.require_active).toHaveBeenCalled();
+      expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
     });
   });
 

@@ -208,10 +208,10 @@ function build_entity_catalog() {
         const metadata = typeof field === "string" ? { description: field } : field;
 
         ["character", "fractal"].forEach((type) => {
-          const typeKey = `${type}.${id}`;
-          catalog[typeKey] = {
+          const type_key = `${type}.${id}`;
+          catalog[type_key] = {
             ...metadata,
-            id: typeKey,
+            id: type_key,
             section_label: format_key_as_label(section_key),
             layer_key: section_key.toUpperCase(),
           };
@@ -225,25 +225,25 @@ function build_entity_catalog() {
         };
       });
     } else {
-      const fieldKeys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
-      fieldKeys.forEach((field_key) => {
+      const field_keys = Object.keys(section).filter((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
+      field_keys.forEach((field_key) => {
         const id = `${section_key}.${field_key}`;
         const field = section[field_key];
 
         ["character", "fractal"].forEach((type) => {
           const leaf = field[type] || field;
-          const typeKey = `${type}.${id}`;
-          catalog[typeKey] = {
+          const type_key = `${type}.${id}`;
+          catalog[type_key] = {
             ...leaf,
-            id: typeKey,
+            id: type_key,
             section_label: format_key_as_label(section_key),
             layer_key: section_key.toUpperCase(),
           };
         });
 
-        const leafDefault = field.character || field;
+        const leaf_default = field.character || field;
         catalog[id] = {
-          ...leafDefault,
+          ...leaf_default,
           id,
           section_label: format_key_as_label(section_key),
           layer_key: section_key.toUpperCase(),
@@ -251,14 +251,14 @@ function build_entity_catalog() {
       });
     }
 
-    const hasFields =
+    const has_fields =
       section.fields || Object.keys(section).some((k) => !["label", "sublabel", "type", "directive", "description", "enhancer"].includes(k));
-    if (!hasFields || section.type === "array") {
+    if (!has_fields || section.type === "array") {
       ["character", "fractal"].forEach((type) => {
-        const typeKey = `${type}.${section_key}`;
-        catalog[typeKey] = {
+        const type_key = `${type}.${section_key}`;
+        catalog[type_key] = {
           ...section,
-          id: typeKey,
+          id: type_key,
           section_label: format_key_as_label(section_key),
           layer_key: section_key.toUpperCase(),
         };
@@ -288,21 +288,21 @@ export const ENTITY_CATALOG = build_entity_catalog();
  * @returns {Array<{ id: string, label: string, fields: Array<{ key: string, label: string, sublabel: string | null, description: string, directive: string, enhancer: string, type?: string, is_physical?: boolean }> }>}
  */
 export function build_profile_sections(entity_type = "character") {
-  const resolvedType = entity_type === "user" ? "character" : entity_type || "character";
+  const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
 
   return Object.entries(ENTITY_FRAGMENTS)
     .filter(([sectionKey, section]) => typeof section !== "string" && section !== null && sectionKey !== "profile")
     .map(([sectionKey, sectionObj]) => {
       const section = /** @type {any} */ (sectionObj);
-      const fieldKeys = Object.keys(section).filter(
+      const field_keys = Object.keys(section).filter(
         (k) => !["label", "sublabel", "type", "directive", "description", "enhancer", "fields"].includes(k),
       );
 
       const fields =
-        fieldKeys.length > 0 && section.type !== "array"
-          ? fieldKeys.map((fieldKey) => {
+        field_keys.length > 0 && section.type !== "array"
+          ? field_keys.map((fieldKey) => {
               const field = section[fieldKey];
-              const leaf = field[resolvedType] || field;
+              const leaf = field[resolved_type] || field;
               return {
                 key: `${sectionKey}.${fieldKey}`,
                 label: format_key_as_label(fieldKey),

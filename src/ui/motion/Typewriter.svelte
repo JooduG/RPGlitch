@@ -57,75 +57,75 @@
   let _is_finished = $state(is_finished);
 
   // --- UNIFIED REACTIVE TRACKERS ---
-  let currentCharIndex = $state(0);
-  let currentWordIndex = $state(0);
+  let current_char_index = $state(0);
+  let current_word_index = $state(0);
   let phase = $state("typing"); // 'typing' | 'pause' | 'deleting'
-  let pauseAccumulator = $state(0);
-  let initialDelayElapsed = $state(0);
+  let pause_accumulator = $state(0);
+  let initial_delay_elapsed = $state(0);
 
   // Normalize all input sources into a single array stream dependency
-  const wordsToAnimate = $derived.by(() => {
+  const words_to_animate = $derived.by(() => {
     if (words && words.length > 0) return words;
     if (text) return [text];
     if (_target_html) return [_target_html];
     return [];
   });
 
-  const hasMultipleWords = $derived(wordsToAnimate.length > 1);
-  const currentWordHtml = $derived(wordsToAnimate[currentWordIndex] ?? "");
+  const has_multiple_words = $derived(words_to_animate.length > 1);
+  const current_word_html = $derived(words_to_animate[current_word_index] ?? "");
 
   /**
    * Parse active text input stream into structural tag/text tokens.
    * Protects code layout from fracturing mid-way through formatting strings.
    */
-  const tokenBuffer = $derived.by(() => {
+  const token_buffer = $derived.by(() => {
     const tokens = [];
     const regex = /(<[^>]+>|[^<]+)/g;
     let match;
 
-    while ((match = regex.exec(currentWordHtml)) !== null) {
+    while ((match = regex.exec(current_word_html)) !== null) {
       const val = match[0];
       if (val.startsWith("<")) {
         tokens.push({ type: "tag", value: val });
       } else {
-        const hasSurrogates = SURROGATE_PAIR_REGEX.test(val);
-        tokens.push({ type: "text", value: val, length: hasSurrogates ? [...val].length : val.length });
+        const has_surrogates = SURROGATE_PAIR_REGEX.test(val);
+        tokens.push({ type: "text", value: val, length: has_surrogates ? [...val].length : val.length });
       }
     }
     return tokens;
   });
 
   // Count text-only characters inside active token allocation frame
-  const totalLength = $derived(tokenBuffer.reduce((acc, t) => acc + (t.type === "text" ? t.length : 0), 0));
+  const total_length = $derived(token_buffer.reduce((acc, t) => acc + (t.type === "text" ? t.length : 0), 0));
 
   // Reconstruct structural markup up to current plain-text length limits
-  const slicedHtml = $derived.by(() => {
+  const sliced_html = $derived.by(() => {
     let output = "";
-    let textCount = 0;
-    const targetCount = Math.floor(currentCharIndex);
+    let text_count = 0;
+    const target_count = Math.floor(current_char_index);
     /** @type {string[]} */
-    const openTags = [];
+    const open_tags = [];
 
-    for (const token of tokenBuffer) {
+    for (const token of token_buffer) {
       if (token.type === "tag") {
         const tag = token.value;
         if (tag.startsWith("</")) {
-          openTags.pop();
+          open_tags.pop();
           output += tag;
         } else if (tag.startsWith("<") && !tag.endsWith("/>") && !tag.startsWith("<!")) {
-          const nameMatch = tag.match(/<([a-zA-Z0-9:-]+)/);
-          if (nameMatch) openTags.push(nameMatch[1]);
+          const name_match = tag.match(/<([a-zA-Z0-9:-]+)/);
+          if (name_match) open_tags.push(name_match[1]);
           output += tag;
         } else {
           output += tag;
         }
       } else {
-        const remaining = targetCount - textCount;
+        const remaining = target_count - text_count;
         if (remaining <= 0) break;
 
         if (token.length <= remaining) {
           output += token.value;
-          textCount += token.length;
+          text_count += token.length;
         } else {
           let sliced;
           if (token.value.length === token.length) {
@@ -146,40 +146,42 @@
     }
 
     // Auto-close any unclosed tags to guarantee layout safety frames
-    for (let i = openTags.length - 1; i >= 0; i--) {
-      output += `</${openTags[i]}>`;
+    for (let i = open_tags.length - 1; i >= 0; i--) {
+      output += `</${open_tags[i]}>`;
     }
 
     return output;
   });
 
   // Determine active cursor element style representation
-  const cursorGlyph = $derived.by(() => {
+  const cursor_glyph = $derived.by(() => {
     if (_cursor_style === "block") return "▌";
     if (_cursor_style === "underscore") return "_";
     return "|";
   });
 
   // Secondary evaluation to show trailing typing pointers
-  const shouldShowCursor = $derived(_show_cursor && !(!loop && currentWordIndex === wordsToAnimate.length - 1 && currentCharIndex >= totalLength));
+  const should_show_cursor = $derived(
+    _show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length),
+  );
 
   // Compute delta progress increments across execution phases
-  const activeSpeed = $derived.by(() => {
+  const active_speed = $derived.by(() => {
     if (phase === "typing") {
       if (_type_speed !== null && _type_speed > 0) return 1 / _type_speed;
 
       // Inherited smart-acceleration matrix for chat streams
-      const remaining = totalLength - currentCharIndex;
-      let baseSpeed = 0.02; // Default typing speed
+      const remaining = total_length - current_char_index;
+      let base_speed = 0.02; // Default typing speed
       if (remaining > 300)
-        baseSpeed = 0.3; // Catching up (fast forward)
-      else if (remaining > 150) baseSpeed = 0.15;
-      else if (remaining > 50) baseSpeed = 0.08;
-      else if (remaining < 15) baseSpeed = 0.01; // Almost caught up to stream (slow down)
+        base_speed = 0.3; // Catching up (fast forward)
+      else if (remaining > 150) base_speed = 0.15;
+      else if (remaining > 50) base_speed = 0.08;
+      else if (remaining < 15) base_speed = 0.01; // Almost caught up to stream (slow down)
 
       const intensity = motion.isReduced ? 0 : motion.intensity;
-      const voiceRateFactor = Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
-      return baseSpeed * intensity * voiceRateFactor;
+      const voice_rate_factor = Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
+      return base_speed * intensity * voice_rate_factor;
     }
 
     if (phase === "deleting") {
@@ -191,20 +193,20 @@
   });
 
   // Raw state caches to prevent Svelte 5 derived_inert warnings inside async callbacks
-  let wordsToAnimateRaw = $state([]);
-  let hasMultipleWordsRaw = $state(false);
-  let totalLengthRaw = $state(0);
-  let activeSpeedRaw = $state(0);
+  let words_to_animate_raw = $state([]);
+  let has_multiple_words_raw = $state(false);
+  let total_length_raw = $state(0);
+  let active_speed_raw = $state(0);
 
   $effect(() => {
-    wordsToAnimateRaw = wordsToAnimate;
-    hasMultipleWordsRaw = hasMultipleWords;
-    totalLengthRaw = totalLength;
-    activeSpeedRaw = activeSpeed;
+    words_to_animate_raw = words_to_animate;
+    has_multiple_words_raw = has_multiple_words;
+    total_length_raw = total_length;
+    active_speed_raw = active_speed;
   });
 
   // Clear timeline counters cleanly whenever content data strings alter
-  let lastText = "";
+  let last_text = "";
 
   /**
    * Normalize text to detect clean appends during stream generation.
@@ -222,75 +224,75 @@
   }
 
   $effect(() => {
-    const currentText = wordsToAnimate.join("||");
+    const current_text = words_to_animate.join("||");
 
-    const cleanCurrent = normalize(currentText);
-    const cleanLast = normalize(lastText);
-    const isAppend = cleanLast && (cleanCurrent.startsWith(cleanLast) || cleanCurrent.length >= cleanLast.length);
+    const clean_current = normalize(current_text);
+    const clean_last = normalize(last_text);
+    const is_append = clean_last && (clean_current.startsWith(clean_last) || clean_current.length >= clean_last.length);
 
-    if (!isAppend && lastText !== "") {
-      currentCharIndex = 0;
-      currentWordIndex = 0;
+    if (!is_append && last_text !== "") {
+      current_char_index = 0;
+      current_word_index = 0;
       phase = "typing";
-      pauseAccumulator = 0;
-      initialDelayElapsed = 0;
+      pause_accumulator = 0;
+      initial_delay_elapsed = 0;
     }
 
-    lastText = currentText;
+    last_text = current_text;
   });
 
-  let isMounted = true;
+  let is_mounted = true;
 
   // High-frequency physics interval loop processing frame updates
   $effect(() => {
-    let lastTime = performance.now();
+    let last_time = performance.now();
 
-    const intervalId = setInterval(() => {
+    const interval_id = setInterval(() => {
       untrack(() => {
-        if (!isMounted) return;
-        const words = wordsToAnimateRaw;
+        if (!is_mounted) return;
+        const words = words_to_animate_raw;
         if (words.length === 0) return;
 
         const now = performance.now();
-        const elapsed = now - lastTime;
-        lastTime = now;
+        const elapsed = now - last_time;
+        last_time = now;
 
         // Handle the initial start delay prop safely before writing characters
-        if (currentCharIndex === 0 && phase === "typing" && delay > 0 && initialDelayElapsed < delay) {
-          initialDelayElapsed += elapsed;
+        if (current_char_index === 0 && phase === "typing" && delay > 0 && initial_delay_elapsed < delay) {
+          initial_delay_elapsed += elapsed;
           return;
         }
 
         if (phase === "typing") {
-          if (currentCharIndex < totalLengthRaw) {
-            currentCharIndex = Math.min(totalLengthRaw, currentCharIndex + elapsed * activeSpeedRaw);
+          if (current_char_index < total_length_raw) {
+            current_char_index = Math.min(total_length_raw, current_char_index + elapsed * active_speed_raw);
             if (_is_finished) _is_finished = false;
           } else {
-            if (!_is_finished && !hasMultipleWordsRaw && !loop) _is_finished = true;
-            if (hasMultipleWordsRaw || loop) {
+            if (!_is_finished && !has_multiple_words_raw && !loop) _is_finished = true;
+            if (has_multiple_words_raw || loop) {
               phase = "pause";
-              pauseAccumulator = 0;
+              pause_accumulator = 0;
             }
           }
         } else if (phase === "pause") {
-          pauseAccumulator += elapsed;
-          if (pauseAccumulator >= _pause_delay) {
-            if (hasMultipleWordsRaw || loop) {
+          pause_accumulator += elapsed;
+          if (pause_accumulator >= _pause_delay) {
+            if (has_multiple_words_raw || loop) {
               phase = "deleting";
             }
           }
         } else if (phase === "deleting") {
-          if (currentCharIndex > 0) {
-            currentCharIndex = Math.max(0, currentCharIndex - elapsed * activeSpeedRaw);
+          if (current_char_index > 0) {
+            current_char_index = Math.max(0, current_char_index - elapsed * active_speed_raw);
           } else {
-            const nextIndex = currentWordIndex + 1;
-            if (nextIndex >= words.length) {
+            const next_index = current_word_index + 1;
+            if (next_index >= words.length) {
               if (loop) {
-                currentWordIndex = 0;
+                current_word_index = 0;
                 phase = "typing";
               }
             } else {
-              currentWordIndex = nextIndex;
+              current_word_index = next_index;
               phase = "typing";
             }
           }
@@ -299,8 +301,8 @@
     }, 16);
 
     return () => {
-      isMounted = false;
-      clearInterval(intervalId);
+      is_mounted = false;
+      clearInterval(interval_id);
     };
   });
 </script>
@@ -314,11 +316,11 @@
   style="content-visibility: auto;"
 >
   <!-- eslint-disable-next-line svelte/no-at-html-tags -->
-  {@html slicedHtml}
+  {@html sliced_html}
 
-  {#if shouldShowCursor}
+  {#if should_show_cursor}
     <span class="ml-0.5 inline-block text-(--signature-color) {_blink_cursor ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]' : ''}">
-      {cursorGlyph}
+      {cursor_glyph}
     </span>
   {/if}
 </svelte:element>

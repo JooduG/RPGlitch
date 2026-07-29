@@ -30,7 +30,7 @@
    * @param {string} rawName
    * @returns {string}
    */
-  function formatName(rawName) {
+  function format_name(rawName) {
     if (!rawName) return "";
     return rawName.trim();
   }
@@ -130,7 +130,7 @@
         "
         style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
       >
-        <FitText text={formatName(name)} max_size={36} class="text-inherit!" />
+        <FitText text={format_name(name)} max_size={36} class="text-inherit!" />
       </h1>
     {/if}
   </div>

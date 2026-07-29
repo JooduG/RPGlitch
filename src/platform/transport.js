@@ -264,7 +264,7 @@ export const llm_service = {
   _mock_generate: async (payload, options = {}) => {
     const text = llm_service.get_mock_message();
 
-    const chunkSize = 4;
+    const chunk_size = 4;
     let index = 0;
 
     while (index < text.length) {
@@ -272,7 +272,7 @@ export const llm_service = {
         throw new Error("Generation aborted by caller.");
       }
 
-      const end = Math.min(index + chunkSize, text.length);
+      const end = Math.min(index + chunk_size, text.length);
       const chunk = text.slice(index, end);
 
       const on_chunk = chunk;

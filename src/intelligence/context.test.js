@@ -3,22 +3,22 @@ import { temporal_engine } from "./temporal.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
-let mockRound = 1;
-let mockAppState = {
+let mock_round = 1;
+let mock_app_state = {
   state_anchor: "",
 };
 
-const _mockRuntime = {
+const _mock_runtime = {
   get round() {
-    return mockRound;
+    return mock_round;
   },
   set round(val) {
-    mockRound = val;
+    mock_round = val;
   },
   get simulation() {
     return {
       get round() {
-        return mockRound;
+        return mock_round;
       },
     };
   },
@@ -54,10 +54,10 @@ vi.mock("@utils", async (importOriginal) => {
     ...actual,
     state_bridge: {
       get app() {
-        return mockAppState;
+        return mock_app_state;
       },
       get runtime() {
-        return _mockRuntime;
+        return _mock_runtime;
       },
       get session_driver() {
         return { log_system_entry: vi.fn() };
@@ -84,8 +84,8 @@ vi.mock("@intelligence/temporal.js", () => ({
 describe("context_broker", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockRound = 1;
-    mockAppState = {
+    mock_round = 1;
+    mock_app_state = {
       state_anchor: "",
     };
   });
@@ -106,7 +106,7 @@ describe("context_broker", () => {
     // --- STRICT STATE AND CHRONO MATRIX TESTS ---
 
     it("should not resolve state-locked vectors if requires state is not met", async () => {
-      mockAppState.state_anchor = "inactive";
+      mock_app_state.state_anchor = "inactive";
       const entity = {
         future: [
           {
@@ -124,7 +124,7 @@ describe("context_broker", () => {
     });
 
     it("should resolve state-locked vectors instantly when requires state matches", async () => {
-      mockAppState.state_anchor = "active";
+      mock_app_state.state_anchor = "active";
       const entity = {
         future: [
           {
@@ -142,7 +142,7 @@ describe("context_broker", () => {
     });
 
     it("should block resolution if round has not met threshold from requires or meta", async () => {
-      mockRound = 2;
+      mock_round = 2;
       const entity = {
         future: [
           {
@@ -168,7 +168,7 @@ describe("context_broker", () => {
     });
 
     it("should resolve when round has met threshold", async () => {
-      mockRound = 3;
+      mock_round = 3;
       const entity = {
         future: [
           {
@@ -187,18 +187,18 @@ describe("context_broker", () => {
   describe("Performance Stress Test", () => {
     it("should process a long-form history (500+ nodes) in under 15ms without CPU spikes", async () => {
       // Create a massive log of 500+ entries to stress the parser
-      const mockHistory = Array.from({ length: 550 }, (_, i) => ({
+      const mock_history = Array.from({ length: 550 }, (_, i) => ({
         role: i % 2 === 0 ? "user" : "model",
         content: `This is a long history entry number ${i} to simulate intense gameplay with lots of detailed prose. <think>Hidden thinking process that should be ignored dynamically</think>`,
         character_name: i % 2 === 0 ? "User" : "AI",
       }));
 
       // Warm up the raw string cache to simulate active gameplay
-      await context_broker.hydrate("Testing with tag_5 in input", "simulation", mockHistory);
+      await context_broker.hydrate("Testing with tag_5 in input", "simulation", mock_history);
 
       const start = performance.now();
       // Hydrate with new input and the massive history log
-      const _payload = await context_broker.hydrate("Testing with tag_5 in input", "simulation", mockHistory);
+      const _payload = await context_broker.hydrate("Testing with tag_5 in input", "simulation", mock_history);
       const end = performance.now();
 
       const duration = end - start;

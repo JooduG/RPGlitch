@@ -22,7 +22,7 @@
   } = $props();
 
   // Architectural variant dictionary for zero-drift token realization mapped to Tailwind v4
-  const variantClasses = {
+  const variant_classes = {
     card: "rounded-xl min-h-[200px]",
     hero: "rounded-xl min-h-[160px]",
     "profile-picture": "rounded-full aspect-square w-12 h-12",
@@ -30,7 +30,7 @@
     text: "h-4 mb-2 rounded w-[60%]",
   };
 
-  let variantClass = $derived(variantClasses[variant] || "");
+  let variant_class = $derived(variant_classes[variant] || "");
 </script>
 
 <div
@@ -57,7 +57,7 @@
     after:blur-md
     after:content-['']
 
-    {variantClass}
+    {variant_class}
     {className}"
   style:width
   style:height

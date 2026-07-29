@@ -15,7 +15,7 @@
     signature_color: null,
   });
 
-  export const imagePreview = {
+  export const image_preview = {
     get active() {
       return state.active;
     },
@@ -39,7 +39,7 @@
     },
   };
 
-  export const openImagePreview = (options, caption = "") => {
+  export const open_image_preview = (options, caption = "") => {
     state.active = true;
     if (typeof options === "string") {
       state.src = options;
@@ -58,27 +58,27 @@
     }
   };
 
-  export const closeImagePreview = () => (state.active = false);
+  export const close_image_preview = () => (state.active = false);
 </script>
 
 <script>
   import { Modal, Button, TextField, NumberField, tooltip } from "@atoms";
 
-  const copyCanvas = (node, sourceCanvas) => {
+  const copy_canvas = (node, sourceCanvas) => {
     const draw = (src) => {
       if (!src) return;
-      const newCanvas = document.createElement("canvas");
-      newCanvas.width = src.width;
-      newCanvas.height = src.height;
-      newCanvas.getContext("2d").drawImage(src, 0, 0);
-      newCanvas.className = node.className;
-      node.replaceChildren(newCanvas);
+      const new_canvas = document.createElement("canvas");
+      new_canvas.width = src.width;
+      new_canvas.height = src.height;
+      new_canvas.getContext("2d").drawImage(src, 0, 0);
+      new_canvas.className = node.className;
+      node.replaceChildren(new_canvas);
     };
     draw(sourceCanvas);
     return { update: draw };
   };
 
-  const handleDownload = () => {
+  const handle_download = () => {
     if (state.canvas) {
       const link = document.createElement("a");
       link.download = `image_${state.metadata?.seed || Date.now()}.png`;
@@ -92,7 +92,7 @@
     }
   };
 
-  const handleCopyPrompt = async () => {
+  const handle_copy_prompt = async () => {
     if (state.metadata?.prompt) {
       try {
         await navigator.clipboard.writeText(state.metadata.prompt);
@@ -102,17 +102,17 @@
     }
   };
 
-  const handleCopyNegativePrompt = async () => {
-    if (state.metadata?.negativePrompt) {
+  const handle_copy_negative_prompt = async () => {
+    if (state.metadata?.negative_prompt) {
       try {
-        await navigator.clipboard.writeText(state.metadata.negativePrompt);
+        await navigator.clipboard.writeText(state.metadata.negative_prompt);
       } catch (err) {
         console.error("Failed to copy negative prompt:", err);
       }
     }
   };
 
-  const handleCopySeed = async () => {
+  const handle_copy_seed = async () => {
     if (state.metadata?.seed) {
       try {
         await navigator.clipboard.writeText(String(state.metadata.seed));
@@ -123,17 +123,17 @@
   };
 
   // Safe dummy keydown handler to appease compiler rules when capturing generic clicks
-  const handleKeydownStub = (e) => {
+  const handle_keydown_stub = (e) => {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
     }
   };
 
-  const handleRegenerate = () => {
+  const handle_regenerate = () => {
     if (typeof state.on_regenerate === "function") {
       state.on_regenerate();
     }
-    closeImagePreview();
+    close_image_preview();
   };
 </script>
 
@@ -141,7 +141,7 @@
   <Modal
     variant="lightbox"
     z_index="500"
-    on_close={closeImagePreview}
+    on_close={close_image_preview}
     class="flex max-h-[95vh] flex-col items-stretch justify-center gap-4 overflow-hidden border-none bg-transparent shadow-none md:flex-row"
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
@@ -152,7 +152,7 @@
           role="img"
           aria-label="Generated canvas render preview"
           class="pointer-events-auto max-h-[85vh] max-w-full rounded object-contain shadow-[0_4px_16px_rgba(0,0,0,0.3)]"
-          use:copyCanvas={state.canvas}
+          use:copy_canvas={state.canvas}
         ></div>
       {:else if state.src}
         <img
@@ -171,7 +171,7 @@
       {/if}
     </div>
 
-    {#if state.metadata && (state.metadata.prompt || state.metadata.negativePrompt || state.metadata.seed != null)}
+    {#if state.metadata && (state.metadata.prompt || state.metadata.negative_prompt || state.metadata.seed != null)}
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
@@ -193,7 +193,7 @@
                     aria-label="Copy Prompt"
                     actions={[tooltip]}
                     class="h-full! py-0! opacity-80 hover:opacity-100"
-                    onclick={handleCopyPrompt}
+                    onclick={handle_copy_prompt}
                   >
                     <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
@@ -205,10 +205,10 @@
             </div>
           {/if}
 
-          {#if state.metadata.negativePrompt}
+          {#if state.metadata.negative_prompt}
             <div class="flex flex-col gap-2 text-left">
               <TextField
-                value={state.metadata.negativePrompt.trim()}
+                value={state.metadata.negative_prompt.trim()}
                 is_edit={false}
                 always_expanded={false}
                 signature_color="var(--color-frozen)"
@@ -225,7 +225,7 @@
                     aria-label="Copy Negative Prompt"
                     actions={[tooltip]}
                     class="h-full! py-0! opacity-80 hover:opacity-100"
-                    onclick={handleCopyNegativePrompt}
+                    onclick={handle_copy_negative_prompt}
                   >
                     <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
                       <rect x="9" y="9" width="13" height="13" rx="2" ry="2" stroke="currentColor" stroke-width="2"></rect>
@@ -244,8 +244,8 @@
               readonly={true}
               actions={[tooltip]}
               aria-label="Click to copy seed"
-              onclick={handleCopySeed}
-              onkeydown={handleKeydownStub}
+              onclick={handle_copy_seed}
+              onkeydown={handle_keydown_stub}
               class="w-full text-lg"
             />
           {/if}
@@ -253,7 +253,7 @@
 
         <div class="mt-auto flex shrink-0 flex-row gap-4">
           {#if state.on_regenerate}
-            <Button variant="secondary" class="flex-1" onclick={handleRegenerate}>
+            <Button variant="secondary" class="flex-1" onclick={handle_regenerate}>
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
                 <path
                   d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
@@ -267,7 +267,7 @@
               Regenerate
             </Button>
           {/if}
-          <Button variant="secondary" class="flex-1" onclick={handleDownload}>
+          <Button variant="secondary" class="flex-1" onclick={handle_download}>
             <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
               <path
                 d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"

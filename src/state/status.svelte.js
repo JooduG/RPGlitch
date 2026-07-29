@@ -116,7 +116,7 @@ class SimulationStateStore {
   }
 }
 
-export const simulationState = new SimulationStateStore();
+export const simulation_state = new SimulationStateStore();
 
 class UIStateStore {
   #loading = $state(false);
@@ -131,7 +131,7 @@ class UIStateStore {
   }
 
   get input_active() {
-    return simulationState.intent_active;
+    return simulation_state.intent_active;
   }
 
   // Mutators for internal/controller use
@@ -143,4 +143,4 @@ class UIStateStore {
   }
 }
 
-export const uiState = new UIStateStore();
+export const ui_state = new UIStateStore();

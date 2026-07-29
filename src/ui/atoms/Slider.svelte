@@ -72,7 +72,7 @@
 
     if (onchange) {
       // Create a mock HTMLInputElement that supports standard .value and range configurations
-      const mockInput = Object.assign(document.createElement("input"), {
+      const mock_input = Object.assign(document.createElement("input"), {
         type: "range",
         min: String(min),
         max: String(max),
@@ -82,11 +82,11 @@
 
       const event = new Event("change", { bubbles: true });
       Object.defineProperty(event, "currentTarget", {
-        value: mockInput,
+        value: mock_input,
         writable: false,
       });
       Object.defineProperty(event, "target", {
-        value: mockInput,
+        value: mock_input,
         writable: false,
       });
 

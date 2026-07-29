@@ -11,20 +11,20 @@
 
   /**
    * @typedef {Object} Props
-   * @property {any} profileState - The profile state controller
+   * @property {any} profile_state - The profile state controller
    * @property {{ source: string; key: string; label: string; desc: string }} dynamic - Dynamic axis descriptor
    */
 
   /** @type {Props} */
-  let { profileState, dynamic } = $props();
+  let { profile_state, dynamic } = $props();
 
   // --- DERIVED STATE ---
-  let is_editing = $derived(profileState.is_editing);
+  let is_editing = $derived(profile_state.is_editing);
 
   // Safe boundary-checked value resolver
   let value = $derived.by(() => {
     try {
-      const char = profileState?.char;
+      const char = profile_state?.char;
       if (!char) return 0;
       const source = char[dynamic?.source];
       if (!source) return 0;
@@ -39,23 +39,23 @@
 
   // --- ACTIONS ---
   function decrease() {
-    if (!profileState?.char?.[dynamic.source]) return;
-    const current = Number(profileState.char[dynamic.source][dynamic.key]) || 0;
-    profileState.char[dynamic.source][dynamic.key] = clamp(current - 1, 0, 100);
+    if (!profile_state?.char?.[dynamic.source]) return;
+    const current = Number(profile_state.char[dynamic.source][dynamic.key]) || 0;
+    profile_state.char[dynamic.source][dynamic.key] = clamp(current - 1, 0, 100);
   }
 
   function increase() {
-    if (!profileState?.char?.[dynamic.source]) return;
-    const current = Number(profileState.char[dynamic.source][dynamic.key]) || 0;
-    profileState.char[dynamic.source][dynamic.key] = clamp(current + 1, 0, 100);
+    if (!profile_state?.char?.[dynamic.source]) return;
+    const current = Number(profile_state.char[dynamic.source][dynamic.key]) || 0;
+    profile_state.char[dynamic.source][dynamic.key] = clamp(current + 1, 0, 100);
   }
 
   /** @param {Event & { currentTarget: HTMLInputElement }} e */
   function handle_input(e) {
-    if (!profileState?.char?.[dynamic.source]) return;
+    if (!profile_state?.char?.[dynamic.source]) return;
     const val = Number(e.currentTarget.value);
     if (!isNaN(val)) {
-      profileState.char[dynamic.source][dynamic.key] = clamp(val, 0, 100);
+      profile_state.char[dynamic.source][dynamic.key] = clamp(val, 0, 100);
     }
   }
 </script>

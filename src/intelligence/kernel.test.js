@@ -6,7 +6,7 @@ import { llm_service } from "@platform";
 import { session_driver } from "@engine";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const _mockRuntime = {
+const _mock_runtime = {
   ai: { intensity: 50 },
   fractal: { entropy: 50 },
   active_ai: { name: "Viper" },
@@ -27,7 +27,7 @@ const _mockRuntime = {
   update_entity: vi.fn(),
 };
 
-const _mockApp = {
+const _mock_app = {
   log: vi.fn(),
   start_stream: vi.fn(),
   update_stream: vi.fn(),
@@ -45,13 +45,12 @@ const _mockApp = {
     role: "ai",
     abort_controller: null,
     text: "",
-    nodeId: null,
     errored: false,
     errored_node_id: null,
   },
 };
 
-const _mockSimulationState = {
+const _mock_simulation_state = {
   phase: "idle",
   start_generation: vi.fn(),
   complete: vi.fn(),
@@ -97,16 +96,16 @@ vi.mock("@utils", async (importOriginal) => {
     ...actual,
     state_bridge: {
       get app() {
-        return _mockApp;
+        return _mock_app;
       },
       get runtime() {
-        return _mockRuntime;
+        return _mock_runtime;
       },
-      get simulationState() {
-        return _mockSimulationState;
+      get simulation_state() {
+        return _mock_simulation_state;
       },
       get simulation_log() {
-        return _mockSimulationState;
+        return _mock_simulation_state;
       },
       get session_driver() {
         return {
@@ -141,9 +140,9 @@ vi.mock("@intelligence/dynamics.js", () => ({
 describe("gamemaster (Intelligence Kernel)", () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    _mockRuntime.ai = { intensity: 50 };
-    _mockRuntime.fractal = { entropy: 50 };
-    _mockRuntime.structural_errors = 0;
+    _mock_runtime.ai = { intensity: 50 };
+    _mock_runtime.fractal = { entropy: 50 };
+    _mock_runtime.structural_errors = 0;
   });
 
   describe("capture_dynamics_delta()", () => {
@@ -192,7 +191,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
   it("execute_turn() coordinates hydration, synthesis, and generation", async () => {
     // Provide a full mock payload to satisfy TS/Lint
-    const mockPayload = {
+    const mock_payload = {
       input: "Hello",
       type: "simulation",
       round: 1,
@@ -207,7 +206,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
-    vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
+    vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
     vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
       system: "DIRECTOR_PROMPT",
       task: "DIRECTOR_TASK",
@@ -261,7 +260,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
   });
 
   describe("Post-Turn Validation Circuit-Breaker Integration", () => {
-    const mockPayload = {
+    const mock_payload = {
       input: "Hello",
       type: "simulation",
       round: 1,
@@ -277,7 +276,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     };
 
     beforeEach(() => {
-      vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
+      vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
         system: "DIRECTOR_PROMPT",
         task: "DIRECTOR_TASK",
@@ -360,7 +359,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("increments and decrements runtime.structural_errors through a rolling multi-turn sequence", async () => {
-      _mockRuntime.structural_errors = 0; // Reset state for test
+      _mock_runtime.structural_errors = 0; // Reset state for test
 
       // Mock LLM to return valid JSON for Director and then the respective text for Character
       vi.mocked(llm_service.generate)
@@ -379,20 +378,20 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Turn 1: Broken output, needs repair
       await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
-      expect(_mockRuntime.structural_errors).toBe(1);
+      expect(_mock_runtime.structural_errors).toBe(1);
 
       // Turn 2: Clean output, no repair needed (cooldown activates)
       await gamemaster.execute_turn("story-123", { input: "Hello again", role: "ai" });
-      expect(_mockRuntime.structural_errors).toBe(0);
+      expect(_mock_runtime.structural_errors).toBe(0);
 
       // Turn 3: Clean output, hits the hard floor of 0
       await gamemaster.execute_turn("story-123", { input: "Hello again", role: "ai" });
-      expect(_mockRuntime.structural_errors).toBe(0);
+      expect(_mock_runtime.structural_errors).toBe(0);
     });
   });
 
   describe("Asynchronous Validation Isolation & Telemetry Unification", () => {
-    const mockPayload = {
+    const mock_payload = {
       input: "shoot kill attack", // triggers VIOLENCE dynamics
       type: "simulation",
       round: 1,
@@ -408,7 +407,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     };
 
     beforeEach(() => {
-      vi.mocked(context_broker.hydrate).mockResolvedValue(mockPayload);
+      vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
         system: "DIRECTOR_PROMPT",
         task: "DIRECTOR_TASK",
@@ -424,8 +423,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
           vectors: { past: [], future: [] },
         },
       });
-      _mockRuntime.ai = { intensity: 50 };
-      _mockRuntime.fractal = { entropy: 50 };
+      _mock_runtime.ai = { intensity: 50 };
+      _mock_runtime.fractal = { entropy: 50 };
     });
 
     it("does not simulate physics a second time after generation", async () => {
@@ -442,7 +441,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     });
 
     it("triggers capture_dynamics_delta exactly once per execution turn sequence", async () => {
-      const telemetrySpy = vi.spyOn(gamemaster, "capture_dynamics_delta");
+      const telemetry_spy = vi.spyOn(gamemaster, "capture_dynamics_delta");
       vi.mocked(llm_service.generate).mockResolvedValue("Clean output response");
 
       await gamemaster.execute_turn("story-123", {
@@ -450,22 +449,22 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
 
-      expect(telemetrySpy).toHaveBeenCalledTimes(1);
-      telemetrySpy.mockRestore();
+      expect(telemetry_spy).toHaveBeenCalledTimes(1);
+      telemetry_spy.mockRestore();
     });
 
     it("syncs physics snapshots to global runtime before generation", async () => {
       // Setup dynamic metrics in pre-simulation that differ from start state
-      _mockRuntime.ai = { intensity: 50 };
+      _mock_runtime.ai = { intensity: 50 };
 
       // We only assert on the second call (Character generation)
-      let callCount = 0;
+      let call_count = 0;
       vi.mocked(llm_service.generate).mockImplementation(async () => {
-        callCount++;
-        if (callCount === 1) {
+        call_count++;
+        if (call_count === 1) {
           return JSON.stringify({ mutations: { AI_CHARACTER: { present_append_physical: "some state", dynamics_deltas: { intensity: 5 } } } });
         }
-        expect(_mockRuntime.ai?.intensity).not.toBe(50);
+        expect(_mock_runtime.ai?.intensity).not.toBe(50);
         return "shoot kill attack";
       });
 
@@ -473,14 +472,14 @@ describe("gamemaster (Intelligence Kernel)", () => {
         input: "shoot kill attack",
         role: "ai",
       });
-      expect(callCount).toBe(2);
+      expect(call_count).toBe(2);
     });
 
     it("handles invalid JSON or missing brackets from Director by falling back to raw internal_monologue", async () => {
-      let callCount = 0;
+      let call_count = 0;
       vi.mocked(llm_service.generate).mockImplementation(async () => {
-        callCount++;
-        if (callCount === 1) {
+        call_count++;
+        if (call_count === 1) {
           // Return raw prose missing brackets (representing invalid JSON/missing brackets)
           return "Orion looks angry and the room is dark";
         }
@@ -492,7 +491,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
 
-      expect(callCount).toBe(2);
+      expect(call_count).toBe(2);
       expect(result.response).toBe("<think>\n## Cognition\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
     });
   });

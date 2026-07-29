@@ -11,16 +11,16 @@
   import {
     ImageRegenerate,
     ImagePreview,
-    openImagePreview,
-    closeImagePreview,
+    open_image_preview,
+    close_image_preview,
     EntityCard,
-    startRegenerate,
-    deliverCandidates,
-    setRegenerateError,
+    start_regenerate,
+    deliver_candidates,
+    set_regenerate_error,
   } from "@molecules";
   import { motion } from "@motion";
   import { CardHand, Layout, Profile, Storyboard, Storymode, UnifiedConsole } from "@organisms";
-  import { app, runtime, simulationState, register_image_preview_handlers } from "@state";
+  import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
   import { Audio, visual_engine } from "@media";
@@ -51,22 +51,22 @@
 
   // Image Preview Bridge: Wire UI-layer handlers into the state layer's bridge.
   // This must run once at mount to satisfy the import boundary (state cannot import from ui).
-  register_image_preview_handlers(openImagePreview, closeImagePreview);
+  register_image_preview_handlers(open_image_preview, close_image_preview);
 
   // Audio Lifecycle Cleanup: Suspend AudioContexts on unmount and pagehide
   // to prevent context leaks across view transitions and story swaps.
   $effect(() => {
-    const handlePageHide = () => Audio.destroy();
-    window.addEventListener("pagehide", handlePageHide);
+    const handle_page_hide = () => Audio.destroy();
+    window.addEventListener("pagehide", handle_page_hide);
     return () => {
-      window.removeEventListener("pagehide", handlePageHide);
+      window.removeEventListener("pagehide", handle_page_hide);
       Audio.destroy();
     };
   });
 
   // --- ENTITY MENU ACTION BUILDERS ---
 
-  const is_locked = $derived(simulationState.busy);
+  const is_locked = $derived(simulation_state.busy);
 
   /** Portrait generation helper — logs a placeholder message immediately, then fills in the image */
   async function take_photo(subject, prompt, kind) {
@@ -80,19 +80,19 @@
     const turn_map = { ai: "AI_TURN", user: "USER_TURN", fractal: "SYSTEM_TURN" };
     const entity = entity_map[subject];
     try {
-      simulationState.role = subject;
-      simulationState.start_generation(subject);
+      simulation_state.role = subject;
+      simulation_state.start_generation(subject);
 
       // Log placeholder message immediately with null src attachment
-      const placeholderEntry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
+      const placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
         turn_type: turn_map[subject],
         attachments: [{ src: null, metadata: {} }],
       });
 
       const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
 
-      if (result?.imageUrl && placeholderEntry?.id) {
-        await session_driver.update_log_attachment(placeholderEntry.id, 0, {
+      if (result?.imageUrl && placeholder_entry?.id) {
+        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
           src: result.imageUrl,
           metadata: { ...result.metadata, prompt: result.refinedPrompt },
         });
@@ -103,7 +103,7 @@
       console.error(`[Photo Error: ${subject}]`, err);
       app.log(`Image generation failed: ${err.message || err}`, "error");
     } finally {
-      simulationState.complete();
+      simulation_state.complete();
     }
   }
 
@@ -111,11 +111,11 @@
   async function take_group_photo() {
     if (is_locked) return;
     try {
-      simulationState.role = "fractal";
-      simulationState.start_generation("fractal");
+      simulation_state.role = "fractal";
+      simulation_state.start_generation("fractal");
       const fractal = runtime.active_fractal || app.selected_fractal;
 
-      const placeholderEntry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
+      const placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
         attachments: [{ src: null, metadata: {} }],
       });
@@ -126,8 +126,8 @@
         "characters",
       );
 
-      if (result?.imageUrl && placeholderEntry?.id) {
-        await session_driver.update_log_attachment(placeholderEntry.id, 0, {
+      if (result?.imageUrl && placeholder_entry?.id) {
+        await session_driver.update_log_attachment(placeholder_entry.id, 0, {
           src: result.imageUrl,
           metadata: { ...result.metadata, prompt: result.refinedPrompt },
         });
@@ -138,7 +138,7 @@
       console.error("[Story Image Error]", err);
       app.log(`Story Image failed: ${err.message || err}`, "error");
     } finally {
-      simulationState.complete();
+      simulation_state.complete();
     }
   }
 
@@ -148,13 +148,13 @@
    * then becomes a "Click Here" button that opens the 3-card picker.
    * First regenerate: same prompt, 3 new seeds.
    * Second+ regenerate: re-refines prompt via LLM, then 3 new images.
-   * @param {{ prompt: string, negativePrompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
+   * @param {{ prompt: string, negative_prompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
    */
   async function regenerate_image(ctx) {
-    const { prompt, negativePrompt, mode = "character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
+    const { prompt, negative_prompt, mode = "character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
     const key = `${log_id}:${attach_idx}`;
 
-    startRegenerate(key, {
+    start_regenerate(key, {
       signature_color,
       on_select: (candidate) => {
         if (log_id) {
@@ -167,58 +167,58 @@
     });
 
     try {
-      let finalPrompt = prompt;
-      let finalNegative = negativePrompt;
+      let final_prompt = prompt;
+      let final_negative = negative_prompt;
 
       // Second+ regenerate: re-refine the prompt via LLM
       if (regenerate_count >= 1 && prompt) {
         const refined = await visual_engine.enhance(prompt, mode);
         if (refined?.prompt) {
-          finalPrompt = refined.prompt;
-          finalNegative = refined.negativePrompt || negativePrompt;
+          final_prompt = refined.prompt;
+          final_negative = refined.negative_prompt || negative_prompt;
         }
       }
 
       // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
       // extract the prompt field from it.
-      if (finalPrompt.trim().startsWith("{")) {
+      if (final_prompt.trim().startsWith("{")) {
         try {
-          const parsed = JSON.parse(finalPrompt.trim());
+          const parsed = JSON.parse(final_prompt.trim());
           if (parsed.prompt && typeof parsed.prompt === "string") {
-            finalPrompt = parsed.prompt;
-            if (parsed.negativePrompt) finalNegative = parsed.negativePrompt;
+            final_prompt = parsed.prompt;
+            if (parsed.negative_prompt) final_negative = parsed.negative_prompt;
           }
         } catch (_e) {
-          const promptMatch = finalPrompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-          if (promptMatch && promptMatch[1]) {
-            finalPrompt = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+          const prompt_match = final_prompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+          if (prompt_match && prompt_match[1]) {
+            final_prompt = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
           }
         }
       }
 
-      const candidates = await visual_engine.generate_candidates(finalPrompt, {
+      const candidates = await visual_engine.generate_candidates(final_prompt, {
         mode,
-        negativePrompt: finalNegative,
+        negative_prompt: final_negative,
         count: 3,
         min_success: 2,
       });
 
       if (candidates.length < 2) {
-        setRegenerateError("Not enough images generated. Please try again.");
+        set_regenerate_error("Not enough images generated. Please try again.");
         return;
       }
 
-      deliverCandidates(
+      deliver_candidates(
         candidates.map((c) => ({
           url: c.url,
-          metadata: { ...c.metadata, prompt: finalPrompt, mode },
+          metadata: { ...c.metadata, prompt: final_prompt, mode },
           signature_color,
         })),
-        { prompt: finalPrompt, mode, negativePrompt: finalNegative },
+        { prompt: final_prompt, mode, negative_prompt: final_negative },
       );
     } catch (err) {
       console.error("[Regenerate Error]", err);
-      setRegenerateError(`Regenerate failed: ${err.message || err}`);
+      set_regenerate_error(`Regenerate failed: ${err.message || err}`);
     }
   }
 
@@ -244,9 +244,9 @@
     const entity = entity_map[role];
     const content = llm_service.get_mock_message();
 
-    simulationState.start_generation(role);
+    simulation_state.start_generation(role);
     await new Promise((resolve) => setTimeout(resolve, 2500));
-    simulationState.complete();
+    simulation_state.complete();
     app.start_stream("mock-node", role);
 
     let buffer = "";
@@ -293,7 +293,7 @@
             metadata: entity?.modifiers
               ? {
                   prompt: entity.modifiers.prompt,
-                  negativePrompt: entity.modifiers.negative_prompt,
+                  negative_prompt: entity.modifiers.negative_prompt,
                   seed: entity.modifiers.last_generated_seed,
                 }
               : null,

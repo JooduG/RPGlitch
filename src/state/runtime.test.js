@@ -56,7 +56,7 @@ describe("Narrative Vector System", () => {
 
   describe("State Synchronization", () => {
     it("should synchronize app-level selected entities on debug inject", () => {
-      const mockUser = {
+      const mock_user = {
         id: "user-1",
         name: "User One",
         eternal: { non_physical: "", physical: "" },
@@ -65,7 +65,7 @@ describe("Narrative Vector System", () => {
         future: [],
         dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
       };
-      const mockAi = {
+      const mock_ai = {
         id: "ai-1",
         name: "AI One",
         eternal: { non_physical: "", physical: "" },
@@ -74,7 +74,7 @@ describe("Narrative Vector System", () => {
         future: [],
         dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
       };
-      const mockFractal = {
+      const mock_fractal = {
         id: "fractal-1",
         name: "Fractal One",
         eternal: { non_physical: "", physical: "" },
@@ -85,14 +85,14 @@ describe("Narrative Vector System", () => {
       };
 
       runtime._debug_inject({
-        user: mockUser,
-        ai: mockAi,
-        fractal: mockFractal,
+        user: mock_user,
+        ai: mock_ai,
+        fractal: mock_fractal,
       });
 
-      expect(app.selected_user).toEqual(mockUser);
-      expect(app.selected_ai).toEqual(mockAi);
-      expect(app.selected_fractal).toEqual(mockFractal);
+      expect(app.selected_user).toEqual(mock_user);
+      expect(app.selected_ai).toEqual(mock_ai);
+      expect(app.selected_fractal).toEqual(mock_fractal);
     });
   });
 });

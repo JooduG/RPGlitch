@@ -30,7 +30,7 @@ const state = { active: false };
  * @param {{ className?: string }} [options] - Optional configuration for the transition.
  * @returns {void}
  */
-export function guardedTransition(callback, options = {}) {
+export function guarded_transition(callback, options = {}) {
   // Graceful fallback: no API or already active → run synchronously, no error
   if (typeof document === "undefined" || !document.startViewTransition || state.active) {
     callback();
@@ -55,7 +55,7 @@ export function guardedTransition(callback, options = {}) {
   // Always release the lock when the transition settles, regardless of outcome.
   // finished may reject if the browser aborts the transition (AbortError) —
   // we suppress that too, as it is a normal browser lifecycle event.
-  const donePromise = transition.finished.finally(() => {
+  const done_promise = transition.finished.finally(() => {
     if (options.className) {
       document.documentElement.classList.remove(options.className);
     }
@@ -68,5 +68,5 @@ export function guardedTransition(callback, options = {}) {
   transition.ready.catch(() => {});
   transition.updateCallbackDone.catch(() => {});
 
-  return donePromise;
+  return done_promise;
 }

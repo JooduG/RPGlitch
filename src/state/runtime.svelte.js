@@ -69,7 +69,7 @@ import { app } from "./app.svelte.js";
 /**
  *
  */
-function createRuntimeStore() {
+function create_runtime_store() {
   /**
    * Coerces a story_id to match the Dexie `++id` auto-increment integer key type.
    * The stories table uses numeric auto-increment keys, but session persistence
@@ -101,7 +101,7 @@ function createRuntimeStore() {
       flipped: false,
       profile_picture_seed: 0,
       last_generated_seed: null,
-      colorName: "",
+      color_name: "",
     },
   });
 
@@ -470,7 +470,7 @@ function createRuntimeStore() {
   };
   return api;
 }
-export const runtime = createRuntimeStore();
+export const runtime = create_runtime_store();
 if (typeof window !== "undefined") {
   window.runtime = runtime;
   runtime.init_effects();

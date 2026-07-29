@@ -253,14 +253,14 @@ export class ProfileState {
    * @param {number} index - Index of item to enhance
    */
   async enhance_vector_item(path, index) {
-    const itemKey = `${path}[${index}]`;
+    const item_key = `${path}[${index}]`;
     const items = get_value(this.char, path) || [];
     const item = items[index];
     const directive = typeof item === "string" ? item : item?.directive;
 
-    if (!directive || this.busy_fields.has(itemKey) || this.busy_fields.has(path)) return;
+    if (!directive || this.busy_fields.has(item_key) || this.busy_fields.has(path)) return;
 
-    this.busy_fields.add(itemKey);
+    this.busy_fields.add(item_key);
     this.busy_fields.add(path);
 
     try {
@@ -283,26 +283,26 @@ export class ProfileState {
           try {
             const parsed = JSON.parse(json_str.substring(start_arr, end_arr + 1));
             if (Array.isArray(parsed) && parsed.length > 0) {
-              const currentItems = [...(get_value(this.char, path) || [])];
+              const current_items = [...(get_value(this.char, path) || [])];
 
               parsed.forEach((v, idx) => {
-                const targetIdx = index + idx;
+                const target_idx = index + idx;
                 const dir = typeof v === "string" ? v : v.directive || v.text || "";
                 if (!dir) return;
 
                 const tags = Array.isArray(v.tags) ? v.tags : [];
                 const emotional_weight = typeof v.emotional_weight === "number" ? v.emotional_weight : 5;
 
-                if (targetIdx < currentItems.length) {
-                  const existing = currentItems[targetIdx];
-                  currentItems[targetIdx] = {
+                if (target_idx < current_items.length) {
+                  const existing = current_items[target_idx];
+                  current_items[target_idx] = {
                     ...existing,
                     directive: dir,
                     tags: tags.length > 0 ? tags : existing.tags || [],
                     emotional_weight: typeof v.emotional_weight === "number" ? emotional_weight : (existing.emotional_weight ?? 5),
                   };
                 } else {
-                  currentItems.push({
+                  current_items.push({
                     id: generate_uuid(),
                     timestamp: Date.now(),
                     directive: dir,
@@ -313,7 +313,7 @@ export class ProfileState {
                 }
               });
 
-              set_value(this.char, path, currentItems);
+              set_value(this.char, path, current_items);
               this._user_mutated = true;
               return;
             }
@@ -346,7 +346,7 @@ export class ProfileState {
     } catch (err) {
       console.error("Vector item enhance failed:", err);
     } finally {
-      this.busy_fields.delete(itemKey);
+      this.busy_fields.delete(item_key);
       this.busy_fields.delete(path);
     }
   }
@@ -373,14 +373,14 @@ export class ProfileState {
       const result = await llm_service.enhance(payload);
 
       if (result) {
-        const cleanJsonText = strip_cognition_blocks(result).trim();
-        const startIdx = cleanJsonText.indexOf("{");
-        const endIdx = cleanJsonText.lastIndexOf("}");
+        const clean_json_text = strip_cognition_blocks(result).trim();
+        const start_idx = clean_json_text.indexOf("{");
+        const end_idx = clean_json_text.lastIndexOf("}");
 
-        if (startIdx >= 0 && endIdx >= 0) {
-          const cleanJson = JSON.parse(cleanJsonText.substring(startIdx, endIdx + 1));
+        if (start_idx >= 0 && end_idx >= 0) {
+          const clean_json = JSON.parse(clean_json_text.substring(start_idx, end_idx + 1));
 
-          for (let [key, val] of Object.entries(cleanJson)) {
+          for (let [key, val] of Object.entries(clean_json)) {
             if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
             // Map flat LLM keys (e.g. eternal_physical) back to nested DB schema (eternal.physical)
@@ -391,22 +391,22 @@ export class ProfileState {
 
             if (key === "past" || key === "future") {
               if (Array.isArray(val)) {
-                const currentVectors = get_value(this.char, key) || [];
-                const newVectors = val.map((textStr, idx) => {
-                  const existing = currentVectors[idx] || {};
-                  const vectorStr = typeof textStr === "string" ? textStr : textStr.directive || textStr.text || JSON.stringify(textStr);
+                const current_vectors = get_value(this.char, key) || [];
+                const new_vectors = val.map((text_str, idx) => {
+                  const existing = current_vectors[idx] || {};
+                  const vector_str = typeof text_str === "string" ? text_str : text_str.directive || text_str.text || JSON.stringify(text_str);
                   return {
-                    ...temporal_engine.create(vectorStr, key),
+                    ...temporal_engine.create(vector_str, key),
                     id: existing.id || generate_uuid(),
                     emotional_weight: existing.emotional_weight || 5,
                   };
                 });
-                set_value(this.char, key, newVectors);
+                set_value(this.char, key, new_vectors);
               }
             } else if (typeof val === "object" && !Array.isArray(val)) {
-              for (const [subKey, subVal] of Object.entries(val)) {
+              for (const [sub_key, subVal] of Object.entries(val)) {
                 if (typeof subVal === "string") {
-                  set_value(this.char, `${key}.${subKey}`, subVal);
+                  set_value(this.char, `${key}.${sub_key}`, subVal);
                 }
               }
             } else if (typeof val === "string") {
@@ -440,7 +440,7 @@ export class ProfileState {
     const raw = get_value(this.char, path) || [];
     const items = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
 
-    const newItem = {
+    const new_item = {
       id: generate_uuid(),
       timestamp: Date.now(),
       directive: "",
@@ -449,7 +449,7 @@ export class ProfileState {
       tags: [],
     };
 
-    set_value(this.char, path, [newItem, ...items]);
+    set_value(this.char, path, [new_item, ...items]);
     this._user_mutated = true;
   }
 
@@ -501,19 +501,19 @@ export class ProfileState {
   /**
    * Sets the character's profile picture and triggers immediate persistence.
    * Includes metadata strip edge-case guard by trimming whitespace/newlines.
-   * @param {string} dataUrl
+   * @param {string} data_url
    */
-  async setImage(dataUrl) {
-    if (!this.char || typeof dataUrl !== "string") return;
-    const cleanUrl = dataUrl.trim();
-    this.char.profile_picture = cleanUrl;
-    this.char.image = cleanUrl; // Fallback support
+  async setImage(data_url) {
+    if (!this.char || typeof data_url !== "string") return;
+    const clean_url = data_url.trim();
+    this.char.profile_picture = clean_url;
+    this.char.image = clean_url; // Fallback support
 
     const id = this.char.id;
     if (id) {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      await db.entities.update(id, { profile_picture: cleanUrl, updated_at: Date.now() });
-      await runtime.update_entity(type, id, { profile_picture: cleanUrl });
+      await db.entities.update(id, { profile_picture: clean_url, updated_at: Date.now() });
+      await runtime.update_entity(type, id, { profile_picture: clean_url });
       this._user_mutated = true;
     }
   }

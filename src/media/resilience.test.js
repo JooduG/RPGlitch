@@ -81,8 +81,8 @@ describe("CircuitBreaker", () => {
     // Wait for timeout
     await new Promise((r) => setTimeout(r, 60));
 
-    const successFn = vi.fn().mockResolvedValue("fixed");
-    const result = await breaker.execute(successFn);
+    const success_fn = vi.fn().mockResolvedValue("fixed");
+    const result = await breaker.execute(success_fn);
 
     expect(result).toBe("fixed");
     expect(breaker.isClosed).toBe(true);

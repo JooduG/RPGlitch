@@ -28,38 +28,37 @@ export function strip_cognition_blocks(text) {
  */
 export const safe_parse_pseudo_json = (raw) => {
   if (!raw) return {};
-  const cleanRaw = strip_cognition_blocks(raw).trim();
-  if (!cleanRaw) return {};
+  const clean_raw = strip_cognition_blocks(raw).trim();
+  if (!clean_raw) return {};
 
   // Tier 1: Process bracketed configuration [KEY: VALUE] or [KEY: VALUE] [KEY2: VALUE2]
-  if (cleanRaw.includes("[") && cleanRaw.includes("]")) {
-    const bracketExtracted = {};
-    const bracketRegex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
+  if (clean_raw.includes("[") && clean_raw.includes("]")) {
+    const bracket_extracted = {};
+    const bracket_regex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
     let match;
-    while ((match = bracketRegex.exec(cleanRaw)) !== null) {
+    while ((match = bracket_regex.exec(clean_raw)) !== null) {
       const k = match[1].replace(/["']/g, "").trim();
       const v = match[2].replace(/^["']|["']$/g, "").trim();
-      if (k && v) bracketExtracted[k] = v;
+      if (k && v) bracket_extracted[k] = v;
     }
-    if (Object.keys(bracketExtracted).length > 0) return bracketExtracted;
+    if (Object.keys(bracket_extracted).length > 0) return bracket_extracted;
   }
 
   // Tier 2: Process quoted key-value pairs "KEY": "VALUE" or JSON {"KEY": "VALUE"}
-  if (cleanRaw.includes('"') && cleanRaw.includes(":")) {
-    const quotedExtracted = {};
-    const quotedRegex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
+  if (clean_raw.includes('"') && clean_raw.includes(":")) {
+    const quoted_extracted = {};
+    const quoted_regex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
     let match;
-    while ((match = quotedRegex.exec(cleanRaw)) !== null) {
+    while ((match = quoted_regex.exec(clean_raw)) !== null) {
       const k = match[1].trim();
       const v = match[2].trim();
-      if (k && v) quotedExtracted[k] = v;
+      if (k && v) quoted_extracted[k] = v;
     }
-    if (Object.keys(quotedExtracted).length > 0) return quotedExtracted;
+    if (Object.keys(quoted_extracted).length > 0) return quoted_extracted;
   }
 
   return {};
 };
-export const safeParsePseudoJson = safe_parse_pseudo_json;
 
 /**
  * Safely indents multi-line string content.
@@ -108,7 +107,7 @@ export function derive_vector_title(text, maxLen = 38) {
   }
 
   const sub = cleaned.slice(0, maxLen);
-  const lastSpace = sub.lastIndexOf(" ");
-  const truncated = lastSpace > 15 ? sub.slice(0, lastSpace) : sub;
+  const last_space = sub.lastIndexOf(" ");
+  const truncated = last_space > 15 ? sub.slice(0, last_space) : sub;
   return truncated.replace(/[.,;:]+$/, "") + "…";
 }

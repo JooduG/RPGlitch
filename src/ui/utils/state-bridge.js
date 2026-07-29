@@ -13,19 +13,19 @@
 const _accessors = {
   app: null,
   runtime: null,
-  simulationState: null,
+  simulation_state: null,
   simulation_log: null,
   session_driver: null,
 };
 
 /**
  * Registers state accessors. Called once by the state layer at boot.
- * @param {{ app: any, runtime: any, simulationState: any, simulation_log: any, session_driver?: any }} accessors
+ * @param {{ app: any, runtime: any, simulation_state: any, simulation_log: any, session_driver?: any }} accessors
  */
 export function register_state_accessors(accessors) {
   _accessors.app = accessors.app;
   _accessors.runtime = accessors.runtime;
-  _accessors.simulationState = accessors.simulationState;
+  _accessors.simulation_state = accessors.simulation_state;
   _accessors.simulation_log = accessors.simulation_log;
   _accessors.session_driver = accessors.session_driver;
 }
@@ -41,8 +41,8 @@ export const state_bridge = {
   get runtime() {
     return _accessors.runtime;
   },
-  get simulationState() {
-    return _accessors.simulationState;
+  get simulation_state() {
+    return _accessors.simulation_state;
   },
   get simulation_log() {
     return _accessors.simulation_log;

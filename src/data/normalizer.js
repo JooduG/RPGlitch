@@ -16,7 +16,7 @@ export const STORAGE_VERSION = 3;
  * SIGNATURE_COLORS is derived from the same PALETTE and must stay in sync.
  * Kept locally to avoid a forbidden data→media import.
  */
-const _SIGNATURE_COLORS = [
+const _signature_colors = [
   "Adrenaline Pink",
   "Crimson Red",
   "Deep Indigo",
@@ -86,7 +86,7 @@ export const ENTITY_TEMPLATES = {
  * Utility to safely access the palette for a random signature key.
  */
 export const get_random_signature_key = () => {
-  return pick_random(_SIGNATURE_COLORS);
+  return pick_random(_signature_colors);
 };
 /**
  * Main Normalizer
@@ -156,7 +156,7 @@ export const normalize = (base = {}) => {
     type: type,
     signature_color: (() => {
       const parsed = sanitize_html(String(signature_color)).trim();
-      return _SIGNATURE_COLORS.includes(parsed) ? parsed : get_random_signature_key();
+      return _signature_colors.includes(parsed) ? parsed : get_random_signature_key();
     })(),
     profile_picture: sanitize_html(String(profile_picture)).trim(),
     narrative_style: sanitize_html(String(narrative_style)).trim(),
@@ -190,7 +190,7 @@ export const normalize = (base = {}) => {
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
       last_generated_seed: modifiers?.last_generated_seed ?? visuals?.last_generated_seed ?? null,
-      color_name: sanitize_html(modifiers?.color_name ?? modifiers?.colorName ?? visuals?.colorName ?? visuals?.color_name ?? "").trim(),
+      color_name: sanitize_html(modifiers?.color_name ?? modifiers?.color_name ?? visuals?.color_name ?? visuals?.color_name ?? "").trim(),
     },
     // --- DYNAMICS (Physics Sliders) ---
     dynamics: (() => {
@@ -304,32 +304,32 @@ export function normalize_import_payload(payload) {
   }
 
   // Handle single object / card
-  const isExplicitFractal = payload.type === "fractal" || (payload.narrative_style && !payload.type);
-  if (isExplicitFractal) {
+  const is_explicit_fractal = payload.type === "fractal" || (payload.narrative_style && !payload.type);
+  if (is_explicit_fractal) {
     fractals.push(normalize({ ...payload, type: "fractal" }));
   } else {
     // Treat primary payload as Character
-    const charEntity = normalize({ ...payload, type: "character" });
-    characters.push(charEntity);
+    const char_entity = normalize({ ...payload, type: "character" });
+    characters.push(char_entity);
 
     // If payload contains scene/world/fractal info or nested object, extract Fractal too!
-    const sceneData = payload.scene || payload.fractal || payload.world || payload.environment;
-    if (sceneData && typeof sceneData === "object") {
-      fractals.push(normalize({ ...sceneData, type: "fractal", name: sceneData.name || `${charEntity.name}'s World` }));
-    } else if (typeof sceneData === "string" && sceneData.trim().length > 0) {
+    const scene_data = payload.scene || payload.fractal || payload.world || payload.environment;
+    if (scene_data && typeof scene_data === "object") {
+      fractals.push(normalize({ ...scene_data, type: "fractal", name: scene_data.name || `${char_entity.name}'s World` }));
+    } else if (typeof scene_data === "string" && scene_data.trim().length > 0) {
       fractals.push(
         normalize({
-          name: `${charEntity.name}'s Setting`,
+          name: `${char_entity.name}'s Setting`,
           type: "fractal",
-          description: sceneData,
-          eternal: { non_physical: sceneData },
+          description: scene_data,
+          eternal: { non_physical: scene_data },
         }),
       );
     } else if (payload.description || payload.eternal?.non_physical) {
       // Create associated Fractal setting from card context for seamless dual import
       fractals.push(
         normalize({
-          name: `${charEntity.name}'s Realm`,
+          name: `${char_entity.name}'s Realm`,
           type: "fractal",
           description: payload.description || "Imported environment backdrop.",
           eternal: { non_physical: payload.eternal?.non_physical || payload.description || "" },
@@ -366,11 +366,11 @@ export function detox_prose(rawText) {
     "\\btapestry\\b": "network",
   };
 
-  let cleanText = rawText;
+  let clean_text = rawText;
   Object.keys(DETOX_MAP).forEach((pattern) => {
     const regex = new RegExp(pattern, "gi");
-    cleanText = cleanText.replace(regex, DETOX_MAP[pattern]);
+    clean_text = clean_text.replace(regex, DETOX_MAP[pattern]);
   });
 
-  return cleanText;
+  return clean_text;
 }

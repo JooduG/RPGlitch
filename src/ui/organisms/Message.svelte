@@ -6,11 +6,11 @@
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
-  import { Audio, get_signature_color, getResolution } from "@media";
+  import { Audio, get_signature_color, get_resolution } from "@media";
   import { Typewriter } from "@motion";
-  import { app, runtime, simulationState } from "@state";
+  import { app, runtime, simulation_state } from "@state";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
-  import { DevTelemetryBlock, EntityCard, imageRegenerate, openPicker } from "@molecules";
+  import { DevTelemetryBlock, EntityCard, image_regenerate, open_picker } from "@molecules";
   import { safe_html } from "@actions";
 
   /**
@@ -54,7 +54,7 @@
   } = $props();
 
   // --- STATE RUNES ---
-  let isFocused = $state(false);
+  let is_focused = $state(false);
   let local_text = $state("");
   let is_typing_finished = $state(false);
   let was_streaming = $state(false);
@@ -82,13 +82,13 @@
 
   let signature_color = $derived(get_signature_color(entity, sender === "system" ? "var(--color-slate-600)" : "var(--color-slate-700)"));
 
-  let is_extended = $derived(isFocused || is_editing);
+  let is_extended = $derived(is_focused || is_editing);
 
   let parsed = $derived(parse_message(text));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
 
-  let is_streaming_target = $derived(!!(app.streaming.active && id && (app.streaming.nodeId === id || app.streaming.node_id === id)));
+  let is_streaming_target = $derived(!!(app.streaming.active && id && (app.streaming.node_id === id || app.streaming.node_id === id)));
   let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));
 
   // Track when this specific message becomes an active stream target
@@ -123,7 +123,7 @@
    * @returns {void}
    */
   function handle_focus() {
-    isFocused = true;
+    is_focused = true;
   }
 
   /**
@@ -133,7 +133,7 @@
    */
   function handle_focus_out(e) {
     if (e.relatedTarget && e.currentTarget.contains(/** @type {Node} */ (e.relatedTarget))) return;
-    isFocused = false;
+    is_focused = false;
   }
 
   /**
@@ -336,7 +336,7 @@
                   aria-label="Continue"
                   actions={[tooltip]}
                   onclick={on_continue}
-                  disabled={simulationState.busy}
+                  disabled={simulation_state.busy}
                   class="text-white/85 transition-colors hover:text-white"
                 >
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
@@ -350,7 +350,7 @@
                   aria-label="Regenerate"
                   actions={[tooltip]}
                   onclick={on_regenerate}
-                  disabled={simulationState.busy}
+                  disabled={simulation_state.busy}
                   class="text-white/85 transition-colors hover:text-white"
                 >
                   <svg viewBox="0 0 24 24" class="h-4 w-4 fill-none stroke-current">
@@ -591,23 +591,23 @@
             {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
               {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
               {@const attach_mode = (typeof attachment === "object" && attachment?.metadata?.mode) || "character"}
-              {@const res = getResolution(attach_mode)}
+              {@const res = get_resolution(attach_mode)}
               {@const regenerate_key = `${id}:${attach_idx}`}
               {@const box_h = 480}
               {@const box_w = Math.round((box_h * res.width) / res.height)}
-              {#if imageRegenerate.hasError(regenerate_key)}
+              {#if image_regenerate.hasError(regenerate_key)}
                 <div
                   class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4"
                   style="height: {box_h}px; width: {box_w}px;"
                 >
-                  <p class="text-center text-sm text-red-400">{imageRegenerate.error}</p>
+                  <p class="text-center text-sm text-red-400">{image_regenerate.error}</p>
                 </div>
-              {:else if imageRegenerate.isReady(regenerate_key)}
+              {:else if image_regenerate.isReady(regenerate_key)}
                 <button
                   type="button"
                   class="group relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
                   style="height: {box_h}px; width: {box_w}px;"
-                  onclick={() => openPicker()}
+                  onclick={() => open_picker()}
                   aria-label="Select image from candidates"
                 >
                   <!-- Mini 3-card spread -->
@@ -627,7 +627,7 @@
                   </div>
                   <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click here</span>
                 </button>
-              {:else if imageRegenerate.isRegenerating(regenerate_key)}
+              {:else if image_regenerate.isRegenerating(regenerate_key)}
                 <div
                   class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
                   style="height: {box_h}px; width: {box_w}px;"
@@ -655,23 +655,23 @@
                     hover:brightness-110
                   "
                   onclick={() => {
-                    const previewOptions = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
-                    if (!previewOptions.metadata) previewOptions.metadata = {};
-                    previewOptions.signature_color = signature_color;
-                    if (previewOptions.metadata?.prompt && id && app.regenerate_image_handler) {
-                      previewOptions.on_regenerate = () => {
+                    const preview_options = typeof attachment === "string" ? { src: attachment, metadata: {} } : { ...attachment };
+                    if (!preview_options.metadata) preview_options.metadata = {};
+                    preview_options.signature_color = signature_color;
+                    if (preview_options.metadata?.prompt && id && app.regenerate_image_handler) {
+                      preview_options.on_regenerate = () => {
                         app.regenerate_image_handler({
-                          prompt: previewOptions.metadata.prompt,
-                          negativePrompt: previewOptions.metadata.negativePrompt,
-                          mode: previewOptions.metadata.mode || "character",
+                          prompt: preview_options.metadata.prompt,
+                          negative_prompt: preview_options.metadata.negative_prompt,
+                          mode: preview_options.metadata.mode || "character",
                           log_id: id,
                           attach_idx,
                           signature_color,
-                          regenerate_count: previewOptions.metadata.regenerate_count || 0,
+                          regenerate_count: preview_options.metadata.regenerate_count || 0,
                         });
                       };
                     }
-                    app.open_image_preview(previewOptions);
+                    app.open_image_preview(preview_options);
                   }}
                   aria-label="View Attachment"
                 >

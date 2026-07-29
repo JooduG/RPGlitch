@@ -32,7 +32,7 @@
 
   // Determine active busy state. Defaults to false — modals stay interactive
   // during generation so the user can browse/view. Individual action buttons
-  // inside already auto-disable via simulationState.intent_active. Only pass
+  // inside already auto-disable via simulation_state.intent_active. Only pass
   // busy={true} explicitly when whole-modal graying is desired (e.g. local loading).
   let is_busy = $derived(busy !== null ? busy : false);
 
@@ -40,7 +40,7 @@
   let open = $state(true);
 
   // Track active state for mount/unmount gating
-  let activeOpen = $derived(open);
+  let active_open = $derived(open);
 
   // Trigger on_close only when open changes from true to false
   $effect(() => {
@@ -54,7 +54,7 @@
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
-        {#if activeOpen}
+        {#if active_open}
           <Backdrop
             {...overlayProps}
             onpointerdown={(/** @type {PointerEvent} */ e) => {
@@ -94,7 +94,7 @@
               }}
             >
               {#snippet child({ props: contentProps })}
-                {#if activeOpen}
+                {#if active_open}
                   <div
                     {...contentProps}
                     data-modal-variant={variant}

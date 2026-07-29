@@ -14,7 +14,7 @@ export {
   NEGATIVE_PROMPT,
   AestheticResolver,
   PromptTemplates,
-  getResolution,
+  get_resolution,
   flatten_physical,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,

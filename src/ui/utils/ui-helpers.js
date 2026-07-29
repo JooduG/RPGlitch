@@ -23,21 +23,21 @@ function get_css_value(value) {
 function try_direct_var_resolve(trimmed, context) {
   if (!context || typeof window === "undefined") return null;
 
-  const isVar = trimmed.startsWith("--") || (trimmed.startsWith("var(") && trimmed.endsWith(")"));
-  if (!isVar) return null;
+  const is_var = trimmed.startsWith("--") || (trimmed.startsWith("var(") && trimmed.endsWith(")"));
+  if (!is_var) return null;
 
-  const varName = trimmed.startsWith("--") ? trimmed : trimmed.slice(4, -1).trim();
-  if (varName.includes(",")) return null; // Skip complex fallbacks
+  const var_name = trimmed.startsWith("--") ? trimmed : trimmed.slice(4, -1).trim();
+  if (var_name.includes(",")) return null; // Skip complex fallbacks
 
   try {
-    return window.getComputedStyle(context).getPropertyValue(varName).trim();
+    return window.getComputedStyle(context).getPropertyValue(var_name).trim();
   } catch (_) {
     return null;
   }
 }
 
 /** @type {HTMLElement | null} */
-let sharedMeasureEl = null;
+let shared_measure_el = null;
 
 /**
  * Ensures the shared measurement element exists in the DOM and is parented correctly.
@@ -47,27 +47,27 @@ let sharedMeasureEl = null;
 function get_measure_el(context = null) {
   if (typeof document === "undefined") return null;
 
-  if (!sharedMeasureEl) {
-    sharedMeasureEl = document.createElement("div");
-    sharedMeasureEl.id = "shared-measure-el";
-    sharedMeasureEl.style.position = "absolute";
-    sharedMeasureEl.style.visibility = "hidden";
-    sharedMeasureEl.style.pointerEvents = "none";
-    sharedMeasureEl.style.zIndex = "-9999";
-    sharedMeasureEl.style.display = "flex";
-    document.body.appendChild(sharedMeasureEl);
+  if (!shared_measure_el) {
+    shared_measure_el = document.createElement("div");
+    shared_measure_el.id = "shared-measure-el";
+    shared_measure_el.style.position = "absolute";
+    shared_measure_el.style.visibility = "hidden";
+    shared_measure_el.style.pointerEvents = "none";
+    shared_measure_el.style.zIndex = "-9999";
+    shared_measure_el.style.display = "flex";
+    document.body.appendChild(shared_measure_el);
   }
 
-  const canAcceptChildren =
+  const can_accept_children =
     context &&
     context.nodeType === 1 &&
     !/^(area|base|br|col|embed|hr|img|input|keygen|link|meta|param|source|track|wbr|textarea|template|svg)$/i.test(context.tagName);
-  const targetParent = canAcceptChildren ? context : document.body;
-  if (sharedMeasureEl.parentElement !== targetParent) {
-    targetParent.appendChild(sharedMeasureEl);
+  const target_parent = can_accept_children ? context : document.body;
+  if (shared_measure_el.parentElement !== target_parent) {
+    target_parent.appendChild(shared_measure_el);
   }
 
-  return sharedMeasureEl;
+  return shared_measure_el;
 }
 
 /**
@@ -82,25 +82,25 @@ function prepare_measure(value, prop, sentinel, context) {
   const el = get_measure_el(context);
   if (!el) return null;
 
-  const cssValue = get_css_value(value);
+  const css_value = get_css_value(value);
   if (typeof el.dataset !== "undefined") {
-    el.dataset.resolveValue = cssValue;
+    el.dataset.resolveValue = css_value;
   }
 
   // 1. Proxy resolution to detect valid vs invalid variables (handles 0 vs undefined)
   el.style.setProperty("--proxy", "SENTINEL");
-  el.style.setProperty("--proxy", cssValue);
+  el.style.setProperty("--proxy", css_value);
   const resolved = window.getComputedStyle(el).getPropertyValue("--proxy").trim();
 
   // If it stayed at SENTINEL, the browser rejected the value.
   // If it became empty string, it was a var() that resolved to nothing (invalid at compute time).
-  if (resolved === "SENTINEL" || (resolved === "" && cssValue !== "")) {
+  if (resolved === "SENTINEL" || (resolved === "" && css_value !== "")) {
     return null;
   }
 
   // 2. Set actual property for unit resolution (e.g. rem -> px)
   /** @type {any} */ (el.style)[prop] = sentinel;
-  /** @type {any} */ (el.style)[prop] = cssValue;
+  /** @type {any} */ (el.style)[prop] = css_value;
 
   return el;
 }
@@ -138,9 +138,9 @@ function resolve_css(value, fallback, context, spec) {
   }
 
   // 2. Fast Path: Direct Variable Resolution from context
-  const fastResolved = try_direct_var_resolve(trimmed, context);
-  if (fastResolved && !fastResolved.includes("calc") && !fastResolved.includes("var")) {
-    const parsed = spec.parseResolvedVar(fastResolved);
+  const fast_resolved = try_direct_var_resolve(trimmed, context);
+  if (fast_resolved && !fast_resolved.includes("calc") && !fast_resolved.includes("var")) {
+    const parsed = spec.parseResolvedVar(fast_resolved);
     if (parsed !== null && parsed !== undefined) return parsed;
   }
 
@@ -172,17 +172,17 @@ function resolve_css(value, fallback, context, spec) {
  * @returns {number}
  */
 export function resolve_px(value, fallback = 0, context = null) {
-  const pxRegex = /^([-.\d]+)(px)?$/;
-  const parsePx = (/** @type {string} */ s) => {
-    const m = s.match(pxRegex);
+  const px_regex = /^([-.\d]+)(px)?$/;
+  const parse_px = (/** @type {string} */ s) => {
+    const m = s.match(px_regex);
     return m ? parseFloat(m[1]) : null;
   };
   return /** @type {number} */ (
     resolve_css(value, fallback, context, {
       prop: "paddingTop",
       sentinel: "1.234px",
-      parseDirect: parsePx,
-      parseResolvedVar: parsePx,
+      parseDirect: parse_px,
+      parseResolvedVar: parse_px,
       parseComputed: (c) => {
         const n = parseFloat(c);
         return isNaN(n) ? null : n;
@@ -200,24 +200,24 @@ export function resolve_px(value, fallback = 0, context = null) {
  * @returns {number}
  */
 export function resolve_ms(value, fallback = 0, context = null) {
-  const toMs = (/** @type {string} */ val, /** @type {string | undefined} */ unit) => {
+  const to_ms = (/** @type {string} */ val, /** @type {string | undefined} */ unit) => {
     const numeric = parseFloat(val);
     if (!unit) return numeric === 0 ? 0 : null;
     return unit === "ms" ? numeric : numeric * 1000;
   };
-  const parseMs = (/** @type {string} */ s) => {
+  const parse_ms = (/** @type {string} */ s) => {
     const m = s.match(/^([-.\d]+)(ms|s)?$/);
-    return m ? toMs(m[1], m[2]) : null;
+    return m ? to_ms(m[1], m[2]) : null;
   };
   return /** @type {number} */ (
     resolve_css(value, fallback, context, {
       prop: "transitionDuration",
       sentinel: "1.234s",
-      parseDirect: parseMs,
-      parseResolvedVar: parseMs,
+      parseDirect: parse_ms,
+      parseResolvedVar: parse_ms,
       parseComputed: (c) => {
         const m = c.match(/([-.\d]+)(s|ms)/);
-        return m ? toMs(m[1], m[2]) : null;
+        return m ? to_ms(m[1], m[2]) : null;
       },
     })
   );
@@ -232,7 +232,7 @@ export function resolve_ms(value, fallback = 0, context = null) {
  * @returns {number}
  */
 export function resolve_number(value, fallback = 0, context = null) {
-  const parseNum = (/** @type {string} */ s) => {
+  const parse_num = (/** @type {string} */ s) => {
     const n = parseFloat(s);
     return isNaN(n) ? null : n;
   };
@@ -240,9 +240,9 @@ export function resolve_number(value, fallback = 0, context = null) {
     resolve_css(value, fallback, context, {
       prop: "flexGrow",
       sentinel: "1.234",
-      parseDirect: parseNum,
-      parseResolvedVar: parseNum,
-      parseComputed: (c) => parseNum(c),
+      parseDirect: parse_num,
+      parseResolvedVar: parse_num,
+      parseComputed: (c) => parse_num(c),
     })
   );
 }
@@ -257,16 +257,16 @@ export function resolve_number(value, fallback = 0, context = null) {
  * @returns {string}
  */
 export function resolve_string(value, fallback = "", context = null) {
-  const cleanStr = (/** @type {string} */ s) => s.replace(/['"]/g, "");
-  const parseVar = (/** @type {string} */ s) => (s && s !== "SENTINEL" && !s.includes("var(") ? cleanStr(s) : null);
+  const clean_str = (/** @type {string} */ s) => s.replace(/['"]/g, "");
+  const parse_var = (/** @type {string} */ s) => (s && s !== "SENTINEL" && !s.includes("var(") ? clean_str(s) : null);
 
   return /** @type {string} */ (
     resolve_css(value, fallback, context, {
       prop: "--proxy",
       sentinel: "SENTINEL",
       parseDirect: () => null,
-      parseResolvedVar: parseVar,
-      parseComputed: (c) => (c && c !== "SENTINEL" ? cleanStr(c) : null),
+      parseResolvedVar: parse_var,
+      parseComputed: (c) => (c && c !== "SENTINEL" ? clean_str(c) : null),
     })
   );
 }
@@ -277,19 +277,19 @@ export function resolve_string(value, fallback = "", context = null) {
  * @param {string} key
  * @returns {any[]}
  */
-export const getRpgList = (key) => {
-  const globalLists = typeof window !== "undefined" && /** @type {any} */ (window).lists ? /** @type {any} */ (window).lists : null;
-  if (globalLists && globalLists[key]) {
-    let list = globalLists[key];
+export const get_rpg_list = (key) => {
+  const global_lists = typeof window !== "undefined" && /** @type {any} */ (window).lists ? /** @type {any} */ (window).lists : null;
+  if (global_lists && global_lists[key]) {
+    let list = global_lists[key];
     if (Array.isArray(list) && typeof list[0] === "string" && list[0].startsWith("[")) {
       if (list[0].length > 65536) {
-        console.warn(`[Helpers] getRpgList: JSON string for key '${key}' exceeds 64KB safety limit.`);
+        console.warn(`[Helpers] get_rpg_list: JSON string for key '${key}' exceeds 64KB safety limit.`);
         return [];
       }
       try {
         return JSON.parse(list[0]);
       } catch (e) {
-        console.warn(`[Helpers] getRpgList: Failed to parse JSON for key '${key}'.`, e);
+        console.warn(`[Helpers] get_rpg_list: Failed to parse JSON for key '${key}'.`, e);
         return list;
       }
     }

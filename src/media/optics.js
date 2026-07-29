@@ -5,8 +5,7 @@
  */
 
 import { VISUAL_STYLES } from "@data";
-import { escape_xml as escapeXml, safeParsePseudoJson, state_bridge } from "@utils";
-import { PROTOCOL_LIBRARY } from "@intelligence";
+import { escape_xml as escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**
@@ -21,13 +20,13 @@ export const NEGATIVE_PROMPT = "blurry, low resolution, compressed artifacts, te
  * @returns {string}
  */
 export function resolve_portrait_visual_style_key(entity = {}) {
-  const entityStyle = entity?.visual_style;
-  if (entityStyle && entityStyle !== "default" && entityStyle !== "" && VISUAL_STYLES[entityStyle]) {
-    return entityStyle;
+  const entity_style = entity?.visual_style;
+  if (entity_style && entity_style !== "default" && entity_style !== "" && VISUAL_STYLES[entity_style]) {
+    return entity_style;
   }
-  const appStyle = state_bridge.app ? state_bridge.app.settings?.visual_style : null;
-  if (appStyle && appStyle !== "default" && VISUAL_STYLES[appStyle]) {
-    return appStyle;
+  const app_style = state_bridge.app ? state_bridge.app.settings?.visual_style : null;
+  if (app_style && app_style !== "default" && VISUAL_STYLES[app_style]) {
+    return app_style;
   }
   return "none";
 }
@@ -37,13 +36,13 @@ export function resolve_portrait_visual_style_key(entity = {}) {
  * @returns {string}
  */
 export function resolve_story_visual_style_key() {
-  const fractalStyle = state_bridge.runtime?.active_fractal?.visual_style;
-  if (fractalStyle && fractalStyle !== "default" && fractalStyle !== "" && VISUAL_STYLES[fractalStyle]) {
-    return fractalStyle;
+  const fractal_style = state_bridge.runtime?.active_fractal?.visual_style;
+  if (fractal_style && fractal_style !== "default" && fractal_style !== "" && VISUAL_STYLES[fractal_style]) {
+    return fractal_style;
   }
-  const appStyle = state_bridge.app?.settings?.visual_style ?? null;
-  if (appStyle && appStyle !== "default" && VISUAL_STYLES[appStyle]) {
-    return appStyle;
+  const app_style = state_bridge.app?.settings?.visual_style ?? null;
+  if (app_style && app_style !== "default" && VISUAL_STYLES[app_style]) {
+    return app_style;
   }
   return "none";
 }
@@ -57,28 +56,28 @@ export function parse_visual_engine(engineXml = "") {
   const result = { medium: "", palette: "", camera: "", composition: "", texture: "", negative_prompt: "" };
   if (!engineXml) return result;
 
-  const extractTag = (tag) => {
+  const extract_tag = (tag) => {
     const match = engineXml.match(new RegExp(`<${tag}>([\\s\\S]*?)</${tag}>`, "i"));
     return match ? match[1].trim() : "";
   };
 
-  result.medium = extractTag("medium");
-  result.palette = extractTag("palette");
-  result.camera = extractTag("camera");
-  result.composition = extractTag("composition");
-  result.texture = extractTag("texture");
-  result.negative_prompt = extractTag("negative_prompt");
+  result.medium = extract_tag("medium");
+  result.palette = extract_tag("palette");
+  result.camera = extract_tag("camera");
+  result.composition = extract_tag("composition");
+  result.texture = extract_tag("texture");
+  result.negative_prompt = extract_tag("negative_prompt");
   return result;
 }
 
 /**
  * Resolves the VISUAL_ENGINE tokens for a given visual style key,
  * handling both XML-embedded tags and isolated schema properties.
- * @param {string} styleKey
+ * @param {string} style_key
  * @returns {{ medium: string, palette: string, camera: string, composition: string, texture: string, negative_prompt: string }}
  */
-export function resolve_visual_engine_tokens(styleKey) {
-  const style = VISUAL_STYLES[styleKey] || VISUAL_STYLES.none;
+export function resolve_visual_engine_tokens(style_key) {
+  const style = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
   const tokens = parse_visual_engine(style.visual_engine);
 
   if (style.negative_prompt && typeof style.negative_prompt === "string") {
@@ -101,7 +100,7 @@ const normalize_comma_spacing = (str) => str.replace(/,([^\s])/g, ", $1");
  */
 export const flatten_physical = (raw) => {
   if (!raw) return "";
-  const parsed = safeParsePseudoJson(raw);
+  const parsed = safe_parse_pseudo_json(raw);
 
   if (parsed.__raw_prose__) {
     return normalize_comma_spacing(parsed.__raw_prose__);
@@ -110,9 +109,9 @@ export const flatten_physical = (raw) => {
   if (Object.keys(parsed).length > 0) {
     const clauses = Object.entries(parsed)
       .map(([k, v]) => {
-        const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
-        if (!valStr) return "";
-        return `${k.replace(/_/g, " ")}: ${valStr}`;
+        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        if (!val_str) return "";
+        return `${k.replace(/_/g, " ")}: ${val_str}`;
       })
       .filter(Boolean);
     return normalize_comma_spacing(clauses.join(". "));
@@ -127,12 +126,12 @@ export const flatten_physical = (raw) => {
  * @returns {Record<string, any>}
  */
 function build_aesthetic_map(entity = {}) {
-  const eternalObj = safeParsePseudoJson(entity.eternal?.physical || "");
-  const presentObj = safeParsePseudoJson(entity.present?.physical || "");
+  const eternal_obj = safe_parse_pseudo_json(entity.eternal?.physical || "");
+  const present_obj = safe_parse_pseudo_json(entity.present?.physical || "");
 
   const merged = {};
 
-  const mergeInputSource = (sourceObj, fallbackLabel) => {
+  const merge_input_source = (sourceObj, fallbackLabel) => {
     if (sourceObj.__raw_prose__) {
       merged[fallbackLabel] = sourceObj.__raw_prose__;
     } else {
@@ -142,20 +141,20 @@ function build_aesthetic_map(entity = {}) {
     }
   };
 
-  mergeInputSource(eternalObj, "eternal");
-  mergeInputSource(presentObj, "present");
+  merge_input_source(eternal_obj, "eternal");
+  merge_input_source(present_obj, "present");
 
-  const styleKey = resolve_portrait_visual_style_key(entity);
-  const engineTokens = resolve_visual_engine_tokens(styleKey);
-  if (engineTokens.medium) merged._vs_medium = engineTokens.medium;
-  if (engineTokens.palette) merged._vs_palette = engineTokens.palette;
-  if (engineTokens.camera) merged._vs_camera = engineTokens.camera;
-  if (engineTokens.composition) merged._vs_composition = engineTokens.composition;
-  if (engineTokens.texture) merged._vs_texture = engineTokens.texture;
+  const style_key = resolve_portrait_visual_style_key(entity);
+  const engine_tokens = resolve_visual_engine_tokens(style_key);
+  if (engine_tokens.medium) merged._vs_medium = engine_tokens.medium;
+  if (engine_tokens.palette) merged._vs_palette = engine_tokens.palette;
+  if (engine_tokens.camera) merged._vs_camera = engine_tokens.camera;
+  if (engine_tokens.composition) merged._vs_composition = engine_tokens.composition;
+  if (engine_tokens.texture) merged._vs_texture = engine_tokens.texture;
 
-  const colorName = get_signature_label(entity);
-  if (colorName) {
-    merged.aesthetic = `${colorName.toLowerCase()} aesthetic`;
+  const color_name = get_signature_label(entity);
+  if (color_name) {
+    merged.aesthetic = `${color_name.toLowerCase()} aesthetic`;
   }
 
   return merged;
@@ -171,17 +170,17 @@ export const AestheticResolver = {
    */
   extract(entity = {}) {
     const merged = build_aesthetic_map(entity);
-    const orderedKeys = [...VS_ORDERED_KEYS.filter((k) => merged[k]), ...Object.keys(merged).filter((k) => !VS_ORDERED_KEYS.includes(k))];
+    const ordered_keys = [...VS_ORDERED_KEYS.filter((k) => merged[k]), ...Object.keys(merged).filter((k) => !VS_ORDERED_KEYS.includes(k))];
 
-    return orderedKeys
+    return ordered_keys
       .map((k) => {
         const v = merged[k];
         if (v === undefined || v === null) return "";
-        const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
-        if (!valStr) return "";
-        const formattedVal = normalize_comma_spacing(valStr);
-        const cleanKey = k.replace(/^_vs_/, "");
-        return `  "${cleanKey}": "${formattedVal.replace(/"/g, '\\"')}"`;
+        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        if (!val_str) return "";
+        const formatted_val = normalize_comma_spacing(val_str);
+        const clean_key = k.replace(/^_vs_/, "");
+        return `  "${clean_key}": "${formatted_val.replace(/"/g, '\\"')}"`;
       })
       .filter(Boolean)
       .join(",\n");
@@ -194,18 +193,22 @@ export const AestheticResolver = {
    */
   flatten(entity = {}) {
     const merged = build_aesthetic_map(entity);
-    const vsValues = VS_ORDERED_KEYS.map((k) => merged[k]).filter(Boolean);
-    const otherValues = Object.entries(merged)
+    const vs_values = VS_ORDERED_KEYS.map((k) => merged[k]).filter(Boolean);
+    const other_values = Object.entries(merged)
       .filter(([k]) => !VS_ORDERED_KEYS.includes(k))
       .map(([k, v]) => {
-        const valStr = Array.isArray(v) ? v.join(", ") : String(v).trim();
-        return k.startsWith("_vs_") || k === "aesthetic" ? valStr : `${k.replace(/_/g, " ")}: ${valStr}`;
+        const val_str = Array.isArray(v) ? v.join(", ") : String(v).trim();
+        return k.startsWith("_vs_") || k === "aesthetic" ? val_str : `${k.replace(/_/g, " ")}: ${val_str}`;
       })
       .filter(Boolean);
 
-    return normalize_comma_spacing([...vsValues, ...otherValues].join(". "));
+    return normalize_comma_spacing([...vs_values, ...other_values].join(". "));
   },
 };
+
+const JSON_OUTPUT_PROTOCOL = "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON.";
+const PERCHANCE_SYNTAX_PROTOCOL =
+  "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features (colors, micro-details, backgrounds) to ensure variation.";
 
 /**
  * Authoritative prompt templates optimized for modern generative diffusion pipelines.
@@ -219,48 +222,48 @@ export const PromptTemplates = {
    * @returns {string}
    */
   ENHANCE: (text, _type = "character", entity = null) => {
-    const isPortraitMode = ["character", "ai", "user", "selfie", "portrait"].includes(_type || "");
-    const styleKey = isPortraitMode ? resolve_portrait_visual_style_key(entity || {}) : resolve_story_visual_style_key();
-    const styleObj = VISUAL_STYLES[styleKey] || VISUAL_STYLES.none;
-    const activeStyleBlock = `<ACTIVE_VISUAL_STYLE key="${styleKey}" name="${escapeXml(styleObj.name || styleKey)}">
-${styleObj.visual_engine || "<VISUAL_ENGINE>No automatic visual style tokens forced.</VISUAL_ENGINE>"}
-${styleObj.tags && styleObj.tags.length ? `<tags>${escapeXml(styleObj.tags.join(", "))}</tags>` : ""}
-${styleObj.negative_prompt ? `<negative_prompt>${escapeXml(styleObj.negative_prompt)}</negative_prompt>` : ""}
+    const is_portrait_mode = ["character", "ai", "user", "selfie", "portrait"].includes(_type || "");
+    const style_key = is_portrait_mode ? resolve_portrait_visual_style_key(entity || {}) : resolve_story_visual_style_key();
+    const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+    const active_style_block = `<ACTIVE_VISUAL_STYLE key="${style_key}" name="${escape_xml(style_obj.name || style_key)}">
+${style_obj.visual_engine || "<VISUAL_ENGINE>No automatic visual style tokens forced.</VISUAL_ENGINE>"}
+${style_obj.tags && style_obj.tags.length ? `<tags>${escape_xml(style_obj.tags.join(", "))}</tags>` : ""}
+${style_obj.negative_prompt ? `<negative_prompt>${escape_xml(style_obj.negative_prompt)}</negative_prompt>` : ""}
 </ACTIVE_VISUAL_STYLE>`;
 
-    const inputDesc =
+    const input_desc =
       text && text.trim()
         ? text
-        : `A detailed ${isPortraitMode ? "character portrait" : "scene"} of ${entity?.name || _type || "a subject"}, ${entity?.description || "with distinctive features and dramatic lighting"}.`;
+        : `A detailed ${is_portrait_mode ? "character portrait" : "scene"} of ${entity?.name || _type || "a subject"}, ${entity?.description || "with distinctive features and dramatic lighting"}.`;
 
     return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
 You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and rendering clarity for modern transformer-based diffusion pipelines (FLUX.1 / T5-XXL).
 
 Your goal is to evaluate the user's initial core concept in <INPUT_DESCRIPTION>, enrich it with vivid physical details, integrate the visual directives from <ACTIVE_VISUAL_STYLE>, and output a validated JSON payload.
 
-${activeStyleBlock}
+${active_style_block}
 
 <REFINE_PROTOCOL>
 1. **Concept Enrichment:** Analyze core subjects, clothing, lighting, and environmental setting in INPUT_DESCRIPTION. Enrich them with concrete, tangible physical descriptors.
 2. **Visual Style Integration:** Strictly honor <ACTIVE_VISUAL_STYLE>. Seamlessly integrate medium, palette, camera/composition, and texture into natural, cohesive English prose sentences.
 3. **Natural Prose Format:** Output continuous descriptive sentences. Avoid compiling comma-separated "booru" keyword tags or fragmented tag soup.
 4. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground outputs using physical optics and real-world material descriptions.
-5. **Perchance Syntax:** ${PROTOCOL_LIBRARY.PERCHANCE_SYNTAX}
+5. **Perchance Syntax:** ${PERCHANCE_SYNTAX_PROTOCOL}
 6. **Thought of Structure:** Write your internal step-by-step composition reasoning in the "_thought_process" key at the top of the JSON payload before generating final prompt strings.
 </REFINE_PROTOCOL>
 
 <INPUT_DESCRIPTION>
-${escapeXml(inputDesc)}
+${escape_xml(input_desc)}
 </INPUT_DESCRIPTION>
 
 JSON STRUCTURE:
 {
   "_thought_process": "<your breakdown planning: Subject features, Active Style integration, Lighting, Colors, Composition, and Textures>",
   "prompt": "<synthesized natural prose sentences merging enriched subject details with active style parameters and optional runtime parameters>",
-  "negativePrompt": "<cohesive comma-separated flat tokens to exclude. Use concrete visual attributes only. NEVER use conversational phrases or instructions like 'don't include'>"
+  "negative_prompt": "<cohesive comma-separated flat tokens to exclude. Use concrete visual attributes only. NEVER use conversational phrases or instructions like 'don't include'>"
 }
 
-${PROTOCOL_LIBRARY.JSON_OUTPUT}
+${JSON_OUTPUT_PROTOCOL}
 </OPTICS_REFINE>`.trim();
   },
 
@@ -279,17 +282,17 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
 
     const physical_to_xml = (raw, tagName) => {
       if (!raw) return "";
-      const parsed = safeParsePseudoJson(raw);
+      const parsed = safe_parse_pseudo_json(raw);
       if (parsed.__raw_prose__) {
-        return `  <${tagName}>${escapeXml(parsed.__raw_prose__)}</${tagName}>`;
+        return `  <${tagName}>${escape_xml(parsed.__raw_prose__)}</${tagName}>`;
       }
       const children = Object.entries(parsed)
-        .map(([k, v]) => `    <${k}>${escapeXml(String(v))}</${k}>`)
+        .map(([k, v]) => `    <${k}>${escape_xml(String(v))}</${k}>`)
         .join("\n");
       return `  <${tagName}>\n${children}\n  </${tagName}>`;
     };
 
-    const renderEntity = (tagStr, entity) => {
+    const render_entity = (tagStr, entity) => {
       if (!entity) return "";
       const blocks = [];
       if (entity.eternal?.physical) {
@@ -298,50 +301,50 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
       if (entity.present?.physical) {
         blocks.push(physical_to_xml(entity.present.physical, "PRESENT"));
       }
-      if (!blocks.length) return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}" />`;
-      return `<${tagStr} name="${escapeXml(entity.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;
+      if (!blocks.length) return `<${tagStr} name="${escape_xml(entity.name || "Unknown")}" />`;
+      return `<${tagStr} name="${escape_xml(entity.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;
     };
 
-    const aiBlock = renderEntity("AI_CHARACTER", ai);
-    const userBlock = renderEntity("USER_PERSONA", user);
-    const fractalBlock = renderEntity("FRACTAL", fractal);
+    const ai_block = render_entity("AI_CHARACTER", ai);
+    const user_block = render_entity("USER_PERSONA", user);
+    const fractal_block = render_entity("FRACTAL", fractal);
 
-    const storyStyleKey = resolve_story_visual_style_key();
-    const storyStyle = VISUAL_STYLES[storyStyleKey] || VISUAL_STYLES.none;
-    const storyEngineTokens = resolve_visual_engine_tokens(storyStyleKey);
-    const visualEngineBlock = storyStyle.visual_engine
-      ? `\n<VISUAL_ENGINE style="${escapeXml(storyStyle.name || storyStyleKey)}">\n${storyStyle.visual_engine}${
-          storyStyle.tags && storyStyle.tags.length ? `\n<tags>${escapeXml(storyStyle.tags.join(", "))}</tags>` : ""
+    const story_style_key = resolve_story_visual_style_key();
+    const story_style = VISUAL_STYLES[story_style_key] || VISUAL_STYLES.none;
+    const story_engine_tokens = resolve_visual_engine_tokens(story_style_key);
+    const visual_engine_block = story_style.visual_engine
+      ? `\n<VISUAL_ENGINE style="${escape_xml(story_style.name || story_style_key)}">\n${story_style.visual_engine}${
+          story_style.tags && story_style.tags.length ? `\n<tags>${escape_xml(story_style.tags.join(", "))}</tags>` : ""
         }\n</VISUAL_ENGINE>`
       : "";
 
-    const vsNegPrompt = storyEngineTokens.negative_prompt || NEGATIVE_PROMPT;
+    const vs_neg_prompt = story_engine_tokens.negative_prompt || NEGATIVE_PROMPT;
 
     switch (targetType) {
       case "fractal":
-        ctxBlock = `${fractalBlock}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
+        ctxBlock = `${fractal_block}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
         subject = "a landscape environment or interior layout space";
         break;
       case "characters":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<NARRATIVE_CONTEXT>The image must depict the specific scene or action described in INSTRUCTIONS. Characters must be dynamically engaged in the narrative beat rather than statically posing.</NARRATIVE_CONTEXT>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>The image must depict the specific scene or action described in INSTRUCTIONS. Characters must be dynamically engaged in the narrative beat rather than statically posing.</NARRATIVE_CONTEXT>`;
         subject = "a scene featuring the AI character and user persona engaged together within the fractal environment";
         break;
       case "character":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
         subject = "a character framed within their environment, emphasizing their presence with the background fractal setting visible";
         break;
       case "selfie":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
         subject =
           "a modern front-facing wide-angle selfie capture, framing the character from the chest up with one arm reaching toward the lower frame";
         break;
       case "user":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${userBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona context.</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona context.</RESTRICTION>`;
         subject = "a solo character portrait of the user persona";
         break;
       case "ai":
       default:
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${aiBlock}\n</ACTIVE_CHARACTERS>\n${fractalBlock}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character context.</RESTRICTION>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character context.</RESTRICTION>`;
         subject = "a solo character portrait of the AI character";
         break;
     }
@@ -349,29 +352,29 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">
 ${ctxBlock}
-${visualEngineBlock}
+${visual_engine_block}
 <PROTOCOL>
 1. Formulate your internal visual plan inside the "_thought_process" key first.
 2. Synthesize the final image prompt inside "prompt" as continuous, descriptive sentences depicting ${subject}.
 3. Seamlessly incorporate the medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
-4. Pass the designated negative tokens ("${escapeXml(vsNegPrompt)}") inside "negativePrompt".
+4. Pass the designated negative tokens ("${escape_xml(vs_neg_prompt)}") inside "negative_prompt".
 ${targetType === "selfie" ? '5. Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
-${history ? `<HISTORY>\n${escapeXml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
+${history ? `<HISTORY>\n${escape_xml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
 Convert narrative intent into a structured image prompt payload.
-Input Intent: "${escapeXml(rawIntent)}"
+Input Intent: "${escape_xml(rawIntent)}"
 </INSTRUCTIONS>
 
 JSON STRUCTURE:
 {
   "_thought_process": "<step-by-step composition, lighting, and style analysis>",
   "prompt": "<synthesized descriptive image prompt>",
-  "negativePrompt": "${escapeXml(vsNegPrompt)}"${targetType === "selfie" ? ',\n  "caption": "<in-character selfie caption>"' : ""}
+  "negative_prompt": "${escape_xml(vs_neg_prompt)}"${targetType === "selfie" ? ',\n  "caption": "<in-character selfie caption>"' : ""}
 }
 
-${PROTOCOL_LIBRARY.JSON_OUTPUT}
+${JSON_OUTPUT_PROTOCOL}
 </SYSTEM>
 `.trim();
   },
@@ -382,7 +385,7 @@ ${PROTOCOL_LIBRARY.JSON_OUTPUT}
  * @param {"landscape" | "fractal" | "portrait" | "character" | "selfie" | "user" | "ai" | "characters" | string} mode
  * @returns {{ width: number, height: number }}
  */
-export const getResolution = (mode) => {
+export const get_resolution = (mode) => {
   switch (mode) {
     case "landscape":
     case "fractal":
@@ -407,8 +410,8 @@ export const getResolution = (mode) => {
  * @returns {string}
  */
 export function format_perchance_params(mode, seed = null) {
-  const { width, height } = getResolution(mode);
-  const resParam = `(resolution:::${width}x${height})`;
-  const seedParam = seed !== null && seed !== undefined ? ` (seed:::${seed})` : "";
-  return `${resParam}${seedParam}`;
+  const { width, height } = get_resolution(mode);
+  const res_param = `(resolution:::${width}x${height})`;
+  const seed_param = seed !== null && seed !== undefined ? ` (seed:::${seed})` : "";
+  return `${res_param}${seed_param}`;
 }

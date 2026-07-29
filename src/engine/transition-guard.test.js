@@ -9,7 +9,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 // NOTE: We must mock the module under test before importing it,
 // as the guard uses a module-level singleton state object.
 /** @type {(cb: () => void | Promise<void>) => void} */
-let guardedTransition;
+let guarded_transition;
 
 describe("transition-guard", () => {
   beforeEach(async () => {
@@ -17,7 +17,7 @@ describe("transition-guard", () => {
     vi.resetModules();
     // @ts-ignore - IDE struggles to resolve this module in the dynamic import
     const mod = await import("./transition-guard.js");
-    guardedTransition = mod.guardedTransition;
+    guarded_transition = mod.guarded_transition;
     // Reset mocks on document — cast via any to bypass TS non-optional property check
     /** @type {any} */ (document).startViewTransition = undefined;
   });
@@ -25,12 +25,12 @@ describe("transition-guard", () => {
   describe("when document.startViewTransition is NOT available", () => {
     it("calls the callback synchronously without animation", () => {
       const cb = vi.fn();
-      guardedTransition(cb);
+      guarded_transition(cb);
       expect(cb).toHaveBeenCalledTimes(1);
     });
 
     it("does not throw", () => {
-      expect(() => guardedTransition(() => {})).not.toThrow();
+      expect(() => guarded_transition(() => {})).not.toThrow();
     });
   });
 
@@ -42,12 +42,12 @@ describe("transition-guard", () => {
 
     beforeEach(() => {
       // Build a controllable mock for startViewTransition
-      const finishedPromise = new Promise((resolve) => {
+      const finished_promise = new Promise((resolve) => {
         resolveTransition = /** @type {() => void} */ (resolve);
       });
       transitionMock = {
         ready: Promise.resolve(),
-        finished: finishedPromise,
+        finished: finished_promise,
         updateCallbackDone: Promise.resolve(),
         skipTransition: vi.fn(),
         types: [],
@@ -61,18 +61,18 @@ describe("transition-guard", () => {
 
     it("calls document.startViewTransition with the callback", async () => {
       const cb = vi.fn();
-      guardedTransition(cb);
+      guarded_transition(cb);
       await vi.waitFor(() => expect(cb).toHaveBeenCalledTimes(1));
       expect(document.startViewTransition).toHaveBeenCalledTimes(1);
     });
 
     it("sets active=true while transition runs, active=false after finished resolves", async () => {
       const cb = vi.fn();
-      guardedTransition(cb);
+      guarded_transition(cb);
 
       // Before finished resolves, a second call must bypass the API
       const cb2 = vi.fn();
-      guardedTransition(cb2);
+      guarded_transition(cb2);
 
       // cb2 should run synchronously (fallback) — not through startViewTransition
       expect(cb2).toHaveBeenCalledTimes(1);
@@ -84,7 +84,7 @@ describe("transition-guard", () => {
       await vi.waitFor(() => {
         // After the lock clears, a fresh call should go through the API again
         const cb3 = vi.fn();
-        guardedTransition(cb3);
+        guarded_transition(cb3);
         expect(document.startViewTransition).toHaveBeenCalledTimes(2);
       });
     });
@@ -92,16 +92,16 @@ describe("transition-guard", () => {
     it("releases the active lock after the transition's finished promise settles", async () => {
       // Use a deferred promise so we control exactly when the transition finishes
       /** @type {() => void} */
-      let resolveFinished = () => {};
-      const finishedPromise = new Promise((res) => {
-        resolveFinished = /** @type {() => void} */ (res);
+      let resolve_finished = () => {};
+      const finished_promise = new Promise((res) => {
+        resolve_finished = /** @type {() => void} */ (res);
       });
 
       /** @type {any} */ (document).startViewTransition = vi.fn((cb) => {
         Promise.resolve().then(cb);
         return {
           ready: Promise.resolve(),
-          finished: finishedPromise,
+          finished: finished_promise,
           updateCallbackDone: Promise.resolve(),
           skipTransition: vi.fn(),
           types: [],
@@ -109,21 +109,21 @@ describe("transition-guard", () => {
       });
 
       const cb = vi.fn();
-      guardedTransition(cb);
+      guarded_transition(cb);
 
       // Lock is held — a concurrent call must bypass the API (synchronous fallback)
       const cb2 = vi.fn();
-      guardedTransition(cb2);
+      guarded_transition(cb2);
       expect(cb2).toHaveBeenCalledTimes(1);
       expect(document.startViewTransition).toHaveBeenCalledTimes(1);
 
       // Release the lock by settling the first transition
-      resolveFinished();
+      resolve_finished();
 
       // After settled, the lock must be cleared — a new call must go through the API
       await vi.waitFor(() => {
         const cb3 = vi.fn();
-        guardedTransition(cb3);
+        guarded_transition(cb3);
         expect(document.startViewTransition).toHaveBeenCalledTimes(2);
       });
     });

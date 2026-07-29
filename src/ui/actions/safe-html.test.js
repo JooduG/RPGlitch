@@ -5,7 +5,7 @@ vi.mock("@platform/security.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     .../** @type {any} */ (actual),
-    sanitizeToFragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })),
+    sanitize_to_fragment: vi.fn((dirty) => ({ __isMockFragment: true, source: dirty || "" })),
   };
 });
 // We must use JSDOM environment in Vitest to use document.createElement
@@ -35,22 +35,22 @@ describe("safe_html action", () => {
         source: "<b>Bold Content</b>",
       }),
     );
-    // Ensure security.sanitizeToFragment was called
-    expect(security.sanitizeToFragment).toHaveBeenCalledWith("<b>Bold Content</b>");
+    // Ensure security.sanitize_to_fragment was called
+    expect(security.sanitize_to_fragment).toHaveBeenCalledWith("<b>Bold Content</b>");
   });
   test("update function works correctly on subsequent calls", () => {
     const action = safe_html(mockNode, "Content 1");
     // Reset our spies
     mockNode.appendChild.mockClear();
-    vi.mocked(security.sanitizeToFragment).mockClear();
+    vi.mocked(security.sanitize_to_fragment).mockClear();
     // Call the update method returned by the action
     action.update("Content 2");
     expect(mockNode.textContent).toBe("");
     expect(mockNode.appendChild).toHaveBeenCalledTimes(1);
-    expect(security.sanitizeToFragment).toHaveBeenCalledWith("Content 2");
+    expect(security.sanitize_to_fragment).toHaveBeenCalledWith("Content 2");
   });
   test("handles null or undefined by converting to empty string", () => {
     safe_html(mockNode, null);
-    expect(security.sanitizeToFragment).toHaveBeenCalledWith("");
+    expect(security.sanitize_to_fragment).toHaveBeenCalledWith("");
   });
 });

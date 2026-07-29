@@ -7,13 +7,13 @@
    * round of generation with LLM-refined prompts.
    */
   import {
-    imageRegenerate,
-    selectCandidate,
-    closeRegenerate,
-    deliverCandidates,
-    setRegenerateError,
-    closePicker,
-    getPersistedMeta,
+    image_regenerate,
+    select_candidate,
+    close_regenerate,
+    deliver_candidates,
+    set_regenerate_error,
+    close_picker,
+    get_persisted_meta,
   } from "./ImageRegenerate.svelte.js";
   import { visual_engine } from "@media";
   import { Backdrop } from "@atoms";
@@ -24,37 +24,37 @@
 
   async function handle_regenerate() {
     if (is_regenerating) return;
-    const key = imageRegenerate.regenerating_key;
+    const key = image_regenerate.regenerating_key;
     if (!key) {
-      setRegenerateError("No image context available to regenerate.");
+      set_regenerate_error("No image context available to regenerate.");
       return;
     }
 
-    // Read persisted meta BEFORE closePicker (plain variables, not $state)
-    const meta = getPersistedMeta();
+    // Read persisted meta BEFORE close_picker (plain variables, not $state)
+    const meta = get_persisted_meta();
 
     is_regenerating = true;
-    closePicker();
+    close_picker();
     try {
-      const signature_color = imageRegenerate.signature_color;
+      const signature_color = image_regenerate.signature_color;
 
       const prompt = meta.prompt || "";
       const mode = meta.mode || "character";
-      const negativePrompt = meta.negativePrompt || "";
+      const negative_prompt = meta.negative_prompt || "";
 
       if (!prompt) {
         console.error("[ImageRegenerate] NO PROMPT! meta was:", meta);
-        setRegenerateError("No prompt found for this image. Cannot regenerate.");
+        set_regenerate_error("No prompt found for this image. Cannot regenerate.");
         return;
       }
 
-      let finalPrompt = prompt;
-      let finalNegative = negativePrompt;
+      let final_prompt = prompt;
+      let final_negative = negative_prompt;
       try {
         const refined = await visual_engine.enhance(prompt, mode);
         if (refined?.prompt) {
-          finalPrompt = refined.prompt;
-          finalNegative = refined.negativePrompt || negativePrompt;
+          final_prompt = refined.prompt;
+          final_negative = refined.negative_prompt || negative_prompt;
         }
       } catch (enhanceErr) {
         console.warn("[ImageRegenerate] Prompt enhancement failed, using original prompt:", enhanceErr);
@@ -62,51 +62,51 @@
 
       // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
       // extract the prompt field from it. This happens when _parseRefineResponse fails to peel the JSON.
-      if (finalPrompt.trim().startsWith("{")) {
+      if (final_prompt.trim().startsWith("{")) {
         try {
-          const parsed = JSON.parse(finalPrompt.trim());
+          const parsed = JSON.parse(final_prompt.trim());
           if (parsed.prompt && typeof parsed.prompt === "string") {
-            finalPrompt = parsed.prompt;
-            if (parsed.negativePrompt) finalNegative = parsed.negativePrompt;
+            final_prompt = parsed.prompt;
+            if (parsed.negative_prompt) final_negative = parsed.negative_prompt;
           }
         } catch (_e) {
-          const promptMatch = finalPrompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-          if (promptMatch && promptMatch[1]) {
-            finalPrompt = promptMatch[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+          const prompt_match = final_prompt.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+          if (prompt_match && prompt_match[1]) {
+            final_prompt = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
           }
         }
       }
 
-      const newCandidates = await visual_engine.generate_candidates(finalPrompt, {
+      const new_candidates = await visual_engine.generate_candidates(final_prompt, {
         mode,
-        negativePrompt: finalNegative,
+        negative_prompt: final_negative,
         count: 3,
         min_success: 2,
       });
 
-      if (newCandidates.length < 2) {
-        setRegenerateError("Not enough images generated. Please try again.");
+      if (new_candidates.length < 2) {
+        set_regenerate_error("Not enough images generated. Please try again.");
         return;
       }
 
-      deliverCandidates(
-        newCandidates.map((c) => ({
+      deliver_candidates(
+        new_candidates.map((c) => ({
           url: c.url,
-          metadata: { ...c.metadata, prompt: finalPrompt, mode },
+          metadata: { ...c.metadata, prompt: final_prompt, mode },
           signature_color,
         })),
-        { prompt: finalPrompt, mode, negativePrompt: finalNegative },
+        { prompt: final_prompt, mode, negative_prompt: final_negative },
       );
     } catch (err) {
       console.error("[Regenerate Error]", err);
-      setRegenerateError(`Regenerate failed: ${err.message || err}`);
+      set_regenerate_error(`Regenerate failed: ${err.message || err}`);
     } finally {
       is_regenerating = false;
     }
   }
 </script>
 
-{#if imageRegenerate.picker_open}
+{#if image_regenerate.picker_open}
   <Dialog.Root open={true} preventScroll={false}>
     <Dialog.Portal>
       <Dialog.Overlay forceMount>
@@ -119,21 +119,21 @@
                   class="relative flex min-h-[60vh] w-[clamp(20rem,90vw,80rem)] flex-col items-center justify-center gap-8"
                   onclick={(e) => e.stopPropagation()}
                 >
-                  {#if imageRegenerate.error}
+                  {#if image_regenerate.error}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
-                      <p class="text-lg text-red-400">{imageRegenerate.error}</p>
+                      <p class="text-lg text-red-400">{image_regenerate.error}</p>
                       <div class="flex gap-4">
                         <button
                           class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
                           onclick={() => {
-                            closeRegenerate();
+                            close_regenerate();
                           }}
                         >
                           Close
                         </button>
                       </div>
                     </div>
-                  {:else if imageRegenerate.candidates.length < 2}
+                  {:else if image_regenerate.candidates.length < 2}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <div class="flex gap-1.5">
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 0ms"></div>
@@ -142,30 +142,30 @@
                       </div>
                       <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">Generating...</p>
                     </div>
-                  {:else if imageRegenerate.candidates.length >= 2}
+                  {:else if image_regenerate.candidates.length >= 2}
                     <!-- POLAROID CARD GRID -->
                     <div class="flex flex-wrap items-end justify-center gap-6 md:gap-10" in:fade={{ duration: 300 }}>
-                      {#each imageRegenerate.candidates as candidate, i (i)}
+                      {#each image_regenerate.candidates as candidate, i (i)}
                         {@const letter = String.fromCharCode(65 + i)}
-                        {@const cRes = candidate.metadata?.resolution || "512x768"}
-                        {@const [cW, cH] = cRes.split("x").map(Number)}
+                        {@const c_res = candidate.metadata?.resolution || "512x768"}
+                        {@const [cW, cH] = c_res.split("x").map(Number)}
                         {@const ar = cW && cH ? `${cW} / ${cH}` : "2 / 3"}
                         {@const rot = i === 0 ? -4 : i === 2 ? 4 : 0}
                         <button
                           type="button"
-                          class="group relative w-56 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out md:w-64 {imageRegenerate.selected_index ===
+                          class="group relative w-56 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out md:w-64 {image_regenerate.selected_index ===
                           i
                             ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
-                            : imageRegenerate.selected_index !== null
+                            : image_regenerate.selected_index !== null
                               ? 'scale-95 cursor-default opacity-40'
                               : 'cursor-pointer hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(0,0,0,0.7)]'}"
                           style="background: #f5f0e6; border-radius: var(--radius-sharp); transform-origin: bottom center; transform: rotate({rot}deg);"
-                          onclick={() => selectCandidate(i)}
+                          onclick={() => select_candidate(i)}
                           aria-label="Select candidate {letter}"
                         >
                           <div class="relative overflow-hidden bg-neutral-200" style="aspect-ratio: {ar};">
                             <img src={candidate.url} alt="Candidate {letter}" class="h-full w-full object-cover" />
-                            {#if imageRegenerate.selected_index === i}
+                            {#if image_regenerate.selected_index === i}
                               <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
                                 <div class="rounded-full bg-emerald-400 p-3 text-white shadow-lg">
                                   <svg
@@ -192,7 +192,7 @@
                       {/each}
                     </div>
 
-                    {#if imageRegenerate.selected_index === null}
+                    {#if image_regenerate.selected_index === null}
                       <div class="flex flex-wrap items-center justify-center gap-3" in:fade={{ duration: 300 }}>
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One — or</span>
                         <button
@@ -216,7 +216,7 @@
                       <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No candidates available</p>
                       <button
                         class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
-                        onclick={closeRegenerate}
+                        onclick={close_regenerate}
                       >
                         Close
                       </button>

@@ -1,8 +1,8 @@
 import { Security } from "@platform";
 import { describe, expect, test, vi } from "vitest";
-const sanitizeHtml = Security.sanitize;
-const sanitizeToFragment = Security.sanitizeToFragment;
-// Mock DOMPurify for sanitizeHtml tests
+const sanitize_html = Security.sanitize;
+const sanitize_to_fragment = Security.sanitize_to_fragment;
+// Mock DOMPurify for sanitize_html tests
 vi.mock("dompurify", () => ({
   default: {
     sanitize: vi.fn((input, options) => {
@@ -22,30 +22,30 @@ vi.mock("dompurify", () => ({
   },
 }));
 describe("validation.js", () => {
-  describe("sanitizeHtml()", () => {
+  describe("sanitize_html()", () => {
     test("removes script tags", () => {
       const input = '<p>Hello</p><script>alert("XSS")</script>';
-      const output = sanitizeHtml(input);
+      const output = sanitize_html(input);
       expect(output).not.toContain("<script>");
       expect(output).toContain("<p>Hello</p>");
     });
     test("removes inline event handlers", () => {
       const input = '<img src="x" onerror="alert(1)">';
-      const output = sanitizeHtml(input);
+      const output = sanitize_html(input);
       expect(output).not.toContain("onerror");
     });
     test("preserves safe HTML", () => {
       const input = "<p>Hello <strong>World</strong></p>";
-      const output = sanitizeHtml(input);
+      const output = sanitize_html(input);
       expect(output).toBe(input);
     });
     test("handles non-string input gracefully", () => {
-      expect(sanitizeHtml(123)).toBe("123");
-      expect(sanitizeHtml(null)).toBe("");
-      expect(sanitizeHtml(undefined)).toBe("");
+      expect(sanitize_html(123)).toBe("123");
+      expect(sanitize_html(null)).toBe("");
+      expect(sanitize_html(undefined)).toBe("");
     });
     test("handles empty string", () => {
-      expect(sanitizeHtml("")).toBe("");
+      expect(sanitize_html("")).toBe("");
     });
   });
 
@@ -65,21 +65,21 @@ describe("validation.js", () => {
     });
   });
 
-  describe("sanitizeToFragment()", () => {
+  describe("sanitize_to_fragment()", () => {
     test("returns a DocumentFragment-like object", () => {
       const input = "<p>Hello</p>";
-      const output = sanitizeToFragment(input);
+      const output = sanitize_to_fragment(input);
       expect(output.nodeType).toBe(11); // DocumentFragment nodeType
       expect(output.__isMockFragment).toBe(true);
     });
     test("removes script tags in fragment text content", () => {
       const input = '<p>Hello</p><script>alert("XSS")</script>';
-      const output = sanitizeToFragment(input);
+      const output = sanitize_to_fragment(input);
       expect(output.textContent).not.toContain("<script>");
       expect(output.textContent).toContain("<p>Hello</p>");
     });
   });
-  describe("validateImage()", () => {
+  describe("validate_image()", () => {
     const JPEG_HEADER = new Uint8Array([0xff, 0xd8, 0xff, 0xe0]);
     const PNG_HEADER = new Uint8Array([0x89, 0x50, 0x4e, 0x47]);
     const GIF_HEADER = new Uint8Array([0x47, 0x49, 0x46, 0x38]);
@@ -120,7 +120,7 @@ describe("validation.js", () => {
        *
        */
       async bytes() {
-        return new Uint8Array(await this.arrayBuffer());
+        return new Uint8Array(await this.array_buffer());
       }
       /**
        *
@@ -137,12 +137,12 @@ describe("validation.js", () => {
        *
        */
       async text() {
-        return new TextDecoder().decode(await this.arrayBuffer());
+        return new TextDecoder().decode(await this.array_buffer());
       }
       /**
        *
        */
-      async arrayBuffer() {
+      async array_buffer() {
         const combined = new Uint8Array(this.parts.reduce((acc, p) => acc + p.byteLength, 0));
         let offset = 0;
         for (const part of this.parts) {
@@ -156,40 +156,40 @@ describe("validation.js", () => {
        * @param {number} end
        */
       slice(start, end) {
-        const slicedParts = [];
-        let currentPos = 0;
+        const sliced_parts = [];
+        let current_pos = 0;
         for (const part of this.parts) {
-          const partEnd = currentPos + part.byteLength;
-          if (partEnd > start && currentPos < end) {
-            const relativeStart = Math.max(0, start - currentPos);
-            const relativeEnd = Math.min(part.byteLength, end - currentPos);
-            slicedParts.push(part.slice(relativeStart, relativeEnd));
+          const part_end = current_pos + part.byteLength;
+          if (part_end > start && current_pos < end) {
+            const relative_start = Math.max(0, start - current_pos);
+            const relative_end = Math.min(part.byteLength, end - current_pos);
+            sliced_parts.push(part.slice(relative_start, relative_end));
           }
-          currentPos = partEnd;
-          if (currentPos >= end) break;
+          current_pos = part_end;
+          if (current_pos >= end) break;
         }
-        return new MockFile(slicedParts, this.name, { type: this.type });
+        return new MockFile(sliced_parts, this.name, { type: this.type });
       }
     }
 
     test("should validate a correct JPEG file", async () => {
       const file = new MockFile([JPEG_HEADER], "test.jpg", { type: "image/jpeg" });
-      await expect(Security.validateImage(file)).resolves.toBe(true);
+      await expect(Security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should validate a correct PNG file", async () => {
       const file = new MockFile([PNG_HEADER], "test.png", { type: "image/png" });
-      await expect(Security.validateImage(file)).resolves.toBe(true);
+      await expect(Security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should validate a correct GIF file", async () => {
       const file = new MockFile([GIF_HEADER], "test.gif", { type: "image/gif" });
-      await expect(Security.validateImage(file)).resolves.toBe(true);
+      await expect(Security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should validate a correct WebP file", async () => {
       const file = new MockFile([WEBP_HEADER], "test.webp", { type: "image/webp" });
-      await expect(Security.validateImage(file)).resolves.toBe(true);
+      await expect(Security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should throw error if file is too large", async () => {
@@ -197,19 +197,19 @@ describe("validation.js", () => {
         type: "image/jpeg",
         size: 30 * 1024 * 1024,
       });
-      await expect(Security.validateImage(file)).rejects.toThrow(/File too large/);
+      await expect(Security.validate_image(file)).rejects.toThrow(/File too large/);
     });
 
     test("should throw error for invalid MIME type", async () => {
       const file = new MockFile([new Uint8Array([0, 0, 0, 0])], "test.exe", {
         type: "application/x-msdownload",
       });
-      await expect(Security.validateImage(file)).rejects.toThrow(/Invalid file type/);
+      await expect(Security.validate_image(file)).rejects.toThrow(/Invalid file type/);
     });
 
     test("should throw error if magic numbers don't match", async () => {
       const file = new MockFile([JPEG_HEADER], "fake.png", { type: "image/png" });
-      await expect(Security.validateImage(file)).rejects.toThrow(/Security verification failed/);
+      await expect(Security.validate_image(file)).rejects.toThrow(/Security verification failed/);
     });
   });
 });

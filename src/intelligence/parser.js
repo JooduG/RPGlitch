@@ -6,7 +6,7 @@
 
 import { detox_prose } from "@data";
 import { sanitize } from "@platform";
-import { escape_xml, safe_parse_pseudo_json, safeParsePseudoJson } from "@utils";
+import { escape_xml, safe_parse_pseudo_json } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
@@ -24,15 +24,15 @@ const md = new MarkdownIt({
 export function parse_think_block(text) {
   if (!text) return { content: "", think: null };
 
-  const thinkAccumulator = [];
+  const think_accumulator = [];
 
   // 1. Match and extract closed <think>...</think> blocks
-  const closedThinkRegex = /<think>([\s\S]*?)<\/think>/gi;
+  const closed_think_regex = /<think>([\s\S]*?)<\/think>/gi;
   let match;
-  while ((match = closedThinkRegex.exec(text)) !== null) {
-    const rawBlock = match[1].replace(/<\/?think>/gi, "").trim();
-    if (rawBlock) {
-      thinkAccumulator.push(rawBlock);
+  while ((match = closed_think_regex.exec(text)) !== null) {
+    const raw_block = match[1].replace(/<\/?think>/gi, "").trim();
+    if (raw_block) {
+      think_accumulator.push(raw_block);
     }
   }
 
@@ -40,45 +40,45 @@ export function parse_think_block(text) {
   let content = text.replace(/<think>[\s\S]*?<\/think>/gi, "");
 
   // 2. Check for an unclosed partial block (streaming)
-  const thinkOpeners = (text.match(/<think>/gi) || []).length;
-  const thinkClosers = (text.match(/<\/think>/gi) || []).length;
+  const think_openers = (text.match(/<think>/gi) || []).length;
+  const think_closers = (text.match(/<\/think>/gi) || []).length;
 
-  if (thinkOpeners > thinkClosers) {
-    const lowerText = text.toLowerCase();
-    const lastThinkIndex = lowerText.lastIndexOf("<think>");
-    if (lastThinkIndex !== -1) {
-      const postThink = text.substring(lastThinkIndex + 7);
-      const streamingThink = postThink.replace(/<\/?think>/gi, "").trim();
-      if (streamingThink) {
-        thinkAccumulator.push(streamingThink);
+  if (think_openers > think_closers) {
+    const lower_text = text.toLowerCase();
+    const last_think_index = lower_text.lastIndexOf("<think>");
+    if (last_think_index !== -1) {
+      const post_think = text.substring(last_think_index + 7);
+      const streaming_think = post_think.replace(/<\/?think>/gi, "").trim();
+      if (streaming_think) {
+        think_accumulator.push(streaming_think);
       }
 
-      const precedingText = text.substring(0, lastThinkIndex);
-      content = precedingText.replace(/<think>[\s\S]*?<\/think>/gi, "");
+      const preceding_text = text.substring(0, last_think_index);
+      content = preceding_text.replace(/<think>[\s\S]*?<\/think>/gi, "");
     }
   }
 
   // 3. Final safety pass: strip any lingering/stray <think> or </think> tags from content
   content = content.replace(/<\/?think>/gi, "");
 
-  const cleanBody = (str) => str.replace(/^##\s*\w+\n?/gm, "").trim();
-  const uniqueThinks = [];
-  for (const block of thinkAccumulator.filter(Boolean)) {
-    const body = cleanBody(block);
+  const clean_body = (str) => str.replace(/^##\s*\w+\n?/gm, "").trim();
+  const unique_thinks = [];
+  for (const block of think_accumulator.filter(Boolean)) {
+    const body = clean_body(block);
     if (!body) continue;
-    const isDuplicate = uniqueThinks.some((existing) => {
-      const existingBody = cleanBody(existing);
-      return existingBody === body || existingBody.includes(body) || body.includes(existingBody);
+    const is_duplicate = unique_thinks.some((existing) => {
+      const existing_body = clean_body(existing);
+      return existing_body === body || existing_body.includes(body) || body.includes(existing_body);
     });
-    if (!isDuplicate) {
-      uniqueThinks.push(block);
+    if (!is_duplicate) {
+      unique_thinks.push(block);
     }
   }
-  const finalThink = uniqueThinks.join("\n\n");
+  const final_think = unique_thinks.join("\n\n");
 
   return {
     content,
-    think: finalThink || null,
+    think: final_think || null,
   };
 }
 
@@ -129,17 +129,17 @@ export function clean_image_prompts(text) {
   let result = text.replace(/!\[.*?\]\(.*?\)/g, "");
 
   // Shared attribute-matching regex string to prevent ReDoS
-  const attrRegex = "(?:\\s+[^\"'>\\s]+(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\"'>\\s]+))?)*";
+  const attr_regex = "(?:\\s+[^\"'>\\s]+(?:\\s*=\\s*(?:\"[^\"]*\"|'[^']*'|[^\"'>\\s]+))?)*";
 
   // 2. Remove self-closing tags
-  result = result.replace(new RegExp(`<image_prompt${attrRegex}\\s*\\/>`, "gi"), "");
+  result = result.replace(new RegExp(`<image_prompt${attr_regex}\\s*\\/>`, "gi"), "");
 
   // 3. Iteratively remove innermost <image_prompt>...</image_prompt> and <image>...</image> pairs
   let previous = "";
   while (previous !== result) {
     previous = result;
-    result = result.replace(new RegExp(`<image_prompt${attrRegex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`, "gi"), "");
-    result = result.replace(new RegExp(`<image${attrRegex}\\s*>(?:(?!<image)[\\s\\S])*?<\\/image\\s*>`, "gi"), "");
+    result = result.replace(new RegExp(`<image_prompt${attr_regex}\\s*>(?:(?!<image_prompt)[\\s\\S])*?<\\/image_prompt\\s*>`, "gi"), "");
+    result = result.replace(new RegExp(`<image${attr_regex}\\s*>(?:(?!<image)[\\s\\S])*?<\\/image\\s*>`, "gi"), "");
   }
 
   return result;
@@ -154,7 +154,7 @@ export function clean_image_prompts(text) {
 export function wrap_dialogue(html) {
   if (!html) return "";
   const parts = html.split(/(<[^>]+>)/);
-  let inQuote = false;
+  let in_quote = false;
 
   for (let i = 0; i < parts.length; i++) {
     if (parts[i].startsWith("<")) {
@@ -162,28 +162,28 @@ export function wrap_dialogue(html) {
     }
 
     const text = parts[i].replace(/&quot;/g, '"');
-    let newText = "";
-    let lastIndex = 0;
+    let new_text = "";
+    let last_index = 0;
 
     for (let j = 0; j < text.length; j++) {
       if (text[j] === '"') {
-        newText += text.substring(lastIndex, j);
-        if (!inQuote) {
-          newText += '<span class="dialogue">&ldquo;';
-          inQuote = true;
+        new_text += text.substring(last_index, j);
+        if (!in_quote) {
+          new_text += '<span class="dialogue">&ldquo;';
+          in_quote = true;
         } else {
-          newText += "&rdquo;</span>";
-          inQuote = false;
+          new_text += "&rdquo;</span>";
+          in_quote = false;
         }
-        lastIndex = j + 1;
+        last_index = j + 1;
       }
     }
-    newText += text.substring(lastIndex);
-    parts[i] = newText;
+    new_text += text.substring(last_index);
+    parts[i] = new_text;
   }
 
   let result = parts.join("");
-  if (inQuote) {
+  if (in_quote) {
     result += "</span>";
   }
   return result;
@@ -199,8 +199,8 @@ export function parse_message(rawText) {
   let text = clean_image_prompts(rawText || "");
 
   // 2. Extract Think Block
-  const thinkResult = parse_think_block(text);
-  text = thinkResult.content;
+  const think_result = parse_think_block(text);
+  text = think_result.content;
 
   // 3. Anti-Cliche Layer
   text = detox_prose(text);
@@ -212,7 +212,7 @@ export function parse_message(rawText) {
   // 5. Wrap Dialogue Quotes
   rendered = wrap_dialogue(rendered);
 
-  const rendered_think = thinkResult.think ? sanitize(md.render(thinkResult.think).trim()) : null;
+  const rendered_think = think_result.think ? sanitize(md.render(think_result.think).trim()) : null;
 
   return {
     displayText: rendered,
@@ -226,7 +226,6 @@ export function parse_message(rawText) {
  * @param {string|null|undefined} str
  * @returns {string}
  */
-export const escapeXml = escape_xml;
 export { escape_xml };
 
 /**
@@ -269,7 +268,7 @@ export function clean_xml(str) {
  * @param {string} raw
  * @returns {Record<string, string>}
  */
-export { safe_parse_pseudo_json, safeParsePseudoJson };
+export { safe_parse_pseudo_json };
 
 /**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)
@@ -282,7 +281,7 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   if (!new_prose || !new_prose.trim()) return current_field_value || "";
 
   const MAX_FIELD_CHARS = 2000;
-  const parsed = safeParsePseudoJson(current_field_value);
+  const parsed = safe_parse_pseudo_json(current_field_value);
   const clean_new_prose = new_prose.trim();
 
   // Plain prose field
@@ -323,8 +322,8 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
 export function escape_unescaped_json_quotes(json_string) {
   if (typeof json_string !== "string") return json_string;
   return json_string.replace(/:\s*"([\s\S]*?)"(?=,\s*"[^"]+"\s*:|\s*\}|\s*\]|$)/g, (match, value) => {
-    const escapedValue = value.replace(/(?<!\\)"/g, '\\"');
-    return `: "${escapedValue}"`;
+    const escaped_value = value.replace(/(?<!\\)"/g, '\\"');
+    return `: "${escaped_value}"`;
   });
 }
 
@@ -342,8 +341,8 @@ export function collapse_history(messages, options = {}) {
   const collapsed = [];
   for (const m of messages) {
     if (m.role === "system") continue;
-    const lowerRole = (m.role || "").toLowerCase();
-    const role = lowerRole === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lowerRole) ? "FRACTAL" : "AI_CHARACTER";
+    const lower_role = (m.role || "").toLowerCase();
+    const role = lower_role === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lower_role) ? "FRACTAL" : "AI_CHARACTER";
     const name = m.character_name || "";
     let content = strip_cognition_blocks(m.content || m.text || "");
     if (stripBoldQuotes) {

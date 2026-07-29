@@ -4,7 +4,7 @@
  */
 export function click_outside(node, handler) {
   /** @param {MouseEvent} event */
-  const handleClick = (event) => {
+  const handle_click = (event) => {
     // If the target was detached from the DOM (e.g. bits-ui unmounting a dropdown item before the click event), ignore it
     if (!document.body.contains(/** @type {Node} */ (event.target))) return;
 
@@ -13,11 +13,11 @@ export function click_outside(node, handler) {
     }
   };
 
-  document.addEventListener("pointerdown", handleClick, true);
+  document.addEventListener("pointerdown", handle_click, true);
 
   return {
     destroy() {
-      document.removeEventListener("pointerdown", handleClick, true);
+      document.removeEventListener("pointerdown", handle_click, true);
     },
   };
 }

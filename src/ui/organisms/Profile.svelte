@@ -6,11 +6,11 @@
    */
   import { auto_resize, click_outside } from "@actions";
   import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown } from "@atoms";
-  import { PROFILE_SECTIONS_BY_TYPE, safeParsePseudoJson } from "@intelligence";
+  import { PROFILE_SECTIONS_BY_TYPE, safe_parse_pseudo_json } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
-  import { app, runtime, simulationState } from "@state";
+  import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
   import { get_style_initials } from "@utils";
@@ -19,7 +19,7 @@
   let { entity_type = "character" } = $props();
 
   // --- ORCHESTRATION ---
-  const profileState = new ProfileState();
+  const profile_state = new ProfileState();
   /** @type {HTMLElement | undefined} */
   let footer_el = $state();
   /** @type {HTMLElement | undefined} */
@@ -29,16 +29,16 @@
   // --- DEVMODE LIVE TELEMETRY SYNC ---
   $effect(() => {
     // Keeps the Profile modal Dev Wing synced with live background engine changes
-    if (app.settings.dev_mode && profileState.char?.id) {
-      const live_entity = [runtime.character, runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profileState.char.id);
-      if (live_entity?.dynamics && profileState.char.dynamics) {
-        Object.assign(profileState.char.dynamics, live_entity.dynamics);
+    if (app.settings.dev_mode && profile_state.char?.id) {
+      const live_entity = [runtime.character, runtime.active_user, runtime.active_fractal].find((e) => e && e.id === profile_state.char.id);
+      if (live_entity?.dynamics && profile_state.char.dynamics) {
+        Object.assign(profile_state.char.dynamics, live_entity.dynamics);
       }
     }
   });
 
   // --- DERIVED ---
-  const signature_color = $derived(get_signature_color(profileState.char, "var(--color-gunmetal)"));
+  const signature_color = $derived(get_signature_color(profile_state.char, "var(--color-gunmetal)"));
 
   const author_options = Object.values(NARRATIVE_STYLES)
     .sort((a, b) => {
@@ -68,14 +68,14 @@
       tooltip: style.description,
     }));
 
-  const has_wings = $derived(!app.transitioning_profile && !profileState.is_packing_up && (profileState.is_editing || app.settings.dev_mode));
+  const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
   const target_morph_name = $derived.by(() => {
-    if (!profileState.char?.id) return undefined;
+    if (!profile_state.char?.id) return undefined;
     let type = "";
-    if (app.selected_ai?.id === profileState.char.id) type = "ai";
-    else if (app.selected_user?.id === profileState.char.id) type = "user";
-    else if (app.selected_fractal?.id === profileState.char.id) type = "fractal";
+    if (app.selected_ai?.id === profile_state.char.id) type = "ai";
+    else if (app.selected_user?.id === profile_state.char.id) type = "user";
+    else if (app.selected_fractal?.id === profile_state.char.id) type = "fractal";
 
     if (!type) return undefined;
     if (app.view === "storyboard") {
@@ -124,9 +124,9 @@
   const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
   // --- MARKUP CONTEXT SANITIZERS ---
-  const get_section_class = (arrayField) => {
+  const get_section_class = (array_field) => {
     let cls = "relative flex w-full min-w-0 flex-col items-center justify-center my-auto overflow-hidden text-center transition-all duration-300 ";
-    cls += profileState.is_editing && arrayField ? "cursor-pointer " : "cursor-default ";
+    cls += profile_state.is_editing && array_field ? "cursor-pointer " : "cursor-default ";
     if (app.viewport.mobile) cls += "pr-0";
     return cls;
   };
@@ -146,7 +146,7 @@
 
   const get_ai_action_btn_class = (fieldKey) => {
     let cls = "text-slate-400 transition-all duration-200 hover:text-(--signature-color) ";
-    cls += profileState.active_field?.key === fieldKey ? "opacity-100" : "opacity-0 group-data-[expanded=true]/textfield:opacity-100";
+    cls += profile_state.active_field?.key === fieldKey ? "opacity-100" : "opacity-0 group-data-[expanded=true]/textfield:opacity-100";
     return cls;
   };
 
@@ -154,71 +154,71 @@
    * Recursively parses string payloads to detect inline Perchance dynamic variable loops.
    * Supports arbitrary N-flat options like {A|B|C} and nested options like {A|B|{C1|C2}}.
    * @param {string} str
-   * @returns {Array<{isVar: boolean, text?: string, choices?: Array<any>}>}
+   * @returns {Array<{is_var: boolean, text?: string, choices?: Array<any>}>}
    */
-  const parseVariants = (str) => {
+  const parse_variants = (str) => {
     if (!str) return [];
 
     const result = [];
     let i = 0;
-    let textBuffer = "";
+    let text_buffer = "";
 
     while (i < str.length) {
       if (str[i] === "{") {
-        if (textBuffer) {
-          result.push({ isVar: false, text: textBuffer });
-          textBuffer = "";
+        if (text_buffer) {
+          result.push({ is_var: false, text: text_buffer });
+          text_buffer = "";
         }
 
         let depth = 1;
         i++;
-        let currentChoice = "";
-        const rawChoices = [];
+        let current_choice = "";
+        const raw_choices = [];
 
         while (i < str.length && depth > 0) {
           const char = str[i];
           if (char === "{") {
             depth++;
-            currentChoice += char;
+            current_choice += char;
           } else if (char === "}") {
             depth--;
-            if (depth > 0) currentChoice += char;
+            if (depth > 0) current_choice += char;
           } else if (char === "|" && depth === 1) {
-            rawChoices.push(currentChoice.trim());
-            currentChoice = "";
+            raw_choices.push(current_choice.trim());
+            current_choice = "";
           } else {
-            currentChoice += char;
+            current_choice += char;
           }
           i++;
         }
 
-        if (currentChoice.trim() || rawChoices.length > 0) {
-          rawChoices.push(currentChoice.trim());
+        if (current_choice.trim() || raw_choices.length > 0) {
+          raw_choices.push(current_choice.trim());
         }
 
-        const parsedChoices = rawChoices.map((c) => parseVariants(c));
-        result.push({ isVar: true, choices: parsedChoices });
+        const parsed_choices = raw_choices.map((c) => parse_variants(c));
+        result.push({ is_var: true, choices: parsed_choices });
       } else {
-        textBuffer += str[i];
+        text_buffer += str[i];
         i++;
       }
     }
 
-    if (textBuffer) {
-      result.push({ isVar: false, text: textBuffer });
+    if (text_buffer) {
+      result.push({ is_var: false, text: text_buffer });
     }
 
-    return result.length > 0 ? result : [{ isVar: false, text: str }];
+    return result.length > 0 ? result : [{ is_var: false, text: str }];
   };
 
   // --- EFFECTS ---
-  $effect(() => profileState.sync());
+  $effect(() => profile_state.sync());
 
   // Operational catchment tracking user DOM actions
   $effect(() => {
-    if (profileState.is_editing) {
+    if (profile_state.is_editing) {
       const mark_mutated = () => {
-        profileState._user_mutated = true;
+        profile_state._user_mutated = true;
       };
       window.addEventListener("input", mark_mutated, { capture: true });
       window.addEventListener("change", mark_mutated, { capture: true });
@@ -235,7 +235,7 @@
     const target = event.target;
     if (!(target instanceof Element)) return;
 
-    if (profileState.show_delete_confirm) return;
+    if (profile_state.show_delete_confirm) return;
     if (target.closest("[data-wings-container] > *")) return;
     if (
       target.closest(".menu") ||
@@ -249,49 +249,49 @@
     if (target.closest("[data-backdrop='mini']") || target.closest(".root.mini")) return;
 
     event.preventDefault();
-    if (profileState.is_editing) {
-      profileState.save(entity_type);
+    if (profile_state.is_editing) {
+      profile_state.save(entity_type);
     } else {
-      profileState.handle_close(entity_type);
+      profile_state.handle_close(entity_type);
     }
   }
 </script>
 
 <svelte:window
   onkeydown={(e) => {
-    if (!profileState.char?.id || profileState.show_delete_confirm) return;
+    if (!profile_state.char?.id || profile_state.show_delete_confirm) return;
     if (e.key === "Enter" && !e.shiftKey) {
       const target = /** @type {HTMLElement} */ (e.target);
       if (target.tagName === "TEXTAREA" || target.tagName === "BUTTON" || target.isContentEditable) return;
       e.preventDefault();
-      if (profileState.is_editing) {
+      if (profile_state.is_editing) {
         footer_el?.focus();
-        profileState.save(entity_type);
+        profile_state.save(entity_type);
       } else {
         footer_el?.focus();
-        profileState.start_editing();
+        profile_state.start_editing();
       }
     }
   }}
 />
 
-{#if profileState.char?.id}
+{#if profile_state.char?.id}
   <Dialog
     type="confirm"
-    bind:open={profileState.show_delete_confirm}
-    title="Delete {profileState.char.name || 'Entity'}"
+    bind:open={profile_state.show_delete_confirm}
+    title="Delete {profile_state.char.name || 'Entity'}"
     message="This action is irreversible. All associated data, including history and vectors, will be lost."
     confirm_label="Confirm"
-    on_confirm={() => profileState.delete(entity_type)}
+    on_confirm={() => profile_state.delete(entity_type)}
   />
 
   <Modal
     variant="profile"
     on_close={() => {
-      if (profileState.is_editing) {
-        profileState.save(entity_type);
+      if (profile_state.is_editing) {
+        profile_state.save(entity_type);
       } else {
-        profileState.handle_close(entity_type);
+        profile_state.handle_close(entity_type);
       }
     }}
     is_pass_through={true}
@@ -328,23 +328,23 @@
             style:background="transparent"
             disabled
           >
-            <ProfilePicture entity={profileState.char} contain={true} landscape={entity_type !== "character"} />
+            <ProfilePicture entity={profile_state.char} contain={true} landscape={entity_type !== "character"} />
           </button>
           {#if entity_type === "fractal" && !app.viewport.mobile}
-            {@const is_default_style = !profileState.char.narrative_style || profileState.char.narrative_style === "default"}
-            {@const is_default_visual = !profileState.char.visual_style || profileState.char.visual_style === "none"}
+            {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
+            {@const is_default_visual = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
             <div class="absolute right-8 -bottom-6 z-30 flex flex-row items-end gap-3">
-              {#if profileState.is_editing || !is_default_style}
+              {#if profile_state.is_editing || !is_default_style}
                 <Dropdown
-                  bind:value={profileState.char.narrative_style}
+                  bind:value={profile_state.char.narrative_style}
                   items={author_options}
                   label="Select Narrative Style"
                   uppercase={false}
                   matchWidth={false}
                   dropdownWidth="w-80"
                   align="center"
-                  disabled={!profileState.is_editing}
-                  trigger_class="group/stylecard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profileState.is_editing
+                  disabled={!profile_state.is_editing}
+                  trigger_class="group/stylecard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profile_state.is_editing
                     ? 'hover:brightness-110'
                     : ''} disabled:pointer-events-none disabled:cursor-default"
                   trigger_style="width: 4.25rem; height: 4.25rem; border-color: {signature_color};"
@@ -366,7 +366,7 @@
                       {/if}
                     </div>
 
-                    {#if profileState.is_editing}
+                    {#if profile_state.is_editing}
                       <div
                         class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
                       >
@@ -377,21 +377,21 @@
                 </Dropdown>
               {/if}
 
-              {#if profileState.is_editing || !is_default_visual}
+              {#if profile_state.is_editing || !is_default_visual}
                 <Dropdown
-                  bind:value={profileState.char.visual_style}
+                  bind:value={profile_state.char.visual_style}
                   items={visual_style_options}
                   label="Select Visual Style"
                   uppercase={false}
                   matchWidth={false}
                   dropdownWidth="w-80"
                   align="center"
-                  disabled={!profileState.is_editing}
-                  trigger_class="group/visualcard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profileState.is_editing
+                  disabled={!profile_state.is_editing}
+                  trigger_class="group/visualcard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profile_state.is_editing
                     ? 'hover:brightness-110'
                     : ''} disabled:pointer-events-none disabled:cursor-default"
                   trigger_style="width: 4.25rem; height: 4.25rem; border-color: {signature_color};"
-                  onchange={() => (profileState._user_mutated = true)}
+                  onchange={() => (profile_state._user_mutated = true)}
                 >
                   {#snippet trigger_content({ selected_item })}
                     {@const vname = selected_item?.label || "No Visual Style"}
@@ -412,7 +412,7 @@
                       {/if}
                     </div>
 
-                    {#if profileState.is_editing}
+                    {#if profile_state.is_editing}
                       <div
                         class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/visualcard:opacity-100"
                       >
@@ -428,26 +428,26 @@
 
         <div class={info_container_class} bind:this={info_container_el}>
           <ProfileHeader
-            bind:name={profileState.char.name}
-            bind:description={profileState.char.description}
-            is_editing={profileState.is_editing}
-            active_field={profileState.active_field?.key}
+            bind:name={profile_state.char.name}
+            bind:description={profile_state.char.description}
+            is_editing={profile_state.is_editing}
+            active_field={profile_state.active_field?.key}
             {signature_color}
             {entity_type}
             class={entity_type === "fractal" && !app.viewport.mobile ? "pr-44" : ""}
-            on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profileState.set_active_field(key, label)}
+            on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profile_state.set_active_field(key, label)}
           />
 
           {#if entity_type === "fractal" && app.viewport.mobile}
-            {@const active_style = NARRATIVE_STYLES[profileState.char.narrative_style] || NARRATIVE_STYLES.default}
-            {@const is_default_style = !profileState.char.narrative_style || profileState.char.narrative_style === "default"}
-            {#if profileState.is_editing || !is_default_style}
+            {@const active_style = NARRATIVE_STYLES[profile_state.char.narrative_style] || NARRATIVE_STYLES.default}
+            {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
+            {#if profile_state.is_editing || !is_default_style}
               <div class="mt-2 flex w-full flex-col gap-1">
                 <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Narrative Style </span>
-                {#if profileState.is_editing}
+                {#if profile_state.is_editing}
                   <div class="relative flex w-full max-w-sm rounded-md">
                     <Dropdown
-                      bind:value={profileState.char.narrative_style}
+                      bind:value={profile_state.char.narrative_style}
                       items={author_options}
                       label="Select Narrative Style"
                       uppercase={false}
@@ -464,20 +464,20 @@
           {/if}
 
           {#if entity_type === "fractal" && app.viewport.mobile}
-            {@const active_vstyle = VISUAL_STYLES[profileState.char.visual_style] || VISUAL_STYLES.none}
-            {@const is_default_vstyle = !profileState.char.visual_style || profileState.char.visual_style === "none"}
-            {#if profileState.is_editing || !is_default_vstyle}
+            {@const active_vstyle = VISUAL_STYLES[profile_state.char.visual_style] || VISUAL_STYLES.none}
+            {@const is_default_vstyle = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
+            {#if profile_state.is_editing || !is_default_vstyle}
               <div class="mt-2 flex w-full flex-col gap-1">
                 <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase"> Visual Style (Story Exclusive) </span>
-                {#if profileState.is_editing}
+                {#if profile_state.is_editing}
                   <div class="relative flex w-full max-w-sm rounded-md">
                     <Dropdown
-                      bind:value={profileState.char.visual_style}
+                      bind:value={profile_state.char.visual_style}
                       items={visual_style_options}
                       label="Select Visual Style"
                       uppercase={false}
                       matchWidth={true}
-                      onchange={() => (profileState._user_mutated = true)}
+                      onchange={() => (profile_state._user_mutated = true)}
                     />
                   </div>
                 {:else}
@@ -494,18 +494,18 @@
           </main>
 
           <footer bind:this={footer_el} tabindex="-1" class={footer_layout_class}>
-            {#if profileState.is_editing}
+            {#if profile_state.is_editing}
               <Button
                 variant="primary"
                 actions={[tooltip]}
                 aria-label="Warning: Overwrites all fields using AI enhancement. Existing macros are preserved."
-                disabled={profileState.is_saving || profileState.busy_fields.size > 0}
+                disabled={profile_state.is_saving || profile_state.busy_fields.size > 0}
                 onclick={() => {
-                  profileState.enhance_profile(entity_type);
+                  profile_state.enhance_profile(entity_type);
                 }}
                 class="touch-target-coarse"
               >
-                {#if Array.from(profileState.busy_fields).some((f) => f !== "visual-prompt")}
+                {#if Array.from(profile_state.busy_fields).some((f) => f !== "visual-prompt")}
                   <span class="animate-pulse">ENHANCING...</span>
                 {:else}
                   Enhance Profile
@@ -515,17 +515,17 @@
                 variant="danger"
                 class="touch-target-coarse"
                 onclick={() => {
-                  profileState.show_delete_confirm = true;
+                  profile_state.show_delete_confirm = true;
                 }}>Delete</Button
               >
             {:else}
               <Button
                 variant="secondary"
                 class="touch-target-coarse"
-                disabled={simulationState.busy}
+                disabled={simulation_state.busy}
                 onclick={() => {
                   previous_scroll_top = info_container_el?.scrollTop || 0;
-                  profileState.start_editing();
+                  profile_state.start_editing();
                   setTimeout(() => {
                     if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
                   }, 0);
@@ -549,27 +549,27 @@
         style:pointer-events={has_wings ? "auto" : "none"}
       >
         <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4" : "w-full flex-col")}>
-          {#if profileState.is_editing}
+          {#if profile_state.is_editing}
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
               class={app.viewport.mobile ? "max-w-sm" : "w-full"}
               transition:fade={{ duration: 250 }}
             >
-              <VisualWing {profileState} />
+              <VisualWing {profile_state} />
             </div>
             <div
               style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""}
               class={"flex flex-col gap-4 " + (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-4" : "w-full")}
               transition:fade={{ duration: 250 }}
             >
-              <AudioWing {profileState} />
+              <AudioWing {profile_state} />
               {#if app.settings.dev_mode}
-                <DevWing {profileState} />
+                <DevWing {profile_state} />
               {/if}
             </div>
           {:else if app.settings.dev_mode}
             <div style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""} class={app.viewport.mobile ? "max-w-sm" : "w-full"}>
-              <DevWing {profileState} />
+              <DevWing {profile_state} />
             </div>
           {/if}
         </div>
@@ -581,15 +581,15 @@
 {#snippet EntityBody()}
   <div class={entity_body_class} style:grid-template-columns={entity_body_grid_cols} data-testid="profile-fragments">
     {#each active_sections as section (section.id)}
-      {@const arrayField = section.fields.find((/** @type {any} */ f) => f.type === "array")}
+      {@const array_field = section.fields.find((/** @type {any} */ f) => f.type === "array")}
 
       <div
-        class={get_section_class(arrayField)}
+        class={get_section_class(array_field)}
         style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
         data-section={section.id}
-        onclick={() => arrayField && profileState.add_vector_item(arrayField.key)}
-        onmouseenter={() => (profileState.hovered_section = section.id)}
-        onmouseleave={() => (profileState.hovered_section = null)}
+        onclick={() => array_field && profile_state.add_vector_item(array_field.key)}
+        onmouseenter={() => (profile_state.hovered_section = section.id)}
+        onmouseleave={() => (profile_state.hovered_section = null)}
         role="presentation"
       >
         <div class="relative flex w-full flex-col items-center" style={get_inner_section_style(section.id)}>
@@ -597,7 +597,7 @@
             class="relative m-0 flex items-center justify-center text-center tracking-widest uppercase transition-colors duration-300"
             style="color: var(--signature-color); text-shadow: none;"
           >
-            {#if profileState.is_editing && profileState.hovered_section === section.id && arrayField}
+            {#if profile_state.is_editing && profile_state.hovered_section === section.id && array_field}
               <span
                 class="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 font-mono text-base tracking-widest text-white"
                 style:animation="add-hint-fade var(--motion-elastic) forwards">+</span
@@ -617,17 +617,17 @@
           <div class="relative flex h-full w-full min-w-0 flex-col items-stretch justify-stretch gap-2">
             {#if field.type === "array"}
               <ProfileArray
-                state={profileState}
+                state={profile_state}
                 path={field.key}
                 sublabel={field.sublabel || field.label}
                 description={field.description}
                 {signature_color}
               />
             {:else}
-              {@const fieldId = `field-${field.key.replace(".", "-")}`}
-              {@const raw = profileState.get_safe_value(field.key) || ""}
+              {@const field_id = `field-${field.key.replace(".", "-")}`}
+              {@const raw = profile_state.get_safe_value(field.key) || ""}
               {@const parsed = (() => {
-                const res = safeParsePseudoJson(raw);
+                const res = safe_parse_pseudo_json(raw);
                 if (res && Object.keys(res).length > 0 && !res.__raw_prose__) {
                   const standardized = {};
                   Object.entries(res).forEach(([k, v]) => {
@@ -645,17 +645,17 @@
               {#if field.label}
                 <label
                   class="block w-full text-center text-[10px] font-bold tracking-widest text-(--signature-color) uppercase drop-shadow-md"
-                  for={fieldId}>{field.label}</label
+                  for={field_id}>{field.label}</label
                 >
               {/if}
 
-              {#if !profileState.is_editing && parsed}
+              {#if !profile_state.is_editing && parsed}
                 <div
-                  id={fieldId}
+                  id={field_id}
                   class="relative flex h-full min-h-20 w-full flex-col overflow-hidden rounded-xl border border-transparent transition-all duration-300"
                   role="region"
                   aria-label={field.sublabel || field.label}
-                  use:auto_resize={{ syncId: section.label }}
+                  use:auto_resize={{ sync_id: section.label }}
                   data-sync-id={section.label}
                 >
                   {#if field.sublabel || field.label}
@@ -675,12 +675,12 @@
                     </header>
                   {/if}
                   <div class="pt-2">
-                    {#if profileState.busy_fields.has(field.key)}
+                    {#if profile_state.busy_fields.has(field.key)}
                       <span class="animate-pulse font-mono text-[10px] tracking-widest text-white uppercase">ENHANCING</span>
                     {:else}
-                      {@const sortedEntries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
+                      {@const sorted_entries = Object.entries(parsed).sort((a, b) => String(a[1]).length - String(b[1]).length)}
                       <div class="flex flex-wrap gap-2">
-                        {#each sortedEntries as [k, v] (k)}
+                        {#each sorted_entries as [k, v] (k)}
                           {#if v && String(v).trim()}
                             <div
                               class="flex min-w-23.75 grow flex-col items-start gap-0.5 rounded-xl border border-(--signature-color)/15 bg-(--signature-color)/5 px-2.5 py-1.5"
@@ -700,16 +700,16 @@
                 </div>
               {:else}
                 <TextField
-                  id={fieldId}
-                  is_edit={profileState.is_editing}
-                  active={profileState.active_field?.key === field.key}
-                  syncId={section.label}
+                  id={field_id}
+                  is_edit={profile_state.is_editing}
+                  active={profile_state.active_field?.key === field.key}
+                  sync_id={section.label}
                   {signature_color}
                   placeholder={field.description}
                   value={raw}
-                  oninput={(e) => profileState.set_field_value(field.key, e.target.value)}
-                  busy={profileState.busy_fields.has(field.key)}
-                  onfocus={() => profileState.set_active_field(field.key, field.label || section.label)}
+                  oninput={(e) => profile_state.set_field_value(field.key, e.target.value)}
+                  busy={profile_state.busy_fields.has(field.key)}
+                  onfocus={() => profile_state.set_active_field(field.key, field.label || section.label)}
                 >
                   {#snippet status()}
                     {#if field.sublabel}
@@ -722,15 +722,15 @@
                   {/snippet}
 
                   {#snippet header_actions()}
-                    {#if profileState.is_editing}
+                    {#if profile_state.is_editing}
                       <Button
                         variant="invisible"
                         size="small"
                         square={true}
                         aria-label="Enhance with AI"
                         actions={[tooltip]}
-                        disabled={profileState.busy_fields.has(field.key) || !profileState.get_safe_value(field.key)}
-                        onclick={() => profileState.enhance(field.key, profileState.get_safe_value(field.key))}
+                        disabled={profile_state.busy_fields.has(field.key) || !profile_state.get_safe_value(field.key)}
+                        onclick={() => profile_state.enhance(field.key, profile_state.get_safe_value(field.key))}
                         class={get_ai_action_btn_class(field.key)}
                       >
                         <svg
@@ -755,39 +755,39 @@
       <div class="col-start-2 mt-0 flex w-full items-center justify-center gap-3 py-1">
         <button
           type="button"
-          class="cursor-pointer text-xs font-medium transition-colors select-none {profileState.char.pov === '1st_person'
+          class="cursor-pointer text-xs font-medium transition-colors select-none {profile_state.char.pov === '1st_person'
             ? 'font-semibold text-slate-100'
             : 'text-slate-400 hover:text-slate-200'}"
-          disabled={!profileState.is_editing}
+          disabled={!profile_state.is_editing}
           onclick={() => {
-            if (profileState.is_editing) {
-              profileState.char.pov = "1st_person";
-              profileState._user_mutated = true;
+            if (profile_state.is_editing) {
+              profile_state.char.pov = "1st_person";
+              profile_state._user_mutated = true;
             }
           }}
         >
           1st Person
         </button>
         <Toggle
-          value={profileState.char.pov === "3rd_person"}
-          disabled={!profileState.is_editing}
+          value={profile_state.char.pov === "3rd_person"}
+          disabled={!profile_state.is_editing}
           always_signature={true}
           style="--signature-color: {signature_color};"
           onchange={() => {
-            profileState.char.pov = profileState.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
-            profileState._user_mutated = true;
+            profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
+            profile_state._user_mutated = true;
           }}
         />
         <button
           type="button"
-          class="cursor-pointer text-xs font-medium transition-colors select-none {profileState.char.pov === '3rd_person'
+          class="cursor-pointer text-xs font-medium transition-colors select-none {profile_state.char.pov === '3rd_person'
             ? 'font-semibold text-slate-100'
             : 'text-slate-400 hover:text-slate-200'}"
-          disabled={!profileState.is_editing}
+          disabled={!profile_state.is_editing}
           onclick={() => {
-            if (profileState.is_editing) {
-              profileState.char.pov = "3rd_person";
-              profileState._user_mutated = true;
+            if (profile_state.is_editing) {
+              profile_state.char.pov = "3rd_person";
+              profile_state._user_mutated = true;
             }
           }}
         >
@@ -800,7 +800,7 @@
 
 {#snippet RenderChoiceNodes(nodes)}
   {#each nodes as part, i (i)}
-    {#if part.isVar}
+    {#if part.is_var}
       <span
         class="mx-0.5 inline-flex flex-wrap items-center gap-1 rounded border border-dashed border-(--signature-color)/25 bg-(--signature-color)/5 px-1.5 py-0.5 font-mono text-[11px] text-slate-300"
       >
@@ -820,8 +820,8 @@
   {/each}
 {/snippet}
 
-{#snippet RenderFormattedValue(valStr)}
-  {@render RenderChoiceNodes(parseVariants(valStr))}
+{#snippet RenderFormattedValue(val_str)}
+  {@render RenderChoiceNodes(parse_variants(val_str))}
 {/snippet}
 
 <style>

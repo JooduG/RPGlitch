@@ -1,13 +1,12 @@
 import {
   clean_image_prompts,
-  escapeXml,
   escape_xml,
   strip_cognition_blocks,
   parse_think_block,
   parse_message,
   wrap_dialogue,
   escape_unescaped_json_quotes,
-  safeParsePseudoJson,
+  safe_parse_pseudo_json,
 } from "./parser.js";
 import { describe, expect, it } from "vitest";
 
@@ -41,11 +40,11 @@ describe("strip_cognition_blocks", () => {
   });
 
   it("should strip Mattis prefix anchor without deleting body text on single-line or multi-line responses", () => {
-    const inputSingle = "Mattis. {{me}} is an earnest, hyper-masculine protector.";
-    expect(strip_cognition_blocks(inputSingle)).toBe("{{me}} is an earnest, hyper-masculine protector.");
+    const input_single = "Mattis. {{me}} is an earnest, hyper-masculine protector.";
+    expect(strip_cognition_blocks(input_single)).toBe("{{me}} is an earnest, hyper-masculine protector.");
 
-    const inputMulti = "Mattis. Archetypes: The Titan. Vocabulary: Gains.\n\nThe character state description.";
-    expect(strip_cognition_blocks(inputMulti)).toBe("The character state description.");
+    const input_multi = "Mattis. Archetypes: The Titan. Vocabulary: Gains.\n\nThe character state description.";
+    expect(strip_cognition_blocks(input_multi)).toBe("The character state description.");
   });
 });
 
@@ -76,7 +75,7 @@ describe("parse_think_block", () => {
 });
 
 describe("clean_image_prompts", () => {
-  const testCases = [
+  const test_cases = [
     { description: "null input", input: /** @type {any} */ (null), expected: "" },
     { description: "undefined input", input: /** @type {any} */ (undefined), expected: "" },
     { description: "an empty string", input: "", expected: "" },
@@ -171,41 +170,41 @@ describe("clean_image_prompts", () => {
       expected: "Hello <image_prompt world",
     },
   ];
-  it.each(testCases)("should handle $description", ({ input, expected }) => expect(clean_image_prompts(input)).toBe(expected));
+  it.each(test_cases)("should handle $description", ({ input, expected }) => expect(clean_image_prompts(input)).toBe(expected));
 });
 
-describe("text-parser: escapeXml", () => {
+describe("text-parser: escape_xml", () => {
   it("should escape basic XML special characters including single quotes", () => {
     const input = "This & that 'quoted' \"quoted\" <tag>";
     const expected = "This &amp; that &apos;quoted&apos; &quot;quoted&quot; &lt;tag&gt;";
-    expect(escapeXml(input)).toBe(expected);
+    expect(escape_xml(input)).toBe(expected);
   });
 
   it("should escape square brackets to prevent injection/misinterpretation", () => {
     const input = "[VstartWith: content]";
     const expected = "&#91;VstartWith: content&#93;";
-    expect(escapeXml(input)).toBe(expected);
+    expect(escape_xml(input)).toBe(expected);
   });
 
   it("should handle empty or null input gracefully", () => {
-    expect(escapeXml(/** @type {any} */ (null))).toBe("");
-    expect(escapeXml(/** @type {any} */ (undefined))).toBe("");
-    expect(escapeXml("")).toBe("");
+    expect(escape_xml(/** @type {any} */ (null))).toBe("");
+    expect(escape_xml(/** @type {any} */ (undefined))).toBe("");
+    expect(escape_xml("")).toBe("");
   });
 
   it("should NOT trim the input", () => {
     const input = "  content  ";
-    expect(escapeXml(input)).toBe("  content  ");
+    expect(escape_xml(input)).toBe("  content  ");
   });
 
   it("should handle multi-line strings", () => {
     const input = "line 1\nline 2";
-    expect(escapeXml(input)).toBe(input);
+    expect(escape_xml(input)).toBe(input);
   });
 
   it("snake_case escape_xml should produce identical results", () => {
     const input = "This & that [bracket] <tag>";
-    expect(escape_xml(input)).toBe(escapeXml(input));
+    expect(escape_xml(input)).toBe(escape_xml(input));
   });
 });
 
@@ -276,10 +275,10 @@ describe("parse_message XML entity sanitization pass", () => {
   });
 });
 
-describe("safeParsePseudoJson", () => {
+describe("safe_parse_pseudo_json", () => {
   it("should parse bracketed [HEADLINE: item] syntax", () => {
     const input = "[EXPRESSION: grizzled cynical smirk] [SHIRT: grease-stained tank top]";
-    const result = safeParsePseudoJson(input);
+    const result = safe_parse_pseudo_json(input);
     expect(result).toEqual({
       EXPRESSION: "grizzled cynical smirk",
       SHIRT: "grease-stained tank top",
@@ -288,7 +287,7 @@ describe("safeParsePseudoJson", () => {
 
   it("should parse multi-line bracketed [HEADLINE: item] syntax", () => {
     const input = "[EXPRESSION: grizzled cynical smirk]\n[SHIRT: grease-stained tank top]\n[HARDWARE: hydraulic prosthetic arm]";
-    const result = safeParsePseudoJson(input);
+    const result = safe_parse_pseudo_json(input);
     expect(result).toEqual({
       EXPRESSION: "grizzled cynical smirk",
       SHIRT: "grease-stained tank top",
@@ -298,7 +297,7 @@ describe("safeParsePseudoJson", () => {
 
   it("should return empty object for regular prose containing colons", () => {
     const input = "Beneath his playful teasing: lies a sharp wound.";
-    const result = safeParsePseudoJson(input);
+    const result = safe_parse_pseudo_json(input);
     expect(result).toEqual({});
   });
 });

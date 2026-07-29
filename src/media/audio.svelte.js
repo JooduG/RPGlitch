@@ -4,7 +4,7 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { getRpgList, strip_cognition_blocks } from "@utils";
+import { get_rpg_list, strip_cognition_blocks } from "@utils";
 import { db } from "@data";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
@@ -159,12 +159,12 @@ export class VoiceEngine {
     try {
       const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
 
-      const hasWebGPU = typeof navigator !== "undefined" && Boolean(/** @type {any} */ (navigator).gpu);
-      const device = hasWebGPU ? "webgpu" : "wasm";
-      const dtype = hasWebGPU ? "fp32" : "q8";
+      const has_web_gpu = typeof navigator !== "undefined" && Boolean(/** @type {any} */ (navigator).gpu);
+      const device = has_web_gpu ? "webgpu" : "wasm";
+      const dtype = has_web_gpu ? "fp32" : "q8";
 
       /** @type {Record<string, number>} */
-      const fileProgress = {};
+      const file_progress = {};
 
       this.#tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
         dtype,
@@ -172,8 +172,8 @@ export class VoiceEngine {
         progress_callback: (/** @type {any} */ data) => {
           if (data.status === "progress" || data.status === "download") {
             if (data.file && typeof data.progress === "number") {
-              fileProgress[data.file] = data.progress;
-              const values = Object.values(fileProgress);
+              file_progress[data.file] = data.progress;
+              const values = Object.values(file_progress);
               const avg = values.reduce((a, b) => a + b, 0) / values.length;
               this.loadProgress = Math.round(avg);
             }
@@ -199,7 +199,7 @@ export class VoiceEngine {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     this.#fallbackSynth = window.speechSynthesis;
     // Load platform voices for fallback
-    const loadFallback = () => {
+    const load_fallback = () => {
       const raw = this.#fallbackSynth.getVoices();
       if (
         raw.length > 0 &&
@@ -218,8 +218,8 @@ export class VoiceEngine {
         }
       }
     };
-    loadFallback();
-    this.#fallbackSynth.onvoiceschanged = loadFallback;
+    load_fallback();
+    this.#fallbackSynth.onvoiceschanged = load_fallback;
   }
 
   /**
@@ -249,20 +249,20 @@ export class VoiceEngine {
       this.stop();
     }
 
-    const speechReadyText = strip_cognition_blocks(text)
+    const speech_ready_text = strip_cognition_blocks(text)
       .replace(/[*_#`~]/g, "")
       .replace(/\[\[(.*?)\]\]/g, "$1")
       .replace(/<[^>]*>/g, "")
       .trim();
 
-    if (!speechReadyText) return;
+    if (!speech_ready_text) return;
 
-    if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === speechReadyText) {
+    if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === speech_ready_text) {
       return;
     }
 
     this.#queue.push({
-      text: speechReadyText,
+      text: speech_ready_text,
       voiceUri: this.selectedVoice,
       messageId: this.activeMessageId,
     });
@@ -282,14 +282,14 @@ export class VoiceEngine {
 
     for (const item of this.#queue) {
       if (!item.audioPromise && !item.audioData) {
-        const itemMsgId = item.messageId;
+        const item_msg_id = item.messageId;
         item.audioPromise = (async () => {
           try {
             const res = await this.#tts.generate(item.text, {
               voice: item.voiceUri || "am_adam",
               speed: this.rate,
             });
-            if (this.activeMessageId && itemMsgId && itemMsgId !== this.activeMessageId) {
+            if (this.activeMessageId && item_msg_id && item_msg_id !== this.activeMessageId) {
               return null;
             }
             return res;
@@ -325,32 +325,32 @@ export class VoiceEngine {
 
     this.#pregenerateQueue();
 
-    const currentItem = this.#queue[0];
-    if (!currentItem) {
+    const current_item = this.#queue[0];
+    if (!current_item) {
       this.#isProcessing = false;
       this.isSpeaking = false;
       return;
     }
 
     // Discard chunk if messageId does not match activeMessageId
-    if (currentItem.messageId && this.activeMessageId && currentItem.messageId !== this.activeMessageId) {
+    if (current_item.messageId && this.activeMessageId && current_item.messageId !== this.activeMessageId) {
       this.#queue.shift();
       this.#processQueue();
       return;
     }
 
     try {
-      const audio = currentItem.audioData
-        ? currentItem.audioData
-        : currentItem.audioPromise
-          ? await currentItem.audioPromise
-          : await this.#tts.generate(currentItem.text, {
-              voice: currentItem.voiceUri || "am_adam",
+      const audio = current_item.audioData
+        ? current_item.audioData
+        : current_item.audioPromise
+          ? await current_item.audioPromise
+          : await this.#tts.generate(current_item.text, {
+              voice: current_item.voiceUri || "am_adam",
               speed: this.rate,
             });
 
       // Check if we were stopped or activeMessageId changed while generating
-      if (!this.#isProcessing || (currentItem.messageId && this.activeMessageId && currentItem.messageId !== this.activeMessageId)) {
+      if (!this.#isProcessing || (current_item.messageId && this.activeMessageId && current_item.messageId !== this.activeMessageId)) {
         return;
       }
 
@@ -416,9 +416,9 @@ export class VoiceEngine {
       return;
     }
 
-    const currentItem = this.#queue[0];
-    const utterance = new SpeechSynthesisUtterance(currentItem.text);
-    const voice = this.voices.find((v) => v.uri === currentItem.voiceUri) || this.voices[0];
+    const current_item = this.#queue[0];
+    const utterance = new SpeechSynthesisUtterance(current_item.text);
+    const voice = this.voices.find((v) => v.uri === current_item.voiceUri) || this.voices[0];
     if (voice?._ref) utterance.voice = voice._ref;
     utterance.volume = this.volume;
     utterance.rate = this.rate;
@@ -615,11 +615,11 @@ class AudioEffectsEngine {
   #initListeners() {
     if (typeof window === "undefined") return;
 
-    const unlockHandler = () => {
+    const unlock_handler = () => {
       this.unlock();
-      ["click", "touchstart", "keydown"].forEach((ev) => document.body.removeEventListener(ev, unlockHandler));
+      ["click", "touchstart", "keydown"].forEach((ev) => document.body.removeEventListener(ev, unlock_handler));
     };
-    ["click", "touchstart", "keydown"].forEach((ev) => document.body.addEventListener(ev, unlockHandler));
+    ["click", "touchstart", "keydown"].forEach((ev) => document.body.addEventListener(ev, unlock_handler));
   }
 
   /**
@@ -664,9 +664,9 @@ class AudioEffectsEngine {
     this.#lastPlayed = now;
 
     let url = null;
-    const soundList = getRpgList("sounds");
-    if (soundList.length > 0) {
-      const entry = soundList.find((/** @type {any} */ s) => typeof s === "string" && s.startsWith(key + "="));
+    const sound_list = get_rpg_list("sounds");
+    if (sound_list.length > 0) {
+      const entry = sound_list.find((/** @type {any} */ s) => typeof s === "string" && s.startsWith(key + "="));
       if (entry) url = entry.split("=").slice(1).join("=").trim();
     }
 
@@ -682,13 +682,13 @@ class AudioEffectsEngine {
         if (this.#pendingBuffers.has(key)) {
           buffer = await this.#pendingBuffers.get(key);
         } else {
-          const fetchPromise = (async () => {
+          const fetch_promise = (async () => {
             try {
               const response = await fetch(url);
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-              const arrayBuffer = await response.arrayBuffer();
+              const array_buffer = await response.array_buffer();
               const decoded = await new Promise((resolve, reject) => {
-                const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(arrayBuffer, resolve, reject);
+                const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(array_buffer, resolve, reject);
                 if (promise) promise.then(resolve).catch(reject);
               });
               this.#buffers.set(key, decoded);
@@ -698,8 +698,8 @@ class AudioEffectsEngine {
             }
           })();
 
-          this.#pendingBuffers.set(key, fetchPromise);
-          buffer = await fetchPromise;
+          this.#pendingBuffers.set(key, fetch_promise);
+          buffer = await fetch_promise;
         }
       }
       const source = /** @type {AudioContext} */ (this.#audioContext).createBufferSource();
@@ -748,9 +748,9 @@ export const Audio = new (class {
   }
 
   set volume(v) {
-    const cleanVolume = Math.max(0, Math.min(1, Number(v)));
-    this.voice.volume = cleanVolume;
-    this.#effects.setVolume(cleanVolume);
+    const clean_volume = Math.max(0, Math.min(1, Number(v)));
+    this.voice.volume = clean_volume;
+    this.#effects.setVolume(clean_volume);
     this.#effects.saveAllSettings();
   }
 

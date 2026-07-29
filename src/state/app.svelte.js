@@ -6,12 +6,12 @@
  */
 import { flushSync } from "svelte";
 import { generate_uuid, resolve_px } from "@utils";
-import { log as engineLog, guardedTransition } from "@engine";
+import { log as engineLog, guarded_transition } from "@engine";
 import { db, entities, normalize } from "@data";
 import { visual_engine, get_signature_color, Audio } from "@media";
 import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
-import { simulationState, uiState } from "./status.svelte.js";
+import { simulation_state, ui_state } from "./status.svelte.js";
 
 /**
  * Image preview bridge: The state layer cannot import from @atoms (UI layer).
@@ -19,13 +19,13 @@ import { simulationState, uiState } from "./status.svelte.js";
  * These stubs delegate to the registered handlers if available.
  * @type {{ open: ((src: any, caption?: string) => void) | null, close: (() => void) | null }}
  */
-const _imagePreviewBridge = { open: null, close: null };
+const _image_preview_bridge = { open: null, close: null };
 export function register_image_preview_handlers(open, close) {
-  _imagePreviewBridge.open = open;
-  _imagePreviewBridge.close = close;
+  _image_preview_bridge.open = open;
+  _image_preview_bridge.close = close;
 }
-const closeImagePreview = () => _imagePreviewBridge.close?.();
-const openImagePreview = (src, caption = "") => _imagePreviewBridge.open?.(src, caption);
+const close_image_preview = () => _image_preview_bridge.close?.();
+const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(src, caption);
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
 /** @typedef {import('./status.svelte.js').CardHandState} CardHandState */
@@ -38,7 +38,7 @@ const openImagePreview = (src, caption = "") => _imagePreviewBridge.open?.(src, 
  * Core reactive state for the application.
  ************************************************************************************/
 // Static formatter to avoid 'new Date()' mutable instance warnings in reactive contexts
-const logTimeFormatter = new Intl.DateTimeFormat("sv-SE", {
+const log_time_formatter = new Intl.DateTimeFormat("sv-SE", {
   hour: "2-digit",
   minute: "2-digit",
   second: "2-digit",
@@ -64,13 +64,6 @@ class StreamingState {
   }
   set text(val) {
     this.content = val;
-  }
-
-  get nodeId() {
-    return this.node_id;
-  }
-  set nodeId(val) {
-    this.node_id = val;
   }
 }
 
@@ -125,10 +118,10 @@ export class AppStore {
   /** @type {SimulationControl} */
   simulation = {
     get loading() {
-      return uiState.loading;
+      return ui_state.loading;
     },
     set loading(val) {
-      uiState.set_loading(val);
+      ui_state.set_loading(val);
     },
   };
   /** @type {FateSystem} */
@@ -139,7 +132,7 @@ export class AppStore {
   });
   // --- UI TENSION (Reactive Intensity) ---
   get tension() {
-    return simulationState.phase === "generating" || simulationState.phase === "locked" ? 1 : 0;
+    return simulation_state.phase === "generating" || simulation_state.phase === "locked" ? 1 : 0;
   }
   /** @type {AppSettings} */
   settings = $state({
@@ -160,10 +153,10 @@ export class AppStore {
     return visual_engine;
   }
   get busy() {
-    return uiState.loading;
+    return ui_state.loading;
   }
   set busy(val) {
-    uiState.set_loading(val);
+    ui_state.set_loading(val);
   }
   /**
    *
@@ -183,13 +176,13 @@ export class AppStore {
    * @returns {'idle' | 'generating' | 'locked'}
    */
   get sim_phase() {
-    return simulationState.phase;
+    return simulation_state.phase;
   }
   get isProcessing() {
-    return simulationState.phase === "generating" || this.streaming.active;
+    return simulation_state.phase === "generating" || this.streaming.active;
   }
   get voiceSuppressed() {
-    return simulationState.phase === "generating" && !this.streaming.active;
+    return simulation_state.phase === "generating" && !this.streaming.active;
   }
   /**
    *
@@ -221,9 +214,9 @@ export class AppStore {
   }
   get models_progress() {
     if (this.models_ready) return 100;
-    const embProg = embeddings_engine.modelReady ? 100 : embeddings_engine.loadProgress;
-    const voiceProg = Audio.voice.modelReady ? 100 : Audio.voice.loadProgress;
-    return Math.min(99, Math.round((embProg + voiceProg) / 2));
+    const emb_prog = embeddings_engine.modelReady ? 100 : embeddings_engine.loadProgress;
+    const voice_prog = Audio.voice.modelReady ? 100 : Audio.voice.loadProgress;
+    return Math.min(99, Math.round((emb_prog + voice_prog) / 2));
   }
   get is_ready() {
     return this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
@@ -243,7 +236,7 @@ export class AppStore {
   log(message, type = "system") {
     const entry = {
       id: generate_uuid(),
-      timestamp: logTimeFormatter.format(Date.now()),
+      timestamp: log_time_formatter.format(Date.now()),
       message,
       type, // 'system' | 'ai' | 'db' | 'error'
     };
@@ -314,13 +307,13 @@ export class AppStore {
     this._viewport_cleanup = [];
 
     // Retrieve tokens from the central design system
-    const getBreakpoint = (/** @type {string} */ name) => {
+    const get_breakpoint = (/** @type {string} */ name) => {
       const px = resolve_px(`--breakpoint-${name}`, 0);
       return px ? `${px}px` : null;
     };
 
     const queries = {
-      mobile: `(width < ${getBreakpoint("mobile") || "48rem"})`,
+      mobile: `(width < ${get_breakpoint("mobile") || "48rem"})`,
     };
 
     Object.keys(queries).forEach((key) => {
@@ -367,7 +360,7 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
-    guardedTransition(
+    guarded_transition(
       () => {
         flushSync(() => {
           this.view = view;
@@ -384,7 +377,7 @@ export class AppStore {
     this.card_hand.open = false;
   };
   close_image_preview = () => {
-    closeImagePreview();
+    close_image_preview();
   };
   /**
    * Selects an entity for the current session.
@@ -405,23 +398,23 @@ export class AppStore {
    * @param {any} entity
    */
   toggle_profile = async (force_state = null, entity = null) => {
-    const targetEntity = entity || this.editing_entity;
-    if (targetEntity) {
-      const signatureColor = get_signature_color(targetEntity);
-      if (signatureColor && typeof document !== "undefined") {
-        document.documentElement.style.setProperty("--active-signature-color", signatureColor);
+    const target_entity = entity || this.editing_entity;
+    if (target_entity) {
+      const signature_color = get_signature_color(target_entity);
+      if (signature_color && typeof document !== "undefined") {
+        document.documentElement.style.setProperty("--active-signature-color", signature_color);
       }
     }
-    const isOpening = force_state !== null ? force_state : !this.profile_open;
-    let activeType = "user"; // Default fallback
-    if (targetEntity) {
-      if (targetEntity.id === this.selected_ai?.id) activeType = "ai";
-      else if (targetEntity.id === this.selected_user?.id) activeType = "user";
-      else if (targetEntity.id === this.selected_fractal?.id) activeType = "fractal";
-      else activeType = "none";
+    const is_opening = force_state !== null ? force_state : !this.profile_open;
+    let active_type = "user"; // Default fallback
+    if (target_entity) {
+      if (target_entity.id === this.selected_ai?.id) active_type = "ai";
+      else if (target_entity.id === this.selected_user?.id) active_type = "user";
+      else if (target_entity.id === this.selected_fractal?.id) active_type = "fractal";
+      else active_type = "none";
     }
-    if (targetEntity) {
-      this.transition_target_id = targetEntity.id;
+    if (target_entity) {
+      this.transition_target_id = target_entity.id;
     }
     // Force Svelte to flush state changes so inactive cards lose their view-transition-names
     // synchronously in the DOM before startViewTransition takes its old snapshot.
@@ -429,16 +422,16 @@ export class AppStore {
       this.transitioning_profile = true;
     });
 
-    guardedTransition(
+    guarded_transition(
       () => {
         flushSync(() => {
-          this.profile_open = isOpening;
+          this.profile_open = is_opening;
           if (entity) {
             this.editing_entity = normalize(entity);
           }
         });
       },
-      { className: isOpening ? `is-profile-opening-${activeType}` : `is-profile-closing-${activeType}` },
+      { className: is_opening ? `is-profile-opening-${active_type}` : `is-profile-closing-${active_type}` },
     ).finally(() => {
       this.transitioning_profile = false;
       this.transition_target_id = null;
@@ -496,7 +489,7 @@ export class AppStore {
     this.streaming.content = "";
     this.streaming.text = "";
     this.streaming.node_id = id;
-    this.streaming.nodeId = id;
+    this.streaming.node_id = id;
     this.streaming.role = role;
     this.streaming.errored = false;
     this.streaming.errored_node_id = null;
@@ -510,12 +503,12 @@ export class AppStore {
     this.streaming.content = "";
     this.streaming.text = "";
     this.streaming.node_id = null;
-    this.streaming.nodeId = null;
+    this.streaming.node_id = null;
     this.streaming.role = "ai";
   };
-  signal_stream_error = (nodeId) => {
+  signal_stream_error = (node_id) => {
     this.streaming.errored = true;
-    this.streaming.errored_node_id = nodeId;
+    this.streaming.errored_node_id = node_id;
   };
   trigger_interrupt = () => {
     if (this.streaming.abort_controller) {
@@ -527,7 +520,7 @@ export class AppStore {
     }
   };
   open_image_preview = (/** @type {any} */ src, caption = "") => {
-    openImagePreview(src, caption);
+    open_image_preview(src, caption);
   };
   regenerate_title = () => {
     this.card_hand.regenerate_count++;

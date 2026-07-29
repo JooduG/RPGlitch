@@ -1,4 +1,4 @@
-import { sanitizeToFragment } from "@platform";
+import { sanitize_to_fragment } from "@platform";
 /**
  * Svelte Action: Safely injects sanitized HTML into a node.
  * @param {HTMLElement} node
@@ -8,7 +8,7 @@ export function safe_html(node, content) {
   /** @param {string | null | undefined} new_content */
   const update_content = (new_content) => {
     node.textContent = "";
-    node.appendChild(sanitizeToFragment(new_content ?? ""));
+    node.appendChild(sanitize_to_fragment(new_content ?? ""));
   };
   update_content(content);
   return {

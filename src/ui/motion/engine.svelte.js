@@ -5,13 +5,13 @@
  */
 
 // Module scope prefers-reduced-motion query
-const mediaQuery = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
+const media_query = typeof window !== "undefined" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null;
 
-let isReducedState = $state(!!mediaQuery?.matches);
+let is_reduced_state = $state(!!media_query?.matches);
 
-if (mediaQuery) {
-  mediaQuery.addEventListener("change", (e) => {
-    isReducedState = e.matches;
+if (media_query) {
+  media_query.addEventListener("change", (e) => {
+    is_reduced_state = e.matches;
   });
 }
 
@@ -24,10 +24,10 @@ if (mediaQuery) {
 export const motion = $state({
   intensity: 1.0,
   get isReduced() {
-    return isReducedState;
+    return is_reduced_state;
   },
   set isReduced(value) {
-    isReducedState = value;
+    is_reduced_state = value;
   },
 });
 
@@ -128,10 +128,10 @@ class KineticSpring {
     if (this.#rafId !== null) return;
 
     const step = () => {
-      const dX = this.#target - this.#current;
-      const springForce = dX * this.#stiffness;
-      const dampingForce = -this.#velocity * this.#damping;
-      const acceleration = springForce + dampingForce;
+      const d_x = this.#target - this.#current;
+      const spring_force = d_x * this.#stiffness;
+      const damping_force = -this.#velocity * this.#damping;
+      const acceleration = spring_force + damping_force;
 
       this.#velocity += acceleration;
       this.#current += this.#velocity;
