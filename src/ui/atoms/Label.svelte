@@ -6,7 +6,6 @@
   function handleClick(e) {
     if (rest.for) {
       const target = document.getElementById(rest.for);
-      console.log("Label clicked. Target found:", !!target, "Target ID:", rest.for);
 
       // If the target is a dropdown trigger, clicking the label usually only focuses it natively.
       // We want it to open! We exclude switches since native label clicks handle them perfectly.

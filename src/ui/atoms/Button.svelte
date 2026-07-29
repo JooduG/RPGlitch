@@ -40,7 +40,12 @@
   }
 
   let is_disabled = $derived(disabled);
-  const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
+  const is_flank = $derived(
+    flank ||
+      String(className ?? "")
+        .toLowerCase()
+        .includes("flank"),
+  );
 
   const height_class = $derived(
     variant === "bare" ? "" : cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10",

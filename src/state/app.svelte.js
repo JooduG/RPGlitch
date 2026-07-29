@@ -399,7 +399,6 @@ export class AppStore {
    */
   toggle_profile = async (force_state = null, entity = null) => {
     const target_entity = entity || this.editing_entity;
-    console.log("[toggle_profile] called", { force_state, has_entity: !!target_entity, entity_name: target_entity?.name });
     if (target_entity) {
       const signature_color = get_signature_color(target_entity);
       if (signature_color && typeof document !== "undefined") {
@@ -407,7 +406,6 @@ export class AppStore {
       }
     }
     const is_opening = force_state !== null ? force_state : !this.profile_open;
-    console.log("[toggle_profile] is_opening:", is_opening, "current profile_open:", this.profile_open);
     let active_type = "user"; // Default fallback
     if (target_entity) {
       if (target_entity.id === this.selected_ai?.id) active_type = "ai";
@@ -426,20 +424,15 @@ export class AppStore {
 
     guarded_transition(
       () => {
-        console.log("[toggle_profile] guarded_transition callback running, setting profile_open =", is_opening);
-        flushSync(() => {
-          this.profile_open = is_opening;
-          if (entity) {
-            this.editing_entity = normalize(entity);
-          }
-        });
-        console.log("[toggle_profile] after flushSync, profile_open =", this.profile_open, "editing_entity =", this.editing_entity?.name);
+        this.profile_open = is_opening;
+        if (entity) {
+          this.editing_entity = normalize(entity);
+        }
       },
       { className: is_opening ? `is-profile-opening-${active_type}` : `is-profile-closing-${active_type}` },
     ).finally(() => {
       this.transitioning_profile = false;
       this.transition_target_id = null;
-      console.log("[toggle_profile] DONE. profile_open =", this.profile_open);
     });
   };
   close_profile = () => {
