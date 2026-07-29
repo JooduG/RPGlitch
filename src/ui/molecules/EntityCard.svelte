@@ -6,10 +6,9 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { ProfilePicture } from "@atoms";
+  import { ProfilePicture, StyleBadge } from "@atoms";
   import { guardedTransition } from "@engine";
   import { get_signature_color } from "@media";
-  import { StyleBadges } from "@molecules";
   import { motion } from "@motion";
   import { app } from "@state";
   import { flushSync } from "svelte";
@@ -54,10 +53,36 @@
   let my_menu_epoch = 0;
 
   function open_menu_at(x, y) {
-    menu_x = Math.min(x, window.innerWidth - 180);
-    menu_y = Math.min(y, window.innerHeight - 200);
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    // Anchor to the right edge of the menu on the right half, left edge on the left half
+    if (x > vw / 2) {
+      menu_x = Math.max(0, x - 160); // open leftward: left edge sits left of cursor
+    } else {
+      menu_x = Math.min(x, vw - 180);
+    }
+    // Spawn upward on the bottom half, downward on the top half
+    if (y > vh / 2) {
+      menu_y = y - 200; // initial estimate, corrected post-render
+    } else {
+      menu_y = Math.min(y, vh - 200);
+    }
     my_menu_epoch = claim_menu();
     menu_open = true;
+    // Re-clamp after render using actual menu dimensions
+    requestAnimationFrame(() => {
+      const menu = document.body.querySelector('[role="menu"]');
+      if (!menu) return;
+      const { width, height } = menu.getBoundingClientRect();
+      // On bottom half: anchor bottom of menu to cursor position
+      if (y > vh / 2) {
+        menu_y = y - height;
+      }
+      if (menu_x + width > vw) menu_x = vw - width;
+      if (menu_y + height > vh) menu_y = vh - height;
+      if (menu_x < 0) menu_x = 0;
+      if (menu_y < 0) menu_y = 0;
+    });
   }
 
   // Close this menu when another card opens its menu.
@@ -550,7 +575,7 @@
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
     <div class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5">
-      <StyleBadges {entity} class="flex flex-col gap-1.5" />
+      <StyleBadge {entity} class="flex flex-col gap-1.5" />
     </div>
   {/if}
 </div>
@@ -560,7 +585,8 @@
 {#if menu_open}
   <div
     use:portal_to_body
-    class="fixed z-9999 min-w-40 rounded-xl border border-white/10 bg-slate-950/95 p-1 shadow-2xl backdrop-blur-md outline-none"
+    class="fixed z-9999 min-w-40 overflow-hidden rounded-standard bg-glass-elevated shadow-(--shadow-standard) [backdrop-filter:var(--blur-mist)] outline-none
+      before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay"
     style="left:{menu_x}px;top:{menu_y}px"
     role="menu"
     tabindex="-1"
@@ -569,16 +595,14 @@
   >
     {#each actions as item, i (i)}
       {#if item.separator}
-        <div class="-mx-1 my-1 block h-px bg-white/10"></div>
+        <div class="block h-px bg-current opacity-20"></div>
       {:else}
         <button
           type="button"
           class="
-            flex h-9 w-full cursor-default items-center gap-2 rounded-md px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-white/10 hover:text-white
+            flex h-9 w-full cursor-default items-center gap-2 px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
             {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
-            {item.active
-            ? 'border border-(--signature-color,var(--color-slate-50)) text-(--signature-color,var(--color-slate-50)) shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]'
-            : 'border border-transparent'}
+            {item.active ? 'text-(--signature-color,var(--color-slate-50))' : ''}
           "
           disabled={item.disabled}
           onclick={(e) => handle_item_click(e, item)}

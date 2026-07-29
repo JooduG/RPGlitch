@@ -642,7 +642,7 @@
                 return null;
               })()}
 
-              {#if field.label && (section.id === "eternal" || section.id === "present")}
+              {#if field.label}
                 <label
                   class="block w-full text-center text-[10px] font-bold tracking-widest text-(--signature-color) uppercase drop-shadow-md"
                   for={fieldId}>{field.label}</label

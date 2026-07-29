@@ -5,5 +5,7 @@ export { default as Storymode } from "./Storymode.svelte";
 export { default as CardHand } from "./CardHand.svelte";
 export { default as Layout } from "./Layout.svelte";
 export { default as ProfileHeader } from "./ProfileHeader.svelte";
+export { default as UnifiedConsole } from "./UnifiedConsole.svelte";
+export { default as Message } from "./Message.svelte";
 export * from "./profile.svelte.js";
 export { ProfileState } from "./profile.svelte.js";

@@ -7,10 +7,10 @@
    * EntityCards and UnifiedConsole are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
-  import { ImagePreview, Skeleton, Tooltip, openImagePreview, closeImagePreview } from "@atoms";
-  import { UnifiedConsole, EntityCard, ImageRegenerate, StyleBadges } from "@molecules";
+  import { Skeleton, Tooltip, StyleBadge } from "@atoms";
+  import { ImageRegenerate, ImagePreview, openImagePreview, closeImagePreview, EntityCard } from "@molecules";
   import { motion } from "@motion";
-  import { CardHand, Layout, Profile, Storyboard, Storymode } from "@organisms";
+  import { CardHand, Layout, Profile, Storyboard, Storymode, UnifiedConsole } from "@organisms";
   import { app, runtime, simulationState, startRegenerate, deliverCandidates, setRegenerateError, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
@@ -434,7 +434,7 @@
               }}
             />
           </div>
-          <StyleBadges entity={app.selected_fractal} layout="storymode" class="flex w-full justify-center gap-gap-standard" />
+          <StyleBadge entity={app.selected_fractal} layout="storymode" class="flex w-full justify-center gap-gap-standard" />
         </div>
       {:else}
         <div

@@ -7,7 +7,7 @@
    */
   import { Backdrop } from "@atoms";
   import { create_new, entities as repository } from "@data";
-  import { EntityCard, ImportEntity } from "@molecules";
+  import { EntityCard, ImportModal } from "@molecules";
   import { motion } from "@motion";
   import { app } from "@state";
 
@@ -407,4 +407,4 @@
   </div>
 {/if}
 
-<ImportEntity bind:open={show_import_modal} target_type={card_hand_type === "fractal" ? "fractal" : "character"} />
+<ImportModal bind:open={show_import_modal} target_type={card_hand_type === "fractal" ? "fractal" : "character"} />

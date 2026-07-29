@@ -15,7 +15,8 @@
   import { Chrono } from "@engine";
   import { app, runtime, simulation_log, simulationState } from "@state";
   import { motion } from "@motion";
-  import { Message, Dialog } from "@molecules";
+  import { Dialog } from "@molecules";
+  import { Message } from "@organisms";
 
   // --- STATE ---
   /** @type {HTMLDivElement | null} */

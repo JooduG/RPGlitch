@@ -12,7 +12,7 @@ export {
   setRegenerateError,
   closePicker,
   getPersistedMeta,
-} from "./image-regenerate.svelte.js";
+} from "../ui/molecules/ImageRegenerate.svelte.js";
 
 import { register_state_accessors, register_stream_handlers } from "@utils";
 import { session_driver } from "@engine";

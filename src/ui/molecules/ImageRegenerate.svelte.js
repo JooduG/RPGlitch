@@ -1,5 +1,5 @@
 /**
- * @file image-regenerate.svelte.js
+ * @file ImageRegenerate.svelte.js
  * 🎲 Image Regenerate State — manages the 3-candidate regenerate flow.
  * Two phases: "regenerating" (placeholder shows "Regenerating...") then
  * "picker" (3-card modal opens when user clicks "Select Image").

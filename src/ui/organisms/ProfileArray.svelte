@@ -107,7 +107,7 @@
           {@const title = derive_vector_title(item.directive, 60)}
           <button
             type="button"
-            class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left font-sans text-xs leading-tight font-normal text-white opacity-90 transition-opacity hover:opacity-100 focus:outline-none"
+            class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left focus:outline-none"
             onclick={() => toggle_expand(itemKey)}
           >
             {#if !profileState.is_editing}
@@ -119,7 +119,11 @@
                 <polyline points="9 18 15 12 9 6" />
               </svg>
             {/if}
-            <span class="my-auto cursor-help truncate leading-tight" use:tooltip aria-label={description}>{title || `Empty ${sublabel}`}</span>
+            <span
+              class="my-auto block max-w-full cursor-help truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 transition-opacity hover:opacity-100"
+              use:tooltip
+              aria-label={description}>{title || `Empty ${sublabel}`}</span
+            >
           </button>
         {/snippet}
 
