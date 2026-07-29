@@ -15,9 +15,8 @@ export {
   wrap_dialogue,
   safeParsePseudoJson,
   merge_prose_into_field,
+  collapse_history,
 } from "./parser.js";
-export { prompt_builder } from "./prompts.js";
-export { PROTOCOL_LIBRARY } from "./protocols.js";
-export { collapse_history } from "./history.js";
+export { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";
 export { temporal_engine } from "./temporal.js";
 export { dynamics_engine, DYNAMICS_META } from "./dynamics.js";

@@ -26,7 +26,7 @@ export function strip_cognition_blocks(text) {
  * @param {string} raw
  * @returns {Record<string, string>}
  */
-export const safeParsePseudoJson = (raw) => {
+export const safe_parse_pseudo_json = (raw) => {
   if (!raw) return {};
   const cleanRaw = strip_cognition_blocks(raw).trim();
   if (!cleanRaw) return {};
@@ -59,6 +59,7 @@ export const safeParsePseudoJson = (raw) => {
 
   return {};
 };
+export const safeParsePseudoJson = safe_parse_pseudo_json;
 
 /**
  * Safely indents multi-line string content.

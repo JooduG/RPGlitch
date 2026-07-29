@@ -6,7 +6,7 @@
 
 import { detox_prose } from "@data";
 import { sanitize } from "@platform";
-import { escape_xml, safeParsePseudoJson } from "@utils";
+import { escape_xml, safe_parse_pseudo_json, safeParsePseudoJson } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
@@ -269,7 +269,7 @@ export function clean_xml(str) {
  * @param {string} raw
  * @returns {Record<string, string>}
  */
-export { safeParsePseudoJson };
+export { safe_parse_pseudo_json, safeParsePseudoJson };
 
 /**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)
@@ -326,4 +326,37 @@ export function escape_unescaped_json_quotes(json_string) {
     const escapedValue = value.replace(/(?<!\\)"/g, '\\"');
     return `: "${escapedValue}"`;
   });
+}
+
+/**
+ * Collapses conversation history into role-grouped entries.
+ * Consecutive messages from the same character are merged into a single entry.
+ * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
+ * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
+ * @returns {Array<{role: string, name: string, content: string}>}
+ */
+export function collapse_history(messages, options = {}) {
+  const { separator = "\n", stripBoldQuotes = false } = options;
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+
+  const collapsed = [];
+  for (const m of messages) {
+    if (m.role === "system") continue;
+    const lowerRole = (m.role || "").toLowerCase();
+    const role = lowerRole === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lowerRole) ? "FRACTAL" : "AI_CHARACTER";
+    const name = m.character_name || "";
+    let content = strip_cognition_blocks(m.content || m.text || "");
+    if (stripBoldQuotes) {
+      content = content.replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
+    }
+    if (!content) continue;
+
+    const last = collapsed[collapsed.length - 1];
+    if (last && last.role === role && last.name === name) {
+      last.content += `${separator}${content}`;
+    } else {
+      collapsed.push({ role, name, content });
+    }
+  }
+  return collapsed;
 }
