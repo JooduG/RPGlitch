@@ -5,12 +5,12 @@
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.
    */
-  import { Accordion, DataBox, DynamicsMeter } from "@atoms";
+  import { Accordion, DataBox, Meter } from "@atoms";
   import { DYNAMICS_META } from "@intelligence";
 
   /**
    * @typedef {Object} Props
-   * @property {import('@organisms/profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/Profile.svelte.js').ProfileState} profileState - The profile state controller
    */
 
   /** @type {Props} */
@@ -72,7 +72,7 @@
     "
   >
     {#each active_dynamics as dynamic (dynamic.source + "-" + dynamic.key)}
-      <DynamicsMeter {profileState} {dynamic} />
+      <Meter {profileState} {dynamic} />
     {/each}
   </div>
 

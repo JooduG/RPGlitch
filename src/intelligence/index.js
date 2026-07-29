@@ -16,6 +16,8 @@ export {
   safeParsePseudoJson,
   merge_prose_into_field,
 } from "./parser.js";
-export { prompt_builder, PROTOCOL_LIBRARY, collapse_history } from "./prompts.js";
+export { prompt_builder } from "./prompts.js";
+export { PROTOCOL_LIBRARY } from "./protocols.js";
+export { collapse_history } from "./history.js";
 export { temporal_engine } from "./temporal.js";
 export { dynamics_engine, DYNAMICS_META } from "./dynamics.js";

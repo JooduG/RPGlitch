@@ -10,7 +10,7 @@
  */
 import { db } from "./db.js";
 import { normalize, STORAGE_VERSION } from "./normalizer.js";
-import { premade } from "./premades.js";
+import { premade } from "./presets/premades.js";
 
 const error = console.error;
 const premadeEntityMap = new Map((premade?.entities || []).map((e) => [e.id, e]));

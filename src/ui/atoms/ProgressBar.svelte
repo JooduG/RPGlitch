@@ -4,7 +4,7 @@
    * 📊 PROGRESS BAR ATOM
    * Task completion indicator for monotonically-increasing work (model downloads, etc.).
    * Wraps bits-ui Progress.Root with Nordic design tokens.
-   * For fluctuating range measurements (dynamics, volume), use DynamicsMeter (bits-ui Meter).
+   * For fluctuating range measurements (dynamics, volume), use Meter (bits-ui Meter).
    */
   import { Progress, useId } from "bits-ui";
 

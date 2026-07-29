@@ -14,7 +14,7 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('@organisms/profile.svelte.js').ProfileState} profileState - The profile state controller
+   * @property {import('@organisms/Profile.svelte.js').ProfileState} profileState - The profile state controller
    */
 
   /** @type {Props} */

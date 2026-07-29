@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
-import { ProfileState } from "./profile.svelte.js";
+import { ProfileState } from "./Profile.svelte.js";
 
 // Mock platform module
 let resolveEnhanceFn;

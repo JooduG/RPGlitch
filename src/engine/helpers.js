@@ -1,5 +1,5 @@
 /**
- * src/core/utils.js
+ * src/engine/helpers.js
  * ENGINE UTILITIES
  * Pure, stateless helper functions for the RPGlitch core.
  * ZERO dependencies on UI or Browser-specific globals (except crypto).
@@ -11,7 +11,6 @@
 import { generate_uuid, generate_secure_seed, pick_random } from "@utils";
 
 export { generate_uuid, generate_secure_seed, pick_random };
-export { generate_uuid as generateUUID, generate_secure_seed as generateSecureSeed, pick_random as pickRandom };
 
 /**
  * Clamps a number between min and max.

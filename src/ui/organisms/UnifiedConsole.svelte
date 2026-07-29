@@ -9,7 +9,7 @@
   import { click_outside } from "@actions";
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
   import { db, stories } from "@data";
-  import { Chrono, pick_random as pickRandom, session_driver } from "@engine";
+  import { Chrono, pick_random, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
@@ -171,20 +171,20 @@
       }
       if (!app.ai_list.length) return;
 
-      app.selected_ai = pickRandom(Array.isArray(app.ai_list) ? app.ai_list : []);
+      app.selected_ai = pick_random(Array.isArray(app.ai_list) ? app.ai_list : []);
       let available_users = app.user_list;
       if (app.selected_ai && Array.isArray(app.user_list)) {
         available_users = app.user_list.filter((u) => u.id !== app.selected_ai.id);
       }
 
       if (available_users.length) {
-        app.selected_user = pickRandom(available_users);
+        app.selected_user = pick_random(available_users);
       } else if (app.user_list.length) {
         app.user_list = app.user_list[0];
       }
 
       if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
-        app.selected_fractal = pickRandom(Array.isArray(app.fractal_list) ? app.fractal_list : []);
+        app.selected_fractal = pick_random(Array.isArray(app.fractal_list) ? app.fractal_list : []);
       }
 
       if (typeof app.regenerate_title === "function") {

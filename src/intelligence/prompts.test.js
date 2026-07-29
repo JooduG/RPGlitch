@@ -1,4 +1,5 @@
-import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter, build_cognitive_state, build_dynamics_calibration } from "./prompts.js";
+import { prompt_builder, render_ghostwriter, build_cognitive_state, build_dynamics_calibration } from "./prompts.js";
+import { PROTOCOL_LIBRARY } from "./protocols.js";
 import { vi, describe, expect, it } from "vitest";
 
 const _mockApp = {

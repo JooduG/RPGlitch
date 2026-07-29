@@ -4,16 +4,14 @@
  * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
-import { collapse_history as _collapse_history, ind, PROTOCOL_LIBRARY, state_bridge } from "@utils";
+import { ind, state_bridge } from "@utils";
+import { PROTOCOL_LIBRARY } from "./protocols.js";
+import { collapse_history } from "./history.js";
 import { NARRATIVE_STYLES } from "@data";
 import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { clean_xml, escapeXml, safeParsePseudoJson, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
-
-// Re-export for backward compatibility
-export { PROTOCOL_LIBRARY };
-export const collapse_history = _collapse_history;
 
 // ============================================================================
 // 1. UTILITIES & CACHES

@@ -1,11 +1,10 @@
 /**
- /**
-  * Safely parses basic markdown into an AST format for rendering without eval/innerHTML.
-  * Currently supports strong (**) and emphasis (*).
-  *
-  * @param {string} text - The raw markdown text
-  * @returns {any[][]} An array of paragraph blocks, each containing an array of inline tokens
-  */
+ * Safely parses basic markdown into an AST format for rendering without eval/innerHTML.
+ * Currently supports strong (**) and emphasis (*).
+ *
+ * @param {string} text - The raw markdown text
+ * @returns {any[][]} An array of paragraph blocks, each containing an array of inline tokens
+ */
 export function parse_markdown(text) {
   if (text === null || text === undefined || text === "") return [];
   const textStr = typeof text !== "string" ? String(text) : text;

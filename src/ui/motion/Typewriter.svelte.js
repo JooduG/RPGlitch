@@ -2,7 +2,7 @@ import { mount, unmount } from "svelte";
 import Typewriter from "./Typewriter.svelte";
 
 /**
- * @file typewriter.svelte.js
+ * @file Typewriter.svelte.js
  * 📝 COGNITIVE TEXT STREAMER ACTION
  * Interfaces element nodes with our consolidated Typewriter engine.
  */

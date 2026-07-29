@@ -6,7 +6,15 @@
    * and pick their favorite. Includes a "Regenerate" button for a 2nd
    * round of generation with LLM-refined prompts.
    */
-  import { imageRegenerate, selectCandidate, closeRegenerate, deliverCandidates, setRegenerateError, closePicker, getPersistedMeta } from "@state";
+  import {
+    imageRegenerate,
+    selectCandidate,
+    closeRegenerate,
+    deliverCandidates,
+    setRegenerateError,
+    closePicker,
+    getPersistedMeta,
+  } from "./ImageRegenerate.svelte.js";
   import { visual_engine } from "@media";
   import { Backdrop } from "@atoms";
   import { Dialog } from "bits-ui";

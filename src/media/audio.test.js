@@ -3,7 +3,7 @@
  * Unit tests verifying audio engine and premade voice configurations.
  */
 import { describe, expect, it } from "vitest";
-import { premade } from "../data/premades.js";
+import { premade } from "@data";
 
 describe("Audio & Voice Configurations", () => {
   it("assigns valid female voice configurations to all premade fractals", () => {

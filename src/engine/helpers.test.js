@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { pick_random as pickRandom, generate_secure_seed as generateSecureSeed, generate_uuid as generateUUID } from "@utils";
 
-describe("core/utils", () => {
+describe("engine/helpers", () => {
   describe("generateUUID", () => {
     it("should generate a valid UUID", () => {
       const uuid = generateUUID();

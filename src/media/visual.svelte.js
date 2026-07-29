@@ -6,7 +6,7 @@
 
 import { db, entities } from "@data";
 import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
-import { llm_service, sanitize_llm } from "@platform/transport.js";
+import { llm_service, sanitize_llm } from "@platform";
 import {
   AestheticResolver,
   getResolution,

@@ -40,7 +40,7 @@ export class SimulationLogStore {
   add(entry) {
     // Prevent duplicates if ID exists
     if (entry.id && this.feed.some((m) => m.id === entry.id)) return;
-    this.feed = [...this.feed, entry];
+    this.feed.push(entry);
   }
 
   /**
@@ -48,14 +48,20 @@ export class SimulationLogStore {
    * @param {Partial<LogEntry>} updates
    */
   update(id, updates) {
-    this.feed = this.feed.map((entry) => (entry.id === id ? { ...entry, ...updates } : entry));
+    const target = this.feed.find((entry) => entry.id === id);
+    if (target) {
+      Object.assign(target, updates);
+    }
   }
 
   /**
    * @param {string|number} id
    */
   remove(id) {
-    this.feed = this.feed.filter((entry) => entry.id !== id);
+    const index = this.feed.findIndex((entry) => entry.id === id);
+    if (index !== -1) {
+      this.feed.splice(index, 1);
+    }
   }
 }
 export const simulation_log = new SimulationLogStore();

@@ -5,7 +5,8 @@
  */
 
 import { VISUAL_STYLES } from "@data";
-import { escape_xml as escapeXml, PROTOCOL_LIBRARY, safeParsePseudoJson, state_bridge } from "@utils";
+import { escape_xml as escapeXml, safeParsePseudoJson, state_bridge } from "@utils";
+import { PROTOCOL_LIBRARY } from "@intelligence";
 import { get_signature_label } from "./tokens.js";
 
 /**

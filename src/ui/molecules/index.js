@@ -9,3 +9,4 @@ export { default as ImportModal } from "./ImportModal.svelte";
 export { default as ImageRegenerate } from "./ImageRegenerate.svelte";
 export { imagePreview, openImagePreview, closeImagePreview, default as ImagePreview } from "./ImagePreview.svelte";
 export * from "./ImageRegenerate.svelte.js";
+export * from "./EntityCardContextMenu.svelte.js";

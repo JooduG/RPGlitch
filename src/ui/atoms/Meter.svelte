@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/atoms/DynamicsMeter.svelte
+   * @file src/ui/atoms/Meter.svelte
    * 🎛️ DYNAMICS METER
    * Encapsulates the dynamic value square, hover controls, and the underlying progress line.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.

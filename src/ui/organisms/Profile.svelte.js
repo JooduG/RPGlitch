@@ -3,7 +3,7 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize } from "@data";
-import { generateUUID } from "@engine";
+import { generate_uuid } from "@engine";
 import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
@@ -303,7 +303,7 @@ export class ProfileState {
                   };
                 } else {
                   currentItems.push({
-                    id: generateUUID(),
+                    id: generate_uuid(),
                     timestamp: Date.now(),
                     directive: dir,
                     type: path,
@@ -397,7 +397,7 @@ export class ProfileState {
                   const vectorStr = typeof textStr === "string" ? textStr : textStr.directive || textStr.text || JSON.stringify(textStr);
                   return {
                     ...temporal_engine.create(vectorStr, key),
-                    id: existing.id || generateUUID(),
+                    id: existing.id || generate_uuid(),
                     emotional_weight: existing.emotional_weight || 5,
                   };
                 });
@@ -441,7 +441,7 @@ export class ProfileState {
     const items = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
 
     const newItem = {
-      id: generateUUID(),
+      id: generate_uuid(),
       timestamp: Date.now(),
       directive: "",
       type: path,

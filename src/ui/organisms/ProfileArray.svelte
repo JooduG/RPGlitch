@@ -21,7 +21,7 @@
 
   /**
    * @typedef {Object} Props
-   * @property {import('./profile.svelte.js').ProfileState} state - The profile state controller
+   * @property {import('./Profile.svelte.js').ProfileState} state - The profile state controller
    * @property {string} path - The dot-path to the array in state.char
    * @property {string} signature_color - The theme accent color
    * @property {string} [sublabel] - Display label for individual items

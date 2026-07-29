@@ -8,10 +8,10 @@
   import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
   import { Audio, get_signature_color, getResolution } from "@media";
   import { Typewriter } from "@motion";
-  import { app, runtime, simulationState, imageRegenerate, openPicker } from "@state";
+  import { app, runtime, simulationState } from "@state";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
-  import { DevTelemetryBlock, EntityCard } from "@molecules";
-  import { safe_html } from "@utils";
+  import { DevTelemetryBlock, EntityCard, imageRegenerate, openPicker } from "@molecules";
+  import { safe_html } from "@actions";
 
   /**
    * @typedef {Object} Props

@@ -7,7 +7,7 @@
    * 2. Supports direct editing via contenteditable.
    */
   import { tooltip } from "@atoms";
-  import { pickRandom } from "@engine";
+  import { pick_random } from "@engine";
   import { get_signature_color } from "@media";
   import { app } from "@state";
 
@@ -45,7 +45,7 @@
     const has_fractal = !!fractal;
 
     if (has_entities && has_fractal) {
-      const prefix = pickRandom(PREFIXES.STANDARD);
+      const prefix = pick_random(PREFIXES.STANDARD);
       /** @type {Array<{text: string, color?: string, no_gap?: boolean}>} */
       const parts = [{ text: `${prefix} ` }];
 
@@ -68,7 +68,7 @@
     }
 
     if (has_entities) {
-      const prefix = pickRandom(PREFIXES.STANDARD);
+      const prefix = pick_random(PREFIXES.STANDARD);
       /** @type {Array<{text: string, color?: string, no_gap?: boolean}>} */
       const parts = [{ text: `${prefix} ` }];
 
@@ -87,7 +87,7 @@
     }
 
     if (has_fractal) {
-      const prefix = pickRandom(PREFIXES.FRACTAL);
+      const prefix = pick_random(PREFIXES.FRACTAL);
       const parts = [{ text: `${prefix} ` }, { text: fractal.name, color: get_color(fractal) }];
       return parts;
     }

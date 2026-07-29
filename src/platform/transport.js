@@ -17,7 +17,8 @@
  * nothing about the narrative. It only sends and receives.
  */
 
-import { collapse_history, escape_xml, stream_bridge } from "@utils";
+import { escape_xml, stream_bridge } from "@utils";
+import { collapse_history } from "@intelligence";
 
 /************************************************************************************
  * [SECTION: SANITIZATION]

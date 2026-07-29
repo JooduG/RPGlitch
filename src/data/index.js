@@ -10,6 +10,6 @@ export {
   format_premade,
   detox_prose,
 } from "./normalizer.js";
-export { premade } from "./premades.js";
-export { NARRATIVE_STYLES } from "./narrative-styles.js";
-export { VISUAL_STYLES } from "./visual-styles.js";
+export { premade } from "./presets/premades.js";
+export { NARRATIVE_STYLES } from "./presets/narrative-styles.js";
+export { VISUAL_STYLES } from "./presets/visual-styles.js";

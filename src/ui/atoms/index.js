@@ -11,7 +11,7 @@ export { default as TextField } from "./TextField.svelte";
 export { default as Toggle } from "./Toggle.svelte";
 export { tooltip_state, show_tooltip, hide_tooltip, tooltip, default as Tooltip } from "./Tooltip.svelte";
 export { default as Accordion } from "./Accordion.svelte";
-export { default as DynamicsMeter } from "./DynamicsMeter.svelte";
+export { default as Meter } from "./Meter.svelte";
 export { default as ProgressBar } from "./ProgressBar.svelte";
 export { default as NumberField } from "./NumberField.svelte";
 export { default as StyleBadge } from "./StyleBadge.svelte";
