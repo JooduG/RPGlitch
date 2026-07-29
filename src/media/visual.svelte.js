@@ -199,7 +199,7 @@ export class VisualEngine {
 
             const generate_promise = image_engine({
               prompt: final_prompt,
-              negative_prompt: effective_negative_prompt,
+              negativePrompt: effective_negative_prompt,
               seed: effective_seed,
               resolution: effective_resolution,
               removeBackground: !!(options.removeBackground ?? options.no_background),
@@ -222,7 +222,10 @@ export class VisualEngine {
                 if (data.error) {
                   throw new Error(`Text-to-image failed: ${data.error}`);
                 }
-                const img = typeof data === "string" ? data : data.data_url || data.url || data.image || data.src || data.href || null;
+                const img =
+                  typeof data === "string" || data instanceof String
+                    ? data.valueOf()
+                    : data.dataUrl || data.data_url || data.url || data.image || data.src || data.href || null;
                 if (!img) {
                   throw new Error("Text-to-image failed: no image data returned");
                 }
