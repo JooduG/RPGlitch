@@ -6,7 +6,7 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { ProfilePicture, StyleBadge } from "@atoms";
+  import { ProfilePicture, StyleBadge, Button } from "@atoms";
   import { guarded_transition } from "@engine";
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
@@ -598,8 +598,8 @@
       {#if item.separator}
         <div class="block h-px bg-current opacity-20"></div>
       {:else}
-        <button
-          type="button"
+        <Button
+          variant="bare"
           class="
             flex h-9 w-full cursor-default items-center gap-2 px-2.5 text-xs font-bold tracking-widest text-slate-200 uppercase transition-colors duration-150 outline-none select-none hover:bg-(--signature-color,var(--color-slate-50))/10 hover:text-white
             {item.danger ? 'text-red-400/80 hover:text-red-400' : ''}
@@ -615,7 +615,7 @@
             ></span>
           {/if}
           {item.label}
-        </button>
+        </Button>
       {/if}
     {/each}
   </div>

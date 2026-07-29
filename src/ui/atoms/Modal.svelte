@@ -50,7 +50,13 @@
   });
 </script>
 
-<Dialog.Root bind:open preventScroll={false}>
+<Dialog.Root
+  open={true}
+  onOpenChange={(v) => {
+    if (!v) on_close();
+  }}
+  preventScroll={false}
+>
   <Dialog.Portal>
     <Dialog.Overlay forceMount>
       {#snippet child({ props: overlayProps })}
@@ -73,8 +79,8 @@
               }
             }}
             {z_index}
-            busy={is_busy}
             is_blurred={blur}
+            busy={is_busy}
             {is_pass_through}
             class={variant}
             data-modal-backdrop={variant}
@@ -98,60 +104,48 @@
                   <div
                     {...contentProps}
                     data-modal-variant={variant}
-                    class="
-                      relative
-                      flex
-                      h-auto
-                      max-h-screen
-                      min-h-48
-                      {variant === 'lightbox' ? 'w-[clamp(20rem,95vw,80rem)] max-w-[95vw]' : 'w-[clamp(16rem,90vw,28rem)]'}
-                      cursor-default
-                      scrollbar-none
-                      flex-col
-                      justify-between
-                      gap-4
-                      overflow-x-hidden
-                      overflow-y-auto
-                      rounded-xl
-                      bg-glass-elevated
-                      transition-[filter]
-                      duration-300
-                      [&::-webkit-scrollbar]:hidden
+                    class={[
+                      variant !== "bare" &&
+                        variant !== "profile" &&
+                        `
+                          relative
+                          flex
+                          h-auto
+                          max-h-screen
+                          min-h-48
+                          ${variant === "lightbox" ? "w-[clamp(20rem,95vw,80rem)] max-w-[95vw]" : "w-[clamp(16rem,90vw,28rem)]"}
+                          cursor-default
+                          scrollbar-none
+                          flex-col
+                          justify-between
+                          gap-4
+                          overflow-x-hidden
+                          overflow-y-auto
+                          rounded-xl
+                          bg-glass-elevated
+                          transition-[filter]
+                          duration-300
+                          before:pointer-events-none
 
-                      {variant}
-                      {variant !== 'profile'
-                      ? `
-                        before:pointer-events-none
-                        before:absolute
-                        before:inset-0
-                        before:z-[-1]
-                        before:bg-(--noise-url)
-                        before:opacity-10
-                        before:mix-blend-overlay
-                        before:content-[\\'\\']
-                      `
-                      : `
-                        h-auto
-                        max-h-none!
-                        min-h-0
-                        w-fit
-                        max-w-none!
-                        overflow-visible!
-                        border-none!
-                        bg-transparent!
-                        p-0!
-                        shadow-none!
-                        backdrop-blur-none!
-                      `}
-                      {variant === 'preview' || variant === 'mini' ? 'max-w-md' : ''} {is_busy
-                      ? `
-                        pointer-events-none
-                        cursor-wait
-                        brightness-90
-                        grayscale-50
-                      `
-                      : ''}
-                      {className}"
+                          before:absolute
+                          before:inset-0
+                          before:z-[-1]
+                          before:bg-(--noise-url)
+                          before:opacity-10
+                          before:mix-blend-overlay
+                          before:content-['']
+                          [&::-webkit-scrollbar]:hidden
+                        `,
+                      (variant === "preview" || variant === "mini") && "max-w-md",
+                      is_busy &&
+                        `
+                          pointer-events-none
+                          cursor-wait
+                          brightness-90
+                          grayscale-50
+                        `,
+                      className,
+                    ]}
                     onclick={(/** @type {MouseEvent} */ e) => {
                       if (variant !== "lightbox") e.stopPropagation();
                     }}

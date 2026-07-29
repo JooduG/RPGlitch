@@ -5,9 +5,10 @@
    * Organism component managing designation titles and context description text blocks.
    * Enforces strict Svelte 5 state machine physics and Nordic styling token regimes.
    */
-  import { FitText } from "@motion";
+
   import { auto_resize } from "@actions";
   import { ENTITY_FRAGMENTS } from "@intelligence";
+  import { GlassWrapper } from "@atoms";
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
@@ -66,39 +67,7 @@
   "
   >
     {#if is_editing}
-      <div
-        class="
-          relative
-          flex
-          w-(--state-fill-end)
-          rounded-standard
-          border-transparent
-          bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--color-glass-sunken))]
-          transition-[border-color,box-shadow,background]
-          duration-(--duration-fast)
-          ease-(--ease-standard)
-          before:pointer-events-none
-          before:absolute
-          before:inset-0
-          before:rounded-[inherit]
-          before:mask-border-solid
-          before:p-spacing-pixel
-          before:opacity-whisper
-          before:transition-opacity
-          before:duration-(--duration-standard)
-          before:content-['']
-          before:[background:linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
-          focus-within:border-transparent
-          focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
-          focus-within:before:opacity-solid
-          focus-within:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
-          data-[expanded=true]:border-transparent
-          data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
-          data-[expanded=true]:before:opacity-solid
-          data-[expanded=true]:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
-        "
-        data-expanded={active_field === "name"}
-      >
+      <GlassWrapper is_expanded={active_field === "name"} {signature_color}>
         <input
           bind:this={name_input}
           bind:value={name}
@@ -120,55 +89,28 @@
           onfocus={() => on_focus_field("name", "Entity Name")}
           onblur={() => on_focus_field("", "")}
         />
-      </div>
+      </GlassWrapper>
     {:else}
       <h1
         class="
           block
           {entity_type === 'fractal' ? 'text-left' : 'text-right'}
-          leading-tight
+          font-heading
+          text-[clamp(3rem,6vw,5rem)]
+          leading-none
+          font-extrabold
+          tracking-tight
+          text-balance
         "
         style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
       >
-        <FitText text={format_name(name)} max_size={36} class="text-inherit!" />
+        {format_name(name)}
       </h1>
     {/if}
   </div>
 
   {#if is_editing}
-    <div
-      class="
-        relative
-        flex
-        w-(--state-fill-end)
-        rounded-standard
-        border-transparent
-        bg-[color-mix(in_srgb,var(--signature-color)_4%,var(--color-glass-sunken))]
-        transition-[border-color,box-shadow,background]
-        duration-(--duration-fast)
-        ease-(--ease-standard)
-        before:pointer-events-none
-        before:absolute
-        before:inset-0
-        before:rounded-[inherit]
-        before:mask-border-solid
-        before:p-spacing-pixel
-        before:opacity-whisper
-        before:transition-opacity
-        before:duration-(--duration-standard)
-        before:content-['']
-        before:[background:linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--signature-color)_40%),transparent_40%)]
-        focus-within:border-transparent
-        focus-within:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
-        focus-within:before:opacity-solid
-        focus-within:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
-        data-[expanded=true]:border-transparent
-        data-[expanded=true]:bg-[color-mix(in_srgb,var(--signature-color)_8%,var(--color-glass-sunken))]
-        data-[expanded=true]:before:opacity-solid
-        data-[expanded=true]:before:[background:linear-gradient(to_bottom,var(--signature-color),color-mix(in_srgb,var(--signature-color),transparent_60%)_30%,transparent_80%)]
-      "
-      data-expanded={active_field === "description"}
-    >
+    <GlassWrapper is_expanded={active_field === "description"} {signature_color}>
       <textarea
         class="
           z-20
@@ -205,7 +147,7 @@
         onfocus={() => on_focus_field("description", "Description")}
         onblur={() => on_focus_field("", "")}
       ></textarea>
-    </div>
+    </GlassWrapper>
   {:else if description}
     <p
       class="

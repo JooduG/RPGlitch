@@ -105,8 +105,8 @@
       >
         {#snippet status()}
           {@const title = derive_vector_title(item.directive, 60)}
-          <button
-            type="button"
+          <Button
+            variant="bare"
             class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left focus:outline-none"
             onclick={() => toggle_expand(item_key)}
           >
@@ -124,7 +124,7 @@
               use:tooltip
               aria-label={description}>{title || `Empty ${sublabel}`}</span
             >
-          </button>
+          </Button>
         {/snippet}
 
         {#snippet header_actions()}
@@ -165,8 +165,8 @@
                 >
 
                 <div class="flex flex-col gap-[1px]">
-                  <button
-                    type="button"
+                  <Button
+                    variant="bare"
                     class="
                       flex
                       h-2.5
@@ -182,9 +182,9 @@
                     aria-label="Increase Weight"
                   >
                     <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="18 15 12 9 6 15"></polyline></svg>
-                  </button>
-                  <button
-                    type="button"
+                  </Button>
+                  <Button
+                    variant="bare"
                     class="
                       flex
                       h-2.5
@@ -200,7 +200,7 @@
                     aria-label="Decrease Weight"
                   >
                     <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="6 9 12 15 18 9"></polyline></svg>
-                  </button>
+                  </Button>
                 </div>
               </div>
             {:else}

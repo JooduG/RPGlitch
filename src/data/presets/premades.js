@@ -267,7 +267,7 @@ export const premade = {
 
     {
       id: "beast",
-      name: "beast",
+      name: "Beast",
       profile_picture: "https://user.uploads.dev/file/64cf73558ff6b5709eadeb812cb1d91f.jpg",
       description: "Massive bio-engineered orc combat experiment and feral breeding fighter built for absolute physical control.",
       type: "character",

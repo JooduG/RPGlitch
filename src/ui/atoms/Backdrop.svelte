@@ -15,7 +15,9 @@
     is_pass_through = false,
 
     // Design
-    z_index = "100",
+    layer = "default",
+    z_index = "100", // Fallback if layer is 'default'
+    variant = "default",
     class: className = "",
 
     // Slots/Snippets
@@ -26,6 +28,9 @@
   } = $props();
 
   const is_profile = $derived(className === "profile");
+  const computed_z_index = $derived(
+    layer === "console" ? "40" : layer === "cardhand" ? "50" : layer === "image" ? "600" : layer === "max" ? "var(--z-index-max)" : z_index,
+  );
 
   /**
    * For the profile backdrop: animate backdrop-filter and background directly
@@ -88,7 +93,8 @@
     `
     : ''}
     {className}"
-  style:z-index={z_index}
+  style:z-index={computed_z_index}
+  data-backdrop={variant === "mini" ? "mini" : undefined}
   transition:backdrop_transition
   use:use_actions={actions}
 >

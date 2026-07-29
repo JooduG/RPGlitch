@@ -17,6 +17,7 @@ export const NARRATIVE_STYLES = {
   default: {
     id: "default",
     name: "No Narrative Style",
+    portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Standard system instructions without author style overlay.",
     narrative_engine: "",
   },

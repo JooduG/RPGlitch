@@ -46,6 +46,60 @@
   let signature_color = $derived(get_signature_color(entity, "var(--color-gunmetal)"));
 </script>
 
+{#snippet storymode_overlay(name)}
+  <div
+    class="
+      pointer-events-none
+      absolute
+      right-0
+      bottom-0
+      left-0
+      z-10
+      flex
+      flex-col
+      items-center
+      justify-end
+      overflow-hidden
+      rounded-b-[inherit]
+      bg-linear-to-t
+      from-black/95
+      via-black/75
+      via-45%
+      to-transparent
+      px-1
+      pt-4
+      pb-1
+      text-center
+      opacity-0
+      transition-all
+      duration-300
+      ease-in-out
+      group-hover:opacity-100
+    "
+  >
+    <span
+      class="
+        [display:-webkit-box]
+        w-full
+        overflow-hidden
+        text-center
+        font-heading
+        text-[clamp(0.45rem,4.5cqi,0.65rem)]
+        leading-tight
+        font-bold
+        tracking-widest
+        wrap-break-word
+        text-(--signature-color,var(--color-slate-50))
+        uppercase
+        [-webkit-box-orient:vertical]
+        [-webkit-line-clamp:2]
+        [line-clamp:2]
+        [text-shadow:0_2px_4px_var(--color-void-black)]
+      ">{name}</span
+    >
+  </div>
+{/snippet}
+
 {#if style_details || vstyle_details}
   <div class="pointer-events-none flex {className}" style={is_storymode ? `--signature-color: ${signature_color};` : ""}>
     {#if style_details}
@@ -88,57 +142,7 @@
         </div>
 
         {#if is_storymode}
-          <div
-            class="
-              pointer-events-none
-              absolute
-              right-0
-              bottom-0
-              left-0
-              z-10
-              flex
-              flex-col
-              items-center
-              justify-end
-              overflow-hidden
-              rounded-b-[inherit]
-              bg-linear-to-t
-              from-black/95
-              via-black/75
-              via-45%
-              to-transparent
-              px-1
-              pt-4
-              pb-1
-              text-center
-              opacity-0
-              transition-all
-              duration-300
-              ease-in-out
-              group-hover:opacity-100
-            "
-          >
-            <span
-              class="
-                [display:-webkit-box]
-                w-full
-                overflow-hidden
-                text-center
-                font-heading
-                text-[clamp(0.45rem,4.5cqi,0.65rem)]
-                leading-tight
-                font-bold
-                tracking-widest
-                wrap-break-word
-                text-(--signature-color,var(--color-slate-50))
-                uppercase
-                [-webkit-box-orient:vertical]
-                [-webkit-line-clamp:2]
-                [line-clamp:2]
-                [text-shadow:0_2px_4px_var(--color-void-black)]
-              ">{style_details.name}</span
-            >
-          </div>
+          {@render storymode_overlay(style_details.name)}
         {/if}
       </div>
     {/if}
@@ -190,57 +194,7 @@
         </div>
 
         {#if is_storymode}
-          <div
-            class="
-              pointer-events-none
-              absolute
-              right-0
-              bottom-0
-              left-0
-              z-10
-              flex
-              flex-col
-              items-center
-              justify-end
-              overflow-hidden
-              rounded-b-[inherit]
-              bg-linear-to-t
-              from-black/95
-              via-black/75
-              via-45%
-              to-transparent
-              px-1
-              pt-4
-              pb-1
-              text-center
-              opacity-0
-              transition-all
-              duration-300
-              ease-in-out
-              group-hover:opacity-100
-            "
-          >
-            <span
-              class="
-                [display:-webkit-box]
-                w-full
-                overflow-hidden
-                text-center
-                font-heading
-                text-[clamp(0.45rem,4.5cqi,0.65rem)]
-                leading-tight
-                font-bold
-                tracking-widest
-                wrap-break-word
-                text-(--signature-color,var(--color-slate-50))
-                uppercase
-                [-webkit-box-orient:vertical]
-                [-webkit-line-clamp:2]
-                [line-clamp:2]
-                [text-shadow:0_2px_4px_var(--color-void-black)]
-              ">{vname}</span
-            >
-          </div>
+          {@render storymode_overlay(vname)}
         {/if}
       </div>
     {/if}

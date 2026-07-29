@@ -15,3 +15,5 @@ export { default as Meter } from "./Meter.svelte";
 export { default as ProgressBar } from "./ProgressBar.svelte";
 export { default as NumberField } from "./NumberField.svelte";
 export { default as StyleBadge } from "./StyleBadge.svelte";
+export { default as Label } from "./Label.svelte";
+export { default as GlassWrapper } from "./GlassWrapper.svelte";

@@ -8,7 +8,16 @@
 
   import { ScrollArea } from "@atoms";
 
-  let { label = "", isCode = true, height = "auto", maxHeight = "none", class: className = "", children, isResonating = false } = $props();
+  let {
+    label = "",
+    isCode = true,
+    isProse = false,
+    height = "auto",
+    maxHeight = "none",
+    class: className = "",
+    children,
+    isResonating = false,
+  } = $props();
 </script>
 
 <div
@@ -69,6 +78,35 @@
         [&_pre]:font-[inherit]
         [&_pre]:text-xs
         [&_pre]:whitespace-pre-wrap
+
+        {isProse
+        ? `
+          leading-relaxed
+          text-pretty
+
+          [&_em]:italic
+          [&_em]:opacity-75
+
+          [&_h1]:mb-2
+          [&_h1]:text-base
+          [&_h1]:font-bold
+          [&_h1]:text-white
+
+          [&_h2]:mb-1
+          [&_h2]:text-base
+          [&_h2]:font-bold
+          [&_h2]:text-slate-200
+
+          [&_h3]:mt-3
+          [&_h3]:mb-1
+          [&_h3]:text-[0.95rem]
+          [&_h3]:font-bold
+          [&_h3]:text-slate-300
+
+          [&_p]:mb-4
+          [&_strong]:font-bold
+        `
+        : ''}
 
         {isCode ? `bg-black/10` : ''}"
     >

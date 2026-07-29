@@ -5,7 +5,7 @@
    * Manages character voice selection and parameters.
    * Part of the RPGlitch UI.
    */
-  import { Button, Dropdown, Slider, tooltip } from "@atoms";
+  import { Button, Dropdown, Slider, tooltip, Label } from "@atoms";
   import { Audio } from "@media";
 
   /**
@@ -56,83 +56,57 @@
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
   <!-- DROPDOWN + PREVIEW + SLIDER (3-col, single row) -->
-  <div
-    class="
-      grid
+  <div class="flex flex-col gap-2">
+    <Label for="voice-select">Voice</Label>
+
+    <div
+      class="
+        grid
       w-full
-      grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]
+      grid-cols-[minmax(0,1fr)_auto]
       items-stretch
       gap-2
     "
-  >
-    <Dropdown
-      bind:value={profile_state.char.voice.uri}
-      items={dropdown_items}
-      disabled={!profile_state.is_editing}
-      label="Select Voice"
-      uppercase={false}
-      matchWidth
-      trigger_class="
-          group/trigger
-          inline-flex
-          h-12
-          w-full
-          cursor-pointer
-          items-center
-          justify-between
-          gap-2
-          rounded-xl
-          border
-          border-solid
-          border-transparent
-          bg-(--signature-color,#555d66)
-          px-4
-          text-left
-          font-sans
-          text-sm
-          text-white
-          transition-[background-color,color,box-shadow,transform,filter,border-color]
-          duration-500
-          ease-out
-          hover:brightness-125
-          focus-visible:outline
-          focus-visible:outline-offset-1
-          focus-visible:outline-white
-          active:scale-[0.99]
-          disabled:pointer-events-none
-          disabled:cursor-not-allowed
-          disabled:opacity-30
-          disabled:grayscale
-          data-[state=open]:brightness-110
-        "
-    />
-
-    <Button
-      actions={[tooltip]}
-      tooltip="Preview Voice"
-      aria-label="Preview Voice"
-      square
-      disabled={!selected_voice}
-      onclick={() => Audio.voice.preview(profile_state.char.voice.uri, profile_state.char.voice.rate)}
-      variant="secondary"
     >
-      <svg viewBox="0 0 24 24" class="size-icon-small">
-        <path
-          fill="currentColor"
-          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-        />
-      </svg>
-    </Button>
+      <Dropdown
+        id="voice-select"
+        bind:value={profile_state.char.voice.uri}
+        items={dropdown_items}
+        disabled={!profile_state.is_editing}
+        label="Select Voice"
+        uppercase={false}
+        matchWidth
+      />
 
-    <Slider
-      min={0.1}
-      max={1.9}
-      step={0.1}
-      bind:value={profile_state.char.voice.rate}
-      disabled={!profile_state.is_editing || !selected_voice}
-      label="Rate"
-      neutral={1.0}
-      style="--empty-fill: var(--signature-color, #555d66)"
-    />
+      <Button
+        actions={[tooltip]}
+        tooltip="Preview Voice"
+        aria-label="Preview Voice"
+        square
+        disabled={!selected_voice}
+        onclick={() => Audio.voice.preview(profile_state.char.voice.uri, profile_state.char.voice.rate)}
+        variant="secondary"
+      >
+        <svg viewBox="0 0 24 24" class="size-icon-small">
+          <path
+            fill="currentColor"
+            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+          />
+        </svg>
+      </Button>
+
+      <div class="col-span-2 w-full pt-2">
+        <Slider
+          min={0.1}
+          max={1.9}
+          step={0.1}
+          bind:value={profile_state.char.voice.rate}
+          disabled={!profile_state.is_editing || !selected_voice}
+          label="Rate"
+          neutral={1.0}
+          style="--empty-fill: var(--signature-color, #555d66)"
+        />
+      </div>
+    </div>
   </div>
 </section>

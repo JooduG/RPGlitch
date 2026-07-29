@@ -8,7 +8,7 @@
   import { tick } from "svelte";
   import { click_outside } from "@actions";
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
-  import { db, stories } from "@data";
+  import { db, stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
   import { Chrono, pick_random, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
@@ -184,7 +184,14 @@
       }
 
       if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
-        app.selected_fractal = pick_random(Array.isArray(app.fractal_list) ? app.fractal_list : []);
+        const random_fractal = pick_random(app.fractal_list);
+        if (random_fractal) {
+          app.selected_fractal = {
+            ...random_fractal,
+            visual_style: pick_random(Object.keys(VISUAL_STYLES)),
+            narrative_style: pick_random(Object.keys(NARRATIVE_STYLES)),
+          };
+        }
       }
 
       if (typeof app.regenerate_title === "function") {
@@ -310,7 +317,7 @@
 
 <div class="pointer-events-auto relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
-    <Backdrop z_index="40" is_blurred={true} onclick={() => (app.control_panel_open = false)} />
+    <Backdrop layer="console" onclick={() => (app.control_panel_open = false)} />
   {/if}
 
   <div
@@ -376,134 +383,125 @@
           <ScrollArea class="min-h-0 w-full">
             <div class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
               <!-- DECK A: AUDIO -->
-              <Accordion label="Audio">
-                <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-x-6 gap-y-4 pt-2 pb-4">
-                  <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
-                  <div class="flex w-full items-center gap-4">
-                    <button
-                      type="button"
-                      onclick={toggle_mute}
-                      aria-label={is_muted ? "Unmute" : "Mute"}
-                      use:tooltip={is_muted ? "Unmute" : "Mute"}
-                      class="
-                                            pointer-events-auto
-                                            flex h-6 w-10
-                                            shrink-0 items-center justify-center
-                                            rounded-md
-                                            bg-transparent
-                                            text-slate-400 transition-colors
-                                            duration-300 hover:text-white
-                                            focus-visible:outline focus-visible:outline-offset-1 focus-visible:outline-slate-600
-                                          "
-                    >
-                      {#if is_muted}
-                        <svg viewBox="0 0 24 24" class="size-5">
-                          <path
-                            fill="currentColor"
-                            d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z"
-                          />
-                        </svg>
-                      {:else}
-                        <svg viewBox="0 0 24 24" class="size-5">
-                          <path
-                            fill="currentColor"
-                            d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-                          />
-                        </svg>
-                      {/if}
-                    </button>
-                    <Slider
-                      horizontal
-                      label=""
-                      bind:value={Audio.volume}
-                      min={0}
-                      max={1}
-                      step={0.1}
-                      neutral={0}
-                      format={(v) => Math.round(v * 100) + "%"}
-                      disabled={explicitly_muted}
-                      disabled_label="MUTED"
-                      show_value_tooltip={true}
-                    />
-                  </div>
+              <Accordion label="Audio" content_class="flex flex-col gap-4">
+                <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
+                <div class="flex w-full items-center gap-4">
+                  <Button
+                    variant="bare"
+                    onclick={toggle_mute}
+                    aria-label={is_muted ? "Unmute" : "Mute"}
+                    actions={[[tooltip, is_muted ? "Unmute" : "Mute"]]}
+                    class="
+                                          pointer-events-auto
+                                          flex h-6 w-10
+                                          shrink-0 items-center justify-center
+                                          rounded-md
+                                          bg-transparent
+                                          text-slate-400 transition-colors
+                                          hover:bg-slate-700/50 hover:text-white
+                                          focus-visible:outline
+                                          focus-visible:outline-offset-1 focus-visible:outline-slate-600 active:scale-95
+                                        "
+                  >
+                    {#if is_muted}
+                      <svg viewBox="0 0 24 24" class="size-5">
+                        <path
+                          fill="currentColor"
+                          d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z"
+                        />
+                      </svg>
+                    {:else}
+                      <svg viewBox="0 0 24 24" class="size-5">
+                        <path
+                          fill="currentColor"
+                          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
+                        />
+                      </svg>
+                    {/if}
+                  </Button>
+                  <Slider
+                    horizontal
+                    label=""
+                    bind:value={Audio.volume}
+                    min={0}
+                    max={1}
+                    step={0.1}
+                    neutral={0}
+                    format={(v) => Math.round(v * 100) + "%"}
+                    disabled={explicitly_muted}
+                    disabled_label="MUTED"
+                    show_value_tooltip={true}
+                  />
                 </div>
               </Accordion>
 
               <!-- DECK B: STORYBOARD (Contextual) -->
               {#if app.view === "storyboard"}
-                <Accordion label="Storyboard">
-                  <div class="flex flex-col gap-6 pt-2 pb-4">
-                    <div class="w-full">
-                      <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
-                    </div>
+                <Accordion label="Storyboard" content_class="flex flex-col gap-6">
+                  <div class="w-full">
+                    <TextField is_edit={true} placeholder="Optional Prologue Instructions" bind:value={app.prologue} />
                   </div>
                 </Accordion>
               {/if}
 
               <!-- DECK C: STORYMODE (Contextual) -->
               {#if app.view === "storymode"}
-                <Accordion label="Storymode">
-                  <div class="flex flex-row flex-wrap items-center gap-4 pt-2 pb-4">
-                    <Button
-                      label="Return to Storyboard"
-                      variant="secondary"
-                      size="small"
-                      onclick={async () => {
-                        await session_driver.clear_active();
-                        app.set_view("storyboard");
-                      }}
-                    />
+                <Accordion label="Storymode" content_class="flex flex-row flex-wrap items-center gap-4">
+                  <Button
+                    label="Return to Storyboard"
+                    variant="secondary"
+                    size="small"
+                    onclick={async () => {
+                      await session_driver.clear_active();
+                      app.set_view("storyboard");
+                    }}
+                  />
 
-                    <Button
-                      label="END STORY"
-                      variant="danger"
-                      size="small"
-                      class="ml-auto"
-                      loading={is_ending_story}
-                      disabled={is_ending_story || is_locked}
-                      onclick={handle_end_story}
-                    />
-                  </div>
+                  <Button
+                    label="END STORY"
+                    variant="danger"
+                    size="small"
+                    loading={is_ending_story}
+                    busy={is_ending_story}
+                    disabled={is_ending_story || is_locked}
+                    onclick={handle_end_story}
+                  />
                 </Accordion>
               {/if}
 
               <!-- DECK D: LIBRARY (Always available) -->
-              <Accordion label="Library">
-                <div class="flex flex-col gap-4 pt-2 pb-4">
-                  {#if story_cache.length > 0}
-                    <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
-                      {#each story_cache as story (story.id)}
-                        <StoryCard
-                          {story}
-                          active={runtime.story_id === String(story.id)}
-                          onclick={() => load_story(story.id)}
-                          ondelete={delete_story}
-                          onrename={start_rename_story}
-                        />
-                      {/each}
-                    </div>
-                  {:else}
-                    <p class="m-0 py-4 text-center text-sm text-slate-500 italic">No stories yet..</p>
-                  {/if}
-                </div>
+              <Accordion label="Library" content_class="flex flex-col gap-4">
+                {#if story_cache.length > 0}
+                  <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
+                    {#each story_cache as story (story.id)}
+                      <StoryCard
+                        {story}
+                        active={runtime.story_id === String(story.id)}
+                        onclick={() => load_story(story.id)}
+                        ondelete={delete_story}
+                        onrename={start_rename_story}
+                      />
+                    {/each}
+                  </div>
+                {:else}
+                  <p class="m-0 py-4 text-center text-sm text-slate-500 italic">No stories yet..</p>
+                {/if}
               </Accordion>
 
               <!-- DECK E: ADVANCED -->
-              <Accordion label="Advanced">
-                <div class="flex w-full items-center justify-between gap-4 pt-2 pb-4">
-                  <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
-                  <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
-                    <svg
-                      class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-                      viewBox="0 0 24 24"
-                    >
-                      <path d="M3 6h18" />
-                      <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-                      <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                    </svg>
-                    <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
-                  </Button>
-                </div>
+              <Accordion label="Advanced" content_class="flex w-full items-center justify-between gap-4">
+                <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
+                <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
+                  <svg
+                    class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M3 6h18" />
+                    <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                  </svg>
+                  <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
+                </Button>
               </Accordion>
             </div>
           </ScrollArea>
@@ -599,7 +597,7 @@
           label="Return to Storyboard"
           variant="secondary"
           size="small"
-          class="flex-1"
+          full_width={true}
           onclick={async () => {
             await session_driver.clear_active();
             app.set_view("storyboard");

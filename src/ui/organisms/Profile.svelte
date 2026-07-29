@@ -5,7 +5,7 @@
    * Flat DOM · Bolted Architecture
    */
   import { auto_resize, click_outside } from "@actions";
-  import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown } from "@atoms";
+  import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown, Label } from "@atoms";
   import { PROFILE_SECTIONS_BY_TYPE, safe_parse_pseudo_json } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
@@ -51,7 +51,7 @@
       label: style.name,
       portrait: style.portrait,
       tag: style.description,
-      tooltip: style.description,
+      tooltip: `${style.name}: ${style.description}`,
     }));
 
   const visual_style_options = Object.values(VISUAL_STYLES)
@@ -65,7 +65,7 @@
       label: style.name,
       portrait: style.portrait,
       tag: style.description,
-      tooltip: style.description,
+      tooltip: `${style.name}: ${style.description}`,
     }));
 
   const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
@@ -124,9 +124,9 @@
   const entity_body_grid_cols = $derived(app.viewport.mobile ? undefined : "2rem 1fr");
 
   // --- MARKUP CONTEXT SANITIZERS ---
-  const get_section_class = (array_field) => {
-    let cls = "relative flex w-full min-w-0 flex-col items-center justify-center my-auto overflow-hidden text-center transition-all duration-300 ";
-    cls += profile_state.is_editing && array_field ? "cursor-pointer " : "cursor-default ";
+  const get_section_class = () => {
+    let cls = "relative flex w-full min-w-0 flex-col items-center justify-center my-auto overflow-visible text-center transition-all duration-300 ";
+    cls += profile_state.is_editing ? "cursor-pointer " : "cursor-default ";
     if (app.viewport.mobile) cls += "pr-0";
     return cls;
   };
@@ -322,18 +322,18 @@
         use:click_outside={handle_click_outside}
       >
         <div class={avatar_container_class + " relative"}>
-          <button
+          <Button
+            variant="bare"
             class={[profile_pic_wrapper_class, "flex appearance-none items-center justify-center p-0 outline-none", "cursor-default"]}
-            style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
-            style:background="transparent"
+            style="border-color: color-mix(in srgb, var(--signature-color) 30%, transparent); background: transparent;"
             disabled
           >
             <ProfilePicture entity={profile_state.char} contain={true} landscape={entity_type !== "character"} />
-          </button>
+          </Button>
           {#if entity_type === "fractal" && !app.viewport.mobile}
             {@const is_default_style = !profile_state.char.narrative_style || profile_state.char.narrative_style === "default"}
             {@const is_default_visual = !profile_state.char.visual_style || profile_state.char.visual_style === "none"}
-            <div class="absolute right-8 -bottom-6 z-30 flex flex-row items-end gap-3">
+            <div class="absolute right-8 -bottom-16 z-30 flex flex-col items-end gap-3">
               {#if profile_state.is_editing || !is_default_style}
                 <Dropdown
                   bind:value={profile_state.char.narrative_style}
@@ -344,15 +344,17 @@
                   dropdownWidth="w-80"
                   align="center"
                   disabled={!profile_state.is_editing}
-                  trigger_class="group/stylecard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profile_state.is_editing
+                  variant="bare"
+                  class="group/stylecard flex transform-gpu cursor-pointer flex-col items-center overflow-hidden rounded-xl border border-solid bg-black/40 text-white uppercase shadow-lg outline-none {profile_state.is_editing
                     ? 'hover:brightness-110'
-                    : ''} disabled:pointer-events-none disabled:cursor-default"
-                  trigger_style="width: 4.25rem; height: 4.25rem; border-color: {signature_color};"
+                    : ''} disabled:cursor-help data-disabled:cursor-help"
+                  trigger_style="width: 8.5rem; height: 8.5rem; border-color: {signature_color};"
                 >
                   {#snippet trigger_content({ selected_item })}
                     <div
-                      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-lg font-bold text-white uppercase select-none"
+                      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-lg font-bold select-none"
                       style="background-color: {signature_color};"
+                      use:tooltip={profile_state.is_editing ? undefined : selected_item?.tooltip}
                     >
                       {#if selected_item?.portrait}
                         <img
@@ -370,7 +372,7 @@
                       <div
                         class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
                       >
-                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">NARRATIVE STYLE</span>
+                        <span class="text-[10px] font-bold tracking-widest">NARRATIVE STYLE</span>
                       </div>
                     {/if}
                   {/snippet}
@@ -387,18 +389,20 @@
                   dropdownWidth="w-80"
                   align="center"
                   disabled={!profile_state.is_editing}
-                  trigger_class="group/visualcard flex cursor-pointer flex-col items-center overflow-hidden transform-gpu rounded-xl border border-solid bg-black/40 shadow-lg outline-none {profile_state.is_editing
+                  variant="bare"
+                  class="group/visualcard flex transform-gpu cursor-pointer flex-col items-center overflow-hidden rounded-xl border border-solid bg-black/40 text-white uppercase shadow-lg outline-none {profile_state.is_editing
                     ? 'hover:brightness-110'
-                    : ''} disabled:pointer-events-none disabled:cursor-default"
-                  trigger_style="width: 4.25rem; height: 4.25rem; border-color: {signature_color};"
+                    : ''} disabled:cursor-help data-disabled:cursor-help"
+                  trigger_style="width: 8.5rem; height: 8.5rem; border-color: {signature_color};"
                   onchange={() => (profile_state._user_mutated = true)}
                 >
                   {#snippet trigger_content({ selected_item })}
                     {@const vname = selected_item?.label || "No Visual Style"}
                     {@const vfontsize = vname.length > 12 ? "text-[8px]" : vname.length > 8 ? "text-[9px]" : "text-[10px]"}
                     <div
-                      class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-tight font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
+                      class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-tight font-bold tracking-tighter wrap-break-word hyphens-auto select-none"
                       style="background-color: {signature_color};"
+                      use:tooltip={profile_state.is_editing ? undefined : selected_item?.tooltip}
                     >
                       {#if selected_item?.portrait}
                         <img
@@ -416,7 +420,7 @@
                       <div
                         class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/visualcard:opacity-100"
                       >
-                        <span class="text-[10px] font-bold tracking-widest text-white uppercase">VISUAL STYLE</span>
+                        <span class="text-[10px] font-bold tracking-widest">VISUAL STYLE</span>
                       </div>
                     {/if}
                   {/snippet}
@@ -434,7 +438,7 @@
             active_field={profile_state.active_field?.key}
             {signature_color}
             {entity_type}
-            class={entity_type === "fractal" && !app.viewport.mobile ? "pr-44" : ""}
+            class={entity_type === "fractal" && !app.viewport.mobile ? "pr-44 pl-10" : ""}
             on_focus_field={(/** @type {string} */ key, /** @type {string} */ label) => profile_state.set_active_field(key, label)}
           />
 
@@ -455,7 +459,7 @@
                     />
                   </div>
                 {:else}
-                  <span class="text-sm text-slate-300 italic">
+                  <span class="cursor-help text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
                     {active_style.name}
                   </span>
                 {/if}
@@ -481,7 +485,7 @@
                     />
                   </div>
                 {:else}
-                  <span class="text-sm text-slate-300 italic">
+                  <span class="cursor-help text-sm text-slate-300 italic" use:tooltip={`${active_vstyle.name}: ${active_vstyle.description}`}>
                     {active_vstyle.name}
                   </span>
                 {/if}
@@ -584,10 +588,18 @@
       {@const array_field = section.fields.find((/** @type {any} */ f) => f.type === "array")}
 
       <div
-        class={get_section_class(array_field)}
+        class={get_section_class()}
         style:border-color={app.viewport.mobile ? "color-mix(in srgb, var(--signature-color) 30%, transparent)" : undefined}
         data-section={section.id}
-        onclick={() => array_field && profile_state.add_vector_item(array_field.key)}
+        onclick={() => {
+          if (array_field) {
+            profile_state.add_vector_item(array_field.key);
+          } else if (profile_state.is_editing && section.fields.length > 0) {
+            const first_field = section.fields[0];
+            const el = document.getElementById(`field-${first_field.key.replace(".", "-")}`);
+            if (el) el.focus();
+          }
+        }}
         onmouseenter={() => (profile_state.hovered_section = section.id)}
         onmouseleave={() => (profile_state.hovered_section = null)}
         role="presentation"
@@ -643,9 +655,11 @@
               })()}
 
               {#if field.label}
-                <label
-                  class="block w-full text-center text-[10px] font-bold tracking-widest text-(--signature-color) uppercase drop-shadow-md"
-                  for={field_id}>{field.label}</label
+                <Label
+                  class="justify-center drop-shadow-md"
+                  style="color: var(--signature-color);"
+                  disabled={!profile_state.is_editing}
+                  for={field_id}>{field.label}</Label
                 >
               {/if}
 
@@ -752,47 +766,53 @@
     {/each}
 
     {#if entity_type !== "fractal"}
-      <div class="col-start-2 mt-0 flex w-full items-center justify-center gap-3 py-1">
-        <button
-          type="button"
-          class="cursor-pointer text-xs font-medium transition-colors select-none {profile_state.char.pov === '1st_person'
-            ? 'font-semibold text-slate-100'
-            : 'text-slate-400 hover:text-slate-200'}"
-          disabled={!profile_state.is_editing}
-          onclick={() => {
-            if (profile_state.is_editing) {
-              profile_state.char.pov = "1st_person";
+      <div class="col-start-2 mt-0 flex w-full flex-col items-center gap-1.5 py-1">
+        <Label for="perspective-toggle" class="justify-center" disabled={!profile_state.is_editing}>Perspective</Label>
+        <div class="flex w-full items-center justify-center gap-3">
+          <Button
+            variant="bare"
+            class="{profile_state.is_editing ? 'cursor-pointer' : 'cursor-default'} text-xs font-medium transition-colors select-none {profile_state
+              .char.pov === '1st_person'
+              ? 'font-semibold text-slate-100'
+              : 'text-slate-400 hover:text-slate-200'}"
+            disabled={!profile_state.is_editing}
+            onclick={() => {
+              if (profile_state.is_editing) {
+                profile_state.char.pov = "1st_person";
+                profile_state._user_mutated = true;
+              }
+            }}
+          >
+            1st Person
+          </Button>
+          <Toggle
+            id="perspective-toggle"
+            value={profile_state.char.pov === "3rd_person"}
+            disabled={!profile_state.is_editing}
+            always_signature={true}
+            style="--signature-color: {signature_color};"
+            onchange={() => {
+              profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
               profile_state._user_mutated = true;
-            }
-          }}
-        >
-          1st Person
-        </button>
-        <Toggle
-          value={profile_state.char.pov === "3rd_person"}
-          disabled={!profile_state.is_editing}
-          always_signature={true}
-          style="--signature-color: {signature_color};"
-          onchange={() => {
-            profile_state.char.pov = profile_state.char.pov === "3rd_person" ? "1st_person" : "3rd_person";
-            profile_state._user_mutated = true;
-          }}
-        />
-        <button
-          type="button"
-          class="cursor-pointer text-xs font-medium transition-colors select-none {profile_state.char.pov === '3rd_person'
-            ? 'font-semibold text-slate-100'
-            : 'text-slate-400 hover:text-slate-200'}"
-          disabled={!profile_state.is_editing}
-          onclick={() => {
-            if (profile_state.is_editing) {
-              profile_state.char.pov = "3rd_person";
-              profile_state._user_mutated = true;
-            }
-          }}
-        >
-          3rd Person
-        </button>
+            }}
+          />
+          <Button
+            variant="bare"
+            class="{profile_state.is_editing ? 'cursor-pointer' : 'cursor-default'} text-xs font-medium transition-colors select-none {profile_state
+              .char.pov === '3rd_person'
+              ? 'font-semibold text-slate-100'
+              : 'text-slate-400 hover:text-slate-200'}"
+            disabled={!profile_state.is_editing}
+            onclick={() => {
+              if (profile_state.is_editing) {
+                profile_state.char.pov = "3rd_person";
+                profile_state._user_mutated = true;
+              }
+            }}
+          >
+            3rd Person
+          </Button>
+        </div>
       </div>
     {/if}
   </div>

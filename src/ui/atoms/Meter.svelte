@@ -5,7 +5,7 @@
    * Encapsulates the dynamic value square, hover controls, and the underlying progress line.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { Button, tooltip } from "@atoms";
+  import { Button, tooltip, Label } from "@atoms";
   import { Meter } from "bits-ui";
   import { clamp } from "@engine";
 
@@ -94,23 +94,23 @@
   use:tooltip={dynamic.desc}
   data-editable={is_editing}
 >
-  <span
+  <Label
     class="
       meter-label
       z-10
       mb-2
+      w-auto
+      flex-none
+      justify-center
       font-mono
-      text-[10px]
-      tracking-widest
       text-electric-cyan
-      uppercase
       transition-[filter,opacity]
       duration-150
       ease-in-out
     "
   >
     {dynamic.label}
-  </span>
+  </Label>
 
   <div
     class="

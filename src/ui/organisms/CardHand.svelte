@@ -5,7 +5,7 @@
    * Replaces the legacy slide-up drawer with an immersive, orbital card-fan engine.
    * Standard: Fine-grained Svelte 5 Reactivity & Kinetic Geometry.
    */
-  import { Backdrop } from "@atoms";
+  import { Backdrop, Button } from "@atoms";
   import { create_new, entities as repository } from "@data";
   import { EntityCard, ImportModal } from "@molecules";
   import { motion } from "@motion";
@@ -128,7 +128,7 @@
 
 {#if is_open}
   <!-- Svelte handles Backdrop outro natively. Removing redundant wrapper div. -->
-  <Backdrop onclick={() => app.close_card_hand()} z_index="50" />
+  <Backdrop onclick={() => app.close_card_hand()} layer="cardhand" />
 {/if}
 
 {#if render_active}
@@ -229,7 +229,8 @@
         onmouseenter={() => (hovered_index = -2)}
         onmouseleave={() => (hovered_index = null)}
       >
-        <button
+        <Button
+          variant="bare"
           class="
             absolute
             inset-0
@@ -246,7 +247,7 @@
           "
           aria-label="Import"
           onclick={handle_open_import}
-        ></button>
+        ></Button>
         <div
           class="
             relative
@@ -285,7 +286,8 @@
         onmouseenter={() => (hovered_index = -1)}
         onmouseleave={() => (hovered_index = null)}
       >
-        <button
+        <Button
+          variant="bare"
           class="
             absolute
             inset-0
@@ -302,7 +304,7 @@
           "
           aria-label="Create New"
           onclick={handle_create_new}
-        ></button>
+        ></Button>
         <div
           class="
             relative
@@ -344,7 +346,8 @@
           onmouseenter={() => (hovered_index = idx)}
           onmouseleave={() => (hovered_index = null)}
         >
-          <button
+          <Button
+            variant="bare"
             class="
               absolute
               inset-0
@@ -362,7 +365,7 @@
             aria-label="Select {entity.name}"
             onclick={() => handle_select(entity)}
             disabled={is_disabled(entity)}
-          ></button>
+          ></Button>
 
           <div
             class="
@@ -398,7 +401,7 @@
               type={card_hand_type ?? undefined}
               disabled={is_disabled(entity)}
               onclick={() => handle_select(entity)}
-              onViewProfile={() => app.open_profile(entity)}
+              actions={[{ label: "Open Profile", onSelect: () => app.open_profile(entity) }]}
             />
           </div>
         </div>

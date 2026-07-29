@@ -31,7 +31,7 @@
     collapsed = false,
 
     // Design
-    no_background = false,
+    variant = "default", // "default" | "bare"
     signature_color = "#475569",
     size = "sm", // 'xs' (12px) | 'sm' (14px) | 'md' (16px)
     class: className = "",
@@ -162,16 +162,6 @@
       }, 10);
     }
   });
-
-  // --- INLINE DESIGN OVERRIDES (Immune to Tailwind Extraction and ESLint Inspections) ---
-  let header_style = $derived(
-    no_background
-      ? "display: none !important;"
-      : "position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-top-left-radius: 0.75rem; border-top-right-radius: 0.75rem;" +
-          (collapsed ? " border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.75rem;" : "") +
-          " background-color: var(--state-dev-accent) !important; padding-left: 0.75rem; padding-right: 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; padding-top: 0.175rem; padding-bottom: 0.175rem;" +
-          (!collapsed ? " border-bottom: 1px solid rgb(255 255 255 / 0.1);" : ""),
-  );
 </script>
 
 <div
@@ -199,7 +189,7 @@
     before:transition-opacity
     before:duration-300
     before:content-['']!
-    {no_background
+    {variant === 'bare'
     ? `
       border-none!
       bg-transparent!
@@ -237,7 +227,7 @@
     {className}"
   data-expanded={is_expanded ? "true" : undefined}
   data-busy={busy ? "true" : undefined}
-  data-no-bg={no_background ? "true" : undefined}
+  data-variant={variant}
   data-disabled={is_disabled || busy ? "true" : undefined}
   style="{style}; --state-dev-accent: {signature_color}; --state-weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
@@ -245,7 +235,25 @@
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
 >
-  <header style={header_style}>
+  <header
+    class="
+      relative
+      top-0
+      z-10
+      flex
+      h-auto
+      min-h-6
+      items-center
+      justify-between
+      rounded-t-xl
+      bg-(--state-dev-accent)
+      px-3
+      py-0.5
+      opacity-100
+      {collapsed ? 'rounded-b-xl' : 'border-b border-white/10'}
+      {variant === 'bare' ? 'hidden!' : ''}
+    "
+  >
     {#if busy}
       <div
         class="
@@ -271,16 +279,11 @@
     {/if}
     {#if is_expanded}
       {#if status}
-        <div
-          style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
-          in:fade={{ duration: 200, delay: 0 }}
-        >
+        <div class="mr-2 flex min-w-0 flex-1 items-center overflow-hidden" in:fade={{ duration: 200, delay: 0 }}>
           {@render status()}
         </div>
       {/if}
-      <div
-        style="margin-left: auto; display: flex !important; align-items: center !important; gap: 0.25rem; height: 100% !important; flex-shrink: 0 !important;"
-      >
+      <div class="ml-auto flex h-full shrink-0 items-center gap-1">
         {#if is_edit}
           <div class="mr-1 flex items-center gap-0.5" in:fade={{ duration: 150 }}>
             <Button
@@ -318,7 +321,7 @@
           </div>
         {/if}
         {#if header_actions}
-          <div style="display: flex !important; align-items: center !important; height: 100% !important;" in:fade={{ duration: 200, delay: 50 }}>
+          <div class="flex h-full items-center" in:fade={{ duration: 200, delay: 50 }}>
             {@render header_actions()}
           </div>
         {/if}
@@ -378,7 +381,7 @@
           data-sync-id={sync_id}
         ></textarea>
       {:else}
-        <ScrollArea class="w-full" fitContent={true}>
+        <ScrollArea class="w-full">
           <div
             {...rest}
             class="

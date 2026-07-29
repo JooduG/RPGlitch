@@ -16,7 +16,7 @@
     get_persisted_meta,
   } from "./ImageRegenerate.svelte.js";
   import { visual_engine } from "@media";
-  import { Backdrop } from "@atoms";
+  import { Backdrop, Button } from "@atoms";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 
@@ -111,7 +111,7 @@
     <Dialog.Portal>
       <Dialog.Overlay forceMount>
         {#snippet child({ props: overlayProps })}
-          <Backdrop {...overlayProps} z_index="600" is_blurred={true}>
+          <Backdrop {...overlayProps} layer="image">
             <Dialog.Content forceMount onInteractOutside={(e) => e.preventDefault()} onOpenAutoFocus={(e) => e.preventDefault()}>
               {#snippet child({ props: contentProps })}
                 <div
@@ -123,14 +123,15 @@
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <p class="text-lg text-red-400">{image_regenerate.error}</p>
                       <div class="flex gap-4">
-                        <button
+                        <Button
+                          variant="bare"
                           class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
                           onclick={() => {
                             close_regenerate();
                           }}
                         >
                           Close
-                        </button>
+                        </Button>
                       </div>
                     </div>
                   {:else if image_regenerate.candidates.length < 2}
@@ -151,8 +152,8 @@
                         {@const [cW, cH] = c_res.split("x").map(Number)}
                         {@const ar = cW && cH ? `${cW} / ${cH}` : "2 / 3"}
                         {@const rot = i === 0 ? -4 : i === 2 ? 4 : 0}
-                        <button
-                          type="button"
+                        <Button
+                          variant="bare"
                           class="group relative w-56 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out md:w-64 {image_regenerate.selected_index ===
                           i
                             ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
@@ -188,15 +189,15 @@
                           <div class="absolute right-0 bottom-0 left-0 flex h-10 items-center justify-center">
                             <span class="font-mono text-xl font-bold tracking-widest text-neutral-800 uppercase">{letter}</span>
                           </div>
-                        </button>
+                        </Button>
                       {/each}
                     </div>
 
                     {#if image_regenerate.selected_index === null}
                       <div class="flex flex-wrap items-center justify-center gap-3" in:fade={{ duration: 300 }}>
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One — or</span>
-                        <button
-                          type="button"
+                        <Button
+                          variant="bare"
                           class="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
                           onclick={handle_regenerate}
                         >
@@ -208,18 +209,19 @@
                             <path d="M21 3v5h-5" />
                           </svg>
                           <span class="font-mono text-xs tracking-widest uppercase">Discard & Regenerate</span>
-                        </button>
+                        </Button>
                       </div>
                     {/if}
                   {:else}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No candidates available</p>
-                      <button
+                      <Button
+                        variant="bare"
                         class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"
                         onclick={close_regenerate}
                       >
                         Close
-                      </button>
+                      </Button>
                     </div>
                   {/if}
                 </div>

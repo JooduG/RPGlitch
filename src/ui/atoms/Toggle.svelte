@@ -15,6 +15,7 @@
 
   import { use_actions } from "@actions";
   import { Switch } from "bits-ui";
+  import Label from "./Label.svelte";
 
   /** @type {Props} */
   let {
@@ -37,7 +38,7 @@
   let is_disabled = $derived(disabled);
 </script>
 
-<label
+<div
   class="
     group/toggle
     relative
@@ -73,7 +74,7 @@
   {style}
   use:use_actions={actions}
 >
-  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={() => onchange?.(new Event("change"))} {...rest}>
+  <Switch.Root bind:checked={value} disabled={is_disabled || busy} onCheckedChange={() => onchange?.(new Event("change"))} id={test_id} {...rest}>
     {#snippet child({ props })}
       <button
         {...props}
@@ -93,6 +94,8 @@
           focus-visible:outline-offset-1
           focus-visible:outline-slate-600
           active:scale-[0.96]
+          disabled:cursor-default
+          data-disabled:cursor-default
 
           {always_signature ? 'bg-(--signature-color,#555d66)' : 'bg-neutral-900/60 data-[state=checked]:bg-(--signature-color,#555d66)'}
           data-[state=checked]:group-hover/toggle:brightness-125
@@ -149,24 +152,12 @@
   </Switch.Root>
 
   {#if label}
-    <span
-      class="
-        font-sans
-        text-xs
-        font-bold
-        tracking-widest
-        whitespace-nowrap
-        text-slate-400
-        uppercase
-        transition-[color,filter]
-        duration-300
-        ease-in-out
-        [text-shadow:0_0_10px_rgba(0,0,0,0.5)]
-
-        group-hover/toggle:brightness-125
-      "
+    <Label
+      for={test_id}
+      disabled={is_disabled || busy}
+      class="w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125"
     >
       {label}
-    </span>
+    </Label>
   {/if}
-</label>
+</div>

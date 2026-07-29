@@ -202,7 +202,7 @@
 
 {#if open}
   <Modal
-    variant="standard"
+    variant="bare"
     z_index="1000"
     class="w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-[color-mix(in_srgb,var(--color-slate-950)_95%,transparent)] p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)]"
     busy={is_loading}

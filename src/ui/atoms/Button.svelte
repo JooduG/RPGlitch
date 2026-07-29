@@ -13,7 +13,7 @@
     children = null,
 
     // State
-    variant = "primary", // 'primary' | 'secondary' | 'danger' | 'invisible'
+    variant = "primary", // 'primary' | 'secondary' | 'danger' | 'invisible' | 'bare'
     size = "md", // 'small' | 'md'
     busy = false,
     disabled = false,
@@ -42,11 +42,15 @@
   let is_disabled = $derived(disabled);
   const is_flank = $derived(flank || className?.toLowerCase().includes("flank"));
 
-  const height_class = $derived(cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10");
+  const height_class = $derived(
+    variant === "bare" ? "" : cover ? "" : square && size === "small" ? "h-4" : square ? "h-12" : size === "small" ? "h-8" : "h-10",
+  );
 
-  const width_class = $derived(cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "");
+  const width_class = $derived(
+    variant === "bare" ? "" : cover ? "" : square && size === "small" ? "w-4" : square ? "w-12" : full_width ? "w-full" : "",
+  );
 
-  const padding_class = $derived(cover ? "" : square ? "p-0" : size === "small" ? "px-2" : "px-4");
+  const padding_class = $derived(variant === "bare" ? "" : cover ? "" : square ? "p-0" : size === "small" ? "px-2" : "px-4");
 
   // Svelte 5 Action delegation: Apply Svelte actions dynamically when element reference becomes active
   $effect(() => {
@@ -71,49 +75,51 @@
   disabled={is_disabled || busy}
   type="button"
   class="
-    pointer-events-auto
-    {cover ? '' : 'relative'}
-    inline-flex
-    {height_class}
-    {width_class}
-    {padding_class}
-    cursor-pointer
-    items-center
-    justify-center
-    gap-2
-    rounded-xl
-    border
-    border-solid
-    border-transparent
-    font-[inherit]
-    text-base
-    leading-normal
-    font-extrabold
-    text-white
-    no-underline
-    shadow-sm
-    shadow-black/20
-    select-none
+    {variant !== 'bare'
+    ? `
+      pointer-events-auto
+      ${cover ? '' : 'relative'}
+      inline-flex
+      ${height_class}
+      ${width_class}
+      ${padding_class}
+      cursor-pointer
+      items-center
+      justify-center
+      gap-2
+      rounded-xl
+      border
+      border-solid
+      border-transparent
+      font-[inherit]
+      text-base
+      leading-normal
+      font-extrabold
+      text-white
+      no-underline
+      shadow-sm
+      shadow-black/20
+      select-none
 
-    hover:brightness-125
+      focus-visible:outline
+      focus-visible:outline-offset-1
+      focus-visible:outline-white
 
-    focus-visible:outline
-    focus-visible:outline-offset-1
-    focus-visible:outline-white
+      active:scale-[0.96]
 
-    active:scale-[0.96]
+      disabled:pointer-events-none
+      disabled:transform-none
+      disabled:opacity-30
+      disabled:shadow-none
+      disabled:grayscale
 
-    disabled:pointer-events-none
-    disabled:transform-none
-    disabled:opacity-30
-    disabled:shadow-none
-    disabled:grayscale
+      data-[kinetic=true]:active:scale-100
 
-    data-[kinetic=true]:active:scale-100
+      [&_.icon]:pointer-events-none
+    `
+    : ''}
 
-    [&_.icon]:pointer-events-none
-
-    {!is_flank
+    {!is_flank && variant !== 'bare'
     ? `
       transition-[background-color,color,box-shadow,transform,filter,border-color]
       duration-500
@@ -126,12 +132,13 @@
     {variant === 'secondary' ? 'bg-(--signature-color) text-white hover:brightness-125' : ''}
     {variant === 'danger' ? 'bg-slate-600 hover:bg-red-500 hover:text-slate-50 hover:shadow-lg hover:shadow-red-500/60 hover:brightness-125' : ''}
     {variant === 'invisible' ? 'bg-transparent text-slate-600 shadow-none! hover:bg-transparent hover:text-slate-50 hover:brightness-125' : ''}
-    {size === 'small' ? 'text-xs' : ''}
-    {square ? 'aspect-square shrink-0' : ''}
-    {full_width && !square ? 'flex-1' : ''}
-    {cover ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!' : ''}
+    {variant === 'bare' ? 'border-none bg-transparent p-0 outline-none' : ''}
+    {size === 'small' && variant !== 'bare' ? 'text-xs' : ''}
+    {square && variant !== 'bare' ? 'aspect-square shrink-0' : ''}
+    {full_width && !square && variant !== 'bare' ? 'flex-1' : ''}
+    {cover && variant !== 'bare' ? 'absolute inset-0 z-10 h-full min-h-0 w-full rounded-[inherit] border-none bg-transparent p-0 shadow-none!' : ''}
     {busy ? 'pointer-events-none cursor-wait brightness-90 grayscale-30' : ''}
-    {is_flank
+    {is_flank && variant !== 'bare'
     ? 'border-none bg-transparent text-slate-50 opacity-60 shadow-none! transition-[transform,color,opacity] duration-300 ease-out hover:scale-[1.02] hover:opacity-100 active:scale-[0.96] disabled:pointer-events-none disabled:transform-none disabled:opacity-30 disabled:grayscale data-[kinetic=true]:hover:scale-100 data-[kinetic=true]:active:scale-100 [&_svg]:fill-slate-50 [&_svg]:transition-colors [&_svg]:duration-300 [&_svg]:disabled:fill-slate-600'
     : ''}
     {className}"

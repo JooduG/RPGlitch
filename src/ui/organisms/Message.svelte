@@ -490,40 +490,8 @@
         {/if}
 
         {#if app.settings.dev_mode && think_block}
-          <DataBox label="Thoughts" isCode={false} class="mb-4">
-            <div
-              class="
-                text-left
-                text-sm
-                leading-relaxed
-                text-pretty
-                text-slate-300
-
-                [&_em]:italic
-                [&_em]:opacity-75
-
-                [&_h1]:mb-2
-                [&_h1]:text-base
-                [&_h1]:font-bold
-                [&_h1]:text-white
-
-                [&_h2]:mb-1
-                [&_h2]:text-base
-                [&_h2]:font-bold
-                [&_h2]:text-slate-200
-
-                [&_h3]:mt-3
-                [&_h3]:mb-1
-                [&_h3]:text-[0.95rem]
-                [&_h3]:font-bold
-                [&_h3]:text-slate-300
-
-                [&_p]:mb-4
-                [&_strong]:font-bold
-              "
-            >
-              <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
-            </div>
+          <DataBox label="Thoughts" isCode={false} isProse={true} class="mb-4">
+            <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
           </DataBox>
         {/if}
         {#if !should_use_typewriter}
@@ -537,7 +505,7 @@
         {/if}
 
         {#if is_editing}
-          <TextField bind:value={local_text} is_edit={true} {signature_color} no_background={true} placeholder="Edit message..." />
+          <TextField bind:value={local_text} is_edit={true} {signature_color} variant="bare" placeholder="Edit message..." />
         {:else if has_display_text || (busy && attachments.length === 0)}
           <div
             class="
@@ -603,8 +571,8 @@
                   <p class="text-center text-sm text-red-400">{image_regenerate.error}</p>
                 </div>
               {:else if image_regenerate.isReady(regenerate_key)}
-                <button
-                  type="button"
+                <Button
+                  variant="bare"
                   class="group relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
                   style="height: {box_h}px; width: {box_w}px;"
                   onclick={() => open_picker()}
@@ -626,7 +594,7 @@
                     ></div>
                   </div>
                   <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click here</span>
-                </button>
+                </Button>
               {:else if image_regenerate.isRegenerating(regenerate_key)}
                 <div
                   class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
@@ -639,8 +607,8 @@
                   </div>
                 </div>
               {:else if src}
-                <button
-                  type="button"
+                <Button
+                  variant="bare"
                   class="
                     mx-auto
                     block
@@ -688,7 +656,7 @@
                       object-contain
                     "
                   />
-                </button>
+                </Button>
               {:else}
                 <div
                   class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"

@@ -13,7 +13,9 @@ export function click_outside(node, handler) {
     }
   };
 
-  document.addEventListener("pointerdown", handle_click, true);
+  setTimeout(() => {
+    document.addEventListener("pointerdown", handle_click, true);
+  }, 10);
 
   return {
     destroy() {

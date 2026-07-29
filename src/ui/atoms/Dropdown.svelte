@@ -13,6 +13,7 @@
     value = $bindable(),
     items = [], // Array of { value: string, label: string, region?: string, tag?: string, disabled?: boolean, tooltip?: string }
     label = "Select Option",
+    id = undefined,
     disabled = false,
     uppercase = true,
     matchWidth = false,
@@ -20,7 +21,8 @@
     dropdownHeight = undefined,
     rows = 8,
     align = "start",
-    trigger_class = "",
+    variant = "default", // "default" | "bare"
+    class: className = "",
     trigger_style = "",
     trigger_content = undefined,
 
@@ -42,8 +44,10 @@
 
 <Select.Root type="single" bind:value onValueChange={(val) => onchange?.(val)} {disabled}>
   <Select.Trigger
-    class={trigger_class ||
-      `
+    {id}
+    class={[
+      variant === "default" &&
+        `
       group/trigger
       inline-flex
       min-h-12
@@ -82,13 +86,18 @@
       disabled:grayscale
 
       data-[state=open]:brightness-110
-    `}
+    `,
+      className,
+    ]}
     style={trigger_style}
     aria-label={label}
   >
     {#if trigger_content}
       {@render trigger_content({ selected_item, label })}
     {:else}
+      {#if selected_item?.portrait}
+        <img src={selected_item.portrait} alt="" class="size-6 shrink-0 rounded object-cover shadow-[0_1px_3px_rgba(0,0,0,0.5)]" />
+      {/if}
       <span
         class="
           flex-1
@@ -148,7 +157,7 @@
                   p-1.5
                 "
             >
-              <div class="[scrollbar-width:none] [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
+              <div class="scrollbar-none [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
                 {#each items as item (item.value)}
                   <Select.Item
                     class="
@@ -195,6 +204,9 @@
                     label={item.label}
                     disabled={item.disabled}
                   >
+                    {#if item.portrait}
+                      <img src={item.portrait} alt="" class="size-6 shrink-0 rounded object-cover shadow-[0_2px_4px_rgba(0,0,0,0.3)]" />
+                    {/if}
                     <span
                       use:tooltip={item.tooltip ? { text: item.tooltip, placement: "left" } : undefined}
                       class="

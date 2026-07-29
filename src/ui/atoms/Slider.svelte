@@ -21,6 +21,7 @@
 
   import { use_actions } from "@actions";
   import { Slider } from "bits-ui";
+  import Label from "./Label.svelte";
 
   /** @type {Props} */
   let {
@@ -151,7 +152,7 @@
 
 <svelte:window onpointerup={handle_pointer_up} />
 
-<label
+<div
   class="
     group/slider
     relative
@@ -179,6 +180,7 @@
   data-testid={test_id}
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
+  role="group"
   use:use_actions={actions}
   onmouseover={handle_enter}
   onmouseout={handle_leave}
@@ -187,31 +189,18 @@
   onpointerdown={handle_pointer_down}
 >
   {#if label}
-    <span
-      class="
-        {horizontal ? '' : 'mb-1'}
-        text-left
-        font-sans
-        text-xs
-        font-bold
-        tracking-widest
-        whitespace-nowrap
-        text-slate-400
-        uppercase
-        transition-[color,filter]
-        duration-300
-        ease-in-out
-        select-none
-        [text-shadow:0_0_10px_rgba(0,0,0,0.5)]
-
-        {!is_disabled ? 'group-hover/slider:brightness-125' : ''}
-      "
+    <Label
+      for={test_id}
+      disabled={is_disabled || busy}
+      class="{horizontal ? '' : 'mb-1'} w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] {!is_disabled
+        ? 'group-hover/slider:brightness-125'
+        : ''}"
     >
-      {label.toUpperCase()}: {busy ? "BUSY..." : is_disabled ? disabled_label : format(value ?? 1.0)}
-    </span>
+      {label}: {busy ? "BUSY..." : is_disabled ? disabled_label : format(value ?? 1.0)}
+    </Label>
   {/if}
 
-  <Slider.Root type="single" {value} onValueChange={handle_value_change} {min} {max} {step} disabled={is_disabled || busy} {...rest}>
+  <Slider.Root type="single" {value} onValueChange={handle_value_change} {min} {max} {step} disabled={is_disabled || busy} id={test_id} {...rest}>
     {#snippet child({ props })}
       <div
         {...props}
@@ -280,7 +269,7 @@
       </div>
     {/snippet}
   </Slider.Root>
-</label>
+</div>
 
 {#if show_value_tooltip}
   <div

@@ -5,7 +5,7 @@
    * Manages signature colors, generation prompts, and image modifiers.
    * Part of the RPGlitch UI.
    */
-  import { Button, TextField, Toggle, NumberField, Dropdown, tooltip } from "@atoms";
+  import { Button, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@atoms";
   import { prompt_builder, strip_cognition_blocks } from "@intelligence";
   import { AestheticResolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { llm_service } from "@platform";
@@ -248,7 +248,7 @@
   class="
   flex w-full
   flex-col
-  gap-gap-standard
+  gap-2
   rounded-standard
   bg-glass-elevated
   p-padding-standard
@@ -256,17 +256,20 @@
 "
   style:animation="wing-item-slide-down var(--motion-elastic) forwards"
 >
-  <div
-    class="
-    grid
+  <div class="flex flex-col gap-2">
+    <Label>Signature Color</Label>
+
+    <div
+      class="
+      grid
     grid-cols-5
     gap-gap-tight
   "
-  >
-    {#each SPECTRUM_COLORS as [name, hex] (name)}
-      {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
-      <div
-        class="
+    >
+      {#each SPECTRUM_COLORS as [name, hex] (name)}
+        {@const color = PALETTE_VARS[/** @type {keyof typeof PALETTE_VARS} */ (hex)] || hex}
+        <div
+          class="
           relative
           aspect-square
           w-full
@@ -280,7 +283,7 @@
           has-not-disabled:hover:brightness-125
           has-not-disabled:active:scale-[0.96]
           {current_label === name
-          ? `
+            ? `
             z-25
             scale-[1.1]
             cursor-default
@@ -291,31 +294,51 @@
             brightness-110
             outline-solid
           `
-          : ''}"
-        style="--swatch-color: {color}; background-color: var(--swatch-color);"
-      >
-        <Button
-          square={true}
-          cover={true}
-          aria-label={name}
-          actions={[tooltip]}
-          onclick={() => (profile_state.char.signature_color = name)}
-          disabled={!profile_state.is_editing}
-          variant="invisible"
-        ></Button>
-      </div>
-    {/each}
+            : ''}"
+          style="--swatch-color: {color}; background-color: var(--swatch-color);"
+        >
+          <Button
+            square={true}
+            cover={true}
+            aria-label={name}
+            actions={[tooltip]}
+            onclick={() => (profile_state.char.signature_color = name)}
+            disabled={!profile_state.is_editing}
+            variant="invisible"
+          ></Button>
+        </div>
+      {/each}
+    </div>
   </div>
 
-  <Dropdown
-    bind:value={profile_state.char.visual_style}
-    items={visual_style_options}
-    label="Select Visual Style"
-    uppercase={false}
-    matchWidth={true}
-    disabled={!profile_state.is_editing}
-    onchange={() => (profile_state._user_mutated = true)}
-  />
+  <div class="flex flex-col gap-2">
+    <Label for="visual-style-select">Profile Picture Generation</Label>
+
+    <div class="grid w-full grid-cols-[1fr_6rem] gap-2">
+      <div class="flex w-full min-w-0 flex-col gap-2">
+        <Dropdown
+          id="visual-style-select"
+          bind:value={profile_state.char.visual_style}
+          items={visual_style_options}
+          label="Select Visual Style"
+          uppercase={false}
+          matchWidth={true}
+          disabled={!profile_state.is_editing}
+          onchange={() => (profile_state._user_mutated = true)}
+        />
+      </div>
+      <div class="flex h-full w-full flex-col justify-end gap-2">
+        <NumberField
+          id="seed-input"
+          bind:value={profile_state.char.modifiers.profile_picture_seed}
+          disabled={!profile_state.is_editing || is_prompt_busy}
+          oninput={() => (profile_state._user_mutated = true)}
+          placeholder="Seed"
+          class="min-h-12 w-full"
+        />
+      </div>
+    </div>
+  </div>
 
   <TextField
     data-active={profile_state.active_field?.key === "visual-prompt" ? true : undefined}
@@ -329,14 +352,14 @@
     onfocus={() => profile_state.is_editing && (profile_state.active_field = { key: "visual-prompt", label: "Image Prompt" })}
   >
     {#snippet status()}
-      <div class="flex items-center gap-4">
+      <div class="flex items-center gap-2">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
         {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
           <div
             class="
               flex
               items-center
-              gap-4
+              gap-2
               rounded-full
               border
               p-2
@@ -359,7 +382,7 @@
               box-border
               flex
               items-center
-              gap-4
+              gap-2
             "
             >
               {#if app.visual.isOffline}
@@ -501,31 +524,15 @@
     {/snippet}
   </TextField>
 
-  <div class="flex items-center justify-between gap-4">
-    <div
-      class="
-      flex
-      flex-col
-      gap-2
-    "
-    >
+  <div class="flex items-center justify-between gap-2">
+    <!-- Left: Toggles -->
+    <div class="flex flex-col gap-2">
       <Toggle label="Transparent Background" bind:value={profile_state.noBackground} disabled={!profile_state.is_editing} />
       <Toggle
-        label="Mirror Image"
+        label="Flip Image"
         bind:value={profile_state.char.modifiers.flipped}
         disabled={!profile_state.is_editing}
         onchange={() => (profile_state._user_mutated = true)}
-      />
-    </div>
-
-    <div class="flex w-32 flex-col justify-end">
-      <NumberField
-        id="seed-input"
-        bind:value={profile_state.char.modifiers.profile_picture_seed}
-        disabled={!profile_state.is_editing || is_prompt_busy}
-        oninput={() => (profile_state._user_mutated = true)}
-        placeholder="Seed"
-        class="w-full"
       />
     </div>
   </div>

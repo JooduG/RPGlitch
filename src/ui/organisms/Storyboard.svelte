@@ -134,6 +134,7 @@
       text-center
       text-[clamp(1.5rem,3.2vw,2.6rem)]
       font-normal
+      text-balance
       transition-all
       duration-300
       select-none

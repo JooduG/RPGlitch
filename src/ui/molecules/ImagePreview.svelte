@@ -139,7 +139,7 @@
 
 {#if state.active}
   <Modal
-    variant="lightbox"
+    variant="bare"
     z_index="500"
     on_close={close_image_preview}
     class="flex max-h-[95vh] flex-col items-stretch justify-center gap-4 overflow-hidden border-none bg-transparent shadow-none md:flex-row"
@@ -249,38 +249,38 @@
               class="w-full text-lg"
             />
           {/if}
-        </div>
 
-        <div class="mt-auto flex shrink-0 flex-row gap-4">
-          {#if state.on_regenerate}
-            <Button variant="secondary" class="flex-1" onclick={handle_regenerate}>
+          <div class="mt-auto flex shrink-0 flex-row gap-4 pt-2">
+            {#if state.on_regenerate}
+              <Button variant="secondary" full_width={true} onclick={handle_regenerate}>
+                <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
+                  <path
+                    d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
+                    stroke="currentColor"
+                    stroke-width="1.5"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  />
+                  <path d="M21 3v5h-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+                Regenerate
+              </Button>
+            {/if}
+            <Button variant="secondary" full_width={true} onclick={handle_download}>
               <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
                 <path
-                  d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
+                  d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
                   stroke="currentColor"
-                  stroke-width="1.5"
+                  stroke-width="2"
                   stroke-linecap="round"
                   stroke-linejoin="round"
-                />
-                <path d="M21 3v5h-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                ></path>
+                <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
               </svg>
-              Regenerate
+              Download
             </Button>
-          {/if}
-          <Button variant="secondary" class="flex-1" onclick={handle_download}>
-            <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
-              <path
-                d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              ></path>
-              <polyline points="7 10 12 15 17 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></line>
-            </svg>
-            Download
-          </Button>
+          </div>
         </div>
       </div>
     {/if}

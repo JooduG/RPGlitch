@@ -7,6 +7,7 @@
    * For fluctuating range measurements (dynamics, volume), use Meter (bits-ui Meter).
    */
   import { Progress, useId } from "bits-ui";
+  import Label from "./Label.svelte";
 
   /**
    * @typedef {Object} Props
@@ -30,12 +31,12 @@
 
 <div class="flex w-full flex-col gap-1 {className}" {style}>
   {#if label}
-    <div class="flex items-center justify-between font-mono text-[10px] tracking-widest text-slate-400 uppercase">
-      <span id={label_id}>{label}</span>
+    <Label id={label_id} class="w-full justify-between font-mono">
+      <span>{label}</span>
       {#if !is_indeterminate}
         <span class="tabular-nums opacity-70">{Math.round(clamped_pct)}%</span>
       {/if}
-    </div>
+    </Label>
   {/if}
 
   <Progress.Root

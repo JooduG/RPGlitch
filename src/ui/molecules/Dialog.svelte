@@ -75,7 +75,7 @@
     <AlertDialog.Overlay forceMount>
       {#snippet child({ props: overlayProps, open: is_open })}
         {#if is_open}
-          <Backdrop {...overlayProps} onclick={handle_cancel} z_index="var(--z-index-max)" {busy} is_blurred={true} data-backdrop="mini">
+          <Backdrop {...overlayProps} onclick={handle_cancel} layer="max" {busy} variant="mini">
             <AlertDialog.Content forceMount>
               {#snippet child({ props: contentProps })}
                 <div

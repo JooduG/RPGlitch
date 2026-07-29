@@ -78,11 +78,9 @@
 
   <!-- RAW EXPLORER -->
   <Accordion label="View JSON Data">
-    <div class="pt-2 pb-4">
-      <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
-        <pre class="font-mono">{JSON.stringify(profile_state.char, null, 2)}</pre>
-      </DataBox>
-    </div>
+    <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
+      <pre class="font-mono">{JSON.stringify(profile_state.char, null, 2)}</pre>
+    </DataBox>
   </Accordion>
 
   <!-- META FOOTER -->

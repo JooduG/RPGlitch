@@ -412,7 +412,9 @@
         >
           <div
             class="flex w-full items-center justify-center"
-            style:view-transition-name={app.transitioning_profile && app.transition_target_id === app.selected_ai?.id ? "entity-morph-ai" : undefined}
+            style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_ai?.id
+              ? "entity-morph-ai"
+              : undefined}
           >
             <EntityCard
               variant="panel"
@@ -427,7 +429,7 @@
           </div>
           <div
             class="flex w-full items-center justify-center"
-            style:view-transition-name={app.transitioning_profile && app.transition_target_id === app.selected_fractal?.id
+            style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_fractal?.id
               ? "entity-morph-fractal"
               : undefined}
           >
@@ -447,7 +449,9 @@
       {:else}
         <div
           class="flex h-full w-full items-center justify-center"
-          style:view-transition-name={app.transitioning_profile && app.transition_target_id === app.selected_ai?.id ? "entity-morph-ai" : undefined}
+          style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_ai?.id
+            ? "entity-morph-ai"
+            : undefined}
         >
           <EntityCard
             variant={app.selected_ai ? "panel" : "slot"}
@@ -475,7 +479,9 @@
           {@const entity = app.selected_fractal}
           <div
             class="flex h-full w-full items-center justify-center"
-            style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-fractal" : undefined}
+            style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === entity?.id
+              ? "entity-morph-fractal"
+              : undefined}
           >
             <EntityCard
               variant={entity ? "panel" : "slot"}
