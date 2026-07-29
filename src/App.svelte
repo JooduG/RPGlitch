@@ -45,6 +45,17 @@
   // This must run once at mount to satisfy the import boundary (state cannot import from ui).
   register_image_preview_handlers(openImagePreview, closeImagePreview);
 
+  // Audio Lifecycle Cleanup: Suspend AudioContexts on unmount and pagehide
+  // to prevent context leaks across view transitions and story swaps.
+  $effect(() => {
+    const handlePageHide = () => Audio.destroy();
+    window.addEventListener("pagehide", handlePageHide);
+    return () => {
+      window.removeEventListener("pagehide", handlePageHide);
+      Audio.destroy();
+    };
+  });
+
   // --- ENTITY MENU ACTION BUILDERS ---
 
   const is_locked = $derived(simulationState.busy);

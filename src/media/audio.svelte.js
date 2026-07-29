@@ -501,6 +501,21 @@ export class VoiceEngine {
     this.isSpeaking = false;
     this.activeMessageId = null;
   }
+
+  /**
+   * Suspends the AudioContext and flushes all audio resources.
+   * Called when components consuming voice playback unmount.
+   */
+  destroy() {
+    this.stop();
+    if (this.#audioContext && this.#audioContext.state !== "closed") {
+      try {
+        this.#audioContext.suspend();
+      } catch {
+        /* empty */
+      }
+    }
+  }
 }
 
 /************************************************************************************
@@ -696,6 +711,22 @@ class AudioEffectsEngine {
       console.warn("[AudioEngine] Playback error:", e);
     }
   }
+
+  /**
+   * Suspends the AudioContext and flushes buffered audio resources.
+   * Called when the host component or application unmounts.
+   */
+  destroy() {
+    if (this.#audioContext && this.#audioContext.state !== "closed") {
+      try {
+        this.#audioContext.suspend();
+      } catch {
+        /* empty */
+      }
+    }
+    this.#buffers.clear();
+    this.#pendingBuffers.clear();
+  }
 }
 
 /************************************************************************************
@@ -796,5 +827,14 @@ export const Audio = new (class {
     if (this.#initPromise) return this.#initPromise;
     this.#initPromise = this.#effects.initSettings();
     return this.#initPromise;
+  }
+
+  /**
+   * Suspends all AudioContexts and flushes audio resources.
+   * Called on application unmount or pagehide to prevent context leaks.
+   */
+  destroy() {
+    this.voice.destroy();
+    this.#effects.destroy();
   }
 })();
