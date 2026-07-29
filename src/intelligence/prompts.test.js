@@ -70,27 +70,27 @@ describe("prompt_builder (Refactored)", () => {
     });
 
     it("render_protocols() should return XML-tagged protocols", () => {
-      const out = prompt_builder.render_protocols("MOMENTUM, HYGIENE");
-      expect(out).toContain("<MOMENTUM>Drive the scene forward.");
-      expect(out).toContain("no structural labels.</MOMENTUM>");
-      expect(out).toContain("<HYGIENE>Omit conversational preambles");
-      expect(out).toContain("24h clocks.</HYGIENE>");
+      const out = prompt_builder.render_protocols("AGENCY.MOMENTUM, HYGIENE.PROSE");
+      expect(out).toContain("<MOMENTUM>End on a live beat");
+      expect(out).toContain("without structural labels.</MOMENTUM>");
+      expect(out).toContain("<PROSE>Omit conversational preambles");
+      expect(out).toContain("24h clocks.</PROSE>");
     });
   });
 
   describe("Protocol Library Consolidation", () => {
     it("should ensure core protocols are compacted and deduplicated", () => {
       // Assert length limits to prevent token bloat
-      expect(PROTOCOL_LIBRARY.HYGIENE.length).toBeLessThan(300);
-      expect(PROTOCOL_LIBRARY.COGNITION.length).toBeLessThan(500);
-      expect(PROTOCOL_LIBRARY.USER_AGENCY.length).toBeLessThan(200);
-      expect(PROTOCOL_LIBRARY.MOMENTUM.length).toBeLessThan(250);
-      expect(PROTOCOL_LIBRARY.MARKDOWN_FORMAT.length).toBeLessThan(200);
+      expect(PROTOCOL_LIBRARY.HYGIENE.PROSE.length).toBeLessThan(300);
+      expect(PROTOCOL_LIBRARY.COGNITION.PHASES.length).toBeLessThan(500);
+      expect(PROTOCOL_LIBRARY.AGENCY.USER_BOUNDARIES.length).toBeLessThan(200);
+      expect(PROTOCOL_LIBRARY.AGENCY.MOMENTUM.length).toBeLessThan(250);
+      expect(PROTOCOL_LIBRARY.HYGIENE.MARKDOWN.length).toBeLessThan(200);
 
       // Verify that HYGIENE and DATA_HYGIENE use the deduplicated BASE_HYGIENE prefix
       const base_hygiene = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
-      expect(PROTOCOL_LIBRARY.HYGIENE).toContain(base_hygiene);
-      expect(PROTOCOL_LIBRARY.DATA_HYGIENE).toContain(base_hygiene);
+      expect(PROTOCOL_LIBRARY.HYGIENE.PROSE).toContain(base_hygiene);
+      expect(PROTOCOL_LIBRARY.HYGIENE.DATA).toContain(base_hygiene);
     });
   });
 
@@ -295,9 +295,9 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("Future Goal");
 
       // Should ONLY include JSON_OUTPUT protocol, not verbose prose protocols
-      expect(result.system).toContain("<JSON_OUTPUT>");
-      expect(result.system).not.toContain("<HYGIENE>");
-      expect(result.system).not.toContain("<COGNITION>");
+      expect(result.system).toContain("<JSON_ONLY>");
+      expect(result.system).not.toContain("<PROSE>");
+      expect(result.system).not.toContain("<PHASES>");
     });
   });
 
@@ -377,12 +377,12 @@ describe("prompt_builder (Refactored)", () => {
 
       // Errors = 1
       let result = prompt_builder.synthesize(payload, snapshot);
-      expect(result.task).toContain("WARNING: Structural drift detected in previous output.");
+      expect(result.task).toContain("WARNING: Structural drift detected.");
 
       // Errors = 3
       payload.meta.structural_errors = 3;
       result = prompt_builder.synthesize(payload, snapshot);
-      expect(result.task).toContain("CRITICAL: Structural formatting has critically collapsed.");
+      expect(result.task).toContain("CRITICAL: Structural collapse.");
     });
 
     it("build_epilogue() renders a contextually-hydrated closing sequence", () => {
@@ -434,22 +434,22 @@ describe("prompt_builder (Refactored)", () => {
 
     it("build_enhancement() injects MACRO_PROTOCOL correctly", () => {
       const char_result = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Viper", "character");
-      expect(char_result.system).toContain("Use placeholder macros to refer to entities: '{{me}}' for this character");
-      expect(char_result.system).not.toContain("'{{user}}' for the user persona, '{{char}}' for the AI character");
+      expect(char_result.system).toContain("Use placeholder macros for entities: '{{me}}' (self)");
+      expect(char_result.system).not.toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
 
       const fractal_result = prompt_builder.build_enhancement("eternal.non_physical", "Content", "Void", "fractal");
-      expect(fractal_result.system).toContain("'{{user}}' for the user persona, '{{char}}' for the AI character");
-      expect(fractal_result.system).not.toContain("'{{me}}' for this character");
+      expect(fractal_result.system).toContain("'{{user}}' (user persona), '{{char}}' (AI character)");
+      expect(fractal_result.system).not.toContain("'{{me}}' (self)");
     });
 
     it("build_profile_sorting_prompt() injects sorting instructions correctly", () => {
       const char_result = prompt_builder.build_profile_sorting_prompt("Raw text block", "character");
-      expect(char_result.system).toContain("CRITICAL FOCUS: You are extracting data to define an individual CHARACTER");
-      expect(char_result.system).toContain("Use placeholder macros to refer to entities: use '{{me}}'");
+      expect(char_result.system).toContain("FOCUS: Extracting data for an individual CHARACTER");
+      expect(char_result.system).toContain("Use placeholder macros for entities: '{{me}}' (self)");
 
       const fractal_result = prompt_builder.build_profile_sorting_prompt("Raw text block", "fractal");
-      expect(fractal_result.system).toContain("CRITICAL FOCUS: You are extracting data to define a FRACTAL");
-      expect(fractal_result.system).toContain("use '{{user}}' to refer to the user persona, '{{char}}'");
+      expect(fractal_result.system).toContain("FOCUS: Extracting data for a FRACTAL");
+      expect(fractal_result.system).toContain("Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}'");
     });
 
     it("should prepend author style prompt to build_character_prompt if app.settings.narrative_style is active", () => {
@@ -519,14 +519,14 @@ describe("prompt_builder (Refactored)", () => {
       const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
       const char_result = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {});
-      expect(char_result.task).toContain("Your perception ends at your sensory horizon");
+      expect(char_result.task).toContain("Perception ends at sensory horizon");
 
       const epilogue_result = prompt_builder.build_epilogue(mock_payload.entities, {}, []);
-      expect(epilogue_result.system).not.toContain("Your perception ends at your sensory horizon");
+      expect(epilogue_result.system).not.toContain("Perception ends at sensory horizon");
 
       const prologue_payload = { ...mock_payload, type: "prologue" };
       const prologue_result = prompt_builder.synthesize(prologue_payload, mock_snapshot);
-      expect(prologue_result.system).not.toContain("Your perception ends at your sensory horizon");
+      expect(prologue_result.system).not.toContain("Perception ends at sensory horizon");
     });
 
     it("should omit USER_ACTION and INTERNAL_DIRECTION tags if they are empty", () => {
@@ -666,17 +666,17 @@ describe("prompt_builder (Refactored)", () => {
 
     it("describes high values as dominant", () => {
       const result = build_dynamics_calibration({ chaos: 75, intensity: 50, openness: 50, affinity: 50 });
-      expect(result).toContain("High — this dominates");
+      expect(result).toContain("High — dominates behavior");
     });
 
     it("describes low values as suppressed", () => {
       const result = build_dynamics_calibration({ chaos: 25, intensity: 50, openness: 50, affinity: 50 });
-      expect(result).toContain("Low — this is suppressed");
+      expect(result).toContain("Low — suppressed state");
     });
 
     it("describes mid values as balanced", () => {
       const result = build_dynamics_calibration({ chaos: 50, intensity: 50, openness: 50, affinity: 50 });
-      expect(result).toContain("Balanced — this is your neutral state");
+      expect(result).toContain("Balanced — neutral baseline");
     });
 
     it("returns empty string for null/undefined dynamics", () => {
@@ -754,8 +754,8 @@ describe("prompt_builder (Refactored)", () => {
     it("includes the cognitive ground instruction in EPISTEMIC_PHYSICS", () => {
       const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.task).toContain("certainty and regulation attributes reflect");
-      expect(result.task).toContain("do not name them explicitly");
+      expect(result.task).toContain("certainty and regulation attributes color");
+      expect(result.task).toContain("without explicit naming");
     });
 
     it("includes DYNAMICS_CALIBRATION block in FRACTAL_FEED when dynamics are present", () => {

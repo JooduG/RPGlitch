@@ -38,16 +38,20 @@ const _mock_runtime = {
   sync: vi.fn(),
   is_ready: false,
 };
-vi.mock("@utils", () => ({
-  state_bridge: {
-    get app() {
-      return _mock_app;
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    state_bridge: {
+      get app() {
+        return _mock_app;
+      },
+      get runtime() {
+        return _mock_runtime;
+      },
     },
-    get runtime() {
-      return _mock_runtime;
-    },
-  },
-}));
+  };
+});
 
 import * as repository from "@data";
 import { AppBootstrap, reset_bootstrap_guard } from "@engine/boot.js";

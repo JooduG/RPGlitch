@@ -347,7 +347,7 @@
                   variant="bare"
                   class="group/stylecard flex transform-gpu cursor-pointer flex-col items-center overflow-hidden rounded-xl border border-solid bg-black/40 text-white uppercase shadow-lg outline-none {profile_state.is_editing
                     ? 'hover:brightness-110'
-                    : ''} disabled:cursor-help data-disabled:cursor-help"
+                    : ''} disabled:cursor-default data-disabled:cursor-default"
                   trigger_style="width: 8.5rem; height: 8.5rem; border-color: {signature_color};"
                 >
                   {#snippet trigger_content({ selected_item })}
@@ -392,7 +392,7 @@
                   variant="bare"
                   class="group/visualcard flex transform-gpu cursor-pointer flex-col items-center overflow-hidden rounded-xl border border-solid bg-black/40 text-white uppercase shadow-lg outline-none {profile_state.is_editing
                     ? 'hover:brightness-110'
-                    : ''} disabled:cursor-help data-disabled:cursor-help"
+                    : ''} disabled:cursor-default data-disabled:cursor-default"
                   trigger_style="width: 8.5rem; height: 8.5rem; border-color: {signature_color};"
                   onchange={() => (profile_state._user_mutated = true)}
                 >
@@ -459,7 +459,7 @@
                     />
                   </div>
                 {:else}
-                  <span class="cursor-help text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
+                  <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_style.name}: ${active_style.description}`}>
                     {active_style.name}
                   </span>
                 {/if}
@@ -485,7 +485,7 @@
                     />
                   </div>
                 {:else}
-                  <span class="cursor-help text-sm text-slate-300 italic" use:tooltip={`${active_vstyle.name}: ${active_vstyle.description}`}>
+                  <span class="cursor-default text-sm text-slate-300 italic" use:tooltip={`${active_vstyle.name}: ${active_vstyle.description}`}>
                     {active_vstyle.name}
                   </span>
                 {/if}
@@ -681,7 +681,7 @@
                         style="margin-right: 0.5rem; display: flex !important; align-items: center !important; flex: 1 1 0% !important; min-width: 0; overflow: hidden;"
                       >
                         <span
-                          class="block max-w-full cursor-help truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
+                          class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-90"
                           use:tooltip
                           aria-label={field.description}>{field.sublabel || field.label}</span
                         >
@@ -728,7 +728,7 @@
                   {#snippet status()}
                     {#if field.sublabel}
                       <span
-                        class="block max-w-full cursor-help truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
+                        class="block max-w-full cursor-default truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80"
                         use:tooltip
                         aria-label={field.description}>{field.sublabel}</span
                       >

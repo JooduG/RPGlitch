@@ -84,7 +84,7 @@
 
     {is_editing
     ? `
-      cursor-help
+      cursor-default
       focus-within:z-10
       hover:z-10
       hover:brightness-125

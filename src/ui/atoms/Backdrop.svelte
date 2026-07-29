@@ -72,7 +72,7 @@
   class="
     fixed
     inset-0
-    cursor-pointer
+    cursor-default
     overflow-y-auto
     bg-[radial-gradient(circle_at_center,rgba(22,36,59,0.3),rgba(0,0,0,0.3))]
     select-none

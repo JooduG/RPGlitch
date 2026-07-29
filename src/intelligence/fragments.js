@@ -38,18 +38,8 @@ export const NAME_PREFIXES = [
   "prof.",
 ];
 
-/** Shared sorting directive for both character and fractal profile imports. */
-const PROFILE_SORTING_DIRECTIVE = `Extract and sort the raw text into a flat JSON object with these keys:
-name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).
-
-- description: HUMAN EYES ONLY. Never used in simulation. Dump raw instructions or OOC info here.
-- signature_color: Pick from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.
-- eternal_physical: Permanent visual features/architecture.
-- eternal_non_physical: Core essence/philosophy.
-- present_physical: Temporary visual features/current state.
-- present_non_physical: Current processing state/mood.
-- past: Historical anchors, precedents, lore.
-- future: Active impulses, plans, prophecies, intent.`;
+/** Shared sorting directive — now sourced from @utils/protocols.js (PROTOCOL_LIBRARY.PROFILE.SCHEMA). */
+import { PROTOCOL_LIBRARY } from "@utils";
 
 /**
  * Canonical taxonomy of all entity fields, grouped by temporal section.
@@ -60,11 +50,11 @@ export const ENTITY_FRAGMENTS = {
   profile: {
     character: {
       enhancer: "NARRATIVE_STRUCTURER",
-      directive: PROFILE_SORTING_DIRECTIVE,
+      directive: PROTOCOL_LIBRARY.PROFILE.SCHEMA,
     },
     fractal: {
       enhancer: "NARRATIVE_STRUCTURER",
-      directive: PROFILE_SORTING_DIRECTIVE,
+      directive: PROTOCOL_LIBRARY.PROFILE_SORTING_DIRECTIVE,
     },
   },
   eternal: {

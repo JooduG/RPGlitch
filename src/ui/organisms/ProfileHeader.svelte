@@ -80,12 +80,15 @@
             p-3
             text-left
             font-heading
-            text-2xl
+            text-4xl
+            leading-none
             font-extrabold
             tracking-normal
             outline-none
+            sm:text-5xl
+            md:text-6xl
           "
-          style="color: {signature_color};"
+          style="color: {signature_color}; font-size: clamp(2.5rem, 5vw, 4.5rem) !important;"
           onfocus={() => on_focus_field("name", "Entity Name")}
           onblur={() => on_focus_field("", "")}
         />
@@ -93,16 +96,18 @@
     {:else}
       <h1
         class="
+          m-0
           block
           {entity_type === 'fractal' ? 'text-left' : 'text-right'}
           font-heading
-          text-[clamp(3rem,6vw,5rem)]
-          leading-none
-          font-extrabold
+          text-6xl leading-none font-extrabold
           tracking-tight
           text-balance
+          sm:text-7xl
+          md:text-8xl
+          lg:text-[5.5rem]
         "
-        style="color: {signature_color}; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
+        style="margin: 0 !important; color: {signature_color}; font-size: clamp(3.5rem, 7vw, 6rem) !important; filter: drop-shadow(0 4px 16px rgb(0 0 0 / 0.4));"
       >
         {format_name(name)}
       </h1>

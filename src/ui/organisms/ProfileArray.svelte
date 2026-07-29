@@ -102,13 +102,17 @@
         placeholder="Enter {sublabel.toLowerCase()} detail..."
         weight={item.emotional_weight}
         onfocus={() => profile_state.set_active_field(`${path}[${i}]`, sublabel)}
+        onheaderclick={() => toggle_expand(item_key)}
       >
         {#snippet status()}
           {@const title = derive_vector_title(item.directive, 60)}
           <Button
             variant="bare"
             class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left focus:outline-none"
-            onclick={() => toggle_expand(item_key)}
+            onclick={(e) => {
+              e.stopPropagation();
+              toggle_expand(item_key);
+            }}
           >
             {#if !profile_state.is_editing}
               <svg
@@ -120,7 +124,7 @@
               </svg>
             {/if}
             <span
-              class="my-auto block max-w-full cursor-help truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 transition-opacity hover:opacity-100"
+              class="my-auto block max-w-full min-w-0 truncate font-sans text-xs font-normal tracking-normal whitespace-nowrap text-white opacity-80 transition-opacity hover:opacity-100"
               use:tooltip
               aria-label={description}>{title || `Empty ${sublabel}`}</span
             >
@@ -141,7 +145,7 @@
               <div
                 class="
                   flex
-                  cursor-help
+                  cursor-default
                   items-center
                   gap-1
                   rounded-sm
@@ -178,7 +182,10 @@
                       hover:bg-white/20
                       hover:text-white
                     "
-                    onclick={() => profile_state.update_vector_weight(path, i, 1)}
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      profile_state.update_vector_weight(path, i, 1);
+                    }}
                     aria-label="Increase Weight"
                   >
                     <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="18 15 12 9 6 15"></polyline></svg>
@@ -196,7 +203,10 @@
                       hover:bg-white/20
                       hover:text-white
                     "
-                    onclick={() => profile_state.update_vector_weight(path, i, -1)}
+                    onclick={(e) => {
+                      e.stopPropagation();
+                      profile_state.update_vector_weight(path, i, -1);
+                    }}
                     aria-label="Decrease Weight"
                   >
                     <svg viewBox="0 0 24 24" class="size-2.5 fill-none stroke-current stroke-3"><polyline points="6 9 12 15 18 9"></polyline></svg>
@@ -208,7 +218,6 @@
                 class="
                   my-auto
                   flex
-                  cursor-help
                   items-center
                   font-mono
                   text-xs
@@ -231,7 +240,10 @@
                 actions={[tooltip]}
                 tooltip="Enhance {sublabel} with AI"
                 disabled={profile_state.busy_fields.has(path) || profile_state.busy_fields.has(`${path}[${i}]`) || !item.directive}
-                onclick={() => profile_state.enhance_vector_item(path, i)}
+                onclick={(e) => {
+                  e.stopPropagation();
+                  profile_state.enhance_vector_item(path, i);
+                }}
                 class="
                   text-slate-400
                   opacity-0
@@ -257,7 +269,10 @@
                 actions={[tooltip]}
                 tooltip="Remove {sublabel}"
                 aria-label="Remove {sublabel}"
-                onclick={() => profile_state.remove_vector_item(path, i)}
+                onclick={(e) => {
+                  e.stopPropagation();
+                  profile_state.remove_vector_item(path, i);
+                }}
               >
                 <svg
                   viewBox="0 0 24 24"

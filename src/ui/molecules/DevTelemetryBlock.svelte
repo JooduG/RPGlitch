@@ -735,7 +735,7 @@
                   <span
                     use:tooltip={get_explanation(signal)}
                     class="
-                    cursor-help
+                    cursor-default
                     rounded-full
                     border
                     border-(--state-dev-accent)/15

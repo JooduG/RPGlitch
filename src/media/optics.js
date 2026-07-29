@@ -5,14 +5,15 @@
  */
 
 import { VISUAL_STYLES } from "@data";
-import { escape_xml as escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
+import { PROTOCOL_LIBRARY, escape_xml as escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**
  * Modern concise fallback negative prompt optimized for T5-XXL text streams.
  * Avoids legacy SD 1.5 word-salad tags that cause lexical contamination in FLUX.
+ * Sourced from PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT.
  */
-export const NEGATIVE_PROMPT = "blurry, low resolution, compressed artifacts, text, watermark, bad anatomy, distorted features";
+export const NEGATIVE_PROMPT = PROTOCOL_LIBRARY.OPTICS_NEGATIVE_PROMPT;
 
 /**
  * Resolves the active visual style key for portrait generation.
@@ -206,9 +207,8 @@ export const AestheticResolver = {
   },
 };
 
-const JSON_OUTPUT_PROTOCOL = "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON.";
-const PERCHANCE_SYNTAX_PROTOCOL =
-  "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features (colors, micro-details, backgrounds) to ensure variation.";
+// Protocol constants now sourced from @utils/protocols.js (PROTOCOL_LIBRARY)
+const JSON_OUTPUT_PROTOCOL = PROTOCOL_LIBRARY.FORMATS.JSON_ONLY;
 
 /**
  * Authoritative prompt templates optimized for modern generative diffusion pipelines.
@@ -244,12 +244,7 @@ Your goal is to evaluate the user's initial core concept in <INPUT_DESCRIPTION>,
 ${active_style_block}
 
 <REFINE_PROTOCOL>
-1. **Concept Enrichment:** Analyze core subjects, clothing, lighting, and environmental setting in INPUT_DESCRIPTION. Enrich them with concrete, tangible physical descriptors.
-2. **Visual Style Integration:** Strictly honor <ACTIVE_VISUAL_STYLE>. Seamlessly integrate medium, palette, camera/composition, and texture into natural, cohesive English prose sentences.
-3. **Natural Prose Format:** Output continuous descriptive sentences. Avoid compiling comma-separated "booru" keyword tags or fragmented tag soup.
-4. **Keyword Integrity Constraints:** NEVER output abstract quality buzzwords like "masterpiece", "ultra HD", "8K resolution", or "best quality". Ground outputs using physical optics and real-world material descriptions.
-5. **Perchance Syntax:** ${PERCHANCE_SYNTAX_PROTOCOL}
-6. **Thought of Structure:** Write your internal step-by-step composition reasoning in the "_thought_process" key at the top of the JSON payload before generating final prompt strings.
+${PROTOCOL_LIBRARY.OPTICS.REFINE_PROTOCOL}
 </REFINE_PROTOCOL>
 
 <INPUT_DESCRIPTION>
@@ -354,16 +349,13 @@ ${JSON_OUTPUT_PROTOCOL}
 ${ctxBlock}
 ${visual_engine_block}
 <PROTOCOL>
-1. Formulate your internal visual plan inside the "_thought_process" key first.
-2. Synthesize the final image prompt inside "prompt" as continuous, descriptive sentences depicting ${subject}.
-3. Seamlessly incorporate the medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
-4. Pass the designated negative tokens ("${escape_xml(vs_neg_prompt)}") inside "negative_prompt".
+${PROTOCOL_LIBRARY.OPTICS.BUILDER_PROTOCOL}
 ${targetType === "selfie" ? '5. Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
 ${history ? `<HISTORY>\n${escape_xml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
-Convert narrative intent into a structured image prompt payload.
+Convert narrative intent into a structured image prompt payload depicting ${subject}.
 Input Intent: "${escape_xml(rawIntent)}"
 </INSTRUCTIONS>
 

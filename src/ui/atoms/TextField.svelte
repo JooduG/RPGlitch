@@ -42,10 +42,10 @@
     status = null,
     actions = [],
 
-    // Events
     oninput = undefined,
     onfocus = undefined,
     onblur = undefined,
+    onheaderclick = undefined,
     ...rest
   } = $props();
 
@@ -235,23 +235,30 @@
   aria-busy={busy}
   aria-disabled={is_disabled || busy}
 >
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
   <header
+    onclick={onheaderclick}
+    style="display: flex !important; flex-wrap: nowrap !important;"
     class="
       relative
       top-0
       z-10
-      flex
+      flex!
       h-auto
       min-h-6
+      flex-nowrap
       items-center
       justify-between
       rounded-t-xl
       bg-(--state-dev-accent)
       px-3
       py-0.5
+      whitespace-nowrap
       opacity-100
       {collapsed ? 'rounded-b-xl' : 'border-b border-white/10'}
       {variant === 'bare' ? 'hidden!' : ''}
+      {onheaderclick ? 'cursor-pointer' : 'cursor-default'}
     "
   >
     {#if busy}

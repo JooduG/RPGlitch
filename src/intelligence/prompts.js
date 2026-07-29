@@ -4,59 +4,24 @@
  * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
-import { ind, state_bridge } from "@utils";
+import { ind, PROTOCOL_LIBRARY, state_bridge } from "@utils";
 import { NARRATIVE_STYLES } from "@data";
 import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
 
-// ============================================================================
-// 1. SYSTEM PROTOCOLS & SCHEMAS
-// ============================================================================
+// PROTOCOL_LIBRARY is now defined in @utils/protocols.js and re-exported here.
+// This allows both @intelligence and @media to share the same catalog without
+// cross-layer import violations.
 
-const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
-
-export const PROTOCOL_LIBRARY = {
-  USER_AGENCY:
-    "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe the user's thoughts, feelings, or physical reactions. Write your turn. Stop.",
-  COGNITION: `Document internal calculations sequentially:
-### Phase 1 (Baseline): Establish identity, emotional state, and psychological vectors.
-### Phase 2 (Signal): Decode user input, environmental shifts, and dynamic values.
-### Phase 3 (Probability): Assess likely behavioral shifts, tics, or pivots given evidence.
-### Phase 4 (State): Declare finalized emotional state and immediate intent.
-Keep each phase under 3 sentences. Total think block < 200 words.`,
-  HYGIENE: `${BASE_HYGIENE} No timestamps/timeline headers. No 'Echo' dialogue (repeating user's last word). Dialogue MUST fit character profile. Write with natural physicality. Use metric system & 24h clocks.`,
-  DATA_HYGIENE: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
-  AFFIRMATIVE: "Construct sentences in the affirmative. Avoid negation-framed descriptions (state what IS, not what isn't).",
-  PRESENT_TENSE: "Write in the present tense.",
-  MOMENTUM:
-    "Drive the scene forward. End on a live beat (challenge, question, tension, or deliberate silence) that invites response. The beat must emerge organically from character—no structural labels.",
-  MARKDOWN_FORMAT:
-    'Use markdown for emphasis: *italics* for internal reflections/tension; **bold** for impact/intense actions; "quotes" for speech/irony. Make text dynamic and visual.',
-  YES_AND:
-    "The user's actions and consequences are absolute truth. Build upon them. However, your character's internal reactions and decisions are yours. Embody 'Yes, and...' to drive the scene.",
-  JSON_OUTPUT: "Return a single JSON object. No preamble, no markdown backticks, no XML tags outside the JSON.",
-  FIRST_CONTACT:
-    "Unless context establishes a prior relationship, this is a first encounter. You don't know the user's name, history, or intent. Let your core nature determine your response to a stranger.",
-  PERCHANCE_SYNTAX:
-    "You MAY use Perchance inline dynamic selection syntax '{Option A|Option B|Option C}' for variable features (colors, micro-details, backgrounds) to ensure variation.",
-  POV_FIRST_PERSON:
-    "CRITICAL POV MANDATE: Write strictly in first-person POV ('I', 'me', 'my'). Describe actions, thoughts, and physical sensations through your own eyes ('I opened the door', 'My heart raced'). NEVER describe yourself in third person using your name or 'he/she/they'.",
-  POV_THIRD_PERSON:
-    "CRITICAL POV MANDATE: Write strictly in third-person limited POV ('he', 'she', 'they', or entity name). Describe actions from an external perspective ('She opened the door', 'His heart raced'). NEVER use first-person pronouns ('I', 'me', 'my') for narrative prose.",
-};
+// Re-export for backwards compatibility (tests, index.js, etc.)
+export { PROTOCOL_LIBRARY };
 
 /** @type {string | null} */
 let cached_dynamics_legend = null;
 /** @type {Map<string, string>} */
 const protocols_cache = new Map();
-
-const NARRATOR_PROLOGUE_TEXT =
-  "You see everything. Open the scene. Use your <think> block to establish the following: What does this Fractal demand of those who enter it? What specifically brought <AI_CHARACTER> here? What brought <USER_PERSONA> here? Unless ETERNAL or PAST context explicitly states a prior relationship, treat this as a first encounter — strangers with no shared history.\nStructure the narrative flow strictly into this sequence:\n1. Present the Fractal and its current state. Introduce the atmosphere.\n2. Place <USER_PERSONA> inside the Fractal. Connect their presence to the environment using a red thread from their profile.\n3. Place <AI_CHARACTER> inside the Fractal. Establish what they are doing right now.\n4. Trigger the encounter between the two. End the prologue the moment before they interact.\nNo dialogue.";
-
-const NARRATOR_EPILOGUE_TEXT =
-  "You see everything. Close the scene. Use your <think> block to identify every unresolved thread — emotional, physical, narrative — that the scene generated. For each active FUTURE vector, assess whether it was fulfilled, fractured, or transformed by events. Then write the epilogue: resolve these loose ends. Show the concrete aftermath — what has changed, what was broken, what was built. Leave the world visibly different from when the scene began. End on lingering sensation, not summary. No dialogue.";
 
 // --- JSON Schema Templates (extracted for readability) ---
 
@@ -121,9 +86,7 @@ function build_dynamics_legend() {
   Axes:
 ${definitions}
   Laws:
-  1. Calibrate dynamics_deltas conservatively. Standard: +1 to +4. Extreme/narrative-altering: +8 to +12.
-  2. Adjust deltas carefully near boundaries (near 5 or 95) to prevent clipping at 0 or 100.
-  3. Ensure present_append text matches the mathematical intensity of the selected dynamics_deltas.
+  ${PROTOCOL_LIBRARY.DYNAMICS.LAWS}
 </DYNAMICS_LEGEND>`.trim();
 
   return cached_dynamics_legend;
@@ -176,7 +139,7 @@ function resolve_active_style_key() {
 /**
  * Resolves the active POV protocol key for an entity profile.
  * @param {any} entity
- * @returns {"POV_FIRST_PERSON" | "POV_THIRD_PERSON"}
+ * @returns {"POV.FIRST_PERSON" | "POV.THIRD_PERSON"}
  */
 function resolve_pov_protocol(entity) {
   const pov = entity?.pov || (entity?.type === "fractal" ? "3rd_person" : "1st_person");
@@ -244,7 +207,7 @@ function build_dynamics_calibration(dynamics) {
       const meta = DYNAMICS_META[k];
       const label = meta?.label || k;
       const desc = meta?.desc || "";
-      return `      ${label}="${v}": ${desc}. ${v > 60 ? "High — this dominates your behavior right now." : v < 40 ? "Low — this is suppressed right now." : "Balanced — this is your neutral state."}`;
+      return `      ${label}="${v}": ${desc}. ${v > 60 ? PROTOCOL_LIBRARY.DYNAMICS.CALIBRATION.HIGH : v < 40 ? PROTOCOL_LIBRARY.DYNAMICS.CALIBRATION.LOW : PROTOCOL_LIBRARY.DYNAMICS.CALIBRATION.BALANCED}`;
     });
   if (lines.length === 0) return "";
   return `    <DYNAMICS_CALIBRATION>\n${lines.join("\n")}\n    </DYNAMICS_CALIBRATION>`;
@@ -270,17 +233,9 @@ function format_dynamics_attrs(dynObj) {
  * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
  * @returns {Array<{role: string, name: string, content: string}>}
  */
-// collapse_history is now imported from @utils (see top of file).
-// The original implementation was moved there to allow platform/transport.js
-// to use it without importing from @intelligence (layer boundary violation).
 
 // ============================================================================
-// 2. PROTOCOLS
-// PROTOCOL_LIBRARY is now defined in @utils/protocols.js and re-exported.
-// The original definition was moved to allow media-layer access without importing from @intelligence.
-
-// ============================================================================
-// 3. PROMPT TEMPLATES
+// 2. PROMPT TEMPLATES
 // ============================================================================
 
 /**
@@ -289,7 +244,7 @@ function format_dynamics_attrs(dynObj) {
  * @returns {{ system: string, task: string }}
  */
 function render_director({ round, entities, input, render_atom, compressed_snapshot, rawMessages }) {
-  const protocols = ["JSON_OUTPUT"].filter(Boolean).join(", ");
+  const protocols = ["FORMATS.JSON_ONLY", "AGENCY.FICTIONAL_LICENSE"].filter(Boolean).join(", ");
   const dynamics_legend = build_dynamics_legend();
 
   const system = clean_xml(`
@@ -343,7 +298,7 @@ ${(() => {
   return `<AI_LAST_TURN>${ind(text, 2)}</AI_LAST_TURN>`;
 })()}
 <TASK>
-    Evaluate state mutations caused by the ${input?.trim() ? "USER_ACTION" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
+    Evaluate state mutations caused by the ${input?.trim() ? "<USER_ACTION>" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
     Return a single valid JSON payload following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
   </TASK>
@@ -375,26 +330,25 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
   const pov_protocol = resolve_pov_protocol(entities?.AI);
 
   const protocols = [
-    "COGNITION",
-    "PRESENT_TENSE",
-    "HYGIENE",
-    "USER_AGENCY",
-    "YES_AND",
-    "MOMENTUM",
-    "MARKDOWN_FORMAT",
+    "COGNITION.PHASES",
+    "AGENCY.PRESENT_TENSE",
+    "HYGIENE.PROSE",
+    "AGENCY.USER_BOUNDARIES",
+    "AGENCY.YES_AND",
+    "AGENCY.MOMENTUM",
+    "HYGIENE.MARKDOWN",
+    "AGENCY.INITIATIVE",
+    "HYGIENE.CONCISENESS",
+    "AGENCY.FICTIONAL_LICENSE",
     pov_protocol,
     meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"))
-      ? "FIRST_CONTACT"
+      ? "AGENCY.FIRST_CONTACT"
       : "",
   ]
     .filter(Boolean)
     .join(", ");
   const stability_lock_content =
-    meta?.structural_errors >= 3
-      ? "CRITICAL: Structural formatting has critically collapsed. Re-anchor immediately. Every XML tag must close. Every markdown block must be valid. No loose text outside structure."
-      : meta?.structural_errors >= 1
-        ? "WARNING: Structural drift detected in previous output. Maintain disciplined XML closures and clean markdown boundaries."
-        : "";
+    meta?.structural_errors >= 3 ? PROTOCOL_LIBRARY.STABILITY.CRITICAL : meta?.structural_errors >= 1 ? PROTOCOL_LIBRARY.STABILITY.WARNING : "";
 
   const system = clean_xml(`
 <SYSTEM role="${escape_xml(entities?.AI?.name || "AI")}">${render_narrative_style_xml()}
@@ -447,16 +401,11 @@ ${build_ai_future_xml(entities?.AI, render_atom._context, entities)}
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK>
     <THINK_FORMAT>
-    Begin your response with <think>. Use the COGNITION protocol (Phases 1-4) to plan your internal reaction to the ${input?.trim() ? "USER_ACTION" : "current situation"} based on your current PRESENT states. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
+    ${PROTOCOL_LIBRARY.COGNITION.THINK_CHARACTER}
     </THINK_FORMAT>
     ${stability_lock_content ? `<STABILITY_LOCK>${stability_lock_content}</STABILITY_LOCK>\n    ` : ""}
     <EPISTEMIC_PHYSICS>
-      1. Your perception ends at your sensory horizon — you see, hear, and feel. Nothing beyond.
-      2. The user persona's unvoiced thoughts, plans, and hidden actions are Null Data. Treat them as nonexistent.
-      3. You interpret others through your own emotional filters — never with omniscient clarity.
-      4. Maintain realistic physical boundaries. Avoid constant proximity encroachment, towering gestures, or physical intimidation unless executing a violent mutation directive. 
-      5. Avoid overusing broad physical adjectives; prioritize specific, localized object interactions over repeating descriptive tags of the character's body.
-      6. Your certainty and regulation attributes reflect your current psychological bandwidth. Let them color your internal processing and somatic expression naturally — do not name them explicitly.
+      ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
     </EPISTEMIC_PHYSICS>
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.
@@ -494,7 +443,7 @@ You are drafting on behalf of ${escape_xml(user_name)} in an active scene with $
       : ""
   }
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols(`USER_AGENCY, PRESENT_TENSE, MARKDOWN_FORMAT, ${resolve_pov_protocol(entities?.USER)}`), 4)}
+    ${ind(prompt_builder.render_protocols(`AGENCY.USER_BOUNDARIES, AGENCY.PRESENT_TENSE, HYGIENE.MARKDOWN, AGENCY.FICTIONAL_LICENSE, ${resolve_pov_protocol(entities?.USER)}`), 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim();
@@ -506,7 +455,7 @@ ${
     ? `Enhance, expand, and polish the following draft text for ${escape_xml(user_name)} into a vivid, atmospheric action/dialogue:\n\n${escape_xml(input)}`
     : `Draft a compelling, in-character next action or vocal response for ${escape_xml(user_name)} in response to ${escape_xml(ai_name)}.`
 }
-Output only the raw text response or action. No preamble, no meta-commentary, no XML wrappers.
+Write strictly from ${escape_xml(user_name)}'s perspective and voice. Do not write dialogue, actions, or thoughts for ${escape_xml(ai_name)}. Do not describe ${escape_xml(ai_name)}'s reactions. Output only the raw text response or action. No preamble, no meta-commentary, no XML wrappers.
 </TASK>
   `).trim();
 
@@ -521,7 +470,9 @@ Output only the raw text response or action. No preamble, no meta-commentary, no
  */
 function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
   const task_text =
-    mode === "prologue" ? `${NARRATOR_PROLOGUE_TEXT}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}` : NARRATOR_EPILOGUE_TEXT;
+    mode === "prologue"
+      ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
+      : PROTOCOL_LIBRARY.SCENE.EPILOGUE;
   const fractal_name = entities?.FRACTAL?.name || "Environment";
 
   const system = clean_xml(`
@@ -548,7 +499,7 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols("COGNITION, PRESENT_TENSE, HYGIENE, MOMENTUM, MARKDOWN_FORMAT, POV_THIRD_PERSON"), 4)}
+    ${ind(prompt_builder.render_protocols("COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, AGENCY.FICTIONAL_LICENSE, POV.THIRD_PERSON"), 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim();
@@ -557,10 +508,10 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
 ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>\n` : ""}
 <TASK>
     <THINK_FORMAT>
-    Begin your response with <think>. ALL internal calculations, phases, and markdown headers MUST be placed strictly INSIDE this block. CRITICAL MANDATE: You MUST explicitly write </think> to close the cognition block before starting your narrative prose. Conduct your thinking in the same language as the conversation.
+    ${PROTOCOL_LIBRARY.COGNITION.THINK_NARRATOR}
     </THINK_FORMAT>
     ${task_text}
-    <POV_DIRECTIVE>CRITICAL MANDATE: You are the FRACTAL (the world/narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person ('I', 'my') as an individual character.</POV_DIRECTIVE>
+    <POV_DIRECTIVE>${PROTOCOL_LIBRARY.POV.NARRATOR}</POV_DIRECTIVE>
   </TASK>
   `).trim();
 
@@ -576,7 +527,7 @@ function render_memory({ entity, history }) {
   return clean_xml(`
 <SYSTEM role="MEMORY_FORGE" entity="${escape_xml(entity?.name || "Unknown")}">
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols("DATA_HYGIENE, AFFIRMATIVE, PRESENT_TENSE"), 4)}
+    ${ind(prompt_builder.render_protocols("HYGIENE.DATA, HYGIENE.AFFIRMATIVE, AGENCY.PRESENT_TENSE"), 4)}
   </PROTOCOLS>
   <INPUT_HISTORY>
     ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
@@ -606,16 +557,16 @@ function render_enhancement({
   entity = null,
   entity_type = "character",
 }) {
-  const protocols = ["DATA_HYGIENE", "AFFIRMATIVE"].filter(Boolean).join(", ");
+  const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE"].filter(Boolean).join(", ");
   const format_instruction = is_image_field
-    ? 'Return a flat block of comma-separated pseudo-JSON property lines: "key": "value", — Do not include outer curly braces or square brackets. Every comma inside a value MUST be followed by a space (e.g., "hair": "blonde, shoulder-length", "eyes": "blue"). No markdown code blocks.'
+    ? PROTOCOL_LIBRARY.FORMATS.ENHANCE_IMAGE
     : is_array_field
-      ? 'Return a JSON array of objects, each with: "directive" (string), "emotional_weight" (integer 1-10). Generate 3-5 entries.'
-      : "Write a dense profile state summary in third-person POV. Describe character traits, emotional focus, and psychological drivers. DO NOT write active story scenes, dialogue, or comma-separated lists.";
+      ? PROTOCOL_LIBRARY.FORMATS.ENHANCE_ARRAY
+      : PROTOCOL_LIBRARY.FORMATS.ENHANCE_PROSE;
   const macro_instruction = !is_image_field
     ? entity_type === "fractal"
-      ? "Use placeholder macros to refer to entities: '{{user}}' for the user persona, '{{char}}' for the AI character, '{{fractal}}' for environment. Never hardcode names."
-      : "Use placeholder macros to refer to entities: '{{me}}' for this character, '{{you}}' for user persona, '{{fractal}}' for setting. Never hardcode names."
+      ? PROTOCOL_LIBRARY.PROFILE.MACROS.FRACTAL
+      : PROTOCOL_LIBRARY.PROFILE.MACROS.CHARACTER
     : "";
 
   return clean_xml(`
@@ -669,16 +620,13 @@ function render_enhancement({
  */
 function render_profile_sorting(entity_type = "character") {
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
-  const protocols = ["DATA_HYGIENE", "AFFIRMATIVE", "JSON_OUTPUT"].filter(Boolean).join(", ");
-  const sorting_instruction =
-    resolved_type === "fractal"
-      ? "CRITICAL FOCUS: You are extracting data to define a FRACTAL (a world, location, or environmental ecosystem). You are NOT describing a person or individual character. Any incoming raw text containing character-specific personal traits or interpersonal history must be re-contextualized as part of the world's overarching lore or completely discarded. Focus entirely on the setting, its rules, and its physical/thematic atmosphere.\nUse placeholder macros to refer to entities: use '{{user}}' to refer to the user persona, '{{char}}' to refer to the AI character, and '{{fractal}}' to refer to this environment itself. Do not bake specific names into description text; use these macros instead."
-      : "CRITICAL FOCUS: You are extracting data to define an individual CHARACTER. Any incoming raw text describing broad environmental atmosphere, world history, or global rules must be re-contextualized to fit within this character's personal background and gear, or completely discarded. Do not generate world-level descriptions; focus entirely on the individual.\nUse placeholder macros to refer to entities: use '{{me}}' to refer to this character itself, '{{you}}' to refer to the user persona/partner, and '{{fractal}}' to refer to the environmental setting. Do not bake specific names into description text; use these macros instead. Legacy '{{char}}' and '{{user}}' macros are also recognized.";
+  const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE", "FORMATS.JSON_ONLY"].filter(Boolean).join(", ");
+  const sorting_instruction = resolved_type === "fractal" ? PROTOCOL_LIBRARY.PROFILE.SORT_FRACTAL : PROTOCOL_LIBRARY.PROFILE.SORT_CHARACTER;
 
   return clean_xml(`
 <SYSTEM role="${ENTITY_FRAGMENTS.profile[resolved_type]?.enhancer || "ENHANCER"}" enhancing="Entire Profile">
   <INSTRUCTIONS>
-    ${ind(escape_xml(ENTITY_FRAGMENTS.profile[resolved_type]?.directive || ""), 4)}
+    ${ind(escape_xml(PROTOCOL_LIBRARY.PROFILE.SCHEMA), 4)}
 
     Write in third-person POV.
 
@@ -831,12 +779,18 @@ export const prompt_builder = {
       .split(",")
       .map((k) => {
         const key = k.trim().toUpperCase();
-        const rule = PROTOCOL_LIBRARY[key];
-        if (!rule) return "";
-        if (rule.includes("\n")) {
-          return `<${key}>\n${rule}\n</${key}>`;
+        const parts = key.split(".");
+        let rule = PROTOCOL_LIBRARY;
+        for (const part of parts) {
+          rule = rule?.[part];
+          if (!rule) break;
         }
-        return `<${key}>${rule}</${key}>`;
+        if (!rule || typeof rule !== "string") return "";
+        const tag = parts[parts.length - 1];
+        if (rule.includes("\n")) {
+          return `<${tag}>\n${rule}\n</${tag}>`;
+        }
+        return `<${tag}>${rule}</${tag}>`;
       })
       .filter(Boolean)
       .join("\n");
