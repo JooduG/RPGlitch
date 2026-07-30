@@ -5,7 +5,7 @@
    * Renders parsed messages in a Unified Chassis.
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
-  import { clean_image_prompts, parse_message, resolve_voice_register, strip_cognition_blocks } from "@intelligence";
+  import { parse_message, resolve_voice_register } from "@intelligence";
   import { Audio, get_signature_color, get_resolution } from "@media";
   import { Typewriter } from "@motion";
   import { app, runtime, simulation_state } from "@state";

@@ -146,12 +146,20 @@ function build_aesthetic_map(entity = {}) {
   merge_input_source(present_obj, "present");
 
   const style_key = resolve_portrait_visual_style_key(entity);
+  const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
   const engine_tokens = resolve_visual_engine_tokens(style_key);
   if (engine_tokens.medium) merged._vs_medium = engine_tokens.medium;
   if (engine_tokens.palette) merged._vs_palette = engine_tokens.palette;
   if (engine_tokens.camera) merged._vs_camera = engine_tokens.camera;
   if (engine_tokens.composition) merged._vs_composition = engine_tokens.composition;
   if (engine_tokens.texture) merged._vs_texture = engine_tokens.texture;
+  if (style_key && style_key !== "none" && style_obj.tags && style_obj.tags.length) {
+    merged._vs_tags = style_obj.tags.join(", ");
+  }
+
+  if (Array.isArray(entity.tags) && entity.tags.length) {
+    merged.tags = entity.tags.join(", ");
+  }
 
   const color_name = get_signature_label(entity);
   if (color_name) {
@@ -161,7 +169,7 @@ function build_aesthetic_map(entity = {}) {
   return merged;
 }
 
-const VS_ORDERED_KEYS = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_composition", "_vs_texture"];
+const VS_ORDERED_KEYS = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_composition", "_vs_texture", "_vs_tags"];
 
 export const AestheticResolver = {
   /**
@@ -215,62 +223,19 @@ const JSON_OUTPUT_PROTOCOL = PROTOCOL_LIBRARY.FORMATS.JSON_ONLY;
  */
 export const PromptTemplates = {
   /**
-   * Refines raw concept data into structured sentences containing visual targets.
-   * @param {string} text
-   * @param {string} [_type]
-   * @param {any} [entity]
-   * @returns {string}
-   */
-  ENHANCE: (text, _type = "character", entity = null) => {
-    const is_portrait_mode = ["character", "ai", "user", "selfie", "portrait"].includes(_type || "");
-    const style_key = is_portrait_mode ? resolve_portrait_visual_style_key(entity || {}) : resolve_story_visual_style_key();
-    const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
-    const active_style_block = `<ACTIVE_VISUAL_STYLE key="${style_key}" name="${escape_xml(style_obj.name || style_key)}">
-${style_obj.visual_engine || "<VISUAL_ENGINE>No automatic visual style tokens forced.</VISUAL_ENGINE>"}
-${style_obj.tags && style_obj.tags.length ? `<tags>${escape_xml(style_obj.tags.join(", "))}</tags>` : ""}
-${style_obj.negative_prompt ? `<negative_prompt>${escape_xml(style_obj.negative_prompt)}</negative_prompt>` : ""}
-</ACTIVE_VISUAL_STYLE>`;
-
-    const input_desc =
-      text && text.trim()
-        ? text
-        : `A detailed ${is_portrait_mode ? "character portrait" : "scene"} of ${entity?.name || _type || "a subject"}, ${entity?.description || "with distinctive features and dramatic lighting"}.`;
-
-    return `<OPTICS_REFINE role="SENSORY_CORTEX_SCRIBE">
-You are the "Optics Scribe" — a master prompt engineer tasked with establishing structural harmony, stylistic balance, and rendering clarity for modern transformer-based diffusion pipelines (FLUX.1 / T5-XXL).
-
-Your goal is to evaluate the user's initial core concept in <INPUT_DESCRIPTION>, enrich it with vivid physical details, integrate the visual directives from <ACTIVE_VISUAL_STYLE>, and output a validated JSON payload.
-
-${active_style_block}
-
-<REFINE_PROTOCOL>
-${PROTOCOL_LIBRARY.OPTICS.REFINE_PROTOCOL}
-</REFINE_PROTOCOL>
-
-<INPUT_DESCRIPTION>
-${escape_xml(input_desc)}
-</INPUT_DESCRIPTION>
-
-JSON STRUCTURE:
-{
-  "_thought_process": "<your breakdown planning: Subject features, Active Style integration, Lighting, Colors, Composition, and Textures>",
-  "prompt": "<synthesized natural prose sentences merging enriched subject details with active style parameters and optional runtime parameters>",
-  "negative_prompt": "<cohesive comma-separated flat tokens to exclude. Use concrete visual attributes only. NEVER use conversational phrases or instructions like 'don't include'>"
-}
-
-${JSON_OUTPUT_PROTOCOL}
-</OPTICS_REFINE>`.trim();
-  },
-
-  /**
-   * Constructs system prompts for narrative image generation tasks using deterministic JSON forcing.
+   * Constructs system prompts for all image generation tasks (solo entity portraits and multi-character scenes).
    * @param {string} targetType
    * @param {string} rawIntent
    * @param {any} [context]
    * @returns {string}
    */
   BUILDER: (targetType, rawIntent, context) => {
-    const { ai, user, fractal, history, mode = "visualize" } = context || {};
+    const { ai, user, fractal, entity, history, mode = "visualize" } = context || {};
+
+    const active_ai = ai || (targetType === "ai" || targetType === "character" ? entity : null);
+    const active_user = user || (targetType === "user" ? entity : null);
+    const active_fractal = fractal || (targetType === "fractal" ? entity : null);
+    const main_entity = active_ai || active_user;
 
     let ctxBlock;
     let subject;
@@ -287,33 +252,42 @@ ${JSON_OUTPUT_PROTOCOL}
       return `  <${tagName}>\n${children}\n  </${tagName}>`;
     };
 
-    const render_entity = (tagStr, entity) => {
-      if (!entity) return "";
+    const render_entity = (tagStr, ent) => {
+      if (!ent) return "";
       const blocks = [];
-      if (entity.eternal?.physical) {
-        blocks.push(physical_to_xml(entity.eternal.physical, "ETERNAL"));
+      if (ent.eternal?.physical) {
+        blocks.push(physical_to_xml(ent.eternal.physical, "ETERNAL"));
       }
-      if (entity.present?.physical) {
-        blocks.push(physical_to_xml(entity.present.physical, "PRESENT"));
+      if (ent.present?.physical) {
+        blocks.push(physical_to_xml(ent.present.physical, "PRESENT"));
       }
-      if (!blocks.length) return `<${tagStr} name="${escape_xml(entity.name || "Unknown")}" />`;
-      return `<${tagStr} name="${escape_xml(entity.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;
+      if (!blocks.length) return `<${tagStr} name="${escape_xml(ent.name || "Unknown")}" />`;
+      return `<${tagStr} name="${escape_xml(ent.name || "Unknown")}">\n${blocks.join("\n")}\n</${tagStr}>`;
     };
 
-    const ai_block = render_entity("AI_CHARACTER", ai);
-    const user_block = render_entity("USER_PERSONA", user);
-    const fractal_block = render_entity("FRACTAL", fractal);
+    const ai_block = render_entity("AI_CHARACTER", active_ai);
+    const user_block = render_entity("USER_PERSONA", active_user);
 
-    const story_style_key = resolve_story_visual_style_key();
-    const story_style = VISUAL_STYLES[story_style_key] || VISUAL_STYLES.none;
-    const story_engine_tokens = resolve_visual_engine_tokens(story_style_key);
-    const visual_engine_block = story_style.visual_engine
-      ? `\n<VISUAL_ENGINE style="${escape_xml(story_style.name || story_style_key)}">\n${story_style.visual_engine}${
-          story_style.tags && story_style.tags.length ? `\n<tags>${escape_xml(story_style.tags.join(", "))}</tags>` : ""
+    const fractal_block = active_fractal
+      ? render_entity("FRACTAL", active_fractal)
+      : main_entity
+        ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${escape_xml(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
+        : "";
+
+    const style_key = active_fractal
+      ? resolve_story_visual_style_key()
+      : main_entity
+        ? resolve_portrait_visual_style_key(main_entity)
+        : resolve_story_visual_style_key();
+    const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
+    const engine_tokens = resolve_visual_engine_tokens(style_key);
+    const visual_engine_block = style_obj.visual_engine
+      ? `\n<VISUAL_ENGINE style="${escape_xml(style_obj.name || style_key)}">\n${style_obj.visual_engine}${
+          style_obj.tags && style_obj.tags.length ? `\n<tags>${escape_xml(style_obj.tags.join(", "))}</tags>` : ""
         }\n</VISUAL_ENGINE>`
       : "";
 
-    const vs_neg_prompt = story_engine_tokens.negative_prompt || NEGATIVE_PROMPT;
+    const vs_neg_prompt = engine_tokens.negative_prompt || NEGATIVE_PROMPT;
 
     switch (targetType) {
       case "fractal":
@@ -321,12 +295,12 @@ ${JSON_OUTPUT_PROTOCOL}
         subject = "a landscape environment or interior layout space";
         break;
       case "characters":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC OPENING SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${escape_xml(ai?.name || "AI")}) and USER persona (${escape_xml(user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC OPENING SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${escape_xml(active_ai?.name || "AI")}) and USER persona (${escape_xml(active_user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
         subject = "a cinematic opening shot featuring both the AI character and user persona meeting within the fractal environment";
         break;
       case "character":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
-        subject = "a character framed within their environment, emphasizing their presence with the background fractal setting visible";
+        subject = "a character framed within their environment, emphasizing their presence with an evocative background setting";
         break;
       case "selfie":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
@@ -369,6 +343,26 @@ JSON STRUCTURE:
 ${JSON_OUTPUT_PROTOCOL}
 </SYSTEM>
 `.trim();
+  },
+
+  /**
+   * Refines raw concept data into structured sentences containing visual targets.
+   * Delegates directly to BUILDER for unified sensory cortex prompt synthesis.
+   * @param {string} text
+   * @param {string} [_type]
+   * @param {any} [entity]
+   * @returns {string}
+   */
+  ENHANCE: (text, _type = "character", entity = null) => {
+    const is_portrait = ["character", "ai", "user", "selfie", "portrait"].includes(_type || "");
+    const target = is_portrait ? (_type === "user" ? "user" : "ai") : _type;
+    return PromptTemplates.BUILDER(target, text, {
+      entity,
+      ai: target === "user" ? null : entity,
+      user: target === "user" ? entity : null,
+      fractal: target === "fractal" ? entity : null,
+      mode: "enhance",
+    });
   },
 };
 

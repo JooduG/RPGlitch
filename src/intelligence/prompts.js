@@ -407,6 +407,9 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     <EPISTEMIC_PHYSICS>
       ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
     </EPISTEMIC_PHYSICS>
+    <POV_DIRECTIVE>
+      ${PROTOCOL_LIBRARY.POV[pov_protocol]}
+    </POV_DIRECTIVE>
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.
   </TASK>

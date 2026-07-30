@@ -125,7 +125,7 @@ name (string), description (string), signature_color (string), eternal_physical 
     NEGATIVE_PROMPT: "blurry, low resolution, compressed artifacts, text, watermark, bad anatomy, distorted features",
 
     REFINE_PROTOCOL: `1. Concept Enrichment: Enrich core subject, clothing, and environment with physical descriptors.
-2. Visual Integration: Honor <ACTIVE_VISUAL_STYLE>. Merge palette, lighting, and camera directives into natural prose.
+2. Visual Integration: Honor <VISUAL_ENGINE>. Merge palette, lighting, and camera directives into natural prose.
 3. Quality Standard: Enforce KEYWORD_INTEGRITY and NATURAL_PROSE.
 4. Reasoning: Write step-by-step composition plan inside "_thought_process" key before prompt output.`,
 
@@ -136,7 +136,10 @@ name (string), description (string), signature_color (string), eternal_physical 
 5. Action & Environment Grounding: Focus on the active narrative moment, capturing exact environmental structures, light sources, objects held, and physical interactions.
 6. Incorporate medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
 7. Color Honor Protocol: If <VISUAL_ENGINE> specifies a monochrome or limited color palette (e.g. charcoal, graphite, cyanotype blueprint, sepia), DO NOT include conflicting color words (such as neon green, violet, magenta) in the prompt output.
-8. Pass designated negative tokens inside "negative_prompt".`,
+8. Style Honor Protocol: If <VISUAL_ENGINE> specifies an explicit artistic medium (e.g. oil painting, watercolor, pixel art), it dictates the absolute visual aesthetic. You MUST aggressively filter out any conflicting photographic, digital, or hyper-realistic terms from the subject's profile. Describe all subjects and environments strictly through the techniques of the requested medium.
+9. Gender Integrity Protocol: ALWAYS explicitly declare the subject's gender and masculine/feminine identifiers in the image prompt (e.g., "a handsome young male high-elf man", "a muscular male warrior"). Never omit explicit gender terms, especially for characters with slender or soft features.
+10. Proper Name Disambiguation: If a character's name is a generic animal/creature noun (e.g. "Beast"), DO NOT use the standalone proper name in the image prompt to avoid triggering furry/animal models. Instead, describe them strictly by their physical species and traits (e.g. "a massive grey-green male orc warrior").
+11. Pass designated negative tokens inside "negative_prompt".`,
   },
 
   // ── 7. Formatting & System Recovery ─────────────────────────────────────────
