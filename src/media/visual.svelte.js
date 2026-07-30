@@ -214,7 +214,7 @@ export class VisualEngine {
 
             let timeoutId;
             const timeout_promise = new Promise((_, reject) => {
-              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 60000);
+              timeoutId = setTimeout(() => reject(new Error("Image generation timed out")), 120000);
             });
             timeout_promise.catch(() => {});
 
@@ -387,7 +387,7 @@ export class VisualEngine {
 
       let refined = null;
       try {
-        const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 45000));
+        const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
         refined = await Promise.race([llm_service.generate({ system, messages: [] }, { silent: true }), extraction_timeout]);
       } catch (extractErr) {
         console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", extractErr.message);
