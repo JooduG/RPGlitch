@@ -4,7 +4,7 @@
  * Optimized for FLUX.1 (Rectified Flow), T5-XXL text encoders, and Perchance parameter injection.
  */
 
-import { VISUAL_STYLES } from "@data";
+import { VISUAL_STYLES, detox_prose } from "@data";
 import { PROTOCOL_LIBRARY, escape_xml as escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
@@ -13,7 +13,7 @@ import { get_signature_label } from "./tokens.js";
  * Avoids legacy SD 1.5 word-salad tags that cause lexical contamination in FLUX.
  * Sourced from PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT.
  */
-export const NEGATIVE_PROMPT = PROTOCOL_LIBRARY.OPTICS_NEGATIVE_PROMPT;
+export const NEGATIVE_PROMPT = PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT;
 
 /**
  * Resolves the active visual style key for portrait generation.
@@ -321,8 +321,8 @@ ${JSON_OUTPUT_PROTOCOL}
         subject = "a landscape environment or interior layout space";
         break;
       case "characters":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>The image must depict the specific scene or action described in INSTRUCTIONS. Characters must be dynamically engaged in the narrative beat rather than statically posing.</NARRATIVE_CONTEXT>`;
-        subject = "a scene featuring the AI character and user persona engaged together within the fractal environment";
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC OPENING SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${escape_xml(ai?.name || "AI")}) and USER persona (${escape_xml(user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
+        subject = "a cinematic opening shot featuring both the AI character and user persona meeting within the fractal environment";
         break;
       case "character":
         ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
@@ -356,7 +356,7 @@ ${targetType === "selfie" ? '5. Generate a short, in-character social media capt
 <MODE>${mode.toUpperCase()}</MODE>
 ${history ? `<HISTORY>\n${escape_xml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
-Input Intent: "${escape_xml(rawIntent)}"
+Input Intent: "${escape_xml(detox_prose(rawIntent))}"
 </INSTRUCTIONS>
 
 JSON STRUCTURE:

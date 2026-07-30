@@ -54,6 +54,12 @@
     })();
   });
 
+  $effect(() => {
+    if (value !== undefined && textarea) {
+      tick().then(adjust_height);
+    }
+  });
+
   let is_locked = $derived(simulation_state.busy);
   let story_locked = $derived(simulation_state.phase === "locked");
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));

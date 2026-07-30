@@ -30,6 +30,7 @@
     "**/pnpm-lock.yaml",
     "**/public/assets/**",
     "**/*scribbles**",
+    "**/*scrobbles**",
     "**/templates/**",
     "**/test-results/**",
     "**/yarn.lock",

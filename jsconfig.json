@@ -65,6 +65,7 @@
     "**/node_modules",
     "nul",
     "scribbles.md",
+    "scrobbles.md",
     "test-results/",
     ".jules/"
   ],

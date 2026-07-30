@@ -341,7 +341,14 @@ function create_runtime_store() {
               : { ...ai_data.dynamics };
         }
         if (fractal_data) {
-          active_fractal_state = fractal_data;
+          const effective_visual_style = story.visual_style || story.entity_snapshots?.fractal?.visual_style || fractal_data.visual_style;
+          const effective_narrative_style = story.narrative_style || story.entity_snapshots?.fractal?.narrative_style || fractal_data.narrative_style;
+
+          active_fractal_state = {
+            ...fractal_data,
+            ...(effective_visual_style ? { visual_style: effective_visual_style } : {}),
+            ...(effective_narrative_style ? { narrative_style: effective_narrative_style } : {}),
+          };
           fractal_physics = story.fractal_dynamics
             ? { ...story.fractal_dynamics }
             : story.entity_snapshots?.fractal?.dynamics

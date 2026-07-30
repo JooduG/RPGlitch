@@ -54,7 +54,7 @@ export const ENTITY_FRAGMENTS = {
     },
     fractal: {
       enhancer: "NARRATIVE_STRUCTURER",
-      directive: PROTOCOL_LIBRARY.PROFILE_SORTING_DIRECTIVE,
+      directive: PROTOCOL_LIBRARY.PROFILE.SCHEMA,
     },
   },
   eternal: {

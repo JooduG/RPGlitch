@@ -498,12 +498,16 @@ export const gamemaster = {
       const node_id = generateUUID();
 
       const response = await this.execute_with_retry(async () => {
-        return await llm_service.generate({
+        const text = await llm_service.generate({
           system: result.system,
           task: result.task,
           role: "fractal",
           node_id: node_id,
         });
+        if (!text || !strip_cognition_blocks(text).trim()) {
+          throw new Error("EMPTY_PROLOGUE_PROSE");
+        }
+        return text;
       });
 
       const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
@@ -531,7 +535,11 @@ export const gamemaster = {
               if (img_result?.imageUrl) {
                 state_bridge.session_driver.update_log_attachment(node_id, 0, {
                   src: img_result.imageUrl,
-                  metadata: img_result.metadata,
+                  metadata: {
+                    ...(img_result.metadata || {}),
+                    prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                    mode: "characters",
+                  },
                 });
               }
             })
@@ -576,7 +584,11 @@ export const gamemaster = {
     const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
 
     const response = await this.execute_with_retry(async () => {
-      return await llm_service.generate({ system, task, role: "fractal", node_id: node_id });
+      const text = await llm_service.generate({ system, task, role: "fractal", node_id: node_id });
+      if (!text || !strip_cognition_blocks(text).trim()) {
+        throw new Error("EMPTY_EPILOGUE_PROSE");
+      }
+      return text;
     });
 
     let epilogue_attachments = [];
@@ -584,7 +596,16 @@ export const gamemaster = {
       try {
         const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true });
         if (img_result?.imageUrl) {
-          epilogue_attachments = [{ src: img_result.imageUrl, metadata: img_result.metadata }];
+          epilogue_attachments = [
+            {
+              src: img_result.imageUrl,
+              metadata: {
+                ...(img_result.metadata || {}),
+                prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                mode: "characters",
+              },
+            },
+          ];
         }
       } catch (err) {
         console.warn("[Epilogue Image Error]", err);

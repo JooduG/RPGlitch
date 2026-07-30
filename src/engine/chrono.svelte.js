@@ -24,6 +24,9 @@ export class ChronoStore {
         ai_id: selection.ai.id,
         user_id: selection.user.id,
         fractal_id: selection.fractal.id,
+        visual_style: selection.fractal?.visual_style,
+        narrative_style: selection.fractal?.narrative_style,
+        fractal: selection.fractal,
         story_title,
       });
 

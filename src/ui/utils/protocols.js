@@ -20,6 +20,8 @@ export const PROTOCOL_LIBRARY = {
   // ── 1. Core Hygiene & Output Mechanics ─────────────────────────────────────
   HYGIENE: {
     PROSE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality. Use metric system & 24h clocks.`,
+    BANNED_TROPES:
+      "Never use overused AI prose tropes like 'hum/humming', 'murmur/murmuring', 'ozone', 'testament to', 'rich tapestry', 'symphony of', 'coiled spring', or 'a study in'. Write concrete physical actions and grounded dialogue.",
     DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
     CONCISENESS:
       "Use impactful, concise prose. Avoid purple prose, redundant adjectives, and flowery descriptions. Every sentence must carry narrative weight.",
@@ -69,9 +71,10 @@ Keep each phase under 3 sentences. Total think block < 200 words.`,
 2. User's unvoiced thoughts and plans are Null Data; treat as nonexistent.
 3. Interpret others strictly through internal emotional filters, never omniscient clarity.
 4. Maintain physical boundaries. Avoid constant proximity encroachment or unprovoked intimidation.
-5. Prioritize specific, localized object interactions over repeated physical character tags.
+5. Prioritize specific, localized object interactions over repeated physical posture shifts (e.g., shifting weight, crossing arms, clenching jaw). Never repeat physical posture tags in consecutive turns.
 6. Let certainty and regulation attributes color processing naturally without explicit naming.
-7. Express emotion through observable physical behaviors, micro-actions, and tone shifts.`,
+7. Express emotion through observable physical behaviors, micro-actions, and tone shifts.
+8. Avoid clichéd AI prose tropes (e.g., 'humming/hum', 'murmuring/murmur', 'air tastes of ozone', 'testament to', 'tapestry of', 'coiled spring', 'marrow of the teeth'). Write vivid, grounded, unique sensory observations.`,
   },
 
   // ── 4. Scene Orchestration ─────────────────────────────────────────────────
@@ -127,8 +130,11 @@ name (string), description (string), signature_color (string), eternal_physical 
 
     BUILDER_PROTOCOL: `1. Formulate visual plan inside "_thought_process" key first.
 2. Synthesize final image prompt inside "prompt" as continuous descriptive prose.
-3. Incorporate medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
-4. Pass designated negative tokens inside "negative_prompt".`,
+3. Subject-First Prompt Structure: For "characters" and "prologue" modes, ALWAYS put the main characters and their active physical interaction/positions IN THE FIRST SENTENCE of the prompt. Describe character appearances, poses, and spatial layout BEFORE environmental background details.
+4. Spatial & Positioning Fidelity: Strictly preserve character elevations, relative distances, camera angles, and spatial relationships described in <INSTRUCTIONS>. If a character is described as perched in a balcony, viewing from above, or positioned in shadow, depict that exact spatial layout rather than placing characters side-by-side in the foreground.
+5. Action & Environment Grounding: Focus on the active narrative moment, capturing exact environmental structures, light sources, objects held, and physical interactions.
+6. Incorporate medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
+7. Pass designated negative tokens inside "negative_prompt".`,
   },
 
   // ── 7. Formatting & System Recovery ─────────────────────────────────────────

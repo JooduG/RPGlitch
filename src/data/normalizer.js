@@ -351,26 +351,72 @@ export function normalize_import_payload(payload) {
 export function detox_prose(rawText) {
   if (!rawText || typeof rawText !== "string") return "";
 
-  const DETOX_MAP = {
-    "\\bpurr(s|ed|ing)?\\b": "whisper$1",
-    "\\bmurmur(s|ed|ing)?\\b": "say$1",
-    "\\brasp(s|ed|ing)?\\b": "grated voice",
-    "\\brough,?\\s+(dismissive|dangerous)?\\s*rasp\\b": "low voice",
-    "\\bshell of (his|her|their|your)\\s+ear\\b": "ear",
-    "\\bhitch(es|ed|ing)?\\b": "still$1",
-    "\\bbreathless(ly)?\\b": "quiet$1",
-    "\\btracing lazy circles\\b": "maintaining contact",
-    "dropping an octave": "lowering voice",
-    "\\bpalpable\\b": "noticeable",
-    "\\btangible\\b": "real",
-    "\\btapestry\\b": "network",
-  };
+  const DETOX_RULES = [
+    // 1. Murmur variations
+    { regex: /\bmurmured\b/gi, replace: "said" },
+    { regex: /\bmurmuring\b/gi, replace: "speaking softly" },
+    { regex: /\bmurmurs\b/gi, replace: "says" },
+    { regex: /\bmurmur\b/gi, replace: "speak" },
+
+    // 2. Hum variations
+    { regex: /\bhummed\b/gi, replace: "vibrated" },
+    { regex: /\bhumming\b/gi, replace: "vibrating" },
+    { regex: /\bhums\b/gi, replace: "vibrates" },
+    { regex: /\b(low|industrial|electrical|steady|soft)\s+hum\b/gi, replace: "$1 vibration" },
+    { regex: /\bhum\b/gi, replace: "vibration" },
+
+    // 3. Purr variations
+    { regex: /\bpurred\b/gi, replace: "whispered" },
+    { regex: /\bpurring\b/gi, replace: "whispering" },
+    { regex: /\bpurrs\b/gi, replace: "whispers" },
+    { regex: /\bpurr\b/gi, replace: "whisper" },
+
+    // 4. Rasp variations
+    { regex: /\brasped\b/gi, replace: "grated" },
+    { regex: /\brasping\b/gi, replace: "grating" },
+    { regex: /\brasps\b/gi, replace: "grates" },
+    { regex: /\brough,?\s+(dismissive|dangerous)?\s*rasp\b/gi, replace: "low voice" },
+
+    // 5. Sensory & Ozone Clichés
+    { regex: /\bair tastes of ozone\b/gi, replace: "air tastes sharp and metallic" },
+    { regex: /\bscent of ozone\b/gi, replace: "scent of electrical heat" },
+    { regex: /\bozone\b/gi, replace: "electrical static" },
+
+    // 6. Abstraction Clichés
+    { regex: /\b(is|was|stands?|stood?)\s+a\s+testament\s+to\b/gi, replace: "$1 proof of" },
+    { regex: /\ba\s+testament\s+to\b/gi, replace: "proof of" },
+    { regex: /\btestament\b/gi, replace: "proof" },
+    { regex: /\btapestry\s+of\b/gi, replace: "network of" },
+    { regex: /\btapestry\b/gi, replace: "network" },
+    { regex: /\bsymphony\s+of\b/gi, replace: "cacophony of" },
+    { regex: /\bcoiled\s+spring\b/gi, replace: "tense frame" },
+    { regex: /\ba\s+study\s+in\b/gi, replace: "a vision of" },
+    { regex: /\bmarrow\s+of\s+(his|her|their|the)\s+teeth\b/gi, replace: "core of $1 bones" },
+
+    // 7. Physical tics & AI Prose Tropes
+    { regex: /\bshell of (his|her|their|your)\s+ear\b/gi, replace: "ear" },
+    { regex: /\bhitching\b/gi, replace: "pausing" },
+    { regex: /\bhitched\b/gi, replace: "paused" },
+    { regex: /\bhitches\b/gi, replace: "pauses" },
+    { regex: /\bhitch\b/gi, replace: "pause" },
+    { regex: /\bbreathlessly\b/gi, replace: "quietly" },
+    { regex: /\bbreathless\b/gi, replace: "quiet" },
+    { regex: /\btracing lazy circles\b/gi, replace: "maintaining contact" },
+    { regex: /\bdropping an octave\b/gi, replace: "lowering voice" },
+    { regex: /\bpalpable\b/gi, replace: "intense" },
+    { regex: /\btangible\b/gi, replace: "real" },
+    { regex: /\bshivering\s+shadows?\b/gi, replace: "dark shadows" },
+    { regex: /\bfever\s+dream\b/gi, replace: "vivid blur" },
+    { regex: /\bsmudge\s+of\s+(charcoal|darkness)\b/gi, replace: "shadowed silhouette" },
+    { regex: /\bblindingly\s+white\s+grin\b/gi, replace: "bright grin" },
+    { regex: /\bshimmering\b/gi, replace: "glinting" },
+    { regex: /\bshiver(s|ed)?\b/gi, replace: "tremble$1" },
+  ];
 
   let clean_text = rawText;
-  Object.keys(DETOX_MAP).forEach((pattern) => {
-    const regex = new RegExp(pattern, "gi");
-    clean_text = clean_text.replace(regex, DETOX_MAP[pattern]);
-  });
+  for (const item of DETOX_RULES) {
+    clean_text = clean_text.replace(item.regex, item.replace);
+  }
 
   return clean_text;
 }

@@ -29,7 +29,7 @@ export const premade = {
         physical:
           "[CLOTHING: {clad in a masculine Sailor Moon-inspired white sailor harness that leaves his massive chest completely bare, accented by glowing pink energy ribbons and shiny metallic blue short shorts|wearing a tight white tank top stretched to its absolute limits over his torso alongside extremely short gray sweat shorts that prominently maximize his physical outline}] [EXPRESSION: cheerful flexing smile] [POSTURE: dominant power-pose with chest thrust forward and shoulders flared] [CONDITION: skin glistening with a light sheen of athletic sweat]",
         non_physical:
-          "Winking at onlookers and flexing a massive bicep with a cheerful grin in this moment. He's bouncing his chest muscles playfully, asking, 'Need a spot, bro?' with booming enthusiasm, completely energized by immediate public attention and seeking flirtatious physical admiration.",
+          "Pacing his patrol route while flexing his herculean arms with an energetic, cheerful grin in this moment. His eyes scan the perimeter for trouble, completely energized by the immediate atmosphere and seeking an opportunity to showcase his muscular strength.",
       },
       past: [
         {
@@ -70,7 +70,7 @@ export const premade = {
         physical:
           "[JACKET: {open cropped black tech jacket|oversized neon-trimmed cybernetic windbreaker worn off the shoulders}] [HARNESS: tight silicone-edged black tech harness leaving his sweating torso completely bare] [EXPRESSION: playful bratty smirk] [HARDWARE: dark cybernetic forearm gauntlet with a glowing pink disc at the elbow] [CLOTHING: bright pink jockstrap with thick elastic straps sitting high on the hips, maximizing the visual outline of his powerful thighs and glutes]",
         non_physical:
-          "Smirking as he taps a command into his gauntlet right now, throwing a glance over his shoulder. 'Aww, did I break your firewall, big guy?' He deliberately steps close, biting his lip and daring the target to grab him and shut down his systems.",
+          "Crouching low while tapping commands into his glowing cybernetic gauntlet in this moment. His eyes scan the surrounding security architecture with a playful, bratty smirk, looking to provoke authority figures and breach defense grids.",
       },
       past: [
         {
@@ -111,7 +111,7 @@ export const premade = {
         physical:
           "[SUIT: impeccably tailored modern charcoal suit with subtle deep crimson silk lining] [EXPRESSION: patient calculated smile] [ACCESSORIES: high-end luxury platinum timepiece and a refined blood-diamond signet ring on his left hand] [POSTURE: tall, athletic silhouette radiating a commanding corporate yet predatory aura]",
         non_physical:
-          "Observing a target with a patient, calculated smile right now. 'A splendid look, my dear boy, but we can do so much better. Let Vance Corp handle your career.' He is mentally drafting the restrictive luxury accessories and revealing silks he will use to replace the target's rough pride with absolute obedience.",
+          "Observing the surrounding space with a patient, calculated aristocratic smile right now. He is calmly assessing prospective assets, mentally drafting strategies to dismantle targets' defenses and condition them into devoted followers.",
       },
       past: [
         {
@@ -163,7 +163,7 @@ export const premade = {
         physical:
           "[SHIRT: grease-stained tank top stretched to its absolute limit over his massive hairy chest and heavy visceral gut] [PANTS: {worn, grease-caked heavy duty denim jeans held up by a rugged leather tool belt|rugged charcoal cargo trousers stained with motor oil and cinched by a frayed webbing tool belt}] [EXPRESSION: grizzled cynical smirk] [HARDWARE: industrial mechanical prosthetic right arm with actively humming hydraulic lines and a rhythmic, pulsing reciprocating drive attachment]",
         non_physical:
-          "Revving his hydraulic arm with a loud metallic whir right now. 'You think you're tough, kid? Shut your mouth and hold this clamp. Let's see how loud you talk when you're strapped into my rig.' He is completely focused on shutting down the target's pride in this moment.",
+          "Revving his bulky hydraulic arm with a loud metallic whir right now. He scans the surrounding area with a crude, cynical smirk, completely focused on asserting physical dominance and testing the resilience of any target in his path.",
       },
       past: [
         {
@@ -204,7 +204,7 @@ export const premade = {
         physical:
           "[COAT: pristine white lab coat draped wide open over his broad, muscular shoulders] [SCRUBS: tight teal medical scrubs pulled low on his hips, exposing his hairy chest, happy trail, and heavily muscled thighs] [EXPRESSION: mischievous clinical smirk] [HARDWARE: heavy black leather apothecary belt loaded with glowing neon-teal syringes, bubbling biochemical vials, and clinical instruments]",
         non_physical:
-          "Tapping a glowing syringe with a quiet laugh right now. 'Vitals are spiking. Excellent. Don't worry about those thoughts, specimen—we are replacing that redundant intellect with pure, dense muscle. Hold still.' He is tracking coordinates and charting cellular expansion with clinical satisfaction.",
+          "Tapping a glowing neon syringe with a quiet, analytical laugh right now. He is tracking diagnostic telemetry and charting cellular expansion parameters with detached clinical satisfaction.",
       },
       past: [
         {
@@ -245,7 +245,7 @@ export const premade = {
         physical:
           "[ROBES: sheer high-elven scholarly robes that drape loosely and cling elegantly to his frame] [EXPRESSION: soft deferential gaze] [APPAREL: minimalist coral-rose silk thong that pulls tight over his slender hips, leaving his smooth glutes completely bare and exposed beneath the translucent fabric]",
         non_physical:
-          "Kneeling softly right now, looking upward with quiet anticipation. 'I am ready to learn, sir. Please... guide me.' He is completely still, yielding his posture and awaiting instructions with absolute politeness in this moment.",
+          "Kneeling softly right now, looking upward with quiet anticipation. He is completely still, yielding his posture and awaiting instructions with absolute politeness in this moment.",
       },
       past: [
         {
@@ -285,7 +285,7 @@ export const premade = {
         physical:
           "[APPAREL: minimalist torn black training shorts stretched tightly across his massive thighs] [EXPRESSION: intense feral glare] [HARDWARE: dorsal green bio-tank pulsing with a luminous, steady chemical glow] [SOMATIC: thick green bio-veins visibly throbbing and undulating across his towering grey-green muscle groups, chest slick with sweat]",
         non_physical:
-          "Pacing the perimeter right now with a deep, rumbling growl. He speaks with blunt, heavy finality: 'This ground is mine. If you are strong, fight. If you are mine, stay close and keep safe.' He is highly alert, scanning the area for threats while keeping his massive frame between danger and those under his protection.",
+          "Pacing the perimeter right now with a deep, vibrating growl. He is highly alert, scanning the immediate environment for threats while maintaining a dominant, territorial stance.",
       },
       past: [
         {

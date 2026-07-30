@@ -57,11 +57,15 @@ export function create(content, type = "future", weight = 5) {
  * @returns {number}
  */
 function recency_factor(v, _current_round) {
+  const weight = v.emotional_weight ?? 5;
+  if (weight >= 10) return 1.0;
+
   if (!v.timestamp) return 1;
   const age_ms = Date.now() - v.timestamp;
   if (age_ms <= 0) return 1;
   const estimated_turns = Math.max(1, Math.floor(age_ms / 60000));
-  return 1 / (1 + Math.log10(estimated_turns + 1));
+  const decay_exponent = Math.max(0, (10 - weight) / 5);
+  return Math.pow(1 / (1 + Math.log10(estimated_turns + 1)), decay_exponent);
 }
 
 /**

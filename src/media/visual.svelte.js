@@ -4,7 +4,7 @@
  * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
 
-import { db, entities } from "@data";
+import { db, detox_prose, entities } from "@data";
 import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
 import { llm_service, sanitize_llm } from "@platform";
 import {
@@ -392,7 +392,8 @@ export class VisualEngine {
         const fallback_entity = v_target === "user" ? user : v_target === "fractal" || v_target === "characters" ? fractal : ai;
         const fallback_desc = AestheticResolver.flatten(fallback_entity);
         const fallback_name = fallback_entity?.name || v_target;
-        refined = `<image_prompt>${visualPrompt}, ${fallback_name}, ${fallback_desc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
+        const short_intent = visualPrompt && visualPrompt.length < 200 ? visualPrompt : "";
+        refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_desc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
       }
 
       const parsed_json = this._parseRefineResponse(refined);
@@ -425,15 +426,23 @@ export class VisualEngine {
       }
       const payload = await this.generate(clean_prompt, generate_options);
 
+      const effective_metadata =
+        typeof payload === "object" && payload?.metadata ? { ...payload.metadata, prompt: clean_prompt } : { prompt: clean_prompt, mode: v_target };
+
       if (payload && payload.url) {
         return {
           imageUrl: payload.url,
           refinedPrompt: clean_prompt,
           caption,
-          metadata: payload.metadata,
+          metadata: effective_metadata,
         };
       }
-      return { imageUrl: payload, refinedPrompt: clean_prompt, caption };
+      return {
+        imageUrl: typeof payload === "string" ? payload : payload?.url || null,
+        refinedPrompt: clean_prompt,
+        caption,
+        metadata: effective_metadata,
+      };
     } catch (err) {
       console.error("[VisualEngine] Visualize error:", err);
       return { imageUrl: null, refinedPrompt: null, caption: null };
@@ -714,7 +723,7 @@ export class VisualEngine {
         cleaned = cleaned.replace(/[{}]/g, "");
       }
     }
-    return cleaned;
+    return detox_prose(cleaned);
   }
 }
 

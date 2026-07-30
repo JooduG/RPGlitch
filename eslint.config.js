@@ -44,11 +44,12 @@ export default defineConfig([
       "**/pnpm-lock.yaml",
       "**/public/assets/**",
       "**/*scribbles**",
+      "**/*scrobbles**",
       "**/templates/**",
       "**/test-results/**",
       "**/yarn.lock",
       "**/tmp/**",
-      "tmp/**/*",
+      "tmp/**/*"
     ],
     // @agent:ignore-end
   },
