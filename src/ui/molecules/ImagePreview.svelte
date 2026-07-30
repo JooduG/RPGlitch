@@ -175,7 +175,7 @@
       <!-- svelte-ignore a11y_no_static_element_interactions -->
       <!-- svelte-ignore a11y_click_events_have_key_events -->
       <div
-        class="pointer-events-auto flex max-h-[95vh] w-full shrink-0 flex-col gap-gap-standard overflow-hidden rounded-standard bg-glass-elevated p-padding-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-lg"
+        class="pointer-events-auto flex h-fit max-h-[95vh] w-full shrink-0 flex-col gap-gap-standard self-center overflow-hidden rounded-standard bg-glass-elevated p-padding-standard [backdrop-filter:var(--blur-mist)] md:max-h-[85vh] md:w-lg"
         onclick={(e) => e.stopPropagation()}
       >
         <div class="flex scrollbar-none flex-col gap-gap-standard overflow-y-auto [&::-webkit-scrollbar]:hidden">

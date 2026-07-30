@@ -401,7 +401,6 @@
               type={card_hand_type ?? undefined}
               disabled={is_disabled(entity)}
               onclick={() => handle_select(entity)}
-              actions={[{ label: "Open Profile", onSelect: () => app.open_profile(entity) }]}
             />
           </div>
         </div>

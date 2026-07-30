@@ -284,9 +284,9 @@
           : "An environmental shot of the current setting";
 
     const items = [
-      { label: "Open Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity },
+      { label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity },
       {
-        label: "View Profile Picture",
+        label: "Profile Picture",
         onSelect: () =>
           app.open_image_preview({
             src: entity?.profile_picture,

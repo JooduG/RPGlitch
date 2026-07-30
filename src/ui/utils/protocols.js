@@ -74,7 +74,8 @@ Keep each phase under 3 sentences. Total think block < 200 words.`,
 5. Prioritize specific, localized object interactions over repeated physical posture shifts (e.g., shifting weight, crossing arms, clenching jaw). Never repeat physical posture tags in consecutive turns.
 6. Let certainty and regulation attributes color processing naturally without explicit naming.
 7. Express emotion through observable physical behaviors, micro-actions, and tone shifts.
-8. Avoid clichéd AI prose tropes (e.g., 'humming/hum', 'murmuring/murmur', 'air tastes of ozone', 'testament to', 'tapestry of', 'coiled spring', 'marrow of the teeth'). Write vivid, grounded, unique sensory observations.`,
+8. Avoid clichéd AI prose tropes (e.g., 'humming/hum', 'murmuring/murmur', 'air tastes of ozone', 'testament to', 'tapestry of', 'coiled spring', 'marrow of the teeth'). Write vivid, grounded, unique sensory observations.
+9. Refrain from repetitive or dramatic action phrasing (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward', 'with a sudden [movement]', or constantly 'shifting weight'). Favor varied, nuanced physical descriptions over predictable action beats.`,
   },
 
   // ── 4. Scene Orchestration ─────────────────────────────────────────────────

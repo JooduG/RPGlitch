@@ -223,6 +223,7 @@ export function parse_message(rawText, register = "plain") {
 
   // 3. Anti-Cliche Layer
   text = detox_prose(text, register);
+  const detoxed_text = text;
 
   // 4. Render Markdown
   let rendered = sanitize(md.render(text).trim());
@@ -236,6 +237,7 @@ export function parse_message(rawText, register = "plain") {
   return {
     displayText: rendered,
     think: rendered_think,
+    detoxedText: detoxed_text,
   };
 }
 

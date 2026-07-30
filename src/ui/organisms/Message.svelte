@@ -108,7 +108,7 @@
   });
 
   let has_display_text = $derived(!!(display_text && display_text !== "<p></p>"));
-  let clean_markdown = $derived(clean_image_prompts(strip_cognition_blocks(text)).trim());
+  let clean_markdown = $derived((parsed.detoxedText || "").trim());
 
   let time_label = $derived(
     timestamp.toLocaleTimeString([], {

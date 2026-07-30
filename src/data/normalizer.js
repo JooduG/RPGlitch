@@ -478,8 +478,12 @@ export function detox_prose(rawText, register = "plain") {
     },
     {
       regex: /\b(low|industrial|electrical|steady|soft)\s+hum\b/gi,
-      replace: (m, p1) =>
-        `${p1} ${pick_random(voice === "ornate" ? ["current", "undercurrent", "resonance", "vibration"] : ["current", "undertone", "frequency", "note"])}`,
+      replace: (match, ...args) => {
+        const p1 = args[0];
+        const offset = args[args.length - 2];
+        const pool = voice === "ornate" ? ["current", "undercurrent", "resonance", "vibration"] : ["current", "undertone", "frequency", "note"];
+        return `${p1} ${stable_pick(pool, match, offset)}`;
+      },
     },
     {
       regex: /\bhum\b/gi,
@@ -603,7 +607,11 @@ export function detox_prose(rawText, register = "plain") {
     // 6. ABSTRACTION CLICHÉS — single diverse pools
     {
       regex: /\b(is|was|stands?|stood)\s+a\s+testament\s+to\b/gi,
-      replace: (m, p1) => `${p1} ${pick_random(["proof of", "evidence of", "a marker of", "a sign of"])}`,
+      replace: (match, ...args) => {
+        const p1 = args[0];
+        const offset = args[args.length - 2];
+        return `${p1} ${stable_pick(["proof of", "evidence of", "a marker of", "a sign of"], match, offset)}`;
+      },
     },
     { regex: /\ba\s+testament\s+to\b/gi, replace: ["proof of", "evidence of", "a sign of"] },
     { regex: /\btestament\b/gi, replace: ["proof", "evidence", "marker", "sign"] },
@@ -614,9 +622,13 @@ export function detox_prose(rawText, register = "plain") {
     { regex: /\ba\s+study\s+in\b/gi, replace: ["a picture of", "an exercise in", "a portrait of", "a lesson in"] },
     {
       regex: /\bmarrow\s+of\s+(his|her|their|the)\s+teeth\b/gi,
-      replace: (m, p1) => pick_random([`core of ${p1} bones`, `deepest part of ${p1} jaw`, `root of ${p1} bite`]),
+      replace: (match, ...args) => {
+        const p1 = args[0];
+        const offset = args[args.length - 2];
+        return stable_pick([`core of ${p1} bones`, `deepest part of ${p1} jaw`, `root of ${p1} bite`], match, offset);
+      },
     },
-    { regex: /\bshell of (his|her|their|your)\s+ear\b/gi, replace: (m, p1) => `${p1} ear` },
+    { regex: /\bshell of (his|her|their|your)\s+ear\b/gi, replace: (match, ...args) => `${args[0]} ear` },
 
     // 7. BREATH & VOICE MECHANICS
     {
@@ -796,11 +808,96 @@ export function detox_prose(rawText, register = "plain") {
         ],
       },
     },
+    // 9. BELLOW — loud, deep shout
+    {
+      regex: /\bbellowed\b/gi,
+      replace: {
+        plain: ["shouted", "roared", "yelled", "called out loudly"],
+        ornate: [
+          "let the sound tear from his chest",
+          "threw his voice out like a physical weight",
+          "shook the air with his voice",
+          "forced the words out in a roar",
+        ],
+      },
+    },
+    {
+      regex: /\bbellowing\b/gi,
+      replace: {
+        plain: ["shouting", "roaring", "yelling loudly", "calling out"],
+        ornate: [
+          "letting the sound rip from his chest",
+          "throwing his voice against the walls",
+          "shaking the air with the volume",
+          "forcing the sound out like a blow",
+        ],
+      },
+    },
+    {
+      regex: /\bbellows\b/gi,
+      replace: {
+        plain: ["shouts", "roars", "yells", "calls out"],
+        ornate: [
+          "lets the sound tear from his chest",
+          "throws his voice out like a weight",
+          "shakes the air with his voice",
+          "forces the words out in a roar",
+        ],
+      },
+    },
+    {
+      regex: /\bbellow\b/gi,
+      replace: {
+        plain: ["shout", "roar", "loud cry", "yell"],
+        ornate: ["a sound torn straight from the chest", "a roar that shook the air", "a heavy, concussive shout", "a raw eruption of sound"],
+      },
+    },
+    // 10. BOOMING — deep, loud, resonant
+    {
+      regex: /\bbooming\b/gi,
+      replace: {
+        plain: ["loud", "deep and loud", "deafening", "roaring"],
+        ornate: [
+          "heavy enough to rattle the teeth",
+          "filling all the available space",
+          "rolling like distant artillery",
+          "carrying the weight of a falling vault",
+        ],
+      },
+    },
+    {
+      regex: /\bboomed\b/gi,
+      replace: {
+        plain: ["echoed loudly", "rang out loud", "sounded loud", "hit with a thud"],
+        ornate: [
+          "struck the air like a physical blow",
+          "rolled through the space unhindered",
+          "hit with concussive force",
+          "rang out heavy and dense",
+        ],
+      },
+    },
+    {
+      regex: /\bbooms\b/gi,
+      replace: {
+        plain: ["echoes loudly", "rings out loud", "sounds loud", "hits with a thud"],
+        ornate: ["strikes the air like a blow", "rolls through the space", "hits with concussive force", "rings out heavy and dense"],
+      },
+    },
+    {
+      regex: /\bboom\b/gi,
+      replace: {
+        plain: ["loud thud", "deep crash", "heavy impact", "loud noise"],
+        ornate: ["a concussive shock", "a sound heavy enough to feel", "a sudden pressure in the air", "a deep, bone-rattling impact"],
+      },
+    },
     {
       // NOTE: original regex only caught shiver/shivers/shivered — "shivering" (the
       // most common form, arguably) was never matched at all. Added "ing" below.
       regex: /\bshiver(s|ed|ing)?\b/gi,
-      replace: (m, p1) => {
+      replace: (match, ...args) => {
+        const p1 = args[0];
+        const offset = args[args.length - 2];
         const forms = {
           plain: {
             "": ["flinch", "tense up", "twitch", "jolt"],
@@ -836,7 +933,7 @@ export function detox_prose(rawText, register = "plain") {
           },
         };
         const key = p1 === "s" || p1 === "ed" || p1 === "ing" ? p1 : "";
-        return match_case(m, pick_random(forms[voice][key]));
+        return match_case(match, stable_pick(forms[voice][key], match, offset));
       },
     },
   ];
@@ -844,10 +941,11 @@ export function detox_prose(rawText, register = "plain") {
   let clean_text = rawText;
   for (const item of DETOX_RULES) {
     clean_text = clean_text.replace(item.regex, (match, ...args) => {
+      const offset = args[args.length - 2];
       if (typeof item.replace === "function") {
         return item.replace(match, ...args);
       }
-      return pick_replacement(match, item.replace, voice);
+      return pick_replacement(match, item.replace, voice, offset);
     });
   }
 
@@ -855,16 +953,27 @@ export function detox_prose(rawText, register = "plain") {
 }
 
 /**
- * Picks a random item from a flat array, or from pool[register] (falling back to
+ * Picks a deterministic item from a flat array, or from pool[register] (falling back to
  * pool.plain, then pool.ornate) when given a { plain, ornate } pool object.
  * Preserves capitalization of the matched text.
  */
-function pick_replacement(match, pool, register = "plain") {
+function pick_replacement(match, pool, register = "plain", offset = 0) {
   if (!pool) return match;
   if (typeof pool === "string") return match_case(match, pool);
   const list = Array.isArray(pool) ? pool : pool[register] || pool.plain || pool.ornate || [];
   if (!list.length) return match;
-  return match_case(match, pick_random(list));
+  return match_case(match, stable_pick(list, match, offset));
+}
+
+function stable_pick(list, match, offset) {
+  if (!list || list.length === 0) return "";
+  let h = 0x811c9dc5;
+  const s = match + "@" + offset;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 0x01000193) >>> 0;
+  }
+  return list[h % list.length];
 }
 
 function match_case(original, replacement) {
