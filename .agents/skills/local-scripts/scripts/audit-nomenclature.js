@@ -67,7 +67,7 @@ export const nomenclatureRules = [
     message: "File must be kebab-case.",
     auditPath: (name, isDir, relPath) => {
       if (isDir || name.includes("RPGlitch") || name.startsWith("@") || name.startsWith("$")) return true;
-      if (name.endsWith(".svelte") && !name.includes(".template.")) return true;
+      if ((name.endsWith(".svelte") || name.endsWith(".svelte.js")) && !name.includes(".template.")) return true;
       const base = getBase(name);
       if (RE_ALL_CAPS.test(base)) return true;
 
