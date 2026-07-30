@@ -6,9 +6,8 @@
    * Part of the RPGlitch UI.
    */
   import { Button, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@atoms";
-  import { prompt_builder, strip_cognition_blocks } from "@intelligence";
+  import { strip_cognition_blocks } from "@intelligence";
   import { AestheticResolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
-  import { llm_service } from "@platform";
   import { app } from "@state";
   import { VISUAL_STYLES } from "@data";
 
@@ -91,11 +90,7 @@
   /** True when the prompt is freeform text (not a URL or data URI). */
   const has_prompt_text = $derived(prompt_value.length > 0 && !prompt_value.startsWith("http") && !prompt_value.startsWith("data:"));
 
-  const is_creative_disabled = $derived(
-    !profile_state.is_editing ||
-      (is_prompt_busy && (!profile_state.active_field || profile_state.active_field.key === "visual-prompt")) ||
-      (!profile_state.active_field && has_prompt_text),
-  );
+  const is_creative_disabled = $derived(!profile_state.is_editing || is_prompt_busy);
 
   const visual_style_options = Object.values(VISUAL_STYLES)
     .sort((a, b) => {
@@ -106,71 +101,52 @@
     .map((style) => ({
       value: style.id,
       label: style.name,
+      portrait: style.portrait,
       tag: style.description,
-      tooltip: style.description,
+      tooltip: `${style.name}: ${style.description}`,
     }));
 
   // --- HANDLERS ---
 
   /**
-   * Triggers AI enhancement for the active field, or extracts optics metadata
+   * Triggers AI enhancement for the visual prompt field, or extracts optics metadata
    * when no prompt text is present.
    */
   async function handle_creative_action() {
-    const current_key = profile_state.active_field?.key || "visual-prompt";
-    if (profile_state.busy_fields.has(current_key)) return;
-    profile_state.busy_fields.add(current_key);
+    if (profile_state.busy_fields.has("visual-prompt")) return;
+    profile_state.busy_fields.add("visual-prompt");
 
     try {
-      if (current_key === "visual-prompt") {
-        if (!has_prompt_text) {
-          profile_state.char.modifiers.prompt = AestheticResolver.extract(profile_state.char);
-        } else {
-          const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
-          if (result) {
-            let positive = result.prompt || "";
-            let negative = result.negative_prompt || "";
+      if (!has_prompt_text) {
+        profile_state.char.modifiers.prompt = AestheticResolver.extract(profile_state.char);
+      } else {
+        const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
+        if (result) {
+          let positive = result.prompt || "";
+          let negative = result.negative_prompt || "";
 
-            // Emergency extraction slice if upstream JSON.parse tripped and returned a raw string dump
-            if (!negative && (positive.includes('"prompt"') || positive.includes('"negative_prompt"') || positive.includes('"negative_prompt"'))) {
-              const clean_text = strip_cognition_blocks(positive);
-              const prompt_match = clean_text.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
-              const neg_match = clean_text.match(/"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+          // Emergency extraction slice if upstream JSON.parse tripped and returned a raw string dump
+          if (!negative && (positive.includes('"prompt"') || positive.includes('"negative_prompt"'))) {
+            const clean_text = strip_cognition_blocks(positive);
+            const prompt_match = clean_text.match(/"prompt"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
+            const neg_match = clean_text.match(/"negative(?:Prompt|_prompt)"\s*:\s*"((?:[^"\\]|\\.)*)"/i);
 
-              if (prompt_match && prompt_match[1]) {
-                positive = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-              }
-              if (neg_match && neg_match[1]) {
-                negative = neg_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
-              }
+            if (prompt_match && prompt_match[1]) {
+              positive = prompt_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
             }
+            if (neg_match && neg_match[1]) {
+              negative = neg_match[1].replace(/\\"/g, '"').replace(/\\n/g, "\n");
+            }
+          }
 
-            if (positive) profile_state.char.modifiers.prompt = positive.trim();
-            if (negative) profile_state.char.modifiers.negative_prompt = negative.trim();
-          }
-        }
-      } else if (profile_state.active_field) {
-        const val = profile_state.get_safe_value(current_key);
-        if (val) {
-          const payload = prompt_builder.build_enhancement(
-            current_key,
-            val,
-            profile_state.char.name,
-            profile_state.char.type,
-            false,
-            profile_state.char,
-          );
-          const res = await llm_service.enhance(payload);
-          if (res) {
-            const clean_res = strip_cognition_blocks(res).trim();
-            profile_state.set_field_value(current_key, clean_res);
-          }
+          if (positive) profile_state.char.modifiers.prompt = positive.trim();
+          if (negative) profile_state.char.modifiers.negative_prompt = negative.trim();
         }
       }
     } catch (err) {
       console.error("[VisualWing] Creative action failed:", err);
     } finally {
-      profile_state.busy_fields.delete(current_key);
+      profile_state.busy_fields.delete("visual-prompt");
     }
   }
 
@@ -322,7 +298,9 @@
           items={visual_style_options}
           label="Select Visual Style"
           uppercase={false}
-          matchWidth={true}
+          matchWidth={false}
+          dropdownWidth="w-80"
+          align="start"
           disabled={!profile_state.is_editing}
           onchange={() => (profile_state._user_mutated = true)}
         />

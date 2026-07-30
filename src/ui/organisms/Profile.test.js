@@ -97,9 +97,13 @@ describe("ProfileState enhance_profile", () => {
     expect(state.busy_fields.has("description")).toBe(true);
     expect(state.is_saving).toBe(true);
 
-    // Resolve LLM call
-    resolveEnhanceFn(`{"name": "Proxy"}`);
+    // Resolve LLM call with a modified name property
+    resolveEnhanceFn(`{"name": "Proxy Name Modification", "description": "New description"}`);
     await enhance_call;
+
+    // Verify name was preserved and not overwritten
+    expect(state.char.name).toBe("Test Character");
+    expect(state.char.description).toBe("New description");
 
     // Check that busy_fields are cleared after enhancement
     expect(state.busy_fields.has("eternal.physical")).toBe(false);

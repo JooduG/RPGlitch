@@ -143,7 +143,7 @@ function resolve_active_style_key() {
  */
 function resolve_pov_protocol(entity) {
   const pov = entity?.pov || (entity?.type === "fractal" ? "3rd_person" : "1st_person");
-  return pov === "3rd_person" ? "POV_THIRD_PERSON" : "POV_FIRST_PERSON";
+  return pov === "3rd_person" ? "POV.THIRD_PERSON" : "POV.FIRST_PERSON";
 }
 
 /**
@@ -408,7 +408,7 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
       ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
     </EPISTEMIC_PHYSICS>
     <POV_DIRECTIVE>
-      ${PROTOCOL_LIBRARY.POV[pov_protocol]}
+      ${PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
     </POV_DIRECTIVE>
     ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.

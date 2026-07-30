@@ -158,7 +158,12 @@ export const normalize = (base = {}) => {
     originId: norm_origin_id,
     dynamicsBaseline: norm_dynamics_baseline,
 
-    name: sanitize_html(name).trim(),
+    name: (() => {
+      const clean = sanitize_html(name)
+        .replace(/[\r\n]+/g, " ")
+        .trim();
+      return clean.length > 80 ? clean.slice(0, 80).trim() : clean;
+    })(),
     description: sanitize_html(description).trim(),
     type: type,
     signature_color: (() => {

@@ -177,7 +177,28 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(mock_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
+      expect(result.system).toContain("<FIRST_PERSON>");
+      expect(result.system).toContain("Write strictly in first-person");
+      expect(result.task).toContain("<POV_DIRECTIVE>");
+      expect(result.task).toContain("Write strictly in first-person");
+      expect(result.task).not.toContain("undefined");
       expect(result.task).toContain("<PAST>");
+    });
+
+    it("synthesize() renders third-person POV when entity pov is 3rd_person", () => {
+      const third_payload = {
+        ...mock_payload,
+        entities: {
+          ...mock_payload.entities,
+          AI: { ...mock_payload.entities.AI, pov: "3rd_person" },
+        },
+      };
+      const result = prompt_builder.synthesize(third_payload, mock_snapshot);
+      expect(result.system).toContain("<THIRD_PERSON>");
+      expect(result.system).toContain("Write strictly in third-person");
+      expect(result.task).toContain("<POV_DIRECTIVE>");
+      expect(result.task).toContain("Write strictly in third-person");
+      expect(result.task).not.toContain("undefined");
     });
 
     it("synthesize() respects prologue mode", () => {

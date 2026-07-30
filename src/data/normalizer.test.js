@@ -71,6 +71,14 @@ describe("content-normaliser.js", () => {
       expect(Security.sanitize).toHaveBeenCalledWith("Red");
     });
 
+    it("should sanitize, strip newlines, and cap super long name fields", () => {
+      const long_name = "Lord Valerius Vance\n" + "A".repeat(150);
+      const result = normalize({ name: long_name });
+      expect(result.name.length).toBeLessThanOrEqual(80);
+      expect(result.name).not.toContain("\n");
+      expect(result.name.startsWith("Lord Valerius Vance")).toBe(true);
+    });
+
     it("should handle [BACKWARD COMPAT] visuals -> modifiers migration", () => {
       const input = {
         visuals: {

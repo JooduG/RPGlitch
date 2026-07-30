@@ -35,12 +35,12 @@ export const VISUAL_STYLES = {
     name: "Amateur Smartphone Snap",
     portrait: "https://user.uploads.dev/file/0bb4f7bd1737684ea227e701d3566c5e.png",
     description:
-      "Raw everyday smartphone camera shot featuring accidental direct flash glare, candid perspective, awkward angles, and unposed social media realism.",
-    tags: ["amateur", "iphone", "snapshot", "mirror_selfie", "candid", "flash_photo", "raw"],
+      "Casual unprepared smartphone photo featuring extremely unremarkable everyday realism, candid mirror selfie perspective, awkward angles, unposed framing, and accidental direct flash glare.",
+    tags: ["amateur", "iphone", "snapshot", "mirror_selfie", "candid", "casual", "unremarkable", "unprepared", "flash_photo", "raw"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>raw smartphone camera snapshot, candid mobile phone photography</medium>\n<palette>harsh direct LED flash exposure, ambient indoor fluorescent lighting, natural uncalibrated color cast</palette>\n<camera>compact smartphone front-facing lens, wide-angle handheld perspective, candid tilted framing</camera>\n<texture>digital sensor noise, harsh flash specular highlights, subtle lens smudge haze, subtle jpeg compression artifacts</texture>\n</VISUAL_ENGINE>",
+      "<VISUAL_ENGINE>\n<medium>extremely unremarkable candid smartphone photo, casual unprepared mobile phone snapshot, candid mirror selfie capture</medium>\n<palette>casual uncalibrated ambient room lighting, harsh direct phone flash glare, unedited realistic everyday color cast</palette>\n<camera>handheld iPhone camera lens, awkward off-center handheld framing, spontaneous candid angle, quick unposed mirror selfie snapshot perspective</camera>\n<texture>digital sensor noise, slight motion blur smudge, harsh flash specular highlights, subtle lens smudge haze, subtle jpeg compression artifacts</texture>\n</VISUAL_ENGINE>",
     negative_prompt:
-      "professional photograph, Hasselblad, studio lighting, flawless retouching, cinematic color grading, bokeh, 3d render, illustration, artwork, polished studio lighting",
+      "professional photograph, Hasselblad, studio lighting, flawless retouching, cinematic color grading, dramatic posing, polished model photoshoot, bokeh, 3d render, illustration, artwork",
   },
 
   anime: {
@@ -51,20 +51,21 @@ export const VISUAL_STYLES = {
       "Vibrant cel-shaded Japanese anime & manga art style with clean line work, expressive key framing, stylized proportions, and subtle ecchi adult illustration tones.",
     tags: ["anime", "manga", "ecchi", "hentai", "cel_shading", "illustration", "2d", "stylized"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>Japanese anime and manga cel-shaded illustration in the style of adult ecchi anime and manga art</medium>\n<palette>vibrant saturated colors, clean flat shading with rim light accents</palette>\n<composition>dynamic dramatic angles, foreshortened perspective, heroic framing</composition>\n<texture>smooth clean ink line art, flat color fills with subtle gradient shading</texture>\n</VISUAL_ENGINE>",
-    negative_prompt: "photograph, realistic, 3d render, oil painting, watercolor, rough sketch, crosshatching, charcoal",
+      "<VISUAL_ENGINE>\n<medium>Japanese anime and manga cel-shaded 2D illustration in the style of adult ecchi anime and manga art</medium>\n<palette>vibrant saturated anime colors, clean flat cel shading with sharp rim light accents</palette>\n<composition>dynamic dramatic anime keyframe angles, foreshortened perspective, expressive character framing</composition>\n<texture>smooth crisp anime ink line art, flat color fills with subtle gradient shading</texture>\n</VISUAL_ENGINE>",
+    negative_prompt: "photograph, realistic human skin pores, 3d render, oil painting, watercolor, rough charcoal sketch, crosshatching, raw photo",
   },
 
   blueprint: {
     id: "blueprint",
-    name: "Architectural Blueprint",
+    name: "Architectural Blueprint / Da Vinci Sketch",
     portrait: "https://user.uploads.dev/file/b531d8e2c49c83e7fcd7625abceeedd5.png",
     description:
-      "Technical drafting schematic in the style of Leonardo da Vinci notebook blueprints, featuring crisp white vector lines, dimension markings, and grid lines on deep cyanotype blue paper.",
-    tags: ["blueprint", "technical", "cad", "drafting", "schematic", "architectural", "da_vinci"],
+      "Renaissance invention manuscript sketch in the style of Leonardo da Vinci's Vitruvian Man, featuring sepia ink drawings, intricate anatomical and architectural proportion geometry circles, mirror-writing notes, and faded aged parchment paper texture.",
+    tags: ["blueprint", "sketch", "da_vinci", "vitruvian_man", "renaissance", "invention", "drafting", "schematic", "anatomical"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>technical blueprint illustration in the style of Leonardo da Vinci notebook schematics, structural CAD drafting</medium>\n<palette>stark white vector line art on dark Prussian blue cyanotype background</palette>\n<composition>full structural elevation schematic with precise geometric alignment, technical margin crosshairs</composition>\n<texture>fine white ink line art, subtle blue paper tooth, faded grid paper overlay</texture>\n</VISUAL_ENGINE>",
-    negative_prompt: "3d render, photograph, painterly, soft gradients, colorful, artistic shading, blur, photorealism",
+      "<VISUAL_ENGINE>\n<medium>Renaissance invention sketch illustration in the style of Leonardo da Vinci manuscript drawings and Vitruvian Man architectural studies</medium>\n<palette>aged sepia ink tones, warm parchment tan, dark brown iron gall ink, subtle tea-stained paper wash</palette>\n<composition>Vitruvian Man proportion framing, geometric alignment circles and square overlays, mirrored Renaissance cursive handwriting margins</composition>\n<texture>fine nib quill pen ink strokes, aged fibrous parchment paper texture, foxing spots, faded geometric drafting guide lines</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "cyanotype blue paper, white blueprint CAD lines, 3d render, photograph, vibrant colors, modern digital illustration, vector art, smooth airbrush",
   },
 
   cgi_animation: {
@@ -75,7 +76,7 @@ export const VISUAL_STYLES = {
       "Stylized 3D animated movie aesthetic with soft subsurface scattering, expressive lighting, and polished studio warmth in the style of Pixar.",
     tags: ["cgi", "animation", "3d", "stylized", "pixar"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>3d animation digital art in the style of Pixar feature films, feature film digital art</medium>\n<palette>warm key lighting, soft rim light glow, harmonious pastel palette</palette>\n<camera>35mm digital feature film setup, shallow depth of field, intimate focal framing</camera>\n<texture>soft subsurface skin scattering, velvety fabric textures, smooth polished surfaces</texture>\n</VISUAL_ENGINE>",
+      "<VISUAL_ENGINE>\n<medium>3d animated feature film digital art in the style of Pixar feature films</medium>\n<palette>warm studio key lighting, soft rim light glow, harmonious pastel color palette</palette>\n<camera>35mm digital feature film setup, shallow depth of field, intimate focal character framing</camera>\n<texture>soft subsurface skin scattering, velvety fabric textures, smooth polished CGI surfaces</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "photograph, grainy, raw film, realistic human skin pores, rough impasto, 2d drawing, vector, line art",
   },
 
@@ -122,6 +123,19 @@ export const VISUAL_STYLES = {
     visual_engine:
       "<VISUAL_ENGINE>\n<medium>comic book illustration in the style of Marvel and DC comic book art, bold inked graphic novel art</medium>\n<palette>flat bold primary colors with halftone dot shading, high contrast saturation</palette>\n<composition>dynamic foreshortened angles, dramatic panel composition, action-oriented framing</composition>\n<texture>heavy black ink outlines, visible halftone screen tones, crosshatching shading</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "photograph, realistic, 3d render, soft watercolor, oil painting, smooth airbrush",
+  },
+
+  concept_art: {
+    id: "concept_art",
+    name: "Digital Concept Art",
+    portrait: "https://user.uploads.dev/file/9d94edf2d5b3a1964d38faddb22f7537.png",
+    description:
+      "Professional digital speedpainting and key art aesthetic featuring painterly digital brushwork, dynamic value grouping, atmospheric environmental lighting, focal detail emphasis, and ArtStation pre-visualization studio quality.",
+    tags: ["concept_art", "digital_painting", "speedpaint", "key_art", "production_art", "painterly", "illustration", "artstation"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>digital concept art keyframe illustration in the style of ArtStation studio speedpaints, digital production painting</medium>\n<palette>atmospheric cinematic value structure, dramatic focal lighting, harmonious environmental color palette with vibrant focal highlights</palette>\n<composition>dynamic rule-of-thirds keyframe staging, strong silhouette clarity, atmospheric perspective depth layers</composition>\n<texture>textured digital brush strokes, expressive loose background painterly marks, crisp focal detail rendering, subtle digital canvas texture</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "raw camera snapshot, 3d CAD render, vector graphics, cel-shading, anime comic, flat unshaded color, low resolution doodle, grainy VHS noise, blurry photo",
   },
 
   cyberpunk: {
@@ -204,6 +218,19 @@ export const VISUAL_STYLES = {
     visual_engine:
       "<VISUAL_ENGINE>\n<medium>isometric 3d vector model, low-poly digital art</medium>\n<palette>clean vibrant color blocking, soft directional sunlight, gentle ambient occlusion shadows</palette>\n<composition>fixed 45-degree orthographic projection, grid-aligned spatial arrangement</composition>\n<texture>smooth faceted polygon surfaces, crisp vector edges, flat matte materials</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "perspective distortion, photorealistic textures, organic noise, lens flare, film grain, hyperrealism",
+  },
+
+  lego_bricks: {
+    id: "lego_bricks",
+    name: "LEGO® Bricks / Plastic Toy",
+    portrait: "https://user.uploads.dev/file/db3cb7104f2da620eccc08dc5f535988.png",
+    description:
+      "Blocky plastic construction toy aesthetic featuring minifigure characters with cylindrical rotatable heads and U-shaped hands, brick-built background architecture with visible interlocking studs, injection-molded ABS plastic glossy texture, and tilt-shift macro lens depth.",
+    tags: ["lego", "bricks", "plastic", "toy", "minifigure", "blocky", "construction_set", "macro"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>plastic toy construction brick artwork, blocky LEGO minifigure character illustration, brick-built macro diorama model</medium>\n<palette>vibrant primary ABS plastic colors, glossy solid yellow minifigure skin tones, rich bold brick red, bright blue, vibrant yellow, green, and black plastic blocks</palette>\n<camera>60mm macro lens photography, shallow depth of field, tilt-shift miniature set focal perspective, eye-level toy camera shot</camera>\n<texture>glossy injection-molded ABS plastic surfaces, visible circular interlocking plastic studs with embossed logo micro-detail, plastic mold seam lines, crisp smooth plastic reflections</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "photorealistic human skin pores, organic human features, realistic anatomical human joints, smooth paper drawing, watercolor, 3d CGI film rendering, cloth fabric weave, soft metallic bronze, natural organic foliage",
   },
 
   notebook_doodle: {
@@ -326,11 +353,13 @@ export const VISUAL_STYLES = {
     id: "steampunk",
     name: "Steampunk & Dieselpunk",
     portrait: "https://user.uploads.dev/file/0f48e8943d5dac6f533b24fa46cc98e3.png",
-    description: "Victorian industrial retro-futurism featuring polished brass machinery, copper piping, exposed clockwork gears, and steam vents.",
-    tags: ["steampunk", "dieselpunk", "industrial", "brass", "retro_futurism"],
+    description:
+      "Victorian industrial steampunk featuring intricate brass clockwork gearworks, copper steam boilers, iron rivets, pressure gauges, exposed mechanical movements, and swirling steam vents.",
+    tags: ["steampunk", "dieselpunk", "industrial", "brass", "clockwork", "victorian", "gears", "machinery", "retro_futurism"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>steampunk digital illustration, industrial concept art</medium>\n<palette>polished brass, warm copper tones, aged leather brown, glowing amber furnace light</palette>\n<camera>50mm lens, wide architectural perspective, dramatic mechanical depth</camera>\n<texture>tarnished metal surfaces, rivet patterns, polished brass reflections, swirling steam clouds</texture>\n</VISUAL_ENGINE>",
-    negative_prompt: "modern plastic, neon, cyberpunk, anime, soft watercolor, flat vector, modern electronics",
+      "<VISUAL_ENGINE>\n<medium>authentic Victorian steampunk mechanical machinery art, intricate industrial clockwork concept design, detailed brass and copper ironwork render</medium>\n<palette>tarnished brass patinas, oxidized copper green accents, heavy cast iron black, warm furnace amber glow, aged oily leather, rich bronze reflections</palette>\n<camera>50mm lens, intricate mechanical macro and wide industrial perspective, dense layered gearwork layout, dramatic mechanical depth</camera>\n<texture>dense intricate interlocking clockwork gears, brass pressure gauges, copper steam pipes, heavy iron rivets, grease and oil stains, escaping white steam plumes, oxidized metal patina</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "anime, manga, cel-shaded, anime face, anime hair, stylized anime character, modern plastic, neon lights, digital cyberpunk, flat vector, clean 2d illustration, simple pipe design, simple background",
   },
 
   studio_ghibli: {
@@ -355,6 +384,19 @@ export const VISUAL_STYLES = {
     negative_prompt: "photograph, realistic, mundane, ordinary, plain, documentary, camera lens, corporate design",
   },
 
+  surveillance_footage: {
+    id: "surveillance_footage",
+    name: "Surveillance / CCTV",
+    portrait: "https://user.uploads.dev/file/ea9f523b0c23c7af252b71010b88b24e.png",
+    description:
+      "High-angle security camera CCTV screen capture featuring prominent horizontal scanline stripes, video interlacing tear lines, digital compression glitch artifacts, washed-out desaturated monitor colors, timestamp overlay, and fisheye lens distortion.",
+    tags: ["surveillance", "cctv", "security", "glitch", "scanlines", "striped_artifacts", "found_footage", "interlacing"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>glitchy security camera video frame capture, low-bitrate CCTV surveillance screen capture, distorted security monitor photo</medium>\n<palette>low-color washed-out desaturated security monitor tones, harsh dark contrast shadows, high digital sensor noise, subtle muted phosphor cast</palette>\n<camera>ceiling-mounted wide-angle fisheye security lens, steep top-down security camera angle, high-corner surveillance perspective</camera>\n<texture>prominent horizontal scanline stripes, video interlacing tear lines, digital compression glitch artifacts, corrupt pixel striping, timestamp overlay graphics, heavy video compression noise</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "crisp 4k photo, cinematic studio lighting, professional photograph, vibrant full color, green night vision single-tint, 3d render, vector, oil painting, illustration, clean pristine digital video",
+  },
+
   three_d_render: {
     id: "three_d_render",
     name: "3D Render (UE5)",
@@ -365,6 +407,18 @@ export const VISUAL_STYLES = {
     visual_engine:
       "<VISUAL_ENGINE>\n<medium>Unreal Engine 5 architectural 3d scene render</medium>\n<palette>physically based lighting, volumetric light shafts, ray-traced global illumination</palette>\n<camera>cinematic 35mm focal setup, accurate specular reflections, ambient occlusion depth</camera>\n<texture>crisp 3d asset definition, physically based material shaders, ray-traced reflections</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "flat 2d, illustration, drawing, watercolor, low poly, noisy, anime, painting, sketch",
+  },
+
+  tom_of_finland: {
+    id: "tom_of_finland",
+    name: "Tom of Finland",
+    portrait: "https://user.uploads.dev/file/74be269263eccaeae62c04b90601bc75.png",
+    description:
+      "Iconic hyper-masculine pencil and graphite illustration featuring bold muscular contours, polished black leather, and high-contrast draftsmanship in the style of Tom of Finland.",
+    tags: ["tom_of_finland", "graphite", "hyper_masculine", "leather", "erotic_art", "drawing"],
+    visual_engine:
+      "<VISUAL_ENGINE>\n<medium>hyper-masculine pencil and graphite illustration in the style of Tom of Finland</medium>\n<palette>rich graphite monochrome, deep velvety blacks, stark white paper highlights, polished leather shine</palette>\n<composition>bold heroic framing, accentuated anatomical and structural curves, high-contrast perspective</composition>\n<texture>smooth shaded graphite, dense pencil crosshatching shading, gleaming leather texture, heavy cotton paper grain</texture>\n</VISUAL_ENGINE>",
+    negative_prompt: "color, photograph, 3d render, soft watercolor, pastel wash, anime, cel-shaded, digital vector, low contrast",
   },
 
   ukiyo_e: {
@@ -396,11 +450,12 @@ export const VISUAL_STYLES = {
     name: "VHS Found Footage",
     portrait: "https://user.uploads.dev/file/644012b0a426a455889d5a8881d69e72.png",
     description:
-      "Low-fi 1990s analog camcorder video capture with magnetic tracking distortion, chromatic edge bleeding, scanlines, and gritty security tape realism.",
-    tags: ["vhs", "found_footage", "90s", "analog_horror", "camcorder", "retro", "lofi"],
+      "Uncanny lofi 1990s analog found footage video frame featuring mysterious unexplained atmosphere, heavy magnetic tracking glitch artifacts, motion blur static distortion, and unsettling analog horror tape realism.",
+    tags: ["vhs", "found_footage", "uncanny", "analog_horror", "mysterious", "glitch", "blurry", "camcorder", "unexplained"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>1990s analog VHS camcorder video screen capture</medium>\n<palette>washed-out phosphor color tint, harsh direct camera light, crushed low-light shadow noise</palette>\n<camera>compact consumer camcorder lens, wide-angle shaky handheld framing, slight barrel distortion</camera>\n<texture>magnetic tape noise, horizontal CRT tracking lines, chromatic aberration bleed, subtle timestamp overlay glitch</texture>\n</VISUAL_ENGINE>",
-    negative_prompt: "crisp 4k, modern digital photo, high dynamic range, clean studio lighting, 3d render, vector, painting",
+      "<VISUAL_ENGINE>\n<medium>mysterious uncanny found footage VHS video screen capture, low-fi analog horror magnetic tape frame</medium>\n<palette>unsettling washed-out low-light shadows, eerie green and desaturated phosphor cast, harsh grainy shadow noise</palette>\n<camera>shaky handheld consumer camcorder optics, out-of-focus motion blur framing, unsettling wide-angle perspective, low resolution lens distortion</camera>\n<texture>heavy magnetic static blur, corrupt VHS tracking glitch bars, horizontal tear lines, unexplained video artifacts, chromatic bleeding, blurred ghosting edges</texture>\n</VISUAL_ENGINE>",
+    negative_prompt:
+      "crisp 4k, sharp focus, modern digital camera, vibrant colors, clean studio lighting, 3d render, vector, oil painting, illustration",
   },
 
   vintage_analog: {
@@ -424,30 +479,5 @@ export const VISUAL_STYLES = {
     visual_engine:
       "<VISUAL_ENGINE>\n<medium>delicate watercolor painting, wet-on-wet technique</medium>\n<palette>soft translucent washes, bleeding pigment edges, pastel undertones with granulating textures</palette>\n<composition>fluid organic framing, gentle vignetting, soft negative space balance</composition>\n<texture>cold-press paper grain texture visible through washes, pooling water marks, dry brush accents</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "photograph, 3d render, sharp hard edges, digital, vector, cel_shaded, camera lens, heavy oil impasto",
-  },
-
-  surveillance_footage: {
-    id: "surveillance_footage",
-    name: "Surveillance / CCTV",
-    portrait: "https://user.uploads.dev/file/ea9f523b0c23c7af252b71010b88b24e.png",
-    description:
-      "High-angle security camera CCTV footage featuring monochrome night-vision green tint, digital video noise, timestamp overlay, and fisheye lens distortion.",
-    tags: ["surveillance", "cctv", "security", "night_vision", "found_footage", "monochrome"],
-    visual_engine:
-      "<VISUAL_ENGINE>\n<medium>grainy security camera footage, CCTV surveillance camera video screen capture</medium>\n<palette>monochrome green night-vision phosphor tint, high-contrast digital noise, dark shadow voids</palette>\n<camera>ceiling-mounted wide-angle fisheye security lens, steep top-down security camera angle</camera>\n<texture>digital video sensor noise, CRT scanlines, timestamp overlay, low resolution surveillance compression</texture>\n</VISUAL_ENGINE>",
-    negative_prompt:
-      "crisp 4k photo, cinematic studio lighting, professional photograph, vibrant full color, 3d render, vector, oil painting, illustration, artwork",
-  },
-
-  tom_of_finland: {
-    id: "tom_of_finland",
-    name: "Tom of Finland",
-    portrait: "https://user.uploads.dev/file/74be269263eccaeae62c04b90601bc75.png",
-    description:
-      "Iconic hyper-masculine pencil and graphite illustration featuring bold muscular contours, polished black leather, and high-contrast draftsmanship in the style of Tom of Finland.",
-    tags: ["tom_of_finland", "graphite", "hyper_masculine", "leather", "erotic_art", "drawing"],
-    visual_engine:
-      "<VISUAL_ENGINE>\n<medium>hyper-masculine pencil and graphite illustration in the style of Tom of Finland</medium>\n<palette>rich graphite monochrome, deep velvety blacks, stark white paper highlights, polished leather shine</palette>\n<composition>bold heroic framing, accentuated anatomical and structural curves, high-contrast perspective</composition>\n<texture>smooth shaded graphite, dense pencil crosshatching shading, gleaming leather texture, heavy cotton paper grain</texture>\n</VISUAL_ENGINE>",
-    negative_prompt: "color, photograph, 3d render, soft watercolor, pastel wash, anime, cel-shaded, digital vector, low contrast",
   },
 };

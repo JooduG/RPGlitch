@@ -236,7 +236,14 @@ export class ProfileState {
             }
           }
         } else {
-          set_value(this.char, key, clean_result);
+          const final_val =
+            key === "name"
+              ? clean_result
+                  .replace(/[\r\n]+/g, " ")
+                  .trim()
+                  .slice(0, 80)
+              : clean_result;
+          set_value(this.char, key, final_val);
           this._user_mutated = true;
         }
       }
@@ -381,7 +388,7 @@ export class ProfileState {
           const clean_json = JSON.parse(clean_json_text.substring(start_idx, end_idx + 1));
 
           for (let [key, val] of Object.entries(clean_json)) {
-            if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
+            if (key === "name" || key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
             // Map flat LLM keys (e.g. eternal_physical) back to nested DB schema (eternal.physical)
             if (key === "eternal_physical") key = "eternal.physical";
