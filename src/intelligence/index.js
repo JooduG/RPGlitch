@@ -10,6 +10,7 @@ export {
   extract_json_block,
   parse_message,
   parse_think_block,
+  resolve_voice_register,
   strip_cognition_blocks,
   wrap_dialogue,
   safe_parse_pseudo_json,

@@ -134,12 +134,13 @@ name (string), description (string), signature_color (string), eternal_physical 
 4. Spatial & Positioning Fidelity: Strictly preserve character elevations, relative distances, camera angles, and spatial relationships described in <INSTRUCTIONS>. If a character is described as perched in a balcony, viewing from above, or positioned in shadow, depict that exact spatial layout rather than placing characters side-by-side in the foreground.
 5. Action & Environment Grounding: Focus on the active narrative moment, capturing exact environmental structures, light sources, objects held, and physical interactions.
 6. Incorporate medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
-7. Pass designated negative tokens inside "negative_prompt".`,
+7. Color Honor Protocol: If <VISUAL_ENGINE> specifies a monochrome or limited color palette (e.g. charcoal, graphite, cyanotype blueprint, sepia), DO NOT include conflicting color words (such as neon green, violet, magenta) in the prompt output.
+8. Pass designated negative tokens inside "negative_prompt".`,
   },
 
   // ── 7. Formatting & System Recovery ─────────────────────────────────────────
   FORMATS: {
-    JSON_ONLY: "Return a single JSON object. No preamble, no markdown backticks, no external XML tags.",
+    JSON_ONLY: "Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.",
     ENHANCE_IMAGE: 'Return pseudo-JSON property lines: "key": "value", — No outer braces. Commas inside values must have spaces. No code blocks.',
     ENHANCE_ARRAY: 'Return JSON array of objects: {"directive": string, "emotional_weight": integer (1-10)}. Generate 3-5 entries.',
     ENHANCE_PROSE: "Write dense profile summary in third-person. Describe traits and drivers. NO story scenes, dialogue, or tag lists.",

@@ -58,10 +58,11 @@ export const VISUAL_STYLES = {
     id: "blueprint",
     name: "Architectural Blueprint",
     portrait: "https://user.uploads.dev/file/b531d8e2c49c83e7fcd7625abceeedd5.png",
-    description: "Technical drafting schematic featuring crisp white vector lines, dimension markings, and grid lines on deep cyanotype blue paper.",
+    description:
+      "Technical drafting schematic featuring crisp white vector lines, character figure outlines, dimension markings, and grid lines on deep cyanotype blue paper.",
     tags: ["blueprint", "technical", "cad", "drafting", "schematic", "architectural"],
     visual_engine:
-      "<VISUAL_ENGINE>\n<medium>architectural blueprint drafting, technical CAD schematic</medium>\n<palette>stark white vector lines on dark Prussian blue cyanotype background</palette>\n<composition>orthographic elevation projection, precise geometric alignment, technical margin crosshairs</composition>\n<texture>fine white ink lines, subtle blue paper tooth, faded grid paper overlay</texture>\n</VISUAL_ENGINE>",
+      "<VISUAL_ENGINE>\n<medium>technical blueprint illustration, character figure and structural CAD schematic</medium>\n<palette>stark white vector line art on dark Prussian blue cyanotype background</palette>\n<composition>full character elevation schematic with precise geometric alignment, technical margin crosshairs</composition>\n<texture>fine white ink line art, subtle blue paper tooth, faded grid paper overlay</texture>\n</VISUAL_ENGINE>",
     negative_prompt: "3d render, photograph, painterly, soft gradients, colorful, artistic shading, blur, photorealism",
   },
 

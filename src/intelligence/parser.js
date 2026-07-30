@@ -4,7 +4,7 @@
  * Handles: Think blocks, Image prompts, Pseudo-JSON, XML sanitization, and Markdown rendering.
  */
 
-import { detox_prose } from "@data";
+import { detox_prose, NARRATIVE_STYLES } from "@data";
 import { sanitize } from "@platform";
 import { escape_xml, safe_parse_pseudo_json } from "@utils";
 import MarkdownIt from "markdown-it";
@@ -190,11 +190,30 @@ export function wrap_dialogue(html) {
 }
 
 /**
+ * Resolves the prose detox register based on entity and narrative style hierarchy.
+ * Priority: Entity Voice Register > Narrative Style Voice Register > "plain" (default)
+ * @param {object|null} [entity] - Active character/user entity
+ * @param {string|object|null} [narrativeStyle] - Active narrative style ID or style object
+ * @returns {"plain"|"ornate"}
+ */
+export function resolve_voice_register(entity = null, narrativeStyle = null) {
+  if (entity?.voice_register === "ornate" || entity?.voice_register === "plain") {
+    return entity.voice_register;
+  }
+  const styleObj = typeof narrativeStyle === "string" ? NARRATIVE_STYLES[narrativeStyle] : narrativeStyle;
+  if (styleObj?.voice_register === "ornate" || styleObj?.voice_register === "plain") {
+    return styleObj.voice_register;
+  }
+  return "plain";
+}
+
+/**
  * Master parser that runs all passes.
  * @param {string|null|undefined} rawText
+ * @param {"plain"|"ornate"} [register="plain"]
  * @returns {{ displayText: string, think: string|null }}
  */
-export function parse_message(rawText) {
+export function parse_message(rawText, register = "plain") {
   // 1. Remove Image Prompts (Artifacts)
   let text = clean_image_prompts(rawText || "");
 
@@ -203,7 +222,7 @@ export function parse_message(rawText) {
   text = think_result.content;
 
   // 3. Anti-Cliche Layer
-  text = detox_prose(text);
+  text = detox_prose(text, register);
 
   // 4. Render Markdown
   let rendered = sanitize(md.render(text).trim());

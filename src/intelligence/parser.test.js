@@ -4,10 +4,12 @@ import {
   strip_cognition_blocks,
   parse_think_block,
   parse_message,
+  resolve_voice_register,
   wrap_dialogue,
   escape_unescaped_json_quotes,
   safe_parse_pseudo_json,
 } from "./parser.js";
+import { NARRATIVE_STYLES } from "@data";
 import { describe, expect, it } from "vitest";
 
 describe("strip_cognition_blocks", () => {
@@ -239,6 +241,31 @@ describe("parse_message updated behavior", () => {
     const input = 'Orion twitched. "Hey *twink*."';
     const { displayText } = parse_message(input);
     expect(displayText).toBe('<p>Orion twitched. <span class="dialogue">&ldquo;Hey <em>twink</em>.&rdquo;</span></p>');
+  });
+});
+
+describe("resolve_voice_register hierarchy", () => {
+  it("should prioritize character voice_register over narrative style", () => {
+    const entity = { voice_register: "plain" };
+    const style = NARRATIVE_STYLES.edgar_allan_poe.id; // poe defaults to ornate
+    expect(resolve_voice_register(entity, style)).toBe("plain");
+  });
+
+  it("should prioritize character ornate register over plain narrative style", () => {
+    const entity = { voice_register: "ornate" };
+    const style = NARRATIVE_STYLES.cormac_mccarthy.id; // mccarthy defaults to plain
+    expect(resolve_voice_register(entity, style)).toBe("ornate");
+  });
+
+  it("should fall back to narrative style register when character voice_register is empty", () => {
+    const entity = { voice_register: "" };
+    expect(resolve_voice_register(entity, NARRATIVE_STYLES.edgar_allan_poe.id)).toBe("ornate");
+    expect(resolve_voice_register(entity, NARRATIVE_STYLES.cormac_mccarthy.id)).toBe("plain");
+  });
+
+  it("should default to plain when neither character nor narrative style has a voice register", () => {
+    expect(resolve_voice_register(null, null)).toBe("plain");
+    expect(resolve_voice_register({}, "default")).toBe("plain");
   });
 });
 

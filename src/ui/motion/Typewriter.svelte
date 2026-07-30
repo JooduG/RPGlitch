@@ -205,40 +205,11 @@
     active_speed_raw = active_speed;
   });
 
-  // Clear timeline counters cleanly whenever content data strings alter
-  let last_text = "";
-
-  /**
-   * Normalize text to detect clean appends during stream generation.
-   * Strips HTML tags, markdown formatting markers, and collapses whitespace.
-   * @param {string} val
-   * @returns {string}
-   */
-  function normalize(val) {
-    return val
-      .replace(/<[^>]*>/g, "")
-      .replace(/[*_`~"“”'‘’]/g, "")
-      .replace(/&[a-z0-9]+;/gi, "")
-      .replace(/\s+/g, " ")
-      .trim();
-  }
-
   $effect(() => {
-    const current_text = words_to_animate.join("||");
-
-    const clean_current = normalize(current_text);
-    const clean_last = normalize(last_text);
-    const is_append = clean_last && (clean_current.startsWith(clean_last) || clean_current.length >= clean_last.length);
-
-    if (!is_append && last_text !== "") {
-      current_char_index = 0;
-      current_word_index = 0;
-      phase = "typing";
-      pause_accumulator = 0;
-      initial_delay_elapsed = 0;
+    // When text or length changes mid-stream (e.g. detox_prose replacements), clamp index safely without resetting to 0
+    if (current_char_index > total_length) {
+      current_char_index = total_length;
     }
-
-    last_text = current_text;
   });
 
   let is_mounted = true;

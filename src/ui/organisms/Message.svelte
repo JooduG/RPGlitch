@@ -5,7 +5,7 @@
    * Renders parsed messages in a Unified Chassis.
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
-  import { clean_image_prompts, parse_message, strip_cognition_blocks } from "@intelligence";
+  import { clean_image_prompts, parse_message, resolve_voice_register, strip_cognition_blocks } from "@intelligence";
   import { Audio, get_signature_color, get_resolution } from "@media";
   import { Typewriter } from "@motion";
   import { app, runtime, simulation_state } from "@state";
@@ -84,7 +84,9 @@
 
   let is_extended = $derived(is_focused || is_editing);
 
-  let parsed = $derived(parse_message(text));
+  let active_style = $derived(runtime.active_fractal?.narrative_style || "");
+  let register = $derived(resolve_voice_register(entity, active_style));
+  let parsed = $derived(parse_message(text, register));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
 
@@ -444,7 +446,7 @@
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
           {#if app.story_title}
-            <h2 class="mb-4 text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal" style="font-family: Satisfy, cursive;">
+            <h2 class="mb-4 text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance" style="font-family: Satisfy, cursive;">
               {#if app.story_title_parts.length > 0}
                 {#each app.story_title_parts as part, i (i)}
                   {#if part.color}

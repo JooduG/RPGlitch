@@ -33,6 +33,7 @@ const _signature_colors = [
   "Toxic Green",
   "Twilight Violet",
 ];
+
 /**
  * 🐣 ENTITY TEMPLATES
  * Defines the initial structure for new entities born in the Library.
@@ -64,6 +65,7 @@ export const ENTITY_TEMPLATES = {
     future: [],
     visual_style: "none",
     pov: "1st_person",
+    voice_register: "",
   },
   fractal: {
     name: "New Fractal",
@@ -80,14 +82,17 @@ export const ENTITY_TEMPLATES = {
     narrative_style: "",
     visual_style: "none",
     pov: "3rd_person",
+    voice_register: "",
   },
 };
+
 /**
  * Utility to safely access the palette for a random signature key.
  */
 export const get_random_signature_key = () => {
   return pick_random(_signature_colors);
 };
+
 /**
  * Main Normalizer
  * Enforces structural integrity and sanitization.
@@ -127,6 +132,8 @@ export const normalize = (base = {}) => {
     narrative_style = "",
     visual_style = "",
     pov = "",
+    voice_register = "",
+    voiceRegister = "",
   } = base;
 
   const norm_is_premade = is_premade ?? isPremade ?? 0;
@@ -170,7 +177,12 @@ export const normalize = (base = {}) => {
       if (parsed === "1st_person" || parsed === "3rd_person") return parsed;
       return type === "fractal" ? "3rd_person" : "1st_person";
     })(),
+    voice_register: (() => {
+      const parsed = sanitize_html(String(voice_register || voiceRegister || "")).trim();
+      return parsed === "ornate" || parsed === "plain" ? parsed : "";
+    })(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
+
     // --- TEMPORAL HYBRID 6 (PURGED: appearance, identity, outfit, status) ---
     eternal: {
       physical: sanitize_html(eternal?.physical ?? "").trim(),
@@ -182,6 +194,7 @@ export const normalize = (base = {}) => {
     },
     past: coerce_temporal_array(past),
     future: coerce_temporal_array(future),
+
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
@@ -190,8 +203,9 @@ export const normalize = (base = {}) => {
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
       last_generated_seed: modifiers?.last_generated_seed ?? visuals?.last_generated_seed ?? null,
-      color_name: sanitize_html(modifiers?.color_name ?? modifiers?.color_name ?? visuals?.color_name ?? visuals?.color_name ?? "").trim(),
+      color_name: sanitize_html(modifiers?.color_name ?? visuals?.color_name ?? "").trim(),
     },
+
     // --- DYNAMICS (Physics Sliders) ---
     dynamics: (() => {
       if (dynamics && Object.keys(dynamics).length > 0) return { ...dynamics };
@@ -199,11 +213,13 @@ export const normalize = (base = {}) => {
       const template = /** @type {any} */ (ENTITY_TEMPLATES)[type];
       return template?.dynamics ? { ...template.dynamics } : {};
     })(),
+
     // --- VOICE ---
     voice: {
       uri: voice?.uri || "",
       rate: voice?.rate || 1.0,
     },
+
     // --- INTERNAL ---
     custom_data: custom_data || {},
   };
@@ -225,6 +241,7 @@ export function coerce_temporal_array(val) {
     .map((v) => v.trim())
     .filter((v) => v.length > 0);
 }
+
 /**
  * 🏘️ THE FACTORY
  * Creates a brand new, fully normalized entity with a RANDOM signature color.
@@ -243,6 +260,7 @@ export const create_new = (type = "character", overrides = {}) => {
   };
   return normalize(new_entity);
 };
+
 /**
  * Formats a premade entity for storage injection.
  * @param {any} entity
@@ -344,79 +362,516 @@ export function normalize_import_payload(payload) {
 /**
  * 🧼 GLOBAL PROSE DETOX LAYER
  * Programmatically intercepts and scrubs clichéd AI tropes.
- * Handles structural inflection matching (e.g., purr/purrs/purred/purring).
+ *
  * @param {string|null|undefined} rawText
+ * @param {"plain"|"ornate"} [register="plain"]
+ *   Voice register to draw replacements from.
+ *   - "plain": short, concrete, everyday phrasing. Use for blunt/direct characters (e.g. Orion)
+ *     or whenever no character-voice info is available — this is the safe default.
+ *   - "ornate": literary, flowing phrasing. Use for eloquent characters (e.g. Valerius) or
+ *     narration running under a lush/operatic NARRATIVE_STYLE.
+ *   Rules that are ambient scene description rather than a specific character's voice
+ *   (ozone, testament, tapestry, etc.) intentionally keep one pool regardless of register.
+ *
+ * Rules this file follows — keep these intact when editing:
+ *   1. Every trigger maps to a POOL, chosen at random per hit. Never a static 1:1 swap.
+ *   2. Different grammatical forms of the same root (murmured/murmuring/murmurs/murmur, etc.)
+ *      pull from pools that do NOT share the same synonym conjugated across tenses.
+ *   3. Pools for DIFFERENT triggers avoid reusing each other's signature vocabulary, so no
+ *      single word becomes over-represented across a whole scene just because it's the pick
+ *      for three different clichés.
+ *   4. No replacement text may contain another rule's trigger word/phrase. This runs as one
+ *      sequential pass over the string, so an earlier rule's output IS visible to every later
+ *      rule's regex — reusing a trigger word in a replacement causes a silent second mutation.
+ *   5. Do not reintroduce retired words: muttered, muttering, mutters, mutter, thrummed,
+ *      thrumming, thrums, thrum, buzzed, buzzes, "murmured softly", "soft murmur", breathes,
+ *      gravelly, "ionized air", "charged air", trembles, tremble, quivers, quiver.
  * @returns {string}
  */
-export function detox_prose(rawText) {
+
+export function detox_prose(rawText, register = "plain") {
   if (!rawText || typeof rawText !== "string") return "";
+  const voice = register === "ornate" ? "ornate" : "plain";
 
   const DETOX_RULES = [
-    // 1. Murmur variations
-    { regex: /\bmurmured\b/gi, replace: "said" },
-    { regex: /\bmurmuring\b/gi, replace: "speaking softly" },
-    { regex: /\bmurmurs\b/gi, replace: "says" },
-    { regex: /\bmurmur\b/gi, replace: "speak" },
+    // 1. MURMUR — quiet, low-volume speech
+    {
+      regex: /\bmurmured\b/gi,
+      replace: {
+        plain: ["said it quietly", "kept his voice low", "spoke half to himself", "barely spoke above a breath"],
+        ornate: [
+          "let the words fall hushed",
+          "gave the sentence barely any air",
+          "breathed it more than said it",
+          "let his voice thin to almost nothing",
+        ],
+      },
+    },
+    {
+      regex: /\bmurmuring\b/gi,
+      replace: {
+        plain: ["talking under his breath", "voice sinking low", "barely audible now", "trailing off quietly"],
+        ornate: [
+          "letting each word dissolve into breath",
+          "voice unspooling in a hush",
+          "speaking as though the walls might listen",
+          "trailing his voice to almost silence",
+        ],
+      },
+    },
+    {
+      regex: /\bmurmurs\b/gi,
+      replace: {
+        plain: ["keeps it quiet", "drops his voice", "speaks low", "barely says it aloud"],
+        ornate: [
+          "lets the words fall soft",
+          "gives the sentence hardly any weight",
+          "speaks as if confiding a secret",
+          "lets his voice thin to a hush",
+        ],
+      },
+    },
+    {
+      regex: /\bmurmur\b/gi,
+      replace: {
+        plain: ["quiet remark", "low aside", "soft comment", "hushed word"],
+        ornate: ["a half-spoken confidence", "a word barely given shape", "the ghost of a sentence", "a breath dressed as speech"],
+      },
+    },
 
-    // 2. Hum variations
-    { regex: /\bhummed\b/gi, replace: "vibrated" },
-    { regex: /\bhumming\b/gi, replace: "vibrating" },
-    { regex: /\bhums\b/gi, replace: "vibrates" },
-    { regex: /\b(low|industrial|electrical|steady|soft)\s+hum\b/gi, replace: "$1 vibration" },
-    { regex: /\bhum\b/gi, replace: "vibration" },
+    // 2. HUM — steady vibration or drone (voice, machinery, ambient)
+    {
+      regex: /\bhummed\b/gi,
+      replace: {
+        plain: ["droned steadily", "throbbed low", "reverberated through the walls", "chugged along quietly"],
+        ornate: [
+          "sang low beneath the surface of things",
+          "kept one long note running under everything",
+          "breathed a current no one could quite place",
+          "rolled through the floor like a held note",
+        ],
+      },
+    },
+    {
+      regex: /\bhumming\b/gi,
+      replace: {
+        plain: ["vibrating steadily", "whirring low", "oscillating faintly", "growling under load"],
+        ornate: [
+          "threading a low note through the silence",
+          "letting an unbroken current run beneath the quiet",
+          "keeping the air faintly alive with sound",
+          "laying a soft undertone beneath everything else",
+        ],
+      },
+    },
+    {
+      regex: /\bhums\b/gi,
+      replace: {
+        plain: ["resonates low", "pulses steadily", "judders faintly", "rattles quietly"],
+        ornate: [
+          "keeps one low note running beneath the room",
+          "threads a constant current through the quiet",
+          "never quite falls silent, just softens",
+          "lays a faint charge under the stillness",
+        ],
+      },
+    },
+    {
+      regex: /\b(low|industrial|electrical|steady|soft)\s+hum\b/gi,
+      replace: (m, p1) =>
+        `${p1} ${pick_random(voice === "ornate" ? ["current", "undercurrent", "resonance", "vibration"] : ["current", "undertone", "frequency", "note"])}`,
+    },
+    {
+      regex: /\bhum\b/gi,
+      replace: {
+        plain: ["low tone", "steady frequency", "background note", "constant undertone"],
+        ornate: ["a note with no beginning", "an undercurrent with no source", "a sound too constant to notice", "the city's held breath"],
+      },
+    },
 
-    // 3. Purr variations
-    { regex: /\bpurred\b/gi, replace: "whispered" },
-    { regex: /\bpurring\b/gi, replace: "whispering" },
-    { regex: /\bpurrs\b/gi, replace: "whispers" },
-    { regex: /\bpurr\b/gi, replace: "whisper" },
+    // 3. PURR — warm, teasing, unhurried delivery
+    {
+      regex: /\bpurred\b/gi,
+      replace: {
+        plain: ["said it slow and easy", "gave the words a teasing edge", "let his tone go warm", "dropped his voice into something coy"],
+        ornate: [
+          "let the words curl slow off his tongue",
+          "dressed the sentence in velvet",
+          "drew the words out like warm honey",
+          "gave the sentence a slow, deliberate shine",
+        ],
+      },
+    },
+    {
+      regex: /\bpurring\b/gi,
+      replace: {
+        plain: ["voice gone warm and slow", "words coming out unhurried", "tone easing into something coy", "delivery turning playful and low"],
+        ornate: [
+          "letting his voice curl at the edges",
+          "dressing every word in something softer",
+          "drawing each syllable out unhurried",
+          "giving his tone a slow, deliberate warmth",
+        ],
+      },
+    },
+    {
+      regex: /\bpurrs\b/gi,
+      replace: {
+        plain: ["says it slow", "gives the words a playful edge", "lets his tone warm up", "turns coy without missing a beat"],
+        ornate: [
+          "curls the words at the edges",
+          "dresses his voice in something softer",
+          "draws it out, unhurried and warm",
+          "gives the sentence a slow shine",
+        ],
+      },
+    },
+    {
+      regex: /\bpurr\b/gi,
+      replace: {
+        plain: ["low teasing tone", "warm playful edge", "coy inflection", "slow easy delivery"],
+        ornate: ["a slow, honeyed edge", "a velvet undertone", "a deliberate, unhurried warmth", "a voice dressed in silk"],
+      },
+    },
 
-    // 4. Rasp variations
-    { regex: /\brasped\b/gi, replace: "grated" },
-    { regex: /\brasping\b/gi, replace: "grating" },
-    { regex: /\brasps\b/gi, replace: "grates" },
-    { regex: /\brough,?\s+(dismissive|dangerous)?\s*rasp\b/gi, replace: "low voice" },
+    // 4. RASP — harsh, dry, strained delivery
+    {
+      regex: /\brasped\b/gi,
+      replace: {
+        plain: ["said it rough", "ground the words out", "let his voice go raw", "bit off each word"],
+        ornate: [
+          "ground the words out like stone underfoot",
+          "let the sentence come out scraped raw",
+          "forced the words past something torn in his throat",
+          "gave the words an edge like broken stone",
+        ],
+      },
+    },
+    {
+      regex: /\brasping\b/gi,
+      replace: {
+        plain: ["voice scraping rough", "forcing the words along", "catching on every syllable", "going dry and strained"],
+        ornate: [
+          "scraping each word past a throat gone raw",
+          "forcing sound through something torn",
+          "letting the words come out edged like stone",
+          "dragging each syllable up rough",
+        ],
+      },
+    },
+    {
+      regex: /\brasps\b/gi,
+      replace: {
+        plain: ["says it dry", "voice comes out rough", "forces it through gritted teeth", "strains to get the words out"],
+        ornate: [
+          "scrapes the words past a raw throat",
+          "drags each syllable up rough",
+          "gives the sentence an edge like broken stone",
+          "forces sound through something torn",
+        ],
+      },
+    },
+    {
+      regex: /\brough,?\s+(dismissive|dangerous)?\s*rasp\b/gi,
+      replace: {
+        plain: ["rough, worn voice", "harsh edge to his tone", "low growl of a voice", "voice roughened and low"],
+        ornate: [
+          "a voice worn down to bare rock",
+          "a tone that never quite healed",
+          "a voice roughened by something unsaid",
+          "an edge that sounds permanently bruised",
+        ],
+      },
+    },
 
-    // 5. Sensory & Ozone Clichés
-    { regex: /\bair tastes of ozone\b/gi, replace: "air tastes sharp and metallic" },
-    { regex: /\bscent of ozone\b/gi, replace: "scent of electrical heat" },
-    { regex: /\bozone\b/gi, replace: "electrical static" },
+    // 5. SENSORY & OZONE CLICHÉS — single diverse pools (atmosphere, not a character's voice)
+    {
+      regex: /\bair tastes of ozone\b/gi,
+      replace: [
+        "air tastes sharp and metallic",
+        "the air carries a raw electric edge",
+        "the air smells faintly of hot wire",
+        "a metallic tang cuts through the air",
+      ],
+    },
+    {
+      regex: /\bscent of ozone\b/gi,
+      replace: ["smell of hot wire", "scent of scorched metal", "smell of overheated electronics", "a sharp electrical smell"],
+    },
+    { regex: /\bozone\b/gi, replace: ["static", "hot wire", "scorched metal", "raw current"] },
 
-    // 6. Abstraction Clichés
-    { regex: /\b(is|was|stands?|stood?)\s+a\s+testament\s+to\b/gi, replace: "$1 proof of" },
-    { regex: /\ba\s+testament\s+to\b/gi, replace: "proof of" },
-    { regex: /\btestament\b/gi, replace: "proof" },
-    { regex: /\btapestry\s+of\b/gi, replace: "network of" },
-    { regex: /\btapestry\b/gi, replace: "network" },
-    { regex: /\bsymphony\s+of\b/gi, replace: "cacophony of" },
-    { regex: /\bcoiled\s+spring\b/gi, replace: "tense frame" },
-    { regex: /\ba\s+study\s+in\b/gi, replace: "a vision of" },
-    { regex: /\bmarrow\s+of\s+(his|her|their|the)\s+teeth\b/gi, replace: "core of $1 bones" },
+    // 6. ABSTRACTION CLICHÉS — single diverse pools
+    {
+      regex: /\b(is|was|stands?|stood)\s+a\s+testament\s+to\b/gi,
+      replace: (m, p1) => `${p1} ${pick_random(["proof of", "evidence of", "a marker of", "a sign of"])}`,
+    },
+    { regex: /\ba\s+testament\s+to\b/gi, replace: ["proof of", "evidence of", "a sign of"] },
+    { regex: /\btestament\b/gi, replace: ["proof", "evidence", "marker", "sign"] },
+    { regex: /\btapestry\s+of\b/gi, replace: ["mix of", "web of", "tangle of", "patchwork of"] },
+    { regex: /\btapestry\b/gi, replace: ["web", "tangle", "patchwork", "mosaic"] },
+    { regex: /\bsymphony\s+of\b/gi, replace: ["medley of", "clash of", "cascade of", "rush of"] },
+    { regex: /\bcoiled\s+spring\b/gi, replace: ["tense frame", "wound tight", "ready to move", "poised to snap"] },
+    { regex: /\ba\s+study\s+in\b/gi, replace: ["a picture of", "an exercise in", "a portrait of", "a lesson in"] },
+    {
+      regex: /\bmarrow\s+of\s+(his|her|their|the)\s+teeth\b/gi,
+      replace: (m, p1) => pick_random([`core of ${p1} bones`, `deepest part of ${p1} jaw`, `root of ${p1} bite`]),
+    },
+    { regex: /\bshell of (his|her|their|your)\s+ear\b/gi, replace: (m, p1) => `${p1} ear` },
 
-    // 7. Physical tics & AI Prose Tropes
-    { regex: /\bshell of (his|her|their|your)\s+ear\b/gi, replace: "ear" },
-    { regex: /\bhitching\b/gi, replace: "pausing" },
-    { regex: /\bhitched\b/gi, replace: "paused" },
-    { regex: /\bhitches\b/gi, replace: "pauses" },
-    { regex: /\bhitch\b/gi, replace: "pause" },
-    { regex: /\bbreathlessly\b/gi, replace: "quietly" },
-    { regex: /\bbreathless\b/gi, replace: "quiet" },
-    { regex: /\btracing lazy circles\b/gi, replace: "maintaining contact" },
-    { regex: /\bdropping an octave\b/gi, replace: "lowering voice" },
-    { regex: /\bpalpable\b/gi, replace: "intense" },
-    { regex: /\btangible\b/gi, replace: "real" },
-    { regex: /\bshivering\s+shadows?\b/gi, replace: "dark shadows" },
-    { regex: /\bfever\s+dream\b/gi, replace: "vivid blur" },
-    { regex: /\bsmudge\s+of\s+(charcoal|darkness)\b/gi, replace: "shadowed silhouette" },
-    { regex: /\bblindingly\s+white\s+grin\b/gi, replace: "bright grin" },
-    { regex: /\bshimmering\b/gi, replace: "glinting" },
-    { regex: /\bshiver(s|ed)?\b/gi, replace: "tremble$1" },
+    // 7. BREATH & VOICE MECHANICS
+    {
+      regex: /\bhitching\b/gi,
+      replace: {
+        plain: ["catching short", "snagging on itself", "breaking off mid-breath", "stalling for a beat"],
+        ornate: [
+          "like a record skipping in place",
+          "the rhythm losing its footing",
+          "a held note that won't quite land",
+          "something caught between two beats",
+        ],
+      },
+    },
+    {
+      regex: /\bhitched\b/gi,
+      replace: {
+        plain: ["seized for a second", "jolted mid-breath", "locked up for a beat", "skipped a step"],
+        ornate: [
+          "snagged on a word that never came",
+          "lost its footing for one unsteady beat",
+          "went still, just for a breath",
+          "caught on something too quiet to name",
+        ],
+      },
+    },
+    {
+      regex: /\bhitches\b/gi,
+      replace: {
+        plain: ["trips for a second", "freezes mid-breath", "cuts off short", "falters for a beat"],
+        ornate: [
+          "stumbles over the same silence every time",
+          "loses its footing and finds it again",
+          "goes still for exactly one breath",
+          "catches, always, on the same unspoken word",
+        ],
+      },
+    },
+    {
+      regex: /\bhitch\b/gi,
+      replace: {
+        plain: ["short break in rhythm", "momentary stop", "half-second delay", "small interruption"],
+        ornate: ["a beat that never quite lands", "a breath held too long", "a half-second of missing rhythm", "a silence where a word should be"],
+      },
+    },
+    {
+      regex: /\bbreathlessly\b/gi,
+      replace: {
+        plain: ["with no air left", "gasping the words out", "in a rush, out of air", "barely getting the words out"],
+        ornate: [
+          "with what little air he had left",
+          "the words spilling out before the next breath came",
+          "as though speech itself had outrun his lungs",
+          "with his chest still fighting for air",
+        ],
+      },
+    },
+    {
+      regex: /\bbreathless\b/gi,
+      replace: {
+        plain: ["out of air", "winded", "gasping", "unable to catch his breath"],
+        ornate: [
+          "emptied of air",
+          "caught between one breath and the next",
+          "lungs still chasing the moment",
+          "unable to find the bottom of a breath",
+        ],
+      },
+    },
+    {
+      regex: /\btracing lazy circles\b/gi,
+      replace: {
+        plain: ["drawing slow circles", "moving his fingers in loops", "tracing idle shapes", "brushing back and forth slowly"],
+        ornate: [
+          "drawing slow, unhurried circles against his skin",
+          "letting his fingers wander in loose, idle loops",
+          "tracing shapes with no destination in mind",
+          "moving with the unhurried patience of someone in no rush to stop",
+        ],
+      },
+    },
+    {
+      regex: /\bdropping an octave\b/gi,
+      replace: {
+        plain: ["voice dropping lower", "letting his voice go deep", "voice sinking down", "pitching his voice lower"],
+        ornate: [
+          "letting his voice fall to something deeper",
+          "his voice dropping into a lower register",
+          "his tone sinking, deliberate and low",
+          "letting the words come out an octave darker",
+        ],
+      },
+    },
+
+    // 8. INTENSITY & VISUAL CLICHÉS
+    {
+      regex: /\bpalpable\b/gi,
+      replace: {
+        plain: ["obvious", "heavy in the air", "impossible to miss", "hard to ignore"],
+        ornate: [
+          "thick enough to touch",
+          "pressing on the room like weather",
+          "a weight the air itself seemed to carry",
+          "unmistakable, the way a held breath is unmistakable",
+        ],
+      },
+    },
+    {
+      regex: /\btangible\b/gi,
+      replace: {
+        plain: ["real", "solid", "concrete", "plain to see"],
+        ornate: [
+          "something you could almost hold",
+          "solid enough to lean on",
+          "real in a way words rarely are",
+          "present in the room like another body",
+        ],
+      },
+    },
+    {
+      regex: /\bshivering\s+shadows?\b/gi,
+      replace: {
+        plain: ["dark shadows", "shifting shadows", "moving shadows", "uneven shadows"],
+        ornate: [
+          "shadows that never quite settle",
+          "shadows that flinch with the light",
+          "restless dark pooling at the edges",
+          "gloom that shifts like something breathing",
+        ],
+      },
+    },
+    {
+      regex: /\bfever\s+dream\b/gi,
+      replace: {
+        plain: ["strange blur", "hazy mess", "disorienting scene", "surreal moment"],
+        ornate: [
+          "a hallucination with the volume turned up",
+          "reality bent just slightly out of true",
+          "a dream wearing the mask of the waking world",
+          "something too vivid to be entirely real",
+        ],
+      },
+    },
+    {
+      regex: /\bsmudge\s+of\s+(charcoal|darkness)\b/gi,
+      replace: {
+        plain: ["dark shape", "shadowy outline", "dim silhouette", "shape in the dark"],
+        ornate: [
+          "a silhouette cut from the dark itself",
+          "an outline the shadows seem reluctant to release",
+          "a shape more suggested than seen",
+          "a smear of night given rough form",
+        ],
+      },
+    },
+    {
+      regex: /\bblindingly\s+white\s+grin\b/gi,
+      replace: {
+        plain: ["bright grin", "wide smile", "big grin", "toothy smile"],
+        ornate: [
+          "a grin lit up like a struck match",
+          "a smile bright enough to cut through the gloom",
+          "teeth flashing white against the dark",
+          "a grin that seemed to throw its own light",
+        ],
+      },
+    },
+    {
+      regex: /\bshimmering\b/gi,
+      replace: {
+        plain: ["glinting", "shining", "sparkling", "gleaming"],
+        ornate: [
+          "catching the light in restless flickers",
+          "throwing off light like something alive",
+          "glowing with a light that won't sit still",
+          "lit with a glow that seems to breathe",
+        ],
+      },
+    },
+    {
+      // NOTE: original regex only caught shiver/shivers/shivered — "shivering" (the
+      // most common form, arguably) was never matched at all. Added "ing" below.
+      regex: /\bshiver(s|ed|ing)?\b/gi,
+      replace: (m, p1) => {
+        const forms = {
+          plain: {
+            "": ["flinch", "tense up", "twitch", "jolt"],
+            s: ["shudders", "stiffens", "jerks back", "convulses briefly"],
+            ed: ["seized up", "went rigid for a second", "recoiled slightly", "jumped involuntarily"],
+            ing: ["going rigid in waves", "reacting over and over", "unable to stay still", "caught in small aftershocks"],
+          },
+          ornate: {
+            "": [
+              "a current runs through him",
+              "something cold moves down his spine",
+              "his body reacts before his mind catches up",
+              "a chill finds its way under his skin",
+            ],
+            s: [
+              "something crosses just beneath his skin",
+              "his frame answers before he can stop it",
+              "a cold thread pulls tight down his back",
+              "his whole body registers it first",
+            ],
+            ed: [
+              "a current ran through him before he could stop it",
+              "something cold traced a line down his spine",
+              "his frame gave one involuntary jolt",
+              "the reaction arrived before the thought did",
+            ],
+            ing: [
+              "caught in a current that won't let go",
+              "unable to find stillness again",
+              "answering the cold again and again",
+              "caught somewhere between each involuntary jolt",
+            ],
+          },
+        };
+        const key = p1 === "s" || p1 === "ed" || p1 === "ing" ? p1 : "";
+        return match_case(m, pick_random(forms[voice][key]));
+      },
+    },
   ];
 
   let clean_text = rawText;
   for (const item of DETOX_RULES) {
-    clean_text = clean_text.replace(item.regex, item.replace);
+    clean_text = clean_text.replace(item.regex, (match, ...args) => {
+      if (typeof item.replace === "function") {
+        return item.replace(match, ...args);
+      }
+      return pick_replacement(match, item.replace, voice);
+    });
   }
 
   return clean_text;
+}
+
+/**
+ * Picks a random item from a flat array, or from pool[register] (falling back to
+ * pool.plain, then pool.ornate) when given a { plain, ornate } pool object.
+ * Preserves capitalization of the matched text.
+ */
+function pick_replacement(match, pool, register = "plain") {
+  if (!pool) return match;
+  if (typeof pool === "string") return match_case(match, pool);
+  const list = Array.isArray(pool) ? pool : pool[register] || pool.plain || pool.ornate || [];
+  if (!list.length) return match;
+  return match_case(match, pick_random(list));
+}
+
+function match_case(original, replacement) {
+  if (!original || !replacement) return replacement;
+  const first = original.charAt(0);
+  if (first === first.toUpperCase() && first !== first.toLowerCase()) {
+    return replacement.charAt(0).toUpperCase() + replacement.slice(1);
+  }
+  return replacement;
 }

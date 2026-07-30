@@ -180,8 +180,16 @@ export class VisualEngine {
               final_prompt = `${vs_positive}, ${final_prompt}`;
             }
 
+            const entity_type = options.type || options.mode || "character";
+            const is_character_shot =
+              ["character", "ai", "user", "selfie", "portrait", "characters", "prologue"].includes(entity_type) ||
+              options.mode === "prologue" ||
+              options.mode === "characters";
+            const char_neg_tokens = is_character_shot
+              ? "empty background, landscape without characters, scenery only, no humans, empty environment"
+              : "";
             const vs_neg = style_key !== "none" ? vs_tokens.negative_prompt || "" : "";
-            const raw_neg_sources = [base_negative_prompt, vs_neg, NEGATIVE_PROMPT].filter(Boolean).join(", ");
+            const raw_neg_sources = [base_negative_prompt, vs_neg, char_neg_tokens, NEGATIVE_PROMPT].filter(Boolean).join(", ");
             const deduplicated_neg_tokens = Array.from(
               new Set(
                 raw_neg_sources
@@ -193,9 +201,7 @@ export class VisualEngine {
             const effective_negative_prompt = deduplicated_neg_tokens.join(", ");
             const effective_seed = options.seed ?? generateSecureSeed();
             const effective_resolution = `${res.width}x${res.height}`;
-            const entity_type = options.type || options.mode || "character";
-            const is_character = ["character", "ai", "user", "selfie", "portrait", "characters"].includes(entity_type);
-            const effective_guidance_scale = options.guidanceScale ?? (is_character ? 9 : 7);
+            const effective_guidance_scale = options.guidanceScale ?? (is_character_shot ? 9 : 7);
 
             const generate_promise = image_engine({
               prompt: final_prompt,

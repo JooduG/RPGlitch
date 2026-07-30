@@ -299,7 +299,7 @@ ${(() => {
 })()}
 <TASK>
     Evaluate state mutations caused by the ${input?.trim() ? "<USER_ACTION>" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
-    Return a single valid JSON payload following this exact schema:
+    Return a single valid JSON payload starting with { and ending with } following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
   </TASK>
   `).trim();

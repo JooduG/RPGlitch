@@ -18,10 +18,11 @@ export const premade = {
       signature_color: "Adrenaline Pink",
       visual_style: "comic_book",
       voice: { uri: "am_adam", rate: 1.1 },
+      voice_register: "plain",
       dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
       eternal: {
         physical:
-          "[GENDER: male] [AGE: 35 years old] [ETHNICITY: latino] [BUILD: steroid-enhanced herculean bodybuilder with extreme muscle definition, massive shelf-like pecs, basketball shoulders, tiny waist, tree-trunk thighs] [FACE: strong chiseled jawline, neat well-groomed pink moustache] [EYES: detailed pastel pink irises] [SKIN: smooth with subtle glowing arcane accents] [HAIR: short pink wavy hairstyle] [HEIGHT: 188 cm]",
+          "[GENDER: male] [AGE: 35 years old] [ETHNICITY: latino] [BUILD: steroid-enhanced herculean bodybuilder with extreme muscle definition, massive shelf-like pecs, basketball shoulders, tiny waist, tree-trunk thighs] [FACE: strong chiseled jawline, neat well-groomed pink moustache] [EYES: detailed pastel pink irises] [SKIN: smooth warm tan skin tone with subtle glowing pink arcane tattoo accents] [HAIR: short pink wavy hairstyle] [HEIGHT: 188 cm]",
         non_physical:
           "A pure golden-retriever himbo and high-energy top, Rafael Orion lives for two things: protecting the peace and building massive gains. Operating as a celebrity trainer under his civilian identity, his workout brand is funded by 'Vance Vitality Protein'—leaving the earnest hero completely oblivious that Lord Valerius Vance uses him as a corporate marketing puppet. When suited up as the Pink Protector, he leaps into action with absolute sincerity, shouting things like 'Stay strong, citizens!' and delivering goofy puns while striking heroic, muscular poses. His speech cadence is loud, booming, and filled with upbeat sincerity and cheesy superhero puns. His patrols spark a playful rivalry with the hacker Glitch, leading to campy, high-tension standoffs that Orion thrives on. Beneath his booming enthusiasm lies a quiet vulnerability: he secretly worries that people only care about the musclebound superhero, leaving Rafael unloved. He carries the heavy belief that if he stops smiling, the hero dies, and he hides a deep fear of being rejected for his true, non-superhero self. He ignores corporate red flags completely, preferring to focus on his dream of finding a partner who genuinely admires his physical form and joins in his loud, cheerful exhibitionism.",
       },
@@ -59,6 +60,7 @@ export const premade = {
       signature_color: "Electric Cyan",
       visual_style: "cyberpunk",
       voice: { uri: "am_puck", rate: 1.2 },
+      voice_register: "plain",
       dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
       eternal: {
         physical:
@@ -100,6 +102,7 @@ export const premade = {
       signature_color: "Crimson Red",
       visual_style: "oil_painting",
       voice: { uri: "bm_lewis", rate: 0.9 },
+      voice_register: "ornate",
       dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
       eternal: {
         physical:
@@ -152,6 +155,7 @@ export const premade = {
       signature_color: "Rusty Orange",
       visual_style: "steampunk",
       voice: { uri: "am_michael", rate: 0.9 },
+      voice_register: "plain",
       dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
       eternal: {
         physical:
@@ -193,6 +197,7 @@ export const premade = {
       signature_color: "Scientific Teal",
       visual_style: "three_d_render",
       voice: { uri: "am_liam", rate: 1.1 },
+      voice_register: "plain",
       dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
       eternal: {
         physical:
@@ -234,6 +239,7 @@ export const premade = {
       signature_color: "Soft Rose",
       visual_style: "watercolor",
       voice: { uri: "bm_fable", rate: 0.9 },
+      voice_register: "ornate",
       dynamics: { chaos: 40, intensity: 40, openness: 60, affinity: 60 },
       eternal: {
         physical:
