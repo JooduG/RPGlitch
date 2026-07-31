@@ -138,16 +138,34 @@
     is_focused = false;
   }
 
-  /**
-   * Invokes system-level clipboard streaming write sequences for text chunks.
-   * @returns {Promise<void>}
-   */
   async function handle_copy() {
     try {
       await navigator.clipboard.writeText(text);
     } catch (e) {
       console.error("Failed to copy text:", e);
     }
+  }
+
+  /**
+   * Resolves exact aspect ratio and dimensions for an attachment or loading placeholder.
+   * @param {any} attachment
+   * @param {string} regenerate_key
+   * @returns {{ width: number, height: number }}
+   */
+  function get_attachment_resolution(attachment, regenerate_key) {
+    const meta_res = typeof attachment === "object" && attachment?.metadata?.resolution;
+    if (meta_res && typeof meta_res === "string" && meta_res.includes("x")) {
+      const [w, h] = meta_res.split("x").map(Number);
+      if (w && h) return { width: w, height: h };
+    }
+    let mode = typeof attachment === "object" && (attachment?.metadata?.mode || attachment?.mode);
+    if (!mode && image_regenerate.regenerating_key === regenerate_key && image_regenerate.last_mode) {
+      mode = image_regenerate.last_mode;
+    }
+    if (!mode) {
+      mode = is_fractal ? "landscape" : "character";
+    }
+    return get_resolution(mode);
   }
 
   /**
@@ -560,47 +578,56 @@
           <div class="flex justify-center {has_display_text || (should_use_typewriter && (has_display_text || busy)) ? 'mt-4' : ''}">
             {#each attachments as attachment, attach_idx (typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url)}
               {@const src = typeof attachment === "string" ? attachment : attachment.src || attachment.imageUrl || attachment.url}
-              {@const attach_mode = (typeof attachment === "object" && attachment?.metadata?.mode) || "character"}
-              {@const res = get_resolution(attach_mode)}
               {@const regenerate_key = `${id}:${attach_idx}`}
+              {@const res = get_attachment_resolution(attachment, regenerate_key)}
               {@const box_h = 480}
               {@const box_w = Math.round((box_h * res.width) / res.height)}
+              {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60vh; aspect-ratio: ${res.width} / ${res.height};`}
               {#if image_regenerate.hasError(regenerate_key)}
-                <div
-                  class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4"
-                  style="height: {box_h}px; width: {box_w}px;"
-                >
+                <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4" style={container_style}>
                   <p class="text-center text-sm text-red-400">{image_regenerate.error}</p>
                 </div>
               {:else if image_regenerate.isReady(regenerate_key)}
                 <Button
                   variant="bare"
-                  class="group relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 transition-all duration-200 hover:border-(--signature-color,slate-400)/60 hover:bg-neutral-800/50"
-                  style="height: {box_h}px; width: {box_w}px;"
+                  class="group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
+                  style={container_style}
                   onclick={() => open_picker()}
                   aria-label="Select image from candidates"
                 >
-                  <!-- Mini 3-card spread -->
-                  <div class="relative h-16 w-24 transition-transform duration-200 group-hover:scale-110">
+                  <!-- Mini 3-card spread with dynamic mouseover animation -->
+                  <div class="relative h-16 w-24 transition-transform duration-300 group-hover:scale-110">
                     <div
-                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm"
+                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition-all duration-300 group-hover:-translate-x-7 group-hover:rotate-[-25deg] group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
                       style="transform: translateX(-50%) rotate(-18deg); transform-origin: bottom center;"
                     ></div>
                     <div
-                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/50 bg-(--signature-color,slate-600)/20 shadow-md"
+                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/60 bg-(--signature-color,slate-600)/20 shadow-md transition-all duration-300 group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-(--signature-color,slate-200)/80 group-hover:bg-(--signature-color,slate-400)/35"
                       style="transform: translateX(-50%) rotate(0deg); transform-origin: bottom center; z-index: 1;"
                     ></div>
                     <div
-                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm"
+                      class="absolute bottom-0 left-1/2 h-12 w-8 rounded-sm border-2 border-(--signature-color,slate-400)/35 bg-(--signature-color,slate-600)/10 shadow-sm transition-all duration-300 group-hover:translate-x-3 group-hover:rotate-25 group-hover:border-(--signature-color,slate-300)/60 group-hover:bg-(--signature-color,slate-400)/25"
                       style="transform: translateX(-50%) rotate(18deg); transform-origin: bottom center;"
                     ></div>
                   </div>
-                  <span class="font-mono text-sm tracking-widest text-(--signature-color,slate-300) uppercase">Click here</span>
+                  <div class="flex items-center gap-2 transition-transform duration-200 group-hover:scale-105">
+                    <span
+                      class="font-mono text-xs font-bold tracking-widest text-(--signature-color,slate-300) uppercase transition-colors duration-200 group-hover:text-white"
+                    >
+                      Click to select
+                    </span>
+                    <svg
+                      viewBox="0 0 24 24"
+                      class="h-3.5 w-3.5 fill-none stroke-current stroke-2 text-(--signature-color,slate-300) transition-all duration-200 [stroke-linecap:round] [stroke-linejoin:round] group-hover:translate-x-0.5 group-hover:text-white"
+                    >
+                      <polyline points="9 18 15 12 9 6" />
+                    </svg>
+                  </div>
                 </Button>
               {:else if image_regenerate.isRegenerating(regenerate_key)}
                 <div
                   class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-                  style="height: {box_h}px; width: {box_w}px;"
+                  style={container_style}
                 >
                   <div class="flex gap-1.5">
                     <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>
@@ -662,7 +689,7 @@
               {:else}
                 <div
                   class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
-                  style="height: {box_h}px; width: {box_w}px;"
+                  style={container_style}
                 >
                   <div class="flex gap-1.5">
                     <div class="h-2 w-2 animate-pulse rounded-full bg-(--signature-color,white)" style="animation-delay: 0ms"></div>

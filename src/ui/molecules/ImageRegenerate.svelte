@@ -15,12 +15,22 @@
     close_picker,
     get_persisted_meta,
   } from "./ImageRegenerate.svelte.js";
-  import { visual_engine } from "@media";
+  import { visual_engine, get_resolution } from "@media";
   import { Backdrop, Button } from "@atoms";
   import { Dialog } from "bits-ui";
   import { fade } from "svelte/transition";
 
   let is_regenerating = $state(false);
+
+  function resolve_candidate_resolution(candidate) {
+    const meta_res = candidate?.metadata?.resolution;
+    if (meta_res && typeof meta_res === "string" && meta_res.includes("x")) {
+      const [w, h] = meta_res.split("x").map(Number);
+      if (w && h) return { width: w, height: h };
+    }
+    const mode = candidate?.metadata?.mode || image_regenerate.last_mode || "character";
+    return get_resolution(mode);
+  }
 
   async function handle_regenerate() {
     if (is_regenerating) return;
@@ -116,7 +126,7 @@
               {#snippet child({ props: contentProps })}
                 <div
                   {...contentProps}
-                  class="relative flex min-h-[60vh] w-[clamp(20rem,90vw,80rem)] flex-col items-center justify-center gap-8"
+                  class="relative flex min-h-[60vh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-2 py-6"
                   onclick={(e) => e.stopPropagation()}
                 >
                   {#if image_regenerate.error}
@@ -145,16 +155,25 @@
                     </div>
                   {:else if image_regenerate.candidates.length >= 2}
                     <!-- POLAROID CARD GRID -->
-                    <div class="flex flex-wrap items-end justify-center gap-6 md:gap-10" in:fade={{ duration: 300 }}>
+                    <div
+                      class="flex max-w-full flex-wrap items-end justify-center gap-6 overflow-x-auto p-4 md:gap-8 lg:gap-10"
+                      in:fade={{ duration: 300 }}
+                    >
                       {#each image_regenerate.candidates as candidate, i (i)}
                         {@const letter = String.fromCharCode(65 + i)}
-                        {@const c_res = candidate.metadata?.resolution || "512x768"}
-                        {@const [cW, cH] = c_res.split("x").map(Number)}
-                        {@const ar = cW && cH ? `${cW} / ${cH}` : "2 / 3"}
+                        {@const { width: cW, height: cH } = resolve_candidate_resolution(candidate)}
+                        {@const ratio = cW && cH ? cW / cH : 2 / 3}
+                        {@const ar = `${cW} / ${cH}`}
                         {@const rot = i === 0 ? -4 : i === 2 ? 4 : 0}
+                        {@const card_width_class =
+                          ratio > 1.15
+                            ? "w-72 sm:w-80 md:w-[26rem] lg:w-[28rem]"
+                            : ratio >= 0.85
+                              ? "w-64 sm:w-72 md:w-80 lg:w-84"
+                              : "w-60 sm:w-64 md:w-72 lg:w-76"}
                         <Button
                           variant="bare"
-                          class="group relative w-56 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out md:w-64 {image_regenerate.selected_index ===
+                          class="group relative {card_width_class} shrink-0 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out {image_regenerate.selected_index ===
                           i
                             ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
                             : image_regenerate.selected_index !== null

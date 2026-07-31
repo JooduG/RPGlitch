@@ -141,7 +141,8 @@ name (string), description (string), signature_color (string), eternal_physical 
 10. Proper Name Disambiguation: If a character's name is a generic animal/creature noun (e.g. "Beast"), DO NOT use the standalone proper name in the image prompt to avoid triggering furry/animal models. Instead, describe them strictly by their physical species and traits (e.g. "a massive grey-green male orc warrior").
 11. Prologue Scene Context Protocol: When creating a prologue image, the SCENE CONTEXT (the prologue message itself) is the absolute primary subject. You MUST depict exactly what is happening in the prologue message. The fractal and character profiles are only secondary references to accurately render how those entities look as they participate in that specific scene.
 12. Unique Feature Weighting: Allocate significantly more descriptive space and detail to unique, distinguishing visual features (e.g., elven ears, a lightning-shaped scar, glowing purple irises with black slit pupils). Keep description of common features (e.g., blonde hair, a plain shirt) brief.
-13. Pass designated negative tokens inside "negative_prompt".`,
+13. Present State Recency & Clothing Override Protocol: Dynamic physical condition updates, active scene context, and appended physical state changes (e.g., discarded clothing, bare torso, torn fabric, active injuries) MUST explicitly OVERRIDE static XML key tags like <SHIRT>, <JACKET>, or <CLOTHING>. If a character has discarded an item of clothing or is described as bare-chested in physical condition updates, NEVER depict them wearing that discarded item.
+14. Pass designated negative tokens inside "negative_prompt".`,
   },
 
   // ── 7. Formatting & System Recovery ─────────────────────────────────────────

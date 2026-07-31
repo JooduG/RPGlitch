@@ -83,10 +83,12 @@
       simulation_state.role = subject;
       simulation_state.start_generation(subject);
 
+      const target_mode = kind || (subject === "fractal" ? "landscape" : "character");
+
       // Log placeholder message immediately with null src attachment
       const placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
         turn_type: turn_map[subject],
-        attachments: [{ src: null, metadata: {} }],
+        attachments: [{ src: null, metadata: { mode: target_mode } }],
       });
 
       const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
@@ -94,7 +96,7 @@
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
           src: result.imageUrl,
-          metadata: { ...result.metadata, prompt: result.refinedPrompt },
+          metadata: { mode: target_mode, ...result.metadata, prompt: result.refinedPrompt },
         });
       } else if (!result?.imageUrl) {
         app.log(`${label_map[subject] || subject} image generation failed. Please try again.`, "error");
@@ -117,7 +119,7 @@
 
       const placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: {} }],
+        attachments: [{ src: null, metadata: { mode: "characters" } }],
       });
 
       const result = await visual_engine.visualize(

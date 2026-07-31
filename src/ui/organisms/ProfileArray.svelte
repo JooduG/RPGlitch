@@ -37,17 +37,22 @@
     const raw = profile_state.get_safe_value(path) || [];
     const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
 
-    return arr.map((val) => {
+    const mapped = arr.map((val) => {
       if (typeof val === "object" && val !== null) {
         return {
           ...val,
+          directive: val.directive ?? val.content ?? val.text ?? "",
           emotional_weight: val.emotional_weight ?? 5,
           tags: val.tags ?? val.vector_tags ?? [],
         };
       }
-      // This case should be rare now as state.add_vector_item handles initialization
       return { directive: String(val || ""), emotional_weight: 5, tags: [] };
     });
+
+    if (!profile_state.is_editing) {
+      return mapped.filter((item) => !!item.directive?.trim());
+    }
+    return mapped;
   });
   // --- EXPANSION STATE ---
   let expanded_items = $state(/** @type {Set<string|number>} */ (new Set()));

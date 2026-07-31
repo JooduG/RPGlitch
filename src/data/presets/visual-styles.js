@@ -93,7 +93,7 @@ export const VISUAL_STYLES = {
 
   amateur: {
     id: "amateur",
-    name: "Amateur Smartphone Snap",
+    name: "Amateur Smartphone",
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/0bb4f7bd1737684ea227e701d3566c5e.png",
     description:
@@ -115,11 +115,11 @@ export const VISUAL_STYLES = {
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
     description:
-      "Sleek high-fashion editorial aesthetic with opulent champagne gold and platinum tones, dramatic studio rim lighting, in the style of a Vogue cover shoot.",
+      "Sleek high-fashion editorial aesthetic with opulent metallic tones, dramatic studio rim lighting, in the style of a Vogue cover shoot.",
     tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action high-fashion editorial photography in the style of Vogue magazine cover shoot</medium>
-<palette>opulent champagne gold, platinum white, deep rose, dramatic studio rim lighting</palette>
+<palette>opulent metallic accents, rich luxury tones, dramatic studio rim lighting</palette>
 <camera>85mm fashion editorial lens, crisp studio key light, polished beauty dish lighting</camera>
 <texture>sleek polished editorial print quality, crisp high-fashion detail, flawless editorial finish</texture>
 </VISUAL_ENGINE>`,
@@ -165,19 +165,20 @@ export const VISUAL_STYLES = {
 
   polaroid: {
     id: "polaroid",
-    name: "Vintage 35mm Film",
+    name: "Polaroid",
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/c7f758d7f2997cf541d721fb428e77cf.png",
-    description: "Authentic 35mm film photo with warm Kodak Portra saturation, organic grain structure, soft lens fall-off, and subtle light leaks.",
-    tags: ["analog", "35mm", "vintage", "film", "retro", "photography"],
+    description:
+      "Authentic instant Polaroid photo featuring soft optical focus, faded vintage color shifts, harsh direct flash exposure, and characteristic chemical emulsion bleeding.",
+    tags: ["polaroid", "instant_film", "vintage", "retro", "analog", "flash"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>photorealistic live-action 35mm analog photo scan, street documentary capture</medium>
-<palette>warm Kodak Portra 400 color profile, golden hour sidelighting, organic color bleeding</palette>
-<camera>Leica rangefinder, 35mm f/2.0 lens, soft focal edge roll-off</camera>
-<texture>authentic 35mm film stock grain, subtle light leak anomalies, soft shadow roll-off</texture>
+<medium>photorealistic live-action Polaroid SX-70 instant film photo, vintage flash snapshot</medium>
+<palette>faded vintage color shifts, muted cyan and magenta tones, harsh direct flash illumination, washed-out shadows</palette>
+<camera>Polaroid instant camera, fixed focal length, harsh direct flash glare, soft optical focus, edge vignetting</camera>
+<texture>instant film chemical emulsion bleeding, soft analog grain, glossy photo paper reflection, slight motion blur</texture>
 </VISUAL_ENGINE>`,
     negative_prompt:
-      "digital, glossy, 3d render, anime, harsh digital sharpness, vector, cgi, black and white, monochrome, cartoon, illustration, drawing, painting, cel-shaded, cctv, surveillance",
+      "crisp 4k, sharp modern lens, professional studio lighting, 3d render, anime, harsh digital sharpness, vector, cgi, monochrome, cartoon, illustration, drawing, painting, cel-shaded",
   },
 
   vhs: {
@@ -190,7 +191,7 @@ export const VISUAL_STYLES = {
     tags: ["vhs", "found_footage", "uncanny", "analog_horror", "mysterious", "glitch", "blurry", "camcorder", "unexplained"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action mysterious uncanny found footage VHS video screen capture, low-fi analog horror magnetic tape frame</medium>
-<palette>unsettling washed-out low-light shadows, eerie green and desaturated phosphor cast, harsh grainy shadow noise</palette>
+<palette>unsettling washed-out low-light shadows, eerie monochrome and desaturated phosphor cast, harsh grainy shadow noise</palette>
 <camera>shaky handheld consumer camcorder optics, out-of-focus motion blur framing, unsettling wide-angle perspective, low resolution lens distortion</camera>
 <texture>heavy magnetic static blur, corrupt VHS tracking glitch bars, horizontal tear lines, unexplained video artifacts, chromatic bleeding, blurred ghosting edges</texture>
 </VISUAL_ENGINE>`,
@@ -224,7 +225,7 @@ export const VISUAL_STYLES = {
 
   anime: {
     id: "anime",
-    name: "Anime & Manga (Ecchi)",
+    name: "Anime & Manga",
     category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/293e5b0c1e675dd32d6f0eb968a47e50.png",
     description:
@@ -247,8 +248,8 @@ export const VISUAL_STYLES = {
     description: "Warm hand-painted animation style with lush scenic landscapes, soft watercolor wash backgrounds, and nostalgic warmth.",
     tags: ["studio_ghibli", "anime", "hand_painted", "nostalgic", "whimsical"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>hand-painted anime animation cel in the style of Studio Ghibli and Hayao Miyazaki, traditional 2d film frame</medium>
-<palette>warm earthy tones, soft pastel skies, lush green landscapes, gentle golden light</palette>
+<medium>Studio Ghibli 2D anime background matte painting art</medium>
+<palette>warm earthy tones, soft pastel skies, lush natural landscapes, gentle golden light</palette>
 <composition>wide establishing environmental layout, gentle framing, intimate focal subject with soft background depth</composition>
 <texture>hand-painted watercolor backgrounds, soft cel shading on characters, visible brush texture</texture>
 </VISUAL_ENGINE>`,
@@ -316,7 +317,7 @@ export const VISUAL_STYLES = {
 
   isometric_3d: {
     id: "isometric_3d",
-    name: "Isometric 3D / Low-Poly",
+    name: "Isometric 3D",
     category: "Game & Digital Render",
     portrait: "https://user.uploads.dev/file/5e3cdfcde02ff1d1d9c2c5f0588dd4ae.png",
     description: "Clean orthographic 3D vector aesthetic with geometric low-poly models, soft ambient occlusion, and vibrant flat shading.",
@@ -371,15 +372,15 @@ export const VISUAL_STYLES = {
 
   lego: {
     id: "lego",
-    name: "LEGO® Bricks / Plastic Toy",
+    name: "LEGO® Bricks",
     category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/120b2c46188fb711a93bc68b9bf1eadc.png",
     description:
-      "Blocky plastic construction toy aesthetic featuring minifigure characters with cylindrical rotatable heads and U-shaped hands, brick-built background architecture with visible interlocking studs, injection-molded ABS plastic glossy texture, and tilt-shift macro lens depth.",
-    tags: ["lego", "bricks", "plastic", "toy", "minifigure", "blocky", "construction_set", "macro"],
+      "Simulated physical toy block diorama featuring glossy solid minifigures and vibrant ABS plastic building blocks macro-photographed with tilt-shift depth of field.",
+    tags: ["lego", "plastic", "brick", "toy", "minifigure", "macro"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>plastic toy construction brick artwork, blocky LEGO minifigure character illustration, brick-built macro diorama model</medium>
-<palette>vibrant primary ABS plastic colors, glossy solid yellow minifigure skin tones, rich bold brick red, bright blue, vibrant yellow, green, and black plastic blocks</palette>
+<palette>vibrant primary ABS plastic colors, glossy solid minifigure skin tones, rich bold building block tones</palette>
 <camera>60mm macro lens photography, shallow depth of field, tilt-shift miniature set focal perspective, eye-level toy camera shot</camera>
 <texture>glossy injection-molded ABS plastic surfaces, visible circular interlocking plastic studs with embossed logo micro-detail, plastic mold seam lines, crisp smooth plastic reflections</texture>
 </VISUAL_ENGINE>`,
@@ -438,7 +439,7 @@ export const VISUAL_STYLES = {
     tags: ["pop_art", "ben_day", "halftone", "bold", "graphic", "warhol", "lichtenstein"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>bold pop art illustration in the style of Roy Lichtenstein and Andy Warhol, Ben-Day dot halftone print</medium>
-<palette>primary yellow, vibrant magenta, electric cyan, bold flat primary color blocks</palette>
+<palette>primary color palette, bold flat primary color blocks</palette>
 <composition>dynamic action starburst framing, bold poster-scale focal close-up, flat graphic silhouette staging</composition>
 <texture>Ben-Day dot halftone patterns, thick black ink outlines, flat opaque color blocks, newsprint dot screen</texture>
 </VISUAL_ENGINE>`,
@@ -454,8 +455,8 @@ export const VISUAL_STYLES = {
     description: "Tactile spot-color print aesthetic featuring overlapping vivid inks, subtle registration misalignment, and dithered paper texture.",
     tags: ["risograph", "printmaking", "retro", "dithered", "tactile", "spot_color"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>risograph spot-color print illustration</medium>
-<palette>dual-tone neon pink and sunflower yellow inks, overlapping color translucent bleeds</palette>
+<medium>risograph spot-color print on heavy uncoated paper stock</medium>
+<palette>dual-tone neon inks, vibrant overlapping color translucent bleeds</palette>
 <composition>graphic poster layout, bold shapes, intentional negative space balance</composition>
 <texture>heavy tooth recycled paper texture, grain dithering, subtle ink registration misalignment</texture>
 </VISUAL_ENGINE>`,
@@ -472,7 +473,7 @@ export const VISUAL_STYLES = {
     tags: ["ukiyo_e", "japanese", "woodblock", "traditional", "print", "hokusai"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>traditional Edo-period ukiyo-e woodblock print in the style of Hokusai</medium>
-<palette>flat mineral pigments, indigo blue, burnt orange, muted cream, sumi-e black ink</palette>
+<palette>flat mineral pigments, muted earth tones, sumi-e black ink</palette>
 <composition>asymmetrical Japanese layout, flat space perspective, atmospheric horizon wave framing</composition>
 <texture>visible relief wood grain impressions, fibrous hand-pressed washi paper texture</texture>
 </VISUAL_ENGINE>`,
@@ -488,7 +489,7 @@ export const VISUAL_STYLES = {
     tags: ["stained_glass", "gothic", "mosaic", "glass", "backlit", "artisan"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>gothic cathedral stained glass window mosaic</medium>
-<palette>luminous backlit ruby red, cobalt blue, and emerald green translucent glass panels</palette>
+<palette>luminous backlit jewel-toned translucent glass panels</palette>
 <composition>symmetrical architectural framing, arched window border layout</composition>
 <texture>thick black lead came soldering contours, subtle glass air bubbles, crackled surface refractions</texture>
 </VISUAL_ENGINE>`,
@@ -610,8 +611,8 @@ export const VISUAL_STYLES = {
       "Casual ballpoint pen and marker doodles drawn in notebook margins, featuring quirky line art, ink bleeds, scribbled shading, and spontaneous hand-drawn energy.",
     tags: ["doodle", "sketch", "notebook", "scribble", "margin_art", "casual", "hand_drawn"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>casual notebook margin doodle, ballpoint pen ink drawing</medium>
-<palette>blue and black ballpoint ink on grid-lined paper, subtle highlighter accents</palette>
+<medium>raw unedited ballpoint pen sketch on lined notebook paper</medium>
+<palette>monochrome ballpoint ink on grid-lined paper, subtle highlighter accents</palette>
 <composition>loose spontaneous margin layout, asymmetric framing, playful quirky proportions</composition>
 <texture>hand-drawn pen scribbles, ink bleed pooling, blue lined paper grid, soft paper creases</texture>
 </VISUAL_ENGINE>`,
@@ -655,7 +656,7 @@ export const VISUAL_STYLES = {
     tags: ["fantasy", "mythic", "atmospheric", "dark_fantasy", "epic", "illustration"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>high fantasy concept art, mythic digital illustration</medium>
-<palette>rich atmospheric tones, deep shadow play, muted gold and steel accents, dramatic chiaroscuro lighting</palette>
+<palette>rich atmospheric tones, deep shadow play, muted accents, dramatic chiaroscuro lighting</palette>
 <composition>sweeping mythic layouts, dramatic atmospheric perspective, grand scale framing</composition>
 <texture>weathered stone, ancient metals, rich fabrics, natural organic textures</texture>
 </VISUAL_ENGINE>`,
@@ -672,7 +673,7 @@ export const VISUAL_STYLES = {
     tags: ["pulp", "retro", "50s", "paperback", "sci-fi", "fantasy", "gouache"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>1950s pulp magazine cover illustration in the style of Frank Frazetta, vintage paperback gouache painting</medium>
-<palette>vivid primary accents, warm cadmium yellow highlights, deep teal shadows, dramatic rim lighting</palette>
+<palette>vivid primary accents, warm highlights, deep cool shadows, dramatic rim lighting</palette>
 <composition>diagonal dynamic action composition, dramatic hero posing, space for cover typography</composition>
 <texture>visible gouache brush strokes, matte paperboard texture, vintage newsprint color bleed</texture>
 </VISUAL_ENGINE>`,
@@ -689,7 +690,7 @@ export const VISUAL_STYLES = {
     tags: ["steampunk", "dieselpunk", "industrial", "brass", "clockwork", "victorian", "gears", "machinery", "retro_futurism"],
     visual_engine: `<VISUAL_ENGINE>
 <medium>authentic Victorian steampunk mechanical machinery art, intricate industrial clockwork concept design, detailed brass and copper ironwork render</medium>
-<palette>tarnished brass patinas, oxidized copper green accents, heavy cast iron black, warm furnace amber glow, aged oily leather, rich bronze reflections</palette>
+<palette>tarnished metallic patinas, oxidized accents, heavy cast iron, warm furnace amber glow, aged oily leather, rich bronze reflections</palette>
 <composition>dense interlocking gearwork framing, macro-to-wide compositional range spanning intricate clockwork close-ups to full mechanical tableaux, dramatic layered industrial depth staging</composition>
 <texture>dense intricate interlocking clockwork gears, brass pressure gauges, copper steam pipes, heavy iron rivets, grease and oil stains, escaping white steam plumes, oxidized metal patina</texture>
 </VISUAL_ENGINE>`,
@@ -728,8 +729,8 @@ export const VISUAL_STYLES = {
     description: "Neon-soaked dystopian aesthetic with wet rain-slicked asphalt, holographic interfaces, and high-tech urban grime.",
     tags: ["cyberpunk", "neon", "scifi", "dystopian", "chrome"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>cyberpunk digital art in the style of Syd Mead and Blade Runner, neon-lit dystopian sci-fi environment</medium>
-<palette>vibrant neon magenta and cyan, deep blacks, holographic iridescent accents, harsh LED lighting</palette>
+<medium>neon cyberpunk dystopian digital concept art matte painting</medium>
+<palette>vibrant neon accents, deep blacks, holographic iridescent accents, harsh LED lighting</palette>
 <camera>wide-angle anamorphic lens, low angle dramatic perspective, optical lens flares</camera>
 <texture>polished chrome reflections, rain-streaked glass, circuit board patterns, holographic noise</texture>
 </VISUAL_ENGINE>`,
@@ -744,8 +745,8 @@ export const VISUAL_STYLES = {
     description: "1980s retro-futuristic outrun visual style with neon grid horizons, wireframe sunsets, chrome surfaces, and CRT scan lines.",
     tags: ["synthwave", "retro", "80s", "neon", "outrun"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>1980s outrun digital artwork, retro synthwave art</medium>
-<palette>neon magenta and purple gradients, vibrant orange horizon, deep twilight navy blue</palette>
+<medium>retro 1980s synthwave digital airbrush art on dark background</medium>
+<palette>vibrant retro-futuristic gradients, glowing horizon, deep twilight tones</palette>
 <composition>low ground perspective, vanishing point perspective grid, wide-angle framing</composition>
 <texture>chrome reflections, glowing neon glass tubes, subtle CRT scanlines, grid floor</texture>
 </VISUAL_ENGINE>`,
@@ -761,8 +762,8 @@ export const VISUAL_STYLES = {
       "Nostalgic 1990s digital collage blending pastel cyan and magenta gradients, classical marble statues, glitch artifacts, and early web aesthetic.",
     tags: ["vaporwave", "90s", "pastel", "glitch", "aesthetic", "lofi", "classical_statuary"],
     visual_engine: `<VISUAL_ENGINE>
-<medium>vaporwave digital collage blending fragments of classical Greco-Roman statuary, retro computer and early-web graphics, and glitch-art layering</medium>
-<palette>pastel cyan, soft lavender, hot pink gradients, washed-out turquoise, golden sunset reflections</palette>
+<medium>nostalgic vaporwave early CGI digital 3d render</medium>
+<palette>pastel gradients, soft neon washes, golden sunset reflections</palette>
 <composition>multi-plane collage layout, layered translucent grid overlays, isometric floating-object arrangement, symmetrical poster framing</composition>
 <texture>analog video line noise, chromatic edge bleeding, smooth marble polish, pixelated gradient steps</texture>
 </VISUAL_ENGINE>`,

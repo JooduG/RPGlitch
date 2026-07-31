@@ -8,6 +8,7 @@ import {
   wrap_dialogue,
   escape_unescaped_json_quotes,
   safe_parse_pseudo_json,
+  merge_prose_into_field,
 } from "./parser.js";
 import { NARRATIVE_STYLES } from "@data";
 import { describe, expect, it } from "vitest";
@@ -326,5 +327,21 @@ describe("safe_parse_pseudo_json", () => {
     const input = "Beneath his playful teasing: lies a sharp wound.";
     const result = safe_parse_pseudo_json(input);
     expect(result).toEqual({});
+  });
+});
+
+describe("merge_prose_into_field", () => {
+  it("should update matching pseudo-JSON keys and keep CONDITION text clean when prose contains KEY: directives", () => {
+    const current = "[SHIRT: grease-stained tank top] [CONDITION: Reciprocating drive cycling faster]";
+    const new_prose = "CLOTHING: Tank top discarded on the floor";
+    const merged = merge_prose_into_field(current, new_prose);
+    expect(merged).toBe("[SHIRT: Tank top discarded on the floor] [CONDITION: Reciprocating drive cycling faster]");
+  });
+
+  it("should append unstructured prose to CONDITION without corrupting other tags", () => {
+    const current = "[SHIRT: grease-stained tank top] [CONDITION: Heavy breathing]";
+    const new_prose = "Sweat trickling down his neck";
+    const merged = merge_prose_into_field(current, new_prose);
+    expect(merged).toBe("[SHIRT: grease-stained tank top] [CONDITION: Heavy breathing, Sweat trickling down his neck]");
   });
 });

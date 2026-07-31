@@ -152,6 +152,16 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_saving = true;
     try {
+      if (Array.isArray(this.char.past)) {
+        this.char.past = this.char.past.filter((v) =>
+          typeof v === "object" && v !== null ? !!(v.directive || v.content || v.text)?.trim() : !!String(v).trim(),
+        );
+      }
+      if (Array.isArray(this.char.future)) {
+        this.char.future = this.char.future.filter((v) =>
+          typeof v === "object" && v !== null ? !!(v.directive || v.content || v.text)?.trim() : !!String(v).trim(),
+        );
+      }
       await runtime.save_entity(entity_type, this.char);
       await app.load_entities(); // Refresh lists
 

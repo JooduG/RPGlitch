@@ -320,12 +320,63 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
     return result;
   }
 
-  // Pseudo-JSON parameter field
-  if (parsed.CONDITION || parsed.condition) {
-    const key = parsed.CONDITION ? "CONDITION" : "condition";
-    parsed[key] = `${parsed[key]}, ${clean_new_prose}`;
-  } else {
-    parsed.CONDITION = clean_new_prose;
+  // 1. Extract bracketed [KEY: Value] directives first
+  const bracketed_regex = /\[([A-Z_]{3,15}):\s*([\s\S]*?)\]/g;
+  let remaining_prose = clean_new_prose;
+  let match;
+  const key_updates = [];
+
+  while ((match = bracketed_regex.exec(clean_new_prose)) !== null) {
+    const full_match = match[0];
+    const raw_key = match[1].toUpperCase();
+    const raw_val = match[2].trim();
+    if (raw_val) {
+      key_updates.push({ key: raw_key, val: raw_val });
+      remaining_prose = remaining_prose.replace(full_match, "").trim();
+    }
+  }
+
+  // 2. Extract unbracketed KEY: Value segments if any
+  const unbracketed_regex = /(?:^|,\s*|\s*)([A-Z_]{3,15}):\s*([^,[\]]+(?:\s+[^,[\]]+)*)/g;
+  while ((match = unbracketed_regex.exec(remaining_prose)) !== null) {
+    const full_match = match[0];
+    const raw_key = match[1].toUpperCase();
+    const raw_val = match[2].trim();
+    if (raw_val) {
+      key_updates.push({ key: raw_key, val: raw_val });
+      remaining_prose = remaining_prose.replace(full_match, "").trim();
+    }
+  }
+
+  remaining_prose = remaining_prose
+    .replace(/^[\s,;[\]]+|[\s,;[\]]+$/g, "")
+    .replace(/,\s*,+/g, ",")
+    .trim();
+
+  // Apply structured key updates
+  for (const { key, val } of key_updates) {
+    let target_key = key;
+    if (key === "CLOTHING" && parsed.SHIRT) target_key = "SHIRT";
+    if (key === "SHIRT" && parsed.CLOTHING) target_key = "CLOTHING";
+    parsed[target_key] = val;
+  }
+
+  // Append any remaining unstructured prose to CONDITION
+  if (remaining_prose) {
+    const cond_key = parsed.CONDITION ? "CONDITION" : parsed.condition ? "condition" : "CONDITION";
+    if (parsed[cond_key]) {
+      const clean_existing = parsed[cond_key].replace(/^[\s,]+|[\s,]+$/g, "").replace(/,\s*,+/g, ", ");
+      parsed[cond_key] = `${clean_existing}, ${remaining_prose}`;
+    } else {
+      parsed[cond_key] = remaining_prose;
+    }
+  }
+
+  // Clean up double commas inside all values of parsed
+  for (const k in parsed) {
+    if (typeof parsed[k] === "string") {
+      parsed[k] = parsed[k].replace(/^[\s,]+|[\s,]+$/g, "").replace(/,\s*,+/g, ", ");
+    }
   }
 
   let lines = Object.entries(parsed)
