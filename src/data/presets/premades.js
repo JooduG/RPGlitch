@@ -155,7 +155,7 @@ export const premade = {
       signature_color: "Rusty Orange",
       visual_style: "steampunk",
       voice: { uri: "am_michael", rate: 0.9 },
-      voice_register: "plain",
+      voice_register: "raw",
       dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
       eternal: {
         physical:
@@ -197,7 +197,7 @@ export const premade = {
       signature_color: "Scientific Teal",
       visual_style: "unreal_engine",
       voice: { uri: "am_liam", rate: 1.1 },
-      voice_register: "plain",
+      voice_register: "clinical",
       dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
       eternal: {
         physical:
@@ -280,6 +280,7 @@ export const premade = {
       signature_color: "Toxic Green",
       visual_style: "vaporwave",
       voice: { uri: "am_onyx", rate: 0.8 },
+      voice_register: "raw",
       dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
       eternal: {
         physical:

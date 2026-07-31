@@ -369,12 +369,14 @@ export function normalize_import_payload(payload) {
  * Programmatically intercepts and scrubs clichéd AI tropes.
  *
  * @param {string|null|undefined} rawText
- * @param {"plain"|"ornate"} [register="plain"]
+ * @param {"plain"|"ornate"|"raw"|"clinical"} [register="plain"]
  *   Voice register to draw replacements from.
  *   - "plain": short, concrete, everyday phrasing. Use for blunt/direct characters (e.g. Orion)
  *     or whenever no character-voice info is available — this is the safe default.
  *   - "ornate": literary, flowing phrasing. Use for eloquent characters (e.g. Valerius) or
  *     narration running under a lush/operatic NARRATIVE_STYLE.
+ *   - "raw": visceral, unfiltered, gritty phrasing.
+ *   - "clinical": detached, precise, analytical phrasing.
  *   Rules that are ambient scene description rather than a specific character's voice
  *   (ozone, testament, tapestry, etc.) intentionally keep one pool regardless of register.
  *
@@ -396,12 +398,20 @@ export function normalize_import_payload(payload) {
 
 export function detox_prose(rawText, register = "plain") {
   if (!rawText || typeof rawText !== "string") return "";
-  const voice = register === "ornate" ? "ornate" : "plain";
+
+  const FALLBACK_MAP = {
+    ornate: "ornate",
+    plain: "plain",
+    raw: "plain",
+    clinical: "plain",
+  };
+  const exact_voice = ["plain", "ornate", "raw", "clinical"].includes(register) ? register : "plain";
+  const fallback_voice = FALLBACK_MAP[exact_voice] || "plain";
 
   const DETOX_RULES = [
     // 1. MURMUR — quiet, low-volume speech
     {
-      regex: /\bmurmured\b/gi,
+      regex: /\\bmurmured\\b/gi,
       replace: {
         plain: ["said it quietly", "kept his voice low", "spoke half to himself", "barely spoke above a breath"],
         ornate: [
@@ -410,10 +420,12 @@ export function detox_prose(rawText, register = "plain") {
           "breathed it more than said it",
           "let his voice thin to almost nothing",
         ],
+        raw: ["ground it out low", "said it barely loud enough to hear", "spat it out quietly", "kept it under his breath"],
+        clinical: ["lowered vocal output", "spoke below standard volume", "kept the volume low", "vocalized quietly"],
       },
     },
     {
-      regex: /\bmurmuring\b/gi,
+      regex: /\\bmurmuring\\b/gi,
       replace: {
         plain: ["talking under his breath", "voice sinking low", "barely audible now", "trailing off quietly"],
         ornate: [
@@ -422,10 +434,12 @@ export function detox_prose(rawText, register = "plain") {
           "speaking as though the walls might listen",
           "trailing his voice to almost silence",
         ],
+        raw: ["keeping it low and rough", "speaking too quiet to catch", "talking barely above a whisper", "grinding the words out soft"],
+        clinical: ["reducing vocal amplitude", "speaking at low volume", "maintaining a quiet baseline", "dropping audio levels"],
       },
     },
     {
-      regex: /\bmurmurs\b/gi,
+      regex: /\\bmurmurs\\b/gi,
       replace: {
         plain: ["keeps it quiet", "drops his voice", "speaks low", "barely says it aloud"],
         ornate: [
@@ -434,19 +448,23 @@ export function detox_prose(rawText, register = "plain") {
           "speaks as if confiding a secret",
           "lets his voice thin to a hush",
         ],
+        raw: ["keeps it under his breath", "says it barely loud enough", "grinds it out soft", "drops the volume"],
+        clinical: ["lowers volume", "speaks quietly", "maintains low audio output", "vocalizes softly"],
       },
     },
     {
-      regex: /\bmurmur\b/gi,
+      regex: /\\bmurmur\\b/gi,
       replace: {
         plain: ["quiet remark", "low aside", "soft comment", "hushed word"],
         ornate: ["a half-spoken confidence", "a word barely given shape", "the ghost of a sentence", "a breath dressed as speech"],
+        raw: ["low word", "quiet breath", "rough aside", "stifled sound"],
+        clinical: ["low-volume utterance", "quiet vocalization", "soft auditory output", "low-decibel sound"],
       },
     },
 
-    // 2. HUM — steady vibration or drone (voice, machinery, ambient)
+    // 2. HUM — steady vibration or drone
     {
-      regex: /\bhummed\b/gi,
+      regex: /\\bhummed\\b/gi,
       replace: {
         plain: ["droned steadily", "throbbed low", "reverberated through the walls", "chugged along quietly"],
         ornate: [
@@ -455,10 +473,12 @@ export function detox_prose(rawText, register = "plain") {
           "breathed a current no one could quite place",
           "rolled through the floor like a held note",
         ],
+        raw: ["shook with a low vibration", "rattled steadily", "pushed a heavy sound through the floor", "ground away quietly"],
+        clinical: ["emitted a steady frequency", "maintained constant vibration", "produced a low oscillation", "generated a continuous drone"],
       },
     },
     {
-      regex: /\bhumming\b/gi,
+      regex: /\\bhumming\\b/gi,
       replace: {
         plain: ["vibrating steadily", "whirring low", "oscillating faintly", "growling under load"],
         ornate: [
@@ -467,10 +487,12 @@ export function detox_prose(rawText, register = "plain") {
           "keeping the air faintly alive with sound",
           "laying a soft undertone beneath everything else",
         ],
+        raw: ["shaking the air faintly", "rattling non-stop", "pushing a low noise through the room", "vibrating with quiet force"],
+        clinical: ["emitting continuous vibration", "maintaining a baseline frequency", "producing a steady drone", "oscillating evenly"],
       },
     },
     {
-      regex: /\bhums\b/gi,
+      regex: /\\bhums\\b/gi,
       replace: {
         plain: ["resonates low", "pulses steadily", "judders faintly", "rattles quietly"],
         ornate: [
@@ -479,28 +501,38 @@ export function detox_prose(rawText, register = "plain") {
           "never quite falls silent, just softens",
           "lays a faint charge under the stillness",
         ],
+        raw: ["shakes the floorboards faintly", "pushes a heavy vibration", "rattles the air", "drones on"],
+        clinical: ["emits a baseline frequency", "maintains a steady oscillation", "produces a constant drone", "vibrates evenly"],
       },
     },
     {
-      regex: /\b(low|industrial|electrical|steady|soft)\s+hum\b/gi,
+      regex: /\\b(low|industrial|electrical|steady|soft)\\s+hum\\b/gi,
       replace: (match, ...args) => {
         const p1 = args[0];
         const offset = args[args.length - 2];
-        const pool = voice === "ornate" ? ["current", "undercurrent", "resonance", "vibration"] : ["current", "undertone", "frequency", "note"];
-        return `${p1} ${stable_pick(pool, match, offset)}`;
+        const forms = {
+          plain: ["current", "undertone", "frequency", "note"],
+          ornate: ["resonance", "undercurrent", "held breath", "vibration"],
+          raw: ["rattle", "grind", "heavy vibration", "drone"],
+          clinical: ["oscillation", "frequency", "background noise", "baseline drone"],
+        };
+        const active = forms[exact_voice] || forms[fallback_voice] || forms.plain;
+        return p1 + " " + stable_pick(active, match, offset);
       },
     },
     {
-      regex: /\bhum\b/gi,
+      regex: /\\bhum\\b/gi,
       replace: {
         plain: ["low tone", "steady frequency", "background note", "constant undertone"],
         ornate: ["a note with no beginning", "an undercurrent with no source", "a sound too constant to notice", "the city's held breath"],
+        raw: ["heavy drone", "low vibration", "steady grind", "constant rattle"],
+        clinical: ["baseline frequency", "continuous oscillation", "steady drone", "background noise"],
       },
     },
 
     // 3. PURR — warm, teasing, unhurried delivery
     {
-      regex: /\bpurred\b/gi,
+      regex: /\\bpurred\\b/gi,
       replace: {
         plain: ["said it slow and easy", "gave the words a teasing edge", "let his tone go warm", "dropped his voice into something coy"],
         ornate: [
@@ -509,10 +541,12 @@ export function detox_prose(rawText, register = "plain") {
           "drew the words out like warm honey",
           "gave the sentence a slow, deliberate shine",
         ],
+        raw: ["let it drag out slow", "dropped the pitch down", "said it with heavy heat", "gave it a low edge"],
+        clinical: ["spoke with deliberate slowness", "lowered vocal pitch slightly", "delivered the words evenly", "maintained a smooth cadence"],
       },
     },
     {
-      regex: /\bpurring\b/gi,
+      regex: /\\bpurring\\b/gi,
       replace: {
         plain: ["voice gone warm and slow", "words coming out unhurried", "tone easing into something coy", "delivery turning playful and low"],
         ornate: [
@@ -521,10 +555,12 @@ export function detox_prose(rawText, register = "plain") {
           "drawing each syllable out unhurried",
           "giving his tone a slow, deliberate warmth",
         ],
+        raw: ["dragging the words out", "dropping his voice low and heavy", "speaking slow and deliberate", "letting the heat bleed into his voice"],
+        clinical: ["speaking with slow precision", "maintaining a smooth delivery", "lowering vocal pitch", "delivering at a measured pace"],
       },
     },
     {
-      regex: /\bpurrs\b/gi,
+      regex: /\\bpurrs\\b/gi,
       replace: {
         plain: ["says it slow", "gives the words a playful edge", "lets his tone warm up", "turns coy without missing a beat"],
         ornate: [
@@ -533,19 +569,23 @@ export function detox_prose(rawText, register = "plain") {
           "draws it out, unhurried and warm",
           "gives the sentence a slow shine",
         ],
+        raw: ["drags the words out slow", "drops it low and heavy", "says it with heat", "lets it slide out rough"],
+        clinical: ["speaks slowly", "maintains a steady, low cadence", "delivers smoothly", "lowers pitch slightly"],
       },
     },
     {
-      regex: /\bpurr\b/gi,
+      regex: /\\bpurr\\b/gi,
       replace: {
-        plain: ["low teasing tone", "warm playful edge", "coy inflection", "slow easy delivery"],
+        plain: ["low teasing tone", "warm playful edge", "c coy inflection", "slow easy delivery"],
         ornate: ["a slow, honeyed edge", "a velvet undertone", "a deliberate, unhurried warmth", "a voice dressed in silk"],
+        raw: ["low heavy tone", "slow drag of a voice", "thick heat", "rough drawl"],
+        clinical: ["smooth vocalization", "measured cadence", "low-pitched delivery", "even tone"],
       },
     },
 
     // 4. RASP — harsh, dry, strained delivery
     {
-      regex: /\brasped\b/gi,
+      regex: /\\brasped\\b/gi,
       replace: {
         plain: ["said it rough", "ground the words out", "let his voice go raw", "bit off each word"],
         ornate: [
@@ -554,10 +594,12 @@ export function detox_prose(rawText, register = "plain") {
           "forced the words past something torn in his throat",
           "gave the words an edge like broken stone",
         ],
+        raw: ["scraped the words out", "dragged the words up rough", "forced it out raw", "hacked the words out"],
+        clinical: ["spoke with severe vocal strain", "delivered with friction", "forced the vocalization", "spoke hoarsely"],
       },
     },
     {
-      regex: /\brasping\b/gi,
+      regex: /\\brasping\\b/gi,
       replace: {
         plain: ["voice scraping rough", "forcing the words along", "catching on every syllable", "going dry and strained"],
         ornate: [
@@ -566,10 +608,12 @@ export function detox_prose(rawText, register = "plain") {
           "letting the words come out edged like stone",
           "dragging each syllable up rough",
         ],
+        raw: ["scraping out every word", "forcing it through a raw throat", "dragging the sounds up rough", "grinding the words out"],
+        clinical: ["speaking with notable strain", "producing high-friction audio", "vocalizing hoarsely", "forcing air through restricted cords"],
       },
     },
     {
-      regex: /\brasps\b/gi,
+      regex: /\\brasps\\b/gi,
       replace: {
         plain: ["says it dry", "voice comes out rough", "forces it through gritted teeth", "strains to get the words out"],
         ornate: [
@@ -578,10 +622,12 @@ export function detox_prose(rawText, register = "plain") {
           "gives the sentence an edge like broken stone",
           "forces sound through something torn",
         ],
+        raw: ["scrapes the words out", "drags it up rough", "forces it out raw", "hacks the sentence out"],
+        clinical: ["speaks with vocal strain", "delivers hoarsely", "forces the vocalization", "produces rough audio"],
       },
     },
     {
-      regex: /\brough,?\s+(dismissive|dangerous)?\s*rasp\b/gi,
+      regex: /\\brough,?\\s+(dismissive|dangerous)?\\s*rasp\\b/gi,
       replace: {
         plain: ["rough, worn voice", "harsh edge to his tone", "low growl of a voice", "voice roughened and low"],
         ornate: [
@@ -590,54 +636,169 @@ export function detox_prose(rawText, register = "plain") {
           "a voice roughened by something unsaid",
           "an edge that sounds permanently bruised",
         ],
+        raw: ["harsh scrap of a voice", "raw edge", "voice like sandpaper", "rough grind of a tone"],
+        clinical: ["strained vocalization", "hoarse audio output", "rough acoustic signature", "high-friction voice"],
       },
     },
 
-    // 5. SENSORY & OZONE CLICHÉS — single diverse pools (atmosphere, not a character's voice)
+    // 5. SENSORY & OZONE CLICHÉS
     {
-      regex: /\bair tastes of ozone\b/gi,
-      replace: [
-        "air tastes sharp and metallic",
-        "the air carries a raw electric edge",
-        "the air smells faintly of hot wire",
-        "a metallic tang cuts through the air",
-      ],
+      regex: /\\bair tastes of ozone\\b/gi,
+      replace: {
+        plain: [
+          "air tastes sharp and metallic",
+          "the air carries a raw electric edge",
+          "the air smells faintly of hot wire",
+          "a metallic tang cuts through the air",
+        ],
+        ornate: [
+          "a bitter static coats the tongue",
+          "the atmosphere carries the weight of a storm",
+          "the air feels bruised and electric",
+          "a charged sharpness lingers in the lungs",
+        ],
+        raw: [
+          "air tastes like copper and heat",
+          "the smell of burned wire fills the space",
+          "it tastes like chewed foil",
+          "the air bites with raw electricity",
+        ],
+        clinical: [
+          "atmospheric ionization is detectable",
+          "electrical discharge is present in the air",
+          "metallic particulates are suspended",
+          "high-voltage atmospheric conditions noted",
+        ],
+      },
     },
     {
-      regex: /\bscent of ozone\b/gi,
-      replace: ["smell of hot wire", "scent of scorched metal", "smell of overheated electronics", "a sharp electrical smell"],
+      regex: /\\bscent of ozone\\b/gi,
+      replace: {
+        plain: ["smell of hot wire", "scent of scorched metal", "smell of overheated electronics", "a sharp electrical smell"],
+        ornate: [
+          "fragrance of a broken storm",
+          "bitter perfume of raw current",
+          "scent of something burnt and electric",
+          "ghost of lightning in the air",
+        ],
+        raw: ["stink of hot copper", "burnt wire smell", "harsh electrical stink", "smell of fried circuits"],
+        clinical: ["ionized atmospheric odor", "scent of electrical discharge", "metallic olfactory signature", "high-voltage particulate smell"],
+      },
     },
-    { regex: /\bozone\b/gi, replace: ["static", "hot wire", "scorched metal", "raw current"] },
+    {
+      regex: /\\bozone\\b/gi,
+      replace: {
+        plain: ["static", "hot wire", "scorched metal", "raw current"],
+        ornate: ["sparking air", "electric ghost", "heavy static", "bitter air"],
+        raw: ["hot copper", "fried wire", "burnt metal", "harsh static"],
+        clinical: ["ionization", "electrical discharge", "atmospheric charge", "metallic particulate"],
+      },
+    },
 
-    // 6. ABSTRACTION CLICHÉS — single diverse pools
+    // 6. ABSTRACTION CLICHÉS
     {
-      regex: /\b(is|was|stands?|stood)\s+a\s+testament\s+to\b/gi,
+      regex: /\\b(is|was|stands?|stood)\\s+a\\s+testament\\s+to\\b/gi,
       replace: (match, ...args) => {
         const p1 = args[0];
         const offset = args[args.length - 2];
-        return `${p1} ${stable_pick(["proof of", "evidence of", "a marker of", "a sign of"], match, offset)}`;
+        const forms = {
+          plain: ["proof of", "evidence of", "a marker of", "a sign of"],
+          ornate: ["a monument to", "a silent witness to", "the physical weight of", "an undeniable echo of"],
+          raw: ["hard proof of", "a raw reminder of", "the ugly result of", "a heavy sign of"],
+          clinical: ["evidence of", "an indicator of", "data supporting", "a metric of"],
+        };
+        const active = forms[exact_voice] || forms[fallback_voice] || forms.plain;
+        return p1 + " " + stable_pick(active, match, offset);
       },
     },
-    { regex: /\ba\s+testament\s+to\b/gi, replace: ["proof of", "evidence of", "a sign of"] },
-    { regex: /\btestament\b/gi, replace: ["proof", "evidence", "marker", "sign"] },
-    { regex: /\btapestry\s+of\b/gi, replace: ["mix of", "web of", "tangle of", "patchwork of"] },
-    { regex: /\btapestry\b/gi, replace: ["web", "tangle", "patchwork", "mosaic"] },
-    { regex: /\bsymphony\s+of\b/gi, replace: ["medley of", "clash of", "cascade of", "rush of"] },
-    { regex: /\bcoiled\s+spring\b/gi, replace: ["tense frame", "wound tight", "ready to move", "poised to snap"] },
-    { regex: /\ba\s+study\s+in\b/gi, replace: ["a picture of", "an exercise in", "a portrait of", "a lesson in"] },
     {
-      regex: /\bmarrow\s+of\s+(his|her|their|the)\s+teeth\b/gi,
+      regex: /\\ba\\s+testament\\s+to\\b/gi,
+      replace: {
+        plain: ["proof of", "evidence of", "a sign of", "a marker of"],
+        ornate: ["a monument to", "a silent witness to", "the physical weight of", "an echo of"],
+        raw: ["hard proof of", "a raw reminder of", "the ugly result of", "a heavy sign of"],
+        clinical: ["evidence of", "an indicator of", "data supporting", "a metric of"],
+      },
+    },
+    {
+      regex: /\\btestament\\b/gi,
+      replace: {
+        plain: ["proof", "evidence", "marker", "sign"],
+        ornate: ["monument", "witness", "echo", "shadow"],
+        raw: ["hard proof", "reminder", "result", "scar"],
+        clinical: ["evidence", "indicator", "data", "metric"],
+      },
+    },
+    {
+      regex: /\\btapestry\\s+of\\b/gi,
+      replace: {
+        plain: ["mix of", "web of", "tangle of", "patchwork of"],
+        ornate: ["woven history of", "intricate maze of", "dense knot of", "sprawling mural of"],
+        raw: ["mess of", "tangled heap of", "sprawling mess of", "bleeding mix of"],
+        clinical: ["collection of", "aggregate of", "network of", "system of"],
+      },
+    },
+    {
+      regex: /\\btapestry\\b/gi,
+      replace: {
+        plain: ["web", "tangle", "patchwork", "mosaic"],
+        ornate: ["woven thread", "intricate design", "dense knot", "sprawling mural"],
+        raw: ["mess", "tangled heap", "sprawling knot", "bleeding mix"],
+        clinical: ["collection", "aggregate", "network", "system"],
+      },
+    },
+    {
+      regex: /\\bsymphony\\s+of\\b/gi,
+      replace: {
+        plain: ["medley of", "clash of", "cascade of", "rush of"],
+        ornate: ["choir of", "crescendo of", "orchestration of", "rising tide of"],
+        raw: ["mess of noise", "violent clash of", "deafening rush of", "bleeding mix of"],
+        clinical: ["array of", "simultaneous occurrence of", "collection of", "systematic set of"],
+      },
+    },
+    {
+      regex: /\\bcoiled\\s+spring\\b/gi,
+      replace: {
+        plain: ["tense frame", "wound tight", "ready to move", "poised to snap"],
+        ornate: ["held in absolute tension", "drawn tight as a bowstring", "vibrating with unspent energy", "poised on a razor's edge"],
+        raw: ["wound tight enough to break", "tense as a tripwire", "shaking with held-back force", "ready to snap"],
+        clinical: [
+          "maintaining high kinetic potential",
+          "exhibiting extreme muscle tension",
+          "physically primed for action",
+          "highly reactive state",
+        ],
+      },
+    },
+    {
+      regex: /\\ba\\s+study\\s+in\\b/gi,
+      replace: {
+        plain: ["a picture of", "an exercise in", "a portrait of", "a lesson in"],
+        ornate: ["the living embodiment of", "a masterclass in", "the absolute expression of", "a deliberate display of"],
+        raw: ["nothing but pure", "a raw display of", "a heavy dose of", "a harsh look at"],
+        clinical: ["an example of", "a demonstration of", "a clear case of", "an exhibition of"],
+      },
+    },
+    {
+      regex: /\\bmarrow\\s+of\\s+(his|her|their|the)\\s+teeth\\b/gi,
       replace: (match, ...args) => {
         const p1 = args[0];
         const offset = args[args.length - 2];
-        return stable_pick([`core of ${p1} bones`, `deepest part of ${p1} jaw`, `root of ${p1} bite`], match, offset);
+        const forms = {
+          plain: ["core of " + p1 + " bones", "deepest part of " + p1 + " jaw", "root of " + p1 + " bite"],
+          ornate: ["very foundation of " + p1 + " frame", "deepest hollow of " + p1 + " bones", "absolute core of " + p1 + " being"],
+          raw: ["roots of " + p1 + " teeth", "hard bone of " + p1 + " jaw", "base of " + p1 + " skull"],
+          clinical: ["dental roots", "mandibular structure", "osseous core"],
+        };
+        const active = forms[exact_voice] || forms[fallback_voice] || forms.plain;
+        return stable_pick(active, match, offset);
       },
     },
-    { regex: /\bshell of (his|her|their|your)\s+ear\b/gi, replace: (match, ...args) => `${args[0]} ear` },
+    { regex: /\\bshell of (his|her|their|your)\\s+ear\\b/gi, replace: (match, ...args) => args[0] + " ear" },
 
     // 7. BREATH & VOICE MECHANICS
     {
-      regex: /\bhitching\b/gi,
+      regex: /\\bhitching\\b/gi,
       replace: {
         plain: ["catching short", "snagging on itself", "breaking off mid-breath", "stalling for a beat"],
         ornate: [
@@ -646,10 +807,12 @@ export function detox_prose(rawText, register = "plain") {
           "a held note that won't quite land",
           "something caught between two beats",
         ],
+        raw: ["choking on a breath", "snagging hard", "tripping over itself", "getting caught in the throat"],
+        clinical: ["experiencing respiratory interruption", "stalling momentarily", "exhibiting an irregular breathing pattern", "halting mid-cycle"],
       },
     },
     {
-      regex: /\bhitched\b/gi,
+      regex: /\\bhitched\\b/gi,
       replace: {
         plain: ["seized for a second", "jolted mid-breath", "locked up for a beat", "skipped a step"],
         ornate: [
@@ -658,10 +821,12 @@ export function detox_prose(rawText, register = "plain") {
           "went still, just for a breath",
           "caught on something too quiet to name",
         ],
+        raw: ["choked up for a second", "tripped hard", "got caught in the throat", "stalled out"],
+        clinical: ["halted briefly", "experienced a momentary spasm", "paused mid-respiration", "interrupted its cycle"],
       },
     },
     {
-      regex: /\bhitches\b/gi,
+      regex: /\\bhitches\\b/gi,
       replace: {
         plain: ["trips for a second", "freezes mid-breath", "cuts off short", "falters for a beat"],
         ornate: [
@@ -670,17 +835,21 @@ export function detox_prose(rawText, register = "plain") {
           "goes still for exactly one breath",
           "catches, always, on the same unspoken word",
         ],
+        raw: ["chokes up", "catches hard in the throat", "trips and falls flat", "stalls abruptly"],
+        clinical: ["halts briefly", "pauses involuntarily", "interrupts the respiratory cycle", "exhibits a momentary spasm"],
       },
     },
     {
-      regex: /\bhitch\b/gi,
+      regex: /\\bhitch\\b/gi,
       replace: {
         plain: ["short break in rhythm", "momentary stop", "half-second delay", "small interruption"],
         ornate: ["a beat that never quite lands", "a breath held too long", "a half-second of missing rhythm", "a silence where a word should be"],
+        raw: ["hard catch in the throat", "sudden choke", "harsh stop", "stutter"],
+        clinical: ["respiratory pause", "brief interruption", "momentary delay", "irregularity in rhythm"],
       },
     },
     {
-      regex: /\bbreathlessly\b/gi,
+      regex: /\\bbreathlessly\\b/gi,
       replace: {
         plain: ["with no air left", "gasping the words out", "in a rush, out of air", "barely getting the words out"],
         ornate: [
@@ -689,10 +858,12 @@ export function detox_prose(rawText, register = "plain") {
           "as though speech itself had outrun his lungs",
           "with his chest still fighting for air",
         ],
+        raw: ["gasping hard", "choking the words out", "heaving for air", "spitting it out breathless"],
+        clinical: ["without sufficient oxygen", "exhibiting hyperventilation", "speaking during oxygen debt", "with rapid respiration"],
       },
     },
     {
-      regex: /\bbreathless\b/gi,
+      regex: /\\bbreathless\\b/gi,
       replace: {
         plain: ["out of air", "winded", "gasping", "unable to catch his breath"],
         ornate: [
@@ -701,10 +872,12 @@ export function detox_prose(rawText, register = "plain") {
           "lungs still chasing the moment",
           "unable to find the bottom of a breath",
         ],
+        raw: ["heaving", "choking for air", "gasping hard", "sucking wind"],
+        clinical: ["oxygen depleted", "hyperventilating", "experiencing oxygen debt", "exhibiting rapid respiration"],
       },
     },
     {
-      regex: /\btracing lazy circles\b/gi,
+      regex: /\\btracing lazy circles\\b/gi,
       replace: {
         plain: ["drawing slow circles", "moving his fingers in loops", "tracing idle shapes", "brushing back and forth slowly"],
         ornate: [
@@ -713,10 +886,12 @@ export function detox_prose(rawText, register = "plain") {
           "tracing shapes with no destination in mind",
           "moving with the unhurried patience of someone in no rush to stop",
         ],
+        raw: ["rubbing slow, aimless circles", "dragging his fingers in slow loops", "sliding back and forth", "tracing heavy, slow lines"],
+        clinical: ["moving in slow circular patterns", "tracing repetitive motions", "applying slow friction", "moving at a low velocity"],
       },
     },
     {
-      regex: /\bdropping an octave\b/gi,
+      regex: /\\bdropping an octave\\b/gi,
       replace: {
         plain: ["voice dropping lower", "letting his voice go deep", "voice sinking down", "pitching his voice lower"],
         ornate: [
@@ -725,12 +900,14 @@ export function detox_prose(rawText, register = "plain") {
           "his tone sinking, deliberate and low",
           "letting the words come out an octave darker",
         ],
+        raw: ["letting his voice hit the floor", "dropping his tone heavy and low", "dragging his voice down", "going deep and rough"],
+        clinical: ["lowering vocal pitch significantly", "shifting to a lower frequency", "decreasing vocal range", "dropping audio frequency"],
       },
     },
 
     // 8. INTENSITY & VISUAL CLICHÉS
     {
-      regex: /\bpalpable\b/gi,
+      regex: /\\bpalpable\\b/gi,
       replace: {
         plain: ["obvious", "heavy in the air", "impossible to miss", "hard to ignore"],
         ornate: [
@@ -739,10 +916,12 @@ export function detox_prose(rawText, register = "plain") {
           "a weight the air itself seemed to carry",
           "unmistakable, the way a held breath is unmistakable",
         ],
+        raw: ["heavy enough to choke on", "crushing the air out of the room", "thick and suffocating", "pressing down hard"],
+        clinical: ["measurable", "clearly observable", "quantifiable", "distinctly present"],
       },
     },
     {
-      regex: /\btangible\b/gi,
+      regex: /\\btangible\\b/gi,
       replace: {
         plain: ["real", "solid", "concrete", "plain to see"],
         ornate: [
@@ -751,10 +930,12 @@ export function detox_prose(rawText, register = "plain") {
           "real in a way words rarely are",
           "present in the room like another body",
         ],
+        raw: ["hard and real", "heavy enough to feel", "solid enough to break against", "unavoidably real"],
+        clinical: ["verifiable", "concrete", "physical", "empirically observable"],
       },
     },
     {
-      regex: /\bshivering\s+shadows?\b/gi,
+      regex: /\\bshivering\\s+shadows?\\b/gi,
       replace: {
         plain: ["dark shadows", "shifting shadows", "moving shadows", "uneven shadows"],
         ornate: [
@@ -763,10 +944,12 @@ export function detox_prose(rawText, register = "plain") {
           "restless dark pooling at the edges",
           "gloom that shifts like something breathing",
         ],
+        raw: ["twitching shadows", "nervous dark spots", "jagged, moving shadows", "restless gloom"],
+        clinical: ["fluctuating low-light areas", "unstable silhouettes", "shifting occlusions", "variable shadow patterns"],
       },
     },
     {
-      regex: /\bfever\s+dream\b/gi,
+      regex: /\\bfever\\s+dream\\b/gi,
       replace: {
         plain: ["strange blur", "hazy mess", "disorienting scene", "surreal moment"],
         ornate: [
@@ -775,10 +958,12 @@ export function detox_prose(rawText, register = "plain") {
           "a dream wearing the mask of the waking world",
           "something too vivid to be entirely real",
         ],
+        raw: ["sick hallucination", "dizzying nightmare", "sweaty blur of a memory", "bad trip"],
+        clinical: ["disorienting sequence", "hallucinatory state", "altered perception event", "cognitive distortion"],
       },
     },
     {
-      regex: /\bsmudge\s+of\s+(charcoal|darkness)\b/gi,
+      regex: /\\bsmudge\\s+of\\s+(charcoal|darkness)\\b/gi,
       replace: {
         plain: ["dark shape", "shadowy outline", "dim silhouette", "shape in the dark"],
         ornate: [
@@ -787,10 +972,12 @@ export function detox_prose(rawText, register = "plain") {
           "a shape more suggested than seen",
           "a smear of night given rough form",
         ],
+        raw: ["heavy stain of dark", "bruise of a shadow", "dirty smear of black", "harsh outline in the gloom"],
+        clinical: ["low-contrast form", "indistinct silhouette", "obscured figure", "shadowed mass"],
       },
     },
     {
-      regex: /\bblindingly\s+white\s+grin\b/gi,
+      regex: /\\bblindingly\\s+white\\s+grin\\b/gi,
       replace: {
         plain: ["bright grin", "wide smile", "big grin", "toothy smile"],
         ornate: [
@@ -799,10 +986,12 @@ export function detox_prose(rawText, register = "plain") {
           "teeth flashing white against the dark",
           "a grin that seemed to throw its own light",
         ],
+        raw: ["harsh, bright smile", "teeth flashing sharp and white", "glaring grin", "stark, wide smile"],
+        clinical: ["high-contrast smile", "prominent dental display", "wide facial expression", "clearly visible grin"],
       },
     },
     {
-      regex: /\bshimmering\b/gi,
+      regex: /\\bshimmering\\b/gi,
       replace: {
         plain: ["glinting", "shining", "sparkling", "gleaming"],
         ornate: [
@@ -811,11 +1000,13 @@ export function detox_prose(rawText, register = "plain") {
           "glowing with a light that won't sit still",
           "lit with a glow that seems to breathe",
         ],
+        raw: ["flashing harsh light", "glaring bright", "spitting off sparks of light", "gleaming hard"],
+        clinical: ["reflecting light rapidly", "exhibiting high specular reflection", "fluctuating in brightness", "displaying optical interference"],
       },
     },
     // 9. BELLOW — loud, deep shout
     {
-      regex: /\bbellowed\b/gi,
+      regex: /\\bbellowed\\b/gi,
       replace: {
         plain: ["shouted", "roared", "yelled", "called out loudly"],
         ornate: [
@@ -824,10 +1015,12 @@ export function detox_prose(rawText, register = "plain") {
           "shook the air with his voice",
           "forced the words out in a roar",
         ],
+        raw: ["screamed it loud", "roared until his throat hurt", "busted the air open with a shout", "yelled hard enough to break glass"],
+        clinical: ["shouted at maximum volume", "vocalized forcefully", "produced a high-decibel shout", "projected at peak volume"],
       },
     },
     {
-      regex: /\bbellowing\b/gi,
+      regex: /\\bbellowing\\b/gi,
       replace: {
         plain: ["shouting", "roaring", "yelling loudly", "calling out"],
         ornate: [
@@ -836,10 +1029,12 @@ export function detox_prose(rawText, register = "plain") {
           "shaking the air with the volume",
           "forcing the sound out like a blow",
         ],
+        raw: ["screaming loud", "tearing his throat out roaring", "yelling at the top of his lungs", "blasting the air with a shout"],
+        clinical: ["shouting forcefully", "projecting at high volume", "vocalizing loudly", "producing high-decibel output"],
       },
     },
     {
-      regex: /\bbellows\b/gi,
+      regex: /\\bbellows\\b/gi,
       replace: {
         plain: ["shouts", "roars", "yells", "calls out"],
         ornate: [
@@ -848,18 +1043,22 @@ export function detox_prose(rawText, register = "plain") {
           "shakes the air with his voice",
           "forces the words out in a roar",
         ],
+        raw: ["screams loud", "roars hard", "yells at the top of his lungs", "blasts out a shout"],
+        clinical: ["shouts", "projects at peak volume", "vocalizes forcefully", "produces a high-decibel shout"],
       },
     },
     {
-      regex: /\bbellow\b/gi,
+      regex: /\\bbellow\\b/gi,
       replace: {
         plain: ["shout", "roar", "loud cry", "yell"],
         ornate: ["a sound torn straight from the chest", "a roar that shook the air", "a heavy, concussive shout", "a raw eruption of sound"],
+        raw: ["screaming shout", "throat-tearing roar", "deafening yell", "harsh blast of sound"],
+        clinical: ["high-decibel vocalization", "forceful shout", "loud acoustic output", "maximum volume projection"],
       },
     },
     // 10. BOOMING — deep, loud, resonant
     {
-      regex: /\bbooming\b/gi,
+      regex: /\\bbooming\\b/gi,
       replace: {
         plain: ["loud", "deep and loud", "deafening", "roaring"],
         ornate: [
@@ -868,10 +1067,12 @@ export function detox_prose(rawText, register = "plain") {
           "rolling like distant artillery",
           "carrying the weight of a falling vault",
         ],
+        raw: ["bone-rattling", "crushing and loud", "heavy enough to hurt your ears", "slamming into the room"],
+        clinical: ["high-amplitude", "highly resonant", "acoustically overwhelming", "low-frequency and high-decibel"],
       },
     },
     {
-      regex: /\bboomed\b/gi,
+      regex: /\\bboomed\\b/gi,
       replace: {
         plain: ["echoed loudly", "rang out loud", "sounded loud", "hit with a thud"],
         ornate: [
@@ -880,26 +1081,30 @@ export function detox_prose(rawText, register = "plain") {
           "hit with concussive force",
           "rang out heavy and dense",
         ],
+        raw: ["slammed into the silence", "crashed loud and heavy", "hit like a shockwave", "rang out hard enough to hurt"],
+        clinical: ["produced a high-amplitude echo", "resonated forcefully", "impacted with acoustic weight", "generated a concussive sound wave"],
       },
     },
     {
-      regex: /\bbooms\b/gi,
+      regex: /\\bbooms\\b/gi,
       replace: {
         plain: ["echoes loudly", "rings out loud", "sounds loud", "hits with a thud"],
         ornate: ["strikes the air like a blow", "rolls through the space", "hits with concussive force", "rings out heavy and dense"],
+        raw: ["slams hard", "crashes loud", "hits like a physical blow", "rings out deafeningly"],
+        clinical: ["produces a high-amplitude echo", "resonates heavily", "impacts with acoustic force", "generates concussive noise"],
       },
     },
     {
-      regex: /\bboom\b/gi,
+      regex: /\\bboom\\b/gi,
       replace: {
         plain: ["loud thud", "deep crash", "heavy impact", "loud noise"],
         ornate: ["a concussive shock", "a sound heavy enough to feel", "a sudden pressure in the air", "a deep, bone-rattling impact"],
+        raw: ["shockwave of sound", "crushing thud", "deafening crash", "bone-shaking impact"],
+        clinical: ["concussive acoustic event", "high-amplitude sound wave", "heavy acoustic impact", "low-frequency noise"],
       },
     },
     {
-      // NOTE: original regex only caught shiver/shivers/shivered — "shivering" (the
-      // most common form, arguably) was never matched at all. Added "ing" below.
-      regex: /\bshiver(s|ed|ing)?\b/gi,
+      regex: /\\bshiver(s|ed|ing)?\\b/gi,
       replace: (match, ...args) => {
         const p1 = args[0];
         const offset = args[args.length - 2];
@@ -936,9 +1141,22 @@ export function detox_prose(rawText, register = "plain") {
               "caught somewhere between each involuntary jolt",
             ],
           },
+          raw: {
+            "": ["flinch hard", "jolt", "spasm", "jerk"],
+            s: ["flinches violently", "jerks hard", "spasms", "jolts"],
+            ed: ["flinched hard", "spasmed", "jolted like he'd been hit", "jerked violently"],
+            ing: ["flinching continuously", "spasming", "jerking uncontrollably", "shaking hard"],
+          },
+          clinical: {
+            "": ["exhibit a tremor", "experience a spasm", "react involuntarily", "flinch"],
+            s: ["exhibits a tremor", "experiences a spasm", "reacts involuntarily", "flinches"],
+            ed: ["exhibited a tremor", "experienced a spasm", "reacted involuntarily", "flinched"],
+            ing: ["exhibiting tremors", "experiencing spasms", "reacting involuntarily", "flinching"],
+          },
         };
         const key = p1 === "s" || p1 === "ed" || p1 === "ing" ? p1 : "";
-        return match_case(match, stable_pick(forms[voice][key], match, offset));
+        const active_forms = forms[exact_voice] || forms[fallback_voice] || forms.plain;
+        return match_case(match, stable_pick(active_forms[key], match, offset));
       },
     },
   ];
@@ -950,7 +1168,7 @@ export function detox_prose(rawText, register = "plain") {
       if (typeof item.replace === "function") {
         return item.replace(match, ...args);
       }
-      return pick_replacement(match, item.replace, voice, offset);
+      return pick_replacement(match, item.replace, exact_voice, fallback_voice, offset);
     });
   }
 
@@ -959,13 +1177,13 @@ export function detox_prose(rawText, register = "plain") {
 
 /**
  * Picks a deterministic item from a flat array, or from pool[register] (falling back to
- * pool.plain, then pool.ornate) when given a { plain, ornate } pool object.
+ * pool[fallback_voice], then pool.plain) when given a { plain, ornate, raw, clinical } pool object.
  * Preserves capitalization of the matched text.
  */
-function pick_replacement(match, pool, register = "plain", offset = 0) {
+function pick_replacement(match, pool, exact_voice = "plain", fallback_voice = "plain", offset = 0) {
   if (!pool) return match;
   if (typeof pool === "string") return match_case(match, pool);
-  const list = Array.isArray(pool) ? pool : pool[register] || pool.plain || pool.ornate || [];
+  const list = Array.isArray(pool) ? pool : pool[exact_voice] || pool[fallback_voice] || pool.plain || [];
   if (!list.length) return match;
   return match_case(match, stable_pick(list, match, offset));
 }

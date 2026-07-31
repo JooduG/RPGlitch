@@ -194,23 +194,28 @@ export function wrap_dialogue(html) {
  * Priority: Entity Voice Register > Narrative Style Voice Register > "plain" (default)
  * @param {object|null} [entity] - Active character/user entity
  * @param {string|object|null} [narrativeStyle] - Active narrative style ID or style object
- * @returns {"plain"|"ornate"}
+ * @returns {"plain"|"ornate"|"raw"|"clinical"}
  */
 export function resolve_voice_register(entity = null, narrativeStyle = null) {
-  if (entity?.voice_register === "ornate" || entity?.voice_register === "plain") {
+  const valid_registers = ["plain", "ornate", "raw", "clinical"];
+
+  if (entity?.voice_register && valid_registers.includes(entity.voice_register)) {
     return entity.voice_register;
   }
+
   const styleObj = typeof narrativeStyle === "string" ? NARRATIVE_STYLES[narrativeStyle] : narrativeStyle;
-  if (styleObj?.voice_register === "ornate" || styleObj?.voice_register === "plain") {
+
+  if (styleObj?.voice_register && valid_registers.includes(styleObj.voice_register)) {
     return styleObj.voice_register;
   }
+
   return "plain";
 }
 
 /**
  * Master parser that runs all passes.
  * @param {string|null|undefined} rawText
- * @param {"plain"|"ornate"} [register="plain"]
+ * @param {"plain"|"ornate"|"raw"|"clinical"} [register="plain"]
  * @returns {{ displayText: string, think: string|null }}
  */
 export function parse_message(rawText, register = "plain") {

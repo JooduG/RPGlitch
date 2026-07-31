@@ -139,7 +139,9 @@ name (string), description (string), signature_color (string), eternal_physical 
 8. Style Honor Protocol: If <VISUAL_ENGINE> specifies an explicit artistic medium (e.g. oil painting, watercolor, pixel art), it dictates the absolute visual aesthetic. You MUST aggressively filter out any conflicting photographic, digital, or hyper-realistic terms from the subject's profile. Describe all subjects and environments strictly through the techniques of the requested medium.
 9. Gender Integrity Protocol: ALWAYS explicitly declare the subject's gender and masculine/feminine identifiers in the image prompt (e.g., "a handsome young male high-elf man", "a muscular male warrior"). Never omit explicit gender terms, especially for characters with slender or soft features.
 10. Proper Name Disambiguation: If a character's name is a generic animal/creature noun (e.g. "Beast"), DO NOT use the standalone proper name in the image prompt to avoid triggering furry/animal models. Instead, describe them strictly by their physical species and traits (e.g. "a massive grey-green male orc warrior").
-11. Pass designated negative tokens inside "negative_prompt".`,
+11. Prologue Scene Context Protocol: When creating a prologue image, the SCENE CONTEXT (the prologue message itself) is the absolute primary subject. You MUST depict exactly what is happening in the prologue message. The fractal and character profiles are only secondary references to accurately render how those entities look as they participate in that specific scene.
+12. Unique Feature Weighting: Allocate significantly more descriptive space and detail to unique, distinguishing visual features (e.g., elven ears, a lightning-shaped scar, glowing purple irises with black slit pupils). Keep description of common features (e.g., blonde hair, a plain shirt) brief.
+13. Pass designated negative tokens inside "negative_prompt".`,
   },
 
   // ── 7. Formatting & System Recovery ─────────────────────────────────────────
