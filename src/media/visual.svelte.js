@@ -373,9 +373,13 @@ export class VisualEngine {
     }
 
     try {
-      const ai = await this._resolveEntity(story.ai_id);
-      const user = await this._resolveEntity(story.user_id);
-      const fractal = await this._resolveEntity(story.fractal_id);
+      // FIX #1: Prefer live runtime entities (already mutated by Director) over
+      // stale Dexie DB reads. _resolveEntity() only loads the last-persisted snapshot
+      // and will miss mutations that haven't been flushed to the DB yet.
+      const runtime = state_bridge.runtime;
+      const ai = (runtime?.active_ai?.id === story.ai_id && runtime.active_ai) || (await this._resolveEntity(story.ai_id));
+      const user = (runtime?.active_user?.id === story.user_id && runtime.active_user) || (await this._resolveEntity(story.user_id));
+      const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this._resolveEntity(story.fractal_id));
 
       const system = PromptTemplates.BUILDER(v_target, visualPrompt, {
         ai,

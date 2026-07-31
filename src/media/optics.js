@@ -145,6 +145,39 @@ function build_aesthetic_map(entity = {}) {
   merge_input_source(eternal_obj, "eternal");
   merge_input_source(present_obj, "present");
 
+  // CLOTHING OVERRIDE PROTOCOL
+  // If present state declares clothing as None or Bare, strip all eternal clothing tags
+  const clothing_val = (merged.CLOTHING || merged.SHIRT || "").toString().toLowerCase();
+  if (clothing_val === "none" || clothing_val === "bare" || clothing_val === "naked") {
+    const clothing_keys = [
+      "SHIRT",
+      "PANTS",
+      "SUIT",
+      "JACKET",
+      "DRESS",
+      "SKIRT",
+      "COAT",
+      "SHOES",
+      "BOOTS",
+      "GLOVES",
+      "HAT",
+      "ARMOR",
+      "ROBE",
+      "CLOAK",
+      "BOTTOMS",
+      "TOPS",
+      "ACCESSORIES",
+    ];
+    for (const ck of clothing_keys) {
+      if (merged[ck] && merged[ck].toString().toLowerCase() !== clothing_val) {
+        // Only strip if this key was NOT explicitly defined in the present state
+        if (!(ck in present_obj)) {
+          delete merged[ck];
+        }
+      }
+    }
+  }
+
   const style_key = resolve_portrait_visual_style_key(entity);
   const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
   const engine_tokens = resolve_visual_engine_tokens(style_key);
@@ -320,11 +353,10 @@ export const PromptTemplates = {
 
     return `
 <SYSTEM role="SENSORY_CORTEX_V5">
-${ctxBlock}
 ${visual_engine_block}
 <PROTOCOL>
 ${PROTOCOL_LIBRARY.OPTICS.BUILDER_PROTOCOL}
-${targetType === "selfie" ? '5. Generate a short, in-character social media caption inside "caption".' : ""}
+${targetType === "selfie" ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
@@ -332,6 +364,7 @@ ${history ? `<HISTORY>\n${escape_xml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
 Input Intent: "${escape_xml(detox_prose(rawIntent))}"
 </INSTRUCTIONS>
+${ctxBlock}
 
 JSON STRUCTURE:
 {

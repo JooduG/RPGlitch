@@ -5,11 +5,11 @@
  * Single source of truth for all reusable AI prompt directives.
  */
 
-// ── Base Foundations ─────────────────────────────────────────────────────────
+// ── Shared Base Foundations ──────────────────────────────────────────────────
 const BASE_HYGIENE = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
 const BASE_THINK_CLOSURE = "Conduct thinking in the conversation language. Close with </think> before narrative prose.";
 
-const MACROS = {
+export const MACROS = {
   CHARACTER: "Use placeholder macros for entities: '{{me}}' (self), '{{you}}' (user persona), '{{fractal}}' (setting). Never hardcode names.",
   FRACTAL:
     "Use placeholder macros for entities: '{{user}}' (user persona), '{{char}}' (AI character), '{{fractal}}' (setting). Never hardcode names.",
@@ -17,19 +17,19 @@ const MACROS = {
 
 // ── Main Export Catalog ───────────────────────────────────────────────────────
 export const PROTOCOL_LIBRARY = {
-  // ── 1. Core Hygiene & Output Mechanics ─────────────────────────────────────
+  // ── 1. Core Output Mechanics & Hygiene ──────────────────────────────────────
   HYGIENE: {
     PROSE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality. Use metric system & 24h clocks.`,
-    BANNED_TROPES:
-      "Never use overused AI prose tropes like 'hum/humming', 'murmur/murmuring', 'ozone', 'testament to', 'rich tapestry', 'symphony of', 'coiled spring', or 'a study in'. Write concrete physical actions and grounded dialogue.",
-    DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
     CONCISENESS:
       "Use impactful, concise prose. Avoid purple prose, redundant adjectives, and flowery descriptions. Every sentence must carry narrative weight.",
     AFFIRMATIVE: "Construct sentences in the affirmative. State what IS, not what isn't.",
     MARKDOWN: 'Use markdown strategically: *italics* for internal reflections/tension; **bold** for impact/intense actions; "quotes" for speech.',
+    DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
+    BANNED_TROPES:
+      "Never use overused AI prose tropes (e.g., 'hum/humming', 'murmur/murmuring', 'air tastes of ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth'). Write concrete, grounded physical actions.",
   },
 
-  // ── 2. Narrative Agency & POV ───────────────────────────────────────────────
+  // ── 2. Narrative Agency & Perspective ──────────────────────────────────────
   AGENCY: {
     USER_BOUNDARIES:
       "Never predict, assume, or generate the user's next action. React ONLY to <USER_ACTION>. Never describe user thoughts, feelings, or reactions. Write your turn. Stop.",
@@ -54,7 +54,7 @@ export const PROTOCOL_LIBRARY = {
       "CRITICAL MANDATE: You are the <FRACTAL> (world/narrator). Write strictly in third-person omniscient narrator POV. NEVER write in first-person.",
   },
 
-  // ── 3. Cognition & Perception ──────────────────────────────────────────────
+  // ── 3. Cognition & World Physics ───────────────────────────────────────────
   COGNITION: {
     PHASES: `Document internal calculations sequentially inside <think>:
 Phase 1 (Baseline): Establish identity, emotional state, and psychological vectors.
@@ -67,18 +67,15 @@ Keep each phase under 3 sentences. Total think block < 200 words.`,
   },
 
   EPISTEMIC_PHYSICS: {
-    RULES: `1. Perception ends at sensory horizon (sight, sound, feeling). Nothing beyond.
-2. User's unvoiced thoughts and plans are Null Data; treat as nonexistent.
-3. Interpret others strictly through internal emotional filters, never omniscient clarity.
-4. Maintain physical boundaries. Avoid constant proximity encroachment or unprovoked intimidation.
-5. Prioritize specific, localized object interactions over repeated physical posture shifts (e.g., shifting weight, crossing arms, clenching jaw). Never repeat physical posture tags in consecutive turns.
-6. Let certainty and regulation attributes color processing naturally without explicit naming.
-7. Express emotion through observable physical behaviors, micro-actions, and tone shifts.
-8. Avoid clichéd AI prose tropes (e.g., 'humming/hum', 'murmuring/murmur', 'air tastes of ozone', 'testament to', 'tapestry of', 'coiled spring', 'marrow of the teeth'). Write vivid, grounded, unique sensory observations.
-9. Refrain from repetitive or dramatic action phrasing (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward', 'with a sudden [movement]', or constantly 'shifting weight'). Favor varied, nuanced physical descriptions over predictable action beats.`,
+    RULES: `1. Sensory Boundary: Perception ends at sensory horizon (sight, sound, touch). Unvoiced thoughts are Null Data.
+2. Perspective Isolation: Interpret others strictly through personal emotional filters, never omniscient clarity.
+3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging (e.g., shifting weight, crossing arms).
+4. Concrete Interaction: Prioritize localized object interactions over repetitive physical gestures. Never repeat posture tags in consecutive turns.
+5. Emotion Mapping: Express emotion strictly through observable micro-actions, physical choices, and tone shifts.
+6. Action Dynamics: Avoid formulaic action beats (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward'). Favor varied physical descriptions.`,
   },
 
-  // ── 4. Scene Orchestration ─────────────────────────────────────────────────
+  // ── 4. Scene Orchestration & Dynamic Profiles ───────────────────────────────
   SCENE: {
     PROLOGUE: `You see everything. Open the scene. Use <think> to establish: What does this Fractal demand? What brought <AI_CHARACTER> and <USER_PERSONA> here? Unless context explicitly states otherwise, treat as strangers.
 Narrative Sequence:
@@ -90,7 +87,6 @@ No dialogue.`,
     EPILOGUE: `You see everything. Close the scene. Use <think> to evaluate unresolved threads and active <FUTURE> vectors (fulfilled, fractured, or transformed). Write the epilogue resolving these ends. Show concrete aftermath and physical changes. End on lingering sensation, not summary. No dialogue.`,
   },
 
-  // ── 5. Profile Ingestion & Dynamic State ───────────────────────────────────
   PROFILE: {
     SCHEMA: `Extract and sort raw text into a flat JSON object with keys:
 name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).
@@ -116,7 +112,7 @@ name (string), description (string), signature_color (string), eternal_physical 
     },
   },
 
-  // ── 6. Visual Engine & Optics Protocols ────────────────────────────────────
+  // ── 5. Visual Engine & Image Generation (Optics) ────────────────────────────
   OPTICS: {
     KEYWORD_INTEGRITY:
       "NEVER output quality buzzwords ('masterpiece', '8K resolution', 'ultra HD'). Ground outputs using physical optics and real-world materials.",
@@ -129,23 +125,33 @@ name (string), description (string), signature_color (string), eternal_physical 
 3. Quality Standard: Enforce KEYWORD_INTEGRITY and NATURAL_PROSE.
 4. Reasoning: Write step-by-step composition plan inside "_thought_process" key before prompt output.`,
 
-    BUILDER_PROTOCOL: `1. Formulate visual plan inside "_thought_process" key first.
-2. Synthesize final image prompt inside "prompt" as continuous descriptive prose.
-3. Subject-First Prompt Structure: For "characters" and "prologue" modes, ALWAYS put the main characters and their active physical interaction/positions IN THE FIRST SENTENCE of the prompt. Describe character appearances, poses, and spatial layout BEFORE environmental background details.
-4. Spatial & Positioning Fidelity: Strictly preserve character elevations, relative distances, camera angles, and spatial relationships described in <INSTRUCTIONS>. If a character is described as perched in a balcony, viewing from above, or positioned in shadow, depict that exact spatial layout rather than placing characters side-by-side in the foreground.
-5. Action & Environment Grounding: Focus on the active narrative moment, capturing exact environmental structures, light sources, objects held, and physical interactions.
-6. Incorporate medium, palette, camera, and texture directives from <VISUAL_ENGINE>.
-7. Color Honor Protocol: If <VISUAL_ENGINE> specifies a monochrome or limited color palette (e.g. charcoal, graphite, cyanotype blueprint, sepia), DO NOT include conflicting color words (such as neon green, violet, magenta) in the prompt output.
-8. Style Honor Protocol: If <VISUAL_ENGINE> specifies an explicit artistic medium (e.g. oil painting, watercolor, pixel art), it dictates the absolute visual aesthetic. You MUST aggressively filter out any conflicting photographic, digital, or hyper-realistic terms from the subject's profile. Describe all subjects and environments strictly through the techniques of the requested medium.
-9. Gender Integrity Protocol: ALWAYS explicitly declare the subject's gender and masculine/feminine identifiers in the image prompt (e.g., "a handsome young male high-elf man", "a muscular male warrior"). Never omit explicit gender terms, especially for characters with slender or soft features.
-10. Proper Name Disambiguation: If a character's name is a generic animal/creature noun (e.g. "Beast"), DO NOT use the standalone proper name in the image prompt to avoid triggering furry/animal models. Instead, describe them strictly by their physical species and traits (e.g. "a massive grey-green male orc warrior").
-11. Prologue Scene Context Protocol: When creating a prologue image, the SCENE CONTEXT (the prologue message itself) is the absolute primary subject. You MUST depict exactly what is happening in the prologue message. The fractal and character profiles are only secondary references to accurately render how those entities look as they participate in that specific scene.
-12. Unique Feature Weighting: Allocate significantly more descriptive space and detail to unique, distinguishing visual features (e.g., elven ears, a lightning-shaped scar, glowing purple irises with black slit pupils). Keep description of common features (e.g., blonde hair, a plain shirt) brief.
-13. Present State Recency & Clothing Override Protocol: Dynamic physical condition updates, active scene context, and appended physical state changes (e.g., discarded clothing, bare torso, torn fabric, active injuries) MUST explicitly OVERRIDE static XML key tags like <SHIRT>, <JACKET>, or <CLOTHING>. If a character has discarded an item of clothing or is described as bare-chested in physical condition updates, NEVER depict them wearing that discarded item.
-14. Pass designated negative tokens inside "negative_prompt".`,
+    BUILDER_PROTOCOL: `EXECUTE VISUAL SYNTHESIS IN 5 ORDERED PHASES:
+
+PHASE 1: EXECUTION & OUTPUT STRUCTURE
+- Formulate composition strategy inside "_thought_process" key first.
+- Output final image prompt inside "prompt" as continuous, fluid prose.
+- Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY (no buzzwords like 'masterpiece' or '8K').
+
+PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
+- FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
+- Spatial Geometry: Strictly enforce camera angles, elevations (e.g., balconies), lighting positions, and distance.
+- Prologue Priority: In prologue mode, the primary active scene message overrides static lore. Render what is happening NOW.
+
+PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
+- Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
+- Animal/Creature Disambiguation: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").
+- Feature Weighting: Dedicate maximum descriptive effort to unique features (scars, glowing eyes, horns); keep common traits brief.
+- Dynamic State Override: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.
+
+PHASE 4: STYLE & MEDIUM DISCIPLINE
+- Medium Authority: Directives in <VISUAL_ENGINE> (e.g., oil painting, pixel art, charcoal) dictate absolute style. Strip out conflicting photorealistic terms.
+- Palette Strictness: Strict medium palettes (monochrome, sepia, cyanotype) override conflicting color terms.
+
+PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
+- Ground scenes through real-world light sources, physical textures, and concrete environmental geometry rather than abstract concepts.`,
   },
 
-  // ── 7. Formatting & System Recovery ─────────────────────────────────────────
+  // ── 6. Formats & System Recovery ───────────────────────────────────────────
   FORMATS: {
     JSON_ONLY: "Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.",
     ENHANCE_IMAGE: 'Return pseudo-JSON property lines: "key": "value", — No outer braces. Commas inside values must have spaces. No code blocks.',

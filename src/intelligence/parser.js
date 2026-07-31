@@ -353,9 +353,47 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
     .replace(/,\s*,+/g, ",")
     .trim();
 
-  // Apply structured key updates
+  // Apply structured key updates in sequence to respect hierarchy
   for (const { key, val } of key_updates) {
     let target_key = key;
+
+    // Clothing override protocol: if CLOTHING or specific items are None/Bare/Naked/Off/Removed, strip them from present state
+    const is_bare_val = ["none", "bare", "naked", "off", "removed", "disrobed"].includes(val.toLowerCase());
+    const clothing_keys = [
+      "SHIRT",
+      "PANTS",
+      "SUIT",
+      "JACKET",
+      "DRESS",
+      "SKIRT",
+      "COAT",
+      "SHOES",
+      "BOOTS",
+      "GLOVES",
+      "HAT",
+      "ARMOR",
+      "ROBE",
+      "CLOAK",
+      "BOTTOMS",
+      "TOPS",
+      "ACCESSORIES",
+    ];
+
+    if (key === "CLOTHING" && is_bare_val) {
+      for (const ck of clothing_keys) {
+        if (parsed[ck]) {
+          delete parsed[ck];
+        }
+      }
+      parsed["CLOTHING"] = val;
+      continue;
+    }
+
+    if (clothing_keys.includes(key) && is_bare_val) {
+      delete parsed[key];
+      continue;
+    }
+
     if (key === "CLOTHING" && parsed.SHIRT) target_key = "SHIRT";
     if (key === "SHIRT" && parsed.CLOTHING) target_key = "CLOTHING";
     parsed[target_key] = val;

@@ -367,6 +367,23 @@ export function apply_state_mutations(entity, mutations, session = null) {
     });
   }
 
+  // FIX #2: Immediately flush the mutated present state back to Dexie so that
+  // any code path that reads from the DB (e.g. _resolveEntity fallback in
+  // visual.svelte.js) also sees the updated clothing/condition state.
+  // Fire-and-forget: keep this function synchronous for callers.
+  if (changed && entity.id) {
+    const type = entity.type === "fractal" ? "fractal" : "character";
+    state_bridge.runtime
+      ?.update_entity?.(type, entity.id, {
+        present: entity.present,
+        past: entity.past,
+        future: entity.future,
+      })
+      ?.catch((err) => {
+        console.warn("[TemporalEngine] Failed to flush present state to DB:", err);
+      });
+  }
+
   return changed;
 }
 

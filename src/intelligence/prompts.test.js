@@ -775,8 +775,8 @@ describe("prompt_builder (Refactored)", () => {
     it("includes the cognitive ground instruction in EPISTEMIC_PHYSICS", () => {
       const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.task).toContain("certainty and regulation attributes color");
-      expect(result.task).toContain("without explicit naming");
+      expect(result.task).toContain("Sensory Boundary:");
+      expect(result.task).toContain("Perspective Isolation:");
     });
 
     it("includes DYNAMICS_CALIBRATION block in FRACTAL_FEED when dynamics are present", () => {

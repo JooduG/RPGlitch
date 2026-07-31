@@ -30,14 +30,14 @@ const DIRECTOR_JSON_SCHEMA = `{
   "trigger_image": false,
   "mutations": {
     "AI_CHARACTER": {
-      "present_append_physical": "New physical changes (e.g. bleeding), or empty string.",
+      "present_append_physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none] [CLOTHING: bare] [PANTS: unzipped/exposed]), or empty string.",
       "present_append_non_physical": "Immediate internal shifts or emotional reactions, or empty string.",
       "resolve_vectors": [ { "id": "<vector_id>", "resolution_summary": "Summary of resolution." } ],
       "new_vectors": [ { "content": "New goal, event, or prophecy" } ],
       "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
     },
     "USER_PERSONA": {
-      "present_append_physical": "",
+      "present_append_physical": "New physical changes (e.g. [SHIRT: none] [CLOTHING: bare]), or empty string.",
       "present_append_non_physical": "",
       "resolve_vectors": [],
       "new_vectors": []
