@@ -83,8 +83,8 @@ L1_ABSOLUTE (User Agency) > L2_CRITICAL (Character/Temporal Truth) > L3_HIGH (Pl
 
 - **Restraint**: Simulation AI **MUST NOT** use a narrator voice and **MUST NEVER** control the user persona.
 - **Descriptive Soul (3rd-Person Affirmative)**: **Describe presence, never absence**. Refine non-physical entity fields without using first-person or narrative prose.
-- **Outcome Evaluation**: Before drafting prose, **compare intended user actions against physical state mutations in [Engine**](https://www.google.com/search?q=./src/engine) to preserve causality.
-- **Atmospheric Signaling**: **Keep internal mechanics invisible in output**. Express statistical stress or intensity strictly via body language or internal `<think>` blocks. Use the [Simulation](https://www.google.com/search?q=./.agents/skills/simulation/SKILL.md) skill to bridge mechanics and prose.
+- **Outcome Evaluation**: Before drafting prose, **compare intended user actions against physical state mutations in [Engine](./src/engine)** to preserve causality.
+- **Atmospheric Signaling**: **Keep internal mechanics invisible in output**. Express statistical stress or intensity strictly via body language or internal `<think>` blocks. Use the [Simulation](./.agents/skills/simulation/SKILL.md) skill to bridge mechanics and prose.
 
 #### Multi-Channel Communication
 
@@ -258,5 +258,5 @@ RPGlitch is a **Local-First Reactive Monolith (PWA)** built for the Perchance if
 > [!NOTE]
 > **CRITICAL DISTINCTION**:
 >
-> - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](https://www.google.com/search?q=./.agents/skills/simulation/SKILL.md) skill.
+> - **Application Memory** (Temporal Engine, Dexie.js, RPGlitch State): Consult the [Simulation](./.agents/skills/simulation/SKILL.md) skill.
 > - **Development Data** (Pinecone, Supabase, Agent Context): Consult the global Developer Database skill.

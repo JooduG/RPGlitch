@@ -3,18 +3,18 @@ import { VISUAL_STYLES } from "./visual-styles.js";
 import { parse_visual_engine } from "../../media/optics.js";
 
 describe("VISUAL_STYLES Preset Registry", () => {
-  it("exports all expected visual styles including lego_bricks and concept_art", () => {
+  it("exports all expected visual styles including lego and concept", () => {
     expect(VISUAL_STYLES.none).toBeDefined();
-    expect(VISUAL_STYLES.lego_bricks).toBeDefined();
-    expect(VISUAL_STYLES.concept_art).toBeDefined();
-    expect(VISUAL_STYLES.surveillance_footage).toBeDefined();
-    expect(VISUAL_STYLES.amateur_snap).toBeDefined();
+    expect(VISUAL_STYLES.lego).toBeDefined();
+    expect(VISUAL_STYLES.concept).toBeDefined();
+    expect(VISUAL_STYLES.cctv).toBeDefined();
+    expect(VISUAL_STYLES.amateur).toBeDefined();
     expect(VISUAL_STYLES.steampunk).toBeDefined();
   });
 
   it("configures lego_bricks with plastic studs and minifigure proportions", () => {
-    const lego = VISUAL_STYLES.lego_bricks;
-    expect(lego.id).toBe("lego_bricks");
+    const lego = VISUAL_STYLES.lego;
+    expect(lego.id).toBe("lego");
     expect(lego.name).toContain("LEGO");
     expect(lego.tags).toContain("lego");
     expect(lego.tags).toContain("minifigure");
@@ -27,20 +27,20 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(parsed.texture).toContain("studs");
   });
 
-  it("configures concept_art with digital speedpaint and ArtStation key art", () => {
-    const concept = VISUAL_STYLES.concept_art;
-    expect(concept.id).toBe("concept_art");
+  it("configures concept_art with multiple angles and design sheet layout", () => {
+    const concept = VISUAL_STYLES.concept;
+    expect(concept.id).toBe("concept");
     expect(concept.tags).toContain("concept_art");
-    expect(concept.tags).toContain("artstation");
-    expect(concept.visual_engine).toContain("ArtStation");
+    expect(concept.tags).toContain("model_sheet");
+    expect(concept.visual_engine).toContain("exploratory");
 
     const parsed = parse_visual_engine(concept.visual_engine);
-    expect(parsed.medium).toContain("concept art");
-    expect(parsed.texture).toContain("brush strokes");
+    expect(parsed.medium).toContain("production design sheet");
+    expect(parsed.texture).toContain("pencil strokes");
   });
 
   it("configures surveillance_footage with glitch artifacts and scanline stripes", () => {
-    const cctv = VISUAL_STYLES.surveillance_footage;
+    const cctv = VISUAL_STYLES.cctv;
     expect(cctv.tags).toContain("scanlines");
     expect(cctv.tags).toContain("glitch");
     expect(cctv.tags).toContain("striped_artifacts");
@@ -53,7 +53,7 @@ describe("VISUAL_STYLES Preset Registry", () => {
   });
 
   it("configures amateur_snap with mirror_selfie tag and casual unremarkable tokens", () => {
-    const snap = VISUAL_STYLES.amateur_snap;
+    const snap = VISUAL_STYLES.amateur;
     expect(snap.tags).toContain("mirror_selfie");
     expect(snap.tags).toContain("unremarkable");
     expect(snap.tags).toContain("casual");
@@ -88,7 +88,7 @@ describe("VISUAL_STYLES Preset Registry", () => {
   });
 
   it("configures vhs_found_footage with uncanny mysterious unexplained glitch artifacts and static blur", () => {
-    const vhs = VISUAL_STYLES.vhs_found_footage;
+    const vhs = VISUAL_STYLES.vhs;
     expect(vhs.tags).toContain("uncanny");
     expect(vhs.tags).toContain("mysterious");
     expect(vhs.tags).toContain("blurry");
