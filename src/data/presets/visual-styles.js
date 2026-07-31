@@ -141,7 +141,8 @@ export const VISUAL_STYLES = {
 <camera>35mm anamorphic prime lens, shallow depth of field, optical lens flare, dramatic wide-angle perspective</camera>
 <texture>subtle organic 35mm film grain, atmospheric volumetric dust haze, rich specular highlights</texture>
 </VISUAL_ENGINE>`,
-    negative_prompt: "amateur photo, flat lighting, 2d drawing, cartoon, anime, low poly, noisy, distorted features, raw snapshot, vector, illustration, 3d render, painting, cel-shaded, cctv, surveillance",
+    negative_prompt:
+      "amateur photo, flat lighting, 2d drawing, cartoon, anime, low poly, noisy, distorted features, raw snapshot, vector, illustration, 3d render, painting, cel-shaded, cctv, surveillance",
   },
 
   noir: {
@@ -158,7 +159,8 @@ export const VISUAL_STYLES = {
 <camera>35mm vintage camera, hard-edge shadows, chiaroscuro lighting, dutch angle tilt</camera>
 <texture>organic medium film grain, cigarette smoke haze, wet pavement reflections</texture>
 </VISUAL_ENGINE>`,
-    negative_prompt: "color, vibrant, saturated, modern, digital, anime, cartoon, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
+    negative_prompt:
+      "color, vibrant, saturated, modern, digital, anime, cartoon, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
   },
 
   polaroid: {
@@ -174,7 +176,8 @@ export const VISUAL_STYLES = {
 <camera>Leica rangefinder, 35mm f/2.0 lens, soft focal edge roll-off</camera>
 <texture>authentic 35mm film stock grain, subtle light leak anomalies, soft shadow roll-off</texture>
 </VISUAL_ENGINE>`,
-    negative_prompt: "digital, glossy, 3d render, anime, harsh digital sharpness, vector, cgi, black and white, monochrome, cartoon, illustration, drawing, painting, cel-shaded, cctv, surveillance",
+    negative_prompt:
+      "digital, glossy, 3d render, anime, harsh digital sharpness, vector, cgi, black and white, monochrome, cartoon, illustration, drawing, painting, cel-shaded, cctv, surveillance",
   },
 
   vhs: {
