@@ -203,14 +203,37 @@ export const llm_service = {
         if (options.onToken) options.onToken(chunk);
       };
 
-      // 5. Execute via our securely resolved engine instance
+      // 5. Execute via our securely resolved engine instance.
+      //    The Perchance ai-text-plugin returns a thenable that also exposes a
+      //    `.stop()` method to halt streaming server-side. It does NOT honor
+      //    AbortSignal, so we wire the caller's signal to `.stop()` manually.
       let result;
+      let abort_listener = null;
       try {
-        result = await ai_engine(instruction, {
+        const generation = ai_engine(instruction, {
           ...gen_options,
           onToken: on_chunk,
           onChunk: on_chunk,
         });
+        // Bridge AbortSignal -> plugin .stop(). The plugin's thenable carries
+        // a .stop() that posts a stopStream message to its worker iframe.
+        if (options.signal && typeof generation?.stop === "function") {
+          if (options.signal.aborted) {
+            generation.stop();
+          } else {
+            abort_listener = () => generation.stop();
+            options.signal.addEventListener("abort", abort_listener);
+          }
+        }
+        result = await generation;
+        // .stop() resolves the promise with partial text (stopReason:"user")
+        // rather than rejecting. Convert to AbortError so the orchestrator's
+        // catch block treats it as a clean interrupt and skips memory commit.
+        if (options.signal?.aborted) {
+          const err = new Error("Generation aborted by caller.");
+          err.name = "AbortError";
+          throw err;
+        }
       } catch (cloneErr) {
         if (String(cloneErr).includes("DataClone") || String(cloneErr).includes("could not be cloned")) {
           console.warn("[llm_service] Cross-origin function proxy rejected streaming callbacks. Retrying without stream.");
@@ -220,11 +243,20 @@ export const llm_service = {
         } else {
           throw cloneErr;
         }
+      } finally {
+        if (abort_listener && options.signal) {
+          options.signal.removeEventListener("abort", abort_listener);
+        }
       }
 
       // Stream is left active so orchestrator can gracefully hand off to permanent log
 
-      // 6. Sanitize unless caller opted out with raw: true
+      // 6. Coerce String object from ai-text-plugin to primitive, then sanitize
+      //    The plugin returns `new String(text)` with extra props (.text, .stopReason, etc.)
+      //    typeof check fails for String objects, so sanitization was silently skipped.
+      if (result != null && typeof result !== "string") {
+        result = String(result.text ?? result.generatedText ?? result);
+      }
       if (typeof result === "string" && !options.raw) {
         result = sanitize_llm(result);
       }

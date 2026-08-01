@@ -382,6 +382,7 @@
           onfocus={handle_focus}
           onblur={handle_blur}
           onkeydown={handle_textarea_keydown}
+          {oninput}
           use:use_actions={actions}
           disabled={is_disabled}
           use:auto_resize={{ sync_id }}

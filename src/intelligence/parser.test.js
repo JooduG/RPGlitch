@@ -323,10 +323,10 @@ describe("safe_parse_pseudo_json", () => {
     });
   });
 
-  it("should return empty object for regular prose containing colons", () => {
+  it("should return raw-prose sentinel for regular prose containing colons", () => {
     const input = "Beneath his playful teasing: lies a sharp wound.";
     const result = safe_parse_pseudo_json(input);
-    expect(result).toEqual({});
+    expect(result).toEqual({ __raw_prose__: "Beneath his playful teasing: lies a sharp wound." });
   });
 });
 

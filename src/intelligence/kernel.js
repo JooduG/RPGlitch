@@ -668,6 +668,10 @@ export const gamemaster = {
     try {
       return await fn();
     } catch (error) {
+      // Never retry user-initiated interrupts — let them bubble up immediately.
+      const is_abort =
+        error?.name === "AbortError" || error?.message?.includes("aborted") || String(error) === "Error: Generation aborted by caller.";
+      if (is_abort) throw error;
       if (retries === 0) throw error;
       state_bridge.app.log(`[GameMaster] Connection issue. Retrying in ${delay}ms... (${retries} attempts left)`, "warn");
 

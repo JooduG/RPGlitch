@@ -190,12 +190,7 @@
         }
       }
 
-      const existing = await runtime.get_entity(type, entity.id);
-      if (existing) {
-        await runtime.update_entity(type, entity.id, entity);
-      } else {
-        await runtime.save_entity(type, entity);
-      }
+      await runtime.save_entity(type, entity);
     }
   }
 </script>
@@ -204,7 +199,7 @@
   <Modal
     variant="bare"
     z_index="1000"
-    class="w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-[color-mix(in_srgb,var(--color-slate-950)_95%,transparent)] p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)]"
+    class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
     busy={is_loading}
     on_close={() => (open = false)}
   >

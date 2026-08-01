@@ -310,8 +310,8 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   const parsed = safe_parse_pseudo_json(current_field_value);
   const clean_new_prose = new_prose.trim();
 
-  // Plain prose field
-  if (!parsed || Object.keys(parsed).length === 0) {
+  // Plain prose field (no structured keys, or raw-prose sentinel from safe_parse_pseudo_json)
+  if (!parsed || parsed.__raw_prose__ || Object.keys(parsed).length === 0) {
     const existing = (current_field_value || "").trim();
     let result = !existing ? clean_new_prose : `${existing}\n${clean_new_prose}`;
     if (result.length > MAX_FIELD_CHARS) {
