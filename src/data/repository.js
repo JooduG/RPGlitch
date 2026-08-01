@@ -224,7 +224,14 @@ export const stories = {
 export function prune(vectors, type) {
   if (!Array.isArray(vectors)) return [];
   const limit = type === "past" ? 3 : 1;
-  return vectors.slice(0, limit).map((/** @type {any} */ v) => v.directive || v.text || v.content || v.summary || v);
+  return vectors.slice(0, limit).map((/** @type {any} */ v) => ({
+    id: v.id,
+    content: v.content || v.directive || v.text || v.summary || "",
+    directive: v.directive || v.content || v.text || "",
+    emotional_weight: v.emotional_weight ?? 5,
+    type: v.type || type,
+    meta: v.meta || {},
+  }));
 }
 
 /**

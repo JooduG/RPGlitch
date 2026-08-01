@@ -54,10 +54,15 @@ export function sanitize_llm(text) {
  ************************************************************************************/
 
 let _resolved_ai_engine = null;
+let _engine_check_count = 0;
 
 function get_ai_engine() {
-  if (_resolved_ai_engine) return _resolved_ai_engine;
+  if (_resolved_ai_engine) {
+    if (typeof _resolved_ai_engine === "function") return _resolved_ai_engine;
+    _resolved_ai_engine = null;
+  }
 
+  _engine_check_count++;
   if (typeof window === "undefined") return null;
   try {
     if (typeof window.generate_text === "function") return (_resolved_ai_engine = window.generate_text);

@@ -120,7 +120,7 @@ describe("validation.js", () => {
        *
        */
       async bytes() {
-        return new Uint8Array(await this.array_buffer());
+        return new Uint8Array(await this.arrayBuffer());
       }
       /**
        *
@@ -137,12 +137,12 @@ describe("validation.js", () => {
        *
        */
       async text() {
-        return new TextDecoder().decode(await this.array_buffer());
+        return new TextDecoder().decode(await this.arrayBuffer());
       }
       /**
        *
        */
-      async array_buffer() {
+      async arrayBuffer() {
         const combined = new Uint8Array(this.parts.reduce((acc, p) => acc + p.byteLength, 0));
         let offset = 0;
         for (const part of this.parts) {

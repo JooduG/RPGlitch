@@ -686,7 +686,7 @@ class AudioEffectsEngine {
             try {
               const response = await fetch(url);
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-              const array_buffer = await response.array_buffer();
+              const array_buffer = await response.arrayBuffer();
               const decoded = await new Promise((resolve, reject) => {
                 const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(array_buffer, resolve, reject);
                 if (promise) promise.then(resolve).catch(reject);

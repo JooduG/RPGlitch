@@ -52,14 +52,21 @@ export async function load_model() {
       return _pipeline;
     } catch (err) {
       console.error("[Embeddings] Failed to load model:", err);
-      _model_ready = true;
-      _load_progress = 100;
+      _model_ready = false;
+      _load_progress = 0;
+      _pipeline = null;
       throw err;
     } finally {
       _is_loading = false;
-      _loading = null;
     }
   })();
+
+  // Clear _loading only after the promise chain fully resolves/rejects so
+  // concurrent callers share the same in-flight load and a new call right
+  // after finally doesn't start a duplicate.
+  _loading = _loading.finally(() => {
+    _loading = null;
+  });
 
   return _loading;
 }
@@ -130,10 +137,12 @@ export function cosine_similarity(a, b) {
  * @returns {Promise<Float32Array | null>}
  */
 export async function ensure_embedding(vector) {
-  if (!vector || !vector.directive) return null;
+  if (!vector) return null;
+  const text = vector.directive || vector.content || vector.text || "";
+  if (!text) return null;
   if (vector._embedding && vector._embedding.length === EMBED_DIM) return vector._embedding;
 
-  const embedding = await embed(vector.directive);
+  const embedding = await embed(text);
   if (embedding) {
     vector._embedding = embedding;
   }

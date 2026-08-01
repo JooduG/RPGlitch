@@ -31,6 +31,7 @@ vi.mock("@intelligence/embeddings.svelte.js", () => ({
   score_by_semantics: vi.fn(async (vectors) => vectors.map((v) => ({ vector: v, similarity: 0 }))),
   cosine_similarity: vi.fn(() => 0.5),
   embed: vi.fn(async () => new Float32Array(384)),
+  is_ready: vi.fn(() => false),
 }));
 
 describe("temporal_engine", () => {

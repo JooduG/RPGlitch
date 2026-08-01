@@ -193,8 +193,10 @@ export const session_driver = {
     }
     if (meta && meta.id) {
       entry.id = meta.id;
+      await db.simulation_log.put(entry);
+    } else {
+      entry.id = await db.simulation_log.add(entry);
     }
-    entry.id = await db.simulation_log.add(entry);
     state_bridge.simulation_log.add(entry);
     return entry;
   },

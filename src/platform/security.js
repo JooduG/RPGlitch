@@ -22,7 +22,7 @@ export const sanitize_to_fragment = (dirty) => {
 /**
  * @param {any} str
  */
-export const escape = (str) => {
+export const escape_html = (str) => {
   if (str === null || str === undefined) return "";
   return String(str).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
 };
@@ -34,8 +34,21 @@ export const escape = (str) => {
 export const check_refusal = (text) => {
   if (!text) return false;
   const lower = String(text).toLowerCase();
-  const REFUSAL_TRIGGERS = ["i cannot", "i can't", "cannot generate", "policy", "guidelines", "sorry, but"];
-  return REFUSAL_TRIGGERS.some((trigger) => lower.includes(String(trigger).toLowerCase()));
+  const REFUSAL_TRIGGERS = [
+    "i cannot generate",
+    "i can't generate",
+    "i'm unable to assist",
+    "i am unable to assist",
+    "as an ai",
+    "as a language model",
+    "i'm sorry, but i can",
+    "i can't help with that",
+    "i cannot help with that",
+    "i'm not able to provide",
+    "i am not able to provide",
+    "i cannot create content that",
+  ];
+  return REFUSAL_TRIGGERS.some((trigger) => lower.includes(trigger));
 };
 /**
  * Validates an image file for size, type, and magic numbers.
@@ -61,7 +74,7 @@ export const validate_image = async (file, options = {}) => {
 
   // 3. Magic Number Verification (File Signature)
   // We read the first 12 bytes to cover JPEG, PNG, GIF, and WebP
-  const buffer = await file.slice(0, 12).array_buffer();
+  const buffer = await file.slice(0, 12).arrayBuffer();
   const header = new Uint8Array(buffer);
   const signatures = {
     "image/jpeg": (/** @type {Uint8Array} */ h) => h[0] === 0xff && h[1] === 0xd8 && h[2] === 0xff,
@@ -69,6 +82,12 @@ export const validate_image = async (file, options = {}) => {
     "image/gif": (/** @type {Uint8Array} */ h) => h[0] === 0x47 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x38,
     "image/webp": (/** @type {Uint8Array} */ h) =>
       h[0] === 0x52 && h[1] === 0x49 && h[2] === 0x46 && h[3] === 0x46 && h[8] === 0x57 && h[9] === 0x45 && h[10] === 0x42 && h[11] === 0x50,
+    "image/avif": (/** @type {Uint8Array} */ h) =>
+      h[4] === 0x66 &&
+      h[5] === 0x74 &&
+      h[6] === 0x79 &&
+      h[7] === 0x70 &&
+      ((h[8] === 0x61 && h[9] === 0x76 && h[10] === 0x69 && h[11] === 0x66) || (h[8] === 0x61 && h[9] === 0x76 && h[10] === 0x69 && h[11] === 0x73)),
   };
 
   const verify = /** @type {any} */ (signatures)[file.type];
@@ -87,7 +106,8 @@ export const validate_image = async (file, options = {}) => {
 export const Security = {
   sanitize,
   sanitize_to_fragment,
-  escape,
+  escape: escape_html,
+  escape_html,
   check_refusal,
   validate_image,
   /**
@@ -105,6 +125,7 @@ export const Security = {
     };
   },
 };
+export { escape_html as escape };
 export default {
   Security,
 };

@@ -141,11 +141,15 @@ export const context_broker = {
       console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
     );
 
-    // Pre-embed all temporal vectors for semantic scoring (fire-and-forget, non-blocking)
+    // Pre-embed all temporal vectors for semantic scoring (awaited with timeout fallback)
+    const all_vectors = [];
     entries.forEach(({ data }) => {
-      if (data?.past?.length) ensure_embeddings(data.past).catch(() => {});
-      if (data?.future?.length) ensure_embeddings(data.future).catch(() => {});
+      if (data?.past?.length) all_vectors.push(...data.past);
+      if (data?.future?.length) all_vectors.push(...data.future);
     });
+    if (all_vectors.length) {
+      await Promise.race([ensure_embeddings(all_vectors).catch(() => {}), new Promise((resolve) => setTimeout(resolve, 3000))]);
+    }
 
     const entities = /** @type {Record<string, any>} */ ({});
 
@@ -320,10 +324,74 @@ export const context_broker = {
   lexical_filter(data_points, objective) {
     if (!objective || !Array.isArray(data_points)) return data_points;
 
+    const STOP_WORDS = new Set([
+      "about",
+      "their",
+      "would",
+      "there",
+      "these",
+      "other",
+      "which",
+      "could",
+      "should",
+      "shall",
+      "might",
+      "every",
+      "those",
+      "where",
+      "when",
+      "what",
+      "that",
+      "this",
+      "they",
+      "have",
+      "from",
+      "into",
+      "your",
+      "them",
+      "were",
+      "been",
+      "more",
+      "very",
+      "some",
+      "such",
+      "than",
+      "then",
+      "also",
+      "just",
+      "only",
+      "even",
+      "much",
+      "many",
+      "most",
+      "back",
+      "like",
+      "make",
+      "made",
+      "will",
+      "does",
+      "done",
+      "came",
+      "come",
+      "going",
+      "gets",
+      "went",
+      "want",
+      "wants",
+      "said",
+      "says",
+      "say",
+      "one",
+      "two",
+      "with",
+      "upon",
+      "down",
+    ]);
+
     const keywords = objective
       .toLowerCase()
       .split(/\W+/)
-      .filter((w) => w.length > 3);
+      .filter((w) => w.length > 3 && !STOP_WORDS.has(w));
 
     if (keywords.length === 0) return data_points;
 

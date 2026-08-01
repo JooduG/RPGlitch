@@ -81,7 +81,11 @@
 
         if (clean_sentence) {
           Audio.voice.activeMessageId = app.streaming.node_id ?? app.streaming.node_id;
-          Audio.voice.speak(clean_sentence, false);
+          try {
+            Audio.voice.speak(clean_sentence, false);
+          } catch (tts_err) {
+            console.warn("[Storymode] TTS speak error during streaming:", tts_err);
+          }
         }
 
         highest_match_offset = match.index + match[0].length;

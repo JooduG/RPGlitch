@@ -19,6 +19,8 @@ import { runtime } from "./runtime.svelte.js";
 export class SimulationLogStore {
   /** @type {LogEntry[]} */
   feed = $state([]);
+  /** @type {Set<string|number>} */
+  _id_set = new Set();
   /**
    *
    */
@@ -29,17 +31,20 @@ export class SimulationLogStore {
   async refresh() {
     if (!runtime.story_id) {
       this.feed = [];
+      this._id_set.clear();
       return;
     }
     const msgs = await session_driver.load_log(runtime.story_id);
     this.feed = msgs;
+    this._id_set = new Set(msgs.filter((m) => m.id != null).map((m) => m.id));
   }
   /**
    * @param {LogEntry} entry - The log entry to add
    */
   add(entry) {
     // Prevent duplicates if ID exists
-    if (entry.id && this.feed.some((m) => m.id === entry.id)) return;
+    if (entry.id && this._id_set.has(entry.id)) return;
+    if (entry.id) this._id_set.add(entry.id);
     this.feed.push(entry);
   }
 
@@ -61,6 +66,7 @@ export class SimulationLogStore {
     const index = this.feed.findIndex((entry) => entry.id === id);
     if (index !== -1) {
       this.feed.splice(index, 1);
+      this._id_set.delete(id);
     }
   }
 }

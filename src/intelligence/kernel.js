@@ -628,9 +628,10 @@ export const gamemaster = {
    * EXECUTE GHOSTWRITER
    * Compiles and executes a Ghostwriter prompt on behalf of the User Persona.
    * @param {string} [input_text=""]
+   * @param {AbortSignal} [signal]
    * @returns {Promise<string>}
    */
-  async execute_ghostwriter(input_text = "") {
+  async execute_ghostwriter(input_text = "", signal = null) {
     const story_id = state_bridge.runtime.story_id;
     const raw_messages = story_id ? await state_bridge.session_driver.load_log(story_id) : [];
     const simulation_log = raw_messages
@@ -650,7 +651,7 @@ export const gamemaster = {
         messages: [],
         role: "user",
       },
-      { silent: true },
+      { silent: true, signal },
     );
 
     const clean_result = strip_cognition_blocks(typeof result === "string" ? result : result?.text || "").trim();

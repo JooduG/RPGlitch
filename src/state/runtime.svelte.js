@@ -390,7 +390,7 @@ function create_runtime_store() {
     save: async (round = null) => {
       if (!simulation_story_id) return;
       try {
-        const target_round = typeof round === "number" ? round : 0;
+        const target_round = typeof round === "number" ? round : simulation_round;
         await db.stories.update(coerce_story_key(simulation_story_id), {
           round: target_round,
           last_played: Date.now(),

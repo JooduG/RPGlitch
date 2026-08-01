@@ -501,7 +501,6 @@ export class AppStore {
     this.streaming.content = "";
     this.streaming.text = "";
     this.streaming.node_id = null;
-    this.streaming.node_id = null;
     this.streaming.role = "ai";
   };
   signal_stream_error = (node_id) => {

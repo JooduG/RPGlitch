@@ -27,7 +27,10 @@ let cached_image_engine = null;
  * @returns {Function | null}
  */
 function find_image_engine() {
-  if (cached_image_engine) return cached_image_engine;
+  if (cached_image_engine) {
+    if (typeof cached_image_engine === "function") return cached_image_engine;
+    cached_image_engine = null;
+  }
   if (typeof window === "undefined") return null;
 
   // 1. Check local frame scope immediately
@@ -105,6 +108,7 @@ export class VisualEngine {
     try {
       let final_prompt = "";
       let entity_id = null;
+      let effective_type = options.type || options.mode || "character";
 
       // 1. Resolve Target & Prompt
       const is_uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(target);
@@ -129,7 +133,7 @@ export class VisualEngine {
           final_prompt = entity.modifiers?.prompt || AestheticResolver.flatten(entity) || entity.name;
         }
 
-        options.type = entity.type || "character";
+        effective_type = entity.type || "character";
         if (!options._entity) options._entity = entity;
         if (!options.negative_prompt && entity.modifiers?.negative_prompt) {
           options.negative_prompt = entity.modifiers.negative_prompt;
@@ -180,7 +184,7 @@ export class VisualEngine {
               final_prompt = `${vs_positive}, ${final_prompt}`;
             }
 
-            const entity_type = options.type || options.mode || "character";
+            const entity_type = effective_type;
             const is_character_shot =
               ["character", "ai", "user", "selfie", "portrait", "characters", "prologue"].includes(entity_type) ||
               options.mode === "prologue" ||
@@ -281,7 +285,7 @@ export class VisualEngine {
       this.isOffline = this.breaker.isOpen;
 
       if (result && entity_id && !options.noCache) {
-        await this._cacheImage(entity_id, result, options.type === "user" ? "character" : options.type || "character");
+        await this._cacheImage(entity_id, result, effective_type === "user" ? "character" : effective_type);
       }
 
       return result;

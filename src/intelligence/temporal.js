@@ -6,7 +6,7 @@
 
 import { generate_uuid as _uuid, state_bridge } from "@utils";
 import { llm_service } from "@platform";
-import { ensure_embedding, score_by_semantics } from "./embeddings.svelte.js";
+import { ensure_embedding, score_by_semantics, cosine_similarity, embed, is_ready } from "./embeddings.svelte.js";
 import { extract_json_block, merge_prose_into_field } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 
@@ -56,9 +56,16 @@ export function create(content, type = "future", weight = 5) {
  * @param {number} [_current_round]
  * @returns {number}
  */
-function recency_factor(v, _current_round) {
+function recency_factor(v, current_round) {
   const weight = v.emotional_weight ?? 5;
   if (weight >= 10) return 1.0;
+
+  if (v.meta?.round != null && current_round != null) {
+    const turns_ago = Math.max(0, current_round - v.meta.round);
+    if (turns_ago === 0) return 1;
+    const decay_exponent = Math.max(0, (10 - weight) / 5);
+    return Math.pow(1 / (1 + Math.log10(turns_ago + 1)), decay_exponent);
+  }
 
   if (!v.timestamp) return 1;
   const age_ms = Date.now() - v.timestamp;
@@ -93,11 +100,17 @@ function compute_relevance(v, semantic_similarity, current_round) {
  * @param {string} input
  * @returns {TemporalVector[]} Sorted array of vectors (highest relevance first)
  */
-export function score(vectors, _input) {
+export function score(vectors) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
 
+  const has_embeddings = vectors.some((v) => v._embedding && v._embedding.length);
+
   const scored = vectors.map((v) => {
-    const relevance = compute_relevance(v, 0, _current_round);
+    let semantic = 0;
+    if (has_embeddings && v._embedding && _context_embedding) {
+      semantic = cosine_similarity(_context_embedding, v._embedding);
+    }
+    const relevance = compute_relevance(v, semantic, _current_round);
     return { ...v, _relevance: relevance };
   });
 
@@ -106,6 +119,23 @@ export function score(vectors, _input) {
     if (diff !== 0) return diff;
     return b.timestamp - a.timestamp;
   });
+}
+
+/** @type {Float32Array | null} */
+let _context_embedding = null;
+
+/**
+ * Pre-computes and caches the context embedding for synchronous score() calls.
+ * Call this before score() when you have the input text and want semantic scoring
+ * without going fully async.
+ * @param {string} input
+ */
+export async function precompute_context_embedding(input) {
+  if (!input?.trim()) {
+    _context_embedding = null;
+    return;
+  }
+  _context_embedding = await embed(input);
 }
 
 /** @type {number} */
@@ -201,6 +231,53 @@ export function format(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of ranked) {
+    const text = v.content || v.directive || "";
+    if (!text.trim()) continue;
+
+    if (is_duplicate(text, selected_texts.join(" "))) continue;
+
+    const payload_length = text.length;
+    if (running_chars + payload_length > max_chars && selected.length > 0) {
+      break;
+    }
+
+    selected.push(v);
+    selected_texts.push(text);
+    running_chars += payload_length;
+  }
+
+  return selected
+    .map((v) => {
+      if (show_text) return v.content || v.directive || "";
+      return "";
+    })
+    .join("\n");
+}
+
+/**
+ * Async semantic variant of format(). Uses score_async (embeddings-based RAG)
+ * when the embeddings model is ready, falling back to synchronous score() otherwise.
+ * @param {TemporalVector[]} vectors
+ * @param {string} input
+ * @param {Object} [options]
+ * @param {boolean} [options.vector_text]
+ * @param {number} [options.offset]
+ * @param {number} [options.max_chars]
+ * @returns {Promise<string>}
+ */
+export async function format_async(vectors, input, options = {}) {
+  const show_text = options.vector_text ?? true;
+  const max_chars = options.max_chars || 1500;
+  const offset = options.offset || 0;
+
+  const ranked = is_ready() ? await score_async(vectors, input) : score(vectors, input);
+  const sliced = ranked.slice(offset);
+
+  let running_chars = 0;
+  const selected = [];
+  const selected_texts = [];
+
+  for (const v of sliced) {
     const text = v.content || v.directive || "";
     if (!text.trim()) continue;
 
@@ -430,10 +507,12 @@ export const temporal_engine = {
   score,
   score_async,
   format,
+  format_async,
   resolve,
   forge_memory,
   apply_state_mutations,
   set_round,
+  precompute_context_embedding,
   _is_consolidating: false,
 
   /**
@@ -471,11 +550,13 @@ export const temporal_engine = {
             { entity: runtime.active_fractal, type: "fractal" },
           ].filter((t) => t.entity);
 
-          const forge_source = runtime.active_ai || runtime.active_user || runtime.active_fractal;
-          if (forge_source && Array.isArray(forge_source.past)) {
-            forge_source.past = [...forge_source.past, { ...memory }];
-            const forge_type = runtime.active_ai ? "character" : runtime.active_fractal ? "fractal" : "character";
-            await runtime.update_entity(forge_type, forge_source.id, { past: forge_source.past });
+          for (const { entity, type } of entity_targets) {
+            if (Array.isArray(entity.past)) {
+              entity.past = [...entity.past, { ...memory }];
+            } else {
+              entity.past = [{ ...memory }];
+            }
+            await runtime.update_entity(type, entity.id, { past: entity.past });
           }
 
           apply_neuroplasticity(entity_targets, memory, runtime);
