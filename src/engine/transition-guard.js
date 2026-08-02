@@ -46,9 +46,8 @@ export function guarded_transition(callback, options = {}) {
   const transition = document.startViewTransition(async () => {
     try {
       await callback();
-    } catch {
-      // Suppress callback errors — the guard's contract is DOM mutation safety,
-      // not error propagation. The lock is released via finished.finally().
+    } catch (err) {
+      console.error("[TransitionGuard] Callback error during view transition:", err);
     }
   });
 

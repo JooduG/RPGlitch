@@ -174,6 +174,10 @@ export class ProfileState {
       } else {
         if (app.selected_fractal?.id === this.char.id) app.selected_fractal = updated;
       }
+
+      // Sync app.editing_entity so the Profile modal picks up the saved data
+      // (prevents stale display when reopening the profile without a refresh)
+      if (updated) app.editing_entity = updated;
     } catch (err) {
       console.error("Failed to save profile:", err);
       this.is_editing = true;
@@ -189,6 +193,18 @@ export class ProfileState {
   async delete(entity_type) {
     try {
       await runtime.delete_entity(entity_type, this.char.id);
+
+      // Clear selected entity references if the deleted entity was selected
+      if (entity_type === "character") {
+        if (app.selected_ai?.id === this.char.id) app.selected_ai = null;
+        if (app.selected_user?.id === this.char.id) app.selected_user = null;
+      } else {
+        if (app.selected_fractal?.id === this.char.id) app.selected_fractal = null;
+      }
+
+      // Refresh entity lists so CardHand and storyboard slots update immediately
+      await app.load_entities();
+
       app.toggle_profile(false);
     } catch (err) {
       console.error("Failed to delete entity:", err);

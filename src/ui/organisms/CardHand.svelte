@@ -97,6 +97,7 @@
 
     try {
       const saved = await repository.upsert(type, plan);
+      await app.load_entities(); // Refresh lists so the new entity appears immediately
       app.log(`Birthed new ${type} blueprint: ${saved.id}`, "db");
       app.select_entity(card_hand_type, saved);
       app.open_profile(saved);

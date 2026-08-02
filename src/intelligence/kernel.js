@@ -555,7 +555,7 @@ export const gamemaster = {
     } finally {
       state_bridge.app.busy = false;
       state_bridge.app.end_stream();
-      if (typeof simulation_state !== "undefined") {
+      if (typeof state_bridge.simulation_state !== "undefined") {
         state_bridge.simulation_state.phase = "idle";
       }
     }

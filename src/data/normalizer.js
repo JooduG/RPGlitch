@@ -197,8 +197,8 @@ export const normalize = (base = {}) => {
       physical: sanitize_html(present?.physical ?? "").trim(),
       non_physical: sanitize_html(present?.non_physical ?? "").trim(),
     },
-    past: coerce_temporal_array(past),
-    future: coerce_temporal_array(future),
+    past: coerce_temporal_vectors(past),
+    future: coerce_temporal_vectors(future),
 
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
@@ -245,6 +245,33 @@ export function coerce_temporal_array(val) {
     .split("\n")
     .map((v) => v.trim())
     .filter((v) => v.length > 0);
+}
+
+/**
+ * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
+ * String items are wrapped into objects with content/directive fields so downstream code
+ * that expects .content / .directive works correctly.
+ * @param {any} val
+ * @returns {any[]}
+ */
+export function coerce_temporal_vectors(val) {
+  if (!Array.isArray(val)) return coerce_temporal_array(val);
+  return val
+    .map((item) => {
+      if (item && typeof item === "object") return item;
+      const text = typeof item === "string" ? item.trim() : "";
+      if (!text) return null;
+      return {
+        id: crypto.randomUUID(),
+        timestamp: Date.now(),
+        content: text,
+        directive: text,
+        type: "past",
+        emotional_weight: 5,
+        meta: {},
+      };
+    })
+    .filter(Boolean);
 }
 
 /**

@@ -80,7 +80,7 @@
         const clean_sentence = clean_image_prompts(structural_sentence).trim();
 
         if (clean_sentence) {
-          Audio.voice.activeMessageId = app.streaming.node_id ?? app.streaming.node_id;
+          Audio.voice.activeMessageId = app.streaming.node_id;
           try {
             Audio.voice.speak(clean_sentence, false);
           } catch (tts_err) {
@@ -109,7 +109,7 @@
         const clean_remainder = clean_image_prompts(remaining_text).trim();
 
         if (clean_remainder) {
-          Audio.voice.activeMessageId = app.streaming.node_id ?? app.streaming.node_id;
+          Audio.voice.activeMessageId = app.streaming.node_id;
           Audio.voice.speak(clean_remainder, false);
         }
       }
@@ -157,7 +157,7 @@
   let visible_feed = $derived.by(() => {
     const list = [...simulation_log.feed];
     if (is_active_turn && app.streaming.active) {
-      const active_id = app.streaming.node_id ?? app.streaming.node_id ?? "temp";
+      const active_id = app.streaming.node_id ?? "temp";
       if (!list.some((entry) => entry.id === active_id)) {
         list.push({
           id: active_id,

@@ -408,8 +408,18 @@ function create_runtime_store() {
     save_entity: async (type, entity) => {
       try {
         await entities.upsert(type, entity);
+        // Sync all active runtime states that match this entity ID
         if (character_state && character_state.id === entity.id) {
           Object.assign(character_state, entity);
+        }
+        if (active_ai_state?.id === entity.id) {
+          Object.assign(active_ai_state, entity);
+        }
+        if (active_user_state?.id === entity.id) {
+          Object.assign(active_user_state, entity);
+        }
+        if (active_fractal_state?.id === entity.id) {
+          Object.assign(active_fractal_state, entity);
         }
       } catch (err) {
         console.error("[Data] Entity Save Failed:", err);
@@ -448,6 +458,26 @@ function create_runtime_store() {
     delete_entity: async (type, id) => {
       try {
         await entities.remove(type, String(id));
+
+        // Clear active runtime state if the deleted entity was active
+        if (type === "character") {
+          if (active_ai_state?.id === id) active_ai_state = null;
+          if (active_user_state?.id === id) {
+            active_user_state = null;
+            Object.assign(character_state, {
+              id: null,
+              name: "Unlinked",
+              description: "No data stream connected.",
+              eternal: { non_physical: "", physical: "" },
+              present: { non_physical: "", physical: "" },
+              past: [],
+              future: [],
+              dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 },
+            });
+          }
+        } else {
+          if (active_fractal_state?.id === id) active_fractal_state = null;
+        }
       } catch (err) {
         console.error("[Data] Entity Delete Failed:", err);
         throw err;

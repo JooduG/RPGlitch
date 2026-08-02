@@ -126,6 +126,16 @@
       app.log(`Import successful.`, "system");
       await app.load_entities();
 
+      // Auto-select the newly imported entities if slots are empty
+      if (import_character && !app.selected_ai) {
+        const latest_char = app.ai_list[app.ai_list.length - 1];
+        if (latest_char) app.selected_ai = latest_char;
+      }
+      if (import_fractal && !app.selected_fractal) {
+        const latest_fractal = app.fractal_list[app.fractal_list.length - 1];
+        if (latest_fractal) app.selected_fractal = latest_fractal;
+      }
+
       // Reset and close
       raw_text = "";
       image_data = null;

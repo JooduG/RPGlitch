@@ -6,6 +6,7 @@ export {
   get_random_signature_key,
   normalize,
   coerce_temporal_array,
+  coerce_temporal_vectors,
   create_new,
   format_premade,
   detox_prose,

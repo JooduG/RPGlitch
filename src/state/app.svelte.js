@@ -487,7 +487,6 @@ export class AppStore {
     this.streaming.content = "";
     this.streaming.text = "";
     this.streaming.node_id = id;
-    this.streaming.node_id = id;
     this.streaming.role = role;
     this.streaming.errored = false;
     this.streaming.errored_node_id = null;

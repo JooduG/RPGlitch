@@ -186,7 +186,7 @@
       if (available_users.length) {
         app.selected_user = pick_random(available_users);
       } else if (app.user_list.length) {
-        app.user_list = app.user_list[0];
+        app.selected_user = app.user_list[0];
       }
 
       if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
