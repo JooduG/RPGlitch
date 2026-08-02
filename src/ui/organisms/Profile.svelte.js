@@ -1,5 +1,5 @@
 /**
- * @file src/ui/profile/profile.svelte.js
+ * @file src/ui/organisms/Profile.svelte.js
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize } from "@data";

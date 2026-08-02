@@ -1,5 +1,5 @@
 /**
- * @file transition-guard.test.js
+ * @file src/engine/transition-guard.test.js
  * Tests for the centralized View Transition singleton guard.
  * Ensures serialized execution and graceful fallback under concurrency.
  */

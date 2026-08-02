@@ -1,5 +1,5 @@
 /**
- * src/core/engine/config.js
+ * @file src/engine/config.js
  * ⚔️ The Single Source of Truth for Global Architecture.
  */
 

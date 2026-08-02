@@ -1,5 +1,5 @@
 /**
- * @file kinetic.svelte.js
+ * @file src/ui/motion/kinetic.svelte.js
  * 🕹️ THE PHYSICS ENGINE
  * High-performance motion primitives using Web Animations API (WAAPI) and spring physics.
  * RUTHLESSLY STANDARDIZED: Fully type-safe, pure Svelte 5 reactive tracking.

@@ -5,7 +5,7 @@
  */
 
 /**
- * @file use-actions.js
+ * @file src/ui/actions/use-actions.js
  * 🔗 UNIVERSAL ACTION BRIDGE
  * Orchestrates multiple Svelte actions on a single node with Map-based reconciliation.
  * Now detects kinetic actions to enable CSS-based transition stabilization.

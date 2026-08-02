@@ -5,7 +5,7 @@
  */
 
 import { VISUAL_STYLES, detox_prose } from "@data";
-import { PROTOCOL_LIBRARY, escape_xml as escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
+import { PROTOCOL_LIBRARY, escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**

@@ -21,9 +21,6 @@ export class SimulationLogStore {
   feed = $state([]);
   /** @type {Set<string|number>} */
   _id_set = new Set();
-  /**
-   *
-   */
   constructor() {}
   /**
    * Synchronize with persistence.

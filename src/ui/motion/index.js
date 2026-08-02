@@ -1,5 +1,5 @@
 /**
- * @file index.js
+ * @file src/ui/motion/index.js
  * 🌌 MOTION MODULE EXPORT HUB
  * Centralized gateway for all Svelte 5 native kinetic systems, physics wrappers, and stream renderers.
  * RUTHLESSLY STANDARDIZED: Strict ES module topology, fully transparent entry mappings.

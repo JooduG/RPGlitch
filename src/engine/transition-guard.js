@@ -1,5 +1,5 @@
 /**
- * @file transition-guard.js
+ * @file src/engine/transition-guard.js
  * 🔒 THE TRANSITION SENTINEL
  * Centralized singleton guard for the View Transitions API.
  *

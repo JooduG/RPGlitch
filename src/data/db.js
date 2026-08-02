@@ -14,7 +14,8 @@ import Dexie from "dexie";
  * }}
  */
 const db = /** @type {any} */ (new Dexie("rpglitch"));
-// 2. Define the schema (Final Version Only)
+// --- SCHEMA VERSIONS ---
+// v10: Baseline schema (entities, stories, simulation_log, kv_settings, sessions, audio_prefs, settings).
 db.version(10).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom], isChosen",
   stories: "++id, title, ai_id, user_id, fractal_id, created_at, updated_at",
@@ -24,6 +25,7 @@ db.version(10).stores({
   audio_prefs: "key",
   settings: "id",
 });
+// v11: Add `round` to stories; drop unused `settings` store.
 db.version(11)
   .stores({
     stories: "++id, title, ai_id, user_id, fractal_id, round, created_at, updated_at",
@@ -42,6 +44,7 @@ db.version(11)
         }
       });
   });
+// v12: Prune `isChosen` index from entities (stability — align indexes with actual queries).
 // --- STABILITY HANDLERS ---
 db.version(12).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom]",
@@ -65,5 +68,5 @@ export const init = async () => {
     throw err;
   }
 };
-// 4. Export the database instance so other modules can use it
+// Export the database instance so other modules can use it
 export { db };

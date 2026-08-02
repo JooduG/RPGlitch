@@ -1,5 +1,5 @@
 /**
- * @file src/ui/molecules/UnifiedConsole.test.js
+ * @file src/ui/organisms/UnifiedConsole.test.js
  * Unit test suite verifying UnifiedConsole and Console Settings behaviors.
  */
 import { describe, expect, it } from "vitest";

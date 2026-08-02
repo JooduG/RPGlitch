@@ -1,5 +1,5 @@
 /**
- * @file auto-resize.js
+ * @file src/ui/actions/resize.js
  * Svelte 5 logic action to resize textareas automatically based on their content.
  * Optimized to prevent layout thrashing by batching DOM reads and writes.
  */
