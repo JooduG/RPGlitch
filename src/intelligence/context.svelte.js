@@ -131,14 +131,14 @@ export const context_broker = {
       }) || "Continue the journey.";
 
     const entries = [
-      { role: "AI", data: clean.AI },
-      { role: "USER", data: clean.USER },
-      { role: "FRACTAL", data: clean.FRACTAL },
+      { role: "AI", data: clean.AI, runtimeEntity: state_bridge.runtime?.active_ai, type: "character" },
+      { role: "USER", data: clean.USER, runtimeEntity: state_bridge.runtime?.active_user, type: "character" },
+      { role: "FRACTAL", data: clean.FRACTAL, runtimeEntity: state_bridge.runtime?.active_fractal, type: "fractal" },
     ];
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure turn accuracy
-    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data))).catch((err) =>
-      console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
+    await Promise.all(entries.map(({ data, runtimeEntity, type }) => context_broker.manage_vector_lifecycle(data, runtimeEntity, type))).catch(
+      (err) => console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
     );
 
     // Pre-embed all temporal vectors for semantic scoring (awaited with timeout fallback)
@@ -261,10 +261,14 @@ export const context_broker = {
 
   /**
    * Dynamically resolves FUTURE_VECTOR items based on temporal_engine state constraints.
-   * @param {any} entity
+   * Resolves on the live runtime entity (not the hydrate snapshot clone) and persists
+   * the transition so AUTO_RESOLVED vectors actually leave `future` for good.
+   * @param {any} entity - Hydrate snapshot entity (used for constraint checks).
+   * @param {any} runtimeEntity - The live runtime entity to mutate + persist.
+   * @param {"character"|"fractal"} [entityType]
    * @returns {Promise<void>}
    */
-  async manage_vector_lifecycle(entity) {
+  async manage_vector_lifecycle(entity, runtimeEntity = null, entityType = "character") {
     if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
 
     const vectors_to_resolve = [];
@@ -309,8 +313,22 @@ export const context_broker = {
     }
 
     if (vectors_to_resolve.length > 0) {
+      const live_target = runtimeEntity || entity;
       for (const id of vectors_to_resolve) {
-        temporal_engine.resolve(entity, id, "AUTO_RESOLVED", state_bridge.session_driver);
+        temporal_engine.resolve(live_target, id, "AUTO_RESOLVED", state_bridge.session_driver);
+        // Mirror the transition onto the hydrate clone so this turn's payload reflects it too
+        const clone_index = entity.future.findIndex((v) => v.id === id);
+        if (clone_index !== -1) {
+          const [v] = entity.future.splice(clone_index, 1);
+          v.type = "past";
+          if (!Array.isArray(entity.past)) entity.past = [];
+          entity.past.push(v);
+        }
+      }
+      if (live_target !== entity && live_target?.id) {
+        state_bridge.runtime
+          ?.update_entity(entityType, live_target.id, { past: live_target.past, future: live_target.future })
+          ?.catch((err) => console.warn("[Vector Lifecycle] Failed to persist resolved vectors:", err));
       }
     }
   },

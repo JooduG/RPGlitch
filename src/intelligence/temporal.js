@@ -111,7 +111,7 @@ export function score(vectors) {
       semantic = cosine_similarity(_context_embedding, v._embedding);
     }
     const relevance = compute_relevance(v, semantic, _current_round);
-    return { ...v, _relevance: relevance };
+    return { ...v, _relevance: relevance, _semantic_score: semantic };
   });
 
   return scored.sort((a, b) => {
@@ -167,8 +167,9 @@ export async function score_async(vectors, input, current_round) {
 
   const scored = semantic_scores.map(({ vector: v, similarity }) => {
     v._similarity = similarity;
+    v._semantic_score = similarity;
     v._relevance = compute_relevance(v, similarity, _current_round);
-    return { ...v, _relevance: v._relevance, _similarity: similarity };
+    return { ...v, _relevance: v._relevance, _similarity: similarity, _semantic_score: similarity };
   });
 
   return scored.sort((a, b) => {
@@ -221,6 +222,7 @@ function is_duplicate(a, b) {
  */
 export function format(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
+  const include_ids = options.include_ids ?? false;
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
 
@@ -228,13 +230,13 @@ export function format(vectors, input, options = {}) {
 
   let running_chars = 0;
   const selected = [];
-  const selected_texts = [];
+  let running_text = "";
 
   for (const v of ranked) {
     const text = v.content || v.directive || "";
     if (!text.trim()) continue;
 
-    if (is_duplicate(text, selected_texts.join(" "))) continue;
+    if (is_duplicate(text, running_text)) continue;
 
     const payload_length = text.length;
     if (running_chars + payload_length > max_chars && selected.length > 0) {
@@ -242,14 +244,16 @@ export function format(vectors, input, options = {}) {
     }
 
     selected.push(v);
-    selected_texts.push(text);
+    running_text = running_text ? `${running_text} ${text}` : text;
     running_chars += payload_length;
   }
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || v.directive || "";
-      return "";
+      if (!show_text) return "";
+      const text = v.content || v.directive || "";
+      if (include_ids && v.id) return `<vector id="${v.id}">${text}</vector>`;
+      return text;
     })
     .join("\n");
 }
@@ -267,6 +271,7 @@ export function format(vectors, input, options = {}) {
  */
 export async function format_async(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
+  const include_ids = options.include_ids ?? false;
   const max_chars = options.max_chars || 1500;
   const offset = options.offset || 0;
 
@@ -275,13 +280,13 @@ export async function format_async(vectors, input, options = {}) {
 
   let running_chars = 0;
   const selected = [];
-  const selected_texts = [];
+  let running_text = "";
 
   for (const v of sliced) {
     const text = v.content || v.directive || "";
     if (!text.trim()) continue;
 
-    if (is_duplicate(text, selected_texts.join(" "))) continue;
+    if (is_duplicate(text, running_text)) continue;
 
     const payload_length = text.length;
     if (running_chars + payload_length > max_chars && selected.length > 0) {
@@ -289,14 +294,16 @@ export async function format_async(vectors, input, options = {}) {
     }
 
     selected.push(v);
-    selected_texts.push(text);
+    running_text = running_text ? `${running_text} ${text}` : text;
     running_chars += payload_length;
   }
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || v.directive || "";
-      return "";
+      if (!show_text) return "";
+      const text = v.content || v.directive || "";
+      if (include_ids && v.id) return `<vector id="${v.id}">${text}</vector>`;
+      return text;
     })
     .join("\n");
 }
@@ -381,7 +388,7 @@ export async function forge_memory(target_entity, history_slice, role = "charact
       tags: (memory.vector_tags || memory.tags || []).map((t) => String(t).toLowerCase()),
       present_summaries: memory.present_summaries || null,
       eternal_mutations: memory.eternal_mutations || null,
-      meta: memory.meta || {},
+      meta: { ...(memory.meta || {}), round: state_bridge.runtime?.round ?? 0 },
     };
 
     await ensure_embedding(forged);
@@ -434,6 +441,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
       const payload = v.content || v.directive;
       if (!payload?.trim()) return;
       const new_vector = create(payload, v.type || "future", v.weight || 5);
+      new_vector.meta = { ...new_vector.meta, round: state_bridge.runtime?.round ?? 0 };
       ensure_embedding(new_vector).catch(() => {});
       if (new_vector.type === "past") {
         entity.past.push(new_vector);

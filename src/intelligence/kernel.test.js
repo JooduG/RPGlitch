@@ -2,6 +2,7 @@ import { context_broker } from "./context.svelte.js";
 import { dynamics_engine } from "./dynamics.js";
 import { gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
+import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
 import { session_driver } from "@engine";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -71,6 +72,7 @@ vi.mock("@intelligence/prompts.js", () => ({
     build_epilogue: vi.fn(),
     render_history: vi.fn(),
     render_protocols: vi.fn(),
+    build_scoring_context: vi.fn(() => "Hello"),
   },
 }));
 
@@ -125,6 +127,7 @@ vi.mock("@intelligence/temporal.js", () => ({
     consolidate: vi.fn(),
     apply_state_mutations: vi.fn(),
     set_round: vi.fn(),
+    precompute_context_embedding: vi.fn(async () => {}),
   },
 }));
 
@@ -234,6 +237,41 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
     expect(llm_service.generate).toHaveBeenCalled();
     expect(result.response).toBe("Identified.");
+  });
+
+  it("execute_turn() precomputes the semantic context embedding before prompt building", async () => {
+    const mock_payload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: {
+        AI: { name: "Viper" },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void" },
+      },
+      view_id: "global",
+      simulation_log: "",
+      rawMessages: [{ role: "model", content: "Last line of context" }],
+      meta: { active_vector: "", timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(session_driver.load_log).mockResolvedValue([{ role: "model", content: "Last line of context" }]);
+    vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "C",
+      task: "T",
+      meta: { ai: {}, fractal: {}, flags: [], signals: {}, vectors: { past: [], future: [] } },
+    });
+    vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
+
+    await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+    expect(prompt_builder.build_scoring_context).toHaveBeenCalledWith(
+      "Hello",
+      expect.arrayContaining([expect.objectContaining({ content: "Last line of context" })]),
+    );
+    expect(temporal_engine.precompute_context_embedding).toHaveBeenCalledWith("Hello");
   });
 
   it("execute_epilogue() executes a targeted epilogue completion with full context", async () => {

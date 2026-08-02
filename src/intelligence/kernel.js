@@ -232,6 +232,17 @@ export const gamemaster = {
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = state_bridge.runtime.structural_errors || 0;
 
+      // 2.5 SEMANTIC RAG PRE-SCORING
+      // Precompute the context embedding so the synchronous temporal_engine
+      // score()/format() paths can apply a cosine-similarity boost (relevance =
+      // weight × (1 + semantic) × recency). Raced with a timeout so a slow
+      // first-time model load can't stall the turn — when the load finishes in
+      // the background, _context_embedding lands and later turns go semantic.
+      const scoring_context = prompt_builder.build_scoring_context(input, simulation_log);
+      if (scoring_context) {
+        await Promise.race([temporal_engine.precompute_context_embedding(scoring_context), new Promise((resolve) => setTimeout(resolve, 4000))]);
+      }
+
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
       const snapshot = {
         ai: { dynamics: { ...(state_bridge.runtime.ai || {}) } },

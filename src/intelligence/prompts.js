@@ -259,14 +259,14 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
       <PRESENT_NON_PHYSICAL>${ind(val(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</PRESENT_NON_PHYSICAL>
       <ETERNAL_PHYSICAL>${val(entities?.AI?.eternal?.physical, entities?.AI, entities)}</ETERNAL_PHYSICAL>
       <ETERNAL_NON_PHYSICAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL_NON_PHYSICAL>
-      <FUTURE>${ind(render_atom.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
+      <FUTURE>${ind(render_atom.future(entities?.AI, { vector_text: true, include_ids: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
       <PRESENT_PHYSICAL>${ind(val(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</PRESENT_PHYSICAL>
       <PRESENT_NON_PHYSICAL>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</PRESENT_NON_PHYSICAL>
       <ETERNAL_PHYSICAL>${val(entities?.USER?.eternal?.physical, entities?.USER, entities)}</ETERNAL_PHYSICAL>
       <ETERNAL_NON_PHYSICAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL_NON_PHYSICAL>
-      <FUTURE>${ind(render_atom.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
+      <FUTURE>${ind(render_atom.future(entities?.USER, { vector_text: true, include_ids: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   ${
@@ -277,7 +277,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
     <PRESENT_NON_PHYSICAL>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT_NON_PHYSICAL>
     <ETERNAL_PHYSICAL>${val(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</ETERNAL_PHYSICAL>
     <ETERNAL_NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL_NON_PHYSICAL>
-    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
+    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { vector_text: true, include_ids: true }), 6)}</FUTURE>
   </FRACTAL>`.trim()
       : ""
   }
@@ -646,13 +646,26 @@ function render_profile_sorting(entity_type = "character") {
 // 4. DATA PROCESSORS
 // ============================================================================
 
+/**
+ * Builds the RAG scoring context shared by prompt compilation and the kernel's
+ * semantic pre-scoring. Current user input + the last 10 raw messages.
+ * Kept in one place so precompute_context_embedding() and render_atom scoring
+ * always operate on the exact same string.
+ * @param {string} [input]
+ * @param {any[]} [raw_messages]
+ * @returns {string}
+ */
+function build_scoring_context(input = "", raw_messages = []) {
+  return `${input || ""} ${(Array.isArray(raw_messages) ? raw_messages : [])
+    .slice(-10)
+    .map((m) => m.content || m.text || "")
+    .join(" ")}`.trim();
+}
+
 const data_processors = {
   create_render_atom(entities = {}, input = "", raw_messages = []) {
     const resolve = (ref) => (typeof ref === "string" ? entities[ref] || entities.AI || {} : ref || {});
-    const scoring_context = `${input || ""} ${(Array.isArray(raw_messages) ? raw_messages : [])
-      .slice(-10)
-      .map((m) => m.content || m.text || "")
-      .join(" ")}`.trim();
+    const scoring_context = build_scoring_context(input, raw_messages);
 
     return {
       _context: scoring_context,
@@ -773,6 +786,7 @@ export const prompt_builder = {
   },
   create_render_atom: data_processors.create_render_atom,
   render_history: data_processors.render_history,
+  build_scoring_context,
   render_protocols(selection) {
     if (!selection) return "";
     if (protocols_cache.has(selection)) {
