@@ -93,7 +93,7 @@ export async function embed(text) {
   if (!text || !text.trim()) return null;
 
   const cache_key = text.trim();
-  if (cache_key.length > 2000) return null;
+  if (cache_key.length > 1e6) return null;
 
   if (_embedding_cache.has(cache_key)) return _embedding_cache.get(cache_key);
 

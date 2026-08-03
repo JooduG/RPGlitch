@@ -322,6 +322,9 @@ function create_runtime_store() {
         const db_key = coerce_story_key(simulation_story_id);
         const story = await db.stories.get(db_key);
         if (!story) return;
+        // FIX: restore the story's persisted round so recency epochs stay aligned
+        // across page loads (previously runtime round reset to 0 on every boot).
+        if (story.round != null) api.round = story.round;
         const [user_data, ai_data, fractal_data] = await Promise.all([
           /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
           /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.ai_id || "unknown_ai")),
