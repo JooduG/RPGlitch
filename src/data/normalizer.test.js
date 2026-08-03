@@ -6,7 +6,6 @@ import {
   get_random_signature_key,
   normalize,
   normalize_import_payload,
-  STORAGE_VERSION,
 } from "./normalizer.js";
 import { Security } from "@platform";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -40,8 +39,7 @@ describe("content-normaliser.js", () => {
         type: "character",
         eternal: { physical: "", non_physical: "" },
         present: { physical: "", non_physical: "" },
-        past: [],
-        future: [],
+        vectors: [],
         modifiers: {
           prompt: "",
           negative_prompt: "",
@@ -49,7 +47,6 @@ describe("content-normaliser.js", () => {
           flipped: false,
           profile_picture_seed: 0,
           last_generated_seed: null,
-          color_name: "",
         },
         voice: {
           uri: "",
@@ -86,7 +83,6 @@ describe("content-normaliser.js", () => {
           no_background: true,
           flipped: true,
           profile_picture_seed: 123,
-          color_name: "Blue",
         },
       };
       const result = normalize(input);
@@ -97,7 +93,6 @@ describe("content-normaliser.js", () => {
         flipped: true,
         profile_picture_seed: 123,
         last_generated_seed: null,
-        color_name: "Blue",
       });
     });
 
@@ -124,70 +119,34 @@ describe("content-normaliser.js", () => {
       expect(result.modifiers.prompt).toBe("new prompt");
     });
 
-    it("should preserve database identity and timestamps", () => {
+    it("should preserve database identity, timestamps, originId, and dynamicsBaseline", () => {
       const input = {
         id: "id-123",
         created_at: 1000,
         updated_at: 2000,
-        origin_id: "origin-456",
-        is_premade: 1,
-        is_custom: 1,
-        version: 5,
-        dynamics_baseline: { chaos: 50 },
+        originId: "origin-456",
+        dynamicsBaseline: { chaos: 50 },
       };
       const result = normalize(input);
       expect(result.id).toBe("id-123");
       expect(result.created_at).toBe(1000);
       expect(result.updated_at).toBe(2000);
-      expect(result.origin_id).toBe("origin-456");
-      expect(result.is_premade).toBe(1);
-      expect(result.is_custom).toBe(1);
-      expect(result.version).toBe(5);
-      expect(result.dynamics_baseline).toEqual({ chaos: 50 });
-
-      // Verify camelCase mappings
       expect(result.originId).toBe("origin-456");
-      expect(result.isCustom).toBe(1);
-      expect(result.isPremade).toBe(1);
       expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
     });
 
-    it("should handle camelCase variants for database flags", () => {
+    it("should handle camelCase variants for timestamps and baselines", () => {
       const input = {
         createdAt: 1000,
         updatedAt: 2000,
         originId: "origin-456",
-        isPremade: 1,
-        isCustom: 1,
         dynamicsBaseline: { chaos: 50 },
       };
       const result = normalize(input);
       expect(result.created_at).toBe(1000);
       expect(result.updated_at).toBe(2000);
-      expect(result.origin_id).toBe("origin-456");
-      expect(result.is_premade).toBe(1);
-      expect(result.is_custom).toBe(1);
-      expect(result.dynamics_baseline).toEqual({ chaos: 50 });
-
-      // Verify camelCase preservation
       expect(result.originId).toBe("origin-456");
-      expect(result.isCustom).toBe(1);
-      expect(result.isPremade).toBe(1);
       expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
-    });
-
-    it("should prioritize snake_case over camelCase when both are present", () => {
-      const input = {
-        is_custom: 1,
-        isCustom: 0,
-        origin_id: "snake-id",
-        originId: "camel-id",
-      };
-      const result = normalize(input);
-      expect(result.is_custom).toBe(1);
-      expect(result.isCustom).toBe(1);
-      expect(result.origin_id).toBe("snake-id");
-      expect(result.originId).toBe("snake-id");
     });
 
     it("should process tags into a sanitized array of strings", () => {
@@ -235,11 +194,9 @@ describe("content-normaliser.js", () => {
   });
 
   describe("format_premade()", () => {
-    it("should format an entity for storage with correct flags", () => {
+    it("should format an entity for storage", () => {
       const entity = { name: "Premade One", type: "character" };
       const result = format_premade(entity, "character");
-      expect(result.is_premade).toBe(1);
-      expect(result.version).toBe(STORAGE_VERSION);
       expect(result.updated_at).toBe(0);
       expect(result.name).toBe("Premade One");
     });

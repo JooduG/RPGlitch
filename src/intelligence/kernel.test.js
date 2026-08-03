@@ -202,21 +202,19 @@ describe("gamemaster (Intelligence Kernel)", () => {
             eternal_mutations: { physical: "scar", non_physical: "" },
           },
         },
-        vectors: {
-          past: [
-            {
-              id: "v1",
-              directive: "m",
-              type: "past",
-              emotional_weight: 7,
-              _embedding: new Float32Array(384),
-              _semantic_score: 0.5,
-              _recency_factor: 0.9,
-              _relevance: 3.2,
-            },
-          ],
-          future: [{ id: "v2", directive: "goal", type: "future", emotional_weight: 9, _relevance: 8.1 }],
-        },
+        vectors: [
+          {
+            id: "v1",
+            directive: "m",
+            type: "past",
+            emotional_weight: 7,
+            _embedding: new Float32Array(384),
+            _semantic_score: 0.5,
+            _recency_factor: 0.9,
+            _relevance: 3.2,
+          },
+          { id: "v2", directive: "goal", type: "future", emotional_weight: 9, _relevance: 8.1 },
+        ],
       };
 
       await gamemaster.capture_dynamics_delta(snapshot, meta);
@@ -322,10 +320,10 @@ describe("gamemaster (Intelligence Kernel)", () => {
         fractal: { dynamics: { entropy: 40 } },
       };
       const meta = {
-        vectors: {
-          past: [{ id: "v1", directive: "exiled from court", type: "past", emotional_weight: 10, _relevance: 10.9 }],
-          future: [{ id: "v2", directive: "corner Glitch", emotional_weight: 8, _relevance: 8.1 }],
-        },
+        vectors: [
+          { id: "v1", directive: "exiled from court", type: "past", emotional_weight: 10, _relevance: 10.9 },
+          { id: "v2", directive: "corner Glitch", type: "future", emotional_weight: 8, _relevance: 8.1 },
+        ],
       };
 
       await gamemaster.capture_dynamics_delta(snapshot, meta);
@@ -390,7 +388,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
         ai: {},
         fractal: {},
         flags: [],
-        vectors: { past: [], future: [] },
+        vectors: [],
       },
     });
     vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
@@ -429,7 +427,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
       system: "C",
       task: "T",
-      meta: { ai: {}, fractal: {}, flags: [], vectors: { past: [], future: [] } },
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
     });
     vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
 
@@ -494,7 +492,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
           ai: {},
           fractal: {},
           flags: [],
-          vectors: { past: [], future: [] },
+          vectors: [],
         },
       });
     });
@@ -624,7 +622,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
           ai: { intensity: 50 },
           fractal: { entropy: 50 },
           flags: [],
-          vectors: { past: [], future: [] },
+          vectors: [],
         },
       });
       _mock_runtime.ai = { intensity: 50 };

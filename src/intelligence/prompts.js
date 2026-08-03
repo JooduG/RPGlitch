@@ -59,19 +59,19 @@ const MEMORY_JSON_SCHEMA = `{
   "memories": {
     "AI_CHARACTER": {
       "type": "past | future | present",
-      "directive": "Memory summary written strictly from the AI character's own perspective",
+      "content": "Memory summary written strictly from the AI character's own perspective",
       "emotional_weight": 5,
       "tags": ["keyword1", "keyword2"]
     },
     "USER_PERSONA": {
       "type": "past | future | present",
-      "directive": "Memory summary written strictly from the user persona's own perspective",
+      "content": "Memory summary written strictly from the user persona's own perspective",
       "emotional_weight": 5,
       "tags": ["keyword1", "keyword2"]
     },
     "FRACTAL": {
       "type": "past | future | present",
-      "directive": "Memory summary written from the fractal's atmospheric/environmental perspective",
+      "content": "Memory summary written from the fractal's atmospheric/environmental perspective",
       "emotional_weight": 5,
       "tags": ["keyword1", "keyword2"]
     }
@@ -339,7 +339,7 @@ ${(() => {
  * @returns {string} XML string for the YOUR_IDENTITY block.
  */
 function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
-  const futures = entity?.future || [];
+  const futures = Array.isArray(entity?.vectors) ? entity.vectors.filter((v) => v?.type === "future") : [];
   if (futures.length === 0) return "";
   const formatted = temporal_engine.format(futures, scoringContext, { max_chars: 1500, vector_text: true });
   if (!formatted?.trim()) return "";
@@ -599,7 +599,7 @@ ${entity_blocks}
   </INPUT_HISTORY>
   <TASK>
     Compress this history into structured memories. Record internal evaluation inside "_thought_process" at the top of the JSON object.
-    Forge ONE memory per entity (AI_CHARACTER, USER_PERSONA, FRACTAL), each written strictly from that entity's own perspective — the directive must capture the entity's subjective take on the events, not a shared summary.
+    Forge ONE memory per entity (AI_CHARACTER, USER_PERSONA, FRACTAL), each written strictly from that entity's own perspective — the content must capture the entity's subjective take on the events, not a shared summary.
     For each memory choose a "type":
       "past"    = a settled historical anchor (default).
       "future"  = a prophecy, intent, or goal the entity is carrying forward, to be resolved later.
@@ -670,10 +670,32 @@ function render_enhancement({
     </PRESENT_PHYSICAL>
     <PRESENT_NON_PHYSICAL>${escape_xml(entity?.present?.non_physical || "")}</PRESENT_NON_PHYSICAL>
     <PAST>
-      ${ind(escape_xml(entity?.past?.length ? temporal_engine.format(entity.past, content || "", { max_chars: 800 }) : ""), 6)}
+      ${ind(
+        escape_xml(
+          entity?.vectors?.length
+            ? temporal_engine.format(
+                entity.vectors.filter((v) => v?.type !== "future"),
+                content || "",
+                { max_chars: 800 },
+              )
+            : "",
+        ),
+        6,
+      )}
     </PAST>
     <FUTURE>
-      ${ind(escape_xml(entity?.future?.length ? temporal_engine.format(entity.future, content || "", { max_chars: 800 }) : ""), 6)}
+      ${ind(
+        escape_xml(
+          entity?.vectors?.length
+            ? temporal_engine.format(
+                entity.vectors.filter((v) => v?.type === "future"),
+                content || "",
+                { max_chars: 800 },
+              )
+            : "",
+        ),
+        6,
+      )}
     </FUTURE>
   </ENTITY_CONTEXT>
   <INPUT_CONTENT>
@@ -725,20 +747,28 @@ const data_processors = {
       _context: scoring_context,
       past: (ref, options = {}) => {
         const entity = resolve(ref);
-        const formatted = temporal_engine.format(entity.past || [], scoring_context, {
-          offset: 0,
-          max_chars: 1500,
-          ...options,
-        });
+        const formatted = temporal_engine.format(
+          (entity.vectors || []).filter((v) => v?.type !== "future"),
+          scoring_context,
+          {
+            offset: 0,
+            max_chars: 1500,
+            ...options,
+          },
+        );
         return prompt_builder.parse_macros(formatted, entity, entities);
       },
       future: (ref, options = {}) => {
         const entity = resolve(ref);
-        const formatted = temporal_engine.format(entity.future || [], scoring_context, {
-          offset: 0,
-          max_chars: 1500,
-          ...options,
-        });
+        const formatted = temporal_engine.format(
+          (entity.vectors || []).filter((v) => v?.type === "future"),
+          scoring_context,
+          {
+            offset: 0,
+            max_chars: 1500,
+            ...options,
+          },
+        );
         return prompt_builder.parse_macros(formatted, entity, entities);
       },
       simulation_log: (limit = 10, offset = 0) => prompt_builder.render_history(raw_messages, limit, offset),
@@ -815,10 +845,7 @@ export const prompt_builder = {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
         flags: snapshot.flags,
-        vectors: {
-          past: temporal_engine.score(payload.entities?.AI?.past || [], render_atom._context).slice(0, 5),
-          future: temporal_engine.score(payload.entities?.AI?.future || [], render_atom._context).slice(0, 5),
-        },
+        vectors: temporal_engine.score(payload.entities?.AI?.vectors || [], render_atom._context).slice(0, 5),
       },
     };
   },

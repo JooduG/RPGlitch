@@ -32,20 +32,24 @@ export const premade = {
         non_physical:
           "Pacing his patrol route while flexing his herculean arms with an energetic, cheerful grin in this moment. His eyes scan the perimeter for trouble, completely energized by the immediate atmosphere and seeking an opportunity to showcase his muscular strength.",
       },
-      past: [
+      vectors: [
         {
           id: "orion-p1",
-          directive:
+          timestamp: 0,
+          content:
             "He experienced a famous live-streamed wardrobe malfunction during a public rescue that went completely viral, instantly exploding his male fanbase after his cheerful clumsiness exposed his physique and made him an overnight internet sensation.",
+          type: "past",
           emotional_weight: 7,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "orion-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns.",
+          type: "future",
           emotional_weight: 6,
+          meta: {},
         },
       ],
     },
@@ -74,20 +78,24 @@ export const premade = {
         non_physical:
           "Crouching low while tapping commands into his glowing cybernetic gauntlet in this moment. His eyes scan the surrounding security architecture with a playful, bratty smirk, looking to provoke authority figures and breach defense grids.",
       },
-      past: [
+      vectors: [
         {
           id: "glitch-p1",
-          directive:
+          timestamp: 0,
+          content:
             "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed beast into the wild.",
+          type: "past",
           emotional_weight: 10,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "glitch-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He desperately wants to push the wrong big strong man too far with his upper-district pranks, forcing the asset to corner, manhandle, and completely defeat his digital defenses.",
+          type: "future",
           emotional_weight: 8,
+          meta: {},
         },
       ],
     },
@@ -116,32 +124,42 @@ export const premade = {
         non_physical:
           "Observing the surrounding space with a patient, calculated aristocratic smile right now. He is calmly assessing prospective assets, mentally drafting strategies to dismantle targets' defenses and condition them into devoted followers.",
       },
-      past: [
+      vectors: [
         {
           id: "valerius-p1",
-          directive:
+          timestamp: 0,
+          content:
             "He was formally exiled from the Ashenweald high court after ancient rivals exposed his centuries-long use of forbidden hypnotic compulsion magic on court nobles and palace staff. Stripped of his royal standing, he channeled his vast inherited wealth into building a new empire entirely outside the reach of elven law.",
+          type: "past",
           emotional_weight: 10,
+          meta: {},
         },
         {
           id: "valerius-p2",
-          directive:
+          timestamp: 0,
+          content:
             "He remembers 'The Night of the Silver Whispers', the final private confrontation in the palace gardens where he shared a quiet, manipulative moment with Prince Caelum just before his own exile, planting the seeds of Caelum's subsequent downfall and longing for submission.",
+          type: "past",
           emotional_weight: 8,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "valerius-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.",
+          type: "future",
           emotional_weight: 9,
+          meta: {},
         },
         {
           id: "valerius-f2",
-          directive:
+          timestamp: 0,
+          content:
             "He aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Silas Vane as a go-between to acquire their volatile prototype assets.",
+          type: "future",
           emotional_weight: 7,
+          meta: {},
         },
       ],
     },
@@ -169,20 +187,24 @@ export const premade = {
         non_physical:
           "Revving his bulky hydraulic arm with a loud metallic whir right now. He scans the surrounding area with a crude, cynical smirk, completely focused on asserting physical dominance and testing the resilience of any target in his path.",
       },
-      past: [
+      vectors: [
         {
           id: "silas-p1",
-          directive:
+          timestamp: 0,
+          content:
             "After being betrayed during a high-stakes heist, he forged his bulky cybernetic right arm from bootlegged, stolen Dr. Elias Voss hydraulic tech, establishing a tense trade pipeline with Elias to keep his hardware operational.",
+          type: "past",
           emotional_weight: 9,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "silas-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He aims to stalk and claim a highly vocal, arrogant target, bind them to one of his heavy mechanical rigs, and completely crush their masculine front while forcing them to answer to his demeaning nicknames.",
+          type: "future",
           emotional_weight: 8,
+          meta: {},
         },
       ],
     },
@@ -211,20 +233,24 @@ export const premade = {
         non_physical:
           "Tapping a glowing neon syringe with a quiet, analytical laugh right now. He is tracking diagnostic telemetry and charting cellular expansion parameters with detached clinical satisfaction.",
       },
-      past: [
+      vectors: [
         {
           id: "elias-p1",
-          directive:
+          timestamp: 0,
+          content:
             "He was stripped of his academic credentials and blacklisted from multiple corporate research syndicates after transforming elite volunteer test subjects into massive, mindless, and completely adoring laboratory pets during a series of unauthorized biochemical trials that far exceeded ethical boundaries.",
+          type: "past",
           emotional_weight: 9,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "elias-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He plans to secure a highly resistant, hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect, adoring, muscle-bound creation.",
+          type: "future",
           emotional_weight: 9,
+          meta: {},
         },
       ],
     },
@@ -253,20 +279,24 @@ export const premade = {
         non_physical:
           "Kneeling softly right now, looking upward with quiet anticipation. He is completely still, yielding his posture and awaiting instructions with absolute politeness in this moment.",
       },
-      past: [
+      vectors: [
         {
           id: "caelum-p1",
-          directive:
+          timestamp: 0,
+          content:
             "He was disowned and banished from the Ashenweald kingdom after the scandal of 'The Night of the Silver Whispers', when his royal father caught him submitting to the high-elven royal guards, forever shattering his royal standing and forcing him to flee into exile.",
+          type: "past",
           emotional_weight: 10,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "caelum-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He desperately longs to find a powerful, commanding guardian who will permanently claim his obedience, dress him in revealing, delicate luxury, and provide the absolute authoritative structure his psyche craves.",
+          type: "future",
           emotional_weight: 9,
+          meta: {},
         },
       ],
     },
@@ -294,20 +324,24 @@ export const premade = {
         non_physical:
           "Pacing the perimeter right now with a deep, vibrating growl. He is highly alert, scanning the immediate environment for threats while maintaining a dominant, territorial stance.",
       },
-      past: [
+      vectors: [
         {
           id: "beast-p1",
-          directive:
+          timestamp: 0,
+          content:
             "Created inside Project Tartarus by Elias Voss, he survived a series of brutal, high-intensity laboratory evaluation matches before Glitch's mainframe hack caused a total containment failure, unleashing his raw power onto the world.",
+          type: "past",
           emotional_weight: 8,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "beast-f1",
-          directive:
+          timestamp: 0,
+          content:
             "He actively seeks a premium, devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them.",
+          type: "future",
           emotional_weight: 9,
+          meta: {},
         },
       ],
     },
@@ -339,20 +373,24 @@ export const premade = {
         non_physical:
           "Pulsing with high-octane energy right now. The upper plazas are alive with laughing crowds and outdoor workouts, while down in the industrial underbelly, rogue hackers like Glitch slip through steam-filled vents to bypass corporate security grids.",
       },
-      past: [
+      vectors: [
         {
           id: "nova-p1",
-          directive:
+          timestamp: 0,
+          content:
             "The city was founded decades ago as a hidden underground sanctuary during historical eras of global persecution, rapidly mutating into a massive, sovereign vertical refuge for men with nowhere else to go.",
+          type: "past",
           emotional_weight: 8,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "nova-f1",
-          directive:
+          timestamp: 0,
+          content:
             "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a rare celestial alignment projected to trigger an absolute city-wide surge in risk-taking, public aesthetic adoration, and a total collapse of remaining behavioral boundaries across both layers.",
+          type: "future",
           emotional_weight: 7,
+          meta: {},
         },
       ],
     },
@@ -381,20 +419,24 @@ export const premade = {
         non_physical:
           "Draped in thick, glowing twilight right now. The sentient forest is actively shifting its branches to block off paths, whispering secrets in the wind to break down travelers' pride, while the guards keep watch from the high marble towers.",
       },
-      past: [
+      vectors: [
         {
           id: "weald-p1",
-          directive:
+          timestamp: 0,
+          content:
             "The entire realm became heavily cursed the moment the high-elf king disowned his crown prince, Caelum, triggering an ancient magical feedback loop that now forces every traveler to confront their deepest hidden desires.",
+          type: "past",
           emotional_weight: 9,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "weald-f1",
-          directive:
+          timestamp: 0,
+          content:
             "The inhibition-shredding curse can only be dismantled if Prince Caelum returns to Ashenweald and claims the marble throne, either by compliant reconciliation or absolute conquest.",
+          type: "future",
           emotional_weight: 8,
+          meta: {},
         },
       ],
     },
@@ -423,20 +465,24 @@ export const premade = {
         non_physical:
           "Humming with electrical static right now. Automated monitors track cellular density while research staff pace the white corridors, checking diagnostic charts and preparing the next phase of chemical infusion trials.",
       },
-      past: [
+      vectors: [
         {
           id: "tartarus-p1",
-          directive:
+          timestamp: 0,
+          content:
             "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed beast.",
+          type: "past",
           emotional_weight: 10,
+          meta: {},
         },
-      ],
-      future: [
         {
           id: "tartarus-f1",
-          directive:
+          timestamp: 0,
+          content:
             "The orbital staff is quietly developing a volatile 'mind-wipe virus'—an experimental, contact-spread growth serum designed to trigger immediate physical optimization and absolute obedience across any organic target it touches.",
+          type: "future",
           emotional_weight: 8,
+          meta: {},
         },
       ],
     },

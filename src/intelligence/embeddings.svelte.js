@@ -154,7 +154,7 @@ export function cosine_similarity(a, b) {
  */
 export async function ensure_embedding(vector) {
   if (!vector) return null;
-  const text = vector.directive || vector.content || vector.text || "";
+  const text = vector.content || vector.text || "";
   if (!text) return null;
 
   const existing = deserialize_embedding(vector._embedding);

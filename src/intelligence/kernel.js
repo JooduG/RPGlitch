@@ -196,30 +196,31 @@ function build_update_entry(name, mutations, dynamics, retrieval) {
 }
 
 /**
- * Normalizes scored retrieval vectors into the telemetry shape: past + future
- * merged, sorted by `_relevance` descending, internal embedding/scoring fields
+ * Normalizes scored retrieval vectors into the telemetry shape: single vectors
+ * array, sorted by `_relevance` descending, internal embedding/scoring fields
  * stripped so the raw-meta dump stays readable (embeddings are 384-dim
  * Float32Arrays that JSON.stringify would expand into thousands of keys).
  * @param {any} vectors
  * @returns {any[]}
  */
 function build_retrieval(vectors) {
-  const clean = (v, fallback_type) => {
+  const clean = (v) => {
     if (!v || typeof v !== "object") return null;
     const copy = { ...v };
     delete copy._embedding;
     delete copy._semantic_score;
     delete copy._recency_factor;
-    copy.type = copy.type || fallback_type;
+    copy.type = copy.type || "past";
     copy.content = (copy.content || copy.directive || "").trim();
     delete copy.directive;
     copy.emotional_weight = copy.emotional_weight ?? copy.weight ?? 5;
     delete copy.weight;
     return copy;
   };
-  const past = (vectors?.past || []).map((v) => clean(v, "past"));
-  const future = (vectors?.future || []).map((v) => clean(v, "future"));
-  return [...past, ...future].filter(Boolean).sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
+  return (Array.isArray(vectors) ? vectors : [])
+    .map(clean)
+    .filter(Boolean)
+    .sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
 }
 
 export const gamemaster = {
@@ -345,15 +346,10 @@ export const gamemaster = {
         snapshot.fractal.dynamics?.entropy || 50,
       );
 
-      snapshot.pruned_past = {
-        AI: prune(payload.entities.AI?.past, "past"),
-        USER: prune(payload.entities.USER?.past, "past"),
-        FRACTAL: prune(payload.entities.FRACTAL?.past, "past"),
-      };
-      snapshot.pruned_future = {
-        AI: prune(payload.entities.AI?.future, "future"),
-        USER: prune(payload.entities.USER?.future, "future"),
-        FRACTAL: prune(payload.entities.FRACTAL?.future, "future"),
+      snapshot.pruned_vectors = {
+        AI: prune(payload.entities.AI?.vectors),
+        USER: prune(payload.entities.USER?.vectors),
+        FRACTAL: prune(payload.entities.FRACTAL?.vectors),
       };
 
       // 4. DIRECTOR PASS (Shot 1)

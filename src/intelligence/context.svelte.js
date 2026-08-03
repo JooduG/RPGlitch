@@ -126,7 +126,7 @@ export const context_broker = {
 
     // Resolve active fractal vector via temporal engine
     const active_vector =
-      temporal_engine.format(clean?.FRACTAL?.future, null, {
+      temporal_engine.format(Array.isArray(clean?.FRACTAL?.vectors) ? clean.FRACTAL.vectors.filter((v) => v?.type === "future") : [], null, {
         vector_text: true,
       }) || "Continue the journey.";
 
@@ -144,8 +144,7 @@ export const context_broker = {
     // Pre-embed all temporal vectors for semantic scoring (awaited with timeout fallback)
     const all_vectors = [];
     entries.forEach(({ data }) => {
-      if (data?.past?.length) all_vectors.push(...data.past);
-      if (data?.future?.length) all_vectors.push(...data.future);
+      if (Array.isArray(data?.vectors) && data.vectors.length) all_vectors.push(...data.vectors);
     });
     if (all_vectors.length) {
       await Promise.race([ensure_embeddings(all_vectors).catch(() => {}), new Promise((resolve) => setTimeout(resolve, 30000))]);
@@ -163,8 +162,7 @@ export const context_broker = {
           fragments: [],
           eternal: { physical: "", non_physical: "" },
           present: { physical: "", non_physical: "" },
-          past: [],
-          future: [],
+          vectors: [],
           dynamics: {},
         }
       );
@@ -207,10 +205,9 @@ export const context_broker = {
         fragments,
         eternal: fragments.eternal,
         present: fragments.present,
-        past: raw.past,
-        future: raw.future,
+        vectors: raw.vectors,
         dynamics: raw.dynamics,
-        dynamics_baseline: raw.dynamics_baseline,
+        dynamicsBaseline: raw.dynamicsBaseline,
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
       };
     });
@@ -265,11 +262,12 @@ export const context_broker = {
    * @returns {Promise<void>}
    */
   async manage_vector_lifecycle(entity) {
-    if (!entity || !Array.isArray(entity.future) || entity.future.length === 0) return;
+    const futures = Array.isArray(entity?.vectors) ? entity.vectors.filter((v) => v?.type === "future") : [];
+    if (futures.length === 0) return;
 
     const vectors_to_resolve = [];
 
-    for (const vector of entity.future) {
+    for (const vector of futures) {
       // 1. Chrono Validation
       const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
       if (round_threshold !== undefined && typeof round_threshold === "number") {

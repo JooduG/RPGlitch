@@ -12,7 +12,7 @@
    * @typedef {Object} VectorItem
    * @property {string} id
    * @property {number} [timestamp]
-   * @property {string} directive
+   * @property {string} content
    * @property {string} [type]
    * @property {number} emotional_weight
    * @property {string[]} [tags]
@@ -34,23 +34,22 @@
 
   /** Normalized array of vector objects. */
   const items = $derived.by(() => {
-    const raw = profile_state.get_safe_value(path) || [];
-    const arr = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
+    const arr = profile_state._vectors_of_type(path);
 
     const mapped = arr.map((val) => {
       if (typeof val === "object" && val !== null) {
         return {
           ...val,
-          directive: val.directive ?? val.content ?? val.text ?? "",
+          content: val.content ?? val.directive ?? val.text ?? "",
           emotional_weight: val.emotional_weight ?? 5,
           tags: val.tags ?? val.vector_tags ?? [],
         };
       }
-      return { directive: String(val || ""), emotional_weight: 5, tags: [] };
+      return { content: String(val || ""), emotional_weight: 5, tags: [] };
     });
 
     if (!profile_state.is_editing) {
-      return mapped.filter((item) => !!item.directive?.trim());
+      return mapped.filter((item) => !!item.content?.trim());
     }
     return mapped;
   });
@@ -101,16 +100,16 @@
         active={profile_state.active_field?.key === `${path}[${i}]`}
         busy={profile_state.busy_fields.has(`${path}[${i}]`)}
         {signature_color}
-        value={item.directive}
+        value={item.content}
         oninput={(/** @type {Event & { currentTarget: HTMLTextAreaElement }} */ e) =>
-          profile_state.patch_vector_item(path, i, { directive: e.currentTarget.value })}
+          profile_state.patch_vector_item(path, i, { content: e.currentTarget.value })}
         placeholder="Enter {sublabel.toLowerCase()} detail..."
         weight={item.emotional_weight}
         onfocus={() => profile_state.set_active_field(`${path}[${i}]`, sublabel)}
         onheaderclick={() => toggle_expand(item_key)}
       >
         {#snippet status()}
-          {@const title = derive_vector_title(item.directive, 60)}
+          {@const title = derive_vector_title(item.content, 60)}
           <Button
             variant="bare"
             class="my-auto flex max-w-full min-w-0 items-center gap-1.5 truncate text-left focus:outline-none"
@@ -244,7 +243,7 @@
                 aria-label="Enhance with AI"
                 actions={[tooltip]}
                 tooltip="Enhance {sublabel} with AI"
-                disabled={profile_state.busy_fields.has(path) || profile_state.busy_fields.has(`${path}[${i}]`) || !item.directive}
+                disabled={profile_state.busy_fields.has(path) || profile_state.busy_fields.has(`${path}[${i}]`) || !item.content}
                 onclick={(e) => {
                   e.stopPropagation();
                   profile_state.enhance_vector_item(path, i);

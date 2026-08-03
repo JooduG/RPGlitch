@@ -8,7 +8,6 @@ import { pick_random } from "@utils";
 import { Security } from "@platform";
 
 const sanitize_html = (/** @type {any} */ val) => Security.sanitize(val);
-export const STORAGE_VERSION = 3;
 
 /**
  * Valid signature color keys.
@@ -59,10 +58,8 @@ export const ENTITY_TEMPLATES = {
       flipped: false,
       profile_picture_seed: 0,
       last_generated_seed: null,
-      color_name: "",
     },
-    past: [],
-    future: [],
+    vectors: [],
     visual_style: "none",
     pov: "1st_person",
     voice_register: "",
@@ -77,8 +74,7 @@ export const ENTITY_TEMPLATES = {
     },
     eternal: { physical: "", non_physical: "" },
     present: { physical: "", non_physical: "" },
-    past: [],
-    future: [],
+    vectors: [],
     narrative_style: "",
     visual_style: "none",
     pov: "3rd_person",
@@ -105,22 +101,14 @@ export const normalize = (base = {}) => {
     createdAt,
     updated_at,
     updatedAt,
-    origin_id,
     originId,
-    is_premade,
-    isPremade,
-    is_custom,
-    isCustom,
-    version,
-    dynamics_baseline,
     dynamicsBaseline,
     name = "",
     description = "",
     type = "character",
     eternal = {},
     present = {},
-    past = [],
-    future = [],
+    vectors = [],
     tags = [],
     signature_color = "",
     profile_picture = "",
@@ -136,25 +124,14 @@ export const normalize = (base = {}) => {
     voiceRegister = "",
   } = base;
 
-  const norm_is_premade = is_premade ?? isPremade ?? 0;
-  const norm_is_custom = is_custom ?? isCustom ?? 0;
-  const norm_origin_id = origin_id ?? originId ?? null;
-  const norm_dynamics_baseline = (dynamics_baseline ?? dynamicsBaseline) instanceof Object ? { ...(dynamics_baseline ?? dynamicsBaseline) } : null;
+  const norm_origin_id = originId ?? null;
+  const norm_dynamics_baseline = dynamicsBaseline instanceof Object ? { ...dynamicsBaseline } : null;
 
   const result = {
     // --- CORE METADATA ---
     id: id ?? "",
     created_at: created_at ?? createdAt ?? 0,
     updated_at: updated_at ?? updatedAt ?? 0,
-    origin_id: norm_origin_id,
-    is_premade: norm_is_premade,
-    is_custom: norm_is_custom,
-    version: version ?? 0,
-    dynamics_baseline: norm_dynamics_baseline,
-
-    // [BACKWARD COMPAT] CamelCase DB flags for Dexie indexes
-    isCustom: norm_is_custom,
-    isPremade: norm_is_premade,
     originId: norm_origin_id,
     dynamicsBaseline: norm_dynamics_baseline,
 
@@ -184,7 +161,7 @@ export const normalize = (base = {}) => {
     })(),
     voice_register: (() => {
       const parsed = sanitize_html(String(voice_register || voiceRegister || "")).trim();
-      return parsed === "ornate" || parsed === "plain" ? parsed : "";
+      return parsed === "plain" || parsed === "ornate" || parsed === "raw" || parsed === "clinical" ? parsed : "";
     })(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
 
@@ -197,8 +174,7 @@ export const normalize = (base = {}) => {
       physical: sanitize_html(present?.physical ?? "").trim(),
       non_physical: sanitize_html(present?.non_physical ?? "").trim(),
     },
-    past: coerce_temporal_vectors(past),
-    future: coerce_temporal_vectors(future),
+    vectors: coerce_temporal_vectors(vectors),
 
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
@@ -208,7 +184,6 @@ export const normalize = (base = {}) => {
       flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
       last_generated_seed: modifiers?.last_generated_seed ?? visuals?.last_generated_seed ?? null,
-      color_name: sanitize_html(modifiers?.color_name ?? visuals?.color_name ?? "").trim(),
     },
 
     // --- DYNAMICS (Physics Sliders) ---
@@ -249,23 +224,35 @@ export function coerce_temporal_array(val) {
 
 /**
  * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
- * String items are wrapped into objects with content/directive fields so downstream code
- * that expects .content / .directive works correctly.
+ * Strings are wrapped into canonical vector objects. Objects are normalized in place:
+ * content is read from `content`/`directive`/`text` (legacy lenient read) but the canonical
+ * key is always `content`; `directive` is dropped. `type` is either "future" or "past".
  * @param {any} val
  * @returns {any[]}
  */
 export function coerce_temporal_vectors(val) {
-  if (!Array.isArray(val)) return coerce_temporal_array(val);
+  if (!Array.isArray(val)) return [];
   return val
     .map((item) => {
-      if (item && typeof item === "object") return item;
+      if (item && typeof item === "object") {
+        const text = String(item.content ?? item.directive ?? item.text ?? "").trim();
+        if (!text) return null;
+        return {
+          id: item.id ?? crypto.randomUUID(),
+          timestamp: item.timestamp ?? 0,
+          content: text,
+          type: item.type === "future" ? "future" : "past",
+          emotional_weight: typeof item.emotional_weight === "number" ? item.emotional_weight : 5,
+          meta: item.meta && typeof item.meta === "object" ? item.meta : {},
+          tags: Array.isArray(item.tags) ? item.tags : undefined,
+        };
+      }
       const text = typeof item === "string" ? item.trim() : "";
       if (!text) return null;
       return {
         id: crypto.randomUUID(),
-        timestamp: Date.now(),
+        timestamp: 0,
         content: text,
-        directive: text,
         type: "past",
         emotional_weight: 5,
         meta: {},
@@ -302,8 +289,6 @@ export const format_premade = (entity, type) => {
   return {
     ...normalize(entity),
     type: type,
-    is_premade: 1,
-    version: STORAGE_VERSION,
     updated_at: 0,
   };
 };

@@ -9,7 +9,7 @@
  * @property {string} signature_color
  */
 import { db } from "./db.js";
-import { normalize, STORAGE_VERSION } from "./normalizer.js";
+import { normalize } from "./normalizer.js";
 import { premade } from "./presets/premades.js";
 import { serialize_embedding, deserialize_embedding } from "@utils/vectors.js";
 
@@ -44,10 +44,7 @@ export const seed_premades = async () => {
           ...normalized,
           id: bp.id,
           originId: bp.id,
-          isPremade: 1,
-          isCustom: 0,
           isSnapshot: 0,
-          version: STORAGE_VERSION,
           created_at: Date.now(),
           updated_at: Date.now(),
         });
@@ -67,7 +64,7 @@ export const seed_premades = async () => {
 // ============================================================================
 
 /**
- * Maps `_embedding` on past/future vectors through a transform without mutating
+ * Maps `_embedding` on vectors through a transform without mutating
  * the input. Missing embeddings are dropped so corrupt/empty values never persist.
  * @param {any} entity
  * @param {(emb: any) => any} transform
@@ -76,17 +73,15 @@ export const seed_premades = async () => {
 function _map_vector_embeddings(entity, transform) {
   if (!entity || typeof entity !== "object") return entity;
   const out = { ...entity };
-  for (const side of ["past", "future"]) {
-    if (!Array.isArray(out[side])) continue;
-    out[side] = out[side].map((v) => {
-      if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
-      const mapped = transform(v._embedding);
-      if (mapped) return { ...v, _embedding: mapped };
-      const copy = { ...v };
-      delete copy._embedding;
-      return copy;
-    });
-  }
+  if (!Array.isArray(out.vectors)) return out;
+  out.vectors = out.vectors.map((v) => {
+    if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
+    const mapped = transform(v._embedding);
+    if (mapped) return { ...v, _embedding: mapped };
+    const copy = { ...v };
+    delete copy._embedding;
+    return copy;
+  });
   return out;
 }
 
@@ -139,9 +134,7 @@ export const entities = {
         ...normalize({ ...base, ...clean_entity }),
         id,
         type: type,
-        isCustom: 1,
-        isPremade: 0,
-        version: STORAGE_VERSION,
+        isSnapshot: 0,
         updated_at: Date.now(),
       };
       await db.entities.put(saved);
@@ -248,20 +241,33 @@ export const stories = {
 // ============================================================================
 
 /**
+ * Prunes a vectors array for a compact snapshot: up to 3 past-type vectors
+ * plus the single most recent future-type vector. Content-only, no directive key.
  * @param {any[]} vectors
- * @param {'past'|'future'} type
  */
-export function prune(vectors, type) {
+export function prune(vectors) {
   if (!Array.isArray(vectors)) return [];
-  const limit = type === "past" ? 3 : 1;
-  return vectors.slice(0, limit).map((/** @type {any} */ v) => ({
-    id: v.id,
-    content: v.content || v.directive || v.text || v.summary || "",
-    directive: v.directive || v.content || v.text || "",
-    emotional_weight: v.emotional_weight ?? 5,
-    type: v.type || type,
-    meta: v.meta || {},
-  }));
+  const past = vectors
+    .filter((v) => v?.type !== "future")
+    .slice(0, 3)
+    .map((v) => ({
+      id: v.id,
+      content: v.content || v.directive || v.text || v.summary || "",
+      emotional_weight: v.emotional_weight ?? 5,
+      type: "past",
+      meta: v.meta || {},
+    }));
+  const future = vectors
+    .filter((v) => v?.type === "future")
+    .slice(0, 1)
+    .map((v) => ({
+      id: v.id,
+      content: v.content || v.directive || v.text || v.summary || "",
+      emotional_weight: v.emotional_weight ?? 5,
+      type: "future",
+      meta: v.meta || {},
+    }));
+  return [...past, ...future];
 }
 
 /**

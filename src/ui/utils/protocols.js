@@ -155,7 +155,7 @@ PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
   FORMATS: {
     JSON_ONLY: "Return a single JSON object starting with { and ending with }. No preamble, no markdown backticks, no external XML tags.",
     ENHANCE_IMAGE: 'Return pseudo-JSON property lines: "key": "value", — No outer braces. Commas inside values must have spaces. No code blocks.',
-    ENHANCE_ARRAY: 'Return JSON array of objects: {"directive": string, "emotional_weight": integer (1-10)}. Generate 3-5 entries.',
+    ENHANCE_ARRAY: 'Return JSON array of objects: {"content": string, "emotional_weight": integer (1-10)}. Generate 3-5 entries.',
     ENHANCE_PROSE: "Write dense profile summary in third-person. Describe traits and drivers. NO story scenes, dialogue, or tag lists.",
   },
 

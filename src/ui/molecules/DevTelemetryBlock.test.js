@@ -1,132 +1,80 @@
 import { describe, expect, test } from "vitest";
 
 /**
- * Mirror of DevTelemetryBlock's per-entity block normalization. Handles both the
- * new `{ type, updates }` telemetry shape and the legacy flat shapes, producing
- * identical `{ key, name, dynamics, physical, non_physical, new_vectors, ... }`
- * blocks so the component renders both uniformly.
+ * Mirror of DevTelemetryBlock's per-entity block normalization for the current
+ * `{ type, updates }` telemetry shape, producing the identical
+ * `{ key, name, dynamics, physical, non_physical, eternal_physical, eternal_non_physical, new_vectors, retrieval, has_dynamics, has_mods }`
+ * block the component renders.
  * @param {any} meta
  */
 function process_entity_blocks(meta = {}) {
   const mutation_keys = { ai: "AI_CHARACTER", fractal: "FRACTAL", user: "USER_PERSONA" };
-
-  if (meta.updates && typeof meta.updates === "object") {
-    const blocks = [];
-    for (const [target, mutation_key] of Object.entries(mutation_keys)) {
-      const upd = meta.updates[mutation_key];
-      if (!upd) continue;
-      const dynamics = (Array.isArray(upd.dynamics) ? upd.dynamics : []).map((d) => ({
-        axis: d.axis,
-        value: d.new_value,
-        old_value: d.old_value,
-        new_value: d.new_value,
-        diff: d.diff,
-        has_delta: true,
-      }));
-      const new_vectors = (Array.isArray(upd.vectors?.new) ? upd.vectors.new : []).map((v) => ({
-        type: v.type || "future",
-        weight: v.emotional_weight ?? v.weight ?? 5,
-        id: v.id,
-        content: v.content || v.directive || "",
-      }));
-      const retrieval = (Array.isArray(upd.vectors?.retrieval) ? upd.vectors.retrieval : []).map((v) => ({
-        type: v.type || "past",
-        id: v.id,
-        content: v.content || v.directive || "",
-        relevance: v._relevance,
-      }));
-      const physical = upd.present_mutations?.physical || "";
-      const non_physical = upd.present_mutations?.non_physical || "";
-      const eternal_physical = upd.eternal_mutations?.physical || "";
-      const eternal_non_physical = upd.eternal_mutations?.non_physical || "";
-      const has_dynamics = dynamics.length > 0;
-      const has_mods = !!(
-        physical.trim() ||
-        non_physical.trim() ||
-        eternal_physical.trim() ||
-        eternal_non_physical.trim() ||
-        new_vectors.length > 0 ||
-        retrieval.length > 0
-      );
-      if (has_dynamics || has_mods) {
-        blocks.push({
-          key: target,
-          name: upd.name,
-          dynamics,
-          physical,
-          non_physical,
-          eternal_physical,
-          eternal_non_physical,
-          new_vectors,
-          retrieval,
-          has_dynamics,
-          has_mods,
-        });
-      }
-    }
-    return blocks;
-  }
-
-  const ai = meta.entities?.ai?.dynamics || meta.ai || meta.dynamics || meta.snapshot?.ai || {};
-  const fractal = meta.entities?.fractal?.dynamics || meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {};
-  const deltas = meta.deltas || [];
-  const has_explicit_deltas = Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA";
-  const find_delta = (target, axis) => deltas.find((d) => d?.target === target && d?.axis === axis);
+  if (!meta.updates || typeof meta.updates !== "object") return [];
   const blocks = [];
-  const consider = (target, dynamics_map) => {
-    const entries = Object.entries(dynamics_map).filter(([axis]) => {
-      if (!has_explicit_deltas) return true;
-      const d = find_delta(target, axis);
-      return d && d.diff !== 0;
-    });
-    const dynamics = entries.map(([axis, val]) => {
-      const d = find_delta(target, axis);
-      return { axis, value: val, old_value: d?.old_val, new_value: d ? d.new_val : val, diff: d?.diff, has_delta: !!d };
-    });
-    const mods = meta.mutations?.[mutation_keys[target]] || null;
-    const new_vectors = (Array.isArray(mods?.new_vectors) ? mods.new_vectors : []).map((v) => ({
+  for (const [target, mutation_key] of Object.entries(mutation_keys)) {
+    const upd = meta.updates[mutation_key];
+    if (!upd) continue;
+    const dynamics = (Array.isArray(upd.dynamics) ? upd.dynamics : []).map((d) => ({
+      axis: d.axis,
+      value: d.new_value,
+      old_value: d.old_value,
+      new_value: d.new_value,
+      diff: d.diff,
+      has_delta: true,
+    }));
+    const new_vectors = (Array.isArray(upd.vectors?.new) ? upd.vectors.new : []).map((v) => ({
       type: v.type || "future",
-      weight: v.weight ?? v.emotional_weight ?? 5,
+      weight: v.emotional_weight ?? v.weight ?? 5,
       id: v.id,
       content: v.content || v.directive || "",
     }));
-    const physical = mods?.present_append_physical || "";
-    const non_physical = mods?.present_append_non_physical || "";
+    const retrieval = (Array.isArray(upd.vectors?.retrieval) ? upd.vectors.retrieval : []).map((v) => ({
+      type: v.type || "past",
+      id: v.id,
+      content: v.content || v.directive || "",
+      relevance: v._relevance,
+    }));
+    const physical = upd.present_mutations?.physical || "";
+    const non_physical = upd.present_mutations?.non_physical || "";
+    const eternal_physical = upd.eternal_mutations?.physical || "";
+    const eternal_non_physical = upd.eternal_mutations?.non_physical || "";
     const has_dynamics = dynamics.length > 0;
-    const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0);
-    if (has_dynamics || has_mods)
+    const has_mods = !!(
+      physical.trim() ||
+      non_physical.trim() ||
+      eternal_physical.trim() ||
+      eternal_non_physical.trim() ||
+      new_vectors.length > 0 ||
+      retrieval.length > 0
+    );
+    if (has_dynamics || has_mods) {
       blocks.push({
         key: target,
-        name: null,
+        name: upd.name,
         dynamics,
         physical,
         non_physical,
-        eternal_physical: "",
-        eternal_non_physical: "",
+        eternal_physical,
+        eternal_non_physical,
         new_vectors,
-        retrieval: [],
+        retrieval,
         has_dynamics,
         has_mods,
       });
-  };
-  consider("ai", ai);
-  consider("fractal", fractal);
-  consider("user", {});
+    }
+  }
   return blocks;
 }
 
 /**
  * Mirror of DevTelemetryBlock's entity-name resolution.
  * @param {string} key
- * @param {any} [meta]
  * @param {any} [runtime]
  */
-function resolve_entity_name(key, meta = {}, runtime = {}) {
-  if (key === "ai" || key === "AI_CHARACTER")
-    return meta.entities?.ai?.name || meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
-  if (key === "fractal" || key === "FRACTAL")
-    return meta.entities?.fractal?.name || meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
-  if (key === "user" || key === "USER_PERSONA") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
+function resolve_entity_name(key, runtime = {}) {
+  if (key === "ai" || key === "AI_CHARACTER") return runtime.active_ai?.name || "AI CHARACTER";
+  if (key === "fractal" || key === "FRACTAL") return runtime.active_fractal?.name || "FRACTAL";
+  if (key === "user" || key === "USER_PERSONA") return runtime.active_user?.name || "USER PERSONA";
   return key;
 }
 
@@ -308,112 +256,22 @@ describe("DevTelemetryBlock Telemetry Logic", () => {
     expect(blocks[0].dynamics).toEqual([{ axis: "openness", value: 38, old_value: 42, new_value: 38, diff: -4, has_delta: true }]);
   });
 
-  test("legacy: filters out unchanged dynamics when deltas are present", () => {
-    const meta = {
-      type: "DYNAMICS_DELTA",
-      ai: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
-      fractal: { velocity: 56, entropy: 54 },
-      deltas: [{ target: "ai", axis: "intensity", old_val: 55, new_val: 60, diff: 5 }],
-    };
-
-    const blocks = process_entity_blocks(meta);
-    expect(blocks.map((b) => b.key)).toEqual(["ai"]);
-    expect(blocks[0].dynamics).toEqual([{ axis: "intensity", value: 60, old_value: 55, new_value: 60, diff: 5, has_delta: true }]);
-  });
-
-  test("legacy: flags no blocks when the deltas array is empty for DYNAMICS_DELTA", () => {
-    const meta = {
-      type: "DYNAMICS_DELTA",
-      ai: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
-      fractal: { velocity: 56, entropy: 54 },
-      deltas: [],
-    };
-
-    expect(process_entity_blocks(meta)).toEqual([]);
-  });
-
-  test("legacy: falls back to all dynamics when meta has no explicit deltas", () => {
-    const meta = {
-      type: "CUSTOM_SNAPSHOT",
-      ai: { chaos: 50, intensity: 50 },
-      fractal: { velocity: 50 },
-    };
-
-    const blocks = process_entity_blocks(meta);
-    expect(blocks.map((b) => b.key)).toEqual(["ai", "fractal"]);
-    expect(blocks[0].dynamics.map((d) => d.axis)).toEqual(["chaos", "intensity"]);
-    expect(blocks[0].dynamics[0]).toEqual({ axis: "chaos", value: 50, new_value: 50, has_delta: false });
-    expect(blocks[1].dynamics.map((d) => d.axis)).toEqual(["velocity"]);
-  });
-
-  test("legacy: groups dynamics and amendments per entity", () => {
-    const meta = {
-      type: "DYNAMICS_DELTA",
-      ai: { intensity: 60, chaos: 58 },
-      fractal: { entropy: 54 },
-      deltas: [{ target: "ai", axis: "intensity", old_val: 55, new_val: 60, diff: 5 }],
-      mutations: {
-        AI_CHARACTER: { present_append_physical: "wearing a torn coat" },
-        USER_PERSONA: { present_append_non_physical: "holds a grudge" },
-        FRACTAL: { present_append_physical: "" },
-      },
-    };
-
-    const blocks = process_entity_blocks(meta);
-    expect(blocks.map((b) => b.key)).toEqual(["ai", "user"]);
-    expect(blocks[0].physical).toBe("wearing a torn coat");
-    expect(blocks[0].new_vectors).toEqual([]);
-    expect(blocks[1].dynamics).toEqual([]);
-    expect(blocks[1].non_physical).toBe("holds a grudge");
-  });
-
-  test("legacy: reads entity names and dynamics from the grouped entities payload", () => {
-    const meta = {
-      type: "DYNAMICS_DELTA",
-      entities: {
-        ai: { name: "Vesper", dynamics: { chaos: 62, intensity: 48, openness: 71, affinity: 35 } },
-        fractal: { name: "Weeping Orb", dynamics: { velocity: 44, entropy: 58 } },
-      },
-      deltas: [{ target: "ai", axis: "chaos", old_val: 58, new_val: 62, diff: 4 }],
-    };
-    expect(resolve_entity_name("AI_CHARACTER", meta)).toBe("Vesper");
-    expect(resolve_entity_name("FRACTAL", meta)).toBe("Weeping Orb");
-    const blocks = process_entity_blocks(meta);
-    expect(blocks.map((b) => b.key)).toEqual(["ai"]);
-    expect(blocks[0].dynamics.map((d) => d.axis)).toEqual(["chaos"]);
-  });
-
-  test("legacy: includes entities that only add new vectors", () => {
-    const meta = {
-      type: "DYNAMICS_DELTA",
-      ai: { chaos: 50 },
-      fractal: { entropy: 50 },
-      deltas: [],
-      mutations: {
-        FRACTAL: { new_vectors: [{ content: "A low thrumming begins", type: "future", weight: 4 }] },
-      },
-    };
-    const blocks = process_entity_blocks(meta);
-    expect(blocks.map((b) => b.key)).toEqual(["fractal"]);
-    expect(blocks[0].dynamics).toEqual([]);
-    expect(blocks[0].new_vectors).toEqual([{ type: "future", weight: 4, content: "A low thrumming begins" }]);
-  });
-
-  test("resolves telemetry entity keys to display names", () => {
-    const meta = { ai_name: "Vesper", fractal_name: "Orb", user_name: "You" };
-    expect(resolve_entity_name("AI_CHARACTER", meta)).toBe("Vesper");
-    expect(resolve_entity_name("FRACTAL", meta)).toBe("Orb");
-    expect(resolve_entity_name("USER_PERSONA", meta)).toBe("You");
-    expect(resolve_entity_name("ai", meta)).toBe("Vesper");
-    expect(resolve_entity_name("unknown-key", meta)).toBe("unknown-key");
-  });
-
-  test("resolves entity keys from runtime when meta names are absent", () => {
+  test("resolves telemetry entity keys to display names from runtime", () => {
     const runtime = { active_ai: { name: "Kestrel" }, active_fractal: { name: "Hollow" }, active_user: { name: "Rook" } };
-    expect(resolve_entity_name("AI_CHARACTER", {}, runtime)).toBe("Kestrel");
-    expect(resolve_entity_name("FRACTAL", {}, runtime)).toBe("Hollow");
-    expect(resolve_entity_name("USER_PERSONA", {}, runtime)).toBe("Rook");
-    expect(resolve_entity_name("ai", {}, runtime)).toBe("Kestrel");
+    expect(resolve_entity_name("AI_CHARACTER", runtime)).toBe("Kestrel");
+    expect(resolve_entity_name("FRACTAL", runtime)).toBe("Hollow");
+    expect(resolve_entity_name("USER_PERSONA", runtime)).toBe("Rook");
+    expect(resolve_entity_name("ai", runtime)).toBe("Kestrel");
+    expect(resolve_entity_name("fractal", runtime)).toBe("Hollow");
+    expect(resolve_entity_name("user", runtime)).toBe("Rook");
+    expect(resolve_entity_name("unknown-key", runtime)).toBe("unknown-key");
+  });
+
+  test("resolves entity keys to static labels when runtime is empty", () => {
+    expect(resolve_entity_name("AI_CHARACTER")).toBe("AI CHARACTER");
+    expect(resolve_entity_name("FRACTAL")).toBe("FRACTAL");
+    expect(resolve_entity_name("USER_PERSONA")).toBe("USER PERSONA");
+    expect(resolve_entity_name("ai")).toBe("AI CHARACTER");
   });
 
   test("labels future/past vector types with their human-readable names", () => {

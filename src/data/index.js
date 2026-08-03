@@ -1,7 +1,6 @@
 export { seed_premades, stories, entities, prune } from "./repository.js";
 export { db, init, set_versionchange_quiesce } from "./db.js";
 export {
-  STORAGE_VERSION,
   ENTITY_TEMPLATES,
   get_random_signature_key,
   normalize,

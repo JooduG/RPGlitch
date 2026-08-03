@@ -267,7 +267,7 @@ export function format(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of ranked) {
-    const text = v.content || v.directive || "";
+    const text = v.content || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -284,7 +284,7 @@ export function format(vectors, input, options = {}) {
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || v.directive || "";
+      if (show_text) return v.content || "";
       return "";
     })
     .join("\n");
@@ -314,7 +314,7 @@ export async function format_async(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of sliced) {
-    const text = v.content || v.directive || "";
+    const text = v.content || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -331,7 +331,7 @@ export async function format_async(vectors, input, options = {}) {
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || v.directive || "";
+      if (show_text) return v.content || "";
       return "";
     })
     .join("\n");
@@ -344,19 +344,17 @@ export async function format_async(vectors, input, options = {}) {
  * @param {string | null} [resolution]
  */
 export function resolve(entity, vector_id, resolution = null, session = null) {
-  if (!entity || !Array.isArray(entity.future)) return;
-  const index = entity.future.findIndex((v) => v.id === vector_id);
+  if (!entity || !Array.isArray(entity.vectors)) return;
+  const index = entity.vectors.findIndex((v) => v.id === vector_id);
   if (index === -1) return;
 
-  const [vector] = entity.future.splice(index, 1);
+  const [vector] = entity.vectors.splice(index, 1);
   vector.type = "past";
   vector.timestamp = Date.now();
-
-  if (!Array.isArray(entity.past)) entity.past = [];
-  entity.past.push(vector);
+  entity.vectors.push(vector);
 
   if (session?.log_system_entry) {
-    const text = vector.content || vector.directive || "";
+    const text = vector.content || "";
     session.log_system_entry(`Vector Resolved: ${text.substring(0, 40)}... [${resolution || "PAST"}]`, "system", {
       type: "VECTOR_RESOLUTION",
       vector,
@@ -433,14 +431,14 @@ export async function forge_memory(entity_targets, history_slice) {
 
     for (const { key } of entity_targets) {
       const raw = raw_memories?.[key] && typeof raw_memories[key] === "object" ? raw_memories[key] : {};
-      const directive = String(raw.directive || raw.summary || "").trim() || legacy_directive;
-      if (!directive) continue;
+      const content = String(raw.content ?? raw.directive ?? raw.summary ?? "").trim() || legacy_directive;
+      if (!content) continue;
 
       const vector = {
         id: _uuid(),
         timestamp: Date.now(),
         type: normalize_forged_type(raw.type),
-        directive,
+        content,
         emotional_weight: Number(raw.emotional_weight ?? raw.base_weight ?? memory?.emotional_weight ?? memory?.base_weight ?? 5) || 5,
         tags: (raw.vector_tags || raw.tags || memory?.tags || []).map((t) => String(t).toLowerCase()).filter(Boolean),
         meta: { ...(memory?.meta || {}), forged_for: key },
@@ -500,8 +498,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
 
   // 4. New Vectors (Future or Past)
   if (Array.isArray(mutations.new_vectors) && mutations.new_vectors.length > 0) {
-    if (!Array.isArray(entity.future)) entity.future = [];
-    if (!Array.isArray(entity.past)) entity.past = [];
+    if (!Array.isArray(entity.vectors)) entity.vectors = [];
     mutations.new_vectors.forEach((v) => {
       const payload = (v.content || v.directive || "").trim();
       if (!payload) return;
@@ -511,15 +508,11 @@ export function apply_state_mutations(entity, mutations, session = null) {
         .then(() => {
           if (entity?.id) {
             const type = entity.type === "fractal" ? "fractal" : "character";
-            state_bridge.runtime?.update_entity?.(type, entity.id, { past: entity.past, future: entity.future })?.catch(() => {});
+            state_bridge.runtime?.update_entity?.(type, entity.id, { vectors: entity.vectors })?.catch(() => {});
           }
         })
         .catch(() => {});
-      if (new_vector.type === "past") {
-        entity.past.push(new_vector);
-      } else {
-        entity.future.push(new_vector);
-      }
+      entity.vectors.push(new_vector);
       changed = true;
     });
   }
@@ -545,8 +538,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
     state_bridge.runtime
       ?.update_entity?.(type, entity.id, {
         present: entity.present,
-        past: entity.past,
-        future: entity.future,
+        vectors: entity.vectors,
         eternal: entity.eternal,
       })
       ?.catch((err) => {
@@ -559,8 +551,8 @@ export function apply_state_mutations(entity, mutations, session = null) {
 
 /**
  * Neuroplasticity pass: after memory forge, positive memories decay high-weight
- * trauma vectors; high-chaos turns can relapse them. Modifies entity.past vectors
- * in-place and persists via runtime.update_entity.
+ * trauma vectors; high-chaos turns can relapse them. Modifies the AI entity's
+ * past-type vectors in-place and persists via runtime.update_entity.
  * @param {Array<{entity: any, type: string}>} entity_targets
  * @param {any} memory - The forged memory object.
  * @param {any} runtime - Runtime state with update_entity and dynamics access.
@@ -568,15 +560,16 @@ export function apply_state_mutations(entity, mutations, session = null) {
 export function apply_neuroplasticity(entity_targets, memory, runtime) {
   try {
     const chaos = runtime?.active_ai?.dynamics?.chaos ?? 50;
-    const mem_text = String(memory?.content || memory?.directive || "").toLowerCase();
+    const mem_text = String(memory?.content || "").toLowerCase();
     const is_reconciliation = mem_text.includes("reconciliation") || mem_text.includes("healing");
     const is_positive = (memory?.emotional_weight ?? 5) <= 4 || is_reconciliation;
 
     const ai_target = entity_targets.find((t) => t.entity === runtime?.active_ai);
-    if (!ai_target || !Array.isArray(ai_target.entity.past)) return;
+    if (!ai_target || !Array.isArray(ai_target.entity.vectors)) return;
 
     let changed = false;
-    for (const v of ai_target.entity.past) {
+    for (const v of ai_target.entity.vectors) {
+      if (v.type === "future") continue;
       if (v.emotional_weight >= 8) {
         if (is_positive && chaos < 80) {
           v.emotional_weight = Math.max(1, v.emotional_weight - 1);
@@ -588,7 +581,7 @@ export function apply_neuroplasticity(entity_targets, memory, runtime) {
       }
     }
     if (changed) {
-      runtime?.update_entity?.(ai_target.type, ai_target.entity.id, { past: ai_target.entity.past });
+      runtime?.update_entity?.(ai_target.type, ai_target.entity.id, { vectors: ai_target.entity.vectors });
     }
   } catch (err) {
     console.error("[TemporalEngine] Neuroplasticity pass failed:", err);
@@ -615,8 +608,8 @@ export const temporal_engine = {
    * for each active entity (AI Character, User Persona, Fractal), written
    * from that entity's own perspective — no more duplicating one shared
    * character vector across all three. Each memory is routed by its forged
-   * type: "past" → entity.past, "future" → entity.future, "present" →
-   * merged into the entity's present state as an immediate directive.
+   * type: "past"/"future" → entity.vectors, "present" → merged into the
+   * entity's present state as an immediate directive.
    * The LLM also returns per-entity present_summaries and eternal_mutations
    * in the same single response.
    * @param {SessionDriver} Session
@@ -654,17 +647,17 @@ export const temporal_engine = {
             if (!memory) continue;
 
             if (memory.type === "future") {
-              if (!Array.isArray(entity.future)) entity.future = [];
-              entity.future = [...entity.future, memory];
-              await runtime.update_entity(type, entity.id, { future: entity.future });
+              if (!Array.isArray(entity.vectors)) entity.vectors = [];
+              entity.vectors = [...entity.vectors, memory];
+              await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
             } else if (memory.type === "present") {
               if (!entity.present) entity.present = { physical: "", non_physical: "" };
-              entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.directive);
+              entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || "");
               await runtime.update_entity(type, entity.id, { present: entity.present });
             } else {
-              if (!Array.isArray(entity.past)) entity.past = [];
-              entity.past = [...entity.past, memory];
-              await runtime.update_entity(type, entity.id, { past: entity.past });
+              if (!Array.isArray(entity.vectors)) entity.vectors = [];
+              entity.vectors = [...entity.vectors, memory];
+              await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
             }
           }
 
@@ -707,8 +700,7 @@ export const temporal_engine = {
                 if (memory && memory.type !== "present" && !memory.tags.includes("eternal-shift")) {
                   memory.tags.push("eternal-shift");
                   const payload = {};
-                  if (Array.isArray(entity.past)) payload.past = entity.past;
-                  if (Array.isArray(entity.future)) payload.future = entity.future;
+                  if (Array.isArray(entity.vectors)) payload.vectors = entity.vectors;
                   await runtime.update_entity(type, entity.id, payload);
                 }
               }
@@ -719,11 +711,11 @@ export const temporal_engine = {
           for (const { key } of entity_targets) {
             const memory = forged.memories?.[key];
             if (!memory) continue;
-            const text = memory.directive || "";
+            const text = memory.content || memory.directive || "";
             await Session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
               target: key,
-              vectors: memory.type === "future" ? { past: [memory], future: [memory] } : { past: [memory], future: [] },
+              vectors: [memory],
               turns_count: slice.length,
             });
           }
@@ -749,7 +741,7 @@ export const temporal_engine = {
    */
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;
-    if (fractal && (!Array.isArray(fractal.future) || fractal.future.length === 0)) {
+    if (fractal && (!Array.isArray(fractal.vectors) || !fractal.vectors.some((v) => v.type === "future"))) {
       app?.log("[TemporalEngine] Placeholder momentum active (No vectors found)", "system");
     }
   },

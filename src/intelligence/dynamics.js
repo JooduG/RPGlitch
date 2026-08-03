@@ -52,6 +52,6 @@ export const dynamics_engine = {
    * @returns {Record<string, number>} The entity's baseline dynamics.
    */
   _get_baselines(entity) {
-    return entity?.dynamics_baseline || {};
+    return entity?.dynamicsBaseline || {};
   },
 };

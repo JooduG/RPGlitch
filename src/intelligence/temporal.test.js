@@ -200,7 +200,7 @@ describe("temporal_engine", () => {
   describe("resolve", () => {
     it("transitions a future impulse to a past anchor", () => {
       const entity = /** @type {any} */ ({
-        future: [
+        vectors: [
           {
             id: "v1",
             timestamp: 100,
@@ -210,15 +210,13 @@ describe("temporal_engine", () => {
             meta: {},
           },
         ],
-        past: [],
       });
 
       temporal_engine.resolve(entity, "v1", "SUCCESS");
 
-      expect(entity.future).toHaveLength(0);
-      expect(entity.past).toHaveLength(1);
-      expect(entity.past[0].content).toBe("Goal");
-      expect(entity.past[0].type).toBe("past");
+      expect(entity.vectors).toHaveLength(1);
+      expect(entity.vectors[0].content).toBe("Goal");
+      expect(entity.vectors[0].type).toBe("past");
     });
   });
 
@@ -226,18 +224,17 @@ describe("temporal_engine", () => {
     it("appends to present_append and shifts future_to_past", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Initial state." },
-        future: [
+        vectors: [
           {
             id: "v1",
             timestamp: 100,
-            directive: "Goal",
+            content: "Goal",
             type: "future",
             emotional_weight: 5,
             tags: [],
             meta: {},
           },
         ],
-        past: [],
       });
 
       const mutations = {
@@ -248,8 +245,8 @@ describe("temporal_engine", () => {
       const result = temporal_engine.apply_state_mutations(entity, mutations);
       expect(result).toBe(true);
       expect(entity.present.non_physical).toBe("Initial state.\nNow they are angry.");
-      expect(entity.future).toHaveLength(0);
-      expect(entity.past).toHaveLength(1);
+      expect(entity.vectors).toHaveLength(1);
+      expect(entity.vectors[0].type).toBe("past");
     });
 
     it("returns false if mutations object is empty or invalid", () => {
@@ -259,22 +256,21 @@ describe("temporal_engine", () => {
     });
 
     it("passes category through from Director new_vectors", () => {
-      const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, future: [], past: [] });
+      const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, vectors: [] });
       const mutations = {
         new_vectors: [
-          { directive: "Avenge the fallen", category: "goal", tags: ["vengeance"] },
-          { directive: "Storm approaches", category: "threat" },
+          { content: "Avenge the fallen", category: "goal", tags: ["vengeance"] },
+          { content: "Storm approaches", category: "threat" },
         ],
       };
       temporal_engine.apply_state_mutations(entity, mutations);
-      expect(entity.future).toHaveLength(2);
+      expect(entity.vectors).toHaveLength(2);
     });
 
     it("applies present_append_non_physical state mutations", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Calm." },
-        future: [],
-        past: [],
+        vectors: [],
       });
 
       const mutations = { present_append_non_physical: "She smiles." };
@@ -287,12 +283,11 @@ describe("temporal_engine", () => {
     it("skips amplification when evidence is null or has no _amplifiedTell", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Calm." },
-        future: [],
-        past: [
+        vectors: [
           {
             id: "w1",
             timestamp: 100,
-            directive: "Old wound",
+            content: "Old wound",
             type: "past",
             emotional_weight: 9,
             tags: ["trauma"],
@@ -316,7 +311,7 @@ describe("temporal_engine", () => {
         {
           id: "p1",
           timestamp: 100,
-          directive: "Core memory about dragons",
+          content: "Core memory about dragons",
           type: "past",
           emotional_weight: 10,
           tags: [],
@@ -325,7 +320,7 @@ describe("temporal_engine", () => {
         {
           id: "p2",
           timestamp: 200,
-          directive: "Major memory of battle",
+          content: "Major memory of battle",
           type: "past",
           emotional_weight: 8,
           tags: [],
@@ -334,7 +329,7 @@ describe("temporal_engine", () => {
         {
           id: "p3",
           timestamp: 300,
-          directive: "Minor memory of weather",
+          content: "Minor memory of weather",
           type: "past",
           emotional_weight: 4,
           tags: [],
@@ -354,7 +349,7 @@ describe("temporal_engine", () => {
         {
           id: "f1",
           timestamp: 100,
-          directive: "Prophecy",
+          content: "Prophecy",
           type: "future",
           emotional_weight: 5,
           tags: [],
@@ -379,19 +374,19 @@ describe("temporal_engine", () => {
       const mock_memory = {
         memories: {
           AI_CHARACTER: {
-            directive: "Viper felt the crowd's distrust and decided to stay quiet.",
+            content: "Viper felt the crowd's distrust and decided to stay quiet.",
             type: "past",
             emotional_weight: 6,
             tags: ["distrust"],
           },
           USER_PERSONA: {
-            directive: "Ghost noticed Viper's tension and resolved to press for the truth.",
+            content: "Ghost noticed Viper's tension and resolved to press for the truth.",
             type: "future",
             emotional_weight: 4,
             tags: ["resolve"],
           },
           FRACTAL: {
-            directive: "The market din turned hostile after the guard's announcement.",
+            content: "The market din turned hostile after the guard's announcement.",
             type: "past",
             emotional_weight: 3,
             tags: ["atmosphere"],
@@ -403,10 +398,10 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.forge_memory(targets(), [{ role: "user", content: "test" }]);
 
-      expect(result?.memories?.AI_CHARACTER?.directive).toContain("Viper");
-      expect(result?.memories?.USER_PERSONA?.directive).toContain("Ghost");
-      expect(result?.memories?.FRACTAL?.directive).toContain("market");
-      expect(result?.memories?.AI_CHARACTER?.directive).not.toBe(result?.memories?.USER_PERSONA?.directive);
+      expect(result?.memories?.AI_CHARACTER?.content).toContain("Viper");
+      expect(result?.memories?.USER_PERSONA?.content).toContain("Ghost");
+      expect(result?.memories?.FRACTAL?.content).toContain("market");
+      expect(result?.memories?.AI_CHARACTER?.content).not.toBe(result?.memories?.USER_PERSONA?.content);
       expect(result?.memories?.AI_CHARACTER?.timestamp).toBe(Date.now());
     });
 
@@ -414,9 +409,9 @@ describe("temporal_engine", () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
           memories: {
-            AI_CHARACTER: { directive: "Prophecy", type: "future" },
-            USER_PERSONA: { directive: "Directive", type: "present" },
-            FRACTAL: { directive: "Odd", type: "prophecy" },
+            AI_CHARACTER: { content: "Prophecy", type: "future" },
+            USER_PERSONA: { content: "Directive", type: "present" },
+            FRACTAL: { content: "Odd", type: "prophecy" },
           },
         }),
       );
@@ -432,8 +427,8 @@ describe("temporal_engine", () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
           memories: {
-            AI_CHARACTER: { directive: "Now", type: "present" },
-            USER_PERSONA: { directive: "Later", type: "future" },
+            AI_CHARACTER: { content: "Now", type: "present" },
+            USER_PERSONA: { content: "Later", type: "future" },
           },
         }),
       );
@@ -450,25 +445,25 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.directive).toBe("A significant event happened.");
-      expect(result?.memories?.USER_PERSONA?.directive).toBe("A significant event happened.");
-      expect(result?.memories?.FRACTAL?.directive).toBe("A significant event happened.");
+      expect(result?.memories?.AI_CHARACTER?.content).toBe("A significant event happened.");
+      expect(result?.memories?.USER_PERSONA?.content).toBe("A significant event happened.");
+      expect(result?.memories?.FRACTAL?.content).toBe("A significant event happened.");
       expect(result?.memories?.AI_CHARACTER?.emotional_weight).toBe(7);
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
-      const json_str = JSON.stringify({ memories: { AI_CHARACTER: { directive: "First object" } } });
+      const json_str = JSON.stringify({ memories: { AI_CHARACTER: { content: "First object" } } });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${json_str} noise after`);
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.directive).toBe("First object");
+      expect(result?.memories?.AI_CHARACTER?.content).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
       const nested_memory = {
         memories: {
-          AI_CHARACTER: { directive: "Event with nested info.", details: { depth: 2, meta: "data" } },
+          AI_CHARACTER: { content: "Event with nested info.", details: { depth: 2, meta: "data" } },
         },
       };
       const response = `Here is the JSON: ${JSON.stringify(nested_memory)} and some noise.`;
@@ -476,7 +471,7 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.directive).toBe("Event with nested info.");
+      expect(result?.memories?.AI_CHARACTER?.content).toBe("Event with nested info.");
     });
 
     it("returns null when no entity targets are provided", async () => {
@@ -503,7 +498,7 @@ describe("temporal_engine", () => {
       };
       const mock_db = { simulation_log: { bulkPut: vi.fn() } };
       const mock_entities = { save: vi.fn() };
-      const mock_runtime = { active_ai: { past: [] } };
+      const mock_runtime = { active_ai: { vectors: [] } };
       const mock_app = { log: vi.fn() };
 
       await temporal_engine.consolidate(
@@ -528,9 +523,9 @@ describe("temporal_engine", () => {
       const mock_db = { simulation_log: { bulkPut: vi.fn() } };
       const mock_entities = { save: vi.fn() };
 
-      const ai = { id: "ai1", past: [], future: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
-      const user = { id: "u1", past: [], future: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
-      const fractal = { id: "f1", past: [], future: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const ai = { id: "ai1", vectors: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const user = { id: "u1", vectors: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const fractal = { id: "f1", vectors: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
 
       const mock_runtime = {
         active_ai: ai,
@@ -543,9 +538,9 @@ describe("temporal_engine", () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
           memories: {
-            AI_CHARACTER: { directive: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 },
-            USER_PERSONA: { directive: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 },
-            FRACTAL: { directive: "Nova City is on the brink of a blackout.", type: "present", emotional_weight: 3 },
+            AI_CHARACTER: { content: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 },
+            USER_PERSONA: { content: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 },
+            FRACTAL: { content: "Nova City is on the brink of a blackout.", type: "present", emotional_weight: 3 },
           },
         }),
       );
@@ -558,17 +553,16 @@ describe("temporal_engine", () => {
         /** @type {any} */ (mock_app),
       );
 
-      expect(ai.past).toHaveLength(1);
-      expect(ai.past[0].directive).toContain("Viper");
-      expect(ai.future).toHaveLength(0);
+      expect(ai.vectors).toHaveLength(1);
+      expect(ai.vectors[0].content).toContain("Viper");
+      expect(ai.vectors.filter((v) => v.type === "future")).toHaveLength(0);
 
-      expect(user.future).toHaveLength(1);
-      expect(user.future[0].directive).toContain("confront");
-      expect(user.past).toHaveLength(0);
+      expect(user.vectors).toHaveLength(1);
+      expect(user.vectors[0].content).toContain("confront");
+      expect(user.vectors.filter((v) => v.type === "past")).toHaveLength(0);
 
       expect(fractal.present.non_physical).toContain("blackout");
-      expect(fractal.past).toHaveLength(0);
-      expect(fractal.future).toHaveLength(0);
+      expect(fractal.vectors).toHaveLength(0);
 
       expect(mock_session.log_system_entry).toHaveBeenCalled();
       expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
@@ -579,7 +573,7 @@ describe("temporal_engine", () => {
     it("decays trauma vectors by 1 when memory is positive and chaos is low", () => {
       const entity = {
         id: "e1",
-        past: [{ id: "t1", emotional_weight: 9, tags: ["trauma", "betrayal"], directive: "Betrayed" }],
+        vectors: [{ id: "t1", emotional_weight: 9, tags: ["trauma", "betrayal"], content: "Betrayed", type: "past" }],
       };
       const memory = { emotional_weight: 3, tags: ["connection"] };
       const runtime = {
@@ -590,14 +584,14 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(8);
-      expect(runtime.update_entity).toHaveBeenCalledWith("character", "e1", { past: runtime.active_ai.past });
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(8);
+      expect(runtime.update_entity).toHaveBeenCalledWith("character", "e1", { vectors: runtime.active_ai.vectors });
     });
 
     it("relapses trauma vectors by 1 when chaos is above 80", () => {
       const entity = {
         id: "e1",
-        past: [{ id: "t1", emotional_weight: 8, tags: ["wound", "abandonment"], directive: "Abandoned" }],
+        vectors: [{ id: "t1", emotional_weight: 8, tags: ["wound", "abandonment"], content: "Abandoned", type: "past" }],
       };
       const memory = { emotional_weight: 7, tags: ["event"] };
       const runtime = {
@@ -608,14 +602,14 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(9);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(9);
       expect(runtime.update_entity).toHaveBeenCalled();
     });
 
     it("clamps decay to minimum of 1", () => {
       const entity = {
         id: "e1",
-        past: [{ id: "t1", emotional_weight: 1, tags: ["trauma"], directive: "Already at floor" }],
+        vectors: [{ id: "t1", emotional_weight: 1, tags: ["trauma"], content: "Already at floor", type: "past" }],
       };
       const memory = { emotional_weight: 2, tags: ["reconciliation"] };
       const runtime = {
@@ -626,13 +620,13 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(1);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(1);
     });
 
     it("clamps relapse to maximum of 10", () => {
       const entity = {
         id: "e1",
-        past: [{ id: "t1", emotional_weight: 10, tags: ["trauma", "wound"], directive: "Already at ceiling" }],
+        vectors: [{ id: "t1", emotional_weight: 10, tags: ["trauma", "wound"], content: "Already at ceiling", type: "past" }],
       };
       const memory = { emotional_weight: 9, tags: ["event"] };
       const runtime = {
@@ -643,15 +637,15 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(10);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(10);
     });
 
     it("decays high-weight past vectors when memory is positive", () => {
       const entity = {
         id: "e1",
-        past: [
-          { id: "p1", emotional_weight: 9, content: "Won the battle" },
-          { id: "p2", emotional_weight: 5, content: "Walked the dog" },
+        vectors: [
+          { id: "p1", emotional_weight: 9, content: "Won the battle", type: "past" },
+          { id: "p2", emotional_weight: 5, content: "Walked the dog", type: "past" },
         ],
       };
       const memory = { emotional_weight: 2, content: "connection" };
@@ -663,14 +657,14 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(8);
-      expect(runtime.active_ai.past[1].emotional_weight).toBe(5);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(8);
+      expect(runtime.active_ai.vectors[1].emotional_weight).toBe(5);
     });
 
     it("does not decay when memory is not positive and chaos is below 80", () => {
       const entity = {
         id: "e1",
-        past: [{ id: "t1", emotional_weight: 9, content: "Old wound" }],
+        vectors: [{ id: "t1", emotional_weight: 9, content: "Old wound", type: "past" }],
       };
       const memory = { emotional_weight: 7, content: "conflict and tension" };
       const runtime = {
@@ -681,12 +675,12 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(9);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(9);
       expect(runtime.update_entity).not.toHaveBeenCalled();
     });
 
-    it("is safe when entity.past is empty", () => {
-      const entity = { id: "e1", past: [] };
+    it("is safe when entity.vectors is empty", () => {
+      const entity = { id: "e1", vectors: [] };
       const memory = { emotional_weight: 2, content: "connection" };
       const runtime = {
         active_ai: { ...entity, dynamics: { chaos: 30 } },
@@ -709,11 +703,11 @@ describe("temporal_engine", () => {
     it("does not apply to non-AI entities", () => {
       const user_entity = {
         id: "e2",
-        past: [{ id: "t1", emotional_weight: 9, content: "User trauma" }],
+        vectors: [{ id: "t1", emotional_weight: 9, content: "User trauma", type: "past" }],
       };
       const ai_entity = {
         id: "e1",
-        past: [{ id: "t2", emotional_weight: 9, content: "AI trauma" }],
+        vectors: [{ id: "t2", emotional_weight: 9, content: "AI trauma", type: "past" }],
       };
       const memory = { emotional_weight: 3, content: "connection" };
       const runtime = {
@@ -727,14 +721,14 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(8);
-      expect(user_entity.past[0].emotional_weight).toBe(9);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(8);
+      expect(user_entity.vectors[0].emotional_weight).toBe(9);
     });
 
     it("treats memory with reconciliation content as positive regardless of weight", () => {
       const entity = {
         id: "e1",
-        past: [{ id: "t1", emotional_weight: 10, content: "Deep scar" }],
+        vectors: [{ id: "t1", emotional_weight: 10, content: "Deep scar", type: "past" }],
       };
       const memory = { emotional_weight: 8, content: "reconciliation and healing" };
       const runtime = {
@@ -745,7 +739,7 @@ describe("temporal_engine", () => {
 
       apply_neuroplasticity(entity_targets, memory, runtime);
 
-      expect(runtime.active_ai.past[0].emotional_weight).toBe(9);
+      expect(runtime.active_ai.vectors[0].emotional_weight).toBe(9);
     });
   });
 });

@@ -61,7 +61,6 @@
         flipped: false,
         profile_picture_seed: null,
         last_generated_seed: null,
-        color_name: "",
       };
       return;
     }
@@ -73,7 +72,6 @@
       profile_state.char.modifiers.profile_picture_seed = null;
     }
     profile_state.char.modifiers.last_generated_seed ??= null;
-    profile_state.char.modifiers.color_name ??= "";
   };
 
   sync_modifiers();

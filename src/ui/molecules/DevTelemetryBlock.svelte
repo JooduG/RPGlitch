@@ -10,18 +10,15 @@
   /**
    * @typedef {Object} TelemetryMeta
    * @property {string} [type] - The type of telemetry event.
-   * @property {Object} [updates] - Normalized per-entity state updates (new shape).
-   * @property {Object} [ai] - AI character state (legacy).
-   * @property {Object} [dynamics] - Dynamic simulation state (legacy).
-   * @property {Object} [snapshot] - State snapshot (legacy).
-   * @property {Object} [snapshot.ai] - AI snapshot (legacy).
-   * @property {Object} [snapshot.fractal] - Fractal snapshot (legacy).
-   * @property {Object} [fractal] - Fractal entity state (legacy).
-   * @property {Object} [fractal_dynamics] - Fractal dynamic state (legacy).
-   * @property {Object} [vectors] - Narrative vectors (legacy).
-   * @property {any[]} [vectors.past] - Past memory vectors (legacy).
-   * @property {any[]} [vectors.future] - Future intent vectors (legacy).
-   * @property {any[]} [deltas] - State deltas (legacy).
+   * @property {Object} [updates] - Normalized per-entity state updates ({ AI_CHARACTER | USER_PERSONA | FRACTAL: { name, present_mutations, eternal_mutations, vectors, dynamics } }).
+   * @property {string} [thoughts] - Director think content (markdown; leading `##` headings stripped for display).
+   * @property {boolean} [trigger_image] - Whether image generation was triggered this tick.
+   * @property {Object} [vectors] - Forged memory vectors for MEMORY_FORMATION events.
+   * @property {any[]} [vectors] - The forged memory vector.
+   * @property {string} [target] - Entity key targeted by a MEMORY_FORMATION event.
+   * @property {number} [turns_count] - Turns consolidated by a MEMORY_FORMATION event.
+   * @property {Object} [vector] - Resolved vector detail for VECTOR_RESOLUTION events.
+   * @property {string} [resolution] - Resolution summary for VECTOR_RESOLUTION events.
    */
   /**
    * @typedef {Object} Props
@@ -31,120 +28,69 @@
   /** @type {Props} */
   let { meta = {} } = $props();
 
-  let vectors = $derived({
-    past: meta.vectors?.past || [],
-    future: meta.vectors?.future || [],
-  });
+  let forged_vectors = $derived(Array.isArray(meta.vectors) ? meta.vectors : []);
 
   let entity_blocks = $derived.by(() => {
     const mutation_keys = { ai: "AI_CHARACTER", fractal: "FRACTAL", user: "USER_PERSONA" };
+    if (!meta.updates || typeof meta.updates !== "object") return [];
 
-    // NEW shape: { type, updates: { AI_CHARACTER | USER_PERSONA | FRACTAL: { name, present_mutations, eternal_mutations, vectors, dynamics } } }
-    if (meta.updates && typeof meta.updates === "object") {
-      const blocks = [];
-      for (const [target, mutation_key] of Object.entries(mutation_keys)) {
-        const upd = meta.updates[mutation_key];
-        if (!upd) continue;
-        const dynamics = (Array.isArray(upd.dynamics) ? upd.dynamics : []).map((d) => ({
-          axis: d.axis,
-          value: d.new_value,
-          old_value: d.old_value,
-          new_value: d.new_value,
-          diff: d.diff,
-          has_delta: true,
-        }));
-        const new_vectors = (Array.isArray(upd.vectors?.new) ? upd.vectors.new : []).map((v) => ({
-          type: v.type || "future",
-          weight: v.emotional_weight ?? v.weight ?? 5,
-          id: v.id,
-          content: v.content || v.directive || "",
-        }));
-        const retrieval = (Array.isArray(upd.vectors?.retrieval) ? upd.vectors.retrieval : []).map((v) => ({
-          type: v.type || "past",
-          id: v.id,
-          content: v.content || v.directive || "",
-          relevance: v._relevance,
-        }));
-        const physical = upd.present_mutations?.physical || "";
-        const non_physical = upd.present_mutations?.non_physical || "";
-        const eternal_physical = upd.eternal_mutations?.physical || "";
-        const eternal_non_physical = upd.eternal_mutations?.non_physical || "";
-        const has_dynamics = dynamics.length > 0;
-        const has_mods = !!(
-          physical.trim() ||
-          non_physical.trim() ||
-          eternal_physical.trim() ||
-          eternal_non_physical.trim() ||
-          new_vectors.length > 0 ||
-          retrieval.length > 0
-        );
-        if (has_dynamics || has_mods) {
-          blocks.push({
-            key: target,
-            name: upd.name,
-            dynamics,
-            physical,
-            non_physical,
-            eternal_physical,
-            eternal_non_physical,
-            new_vectors,
-            retrieval,
-            has_dynamics,
-            has_mods,
-          });
-        }
-      }
-      return blocks;
-    }
-
-    // LEGACY shape fallback: { type, entities, deltas, mutations, vectors } etc.
-    const ai = meta.entities?.ai?.dynamics || meta.ai || meta.dynamics || meta.snapshot?.ai || {};
-    const fractal = meta.entities?.fractal?.dynamics || meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {};
-    const deltas = meta.deltas || [];
-    const has_explicit_deltas = Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA";
-    const find_delta = (target, axis) => deltas.find((d) => d?.target === target && d?.axis === axis);
     const blocks = [];
-    const consider = (target, dynamics_map) => {
-      const entries = Object.entries(dynamics_map).filter(([axis]) => {
-        if (!has_explicit_deltas) return true;
-        const d = find_delta(target, axis);
-        return d && d.diff !== 0;
-      });
-      const dynamics = entries.map(([axis, val]) => {
-        const d = find_delta(target, axis);
-        return { axis, value: val, old_value: d?.old_val, new_value: d ? d.new_val : val, diff: d?.diff, has_delta: !!d };
-      });
-      const mods = meta.mutations?.[mutation_keys[target]] || null;
-      const new_vectors = (Array.isArray(mods?.new_vectors) ? mods.new_vectors : []).map((v) => ({
+    for (const [target, mutation_key] of Object.entries(mutation_keys)) {
+      const upd = meta.updates[mutation_key];
+      if (!upd) continue;
+      const dynamics = (Array.isArray(upd.dynamics) ? upd.dynamics : []).map((d) => ({
+        axis: d.axis,
+        value: d.new_value,
+        old_value: d.old_value,
+        new_value: d.new_value,
+        diff: d.diff,
+        has_delta: true,
+      }));
+      const new_vectors = (Array.isArray(upd.vectors?.new) ? upd.vectors.new : []).map((v) => ({
         type: v.type || "future",
-        weight: v.weight ?? v.emotional_weight ?? 5,
+        weight: v.emotional_weight ?? v.weight ?? 5,
         id: v.id,
         content: v.content || v.directive || "",
       }));
-      const physical = mods?.present_append_physical || "";
-      const non_physical = mods?.present_append_non_physical || "";
+      const retrieval = (Array.isArray(upd.vectors?.retrieval) ? upd.vectors.retrieval : []).map((v) => ({
+        type: v.type || "past",
+        id: v.id,
+        content: v.content || v.directive || "",
+        relevance: v._relevance,
+      }));
+      const physical = upd.present_mutations?.physical || "";
+      const non_physical = upd.present_mutations?.non_physical || "";
+      const eternal_physical = upd.eternal_mutations?.physical || "";
+      const eternal_non_physical = upd.eternal_mutations?.non_physical || "";
       const has_dynamics = dynamics.length > 0;
-      const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0);
-      if (has_dynamics || has_mods)
+      const has_mods = !!(
+        physical.trim() ||
+        non_physical.trim() ||
+        eternal_physical.trim() ||
+        eternal_non_physical.trim() ||
+        new_vectors.length > 0 ||
+        retrieval.length > 0
+      );
+      if (has_dynamics || has_mods) {
         blocks.push({
           key: target,
-          name: null,
+          name: upd.name,
           dynamics,
           physical,
           non_physical,
-          eternal_physical: "",
-          eternal_non_physical: "",
+          eternal_physical,
+          eternal_non_physical,
           new_vectors,
-          retrieval: [],
+          retrieval,
           has_dynamics,
           has_mods,
         });
-    };
-    consider("ai", ai);
-    consider("fractal", fractal);
-    consider("user", {});
+      }
+    }
     return blocks;
   });
+
+  let display_thoughts = $derived((meta.thoughts || "").replace(/^##\s+.*$/gm, "").trim());
 
   /** @param {number} val */
   function get_pct(val) {
@@ -152,11 +98,9 @@
   }
 
   const get_entity_name = (key) => {
-    if (key === "ai" || key === "AI_CHARACTER")
-      return meta.entities?.ai?.name || meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
-    if (key === "fractal" || key === "FRACTAL")
-      return meta.entities?.fractal?.name || meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
-    if (key === "user" || key === "USER_PERSONA") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
+    if (key === "ai" || key === "AI_CHARACTER") return runtime.active_ai?.name || "AI CHARACTER";
+    if (key === "fractal" || key === "FRACTAL") return runtime.active_fractal?.name || "FRACTAL";
+    if (key === "user" || key === "USER_PERSONA") return runtime.active_user?.name || "USER PERSONA";
     return key;
   };
 
@@ -281,7 +225,7 @@
                   gap-2
                 "
                 >
-                  {#each vectors.past as v, i (v.id || v.directive)}
+                  {#each forged_vectors as v, i (v.id || v.content)}
                     <div
                       class="
                       flex
@@ -321,7 +265,7 @@
                         overflow-hidden
                         text-ellipsis
                         text-slate-50
-                      ">{v.directive}</span
+                      ">{v.content}</span
                       >
                       {#if v.tags?.length}
                         <div class="flex flex-wrap gap-2">
@@ -405,7 +349,7 @@
             <span
               class="
               text-slate-50
-            ">{meta.vector?.directive}</span
+            ">{meta.vector?.content}</span
             >
             {#if meta.resolution}
               <span
@@ -427,7 +371,7 @@
               <div
                 class="rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-50"
               >
-                {meta.thoughts}
+                {display_thoughts}
               </div>
             </div>
           {/if}
@@ -490,7 +434,7 @@
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">PRESENT PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">PRESENT PHYSICAL</span>
                           <span class="text-slate-50">{block.physical}</span>
                         </div>
                       {/if}
@@ -498,7 +442,7 @@
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">PRESENT NON-PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">PRESENT NON&#8209;PHYSICAL</span>
                           <span class="text-slate-50">{block.non_physical}</span>
                         </div>
                       {/if}
@@ -506,7 +450,7 @@
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">ETERNAL PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">ETERNAL PHYSICAL</span>
                           <span class="text-slate-50">{block.eternal_physical}</span>
                         </div>
                       {/if}
@@ -514,7 +458,7 @@
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">ETERNAL NON-PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">ETERNAL NON&#8209;PHYSICAL</span>
                           <span class="text-slate-50">{block.eternal_non_physical}</span>
                         </div>
                       {/if}
@@ -525,9 +469,7 @@
                               class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                             >
                               <div class="flex flex-wrap items-center gap-2">
-                                <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent) uppercase"
-                                  >{vector_label(nv.type, "future")}</span
-                                >
+                                <span class="w-24 shrink-0 font-mono text-(--state-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
                               </div>
                               <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{nv.content}</span>
                             </div>
@@ -541,8 +483,7 @@
                               class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-500 bg-black/20 px-3 py-3 text-xs leading-relaxed"
                             >
                               <div class="flex flex-wrap items-center gap-2">
-                                <span class="w-40 shrink-0 font-mono whitespace-nowrap text-slate-500 uppercase">{vector_label(rv.type, "past")}</span
-                                >
+                                <span class="w-24 shrink-0 font-mono text-slate-500 uppercase">{vector_label(rv.type, "past")}</span>
                               </div>
                               <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{rv.content}</span>
                             </div>
@@ -556,167 +497,6 @@
             </div>
           {:else if meta.type === "DYNAMICS_DELTA"}
             <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
-          {/if}
-
-          {#if meta.type !== "DYNAMICS_DELTA" && (vectors.future.length > 0 || vectors.past.length > 0)}
-            <div
-              class="
-              grid
-              grid-cols-2
-              gap-4
-              pt-4
-            "
-            >
-              <div
-                class="
-                flex
-                flex-col
-              "
-              >
-                <header
-                  class="
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
-                "
-                >
-                  PAST MEMORIES
-                </header>
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  {#each vectors.past.slice(0, 3) as v (v.id || v.directive)}
-                    <div
-                      class="
-                      flex
-                      gap-4
-                      rounded-sm
-                      border-l-8
-                      border-transparent
-                      border-l-slate-600
-                      bg-black/40
-                      px-3
-                      py-3
-                      text-xs
-                      leading-relaxed
-                    "
-                    >
-                      <span
-                        class="
-                        font-mono
-                        text-slate-500
-                        
-                      ">{v._relevance?.toFixed(1) || v.emotional_weight}</span
-                      >
-                      <span
-                        class="
-                        line-clamp-2
-                        overflow-hidden
-                        text-ellipsis
-                        text-slate-50
-                      ">{v.directive}</span
-                      >
-                    </div>
-                  {:else}
-                    <div
-                      class="
-                      text-xs
-                      text-slate-400
-                      
-                      font-mono
-                    "
-                    >
-                      NO PAST MEMORIES
-                    </div>
-                  {/each}
-                </div>
-              </div>
-
-              <div
-                class="
-                flex
-                flex-col
-              "
-              >
-                <header
-                  class="
-                  border-b
-                  border-(--state-dev-accent)/20
-                  pb-1
-                  text-xs
-                  font-bold
-                  tracking-widest
-                  text-(--state-dev-accent)
-                  uppercase
-                  
-                "
-                >
-                  FUTURE VECTORS
-                </header>
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  {#each vectors.future.slice(0, 3) as v (v.id || v.directive)}
-                    <div
-                      class="
-                      flex
-                      gap-4
-                      rounded-sm
-                      border-l-8
-                      border-transparent
-                      border-l-(--state-dev-accent)
-                      bg-black/40
-                      px-3
-                      py-3
-                      text-xs
-                      leading-relaxed
-                    "
-                    >
-                      <span
-                        class="
-                        font-mono
-                        text-(--state-dev-accent)
-                        
-                      ">{v._relevance?.toFixed(1) || v.emotional_weight}</span
-                      >
-                      <span
-                        class="
-                        line-clamp-2
-                        overflow-hidden
-                        text-ellipsis
-                        text-slate-50
-                      ">{v.directive}</span
-                      >
-                    </div>
-                  {:else}
-                    <div
-                      class="
-                      text-xs
-                      text-slate-400
-                      
-                      font-mono
-                    "
-                    >
-                      NO FUTURE VECTORS
-                    </div>
-                  {/each}
-                </div>
-              </div>
-            </div>
           {/if}
         {/if}
         <Accordion label="View Raw Data">

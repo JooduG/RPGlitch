@@ -17,7 +17,7 @@ const db = /** @type {any} */ (new Dexie("rpglitch"));
 // --- SCHEMA VERSIONS ---
 // v10: Baseline schema (entities, stories, simulation_log, kv_settings, sessions, audio_prefs, settings).
 db.version(10).stores({
-  entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom], isChosen",
+  entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, isChosen",
   stories: "++id, title, ai_id, user_id, fractal_id, created_at, updated_at",
   simulation_log: "++id, story_id, role, type, character_name, text, seed, meta, created_at",
   kv_settings: "key",
@@ -47,7 +47,13 @@ db.version(11)
 // v12: Prune `isChosen` index from entities (stability — align indexes with actual queries).
 // --- STABILITY HANDLERS ---
 db.version(12).stores({
-  entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom]",
+  entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
+});
+// v13: Drop the `[type+isCustom]` index (isCustom field retired by the DevWing
+// data-block harmonization). Re-declaring entities is a no-op for existing rows;
+// the index simply stops existing going forward.
+db.version(13).stores({
+  entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
 /** @type {(() => void) | null} */
 let _versionchange_quiesce = null;

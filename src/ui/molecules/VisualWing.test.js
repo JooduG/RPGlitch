@@ -24,7 +24,6 @@ function ensure_modifiers(char) {
       flipped: false,
       profile_picture_seed: 0,
       last_generated_seed: null,
-      color_name: "",
     };
   } else {
     char.modifiers.prompt ??= "";
@@ -33,7 +32,6 @@ function ensure_modifiers(char) {
     char.modifiers.flipped ??= false;
     char.modifiers.profile_picture_seed ??= 0;
     char.modifiers.last_generated_seed ??= null;
-    char.modifiers.color_name ??= "";
   }
 }
 

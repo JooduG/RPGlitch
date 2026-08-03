@@ -75,7 +75,7 @@ describe("embeddings LRU cache", () => {
   });
 
   it("upgrades a persisted plain-array embedding via ensure_embedding", async () => {
-    const vector = { directive: "lore", _embedding: Array.from({ length: EMBED_DIM }, (_, i) => i % 10) };
+    const vector = { content: "lore", _embedding: Array.from({ length: EMBED_DIM }, (_, i) => i % 10) };
     const emb = await ensure_embedding(vector);
     expect(emb).toBeInstanceOf(Float32Array);
     expect(emb.length).toBe(EMBED_DIM);
@@ -84,14 +84,14 @@ describe("embeddings LRU cache", () => {
 
   it("upgrades the legacy JSON-flattened embedding object form", async () => {
     const legacy = Object.fromEntries(Array.from({ length: EMBED_DIM }, (_, i) => [i, i / EMBED_DIM]));
-    const vector = { directive: "lore", _embedding: legacy };
+    const vector = { content: "lore", _embedding: legacy };
     const emb = await ensure_embedding(vector);
     expect(emb).toBeInstanceOf(Float32Array);
     expect(emb[EMBED_DIM - 1]).toBeCloseTo((EMBED_DIM - 1) / EMBED_DIM);
   });
 
   it("re-infers when the stored embedding is corrupt", async () => {
-    const vector = { directive: "lore", _embedding: { 0: "nope" } };
+    const vector = { content: "lore", _embedding: { 0: "nope" } };
     const emb = await ensure_embedding(vector);
     expect(emb).toBeInstanceOf(Float32Array);
     expect(vector._embedding).toBe(emb);

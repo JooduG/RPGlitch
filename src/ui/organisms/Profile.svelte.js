@@ -97,6 +97,30 @@ export class ProfileState {
   }
 
   /**
+   * Returns the vector items belonging to one UI section ('past' | 'future').
+   * Vectors without an explicit type are treated as past (the legacy default).
+   * @param {'past' | 'future'} type
+   * @returns {any[]}
+   */
+  _vectors_of_type(type) {
+    const all = Array.isArray(this.char?.vectors) ? this.char.vectors : [];
+    return all.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") === type);
+  }
+
+  /**
+   * Replaces one section's vectors inside the unified `vectors` array,
+   * preserving the other section's vectors.
+   * @param {'past' | 'future'} type
+   * @param {any[]} items
+   */
+  _set_vectors_of_type(type, items) {
+    if (!this.char) return;
+    const all = Array.isArray(this.char.vectors) ? this.char.vectors : [];
+    const kept = all.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") !== type);
+    this.char.vectors = [...kept, ...items];
+  }
+
+  /**
    * Autosaves any pending edits and closes the profile modal.
    * @param {"character" | "fractal"} [entity_type]
    */
@@ -152,14 +176,9 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_saving = true;
     try {
-      if (Array.isArray(this.char.past)) {
-        this.char.past = this.char.past.filter((v) =>
-          typeof v === "object" && v !== null ? !!(v.directive || v.content || v.text)?.trim() : !!String(v).trim(),
-        );
-      }
-      if (Array.isArray(this.char.future)) {
-        this.char.future = this.char.future.filter((v) =>
-          typeof v === "object" && v !== null ? !!(v.directive || v.content || v.text)?.trim() : !!String(v).trim(),
+      if (Array.isArray(this.char.vectors)) {
+        this.char.vectors = this.char.vectors.filter((v) =>
+          typeof v === "object" && v !== null ? !!(v.content || v.directive || v.text)?.trim() : !!String(v).trim(),
         );
       }
       await runtime.save_entity(entity_type, this.char);
@@ -247,14 +266,14 @@ export class ProfileState {
               const parsed = JSON.parse(json_str.substring(start, end + 1));
               if (Array.isArray(parsed)) {
                 const vectors = parsed.map((v) => {
-                  const directive = typeof v === "string" ? v : v.directive || v.text || "";
+                  const content = typeof v === "string" ? v : v.content || v.directive || v.text || "";
                   return {
-                    ...temporal_engine.create(directive, key),
+                    ...temporal_engine.create(content, key),
                     tags: Array.isArray(v.tags) ? v.tags : [],
                     emotional_weight: v.emotional_weight ?? 5,
                   };
                 });
-                set_value(this.char, key, vectors);
+                this._set_vectors_of_type(key, vectors);
                 this._user_mutated = true;
               }
             } catch (e) {
@@ -287,18 +306,18 @@ export class ProfileState {
    */
   async enhance_vector_item(path, index) {
     const item_key = `${path}[${index}]`;
-    const items = get_value(this.char, path) || [];
+    const items = this._vectors_of_type(path);
     const item = items[index];
-    const directive = typeof item === "string" ? item : item?.directive;
+    const content = typeof item === "string" ? item : item?.content || item?.directive || "";
 
-    if (!directive || this.busy_fields.has(item_key) || this.busy_fields.has(path)) return;
+    if (!content || this.busy_fields.has(item_key) || this.busy_fields.has(path)) return;
 
     this.busy_fields.add(item_key);
     this.busy_fields.add(path);
 
     try {
       const type = this.char.type === "user" ? "character" : this.char.type || "character";
-      const payload = prompt_builder.build_enhancement(path, directive, this.char.name || "", type, false, this.char);
+      const payload = prompt_builder.build_enhancement(path, content, this.char.name || "", type, false, this.char);
       const result = await llm_service.enhance(payload);
 
       if (result) {
@@ -316,11 +335,11 @@ export class ProfileState {
           try {
             const parsed = JSON.parse(json_str.substring(start_arr, end_arr + 1));
             if (Array.isArray(parsed) && parsed.length > 0) {
-              const current_items = [...(get_value(this.char, path) || [])];
+              const current_items = this._vectors_of_type(path);
 
               parsed.forEach((v, idx) => {
                 const target_idx = index + idx;
-                const dir = typeof v === "string" ? v : v.directive || v.text || "";
+                const dir = typeof v === "string" ? v : v.content || v.directive || v.text || "";
                 if (!dir) return;
 
                 const tags = Array.isArray(v.tags) ? v.tags : [];
@@ -330,7 +349,7 @@ export class ProfileState {
                   const existing = current_items[target_idx];
                   current_items[target_idx] = {
                     ...existing,
-                    directive: dir,
+                    content: dir,
                     tags: tags.length > 0 ? tags : existing.tags || [],
                     emotional_weight: typeof v.emotional_weight === "number" ? emotional_weight : (existing.emotional_weight ?? 5),
                   };
@@ -338,7 +357,7 @@ export class ProfileState {
                   current_items.push({
                     id: generate_uuid(),
                     timestamp: Date.now(),
-                    directive: dir,
+                    content: dir,
                     type: path,
                     emotional_weight,
                     tags,
@@ -346,7 +365,7 @@ export class ProfileState {
                 }
               });
 
-              set_value(this.char, path, current_items);
+              this._set_vectors_of_type(path, current_items);
               this._user_mutated = true;
               return;
             }
@@ -357,7 +376,7 @@ export class ProfileState {
           try {
             const parsed = JSON.parse(json_str.substring(start_obj, end_obj + 1));
             if (parsed && typeof parsed === "object") {
-              if (parsed.directive || parsed.text) patch.directive = parsed.directive || parsed.text;
+              if (parsed.content || parsed.directive || parsed.text) patch.content = parsed.content || parsed.directive || parsed.text;
               if (Array.isArray(parsed.tags) && parsed.tags.length > 0) patch.tags = parsed.tags;
               if (typeof parsed.emotional_weight === "number") patch.emotional_weight = parsed.emotional_weight;
             }
@@ -366,12 +385,12 @@ export class ProfileState {
           }
         }
 
-        if (!patch.directive) {
+        if (!patch.content) {
           clean_result = clean_result.replace(/^"(.*)"$/, "$1").trim();
-          if (clean_result) patch.directive = clean_result;
+          if (clean_result) patch.content = clean_result;
         }
 
-        if (patch.directive) {
+        if (patch.content) {
           this.patch_vector_item(path, index, patch);
           this._user_mutated = true;
         }
@@ -424,17 +443,18 @@ export class ProfileState {
 
             if (key === "past" || key === "future") {
               if (Array.isArray(val)) {
-                const current_vectors = get_value(this.char, key) || [];
+                const current_vectors = this._vectors_of_type(key);
                 const new_vectors = val.map((text_str, idx) => {
                   const existing = current_vectors[idx] || {};
-                  const vector_str = typeof text_str === "string" ? text_str : text_str.directive || text_str.text || JSON.stringify(text_str);
+                  const vector_str =
+                    typeof text_str === "string" ? text_str : text_str.content || text_str.directive || text_str.text || JSON.stringify(text_str);
                   return {
                     ...temporal_engine.create(vector_str, key),
                     id: existing.id || generate_uuid(),
                     emotional_weight: existing.emotional_weight || 5,
                   };
                 });
-                set_value(this.char, key, new_vectors);
+                this._set_vectors_of_type(key, new_vectors);
               }
             } else if (typeof val === "object" && !Array.isArray(val)) {
               for (const [sub_key, subVal] of Object.entries(val)) {
@@ -470,19 +490,18 @@ export class ProfileState {
   add_vector_item(path) {
     if (!this.char || !this.is_editing) return;
 
-    const raw = get_value(this.char, path) || [];
-    const items = Array.isArray(raw) ? raw : typeof raw === "string" && raw.trim() ? [raw] : [];
+    const items = this._vectors_of_type(path);
 
     const new_item = {
       id: generate_uuid(),
       timestamp: Date.now(),
-      directive: "",
+      content: "",
       type: path,
       emotional_weight: 5,
       tags: [],
     };
 
-    set_value(this.char, path, [new_item, ...items]);
+    this._set_vectors_of_type(path, [new_item, ...items]);
     this._user_mutated = true;
   }
 
@@ -494,10 +513,10 @@ export class ProfileState {
    */
   patch_vector_item(path, index, patch) {
     if (!this.char) return;
-    const items = [...(get_value(this.char, path) || [])];
+    const items = this._vectors_of_type(path);
     if (!items[index]) return;
     items[index] = { ...items[index], ...patch };
-    set_value(this.char, path, items);
+    this._set_vectors_of_type(path, items);
     this._user_mutated = true;
   }
 
@@ -508,8 +527,8 @@ export class ProfileState {
    */
   remove_vector_item(path, index) {
     if (!this.char) return;
-    const items = (get_value(this.char, path) || []).filter((/** @type {any} */ _, /** @type {number} */ i) => i !== index);
-    set_value(this.char, path, items);
+    const items = this._vectors_of_type(path).filter((/** @type {any} */ _, /** @type {number} */ i) => i !== index);
+    this._set_vectors_of_type(path, items);
     this._user_mutated = true;
   }
 
@@ -521,7 +540,7 @@ export class ProfileState {
    */
   update_vector_weight(path, index, delta) {
     if (!this.char) return;
-    const items = get_value(this.char, path) || [];
+    const items = this._vectors_of_type(path);
     const item = items[index];
     if (!item) return;
     const weight = item.emotional_weight ?? 5;
