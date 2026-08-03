@@ -240,9 +240,13 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('role="FRACTAL"');
     });
 
-    it("build_memory_prompt() targets specific entity refinement", () => {
-      const result = prompt_builder.build_memory_prompt("AI", { name: "Viper" }, []);
-      expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE" entity="Viper">');
+    it("build_memory_prompt() renders entity-specific forge contexts", () => {
+      const result = prompt_builder.build_memory_prompt({ AI_CHARACTER: { name: "Viper" }, FRACTAL: { name: "Void" } }, []);
+      expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE">');
+      expect(result.system).toContain('name="Viper"');
+      expect(result.system).toContain('name="Void"');
+      expect(result.system).toContain("Forge ONE memory per entity");
+      expect(result.system).toContain('"type": "past | future | present"');
     });
 
     it("synthesize() prunes empty tags and formats entity blocks cleanly", () => {

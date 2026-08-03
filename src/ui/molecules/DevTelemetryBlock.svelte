@@ -4,7 +4,7 @@
    * ðŸ“¡ THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
-  import { DataBox, tooltip } from "@atoms";
+  import { Accordion, DataBox, tooltip } from "@atoms";
   import { runtime } from "@state";
 
   /**
@@ -40,10 +40,26 @@
   let mutations = $derived(meta.mutations || null);
   let signals = $derived(Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {}));
   let deltas = $derived(meta.deltas || []);
+  let signal_prompts = $derived.by(() => {
+    const raw = meta.signal_prompts;
+    if (!raw) return [];
+    if (Array.isArray(raw)) {
+      return raw.map((s, i) => ({
+        key: typeof s === "object" ? s?.key || s?.id || `prompt-${i}` : `prompt-${i}`,
+        text: typeof s === "object" ? s?.prompt || s?.text || JSON.stringify(s) : String(s),
+      }));
+    }
+    return Object.entries(raw).map(([k, v]) => ({
+      key: k,
+      text: typeof v === "object" ? v?.prompt || v?.text || JSON.stringify(v) : String(v),
+    }));
+  });
   let active_dynamics = $derived(Array.from(new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))])));
+  let has_explicit_deltas = $derived(Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA");
 
   let changed_ai = $derived.by(() => {
     return Object.entries(ai).filter(([axis]) => {
+      if (!has_explicit_deltas) return true;
       const delta = get_delta("ai", axis);
       return delta && delta.diff !== 0;
     });
@@ -51,9 +67,24 @@
 
   let changed_fractal = $derived.by(() => {
     return Object.entries(fractal).filter(([axis]) => {
+      if (!has_explicit_deltas) return true;
       const delta = get_delta("fractal", axis);
       return delta && delta.diff !== 0;
     });
+  });
+
+  let entity_blocks = $derived.by(() => {
+    const mutation_keys = { ai: "AI_CHARACTER", fractal: "FRACTAL", user: "USER_PERSONA" };
+    const blocks = [];
+    const consider = (key, entries) => {
+      const mods = mutations?.[mutation_keys[key]] || null;
+      const has_mods = mods && (mods.present_append_physical?.trim() || mods.present_append_non_physical?.trim());
+      if (entries.length > 0 || has_mods) blocks.push({ key, entries, mods: has_mods ? mods : null });
+    };
+    consider("ai", changed_ai);
+    consider("fractal", changed_fractal);
+    consider("user", []);
+    return blocks;
   });
 
   /** @param {number} val */
@@ -71,13 +102,14 @@
   }
 
   function get_explanation(signal_id) {
-    return `Active Signal: ${signal_id}`;
+    const prompt = signal_prompts.find((sp) => sp.key === signal_id);
+    return prompt ? `${signal_id}: ${prompt.text}` : `Active Signal: ${signal_id}`;
   }
 
   const get_entity_name = (key) => {
-    if (key === "ai") return meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
-    if (key === "fractal") return meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
-    if (key === "user") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
+    if (key === "ai" || key === "AI_CHARACTER") return meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
+    if (key === "fractal" || key === "FRACTAL") return meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
+    if (key === "user" || key === "USER_PERSONA") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
     return key;
   };
 </script>
@@ -135,6 +167,18 @@
               "
               >
                 Merging active impulses into persistent memory vectors.
+              </p>
+              <p
+                class="
+                mt-2
+                font-mono
+                text-xs
+                tracking-widest
+                text-(--state-dev-accent)/60
+                uppercase
+              "
+              >
+                Forged for {get_entity_name(meta.target)} · from {meta.turns_count || "?"} turns
               </p>
             </div>
 
@@ -197,13 +241,39 @@
                     "
                       style="animation-delay: {i * 100}ms"
                     >
-                      <span
-                        class="
-                        font-mono
-                        text-(--state-dev-accent)
-                        
-                      ">WEAVED</span
-                      >
+                      <div class="flex flex-wrap items-center gap-2">
+                        <span
+                          class="
+                          font-mono
+                          text-(--state-dev-accent)
+                        ">WEAVED</span
+                        >
+                        <span
+                          class="
+                          rounded-full
+                          border
+                          border-(--state-dev-accent)/20
+                          px-2
+                          py-0.5
+                          font-mono
+                          text-xs
+                          uppercase
+                          {v.type === 'future' ? 'text-(--state-dev-accent)' : v.type === 'present' ? 'text-slate-50' : 'text-slate-400'}
+                        ">{v.type || "past"}</span
+                        >
+                        <span
+                          class="
+                          rounded-full
+                          bg-white/5
+                          px-2
+                          py-0.5
+                          font-mono
+                          text-xs
+                          text-slate-400
+                        "
+                          title="emotional weight">w{v.emotional_weight}</span
+                        >
+                      </div>
                       <span
                         class="
                         line-clamp-2
@@ -212,6 +282,23 @@
                         text-slate-50
                       ">{v.directive}</span
                       >
+                      {#if v.tags?.length}
+                        <div class="flex flex-wrap gap-2">
+                          {#each v.tags as tag (tag)}
+                            <span
+                              class="
+                              rounded-sm
+                              bg-white/5
+                              px-2
+                              py-0.5
+                              font-mono
+                              text-xs
+                              {tag === 'eternal-shift' ? 'text-(--state-dev-accent)' : 'text-slate-400'}
+                            ">{tag === "eternal-shift" ? "◇ eternal shift" : tag}</span
+                            >
+                          {/each}
+                        </div>
+                      {/if}
                     </div>
                   {:else}
                     <div
@@ -293,271 +380,81 @@
         {:else}
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
-          <!-- [T] DYNAMICS GRID -->
-          {#if Object.keys(ai).length > 0 || Object.keys(fractal).length > 0 || meta.type === "DYNAMICS_DELTA"}
-            <div
-              class="
-              grid
-              grid-cols-2
-              gap-4
-            "
-            >
-              {#if Object.keys(ai).length > 0 || meta.type === "DYNAMICS_DELTA"}
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  <header
-                    class="
-                    mb-2
-                    border-b
-                    border-(--state-dev-accent)/20
-                    pb-1
-                    text-xs
-                    font-bold
-                    tracking-widest
-                    text-(--state-dev-accent)
-                    uppercase
-                  "
-                  >
-                    {get_entity_name("ai")}
+          <!-- [T] PER-ENTITY STATE CHANGES -->
+          {#if entity_blocks.length > 0}
+            <div class="flex flex-col gap-6">
+              {#each entity_blocks as block (block.key)}
+                <div class="flex flex-col gap-2">
+                  <header class="mb-2 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
+                    {get_entity_name(block.key)}
                   </header>
-                  {#each changed_ai as [axis, val] (axis)}
-                    {@const delta = get_delta("ai", axis)}
-                    <div class="relative flex flex-col gap-1">
-                      <div
-                        class="
-                        flex
-                        items-center
-                        justify-between
-                        gap-4
-                      "
-                      >
-                        <span
-                          class="
-                        min-w-20
-                        text-xs
-                        text-slate-400
-                        lowercase
-                      ">{axis}</span
-                        >
-                        <div
-                          class="
-                        flex
-                        flex-1
-                        items-center
-                        gap-4
-                      "
-                        >
-                          <div
-                            class="
-                          relative
-                          h-1.5
-                          flex-1
-                          overflow-hidden
-                          rounded-full
-                          bg-white/5
-                        "
-                          >
-                            <div
-                              class="
-                            absolute
-                            h-full
-                            transition-all
-                            duration-300
-                          "
-                              style="
-                            left: 0%;
-                            width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
-                            background: var(--state-dev-accent);
-                          "
-                            ></div>
-                            {#if delta}
+                  {#if block.entries.length > 0}
+                    <div class="grid grid-cols-2 gap-4">
+                      {#each block.entries as [axis, val] (axis)}
+                        {@const delta = get_delta(block.key, axis)}
+                        <div class="flex items-center justify-between gap-4">
+                          <span class="min-w-20 text-xs text-slate-400 lowercase">{axis}</span>
+                          <div class="flex flex-1 items-center gap-4">
+                            <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
-                                class="
-                              absolute
-                              z-10
-                              h-full
-                              opacity-40
-                              transition-all
-                              duration-300
-                            "
-                                style="
-                              left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
-                              width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
-                              background: var(--state-dev-accent);
-                            "
+                                class="absolute h-full transition-all duration-300"
+                                style="left: 0%; width: {delta
+                                  ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val))
+                                  : get_pct(val)}%; background: var(--state-dev-accent);"
                               ></div>
-                            {/if}
-                          </div>
-                          <div class="flex flex-col items-end gap-0.5">
-                            <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
-                              <span class="text-slate-50">{get_pct(val)}</span>
                               {#if delta}
-                                <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
-                                  ({delta.diff > 0 ? "+" : ""}{delta.diff})
-                                </span>
+                                <div
+                                  class="absolute z-10 h-full opacity-40 transition-all duration-300"
+                                  style="left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%; width: {Math.abs(
+                                    get_pct(delta.new_val) - get_pct(delta.old_val),
+                                  )}%; background: var(--state-dev-accent);"
+                                ></div>
                               {/if}
+                            </div>
+                            <div class="flex flex-col items-end gap-0.5">
+                              <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
+                                <span class="text-slate-50">{get_pct(val)}</span>
+                                {#if delta}
+                                  <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
+                                    ({delta.diff > 0 ? "+" : ""}{delta.diff})
+                                  </span>
+                                {/if}
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
+                      {/each}
                     </div>
-                  {:else}
+                  {:else if !block.mods}
                     <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
-                  {/each}
-                </div>
-              {/if}
-
-              {#if Object.keys(fractal).length > 0 || meta.type === "DYNAMICS_DELTA"}
-                <div
-                  class="
-                  flex
-                  flex-col
-                  gap-2
-                "
-                >
-                  <header
-                    class="
-                    mb-2
-                    border-b
-                    border-(--state-dev-accent)/20
-                    pb-1
-                    text-xs
-                    font-bold
-                    tracking-widest
-                    text-(--state-dev-accent)
-                    uppercase
-                  "
-                  >
-                    {get_entity_name("fractal")}
-                  </header>
-                  {#each changed_fractal as [axis, val] (axis)}
-                    {@const delta = get_delta("fractal", axis)}
-                    <div class="relative flex flex-col gap-1">
-                      <div
-                        class="
-                        flex
-                        items-center
-                        justify-between
-                        gap-4
-                      "
-                      >
-                        <span
-                          class="
-                        min-w-20
-                        text-xs
-                        text-slate-400
-                        lowercase
-                      ">{axis}</span
-                        >
-                        <div
-                          class="
-                        flex
-                        flex-1
-                        items-center
-                        gap-4
-                      "
-                        >
-                          <div
-                            class="
-                          relative
-                          h-1.5
-                          flex-1
-                          overflow-hidden
-                          rounded-full
-                          bg-white/5
-                        "
-                          >
-                            <div
-                              class="
-                            absolute
-                            h-full
-                            transition-all
-                            duration-300
-                          "
-                              style="
-                            left: 0%;
-                            width: {delta ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val)) : get_pct(val)}%;
-                            background: var(--state-dev-accent);
-                          "
-                            ></div>
-                            {#if delta}
-                              <div
-                                class="
-                              absolute
-                              z-10
-                              h-full
-                              opacity-40
-                              transition-all
-                              duration-300
-                            "
-                                style="
-                              left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%;
-                              width: {Math.abs(get_pct(delta.new_val) - get_pct(delta.old_val))}%;
-                              background: var(--state-dev-accent);
-                            "
-                              ></div>
-                            {/if}
-                          </div>
-                          <div class="flex flex-col items-end gap-0.5">
-                            <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
-                              <span class="text-slate-50">{get_pct(val)}</span>
-                              {#if delta}
-                                <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
-                                  ({delta.diff > 0 ? "+" : ""}{delta.diff})
-                                </span>
-                              {/if}
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  {:else}
-                    <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
-                  {/each}
-                </div>
-              {/if}
-            </div>
-          {/if}
-
-          <!-- AMENDMENTS -->
-          {#if mutations}
-            <div class="flex flex-col gap-4 pt-4">
-              {#each Object.entries(mutations) as [entity_key, mods] (entity_key)}
-                {#if mods.present_append_physical?.trim() || mods.present_append_non_physical?.trim()}
-                  <div class="flex flex-col">
-                    <header
-                      class="mb-2 border-b border-(--state-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase"
-                    >
-                      {get_entity_name(entity_key)} AMENDMENTS
-                    </header>
-                    <div class="flex flex-col gap-2">
-                      {#if mods.present_append_physical?.trim()}
+                  {/if}
+                  {#if block.mods}
+                    <div class="flex flex-col gap-2 pt-1">
+                      {#if block.mods.present_append_physical?.trim()}
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
                           <span class="font-mono text-(--state-dev-accent)">PHYSICAL</span>
-                          <span class="text-slate-50">{mods.present_append_physical}</span>
+                          <span class="text-slate-50">{block.mods.present_append_physical}</span>
                         </div>
                       {/if}
-                      {#if mods.present_append_non_physical?.trim()}
+                      {#if block.mods.present_append_non_physical?.trim()}
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
                           <span class="font-mono text-(--state-dev-accent)">NON-PHYSICAL</span>
-                          <span class="text-slate-50">{mods.present_append_non_physical}</span>
+                          <span class="text-slate-50">{block.mods.present_append_non_physical}</span>
                         </div>
                       {/if}
                     </div>
-                  </div>
-                {/if}
+                  {/if}
+                </div>
               {/each}
             </div>
+          {:else if Object.keys(ai).length > 0 || Object.keys(fractal).length > 0 || meta.type === "DYNAMICS_DELTA"}
+            <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
           {/if}
+
           {#if meta.type !== "DYNAMICS_DELTA" && (vectors.future.length > 0 || vectors.past.length > 0)}
             <div
               class="
@@ -751,12 +648,26 @@
               </div>
             </div>
           {/if}
-          {#if Object.keys(meta).length > 0 && deltas.length === 0 && Object.keys(ai).length === 0 && Object.keys(fractal).length === 0 && vectors.future.length === 0 && vectors.past.length === 0 && active_dynamics.length === 0}
-            <div class="overflow-x-auto pt-4 font-mono text-xs text-slate-400">
-              <pre>{JSON.stringify(meta, null, 2)}</pre>
+          {#if signal_prompts.length > 0}
+            <div class="flex flex-col gap-2 pt-4">
+              <header class="mb-2 border-b border-(--state-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
+                SIGNAL PROMPTS
+              </header>
+              {#each signal_prompts as sp (sp.key)}
+                <div
+                  class="rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent)/60 bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed text-slate-50"
+                >
+                  {sp.text}
+                </div>
+              {/each}
             </div>
           {/if}
         {/if}
+        <Accordion label="View Raw Meta">
+          <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
+            <pre class="font-mono">{JSON.stringify(meta, null, 2)}</pre>
+          </DataBox>
+        </Accordion>
       </div>
     </DataBox>
   {/if}

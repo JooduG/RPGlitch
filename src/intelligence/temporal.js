@@ -45,6 +45,25 @@ export const TEMPORAL_SCORING = {
 };
 
 /**
+ * Valid temporal types a forged memory may originate as.
+ * "past" = settled historical anchor, "future" = prophecy/intent to carry
+ * forward, "present" = immediate directive enacted onto the entity's present
+ * state. Anything else normalizes to "past" (the legacy default).
+ */
+const VALID_FORGED_TYPES = new Set(["past", "future", "present"]);
+
+/**
+ * @param {unknown} value
+ * @returns {"past" | "future" | "present"}
+ */
+function normalize_forged_type(value) {
+  const type = String(value || "")
+    .toLowerCase()
+    .trim();
+  return VALID_FORGED_TYPES.has(type) ? /** @type {any} */ (type) : "past";
+}
+
+/**
  * Creates a rich Temporal Log Entry (Vector).
  * @param {string} content - The narrative payload.
  * @param {string} [type="future"] - "past" | "future".
@@ -347,16 +366,31 @@ export function resolve(entity, vector_id, resolution = null, session = null) {
 }
 
 /**
- * Generates a Memory record (Historical Anchor) from a slice of history.
- * @param {SimulationEntity} target_entity
+ * Generates entity-specific Memory records from a slice of history.
+ * One forged vector per active entity (AI Character, User Persona, Fractal),
+ * each written from that entity's own perspective, with an explicit type
+ * ("past" | "future" | "present") so consolidated memories can become
+ * historical anchors, forward prophecies, or immediate present directives
+ * instead of defaulting strictly to "past".
+ *
+ * Legacy fallback: if the LLM returns the old single-`directive` shape, the
+ * shared directive is replicated into every active entity's memory, preserving
+ * the previous behavior.
+ *
+ * @param {Array<{key: string, type: string, entity: SimulationEntity}>} entity_targets
  * @param {any[]} history_slice
- * @param {string} [role="character"]
- * @returns {Promise<TemporalVector | null>}
+ * @returns {Promise<{memories: Record<string, any|null>, present_summaries: any, eternal_mutations: any} | null>}
  */
-export async function forge_memory(target_entity, history_slice, role = "character") {
-  if (!target_entity) return null;
+export async function forge_memory(entity_targets, history_slice) {
+  if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
   try {
-    const payload = prompt_builder.build_memory_prompt(role, target_entity, history_slice);
+    const entities = {
+      AI_CHARACTER: entity_targets.find((t) => t.key === "AI_CHARACTER")?.entity || null,
+      USER_PERSONA: entity_targets.find((t) => t.key === "USER_PERSONA")?.entity || null,
+      FRACTAL: entity_targets.find((t) => t.key === "FRACTAL")?.entity || null,
+    };
+
+    const payload = prompt_builder.build_memory_prompt(entities, history_slice);
     const response = await llm_service.generate(payload, {
       json: true,
       silent: true,
@@ -387,21 +421,42 @@ export async function forge_memory(target_entity, history_slice, role = "charact
       return null;
     }
 
-    if (!memory || (!memory.directive?.trim() && !memory.summary?.trim())) return null;
+    const raw_memories = memory?.memories && typeof memory.memories === "object" ? memory.memories : null;
+    const legacy_directive = String(memory?.directive || memory?.summary || "").trim();
+    if (!raw_memories && !legacy_directive) return null;
 
     const forged = {
-      id: _uuid(),
-      timestamp: Date.now(),
-      type: (memory.type || "past").toLowerCase(),
-      directive: memory.directive || memory.summary || "",
-      emotional_weight: memory.emotional_weight ?? memory.base_weight ?? 5,
-      tags: (memory.vector_tags || memory.tags || []).map((t) => String(t).toLowerCase()),
-      present_summaries: memory.present_summaries || null,
-      eternal_mutations: memory.eternal_mutations || null,
-      meta: memory.meta || {},
+      memories: {},
+      present_summaries: memory?.present_summaries || null,
+      eternal_mutations: memory?.eternal_mutations || null,
     };
 
-    await ensure_embedding(forged);
+    for (const { key } of entity_targets) {
+      const raw = raw_memories?.[key] && typeof raw_memories[key] === "object" ? raw_memories[key] : {};
+      const directive = String(raw.directive || raw.summary || "").trim() || legacy_directive;
+      if (!directive) continue;
+
+      const vector = {
+        id: _uuid(),
+        timestamp: Date.now(),
+        type: normalize_forged_type(raw.type),
+        directive,
+        emotional_weight: Number(raw.emotional_weight ?? raw.base_weight ?? memory?.emotional_weight ?? memory?.base_weight ?? 5) || 5,
+        tags: (raw.vector_tags || raw.tags || memory?.tags || []).map((t) => String(t).toLowerCase()).filter(Boolean),
+        meta: { ...(memory?.meta || {}), forged_for: key },
+      };
+
+      // Present directives merge straight into the entity's present state and
+      // never enter the vector arrays, so only past/future need embeddings.
+      if (vector.type !== "present") {
+        await ensure_embedding(vector);
+      }
+
+      forged.memories[key] = vector;
+    }
+
+    const has_any = Object.values(forged.memories).some(Boolean);
+    if (!has_any) return null;
 
     return forged;
   } catch (err) {
@@ -555,9 +610,14 @@ export const temporal_engine = {
   /**
    * BATCH CONSOLIDATION (The Forging Cycle)
    * Evicts old messages and compresses them into the Temporal Archive.
-   * Single-pass: one forge_memory call generates a shared memory that is appended
-   * to ALL three entities' past arrays. The LLM already returns present_summaries
-   * and eternal_mutations for all three entities in one response.
+   * Single-pass: one forge_memory call generates an ENTITY-SPECIFIC memory
+   * for each active entity (AI Character, User Persona, Fractal), written
+   * from that entity's own perspective — no more duplicating one shared
+   * character vector across all three. Each memory is routed by its forged
+   * type: "past" → entity.past, "future" → entity.future, "present" →
+   * merged into the entity's present state as an immediate directive.
+   * The LLM also returns per-entity present_summaries and eternal_mutations
+   * in the same single response.
    * @param {SessionDriver} Session
    * @param {Database} db
    * @param {EntityRepository} entities
@@ -579,124 +639,93 @@ export const temporal_engine = {
 
         app.log(`[TemporalEngine] Forging ${slice.length} turns into Historical Archive...`, "system");
 
-        const memory = await forge_memory(runtime.active_ai || runtime.active_user || runtime.active_fractal, slice, "character");
-        if (memory) {
-          const entity_targets = [
-            { entity: runtime.active_ai, type: "character" },
-            { entity: runtime.active_user, type: "character" },
-            { entity: runtime.active_fractal, type: "fractal" },
-          ].filter((t) => t.entity);
+        const entity_targets = [
+          { key: "AI_CHARACTER", type: "character", entity: runtime.active_ai },
+          { key: "USER_PERSONA", type: "character", entity: runtime.active_user },
+          { key: "FRACTAL", type: "fractal", entity: runtime.active_fractal },
+        ].filter((t) => t.entity);
 
-          for (const { entity, type } of entity_targets) {
-            if (Array.isArray(entity.past)) {
-              entity.past = [...entity.past, { ...memory }];
+        const forged = await forge_memory(entity_targets, slice);
+        if (forged) {
+          // 1. Route each entity's OWN memory by its forged type.
+          for (const { key, type, entity } of entity_targets) {
+            const memory = forged.memories?.[key];
+            if (!memory) continue;
+
+            if (memory.type === "future") {
+              if (!Array.isArray(entity.future)) entity.future = [];
+              entity.future = [...entity.future, memory];
+              await runtime.update_entity(type, entity.id, { future: entity.future });
+            } else if (memory.type === "present") {
+              if (!entity.present) entity.present = { physical: "", non_physical: "" };
+              entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.directive);
+              await runtime.update_entity(type, entity.id, { present: entity.present });
             } else {
-              entity.past = [{ ...memory }];
-            }
-            await runtime.update_entity(type, entity.id, { past: entity.past });
-          }
-
-          apply_neuroplasticity(entity_targets, memory, runtime);
-
-          if (memory.present_summaries) {
-            const summaries = memory.present_summaries;
-
-            if (summaries.AI_CHARACTER && runtime.active_ai) {
-              if (summaries.AI_CHARACTER.physical) runtime.active_ai.present.physical = summaries.AI_CHARACTER.physical;
-              if (summaries.AI_CHARACTER.non_physical) runtime.active_ai.present.non_physical = summaries.AI_CHARACTER.non_physical;
-              await runtime.update_entity("character", runtime.active_ai.id, { present: runtime.active_ai.present });
-            }
-
-            if (summaries.USER_PERSONA && runtime.active_user) {
-              if (summaries.USER_PERSONA.physical) runtime.active_user.present.physical = summaries.USER_PERSONA.physical;
-              if (summaries.USER_PERSONA.non_physical) runtime.active_user.present.non_physical = summaries.USER_PERSONA.non_physical;
-              await runtime.update_entity("character", runtime.active_user.id, { present: runtime.active_user.present });
-            }
-
-            if (summaries.FRACTAL && runtime.active_fractal) {
-              if (summaries.FRACTAL.physical) runtime.active_fractal.present.physical = summaries.FRACTAL.physical;
-              if (summaries.FRACTAL.non_physical) runtime.active_fractal.present.non_physical = summaries.FRACTAL.non_physical;
-              await runtime.update_entity("fractal", runtime.active_fractal.id, { present: runtime.active_fractal.present });
+              if (!Array.isArray(entity.past)) entity.past = [];
+              entity.past = [...entity.past, memory];
+              await runtime.update_entity(type, entity.id, { past: entity.past });
             }
           }
 
-          if (memory.eternal_mutations) {
-            const e_muts = memory.eternal_mutations;
+          if (forged.memories?.AI_CHARACTER) {
+            apply_neuroplasticity(entity_targets, forged.memories.AI_CHARACTER, runtime);
+          }
 
-            if (e_muts.AI_CHARACTER && runtime.active_ai) {
+          // 2. Present summaries (per entity).
+          if (forged.present_summaries) {
+            const summaries = forged.present_summaries;
+            for (const { key, type, entity } of entity_targets) {
+              const summary = summaries[key];
+              if (!summary) continue;
+              if (!entity.present) entity.present = { physical: "", non_physical: "" };
+              if (summary.physical) entity.present.physical = summary.physical;
+              if (summary.non_physical) entity.present.non_physical = summary.non_physical;
+              await runtime.update_entity(type, entity.id, { present: entity.present });
+            }
+          }
+
+          // 3. Eternal mutations (per entity) — tag the entity's OWN memory.
+          if (forged.eternal_mutations) {
+            const e_muts = forged.eternal_mutations;
+            for (const { key, type, entity } of entity_targets) {
+              const e_mut = e_muts[key];
+              if (!e_mut) continue;
+              if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
               let eternal_changed = false;
-              if (e_muts.AI_CHARACTER.physical) {
-                runtime.active_ai.eternal.physical = merge_prose_into_field(runtime.active_ai.eternal.physical, e_muts.AI_CHARACTER.physical);
+              if (e_mut.physical?.trim()) {
+                entity.eternal.physical = merge_prose_into_field(entity.eternal.physical, e_mut.physical);
                 eternal_changed = true;
               }
-              if (e_muts.AI_CHARACTER.non_physical) {
-                runtime.active_ai.eternal.non_physical = merge_prose_into_field(
-                  runtime.active_ai.eternal.non_physical,
-                  e_muts.AI_CHARACTER.non_physical,
-                );
+              if (e_mut.non_physical?.trim()) {
+                entity.eternal.non_physical = merge_prose_into_field(entity.eternal.non_physical, e_mut.non_physical);
                 eternal_changed = true;
               }
               if (eternal_changed) {
-                await runtime.update_entity("character", runtime.active_ai.id, { eternal: runtime.active_ai.eternal });
-                if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
-              }
-            }
-
-            if (e_muts.USER_PERSONA && runtime.active_user) {
-              let eternal_changed = false;
-              if (e_muts.USER_PERSONA.physical) {
-                runtime.active_user.eternal.physical = merge_prose_into_field(runtime.active_user.eternal.physical, e_muts.USER_PERSONA.physical);
-                eternal_changed = true;
-              }
-              if (e_muts.USER_PERSONA.non_physical) {
-                runtime.active_user.eternal.non_physical = merge_prose_into_field(
-                  runtime.active_user.eternal.non_physical,
-                  e_muts.USER_PERSONA.non_physical,
-                );
-                eternal_changed = true;
-              }
-              if (eternal_changed) {
-                await runtime.update_entity("character", runtime.active_user.id, { eternal: runtime.active_user.eternal });
-                if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
-              }
-            }
-
-            if (e_muts.FRACTAL && runtime.active_fractal) {
-              let eternal_changed = false;
-              if (e_muts.FRACTAL.physical) {
-                runtime.active_fractal.eternal.physical = merge_prose_into_field(runtime.active_fractal.eternal.physical, e_muts.FRACTAL.physical);
-                eternal_changed = true;
-              }
-              if (e_muts.FRACTAL.non_physical) {
-                runtime.active_fractal.eternal.non_physical = merge_prose_into_field(
-                  runtime.active_fractal.eternal.non_physical,
-                  e_muts.FRACTAL.non_physical,
-                );
-                eternal_changed = true;
-              }
-              if (eternal_changed) {
-                await runtime.update_entity("fractal", runtime.active_fractal.id, { eternal: runtime.active_fractal.eternal });
-                if (!memory.tags.includes("eternal-shift")) memory.tags.push("eternal-shift");
-              }
-            }
-
-            if (memory.tags.includes("eternal-shift")) {
-              for (const { entity, type } of entity_targets) {
-                const vector_idx = entity.past.findIndex((v) => v.id === memory.id);
-                if (vector_idx !== -1) {
-                  entity.past[vector_idx] = { ...memory };
-                  await runtime.update_entity(type, entity.id, { past: entity.past });
+                await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
+                const memory = forged.memories?.[key];
+                if (memory && memory.type !== "present" && !memory.tags.includes("eternal-shift")) {
+                  memory.tags.push("eternal-shift");
+                  const payload = {};
+                  if (Array.isArray(entity.past)) payload.past = entity.past;
+                  if (Array.isArray(entity.future)) payload.future = entity.future;
+                  await runtime.update_entity(type, entity.id, payload);
                 }
               }
             }
           }
 
-          await Session.log_system_entry(`Memory Forged (all): ${memory.directive.substring(0, 50)}...`, "system", {
-            type: "MEMORY_FORMATION",
-            target: "ALL",
-            vectors: { past: [memory], future: [] },
-            turns_count: slice.length,
-          });
+          // 4. Log one MEMORY_FORMATION per entity.
+          for (const { key } of entity_targets) {
+            const memory = forged.memories?.[key];
+            if (!memory) continue;
+            const text = memory.directive || "";
+            await Session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
+              type: "MEMORY_FORMATION",
+              target: key,
+              vectors: memory.type === "future" ? { past: [memory], future: [memory] } : { past: [memory], future: [] },
+              turns_count: slice.length,
+            });
+          }
         }
 
         for (const msg of slice) {

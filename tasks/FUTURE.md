@@ -1,8 +1,8 @@
 # 📜 FUTURE (The Muscle)
 
 > **Role**: Active implementation blueprint for the _current_ track.
-> **Status**: Complete — all 5 phases implemented + tested (awaiting local `npm run verify` + `npm run build`)
-> **Tracks**: `memory-engine-tuning-2026-08-03` ✅ · `engine-stability-fixes-2026-08-03` ✅
+> **Status**: Implemented + unit-verified — awaiting local `npm run verify` + `npm run build`
+> **Tracks**: `forge-entity-isolation-2026-08-03` ✅ (pending local verify) · `memory-engine-tuning-2026-08-03` ✅ · `engine-stability-fixes-2026-08-03` ✅
 
 ---
 
@@ -16,6 +16,23 @@ Two coordinated workstreams on the live engine:
 All changes are source-tree edits in `src/`. The user runs `npm run verify` + `npm run build` locally; every modified file is handed off for download.
 
 ---
+
+## 🎯 Active Track — forge-entity-isolation-2026-08-03
+
+Two coordinated fixes on the live memory engine:
+
+1. **Entity-Specific Memory Forge Isolation** — `forge_memory()` now takes the full set of active entity targets, and the Memory Forge prompt renders every entity's own eternal/present context, instructing the LLM to write ONE memory per entity from that entity's own perspective. `consolidate()` routes each entity's OWN memory to that entity only — no more duplicating a single shared character vector across AI Character, User Persona, and Fractal.
+2. **Forge Schema Vector Typing (`VE`)** — `MEMORY_JSON_SCHEMA.memories[*]` gains `"type": "past | future | present"`. Consolidated memories route: `past` → `entity.past` (historical anchor), `future` → `entity.future` (prophecy/intent, resolved later), `present` → merged into `entity.present.non_physical` (immediate directive). Legacy single-`directive` LLM responses still fall back to the old shared-memory behavior.
+
+**Files**: `src/intelligence/temporal.js`, `src/intelligence/prompts.js` (+ `temporal.test.js`, `prompts.test.js`).
+
+**Verified this session**: 16/16 harness assertions passed against the real bundled module (entity isolation, type routing/normalization, present-skip-embedding, legacy fallback, per-entity MEMORY_FORMATION). All modified files attached in the session handoff.
+
+**Follow-up fix (clean_xml stripping)**: local `npm run test` surfaced `prompts.test.js › build_memory_prompt() renders entity-specific forge contexts` — the `<ENTITY_CONTEXT>` blocks were invisible to the test. Root cause: `clean_xml` recursively removes EMPTY XML tags, and entities carrying only a `name` (no eternal/present content yet) rendered as `<AI_CHARACTER name="Viper"></AI_CHARACTER>`, which `clean_xml` stripped entirely. Fix: `render_entity_memory_context()` now always emits a non-empty `<NAME>...</NAME>` child inside each entity block, so the block (and its `name="..."` attribute) always survives `clean_xml`. Verified against the real `prompts.js`: all 5 assertions of the failing test pass.
+
+**Pending (user-side)**: `npm run verify` → `npm run build` → redeploy.
+
+**DevTelemetryBlock telemetry UI enrichment (2026-08-03)**: all data already rode in the telemetry `meta` payloads, so this was purely presentational. MEMORY_FORMATION cards now attribute the forge (`Forged for <entity> · from N turns`, target keys AI_CHARACTER/USER_PERSONA/FRACTAL resolved via `get_entity_name`, which was also extended to map those uppercase director keys), each weaved memory shows a `type` badge + `w<emotional_weight>` + tag chips (`◇ eternal shift` marker). DYNAMICS_DELTA cards were regrouped per-entity (each entity header groups its own dynamics bars + amendments together; `USER_PERSONA` amendments now surface under their own block instead of only ai/fractal) — the per-axis `cause:` attribution lines were removed at user request (causes still surface as ACTIVE DYNAMICS chips), and the "View Raw Meta" button became an `Accordion` matching the DevWing's "View JSON Data". DYNAMICS_DELTA also gained a SIGNAL PROMPTS section (array-or-object normalization) and the ACTIVE DYNAMICS chip tooltip includes the prompt text. Mirror tests extended to cover per-entity grouping + snapshot fallback (11/11 total). **Pending (user-side)**: `npm run verify` → `npm run build` → redeploy.
 
 ## 📐 Audit Summary (grounded findings)
 
@@ -91,7 +108,7 @@ All five phases are implemented with TDD coverage:
 | 2A    | `sanitize_llm` strips leading quote only when unmatched; closing dialogue quotes preserved                                                                                                                        | `transport.test.js` (trailing `"`/`'`, paired quotes, lone quote, fences/filler) |
 | 2B    | `db.js` versionchange quiesce→close→reload (loop-guarded); `session-checkpoint.js` (sessionStorage→window.name→memory); `boot.js` hook; `runtime.sync()` checkpoint>kv_settings restore + round/phase propagation | `db.test.js`, `session-checkpoint.test.js`, `runtime-sync.test.js`               |
 
-**Pending (user-side):** `npm run verify` → `npm run build` → redeploy. Every modified file is attached in the session handoff.
+**Pending (user-side):** `npm run verify` → `npm run build` → redeploy. Handoff package delivered 2026-08-03 (`RPGlitch-handoff-2026-08-03.zip`).
 
 ### Follow-up fixes (2026-08-03, from `npm run verify` run)
 

@@ -368,51 +368,126 @@ describe("temporal_engine", () => {
     });
   });
 
-  describe("forge_memory (Historical Condensation)", () => {
-    it("successfully condenses history into a resonance via LLM", async () => {
-      const mock_entity = /** @type {any} */ ({ name: "Viper" });
-      const mock_history = [{ role: "user", content: "test message" }];
+  describe("forge_memory (Entity-Specific Condensation)", () => {
+    const targets = () => [
+      { key: "AI_CHARACTER", type: "character", entity: /** @type {any} */ ({ name: "Viper" }) },
+      { key: "USER_PERSONA", type: "character", entity: /** @type {any} */ ({ name: "Ghost" }) },
+      { key: "FRACTAL", type: "fractal", entity: /** @type {any} */ ({ name: "Nova City" }) },
+    ];
+
+    it("forges ONE distinct memory per entity from its own perspective", async () => {
       const mock_memory = {
-        summary: "A significant event happened.",
-        tags: ["event"],
+        memories: {
+          AI_CHARACTER: {
+            directive: "Viper felt the crowd's distrust and decided to stay quiet.",
+            type: "past",
+            emotional_weight: 6,
+            tags: ["distrust"],
+          },
+          USER_PERSONA: {
+            directive: "Ghost noticed Viper's tension and resolved to press for the truth.",
+            type: "future",
+            emotional_weight: 4,
+            tags: ["resolve"],
+          },
+          FRACTAL: {
+            directive: "The market din turned hostile after the guard's announcement.",
+            type: "past",
+            emotional_weight: 3,
+            tags: ["atmosphere"],
+          },
+        },
       };
 
       vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify(mock_memory));
 
-      const result = await temporal_engine.forge_memory(mock_entity, mock_history, "character");
+      const result = await temporal_engine.forge_memory(targets(), [{ role: "user", content: "test" }]);
 
-      expect(result?.directive).toBe(mock_memory.summary);
-      expect(result?.tags).toEqual(["event"]);
-      expect(result?.timestamp).toBe(Date.now());
+      expect(result?.memories?.AI_CHARACTER?.directive).toContain("Viper");
+      expect(result?.memories?.USER_PERSONA?.directive).toContain("Ghost");
+      expect(result?.memories?.FRACTAL?.directive).toContain("market");
+      expect(result?.memories?.AI_CHARACTER?.directive).not.toBe(result?.memories?.USER_PERSONA?.directive);
+      expect(result?.memories?.AI_CHARACTER?.timestamp).toBe(Date.now());
+    });
+
+    it("preserves future and present types while normalizing invalid types to past", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue(
+        JSON.stringify({
+          memories: {
+            AI_CHARACTER: { directive: "Prophecy", type: "future" },
+            USER_PERSONA: { directive: "Directive", type: "present" },
+            FRACTAL: { directive: "Odd", type: "prophecy" },
+          },
+        }),
+      );
+
+      const result = await temporal_engine.forge_memory(targets(), []);
+
+      expect(result?.memories?.AI_CHARACTER?.type).toBe("future");
+      expect(result?.memories?.USER_PERSONA?.type).toBe("present");
+      expect(result?.memories?.FRACTAL?.type).toBe("past");
+    });
+
+    it("skips embeddings for present directives", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue(
+        JSON.stringify({
+          memories: {
+            AI_CHARACTER: { directive: "Now", type: "present" },
+            USER_PERSONA: { directive: "Later", type: "future" },
+          },
+        }),
+      );
+
+      const result = await temporal_engine.forge_memory(targets(), []);
+      expect(result?.memories?.AI_CHARACTER?._embedding).toBeUndefined();
+      expect(result?.memories?.USER_PERSONA?._embedding).toBeInstanceOf(Float32Array);
+    });
+
+    it("falls back to a legacy shared directive when the LLM returns the old schema", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue(
+        JSON.stringify({ summary: "A significant event happened.", tags: ["event"], emotional_weight: 7 }),
+      );
+
+      const result = await temporal_engine.forge_memory(targets(), []);
+
+      expect(result?.memories?.AI_CHARACTER?.directive).toBe("A significant event happened.");
+      expect(result?.memories?.USER_PERSONA?.directive).toBe("A significant event happened.");
+      expect(result?.memories?.FRACTAL?.directive).toBe("A significant event happened.");
+      expect(result?.memories?.AI_CHARACTER?.emotional_weight).toBe(7);
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
-      const json_str = JSON.stringify({ summary: "First object" });
+      const json_str = JSON.stringify({ memories: { AI_CHARACTER: { directive: "First object" } } });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${json_str} noise after`);
 
-      const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
+      const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.directive).toBe("First object");
+      expect(result?.memories?.AI_CHARACTER?.directive).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
       const nested_memory = {
-        summary: "Event with nested info.",
-        details: { depth: 2, meta: "data" },
+        memories: {
+          AI_CHARACTER: { directive: "Event with nested info.", details: { depth: 2, meta: "data" } },
+        },
       };
       const response = `Here is the JSON: ${JSON.stringify(nested_memory)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
 
-      const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
+      const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.directive).toBe(nested_memory.summary);
-      expect(JSON.stringify(result?.directive)).not.toBe(JSON.stringify(nested_memory)); // summary is text
+      expect(result?.memories?.AI_CHARACTER?.directive).toBe("Event with nested info.");
+    });
+
+    it("returns null when no entity targets are provided", async () => {
+      const result = await temporal_engine.forge_memory([], []);
+      expect(result).toBeNull();
     });
 
     it("returns null and logs error if LLM fails", async () => {
       vi.mocked(llm_service.generate).mockRejectedValue(new Error("LLM Down"));
 
-      const result = await temporal_engine.forge_memory(/** @type {any} */ ({ name: "Viper" }), []);
+      const result = await temporal_engine.forge_memory(targets(), []);
 
       expect(result).toBeNull();
       expect(console.error).toHaveBeenCalled();
@@ -440,6 +515,62 @@ describe("temporal_engine", () => {
       );
 
       expect(mock_session.require_active).toHaveBeenCalled();
+      expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
+    });
+
+    it("routes each entity's own memory by its forged type", async () => {
+      const mock_messages = Array(15).fill({ id: 1, meta: {} });
+      const mock_session = {
+        require_active: vi.fn(() => "story_1"),
+        load_log: vi.fn(() => mock_messages),
+        log_system_entry: vi.fn(),
+      };
+      const mock_db = { simulation_log: { bulkPut: vi.fn() } };
+      const mock_entities = { save: vi.fn() };
+
+      const ai = { id: "ai1", past: [], future: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const user = { id: "u1", past: [], future: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const fractal = { id: "f1", past: [], future: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+
+      const mock_runtime = {
+        active_ai: ai,
+        active_user: user,
+        active_fractal: fractal,
+        update_entity: vi.fn(async () => {}),
+      };
+      const mock_app = { log: vi.fn() };
+
+      vi.mocked(llm_service.generate).mockResolvedValue(
+        JSON.stringify({
+          memories: {
+            AI_CHARACTER: { directive: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 },
+            USER_PERSONA: { directive: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 },
+            FRACTAL: { directive: "Nova City is on the brink of a blackout.", type: "present", emotional_weight: 3 },
+          },
+        }),
+      );
+
+      await temporal_engine.consolidate(
+        /** @type {any} */ (mock_session),
+        /** @type {any} */ (mock_db),
+        /** @type {any} */ (mock_entities),
+        /** @type {any} */ (mock_runtime),
+        /** @type {any} */ (mock_app),
+      );
+
+      expect(ai.past).toHaveLength(1);
+      expect(ai.past[0].directive).toContain("Viper");
+      expect(ai.future).toHaveLength(0);
+
+      expect(user.future).toHaveLength(1);
+      expect(user.future[0].directive).toContain("confront");
+      expect(user.past).toHaveLength(0);
+
+      expect(fractal.present.non_physical).toContain("blackout");
+      expect(fractal.past).toHaveLength(0);
+      expect(fractal.future).toHaveLength(0);
+
+      expect(mock_session.log_system_entry).toHaveBeenCalled();
       expect(mock_db.simulation_log.bulkPut).toHaveBeenCalled();
     });
   });

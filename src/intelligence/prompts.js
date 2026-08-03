@@ -56,9 +56,26 @@ const DIRECTOR_JSON_SCHEMA = `{
 
 const MEMORY_JSON_SCHEMA = `{
   "_thought_process": "<analysis of key shifts and emotional weight>",
-  "directive": "[Summary paragraph.]",
-  "emotional_weight": 5,
-  "tags": ["keyword1", "keyword2"],
+  "memories": {
+    "AI_CHARACTER": {
+      "type": "past | future | present",
+      "directive": "Memory summary written strictly from the AI character's own perspective",
+      "emotional_weight": 5,
+      "tags": ["keyword1", "keyword2"]
+    },
+    "USER_PERSONA": {
+      "type": "past | future | present",
+      "directive": "Memory summary written strictly from the user persona's own perspective",
+      "emotional_weight": 5,
+      "tags": ["keyword1", "keyword2"]
+    },
+    "FRACTAL": {
+      "type": "past | future | present",
+      "directive": "Memory summary written from the fractal's atmospheric/environmental perspective",
+      "emotional_weight": 5,
+      "tags": ["keyword1", "keyword2"]
+    }
+  },
   "present_summaries": {
     "AI_CHARACTER": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
     "USER_PERSONA": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
@@ -525,21 +542,68 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
 }
 
 /**
+ * Renders a single entity's memory-forge context block (eternal + present state).
+ * @param {string} key
+ * @param {any} entity
+ * @returns {string}
+ */
+function render_entity_memory_context(key, entity) {
+  if (!entity) return "";
+  const name = escape_xml(entity?.name || key);
+  return clean_xml(`
+  <${key} name="${name}">
+    <NAME>${name}</NAME>
+    <ETERNAL_PHYSICAL>
+      ${ind(
+        physical_to_xml(entity?.eternal?.physical, "ETERNAL_PHYSICAL")
+          .replace(/<ETERNAL_PHYSICAL>|<\/ETERNAL_PHYSICAL>/g, "")
+          .trim(),
+        6,
+      )}
+    </ETERNAL_PHYSICAL>
+    <ETERNAL_NON_PHYSICAL>${escape_xml(entity?.eternal?.non_physical || "")}</ETERNAL_NON_PHYSICAL>
+    <PRESENT_PHYSICAL>
+      ${ind(
+        physical_to_xml(entity?.present?.physical, "PRESENT_PHYSICAL")
+          .replace(/<PRESENT_PHYSICAL>|<\/PRESENT_PHYSICAL>/g, "")
+          .trim(),
+        6,
+      )}
+    </PRESENT_PHYSICAL>
+    <PRESENT_NON_PHYSICAL>${escape_xml(entity?.present?.non_physical || "")}</PRESENT_NON_PHYSICAL>
+  </${key}>
+  `).trim();
+}
+
+/**
  * Turn memory compilation template.
  * @param {any} params
  * @returns {string}
  */
-function render_memory({ entity, history }) {
+function render_memory({ entities, history }) {
+  const entity_blocks = ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]
+    .filter((key) => entities?.[key])
+    .map((key) => render_entity_memory_context(key, entities[key]))
+    .join("\n");
+
   return clean_xml(`
-<SYSTEM role="MEMORY_FORGE" entity="${escape_xml(entity?.name || "Unknown")}">
+<SYSTEM role="MEMORY_FORGE">
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols("HYGIENE.DATA, HYGIENE.AFFIRMATIVE, AGENCY.PRESENT_TENSE"), 4)}
   </PROTOCOLS>
+  <ENTITY_CONTEXT>
+${entity_blocks}
+  </ENTITY_CONTEXT>
   <INPUT_HISTORY>
     ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
   </INPUT_HISTORY>
   <TASK>
-    Compress this history into a single structured memory. Record internal evaluation inside "_thought_process" at the top of the JSON object.
+    Compress this history into structured memories. Record internal evaluation inside "_thought_process" at the top of the JSON object.
+    Forge ONE memory per entity (AI_CHARACTER, USER_PERSONA, FRACTAL), each written strictly from that entity's own perspective — the directive must capture the entity's subjective take on the events, not a shared summary.
+    For each memory choose a "type":
+      "past"    = a settled historical anchor (default).
+      "future"  = a prophecy, intent, or goal the entity is carrying forward, to be resolved later.
+      "present" = an immediate directive describing the entity's current state, to be enacted now.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
   </TASK>
@@ -838,9 +902,9 @@ export const prompt_builder = {
       messages: [],
     };
   },
-  build_memory_prompt(role, entity, history) {
+  build_memory_prompt(entities, history) {
     return {
-      system: render_memory({ role, entity, history }),
+      system: render_memory({ entities, history }),
       messages: [],
     };
   },
