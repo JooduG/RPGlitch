@@ -39,12 +39,23 @@ export function sanitize_llm(text) {
   // Note: We intentionally DO NOT strip cognition blocks here so they can be
   // saved to the database and rendered in DevMode.
   // _format_history() handles stripping them for the context window.
-  return text
+  let out = text
     .replace(/^(here is|sure|certainly|i can help|enhanced text:|the enhanced text).*?:/i, "")
-    .replace(/^["']|[ "']$/g, "")
     .replace(/^\s*```.*?[\r\n]/gm, "")
     .replace(/```\s*$/gm, "")
     .trim();
+
+  // 2. Outer-quote cleanup: strip a LEADING quote only when it is unmatched
+  // (a stray opening artifact). Never strip a trailing quote — it is usually
+  // the closing mark of in-character dialogue, and wrap_dialogue renders it.
+  if (out.length > 1) {
+    const first = out[0];
+    if ((first === '"' || first === "'") && out[out.length - 1] !== first) {
+      out = out.slice(1).trim();
+    }
+  }
+
+  return out;
 }
 
 /************************************************************************************

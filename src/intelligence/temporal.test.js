@@ -1,6 +1,7 @@
-import { temporal_engine, apply_neuroplasticity } from "./temporal.js";
+import { temporal_engine, apply_neuroplasticity, TEMPORAL_SCORING } from "./temporal.js";
 import { llm_service } from "@platform";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { cosine_similarity, embed } from "@intelligence/embeddings.svelte.js";
 
 // Mock dependencies
 vi.mock("@platform/transport.js", () => ({
@@ -82,6 +83,117 @@ describe("temporal_engine", () => {
 
       // emotional_weight (5) × recency (1.0) = 5
       expect(scored[0]._relevance).toBe(5);
+    });
+
+    it("exposes recalibration constants with sane ranges", () => {
+      expect(TEMPORAL_SCORING.SEMANTIC_GAIN).toBeGreaterThan(1);
+      expect(TEMPORAL_SCORING.RECENCY_FLOOR).toBeGreaterThan(0);
+      expect(TEMPORAL_SCORING.RECENCY_FLOOR).toBeLessThan(1);
+      expect(TEMPORAL_SCORING.DECAY_SOFTEN).toBeGreaterThan(0);
+      expect(TEMPORAL_SCORING.DECAY_SOFTEN).toBeLessThanOrEqual(1);
+    });
+
+    it("lets an old-but-relevant memory outrank a fresh-but-irrelevant one", async () => {
+      const dot = (a, b) => {
+        let s = 0;
+        for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+        return s;
+      };
+      const context_emb = new Float32Array(384);
+      context_emb[0] = 1;
+      const old_emb = new Float32Array(384);
+      old_emb[0] = 1; // cosine 1.0 — strongly relevant
+      const fresh_emb = new Float32Array(384);
+      fresh_emb[0] = 0.2; // cosine 0.2 — weakly relevant
+
+      vi.mocked(cosine_similarity).mockImplementation(dot);
+      vi.mocked(embed).mockResolvedValue(context_emb);
+      await temporal_engine.precompute_context_embedding("vault door blood");
+      temporal_engine.set_round(100);
+
+      const old_relevant = {
+        id: "old",
+        timestamp: 1,
+        content: "The vault opens only for the blood of a Lumen.",
+        type: "past",
+        emotional_weight: 5,
+        meta: { round: 0 },
+        _embedding: old_emb,
+      };
+      const fresh_irrelevant = {
+        id: "fresh",
+        timestamp: 2,
+        content: "They drank tea and watched the rain.",
+        type: "past",
+        emotional_weight: 5,
+        meta: { round: 100 },
+        _embedding: fresh_emb,
+      };
+
+      const scored = temporal_engine.score([fresh_irrelevant, old_relevant]);
+
+      expect(scored[0].id).toBe("old");
+      expect(scored[1].id).toBe("fresh");
+      expect(scored[0]._relevance).toBeCloseTo(5 * (1 + TEMPORAL_SCORING.SEMANTIC_GAIN) * 0.5769, 2);
+      expect(scored[1]._relevance).toBeCloseTo(5 * (1 + TEMPORAL_SCORING.SEMANTIC_GAIN * 0.2), 2);
+    });
+
+    it("keeps recency as the tiebreaker among equal semantic matches", async () => {
+      const context_emb = new Float32Array(384);
+      context_emb[0] = 1;
+      const same_emb = new Float32Array(384);
+      same_emb[0] = 1; // both cosine 1.0
+
+      vi.mocked(cosine_similarity).mockImplementation((a, b) => {
+        let s = 0;
+        for (let i = 0; i < a.length; i++) s += a[i] * b[i];
+        return s;
+      });
+      vi.mocked(embed).mockResolvedValue(context_emb);
+      await temporal_engine.precompute_context_embedding("lore");
+      temporal_engine.set_round(100);
+
+      const a_old = { id: "a", timestamp: 1, content: "old lore", type: "past", emotional_weight: 5, meta: { round: 0 }, _embedding: same_emb };
+      const b_fresh = { id: "b", timestamp: 2, content: "new lore", type: "past", emotional_weight: 5, meta: { round: 100 }, _embedding: same_emb };
+
+      const scored = temporal_engine.score([a_old, b_fresh]);
+
+      expect(scored[0].id).toBe("b");
+      expect(scored[1].id).toBe("a");
+    });
+
+    it("floors the recency factor so age can never zero out a memory", async () => {
+      temporal_engine.set_round(1000);
+      const ancient = {
+        id: "ancient",
+        timestamp: 1,
+        content: "An age-old grudge.",
+        type: "past",
+        emotional_weight: 5,
+        meta: { round: 0 },
+      };
+
+      const scored = temporal_engine.score([ancient]);
+
+      expect(scored[0]._recency_factor).toBeCloseTo(TEMPORAL_SCORING.RECENCY_FLOOR, 4);
+      expect(scored[0]._relevance).toBeCloseTo(5 * TEMPORAL_SCORING.RECENCY_FLOOR, 4);
+    });
+
+    it("leaves maximum-weight vectors immune to decay", async () => {
+      temporal_engine.set_round(1000);
+      const anchor = {
+        id: "anchor",
+        timestamp: 1,
+        content: "The immutable pact.",
+        type: "past",
+        emotional_weight: 10,
+        meta: { round: 0 },
+      };
+
+      const scored = temporal_engine.score([anchor]);
+
+      expect(scored[0]._recency_factor).toBe(1);
+      expect(scored[0]._relevance).toBe(10);
     });
   });
 

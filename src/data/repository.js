@@ -11,6 +11,7 @@
 import { db } from "./db.js";
 import { normalize, STORAGE_VERSION } from "./normalizer.js";
 import { premade } from "./presets/premades.js";
+import { serialize_embedding, deserialize_embedding } from "@utils/vectors.js";
 
 const error = console.error;
 const premade_entity_map = new Map((premade?.entities || []).map((e) => [e.id, e]));
@@ -64,6 +65,31 @@ export const seed_premades = async () => {
 // ============================================================================
 // 2. ENTITIES (The CRUD Engine)
 // ============================================================================
+
+/**
+ * Maps `_embedding` on past/future vectors through a transform without mutating
+ * the input. Missing embeddings are dropped so corrupt/empty values never persist.
+ * @param {any} entity
+ * @param {(emb: any) => any} transform
+ * @returns {any}
+ */
+function _map_vector_embeddings(entity, transform) {
+  if (!entity || typeof entity !== "object") return entity;
+  const out = { ...entity };
+  for (const side of ["past", "future"]) {
+    if (!Array.isArray(out[side])) continue;
+    out[side] = out[side].map((v) => {
+      if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
+      const mapped = transform(v._embedding);
+      if (mapped) return { ...v, _embedding: mapped };
+      const copy = { ...v };
+      delete copy._embedding;
+      return copy;
+    });
+  }
+  return out;
+}
+
 export const entities = {
   /**
    * Lists all entities of a specific type (character/fractal).
@@ -87,7 +113,8 @@ export const entities = {
     try {
       let item = await db.entities.get(id);
       if (!item) item = premade_entity_map.get(id);
-      return item && item.type === type ? item : null;
+      if (!item || item.type !== type) return null;
+      return _map_vector_embeddings(item, deserialize_embedding);
     } catch (err) {
       error(`Failed to fetch ${type} [${id}] from the void:`, err);
       return null;
@@ -103,8 +130,10 @@ export const entities = {
     try {
       const id = entity.id || crypto.randomUUID();
       const base = (await db.entities.get(id)) || {};
-      // Break the Svelte 5 Proxy chains - deep clone for safety
-      const clean_entity = JSON.parse(JSON.stringify(entity));
+      // Break the Svelte 5 Proxy chains - deep clone for safety. Embeddings are
+      // converted to JSON-safe arrays first so Float32Array survives the round-trip.
+      const serializable = _map_vector_embeddings(entity, serialize_embedding);
+      const clean_entity = JSON.parse(JSON.stringify(serializable));
       const saved = {
         ...base,
         ...normalize({ ...base, ...clean_entity }),
@@ -147,7 +176,8 @@ export const entities = {
    */
   async update(type, id, data) {
     try {
-      const clean_data = JSON.parse(JSON.stringify(data));
+      const serializable = _map_vector_embeddings(data, serialize_embedding);
+      const clean_data = JSON.parse(JSON.stringify(serializable));
       const item = await db.entities.get(id);
       if (item && item.type === type) {
         return db.entities.update(id, clean_data);

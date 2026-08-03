@@ -1,12 +1,29 @@
-import { seed_premades } from "@data";
+import { seed_premades, set_versionchange_quiesce } from "@data";
 import { Audio } from "@media";
 import { state_bridge } from "@utils";
 import App from "../App.svelte";
 import { sanitize_to_fragment } from "@platform";
 import { mount } from "svelte";
 import { embeddings_engine } from "@intelligence";
+import { save_session_checkpoint } from "./session-checkpoint.js";
 
 let has_initialized = false;
+
+// Quiesce hook: when Dexie fires versionchange (another tab upgraded the schema)
+// IndexedDB is unavailable here, so stash a reload-safe checkpoint of the active
+// session pointer before the forced reload. runtime.sync() restores it on boot.
+// Guarded against environments where the persistence layer hasn't exposed the
+// hook (e.g. partial @data mocks in unit tests) — a boot hook registration must
+// never be able to take down module evaluation.
+if (typeof set_versionchange_quiesce === "function") {
+  set_versionchange_quiesce(() => {
+    save_session_checkpoint({
+      story_id: state_bridge.runtime?.story_id ?? state_bridge.session_driver?.active_id ?? null,
+      round: state_bridge.runtime?.round ?? 0,
+      phase: state_bridge.simulation_state?.phase ?? "idle",
+    });
+  });
+}
 
 /**
  * FOR TESTING ONLY: Reset the initialization guard.

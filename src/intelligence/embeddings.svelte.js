@@ -5,6 +5,8 @@
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
+import { deserialize_embedding } from "@utils/vectors.js";
+
 let _pipeline = null;
 let _loading = null;
 let _load_progress = $state(0);
@@ -12,7 +14,6 @@ let _is_loading = $state(false);
 let _model_ready = $state(false);
 
 const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
-const EMBED_DIM = 384;
 
 /** @type {Record<string, number>} */
 const file_progress = {};
@@ -81,11 +82,16 @@ async function get_pipeline() {
 
 /** @type {Map<string, Float32Array>} */
 const _embedding_cache = new Map();
-const MAX_CACHE = 500;
+export const EMBEDDING_CACHE_MAX = 1500;
+/** @type {number} */
+let _max_cache = EMBEDDING_CACHE_MAX;
+let _cache_hits = 0;
+let _cache_misses = 0;
 
 /**
  * Embeds a text string into a normalised Float32Array.
- * Cached by text content.
+ * Cached by text content with a bounded true-LRU policy: hits refresh the
+ * key's recency; overflow evicts the least-recently-used entry.
  * @param {string} text
  * @returns {Promise<Float32Array | null>}
  */
@@ -95,16 +101,24 @@ export async function embed(text) {
   const cache_key = text.trim();
   if (cache_key.length > 1e6) return null;
 
-  if (_embedding_cache.has(cache_key)) return _embedding_cache.get(cache_key);
+  const hit = _embedding_cache.get(cache_key);
+  if (hit) {
+    _cache_hits++;
+    // Refresh LRU recency: re-insert so the Map treats this key as most-recently-used.
+    _embedding_cache.delete(cache_key);
+    _embedding_cache.set(cache_key, hit);
+    return hit;
+  }
 
+  _cache_misses++;
   try {
     const pipe = await get_pipeline();
     const output = await pipe(text, { pooling: "mean", normalize: true });
     const embedding = new Float32Array(output.data);
 
-    if (_embedding_cache.size >= MAX_CACHE) {
-      const first_key = _embedding_cache.keys().next().value;
-      _embedding_cache.delete(first_key);
+    if (_embedding_cache.size >= _max_cache) {
+      const lru_key = _embedding_cache.keys().next().value;
+      _embedding_cache.delete(lru_key);
     }
     _embedding_cache.set(cache_key, embedding);
     return embedding;
@@ -132,7 +146,9 @@ export function cosine_similarity(a, b) {
 
 /**
  * Embeds a vector's directive and stores the embedding on the vector object.
- * If an embedding already exists, it is reused.
+ * Accepts a live Float32Array, a persisted plain-array form, or the legacy
+ * JSON-flattened {"0":…} object, upgrading whichever is present. If the stored
+ * value is corrupt/missing it is dropped so a fresh inference happens once.
  * @param {any} vector
  * @returns {Promise<Float32Array | null>}
  */
@@ -140,7 +156,13 @@ export async function ensure_embedding(vector) {
   if (!vector) return null;
   const text = vector.directive || vector.content || vector.text || "";
   if (!text) return null;
-  if (vector._embedding && vector._embedding.length === EMBED_DIM) return vector._embedding;
+
+  const existing = deserialize_embedding(vector._embedding);
+  if (existing) {
+    vector._embedding = existing;
+    return existing;
+  }
+  delete vector._embedding;
 
   const embedding = await embed(text);
   if (embedding) {
@@ -208,5 +230,23 @@ export const embeddings_engine = {
   },
   get modelReady() {
     return _model_ready || _pipeline !== null;
+  },
+  /** Current LRU cache telemetry (size, hits, misses, cap). */
+  cacheStats() {
+    return { size: _embedding_cache.size, hits: _cache_hits, misses: _cache_misses, max: _max_cache };
+  },
+  /** @private TEST ONLY: clears the cache and overrides the cap. */
+  _debug_reset_cache(cap = EMBEDDING_CACHE_MAX) {
+    _embedding_cache.clear();
+    _cache_hits = 0;
+    _cache_misses = 0;
+    _max_cache = cap;
+  },
+  /** @private TEST ONLY: injects a fake pipeline (fn(text, opts) → {data}). */
+  _debug_set_pipeline(fn) {
+    _pipeline = typeof fn === "function" ? fn : null;
+    _model_ready = typeof fn === "function";
+    _loading = null;
+    _is_loading = false;
   },
 };

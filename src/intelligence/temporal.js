@@ -32,6 +32,19 @@ import { prompt_builder } from "./prompts.js";
  */
 
 /**
+ * @typedef {Object} TemporalScoringConfig
+ * @property {number} SEMANTIC_GAIN - How much semantic similarity stretches the score (0-1 similarity → ×1..×1+GAIN).
+ * @property {number} RECENCY_FLOOR - Minimum effective recency multiplier, so age can never drown out relevance entirely.
+ * @property {number} DECAY_SOFTEN - Exponent applied to the raw decay factor; <1 flattens the decay curve.
+ */
+/** @type {TemporalScoringConfig} */
+export const TEMPORAL_SCORING = {
+  SEMANTIC_GAIN: 3,
+  RECENCY_FLOOR: 0.5,
+  DECAY_SOFTEN: 0.5,
+};
+
+/**
  * Creates a rich Temporal Log Entry (Vector).
  * @param {string} content - The narrative payload.
  * @param {string} [type="future"] - "past" | "future".
@@ -77,10 +90,11 @@ function recency_factor(v, current_round) {
 
 /**
  * Computes the final relevance score for a vector.
- * Formula: emotional_weight × (1 + semantic_match) × recency_factor
+ * Formula: emotional_weight × (1 + SEMANTIC_GAIN × semantic) × effective_recency
  * - emotional_weight is the base (1-10)
- * - semantic_match is 0-1 (cosine similarity from embeddings, 0 if unavailable)
- * - recency_factor is 0.33-1.0 (logarithmic decay)
+ * - semantic_match is 0-1 (cosine similarity from embeddings, clamped; 0 if unavailable)
+ * - effective_recency is the raw logarithmic decay factor, softened (^DECAY_SOFTEN)
+ *   and floored at RECENCY_FLOOR so age biases but never dominates semantics.
  * @param {any} v
  * @param {number} semantic_similarity
  * @param {number} current_round
@@ -88,9 +102,12 @@ function recency_factor(v, current_round) {
  */
 function compute_relevance(v, semantic_similarity, current_round) {
   const weight = v.emotional_weight ?? 5;
-  const recency = recency_factor(v, current_round);
+  const { SEMANTIC_GAIN, RECENCY_FLOOR, DECAY_SOFTEN } = TEMPORAL_SCORING;
+  const semantic = Math.max(0, Math.min(1, semantic_similarity || 0));
+  const raw_recency = recency_factor(v, current_round);
+  const recency = Math.max(RECENCY_FLOOR, Math.pow(raw_recency, DECAY_SOFTEN));
   v._recency_factor = recency;
-  return weight * (1 + semantic_similarity) * recency;
+  return weight * (1 + SEMANTIC_GAIN * semantic) * recency;
 }
 
 /**

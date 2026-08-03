@@ -1,5 +1,5 @@
 export { seed_premades, stories, entities, prune } from "./repository.js";
-export { db, init } from "./db.js";
+export { db, init, set_versionchange_quiesce } from "./db.js";
 export {
   STORAGE_VERSION,
   ENTITY_TEMPLATES,

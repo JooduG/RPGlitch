@@ -49,10 +49,32 @@ db.version(11)
 db.version(12).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type, [type+isCustom]",
 });
+/** @type {(() => void) | null} */
+let _versionchange_quiesce = null;
+let _versionchange_pending = false;
+
+/**
+ * Registers a quiesce callback invoked just before a versionchange reload.
+ * The app uses it to stash a reload-safe session checkpoint — IndexedDB is
+ * mid-upgrade at that point, so no DB writes are possible.
+ * @param {(() => void) | null} fn
+ */
+export function set_versionchange_quiesce(fn) {
+  _versionchange_quiesce = fn;
+}
+
 db.on("blocked", () => {
   console.warn("[Data] Database is blocked by another tab/version. Please close other instances.");
 });
 db.on("versionchange", () => {
+  // Guard against reload loops when multiple versionchange events fire.
+  if (_versionchange_pending) return;
+  _versionchange_pending = true;
+  try {
+    _versionchange_quiesce?.();
+  } catch (err) {
+    console.warn("[Data] Versionchange quiesce failed:", err);
+  }
   db.close();
   if (typeof window !== "undefined") window.location.reload();
 });

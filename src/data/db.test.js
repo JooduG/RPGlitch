@@ -52,4 +52,29 @@ describe("Database db.js", () => {
     expect(close_spy).toHaveBeenCalled();
     expect(window.location.reload).toHaveBeenCalled();
   });
+
+  it("should invoke the registered quiesce hook before versionchange reload", async () => {
+    const { db, init, set_versionchange_quiesce } = await import("@data/db.js");
+    dbInstance = db;
+    await init();
+    const quiesce = vi.fn();
+    set_versionchange_quiesce(quiesce);
+    const close_spy = vi.spyOn(db, "close");
+    db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });
+    expect(quiesce).toHaveBeenCalledTimes(1);
+    expect(close_spy).toHaveBeenCalled();
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+  });
+
+  it("should guard against duplicate versionchange reloads", async () => {
+    const { db, init, set_versionchange_quiesce } = await import("@data/db.js");
+    dbInstance = db;
+    await init();
+    const quiesce = vi.fn();
+    set_versionchange_quiesce(quiesce);
+    db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });
+    db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });
+    expect(quiesce).toHaveBeenCalledTimes(1);
+    expect(window.location.reload).toHaveBeenCalledTimes(1);
+  });
 });

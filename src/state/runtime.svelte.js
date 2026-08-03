@@ -1,5 +1,6 @@
 import { db, entities } from "@data";
 import { SESSION_ID_KEY } from "@engine";
+import { load_session_checkpoint, clear_session_checkpoint } from "@engine/session-checkpoint.js";
 import { temporal_engine } from "@intelligence";
 import { app } from "./app.svelte.js";
 // We split the large state object into cohesive internal modules:
@@ -309,22 +310,37 @@ function create_runtime_store() {
      */
     sync: async (active_story_id = null) => {
       if (active_story_id) simulation_story_id = active_story_id;
+      // A reload checkpoint (written during a graceful Dexie versionchange) is
+      // the freshest active-session pointer; fall back to kv_settings otherwise.
+      const checkpoint = !simulation_story_id ? load_session_checkpoint() : null;
       if (!simulation_story_id) {
-        try {
-          const entry = await db.kv_settings.get(SESSION_ID_KEY);
-          if (entry?.value) simulation_story_id = entry.value;
-          else return;
-        } catch {
-          return;
+        if (checkpoint?.story_id) {
+          simulation_story_id = checkpoint.story_id;
+        } else {
+          try {
+            const entry = await db.kv_settings.get(SESSION_ID_KEY);
+            if (entry?.value) simulation_story_id = entry.value;
+            else return;
+          } catch {
+            return;
+          }
         }
       }
       try {
         const db_key = coerce_story_key(simulation_story_id);
         const story = await db.stories.get(db_key);
-        if (!story) return;
+        if (!story) {
+          clear_session_checkpoint();
+          return;
+        }
         // FIX: restore the story's persisted round so recency epochs stay aligned
         // across page loads (previously runtime round reset to 0 on every boot).
         if (story.round != null) api.round = story.round;
+        // A versionchange checkpoint may hold a round newer than the story's
+        // last persisted write; prefer it when it is ahead.
+        if (typeof checkpoint?.round === "number" && checkpoint.round > (story.round ?? 0)) {
+          api.round = checkpoint.round;
+        }
         const [user_data, ai_data, fractal_data] = await Promise.all([
           /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.user_id)),
           /** @type {Promise<SimulationEntity | null>} */ (entities.get("character", story.ai_id || "unknown_ai")),
@@ -382,6 +398,7 @@ function create_runtime_store() {
         }
 
         simulation_is_ready = true;
+        clear_session_checkpoint();
       } catch (err) {
         console.warn("[Data] Sync Failed:", err);
       }

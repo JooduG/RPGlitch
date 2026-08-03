@@ -40,6 +40,7 @@ vi.mock("@data/db.js", () => ({
       update: vi.fn().mockResolvedValue(true),
     },
   },
+  set_versionchange_quiesce: vi.fn(),
 }));
 
 vi.mock("@data/normalizer.js", () => ({
