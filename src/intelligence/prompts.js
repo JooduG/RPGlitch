@@ -776,6 +776,13 @@ export const prompt_builder = {
   },
   create_render_atom: data_processors.create_render_atom,
   render_history: data_processors.render_history,
+  build_scoring_context(input = "", simulation_log = []) {
+    const recent = (Array.isArray(simulation_log) ? simulation_log : [])
+      .slice(-10)
+      .map((m) => m.content || m.text || "")
+      .join(" ");
+    return `${input || ""} ${recent}`.trim();
+  },
   render_protocols(selection) {
     if (!selection) return "";
     if (protocols_cache.has(selection)) {

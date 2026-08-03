@@ -69,6 +69,33 @@ describe("prompt_builder (Refactored)", () => {
       expect(result).not.toContain("Vector Resolved");
     });
 
+    it("build_scoring_context() should combine input with recent log content", () => {
+      const log = [
+        { role: "user", content: "I open the door.", character_name: "Ghost" },
+        { role: "assistant", text: "The hinges creak.", character_name: "Viper" },
+      ];
+      const result = prompt_builder.build_scoring_context("Hello", log);
+      expect(result).toContain("Hello");
+      expect(result).toContain("I open the door.");
+      expect(result).toContain("The hinges creak.");
+    });
+
+    it("build_scoring_context() should only include the last 10 entries and tolerate empty input", () => {
+      const log = Array.from({ length: 14 }, (_, i) => ({ role: "user", content: `Message ${i}` }));
+      const result = prompt_builder.build_scoring_context("", log);
+      expect(result).toContain("Message 4");
+      expect(result).toContain("Message 13");
+      expect(result).not.toContain("Message 0");
+      expect(result).not.toContain("Message 3");
+      expect(prompt_builder.build_scoring_context("", [])).toBe("");
+    });
+
+    it("build_scoring_context() should fall back gracefully for malformed logs", () => {
+      expect(prompt_builder.build_scoring_context("only input")).toBe("only input");
+      expect(prompt_builder.build_scoring_context("", null)).toBe("");
+      expect(prompt_builder.build_scoring_context("", "not-an-array")).toBe("");
+    });
+
     it("render_protocols() should return XML-tagged protocols", () => {
       const out = prompt_builder.render_protocols("AGENCY.MOMENTUM, HYGIENE.PROSE");
       expect(out).toContain("<MOMENTUM>End on a live beat");
