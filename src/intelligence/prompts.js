@@ -333,13 +333,37 @@ ${(() => {
  * @returns {{ system: string, task: string }}
  */
 /**
+ * Resolves an entity's temporal vector pool.
+ * Prefers the unified `vectors` array; falls back to the legacy `past`/`future`
+ * keys (typed on read) so legacy-shaped payloads render correctly. Vector
+ * payloads are leniently normalized to canonical `content` (directive/text fallback).
+ * @param {any} entity
+ * @returns {any[]}
+ */
+function resolve_vector_pool(entity) {
+  if (!entity || typeof entity !== "object") return [];
+  const normalize_item = (v, type) => (v && typeof v === "object" ? { ...v, type, content: v.content || v.directive || v.text || "" } : v);
+  if (Array.isArray(entity.vectors) && entity.vectors.length > 0) {
+    return entity.vectors.map((v) => normalize_item(v, v?.type === "future" ? "future" : "past"));
+  }
+  const pool = [];
+  if (Array.isArray(entity.past)) {
+    for (const v of entity.past) pool.push(normalize_item(v, v?.type === "future" ? "future" : "past"));
+  }
+  if (Array.isArray(entity.future)) {
+    for (const v of entity.future) pool.push(normalize_item(v, v?.type === "past" ? "past" : "future"));
+  }
+  return pool;
+}
+
+/**
  * Builds the AI entity's future XML block (unified FUTURE tag).
  * @param {any} entity - AI entity with future vectors.
  * @param {string} [scoringContext] - Context for temporal RAG scoring.
  * @returns {string} XML string for the YOUR_IDENTITY block.
  */
 function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
-  const futures = Array.isArray(entity?.vectors) ? entity.vectors.filter((v) => v?.type === "future") : [];
+  const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
   if (futures.length === 0) return "";
   const formatted = temporal_engine.format(futures, scoringContext, { max_chars: 1500, vector_text: true });
   if (!formatted?.trim()) return "";
@@ -748,7 +772,7 @@ const data_processors = {
       past: (ref, options = {}) => {
         const entity = resolve(ref);
         const formatted = temporal_engine.format(
-          (entity.vectors || []).filter((v) => v?.type !== "future"),
+          resolve_vector_pool(entity).filter((v) => v?.type !== "future"),
           scoring_context,
           {
             offset: 0,
@@ -761,7 +785,7 @@ const data_processors = {
       future: (ref, options = {}) => {
         const entity = resolve(ref);
         const formatted = temporal_engine.format(
-          (entity.vectors || []).filter((v) => v?.type === "future"),
+          resolve_vector_pool(entity).filter((v) => v?.type === "future"),
           scoring_context,
           {
             offset: 0,

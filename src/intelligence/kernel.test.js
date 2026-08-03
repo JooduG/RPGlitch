@@ -440,6 +440,44 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(temporal_engine.precompute_context_embedding).toHaveBeenCalledWith("Hello");
   });
 
+  it("execute_prologue() precomputes the semantic context embedding from the prologue input before synthesis", async () => {
+    _mock_app.prologue = "The festival begins at dusk over the harbor of Vareld.";
+    const mock_payload = {
+      input: "The festival begins at dusk over the harbor of Vareld.",
+      type: "prologue",
+      round: 1,
+      entities: {
+        AI: { name: "Viper", vectors: [] },
+        USER: { name: "Ghost", vectors: [] },
+        FRACTAL: { name: "Void", vectors: [] },
+      },
+      view_id: "global",
+      simulation_log: "",
+      rawMessages: [],
+      meta: { active_vector: "", timestamp: new Date().toISOString() },
+    };
+
+    vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.synthesize).mockReturnValue({ system: "PROLOGUE_SYSTEM", task: "PROLOGUE_TASK" });
+    vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+    vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+      system: "C",
+      task: "T",
+      meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+    });
+    vi.mocked(llm_service.generate).mockResolvedValueOnce("Prologue prose.").mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
+
+    await gamemaster.execute_prologue("story-123");
+
+    expect(context_broker.hydrate).toHaveBeenCalledWith("The festival begins at dusk over the harbor of Vareld.", "prologue");
+    expect(temporal_engine.precompute_context_embedding).toHaveBeenCalledWith("The festival begins at dusk over the harbor of Vareld.");
+    expect(temporal_engine.precompute_context_embedding.mock.invocationCallOrder[0]).toBeLessThan(
+      prompt_builder.synthesize.mock.invocationCallOrder[0],
+    );
+
+    _mock_app.prologue = "";
+  });
+
   it("execute_epilogue() executes a targeted epilogue completion with full context", async () => {
     vi.mocked(prompt_builder.build_epilogue).mockReturnValue({ system: "EPILOGUE", task: "EPILOGUE_TASK", messages: [] });
     vi.mocked(llm_service.generate).mockResolvedValue("And so it ends.");

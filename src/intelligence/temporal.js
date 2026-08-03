@@ -267,7 +267,7 @@ export function format(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of ranked) {
-    const text = v.content || "";
+    const text = v.content || v.directive || v.text || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -284,7 +284,7 @@ export function format(vectors, input, options = {}) {
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || "";
+      if (show_text) return v.content || v.directive || v.text || "";
       return "";
     })
     .join("\n");
@@ -314,7 +314,7 @@ export async function format_async(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of sliced) {
-    const text = v.content || "";
+    const text = v.content || v.directive || v.text || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -331,7 +331,7 @@ export async function format_async(vectors, input, options = {}) {
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || "";
+      if (show_text) return v.content || v.directive || v.text || "";
       return "";
     })
     .join("\n");

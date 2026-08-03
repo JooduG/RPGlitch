@@ -14,8 +14,6 @@ Execute these steps in strict chronological sequence upon session initialization
 1. 📥 **Synchronize Repository State**
    - Download the latest `main` branch archive: `https://github.com/JooduG/RPGlitch/archive/refs/heads/main.zip` to `scratch/repo.zip`.
    - Extract contents into `scratch/src/`.
-   - Download the global agent configuration archive: `https://github.com/JooduG/gemini/archive/refs/heads/main.zip` to `scratch/gemini.zip`.
-   - Extract contents into `scratch/gemini/`.
 
 2. 📜 **Audit Workspace & Shell State**
    - Review `README.md` and `GEMINI.md` (within `scratch/src/`) and the global agent rules in `scratch/gemini/` for active conventions.

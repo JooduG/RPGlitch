@@ -572,7 +572,12 @@ export const gamemaster = {
   async execute_prologue(story_id) {
     state_bridge.app.busy = true;
     try {
-      const payload = await context_broker.hydrate(state_bridge.app.prologue || "", "prologue");
+      const prologue_input = state_bridge.app.prologue || "";
+      const payload = await context_broker.hydrate(prologue_input, "prologue");
+      // Semantic RAG: precompute the context embedding from the prologue's own
+      // input so the narrator's PAST/FUTURE ranking (sync format → score) is
+      // scored against the scene the user requested, not pure weight×recency.
+      await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 30000))]);
       const result = prompt_builder.synthesize(payload, {});
       if (!result.system) return null;
 
