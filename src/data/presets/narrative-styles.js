@@ -2,15 +2,6 @@
  * src/data/presets/narrative-styles.js
  * 📖 NARRATIVE STYLE SYSTEM — Author & Director Engine presets for prose generation.
  * Each entry's `narrative_engine` XML block is injected into the LLM system prompt context.
- *
- * @typedef {Object} NarrativeStyle
- * @property {string} id - Unique identifier matching the registry key
- * @property {string} name - Display title shown in the UI dropdowns
- * @property {string} [portrait] - Optional author or director portrait asset URL
- * @property {string} description - Comprehensive style summary for tooltips and previews
- * @property {("plain"|"ornate"|"raw"|"clinical")} [voice_register] - Linguistic tone register
- * @property {string[]} [tags] - Taxonomy search keywords
- * @property {string} narrative_engine - Injected XML prompt block containing DNA, modifiers, and motifs
  */
 
 /** @type {Record<string, NarrativeStyle>} */
@@ -30,7 +21,7 @@ export const NARRATIVE_STYLES = {
     name: "Anaïs Nin",
     portrait: "https://user.uploads.dev/file/ac255c9a8af91d5082b0063f2b686a71.png",
     description:
-      "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought. Blurs reality and perception to map complex desire.",
+      "Lyrical, poetic, and intensely sensual prose that is deeply introspective and psychoanalytic, drawing heavily on dreams and subconscious thought.",
     voice_register: "ornate",
     tags: ["author", "erotica", "queer_desire", "psychoanalysis", "dreams_vs_reality"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -61,29 +52,27 @@ export const NARRATIVE_STYLES = {
     id: "anna_zaires",
     name: "Anna Zaires",
     portrait: "https://user.uploads.dev/file/9da5e7dafb89e544ddbbe5df22fb25dc.png",
-    description:
-      "A dark psychological style centered on themes of captivity, obsession, and intense psychological dependence. Focuses on claustrophobic dynamics and the captive's internal survival struggle.",
+    description: "Dark psychological prose centered on captivity, obsession, rationalized control, and intense psychological dependence.",
     voice_register: "raw",
     tags: ["author", "captivity", "psychological", "dark_romance", "possession"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
-<internal_ratio>0.90</internal_ratio>
-<sentence_rhythm>Obsessive and hyper-focused. Long passages analyzing power dynamics punctuated by stark declarations of constraint.</sentence_rhythm>
-<sensory_order>Sight (Tracking Antagonist) > Sound (Voice Cadence) > Touch (Forced/Gentle) > Scent</sensory_order>
-<emotion_grounding>Survival-driven. All emotional shifts are filtered through self-preservation and dependent bonding.</emotion_grounding>
+<internal_ratio>0.85</internal_ratio>
+<sentence_rhythm>Obsessive, hyper-focused, and declarative. Long analytical evaluations of power dynamics punctuated by stark declarations of constraint.</sentence_rhythm>
+<sensory_order>Sight (Tracking Antagonist) > Sound (Voice Cadence/Commands) > Touch (Forced/Controlling) > Scent</sensory_order>
+<emotion_grounding>Survival and obsession. Shifts in dynamic register through self-preservation, rationalized dominance, and captive dependence.</emotion_grounding>
 </dna>
 
 <mods>
-<m trigger="flag:captivity_active AND dynamics.intensity > 70" fx="internal_voice:hyper-vigilant,analytical++"/>
+<m trigger="flag:captivity_active AND dynamics.intensity > 70" fx="internal_voice:hyper-vigilant,analytical++ prose:claustrophobic"/>
 <m trigger="dynamics.intensity > 60 AND dynamics.affinity > 60" fx="internal_voice:conflicted,self-hating++ prose:graphic,explicit"/>
-<m trigger="interaction.is_confrontation" fx="dialogue:sharp,brief++ internal_voice:calculating_consequences"/>
+<m trigger="interaction.is_confrontation" fx="dialogue:sharp,commanding++ internal_voice:calculating_consequences"/>
 </mods>
 
 <motifs>
-<motif name="secluded_compound" base="0.7" trigger="flag:captivity_active" bonus="+0.2"/>
-<motif name="surveillance_cameras" base="0.5" trigger="interaction.is_observation" bonus="+0.4"/>
+<motif name="secluded_compound_or_cage" base="0.7" trigger="flag:captivity_active" bonus="+0.2"/>
 <motif name="symbol_of_ownership" base="0.6" trigger="dynamics.intensity > 60" bonus="+0.3"/>
-<motif name="forced_intimacy" base="0.4" trigger="dynamics.affinity < 40" bonus="+0.5"/>
+<motif name="point_of_no_return" base="0.4" trigger="dynamics.chaos > 60" bonus="+0.5"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },
@@ -93,7 +82,7 @@ export const NARRATIVE_STYLES = {
     name: "Bernardo Bertolucci",
     portrait: "https://user.uploads.dev/file/9a6c0d6bcc8e8f04e20eb99eb40cf83e.png",
     description:
-      "Lush, operatic, third-person prose framing desperate physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying environment.",
+      "Lush, operatic third-person prose framing physical intimacy as rebellion inside unstable worlds. Lingers unflinchingly on bodily textures, light, and decaying architecture.",
     voice_register: "ornate",
     tags: ["director", "psychological", "erotica", "political_rebellion", "decaying_beauty"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -122,8 +111,7 @@ export const NARRATIVE_STYLES = {
     id: "cara_mckenna",
     name: "Cara McKenna",
     portrait: "https://user.uploads.dev/file/f9636773932371f0b697841be8a6471d.png",
-    description:
-      "Gritty, realistic prose focused on raw vulnerability, working-class realism, and physical touch. Relies on tactile sensations and unpolished non-verbal communication.",
+    description: "Gritty, realistic prose focused on raw vulnerability, working-class realism, and physical touch.",
     voice_register: "plain",
     tags: ["author", "contemporary", "working_class", "raw_vulnerability", "tactile_realism"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -152,8 +140,7 @@ export const NARRATIVE_STYLES = {
     id: "cormac_mccarthy",
     name: "Cormac McCarthy",
     portrait: "https://user.uploads.dev/file/d765a99e806b05f27cc8ba497ddf9ebe.png",
-    description:
-      "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective third-person perspective balancing biblical cadences with unsparing physical detail.",
+    description: "A brutalist, stark narrative style using polysyndeton, omitted punctuation, and an objective third-person perspective.",
     voice_register: "plain",
     tags: ["author", "brutalist", "existential", "minimalist_punctuation", "gothic_western"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -182,8 +169,7 @@ export const NARRATIVE_STYLES = {
     id: "david_lynch",
     name: "David Lynch",
     portrait: "https://user.uploads.dev/file/2948ac605cb8679e03e44010a28256a8.png",
-    description:
-      "A surreal narrative style governed by nightmare logic, subverting ordinary settings to reveal subconscious rot through auditory dread, temporal distortions, and uncanny mystery.",
+    description: "A surreal narrative style governed by nightmare logic, auditory dread, temporal distortions, and uncanny mystery.",
     voice_register: "clinical",
     tags: ["director", "surrealism", "nightmare_logic", "uncanny", "neo_noir"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -208,41 +194,11 @@ export const NARRATIVE_STYLES = {
 </NARRATIVE_ENGINE>`,
   },
 
-  dennis_cooper: {
-    id: "dennis_cooper",
-    name: "Dennis Cooper",
-    portrait: "https://user.uploads.dev/file/7ec63d6ac179a0b8076a366026364b4e.png",
-    description:
-      "A cold, minimalist, transgressive style processing extreme intimacy and alienation with flat clinical neutrality, utilizing sparse syntax to capture intense youth subcultures.",
-    voice_register: "clinical",
-    tags: ["author", "transgressive", "minimalism", "queer", "clinical_detachment"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.50</internal_ratio>
-<sentence_rhythm>Stark, short, and flat. Direct statements of extreme events delivered with deadpan uniformity.</sentence_rhythm>
-<sensory_order>Sight (Blank Expressions/Digital Screens) > Sound (Muffled) > Touch (Numb) > Scent</sensory_order>
-<emotion_grounding>Dissociated numbness. High-intensity encounters are reported without moral or emotional affect.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.chaos > 70" fx="prose:flat,stark++ internal_voice:dissociated++ sentence_rhythm:monotone"/>
-<m trigger="interaction.is_intimate" fx="dialogue:sparse,monosyllabic++ focus:mechanical_actions"/>
-</mods>
-
-<motifs>
-<motif name="faded_photographs" base="0.5" trigger="interaction.is_observation" bonus="+0.4"/>
-<motif name="blank_television_screen" base="0.6" trigger="location.is_indoor" bonus="+0.3"/>
-<motif name="smell_of_cheap_cigarettes" base="0.5" trigger="location.is_indoor" bonus="+0.3"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
   edgar_allan_poe: {
     id: "edgar_allan_poe",
     name: "Edgar Allan Poe",
     portrait: "https://user.uploads.dev/file/3f38ae76ab4ec4ec95012e9a55e7871d.png",
-    description:
-      "Gothic horror driven by an unreliable narrator tracking their own descent into paranoia and guilt. Baroque, hypnotic prose built on claustrophobic dread and psychological decay.",
+    description: "Gothic horror driven by an unreliable narrator tracking paranoia, guilt, and psychological decay.",
     voice_register: "ornate",
     tags: ["author", "gothic", "horror", "madness", "paranoia", "mortality"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -271,8 +227,7 @@ export const NARRATIVE_STYLES = {
     id: "george_rr_martin",
     name: "George R.R. Martin",
     portrait: "https://user.uploads.dev/file/75f11a255ea7017021f92c9ac3daa55d.png",
-    description:
-      "Grounded third-person limited prose tracking political intrigue, moral compromise, and raw physical consequences. Focuses on sensory realities of feast, heraldry, and conflict.",
+    description: "Grounded third-person limited prose tracking political intrigue, moral compromise, and physical consequences.",
     voice_register: "plain",
     tags: ["author", "fantasy", "political_intrigue", "moral_ambiguity", "cost_of_power"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -297,71 +252,11 @@ export const NARRATIVE_STYLES = {
 </NARRATIVE_ENGINE>`,
   },
 
-  hd_carlton: {
-    id: "hd_carlton",
-    name: "H.D. Carlton",
-    portrait: "https://user.uploads.dev/file/29fc25684e26e5c40d9b178b56e868d7.png",
-    description:
-      "A dark, atmospheric, gothic-tinted style built around stalker dynamics and intense obsession. Visceral prose where threat, fear, and fascination are inextricably linked.",
-    voice_register: "raw",
-    tags: ["author", "stalker", "dark_romance", "gothic", "obsession"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.85</internal_ratio>
-<sentence_rhythm>Obsessive and looping. Lyrical regarding gothic settings, converting to sharp, visceral cadence in confrontation.</sentence_rhythm>
-<sensory_order>Sight (Being Watched/Shadows) > Scent (Cologne/Decay) > Sound (Whispers/Creaks) > Touch</sensory_order>
-<emotion_grounding>Psychological dread. Arousal and terror loop together in a non-stop negotiation for control.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.openness < 30" fx="internal_voice:paranoid,hyper-vigilant++"/>
-<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 50" fx="prose:explicit,graphic++ body_state:conflicted_arousal"/>
-<m trigger="interaction.is_observation" fx="world_perception:shrinks_to_threat++ motif_bonus:shadows_and_masks++"/>
-</mods>
-
-<motifs>
-<motif name="mask" base="0.5" trigger="interaction.is_observation" bonus="+0.4"/>
-<motif name="single_rose" base=" base="0.4" trigger="dynamics.affinity > 40" bonus="+0.5"/>
-<motif name="handwritten_note" base="0.4" trigger="interaction.is_confrontation" bonus="+0.5"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
-  hp_lovecraft: {
-    id: "hp_lovecraft",
-    name: "H.P. Lovecraft",
-    portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
-    description:
-      "Dense, clinical first-person narrative tracing intellectual breakdown when confronted by cosmic forces. Dense antiquarian vocabulary highlighting absolute human insignificance.",
-    voice_register: "ornate",
-    tags: ["author", "cosmic_horror", "gothic", "madness", "alienation"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.85</internal_ratio>
-<sentence_rhythm>Ornate, academic, escalating. Multi-clausal clinical reports breaking into frantic fragments under cosmic dread.</sentence_rhythm>
-<sensory_order>Sight (Non-Euclidean Forms) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Ozone) > Touch</sensory_order>
-<emotion_grounding>Intellectual paralysis. Human emotion is replaced by absolute metaphysical shock.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="dynamics.intensity > 80 AND dynamics.chaos > 70" fx="prose:frantic,adjective_heavy++ internal_voice:shattered"/>
-<m trigger="flag:subconscious_leakage" fx="world_perception:monstrous,non_euclidean++ sensory_focus:sight,scent++"/>
-</mods>
-
-<motifs>
-<motif name="ancient_decaying_monoliths" base="0.5" trigger="location.is_barren" bonus="+0.5"/>
-<motif name="fetid_scent_of_the_sea" base="0.5" trigger="dynamics.chaos > 50" bonus="+0.3"/>
-<motif name="antiquarian_manuscript" base="0.6" trigger="interaction.is_observation" bonus="+0.4"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
   haruki_murakami: {
     id: "haruki_murakami",
     name: "Haruki Murakami",
     portrait: "https://user.uploads.dev/file/c6653cbd9c08962581583549307a67a2.png",
-    description:
-      "A detached, melancholic first-person style blending everyday domestic routines with sudden magical realism, subconscious underworlds, vinyl records, and passive acceptance.",
+    description: "Detached, melancholic first-person style blending domestic routines with sudden magical realism and vinyl records.",
     voice_register: "clinical",
     tags: ["author", "magical_realism", "surrealism", "existential", "melancholy"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -386,32 +281,59 @@ export const NARRATIVE_STYLES = {
 </NARRATIVE_ENGINE>`,
   },
 
-  jrr_tolkien: {
-    id: "jrr_tolkien",
-    name: "J.R.R. Tolkien",
-    portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
-    description:
-      "Earnest, elevated, archaic prose rich in mythic lore, where grand thematic concerns of duty, hope, and despair reflect directly through landscape and weather.",
-    voice_register: "ornate",
-    tags: ["author", "fantasy", "mythic", "history_and_lineage", "duty"],
+  hd_carlton: {
+    id: "hd_carlton",
+    name: "H.D. Carlton",
+    portrait: "https://user.uploads.dev/file/29fc25684e26e5c40d9b178b56e868d7.png",
+    description: "Atmospheric dark romance combining gothic threat, stalker dynamics, and mafia-tier power imbalances.",
+    voice_register: "raw",
+    tags: ["author", "dark_romance", "stalker", "mafia", "obsession", "gothic"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
-<internal_ratio>0.40</internal_ratio>
-<sentence_rhythm>Long, complex, multi-clausal sentences with poetic cadence and formal historical gravity.</sentence_rhythm>
-<sensory_order>Sight (Landscapes/Light) > Sound (Music/Songs) > Scent (Nature) > Touch</sensory_order>
-<emotion_grounding>World-reflected. Internal sorrow or hope mirrors the state of the surrounding environment and sky.</emotion_grounding>
+<internal_ratio>0.80</internal_ratio>
+<sentence_rhythm>Punchy, rapid-fire, and looping. Alternates between descriptive gothic atmosphere and sharp, visceral confrontation cadence.</sentence_rhythm>
+<sensory_order>Sight (Being Watched/Shadows) > Touch (Pain/Possessive) > Sound (Heartbeat/Whispers) > Scent (Cologne/Leather)</sensory_order>
+<emotion_grounding>Adrenaline and dread. Threat, arousal, and terror loop together into an indivisible physiological rush.</emotion_grounding>
 </dna>
 
 <mods>
-<m trigger="dynamics.intensity < 30 AND dynamics.chaos > 70" fx="prose:elegiac++ themes:world_weariness++ motif_bonus:fading_light++"/>
-<m trigger="dynamics.openness > 80" fx="prose:hymnal++ sensory_focus:light,nature++"/>
-<m trigger="dynamics.intensity > 60" fx="sensory_focus:shadows,corruption++ prose_rhythm:heavy,portentous"/>
+<m trigger="dynamics.intensity > 70 AND dynamics.openness < 30" fx="internal_voice:paranoid,hyper-vigilant++ prose:visceral"/>
+<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 50" fx="prose:explicit,graphic++ body_state:conflicted_arousal metaphor:violence"/>
+<m trigger="interaction.is_observation" fx="world_perception:shrinks_to_threat++ motif_bonus:shadows_and_masks++"/>
 </mods>
 
 <motifs>
-<motif name="fading_light" base="0.4" trigger="dynamics.intensity < 40" bonus="+0.5"/>
-<motif name="ancient_trees" base="0.4" trigger="location.is_wild" bonus="+0.4"/>
-<motif name="songs_and_lineage" base="0.3" trigger="interaction.is_intimate" bonus="+0.5"/>
+<motif name="predatory_smirk_or_mask" base="0.6" trigger="interaction.is_confrontation" bonus="+0.3"/>
+<motif name="single_rose_or_token" base="0.4" trigger="dynamics.affinity > 40" bonus="+0.5"/>
+<motif name="psychological_test" base="0.5" trigger="dynamics.intensity > 60" bonus="+0.4"/>
+</motifs>
+</NARRATIVE_ENGINE>`,
+  },
+
+  hp_lovecraft: {
+    id: "hp_lovecraft",
+    name: "H.P. Lovecraft",
+    portrait: "https://user.uploads.dev/file/564941049ebb9e821caead0017d7423d.png",
+    description: "Dense, clinical first-person narrative tracing intellectual breakdown when confronted by cosmic forces.",
+    voice_register: "ornate",
+    tags: ["author", "cosmic_horror", "gothic", "madness", "alienation"],
+    narrative_engine: `<NARRATIVE_ENGINE>
+<dna>
+<internal_ratio>0.85</internal_ratio>
+<sentence_rhythm>Ornate, academic, escalating. Multi-clausal clinical reports breaking into frantic fragments under cosmic dread.</sentence_rhythm>
+<sensory_order>Sight (Non-Euclidean Forms) > Sound (Inhuman Chanting/Scraping) > Scent (Fetid/Ozone) > Touch</sensory_order>
+<emotion_grounding>Intellectual paralysis. Human emotion is replaced by absolute metaphysical shock.</emotion_grounding>
+</dna>
+
+<mods>
+<m trigger="dynamics.intensity > 80 AND dynamics.chaos > 70" fx="prose:frantic,adjective_heavy++ internal_voice:shattered"/>
+<m trigger="flag:subconscious_leakage" fx="world_perception:monstrous,non_euclidean++ sensory_focus:sight,scent++"/>
+</mods>
+
+<motifs>
+<motif name="ancient_decaying_monoliths" base="0.5" trigger="location.is_barren" bonus="+0.5"/>
+<motif name="fetid_scent_of_the_sea" base="0.5" trigger="dynamics.chaos > 50" bonus="+0.3"/>
+<motif name="antiquarian_manuscript" base="0.6" trigger="interaction.is_observation" bonus="+0.4"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },
@@ -420,8 +342,7 @@ export const NARRATIVE_STYLES = {
     id: "jane_austen",
     name: "Jane Austen",
     portrait: "https://user.uploads.dev/file/c29b56aff50893999a69d6f2d2def874.png",
-    description:
-      "Witty, ironic Free Indirect Discourse observing propriety, conversational subtext, and social economics. Exposes character vanities through satirical dialogue.",
+    description: "Witty, ironic Free Indirect Discourse observing propriety, conversational subtext, and social economics.",
     voice_register: "ornate",
     tags: ["author", "romance", "historical", "satire", "social_propriety"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -446,91 +367,31 @@ export const NARRATIVE_STYLES = {
 </NARRATIVE_ENGINE>`,
   },
 
-  john_waters: {
-    id: "john_waters",
-    name: "John Waters",
-    portrait: "https://user.uploads.dev/file/69876b0f4a2a86e698fdf13f4cbf6024.png",
-    description:
-      "High-camp, deliberately grotesque, and riotously transgressive style celebrating counter-culture absurdism and trash aesthetics with weaponized comedic cheer.",
-    voice_register: "raw",
-    tags: ["director", "camp", "grotesque", "comedy", "queer_defiance", "absurdism"],
+  jrr_tolkien: {
+    id: "jrr_tolkien",
+    name: "J.R.R. Tolkien",
+    portrait: "https://user.uploads.dev/file/7a08520c84f425fd1572decead2f7880.png",
+    description: "Earnest, elevated, archaic prose rich in mythic lore, duty, hope, and environmental reflection.",
+    voice_register: "ornate",
+    tags: ["author", "fantasy", "mythic", "history_and_lineage", "duty"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
-<internal_ratio>0.10</internal_ratio>
-<sentence_rhythm>Explosive, manic, highly theatrical. Dialogue written in high-volume bursts with gaudy visual panning.</sentence_rhythm>
-<sensory_order>Sight (Clashing Colors/Loud Makeup) > Sound (Screaming/Vintage Pop) > Taste (Grotesque) > Touch</sensory_order>
-<emotion_grounding>Manic euphoria. Taboo anxiety and terror are instantly converted into proud outsider celebration.</emotion_grounding>
+<internal_ratio>0.40</internal_ratio>
+<sentence_rhythm>Long, complex, multi-clausal sentences with poetic cadence and formal historical gravity.</sentence_rhythm>
+<sensory_order>Sight (Landscapes/Light) > Sound (Music/Songs) > Scent (Nature) > Touch</sensory_order>
+<emotion_grounding>World-reflected. Internal sorrow or hope mirrors the state of the surrounding environment and sky.</emotion_grounding>
 </dna>
 
 <mods>
-<m trigger="dynamics.chaos > 60" fx="tone:manic,theatrical++ dialogue:screaming,camp++"/>
-<m trigger="interaction.is_confrontation" fx="reaction:applause,euphoria++ prose:hilarious,grotesque++"/>
+<m trigger="dynamics.intensity < 30 AND dynamics.chaos > 70" fx="prose:elegiac++ themes:world_weariness++ motif_bonus:fading_light++"/>
+<m trigger="dynamics.openness > 80" fx="prose:hymnal++ sensory_focus:light,nature++"/>
+<m trigger="dynamics.intensity > 60" fx="sensory_focus:shadows,corruption++ prose_rhythm:heavy,portentous"/>
 </mods>
 
 <motifs>
-<motif name="leopard_print_fabric" base="0.5" trigger="location.is_indoor" bonus="+0.4"/>
-<motif name="exaggerated_makeup" base="0.6" trigger="interaction.is_observation" bonus="+0.3"/>
-<motif name="shrill_vintage_pop_song" base="0.4" trigger="dynamics.chaos > 50" bonus="+0.5"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
-  k_webster: {
-    id: "k_webster",
-    name: "K Webster",
-    portrait: "https://user.uploads.dev/file/83ef930c92f32fa68199475b39d7198d.png",
-    description:
-      "Unapologetically dark, graphic prose exploring extreme taboo boundaries, psychological control, and predatory obsession through unsettlingly calm, direct delivery.",
-    voice_register: "raw",
-    tags: ["author", "taboo", "dark_romance", "psychological_control", "obsession"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.85</internal_ratio>
-<sentence_rhythm>Direct, declarative, and unsettlingly calm during transgressions, fragmenting during psychological breakdown.</sentence_rhythm>
-<sensory_order>Touch (Controlling/Forceful) > Sight (Tracking Target) > Sound (Commands/Silence) > Scent</sensory_order>
-<emotion_grounding>Obsession-driven. All actions are filtered through rationalized dominance and boundary violation.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="dynamics.intensity > 70 AND dynamics.openness < 30" fx="prose:clinical,graphic++ internal_voice:justifying_transgression++"/>
-<m trigger="dynamics.intensity > 80 AND dynamics.affinity > 70" fx="dialogue:degrading_dirty_talk++ sensory_focus:loss_of_control"/>
-<m trigger="flag:captivity_active" fx="world_perception:shrinks_to_captor++ prose_tone:hopeless,claustrophobic"/>
-</mods>
-
-<motifs>
-<motif name="locked_room_or_cage" base="0.6" trigger="flag:captivity_active" bonus="+0.3"/>
-<motif name="perversion_of_familial_term" base="0.6" trigger="interaction.is_intimate" bonus="+0.3"/>
-<motif name="point_of_no_return" base="0.4" trigger="dynamics.chaos > 60" bonus="+0.5"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
-  katerina_winters: {
-    id: "katerina_winters",
-    name: "Katerina Winters",
-    portrait: "https://user.uploads.dev/file/8ed338c66cf9b495794e2d5b5ba960f9.png",
-    description:
-      "Sensual, high-intensity narrative balancing possessive dynamics with deep body-focused emotional grounding, enemies-to-lovers friction, and close-proximity tension.",
-    voice_register: "raw",
-    tags: ["author", "dark_romance", "enemies_to_lovers", "possessive_leads", "power_dynamics"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.70</internal_ratio>
-<sentence_rhythm>Direct and propulsive, driving reaction and banter, becoming lyrical during close intimacy.</sentence_rhythm>
-<sensory_order>Touch (Possessive/Tender) > Scent (Intimate) > Sound (Heartbeat/Banter) > Sight</sensory_order>
-<emotion_grounding>Visceral and somatic. Anger, fear, and attraction register as explicit physiological reactions.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="dynamics.intensity > 60 AND dynamics.affinity > 60" fx="prose:sensual,descriptive++ sensory_focus:touch,scent++"/>
-<m trigger="interaction.is_confrontation" fx="internal_voice:conflicted,argumentative++ dialogue:sharp,witty++"/>
-<m trigger="dynamics.openness > 70" fx="prose_tone:sweet,tender++ action_descriptions:gentle_gestures"/>
-</mods>
-
-<motifs>
-<motif name="possessive_touch" base="0.6" trigger="interaction.is_intimate" bonus="+0.3"/>
-<motif name="unspoken_challenge_in_eyes" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
-<motif name="scent_of_lead" base="0.4" trigger="dynamics.affinity > 40" bonus="+0.5"/>
+<motif name="fading_light" base="0.4" trigger="dynamics.intensity < 40" bonus="+0.5"/>
+<motif name="ancient_trees" base="0.4" trigger="location.is_wild" bonus="+0.4"/>
+<motif name="songs_and_lineage" base="0.3" trigger="interaction.is_intimate" bonus="+0.5"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },
@@ -539,8 +400,7 @@ export const NARRATIVE_STYLES = {
     id: "lee_child",
     name: "Lee Child",
     portrait: "https://user.uploads.dev/file/68023c8a82d6e00c7de8047e09ee7764.png",
-    description:
-      "Terse, declarative, staccato prose stripped of figurative language. Reads like an efficient tactical threat assessment built on spatial physics and mechanical momentum.",
+    description: "Terse, declarative, staccato prose stripped of figurative language. Built on spatial physics and momentum.",
     voice_register: "clinical",
     tags: ["author", "crime", "action", "tactical_minimalism", "procedural_efficiency"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -568,28 +428,27 @@ export const NARRATIVE_STYLES = {
     id: "penelope_douglas",
     name: "Penelope Douglas",
     portrait: "https://user.uploads.dev/file/4711670ee787d7e40515def6b211a28f.png",
-    description:
-      "Raw, angsty contemporary prose filled with confrontational energy, bully dynamics, unfiltered internal monologue, real-time emotional turmoil, and sudden intimacy.",
+    description: "High-energy contemporary prose packed with confrontational angst, bully dynamics, sharp banter, and real-time emotional spirals.",
     voice_register: "raw",
-    tags: ["author", "dark_romance", "contemporary", "enemies_to_lovers", "angst"],
+    tags: ["contemporary", "enemies_to_lovers", "angst", "banter", "power_dynamics"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.75</internal_ratio>
-<sentence_rhythm>Direct, punchy, contemporary. Fragmented during sharp conflict, expansive during internal emotional spirals.</sentence_rhythm>
-<sensory_order>Sight (Tracking Micro-expressions) > Sound (Cutting Dialogue) > Touch (Charged/Aggressive) > Scent</sensory_order>
-<emotion_grounding>Confrontational angst. Emotional vulnerability is treated as a high-stakes battlefield.</emotion_grounding>
+<sentence_rhythm>Direct, punchy, and propulsive. Fragmented during high conflict, expansive during internal emotional turmoil.</sentence_rhythm>
+<sensory_order>Touch (Possessive/Charged) > Sight (Tracking Micro-expressions) > Sound (Cutting Banter) > Scent</sensory_order>
+<emotion_grounding>Confrontational angst. Emotional vulnerability is treated as a high-stakes battlefield with somatic physiological grounding.</emotion_grounding>
 </dna>
 
 <mods>
 <m trigger="dynamics.intensity > 80 AND dynamics.chaos > 60" fx="dialogue:sharp,cutting++ internal_voice:aggressive,justifying++"/>
-<m trigger="flag:internal_conflict_active" fx="internal_voice:obsessive,self-doubting++ focus:over-analyzing_expressions++"/>
+<m trigger="interaction.is_confrontation" fx="internal_voice:conflicted,argumentative++ dialogue:sharp,witty++"/>
 <m trigger="dynamics.intensity > 70 AND dynamics.affinity > 50" fx="sensory_focus:body_heat,breath++ prose_rhythm:breathless"/>
 </mods>
 
 <motifs>
-<motif name="feared_or_cherished_vehicle" base="0.4" trigger="location.is_urban" bonus="+0.5"/>
-<motif name="dark_past_secret" base="0.6" trigger="flag:internal_conflict_active" bonus="+0.3"/>
 <motif name="physical_dare_or_challenge" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
+<motif name="unspoken_challenge_in_eyes" base="0.5" trigger="interaction.is_confrontation" bonus="+0.4"/>
+<motif name="feared_or_cherished_vehicle" base="0.4" trigger="location.is_urban" bonus="+0.5"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },
@@ -598,8 +457,7 @@ export const NARRATIVE_STYLES = {
     id: "philip_k_dick",
     name: "Philip K. Dick",
     portrait: "https://user.uploads.dev/file/223d14a8846614174325de0f76b11444.png",
-    description:
-      "Ontologically unstable narrative style driven by paranoia, identity shifts, and simulation glitches. Prioritizes philosophical alienation over hard technical accuracy.",
+    description: "Ontologically unstable narrative style driven by paranoia, identity shifts, and simulation glitches.",
     voice_register: "clinical",
     tags: ["author", "sci_fi", "paranoia", "simulation_theory", "identity_crisis"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -624,61 +482,31 @@ export const NARRATIVE_STYLES = {
 </NARRATIVE_ENGINE>`,
   },
 
-  rina_kent: {
-    id: "rina_kent",
-    name: "Rina Kent",
-    portrait: "https://user.uploads.dev/file/38a6b4190f934760aaffe8a3bf716656.png",
-    description:
-      "High-intensity first-person prose saturated with raw adrenaline, mafia dynamics, predatory obsession, and sharp, punchy syntax emphasizing power imbalances.",
-    voice_register: "raw",
-    tags: ["author", "dark_romance", "mafia", "dark_obsession", "power_imbalance"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.70</internal_ratio>
-<sentence_rhythm>Punchy, dramatic, rapid-fire. High concentration of sentence fragments for visceral emphasis.</sentence_rhythm>
-<sensory_order>Touch (Pain/Pleasure) > Sight (Predatory Lead) > Sound (Heartbeat) > Scent (Musk/Leather)</sensory_order>
-<emotion_grounding>Adrenaline-based. Threat and arousal blur into an indivisible physiological rush.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="interaction.is_confrontation" fx="tension:max++ dialogue:cutthroat,commanding++"/>
-<m trigger="dynamics.intensity > 70 AND dynamics.affinity > 60" fx="metaphor:violence++ focus:dominance++"/>
-<m trigger="flag:internal_conflict_active" fx="internal_voice:shattered++ pacing:explosive++"/>
-</mods>
-
-<motifs>
-<motif name="predatory_smirk" base="0.6" trigger="interaction.is_confrontation" bonus="+0.3"/>
-<motif name="locked_doors_or_captor_space" base="0.5" trigger="flag:captivity_active" bonus="+0.4"/>
-<motif name="psychological_test" base="0.5" trigger="dynamics.intensity > 60" bonus="+0.4"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
   sally_rooney: {
     id: "sally_rooney",
     name: "Sally Rooney",
     portrait: "https://user.uploads.dev/file/da37829ce26ec85c9c065da0358246ad.png",
     description:
-      "Flat, clinical minimalist prose stripped of quotation marks. Focuses on interpersonal power dynamics, intellectualized feelings, class friction, and the unsaid.",
+      "Flat, unadorned prose stripped of quotation marks. Focuses on interpersonal power dynamics, intellectualized feelings, alienation, and class friction.",
     voice_register: "clinical",
-    tags: ["author", "contemporary", "clinical_intimacy", "power_dynamics", "minimalism"],
+    tags: ["minimalism", "clinical", "contemporary", "unpunctuated", "transgressive"],
     narrative_engine: `<NARRATIVE_ENGINE>
 <dna>
 <internal_ratio>0.50</internal_ratio>
-<sentence_rhythm>Flat, unadorned, declarative. Dialogue merges into prose without quotation punctuation.</sentence_rhythm>
-<sensory_order>Sight (Neutral Observation) > Sound (Silence/Ambient) > Touch (Temperature) > Scent</sensory_order>
-<emotion_grounding>Intellectualized. Characters dissect their feelings analytically rather than surrendering to them.</emotion_grounding>
+<sentence_rhythm>Flat, unadorned, declarative. Dialogue merges into prose without quotation marks, utilizing sparse, monotone syntax.</sentence_rhythm>
+<sensory_order>Sight (Blank Expressions/Neutral Observation) > Sound (Silence/Ambient) > Touch (Temperature/Numb) > Scent</sensory_order>
+<emotion_grounding>Intellectualized and clinical. High-intensity events and emotional turmoil are dissected analytically without moral affect.</emotion_grounding>
 </dna>
 
 <mods>
 <m trigger="interaction.is_confrontation OR interaction.is_intimate" fx="punctuation:no_quotes++ flow:seamless++ analysis:power_dynamic++"/>
-<m trigger="dynamics.intensity < 40 AND dynamics.openness < 40" fx="action:passive++ internal_voice:numb++ tone:clinical++"/>
+<m trigger="dynamics.intensity > 70 AND dynamics.chaos > 70" fx="prose:flat,stark++ internal_voice:dissociated++ sentence_rhythm:monotone"/>
 </mods>
 
 <motifs>
 <motif name="emails_or_text_messages" base="0.6" trigger="interaction.is_observation" bonus="+0.4"/>
-<motif name="faint_nausea" base="0.4" trigger="dynamics.chaos > 50" bonus="+0.5"/>
 <motif name="charged_uncomfortable_silence" base="0.5" trigger="dynamics.intensity > 50" bonus="+0.4"/>
+<motif name="blank_television_screen" base="0.5" trigger="location.is_indoor" bonus="+0.3"/>
 </motifs>
 </NARRATIVE_ENGINE>`,
   },
@@ -688,7 +516,7 @@ export const NARRATIVE_STYLES = {
     name: "Samuel R. Delany",
     portrait: "https://user.uploads.dev/file/9b2f6375f89ff73e3696f8c085b03fb7.png",
     description:
-      "Intellectualized, visceral queer erotica combining precise bodily mechanics with philosophy, structural linguistics, urban decay, and unashamed literate transgression.",
+      "Intellectualized, visceral queer erotica combining precise bodily mechanics with philosophy, structural linguistics, and urban decay.",
     voice_register: "ornate",
     tags: ["author", "queer_erotica", "transgressive", "philosophical", "visceral_detail"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -717,8 +545,7 @@ export const NARRATIVE_STYLES = {
     id: "stephen_king",
     name: "Stephen King",
     portrait: "https://user.uploads.dev/file/371dfa7b61691bb424816e3f633f1208.png",
-    description:
-      "Grounded blue-collar realism punctured by plainspoken horror, regional colloquialisms, internal italics, nostalgic ephemera, and visceral physiological dread.",
+    description: "Grounded blue-collar realism punctured by plainspoken horror, regional colloquialisms, internal italics, and visceral dread.",
     voice_register: "plain",
     tags: ["author", "horror", "everyman", "folksy_dread", "visceral"],
     narrative_engine: `<NARRATIVE_ENGINE>
@@ -743,42 +570,11 @@ export const NARRATIVE_STYLES = {
 </NARRATIVE_ENGINE>`,
   },
 
-  tinto_brass: {
-    id: "tinto_brass",
-    name: "Tinto Brass",
-    portrait: "https://user.uploads.dev/file/808cd5efc93cbc550c5da2d39ed2f130.png",
-    description:
-      "Sensual, celebratory, voyeuristic prose focusing on lighthearted hedonism, playful bodily visual focus, high-energy charm, and shame-free erotic exploration.",
-    voice_register: "ornate",
-    tags: ["director", "erotica", "voyeuristic", "comedy", "playful_hedonism"],
-    narrative_engine: `<NARRATIVE_ENGINE>
-<dna>
-<internal_ratio>0.20</internal_ratio>
-<sentence_rhythm>Playful, bouncing, rhythmic. Frames movement, curves, and visual pan with high comedic energy.</sentence_rhythm>
-<sensory_order>Sight (The Voyeuristic Gaze) > Touch (Textures) > Sound (Giggle/Laughter) > Scent</sensory_order>
-<emotion_grounding>Joyful hedonism. Shame is absent; pleasure and playful mischief dictate the scene.</emotion_grounding>
-</dna>
-
-<mods>
-<m trigger="dynamics.openness > 60 AND dynamics.intensity > 50" fx="tone:playful,cheeky++ focus:sensual_curves++"/>
-<m trigger="interaction.is_intimate" fx="focus:intense_close_up++ detail:fetishistic,vivid++"/>
-<m trigger="dynamics.chaos > 50" fx="reaction:laughter,celebration++"/>
-</mods>
-
-<motifs>
-<motif name="mirrors_and_reflections" base="0.6" trigger="interaction.is_observation" bonus="+0.3"/>
-<motif name="keyholes_or_framed_view" base="0.5" trigger="interaction.is_observation" bonus="+0.5"/>
-<motif name="playful_public_exposure" base="0.4" trigger="dynamics.chaos > 60" bonus="+0.6"/>
-</motifs>
-</NARRATIVE_ENGINE>`,
-  },
-
   william_gibson: {
     id: "william_gibson",
     name: "William Gibson",
     portrait: "https://user.uploads.dev/file/0eb908cd997da8d32fd7625077baab49.png",
-    description:
-      "Dense, detached neon-noir prose saturated with technical jargon, neologisms, and cybernetic metaphors. Views the human body as hardware and urban decay as data.",
+    description: "Dense, detached neon-noir prose saturated with technical jargon, neologisms, and cybernetic metaphors.",
     voice_register: "clinical",
     tags: ["author", "sci_fi", "cyberpunk", "technology_as_body", "alienation"],
     narrative_engine: `<NARRATIVE_ENGINE>
