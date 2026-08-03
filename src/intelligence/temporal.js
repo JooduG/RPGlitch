@@ -503,9 +503,10 @@ export function apply_state_mutations(entity, mutations, session = null) {
     if (!Array.isArray(entity.future)) entity.future = [];
     if (!Array.isArray(entity.past)) entity.past = [];
     mutations.new_vectors.forEach((v) => {
-      const payload = v.content || v.directive;
-      if (!payload?.trim()) return;
+      const payload = (v.content || v.directive || "").trim();
+      if (!payload) return;
       const new_vector = create(payload, v.type || "future", v.weight || 5);
+      v.id = new_vector.id;
       ensure_embedding(new_vector)
         .then(() => {
           if (entity?.id) {

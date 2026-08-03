@@ -388,8 +388,6 @@ describe("prompt_builder (Refactored)", () => {
         ai: { dynamics: { intensity: 50, openness: 60 } },
         fractal: { dynamics: { entropy: 10 } },
         flags: { test: true },
-        signal_prompts: ["STYLE: Grit"],
-        signals: ["SIGNAL_X"],
       };
 
       const result = prompt_builder.synthesize(payload, snapshot);

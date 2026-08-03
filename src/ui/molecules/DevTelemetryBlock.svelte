@@ -4,24 +4,24 @@
    * ðŸ“¡ THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
-  import { Accordion, DataBox, tooltip } from "@atoms";
+  import { Accordion, DataBox } from "@atoms";
   import { runtime } from "@state";
 
   /**
    * @typedef {Object} TelemetryMeta
    * @property {string} [type] - The type of telemetry event.
-   * @property {Object} [ai] - AI character state.
-   * @property {Object} [dynamics] - Dynamic simulation state.
-   * @property {Object} [snapshot] - State snapshot.
-   * @property {Object} [snapshot.ai] - AI snapshot.
-   * @property {Object} [snapshot.fractal] - Fractal snapshot.
-   * @property {Object} [fractal] - Fractal entity state.
-   * @property {Object} [fractal_dynamics] - Fractal dynamic state.
-   * @property {Object} [vectors] - Narrative vectors.
-   * @property {any[]} [vectors.past] - Past memory vectors.
-   * @property {any[]} [vectors.future] - Future intent vectors.
-   * @property {any[]|Object} [signals] - Atmospheric signals.
-   * @property {any[]} [deltas] - State deltas.
+   * @property {Object} [updates] - Normalized per-entity state updates (new shape).
+   * @property {Object} [ai] - AI character state (legacy).
+   * @property {Object} [dynamics] - Dynamic simulation state (legacy).
+   * @property {Object} [snapshot] - State snapshot (legacy).
+   * @property {Object} [snapshot.ai] - AI snapshot (legacy).
+   * @property {Object} [snapshot.fractal] - Fractal snapshot (legacy).
+   * @property {Object} [fractal] - Fractal entity state (legacy).
+   * @property {Object} [fractal_dynamics] - Fractal dynamic state (legacy).
+   * @property {Object} [vectors] - Narrative vectors (legacy).
+   * @property {any[]} [vectors.past] - Past memory vectors (legacy).
+   * @property {any[]} [vectors.future] - Future intent vectors (legacy).
+   * @property {any[]} [deltas] - State deltas (legacy).
    */
   /**
    * @typedef {Object} Props
@@ -31,59 +31,85 @@
   /** @type {Props} */
   let { meta = {} } = $props();
 
-  let ai = $derived(meta.ai || meta.dynamics || meta.snapshot?.ai || {});
-  let fractal = $derived(meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {});
   let vectors = $derived({
     past: meta.vectors?.past || [],
     future: meta.vectors?.future || [],
   });
-  let mutations = $derived(meta.mutations || null);
-  let signals = $derived(Array.isArray(meta.signals) ? meta.signals : Object.keys(meta.signals || {}));
-  let deltas = $derived(meta.deltas || []);
-  let signal_prompts = $derived.by(() => {
-    const raw = meta.signal_prompts;
-    if (!raw) return [];
-    if (Array.isArray(raw)) {
-      return raw.map((s, i) => ({
-        key: typeof s === "object" ? s?.key || s?.id || `prompt-${i}` : `prompt-${i}`,
-        text: typeof s === "object" ? s?.prompt || s?.text || JSON.stringify(s) : String(s),
-      }));
-    }
-    return Object.entries(raw).map(([k, v]) => ({
-      key: k,
-      text: typeof v === "object" ? v?.prompt || v?.text || JSON.stringify(v) : String(v),
-    }));
-  });
-  let active_dynamics = $derived(Array.from(new Set([...signals, ...deltas.flatMap((d) => (d?.cause ? d.cause.split(", ") : []))])));
-  let has_explicit_deltas = $derived(Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA");
-
-  let changed_ai = $derived.by(() => {
-    return Object.entries(ai).filter(([axis]) => {
-      if (!has_explicit_deltas) return true;
-      const delta = get_delta("ai", axis);
-      return delta && delta.diff !== 0;
-    });
-  });
-
-  let changed_fractal = $derived.by(() => {
-    return Object.entries(fractal).filter(([axis]) => {
-      if (!has_explicit_deltas) return true;
-      const delta = get_delta("fractal", axis);
-      return delta && delta.diff !== 0;
-    });
-  });
 
   let entity_blocks = $derived.by(() => {
     const mutation_keys = { ai: "AI_CHARACTER", fractal: "FRACTAL", user: "USER_PERSONA" };
+
+    // NEW shape: { type, updates: { AI_CHARACTER | USER_PERSONA | FRACTAL: { name, present_mutations, eternal_mutations, vectors, dynamics } } }
+    if (meta.updates && typeof meta.updates === "object") {
+      const blocks = [];
+      for (const [target, mutation_key] of Object.entries(mutation_keys)) {
+        const upd = meta.updates[mutation_key];
+        if (!upd) continue;
+        const dynamics = (Array.isArray(upd.dynamics) ? upd.dynamics : []).map((d) => ({
+          axis: d.axis,
+          value: d.new_value,
+          old_value: d.old_value,
+          new_value: d.new_value,
+          diff: d.diff,
+          has_delta: true,
+        }));
+        const new_vectors = (Array.isArray(upd.vectors?.new) ? upd.vectors.new : []).map((v) => ({
+          type: v.type || "future",
+          weight: v.emotional_weight ?? v.weight ?? 5,
+          id: v.id,
+          content: v.content || v.directive || "",
+        }));
+        const retrieval = (Array.isArray(upd.vectors?.retrieval) ? upd.vectors.retrieval : []).map((v) => ({
+          type: v.type || "past",
+          id: v.id,
+          content: v.content || v.directive || "",
+          relevance: v._relevance,
+        }));
+        const physical = upd.present_mutations?.physical || "";
+        const non_physical = upd.present_mutations?.non_physical || "";
+        const has_dynamics = dynamics.length > 0;
+        const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0 || retrieval.length > 0);
+        if (has_dynamics || has_mods) {
+          blocks.push({ key: target, name: upd.name, dynamics, physical, non_physical, new_vectors, retrieval, has_dynamics, has_mods });
+        }
+      }
+      return blocks;
+    }
+
+    // LEGACY shape fallback: { type, entities, deltas, mutations, vectors } etc.
+    const ai = meta.entities?.ai?.dynamics || meta.ai || meta.dynamics || meta.snapshot?.ai || {};
+    const fractal = meta.entities?.fractal?.dynamics || meta.fractal || meta.fractal_dynamics || meta.snapshot?.fractal || {};
+    const deltas = meta.deltas || [];
+    const has_explicit_deltas = Array.isArray(meta.deltas) || meta.type === "DYNAMICS_DELTA";
+    const find_delta = (target, axis) => deltas.find((d) => d?.target === target && d?.axis === axis);
     const blocks = [];
-    const consider = (key, entries) => {
-      const mods = mutations?.[mutation_keys[key]] || null;
-      const has_mods = mods && (mods.present_append_physical?.trim() || mods.present_append_non_physical?.trim());
-      if (entries.length > 0 || has_mods) blocks.push({ key, entries, mods: has_mods ? mods : null });
+    const consider = (target, dynamics_map) => {
+      const entries = Object.entries(dynamics_map).filter(([axis]) => {
+        if (!has_explicit_deltas) return true;
+        const d = find_delta(target, axis);
+        return d && d.diff !== 0;
+      });
+      const dynamics = entries.map(([axis, val]) => {
+        const d = find_delta(target, axis);
+        return { axis, value: val, old_value: d?.old_val, new_value: d ? d.new_val : val, diff: d?.diff, has_delta: !!d };
+      });
+      const mods = meta.mutations?.[mutation_keys[target]] || null;
+      const new_vectors = (Array.isArray(mods?.new_vectors) ? mods.new_vectors : []).map((v) => ({
+        type: v.type || "future",
+        weight: v.weight ?? v.emotional_weight ?? 5,
+        id: v.id,
+        content: v.content || v.directive || "",
+      }));
+      const physical = mods?.present_append_physical || "";
+      const non_physical = mods?.present_append_non_physical || "";
+      const has_dynamics = dynamics.length > 0;
+      const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0);
+      if (has_dynamics || has_mods)
+        blocks.push({ key: target, name: null, dynamics, physical, non_physical, new_vectors, retrieval: [], has_dynamics, has_mods });
     };
-    consider("ai", changed_ai);
-    consider("fractal", changed_fractal);
-    consider("user", []);
+    consider("ai", ai);
+    consider("fractal", fractal);
+    consider("user", {});
     return blocks;
   });
 
@@ -92,23 +118,11 @@
     return Math.max(0, Math.min(100, Math.round(val || 50)));
   }
 
-  /**
-   * @param {string} target
-   * @param {string} axis
-   * @returns {any}
-   */
-  function get_delta(target, axis) {
-    return deltas.find((d) => d?.target === target && d?.axis === axis);
-  }
-
-  function get_explanation(signal_id) {
-    const prompt = signal_prompts.find((sp) => sp.key === signal_id);
-    return prompt ? `${signal_id}: ${prompt.text}` : `Active Signal: ${signal_id}`;
-  }
-
   const get_entity_name = (key) => {
-    if (key === "ai" || key === "AI_CHARACTER") return meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
-    if (key === "fractal" || key === "FRACTAL") return meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
+    if (key === "ai" || key === "AI_CHARACTER")
+      return meta.entities?.ai?.name || meta.ai_name || meta.snapshot?.ai?.name || runtime.active_ai?.name || "AI CHARACTER";
+    if (key === "fractal" || key === "FRACTAL")
+      return meta.entities?.fractal?.name || meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
     if (key === "user" || key === "USER_PERSONA") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
     return key;
   };
@@ -250,28 +264,10 @@
                         >
                         <span
                           class="
-                          rounded-full
-                          border
-                          border-(--state-dev-accent)/20
-                          px-2
-                          py-0.5
                           font-mono
-                          text-xs
+                          text-(--state-dev-accent)
                           uppercase
-                          {v.type === 'future' ? 'text-(--state-dev-accent)' : v.type === 'present' ? 'text-slate-50' : 'text-slate-400'}
                         ">{v.type || "past"}</span
-                        >
-                        <span
-                          class="
-                          rounded-full
-                          bg-white/5
-                          px-2
-                          py-0.5
-                          font-mono
-                          text-xs
-                          text-slate-400
-                        "
-                          title="emotional weight">w{v.emotional_weight}</span
                         >
                       </div>
                       <span
@@ -380,41 +376,58 @@
         {:else}
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
 
+          {#if meta.thoughts}
+            <div class="flex flex-col gap-2">
+              <header class="mb-2 border-b border-(--state-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
+                Thoughts
+              </header>
+              <div
+                class="rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-50"
+              >
+                {meta.thoughts}
+              </div>
+            </div>
+          {/if}
+
+          {#if meta.trigger_image === true}
+            <div class="flex items-center gap-2 rounded-sm border border-(--state-dev-accent)/40 bg-(--state-dev-accent)/10 px-3 py-2">
+              <span class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"></span>
+              <span class="font-mono text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">Trigger Image</span>
+            </div>
+          {/if}
+
           <!-- [T] PER-ENTITY STATE CHANGES -->
           {#if entity_blocks.length > 0}
             <div class="flex flex-col gap-6">
               {#each entity_blocks as block (block.key)}
                 <div class="flex flex-col gap-2">
                   <header class="mb-2 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
-                    {get_entity_name(block.key)}
+                    {block.name || get_entity_name(block.key)}
                   </header>
-                  {#if block.entries.length > 0}
+                  {#if block.dynamics.length > 0}
                     <div class="grid grid-cols-2 gap-4">
-                      {#each block.entries as [axis, val] (axis)}
-                        {@const delta = get_delta(block.key, axis)}
+                      {#each block.dynamics as delta (delta.axis)}
+                        {@const fill_width = delta.has_delta ? Math.min(get_pct(delta.old_value), get_pct(delta.new_value)) : get_pct(delta.value)}
+                        {@const delta_width = delta.has_delta ? Math.abs(get_pct(delta.new_value) - get_pct(delta.old_value)) : 0}
                         <div class="flex items-center justify-between gap-4">
-                          <span class="min-w-20 text-xs text-slate-400 lowercase">{axis}</span>
+                          <span class="min-w-20 text-xs text-slate-400 lowercase">{delta.axis}</span>
                           <div class="flex flex-1 items-center gap-4">
                             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
                                 class="absolute h-full transition-all duration-300"
-                                style="left: 0%; width: {delta
-                                  ? Math.min(get_pct(delta.old_val), get_pct(delta.new_val))
-                                  : get_pct(val)}%; background: var(--state-dev-accent);"
+                                style="left: 0%; width: {fill_width}%; background: var(--state-dev-accent);"
                               ></div>
-                              {#if delta}
+                              {#if delta.has_delta}
                                 <div
                                   class="absolute z-10 h-full opacity-40 transition-all duration-300"
-                                  style="left: {Math.min(get_pct(delta.old_val), get_pct(delta.new_val))}%; width: {Math.abs(
-                                    get_pct(delta.new_val) - get_pct(delta.old_val),
-                                  )}%; background: var(--state-dev-accent);"
+                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--state-dev-accent);"
                                 ></div>
                               {/if}
                             </div>
                             <div class="flex flex-col items-end gap-0.5">
                               <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
-                                <span class="text-slate-50">{get_pct(val)}</span>
-                                {#if delta}
+                                <span class="text-slate-50">{delta.has_delta ? get_pct(delta.new_value) : get_pct(delta.value)}</span>
+                                {#if delta.has_delta}
                                   <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
                                     ({delta.diff > 0 ? "+" : ""}{delta.diff})
                                   </span>
@@ -425,25 +438,63 @@
                         </div>
                       {/each}
                     </div>
-                  {:else if !block.mods}
+                  {:else if !block.has_mods}
                     <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
                   {/if}
-                  {#if block.mods}
+                  {#if block.physical.trim() || block.non_physical.trim() || block.new_vectors.length > 0 || block.retrieval?.length > 0}
                     <div class="flex flex-col gap-2 pt-1">
-                      {#if block.mods.present_append_physical?.trim()}
+                      {#if block.physical.trim()}
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
                           <span class="font-mono text-(--state-dev-accent)">PHYSICAL</span>
-                          <span class="text-slate-50">{block.mods.present_append_physical}</span>
+                          <span class="text-slate-50">{block.physical}</span>
                         </div>
                       {/if}
-                      {#if block.mods.present_append_non_physical?.trim()}
+                      {#if block.non_physical.trim()}
                         <div
                           class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
                           <span class="font-mono text-(--state-dev-accent)">NON-PHYSICAL</span>
-                          <span class="text-slate-50">{block.mods.present_append_non_physical}</span>
+                          <span class="text-slate-50">{block.non_physical}</span>
+                        </div>
+                      {/if}
+                      {#if block.new_vectors.length > 0}
+                        <div class="flex flex-col gap-2 pt-1">
+                          {#each block.new_vectors as nv, i (i)}
+                            <div
+                              class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                            >
+                              <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-mono text-(--state-dev-accent) uppercase">{nv.type || "future"}</span>
+                                {#if nv.id}
+                                  <span class="font-mono text-xs text-slate-500">{nv.id}</span>
+                                {/if}
+                              </div>
+                              <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{nv.content}</span>
+                            </div>
+                          {/each}
+                        </div>
+                      {/if}
+                      {#if block.retrieval?.length > 0}
+                        <div class="flex flex-col gap-2 pt-1">
+                          <span class="font-mono text-xs tracking-widest text-slate-500 uppercase">Retrieved</span>
+                          {#each block.retrieval as rv (rv.id || rv.content)}
+                            <div
+                              class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-500 bg-black/20 px-3 py-3 text-xs leading-relaxed"
+                            >
+                              <div class="flex flex-wrap items-center gap-2">
+                                <span class="font-mono text-(--state-dev-accent) uppercase">{rv.type || "past"}</span>
+                                {#if rv.id}
+                                  <span class="font-mono text-xs text-slate-500">{rv.id}</span>
+                                {/if}
+                                {#if rv.relevance != null}
+                                  <span class="font-mono text-xs text-slate-400">{rv.relevance.toFixed(1)}</span>
+                                {/if}
+                              </div>
+                              <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{rv.content}</span>
+                            </div>
+                          {/each}
                         </div>
                       {/if}
                     </div>
@@ -451,7 +502,7 @@
                 </div>
               {/each}
             </div>
-          {:else if Object.keys(ai).length > 0 || Object.keys(fractal).length > 0 || meta.type === "DYNAMICS_DELTA"}
+          {:else if meta.type === "DYNAMICS_DELTA"}
             <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
           {/if}
 
@@ -615,51 +666,6 @@
                   {/each}
                 </div>
               </div>
-            </div>
-          {/if}
-
-          <!-- [!] ACTIVE DYNAMICS -->
-          {#if active_dynamics.length > 0}
-            <div class="pt-4">
-              <div
-                class="
-                flex
-                flex-wrap
-                gap-4
-              "
-              >
-                {#each active_dynamics as signal (signal)}
-                  <span
-                    use:tooltip={get_explanation(signal)}
-                    class="
-                    cursor-default
-                    rounded-full
-                    border
-                    border-(--state-dev-accent)/15
-                    bg-white/5
-                    p-2
-                    font-mono
-                    text-xs
-                    text-(--state-dev-accent)
-                    uppercase
-                  ">{signal}</span
-                  >
-                {/each}
-              </div>
-            </div>
-          {/if}
-          {#if signal_prompts.length > 0}
-            <div class="flex flex-col gap-2 pt-4">
-              <header class="mb-2 border-b border-(--state-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
-                SIGNAL PROMPTS
-              </header>
-              {#each signal_prompts as sp (sp.key)}
-                <div
-                  class="rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent)/60 bg-black/40 px-3 py-2 font-mono text-xs leading-relaxed text-slate-50"
-                >
-                  {sp.text}
-                </div>
-              {/each}
             </div>
           {/if}
         {/if}

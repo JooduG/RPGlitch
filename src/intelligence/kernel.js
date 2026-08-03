@@ -128,25 +128,98 @@ function validate_and_repair_response(response) {
  * @param {string} target
  * @param {Record<string, number>} dynamics
  * @param {any} runtimeTarget
- * @param {any} contributors
- * @param {string} contributorPrefix
  * @param {any[]} deltas
  * @param {string[]} log_strings
  */
-function compute_deltas(target, dynamics, runtimeTarget, contributors, contributorPrefix, deltas, log_strings) {
+function compute_deltas(target, dynamics, runtimeTarget, deltas, log_strings) {
   Object.entries(dynamics).forEach(([axis, val]) => {
-    const old_val = /** @type {any} */ (runtimeTarget)?.[axis] ?? 50;
-    const diff = val - old_val;
+    const old_value = /** @type {any} */ (runtimeTarget)?.[axis] ?? 50;
+    const diff = val - old_value;
     if (diff !== 0) {
-      let cause = contributors?.[`${contributorPrefix}.${axis}`]?.join(", ") || "GM";
-      if (cause === "GM") cause = null;
-
-      deltas.push({ axis, target, old_val, new_val: val, diff, cause });
+      deltas.push({ axis, target, old_value, new_value: val, diff });
 
       const capitalized_axis = axis.charAt(0).toUpperCase() + axis.slice(1);
       log_strings.push(`${capitalized_axis} ${diff > 0 ? "+" : ""}${diff}`);
     }
   });
+}
+
+/**
+ * Builds one entity's normalized `updates` block for telemetry. Director fields
+ * are renamed/merged into the display shape: `present_append_physical` /
+ * `present_append_non_physical` → `present_mutations.{physical,non_physical}`,
+ * `new_vectors` keep `content`/`type` but their `weight` becomes
+ * `emotional_weight`, `resolve_vectors` → `vectors.resolved`, `dynamics_deltas`
+ * is dropped (the computed `dynamics` array already carries old/new/diff per
+ * axis). Returns null when the entity carries no content so the dump stays lean.
+ * @param {string|null} name
+ * @param {any} mutations
+ * @param {any[]} dynamics
+ * @param {any[]} retrieval
+ * @returns {any}
+ */
+function build_update_entry(name, mutations, dynamics, retrieval) {
+  const entry = {};
+  if (name) entry.name = name;
+  entry.present_mutations = {
+    physical: mutations?.present_append_physical || "",
+    non_physical: mutations?.present_append_non_physical || "",
+  };
+  entry.eternal_mutations = {
+    physical: mutations?.eternal_mutations?.physical || "",
+    non_physical: mutations?.eternal_mutations?.non_physical || "",
+  };
+  entry.vectors = {
+    resolved: Array.isArray(mutations?.resolve_vectors) ? mutations.resolve_vectors : [],
+    new: (Array.isArray(mutations?.new_vectors) ? mutations.new_vectors : []).map((v) => {
+      const copy = { ...(v || {}) };
+      copy.content = (copy.content || copy.directive || "").trim();
+      delete copy.directive;
+      copy.emotional_weight = copy.emotional_weight ?? copy.weight ?? 5;
+      delete copy.weight;
+      return copy;
+    }),
+  };
+  if (retrieval?.length) entry.vectors.retrieval = retrieval;
+  if (dynamics?.length) entry.dynamics = dynamics;
+
+  const has_content =
+    (dynamics?.length || 0) > 0 ||
+    entry.present_mutations.physical.trim() ||
+    entry.present_mutations.non_physical.trim() ||
+    entry.eternal_mutations.physical.trim() ||
+    entry.eternal_mutations.non_physical.trim() ||
+    entry.vectors.resolved.length > 0 ||
+    entry.vectors.new.length > 0 ||
+    (entry.vectors.retrieval?.length || 0) > 0;
+  return has_content ? entry : null;
+}
+
+/**
+ * Normalizes scored retrieval vectors into the telemetry shape: past + future
+ * merged, sorted by `_relevance` descending, internal embedding/scoring fields
+ * stripped so the raw-meta dump stays readable (embeddings are 384-dim
+ * Float32Arrays that JSON.stringify would expand into thousands of keys).
+ * @param {any} vectors
+ * @returns {any[]}
+ */
+function build_retrieval(vectors) {
+  const clean = (v, fallback_type) => {
+    if (!v || typeof v !== "object") return null;
+    const copy = { ...v };
+    delete copy._embedding;
+    delete copy._semantic_score;
+    delete copy._recency_factor;
+    copy.type = copy.type || fallback_type;
+    copy.content = (copy.content || copy.directive || "").trim();
+    delete copy.directive;
+    copy.emotional_weight = copy.emotional_weight ?? copy.weight ?? 5;
+    delete copy.weight;
+    return copy;
+  };
+  const past = (vectors?.past || []).map((v) => clean(v, "past"));
+  const future = (vectors?.future || []).map((v) => clean(v, "future"));
+  return [...past, ...future].filter(Boolean).sort((a, b) => (b._relevance ?? -Infinity) - (a._relevance ?? -Infinity));
 }
 
 export const gamemaster = {
@@ -161,31 +234,48 @@ export const gamemaster = {
     const log_strings = [];
 
     if (snapshot.ai?.dynamics) {
-      compute_deltas("ai", snapshot.ai.dynamics, state_bridge.runtime.ai, snapshot.contributors, "AI", deltas, log_strings);
+      compute_deltas("ai", snapshot.ai.dynamics, state_bridge.runtime.ai, deltas, log_strings);
     }
 
     if (snapshot.fractal?.dynamics) {
-      compute_deltas("fractal", snapshot.fractal.dynamics, state_bridge.runtime.fractal, snapshot.contributors, "FRACTAL", deltas, log_strings);
+      compute_deltas("fractal", snapshot.fractal.dynamics, state_bridge.runtime.fractal, deltas, log_strings);
     }
 
-    const active_signals = Object.keys(snapshot.signals || {});
-
     if (deltas.length > 0 || meta) {
+      const mutations = meta?.mutations || {};
+      const retrieval = build_retrieval(meta?.vectors);
+      const dynamics_for = (target) =>
+        deltas.filter((d) => d.target === target).map(({ axis, old_value, new_value, diff }) => ({ axis, old_value, new_value, diff }));
+
+      const updates = {};
+
+      const ai_entry = build_update_entry(
+        snapshot.ai?.name || state_bridge.runtime.active_ai?.name,
+        mutations.AI_CHARACTER,
+        dynamics_for("ai"),
+        retrieval,
+      );
+      if (ai_entry) updates.AI_CHARACTER = ai_entry;
+
+      const user_entry = build_update_entry(state_bridge.runtime.active_user?.name, mutations.USER_PERSONA, [], []);
+      if (user_entry) updates.USER_PERSONA = user_entry;
+
+      const fractal_entry = build_update_entry(
+        snapshot.fractal?.name || state_bridge.runtime.active_fractal?.name,
+        mutations.FRACTAL,
+        dynamics_for("fractal"),
+        [],
+      );
+      if (fractal_entry) updates.FRACTAL = fractal_entry;
+
       await state_bridge.session_driver.log_system_entry(
         log_strings.length > 0 ? log_strings.join(" | ") : "Simulation Telemetry Snapshot",
         "system",
         {
           type: "DYNAMICS_DELTA",
-          deltas,
-          ai: snapshot.ai?.dynamics,
-          ai_name: snapshot.ai?.name || state_bridge.runtime.active_ai?.name,
-          fractal: snapshot.fractal?.dynamics,
-          fractal_name: snapshot.fractal?.name || state_bridge.runtime.active_fractal?.name,
-          vectors: meta?.vectors,
-          mutations: meta?.mutations,
-          signals: active_signals,
-          signal_prompts: meta?.signal_prompts,
-          flags: meta?.flags,
+          trigger_image: meta?.trigger_image === true,
+          ...(meta?.thoughts ? { thoughts: meta.thoughts } : {}),
+          updates,
         },
       );
     }
@@ -242,8 +332,6 @@ export const gamemaster = {
         ai: { dynamics: { ...(state_bridge.runtime.ai || {}) } },
         fractal: { dynamics: { ...(state_bridge.runtime.fractal || {}) } },
         flags: [],
-        signals: {},
-        signal_prompts: [],
       };
 
       dynamics_engine.settle_physics(
@@ -348,9 +436,21 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
-      final_meta.flags = snapshot.flags;
-      final_meta.signals = snapshot.signals;
       final_meta.mutations = director_data.mutations;
+      final_meta.trigger_image = director_data.trigger_image === true;
+
+      const clean_think = (t) =>
+        String(t || "")
+          .replace(/<\/?think>/gi, "")
+          .trim();
+      const think_sections = [];
+      if (director_data.internal_monologue) think_sections.push(`## Cognition\n${clean_think(director_data.internal_monologue)}`);
+      if (director_data.intent) think_sections.push(`## Intent\n${clean_think(director_data.intent)}`);
+      if (director_data.somatic_tells) think_sections.push(`## Somatic Tells\n${clean_think(director_data.somatic_tells)}`);
+      if (director_data.dialogue_direction) think_sections.push(`## Dialogue Direction\n${clean_think(director_data.dialogue_direction)}`);
+      if (director_data._thought_process) think_sections.push(`## Reasoning\n${clean_think(director_data._thought_process)}`);
+      const think_content = think_sections.join("\n\n");
+      if (think_content) final_meta.thoughts = think_content;
 
       await this.capture_dynamics_delta(snapshot, final_meta);
 
@@ -361,26 +461,7 @@ export const gamemaster = {
       state_bridge.app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
       state_bridge.runtime.turn_type = "AI_TURN";
 
-      let director_monologue = "";
-      if (director_data.internal_monologue) {
-        const clean_monologue = String(director_data.internal_monologue)
-          .replace(/<\/?think>/gi, "")
-          .trim();
-        let think_content = `## Cognition\n${clean_monologue}`;
-        if (director_data.intent)
-          think_content += `\n\n## Intent\n${String(director_data.intent)
-            .replace(/<\/?think>/gi, "")
-            .trim()}`;
-        if (director_data.somatic_tells)
-          think_content += `\n\n## Somatic Tells\n${String(director_data.somatic_tells)
-            .replace(/<\/?think>/gi, "")
-            .trim()}`;
-        if (director_data.dialogue_direction)
-          think_content += `\n\n## Dialogue Direction\n${String(director_data.dialogue_direction)
-            .replace(/<\/?think>/gi, "")
-            .trim()}`;
-        director_monologue = `<think>\n${think_content}\n</think>\n\n`;
-      }
+      let director_monologue = director_data.internal_monologue && think_content ? `<think>\n${think_content}\n</think>\n\n` : "";
 
       if (director_monologue) {
         state_bridge.app.streaming.content = director_monologue;

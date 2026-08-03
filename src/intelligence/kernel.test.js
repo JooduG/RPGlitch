@@ -153,10 +153,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
       const snapshot = {
         ai: { dynamics: { intensity: 60 } }, // +10 from runtime
         fractal: { dynamics: { entropy: 40 } }, // -10 from runtime
-        contributors: {
-          "AI.intensity": ["TEST_CAUSE"],
-        },
-        signals: { SIGNAL_1: true },
       };
 
       await gamemaster.capture_dynamics_delta(snapshot);
@@ -166,16 +162,189 @@ describe("gamemaster (Intelligence Kernel)", () => {
         "system",
         expect.objectContaining({
           type: "DYNAMICS_DELTA",
-          deltas: expect.arrayContaining([
-            expect.objectContaining({
-              axis: "intensity",
-              target: "ai",
-              diff: 10,
-              cause: "TEST_CAUSE",
+          updates: expect.objectContaining({
+            AI_CHARACTER: expect.objectContaining({
+              name: "Viper",
+              present_mutations: { physical: "", non_physical: "" },
+              eternal_mutations: { physical: "", non_physical: "" },
+              vectors: { resolved: [], new: [] },
+              dynamics: expect.arrayContaining([
+                expect.objectContaining({
+                  axis: "intensity",
+                  old_value: 50,
+                  new_value: 60,
+                  diff: 10,
+                }),
+              ]),
             }),
-            expect.objectContaining({ axis: "entropy", target: "fractal", diff: -10, cause: null }),
-          ]),
-          signals: ["SIGNAL_1"],
+            FRACTAL: expect.objectContaining({
+              name: "Void",
+              dynamics: expect.arrayContaining([expect.objectContaining({ axis: "entropy", old_value: 50, new_value: 40, diff: -10 })]),
+            }),
+          }),
+        }),
+      );
+    });
+
+    it("logs the normalized updates shape (renames, merges, retrieval sorting)", async () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 60 } },
+        fractal: { dynamics: { entropy: 40 } },
+      };
+      const meta = {
+        mutations: {
+          AI_CHARACTER: {
+            present_append_physical: "torn coat",
+            present_append_non_physical: "quiet fury",
+            dynamics_deltas: { intensity: 10 },
+            resolve_vectors: [{ id: "v-old", resolution_summary: "Resolved" }],
+            new_vectors: [{ content: "A vow to the storm", type: "future", weight: 5 }],
+            eternal_mutations: { physical: "scar", non_physical: "" },
+          },
+        },
+        vectors: {
+          past: [
+            {
+              id: "v1",
+              directive: "m",
+              type: "past",
+              emotional_weight: 7,
+              _embedding: new Float32Array(384),
+              _semantic_score: 0.5,
+              _recency_factor: 0.9,
+              _relevance: 3.2,
+            },
+          ],
+          future: [{ id: "v2", directive: "goal", type: "future", emotional_weight: 9, _relevance: 8.1 }],
+        },
+      };
+
+      await gamemaster.capture_dynamics_delta(snapshot, meta);
+
+      expect(session_driver.log_system_entry).toHaveBeenCalledWith(
+        expect.stringContaining("Intensity +10"),
+        "system",
+        expect.objectContaining({
+          updates: expect.objectContaining({
+            AI_CHARACTER: expect.objectContaining({
+              name: "Viper",
+              present_mutations: { physical: "torn coat", non_physical: "quiet fury" },
+              eternal_mutations: { physical: "scar", non_physical: "" },
+              vectors: expect.objectContaining({
+                resolved: [{ id: "v-old", resolution_summary: "Resolved" }],
+                new: [{ content: "A vow to the storm", type: "future", emotional_weight: 5 }],
+                retrieval: [
+                  { id: "v2", content: "goal", type: "future", emotional_weight: 9, _relevance: 8.1 },
+                  { id: "v1", content: "m", type: "past", emotional_weight: 7, _relevance: 3.2 },
+                ],
+              }),
+            }),
+          }),
+        }),
+      );
+    });
+
+    it("includes USER_PERSONA only when it has mutations content", async () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 60 } },
+        fractal: { dynamics: { entropy: 40 } },
+      };
+      _mock_runtime.active_user = { name: "Glitch" };
+      const meta = {
+        mutations: {
+          USER_PERSONA: {
+            present_append_non_physical: "His heart hammers against his ribs.",
+            new_vectors: [{ content: "Attempt to hack the blast doors open.", type: "future", weight: 6 }],
+          },
+        },
+      };
+
+      await gamemaster.capture_dynamics_delta(snapshot, meta);
+
+      expect(session_driver.log_system_entry).toHaveBeenCalledWith(
+        expect.any(String),
+        "system",
+        expect.objectContaining({
+          updates: expect.objectContaining({
+            AI_CHARACTER: expect.objectContaining({ dynamics: expect.any(Array) }),
+            USER_PERSONA: expect.objectContaining({
+              name: "Glitch",
+              present_mutations: { physical: "", non_physical: "His heart hammers against his ribs." },
+              vectors: expect.objectContaining({
+                new: [{ content: "Attempt to hack the blast doors open.", type: "future", emotional_weight: 6 }],
+              }),
+            }),
+            FRACTAL: expect.objectContaining({ dynamics: expect.any(Array) }),
+          }),
+        }),
+      );
+      _mock_runtime.active_user = null;
+    });
+
+    it("includes thoughts and trigger_image in the telemetry payload", async () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 60 } },
+        fractal: { dynamics: { entropy: 40 } },
+      };
+      const meta = {
+        trigger_image: true,
+        thoughts: "## Cognition\nHe plans the ambush.\n\n## Reasoning\nThe attack must stay silent.",
+        mutations: {
+          AI_CHARACTER: {
+            new_vectors: [{ id: "valerius-f3", content: " Corner Glitch against the sterile walls.", type: "future", weight: 8 }],
+          },
+        },
+      };
+
+      await gamemaster.capture_dynamics_delta(snapshot, meta);
+
+      expect(session_driver.log_system_entry).toHaveBeenCalledWith(
+        expect.any(String),
+        "system",
+        expect.objectContaining({
+          type: "DYNAMICS_DELTA",
+          trigger_image: true,
+          thoughts: "## Cognition\nHe plans the ambush.\n\n## Reasoning\nThe attack must stay silent.",
+          updates: expect.objectContaining({
+            AI_CHARACTER: expect.objectContaining({
+              vectors: expect.objectContaining({
+                new: [expect.objectContaining({ id: "valerius-f3", content: "Corner Glitch against the sterile walls.", emotional_weight: 8 })],
+              }),
+            }),
+          }),
+        }),
+      );
+    });
+
+    it("defaults trigger_image to false and stamps retrieval vectors with their source type", async () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 60 } },
+        fractal: { dynamics: { entropy: 40 } },
+      };
+      const meta = {
+        vectors: {
+          past: [{ id: "v1", directive: "exiled from court", type: "past", emotional_weight: 10, _relevance: 10.9 }],
+          future: [{ id: "v2", directive: "corner Glitch", emotional_weight: 8, _relevance: 8.1 }],
+        },
+      };
+
+      await gamemaster.capture_dynamics_delta(snapshot, meta);
+
+      expect(session_driver.log_system_entry).toHaveBeenCalledWith(
+        expect.any(String),
+        "system",
+        expect.objectContaining({
+          trigger_image: false,
+          updates: expect.objectContaining({
+            AI_CHARACTER: expect.objectContaining({
+              vectors: expect.objectContaining({
+                retrieval: [
+                  { id: "v1", content: "exiled from court", type: "past", emotional_weight: 10, _relevance: 10.9 },
+                  { id: "v2", content: "corner Glitch", type: "future", emotional_weight: 8, _relevance: 8.1 },
+                ],
+              }),
+            }),
+          }),
         }),
       );
     });
@@ -221,7 +390,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
         ai: {},
         fractal: {},
         flags: [],
-        signals: {},
         vectors: { past: [], future: [] },
       },
     });
@@ -261,7 +429,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
     vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
       system: "C",
       task: "T",
-      meta: { ai: {}, fractal: {}, flags: [], signals: {}, vectors: { past: [], future: [] } },
+      meta: { ai: {}, fractal: {}, flags: [], vectors: { past: [], future: [] } },
     });
     vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
 
@@ -326,7 +494,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
           ai: {},
           fractal: {},
           flags: [],
-          signals: {},
           vectors: { past: [], future: [] },
         },
       });
@@ -457,7 +624,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
           ai: { intensity: 50 },
           fractal: { entropy: 50 },
           flags: [],
-          signals: {},
           vectors: { past: [], future: [] },
         },
       });
@@ -511,6 +677,30 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
       expect(call_count).toBe(2);
+    });
+
+    it("surfaces director thoughts and trigger_image through the telemetry payload", async () => {
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(
+          JSON.stringify({
+            _thought_process: "The room is a trap and the doors are sealed.",
+            trigger_image: true,
+            mutations: {
+              AI_CHARACTER: {
+                new_vectors: [{ content: " corner Glitch against the sterile walls.", type: "future", weight: 8 }],
+              },
+            },
+          }),
+        )
+        .mockResolvedValueOnce("Identified.");
+
+      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      const payload = session_driver.log_system_entry.mock.calls[0][2];
+      expect(payload.trigger_image).toBe(true);
+      expect(payload.thoughts).toContain("## Reasoning");
+      expect(payload.thoughts).toContain("The room is a trap and the doors are sealed.");
+      expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
     });
 
     it("handles invalid JSON or missing brackets from Director by falling back to raw internal_monologue", async () => {

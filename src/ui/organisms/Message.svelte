@@ -516,7 +516,7 @@
         {/if}
         {#if !should_use_typewriter}
           {#if app.settings.dev_mode}
-            {#if meta && (meta.dynamics || meta.vectors || meta.deltas)}
+            {#if meta && (meta.dynamics || meta.vectors || meta.deltas || meta.updates)}
               <div class="mb-4">
                 <DevTelemetryBlock {meta} />
               </div>
