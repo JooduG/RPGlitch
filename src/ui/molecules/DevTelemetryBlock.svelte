@@ -67,10 +67,31 @@
         }));
         const physical = upd.present_mutations?.physical || "";
         const non_physical = upd.present_mutations?.non_physical || "";
+        const eternal_physical = upd.eternal_mutations?.physical || "";
+        const eternal_non_physical = upd.eternal_mutations?.non_physical || "";
         const has_dynamics = dynamics.length > 0;
-        const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0 || retrieval.length > 0);
+        const has_mods = !!(
+          physical.trim() ||
+          non_physical.trim() ||
+          eternal_physical.trim() ||
+          eternal_non_physical.trim() ||
+          new_vectors.length > 0 ||
+          retrieval.length > 0
+        );
         if (has_dynamics || has_mods) {
-          blocks.push({ key: target, name: upd.name, dynamics, physical, non_physical, new_vectors, retrieval, has_dynamics, has_mods });
+          blocks.push({
+            key: target,
+            name: upd.name,
+            dynamics,
+            physical,
+            non_physical,
+            eternal_physical,
+            eternal_non_physical,
+            new_vectors,
+            retrieval,
+            has_dynamics,
+            has_mods,
+          });
         }
       }
       return blocks;
@@ -105,7 +126,19 @@
       const has_dynamics = dynamics.length > 0;
       const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0);
       if (has_dynamics || has_mods)
-        blocks.push({ key: target, name: null, dynamics, physical, non_physical, new_vectors, retrieval: [], has_dynamics, has_mods });
+        blocks.push({
+          key: target,
+          name: null,
+          dynamics,
+          physical,
+          non_physical,
+          eternal_physical: "",
+          eternal_non_physical: "",
+          new_vectors,
+          retrieval: [],
+          has_dynamics,
+          has_mods,
+        });
     };
     consider("ai", ai);
     consider("fractal", fractal);
@@ -125,6 +158,19 @@
       return meta.entities?.fractal?.name || meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
     if (key === "user" || key === "USER_PERSONA") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
     return key;
+  };
+
+  /**
+   * Human-readable label for a memory/vector type.
+   * @param {string} [type]
+   * @param {string} [fallback]
+   * @returns {string}
+   */
+  const vector_label = (type, fallback) => {
+    const t = type || fallback;
+    if (t === "future") return "FUTURE VECTOR";
+    if (t === "past") return "PAST MEMORY";
+    return String(t).toUpperCase();
   };
 </script>
 
@@ -215,7 +261,6 @@
               >
                 <header
                   class="
-                  mb-2
                   border-b
                   border-(--state-dev-accent)/20
                   pb-1
@@ -227,7 +272,7 @@
                   
                 "
                 >
-                  NEWLY_WEAVED_MEMORIES
+                  NEWLY FORGED MEMORIES
                 </header>
                 <div
                   class="
@@ -259,15 +304,15 @@
                         <span
                           class="
                           font-mono
-                          text-(--state-dev-accent)
-                        ">WEAVED</span
+                          text-slate-500
+                        ">FORGED</span
                         >
                         <span
                           class="
                           font-mono
-                          text-(--state-dev-accent)
+                          text-slate-500
                           uppercase
-                        ">{v.type || "past"}</span
+                        ">{vector_label(v.type, "past")}</span
                         >
                       </div>
                       <span
@@ -305,7 +350,7 @@
                       font-mono
                     "
                     >
-                      NO MEMORIES WEAVED
+                      NO MEMORIES FORGED
                     </div>
                   {/each}
                 </div>
@@ -378,9 +423,7 @@
 
           {#if meta.thoughts}
             <div class="flex flex-col gap-2">
-              <header class="mb-2 border-b border-(--state-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
-                Thoughts
-              </header>
+              <header class="text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">Thoughts</header>
               <div
                 class="rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-50"
               >
@@ -401,7 +444,7 @@
             <div class="flex flex-col gap-6">
               {#each entity_blocks as block (block.key)}
                 <div class="flex flex-col gap-2">
-                  <header class="mb-2 text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
+                  <header class="text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
                     {block.name || get_entity_name(block.key)}
                   </header>
                   {#if block.dynamics.length > 0}
@@ -441,22 +484,38 @@
                   {:else if !block.has_mods}
                     <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
                   {/if}
-                  {#if block.physical.trim() || block.non_physical.trim() || block.new_vectors.length > 0 || block.retrieval?.length > 0}
+                  {#if block.physical.trim() || block.non_physical.trim() || block.eternal_physical.trim() || block.eternal_non_physical.trim() || block.new_vectors.length > 0 || block.retrieval?.length > 0}
                     <div class="flex flex-col gap-2 pt-1">
                       {#if block.physical.trim()}
                         <div
-                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="font-mono text-(--state-dev-accent)">PHYSICAL</span>
+                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">PRESENT PHYSICAL</span>
                           <span class="text-slate-50">{block.physical}</span>
                         </div>
                       {/if}
                       {#if block.non_physical.trim()}
                         <div
-                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-600 bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="font-mono text-(--state-dev-accent)">NON-PHYSICAL</span>
+                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">PRESENT NON-PHYSICAL</span>
                           <span class="text-slate-50">{block.non_physical}</span>
+                        </div>
+                      {/if}
+                      {#if block.eternal_physical.trim()}
+                        <div
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                        >
+                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">ETERNAL PHYSICAL</span>
+                          <span class="text-slate-50">{block.eternal_physical}</span>
+                        </div>
+                      {/if}
+                      {#if block.eternal_non_physical.trim()}
+                        <div
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                        >
+                          <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent)">ETERNAL NON-PHYSICAL</span>
+                          <span class="text-slate-50">{block.eternal_non_physical}</span>
                         </div>
                       {/if}
                       {#if block.new_vectors.length > 0}
@@ -466,10 +525,9 @@
                               class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                             >
                               <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-mono text-(--state-dev-accent) uppercase">{nv.type || "future"}</span>
-                                {#if nv.id}
-                                  <span class="font-mono text-xs text-slate-500">{nv.id}</span>
-                                {/if}
+                                <span class="w-40 shrink-0 font-mono whitespace-nowrap text-(--state-dev-accent) uppercase"
+                                  >{vector_label(nv.type, "future")}</span
+                                >
                               </div>
                               <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{nv.content}</span>
                             </div>
@@ -478,19 +536,13 @@
                       {/if}
                       {#if block.retrieval?.length > 0}
                         <div class="flex flex-col gap-2 pt-1">
-                          <span class="font-mono text-xs tracking-widest text-slate-500 uppercase">Retrieved</span>
                           {#each block.retrieval as rv (rv.id || rv.content)}
                             <div
                               class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-slate-500 bg-black/20 px-3 py-3 text-xs leading-relaxed"
                             >
                               <div class="flex flex-wrap items-center gap-2">
-                                <span class="font-mono text-(--state-dev-accent) uppercase">{rv.type || "past"}</span>
-                                {#if rv.id}
-                                  <span class="font-mono text-xs text-slate-500">{rv.id}</span>
-                                {/if}
-                                {#if rv.relevance != null}
-                                  <span class="font-mono text-xs text-slate-400">{rv.relevance.toFixed(1)}</span>
-                                {/if}
+                                <span class="w-40 shrink-0 font-mono whitespace-nowrap text-slate-500 uppercase">{vector_label(rv.type, "past")}</span
+                                >
                               </div>
                               <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{rv.content}</span>
                             </div>
@@ -523,7 +575,6 @@
               >
                 <header
                   class="
-                  mb-2
                   border-b
                   border-(--state-dev-accent)/20
                   pb-1
@@ -563,7 +614,7 @@
                       <span
                         class="
                         font-mono
-                        text-(--state-dev-accent)
+                        text-slate-500
                         
                       ">{v._relevance?.toFixed(1) || v.emotional_weight}</span
                       >
@@ -599,7 +650,6 @@
               >
                 <header
                   class="
-                  mb-2
                   border-b
                   border-(--state-dev-accent)/20
                   pb-1
@@ -669,7 +719,7 @@
             </div>
           {/if}
         {/if}
-        <Accordion label="View Raw Meta">
+        <Accordion label="View Raw Data">
           <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
             <pre class="font-mono">{JSON.stringify(meta, null, 2)}</pre>
           </DataBox>

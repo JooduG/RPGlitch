@@ -37,10 +37,31 @@ function process_entity_blocks(meta = {}) {
       }));
       const physical = upd.present_mutations?.physical || "";
       const non_physical = upd.present_mutations?.non_physical || "";
+      const eternal_physical = upd.eternal_mutations?.physical || "";
+      const eternal_non_physical = upd.eternal_mutations?.non_physical || "";
       const has_dynamics = dynamics.length > 0;
-      const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0 || retrieval.length > 0);
+      const has_mods = !!(
+        physical.trim() ||
+        non_physical.trim() ||
+        eternal_physical.trim() ||
+        eternal_non_physical.trim() ||
+        new_vectors.length > 0 ||
+        retrieval.length > 0
+      );
       if (has_dynamics || has_mods) {
-        blocks.push({ key: target, name: upd.name, dynamics, physical, non_physical, new_vectors, retrieval, has_dynamics, has_mods });
+        blocks.push({
+          key: target,
+          name: upd.name,
+          dynamics,
+          physical,
+          non_physical,
+          eternal_physical,
+          eternal_non_physical,
+          new_vectors,
+          retrieval,
+          has_dynamics,
+          has_mods,
+        });
       }
     }
     return blocks;
@@ -74,7 +95,19 @@ function process_entity_blocks(meta = {}) {
     const has_dynamics = dynamics.length > 0;
     const has_mods = !!(physical.trim() || non_physical.trim() || new_vectors.length > 0);
     if (has_dynamics || has_mods)
-      blocks.push({ key: target, name: null, dynamics, physical, non_physical, new_vectors, retrieval: [], has_dynamics, has_mods });
+      blocks.push({
+        key: target,
+        name: null,
+        dynamics,
+        physical,
+        non_physical,
+        eternal_physical: "",
+        eternal_non_physical: "",
+        new_vectors,
+        retrieval: [],
+        has_dynamics,
+        has_mods,
+      });
   };
   consider("ai", ai);
   consider("fractal", fractal);
@@ -95,6 +128,18 @@ function resolve_entity_name(key, meta = {}, runtime = {}) {
     return meta.entities?.fractal?.name || meta.fractal_name || meta.snapshot?.fractal?.name || runtime.active_fractal?.name || "FRACTAL";
   if (key === "user" || key === "USER_PERSONA") return meta.user_name || meta.snapshot?.user?.name || runtime.active_user?.name || "USER PERSONA";
   return key;
+}
+
+/**
+ * Mirror of DevTelemetryBlock's human-readable memory/vector type label.
+ * @param {string} [type]
+ * @param {string} [fallback]
+ */
+function vector_label(type, fallback) {
+  const t = type || fallback;
+  if (t === "future") return "FUTURE VECTOR";
+  if (t === "past") return "PAST MEMORY";
+  return String(t).toUpperCase();
 }
 
 describe("DevTelemetryBlock Telemetry Logic", () => {
@@ -165,6 +210,27 @@ describe("DevTelemetryBlock Telemetry Logic", () => {
     expect(blocks[0].dynamics).toEqual([]);
     expect(blocks[0].new_vectors).toEqual([{ type: "future", weight: 7, content: "A pheromone gas leaks into the corridor." }]);
     expect(blocks[0].retrieval).toEqual([]);
+  });
+
+  test("updates shape: eternal mutations map to the block and count as mods", () => {
+    const meta = {
+      type: "DYNAMICS_DELTA",
+      updates: {
+        FRACTAL: {
+          name: "Project Tartarus",
+          present_mutations: { physical: "", non_physical: "" },
+          eternal_mutations: { physical: "[SCAR: rune-etched sigil]", non_physical: "The machine now speaks in a fractured dialect." },
+          vectors: { resolved: [], new: [] },
+        },
+      },
+    };
+
+    const blocks = process_entity_blocks(meta);
+    expect(blocks.map((b) => b.key)).toEqual(["fractal"]);
+    expect(blocks[0].eternal_physical).toBe("[SCAR: rune-etched sigil]");
+    expect(blocks[0].eternal_non_physical).toBe("The machine now speaks in a fractured dialect.");
+    expect(blocks[0].physical).toBe("");
+    expect(blocks[0].has_mods).toBe(true);
   });
 
   test("updates shape: new vectors carry their generated id through to the block", () => {
@@ -348,5 +414,14 @@ describe("DevTelemetryBlock Telemetry Logic", () => {
     expect(resolve_entity_name("FRACTAL", {}, runtime)).toBe("Hollow");
     expect(resolve_entity_name("USER_PERSONA", {}, runtime)).toBe("Rook");
     expect(resolve_entity_name("ai", {}, runtime)).toBe("Kestrel");
+  });
+
+  test("labels future/past vector types with their human-readable names", () => {
+    expect(vector_label("future", "future")).toBe("FUTURE VECTOR");
+    expect(vector_label("past", "past")).toBe("PAST MEMORY");
+    expect(vector_label(undefined, "future")).toBe("FUTURE VECTOR");
+    expect(vector_label(undefined, "past")).toBe("PAST MEMORY");
+    expect(vector_label("present", "past")).toBe("PRESENT");
+    expect(vector_label("PROPHECY", "future")).toBe("PROPHECY");
   });
 });

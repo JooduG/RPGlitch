@@ -510,7 +510,7 @@
         {/if}
 
         {#if app.settings.dev_mode && think_block}
-          <DataBox label="Thoughts" isCode={false} isProse={true} class="mb-4">
+          <DataBox label="Thoughts" isCode={false} isProse={true} class="mb-4 [&_.think-block-container_p]:mb-0">
             <div class="think-block-container" style="display: contents" use:safe_html={think_block}></div>
           </DataBox>
         {/if}
