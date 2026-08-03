@@ -1,81 +1,73 @@
-# RPGlitch — DevTelemetryBlock (Backward-Compat Removal + Thoughts Heading Strip + Label Column Rework) + Q&A
+# RPGlitch — Prompt-Template Quirk Fixes (perchance console findings)
 
-**Date**: 2026-08-03 · **Session**: perchance workspace (`scratch/src/RPGlitch-main/`)
-**User actions required**: `npm run test` → `npm run build` → redeploy. No schema migration, no new deps.
-
----
-
-## 0. Q&A (the three questions)
-
-### 0.1 "What are the MEMORY_FORMATION WEAVED chips?"
-
-The small text chips at the start of each weaved-memory row inside a `MEMORY_FORMATION` ("Memory Forged") card: a **`FORGED`** status chip (you renamed it from `WEAVED`) plus the memory's **type chip** (`FUTURE VECTOR`/`PAST MEMORY`, CSS-uppercased). They identify each row as a newly-consolidated memory before the directive text.
-
-### 0.2 "What do you mean by 'legacy PAST/FUTURE grids'?"
-
-The two-column **PAST MEMORIES / FUTURE VECTORS** section at the bottom of the old default telemetry card, fed by `meta.vectors.{past,future}` — the _old flat_ telemetry shape. It only rendered when `meta.type !== "DYNAMICS_DELTA"`, so in the current pipeline it never appeared. **This round removed them entirely** (see §1.1) along with all other backward-compat fallbacks, per your request — the component now reads only the `{ type, updates }` shape.
-
-### 0.3 "Why does every prologue think block begin with `## Reasoning`?"
-
-Because the think block is assembled from **five optional sections**, and `## Reasoning` is the only one that survives. In `kernel.js` the sections are pushed in order: `## Cognition` ← `internal_monologue`, `## Intent` ← `intent`, `## Somatic Tells` ← `somatic_tells`, `## Dialogue Direction` ← `dialogue_direction`, then `## Reasoning` ← `_thought_process` (kernel.js:447-451). A block that _begins_ with `## Reasoning` means the four earlier fields were empty.
-
-Why are they empty? The director's JSON schema (`DIRECTOR_JSON_SCHEMA` in `prompts.js`) only ever requests **`_thought_process`** — the model is told to record its reasoning in that one key. The other four fields are never requested by any prompt, so they stay undefined in real runs and their `if (...)` guards never fire. (The only path that ever produced `## Cognition` is the JSON-parse-error fallback in `parse_director_json`, which stashes raw prose under `internal_monologue`.)
-
-So every think block — including the opening-turn block right after the prologue — is exactly `## Reasoning\n<director's step-by-step evaluation>`. The prologue prose itself carries no think block; the block you see is the first AI turn's director pass.
+**Date**: 2026-08-03 · **Session**: perchance workspace (`scratch/src/`)
+**User actions required**: `npm run verify` → `npm run build` → redeploy. No schema migration, no new deps.
 
 ---
 
 ## 1. What changed and why
 
-All in `DevTelemetryBlock.svelte`, per your request. This round sits **on top of** the earlier label pass (colors matched to borders, `FUTURE VECTOR`/`PAST MEMORY` renames, `FORGED` vocabulary, your manual edits adopted).
+Fixes for prompt-template quirks surfaced in the user's perchance console (issues **1–5 + 8 + related**; issue 6 — image-gen thought process in devmode — was dropped as impossible at the user's request).
 
-### 1.1 Backward-compat removal (your request)
+### 1.1 Double `<VISUAL_ENGINE>` (issue 1)
 
-- The legacy flat-shape fallback in `entity_blocks` (`meta.entities`, `meta.ai`, `meta.deltas`, `meta.mutations`, `meta.snapshot`, `meta.vectors`) is deleted.
-- The legacy **PAST MEMORIES / FUTURE VECTORS** grids at the card bottom are deleted.
-- `get_entity_name` now resolves names from `runtime.active_*` only (no `meta.*_name` lookups).
-- `forged_vectors` still reads `meta.vectors.past` for the MEMORY_FORMATION weaved rows — the one piece of the old shape that stays, because `MEMORY_FORMATION` events still carry it.
+Every style preset in `visual-styles.js` ships its own `<VISUAL_ENGINE>...</VISUAL_ENGINE>` wrapper, and `PromptTemplates.BUILDER` wrapped `style_obj.visual_engine` in another one → nested double tag in the image prompt. `optics.js` now strips the preset's inner wrapper before composing (`visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "")`), producing exactly one `<VISUAL_ENGINE>`.
 
-### 1.2 `##` headings stripped from the THOUGHTS block
+### 1.2 POV duplication & narrator contradiction (issue 2)
 
-New `display_thoughts` derived removes `/^##\s+.*$/gm` lines and trims, so `## Reasoning` (and any `##` section) no longer appears under the THOUGHTS label. The raw payload still shows it in **View Raw Data**, and the chat-bubble think block (Message.svelte) still shows the full assembled markdown including `## Reasoning` — that block is the raw `kernel.js` output and is untouched.
+- Character prompts carried BOTH a `pov_protocol` in the protocols block AND a `<POV_DIRECTIVE>` in the task — the POV directive is now the single authority (removed `pov_protocol,` from `render_character`'s protocols).
+- Narrator (prologue/epilogue) protocols forced `POV.THIRD_PERSON` while the task `<POV_DIRECTIVE>` was `POV.NARRATOR` — a limited-vs-omniscient contradiction. `POV.THIRD_PERSON` removed; narrator keeps `POV.NARRATOR`.
 
-### 1.3 Label column rework (width + hyphen wrapping)
+### 1.3 Space/underscore directive keys (issue 3 + related)
 
-Dropped `w-40` + `whitespace-nowrap` for **`w-24 shrink-0` (96px)** with normal wrapping, and `NON-PHYSICAL` now uses the **non-breaking hyphen** `&#8209;` (U+2011):
+`[DENTAL FEATURES: ...]`-style keys with spaces broke keyed XML emission and merge logic. Fixed end-to-end:
 
-- `PRESENT NON-PHYSICAL` breaks as `PRESENT` / `NON-PHYSICAL` — **at the space, never at the hyphen**.
-- Same for `ETERNAL NON-PHYSICAL`.
-- `FUTURE VECTOR` (13 chars) and `PAST MEMORY` (11 chars) fit on one 96px line.
-- The column stays uniform (all 6 label spans share `w-24 shrink-0`), closer to your `w-20` gutter intent than the old `w-40`.
+- `text.js` `safe_parse_pseudo_json` normalizes keys (`.replace(/\s+/g, "_")`) in both bracket and quoted tiers.
+- `parser.js` bracketed regex widened to `[A-Z_ ]{3,25}`; captured keys normalized (`toUpperCase().replace(/\s+/g, "_")`).
+- `physical_to_xml` (prompts.js + optics.js) emits `<tag>` names with spaces → underscores.
+- `premades.js` Nova City fractal keys converted: `UPPER_CITY` / `LOWER_CITY` / `VISUAL_THEME`.
+- `fragments.js` directives list the new optional keys: `[EARS: ...]`, `[DENTAL_FEATURES: ...]` (character) and `[UPPER_CITY: ...]`, `[LOWER_CITY: ...]`, `[CONNECTION: ...]`, `[VISUAL_THEME: ...]` (fractal).
 
-If you'd rather see the whole label phrase on one line, the only option is a wider column (`w-40`) or shorter labels (e.g. `PRESENT` / `NON-PHYS`).
+### 1.4 `<PRESENT><PHYSICAL>` / `<ETERNAL><PHYSICAL>` nesting (issue 4)
 
-### 1.4 (Carried over from the label pass)
+All templates now nest temporal sections with physical/non-physical children: director (AI/USER/FRACTAL), character (system ETERNAL + task FRACTAL_FEED PRESENT), ghostwriter, narrator, entity-memory-context, and enhancement. Legacy flat `<PRESENT_PHYSICAL>`/`<ETERNAL_PHYSICAL>` tags are gone everywhere.
 
-- `vector_label(type, fallback)` helper maps `future → "FUTURE VECTOR"`, `past → "PAST MEMORY"`, other types uppercased verbatim.
-- Label colors match the left border: gray `slate-500` on gray-bordered rows (retrieval, weaved-memory chips), accent-cyan on cyan-bordered rows (amendments, new vectors).
-- Your manual edits adopted as baseline: `WEAVED → FORGED` everywhere, `PRESENT/ETERNAL` label renames (dropped the `◇` glyph), `has_mods`/delta-bar divs reformatted, `[T]` comment de-indented.
+### 1.5 Fractal cognitive attrs (issue 5)
 
----
+`format_dynamics_attrs(dynObj, { cognitive = true })` — fractal identities (director FRACTAL, character FRACTAL_FEED, narrator YOUR_IDENTITY) pass `{ cognitive: false }`, so `certainty`/`regulation` are emitted for characters only. Epilogue fractal identity is now exactly `<YOUR_IDENTITY name="Void" velocity="85" entropy="90">`.
+
+### 1.6 Fractal role preservation (issue 8)
+
+`<entry role="AI_CHARACTER" name="Nova City">` — the kernel flattened every non-user message to `model`, so `collapse_history` mapped fractal messages to `AI_CHARACTER`. Both flatten sites (`execute_turn` + `execute_ghostwriter`) now preserve `role: "fractal"`, making `collapse_history`'s `["prologue","fractal"] → FRACTAL` branch live.
+
+### 1.7 JSON-schema-vs-DB drift (issue 7 + related)
+
+- `DIRECTOR_JSON_SCHEMA.new_vectors` `"weight": 5` → `"emotional_weight": 5` (both AI_CHARACTER and FRACTAL blocks) — matches what the DB/kernel actually store.
+- `temporal.js` vector creation now tolerates both: `create(payload, type, v.emotional_weight ?? v.weight ?? 5)`.
+- `protocols.js` PROFILE.SCHEMA `past`/`future` wording now reflects that entries become memory/intent vectors.
 
 ## 2. Files
 
-| File                                         | Change                                                                                                                                                                                                                 |
-| -------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `src/ui/molecules/DevTelemetryBlock.svelte`  | backward-compat fallback + legacy grids deleted; `display_thoughts` heading strip; `w-24 shrink-0` label column with U+2011 non-breaking hyphens; (carried: `vector_label`, color-matched labels, `FORGED` vocabulary) |
-| `src/ui/molecules/DevTelemetryBlock.test.js` | mirrors updated to match — legacy branch + legacy tests removed, name resolution runtime-only, `vector_label` mirror kept (**16 → 10 tests**)                                                                          |
-| `tasks/PRESENT.md`                           | new pulse row (`2026-08-03 15:35`)                                                                                                                                                                                     |
-| `tasks/FUTURE.md`                            | track entry (`2026-08-03 15:35`)                                                                                                                                                                                       |
-| `src/ui/organisms/Message.svelte`            | unchanged this round (still carries the `[&_.think-block-container_p]:mb-0` thoughts override from the earlier pass)                                                                                                   |
+| File                               | Change                                                                                                                                                                                               |
+| ---------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/intelligence/prompts.js`      | PRESENT/ETERNAL nesting across all templates; POV dedupe; `format_dynamics_attrs` cognitive option + fractal call sites; `physical_to_xml` underscore keys; DIRECTOR_JSON_SCHEMA `emotional_weight`. |
+| `src/media/optics.js`              | `visual_engine_block` strips inner `<VISUAL_ENGINE>` wrapper; `physical_to_xml` underscore keys.                                                                                                     |
+| `src/ui/utils/text.js`             | `safe_parse_pseudo_json` key normalization (both tiers).                                                                                                                                             |
+| `src/intelligence/parser.js`       | bracketed regex widened + key normalization.                                                                                                                                                         |
+| `src/data/presets/premades.js`     | Nova City keys → `UPPER_CITY`/`LOWER_CITY`/`VISUAL_THEME`.                                                                                                                                           |
+| `src/intelligence/kernel.js`       | role flattening preserves `fractal` (2 sites).                                                                                                                                                       |
+| `src/intelligence/temporal.js`     | `v.emotional_weight ?? v.weight ?? 5` fallback.                                                                                                                                                      |
+| `src/ui/utils/protocols.js`        | PROFILE.SCHEMA past/future wording.                                                                                                                                                                  |
+| `src/intelligence/fragments.js`    | directive optional keys for character + fractal eternal.physical.                                                                                                                                    |
+| `src/intelligence/prompts.test.js` | removed system POV assertions; epilogue identity expectation; enhancement `ETERNAL`/`PHYSICAL` assertions.                                                                                           |
+| `tasks/PRESENT.md`                 | new pulse row (`2026-08-03 20:45`)                                                                                                                                                                   |
+| `tasks/FUTURE.md`                  | track entry (`2026-08-03 20:45`)                                                                                                                                                                     |
 
-Not changed: `kernel.js`, `temporal.js`, `prompts.js`, `parser.js`.
+Not changed: presets' `visual_engine` strings (still carry their own wrapper — stripped at composition), `DevTelemetryBlock`, `Message.svelte`.
 
----
+## 3. Verification (this session, no local shell)
 
-## 3. Verification (this session, no Node)
-
-- Svelte 5.56.3 `client` + `server` compile of `DevTelemetryBlock.svelte` and `Message.svelte`: **0 warnings, 0 errors**.
-- SSR render of DYNAMICS_DELTA: THOUGHTS body heading-free (`## Reasoning` appears only inside the raw-meta `<pre>`); exactly 6 label spans carry `w-24 shrink-0`; U+2011 rendered in the `NON-PHYSICAL` labels; legacy grids absent.
-- SSR render of MEMORY_FORMATION: `NEWLY FORGED MEMORIES` header, gray `FORGED` + `PAST MEMORY` chips, `Forged for X · from N turns` eyebrow intact.
-- Mirror test suite (functions extracted from `DevTelemetryBlock.test.js`): **10/10 pass**.
+- esbuild-wasm syntax transform of all 10 edited source/test files: **0 errors**.
+- esbuild-wasm bundled runtime smoke tests against the real modules (worker + path-alias + minimal stubs for `@platform`/`@data`/`markdown-it`/`temporal_engine`): all assertions pass — parser space-key merge (`[DENTAL FEATURES:]`, `[UPPER_CITY:]`), text key normalization, synthesize (no FIRST/THIRD_PERSON in system, POV only via task directive, character keeps cognitive attrs, fractal omits them, PRESENT/ETERNAL nesting in FRACTAL_FEED), epilogue (`<YOUR_IDENTITY name="Void" velocity="85" entropy="90">`, no third-person), ghostwriter ETERNAL nesting, enhancement `<ETERNAL><PHYSICAL>` + `<eyeColor>`, optics single `<VISUAL_ENGINE>` wrapper (real regex verified against the `visual-styles.js` preset format).
+- Repo-wide grep: zero remaining `PRESENT_PHYSICAL`/`ETERNAL_PHYSICAL`; no test asserts old behaviors.
+- `npm run verify` / `npm run build` to be run locally (no Node in this environment).

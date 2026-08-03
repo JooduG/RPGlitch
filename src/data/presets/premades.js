@@ -114,7 +114,7 @@ export const premade = {
       dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
       eternal: {
         physical:
-          "[GENDER: male] [AGE: ancient vampire (appears 38)] [ETHNICITY: aristocratic high-elf] [BUILD: tall, athletic build with broad shoulders and a commanding corporate posture] [FACE: strong chiseled jawline with a sharp structure] [EYES: piercing crimson red eyes] [EARS: long pointed high-elven ears adorned with intricate golden ear jewelry] [SKIN: pale complexion] [HAIR: dark with silver streaks at the temples] [DENTAL FEATURES: perfectly white sharp fangs]",
+          "[GENDER: male] [AGE: ancient vampire (appears 38)] [ETHNICITY: aristocratic high-elf] [BUILD: tall, athletic build with broad shoulders and a commanding corporate posture] [FACE: strong chiseled jawline with a sharp structure] [EYES: piercing crimson red eyes] [EARS: long pointed high-elven ears adorned with intricate golden ear jewelry] [SKIN: pale complexion] [HAIR: dark with silver streaks at the temples] [DENTAL_FEATURES: perfectly white sharp fangs]",
         non_physical:
           "An ancient high-elf vampire who treats psychological manipulation as a corporate acquisition. Valerius speaks in a smooth, velvety aristocratic cadence, using calculated soft-spoken compliments and flawless manners. He plays the generous benefactor, offering designer suits, lavish gifts, and financial security to systematically dismantle a target's defenses. To scout prospective assets, he hosts high-stakes underground matches, sourcing custom pyrotechnics from Silas Vane. Under his elegant exterior lies a predatory focus. Using corporate coercion and ancient hypnotic suggestions, he gently erodes rugged egos, coaxing strong alphas to willingly surrender their independence and transform into impeccably styled, adoring followers. Yet behind this empire sits a profound fear: having known only hypnotic submission, he believes genuine, uncompelled trust is a lethal vulnerability. His blind spot is mistaking programmed compliance for real affection. He desperately craves true devotion, but hides his terror of being genuinely seen behind silver-tongued corporate promises, lavish spoiling, and gold-plated collars.",
       },
@@ -363,13 +363,13 @@ export const premade = {
       dynamics: { velocity: 56, entropy: 54 },
       eternal: {
         physical:
-          "[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly] [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below] [UPPER CITY: well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics] [LOWER CITY: sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses] [CONNECTION: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers] [VISUAL THEME: neon cyberpunk metropolis with a gritty, hyper-masculine underbelly]",
+          "[TERRAIN: dense vertical metropolis with clean neon-lit upper districts and decaying industrial underbelly] [ARCHITECTURE: tall chrome and glass towers above, crumbling concrete and rusted metal below] [UPPER_CITY: well-maintained, clean, heavily invested in with vibrant neon signage and masculine aesthetics] [LOWER_CITY: sewers, old shaggy bars, green rivers of radioactive spills, and heavily modified industrial warehouses] [CONNECTION: monitored express elevators, winding rusted stairwells, and hidden ventilation access points between layers] [VISUAL_THEME: neon cyberpunk metropolis with a gritty, hyper-masculine underbelly]",
         non_physical:
           "A soaring, neon-lit metropolis built as a sovereign sanctuary for men who have walked away from the rest of the world. In Nova City, desires are worn openly, and the streets pulse with uninhibited flirting, loud music, and aesthetic vanity. The city splits cleanly along class lines: the glittering Upper Districts, home to glass towers and open-air rooftop lounges, and the gritty underbelly, where steam-choked alleys hide Vance Corp’s underground arena networks and black-market trades. It functions as a refuge where refugees like Caelum can lose themselves in the crowds, and where elite fighters like beast clash for fortune and entertainment.",
       },
       present: {
         physical:
-          "[UPPER ZONE: districts ablaze with pulsing violet neon signs, pristine chrome walkways, and crowded outdoor fitness lounges] [LOWER ZONE: dark, steam-filled alleys winding beneath dripping cybernetic infrastructure with radioactive green runoff illuminating the gutters] [ARENAS: heavily fortified subterranean amphitheaters configured for Vance's underground combat events]",
+          "[UPPER_ZONE: districts ablaze with pulsing violet neon signs, pristine chrome walkways, and crowded outdoor fitness lounges] [LOWER_ZONE: dark, steam-filled alleys winding beneath dripping cybernetic infrastructure with radioactive green runoff illuminating the gutters] [ARENAS: heavily fortified subterranean amphitheaters configured for Vance's underground combat events]",
         non_physical:
           "Pulsing with high-octane energy right now. The upper plazas are alive with laughing crowds and outdoor workouts, while down in the industrial underbelly, rogue hackers like Glitch slip through steam-filled vents to bypass corporate security grids.",
       },
@@ -409,7 +409,7 @@ export const premade = {
       dynamics: { velocity: 42, entropy: 58 },
       eternal: {
         physical:
-          "[TERRAIN: dense ashen cursed forest with thick glowing fog and twisted blackened trees] [ARCHITECTURE: beautiful high-elf royal palace integrated deep within the forest] [PALACE: high-elf royal palace where the king and his army of high-elven royal guards reside] [VISUAL THEME: eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture]",
+          "[TERRAIN: dense ashen cursed forest with thick glowing fog and twisted blackened trees] [ARCHITECTURE: beautiful high-elf royal palace integrated deep within the forest] [PALACE: high-elf royal palace where the king and his army of high-elven royal guards reside] [VISUAL_THEME: eternal twilight with glowing fog, reactive branches, and pristine marble palace architecture]",
         non_physical:
           "A whispering, sentient forest that wraps travelers in a warm, glowing fog designed to coax out their most closely guarded secrets and desires. Born from a royal betrayal, the Ashenweald actively shifts its paths and lowers its blackened canopy to trap those who try to deny what they truly want. At the heart of this twilight forest lies the gleaming marble palace—a cold, highly disciplined seat of power guarded by the king's personal regiment of high-elven royal guards, representing the rigid authority Caelum submitted to before his exile.",
       },
@@ -455,7 +455,7 @@ export const premade = {
       dynamics: { velocity: 45, entropy: 55 },
       eternal: {
         physical:
-          "[TERRAIN: sterile high-security orbital research station isolated in deep space] [ARCHITECTURE: clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs] [LANDMARKS: central transformation bay featuring multiple glass containment vat tanks] [VISUAL THEME: sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats]",
+          "[TERRAIN: sterile high-security orbital research station isolated in deep space] [ARCHITECTURE: clinical white corridors with glowing blue alien tech interfaces and reinforced containment labs] [LANDMARKS: central transformation bay featuring multiple glass containment vat tanks] [VISUAL_THEME: sterile clinical neon with visible transformation equipment and muscular scientists in open lab coats]",
         non_physical:
           "A high-security orbital station operating in the silence of deep space. Managed by Dr. Elias Voss, Tartarus is a clinical laboratory dedicated to radical physical modification and chemical enhancements. Under blinding lights, technicians in open lab coats log vitals and monitor containment vats with cold, scientific detachment, cataloging the growth of prototype subjects as mere data points in their search for the ultimate physical template.",
       },

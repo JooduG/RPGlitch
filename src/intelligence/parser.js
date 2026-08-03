@@ -321,14 +321,14 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
   }
 
   // 1. Extract bracketed [KEY: Value] directives first
-  const bracketed_regex = /\[([A-Z_]{3,15}):\s*([\s\S]*?)\]/g;
+  const bracketed_regex = /\[([A-Z_ ]{3,25}):\s*([\s\S]*?)\]/g;
   let remaining_prose = clean_new_prose;
   let match;
   const key_updates = [];
 
   while ((match = bracketed_regex.exec(clean_new_prose)) !== null) {
     const full_match = match[0];
-    const raw_key = match[1].toUpperCase();
+    const raw_key = match[1].toUpperCase().replace(/\s+/g, "_");
     const raw_val = match[2].trim();
     if (raw_val) {
       key_updates.push({ key: raw_key, val: raw_val });

@@ -37,7 +37,7 @@ export const safe_parse_pseudo_json = (raw) => {
     const bracket_regex = /\[([^:\]]+)\s*:\s*([^\]]+)\]/g;
     let match;
     while ((match = bracket_regex.exec(clean_raw)) !== null) {
-      const k = match[1].replace(/["']/g, "").trim();
+      const k = match[1].replace(/["']/g, "").trim().replace(/\s+/g, "_");
       const v = match[2].replace(/^["']|["']$/g, "").trim();
       if (k && v) bracket_extracted[k] = v;
     }
@@ -50,7 +50,7 @@ export const safe_parse_pseudo_json = (raw) => {
     const quoted_regex = /"([^"]+)"\s*:\s*"([^"]*)"/g;
     let match;
     while ((match = quoted_regex.exec(clean_raw)) !== null) {
-      const k = match[1].trim();
+      const k = match[1].trim().replace(/\s+/g, "_");
       const v = match[2].trim();
       if (k && v) quoted_extracted[k] = v;
     }

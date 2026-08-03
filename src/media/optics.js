@@ -280,7 +280,10 @@ export const PromptTemplates = {
         return `  <${tagName}>${escape_xml(parsed.__raw_prose__)}</${tagName}>`;
       }
       const children = Object.entries(parsed)
-        .map(([k, v]) => `    <${k}>${escape_xml(String(v))}</${k}>`)
+        .map(([k, v]) => {
+          const tag = k.replace(/\s+/g, "_");
+          return `    <${tag}>${escape_xml(String(v))}</${tag}>`;
+        })
         .join("\n");
       return `  <${tagName}>\n${children}\n  </${tagName}>`;
     };
@@ -315,7 +318,7 @@ export const PromptTemplates = {
     const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
     const engine_tokens = resolve_visual_engine_tokens(style_key);
     const visual_engine_block = style_obj.visual_engine
-      ? `\n<VISUAL_ENGINE style="${escape_xml(style_obj.name || style_key)}">\n${style_obj.visual_engine}${
+      ? `\n<VISUAL_ENGINE style="${escape_xml(style_obj.name || style_key)}">\n${style_obj.visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "").trim()}${
           style_obj.tags && style_obj.tags.length ? `\n<tags>${escape_xml(style_obj.tags.join(", "))}</tags>` : ""
         }\n</VISUAL_ENGINE>`
       : "";

@@ -307,7 +307,7 @@ export const gamemaster = {
       const simulation_log = raw_messages
         .filter((m) => !m.meta?.consolidated && m.role !== "system")
         .map((m) => ({
-          role: m.role === "user" ? "user" : "model",
+          role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
           content: m.text || m.content || "",
           character_name: m.character_name,
         }));
@@ -724,7 +724,7 @@ export const gamemaster = {
     const simulation_log = raw_messages
       .filter((m) => !m.meta?.consolidated && m.role !== "system")
       .map((m) => ({
-        role: m.role === "user" ? "user" : "model",
+        role: m.role === "user" ? "user" : m.role === "fractal" ? "fractal" : "model",
         content: m.text || m.content || "",
         character_name: m.character_name,
       }));

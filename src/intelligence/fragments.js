@@ -80,14 +80,14 @@ export const ENTITY_FRAGMENTS = {
         sublabel: "Body & Form",
         description: "Permanent physical features for image generation (gender, age, ethnicity, build, face, eyes, hair, height).",
         directive:
-          "Permanent physical features for image generation. No clothing, expressions, or poses. Mandatory keys: [GENDER: ...], [AGE: ...], [ETHNICITY: ...]. Optional keys: [BUILD: ...], [FACE: ...], [EYES: ...], [SKIN: ...], [HAIR: ...], [HEIGHT: ...]. Visible body details and identifying skin accents/scars only — no traits, skills, gear, or morality. Max 15 lines.",
+          "Permanent physical features for image generation. No clothing, expressions, or poses. Mandatory keys: [GENDER: ...], [AGE: ...], [ETHNICITY: ...]. Optional keys: [BUILD: ...], [FACE: ...], [EYES: ...], [SKIN: ...], [HAIR: ...], [EARS: ...], [DENTAL_FEATURES: ...], [HEIGHT: ...]. Visible body details and identifying skin accents/scars only — no traits, skills, gear, or morality. Max 15 lines.",
         enhancer: "BIOMETRIC_RENDERER",
       },
       fractal: {
         sublabel: "Topography, Geometries & Composition",
         description: "Permanent physical geography for image generation (terrain, architecture, materials, landmarks, scale).",
         directive:
-          "Permanent physical geography for image generation. No weather, lighting, or atmospheric events. Keys: [TERRAIN: ...], [ARCHITECTURE: ...], [MATERIALS: ...], [LANDMARKS: ...], [SCALE: ...]. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.",
+          "Permanent physical geography for image generation. No weather, lighting, or atmospheric events. Keys: [TERRAIN: ...], [ARCHITECTURE: ...], [MATERIALS: ...], [LANDMARKS: ...], [SCALE: ...], [UPPER_CITY: ...], [LOWER_CITY: ...], [CONNECTION: ...], [VISUAL_THEME: ...]. Concrete visible landscape features only — no lore, history, or background summaries. Max 15 lines.",
         enhancer: "SPATIAL_RENDERER",
       },
     },

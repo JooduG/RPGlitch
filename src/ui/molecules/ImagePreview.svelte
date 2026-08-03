@@ -62,7 +62,8 @@
 </script>
 
 <script>
-  import { Modal, Button, TextField, NumberField, tooltip } from "@atoms";
+  import { Modal, Button, TextField, NumberField, Dropdown, tooltip } from "@atoms";
+  import { app, runtime } from "@state";
 
   const copy_canvas = (node, sourceCanvas) => {
     const draw = (src) => {
@@ -134,6 +135,49 @@
       state.on_regenerate();
     }
     close_image_preview();
+  };
+
+  /**
+   * Resolves the live entity for a profile-picture slot ('ai' | 'user' | 'fractal').
+   * Prefers the runtime's active entity, falling back to the storyboard selection.
+   * The runtime's fractal slot defaults to a placeholder ("active_fractal") that must be ignored.
+   * @param {'ai' | 'user' | 'fractal'} slot
+   */
+  const get_profile_target = (slot) => {
+    if (slot === "ai") return runtime.active_ai || app.selected_ai || null;
+    if (slot === "user") return runtime.active_user || app.selected_user || null;
+    if (slot === "fractal") {
+      const live = runtime.active_fractal;
+      const has_live = live && live.id && String(live.id) !== "active_fractal";
+      return has_live ? live : app.selected_fractal || null;
+    }
+    return null;
+  };
+
+  /** Dropdown options — labeled with each entity's actual name. */
+  const profile_options = $derived([
+    { value: "ai", label: get_profile_target("ai")?.name?.trim() || "AI Character", disabled: !get_profile_target("ai") },
+    { value: "user", label: get_profile_target("user")?.name?.trim() || "User Persona", disabled: !get_profile_target("user") },
+    { value: "fractal", label: get_profile_target("fractal")?.name?.trim() || "Fractal", disabled: !get_profile_target("fractal") },
+  ]);
+
+  /**
+   * Promotes the previewed image to an entity's profile picture.
+   * Mirrors ProfileState.setImage: live mutation + persistence via runtime.update_entity.
+   * @param {'ai' | 'user' | 'fractal'} slot
+   */
+  const handle_use_as_profile = async (slot) => {
+    const target = get_profile_target(slot);
+    if (!target || !target.id) return;
+    const src = state.canvas ? state.canvas.toDataURL() : state.src;
+    if (!src) return;
+    const clean_url = String(src).trim();
+    const type = slot === "fractal" ? "fractal" : "character";
+    try {
+      await runtime.update_entity(type, String(target.id), { profile_picture: clean_url, image: clean_url });
+    } catch (err) {
+      console.error("[ImagePreview] Failed to set profile picture:", err);
+    }
   };
 </script>
 
@@ -237,23 +281,23 @@
             </div>
           {/if}
 
-          {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
-            <NumberField
-              value={state.metadata.seed}
-              placeholder="Seed"
-              readonly={true}
-              actions={[tooltip]}
-              aria-label="Click to copy seed"
-              onclick={handle_copy_seed}
-              onkeydown={handle_keydown_stub}
-              class="w-full text-lg"
-            />
-          {/if}
+          <div class="mt-auto grid shrink-0 grid-cols-2 gap-4">
+            {#if state.metadata.seed !== undefined && state.metadata.seed !== null}
+              <NumberField
+                value={state.metadata.seed}
+                placeholder="Seed"
+                readonly={true}
+                actions={[tooltip]}
+                aria-label="Click to copy seed"
+                onclick={handle_copy_seed}
+                onkeydown={handle_keydown_stub}
+                class="col-start-1 row-start-1 h-12! w-full text-lg"
+              />
+            {/if}
 
-          <div class="mt-auto flex shrink-0 flex-row gap-4 pt-2">
             {#if state.on_regenerate}
-              <Button variant="secondary" full_width={true} onclick={handle_regenerate}>
-                <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
+              <Button variant="secondary" class="col-start-2 row-start-1 h-12! w-full!" onclick={handle_regenerate}>
+                <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
                   <path
                     d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"
                     stroke="currentColor"
@@ -266,8 +310,38 @@
                 Regenerate
               </Button>
             {/if}
-            <Button variant="secondary" full_width={true} onclick={handle_download}>
-              <svg viewBox="0 0 24 24" class="mr-2 h-4 w-4 fill-none stroke-current">
+
+            <Dropdown
+              items={profile_options}
+              label="Use as Profile Picture"
+              uppercase={false}
+              matchWidth
+              disabled={profile_options.every((o) => o.disabled)}
+              onchange={handle_use_as_profile}
+              class="col-start-1 row-start-2 h-12! w-full!"
+            >
+              {#snippet trigger_content()}
+                <span class="flex w-full items-center justify-center gap-2 truncate text-[0.8125rem] font-semibold">
+                  <svg viewBox="0 0 24 24" class="size-4 shrink-0 fill-none stroke-current">
+                    <path
+                      d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                      stroke="currentColor"
+                      stroke-width="2"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></path>
+                    <circle cx="12" cy="7" r="4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle>
+                  </svg>
+                  <span class="truncate">Use as Profile Picture</span>
+                  <svg viewBox="0 0 24 24" class="size-4 shrink-0 opacity-60">
+                    <path fill="currentColor" d="M7.41,8.58L12,13.17L16.59,8.58L18,10L12,16L6,10L7.41,8.58Z" />
+                  </svg>
+                </span>
+              {/snippet}
+            </Dropdown>
+
+            <Button variant="secondary" class="col-start-2 row-start-2 h-12! w-full!" onclick={handle_download}>
+              <svg viewBox="0 0 24 24" class="mr-0 h-4 w-4 fill-none stroke-current">
                 <path
                   d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"
                   stroke="currentColor"

@@ -89,7 +89,7 @@ No dialogue.`,
 
   PROFILE: {
     SCHEMA: `Extract and sort raw text into a flat JSON object with keys:
-name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings), future (array of strings).
+name (string), description (string), signature_color (string), eternal_physical (string), eternal_non_physical (string), present_physical (string), present_non_physical (string), past (array of strings → become memory vectors), future (array of strings → become intent vectors).
 
 - description: HUMAN EYES ONLY. Internal notes/OOC info.
 - signature_color: Choose from: Soft Rose, Crimson Red, Deep Indigo, Electric Cyan, Emerald Green, Forest Green, Adrenaline Pink, Lemon Yellow, Toxic Green, Scientific Teal, Space Blue, Pumpkin Amber, Proud Purple, Rusty Orange, Twilight Violet.

@@ -204,8 +204,6 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.synthesize(mock_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
-      expect(result.system).toContain("<FIRST_PERSON>");
-      expect(result.system).toContain("Write strictly in first-person");
       expect(result.task).toContain("<POV_DIRECTIVE>");
       expect(result.task).toContain("Write strictly in first-person");
       expect(result.task).not.toContain("undefined");
@@ -221,8 +219,6 @@ describe("prompt_builder (Refactored)", () => {
         },
       };
       const result = prompt_builder.synthesize(third_payload, mock_snapshot);
-      expect(result.system).toContain("<THIRD_PERSON>");
-      expect(result.system).toContain("Write strictly in third-person");
       expect(result.task).toContain("<POV_DIRECTIVE>");
       expect(result.task).toContain("Write strictly in third-person");
       expect(result.task).not.toContain("undefined");
@@ -462,7 +458,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_epilogue(entities, dynamics, recent_history);
 
       expect(result.system).toContain('<SYSTEM role="Void" mode="EPILOGUE">');
-      expect(result.system).toContain('<YOUR_IDENTITY name="Void" velocity="85" entropy="90" certainty="moderate" regulation="stable">');
+      expect(result.system).toContain('<YOUR_IDENTITY name="Void" velocity="85" entropy="90">');
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
       expect(result.system).toContain('<AI_CHARACTER name="Viper"');
       expect(result.system).toContain("Viper Present State");
@@ -477,7 +473,8 @@ describe("prompt_builder (Refactored)", () => {
         eternal: { physical: '{"eyeColor": "blue", "hair": "black"}' },
       };
       const result = prompt_builder.build_enhancement("eternal.physical", "Content", "Viper", "character", false, entity);
-      expect(result.system).toContain("<ETERNAL_PHYSICAL>");
+      expect(result.system).toContain("<ETERNAL>");
+      expect(result.system).toContain("<PHYSICAL>");
       expect(result.system).toContain("<eyeColor>blue</eyeColor>");
       expect(result.system).toContain("<hair>black</hair>");
     });

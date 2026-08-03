@@ -154,7 +154,7 @@
             <Select.Viewport
               class="
                   overflow-hidden
-                  p-1.5
+                  p-0
                 "
             >
               <div class="scrollbar-none [&::-webkit-scrollbar]:hidden" style="max-height: {computed_height_css}; overflow-y: auto;">
@@ -167,7 +167,6 @@
                         items-center
                         justify-between
                         gap-4
-                        rounded-lg
                         bg-(--signature-color,#555d66)
                         px-3
                         py-2
