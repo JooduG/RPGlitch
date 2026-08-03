@@ -144,7 +144,7 @@ export const VISUAL_STYLES = {
 
   analog_video: {
     id: "analog_video",
-    name: "Analog Video & Found Footage",
+    name: "Analog Video",
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/644012b0a426a455889d5a8881d69e72.png",
     description:
@@ -217,7 +217,7 @@ export const VISUAL_STYLES = {
 
   pixar: {
     id: "pixar",
-    name: "3D Animation & CGI Render",
+    name: "3D Animation (Pixar)",
     category: "Animation & Stylized Motion",
     portrait: "https://user.uploads.dev/file/27615c2c471da91f2052c4505a945053.png",
     description:
@@ -276,7 +276,7 @@ export const VISUAL_STYLES = {
 
   clay: {
     id: "clay",
-    name: "Claymation & Stop-Motion",
+    name: "Claymation",
     category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/1be495044d258e39e940aa68eaa04c5f.png",
     description: "Tactile stop-motion plasticine animation style with visible thumbprints, miniature set depth, and soft physical lighting.",
@@ -292,7 +292,7 @@ export const VISUAL_STYLES = {
 
   lego: {
     id: "lego",
-    name: "LEGO® Bricks",
+    name: "LEGO®",
     category: "Miniature & Physical Craft Photography",
     portrait: "https://user.uploads.dev/file/120b2c46188fb711a93bc68b9bf1eadc.png",
     description:
@@ -331,7 +331,7 @@ export const VISUAL_STYLES = {
 
   graphic_print: {
     id: "graphic_print",
-    name: "Comic, Pop & Risograph Print",
+    name: "Graphic Print",
     category: "Comic, Print & Graphic Design",
     portrait: "https://user.uploads.dev/file/861133eb1b50d4e3c957c0e8402ea5f2.png",
     description:
@@ -417,7 +417,7 @@ export const VISUAL_STYLES = {
 
   monochrome_sketch: {
     id: "monochrome_sketch",
-    name: "Monochrome Ink, Charcoal & Graphite",
+    name: "Monochrome Sketch",
     category: "Traditional Painting & Drawing",
     portrait: "https://user.uploads.dev/file/5658673d879658c2dd722fdf1791f688.png",
     description:
@@ -486,7 +486,7 @@ export const VISUAL_STYLES = {
 
   synthwave: {
     id: "synthwave",
-    name: "Retro Synthwave & Vaporwave",
+    name: "Synthwave",
     category: "Retro-Futurism & Digital Subculture",
     portrait: "https://user.uploads.dev/file/f2150b87f7133e099c38bbe384a7eaa1.png",
     description:

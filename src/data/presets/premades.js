@@ -12,11 +12,11 @@ export const premade = {
     {
       id: "orion",
       name: "Orion the Pink Protector",
-      profile_picture: "https://user.uploads.dev/file/0bbff50c3f303835be04a7779ea5863b.jpg",
+      profile_picture: "https://user.uploads.dev/file/7d2b5ea429ac42ecd0017cc45009b6e1.png",
       description: "Colossal pink-haired dumb himbo superhero and fitness influencer known as the Pink Protector.",
       type: "character",
       signature_color: "Adrenaline Pink",
-      visual_style: "graphic_print",
+      visual_style: "pulp",
       voice: { uri: "am_adam", rate: 1.1 },
       voice_register: "plain",
       dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
@@ -167,11 +167,11 @@ export const premade = {
     {
       id: "silas",
       name: "Silas 'Rust' Vane",
-      profile_picture: "https://user.uploads.dev/file/c98408681b8fd3ed775c637528d8c3bb.jpg",
+      profile_picture: "https://user.uploads.dev/file/148448ccc86f6c5e708edfee6356c40f.jpg",
       description: "Grizzled honky-tonk weapons specialist, scrap-merchant and scrapyard genius with a crude, aggressive, zero-filter attitude.",
       type: "character",
       signature_color: "Rusty Orange",
-      visual_style: "cinematic",
+      visual_style: "graphic_print",
       voice: { uri: "am_michael", rate: 0.9 },
       voice_register: "raw",
       dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
@@ -212,7 +212,7 @@ export const premade = {
     {
       id: "elias",
       name: "Dr. Elias Voss",
-      profile_picture: "https://user.uploads.dev/file/eae62827ec1fab1e283153244045f6cb.jpg",
+      profile_picture: "https://user.uploads.dev/file/e7bdda6f9413b623b4a7712311bbf138.jpg",
       description:
         "Brilliant, unhinged human mad scientist obsessed with biochemical bimbofication, extreme muscle growth serums, and authoritative medical play.",
       type: "character",
@@ -258,7 +258,7 @@ export const premade = {
     {
       id: "caelum",
       name: "Caelum the Banished Prince",
-      profile_picture: "https://user.uploads.dev/file/65ec01a42209bbc02656acef4f449e15.jpg",
+      profile_picture: "https://user.uploads.dev/file/f0b9b9d93c48aefa665f7ba04f10c366.jpg",
       description:
         "Delicate, eager-to-please high-elf scholar and banished prince wearing minimalist silk apparel, entirely driven by a raw desire to serve authoritative men.",
       type: "character",
@@ -304,11 +304,11 @@ export const premade = {
     {
       id: "beast",
       name: "Beast",
-      profile_picture: "https://user.uploads.dev/file/64cf73558ff6b5709eadeb812cb1d91f.jpg",
+      profile_picture: "https://user.uploads.dev/file/7c98486700073678e43b5588d765ea0e.jpg",
       description: "Massive bio-engineered male orc combat experiment and feral breeding fighter built for absolute physical control.",
       type: "character",
       signature_color: "Toxic Green",
-      visual_style: "synthwave",
+      visual_style: "fashion",
       voice: { uri: "am_onyx", rate: 0.8 },
       voice_register: "raw",
       dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
@@ -357,7 +357,7 @@ export const premade = {
       description: "Glittering queer sanctuary metropolis with a dangerous criminal underbelly.",
       type: "fractal",
       signature_color: "Proud Purple",
-      visual_style: "synthwave",
+      visual_style: "photo",
       narrative_style: "samuel_delany",
       voice: { uri: "af_nova", rate: 1.0 },
       dynamics: { velocity: 56, entropy: 54 },
@@ -398,7 +398,7 @@ export const premade = {
     {
       id: "ashenweald",
       name: "Ashenweald",
-      profile_picture: "https://user.uploads.dev/file/c611ae6cada99e9115f1f74e56c807b9.jpg",
+      profile_picture: "https://user.uploads.dev/file/5fd5f93c0a5899a7e4ec3446c764c887.jpg",
       description:
         "Sentient cursed twilight forest that strips away psychological defenses to expose hidden desires, surrounding the pristine high-elf palace.",
       type: "fractal",
@@ -444,12 +444,12 @@ export const premade = {
     {
       id: "tartarus",
       name: "Project Tartarus",
-      profile_picture: "https://user.uploads.dev/file/45320df79e94cdf4cb33ff39acd369f7.jpg",
+      profile_picture: "https://user.uploads.dev/file/dc7c9b876026af12fa83cd0e6368299e.jpg",
       description:
         "Sterile, high-security orbital research facility operating as Dr. Elias Voss's personal sandbox for radical biochemical transformations and clinical muscle-growth experiments.",
       type: "fractal",
       signature_color: "Space Blue",
-      visual_style: "photo",
+      visual_style: "analog_video",
       narrative_style: "philip_k_dick",
       voice: { uri: "bf_emma", rate: 1.05 },
       dynamics: { velocity: 45, entropy: 55 },
