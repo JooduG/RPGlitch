@@ -410,10 +410,10 @@
         <Skeleton variant="card" width="100%" height="100%" />
       {:else if app.view === "storymode"}
         <div
-          class="flex h-full w-full flex-col items-center justify-center gap-gap-standard transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
+          class="pointer-events-none flex h-full w-full flex-col items-center justify-center gap-gap-standard transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
         >
           <div
-            class="flex w-full items-center justify-center"
+            class="pointer-events-auto flex w-full items-center justify-center"
             style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_ai?.id
               ? "entity-morph-ai"
               : undefined}
@@ -430,7 +430,7 @@
             />
           </div>
           <div
-            class="flex w-full items-center justify-center"
+            class="pointer-events-auto flex w-full items-center justify-center"
             style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_fractal?.id
               ? "entity-morph-fractal"
               : undefined}

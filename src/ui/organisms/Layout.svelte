@@ -96,7 +96,7 @@
     </header>
   {/if}
 
-  <aside class="relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {left_class}">
+  <aside class="relative flex min-h-0 flex-col justify-center transition-all duration-300 {mode === 'storymode' ? 'z-20' : 'z-10'} {left_class}">
     {#if left}
       {@render left()}
     {/if}
@@ -108,7 +108,7 @@
     {/if}
   </main>
 
-  <aside class="relative z-10 flex min-h-0 flex-col justify-center transition-all duration-300 {right_class}">
+  <aside class="relative flex min-h-0 flex-col justify-center transition-all duration-300 {mode === 'storymode' ? 'z-20' : 'z-10'} {right_class}">
     {#if right}
       {@render right()}
     {/if}
