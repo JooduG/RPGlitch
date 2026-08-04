@@ -16,7 +16,7 @@ Execute these steps in strict chronological sequence upon session initialization
    - Extract contents into `scratch/src/`.
 
 2. 📜 **Audit Workspace & Shell State**
-   - Review `README.md` and `GEMINI.md` (within `scratch/src/`) and the global agent rules in `scratch/gemini/` for active conventions.
+   - Review `README.md` and `GEMINI.md` (within `scratch/src/`) for active conventions.
    - **Critical Shell Constraint**: Re-read `index.html` in the workspace root prior to making edits. Shell markup/script updates occur between sessions — preserve all existing custom wrappers and scripts.
 
 3. 🛡️ **Svelte 5 Sovereignty (Non-Negotiable)**
