@@ -83,15 +83,13 @@ components:
   scale-lift: "1.02"
   scale-pulse: "1.05"
   scale-sink: "0.96"
-  scrollbar-thumb: var(--color-gunmetal)
-  scrollbar-thumb-hover: var(--color-frisk)
-  scrollbar-track: transparent
   shadow-ghost: |-
     0 var(--spacing-pixel) var(--spacing-pixel)
     rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
   shadow-standard: |-
     0 var(--spacing-unit) calc(var(--spacing-unit) * 4)
     rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
+  shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)
   signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-frozen)
   spring-damping-default: "0.8"
   spring-stiffness-default: "0.15"
@@ -102,7 +100,6 @@ components:
   spacing-character-card-width: calc(var(--spacing-column-unit) * 2)
   spacing-fractal-card-height: calc(var(--spacing-row-unit) * 4)
   spacing-fractal-card-width: calc(var(--spacing-column-unit) * 4)
-  title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)
   z-index-max: "999"
   empty-fill: "rgb(23 23 23 / 0.6)"
 ---
@@ -237,17 +234,17 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--scrollbar-track);
+  background: transparent;
   border-radius: var(--radius-sharp);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
+  background: var(--color-gunmetal);
   border-radius: var(--radius-sharp);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--scrollbar-thumb-hover);
+  background: var(--color-frisk);
 }
 
 @utility mask-border-solid {
@@ -296,7 +293,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     margin: 0;
     line-height: 1.5;
     color: var(--color-pure-white);
-    text-shadow: var(--title-shadow-ambient);
+    text-shadow: var(--shadow-ambient);
     letter-spacing: -0.01em;
     font-weight: 700;
   }

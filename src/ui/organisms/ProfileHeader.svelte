@@ -118,15 +118,13 @@
     <GlassWrapper is_expanded={active_field === "description"} {signature_color}>
       <textarea
         class="
-          [&::-webkit-scrollbar]:h-scrollbar-width
-          [&::-webkit-scrollbar]:w-scrollbar-width
           z-20
           m-0
           max-h-[calc(var(--spacing-row-unit)*4)]
           min-h-row-unit
           w-full
           resize-none
-          [scrollbar-color:var(--scrollbar-thumb)_var(--scrollbar-track)]
+          [scrollbar-color:color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))_transparent]
           border-none
           bg-transparent
           p-3
@@ -140,11 +138,13 @@
           placeholder:text-slate-400
           placeholder:italic
           placeholder:opacity-60
+          [&::-webkit-scrollbar]:h-[calc(var(--spacing-unit)*2)]
+          [&::-webkit-scrollbar]:w-[calc(var(--spacing-unit)*2)]
           [&::-webkit-scrollbar-thumb]:rounded-standard
 
-          [&::-webkit-scrollbar-thumb]:bg-(--scrollbar-thumb)
-          hover:[&::-webkit-scrollbar-thumb]:bg-(--scrollbar-thumb-hover)
-          [&::-webkit-scrollbar-track]:bg-(--scrollbar-track)
+          [&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_40%,var(--color-gunmetal))]
+          hover:[&::-webkit-scrollbar-thumb]:bg-[color-mix(in_srgb,var(--signature-color)_60%,var(--color-frisk))]
+          [&::-webkit-scrollbar-track]:bg-transparent
         "
         placeholder={ENTITY_FRAGMENTS.description}
         bind:value={description}

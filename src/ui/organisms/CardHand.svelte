@@ -189,7 +189,7 @@
           tracking-widest
           text-slate-600
           uppercase
-          text-shadow-(--title-shadow-ambient)
+          text-shadow-(--shadow-ambient)
         "
       >
         {title}

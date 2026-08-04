@@ -318,8 +318,6 @@
         style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
         style:backdrop-filter="var(--blur-mist)"
         style:--signature-color={signature_color}
-        style:--scrollbar-thumb="color-mix(in srgb, var(--signature-color) 40%, var(--color-gunmetal))"
-        style:--scrollbar-thumb-hover="color-mix(in srgb, var(--signature-color) 60%, var(--color-frisk))"
         style:view-transition-name={target_morph_name}
         use:click_outside={handle_click_outside}
       >

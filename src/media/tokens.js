@@ -79,9 +79,7 @@ export const TOKENS = {
   "scale-lift": "1.02",
   "scale-pulse": "1.05",
   "scale-sink": "0.96",
-  "scrollbar-thumb": "var(--color-gunmetal)",
-  "scrollbar-thumb-hover": "var(--color-frisk)",
-  "scrollbar-track": "transparent",
+  "shadow-ambient": "0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)",
   "shadow-ghost": "0 var(--spacing-pixel) var(--spacing-pixel)\nrgb(from var(--color-void-black) r g b / var(--opacity-ghost))",
   "shadow-standard": "0 var(--spacing-unit) calc(var(--spacing-unit) * 4)\nrgb(from var(--color-void-black) r g b / var(--opacity-whisper))",
   "signature-color": "var(--color-frozen)",
@@ -101,7 +99,6 @@ export const TOKENS = {
   "state-fill-end": "100%",
   "state-fill-start": "0%",
   "state-weight-intensity": "0",
-  "title-shadow-ambient": "0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)",
   "z-index-max": "999",
 };
 
