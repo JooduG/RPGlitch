@@ -70,10 +70,10 @@ export const AppBootstrap = {
       state_bridge.app.log(`[Engine] 🚫 Critical Failure: ${err instanceof Error ? err.message : String(err)}`, "error");
 
       const error_template = `
-                <div style="background:var(--color-chalk); color:var(--color-crimson-red); padding:calc(var(--spacing-spacing-unit) * 8); font-family:var(--font-mono); height:100vh; overflow:auto;">
-                    <h1 style="border-bottom: var(--spacing-border-width-thick) solid var(--color-crimson-red); padding-bottom: calc(var(--spacing-spacing-unit) * 2); margin-bottom: calc(var(--spacing-spacing-unit) * 4);">SYSTEM HALTED</h1>
+                <div style="background:var(--color-chalk); color:var(--color-crimson-red); padding:calc(var(--spacing-unit) * 8); font-family:var(--font-mono); height:100vh; overflow:auto;">
+                    <h1 style="border-bottom: var(--spacing-border-width-thick) solid var(--color-crimson-red); padding-bottom: calc(var(--spacing-unit) * 2); margin-bottom: calc(var(--spacing-unit) * 4);">SYSTEM HALTED</h1>
                     <p style="color:var(--color-pure-white); opacity:var(--opacity-whisper);">The engine failed to ignite. Check the console or stack trace below:</p>
-                    <pre id="user-content-error-stack" style="background:var(--color-glass-sunken); padding:calc(var(--spacing-spacing-unit) * 4); border-radius:var(--radius-sharp); color:var(--color-crimson-red); white-space: pre-wrap; word-break: break-all;"></pre>
+                    <pre id="user-content-error-stack" style="background:var(--color-glass-sunken); padding:calc(var(--spacing-unit) * 4); border-radius:var(--radius-sharp); color:var(--color-crimson-red); white-space: pre-wrap; word-break: break-all;"></pre>
                 </div>
             `;
       const fragment = sanitize_to_fragment(error_template);

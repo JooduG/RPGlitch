@@ -48,7 +48,7 @@
 <div
   class="
     flex
-    min-h-(--text-h3)
+    min-h-10
     w-full
     min-w-0
     shrink-0

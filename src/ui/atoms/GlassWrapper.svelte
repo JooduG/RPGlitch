@@ -25,7 +25,7 @@
     before:inset-0
     before:rounded-[inherit]
     before:mask-border-solid
-    before:p-spacing-pixel
+    before:p-pixel
     before:opacity-whisper
     before:transition-opacity
     before:duration-(--duration-standard)

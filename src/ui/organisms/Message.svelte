@@ -469,11 +469,11 @@
                 {#each app.story_title_parts as part, i (i)}
                   {#if part.color}
                     <span
-                      class="inline px-1 whitespace-nowrap text-(--signature-color) text-shadow-[0_0_var(--spacing-spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]"
+                      class="inline px-1 whitespace-nowrap text-(--signature-color) text-shadow-[0_0_var(--spacing-unit)_var(--signature-color),0_0_calc(var(--spacing-unit)*4)_rgb(from_var(--signature-color)_r_g_b/var(--opacity-whisper))]"
                       style:--signature-color={part.color}>{part.text}</span
                     >
                   {:else}
-                    <span class="inline px-1 text-shadow-[0_0_var(--spacing-spacing-unit)_var(--color-void-black)]">{part.text}</span>
+                    <span class="inline px-1 text-shadow-[0_0_var(--spacing-unit)_var(--color-void-black)]">{part.text}</span>
                   {/if}
                 {/each}
               {:else}
@@ -626,7 +626,7 @@
                 </Button>
               {:else if image_regenerate.isRegenerating(regenerate_key)}
                 <div
-                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+                  class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
                   style={container_style}
                 >
                   <div class="flex gap-1.5">

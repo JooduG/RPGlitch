@@ -78,7 +78,7 @@
 
   <!-- RAW EXPLORER -->
   <Accordion label="View JSON Data">
-    <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
+    <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
       <pre class="font-mono">{JSON.stringify(profile_state.char, null, 2)}</pre>
     </DataBox>
   </Accordion>

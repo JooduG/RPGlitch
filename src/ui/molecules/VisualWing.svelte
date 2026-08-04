@@ -261,9 +261,9 @@
             z-25
             scale-[1.1]
             cursor-default
-            [box-shadow:0_0_calc(var(--spacing-spacing-unit)*5)_var(--swatch-color)]
-            outline-[calc(var(--spacing-spacing-pixel)*3)]
-            outline-offset-[calc(var(--spacing-spacing-pixel)*2)]
+            [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
+            outline-[calc(var(--spacing-pixel)*3)]
+            outline-offset-[calc(var(--spacing-pixel)*2)]
             outline-white
             brightness-110
             outline-solid

@@ -500,7 +500,7 @@
           {/if}
         {/if}
         <Accordion label="View Raw Data">
-          <DataBox maxHeight="calc(var(--spacing-spacing-unit) * 60)">
+          <DataBox maxHeight="calc(var(--spacing-unit) * 60)">
             <pre class="font-mono">{JSON.stringify(meta, null, 2)}</pre>
           </DataBox>
         </Accordion>
@@ -516,7 +516,7 @@
     }
 
     70% {
-      box-shadow: 0 0 0 calc(var(--spacing-spacing-unit) * 3) color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
+      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3) color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
     }
 
     100% {

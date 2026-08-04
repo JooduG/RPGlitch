@@ -363,7 +363,7 @@
       : !app.control_panel_open && is_focused && app.view === 'storymode'
         ? `
       border-(--signature-color,var(--color-slate-600))
-      shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
+      shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color,var(--color-slate-600))_30%,transparent)]
       md:w-[calc(var(--spacing-column-unit)*5)]
     `
         : !app.control_panel_open

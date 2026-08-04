@@ -333,7 +333,6 @@
             h-kinetic-slide-y
             w-kinetic-slide-y
           "
-          style="width: var(--text-small); height: var(--text-small);"
         >
           <path
             fill="currentColor"
@@ -350,7 +349,7 @@
   @keyframes slide-down-item {
     from {
       opacity: 0;
-      transform: translateY(calc(var(--spacing-spacing-unit) * -2.5));
+      transform: translateY(calc(var(--spacing-unit) * -2.5));
     }
 
     to {

@@ -16,5 +16,6 @@
   "MD040": false,
   "MD046": { "style": "fenced" },
   "MD053": false,
+  "MD056": true,
   "MD060": { "style": "aligned" }
 }

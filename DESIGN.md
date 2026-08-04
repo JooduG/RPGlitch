@@ -37,64 +37,50 @@ typography:
   font-heading: '"Ubuntu", sans-serif'
   font-mono: '"JetBrains Mono", monospace'
   text-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
-  text-h1: clamp(3rem, 5vw + 2rem, 6rem)
-  text-h2: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem)
-  text-h3: clamp(2rem, 3vw + 1.6rem, 3.2rem)
-  text-h4: clamp(1.6rem, 2vw + 1.4rem, 2.4rem)
-  text-h5: clamp(1.1rem, 1.2vw + 1rem, 1.5rem)
-  text-h6: clamp(1rem, 1vw + 0.9rem, 1.25rem)
   text-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem)
-  text-small: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem)
-  font-height-base: 1.5
-  font-spacing-tight: -0.01em
-  font-weight-bold: 700
 rounded:
   radius-sharp: 0.25rem
   radius-standard: 1rem
-  radius-full: 9999px
 spacing:
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
-  spacing-gap-standard: calc(var(--spacing-spacing-unit) * 4)
-  spacing-gap-tight: calc(var(--spacing-spacing-unit) * 2)
+  spacing-gap-standard: calc(var(--spacing-unit) * 4)
+  spacing-gap-tight: calc(var(--spacing-unit) * 2)
   spacing-grid-height: clamp(20rem, 100dvh, var(--spacing-grid-height-max))
-  spacing-grid-height-max: clamp(25rem, calc(var(--spacing-golden-ratio) * 100vw), 100dvh)
+  spacing-grid-height-max: clamp(25rem, calc(1.618 * 100vw), 100dvh)
   spacing-grid-width: clamp(20rem, 100vw, var(--spacing-grid-width-max))
-  spacing-grid-width-max: clamp(50rem, calc(var(--spacing-golden-ratio) * 100dvh), 100vw)
-  spacing-padding-standard: calc(var(--spacing-spacing-unit) * 4)
-  spacing-padding-tight: calc(var(--spacing-spacing-unit) * 2)
+  spacing-grid-width-max: clamp(50rem, calc(1.618 * 100dvh), 100vw)
+  spacing-padding-standard: calc(var(--spacing-unit) * 4)
+  spacing-padding-tight: calc(var(--spacing-unit) * 2)
   spacing-row-unit: calc(var(--spacing-grid-height) / 12)
-  spacing-spacing-pixel: 1px
-  spacing-spacing-unit: 0.25rem
+  spacing-pixel: 1px
+  spacing-unit: 0.25rem
 components:
   signature-color: var(--color-signature-color)
   swatch-color: var(--color-swatch-color)
   spacing-avatar-medium-size: calc(var(--spacing-column-unit) * 2)
-  blur-mist: blur(calc(var(--spacing-spacing-unit) * 4))
-  spacing-border-width-base: var(--spacing-spacing-pixel)
-  spacing-border-width-thick: var(--spacing-spacing-unit)
-  ease-in: cubic-bezier(0.42, 0, 1, 1)
+  blur-mist: blur(calc(var(--spacing-unit) * 4))
+  spacing-border-width-base: var(--spacing-pixel)
+  spacing-border-width-thick: var(--spacing-unit)
   breakpoint-mobile: 48rem
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
-  spacing-dropdown-max-height: calc(var(--spacing-spacing-unit) * 80)
+  spacing-dropdown-max-height: calc(var(--spacing-unit) * 80)
   duration-ambient: 2000ms
   duration-fast: 150ms
   duration-slow: 500ms
   duration-standard: 300ms
-  ease-out: cubic-bezier(0, 0, 0.2, 1)
   ease-standard: cubic-bezier(0.4, 0, 0.2, 1)
   ease-elastic: cubic-bezier(0.34, 1.56, 0.64, 1)
-  spacing-golden-ratio: "1.618"
-  spacing-icon-medium: calc(var(--spacing-spacing-unit) * 8)
-  spacing-icon-small: calc(var(--spacing-spacing-unit) * 4)
+  spacing-icon-medium: calc(var(--spacing-unit) * 8)
+  spacing-icon-small: calc(var(--spacing-unit) * 4)
   kinetic-drag-threshold: "10"
   kinetic-momentum-friction: "0.95"
   kinetic-scroll-multiplier: "1.5"
-  spacing-kinetic-shimmy-offset: var(--spacing-spacing-pixel)
-  spacing-kinetic-shimmy-y: calc(var(--spacing-spacing-pixel) / 2)
-  spacing-kinetic-slide-y: calc(var(--spacing-spacing-pixel) * 10)
-  spacing-kinetic-stab-distance: var(--spacing-spacing-unit)
+  spacing-kinetic-shimmy-offset: var(--spacing-pixel)
+  spacing-kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
+  spacing-kinetic-slide-y: calc(var(--spacing-pixel) * 10)
+  spacing-kinetic-stab-distance: var(--spacing-unit)
   spacing-modal-width-thin: calc(var(--spacing-column-unit) * 3)
   motion-dissolve: opacity var(--duration-standard) var(--ease-standard)
   motion-elastic: var(--duration-slow) var(--ease-elastic)
@@ -110,14 +96,14 @@ components:
   scrollbar-thumb: var(--color-gunmetal)
   scrollbar-thumb-hover: var(--color-frisk)
   scrollbar-track: transparent
-  spacing-scrollbar-width: calc(var(--spacing-spacing-unit) * 2)
+  spacing-scrollbar-width: calc(var(--spacing-unit) * 2)
   shadow-ghost: |-
-    0 var(--spacing-spacing-pixel) var(--spacing-spacing-pixel)
+    0 var(--spacing-pixel) var(--spacing-pixel)
     rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
   shadow-standard: |-
-    0 var(--spacing-spacing-unit) calc(var(--spacing-spacing-unit) * 4)
+    0 var(--spacing-unit) calc(var(--spacing-unit) * 4)
     rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
-  signature-glow: 0 0 calc(var(--spacing-spacing-unit) * 4) var(--color-signature-color)
+  signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-signature-color)
   spring-damping-default: "0.8"
   spring-stiffness-default: "0.15"
   state-dev-accent: var(--color-electric-cyan)
@@ -128,8 +114,7 @@ components:
   spacing-storyboard-character-card-width: calc(var(--spacing-column-unit) * 2)
   spacing-storyboard-fractal-card-height: calc(var(--spacing-row-unit) * 4)
   spacing-storyboard-fractal-card-width: calc(var(--spacing-column-unit) * 4)
-  scan-animation: scan var(--duration-ambient) linear infinite
-  title-shadow-ambient: 0 0 calc(var(--spacing-spacing-unit) * 5) var(--color-void-black)
+  title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)
   z-index-max: "999"
   empty-fill: "rgb(23 23 23 / 0.6)"
 ---
@@ -309,59 +294,47 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     font-family: var(--font-base);
     color: var(--color-frisk);
     background-color: var(--color-chalk);
-    line-height: var(--font-height-base);
+    line-height: 1.5;
     text-align: left;
   }
 
   h1,
-  .h1,
   h2,
-  .h2,
   h3,
-  .h3,
   h4,
-  .h4,
   h5,
-  .h5,
-  h6,
-  .h6 {
+  h6 {
     font-family: var(--font-heading);
     margin: 0;
-    line-height: var(--font-height-base);
-    color: var(--pure-white);
+    line-height: 1.5;
+    color: var(--color-pure-white);
     text-shadow: var(--title-shadow-ambient);
-    letter-spacing: var(--font-spacing-tight);
-    font-weight: var(--font-weight-bold);
+    letter-spacing: -0.01em;
+    font-weight: 700;
   }
 
-  h1,
-  .h1 {
-    font-size: var(--text-h1);
+  h1 {
+    font-size: clamp(3rem, 5vw + 2rem, 6rem);
   }
 
-  h2,
-  .h2 {
-    font-size: var(--text-h2);
+  h2 {
+    font-size: clamp(2.8rem, 4.5vw + 2.2rem, 4.8rem);
   }
 
-  h3,
-  .h3 {
-    font-size: var(--text-h3);
+  h3 {
+    font-size: clamp(2rem, 3vw + 1.6rem, 3.2rem);
   }
 
-  h4,
-  .h4 {
-    font-size: var(--text-h4);
+  h4 {
+    font-size: clamp(1.6rem, 2vw + 1.4rem, 2.4rem);
   }
 
-  h5,
-  .h5 {
-    font-size: var(--text-h5);
+  h5 {
+    font-size: clamp(1.1rem, 1.2vw + 1rem, 1.5rem);
   }
 
-  h6,
-  .h6 {
-    font-size: var(--text-h6);
+  h6 {
+    font-size: clamp(1rem, 1vw + 0.9rem, 1.25rem);
   }
 
   p,
@@ -401,7 +374,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 
   strong,
   b {
-    font-weight: var(--font-weight-bold);
+    font-weight: 700;
   }
 
   em,
@@ -430,13 +403,13 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   }
 
   small {
-    font-size: var(--text-small);
+    font-size: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
   }
 
   code {
     font-family: var(--font-mono);
-    font-size: var(--text-small);
-    background: var(--glass-sunken);
+    font-size: clamp(0.8rem, 0.6vw + 0.7rem, 0.95rem);
+    background: var(--color-glass-sunken);
     padding: var(--spacing-pixel) var(--spacing-unit);
     border-radius: var(--radius-sharp);
   }
@@ -473,30 +446,10 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   }
 }
 
-.interactable {
-  cursor: pointer;
-  user-select: none;
-  transition:
-    transform var(--duration-fast) var(--ease-standard),
-    filter var(--duration-fast) var(--ease-standard),
-    opacity var(--duration-fast) var(--ease-standard);
-}
-
-.interactable:hover {
-  transform: var(--scale-lift);
-  filter: var(--brightness-glow);
-}
-
-.interactable:active {
-  transform: var(--scale-sink);
-  filter: brightness(var(--brightness-dim));
-}
-
 /* --- CAPABILITY & POINTER RESPONSIVENESS --- */
 
 /* Prevent scale/brightness transitions on touchscreens to avoid sticky hovers */
 @media (hover: none) {
-  .interactable:hover,
   button:hover,
   [role="button"]:hover,
   a:hover {
@@ -515,92 +468,6 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     align-items: center;
     justify-content: center;
   }
-}
-
-/* --- TEXT SHADOW UTILITIES --- */
-
-.text-shadow-outline {
-  text-shadow:
-    var(--spacing-spacing-pixel) var(--spacing-spacing-pixel) 0 var(--color-void-black),
-    calc(var(--spacing-spacing-pixel) * -1) var(--spacing-spacing-pixel) 0 var(--color-void-black),
-    var(--spacing-spacing-pixel) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
-    calc(var(--spacing-spacing-pixel) * -1) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
-    0 0 calc(var(--spacing-spacing-unit) * 4) var(--color-void-black);
-}
-
-.text-shadow-bloom {
-  text-shadow:
-    var(--spacing-spacing-pixel) var(--spacing-spacing-pixel) 0 var(--color-void-black),
-    calc(var(--spacing-spacing-pixel) * -1) var(--spacing-spacing-pixel) 0 var(--color-void-black),
-    var(--spacing-spacing-pixel) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
-    calc(var(--spacing-spacing-pixel) * -1) calc(var(--spacing-spacing-pixel) * -1) 0 var(--color-void-black),
-    0 0 calc(var(--spacing-spacing-unit) * 2) var(--signature-color),
-    0 0 calc(var(--spacing-spacing-unit) * 6) rgb(from var(--signature-color) r g b / var(--opacity-muted));
-}
-
-.icon-outline {
-  fill: none;
-  stroke: currentcolor;
-  stroke-width: 1.5;
-}
-
-/* --- SCROLL AREA PRIMITIVE MAPPINGS --- */
-
-.scroll-area-root {
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  position: relative;
-}
-
-.scroll-area-viewport {
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-}
-
-.scroll-area-track {
-  display: flex;
-  user-select: none;
-  touch-action: none;
-  padding: var(--spacing-pixel);
-  background: var(--glass-sunken);
-  transition: background var(--duration-fast);
-}
-
-.scroll-area-track[data-orientation="vertical"] {
-  width: var(--scrollbar-width);
-}
-
-.scroll-area-track[data-orientation="horizontal"] {
-  flex-direction: column;
-  height: var(--scrollbar-width);
-}
-
-.scroll-area-thumb {
-  flex: 1;
-  background: var(--scrollbar-thumb);
-  border-radius: var(--radius-full);
-  position: relative;
-  opacity: var(--opacity-whisper);
-  transition:
-    opacity var(--duration-fast),
-    background var(--duration-fast);
-}
-
-.scroll-area-thumb:hover {
-  opacity: var(--opacity-solid);
-  background: var(--scrollbar-thumb-hover);
-}
-
-/* --- LEGACY FALLBACK SCROLLBAR UTILITIES --- */
-.no-scrollbar {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
 }
 
 /* --- VIEW TRANSITIONS & NOISE ANIMATIONS (Phase 4) --- */
@@ -648,31 +515,16 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   }
 }
 
-.noise-overlay {
-  position: fixed;
-  inset: -20px;
-  background-image: var(--noise-url);
-  opacity: var(--opacity-ghost);
-  mix-blend-mode: overlay;
-  pointer-events: none;
-  z-index: var(--z-index-max);
-  animation: noise-breathing 0.2s steps(4) infinite;
-}
-
-[data-motion-reduced="true"] .noise-overlay {
-  animation-play-state: paused;
-}
-
 /* Custom view transition handling */
 ::view-transition-old(modal-container) {
   animation:
-    250ms var(--ease-in) both fade-out,
-    250ms var(--ease-in) both scale-down;
+    250ms cubic-bezier(0.42, 0, 1, 1) both fade-out,
+    250ms cubic-bezier(0.42, 0, 1, 1) both scale-down;
 }
 
 ::view-transition-new(modal-container) {
   animation:
-    350ms var(--ease-out) both fade-in,
+    350ms cubic-bezier(0, 0, 0.2, 1) both fade-in,
     350ms var(--ease-elastic) both slide-up;
 }
 
@@ -782,12 +634,6 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
     opacity: 1;
     filter: brightness(1);
   }
-}
-
-/* --- Staged Decompression Row Morphing --- */
-.panel-root,
-.pill-chassis {
-  contain: layout; /* Constrain geometry recalculations during morphing */
 }
 
 /* Enforce uniform mechanical interpolation rates */
@@ -923,7 +769,7 @@ html:active-view-transition *::after {
 
   49.9% {
     transform: perspective(1200px) rotateY(90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--color-signature-color));
+    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-signature-color));
     opacity: 1;
   }
 
@@ -945,7 +791,7 @@ html:active-view-transition *::after {
 
   50.1% {
     transform: perspective(1200px) rotateY(-90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-spacing-unit) * 6) var(--color-signature-color));
+    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-signature-color));
     opacity: 1;
   }
 
@@ -956,13 +802,6 @@ html:active-view-transition *::after {
   }
 }
 
-/* --- Suppress Wrapper Interference During Deck Swaps --- */
-:root.is-swapping-card .storyboard-card-ai,
-:root.is-swapping-card .storyboard-card-user,
-:root.is-swapping-card .storyboard-card-fractal {
-  view-transition-name: none;
-}
-
 /* --- Fluid Aspect and Sizing Transformations for Fractal Blooming --- */
 ::view-transition-old(entity-morph-fractal),
 ::view-transition-new(entity-morph-fractal) {
@@ -970,27 +809,6 @@ html:active-view-transition *::after {
   height: 100%;
   width: 100%;
   object-fit: cover;
-}
-
-/* --- Processing Noise Velocity Scaling --- */
-.noise-overlay.is-generating {
-  opacity: calc(var(--opacity-whisper) + 0.1);
-  animation-duration: 0.08s; /* Overdriven step speed cycle */
-}
-
-/* --- Center Axis Delayed Fade-In Rule --- */
-::view-transition-new(console-center-axis) {
-  animation: 300ms ease-out delayed-fade-in both;
-}
-
-@keyframes delayed-fade-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
 }
 
 @media (width >= 48rem) {
@@ -1033,19 +851,6 @@ div.flex-1.flex-col footer {
   justify-content: flex-end !important;
   align-items: center !important;
   gap: 1rem !important;
-}
-
-/* --- PROFILE TYPOGRAPHY SHIELD --- */
-
-/* Force entry fields inside header zones to respect global title variables */
-div[class*="ProfileHeader"] input,
-div[class*="ProfileHeader"] h2,
-div[class*="profile-header"] input,
-.profile-header-title {
-  font-size: var(--text-h3) !important;
-  font-family: var(--font-heading) !important;
-  font-weight: 700 !important;
-  line-height: inherit !important;
 }
 
 /* --- Profile Card Edit-Mode Transitions --- */

@@ -848,7 +848,7 @@
   @keyframes slide-in-left {
     0% {
       opacity: var(--opacity-none);
-      transform: translateX(calc(var(--spacing-spacing-unit) * 5));
+      transform: translateX(calc(var(--spacing-unit) * 5));
     }
 
     100% {

@@ -315,7 +315,7 @@
     `
     : `
       hover:border-(--signature-color)
-      hover:shadow-[0_0_calc(var(--spacing-spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
+      hover:shadow-[0_0_calc(var(--spacing-unit)*4)_color-mix(in_srgb,var(--signature-color)_15%,transparent)]
 
       hover:after:border-(--signature-color,var(--color-slate-50))
       hover:after:shadow-[inset_0_0_0_1px_var(--signature-color,var(--color-slate-50))]
@@ -630,15 +630,15 @@
     }
 
     40% {
-      transform: scale(1.04) translateY(calc(var(--spacing-spacing-unit) * -3));
+      transform: scale(1.04) translateY(calc(var(--spacing-unit) * -3));
       filter: brightness(1.15);
     }
 
     100% {
-      transform: scale(1.02) translateY(calc(var(--spacing-spacing-unit) * -2));
+      transform: scale(1.02) translateY(calc(var(--spacing-unit) * -2));
       box-shadow:
-        0 calc(var(--spacing-spacing-unit) * 4) calc(var(--spacing-spacing-unit) * 6) rgb(from var(--color-neutral-900) r g b / 0.5),
-        0 0 calc(var(--spacing-spacing-unit) * 4) rgb(from var(--signature-color) r g b / var(--opacity-whisper));
+        0 calc(var(--spacing-unit) * 4) calc(var(--spacing-unit) * 6) rgb(from var(--color-neutral-900) r g b / 0.5),
+        0 0 calc(var(--spacing-unit) * 4) rgb(from var(--signature-color) r g b / var(--opacity-whisper));
     }
   }
 </style>
