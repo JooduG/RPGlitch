@@ -199,15 +199,15 @@
     : ''}
     {!is_expanded
     ? `
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_calc(4%+16%*var(--state-weight-intensity)),rgb(23_23_23/0.6))]
-      before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--state-dev-accent)_60%),transparent_50%)]
+      bg-[color-mix(in_srgb,var(--color-dev-accent)_calc(4%+16%*var(--state-weight-intensity)),rgb(23_23_23/0.6))]
+      before:bg-[linear-gradient(to_bottom,color-mix(in_srgb,transparent,var(--color-dev-accent)_60%),transparent_50%)]
       before:opacity-[calc(0.2+0.6*var(--state-weight-intensity))]
     `
     : `
       overflow-visible!
       border-transparent
-      bg-[color-mix(in_srgb,var(--state-dev-accent)_calc(10%+22%*var(--state-weight-intensity)),rgb(23_23_23/0.65))]
-      before:bg-[linear-gradient(to_bottom,var(--state-dev-accent),color-mix(in_srgb,var(--state-dev-accent),transparent_60%)_30%,transparent_80%)]
+      bg-[color-mix(in_srgb,var(--color-dev-accent)_calc(10%+22%*var(--state-weight-intensity)),rgb(23_23_23/0.65))]
+      before:bg-[linear-gradient(to_bottom,var(--color-dev-accent),color-mix(in_srgb,var(--color-dev-accent),transparent_60%)_30%,transparent_80%)]
       before:opacity-100
     `}
     {is_disabled || busy
@@ -229,7 +229,7 @@
   data-busy={busy ? "true" : undefined}
   data-variant={variant}
   data-disabled={is_disabled || busy ? "true" : undefined}
-  style="{style}; --state-dev-accent: {signature_color}; --state-weight-intensity: {intensity}; --header-opacity: {header_opacity};"
+  style="{style}; --color-dev-accent: {signature_color}; --state-weight-intensity: {intensity}; --header-opacity: {header_opacity};"
   onfocusout={handle_blur}
   use:use_actions={actions}
   aria-busy={busy}
@@ -251,7 +251,7 @@
       items-center
       justify-between
       rounded-t-xl
-      bg-(--state-dev-accent)
+      bg-(--color-dev-accent)
       px-3
       py-0.5
       whitespace-nowrap
@@ -426,7 +426,7 @@
                       <strong
                         class="
                           font-bold
-                          text-(--state-dev-accent)
+                          text-(--color-dev-accent)
                         ">{token.content}</strong
                       >
                     {:else if token.type === "em"}
@@ -440,7 +440,7 @@
                       <strong
                         class="
                           font-extrabold
-                          text-(--state-dev-accent)
+                          text-(--color-dev-accent)
                         "
                         ><em
                           class="

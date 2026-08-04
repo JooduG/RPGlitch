@@ -16,6 +16,7 @@
   --color-chalk: #171717;
   --color-crimson-red: #ef4444;
   --color-deep-indigo: #818cf8;
+  --color-dev-accent: var(--color-electric-cyan);
   --color-electric-cyan: #11aecc;
   --color-emerald-green: #10b981;
   --color-forest-green: #15803d;
@@ -31,10 +32,8 @@
   --color-pure-white: #fff;
   --color-rusty-orange: #f97316;
   --color-scientific-teal: #14b8a6;
-  --color-signature-color: #475569;
   --color-soft-rose: #fb7185;
   --color-space-blue: #3b82f6;
-  --color-swatch-color: #475569;
   --color-toxic-green: #84cc16;
   --color-twilight-violet: #c084fc;
   --color-void-black: #000;
@@ -45,8 +44,8 @@
   --font-mono: "JetBrains Mono", monospace;
 
   /* --- ROUNDED --- */
-  --radius-sharp: 0.25rem;
-  --radius-standard: 1rem;
+  --radius-sharp: var(--spacing-unit);
+  --radius-standard: calc(var(--spacing-unit) * 4);
 
   /* --- SPACING --- */
   --spacing-column-unit: calc(var(--spacing-grid-width) / 12);
@@ -64,7 +63,6 @@
 
   /* --- COMPONENTS --- */
   --blur-mist: blur(calc(var(--spacing-unit) * 4));
-  --breakpoint-mobile: 48rem;
   --brightness-dim: 0.9;
   --brightness-glow: 1.1;
   --brightness-muted: 0.3;
@@ -94,10 +92,8 @@
   --scrollbar-track: transparent;
   --shadow-ghost: 0 var(--spacing-pixel) var(--spacing-pixel) rgb(from var(--color-void-black) r g b / var(--opacity-ghost));
   --shadow-standard: 0 var(--spacing-unit) calc(var(--spacing-unit) * 4) rgb(from var(--color-void-black) r g b / var(--opacity-whisper));
-  --signature-color: var(--color-signature-color);
-  --signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-signature-color);
-  --spacing-border-width-base: var(--spacing-pixel);
-  --spacing-border-width-thick: var(--spacing-unit);
+  --signature-color: var(--color-frozen);
+  --signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-frozen);
   --spacing-character-card-height: calc(var(--spacing-row-unit) * 5);
   --spacing-character-card-width: calc(var(--spacing-column-unit) * 2);
   --spacing-fractal-card-height: calc(var(--spacing-row-unit) * 4);
@@ -108,14 +104,11 @@
   --spacing-kinetic-shimmy-y: calc(var(--spacing-pixel) / 2);
   --spacing-kinetic-slide-y: calc(var(--spacing-pixel) * 10);
   --spacing-kinetic-stab-distance: var(--spacing-unit);
-  --spacing-scrollbar-width: calc(var(--spacing-unit) * 2);
   --spring-damping-default: 0.8;
   --spring-stiffness-default: 0.15;
-  --state-dev-accent: var(--color-electric-cyan);
   --state-fill-end: 100%;
   --state-fill-start: 0%;
   --state-weight-intensity: 0;
-  --swatch-color: var(--color-swatch-color);
   --title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black);
   --z-index-max: 999;
 }
@@ -124,8 +117,8 @@
 
 /* Global Scrollbars */
 ::-webkit-scrollbar {
-  width: var(--spacing-scrollbar-width);
-  height: var(--spacing-scrollbar-width);
+  width: calc(var(--spacing-unit) * 2);
+  height: calc(var(--spacing-unit) * 2);
 }
 
 ::-webkit-scrollbar-track {
@@ -648,7 +641,7 @@ html:active-view-transition *::after {
 
   49.9% {
     transform: perspective(1200px) rotateY(90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-signature-color));
+    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-frozen));
     opacity: 1;
   }
 
@@ -670,7 +663,7 @@ html:active-view-transition *::after {
 
   50.1% {
     transform: perspective(1200px) rotateY(-90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-signature-color));
+    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-frozen));
     opacity: 1;
   }
 

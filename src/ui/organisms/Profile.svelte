@@ -107,7 +107,7 @@
         ? "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
         : "h-full w-full border-0 border-r " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
       (app.viewport.mobile
-        ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-spacing-border-width-base rounded-md"
+        ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-(--spacing-pixel) rounded-md"
         : ""),
   );
 
@@ -676,7 +676,7 @@
                 >
                   {#if field.sublabel || field.label}
                     <header
-                      style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--state-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --state-dev-accent: {signature_color};"
+                      style="position: relative; top: 0; z-index: 10; display: flex !important; align-items: center !important; justify-content: space-between !important; border-radius: 0.75rem; background-color: var(--color-dev-accent) !important; padding: 0.175rem 0.75rem; opacity: 1 !important; min-height: 1.5rem !important; height: auto !important; --color-dev-accent: {signature_color};"
                       class="w-full"
                     >
                       <div

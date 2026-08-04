@@ -125,10 +125,10 @@
   "
 >
   {#if meta.type === "STORY_START"}
-    <div class="rounded-sm border border-(--state-dev-accent)/20 bg-(--state-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
+    <div class="rounded-sm border border-(--color-dev-accent)/20 bg-(--color-dev-accent)/5 p-4 [backdrop-filter:var(--blur-mist)]">
       <div class="flex items-center gap-2">
-        <div class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"></div>
-        <span class="text-sm font-bold tracking-widest text-(--state-dev-accent) uppercase">Story Initiated</span>
+        <div class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></div>
+        <span class="text-sm font-bold tracking-widest text-(--color-dev-accent) uppercase">Story Initiated</span>
       </div>
       <p class="mt-2 font-mono text-xs text-slate-300">The simulation engine has anchored a new narrative sequence.</p>
     </div>
@@ -178,7 +178,7 @@
                 font-mono
                 text-xs
                 tracking-widest
-                text-(--state-dev-accent)/60
+                text-(--color-dev-accent)/60
                 uppercase
               "
               >
@@ -206,12 +206,12 @@
                 <header
                   class="
                   border-b
-                  border-(--state-dev-accent)/20
+                  border-(--color-dev-accent)/20
                   pb-1
                   text-xs
                   font-bold
                   tracking-widest
-                  text-(--state-dev-accent)
+                  text-(--color-dev-accent)
                   uppercase
                   
                 "
@@ -234,9 +234,9 @@
                       rounded-sm
                       border
                       border-l-8
-                      border-[color-mix(in_srgb,var(--state-dev-accent),transparent_85%)]
+                      border-[color-mix(in_srgb,var(--color-dev-accent),transparent_85%)]
                       border-l-slate-600
-                      bg-[color-mix(in_srgb,var(--state-dev-accent),transparent_95%)]
+                      bg-[color-mix(in_srgb,var(--color-dev-accent),transparent_95%)]
                       px-2
                       py-2
                       text-xs
@@ -278,7 +278,7 @@
                               py-0.5
                               font-mono
                               text-xs
-                              {tag === 'eternal-shift' ? 'text-(--state-dev-accent)' : 'text-slate-400'}
+                              {tag === 'eternal-shift' ? 'text-(--color-dev-accent)' : 'text-slate-400'}
                             ">{tag === "eternal-shift" ? "◇ eternal shift" : tag}</span
                             >
                           {/each}
@@ -331,9 +331,9 @@
             rounded-sm
             border
             border-l-8
-            border-[color-mix(in_srgb,var(--state-dev-accent),transparent_85%)]
-            border-l-(--state-dev-accent)
-            bg-[color-mix(in_srgb,var(--state-dev-accent),transparent_95%)]
+            border-[color-mix(in_srgb,var(--color-dev-accent),transparent_85%)]
+            border-l-(--color-dev-accent)
+            bg-[color-mix(in_srgb,var(--color-dev-accent),transparent_95%)]
             px-3
             py-3
             text-xs
@@ -343,7 +343,7 @@
             <span
               class="
               font-mono
-              text-(--state-dev-accent)
+              text-(--color-dev-accent)
             ">{meta.vector?.emotional_weight || 0}</span
             >
             <span
@@ -357,7 +357,7 @@
                 ml-auto
                 font-mono
                 text-xs
-                text-(--state-dev-accent)/50
+                text-(--color-dev-accent)/50
               ">[{meta.resolution}]</span
               >
             {/if}
@@ -367,9 +367,9 @@
 
           {#if meta.thoughts}
             <div class="flex flex-col gap-2">
-              <header class="text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">Thoughts</header>
+              <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Thoughts</header>
               <div
-                class="rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-50"
+                class="rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-50"
               >
                 {display_thoughts}
               </div>
@@ -377,9 +377,9 @@
           {/if}
 
           {#if meta.trigger_image === true}
-            <div class="flex items-center gap-2 rounded-sm border border-(--state-dev-accent)/40 bg-(--state-dev-accent)/10 px-3 py-2">
-              <span class="h-2 w-2 animate-pulse rounded-full bg-(--state-dev-accent) shadow-[0_0_8px_var(--state-dev-accent)]"></span>
-              <span class="font-mono text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">Trigger Image</span>
+            <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/40 bg-(--color-dev-accent)/10 px-3 py-2">
+              <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
+              <span class="font-mono text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
             </div>
           {/if}
 
@@ -388,7 +388,7 @@
             <div class="flex flex-col gap-6">
               {#each entity_blocks as block (block.key)}
                 <div class="flex flex-col gap-2">
-                  <header class="text-xs font-bold tracking-widest text-(--state-dev-accent) uppercase">
+                  <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
                     {block.name || get_entity_name(block.key)}
                   </header>
                   {#if block.dynamics.length > 0}
@@ -402,12 +402,12 @@
                             <div class="relative h-1.5 flex-1 overflow-hidden rounded-full bg-white/5">
                               <div
                                 class="absolute h-full transition-all duration-300"
-                                style="left: 0%; width: {fill_width}%; background: var(--state-dev-accent);"
+                                style="left: 0%; width: {fill_width}%; background: var(--color-dev-accent);"
                               ></div>
                               {#if delta.has_delta}
                                 <div
                                   class="absolute z-10 h-full opacity-40 transition-all duration-300"
-                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--state-dev-accent);"
+                                  style="left: {fill_width}%; width: {delta_width}%; background: var(--color-dev-accent);"
                                 ></div>
                               {/if}
                             </div>
@@ -415,7 +415,7 @@
                               <div class="flex min-w-16 items-center justify-end gap-1.5 font-mono text-xs">
                                 <span class="text-slate-50">{delta.has_delta ? get_pct(delta.new_value) : get_pct(delta.value)}</span>
                                 {#if delta.has_delta}
-                                  <span class={delta.diff > 0 ? "text-(--state-dev-accent)" : "text-slate-500"}>
+                                  <span class={delta.diff > 0 ? "text-(--color-dev-accent)" : "text-slate-500"}>
                                     ({delta.diff > 0 ? "+" : ""}{delta.diff})
                                   </span>
                                 {/if}
@@ -432,33 +432,33 @@
                     <div class="flex flex-col gap-2 pt-1">
                       {#if block.physical.trim()}
                         <div
-                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">PRESENT PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT PHYSICAL</span>
                           <span class="text-slate-50">{block.physical}</span>
                         </div>
                       {/if}
                       {#if block.non_physical.trim()}
                         <div
-                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">PRESENT NON&#8209;PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">PRESENT NON&#8209;PHYSICAL</span>
                           <span class="text-slate-50">{block.non_physical}</span>
                         </div>
                       {/if}
                       {#if block.eternal_physical.trim()}
                         <div
-                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">ETERNAL PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL PHYSICAL</span>
                           <span class="text-slate-50">{block.eternal_physical}</span>
                         </div>
                       {/if}
                       {#if block.eternal_non_physical.trim()}
                         <div
-                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                          class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                         >
-                          <span class="w-24 shrink-0 font-mono text-(--state-dev-accent)">ETERNAL NON&#8209;PHYSICAL</span>
+                          <span class="w-24 shrink-0 font-mono text-(--color-dev-accent)">ETERNAL NON&#8209;PHYSICAL</span>
                           <span class="text-slate-50">{block.eternal_non_physical}</span>
                         </div>
                       {/if}
@@ -466,10 +466,10 @@
                         <div class="flex flex-col gap-2 pt-1">
                           {#each block.new_vectors as nv, i (i)}
                             <div
-                              class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--state-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
+                              class="flex gap-4 rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 text-xs leading-relaxed"
                             >
                               <div class="flex flex-wrap items-center gap-2">
-                                <span class="w-24 shrink-0 font-mono text-(--state-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
+                                <span class="w-24 shrink-0 font-mono text-(--color-dev-accent) uppercase">{vector_label(nv.type, "future")}</span>
                               </div>
                               <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{nv.content}</span>
                             </div>
@@ -512,15 +512,15 @@
 <style>
   @keyframes pulse-resonance {
     0% {
-      box-shadow: 0 0 0 0 color-mix(in srgb, var(--state-dev-accent) 15%, transparent);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-dev-accent) 15%, transparent);
     }
 
     70% {
-      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3) color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
+      box-shadow: 0 0 0 calc(var(--spacing-unit) * 3) color-mix(in srgb, var(--color-dev-accent) 0%, transparent);
     }
 
     100% {
-      box-shadow: 0 0 0 0 color-mix(in srgb, var(--state-dev-accent) 0%, transparent);
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--color-dev-accent) 0%, transparent);
     }
   }
 

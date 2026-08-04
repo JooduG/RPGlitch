@@ -6,7 +6,7 @@
    * input containers, preventing "white font white" redundancy in organisms.
    */
 
-  let { is_expanded = false, signature_color = "var(--color-signature-color)", children, class: className = "", ...rest } = $props();
+  let { is_expanded = false, signature_color = "var(--color-frozen)", children, class: className = "", ...rest } = $props();
 </script>
 
 <div

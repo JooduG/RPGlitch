@@ -51,7 +51,7 @@
     w-full
     [appearance:textfield]
     rounded-xl
-    bg-[color-mix(in_srgb,var(--state-dev-accent)_8%,rgb(23_23_23/0.6))]
+    bg-[color-mix(in_srgb,var(--color-dev-accent)_8%,rgb(23_23_23/0.6))]
     p-2
     text-center
     font-sans
@@ -67,10 +67,10 @@
     [&::-webkit-inner-spin-button]:appearance-none
     [&::-webkit-outer-spin-button]:appearance-none
     {readonly
-    ? 'cursor-pointer text-slate-300 hover:bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgb(23_23_23/0.6))] hover:text-white'
-    : 'cursor-text text-slate-50 focus:bg-[color-mix(in_srgb,var(--state-dev-accent)_12%,rgb(23_23_23/0.6))] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'}
+    ? 'cursor-pointer text-slate-300 hover:bg-[color-mix(in_srgb,var(--color-dev-accent)_12%,rgb(23_23_23/0.6))] hover:text-white'
+    : 'cursor-text text-slate-50 focus:bg-[color-mix(in_srgb,var(--color-dev-accent)_12%,rgb(23_23_23/0.6))] focus:outline-none disabled:cursor-not-allowed disabled:opacity-50'}
     {className}
   "
-  style="--state-dev-accent: {signature_color}; {style}"
+  style="--color-dev-accent: {signature_color}; {style}"
   {placeholder}
 />

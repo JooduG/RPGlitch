@@ -118,6 +118,8 @@
     <GlassWrapper is_expanded={active_field === "description"} {signature_color}>
       <textarea
         class="
+          [&::-webkit-scrollbar]:h-scrollbar-width
+          [&::-webkit-scrollbar]:w-scrollbar-width
           z-20
           m-0
           max-h-[calc(var(--spacing-row-unit)*4)]
@@ -138,8 +140,6 @@
           placeholder:text-slate-400
           placeholder:italic
           placeholder:opacity-60
-          [&::-webkit-scrollbar]:h-scrollbar-width
-          [&::-webkit-scrollbar]:w-scrollbar-width
           [&::-webkit-scrollbar-thumb]:rounded-standard
 
           [&::-webkit-scrollbar-thumb]:bg-(--scrollbar-thumb)

@@ -261,7 +261,7 @@
             z-25
             scale-[1.1]
             cursor-default
-            [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--swatch-color)]
+            [box-shadow:0_0_calc(var(--spacing-unit)*5)_var(--color-swatch-active)]
             outline-[calc(var(--spacing-pixel)*3)]
             outline-offset-[calc(var(--spacing-pixel)*2)]
             outline-white
@@ -269,7 +269,7 @@
             outline-solid
           `
             : ''}"
-          style="--swatch-color: {color}; background-color: var(--swatch-color);"
+          style="--color-swatch-active: {color}; background-color: var(--color-swatch-active);"
         >
           <Button
             square={true}

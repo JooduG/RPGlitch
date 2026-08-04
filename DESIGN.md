@@ -10,6 +10,7 @@ colors:
   color-soft-rose: "#fb7185"
   color-crimson-red: "#ef4444"
   color-deep-indigo: "#818cf8"
+  color-dev-accent: var(--color-electric-cyan)
   color-electric-cyan: "#11aecc"
   color-emerald-green: "#10b981"
   color-forest-green: "#15803d"
@@ -27,9 +28,7 @@ colors:
   color-pumpkin-amber: "#fbbf24"
   color-pure-white: "#fff"
   color-proud-purple: "#a855f7"
-  color-signature-color: "#475569"
   color-rusty-orange: "#f97316"
-  color-swatch-color: "#475569"
   color-twilight-violet: "#c084fc"
   color-void-black: "#000"
 typography:
@@ -37,8 +36,8 @@ typography:
   font-heading: '"Ubuntu", sans-serif'
   font-mono: '"JetBrains Mono", monospace'
 rounded:
-  radius-sharp: 0.25rem
-  radius-standard: 1rem
+  radius-sharp: var(--spacing-unit)
+  radius-standard: calc(var(--spacing-unit) * 4)
 spacing:
   spacing-column-unit: calc(var(--spacing-grid-width) / 12)
   spacing-gap-standard: calc(var(--spacing-unit) * 4)
@@ -53,12 +52,8 @@ spacing:
   spacing-pixel: 1px
   spacing-unit: 0.25rem
 components:
-  signature-color: var(--color-signature-color)
-  swatch-color: var(--color-swatch-color)
+  signature-color: var(--color-frozen)
   blur-mist: blur(calc(var(--spacing-unit) * 4))
-  spacing-border-width-base: var(--spacing-pixel)
-  spacing-border-width-thick: var(--spacing-unit)
-  breakpoint-mobile: 48rem
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
@@ -91,17 +86,15 @@ components:
   scrollbar-thumb: var(--color-gunmetal)
   scrollbar-thumb-hover: var(--color-frisk)
   scrollbar-track: transparent
-  spacing-scrollbar-width: calc(var(--spacing-unit) * 2)
   shadow-ghost: |-
     0 var(--spacing-pixel) var(--spacing-pixel)
     rgb(from var(--color-void-black) r g b / var(--opacity-ghost))
   shadow-standard: |-
     0 var(--spacing-unit) calc(var(--spacing-unit) * 4)
     rgb(from var(--color-void-black) r g b / var(--opacity-whisper))
-  signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-signature-color)
+  signature-glow: 0 0 calc(var(--spacing-unit) * 4) var(--color-frozen)
   spring-damping-default: "0.8"
   spring-stiffness-default: "0.15"
-  state-dev-accent: var(--color-electric-cyan)
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
@@ -239,8 +232,8 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 
 /* Global Scrollbars */
 ::-webkit-scrollbar {
-  width: var(--spacing-scrollbar-width);
-  height: var(--spacing-scrollbar-width);
+  width: calc(var(--spacing-unit) * 2);
+  height: calc(var(--spacing-unit) * 2);
 }
 
 ::-webkit-scrollbar-track {
@@ -763,7 +756,7 @@ html:active-view-transition *::after {
 
   49.9% {
     transform: perspective(1200px) rotateY(90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-signature-color));
+    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-frozen));
     opacity: 1;
   }
 
@@ -785,7 +778,7 @@ html:active-view-transition *::after {
 
   50.1% {
     transform: perspective(1200px) rotateY(-90deg);
-    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-signature-color));
+    filter: drop-shadow(0 0 calc(var(--spacing-unit) * 6) var(--color-frozen));
     opacity: 1;
   }
 
