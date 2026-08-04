@@ -626,7 +626,7 @@
                 </Button>
               {:else if image_regenerate.isRegenerating(regenerate_key)}
                 <div
-                  class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
+                  class="relative flex flex-col items-center justify-center gap-3 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
                   style={container_style}
                 >
                   <div class="flex gap-1.5">

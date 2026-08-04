@@ -12,7 +12,7 @@
     close_regenerate,
     deliver_candidates,
     set_regenerate_error,
-    close_picker,
+    begin_picker_regeneration,
     get_persisted_meta,
   } from "./ImageRegenerate.svelte.js";
   import { visual_engine, get_resolution } from "@media";
@@ -40,11 +40,16 @@
       return;
     }
 
-    // Read persisted meta BEFORE close_picker (plain variables, not $state)
+    // Read persisted meta BEFORE begin_picker_regeneration (plain variables, not $state)
     const meta = get_persisted_meta();
 
     is_regenerating = true;
-    close_picker();
+    // Regenerate IN PLACE — the picker modal stays open, drops back to the
+    // Generating state, and fills with the fresh round of cards on
+    // deliver_candidates(). (Previously this called close_picker(), which made
+    // the button appear to do nothing: it just closed the modal and you had to
+    // click "Select Image" again.)
+    begin_picker_regeneration();
     try {
       const signature_color = image_regenerate.signature_color;
 
@@ -151,14 +156,10 @@
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 150ms"></div>
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 300ms"></div>
                       </div>
-                      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">Generating...</p>
                     </div>
                   {:else if image_regenerate.candidates.length >= 2}
                     <!-- POLAROID CARD GRID -->
-                    <div
-                      class="flex max-w-full flex-wrap items-end justify-center gap-6 overflow-x-auto p-4 md:gap-8 lg:gap-10"
-                      in:fade={{ duration: 300 }}
-                    >
+                    <div class="flex max-w-full flex-wrap items-end justify-center gap-6 p-4 md:gap-8 lg:gap-10" in:fade={{ duration: 300 }}>
                       {#each image_regenerate.candidates as candidate, i (i)}
                         {@const letter = String.fromCharCode(65 + i)}
                         {@const { width: cW, height: cH } = resolve_candidate_resolution(candidate)}
@@ -214,7 +215,7 @@
 
                     {#if image_regenerate.selected_index === null}
                       <div class="flex flex-wrap items-center justify-center gap-3" in:fade={{ duration: 300 }}>
-                        <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One — or</span>
+                        <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
                         <Button
                           variant="bare"
                           class="flex items-center gap-2 rounded-lg bg-white/10 px-4 py-2 font-bold text-white transition-all duration-200 hover:bg-white/20"
@@ -233,7 +234,7 @@
                     {/if}
                   {:else}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
-                      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No candidates available</p>
+                      <p class="font-mono text-sm tracking-widest text-slate-500 uppercase">No pictures available</p>
                       <Button
                         variant="bare"
                         class="rounded-lg bg-white/10 px-6 py-2 font-bold text-white transition-colors hover:bg-white/20"

@@ -150,6 +150,29 @@ export function select_candidate(index) {
 }
 
 /**
+ * Re-runs the regenerate flow IN PLACE while keeping the 3-card picker modal open.
+ * The modal drops back to the "Generating..." state, and the next
+ * deliver_candidates() call fills it with the fresh round of cards.
+ * Keeps regenerating_key, on_select, signature_color, and the persisted
+ * prompt/mode/negative intact so the regenerating_key context survives.
+ * (The opposite of close_picker, which hides the modal.)
+ */
+export function begin_picker_regeneration() {
+  // Capture prompt from the current candidates BEFORE clearing them, as a safety net
+  if (state.candidates.length > 0 && state.candidates[0]?.metadata?.prompt && !_persisted_prompt) {
+    _persisted_prompt = state.candidates[0].metadata.prompt;
+    _persisted_mode = state.candidates[0].metadata.mode || _persisted_mode;
+    _persisted_negative = state.candidates[0].metadata.negative_prompt || _persisted_negative;
+  }
+  state.candidates_ready = false;
+  state.candidates = [];
+  state.selected_index = null;
+  state.error = null;
+  // NOTE: deliberately does NOT touch state.picker_open — the modal stays open
+  // and shows the "Generating..." state until the next deliver_candidates().
+}
+
+/**
  * Closes the picker modal but keeps regenerating_key, on_select, signature_color,
  * and persisted prompt/mode/negative for subsequent regenerations.
  * The inline message placeholder will show the "regenerating" loading state.
