@@ -104,7 +104,7 @@
                     before:opacity-10
                     before:mix-blend-overlay
 
-                    sm:w-modal-width-thin
+                    sm:w-[calc(var(--spacing-column-unit)*3)]
 
                     {busy ? 'pointer-events-none cursor-wait brightness-75 grayscale' : ''}"
                   style="

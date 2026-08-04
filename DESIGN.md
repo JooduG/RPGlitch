@@ -36,8 +36,6 @@ typography:
   font-base: '"Inter", sans-serif'
   font-heading: '"Ubuntu", sans-serif'
   font-mono: '"JetBrains Mono", monospace'
-  text-base: clamp(0.9rem, 0.8vw + 0.8rem, 1.1rem)
-  text-nano: clamp(0.6rem, 0.3vw + 0.5rem, 0.7rem)
 rounded:
   radius-sharp: 0.25rem
   radius-standard: 1rem
@@ -57,7 +55,6 @@ spacing:
 components:
   signature-color: var(--color-signature-color)
   swatch-color: var(--color-swatch-color)
-  spacing-avatar-medium-size: calc(var(--spacing-column-unit) * 2)
   blur-mist: blur(calc(var(--spacing-unit) * 4))
   spacing-border-width-base: var(--spacing-pixel)
   spacing-border-width-thick: var(--spacing-unit)
@@ -65,7 +62,6 @@ components:
   brightness-dim: "0.9"
   brightness-glow: "1.1"
   brightness-muted: "0.3"
-  spacing-dropdown-max-height: calc(var(--spacing-unit) * 80)
   duration-ambient: 2000ms
   duration-fast: 150ms
   duration-slow: 500ms
@@ -81,7 +77,6 @@ components:
   spacing-kinetic-shimmy-y: calc(var(--spacing-pixel) / 2)
   spacing-kinetic-slide-y: calc(var(--spacing-pixel) * 10)
   spacing-kinetic-stab-distance: var(--spacing-unit)
-  spacing-modal-width-thin: calc(var(--spacing-column-unit) * 3)
   motion-dissolve: opacity var(--duration-standard) var(--ease-standard)
   motion-elastic: var(--duration-slow) var(--ease-elastic)
   noise-url: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")
@@ -110,10 +105,10 @@ components:
   state-fill-end: 100%
   state-fill-start: 0%
   state-weight-intensity: "0"
-  spacing-storyboard-character-card-height: calc(var(--spacing-row-unit) * 5)
-  spacing-storyboard-character-card-width: calc(var(--spacing-column-unit) * 2)
-  spacing-storyboard-fractal-card-height: calc(var(--spacing-row-unit) * 4)
-  spacing-storyboard-fractal-card-width: calc(var(--spacing-column-unit) * 4)
+  spacing-character-card-height: calc(var(--spacing-row-unit) * 5)
+  spacing-character-card-width: calc(var(--spacing-column-unit) * 2)
+  spacing-fractal-card-height: calc(var(--spacing-row-unit) * 4)
+  spacing-fractal-card-width: calc(var(--spacing-column-unit) * 4)
   title-shadow-ambient: 0 0 calc(var(--spacing-unit) * 5) var(--color-void-black)
   z-index-max: "999"
   empty-fill: "rgb(23 23 23 / 0.6)"
@@ -217,7 +212,7 @@ The UI layers have been migrated from raw DOM manipulations to standardized head
 Use the following H2/H3 structure for specific screen prompts to ensure the Stitch bridge parses them correctly.
 
 ```text
-## [Component Name/Screen Title]
+## [Component Name / Screen Title]
 
 ### [Element ID / Functional Area]
 
@@ -388,7 +383,6 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 
   sup,
   sub {
-    font-size: var(--text-nano);
     line-height: 0;
     position: relative;
     vertical-align: baseline;

@@ -6,7 +6,7 @@
    * Standard: Ultra-Lean DOM and Svelte 5 `$props`.
    */
 
-  import { ProfilePicture, StyleBadge, Button } from "@atoms";
+  import { Button, ProfilePicture, StyleBadge } from "@atoms";
   import { guarded_transition } from "@engine";
   import { get_signature_color } from "@media";
   import { motion } from "@motion";
@@ -118,8 +118,7 @@
     if (type !== "fractal" || app.view !== "storymode" || variant === "library" || variant === "message") return;
     function update_ratio() {
       const probe = document.createElement("div");
-      probe.style.cssText =
-        "position:absolute;visibility:hidden;width:var(--spacing-storyboard-fractal-card-width);height:var(--spacing-storyboard-fractal-card-height);";
+      probe.style.cssText = "position:absolute;visibility:hidden;width:var(--spacing-fractal-card-width);height:var(--spacing-fractal-card-height);";
       document.body.appendChild(probe);
       const fw = probe.offsetWidth;
       const fh = probe.offsetHeight;
@@ -334,27 +333,21 @@
     : ''}
     backdrop-blur-md
   "
-  class:w-[calc(var(--spacing-storyboard-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
-  class:h-[calc(var(--spacing-storyboard-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
-  class:w-[calc(var(--spacing-storyboard-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
-  class:h-[calc(var(--spacing-storyboard-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
+  class:w-[calc(var(--spacing-fractal-card-width)*0.5)]={type === "fractal" && variant === "library"}
+  class:h-[calc(var(--spacing-fractal-card-height)*0.5)]={type === "fractal" && variant === "library"}
+  class:w-[calc(var(--spacing-character-card-width)*0.5)]={type !== "fractal" && variant === "library"}
+  class:h-[calc(var(--spacing-character-card-height)*0.5)]={type !== "fractal" && variant === "library"}
   class:w-full={variant !== "library" && !(type === "fractal" && app.view === "storymode" && variant !== "message")}
   class:h-full={variant !== "library" && !(type === "fractal" && app.view === "storymode" && variant !== "message")}
-  class:md:w-[var(--spacing-storyboard-fractal-card-width)]={type === "fractal" &&
-    variant !== "library" &&
-    variant !== "message" &&
-    app.view !== "storymode"}
-  class:md:h-[var(--spacing-storyboard-fractal-card-height)]={type === "fractal" &&
-    variant !== "library" &&
-    variant !== "message" &&
-    app.view !== "storymode"}
-  class:md:w-[var(--spacing-storyboard-character-card-width)]={type !== "fractal" && variant !== "library" && variant !== "message"}
-  class:md:h-[var(--spacing-storyboard-character-card-height)]={type !== "fractal" && variant !== "library" && variant !== "message"}
+  class:md:w-[var(--spacing-fractal-card-width)]={type === "fractal" && variant !== "library" && variant !== "message" && app.view !== "storymode"}
+  class:md:h-[var(--spacing-fractal-card-height)]={type === "fractal" && variant !== "library" && variant !== "message" && app.view !== "storymode"}
+  class:md:w-[var(--spacing-character-card-width)]={type !== "fractal" && variant !== "library" && variant !== "message"}
+  class:md:h-[var(--spacing-character-card-height)]={type !== "fractal" && variant !== "library" && variant !== "message"}
   style:--signature-color={signature_color}
   style:view-transition-name={transition_name}
   style:opacity={app.profile_open && app.editing_entity?.id === entity?.id && variant !== "library" ? 0 : undefined}
   style:width={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message"
-    ? "var(--spacing-storyboard-character-card-width)"
+    ? "var(--spacing-character-card-width)"
     : undefined}
   style:height={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message" ? "auto" : undefined}
   style:aspect-ratio={type === "fractal" && app.view === "storymode" && variant !== "library" && variant !== "message"

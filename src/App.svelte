@@ -665,7 +665,7 @@
   [data-dev="grid"] [data-label] {
     position: absolute;
     font-family: var(--font-mono);
-    font-size: var(--text-nano);
+    font-size: 0.75rem;
     color: var(--color-frozen);
     background: var(--color-void-black);
     padding: 0 var(--spacing-padding-tight);

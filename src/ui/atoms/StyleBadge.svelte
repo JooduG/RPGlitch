@@ -29,9 +29,7 @@
   // Subtract the inter-badge gap so two badges + gap = exactly the card width above.
   // flex-shrink: 0 prevents the flex container from compressing the width.
   let badge_size_style = $derived(
-    is_storymode
-      ? "height: calc((var(--spacing-storyboard-character-card-width) - var(--spacing-gap-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;"
-      : "",
+    is_storymode ? "height: calc((var(--spacing-character-card-width) - var(--spacing-gap-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;" : "",
   );
 
   let opacity_class = $derived(is_storymode ? "opacity-100" : "opacity-70 hover:opacity-100");

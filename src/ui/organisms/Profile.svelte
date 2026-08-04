@@ -97,7 +97,7 @@
 
   const avatar_container_class = $derived(
     "sticky top-0 z-20 flex shrink-0 items-stretch transition-all duration-300 " +
-      (entity_type === "fractal" ? "h-12 min-h-64 w-full " : "h-full w-avatar-medium-size ") +
+      (entity_type === "fractal" ? "h-12 min-h-64 w-full " : "h-full w-[calc(var(--spacing-column-unit)*2)] ") +
       (app.viewport.mobile ? "h-auto w-auto items-center justify-center" : ""),
   );
 
@@ -106,7 +106,9 @@
       (entity_type === "fractal"
         ? "h-full w-full border-0 border-b " + (!app.viewport.mobile ? "rounded-t-2xl" : "rounded-none")
         : "h-full w-full border-0 border-r " + (!app.viewport.mobile ? "rounded-l-2xl" : "rounded-none")) +
-      (app.viewport.mobile ? "h-avatar-medium-size w-avatar-medium-size border-spacing-border-width-base rounded-md" : ""),
+      (app.viewport.mobile
+        ? "h-[calc(var(--spacing-column-unit)*2)] w-[calc(var(--spacing-column-unit)*2)] border-spacing-border-width-base rounded-md"
+        : ""),
   );
 
   const info_container_class = $derived(

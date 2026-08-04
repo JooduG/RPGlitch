@@ -299,7 +299,7 @@
 <div
   class="
     flex
-    min-h-dropdown-max-height
+    min-h-80
     w-full
     flex-1
     flex-col
