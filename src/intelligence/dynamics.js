@@ -3,43 +3,6 @@
  * ⚙️ DYNAMICS ENGINE — Physics engine slider metadata & settlement calculations.
  */
 
-import { IMAGE_TRIGGER } from "../engine/config.js";
-
-/**
- * Evaluates whether a turn's dynamics movement should trigger an automatic
- * image (the pure-JS gate — no LLM call).
- *
- * Signal B (band crossing): fires when an axis *enters* an extreme band this
- * turn — `(old < 85 && new >= 85) || (old > 15 && new <= 15)`. Leaving an
- * extreme band never triggers; a mid-band move like 76→74 triggers nothing.
- * Signal A (movement sum): fires when the sum of all |axis deltas| across the
- * six axes exceeds `sum_threshold` even if no band was entered.
- *
- * @param {Array<{ axis: string, target?: string, old_value?: number, new_value?: number, diff?: number }>} deltas
- * @returns {{ fired: boolean, crossed: boolean, sum: number, reasons: string[] }}
- */
-export function evaluate_image_trigger(deltas = []) {
-  const { extreme_high, extreme_low, sum_threshold } = IMAGE_TRIGGER;
-  const reasons = [];
-
-  if (Array.isArray(deltas)) {
-    for (const d of deltas) {
-      if (!d || typeof d.old_value !== "number" || typeof d.new_value !== "number") continue;
-      const entered_high = d.old_value < extreme_high && d.new_value >= extreme_high;
-      const entered_low = d.old_value > extreme_low && d.new_value <= extreme_low;
-      if (entered_high || entered_low) {
-        reasons.push(`crossed:${d.target ? `${d.target}.` : ""}${d.axis}`);
-      }
-    }
-    const sum = deltas.reduce((acc, d) => acc + Math.abs(Number(d?.diff) || 0), 0);
-    if (sum >= sum_threshold) {
-      reasons.push(`sum:${Math.round(sum)}`);
-    }
-    return { fired: reasons.length > 0, crossed: reasons.some((r) => r.startsWith("crossed:")), sum, reasons };
-  }
-  return { fired: false, crossed: false, sum: 0, reasons };
-}
-
 /**
  * @typedef {Object} AxisMeta
  * @property {string} label - UI display label
@@ -92,3 +55,89 @@ export const dynamics_engine = {
     return entity?.dynamicsBaseline || {};
   },
 };
+
+/**
+ * 🖼️ EVALUATE IMAGE TRIGGER — Source A: Pure-JS Dynamics Gate.
+ *
+ * Runs deterministically (no LLM call) after director settlement to decide whether
+ * an automatic image beat should fire this round.
+ *
+ * Signals:
+ *  - Signal B (Band Entry): any axis ENTERS an extreme band (>= band_high or <= band_low).
+ *    Transitioning INTO the band triggers (82 -> 88, 18 -> 12). Leaving the band
+ *    (88 -> 74) or moving within the band (76 -> 74) never triggers.
+ *  - Signal A (Movement Displacement): the sum of |Δaxis| across all six axes
+ *    exceeds `displacement_threshold`.
+ *
+ * @param {Record<string, Record<string, number>>} current - Post-director-settlement dynamics, keyed by entity (`ai` / `fractal`), each an axis map.
+ * @param {Record<string, Record<string, number>>} previous - Pre-turn dynamics (last settled state), same nested shape.
+ * @param {object} [options]
+ * @param {number} [options.band_high=85]
+ * @param {number} [options.band_low=15]
+ * @param {number} [options.displacement_threshold=60]
+ * @param {string} [options.default_tier="story_scene"]
+ * @returns {{ triggered: boolean, signals: { band_entry: { axis: string, from: number, to: number, band: "high"|"low" } | null, displacement: number, displacement_threshold: number }, tier: string, deltas: Array<{ axis: string, from: number, to: number, delta: number }> }}
+ */
+export function evaluate_image_trigger(current = {}, previous = {}, options = {}) {
+  const band_high = options.band_high ?? 85;
+  const band_low = options.band_low ?? 15;
+  const displacement_threshold = options.displacement_threshold ?? 60;
+  const default_tier = options.default_tier ?? "story_scene";
+
+  const entities = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
+  const axis_names = new Set();
+  for (const ent of entities) {
+    for (const axis of Object.keys((current || {})[ent] || {})) axis_names.add(axis);
+    for (const axis of Object.keys((previous || {})[ent] || {})) axis_names.add(axis);
+  }
+
+  const deltas = [];
+  let band_entry = null;
+  let displacement = 0;
+
+  for (const axis of axis_names) {
+    let from = null;
+    let to = null;
+    let from_entity = null;
+    let to_entity = null;
+    for (const ent of entities) {
+      const p = (previous || {})[ent] || {};
+      const c = (current || {})[ent] || {};
+      if (from === null && typeof p[axis] === "number") {
+        from = p[axis];
+        from_entity = ent;
+      }
+      if (to === null && typeof c[axis] === "number") {
+        to = c[axis];
+        to_entity = ent;
+      }
+    }
+    if (from === null || to === null) continue;
+
+    const delta = Math.round((to - from) * 10) / 10;
+    deltas.push({ axis, from, to, delta, entity: to_entity || from_entity });
+    displacement += Math.abs(to - from);
+
+    if (!band_entry) {
+      if (to >= band_high && from < band_high) {
+        band_entry = { axis, from, to, band: "high" };
+      } else if (to <= band_low && from > band_low) {
+        band_entry = { axis, from, to, band: "low" };
+      }
+    }
+  }
+
+  displacement = Math.round(displacement * 10) / 10;
+  const triggered = band_entry !== null || displacement >= displacement_threshold;
+
+  return {
+    triggered,
+    signals: {
+      band_entry,
+      displacement,
+      displacement_threshold,
+    },
+    tier: default_tier,
+    deltas,
+  };
+}

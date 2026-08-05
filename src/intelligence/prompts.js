@@ -28,6 +28,7 @@ const protocols_cache = new Map();
 const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<step-by-step state evaluation>",
   "trigger_image": false,
+  "image_tier": "story_scene",
   "mutations": {
     "AI_CHARACTER": {
       "present_append_physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none] [CLOTHING: bare] [PANTS: unzipped/exposed]), or empty string.",
@@ -337,13 +338,10 @@ ${(() => {
     Evaluate state mutations caused by the ${input?.trim() ? "<USER_ACTION>" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
     Return a single valid JSON payload starting with { and ending with } following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
-
-    OPTIONAL IMAGE TRIGGER — "trigger_image" defaults to false. Set it to true to request an illustration of the current scene, or to one of:
-      - "story"     — all three entities together in one frame (AI character, user persona, fractal environment)
-      - "character" — the AI character seen inside the fractal world
-      - "entity"    — a solo portrait of one entity, independent of the fractal
-      - "scene"     — depict whatever the current moment is (characters, environment, or both)
-    Use it SPARINGLY: only for visually striking, image-worthy moments — at most ~1 in 10 turns.
+    IMAGE TRIGGER GUIDANCE (optional, use sparingly — reserved for key narrative beats):
+      - Keep "trigger_image" false unless the moment genuinely demands a visual. Setting it to true requests an automatic visual beat this round.
+      - You may instead set "trigger_image" to one of the 4-tier target strings: "story_entities" (group shot of all active entities), "story_character" (single in-scene character), "solo_entity" (isolated portrait), or "story_scene" (environment / narrative moment). This bypasses the auto-trigger cooldown.
+      - "image_tier" may be used to suggest a tier preference alongside "trigger_image": true.
   </TASK>
   `).trim();
 

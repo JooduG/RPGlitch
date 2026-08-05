@@ -5,13 +5,13 @@
    * Renders parsed messages in a Unified Chassis.
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
+  import { safe_html } from "@actions";
+  import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { parse_message, resolve_voice_register } from "@intelligence";
-  import { Audio, get_signature_color, get_resolution } from "@media";
+  import { Audio, get_resolution, get_signature_color } from "@media";
+  import { DevTelemetryBlock, EntityCard, image_regenerate, open_picker } from "@molecules";
   import { Typewriter } from "@motion";
   import { app, runtime, simulation_state } from "@state";
-  import { Button, DataBox, TextField, tooltip } from "@atoms";
-  import { DevTelemetryBlock, EntityCard, image_regenerate, open_picker } from "@molecules";
-  import { safe_html } from "@actions";
 
   /**
    * @typedef {Object} Props
@@ -481,7 +481,7 @@
               {/if}
             </h2>
           {/if}
-          <div class="h-storyboard-character-card-height mb-4 flex w-full items-stretch gap-2 md:gap-4">
+          <div class="mb-4 flex h-character-card-height w-full items-stretch gap-2 md:gap-4">
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
               <div class="min-w-0" style="flex-grow: 1">

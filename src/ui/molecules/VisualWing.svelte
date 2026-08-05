@@ -164,8 +164,12 @@
     app.log(`[VisualWing] Generating... Prompt: ${prompt_value}`, "system");
 
     try {
+      // Profile pictures route through the `solo_entity` tier: an isolated portrait
+      // rendered in the ENTITY'S OWN visual style, independent of the active story/fractal.
+      // Curated user prompt text is preserved verbatim — no LLM re-translation here
+      // (the Enhance button in this wing is the only path that runs the LLM).
       const payload = await app.visual.generate(prompt_value, {
-        mode: "entity",
+        mode: "solo_entity",
         no_background: profile_state.noBackground,
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:

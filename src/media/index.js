@@ -12,6 +12,8 @@ export {
 } from "./tokens.js";
 export {
   NEGATIVE_PROMPT,
+  IMAGE_TIERS,
+  normalize_image_tier,
   AestheticResolver,
   PromptTemplates,
   get_resolution,

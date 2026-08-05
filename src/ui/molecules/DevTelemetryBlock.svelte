@@ -12,7 +12,11 @@
    * @property {string} [type] - The type of telemetry event.
    * @property {Object} [updates] - Normalized per-entity state updates ({ AI_CHARACTER | USER_PERSONA | FRACTAL: { name, present_mutations, eternal_mutations, vectors, dynamics } }).
    * @property {string} [thoughts] - Director think content (markdown; leading `##` headings stripped for display).
-   * @property {boolean} [trigger_image] - Whether image generation was triggered this tick.
+   * @property {boolean} [trigger_image] - Whether image generation was triggered this tick (legacy director flag).
+   * @property {boolean} [image_trigger] - Whether an image beat fired this tick (dynamics gate OR director).
+   * @property {string} [image_tier] - The active 4-tier image target (story_entities | story_character | solo_entity | story_scene).
+   * @property {string} [image_source] - Which source fired the trigger ("dynamics" | "director").
+   * @property {Object} [image_signals] - Dynamics-gate signal details (band_entry, displacement).
    * @property {Object} [vectors] - Forged memory vectors for MEMORY_FORMATION events.
    * @property {any[]} [vectors] - The forged memory vector.
    * @property {string} [target] - Entity key targeted by a MEMORY_FORMATION event.
@@ -376,14 +380,38 @@
             </div>
           {/if}
 
-          {#if meta.auto_image || meta.trigger_image === true}
+          {#if meta.trigger_image === true || meta.image_trigger === true}
             <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/40 bg-(--color-dev-accent)/10 px-3 py-2">
               <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
-              <span class="font-mono text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Auto Image</span>
-              <span class="font-mono text-xs tracking-widest text-(--color-dev-accent)/80 uppercase">
-                {meta.auto_image || "scene"}
-                {#if meta.trigger_image === true && !meta.auto_image}(director){/if}
+              <span class="font-mono text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+              {#if meta.image_tier}
+                <span
+                  class="rounded-sm bg-(--color-dev-accent)/20 px-1.5 py-0.5 font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent) uppercase"
+                >
+                  {meta.image_tier}
+                </span>
+              {/if}
+              {#if meta.image_source}
+                <span class="font-mono text-[10px] tracking-widest text-(--color-dev-accent)/60 uppercase">{meta.image_source}</span>
+              {/if}
+            </div>
+          {/if}
+
+          {#if meta.image_signals?.band_entry}
+            <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/30 bg-black/30 px-3 py-1.5">
+              <span class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent)/70 uppercase">Band Entry</span>
+              <span class="font-mono text-[10px] text-slate-400">
+                {meta.image_signals.band_entry.axis}
+                {meta.image_signals.band_entry.from} → {meta.image_signals.band_entry.to}
+                ({meta.image_signals.band_entry.band})
               </span>
+            </div>
+          {/if}
+
+          {#if (meta.image_signals?.displacement || 0) > 0 && (meta.image_signals?.displacement || 0) >= (meta.image_signals?.displacement_threshold || 60)}
+            <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/30 bg-black/30 px-3 py-1.5">
+              <span class="font-mono text-[10px] font-bold tracking-widest text-(--color-dev-accent)/70 uppercase">Displacement</span>
+              <span class="font-mono text-[10px] text-slate-400">{meta.image_signals.displacement}/{meta.image_signals.displacement_threshold}</span>
             </div>
           {/if}
 

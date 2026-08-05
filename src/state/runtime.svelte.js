@@ -134,9 +134,9 @@ function create_runtime_store() {
   let ai_physics = $state(null);
   /** @type {EntityDynamics | null} */
   let fractal_physics = $state(null);
-  // Round in which the most recent auto image fired (math OR director trigger).
-  // Shared cooldown counter for the auto-image gate.
-  let last_auto_image_round = $state(null);
+  // 🖼️ Image Trigger Engine: round of the last auto-triggered image beat.
+  // Shared cooldown state between the pure-JS dynamics gate and the LLM director.
+  let last_auto_image_round = $state(0);
 
   /** @type {(() => void) | null} */
   let runtime_cleanup = null;
@@ -246,16 +246,16 @@ function create_runtime_store() {
     set turn_type(val) {
       simulation_turn_type = val;
     },
-    get active_story() {
-      if (!simulation_story_id) return null;
-      // Normalize the lookup key to match however sync() stored it
-      return simulation_story.by_id[simulation_story_id] ?? simulation_story.by_id[coerce_story_key(simulation_story_id)] ?? null;
-    },
     get last_auto_image_round() {
       return last_auto_image_round;
     },
     set last_auto_image_round(val) {
       last_auto_image_round = val;
+    },
+    get active_story() {
+      if (!simulation_story_id) return null;
+      // Normalize the lookup key to match however sync() stored it
+      return simulation_story.by_id[simulation_story_id] ?? simulation_story.by_id[coerce_story_key(simulation_story_id)] ?? null;
     },
 
     // --- VECTOR API ---

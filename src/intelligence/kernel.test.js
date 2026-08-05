@@ -3,9 +3,9 @@ import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
-import { visual_engine } from "@media";
 import { llm_service } from "@platform";
 import { session_driver } from "@engine";
+import { visual_engine } from "@media";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const _mock_runtime = {
@@ -18,6 +18,7 @@ const _mock_runtime = {
   turn_type: "USER_TURN",
   structural_errors: 0,
   story_id: null,
+  last_auto_image_round: 0,
   add_vector: vi.fn(),
   get snapshot_entities() {
     return {
@@ -87,9 +88,19 @@ vi.mock("@platform/transport.js", () => ({
 vi.mock("@engine/session.svelte.js", () => ({
   session_driver: {
     load_log: vi.fn().mockResolvedValue([]),
-    log_message: vi.fn().mockResolvedValue({}),
+    log_message: vi.fn().mockResolvedValue({ id: "img-1" }),
     log_system_entry: vi.fn().mockResolvedValue({}),
     update_log_attachment: vi.fn().mockResolvedValue({}),
+  },
+}));
+
+vi.mock("@media", () => ({
+  visual_engine: {
+    visualize: vi.fn().mockResolvedValue({ imageUrl: "https://img.test/auto.png", refinedPrompt: "Auto scene", metadata: {} }),
+    generate: vi.fn(),
+    enhance: vi.fn(),
+    generate_candidates: vi.fn(),
+    upload: vi.fn(),
   },
 }));
 
@@ -139,13 +150,12 @@ vi.mock("@intelligence/dynamics.js", () => ({
     }),
     _get_baselines: vi.fn().mockReturnValue({}),
   },
-  evaluate_image_trigger: vi.fn(() => ({ fired: false, crossed: false, sum: 0, reasons: [] })),
-}));
-
-vi.mock("@media", () => ({
-  visual_engine: {
-    visualize: vi.fn().mockResolvedValue({ imageUrl: null, refinedPrompt: null, caption: null }),
-  },
+  evaluate_image_trigger: vi.fn().mockReturnValue({
+    triggered: false,
+    signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+    tier: "story_scene",
+    deltas: [],
+  }),
 }));
 
 describe("gamemaster (Intelligence Kernel)", () => {
@@ -673,10 +683,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
       _mock_runtime.ai = { intensity: 50 };
       _mock_runtime.fractal = { entropy: 50 };
-      _mock_runtime.last_auto_image_round = null;
-      vi.mocked(session_driver.log_message).mockResolvedValue({});
-      vi.mocked(visual_engine.visualize).mockResolvedValue({ imageUrl: null, refinedPrompt: null, caption: null });
-      vi.mocked(evaluate_image_trigger).mockReturnValue({ fired: false, crossed: false, sum: 0, reasons: [] });
     });
 
     it("does not simulate physics a second time after generation", async () => {
@@ -751,94 +757,6 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
     });
 
-    it("fires an automatic image when the Director explicitly triggers a tier", async () => {
-      vi.mocked(llm_service.generate)
-        .mockResolvedValueOnce(
-          JSON.stringify({
-            _thought_process: "Moment worth capturing.",
-            trigger_image: "character",
-            mutations: {},
-          }),
-        )
-        .mockResolvedValueOnce("The neon rain beads off Viper's coat.");
-      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 42 });
-      vi.mocked(visual_engine.visualize).mockResolvedValue({
-        imageUrl: "data:image/svg+xml;base64,eHh4",
-        refinedPrompt: "Viper in the neon alley",
-        metadata: { mode: "character" },
-      });
-
-      await gamemaster.execute_turn("story-123", { input: "The neon rain falls.", role: "ai" });
-
-      expect(session_driver.log_message).toHaveBeenCalledWith(
-        "The neon rain beads off Viper's coat.",
-        "ai",
-        "Viper",
-        expect.objectContaining({
-          turn_type: "AI_TURN",
-          attachments: [{ src: null, metadata: { mode: "character", auto: true } }],
-        }),
-      );
-      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", "The neon rain beads off Viper's coat.", "character", {
-        silent: true,
-      });
-      expect(_mock_runtime.last_auto_image_round).toBe(1);
-    });
-
-    it("fills the auto-image attachment when the visualization resolves", async () => {
-      vi.mocked(llm_service.generate)
-        .mockResolvedValueOnce(JSON.stringify({ trigger_image: "scene", mutations: {} }))
-        .mockResolvedValueOnce("The storm breaks over the harbor.");
-      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 7 });
-      vi.mocked(visual_engine.visualize).mockResolvedValue({
-        imageUrl: "data:image/png;base64,eHh4",
-        refinedPrompt: "Harbor storm",
-        metadata: { mode: "scene" },
-      });
-
-      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
-
-      await new Promise((resolve) => setTimeout(resolve, 0));
-      expect(session_driver.update_log_attachment).toHaveBeenCalledWith(7, 0, {
-        src: "data:image/png;base64,eHh4",
-        metadata: expect.objectContaining({ prompt: "Harbor storm", mode: "scene", auto: true }),
-      });
-    });
-
-    it("fires a scene image from the pure-JS dynamics gate when the signal fires and cooldown allows", async () => {
-      vi.mocked(evaluate_image_trigger).mockReturnValue({ fired: true, crossed: true, sum: 20, reasons: ["crossed:ai.chaos"] });
-      vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("The storm breaks.");
-      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 7 });
-
-      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
-
-      expect(session_driver.log_message).toHaveBeenCalledWith(
-        "The storm breaks.",
-        "ai",
-        "Viper",
-        expect.objectContaining({ attachments: [{ src: null, metadata: { mode: "scene", auto: true } }] }),
-      );
-      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", "The storm breaks.", "scene", { silent: true });
-      expect(_mock_runtime.last_auto_image_round).toBe(1);
-    });
-
-    it("respects the shared cooldown for the dynamics gate (no fire when last image was recent)", async () => {
-      _mock_runtime.last_auto_image_round = 1;
-      vi.mocked(evaluate_image_trigger).mockReturnValue({ fired: true, crossed: true, sum: 20, reasons: ["crossed:ai.chaos"] });
-      vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Calm seas.");
-      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 9 });
-
-      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
-
-      expect(session_driver.log_message).not.toHaveBeenCalledWith(
-        "Calm seas.",
-        "ai",
-        "Viper",
-        expect.objectContaining({ attachments: expect.any(Array) }),
-      );
-      expect(visual_engine.visualize).not.toHaveBeenCalled();
-    });
-
     it("handles invalid JSON or missing brackets from Director by falling back to raw internal_monologue", async () => {
       let call_count = 0;
       vi.mocked(llm_service.generate).mockImplementation(async () => {
@@ -857,6 +775,170 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       expect(call_count).toBe(2);
       expect(result.response).toBe("<think>\n## Cognition\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
+    });
+  });
+
+  describe("Image Trigger Engine (step 4.6)", () => {
+    const mock_payload = {
+      input: "Hello",
+      type: "simulation",
+      round: 1,
+      entities: {
+        AI: { name: "Viper", dynamics: { intensity: 50 } },
+        USER: { name: "Ghost" },
+        FRACTAL: { name: "Void", dynamics: { entropy: 50 } },
+      },
+      view_id: "global",
+      simulation_log: "",
+      rawMessages: [],
+      meta: { active_vector: "", timestamp: new Date().toISOString() },
+    };
+
+    beforeEach(() => {
+      vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+      vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
+      vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
+        system: "C",
+        task: "T",
+        meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
+      });
+      _mock_runtime.ai = { intensity: 50 };
+      _mock_runtime.fractal = { entropy: 50 };
+      _mock_runtime.round = 1;
+      _mock_runtime.last_auto_image_round = 0;
+      vi.clearAllMocks();
+    });
+
+    it("Source A: fires an auto-trigger when the dynamics gate triggers, honoring the shared cooldown state", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: true,
+        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [{ axis: "intensity", from: 50, to: 88, delta: 38 }],
+      });
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(evaluate_image_trigger).toHaveBeenCalled();
+      expect(result.meta.image_trigger).toBe(true);
+      expect(result.meta.image_tier).toBe("story_scene");
+      expect(result.meta.image_source).toBe("dynamics");
+      expect(_mock_runtime.last_auto_image_round).toBe(1);
+      // Placeholder attachment logged immediately
+      const placeholder_call = session_driver.log_message.mock.calls.find((c) => c[3]?.attachments?.[0]?.src === null);
+      expect(placeholder_call).toBeDefined();
+      expect(placeholder_call[3].attachments[0].metadata.mode).toBe("story_scene");
+      // Background generation fired against the tier (not awaited)
+      await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
+      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", expect.stringContaining("Hello"), "story_scene", { silent: true });
+    });
+
+    it("Source A: suppresses the auto-trigger while the shared cooldown is active", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: true,
+        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+      });
+      _mock_runtime.last_auto_image_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.meta.image_trigger).toBe(false);
+      expect(result.meta.image_tier).toBeNull();
+      expect(visual_engine.visualize).not.toHaveBeenCalled();
+      expect(_mock_runtime.last_auto_image_round).toBe(2);
+    });
+
+    it("Source B: a director explicit trigger bypasses the cooldown and resets the shared timer", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: false,
+        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+      });
+      _mock_runtime.last_auto_image_round = 2;
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ trigger_image: true, mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.meta.image_trigger).toBe(true);
+      expect(result.meta.image_source).toBe("director");
+      expect(result.meta.image_tier).toBe("story_scene");
+      expect(_mock_runtime.last_auto_image_round).toBe(1);
+      await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
+    });
+
+    it("Source B: director can supply an explicit 4-tier target string", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: false,
+        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+      });
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ trigger_image: "story_entities", mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.meta.image_tier).toBe("story_entities");
+      await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
+      expect(visual_engine.visualize).toHaveBeenCalledWith(expect.anything(), expect.any(String), "story_entities", expect.anything());
+    });
+
+    it("resolves the placeholder attachment when the background generation completes", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: true,
+        signals: { band_entry: null, displacement: 70, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+      });
+      vi.mocked(visual_engine.visualize).mockResolvedValue({
+        imageUrl: "https://img.test/beat.png",
+        refinedPrompt: "The vault door slams shut.",
+        metadata: { seed: 42 },
+      });
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      await vi.waitFor(() =>
+        expect(session_driver.update_log_attachment).toHaveBeenCalledWith("img-1", 0, expect.objectContaining({ src: "https://img.test/beat.png" })),
+      );
+    });
+
+    it("does not fire when neither source triggers", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: false,
+        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+      });
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.meta.image_trigger).toBe(false);
+      expect(session_driver.log_message).not.toHaveBeenCalledWith(
+        expect.anything(),
+        "fractal",
+        expect.anything(),
+        expect.objectContaining({ attachments: expect.any(Array) }),
+      );
+      expect(visual_engine.visualize).not.toHaveBeenCalled();
     });
   });
 });

@@ -83,7 +83,7 @@
       simulation_state.role = subject;
       simulation_state.start_generation(subject);
 
-      const target_mode = kind || (subject === "fractal" ? "entity" : "character");
+      const target_mode = kind || (subject === "fractal" ? "story_scene" : "story_character");
 
       // Log placeholder message immediately with null src attachment
       const placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
@@ -91,9 +91,7 @@
         attachments: [{ src: null, metadata: { mode: target_mode } }],
       });
 
-      // Pass the entity as the solo subject so the `entity`/`character` tiers
-      // frame the right one (fixes user-persona photos targeting the AI).
-      const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject: entity });
+      const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -121,13 +119,13 @@
 
       const placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: { mode: "story" } }],
+        attachments: [{ src: null, metadata: { mode: "story_entities" } }],
       });
 
       const result = await visual_engine.visualize(
         runtime.story_id,
-        "A scene featuring the AI character, the user persona, and the fractal environment together",
-        "story",
+        "A scene featuring both the AI character and the user persona together",
+        "story_entities",
       );
 
       if (result?.imageUrl && placeholder_entry?.id) {
@@ -155,7 +153,7 @@
    * @param {{ prompt: string, negative_prompt?: string, mode?: string, log_id?: string|number, attach_idx?: number, signature_color?: string, regenerate_count?: number }} ctx
    */
   async function regenerate_image(ctx) {
-    const { prompt, negative_prompt, mode = "character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
+    const { prompt, negative_prompt, mode = "story_character", log_id, attach_idx = 0, signature_color, regenerate_count = 0 } = ctx;
     const key = `${log_id}:${attach_idx}`;
 
     start_regenerate(key, {
