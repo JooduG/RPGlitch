@@ -265,10 +265,36 @@ export const PromptTemplates = {
   BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, entity, history, mode = "visualize" } = context || {};
 
-    const active_ai = ai || (targetType === "ai" || targetType === "character" ? entity : null);
-    const active_user = user || (targetType === "user" ? entity : null);
-    const active_fractal = fractal || (targetType === "fractal" ? entity : null);
+    // Legacy aliases → the 4-tier taxonomy:
+    //   story     = all three entities (AI + USER + FRACTAL) in one frame
+    //   character = one character inside the fractal world (fractal's style)
+    //   entity    = solo character OR fractal, independent of the selected
+    //               fractal world (the entity's OWN visual style)
+    //   scene     = depict whatever the narrative intent describes
+    const TARGET_ALIASES = {
+      ai: "entity",
+      user: "entity",
+      selfie: "entity",
+      portrait: "entity",
+      fractal: "entity",
+      characters: "story",
+      prologue: "story",
+      landscape: "scene",
+      setting: "scene",
+    };
+    targetType = TARGET_ALIASES[targetType] || targetType;
+
+    const active_ai = ai;
+    const active_user = user;
+    const active_fractal = fractal;
     const main_entity = active_ai || active_user;
+
+    // Solo tiers frame exactly one subject. An explicit `entity` context wins;
+    // otherwise default to the AI character (the star of the scene).
+    const is_solo = targetType === "character" || targetType === "entity";
+    const subject_entity = is_solo ? entity || active_ai : null;
+    const subject_is_fractal = !!subject_entity && (subject_entity.type === "fractal" || (active_fractal && subject_entity.id === active_fractal.id));
+    const subject_is_user = !!subject_entity && !subject_is_fractal && !!active_user && subject_entity.id === active_user.id;
 
     let ctxBlock;
     let subject;
@@ -303,18 +329,20 @@ export const PromptTemplates = {
 
     const ai_block = render_entity("AI_CHARACTER", active_ai);
     const user_block = render_entity("USER_PERSONA", active_user);
+    const subject_block = render_entity(subject_is_fractal ? "FRACTAL" : subject_is_user ? "USER_PERSONA" : "AI_CHARACTER", subject_entity);
 
-    const fractal_block = active_fractal
-      ? render_entity("FRACTAL", active_fractal)
-      : main_entity
-        ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${escape_xml(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
-        : "";
+    const fractal_block =
+      targetType === "entity"
+        ? `<BACKGROUND_DIRECTIVE>Solo portrait backdrop: a clean, subdued environment that complements the subject's visual theme and signature colors. The environment is secondary — the subject fills the frame.</BACKGROUND_DIRECTIVE>`
+        : active_fractal
+          ? render_entity("FRACTAL", active_fractal)
+          : main_entity
+            ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${escape_xml(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
+            : "";
 
-    const style_key = active_fractal
-      ? resolve_story_visual_style_key()
-      : main_entity
-        ? resolve_portrait_visual_style_key(main_entity)
-        : resolve_story_visual_style_key();
+    // entity tier renders in the subject's OWN visual style (independent of any
+    // selected fractal). Every other tier speaks the fractal's visual language.
+    const style_key = targetType === "entity" ? resolve_portrait_visual_style_key(subject_entity) : resolve_story_visual_style_key();
     const style_obj = VISUAL_STYLES[style_key] || VISUAL_STYLES.none;
     const engine_tokens = resolve_visual_engine_tokens(style_key);
     const visual_engine_block = style_obj.visual_engine
@@ -326,31 +354,22 @@ export const PromptTemplates = {
     const vs_neg_prompt = engine_tokens.negative_prompt || NEGATIVE_PROMPT;
 
     switch (targetType) {
-      case "fractal":
-        ctxBlock = `${fractal_block}\n<RESTRICTION>**STRICTLY NO CHARACTERS.** Focus entirely on environmental layout, atmospheric spatial depth, and lighting structures.</RESTRICTION>`;
-        subject = "a landscape environment or interior layout space";
-        break;
-      case "characters":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC OPENING SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${escape_xml(active_ai?.name || "AI")}) and USER persona (${escape_xml(active_user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
-        subject = "a cinematic opening shot featuring both the AI character and user persona meeting within the fractal environment";
+      case "story":
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>STORY SHOT MANDATE: The image MUST depict ALL THREE entities together in a single composition — the AI character (${escape_xml(active_ai?.name || "AI")}), the USER persona (${escape_xml(active_user?.name || "User")}), and the fractal environment (${escape_xml(active_fractal?.name || "the world")}). NEVER generate an empty environment and NEVER omit an entity.</NARRATIVE_CONTEXT>`;
+        subject = "a cinematic story shot featuring the AI character, the user persona, and the fractal environment together in one frame";
         break;
       case "character":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
-        subject = "a character framed within their environment, emphasizing their presence with an evocative background setting";
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${subject_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>IN-SCENE MANDATE: Depict ${escape_xml(subject_entity?.name || "the character")} physically present WITHIN the fractal world, engaged with the environment around them. Wide or medium framing that places the character in their world, rendered in the fractal's visual style. NEVER an empty landscape without the character.</NARRATIVE_CONTEXT>`;
+        subject = `${escape_xml(subject_entity?.name || "the character")}, seen inside the world of the fractal, in the fractal's visual style`;
         break;
-      case "selfie":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}`;
-        subject =
-          "a modern front-facing wide-angle selfie capture, framing the character from the chest up with one arm reaching toward the lower frame";
+      case "entity":
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${subject_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Tight portrait framing — the subject fills most of the frame and the environment is a subdued backdrop only. Focus solely on this subject, rendered in the subject's OWN visual style, independent of any selected fractal world.</RESTRICTION>`;
+        subject = `a solo portrait of ${escape_xml(subject_entity?.name || "the subject")}, tight framing, in the subject's own visual style`;
         break;
-      case "user":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this persona context.</RESTRICTION>`;
-        subject = "a solo character portrait of the user persona";
-        break;
-      case "ai":
+      case "scene":
       default:
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<RESTRICTION>**SOLO FRAME PROTOCOL.** Focus solely on this character context.</RESTRICTION>`;
-        subject = "a solo character portrait of the AI character";
+        ctxBlock = `${fractal_block}\n<NARRATIVE_CONTEXT>SCENE FOCUS MANDATE: Depict whatever the narrative intent describes — characters, environment, or both — choosing the framing that best serves the moment. Do not force entities into the frame if the intent is about the setting itself.</NARRATIVE_CONTEXT>`;
+        subject = "the scene described in the narrative intent";
         break;
     }
 
@@ -359,7 +378,6 @@ export const PromptTemplates = {
 ${visual_engine_block}
 <PROTOCOL>
 ${PROTOCOL_LIBRARY.OPTICS.BUILDER_PROTOCOL}
-${targetType === "selfie" ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-character social media caption inside "caption".' : ""}
 </PROTOCOL>
 <TARGET>${targetType}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
@@ -373,7 +391,7 @@ JSON STRUCTURE:
 {
   "_thought_process": "<step-by-step composition, lighting, and style analysis>",
   "prompt": "<synthesized descriptive image prompt>",
-  "negative_prompt": "${escape_xml(vs_neg_prompt)}"${targetType === "selfie" ? ',\n  "caption": "<in-character selfie caption>"' : ""}
+  "negative_prompt": "${escape_xml(vs_neg_prompt)}"
 }
 
 ${JSON_OUTPUT_PROTOCOL}
@@ -390,13 +408,14 @@ ${JSON_OUTPUT_PROTOCOL}
    * @returns {string}
    */
   ENHANCE: (text, _type = "character", entity = null) => {
-    const is_portrait = ["character", "ai", "user", "selfie", "portrait"].includes(_type || "");
-    const target = is_portrait ? (_type === "user" ? "user" : "ai") : _type;
-    return PromptTemplates.BUILDER(target, text, {
+    const is_fractal = entity?.type === "fractal" || _type === "fractal";
+    // Enhancement always refines a solo entity's prompt → the `entity` tier,
+    // rendered in the subject's OWN visual style (portrait resolver).
+    return PromptTemplates.BUILDER("entity", text, {
       entity,
-      ai: target === "user" ? null : entity,
-      user: target === "user" ? entity : null,
-      fractal: target === "fractal" ? entity : null,
+      ai: is_fractal ? null : entity,
+      user: null,
+      fractal: is_fractal ? entity : null,
       mode: "enhance",
     });
   },
@@ -404,21 +423,26 @@ ${JSON_OUTPUT_PROTOCOL}
 
 /**
  * Standard resolution mapping for execution modes.
- * @param {"landscape" | "fractal" | "portrait" | "character" | "selfie" | "user" | "ai" | "characters" | string} mode
+ * @param {"story" | "character" | "entity" | "scene" | "landscape" | "fractal" | "portrait" | "selfie" | "user" | "ai" | "characters" | string} mode
  * @returns {{ width: number, height: number }}
  */
 export const get_resolution = (mode) => {
   switch (mode) {
     case "landscape":
     case "fractal":
+    case "scene":
       return { width: 768, height: 512 };
     case "portrait":
-    case "character":
+    case "entity":
     case "selfie":
     case "user":
     case "ai":
       return { width: 512, height: 768 };
+    case "character":
+    case "prologue":
+      return { width: 768, height: 512 };
     case "characters":
+    case "story":
       return { width: 768, height: 768 };
     default:
       return { width: 768, height: 768 };

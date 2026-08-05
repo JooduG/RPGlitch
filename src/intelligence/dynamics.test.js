@@ -1,4 +1,4 @@
-import { DYNAMICS_META, dynamics_engine } from "./dynamics.js";
+import { DYNAMICS_META, dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { describe, expect, it } from "vitest";
 
 describe("dynamics.js", () => {
@@ -57,6 +57,61 @@ describe("dynamics.js", () => {
     it("does nothing when dynamics is null or not an object", () => {
       expect(() => dynamics_engine.settle_physics(null, {}, 50, 0.1)).not.toThrow();
       expect(() => dynamics_engine.settle_physics(undefined, {}, 50, 0.1)).not.toThrow();
+    });
+  });
+
+  describe("evaluate_image_trigger", () => {
+    it("fires when an axis ENTERS the extreme-high band (82 -> 88)", () => {
+      const signal = evaluate_image_trigger([{ axis: "chaos", target: "ai", old_value: 82, new_value: 88, diff: 6 }]);
+      expect(signal.fired).toBe(true);
+      expect(signal.crossed).toBe(true);
+      expect(signal.reasons).toContain("crossed:ai.chaos");
+    });
+
+    it("fires when an axis ENTERS the extreme-low band (18 -> 12)", () => {
+      const signal = evaluate_image_trigger([{ axis: "entropy", target: "fractal", old_value: 18, new_value: 12, diff: -6 }]);
+      expect(signal.fired).toBe(true);
+      expect(signal.reasons).toContain("crossed:fractal.entropy");
+    });
+
+    it("does NOT fire when leaving an extreme band (88 -> 74)", () => {
+      const signal = evaluate_image_trigger([{ axis: "chaos", target: "ai", old_value: 88, new_value: 74, diff: -14 }]);
+      expect(signal.fired).toBe(false);
+    });
+
+    it("does NOT fire on a mid-band move (76 -> 74)", () => {
+      const signal = evaluate_image_trigger([{ axis: "chaos", target: "ai", old_value: 76, new_value: 74, diff: -2 }]);
+      expect(signal.fired).toBe(false);
+    });
+
+    it("does NOT fire when moving within the extreme band (86 -> 91)", () => {
+      const signal = evaluate_image_trigger([{ axis: "chaos", target: "ai", old_value: 86, new_value: 91, diff: 5 }]);
+      expect(signal.fired).toBe(false);
+    });
+
+    it("fires on Signal A when the sum of |deltas| crosses the threshold even with no band entry", () => {
+      const deltas = [
+        { axis: "intensity", target: "ai", old_value: 50, new_value: 65, diff: 15 },
+        { axis: "affinity", target: "ai", old_value: 50, new_value: 30, diff: -20 },
+        { axis: "openness", target: "ai", old_value: 50, new_value: 70, diff: 20 },
+        { axis: "velocity", target: "fractal", old_value: 50, new_value: 75, diff: 25 },
+      ];
+      const signal = evaluate_image_trigger(deltas);
+      expect(signal.fired).toBe(true);
+      expect(signal.crossed).toBe(false);
+      expect(signal.sum).toBe(80);
+    });
+
+    it("does not fire when the summed movement stays below the threshold", () => {
+      const deltas = [{ axis: "intensity", target: "ai", old_value: 50, new_value: 62, diff: 12 }];
+      const signal = evaluate_image_trigger(deltas);
+      expect(signal.fired).toBe(false);
+    });
+
+    it("returns a clean non-firing signal for empty/null input", () => {
+      expect(evaluate_image_trigger()).toEqual({ fired: false, crossed: false, sum: 0, reasons: [] });
+      expect(evaluate_image_trigger([])).toEqual({ fired: false, crossed: false, sum: 0, reasons: [] });
+      expect(evaluate_image_trigger(null)).toEqual({ fired: false, crossed: false, sum: 0, reasons: [] });
     });
   });
 });

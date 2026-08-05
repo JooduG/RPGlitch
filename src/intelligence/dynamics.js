@@ -3,6 +3,43 @@
  * ⚙️ DYNAMICS ENGINE — Physics engine slider metadata & settlement calculations.
  */
 
+import { IMAGE_TRIGGER } from "../engine/config.js";
+
+/**
+ * Evaluates whether a turn's dynamics movement should trigger an automatic
+ * image (the pure-JS gate — no LLM call).
+ *
+ * Signal B (band crossing): fires when an axis *enters* an extreme band this
+ * turn — `(old < 85 && new >= 85) || (old > 15 && new <= 15)`. Leaving an
+ * extreme band never triggers; a mid-band move like 76→74 triggers nothing.
+ * Signal A (movement sum): fires when the sum of all |axis deltas| across the
+ * six axes exceeds `sum_threshold` even if no band was entered.
+ *
+ * @param {Array<{ axis: string, target?: string, old_value?: number, new_value?: number, diff?: number }>} deltas
+ * @returns {{ fired: boolean, crossed: boolean, sum: number, reasons: string[] }}
+ */
+export function evaluate_image_trigger(deltas = []) {
+  const { extreme_high, extreme_low, sum_threshold } = IMAGE_TRIGGER;
+  const reasons = [];
+
+  if (Array.isArray(deltas)) {
+    for (const d of deltas) {
+      if (!d || typeof d.old_value !== "number" || typeof d.new_value !== "number") continue;
+      const entered_high = d.old_value < extreme_high && d.new_value >= extreme_high;
+      const entered_low = d.old_value > extreme_low && d.new_value <= extreme_low;
+      if (entered_high || entered_low) {
+        reasons.push(`crossed:${d.target ? `${d.target}.` : ""}${d.axis}`);
+      }
+    }
+    const sum = deltas.reduce((acc, d) => acc + Math.abs(Number(d?.diff) || 0), 0);
+    if (sum >= sum_threshold) {
+      reasons.push(`sum:${Math.round(sum)}`);
+    }
+    return { fired: reasons.length > 0, crossed: reasons.some((r) => r.startsWith("crossed:")), sum, reasons };
+  }
+  return { fired: false, crossed: false, sum: 0, reasons };
+}
+
 /**
  * @typedef {Object} AxisMeta
  * @property {string} label - UI display label

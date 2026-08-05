@@ -185,10 +185,9 @@ export class VisualEngine {
             }
 
             const entity_type = effective_type;
-            const is_character_shot =
-              ["character", "ai", "user", "selfie", "portrait", "characters", "prologue"].includes(entity_type) ||
-              options.mode === "prologue" ||
-              options.mode === "characters";
+            // Tiers that guarantee a character in frame (vs. scene = environment-first).
+            const CHARACTER_SHOTS = new Set(["character", "ai", "user", "selfie", "portrait", "characters", "prologue", "story", "entity"]);
+            const is_character_shot = CHARACTER_SHOTS.has(entity_type) || CHARACTER_SHOTS.has(options.mode);
             const char_neg_tokens = is_character_shot
               ? "empty background, landscape without characters, scenery only, no humans, empty environment"
               : "";
@@ -366,15 +365,24 @@ export class VisualEngine {
       };
     }
 
-    const target_type_map = { ai: "ai", fractal: "fractal", user: "user", selfie: "selfie", characters: "characters" };
-    const v_target = target_type_map[targetType] || "character";
-
-    const target_id_map = { ai: story.ai_id, fractal: story.fractal_id, scene: story.fractal_id, user: story.user_id };
-    const target_id = target_id_map[targetType] || story.ai_id;
-
-    if (!silent) {
-      state_bridge.simulation_state.start_typing(targetType === "fractal" || targetType === "characters" ? "fractal" : targetType || "ai", target_id);
-    }
+    // Legacy aliases → the 4-tier taxonomy (mirrors PromptTemplates.BUILDER):
+    //   story     = all three entities (AI + USER + FRACTAL) in one frame
+    //   character = one character inside the fractal world (fractal's style)
+    //   entity    = solo character OR fractal, the entity's OWN style
+    //   scene     = depict whatever the narrative intent describes
+    const TARGET_ALIASES = {
+      ai: "entity",
+      user: "entity",
+      selfie: "entity",
+      portrait: "entity",
+      fractal: "entity",
+      characters: "story",
+      prologue: "story",
+      landscape: "scene",
+      setting: "scene",
+    };
+    const v_target = TARGET_ALIASES[targetType] || targetType || "scene";
+    const target_id = story.fractal_id || story.ai_id;
 
     try {
       // FIX #1: Prefer live runtime entities (already mutated by Director) over
@@ -385,10 +393,38 @@ export class VisualEngine {
       const user = (runtime?.active_user?.id === story.user_id && runtime.active_user) || (await this._resolveEntity(story.user_id));
       const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this._resolveEntity(story.fractal_id));
 
+      // Resolve the solo subject for the character/entity tiers. An explicit
+      // options.subject / options._entity wins; otherwise fall back to the
+      // story's AI character (the star of the scene).
+      let subject = null;
+      if (v_target === "character" || v_target === "entity") {
+        const subject_id = options.subject_id;
+        if (options.subject || options._entity) {
+          subject = options.subject || options._entity;
+        } else if (subject_id) {
+          subject =
+            (runtime?.active_ai?.id === subject_id && runtime.active_ai) ||
+            (runtime?.active_user?.id === subject_id && runtime.active_user) ||
+            (runtime?.active_fractal?.id === subject_id && runtime.active_fractal) ||
+            (await this._resolveEntity(subject_id));
+        } else if (targetType === "user") {
+          subject = user;
+        } else {
+          subject = ai;
+        }
+      }
+      const subject_is_fractal = !!subject && (subject.type === "fractal" || (fractal && subject.id === fractal.id));
+
+      if (!silent) {
+        const typing_role = v_target === "story" || v_target === "scene" || (v_target === "entity" && subject_is_fractal) ? "fractal" : "ai";
+        state_bridge.simulation_state.start_typing(typing_role, target_id);
+      }
+
       const system = PromptTemplates.BUILDER(v_target, visualPrompt, {
         ai,
         user,
         fractal,
+        entity: subject,
         history: "",
         mode: "visualize",
       });
@@ -403,7 +439,7 @@ export class VisualEngine {
 
       if (!refined) {
         console.warn("[VisualEngine] visualize: LLM returned empty/null, synthesizing fallback prompt.");
-        const fallback_entity = v_target === "user" ? user : v_target === "fractal" || v_target === "characters" ? fractal : ai;
+        const fallback_entity = v_target === "story" ? fractal : v_target === "character" || v_target === "entity" ? subject || ai : ai;
         const fallback_desc = AestheticResolver.flatten(fallback_entity);
         const fallback_name = fallback_entity?.name || v_target;
         const short_intent = visualPrompt && visualPrompt.length < 200 ? visualPrompt : "";
@@ -423,18 +459,19 @@ export class VisualEngine {
         clean_prompt = this._cleanPrompt(strip_cognition_blocks(extracted));
       }
 
-      if ((!clean_prompt || clean_prompt.length < 10) && (v_target === "fractal" || v_target === "characters")) {
+      const is_environment_first = v_target === "story" || v_target === "scene" || (v_target === "entity" && subject_is_fractal);
+      if ((!clean_prompt || clean_prompt.length < 10) && is_environment_first) {
         const fractal_desc = AestheticResolver.flatten(fractal);
         clean_prompt = `RAW photograph or structured artistic rendering of ${fractal?.name || "an environment"}, ${fractal_desc || "high architectural definition, crisp spatial depth details, professional landscape layout alignment"}`;
       }
 
       let caption = null;
-      if (v_target === "selfie") {
-        const caption_match = refined?.match(/<caption\s+text="([^"]+)"/i) || refined?.match(/<caption>([\s\S]*?)<\/caption>/i);
-        caption = caption_match?.[1] || "You wanted a selfie? There you go.";
-      }
 
       const generate_options = { mode: v_target, returnPayload: true, ...options };
+      if (v_target === "entity" && subject) {
+        // entity tier renders in the subject's OWN visual style (portrait resolver)
+        generate_options._entity = subject;
+      }
       if (extracted_negative && !generate_options.negative_prompt) {
         generate_options.negative_prompt = extracted_negative;
       }
@@ -531,7 +568,7 @@ export class VisualEngine {
     const res = get_resolution(options.mode);
     const width = res.width || 768;
     const height = res.height || 512;
-    const is_scene = options.mode === "fractal" || options.mode === "landscape";
+    const is_scene = options.mode === "fractal" || options.mode === "landscape" || options.mode === "scene" || options.mode === "story";
     const label = is_scene ? "SCENE PREVIEW" : "ENTITY PREVIEW";
     const clean_p = String(prompt || "")
       .substring(0, 50)

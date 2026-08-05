@@ -83,7 +83,7 @@
       simulation_state.role = subject;
       simulation_state.start_generation(subject);
 
-      const target_mode = kind || (subject === "fractal" ? "landscape" : "character");
+      const target_mode = kind || (subject === "fractal" ? "entity" : "character");
 
       // Log placeholder message immediately with null src attachment
       const placeholder_entry = await session_driver.log_message("", subject, entity?.name || label_map[subject], {
@@ -91,7 +91,9 @@
         attachments: [{ src: null, metadata: { mode: target_mode } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
+      // Pass the entity as the solo subject so the `entity`/`character` tiers
+      // frame the right one (fixes user-persona photos targeting the AI).
+      const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject: entity });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -119,13 +121,13 @@
 
       const placeholder_entry = await session_driver.log_message("", "fractal", fractal?.name || "Scene", {
         turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: { mode: "characters" } }],
+        attachments: [{ src: null, metadata: { mode: "story" } }],
       });
 
       const result = await visual_engine.visualize(
         runtime.story_id,
-        "A scene featuring both the AI character and the user persona together",
-        "characters",
+        "A scene featuring the AI character, the user persona, and the fractal environment together",
+        "story",
       );
 
       if (result?.imageUrl && placeholder_entry?.id) {

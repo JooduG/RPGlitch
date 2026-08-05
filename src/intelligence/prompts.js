@@ -337,6 +337,13 @@ ${(() => {
     Evaluate state mutations caused by the ${input?.trim() ? "<USER_ACTION>" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
     Return a single valid JSON payload starting with { and ending with } following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
+
+    OPTIONAL IMAGE TRIGGER — "trigger_image" defaults to false. Set it to true to request an illustration of the current scene, or to one of:
+      - "story"     — all three entities together in one frame (AI character, user persona, fractal environment)
+      - "character" — the AI character seen inside the fractal world
+      - "entity"    — a solo portrait of one entity, independent of the fractal
+      - "scene"     — depict whatever the current moment is (characters, environment, or both)
+    Use it SPARINGLY: only for visually striking, image-worthy moments — at most ~1 in 10 turns.
   </TASK>
   `).trim();
 

@@ -165,7 +165,7 @@
 
     try {
       const payload = await app.visual.generate(prompt_value, {
-        mode: profile_state.char.type,
+        mode: "entity",
         no_background: profile_state.noBackground,
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:

@@ -11,8 +11,9 @@ import { db, entities, prune } from "@data";
 import { generate_uuid as generateUUID, state_bridge } from "@utils";
 import { visual_engine } from "@media";
 import { llm_service, Security } from "@platform";
+import { IMAGE_TRIGGER } from "../engine/config.js";
 import { context_broker } from "./context.svelte.js";
-import { dynamics_engine } from "./dynamics.js";
+import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
@@ -54,6 +55,19 @@ function parse_director_json(raw_text) {
     const extracted_think = parse_think_block(stripped).think;
     return { internal_monologue: extracted_think || stripped, _parse_error: true };
   }
+}
+
+/**
+ * Resolves the Director's `trigger_image` value into a concrete visual tier.
+ * `true` → "scene" (the general moment); a valid tier string is passed through;
+ * anything else → null (no explicit image request).
+ * @param {any} val
+ * @returns {string | null}
+ */
+function resolve_director_image_tier(val) {
+  if (val === true || val === "true" || val === 1) return "scene";
+  if (typeof val === "string" && IMAGE_TRIGGER.tiers.includes(val.trim())) return val.trim();
+  return null;
 }
 
 /**
@@ -275,11 +289,17 @@ export const gamemaster = {
         {
           type: "DYNAMICS_DELTA",
           trigger_image: meta?.trigger_image === true,
+          ...(meta?.auto_image ? { auto_image: meta.auto_image } : {}),
           ...(meta?.thoughts ? { thoughts: meta.thoughts } : {}),
           updates,
         },
       );
     }
+
+    // Expose the raw deltas + the pure-JS image gate result so the kernel can
+    // decide whether the dynamics movement warrants an automatic image.
+    const image_signal = evaluate_image_trigger(deltas);
+    return { deltas, image_signal };
   },
 
   /**
@@ -433,7 +453,9 @@ export const gamemaster = {
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
       final_meta.mutations = director_data.mutations;
-      final_meta.trigger_image = director_data.trigger_image === true;
+      const director_tier = resolve_director_image_tier(director_data.trigger_image);
+      final_meta.trigger_image = director_tier !== null;
+      final_meta.auto_image = director_tier;
 
       const clean_think = (t) =>
         String(t || "")
@@ -448,7 +470,23 @@ export const gamemaster = {
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
-      await this.capture_dynamics_delta(snapshot, final_meta);
+      // 4.6. AUTO IMAGE TRIGGER (Signal A + Signal B)
+      // One shared cooldown for both sources: `last_auto_image_round` is
+      // updated by whichever fires. The Director's explicit trigger may
+      // bypass the cooldown (it is a deliberate call), but still resets it.
+      // The pure-JS dynamics gate never bypasses it.
+      const current_round = state_bridge.runtime.round ?? 0;
+      const last_auto = state_bridge.runtime.last_auto_image_round ?? null;
+      const cooldown_ok = last_auto == null || current_round - last_auto >= IMAGE_TRIGGER.cooldown_rounds;
+      const telemetry = await this.capture_dynamics_delta(snapshot, final_meta);
+      let auto_tier = director_tier;
+      if (!auto_tier && cooldown_ok && telemetry?.image_signal?.fired) {
+        auto_tier = "scene";
+      }
+      if (auto_tier) {
+        state_bridge.runtime.last_auto_image_round = current_round;
+      }
+      final_meta.auto_image = auto_tier;
 
       state_bridge.runtime.ai = snapshot.ai?.dynamics;
       state_bridge.runtime.fractal = snapshot.fractal?.dynamics;
@@ -534,14 +572,45 @@ export const gamemaster = {
       }
       final_meta.structural_errors = state_bridge.runtime.structural_errors;
 
-      await state_bridge.session_driver.log_message(validation_result.text, role, character_name, {
+      const log_entry = await state_bridge.session_driver.log_message(validation_result.text, role, character_name, {
         turn_type: "AI_TURN",
         meta: {
           id: node_id,
           round: state_bridge.runtime.round,
           sino_logic_violation: final_meta.sino_logic_violation,
         },
+        ...(auto_tier
+          ? {
+              attachments: [{ src: null, metadata: { mode: auto_tier, auto: true } }],
+            }
+          : {}),
       });
+
+      // 7.5. AUTO IMAGE GENERATION
+      // Fire-and-forget: the null-src placeholder is already attached above;
+      // let the image fill in asynchronously so the turn returns immediately.
+      if (auto_tier && log_entry?.id && typeof visual_engine?.visualize === "function") {
+        const auto_intent = strip_cognition_blocks(validation_result.text).trim() || input;
+        visual_engine
+          .visualize(story_id, auto_intent, auto_tier, { silent: true })
+          .then((img_result) => {
+            if (img_result?.imageUrl) {
+              return state_bridge.session_driver.update_log_attachment(log_entry.id, 0, {
+                src: img_result.imageUrl,
+                metadata: {
+                  ...(img_result.metadata || {}),
+                  prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                  mode: auto_tier,
+                  auto: true,
+                },
+              });
+            }
+            return null;
+          })
+          .catch((err) => {
+            console.warn("[Auto Image Error]", err);
+          });
+      }
 
       // 8. TRANSITION: Open the window for User
       state_bridge.runtime.turn_type = "USER_TURN";
@@ -609,7 +678,7 @@ export const gamemaster = {
           round: 0,
           is_prologue: true,
         },
-        attachments: [{ src: null, metadata: { mode: "characters" } }],
+        attachments: [{ src: null, metadata: { mode: "story" } }],
       });
       state_bridge.app.log("[GameMaster] Prologue established (Round 0).", "system");
 
@@ -617,7 +686,7 @@ export const gamemaster = {
 
       const image_promise = visual_engine
         ? visual_engine
-            .visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true })
+            .visualize(story_id, strip_cognition_blocks(response), "story", { silent: true })
             .then((img_result) => {
               if (img_result?.imageUrl) {
                 state_bridge.session_driver.update_log_attachment(node_id, 0, {
@@ -625,7 +694,7 @@ export const gamemaster = {
                   metadata: {
                     ...(img_result.metadata || {}),
                     prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                    mode: "characters",
+                    mode: "story",
                   },
                 });
               }
@@ -681,7 +750,7 @@ export const gamemaster = {
     let epilogue_attachments = [];
     if (visual_engine) {
       try {
-        const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true });
+        const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story", { silent: true });
         if (img_result?.imageUrl) {
           epilogue_attachments = [
             {
@@ -689,7 +758,7 @@ export const gamemaster = {
               metadata: {
                 ...(img_result.metadata || {}),
                 prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                mode: "characters",
+                mode: "story",
               },
             },
           ];

@@ -376,10 +376,14 @@
             </div>
           {/if}
 
-          {#if meta.trigger_image === true}
+          {#if meta.auto_image || meta.trigger_image === true}
             <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/40 bg-(--color-dev-accent)/10 px-3 py-2">
               <span class="h-2 w-2 animate-pulse rounded-full bg-(--color-dev-accent) shadow-[0_0_8px_var(--color-dev-accent)]"></span>
-              <span class="font-mono text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Trigger Image</span>
+              <span class="font-mono text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Auto Image</span>
+              <span class="font-mono text-xs tracking-widest text-(--color-dev-accent)/80 uppercase">
+                {meta.auto_image || "scene"}
+                {#if meta.trigger_image === true && !meta.auto_image}(director){/if}
+              </span>
             </div>
           {/if}
 

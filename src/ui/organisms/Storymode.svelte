@@ -140,6 +140,9 @@
         simulation_state.role === "selfie" ||
         simulation_state.role === "character" ||
         simulation_state.role === "characters" ||
+        simulation_state.role === "story" ||
+        simulation_state.role === "entity" ||
+        simulation_state.role === "scene" ||
         simulation_state.role === "setting" ||
         simulation_state.role === "paparazzi"
       )

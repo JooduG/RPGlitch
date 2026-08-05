@@ -1,8 +1,9 @@
 import { context_broker } from "./context.svelte.js";
-import { dynamics_engine } from "./dynamics.js";
+import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
+import { visual_engine } from "@media";
 import { llm_service } from "@platform";
 import { session_driver } from "@engine";
 import { beforeEach, describe, expect, it, vi } from "vitest";
@@ -137,6 +138,13 @@ vi.mock("@intelligence/dynamics.js", () => ({
       if (dynamics) dynamics.intensity = 60; // Mutate to verify change
     }),
     _get_baselines: vi.fn().mockReturnValue({}),
+  },
+  evaluate_image_trigger: vi.fn(() => ({ fired: false, crossed: false, sum: 0, reasons: [] })),
+}));
+
+vi.mock("@media", () => ({
+  visual_engine: {
+    visualize: vi.fn().mockResolvedValue({ imageUrl: null, refinedPrompt: null, caption: null }),
   },
 }));
 
@@ -665,6 +673,10 @@ describe("gamemaster (Intelligence Kernel)", () => {
       });
       _mock_runtime.ai = { intensity: 50 };
       _mock_runtime.fractal = { entropy: 50 };
+      _mock_runtime.last_auto_image_round = null;
+      vi.mocked(session_driver.log_message).mockResolvedValue({});
+      vi.mocked(visual_engine.visualize).mockResolvedValue({ imageUrl: null, refinedPrompt: null, caption: null });
+      vi.mocked(evaluate_image_trigger).mockReturnValue({ fired: false, crossed: false, sum: 0, reasons: [] });
     });
 
     it("does not simulate physics a second time after generation", async () => {
@@ -737,6 +749,94 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(payload.thoughts).toContain("## Reasoning");
       expect(payload.thoughts).toContain("The room is a trap and the doors are sealed.");
       expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
+    });
+
+    it("fires an automatic image when the Director explicitly triggers a tier", async () => {
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(
+          JSON.stringify({
+            _thought_process: "Moment worth capturing.",
+            trigger_image: "character",
+            mutations: {},
+          }),
+        )
+        .mockResolvedValueOnce("The neon rain beads off Viper's coat.");
+      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 42 });
+      vi.mocked(visual_engine.visualize).mockResolvedValue({
+        imageUrl: "data:image/svg+xml;base64,eHh4",
+        refinedPrompt: "Viper in the neon alley",
+        metadata: { mode: "character" },
+      });
+
+      await gamemaster.execute_turn("story-123", { input: "The neon rain falls.", role: "ai" });
+
+      expect(session_driver.log_message).toHaveBeenCalledWith(
+        "The neon rain beads off Viper's coat.",
+        "ai",
+        "Viper",
+        expect.objectContaining({
+          turn_type: "AI_TURN",
+          attachments: [{ src: null, metadata: { mode: "character", auto: true } }],
+        }),
+      );
+      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", "The neon rain beads off Viper's coat.", "character", {
+        silent: true,
+      });
+      expect(_mock_runtime.last_auto_image_round).toBe(1);
+    });
+
+    it("fills the auto-image attachment when the visualization resolves", async () => {
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ trigger_image: "scene", mutations: {} }))
+        .mockResolvedValueOnce("The storm breaks over the harbor.");
+      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 7 });
+      vi.mocked(visual_engine.visualize).mockResolvedValue({
+        imageUrl: "data:image/png;base64,eHh4",
+        refinedPrompt: "Harbor storm",
+        metadata: { mode: "scene" },
+      });
+
+      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      expect(session_driver.update_log_attachment).toHaveBeenCalledWith(7, 0, {
+        src: "data:image/png;base64,eHh4",
+        metadata: expect.objectContaining({ prompt: "Harbor storm", mode: "scene", auto: true }),
+      });
+    });
+
+    it("fires a scene image from the pure-JS dynamics gate when the signal fires and cooldown allows", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({ fired: true, crossed: true, sum: 20, reasons: ["crossed:ai.chaos"] });
+      vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("The storm breaks.");
+      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 7 });
+
+      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(session_driver.log_message).toHaveBeenCalledWith(
+        "The storm breaks.",
+        "ai",
+        "Viper",
+        expect.objectContaining({ attachments: [{ src: null, metadata: { mode: "scene", auto: true } }] }),
+      );
+      expect(visual_engine.visualize).toHaveBeenCalledWith("story-123", "The storm breaks.", "scene", { silent: true });
+      expect(_mock_runtime.last_auto_image_round).toBe(1);
+    });
+
+    it("respects the shared cooldown for the dynamics gate (no fire when last image was recent)", async () => {
+      _mock_runtime.last_auto_image_round = 1;
+      vi.mocked(evaluate_image_trigger).mockReturnValue({ fired: true, crossed: true, sum: 20, reasons: ["crossed:ai.chaos"] });
+      vi.mocked(llm_service.generate).mockResolvedValueOnce("{}").mockResolvedValueOnce("Calm seas.");
+      vi.mocked(session_driver.log_message).mockResolvedValue({ id: 9 });
+
+      await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(session_driver.log_message).not.toHaveBeenCalledWith(
+        "Calm seas.",
+        "ai",
+        "Viper",
+        expect.objectContaining({ attachments: expect.any(Array) }),
+      );
+      expect(visual_engine.visualize).not.toHaveBeenCalled();
     });
 
     it("handles invalid JSON or missing brackets from Director by falling back to raw internal_monologue", async () => {
