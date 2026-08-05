@@ -269,7 +269,6 @@ export class ProfileState {
                   const content = typeof v === "string" ? v : v.content || v.directive || v.text || "";
                   return {
                     ...temporal_engine.create(content, key),
-                    tags: Array.isArray(v.tags) ? v.tags : [],
                     emotional_weight: v.emotional_weight ?? 5,
                   };
                 });
@@ -342,7 +341,6 @@ export class ProfileState {
                 const dir = typeof v === "string" ? v : v.content || v.directive || v.text || "";
                 if (!dir) return;
 
-                const tags = Array.isArray(v.tags) ? v.tags : [];
                 const emotional_weight = typeof v.emotional_weight === "number" ? v.emotional_weight : 5;
 
                 if (target_idx < current_items.length) {
@@ -350,7 +348,6 @@ export class ProfileState {
                   current_items[target_idx] = {
                     ...existing,
                     content: dir,
-                    tags: tags.length > 0 ? tags : existing.tags || [],
                     emotional_weight: typeof v.emotional_weight === "number" ? emotional_weight : (existing.emotional_weight ?? 5),
                   };
                 } else {
@@ -360,7 +357,6 @@ export class ProfileState {
                     content: dir,
                     type: path,
                     emotional_weight,
-                    tags,
                   });
                 }
               });
@@ -377,7 +373,6 @@ export class ProfileState {
             const parsed = JSON.parse(json_str.substring(start_obj, end_obj + 1));
             if (parsed && typeof parsed === "object") {
               if (parsed.content || parsed.directive || parsed.text) patch.content = parsed.content || parsed.directive || parsed.text;
-              if (Array.isArray(parsed.tags) && parsed.tags.length > 0) patch.tags = parsed.tags;
               if (typeof parsed.emotional_weight === "number") patch.emotional_weight = parsed.emotional_weight;
             }
           } catch (_e) {
@@ -498,7 +493,6 @@ export class ProfileState {
       content: "",
       type: path,
       emotional_weight: 5,
-      tags: [],
     };
 
     this._set_vectors_of_type(path, [new_item, ...items]);

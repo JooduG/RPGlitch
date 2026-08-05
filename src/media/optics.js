@@ -5,7 +5,7 @@
  */
 
 import { VISUAL_STYLES, detox_prose } from "@data";
-import { PROTOCOL_LIBRARY, escape_xml, safe_parse_pseudo_json, state_bridge } from "@utils";
+import { PROTOCOL_LIBRARY, escape_xml, prompt_escape, safe_parse_pseudo_json, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**
@@ -318,12 +318,12 @@ export const PromptTemplates = {
       if (!raw) return "";
       const parsed = safe_parse_pseudo_json(raw);
       if (parsed.__raw_prose__) {
-        return `  <${tagName}>${escape_xml(parsed.__raw_prose__)}</${tagName}>`;
+        return `  <${tagName}>${prompt_escape(parsed.__raw_prose__)}</${tagName}>`;
       }
       const children = Object.entries(parsed)
         .map(([k, v]) => {
           const tag = k.replace(/\s+/g, "_");
-          return `    <${tag}>${escape_xml(String(v))}</${tag}>`;
+          return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
         })
         .join("\n");
       return `  <${tagName}>\n${children}\n  </${tagName}>`;
@@ -350,7 +350,7 @@ export const PromptTemplates = {
       story_tier && active_fractal
         ? render_entity("FRACTAL", active_fractal)
         : story_tier && main_entity
-          ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${escape_xml(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
+          ? `<BACKGROUND_DIRECTIVE>No explicit fractal environment setting is provided. You MUST synthesize an evocative, atmospheric background environment that naturally fits the personality, visual theme, and signature colors of ${prompt_escape(main_entity.name || "the subject")}.</BACKGROUND_DIRECTIVE>`
           : "";
 
     const style_key = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_subject) : resolve_story_visual_style_key();
@@ -358,7 +358,7 @@ export const PromptTemplates = {
     const engine_tokens = resolve_visual_engine_tokens(style_key);
     const visual_engine_block = style_obj.visual_engine
       ? `\n<VISUAL_ENGINE style="${escape_xml(style_obj.name || style_key)}">\n${style_obj.visual_engine.replace(/<\/?VISUAL_ENGINE[^>]*>/gi, "").trim()}${
-          style_obj.tags && style_obj.tags.length ? `\n<tags>${escape_xml(style_obj.tags.join(", "))}</tags>` : ""
+          style_obj.tags && style_obj.tags.length ? `\n<tags>${prompt_escape(style_obj.tags.join(", "))}</tags>` : ""
         }\n</VISUAL_ENGINE>`
       : "";
 
@@ -375,7 +375,7 @@ export const PromptTemplates = {
         subject = "a landscape environment or interior layout space capturing the current narrative moment and prose context";
         break;
       case "story_entities":
-        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC GROUP SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${escape_xml(active_ai?.name || "AI")}) and USER persona (${escape_xml(active_user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS, rendered within the fractal environment. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
+        ctxBlock = `<ACTIVE_CHARACTERS>\n${ai_block}\n${user_block}\n</ACTIVE_CHARACTERS>\n${fractal_block}\n<NARRATIVE_CONTEXT>CINEMATIC GROUP SHOT MANDATE: The image MUST literally depict the active narrative scene, featuring BOTH the AI character (${prompt_escape(active_ai?.name || "AI")}) and USER persona (${prompt_escape(active_user?.name || "User")}) engaged together in their exact spatial positions described in INSTRUCTIONS, rendered within the fractal environment. NEVER generate an empty environment/landscape shot.</NARRATIVE_CONTEXT>`;
         subject = "a cinematic group shot featuring both the AI character and user persona together within the fractal environment";
         break;
       case "story_character":
@@ -394,9 +394,9 @@ ${is_selfie ? '\nPHASE 6: SELFIE MODE EXTENSION\n- Generate a short, in-characte
 </PROTOCOL>
 <TARGET>${tier}</TARGET>
 <MODE>${mode.toUpperCase()}</MODE>
-${history ? `<HISTORY>\n${escape_xml(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
+${history ? `<HISTORY>\n${prompt_escape(history)}\n</HISTORY>\n` : ""}<INSTRUCTIONS>
 Convert narrative intent into a structured image prompt payload depicting ${subject}.
-Input Intent: "${escape_xml(detox_prose(rawIntent))}"
+Input Intent: "${prompt_escape(detox_prose(rawIntent))}"
 </INSTRUCTIONS>
 ${ctxBlock}
 
@@ -404,7 +404,7 @@ JSON STRUCTURE:
 {
   "_thought_process": "<step-by-step composition, lighting, and style analysis>",
   "prompt": "<synthesized descriptive image prompt>",
-  "negative_prompt": "${escape_xml(vs_neg_prompt)}"${is_selfie ? ',\n  "caption": "<in-character selfie caption>"' : ""}
+  "negative_prompt": "${prompt_escape(vs_neg_prompt)}"${is_selfie ? ',\n  "caption": "<in-character selfie caption>"' : ""}
 }
 
 ${JSON_OUTPUT_PROTOCOL}

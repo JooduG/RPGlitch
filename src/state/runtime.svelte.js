@@ -136,7 +136,9 @@ function create_runtime_store() {
   let fractal_physics = $state(null);
   // 🖼️ Image Trigger Engine: round of the last auto-triggered image beat.
   // Shared cooldown state between the pure-JS dynamics gate and the LLM director.
-  let last_auto_image_round = $state(0);
+  // -1 = never triggered sentinel; real round-0 (prologue) triggers must not collide
+  // with the sentinel or the cooldown gate stays permanently open.
+  let last_auto_image_round = $state(-1);
 
   /** @type {(() => void) | null} */
   let runtime_cleanup = null;

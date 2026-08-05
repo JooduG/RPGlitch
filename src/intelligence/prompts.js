@@ -4,7 +4,7 @@
  * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
-import { ind, PROTOCOL_LIBRARY, state_bridge } from "@utils";
+import { ind, PROTOCOL_LIBRARY, prompt_escape, state_bridge } from "@utils";
 import { NARRATIVE_STYLES } from "@data";
 import { DYNAMICS_META } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
@@ -61,20 +61,17 @@ const MEMORY_JSON_SCHEMA = `{
     "AI_CHARACTER": {
       "type": "past | future | present",
       "content": "Memory summary written strictly from the AI character's own perspective",
-      "emotional_weight": 5,
-      "tags": ["keyword1", "keyword2"]
+      "emotional_weight": 5
     },
     "USER_PERSONA": {
       "type": "past | future | present",
       "content": "Memory summary written strictly from the user persona's own perspective",
-      "emotional_weight": 5,
-      "tags": ["keyword1", "keyword2"]
+      "emotional_weight": 5
     },
     "FRACTAL": {
       "type": "past | future | present",
       "content": "Memory summary written from the fractal's atmospheric/environmental perspective",
-      "emotional_weight": 5,
-      "tags": ["keyword1", "keyword2"]
+      "emotional_weight": 5
     }
   },
   "present_summaries": {
@@ -123,12 +120,12 @@ function physical_to_xml(raw, tagName) {
   if (!raw) return "";
   const parsed = safe_parse_pseudo_json(raw);
   if (parsed.__raw_prose__) {
-    return `  <${tagName}>${escape_xml(parsed.__raw_prose__)}</${tagName}>`;
+    return `  <${tagName}>${prompt_escape(parsed.__raw_prose__)}</${tagName}>`;
   }
   const children = Object.entries(parsed)
     .map(([k, v]) => {
       const tag = k.replace(/\s+/g, "_");
-      return `    <${tag}>${escape_xml(String(v))}</${tag}>`;
+      return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
     })
     .join("\n");
   return `  <${tagName}>\n${children}\n  </${tagName}>`;
@@ -143,7 +140,7 @@ function physical_to_xml(raw, tagName) {
  */
 const val = (text, owner, entities) => {
   if (!text) return "";
-  return escape_xml(prompt_builder.parse_macros(String(text).trim(), owner, entities));
+  return prompt_escape(prompt_builder.parse_macros(String(text).trim(), owner, entities));
 };
 
 /**
@@ -342,6 +339,10 @@ ${(() => {
       - Keep "trigger_image" false unless the moment genuinely demands a visual. Setting it to true requests an automatic visual beat this round.
       - You may instead set "trigger_image" to one of the 4-tier target strings: "story_entities" (group shot of all active entities), "story_character" (single in-scene character), "solo_entity" (isolated portrait), or "story_scene" (environment / narrative moment). This bypasses the auto-trigger cooldown.
       - "image_tier" may be used to suggest a tier preference alongside "trigger_image": true.
+    STATE & CONTINUITY GUIDANCE:
+      - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed new_vectors and present_append that move toward them so they materialize as the character's own actions.
+      - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or FRACTAL_FEED, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
+      - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
   </TASK>
   `).trim();
 
@@ -391,7 +392,7 @@ function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
   return `    <FUTURE>${ind(prompt_builder.parse_macros(formatted, entity, entities), 6)}</FUTURE>`;
 }
 
-function render_character({ round, entities, input, compressed_snapshot, meta, render_atom }) {
+function render_character({ round, entities, input, compressed_snapshot, meta, render_atom, ghostwrite = false }) {
   const pov_protocol = resolve_pov_protocol(entities?.AI);
 
   const protocols = [
@@ -458,7 +459,6 @@ ${build_ai_future_xml(entities?.AI, render_atom._context, entities)}
       <NON_PHYSICAL>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</NON_PHYSICAL>
     </PRESENT>
     <PAST>${ind(render_atom.past(entities?.USER, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities?.USER, { vector_text: true }), 6)}</FUTURE>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
@@ -486,7 +486,13 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     <POV_DIRECTIVE>
       ${PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
     </POV_DIRECTIVE>
-    ${input?.trim() ? "Execute your reaction against <USER_ACTION>." : "Continue the scene, reacting to the current situation."} Stay fully in character. Honor all active <PROTOCOLS>.
+    ${
+      ghostwrite
+        ? "Follow the <GHOSTWRITE> directive below to complete your turn."
+        : input?.trim()
+          ? "Execute your reaction against <USER_ACTION>."
+          : "Continue the scene, reacting to the current situation."
+    } Stay fully in character. Honor all active <PROTOCOLS>.
     Aim for a length of roughly 2 paragraphs, adjusting as the context demands.
   </TASK>
   `).trim();
@@ -502,49 +508,44 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 function render_ghostwriter({ entities, input = "" }) {
   const user_name = entities?.USER?.name || "User Persona";
   const ai_name = entities?.AI?.name || "AI Character";
-  const fractal_name = entities?.FRACTAL?.name || "Environment";
 
-  const system = clean_xml(`
-<SYSTEM role="${escape_xml(user_name)}">
-You are drafting on behalf of ${escape_xml(user_name)} in an active scene with ${escape_xml(ai_name)} inside ${escape_xml(fractal_name)}.
-  <YOUR_IDENTITY name="${escape_xml(user_name)}">
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
-    </ETERNAL>
-  </YOUR_IDENTITY>
-  <USER_PERSONA name="${escape_xml(ai_name)}">
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
-    </ETERNAL>
-  </USER_PERSONA>
-  ${
-    entities?.FRACTAL
-      ? `
-  <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
-    </ETERNAL>
-  </FRACTAL>`.trim()
-      : ""
-  }
-  <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols(`AGENCY.USER_BOUNDARIES, AGENCY.PRESENT_TENSE, HYGIENE.MARKDOWN, AGENCY.FICTIONAL_LICENSE, ${resolve_pov_protocol(entities?.USER)}`), 4)}
-  </PROTOCOLS>
-</SYSTEM>
-  `).trim();
+  // The Ghostwriter drafts ON BEHALF OF the USER persona, so swap the two slots
+  // and reuse the full character protocol: the user becomes the "AI" role (their
+  // identity, present state, past/future, POV, protocols) while the AI character
+  // becomes the "USER_PERSONA" the drafter is forbidden to write for.
+  const swapped = {
+    ...(entities || {}),
+    AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, vectors: [] },
+    USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, vectors: [] },
+  };
 
-  const task = clean_xml(`
-<TASK>
-${
-  input?.trim()
-    ? `Enhance, expand, and polish the following draft text for ${escape_xml(user_name)} into a vivid, atmospheric action/dialogue:\n\n${escape_xml(input)}`
-    : `Draft a compelling, in-character next action or vocal response for ${escape_xml(user_name)} in response to ${escape_xml(ai_name)}.`
-}
-Write strictly from ${escape_xml(user_name)}'s perspective and voice. Do not write dialogue, actions, or thoughts for ${escape_xml(ai_name)}. Do not describe ${escape_xml(ai_name)}'s reactions. Output only the raw text response or action. No preamble, no meta-commentary, no XML wrappers.
-</TASK>
-  `).trim();
+  const render_atom = data_processors.create_render_atom(swapped, input || "", []);
+  const rendered = render_character({
+    round: null,
+    entities: swapped,
+    input,
+    compressed_snapshot: {
+      ai: { dynamics: entities?.USER?.dynamics || {} },
+      fractal: { dynamics: entities?.FRACTAL?.dynamics || {} },
+      flags: [],
+    },
+    meta: {},
+    render_atom,
+    ghostwrite: true,
+  });
 
-  return { system, task };
+  const draft_directive = input?.trim()
+    ? `Enhance, expand, and polish the following draft written by ${escape_xml(user_name)} into vivid, atmospheric action/dialogue:\n    ${escape_xml(input.trim())}`
+    : `Draft a compelling, in-character next action or vocal response for ${escape_xml(user_name)} in response to ${escape_xml(ai_name)}.`;
+
+  rendered.task += clean_xml(`
+<GHOSTWRITE>
+    ${draft_directive}
+    Write strictly from ${escape_xml(user_name)}'s perspective and voice. Do not write dialogue, actions, or thoughts for ${escape_xml(ai_name)}. Do not describe ${escape_xml(ai_name)}'s reactions. Output only the raw text — no preamble, no meta-commentary, no XML wrappers.
+</GHOSTWRITE>
+  `);
+
+  return rendered;
 }
 
 /**
@@ -681,12 +682,65 @@ ${entity_blocks}
     For each memory choose a "type":
       "past"    = a settled historical anchor (default).
       "future"  = a prophecy, intent, or goal the entity is carrying forward, to be resolved later.
-      "present" = an immediate directive describing the entity's current state, to be enacted now.
+      "present" = an immediate directive for the entity's current state — merged into the entity's PRESENT block now (never stored as a vector).
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
   </TASK>
 </SYSTEM>
   `).trim();
+}
+
+/**
+ * Renders ONLY the targeted field's current value as context, so an enhancement
+ * pass sees the field in isolation instead of the whole profile (prevents
+ * cross-field bleed). Falls back to empty when the field can't be isolated —
+ * INPUT_CONTENT alone then carries the payload.
+ * @param {any} entity
+ * @param {string} field_id
+ * @param {string} content
+ * @returns {string}
+ */
+function render_enhancement_field_context(entity, field_id, content = "") {
+  if (!entity) return "";
+  const [section, sub] = String(field_id || "").split(".");
+
+  if (section && sub && ["eternal", "present"].includes(section)) {
+    const layer = section.toUpperCase();
+    const sub_key = sub.toUpperCase();
+    const raw = entity?.[section]?.[sub];
+    const value =
+      sub === "physical"
+        ? physical_to_xml(raw, "PHYSICAL")
+            .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
+            .trim()
+        : escape_xml(String(raw ?? ""));
+    return clean_xml(`
+  <ENTITY_CONTEXT>
+    <${layer}>
+      <${sub_key}>
+        ${ind(value, 8)}
+      </${sub_key}>
+    </${layer}>
+  </ENTITY_CONTEXT>
+  `).trim();
+  }
+
+  if (field_id === "past" || field_id === "future") {
+    const type = field_id;
+    const vectors = Array.isArray(entity?.vectors)
+      ? entity.vectors.filter((v) => (type === "future" ? v?.type === "future" : v?.type !== "future"))
+      : [];
+    const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
+    return clean_xml(`
+  <ENTITY_CONTEXT>
+    <${type.toUpperCase()}>
+      ${ind(escape_xml(text), 6)}
+    </${type.toUpperCase()}>
+  </ENTITY_CONTEXT>
+  `).trim();
+  }
+
+  return "";
 }
 
 /**
@@ -728,58 +782,7 @@ function render_enhancement({
   <PROTOCOLS>
     ${ind(prompt_builder.render_protocols(protocols), 4)}
   </PROTOCOLS>
-  <ENTITY_CONTEXT>
-    <ETERNAL>
-      <PHYSICAL>
-        ${ind(
-          physical_to_xml(entity?.eternal?.physical, "PHYSICAL")
-            .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
-            .trim(),
-          8,
-        )}
-      </PHYSICAL>
-      <NON_PHYSICAL>${escape_xml(entity?.eternal?.non_physical || "")}</NON_PHYSICAL>
-    </ETERNAL>
-    <PRESENT>
-      <PHYSICAL>
-        ${ind(
-          physical_to_xml(entity?.present?.physical, "PHYSICAL")
-            .replace(/<PHYSICAL>|<\/PHYSICAL>/g, "")
-            .trim(),
-          8,
-        )}
-      </PHYSICAL>
-      <NON_PHYSICAL>${escape_xml(entity?.present?.non_physical || "")}</NON_PHYSICAL>
-    </PRESENT>
-    <PAST>
-      ${ind(
-        escape_xml(
-          entity?.vectors?.length
-            ? temporal_engine.format(
-                entity.vectors.filter((v) => v?.type !== "future"),
-                content || "",
-                { max_chars: 800 },
-              )
-            : "",
-        ),
-        6,
-      )}
-    </PAST>
-    <FUTURE>
-      ${ind(
-        escape_xml(
-          entity?.vectors?.length
-            ? temporal_engine.format(
-                entity.vectors.filter((v) => v?.type === "future"),
-                content || "",
-                { max_chars: 800 },
-              )
-            : "",
-        ),
-        6,
-      )}
-    </FUTURE>
-  </ENTITY_CONTEXT>
+  ${render_enhancement_field_context(entity, _field_id, content) || ""}
   <INPUT_CONTENT>
     ${ind(escape_xml(content), 4)}
   </INPUT_CONTENT>
@@ -863,7 +866,7 @@ const data_processors = {
     const end = Math.max(0, collapsed.length - offset);
     return collapsed
       .slice(start, end)
-      .map((c) => `    <entry role="${c.role}"${c.name ? ` name="${escape_xml(c.name)}"` : ""}>${escape_xml(c.content)}</entry>`)
+      .map((c) => `    <entry role="${c.role}"${c.name ? ` name="${escape_xml(c.name)}"` : ""}>${prompt_escape(c.content)}</entry>`)
       .join("\n");
   },
 };
@@ -1033,7 +1036,7 @@ export const prompt_builder = {
         enhancer: meta.enhancer,
         is_image_field: is_image_field || field_id.endsWith(".physical"),
         is_array_field,
-        field_id,
+        _field_id: field_id,
         entity,
         entity_type: resolved_type,
       }),

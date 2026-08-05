@@ -96,6 +96,10 @@ const MODEL_ARTIFACT_PATTERNS = [
 export function strip_cognition_blocks(text) {
   if (!text) return "";
   let clean = text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
+  // Models occasionally re-close the think block after the narrative has started
+  // (e.g. "...collision of wills.</think>"). A lone closing tag like that must not
+  // survive into history, narrative display, or visual prompt intents.
+  clean = clean.replace(/<\/think\s*>/gi, "");
   for (const pattern of MODEL_ARTIFACT_PATTERNS) {
     clean = clean.replace(pattern, "");
   }

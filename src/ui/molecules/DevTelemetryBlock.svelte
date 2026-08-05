@@ -271,23 +271,6 @@
                         text-slate-50
                       ">{v.content}</span
                       >
-                      {#if v.tags?.length}
-                        <div class="flex flex-wrap gap-2">
-                          {#each v.tags as tag (tag)}
-                            <span
-                              class="
-                              rounded-sm
-                              bg-white/5
-                              px-2
-                              py-0.5
-                              font-mono
-                              text-xs
-                              {tag === 'eternal-shift' ? 'text-(--color-dev-accent)' : 'text-slate-400'}
-                            ">{tag === "eternal-shift" ? "◇ eternal shift" : tag}</span
-                            >
-                          {/each}
-                        </div>
-                      {/if}
                     </div>
                   {:else}
                     <div

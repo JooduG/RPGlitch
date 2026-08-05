@@ -1,6 +1,6 @@
 import { context_broker } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
-import { gamemaster } from "./kernel.js";
+import { _image_gen_queue, gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 import { llm_service } from "@platform";
@@ -18,7 +18,7 @@ const _mock_runtime = {
   turn_type: "USER_TURN",
   structural_errors: 0,
   story_id: null,
-  last_auto_image_round: 0,
+  last_auto_image_round: -1,
   add_vector: vi.fn(),
   get snapshot_entities() {
     return {
@@ -492,6 +492,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
     expect(temporal_engine.precompute_context_embedding.mock.invocationCallOrder[0]).toBeLessThan(
       prompt_builder.synthesize.mock.invocationCallOrder[0],
     );
+    // The prologue's own image opens the shared cooldown so the opening turn can't
+    // immediately fire a second image at round 0.
+    expect(_mock_runtime.last_auto_image_round).toBe(0);
 
     _mock_app.prologue = "";
   });
@@ -805,7 +808,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
       _mock_runtime.ai = { intensity: 50 };
       _mock_runtime.fractal = { entropy: 50 };
       _mock_runtime.round = 1;
-      _mock_runtime.last_auto_image_round = 0;
+      _mock_runtime.last_auto_image_round = -1;
+      _image_gen_queue.length = 0;
       vi.clearAllMocks();
     });
 
@@ -939,6 +943,68 @@ describe("gamemaster (Intelligence Kernel)", () => {
         expect.objectContaining({ attachments: expect.any(Array) }),
       );
       expect(visual_engine.visualize).not.toHaveBeenCalled();
+    });
+
+    it("treats the -1 sentinel as an open cooldown gate so round-0 auto-triggers are allowed", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: true,
+        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        tier: "story_character",
+        deltas: [],
+      });
+      _mock_runtime.round = 0;
+      _mock_runtime.last_auto_image_round = -1;
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.meta.image_trigger).toBe(true);
+      expect(result.meta.image_tier).toBe("story_character");
+      expect(_mock_runtime.last_auto_image_round).toBe(0);
+    });
+
+    it("a real round-0 trigger does not permanently open the cooldown gate", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: true,
+        signals: { band_entry: { axis: "intensity", from: 50, to: 88, band: "high" }, displacement: 38, displacement_threshold: 60 },
+        tier: "story_character",
+        deltas: [],
+      });
+      _mock_runtime.round = 1;
+      _mock_runtime.last_auto_image_round = 0; // a real round-0 (prologue) trigger
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      // round 1 < 0 + 3 → cooldown still active; the gate must NOT treat 0 as "never triggered".
+      expect(result.meta.image_trigger).toBe(false);
+      expect(visual_engine.visualize).not.toHaveBeenCalled();
+      expect(_mock_runtime.last_auto_image_round).toBe(0);
+    });
+
+    it("marks the oldest beat's placeholder failed when the image queue overflows", async () => {
+      vi.mocked(llm_service.generate).mockResolvedValue(JSON.stringify({ mutations: { AI_CHARACTER: {} } }));
+      // Keep beats pending so the queue fills to capacity instead of resolving immediately.
+      visual_engine.visualize.mockReturnValue(new Promise(() => {}));
+
+      // Fire one more beat than the queue capacity; the oldest must be evicted.
+      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
+      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
+      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
+      await gamemaster.fire_image_trigger("story_character", { source: "dynamics" });
+
+      await vi.waitFor(() =>
+        expect(session_driver.update_log_attachment).toHaveBeenCalledWith(
+          "img-1",
+          0,
+          expect.objectContaining({ metadata: expect.objectContaining({ failed: true }) }),
+        ),
+      );
+      expect(_image_gen_queue.length).toBeLessThanOrEqual(3);
     });
   });
 });

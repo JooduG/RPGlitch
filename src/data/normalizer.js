@@ -244,7 +244,6 @@ export function coerce_temporal_vectors(val) {
           type: item.type === "future" ? "future" : "past",
           emotional_weight: typeof item.emotional_weight === "number" ? item.emotional_weight : 5,
           meta: item.meta && typeof item.meta === "object" ? item.meta : {},
-          tags: Array.isArray(item.tags) ? item.tags : undefined,
           // Preserve the semantic embedding so persisted vectors can be reused
           // on cold loads instead of re-inferring (repository handles JSON-safe
           // serialization before storage).

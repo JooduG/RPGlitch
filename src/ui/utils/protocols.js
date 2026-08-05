@@ -115,7 +115,7 @@ name (string), description (string), signature_color (string), eternal_physical 
   // ── 5. Visual Engine & Image Generation (Optics) ────────────────────────────
   OPTICS: {
     KEYWORD_INTEGRITY:
-      "NEVER output quality buzzwords ('masterpiece', '8K resolution', 'ultra HD'). Ground outputs using physical optics and real-world materials.",
+      "NEVER write quality buzzwords ('masterpiece', '8K resolution', 'ultra HD', 'photorealistic', 'digital art') in EITHER the 'prompt' OR the 'negative_prompt'. Ground outputs using physical optics and real-world materials.",
     NATURAL_PROSE: "Output continuous descriptive sentences. Avoid booru tag soup or comma-separated lists.",
     PERCHANCE_SYNTAX: "MAY use Perchance dynamic selection syntax '{Option A|Option B}' for variable features to ensure organic variation.",
     NEGATIVE_PROMPT: "blurry, low resolution, compressed artifacts, text, watermark, bad anatomy, distorted features",
@@ -130,7 +130,7 @@ name (string), description (string), signature_color (string), eternal_physical 
 PHASE 1: EXECUTION & OUTPUT STRUCTURE
 - Formulate composition strategy inside "_thought_process" key first.
 - Output final image prompt inside "prompt" as continuous, fluid prose.
-- Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY (no buzzwords like 'masterpiece' or '8K').
+- Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt".
 
 PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
 - FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
@@ -141,6 +141,7 @@ PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
 - Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
 - Animal/Creature Disambiguation: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").
 - Feature Weighting: Dedicate maximum descriptive effort to unique features (scars, glowing eyes, horns); keep common traits brief.
+- Alternation Resolution: If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.
 - Dynamic State Override: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.
 
 PHASE 4: STYLE & MEDIUM DISCIPLINE

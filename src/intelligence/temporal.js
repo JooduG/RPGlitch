@@ -440,7 +440,6 @@ export async function forge_memory(entity_targets, history_slice) {
         type: normalize_forged_type(raw.type),
         content,
         emotional_weight: Number(raw.emotional_weight ?? raw.base_weight ?? memory?.emotional_weight ?? memory?.base_weight ?? 5) || 5,
-        tags: (raw.vector_tags || raw.tags || memory?.tags || []).map((t) => String(t).toLowerCase()).filter(Boolean),
         meta: { ...(memory?.meta || {}), forged_for: key },
       };
 
@@ -697,8 +696,8 @@ export const temporal_engine = {
               if (eternal_changed) {
                 await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
                 const memory = forged.memories?.[key];
-                if (memory && memory.type !== "present" && !memory.tags.includes("eternal-shift")) {
-                  memory.tags.push("eternal-shift");
+                if (memory && memory.type !== "present" && !memory.meta?.eternal_shift) {
+                  memory.meta = { ...(memory.meta || {}), eternal_shift: true };
                   const payload = {};
                   if (Array.isArray(entity.vectors)) payload.vectors = entity.vectors;
                   await runtime.update_entity(type, entity.id, payload);

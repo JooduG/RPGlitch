@@ -75,7 +75,7 @@ describe("dynamics.js", () => {
       const result = evaluate_image_trigger(current, prev);
       expect(result.triggered).toBe(true);
       expect(result.signals.band_entry).toEqual({ axis: "intensity", from: 50, to: 88, band: "high" });
-      expect(result.tier).toBe("story_scene");
+      expect(result.tier).toBe("story_character");
     });
 
     it("Signal B: triggers when an axis ENTERS the low band (18 -> 12)", () => {
@@ -135,10 +135,60 @@ describe("dynamics.js", () => {
       expect(result.signals.band_entry?.band).toBe("high");
     });
 
-    it("returns the configured default tier", () => {
-      const current = { ...prev, fractal: { ...prev.fractal, entropy: 90 } };
+    it("returns the configured default tier for displacement-only triggers", () => {
+      const current = {
+        ai: { chaos: 80, intensity: 80, openness: 20, affinity: 20 },
+        fractal: { velocity: 20, entropy: 80 },
+      };
       const result = evaluate_image_trigger(current, prev, { default_tier: "story_entities" });
+      expect(result.triggered).toBe(true);
+      expect(result.signals.band_entry).toBeNull();
       expect(result.tier).toBe("story_entities");
+    });
+
+    it("maps environmental band entries to the story_scene tier", () => {
+      const current = { ...prev, fractal: { ...prev.fractal, velocity: 8 } };
+      const result = evaluate_image_trigger(current, prev);
+      expect(result.triggered).toBe(true);
+      expect(result.signals.band_entry).toEqual({ axis: "velocity", from: 50, to: 8, band: "low" });
+      expect(result.tier).toBe("story_scene");
+    });
+
+    it("tiebreaks multi-axis band entries toward the character domain", () => {
+      const current = {
+        ...prev,
+        ai: { ...prev.ai, intensity: 90 },
+        fractal: { ...prev.fractal, entropy: 10 },
+      };
+      const result = evaluate_image_trigger(current, prev);
+      expect(result.triggered).toBe(true);
+      expect(result.signals.band_entry).toEqual({ axis: "intensity", from: 50, to: 90, band: "high" });
+      expect(result.tier).toBe("story_character");
+    });
+
+    it("does not let NaN axis values poison displacement or deltas", () => {
+      const current = { ...prev, ai: { ...prev.ai, intensity: Number.NaN } };
+      const result = evaluate_image_trigger(current, prev);
+      expect(result.triggered).toBe(false);
+      expect(result.signals.band_entry).toBeNull();
+      expect(Number.isFinite(result.signals.displacement)).toBe(true);
+      expect(result.signals.displacement).toBe(0);
+      expect(result.deltas.some((d) => d.axis === "intensity")).toBe(false);
+      expect(result.deltas.every((d) => Number.isFinite(d.delta))).toBe(true);
+    });
+
+    it("skips NaN 'to' values while still processing healthy axes", () => {
+      const current = {
+        ...prev,
+        ai: { ...prev.ai, intensity: Number.NaN, affinity: 90 },
+        fractal: { ...prev.fractal, entropy: 10 },
+      };
+      const result = evaluate_image_trigger(current, prev);
+      expect(result.triggered).toBe(true);
+      expect(Number.isFinite(result.signals.displacement)).toBe(true);
+      // affinity (character) and entropy (environment) both cross bands; character wins.
+      expect(result.tier).toBe("story_character");
+      expect(result.deltas.every((d) => Number.isFinite(d.delta))).toBe(true);
     });
 
     it("handles missing/partial entity maps gracefully", () => {

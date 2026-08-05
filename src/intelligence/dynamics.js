@@ -84,6 +84,10 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
   const displacement_threshold = options.displacement_threshold ?? 60;
   const default_tier = options.default_tier ?? "story_scene";
 
+  // Entity keys that belong to the character domain (portraits) rather than the
+  // environmental domain (scenes). Used to break multi-axis band-entry ties.
+  const CHARACTER_DOMAIN_ENTITIES = new Set(["ai", "user"]);
+
   const entities = new Set([...Object.keys(current || {}), ...Object.keys(previous || {})]);
   const axis_names = new Set();
   for (const ent of entities) {
@@ -92,6 +96,7 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
   }
 
   const deltas = [];
+  const band_entries = [];
   let band_entry = null;
   let displacement = 0;
 
@@ -103,32 +108,41 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
     for (const ent of entities) {
       const p = (previous || {})[ent] || {};
       const c = (current || {})[ent] || {};
-      if (from === null && typeof p[axis] === "number") {
+      if (from === null && Number.isFinite(p[axis])) {
         from = p[axis];
         from_entity = ent;
       }
-      if (to === null && typeof c[axis] === "number") {
+      if (to === null && Number.isFinite(c[axis])) {
         to = c[axis];
         to_entity = ent;
       }
     }
-    if (from === null || to === null) continue;
+    // Guard against NaN poisoning: any non-finite axis value is skipped entirely
+    // so it can't corrupt the displacement sum or band-entry math.
+    if (!Number.isFinite(from) || !Number.isFinite(to)) continue;
 
     const delta = Math.round((to - from) * 10) / 10;
     deltas.push({ axis, from, to, delta, entity: to_entity || from_entity });
     displacement += Math.abs(to - from);
 
-    if (!band_entry) {
-      if (to >= band_high && from < band_high) {
-        band_entry = { axis, from, to, band: "high" };
-      } else if (to <= band_low && from > band_low) {
-        band_entry = { axis, from, to, band: "low" };
-      }
+    const entry_entity = to_entity || from_entity;
+    if (to >= band_high && from < band_high) {
+      band_entries.push({ axis, from, to, band: "high", entity: entry_entity });
+      if (!band_entry) band_entry = { axis, from, to, band: "high" };
+    } else if (to <= band_low && from > band_low) {
+      band_entries.push({ axis, from, to, band: "low", entity: entry_entity });
+      if (!band_entry) band_entry = { axis, from, to, band: "low" };
     }
   }
 
   displacement = Math.round(displacement * 10) / 10;
   const triggered = band_entry !== null || displacement >= displacement_threshold;
+
+  // Tier precedence when multiple axes cross extreme bands in one turn:
+  // character-domain entries (story_character) win over environmental (story_scene);
+  // plain displacement triggers fall through to the configured default tier.
+  const character_band_entry = band_entries.find((be) => CHARACTER_DOMAIN_ENTITIES.has(be.entity));
+  const tier = character_band_entry ? "story_character" : band_entries.length > 0 ? "story_scene" : default_tier;
 
   return {
     triggered,
@@ -137,7 +151,7 @@ export function evaluate_image_trigger(current = {}, previous = {}, options = {}
       displacement,
       displacement_threshold,
     },
-    tier: default_tier,
+    tier,
     deltas,
   };
 }

@@ -42,6 +42,17 @@ describe("strip_cognition_blocks", () => {
     expect(strip_cognition_blocks(input)).toBe(input);
   });
 
+  it("should strip stray </think> closures that appear after the think block already closed", () => {
+    const input =
+      "<think>Inner thought</think>\n\nThe corridors are quiet.\n\nThe two figures stop. The silence is one of mutual realization.</think>";
+    const expected = "The corridors are quiet.\n\nThe two figures stop. The silence is one of mutual realization.";
+    expect(strip_cognition_blocks(input)).toBe(expected);
+  });
+
+  it("should strip a lone </think> with no think block at all", () => {
+    expect(strip_cognition_blocks("Just prose.</think>")).toBe("Just prose.");
+  });
+
   it("should strip Mattis prefix anchor without deleting body text on single-line or multi-line responses", () => {
     const input_single = "Mattis. {{me}} is an earnest, hyper-masculine protector.";
     expect(strip_cognition_blocks(input_single)).toBe("{{me}} is an earnest, hyper-masculine protector.");

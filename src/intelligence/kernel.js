@@ -22,6 +22,36 @@ import { temporal_engine } from "./temporal.js";
  * @typedef {import('@engine/kernel.js').GenerationOptions} GenerationOptions
  */
 
+// 🖼️ Image beat queue — bounds concurrent background image generations.
+// When the queue reaches capacity the oldest beat is dropped and its placeholder
+// is marked failed so evicted beats never leave permanent `src: null` ghost cards.
+const IMAGE_GEN_QUEUE_CAPACITY = 3;
+export const _image_gen_queue = [];
+
+/**
+ * Marks a logged placeholder attachment as failed so it never lingers as a
+ * permanent `src: null` ghost card in the chat log.
+ * @param {string | number} id
+ * @param {Record<string, any>} [metadata]
+ * @returns {Promise<void>}
+ */
+async function mark_placeholder_failed(id, metadata = {}) {
+  if (!id) return;
+  try {
+    await state_bridge.session_driver.update_log_attachment(id, 0, {
+      src: null,
+      metadata: { ...metadata, failed: true, error: "Image beat was dropped before it could resolve." },
+    });
+  } catch (err) {
+    console.warn("[GameMaster] Failed to mark image placeholder as failed:", err);
+  }
+}
+
+function _remove_from_image_gen_queue(id) {
+  const idx = _image_gen_queue.findIndex((entry) => entry.id === id);
+  if (idx !== -1) _image_gen_queue.splice(idx, 1);
+}
+
 /**
  * Helper to extract Director's JSON from a raw string.
  * @param {string} raw_text
@@ -58,6 +88,33 @@ function parse_director_json(raw_text) {
 }
 
 /**
+ * Drops `</think>` closing tags that appear while no think block is open
+ * (e.g. a model that re-closes the block after the narrative has started).
+ * @param {string} text
+ * @returns {string}
+ */
+function strip_unmatched_think_closures(text) {
+  if (!text) return text;
+  const segments = text.split(/(<\/think>|<think>)/i);
+  let in_think = false;
+  const kept = [];
+  for (const segment of segments) {
+    if (/^<think>$/i.test(segment)) {
+      in_think = true;
+      kept.push(segment);
+    } else if (/^<\/think>$/i.test(segment)) {
+      if (in_think) {
+        in_think = false;
+        kept.push(segment);
+      }
+    } else {
+      kept.push(segment);
+    }
+  }
+  return kept.join("");
+}
+
+/**
  * Synchronous post-turn validation and repair layer.
  * Automatically closes truncated `<think>` blocks and strips Chinese characters from narrative prose
  * without removing spaces or corrupting sentence formatting.
@@ -80,6 +137,10 @@ function validate_and_repair_response(response) {
     const think_closers = (text.match(/<\/think>/gi) || []).length;
     if (think_openers > think_closers) {
       text += "</think>";
+      result.structural_repair = true;
+    } else if (think_closers > think_openers) {
+      // Stray re-closures after the think block already closed (e.g. "...prose.</think>").
+      text = strip_unmatched_think_closures(text);
       result.structural_repair = true;
     }
 
@@ -305,21 +366,38 @@ export const gamemaster = {
     const fractal_name = runtime_state.active_fractal?.name || "Fractal";
 
     try {
+      const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit };
       const placeholder_entry = await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
         turn_type: "SYSTEM_TURN",
-        attachments: [{ src: null, metadata: { mode: tier, image_source: source, image_explicit: explicit } }],
+        attachments: [{ src: null, metadata: placeholder_metadata }],
       });
       if (!placeholder_entry?.id) return;
 
+      // Bounded image beat queue: when at capacity, drop the oldest beat and mark
+      // its placeholder failed so evicted beats don't linger as src:null ghosts.
+      _image_gen_queue.push({ id: placeholder_entry.id, tier, source, metadata: placeholder_metadata });
+      if (_image_gen_queue.length > IMAGE_GEN_QUEUE_CAPACITY) {
+        const evicted = _image_gen_queue.shift();
+        if (evicted?.id) await mark_placeholder_failed(evicted.id, evicted.metadata);
+      }
+
       const resolve_placeholder = async () => {
-        const result = await visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true });
-        if (result?.imageUrl) {
-          await state_bridge.session_driver.update_log_attachment(placeholder_entry.id, 0, {
-            src: result.imageUrl,
-            metadata: { mode: tier, image_source: source, ...result.metadata, prompt: result.refinedPrompt },
-          });
-        } else {
-          state_bridge.app.log(`[Image Trigger] ${tier} generation returned no image.`, "warn");
+        try {
+          const result = await visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true });
+          _remove_from_image_gen_queue(placeholder_entry.id);
+          if (result?.imageUrl) {
+            await state_bridge.session_driver.update_log_attachment(placeholder_entry.id, 0, {
+              src: result.imageUrl,
+              metadata: { mode: tier, image_source: source, ...result.metadata, prompt: result.refinedPrompt },
+            });
+          } else {
+            await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
+            state_bridge.app.log(`[Image Trigger] ${tier} generation returned no image.`, "warn");
+          }
+        } catch (err) {
+          _remove_from_image_gen_queue(placeholder_entry.id);
+          await mark_placeholder_failed(placeholder_entry.id, placeholder_metadata);
+          throw err;
         }
       };
 
@@ -516,9 +594,11 @@ export const gamemaster = {
       });
 
       const turn_round = state_bridge.runtime.round || 0;
-      const last_auto = state_bridge.runtime.last_auto_image_round || 0;
+      // -1 is the "never triggered" sentinel. A 0 sentinel collided with real round-0
+      // (prologue) triggers, permanently opening the shared cooldown gate.
+      const last_auto = state_bridge.runtime.last_auto_image_round ?? -1;
       // First auto-trigger is allowed anytime; afterwards enforce the shared cooldown.
-      const cooldown_elapsed = last_auto === 0 || turn_round >= last_auto + IMAGE_TRIGGER.cooldown_rounds;
+      const cooldown_elapsed = last_auto < 0 || turn_round >= last_auto + IMAGE_TRIGGER.cooldown_rounds;
 
       let auto_image_trigger = null;
       if (image_trigger_eval.triggered && cooldown_elapsed) {
@@ -551,10 +631,19 @@ export const gamemaster = {
       }
 
       if (image_trigger_active && image_tier) {
-        const trigger_prompt = [input, clean_think(director_data.internal_monologue), clean_think(director_data.intent)]
+        let trigger_prompt = [input, clean_think(director_data.internal_monologue), clean_think(director_data.intent)]
           .filter(Boolean)
           .join(" ")
           .trim();
+        if (!trigger_prompt) {
+          // No in-turn context to draw from (e.g. an opening turn with a silent Director):
+          // anchor the visual on the most recent narrative beat so the image LLM is never
+          // handed the generic placeholder string.
+          const last_beat = [...simulation_log].reverse().find((m) => m.role === "fractal" || m.role === "model");
+          if (last_beat?.content) {
+            trigger_prompt = strip_cognition_blocks(last_beat.content).slice(0, 700);
+          }
+        }
         await this.fire_image_trigger(image_tier, {
           explicit: director_explicit,
           source: final_meta.image_source,
@@ -715,6 +804,9 @@ export const gamemaster = {
 
       state_bridge.runtime.round = 0;
       state_bridge.runtime.turn_type = "SYSTEM_TURN";
+      // The prologue's own image (dispatched below) opens the shared cooldown, so
+      // the opening turn's dynamics gate can't immediately fire a second image at round 0.
+      state_bridge.runtime.last_auto_image_round = 0;
 
       await state_bridge.session_driver.log_message(response, "fractal", fractal_name, {
         turn_type: "SYSTEM_TURN",

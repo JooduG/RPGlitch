@@ -15,8 +15,6 @@
    * @property {string} content
    * @property {string} [type]
    * @property {number} emotional_weight
-   * @property {string[]} [tags]
-   * @property {string[]} [vector_tags]
    */
 
   /**
@@ -42,10 +40,9 @@
           ...val,
           content: val.content ?? val.directive ?? val.text ?? "",
           emotional_weight: val.emotional_weight ?? 5,
-          tags: val.tags ?? val.vector_tags ?? [],
         };
       }
-      return { content: String(val || ""), emotional_weight: 5, tags: [] };
+      return { content: String(val || ""), emotional_weight: 5 };
     });
 
     if (!profile_state.is_editing) {

@@ -464,6 +464,7 @@ export class VisualEngine {
       }
 
       const generate_options = { mode: tier, returnPayload: true, ...options };
+      if (tier === "solo_entity") generate_options._entity = solo_or_char_entity;
       if (extracted_negative && !generate_options.negative_prompt) {
         generate_options.negative_prompt = extracted_negative;
       }

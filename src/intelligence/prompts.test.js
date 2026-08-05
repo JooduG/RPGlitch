@@ -37,8 +37,8 @@ describe("prompt_builder (Refactored)", () => {
     it("render_history() should strip double asterisks wrapping dialogue", () => {
       const history = [{ role: "assistant", content: 'She smiled. **"Hello there."**', character_name: "Viper" }];
       const result = prompt_builder.render_history(history);
-      expect(result).not.toContain("**&quot;Hello there.&quot;**");
-      expect(result).toContain("&quot;Hello there.&quot;");
+      expect(result).not.toContain("**");
+      expect(result).toContain('"Hello there."');
       expect(result).toContain("She smiled.");
     });
 
@@ -243,6 +243,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('name="Void"');
       expect(result.system).toContain("Forge ONE memory per entity");
       expect(result.system).toContain('"type": "past | future | present"');
+      // Vector tags were removed from the memory pipeline — the JSON schema must not ask for them.
+      expect(result.system).not.toContain('"tags"');
     });
 
     it("synthesize() prunes empty tags and formats entity blocks cleanly", () => {
@@ -489,6 +491,23 @@ describe("prompt_builder (Refactored)", () => {
       expect(fractal_result.system).not.toContain("'{{me}}' (self)");
     });
 
+    it("build_enhancement() scopes context to the field in question (no cross-field bleed)", () => {
+      const entity = {
+        eternal: { physical: "Eternal body.", non_physical: "Eternal psyche." },
+        present: { physical: "Present outfit.", non_physical: "Present mood." },
+        vectors: [
+          { id: "p1", content: "Old memory anchor", type: "past", emotional_weight: 5 },
+          { id: "f1", content: "Impending prophecy", type: "future", emotional_weight: 6 },
+        ],
+      };
+      const result = prompt_builder.build_enhancement("present.non_physical", "Present mood.", "Viper", "character", false, entity);
+      expect(result.system).toContain("Present mood.");
+      expect(result.system).not.toContain("Eternal psyche.");
+      expect(result.system).not.toContain("Eternal body.");
+      expect(result.system).not.toContain("Old memory anchor");
+      expect(result.system).not.toContain("Impending prophecy");
+    });
+
     it("build_profile_sorting_prompt() injects sorting instructions correctly", () => {
       const char_result = prompt_builder.build_profile_sorting_prompt("Raw text block", "character");
       expect(char_result.system).toContain("FOCUS: Extracting data for an individual CHARACTER");
@@ -645,7 +664,7 @@ describe("prompt_builder (Refactored)", () => {
 
   describe("render_ghostwriter()", () => {
     const entities = {
-      USER: { name: "Rafael Orion", eternal: { non_physical: "Heroic himbo" } },
+      USER: { name: "Rafael Orion", eternal: { non_physical: "Heroic himbo" }, present: { non_physical: "Ready" } },
       AI: { name: "Glitch", eternal: { non_physical: "Cyan-haired hacker" } },
       FRACTAL: { name: "Nova City", eternal: { non_physical: "Cyberpunk metropolis" } },
     };
@@ -662,6 +681,22 @@ describe("prompt_builder (Refactored)", () => {
       expect(system).toContain('YOUR_IDENTITY name="Rafael Orion"');
       expect(task).toContain("I step forward and grin.");
       expect(task).toContain("Enhance");
+    });
+
+    it("swaps the user and AI data through the character protocol", () => {
+      const { system, task } = render_ghostwriter({ entities, input: "" });
+      // The drafter (user) occupies the AI slot: their data lives in YOUR_IDENTITY...
+      const user_block = system.slice(system.indexOf('YOUR_IDENTITY name="Rafael Orion"'), system.indexOf("</YOUR_IDENTITY>"));
+      expect(user_block).toContain("Heroic himbo");
+      // ...while the AI character occupies the USER_PERSONA slot.
+      const ai_block = system.slice(system.indexOf('<USER_PERSONA name="Glitch"'), system.indexOf("</USER_PERSONA>"));
+      expect(ai_block).toContain("Cyan-haired hacker");
+      // The full character protocol is reused (not the old mini prompt): the
+      // task carries the FRACTAL_FEED + THINK_FORMAT structure of render_character.
+      expect(task).toContain("<FRACTAL_FEED>");
+      expect(task).toContain("<THINK_FORMAT>");
+      // The GHOSTWRITE directive forbids writing for the AI character.
+      expect(task).toContain("Do not write dialogue, actions, or thoughts for Glitch");
     });
   });
 
@@ -862,6 +897,33 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("<FUTURE>");
       expect(result.task).toContain("Seek the artifact");
       expect(result.task).toContain("The empire watches");
+    });
+
+    it("withholds the USER_PERSONA FUTURE from the character while keeping it for the Director", () => {
+      const payload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: {
+            name: "Ghost",
+            present: { non_physical: "Present note" },
+            eternal: {},
+            past: [],
+            future: [{ id: "u1", content: "Bind the Protector to the rig", emotional_weight: 9 }],
+          },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello.",
+      };
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const character = prompt_builder.build_character_prompt(payload, snapshot, {});
+      expect(character.task).toContain('<USER_PERSONA name="Ghost">');
+      expect(character.task).not.toContain("Bind the Protector to the rig");
+
+      const director = prompt_builder.build_director_prompt(payload, snapshot);
+      expect(director.system).toContain("Bind the Protector to the rig");
     });
   });
 });
