@@ -49,9 +49,6 @@ describe("prompt_builder (Refactored)", () => {
         { role: "assistant", content: "Greetings", character_name: "Viper" },
         { role: "assistant", content: "I am ready.", character_name: "Viper" },
       ];
-      // When sliced with count = 2, it should output exactly 2 collapsed entries:
-      // entry 1: Ghost's collapsed message
-      // entry 2: Viper's collapsed message
       const result = prompt_builder.render_history(history, 2);
       expect(result).toContain('name="Ghost">Hello\nAre you there?</entry>');
       expect(result).toContain('name="Viper">Greetings\nI am ready.</entry>');
@@ -107,14 +104,12 @@ describe("prompt_builder (Refactored)", () => {
 
   describe("Protocol Library Consolidation", () => {
     it("should ensure core protocols are compacted and deduplicated", () => {
-      // Assert length limits to prevent token bloat
       expect(PROTOCOL_LIBRARY.HYGIENE.PROSE.length).toBeLessThan(300);
       expect(PROTOCOL_LIBRARY.COGNITION.PHASES.length).toBeLessThan(500);
       expect(PROTOCOL_LIBRARY.AGENCY.USER_BOUNDARIES.length).toBeLessThan(200);
       expect(PROTOCOL_LIBRARY.AGENCY.MOMENTUM.length).toBeLessThan(250);
       expect(PROTOCOL_LIBRARY.HYGIENE.MARKDOWN.length).toBeLessThan(200);
 
-      // Verify that HYGIENE and DATA_HYGIENE use the deduplicated BASE_HYGIENE prefix
       const base_hygiene = "Omit conversational preambles, greetings, or meta-commentary. Start instantly.";
       expect(PROTOCOL_LIBRARY.HYGIENE.PROSE).toContain(base_hygiene);
       expect(PROTOCOL_LIBRARY.HYGIENE.DATA).toContain(base_hygiene);
@@ -241,9 +236,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('<SYSTEM role="MEMORY_FORGE">');
       expect(result.system).toContain('name="Viper"');
       expect(result.system).toContain('name="Void"');
-      expect(result.system).toContain("Forge ONE memory per entity");
-      expect(result.system).toContain('"type": "past | future | present"');
-      // Vector tags were removed from the memory pipeline — the JSON schema must not ask for them.
+      expect(result.system).toContain("For each active entity");
+      expect(result.system).toContain('"type": "past | future"');
       expect(result.system).not.toContain('"tags"');
     });
 
@@ -303,7 +297,6 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_character_prompt(payload, snapshot, {});
 
-      // SYSTEM should contain only static eternal traits, protocols, style
       expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain("Static Eternal");
       expect(result.system).not.toContain("Volatile Present");
@@ -311,7 +304,6 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).not.toContain('intensity="50"');
 
-      // FRACTAL_FEED should contain dynamics, present, past, future
       expect(result.task).toContain("<FRACTAL_FEED>");
       expect(result.task).toContain("Volatile Present");
       expect(result.task).toContain("Volatile Past");
@@ -339,12 +331,10 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.build_director_prompt(payload, snapshot);
 
-      // Should include non-physical state for dynamics resolution
       expect(result.system).toContain("Volatile Mental State");
       expect(result.system).toContain("Static Mental State");
       expect(result.system).toContain("Future Goal");
 
-      // Should ONLY include JSON_OUTPUT protocol, not verbose prose protocols
       expect(result.system).toContain("<JSON_ONLY>");
       expect(result.system).not.toContain("<PROSE>");
       expect(result.system).not.toContain("<PHASES>");
@@ -390,7 +380,6 @@ describe("prompt_builder (Refactored)", () => {
 
       const result = prompt_builder.synthesize(payload, snapshot);
 
-      // Verify presence of tags without strict whitespace dependency
       expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
       expect(result.task).toContain('<YOUR_IDENTITY name="Viper" intensity="50" openness="60" certainty="moderate" regulation="stable">');
@@ -400,7 +389,6 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("<USER_ACTION>");
       expect(result.task).toContain("Check the console.");
 
-      // TELEMETRY VERIFICATION
       expect(result.meta).toBeDefined();
       expect(result.meta.ai).toEqual(snapshot.ai.dynamics);
       expect(result.meta.fractal).toEqual(snapshot.fractal.dynamics);
@@ -423,11 +411,9 @@ describe("prompt_builder (Refactored)", () => {
 
       const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
-      // Errors = 1
       let result = prompt_builder.synthesize(payload, snapshot);
       expect(result.task).toContain("WARNING: Structural drift detected.");
 
-      // Errors = 3
       payload.meta.structural_errors = 3;
       result = prompt_builder.synthesize(payload, snapshot);
       expect(result.task).toContain("CRITICAL: Structural collapse.");
@@ -552,6 +538,7 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {});
       expect(result.system).not.toContain("<NARRATIVE_STYLE");
     });
+
     it("should prepend author style prompt to render_narrator (prologue) if active", () => {
       _mock_app.settings.narrative_style = "william_gibson";
       const mock_payload = {
@@ -630,7 +617,6 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
-      // Should not throw an error
       const dir_result = prompt_builder.build_director_prompt(mock_payload_no_fractal, mock_snapshot);
       expect(dir_result.system).not.toContain("<FRACTAL");
 
@@ -685,17 +671,12 @@ describe("prompt_builder (Refactored)", () => {
 
     it("swaps the user and AI data through the character protocol", () => {
       const { system, task } = render_ghostwriter({ entities, input: "" });
-      // The drafter (user) occupies the AI slot: their data lives in YOUR_IDENTITY...
       const user_block = system.slice(system.indexOf('YOUR_IDENTITY name="Rafael Orion"'), system.indexOf("</YOUR_IDENTITY>"));
       expect(user_block).toContain("Heroic himbo");
-      // ...while the AI character occupies the USER_PERSONA slot.
       const ai_block = system.slice(system.indexOf('<USER_PERSONA name="Glitch"'), system.indexOf("</USER_PERSONA>"));
       expect(ai_block).toContain("Cyan-haired hacker");
-      // The full character protocol is reused (not the old mini prompt): the
-      // task carries the FRACTAL_FEED + THINK_FORMAT structure of render_character.
       expect(task).toContain("<FRACTAL_FEED>");
       expect(task).toContain("<THINK_FORMAT>");
-      // The GHOSTWRITE directive forbids writing for the AI character.
       expect(task).toContain("Do not write dialogue, actions, or thoughts for Glitch");
     });
   });
@@ -827,7 +808,6 @@ describe("prompt_builder (Refactored)", () => {
       const result = prompt_builder.build_character_prompt(payload, snapshot, {});
       const identity_idx = result.task.indexOf("<YOUR_IDENTITY");
       const present_idx = result.task.indexOf("Volatile Present");
-      // certainty/regulation are attrs on YOUR_IDENTITY, so they appear before PRESENT content
       expect(identity_idx).toBeLessThan(present_idx);
       expect(result.task.substring(identity_idx, present_idx)).toContain("certainty=");
       expect(result.task.substring(identity_idx, present_idx)).toContain("regulation=");

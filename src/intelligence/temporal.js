@@ -37,25 +37,14 @@ import { prompt_builder } from "./prompts.js";
  * @property {number} RECENCY_FLOOR - Minimum effective recency multiplier, so age can never drown out relevance entirely.
  * @property {number} DECAY_SOFTEN - Exponent applied to the raw decay factor; <1 flattens the decay curve.
  */
-/** @type {TemporalScoringConfig} */
 export const TEMPORAL_SCORING = {
   SEMANTIC_GAIN: 3,
   RECENCY_FLOOR: 0.5,
   DECAY_SOFTEN: 0.5,
 };
 
-/**
- * Valid temporal types a forged memory may originate as.
- * "past" = settled historical anchor, "future" = prophecy/intent to carry
- * forward, "present" = immediate directive enacted onto the entity's present
- * state. Anything else normalizes to "past" (the legacy default).
- */
 const VALID_FORGED_TYPES = new Set(["past", "future", "present"]);
 
-/**
- * @param {unknown} value
- * @returns {"past" | "future" | "present"}
- */
 function normalize_forged_type(value) {
   const type = String(value || "")
     .toLowerCase()
@@ -63,13 +52,6 @@ function normalize_forged_type(value) {
   return VALID_FORGED_TYPES.has(type) ? /** @type {any} */ (type) : "past";
 }
 
-/**
- * Creates a rich Temporal Log Entry (Vector).
- * @param {string} content - The narrative payload.
- * @param {string} [type="future"] - "past" | "future".
- * @param {number} [weight=5] - 1-10 priority.
- * @returns {TemporalVector} A strict Temporal Vector.
- */
 export function create(content, type = "future", weight = 5) {
   return {
     id: _uuid(),
@@ -81,13 +63,6 @@ export function create(content, type = "future", weight = 5) {
   };
 }
 
-/**
- * Computes a recency decay factor based on turns since the vector was created.
- * Uses logarithmic decay: recent vectors score near 1.0, old vectors fade to ~0.33.
- * @param {TemporalVector} v
- * @param {number} [_current_round]
- * @returns {number}
- */
 function recency_factor(v, current_round) {
   const weight = v.emotional_weight ?? 5;
   if (weight >= 10) return 1.0;
@@ -107,18 +82,6 @@ function recency_factor(v, current_round) {
   return Math.pow(1 / (1 + Math.log10(estimated_turns + 1)), decay_exponent);
 }
 
-/**
- * Computes the final relevance score for a vector.
- * Formula: emotional_weight × (1 + SEMANTIC_GAIN × semantic) × effective_recency
- * - emotional_weight is the base (1-10)
- * - semantic_match is 0-1 (cosine similarity from embeddings, clamped; 0 if unavailable)
- * - effective_recency is the raw logarithmic decay factor, softened (^DECAY_SOFTEN)
- *   and floored at RECENCY_FLOOR so age biases but never dominates semantics.
- * @param {any} v
- * @param {number} semantic_similarity
- * @param {number} current_round
- * @returns {number}
- */
 function compute_relevance(v, semantic_similarity, current_round) {
   const weight = v.emotional_weight ?? 5;
   const { SEMANTIC_GAIN, RECENCY_FLOOR, DECAY_SOFTEN } = TEMPORAL_SCORING;
@@ -129,13 +92,6 @@ function compute_relevance(v, semantic_similarity, current_round) {
   return weight * (1 + SEMANTIC_GAIN * semantic) * recency;
 }
 
-/**
- * Scores a collection of Temporal Vectors against an input query context.
- * Performs linear weighted calculation taking into account emotional_weight and recency.
- * @param {TemporalVector[]} vectors
- * @param {string} input
- * @returns {TemporalVector[]} Sorted array of vectors (highest relevance first)
- */
 export function score(vectors) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
 
@@ -160,12 +116,6 @@ export function score(vectors) {
 /** @type {Float32Array | null} */
 let _context_embedding = null;
 
-/**
- * Pre-computes and caches the context embedding for synchronous score() calls.
- * Call this before score() when you have the input text and want semantic scoring
- * without going fully async.
- * @param {string} input
- */
 export async function precompute_context_embedding(input) {
   if (!input?.trim()) {
     _context_embedding = null;
@@ -177,22 +127,10 @@ export async function precompute_context_embedding(input) {
 /** @type {number} */
 let _current_round = 0;
 
-/**
- * Sets the current round for recency calculations (called from kernel before scoring).
- * @param {number} round
- */
 export function set_round(round) {
   _current_round = round || 0;
 }
 
-/**
- * Async RAG Scoring: Embeds the context and all vectors, then scores by semantic similarity.
- * This is the primary scoring path — call this when embeddings are available.
- * @param {TemporalVector[]} vectors
- * @param {string} input
- * @param {number} [current_round]
- * @returns {Promise<TemporalVector[]>}
- */
 export async function score_async(vectors, input, current_round) {
   if (!Array.isArray(vectors) || !vectors.length) return [];
   if (current_round !== undefined) _current_round = current_round;
@@ -214,12 +152,6 @@ export async function score_async(vectors, input, current_round) {
   });
 }
 
-/**
- * Word-overlap check for deduplication.
- * @param {string} a
- * @param {string} b
- * @returns {boolean} True if >60% word overlap
- */
 function is_duplicate(a, b) {
   if (!a || !b) return false;
   const words_a = new Set(
@@ -242,19 +174,6 @@ function is_duplicate(a, b) {
   return shared / Math.min(words_a.size, words_b.size) > 0.6;
 }
 
-/**
- * Unified Generator for Prompt formatting.
- * Budget-driven selection: fills up to max_chars with the most relevant vectors.
- * No hard count limit — relevance determines inclusion, not an arbitrary cap.
- * Deduplicates near-identical vectors to avoid wasting budget.
- * @param {TemporalVector[]} vectors
- * @param {string} input
- * @param {Object} [options]
- * @param {boolean} [options.vector_text]
- * @param {number} [options.offset]
- * @param {number} [options.max_chars]
- * @returns {string}
- */
 export function format(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
@@ -290,17 +209,6 @@ export function format(vectors, input, options = {}) {
     .join("\n");
 }
 
-/**
- * Async semantic variant of format(). Uses score_async (embeddings-based RAG)
- * when the embeddings model is ready, falling back to synchronous score() otherwise.
- * @param {TemporalVector[]} vectors
- * @param {string} input
- * @param {Object} [options]
- * @param {boolean} [options.vector_text]
- * @param {number} [options.offset]
- * @param {number} [options.max_chars]
- * @returns {Promise<string>}
- */
 export async function format_async(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
@@ -337,12 +245,6 @@ export async function format_async(vectors, input, options = {}) {
     .join("\n");
 }
 
-/**
- * Transitions an Active Impulse (Future) into a Historical Anchor (Past).
- * @param {SimulationEntity} entity
- * @param {string} vector_id
- * @param {string | null} [resolution]
- */
 export function resolve(entity, vector_id, resolution = null, session = null) {
   if (!entity || !Array.isArray(entity.vectors)) return;
   const index = entity.vectors.findIndex((v) => v.id === vector_id);
@@ -363,22 +265,6 @@ export function resolve(entity, vector_id, resolution = null, session = null) {
   }
 }
 
-/**
- * Generates entity-specific Memory records from a slice of history.
- * One forged vector per active entity (AI Character, User Persona, Fractal),
- * each written from that entity's own perspective, with an explicit type
- * ("past" | "future" | "present") so consolidated memories can become
- * historical anchors, forward prophecies, or immediate present directives
- * instead of defaulting strictly to "past".
- *
- * Legacy fallback: if the LLM returns the old single-`directive` shape, the
- * shared directive is replicated into every active entity's memory, preserving
- * the previous behavior.
- *
- * @param {Array<{key: string, type: string, entity: SimulationEntity}>} entity_targets
- * @param {any[]} history_slice
- * @returns {Promise<{memories: Record<string, any|null>, present_summaries: any, eternal_mutations: any} | null>}
- */
 export async function forge_memory(entity_targets, history_slice) {
   if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
   try {
@@ -421,39 +307,65 @@ export async function forge_memory(entity_targets, history_slice) {
 
     const raw_memories = memory?.memories && typeof memory.memories === "object" ? memory.memories : null;
     const legacy_directive = String(memory?.directive || memory?.summary || "").trim();
-    if (!raw_memories && !legacy_directive) return null;
 
     const forged = {
-      memories: {},
-      present_summaries: memory?.present_summaries || null,
-      eternal_mutations: memory?.eternal_mutations || null,
+      vectors: {},
+      present_consolidated: memory?.present_summaries || memory?.present_consolidated || {},
+      eternal_consolidated: memory?.eternal_mutations || memory?.eternal_consolidated || {},
     };
 
     for (const { key } of entity_targets) {
-      const raw = raw_memories?.[key] && typeof raw_memories[key] === "object" ? raw_memories[key] : {};
-      const content = String(raw.content ?? raw.directive ?? raw.summary ?? "").trim() || legacy_directive;
-      if (!content) continue;
+      const entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : {};
 
-      const vector = {
-        id: _uuid(),
-        timestamp: Date.now(),
-        type: normalize_forged_type(raw.type),
-        content,
-        emotional_weight: Number(raw.emotional_weight ?? raw.base_weight ?? memory?.emotional_weight ?? memory?.base_weight ?? 5) || 5,
-        meta: { ...(memory?.meta || {}), forged_for: key },
-      };
-
-      // Present directives merge straight into the entity's present state and
-      // never enter the vector arrays, so only past/future need embeddings.
-      if (vector.type !== "present") {
-        await ensure_embedding(vector);
+      const pres = entity_block.present_consolidated || entity_block.present_summary;
+      if (pres && typeof pres === "object") {
+        forged.present_consolidated[key] = pres;
       }
 
-      forged.memories[key] = vector;
+      const et = entity_block.eternal_consolidated || entity_block.eternal_mutations;
+      if (et && typeof et === "object") {
+        forged.eternal_consolidated[key] = et;
+      }
+
+      const raw_vectors = Array.isArray(entity_block.vector_append)
+        ? entity_block.vector_append
+        : entity_block.memory
+          ? [entity_block.memory]
+          : raw_memories?.[key]
+            ? [raw_memories[key]]
+            : legacy_directive
+              ? [{ content: legacy_directive, type: "past" }]
+              : [];
+
+      forged.vectors[key] = [];
+
+      for (const raw of raw_vectors) {
+        if (!raw || typeof raw !== "object") continue;
+        const content = String(raw.content ?? raw.directive ?? raw.summary ?? "").trim();
+        if (!content) continue;
+
+        const vector = {
+          id: _uuid(),
+          timestamp: Date.now(),
+          type: normalize_forged_type(raw.type),
+          content,
+          emotional_weight: Number(raw.emotional_weight ?? raw.base_weight ?? memory?.emotional_weight ?? memory?.base_weight ?? 5) || 5,
+          meta: { ...(memory?.meta || {}), forged_for: key },
+        };
+
+        if (vector.type !== "present") {
+          await ensure_embedding(vector);
+        }
+
+        forged.vectors[key].push(vector);
+      }
     }
 
-    const has_any = Object.values(forged.memories).some(Boolean);
-    if (!has_any) return null;
+    const has_vectors = Object.values(forged.vectors).some((arr) => arr.length > 0);
+    const has_present = Object.keys(forged.present_consolidated).length > 0;
+    const has_eternal = Object.keys(forged.eternal_consolidated).length > 0;
+
+    if (!has_vectors && !has_present && !has_eternal) return null;
 
     return forged;
   } catch (err) {
@@ -462,43 +374,45 @@ export async function forge_memory(entity_targets, history_slice) {
   }
 }
 
-/**
- * Applies explicit state mutations generated by the Director to an entity.
- * @param {SimulationEntity} entity - The active entity
- * @param {any} mutations - The state_mutations JSON block from the Director
- * @param {SessionDriver|null} [session=null]
- * @returns {boolean} True if any mutations were applied
- */
 export function apply_state_mutations(entity, mutations, session = null) {
   if (!entity || !mutations || typeof mutations !== "object") return false;
   let changed = false;
 
-  // 1. Present Append (Physical)
-  if (mutations.present_append_physical?.trim()) {
+  const pres_phys = mutations.present_append?.physical || mutations.present_mutations?.physical || mutations.present_append_physical || "";
+  if (pres_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    entity.present.physical = merge_prose_into_field(entity.present.physical, mutations.present_append_physical);
+    entity.present.physical = merge_prose_into_field(entity.present.physical, pres_phys);
     changed = true;
   }
 
-  // 2. Present Append (Non-Physical)
-  if (mutations.present_append_non_physical?.trim()) {
+  const pres_non_phys =
+    mutations.present_append?.non_physical || mutations.present_mutations?.non_physical || mutations.present_append_non_physical || "";
+  if (pres_non_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, mutations.present_append_non_physical);
+    entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, pres_non_phys);
     changed = true;
   }
 
-  // 3. Resolve Vectors (Future to Past shifts)
-  if (Array.isArray(mutations.resolve_vectors) && mutations.resolve_vectors.length > 0) {
-    mutations.resolve_vectors.forEach((v) => {
+  const resolve_list = Array.isArray(mutations.vector_resolve)
+    ? mutations.vector_resolve
+    : Array.isArray(mutations.resolve_vectors)
+      ? mutations.resolve_vectors
+      : [];
+  if (resolve_list.length > 0) {
+    resolve_list.forEach((v) => {
       resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION", session);
       changed = true;
     });
   }
 
-  // 4. New Vectors (Future or Past)
-  if (Array.isArray(mutations.new_vectors) && mutations.new_vectors.length > 0) {
+  const new_list = Array.isArray(mutations.vector_append)
+    ? mutations.vector_append
+    : Array.isArray(mutations.new_vectors)
+      ? mutations.new_vectors
+      : [];
+  if (new_list.length > 0) {
     if (!Array.isArray(entity.vectors)) entity.vectors = [];
-    mutations.new_vectors.forEach((v) => {
+    new_list.forEach((v) => {
       const payload = (v.content || v.directive || "").trim();
       if (!payload) return;
       const new_vector = create(payload, v.type || "future", v.emotional_weight ?? v.weight ?? 5);
@@ -516,22 +430,18 @@ export function apply_state_mutations(entity, mutations, session = null) {
     });
   }
 
-  // 5. Eternal Mutations (permanent shifts)
-  if (mutations.eternal_mutations && entity.eternal) {
-    if (mutations.eternal_mutations.physical?.trim()) {
-      entity.eternal.physical = merge_prose_into_field(entity.eternal.physical, mutations.eternal_mutations.physical);
+  const eternal_muts = mutations.eternal_consolidated || mutations.eternal_baseline || mutations.eternal_mutations;
+  if (eternal_muts && entity.eternal) {
+    if (eternal_muts.physical?.trim()) {
+      entity.eternal.physical = merge_prose_into_field(entity.eternal.physical, eternal_muts.physical);
       changed = true;
     }
-    if (mutations.eternal_mutations.non_physical?.trim()) {
-      entity.eternal.non_physical = merge_prose_into_field(entity.eternal.non_physical, mutations.eternal_mutations.non_physical);
+    if (eternal_muts.non_physical?.trim()) {
+      entity.eternal.non_physical = merge_prose_into_field(entity.eternal.non_physical, eternal_muts.non_physical);
       changed = true;
     }
   }
 
-  // FIX #2: Immediately flush the mutated present state back to Dexie so that
-  // any code path that reads from the DB (e.g. _resolveEntity fallback in
-  // visual.svelte.js) also sees the updated clothing/condition state.
-  // Fire-and-forget: keep this function synchronous for callers.
   if (changed && entity.id) {
     const type = entity.type === "fractal" ? "fractal" : "character";
     state_bridge.runtime
@@ -548,14 +458,6 @@ export function apply_state_mutations(entity, mutations, session = null) {
   return changed;
 }
 
-/**
- * Neuroplasticity pass: after memory forge, positive memories decay high-weight
- * trauma vectors; high-chaos turns can relapse them. Modifies the AI entity's
- * past-type vectors in-place and persists via runtime.update_entity.
- * @param {Array<{entity: any, type: string}>} entity_targets
- * @param {any} memory - The forged memory object.
- * @param {any} runtime - Runtime state with update_entity and dynamics access.
- */
 export function apply_neuroplasticity(entity_targets, memory, runtime) {
   try {
     const chaos = runtime?.active_ai?.dynamics?.chaos ?? 50;
@@ -600,24 +502,6 @@ export const temporal_engine = {
   precompute_context_embedding,
   _is_consolidating: false,
 
-  /**
-   * BATCH CONSOLIDATION (The Forging Cycle)
-   * Evicts old messages and compresses them into the Temporal Archive.
-   * Single-pass: one forge_memory call generates an ENTITY-SPECIFIC memory
-   * for each active entity (AI Character, User Persona, Fractal), written
-   * from that entity's own perspective — no more duplicating one shared
-   * character vector across all three. Each memory is routed by its forged
-   * type: "past"/"future" → entity.vectors, "present" → merged into the
-   * entity's present state as an immediate directive.
-   * The LLM also returns per-entity present_summaries and eternal_mutations
-   * in the same single response.
-   * @param {SessionDriver} Session
-   * @param {Database} db
-   * @param {EntityRepository} entities
-   * @param {any} runtime
-   * @param {any} app
-   * @returns {Promise<void>}
-   */
   consolidate: async (Session, db, entities, runtime, app) => {
     if (temporal_engine._is_consolidating) return;
     temporal_engine._is_consolidating = true;
@@ -640,49 +524,49 @@ export const temporal_engine = {
 
         const forged = await forge_memory(entity_targets, slice);
         if (forged) {
-          // 1. Route each entity's OWN memory by its forged type.
           for (const { key, type, entity } of entity_targets) {
-            const memory = forged.memories?.[key];
-            if (!memory) continue;
-
-            if (memory.type === "future") {
-              if (!Array.isArray(entity.vectors)) entity.vectors = [];
-              entity.vectors = [...entity.vectors, memory];
-              await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
-            } else if (memory.type === "present") {
-              if (!entity.present) entity.present = { physical: "", non_physical: "" };
-              entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || "");
-              await runtime.update_entity(type, entity.id, { present: entity.present });
-            } else {
-              if (!Array.isArray(entity.vectors)) entity.vectors = [];
-              entity.vectors = [...entity.vectors, memory];
-              await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
+            const vectors = forged.vectors?.[key] || [];
+            for (const memory of vectors) {
+              if (memory.type === "future") {
+                if (!Array.isArray(entity.vectors)) entity.vectors = [];
+                entity.vectors = [...entity.vectors, memory];
+                await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
+              } else if (memory.type === "present") {
+                if (!entity.present) entity.present = { physical: "", non_physical: "" };
+                entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || "");
+                await runtime.update_entity(type, entity.id, { present: entity.present });
+              } else {
+                if (!Array.isArray(entity.vectors)) entity.vectors = [];
+                entity.vectors = [...entity.vectors, memory];
+                await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
+              }
             }
           }
 
-          if (forged.memories?.AI_CHARACTER) {
-            apply_neuroplasticity(entity_targets, forged.memories.AI_CHARACTER, runtime);
+          if (forged.vectors?.AI_CHARACTER?.length) {
+            const primary_mem = forged.vectors.AI_CHARACTER[0];
+            if (primary_mem) {
+              apply_neuroplasticity(entity_targets, primary_mem, runtime);
+            }
           }
 
-          // 2. Present summaries (per entity).
-          if (forged.present_summaries) {
-            const summaries = forged.present_summaries;
+          if (forged.present_consolidated) {
+            const summaries = forged.present_consolidated;
             for (const { key, type, entity } of entity_targets) {
               const summary = summaries[key];
-              if (!summary) continue;
+              if (!summary || typeof summary !== "object") continue;
               if (!entity.present) entity.present = { physical: "", non_physical: "" };
-              if (summary.physical) entity.present.physical = summary.physical;
-              if (summary.non_physical) entity.present.non_physical = summary.non_physical;
+              if (summary.physical !== undefined) entity.present.physical = summary.physical;
+              if (summary.non_physical !== undefined) entity.present.non_physical = summary.non_physical;
               await runtime.update_entity(type, entity.id, { present: entity.present });
             }
           }
 
-          // 3. Eternal mutations (per entity) — tag the entity's OWN memory.
-          if (forged.eternal_mutations) {
-            const e_muts = forged.eternal_mutations;
+          if (forged.eternal_consolidated) {
+            const e_muts = forged.eternal_consolidated;
             for (const { key, type, entity } of entity_targets) {
               const e_mut = e_muts[key];
-              if (!e_mut) continue;
+              if (!e_mut || typeof e_mut !== "object") continue;
               if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
               let eternal_changed = false;
               if (e_mut.physical?.trim()) {
@@ -695,9 +579,9 @@ export const temporal_engine = {
               }
               if (eternal_changed) {
                 await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
-                const memory = forged.memories?.[key];
-                if (memory && memory.type !== "present" && !memory.meta?.eternal_shift) {
-                  memory.meta = { ...(memory.meta || {}), eternal_shift: true };
+                const primary_vector = forged.vectors?.[key]?.[0];
+                if (primary_vector && primary_vector.type !== "present" && !primary_vector.meta?.eternal_shift) {
+                  primary_vector.meta = { ...(primary_vector.meta || {}), eternal_shift: true };
                   const payload = {};
                   if (Array.isArray(entity.vectors)) payload.vectors = entity.vectors;
                   await runtime.update_entity(type, entity.id, payload);
@@ -706,15 +590,14 @@ export const temporal_engine = {
             }
           }
 
-          // 4. Log one MEMORY_FORMATION per entity.
           for (const { key } of entity_targets) {
-            const memory = forged.memories?.[key];
-            if (!memory) continue;
-            const text = memory.content || memory.directive || "";
+            const vectors = forged.vectors?.[key] || [];
+            if (!vectors.length) continue;
+            const text = vectors.map((v) => v.content || v.directive || "").join(" | ");
             await Session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
               target: key,
-              vectors: [memory],
+              vectors,
               turns_count: slice.length,
             });
           }
@@ -733,11 +616,6 @@ export const temporal_engine = {
     }
   },
 
-  /**
-   * ENSURE MOMENTUM
-   * @param {any} runtime
-   * @param {any} [app]
-   */
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;
     if (fractal && (!Array.isArray(fractal.vectors) || !fractal.vectors.some((v) => v.type === "future"))) {

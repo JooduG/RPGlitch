@@ -208,11 +208,10 @@ function compute_deltas(target, dynamics, runtimeTarget, deltas, log_strings) {
 
 /**
  * Builds one entity's normalized `updates` block for telemetry. Director fields
- * are renamed/merged into the display shape: `present_append_physical` /
- * `present_append_non_physical` → `present_mutations.{physical,non_physical}`,
- * `new_vectors` keep `content`/`type` but their `weight` becomes
- * `emotional_weight`, `resolve_vectors` → `vectors.resolved`, `dynamics_deltas`
- * is dropped (the computed `dynamics` array already carries old/new/diff per
+ * are aligned into the display shape: `present_mutations.{physical,non_physical}`
+ * and `eternal_mutations.{physical,non_physical}`, `new_vectors` keep `content`/`type`
+ * but their `weight` becomes `emotional_weight`, `resolve_vectors` → `vectors.resolved`,
+ * `dynamics_deltas` is dropped (the computed `dynamics` array already carries old/new/diff per
  * axis). Returns null when the entity carries no content so the dump stays lean.
  * @param {string|null} name
  * @param {any} mutations
@@ -223,17 +222,33 @@ function compute_deltas(target, dynamics, runtimeTarget, deltas, log_strings) {
 function build_update_entry(name, mutations, dynamics, retrieval) {
   const entry = {};
   if (name) entry.name = name;
+
+  const pres = mutations?.present_append || mutations?.present_mutations || {};
   entry.present_mutations = {
-    physical: mutations?.present_append_physical || "",
-    non_physical: mutations?.present_append_non_physical || "",
+    physical: pres.physical || mutations?.present_append_physical || "",
+    non_physical: pres.non_physical || mutations?.present_append_non_physical || "",
   };
+
+  const eternal = mutations?.eternal_consolidated || mutations?.eternal_baseline || mutations?.eternal_mutations || {};
   entry.eternal_mutations = {
-    physical: mutations?.eternal_mutations?.physical || "",
-    non_physical: mutations?.eternal_mutations?.non_physical || "",
+    physical: eternal.physical || "",
+    non_physical: eternal.non_physical || "",
   };
+
+  const resolve_list = Array.isArray(mutations?.vector_resolve)
+    ? mutations.vector_resolve
+    : Array.isArray(mutations?.resolve_vectors)
+      ? mutations.resolve_vectors
+      : [];
+  const new_list = Array.isArray(mutations?.vector_append)
+    ? mutations.vector_append
+    : Array.isArray(mutations?.new_vectors)
+      ? mutations.new_vectors
+      : [];
+
   entry.vectors = {
-    resolved: Array.isArray(mutations?.resolve_vectors) ? mutations.resolve_vectors : [],
-    new: (Array.isArray(mutations?.new_vectors) ? mutations.new_vectors : []).map((v) => {
+    resolved: resolve_list,
+    new: new_list.map((v) => {
       const copy = { ...(v || {}) };
       copy.content = (copy.content || copy.directive || "").trim();
       delete copy.directive;
@@ -525,39 +540,39 @@ export const gamemaster = {
       const director_data = parse_director_json(director_text) || {};
 
       // 4.1 Apply State Mutations
-      if (director_data.mutations) {
-        if (director_data.mutations.AI_CHARACTER && state_bridge.runtime.active_ai) {
-          temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, director_data.mutations.AI_CHARACTER, state_bridge.session_driver);
-          if (director_data.mutations.AI_CHARACTER.dynamics_deltas) {
-            if (!snapshot.ai) snapshot.ai = {};
-            if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
-            Object.entries(director_data.mutations.AI_CHARACTER.dynamics_deltas).forEach(([k, delta]) => {
-              const val = Number(delta);
-              if (!isNaN(val)) {
-                const current = snapshot.ai.dynamics[k] || 50;
-                snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
-              }
-            });
-          }
-        }
+      const entity_mutations = director_data.mutations || director_data;
 
-        if (director_data.mutations.USER_PERSONA && state_bridge.runtime.active_user) {
-          temporal_engine.apply_state_mutations(state_bridge.runtime.active_user, director_data.mutations.USER_PERSONA, state_bridge.session_driver);
+      if (entity_mutations.AI_CHARACTER && state_bridge.runtime.active_ai) {
+        temporal_engine.apply_state_mutations(state_bridge.runtime.active_ai, entity_mutations.AI_CHARACTER, state_bridge.session_driver);
+        if (entity_mutations.AI_CHARACTER.dynamics_deltas) {
+          if (!snapshot.ai) snapshot.ai = {};
+          if (!snapshot.ai.dynamics) snapshot.ai.dynamics = { ...state_bridge.runtime.ai };
+          Object.entries(entity_mutations.AI_CHARACTER.dynamics_deltas).forEach(([k, delta]) => {
+            const val = Number(delta);
+            if (!isNaN(val)) {
+              const current = snapshot.ai.dynamics[k] || 50;
+              snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
+            }
+          });
         }
+      }
 
-        if (director_data.mutations.FRACTAL && state_bridge.runtime.active_fractal) {
-          temporal_engine.apply_state_mutations(state_bridge.runtime.active_fractal, director_data.mutations.FRACTAL, state_bridge.session_driver);
-          if (director_data.mutations.FRACTAL.dynamics_deltas) {
-            if (!snapshot.fractal) snapshot.fractal = {};
-            if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
-            Object.entries(director_data.mutations.FRACTAL.dynamics_deltas).forEach(([k, delta]) => {
-              const val = Number(delta);
-              if (!isNaN(val)) {
-                const current = snapshot.fractal.dynamics[k] || 50;
-                snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
-              }
-            });
-          }
+      if (entity_mutations.USER_PERSONA && state_bridge.runtime.active_user) {
+        temporal_engine.apply_state_mutations(state_bridge.runtime.active_user, entity_mutations.USER_PERSONA, state_bridge.session_driver);
+      }
+
+      if (entity_mutations.FRACTAL && state_bridge.runtime.active_fractal) {
+        temporal_engine.apply_state_mutations(state_bridge.runtime.active_fractal, entity_mutations.FRACTAL, state_bridge.session_driver);
+        if (entity_mutations.FRACTAL.dynamics_deltas) {
+          if (!snapshot.fractal) snapshot.fractal = {};
+          if (!snapshot.fractal.dynamics) snapshot.fractal.dynamics = { ...state_bridge.runtime.fractal };
+          Object.entries(entity_mutations.FRACTAL.dynamics_deltas).forEach(([k, delta]) => {
+            const val = Number(delta);
+            if (!isNaN(val)) {
+              const current = snapshot.fractal.dynamics[k] || 50;
+              snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
+            }
+          });
         }
       }
 
@@ -568,7 +583,7 @@ export const gamemaster = {
       let final_meta = { ...meta };
       final_meta.ai = snapshot.ai?.dynamics;
       final_meta.fractal = snapshot.fractal?.dynamics;
-      final_meta.mutations = director_data.mutations;
+      final_meta.mutations = entity_mutations;
 
       const clean_think = (t) =>
         String(t || "")
@@ -606,13 +621,11 @@ export const gamemaster = {
         state_bridge.runtime.last_auto_image_round = turn_round;
       }
 
-      const tier_from_string =
-        typeof director_data.trigger_image === "string" && IMAGE_TRIGGER.tiers.includes(director_data.trigger_image)
-          ? director_data.trigger_image
-          : null;
+      const raw_trigger = typeof director_data.trigger_image === "string" ? director_data.trigger_image.trim() : director_data.trigger_image;
+      const tier_from_string = typeof raw_trigger === "string" && IMAGE_TRIGGER.tiers.includes(raw_trigger) ? raw_trigger : null;
       const tier_from_pref =
         typeof director_data.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
-      const director_explicit = director_data.trigger_image === true || tier_from_string !== null;
+      const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
       if (director_explicit) {
         // Director-initiated triggers bypass the cooldown check, but reset the shared timer.
         state_bridge.runtime.last_auto_image_round = turn_round;

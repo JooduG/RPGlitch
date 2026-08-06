@@ -23,66 +23,49 @@ let cached_dynamics_legend = null;
 /** @type {Map<string, string>} */
 const protocols_cache = new Map();
 
-// --- JSON Schema Templates (extracted for readability) ---
+// --- JSON Schema Templates ---
 
 const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<step-by-step state evaluation>",
-  "trigger_image": false,
-  "image_tier": "story_scene",
-  "mutations": {
-    "AI_CHARACTER": {
-      "present_append_physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none] [CLOTHING: bare] [PANTS: unzipped/exposed]), or empty string.",
-      "present_append_non_physical": "Immediate internal shifts or emotional reactions, or empty string.",
-      "resolve_vectors": [ { "id": "<vector_id>", "resolution_summary": "Summary of resolution." } ],
-      "new_vectors": [ { "content": "New goal, event, or prophecy", "type": "future", "emotional_weight": 5 } ],
-      "eternal_mutations": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
-      "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
+  "AI_CHARACTER": {
+    "present_append": {
+      "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none] [CLOTHING: bare] [PANTS: unzipped/exposed]), or empty string.",
+      "non_physical": "Immediate internal shifts or emotional reactions, or empty string."
     },
-    "USER_PERSONA": {
-      "present_append_physical": "New physical changes (e.g. [SHIRT: none] [CLOTHING: bare]), or empty string.",
-      "present_append_non_physical": "",
-      "resolve_vectors": [],
-      "new_vectors": [],
-      "eternal_mutations": { "physical": "", "non_physical": "" }
-    },
-    "FRACTAL": {
-      "present_append_physical": "",
-      "present_append_non_physical": "",
-      "resolve_vectors": [],
-      "new_vectors": [ { "content": "New environmental event, prophecy, or shift", "type": "future", "emotional_weight": 5 } ],
-      "dynamics_deltas": { "entropy": 0, "velocity": 0 }
-    }
-  }
+    "vector_append": [ { "content": "New goal, event, or prophecy", "type": "future", "emotional_weight": 5 } ],
+    "vector_resolve": [ { "id": "<vector_id>", "resolution_summary": "Summary of resolution." } ],
+    "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
+  },
+  "USER_PERSONA": {
+    "present_append": { "physical": "New physical changes (e.g. [SHIRT: none] [CLOTHING: bare]), or empty string.", "non_physical": "" },
+    "vector_append": [],
+    "vector_resolve": []
+  },
+  "FRACTAL": {
+    "present_append": { "physical": "", "non_physical": "" },
+    "vector_append": [ { "content": "New environmental event, prophecy, or shift", "type": "future", "emotional_weight": 5 } ],
+    "vector_resolve": [],
+    "dynamics_deltas": { "entropy": 0, "velocity": 0 }
+  },
+  "trigger_image": "false | story_entities | story_character | solo_entity | story_scene"
 }`;
 
 const MEMORY_JSON_SCHEMA = `{
   "_thought_process": "<analysis of key shifts and emotional weight>",
-  "memories": {
-    "AI_CHARACTER": {
-      "type": "past | future | present",
-      "content": "Memory summary written strictly from the AI character's own perspective",
-      "emotional_weight": 5
-    },
-    "USER_PERSONA": {
-      "type": "past | future | present",
-      "content": "Memory summary written strictly from the user persona's own perspective",
-      "emotional_weight": 5
-    },
-    "FRACTAL": {
-      "type": "past | future | present",
-      "content": "Memory summary written from the fractal's atmospheric/environmental perspective",
-      "emotional_weight": 5
-    }
+  "AI_CHARACTER": {
+    "eternal_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
+    "present_consolidated": { "physical": "Clean updated physical state (discarding expired temporary states)", "non_physical": "Clean updated mental/emotional baseline" },
+    "vector_append": [ { "content": "Historical anchor or forward impulse", "type": "past | future", "emotional_weight": 5 } ]
   },
-  "present_summaries": {
-    "AI_CHARACTER": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
-    "USER_PERSONA": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" },
-    "FRACTAL": { "physical": "Concise physical summary", "non_physical": "Concise mental summary" }
+  "USER_PERSONA": {
+    "eternal_consolidated": { "physical": "", "non_physical": "" },
+    "present_consolidated": { "physical": "", "non_physical": "" },
+    "vector_append": [ { "content": "Historical anchor or forward impulse", "type": "past | future", "emotional_weight": 5 } ]
   },
-  "eternal_mutations": {
-    "AI_CHARACTER": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
-    "USER_PERSONA": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
-    "FRACTAL": { "physical": "Permanent environmental change or empty string", "non_physical": "Permanent atmospheric shift or empty string" }
+  "FRACTAL": {
+    "eternal_consolidated": { "physical": "", "non_physical": "" },
+    "present_consolidated": { "physical": "", "non_physical": "" },
+    "vector_append": [ { "content": "Historical anchor or environmental impulse", "type": "past | future", "emotional_weight": 5 } ]
   }
 }`;
 
@@ -250,17 +233,6 @@ function format_dynamics_attrs(dynObj, options = {}) {
 }
 
 /**
- * Collapses conversation history into role-grouped entries.
- * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
- * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
- * @returns {Array<{role: string, name: string, content: string}>}
- */
-
-// ============================================================================
-// 2. PROMPT TEMPLATES
-// ============================================================================
-
-/**
  * Director prompt compiler (Shot 1).
  * @param {any} params
  * @returns {{ system: string, task: string }}
@@ -336,11 +308,14 @@ ${(() => {
     Return a single valid JSON payload starting with { and ending with } following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
     IMAGE TRIGGER GUIDANCE (optional, use sparingly — reserved for key narrative beats):
-      - Keep "trigger_image" false unless the moment genuinely demands a visual. Setting it to true requests an automatic visual beat this round.
-      - You may instead set "trigger_image" to one of the 4-tier target strings: "story_entities" (group shot of all active entities), "story_character" (single in-scene character), "solo_entity" (isolated portrait), or "story_scene" (environment / narrative moment). This bypasses the auto-trigger cooldown.
-      - "image_tier" may be used to suggest a tier preference alongside "trigger_image": true.
+      - Set "trigger_image" to false (or "false") unless the moment genuinely demands a visual.
+      - Set "trigger_image" to one of the 4-tier target strings to request an automatic visual beat this round:
+          "story_entities"  -> group shot of all active entities
+          "story_character" -> single in-scene character focus
+          "solo_entity"     -> isolated portrait
+          "story_scene"     -> environment / general narrative moment
     STATE & CONTINUITY GUIDANCE:
-      - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed new_vectors and present_append that move toward them so they materialize as the character's own actions.
+      - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed vector_append and present_append that move toward them so they materialize as the character's own actions.
       - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or FRACTAL_FEED, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
       - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
   </TASK>
@@ -349,19 +324,6 @@ ${(() => {
   return { system, task };
 }
 
-/**
- * AI Character (Actor) prompt compiler (Shot 2).
- * @param {any} params
- * @returns {{ system: string, task: string }}
- */
-/**
- * Resolves an entity's temporal vector pool.
- * Prefers the unified `vectors` array; falls back to the legacy `past`/`future`
- * keys (typed on read) so legacy-shaped payloads render correctly. Vector
- * payloads are leniently normalized to canonical `content` (directive/text fallback).
- * @param {any} entity
- * @returns {any[]}
- */
 function resolve_vector_pool(entity) {
   if (!entity || typeof entity !== "object") return [];
   const normalize_item = (v, type) => (v && typeof v === "object" ? { ...v, type, content: v.content || v.directive || v.text || "" } : v);
@@ -378,12 +340,6 @@ function resolve_vector_pool(entity) {
   return pool;
 }
 
-/**
- * Builds the AI entity's future XML block (unified FUTURE tag).
- * @param {any} entity - AI entity with future vectors.
- * @param {string} [scoringContext] - Context for temporal RAG scoring.
- * @returns {string} XML string for the YOUR_IDENTITY block.
- */
 function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
   const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
   if (futures.length === 0) return "";
@@ -500,19 +456,10 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
   return { system, task };
 }
 
-/**
- * Ghostwriter prompt compiler.
- * @param {any} params
- * @returns {{ system: string, task: string }}
- */
 function render_ghostwriter({ entities, input = "" }) {
   const user_name = entities?.USER?.name || "User Persona";
   const ai_name = entities?.AI?.name || "AI Character";
 
-  // The Ghostwriter drafts ON BEHALF OF the USER persona, so swap the two slots
-  // and reuse the full character protocol: the user becomes the "AI" role (their
-  // identity, present state, past/future, POV, protocols) while the AI character
-  // becomes the "USER_PERSONA" the drafter is forbidden to write for.
   const swapped = {
     ...(entities || {}),
     AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, vectors: [] },
@@ -548,12 +495,6 @@ function render_ghostwriter({ entities, input = "" }) {
   return rendered;
 }
 
-/**
- * Prologue / Epilogue narration compiler.
- * @param {"prologue"|"epilogue"} mode
- * @param {any} params
- * @returns {{ system: string, task: string }}
- */
 function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
   const task_text =
     mode === "prologue"
@@ -616,12 +557,6 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
   return { system, task };
 }
 
-/**
- * Renders a single entity's memory-forge context block (eternal + present state).
- * @param {string} key
- * @param {any} entity
- * @returns {string}
- */
 function render_entity_memory_context(key, entity) {
   if (!entity) return "";
   const name = escape_xml(entity?.name || key);
@@ -654,11 +589,6 @@ function render_entity_memory_context(key, entity) {
   `).trim();
 }
 
-/**
- * Turn memory compilation template.
- * @param {any} params
- * @returns {string}
- */
 function render_memory({ entities, history }) {
   const entity_blocks = ["AI_CHARACTER", "USER_PERSONA", "FRACTAL"]
     .filter((key) => entities?.[key])
@@ -677,12 +607,13 @@ ${entity_blocks}
     ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
   </INPUT_HISTORY>
   <TASK>
-    Compress this history into structured memories. Record internal evaluation inside "_thought_process" at the top of the JSON object.
-    Forge ONE memory per entity (AI_CHARACTER, USER_PERSONA, FRACTAL), each written strictly from that entity's own perspective — the content must capture the entity's subjective take on the events, not a shared summary.
-    For each memory choose a "type":
-      "past"    = a settled historical anchor (default).
-      "future"  = a prophecy, intent, or goal the entity is carrying forward, to be resolved later.
-      "present" = an immediate directive for the entity's current state — merged into the entity's PRESENT block now (never stored as a vector).
+    Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
+    For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
+      - "eternal_consolidated": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
+      - "present_consolidated": Rewrite a clean, updated physical and non-physical state, discarding expired temporary deltas.
+      - "vector_append": Add temporal vectors written strictly from that entity's own perspective:
+          "past"   = a settled historical anchor (memory).
+          "future" = a prophecy, intent, or goal to carry forward.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
   </TASK>
@@ -690,16 +621,6 @@ ${entity_blocks}
   `).trim();
 }
 
-/**
- * Renders ONLY the targeted field's current value as context, so an enhancement
- * pass sees the field in isolation instead of the whole profile (prevents
- * cross-field bleed). Falls back to empty when the field can't be isolated —
- * INPUT_CONTENT alone then carries the payload.
- * @param {any} entity
- * @param {string} field_id
- * @param {string} content
- * @returns {string}
- */
 function render_enhancement_field_context(entity, field_id, content = "") {
   if (!entity) return "";
   const [section, sub] = String(field_id || "").split(".");
@@ -743,11 +664,6 @@ function render_enhancement_field_context(entity, field_id, content = "") {
   return "";
 }
 
-/**
- * Text field enhancement instructions builder.
- * @param {any} params
- * @returns {string}
- */
 function render_enhancement({
   label,
   directive,
@@ -790,11 +706,6 @@ function render_enhancement({
   `).trim();
 }
 
-/**
- * Profile Sorting extraction instructions builder.
- * @param {string} [entity_type]
- * @returns {string}
- */
 function render_profile_sorting(entity_type = "character") {
   const resolved_type = entity_type === "user" ? "character" : entity_type || "character";
   const protocols = ["HYGIENE.DATA", "HYGIENE.AFFIRMATIVE", "FORMATS.JSON_ONLY"].filter(Boolean).join(", ");
@@ -815,10 +726,6 @@ function render_profile_sorting(entity_type = "character") {
 </SYSTEM>
   `).trim();
 }
-
-// ============================================================================
-// 4. DATA PROCESSORS
-// ============================================================================
 
 const data_processors = {
   create_render_atom(entities = {}, input = "", raw_messages = []) {
@@ -870,10 +777,6 @@ const data_processors = {
       .join("\n");
   },
 };
-
-// ============================================================================
-// 5. EXPORT API
-// ============================================================================
 
 export const prompt_builder = {
   parse_macros(text, owner, entities = {}) {

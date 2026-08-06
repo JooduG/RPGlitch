@@ -372,25 +372,35 @@ describe("temporal_engine", () => {
 
     it("forges ONE distinct memory per entity from its own perspective", async () => {
       const mock_memory = {
-        memories: {
-          AI_CHARACTER: {
-            content: "Viper felt the crowd's distrust and decided to stay quiet.",
-            type: "past",
-            emotional_weight: 6,
-            tags: ["distrust"],
-          },
-          USER_PERSONA: {
-            content: "Ghost noticed Viper's tension and resolved to press for the truth.",
-            type: "future",
-            emotional_weight: 4,
-            tags: ["resolve"],
-          },
-          FRACTAL: {
-            content: "The market din turned hostile after the guard's announcement.",
-            type: "past",
-            emotional_weight: 3,
-            tags: ["atmosphere"],
-          },
+        AI_CHARACTER: {
+          vector_append: [
+            {
+              content: "Viper felt the crowd's distrust and decided to stay quiet.",
+              type: "past",
+              emotional_weight: 6,
+              tags: ["distrust"],
+            },
+          ],
+        },
+        USER_PERSONA: {
+          vector_append: [
+            {
+              content: "Ghost noticed Viper's tension and resolved to press for the truth.",
+              type: "future",
+              emotional_weight: 4,
+              tags: ["resolve"],
+            },
+          ],
+        },
+        FRACTAL: {
+          vector_append: [
+            {
+              content: "The market din turned hostile after the guard's announcement.",
+              type: "past",
+              emotional_weight: 3,
+              tags: ["atmosphere"],
+            },
+          ],
         },
       };
 
@@ -398,44 +408,40 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.forge_memory(targets(), [{ role: "user", content: "test" }]);
 
-      expect(result?.memories?.AI_CHARACTER?.content).toContain("Viper");
-      expect(result?.memories?.USER_PERSONA?.content).toContain("Ghost");
-      expect(result?.memories?.FRACTAL?.content).toContain("market");
-      expect(result?.memories?.AI_CHARACTER?.content).not.toBe(result?.memories?.USER_PERSONA?.content);
-      expect(result?.memories?.AI_CHARACTER?.timestamp).toBe(Date.now());
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.content).toContain("Viper");
+      expect(result?.vectors?.USER_PERSONA?.[0]?.content).toContain("Ghost");
+      expect(result?.vectors?.FRACTAL?.[0]?.content).toContain("market");
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.content).not.toBe(result?.vectors?.USER_PERSONA?.[0]?.content);
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.timestamp).toBe(Date.now());
     });
 
     it("preserves future and present types while normalizing invalid types to past", async () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
-          memories: {
-            AI_CHARACTER: { content: "Prophecy", type: "future" },
-            USER_PERSONA: { content: "Directive", type: "present" },
-            FRACTAL: { content: "Odd", type: "prophecy" },
-          },
+          AI_CHARACTER: { vector_append: [{ content: "Prophecy", type: "future" }] },
+          USER_PERSONA: { vector_append: [{ content: "Directive", type: "present" }] },
+          FRACTAL: { vector_append: [{ content: "Odd", type: "prophecy" }] },
         }),
       );
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.type).toBe("future");
-      expect(result?.memories?.USER_PERSONA?.type).toBe("present");
-      expect(result?.memories?.FRACTAL?.type).toBe("past");
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.type).toBe("future");
+      expect(result?.vectors?.USER_PERSONA?.[0]?.type).toBe("present");
+      expect(result?.vectors?.FRACTAL?.[0]?.type).toBe("past");
     });
 
     it("skips embeddings for present directives", async () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
-          memories: {
-            AI_CHARACTER: { content: "Now", type: "present" },
-            USER_PERSONA: { content: "Later", type: "future" },
-          },
+          AI_CHARACTER: { vector_append: [{ content: "Now", type: "present" }] },
+          USER_PERSONA: { vector_append: [{ content: "Later", type: "future" }] },
         }),
       );
 
       const result = await temporal_engine.forge_memory(targets(), []);
-      expect(result?.memories?.AI_CHARACTER?._embedding).toBeUndefined();
-      expect(result?.memories?.USER_PERSONA?._embedding).toBeInstanceOf(Float32Array);
+      expect(result?.vectors?.AI_CHARACTER?.[0]?._embedding).toBeUndefined();
+      expect(result?.vectors?.USER_PERSONA?.[0]?._embedding).toBeInstanceOf(Float32Array);
     });
 
     it("falls back to a legacy shared directive when the LLM returns the old schema", async () => {
@@ -445,33 +451,31 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.content).toBe("A significant event happened.");
-      expect(result?.memories?.USER_PERSONA?.content).toBe("A significant event happened.");
-      expect(result?.memories?.FRACTAL?.content).toBe("A significant event happened.");
-      expect(result?.memories?.AI_CHARACTER?.emotional_weight).toBe(7);
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.content).toBe("A significant event happened.");
+      expect(result?.vectors?.USER_PERSONA?.[0]?.content).toBe("A significant event happened.");
+      expect(result?.vectors?.FRACTAL?.[0]?.content).toBe("A significant event happened.");
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.emotional_weight).toBe(7);
     });
 
     it("handles malformed LLM JSON via non-greedy extraction", async () => {
-      const json_str = JSON.stringify({ memories: { AI_CHARACTER: { content: "First object" } } });
+      const json_str = JSON.stringify({ AI_CHARACTER: { vector_append: [{ content: "First object" }] } });
       vi.mocked(llm_service.generate).mockResolvedValue(`Noise before ${json_str} noise after`);
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.content).toBe("First object");
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.content).toBe("First object");
     });
 
     it("handles nested JSON structures robustly", async () => {
       const nested_memory = {
-        memories: {
-          AI_CHARACTER: { content: "Event with nested info.", details: { depth: 2, meta: "data" } },
-        },
+        AI_CHARACTER: { vector_append: [{ content: "Event with nested info.", details: { depth: 2, meta: "data" } }] },
       };
       const response = `Here is the JSON: ${JSON.stringify(nested_memory)} and some noise.`;
       vi.mocked(llm_service.generate).mockResolvedValue(response);
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.content).toBe("Event with nested info.");
+      expect(result?.vectors?.AI_CHARACTER?.[0]?.content).toBe("Event with nested info.");
     });
 
     it("returns null when no entity targets are provided", async () => {
@@ -537,11 +541,9 @@ describe("temporal_engine", () => {
 
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
-          memories: {
-            AI_CHARACTER: { content: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 },
-            USER_PERSONA: { content: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 },
-            FRACTAL: { content: "Nova City is on the brink of a blackout.", type: "present", emotional_weight: 3 },
-          },
+          AI_CHARACTER: { vector_append: [{ content: "Viper learned to trust Ghost.", type: "past", emotional_weight: 6 }] },
+          USER_PERSONA: { vector_append: [{ content: "Ghost plans to confront the warden.", type: "future", emotional_weight: 4 }] },
+          FRACTAL: { present_consolidated: { non_physical: "Nova City is on the brink of a blackout." } },
         }),
       );
 
