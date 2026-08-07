@@ -1,6 +1,7 @@
 import {
   coerce_temporal_array,
   create_new,
+  detox_prose,
   ENTITY_TEMPLATES,
   format_premade,
   get_random_signature_key,
@@ -39,7 +40,8 @@ describe("content-normaliser.js", () => {
         type: "character",
         eternal: { physical: "", non_physical: "" },
         present: { physical: "", non_physical: "" },
-        vectors: [],
+        past: [],
+        future: [],
         modifiers: {
           prompt: "",
           negative_prompt: "",
@@ -93,6 +95,7 @@ describe("content-normaliser.js", () => {
         flipped: true,
         profile_picture_seed: 123,
         last_generated_seed: null,
+        color_name: "",
       });
     });
 
@@ -247,5 +250,33 @@ describe("content-normaliser.js", () => {
       expect(fractals[0].type).toBe("fractal");
       expect(fractals[0].name).toBe("Solaris's Realm");
     });
+  });
+});
+
+describe("detox_prose()", () => {
+  it("should scrub classic AI tropes", () => {
+    expect(detox_prose("The air tastes of ozone and the room hums.")).not.toMatch(/ozone|hums/i);
+    expect(detox_prose("He murmured softly, a testament to his restraint.")).not.toMatch(/murmur|testament/i);
+    expect(detox_prose("A rich tapestry of emotion, a symphony of breath.")).not.toMatch(/tapestry|symphony/i);
+  });
+
+  it("should scrub Reddit-reported AI-isms", () => {
+    expect(detox_prose("His obsidian eyes stared into the void.")).not.toMatch(/obsidian|void/i);
+    expect(detox_prose("She stood frozen, white knuckles on the rail.")).not.toMatch(/frozen|white knuckles/i);
+    expect(detox_prose("The sky was bruised purple in amber light.")).not.toMatch(/bruised purple|amber light/i);
+    expect(detox_prose("Old parchment rustled; once in a blue moon.")).not.toMatch(/parchment|blue moon/i);
+    expect(detox_prose("Crimson lips, iridescent scales, a spatial disturbance.")).not.toMatch(/crimson|iridescent|spatial disturbance/i);
+    expect(detox_prose("He let out a breath he didn't realize he was holding.")).not.toMatch(/realize.*holding|realized.*holding/i);
+    expect(detox_prose("They were merging their molecules together.")).not.toMatch(/merging their molecules/i);
+  });
+
+  it("should not mangle ordinary prose", () => {
+    const plain = "He smiled and the door swung open. She sighed and looked up.";
+    expect(detox_prose(plain)).toBe(plain);
+  });
+
+  it("should not touch non-cliché usages", () => {
+    expect(detox_prose("He leaned in the doorway, watching her.")).toContain("leaned in the doorway");
+    expect(detox_prose("The room was devoid of light.")).toContain("devoid of");
   });
 });

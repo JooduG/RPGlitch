@@ -64,7 +64,7 @@ export const seed_premades = async () => {
 // ============================================================================
 
 /**
- * Maps `_embedding` on vectors through a transform without mutating
+ * Maps `_embedding` on temporal vectors (past/future, plus legacy `vectors`) through a transform without mutating
  * the input. Missing embeddings are dropped so corrupt/empty values never persist.
  * @param {any} entity
  * @param {(emb: any) => any} transform
@@ -73,15 +73,17 @@ export const seed_premades = async () => {
 function _map_vector_embeddings(entity, transform) {
   if (!entity || typeof entity !== "object") return entity;
   const out = { ...entity };
-  if (!Array.isArray(out.vectors)) return out;
-  out.vectors = out.vectors.map((v) => {
-    if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
-    const mapped = transform(v._embedding);
-    if (mapped) return { ...v, _embedding: mapped };
-    const copy = { ...v };
-    delete copy._embedding;
-    return copy;
-  });
+  for (const key of ["past", "future", "vectors"]) {
+    if (!Array.isArray(out[key])) continue;
+    out[key] = out[key].map((v) => {
+      if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
+      const mapped = transform(v._embedding);
+      if (mapped) return { ...v, _embedding: mapped };
+      const copy = { ...v };
+      delete copy._embedding;
+      return copy;
+    });
+  }
   return out;
 }
 

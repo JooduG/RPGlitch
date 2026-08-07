@@ -26,7 +26,9 @@ export const PROTOCOL_LIBRARY = {
     MARKDOWN: 'Use markdown strategically: *italics* for internal reflections/tension; **bold** for impact/intense actions; "quotes" for speech.',
     DATA: `${BASE_HYGIENE} Enforce strict professional brevity. No dialogue, internal thoughts, or roleplay scenes. Output ONLY objective structural data.`,
     BANNED_TROPES:
-      "Never use overused AI prose tropes (e.g., 'hum/humming', 'murmur/murmuring', 'air tastes of ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth'). Write concrete, grounded physical actions.",
+      "Never use overused AI prose tropes. A post-processing filter actively rewrites the offenders below, so they will not survive to the page: 'hum/humming', 'murmur/murmuring', 'purr/purred', 'rasp/raspy', 'bellow/boom', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules'. Write concrete, grounded physical actions in specific, plain language.",
+    PROSE_STRUCTURE:
+      "Avoid sentence-level AI tics the filter cannot fix: the denial-then-affirmation formula ('X didn't just Y; it Z'd', 'Not X... not Y... Z.', 'it didn't X, but Y'); pseudo-profound gibberish ('the ink was dry but the numbers still screaming'); self-answering dialogue ('Tomato? Some sort of red fruit...?'); recycled fantasy names (Elara, Kaelen, Valerius, Thorne, Xylos-Tarn, Julian — use natural, varied names); anachronisms (wrist watches, cufflinks) unless the setting supports them; thesaurized similes and metaphors; and em-dash overuse.",
   },
 
   // ── 2. Narrative Agency & Perspective ──────────────────────────────────────

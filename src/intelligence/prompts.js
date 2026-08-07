@@ -369,6 +369,8 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
     "HYGIENE.MARKDOWN",
     "AGENCY.INITIATIVE",
     "HYGIENE.CONCISENESS",
+    "HYGIENE.BANNED_TROPES",
+    "HYGIENE.PROSE_STRUCTURE",
     "AGENCY.FICTIONAL_LICENSE",
     meta?.is_opening_turn || (Array.isArray(compressed_snapshot?.flags) && compressed_snapshot.flags.includes("FIRST_CONTACT"))
       ? "AGENCY.FIRST_CONTACT"
@@ -525,7 +527,7 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   <PROTOCOLS>
-    ${ind(prompt_builder.render_protocols("COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, AGENCY.FICTIONAL_LICENSE"), 4)}
+    ${ind(prompt_builder.render_protocols("COGNITION.PHASES, AGENCY.PRESENT_TENSE, HYGIENE.PROSE, AGENCY.MOMENTUM, HYGIENE.MARKDOWN, HYGIENE.BANNED_TROPES, HYGIENE.PROSE_STRUCTURE, AGENCY.FICTIONAL_LICENSE"), 4)}
   </PROTOCOLS>
 </SYSTEM>
   `).trim();
