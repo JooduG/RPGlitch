@@ -13,3 +13,4 @@ export {
 export { premade } from "./presets/premades.js";
 export { NARRATIVE_STYLES } from "./presets/narrative-styles.js";
 export { VISUAL_STYLES } from "./presets/visual-styles.js";
+export { PROTOCOL_LIBRARY } from "./presets/protocols.js";

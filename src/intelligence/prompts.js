@@ -4,15 +4,14 @@
  * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
-import { ind, PROTOCOL_LIBRARY, prompt_escape, state_bridge } from "@utils";
-import { NARRATIVE_STYLES } from "@data";
-import { DYNAMICS_META } from "./dynamics.js";
-import { build_signals_xml } from "./signals.js";
+import { ind, prompt_escape, state_bridge } from "@utils";
+import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
+import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
 
-// PROTOCOL_LIBRARY is now defined in @utils/protocols.js and re-exported here.
+// PROTOCOL_LIBRARY is now defined in @data/presets/protocols.js and re-exported here.
 // This allows both @intelligence and @media to share the same catalog without
 // cross-layer import violations.
 

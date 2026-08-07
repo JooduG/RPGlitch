@@ -1,6 +1,5 @@
 import { db, entities } from "@data";
-import { SESSION_ID_KEY } from "@engine";
-import { load_session_checkpoint, clear_session_checkpoint } from "@engine/session-checkpoint.js";
+import { SESSION_ID_KEY, load_session_checkpoint, clear_session_checkpoint } from "@engine";
 import { temporal_engine } from "@intelligence";
 import { app } from "./app.svelte.js";
 // We split the large state object into cohesive internal modules:

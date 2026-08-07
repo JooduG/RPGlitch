@@ -9,6 +9,13 @@ vi.mock("@data", () => ({
   },
   detox_prose: (text) => text,
   entities: {},
+  PROTOCOL_LIBRARY: {
+    OPTICS: {
+      NEGATIVE_PROMPT: "blurry, low quality, watermark, distorted",
+      BUILDER_PROTOCOL: "<VISUAL_ENGINE>Emit a structured visual build directive.</VISUAL_ENGINE>",
+    },
+    FORMATS: { JSON_ONLY: "Return ONLY valid JSON." },
+  },
   VISUAL_STYLES: {
     none: { id: "none", name: "No Visual Style", category: "None", tags: ["none"], visual_engine: "", negative_prompt: "" },
   },
@@ -40,13 +47,6 @@ vi.mock("@utils", () => ({
     } catch {
       return { __raw_prose__: raw };
     }
-  },
-  PROTOCOL_LIBRARY: {
-    OPTICS: {
-      NEGATIVE_PROMPT: "blurry, low quality, watermark, distorted",
-      BUILDER_PROTOCOL: "<VISUAL_ENGINE>Emit a structured visual build directive.</VISUAL_ENGINE>",
-    },
-    FORMATS: { JSON_ONLY: "Return ONLY valid JSON." },
   },
   state_bridge: {
     runtime: {

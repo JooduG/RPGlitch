@@ -4,8 +4,8 @@
  * Optimized for FLUX.1 (Rectified Flow), T5-XXL text encoders, and Perchance parameter injection.
  */
 
-import { VISUAL_STYLES, detox_prose } from "@data";
-import { PROTOCOL_LIBRARY, escape_xml, prompt_escape, safe_parse_pseudo_json, state_bridge } from "@utils";
+import { VISUAL_STYLES, PROTOCOL_LIBRARY, detox_prose } from "@data";
+import { escape_xml, prompt_escape, safe_parse_pseudo_json, state_bridge } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**
@@ -284,7 +284,7 @@ export const AestheticResolver = {
   },
 };
 
-// Protocol constants now sourced from @utils/protocols.js (PROTOCOL_LIBRARY)
+// Protocol constants now sourced from @data/presets/protocols.js (PROTOCOL_LIBRARY)
 const JSON_OUTPUT_PROTOCOL = PROTOCOL_LIBRARY.FORMATS.JSON_ONLY;
 
 /**
@@ -448,6 +448,24 @@ export const get_resolution = (mode) => {
       return { width: 768, height: 768 };
   }
 };
+
+/**
+ * Maps an entity's chaos axis (0-100) onto an image guidance scale for
+ * automatic/inline image beats.
+ *   chaos 0   (max control)  → +3 guidance (faithful, literal)
+ *   chaos 100 (max chaos)    → −3 guidance (loose, interpretive)
+ * The result is clamped to a safe range so wild scenes never degrade into
+ * garbled imagery and controlled scenes never over-lock composition.
+ * @param {number} [chaos] - 0-100 chaos axis value; unknown/neutral falls back to base.
+ * @param {number} [base=8] - The shot-type default guidance (character 9 / scene 7).
+ * @returns {number}
+ */
+export function chaos_to_guidance_scale(chaos, base = 8) {
+  if (!Number.isFinite(chaos)) return base;
+  const c = Math.max(0, Math.min(100, chaos));
+  const delta = Math.round(((50 - c) / 100) * 6 * 10) / 10;
+  return Math.max(4, Math.min(14, Math.round((base + delta) * 10) / 10));
+}
 
 /**
  * Formats Perchance parameter injection blocks for resolution and seed control.

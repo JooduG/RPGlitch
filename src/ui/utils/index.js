@@ -13,4 +13,3 @@ export * from "./stream-bridge.js";
 export * from "./state-bridge.js";
 export * from "./text.js";
 export * from "./vectors.js";
-export { PROTOCOL_LIBRARY } from "./protocols.js";

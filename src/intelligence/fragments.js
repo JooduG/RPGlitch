@@ -38,8 +38,8 @@ export const NAME_PREFIXES = [
   "prof.",
 ];
 
-/** Shared sorting directive — now sourced from @utils/protocols.js (PROTOCOL_LIBRARY.PROFILE.SCHEMA). */
-import { PROTOCOL_LIBRARY } from "@utils";
+/** Shared sorting directive — now sourced from @data/presets/protocols.js (PROTOCOL_LIBRARY.PROFILE.SCHEMA). */
+import { PROTOCOL_LIBRARY } from "@data";
 
 /**
  * Canonical taxonomy of all entity fields, grouped by temporal section.

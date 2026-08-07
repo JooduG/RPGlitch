@@ -1,5 +1,5 @@
 /**
- * src/ui/utils/protocols.js
+ * src/data/presets/protocols.js
  * 📖 PROTOCOL LIBRARY — Centralized Prompt Directive Catalog
  *
  * Single source of truth for all reusable AI prompt directives.
