@@ -647,7 +647,7 @@ export const gamemaster = {
       }
 
       if (image_trigger_active && image_tier) {
-        let trigger_prompt = [input, clean_think(director_data.internal_monologue), clean_think(director_data.intent)]
+        let trigger_prompt = [input, clean_think(director_data._thought_process), clean_think(director_data.directive)]
           .filter(Boolean)
           .join(" ")
           .trim();
@@ -676,7 +676,7 @@ export const gamemaster = {
       state_bridge.app.log("[GameMaster] Routing to LLM (Character Pass)...", "system");
       state_bridge.runtime.turn_type = "AI_TURN";
 
-      let director_monologue = director_data.internal_monologue && think_content ? `<think>\n${think_content}\n</think>\n\n` : "";
+      const director_monologue = think_content ? `<think>\n${think_content}\n</think>\n\n` : "";
 
       if (director_monologue) {
         state_bridge.app.streaming.content = director_monologue;
@@ -708,11 +708,7 @@ export const gamemaster = {
             },
           );
 
-          let clean_generated = generated_text || "";
-          if (director_monologue && clean_generated.trim().startsWith("<think>")) {
-            clean_generated = clean_generated.replace(/^<think>[\s\S]*?<\/think>\s*/i, "");
-          }
-          const full_text = director_monologue + clean_generated;
+          const full_text = (director_monologue || "") + (generated_text || "");
 
           const v_result = validate_and_repair_response(full_text);
           if (v_result.refused) {

@@ -28,6 +28,7 @@ const protocols_cache = new Map();
 
 const DIRECTOR_JSON_SCHEMA = `{
   "_thought_process": "<step-by-step state evaluation>",
+  "directive": "<Optional short stage direction for the AI_CHARACTER this turn: a subtle in-character cue that weaves the active PAST / FUTURE / ETERNAL threads (theirs, the user's, and the fractal's) into the character's behavior. Never reveal another entity's hidden agenda as fact — cue it through atmosphere, body language, and situation only. Empty string when no directive is warranted.>",
   "AI_CHARACTER": {
     "present_append": {
       "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none] [CLOTHING: bare] [PANTS: unzipped/exposed]), or empty string.",
@@ -253,6 +254,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
         <PHYSICAL>${val(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PHYSICAL>
         <NON_PHYSICAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
       </ETERNAL>
+      <PAST>${ind(render_atom.past(entities?.AI, { vector_text: true }), 8)}</PAST>
       <FUTURE>${ind(render_atom.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
@@ -264,6 +266,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
         <PHYSICAL>${val(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PHYSICAL>
         <NON_PHYSICAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
       </ETERNAL>
+      <PAST>${ind(render_atom.past(entities?.USER, { vector_text: true }), 8)}</PAST>
       <FUTURE>${ind(render_atom.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
@@ -279,6 +282,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
       <PHYSICAL>${val(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</PHYSICAL>
       <NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
     </ETERNAL>
+    <PAST>${ind(render_atom.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
     <FUTURE>${ind(render_atom.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </FRACTAL>`.trim()
       : ""
@@ -313,6 +317,7 @@ ${(() => {
     STATE & CONTINUITY GUIDANCE:
       - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed vector_append and present_append that move toward them so they materialize as the character's own actions.
       - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or SNAPSHOT, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
+      - Compose the "directive" key as your narrative voice into the AI character's turn: weave the active <PAST>, <FUTURE>, and <ETERNAL> threads across the AI character, user persona, and fractal into a short, subtle in-character cue. Keep it deniable and atmospheric — never state hidden agendas as fact, never deliver exposition the character could not have inferred. Empty string when nothing is warranted.
       - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
   </TASK>
   `).trim();
@@ -344,9 +349,17 @@ function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
   return `    <FUTURE>${ind(prompt_builder.parse_macros(formatted, entity, entities), 6)}</FUTURE>`;
 }
 
-function render_character({ round, entities, input, compressed_snapshot, meta, render_atom, ghostwrite = false }) {
+function render_character({ round, entities, input, compressed_snapshot, meta, render_atom, ghostwrite = false, director_data }) {
   const pov_protocol = resolve_pov_protocol(entities?.AI);
   const has_user_action = !!input?.trim();
+
+  const director_note = director_data?.directive?.trim()
+    ? `<DIRECTOR_NOTE>
+      ${ind(escape_xml(director_data.directive.trim()), 6)}
+      Treat this as an unseen stage direction: weave it into your behavior subtly and in character. Never mention the note, never break the scene, and never present another entity's hidden agenda as known fact.
+    </DIRECTOR_NOTE>
+    `
+    : "";
 
   const protocols = [
     "COGNITION.PHASES",
@@ -416,6 +429,7 @@ ${build_ai_future_xml(entities?.AI, render_atom._context, entities)}
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK>
+    ${director_note}
     <THINK_FORMAT>
     ${PROTOCOL_LIBRARY.COGNITION.THINK_CHARACTER}
     </THINK_FORMAT>

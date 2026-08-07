@@ -339,6 +339,59 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).not.toContain("<PROSE>");
       expect(result.system).not.toContain("<PHASES>");
     });
+
+    it("should include PAST state for all active entities in the Director prompt", () => {
+      const payload = {
+        round: 1,
+        entities: {
+          AI: {
+            name: "Viper",
+            present: {},
+            eternal: {},
+            past: [{ directive: "Viper past thread" }],
+            future: [],
+          },
+          USER: {
+            name: "Ghost",
+            present: {},
+            eternal: {},
+            past: [{ directive: "Ghost past thread" }],
+            future: [],
+          },
+          FRACTAL: {
+            name: "Void",
+            present: {},
+            eternal: {},
+            past: [{ directive: "Void past thread" }],
+            future: [],
+          },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
+
+      const result = prompt_builder.build_director_prompt(payload, snapshot);
+
+      expect(result.system).toContain("<PAST>");
+      expect(result.system).toContain("Viper past thread");
+      expect(result.system).toContain("Ghost past thread");
+      expect(result.system).toContain("Void past thread");
+    });
+
+    it("should include the directive schema key in the Director JSON schema", () => {
+      const payload = {
+        round: 1,
+        entities: { AI: { name: "Viper" }, USER: { name: "Ghost" } },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} } };
+
+      const result = prompt_builder.build_director_prompt(payload, snapshot);
+      expect(result.task).toContain('"directive"');
+      expect(result.task).toContain("stage direction");
+    });
   });
 
   describe("Integration: XML Block Verification", () => {
@@ -602,6 +655,71 @@ describe("prompt_builder (Refactored)", () => {
 
       const dir_result = prompt_builder.build_director_prompt(mock_payload, mock_snapshot);
       expect(dir_result.system).not.toContain("</USER_ACTION>");
+    });
+
+    it("should render <DIRECTOR_NOTE> into the character task when the Director emits a directive", () => {
+      const mock_payload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const result = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {
+        directive: "The memory of the orphanage fire makes you restless tonight.",
+      });
+
+      expect(result.task).toContain("<DIRECTOR_NOTE>");
+      expect(result.task).toContain("orphanage fire makes you restless tonight");
+      expect(result.task).toContain("unseen stage direction");
+    });
+
+    it("should omit <DIRECTOR_NOTE> when the Director emits no directive", () => {
+      const mock_payload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const with_directive = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {
+        directive: "The memory of the orphanage fire makes you restless tonight.",
+      });
+      const without_directive = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {});
+
+      expect(with_directive.task).toContain("<DIRECTOR_NOTE>");
+      expect(without_directive.task).not.toContain("<DIRECTOR_NOTE>");
+    });
+
+    it("should escape Director directive content before embedding it in the prompt", () => {
+      const mock_payload = {
+        round: 1,
+        entities: {
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+        },
+        simulation_log: [],
+        input: "Hello",
+      };
+      const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+
+      const result = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {
+        directive: "She asks <them> where 'they' went.",
+      });
+
+      expect(result.task).not.toContain("asks <them>");
+      expect(result.task).toContain("&lt;them&gt;");
     });
 
     it("should safely build prompts even if entities.FRACTAL is undefined", () => {

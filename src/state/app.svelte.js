@@ -278,7 +278,7 @@ export class AppStore {
     if (typeof window === "undefined" || !this.settings) return;
     this.settings.dev_grid_visible = this.settings.dev_mode;
     try {
-      await db.kv_settings.put({ id: "rpg_settings", value: $state.snapshot(this.settings) });
+      await db.kv_settings.put({ key: "rpg_settings", value: $state.snapshot(this.settings) });
     } catch (e) {
       console.error("[Security] Settings Save Failed:", e);
     }

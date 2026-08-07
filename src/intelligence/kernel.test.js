@@ -765,6 +765,23 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
     });
 
+    it("streams the director's _thought_process as its own think block and preserves the character's own think block", async () => {
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(
+          JSON.stringify({
+            _thought_process: "The door seals shut behind them.",
+            mutations: { AI_CHARACTER: {} },
+          }),
+        )
+        .mockResolvedValueOnce("<think>The character steadies itself.</think>\nIt moves deeper.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.response).toContain("<think>\n## Reasoning\nThe door seals shut behind them.\n</think>");
+      expect(result.response).toContain("<think>The character steadies itself.</think>");
+      expect(result.response).toContain("It moves deeper.");
+    });
+
     it("handles invalid JSON or missing brackets from Director by falling back to raw internal_monologue", async () => {
       let call_count = 0;
       vi.mocked(llm_service.generate).mockImplementation(async () => {
