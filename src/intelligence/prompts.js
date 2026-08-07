@@ -10,6 +10,7 @@ import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
+import { resolve_vector_pool } from "./vector-pool.js";
 
 // PROTOCOL_LIBRARY is now defined in @data/presets/protocols.js and re-exported here.
 // This allows both @intelligence and @media to share the same catalog without
@@ -324,22 +325,6 @@ ${(() => {
   return { system, task };
 }
 
-function resolve_vector_pool(entity) {
-  if (!entity || typeof entity !== "object") return [];
-  const normalize_item = (v, type) => (v && typeof v === "object" ? { ...v, type, content: v.content || v.directive || v.text || "" } : v);
-  if (Array.isArray(entity.vectors) && entity.vectors.length > 0) {
-    return entity.vectors.map((v) => normalize_item(v, v?.type === "future" ? "future" : "past"));
-  }
-  const pool = [];
-  if (Array.isArray(entity.past)) {
-    for (const v of entity.past) pool.push(normalize_item(v, v?.type === "future" ? "future" : "past"));
-  }
-  if (Array.isArray(entity.future)) {
-    for (const v of entity.future) pool.push(normalize_item(v, v?.type === "past" ? "past" : "future"));
-  }
-  return pool;
-}
-
 function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
   const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
   if (futures.length === 0) return "";
@@ -638,9 +623,7 @@ function render_enhancement_field_context(entity, field_id, content = "") {
 
   if (field_id === "past" || field_id === "future") {
     const type = field_id;
-    const vectors = Array.isArray(entity?.vectors)
-      ? entity.vectors.filter((v) => (type === "future" ? v?.type === "future" : v?.type !== "future"))
-      : [];
+    const vectors = resolve_vector_pool(entity).filter((v) => (type === "future" ? v?.type === "future" : v?.type !== "future"));
     const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
     return clean_xml(`
   <ENTITY_CONTEXT>

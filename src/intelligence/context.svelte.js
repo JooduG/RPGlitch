@@ -22,6 +22,7 @@ import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "./fragments.js";
 import { clean_text, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
+import { resolve_vector_pool } from "./vector-pool.js";
 
 const RAW_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;
@@ -126,9 +127,13 @@ export const context_broker = {
 
     // Resolve active fractal vector via temporal engine
     const active_vector =
-      temporal_engine.format(Array.isArray(clean?.FRACTAL?.vectors) ? clean.FRACTAL.vectors.filter((v) => v?.type === "future") : [], null, {
-        vector_text: true,
-      }) || "Continue the journey.";
+      temporal_engine.format(
+        resolve_vector_pool(clean?.FRACTAL).filter((v) => v?.type === "future"),
+        null,
+        {
+          vector_text: true,
+        },
+      ) || "Continue the journey.";
 
     const entries = [
       { role: "AI", data: clean.AI },
@@ -144,7 +149,8 @@ export const context_broker = {
     // Pre-embed all temporal vectors for semantic scoring (awaited with timeout fallback)
     const all_vectors = [];
     entries.forEach(({ data }) => {
-      if (Array.isArray(data?.vectors) && data.vectors.length) all_vectors.push(...data.vectors);
+      const pool = resolve_vector_pool(data);
+      if (pool.length) all_vectors.push(...pool);
     });
     if (all_vectors.length) {
       await Promise.race([ensure_embeddings(all_vectors).catch(() => {}), new Promise((resolve) => setTimeout(resolve, 30000))]);
@@ -205,7 +211,7 @@ export const context_broker = {
         fragments,
         eternal: fragments.eternal,
         present: fragments.present,
-        vectors: raw.vectors,
+        vectors: resolve_vector_pool(raw),
         dynamics: raw.dynamics,
         dynamicsBaseline: raw.dynamicsBaseline,
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
@@ -262,7 +268,7 @@ export const context_broker = {
    * @returns {Promise<void>}
    */
   async manage_vector_lifecycle(entity) {
-    const futures = Array.isArray(entity?.vectors) ? entity.vectors.filter((v) => v?.type === "future") : [];
+    const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
     if (futures.length === 0) return;
 
     const vectors_to_resolve = [];

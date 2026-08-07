@@ -295,9 +295,18 @@ function create_runtime_store() {
      */
     complete_vector: (role = "AI") => {
       const entity = api._get_entity_by_role(role);
-      if (!Array.isArray(entity?.vectors)) return;
-      const idx = entity.vectors.findIndex((v) => v?.type === "future");
-      if (idx !== -1) entity.vectors.splice(idx, 1);
+      if (!entity) return;
+      // Remove the active future vector from whichever memory array holds it
+      // (legacy `vectors` first, then new-layer `future`, then `past`).
+      for (const key of ["vectors", "future", "past"]) {
+        const arr = entity[key];
+        if (!Array.isArray(arr)) continue;
+        const idx = arr.findIndex((v) => v?.type === "future");
+        if (idx !== -1) {
+          arr.splice(idx, 1);
+          return;
+        }
+      }
     },
     /**
      * @param {string} role

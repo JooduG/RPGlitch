@@ -9,6 +9,7 @@ import { llm_service } from "@platform";
 import { ensure_embedding, score_by_semantics, cosine_similarity, embed, is_ready } from "./embeddings.svelte.js";
 import { extract_json_block, merge_prose_into_field } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
+import { resolve_vector_pool } from "./vector-pool.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -618,7 +619,7 @@ export const temporal_engine = {
 
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;
-    if (fractal && (!Array.isArray(fractal.vectors) || !fractal.vectors.some((v) => v.type === "future"))) {
+    if (fractal && !resolve_vector_pool(fractal).some((v) => v?.type === "future")) {
       app?.log("[TemporalEngine] Placeholder momentum active (No vectors found)", "system");
     }
   },

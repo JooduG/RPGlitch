@@ -121,6 +121,7 @@ export const normalize = (base = {}) => {
     present = {},
     past = [],
     future = [],
+    vectors = [],
     tags = [],
     signature_color = "",
     profile_picture = "",
@@ -199,6 +200,10 @@ export const normalize = (base = {}) => {
     },
     past: coerce_temporal_vectors(past),
     future: coerce_temporal_vectors(future),
+    // The temporal engine and profile editor keep their working memory list in
+    // the legacy `vectors` array. Preserve it so normalize never wipes memories
+    // that live there (they are read via resolve_vector_pool alongside past/future).
+    vectors: coerce_temporal_vectors(vectors),
 
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
