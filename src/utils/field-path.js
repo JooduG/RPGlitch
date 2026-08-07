@@ -1,5 +1,5 @@
 /**
- * @file src/ui/utils/field-path.js
+ * @file src/utils/field-path.js
  * Dot-path accessors for nested form field binding.
  */
 

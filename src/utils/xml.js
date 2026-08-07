@@ -1,5 +1,5 @@
 /**
- * src/ui/utils/xml.js
+ * src/utils/xml.js
  * 📋 XML ESCAPE UTILITIES
  * Pure, stateless XML escaping helper.
  * ZERO dependencies on any architectural layer.

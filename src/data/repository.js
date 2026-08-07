@@ -11,7 +11,7 @@
 import { db } from "./db.js";
 import { normalize } from "./normalizer.js";
 import { premade } from "./definitions/premades.js";
-import { serialize_embedding, deserialize_embedding } from "@intelligence/vectors.js";
+import { serialize_embedding, deserialize_embedding, generate_uuid } from "@utils";
 
 const error = console.error;
 const premade_entity_map = new Map((premade?.entities || []).map((e) => [e.id, e]));
@@ -125,7 +125,7 @@ export const entities = {
    */
   async upsert(type, entity) {
     try {
-      const id = entity.id || crypto.randomUUID();
+      const id = entity.id || generate_uuid();
       const base = (await db.entities.get(id)) || {};
       // Break the Svelte 5 Proxy chains - deep clone for safety. Embeddings are
       // converted to JSON-safe arrays first so Float32Array survives the round-trip.

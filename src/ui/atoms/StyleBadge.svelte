@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file StyleBadges.svelte
+   * @file src/ui/atoms/StyleBadge.svelte
    * Narrative & visual style indicator squares, sized to match the fractal card width.
    * Rendered underneath the fractal card in storymode/storyboard layouts.
    */

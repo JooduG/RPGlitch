@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/devmode/DataBox.svelte
+   * @file src/ui/atoms/DataBox.svelte
    * 📦 DATABOX ATOM
    * A standardized frosted container for informational blocks.
    * Part of the RPGlitch UI collection.

@@ -6,7 +6,6 @@
  */
 
 export { motion, spring } from "./engine.svelte.js";
-export { pulse, roll, shimmy, spin, stab, kinetic_scroll } from "./kinetic.svelte.js";
+export { pulse, roll, shimmy, stab } from "./kinetic.svelte.js";
 export { typewriter } from "./Typewriter.svelte.js";
 export { default as Typewriter } from "./Typewriter.svelte";
-export { default as FitText } from "./FitText.svelte";

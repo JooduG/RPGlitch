@@ -8,4 +8,3 @@ export { default as ProfileHeader } from "./ProfileHeader.svelte";
 export { default as UnifiedConsole } from "./UnifiedConsole.svelte";
 export { default as Message } from "./Message.svelte";
 export * from "./Profile.svelte.js";
-export { ProfileState } from "./Profile.svelte.js";

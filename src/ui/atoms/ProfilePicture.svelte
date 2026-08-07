@@ -6,7 +6,7 @@
    * Built on bits-ui Avatar for robust loading-state management.
    */
   import { Avatar } from "bits-ui";
-  import { NAME_PREFIXES } from "@intelligence";
+  import { NAME_PREFIXES } from "@data";
   import { get_signature_color } from "@media";
 
   let {

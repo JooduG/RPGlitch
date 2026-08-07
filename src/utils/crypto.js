@@ -1,5 +1,5 @@
 /**
- * src/ui/utils/crypto.js
+ * src/utils/crypto.js
  * 🔐 CRYPTO UTILITIES
  * Pure, stateless cryptographic helper functions.
  * ZERO dependencies on any architectural layer.

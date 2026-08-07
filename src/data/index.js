@@ -19,3 +19,11 @@ export {
 export { premade } from "./definitions/premades.js";
 export { NARRATIVE_STYLES } from "./definitions/narrative-styles.js";
 export { VISUAL_STYLES } from "./definitions/visual-styles.js";
+export {
+  ENTITY_FRAGMENTS,
+  ENTITY_CATALOG,
+  PROFILE_SECTIONS_BY_TYPE,
+  NAME_PREFIXES,
+  build_profile_sections,
+  format_key_as_label,
+} from "./definitions/fragments.js";

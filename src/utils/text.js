@@ -1,5 +1,5 @@
 /**
- * src/ui/utils/text.js
+ * src/utils/text.js
  * 📝 TEXT UTILITIES
  * Pure, stateless text formatting helpers.
  * ZERO dependencies on any architectural layer.

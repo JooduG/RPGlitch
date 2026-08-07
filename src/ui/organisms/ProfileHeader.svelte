@@ -7,7 +7,7 @@
    */
 
   import { auto_resize } from "@utils";
-  import { ENTITY_FRAGMENTS } from "@intelligence";
+  import { ENTITY_FRAGMENTS } from "@data";
   import { GlassWrapper } from "@atoms";
 
   // --- PROP MATRIX BOUNDARIES ---

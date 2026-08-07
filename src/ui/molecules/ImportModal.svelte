@@ -4,6 +4,7 @@
   import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
   import { create_new } from "@data";
   import { llm_service, validate_image } from "@platform";
+  import { generate_uuid } from "@utils";
 
   let { open = $bindable(false), target_type: _target_type = "character" } = $props();
 
@@ -174,7 +175,7 @@
               const vector_str = typeof text_str === "string" ? text_str : text_str.content || text_str.directive || JSON.stringify(text_str);
               return {
                 ...temporal_engine.create(vector_str, key),
-                id: crypto.randomUUID(),
+                id: generate_uuid(),
                 emotional_weight: 5,
               };
             });

@@ -4,15 +4,14 @@
    * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import { auto_resize, click_outside } from "@utils";
+  import { auto_resize, click_outside, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown, Label } from "@atoms";
-  import { PROFILE_SECTIONS_BY_TYPE, safe_parse_pseudo_json } from "@intelligence";
   import { get_signature_color } from "@media";
   import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
-  import { NARRATIVE_STYLES, VISUAL_STYLES } from "@data";
+  import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE } from "@data";
   import { get_style_initials } from "@utils";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */

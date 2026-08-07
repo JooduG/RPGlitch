@@ -4,11 +4,11 @@
  * Centralized assembly line for the Intelligence Kernel.
  * Synthesizes simulation state, entities, and memories into XML system schemas.
  */
-import { ind, prompt_escape, state_bridge } from "@utils";
+import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "../data/definitions/fragments.js";
-import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
+import { clean_xml, collapse_history, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 // PROTOCOL_LIBRARY is defined in @data/definitions/protocols.js and re-exported here
@@ -90,27 +90,6 @@ ${definitions}
 </DYNAMICS_LEGEND>`.trim();
 
   return cached_dynamics_legend;
-}
-
-/**
- * Helper to transform physical data to XML nodes.
- * @param {any} raw
- * @param {string} tagName
- * @returns {string}
- */
-function physical_to_xml(raw, tagName) {
-  if (!raw) return "";
-  const parsed = safe_parse_pseudo_json(raw);
-  if (parsed.__raw_prose__) {
-    return `  <${tagName}>${prompt_escape(parsed.__raw_prose__)}</${tagName}>`;
-  }
-  const children = Object.entries(parsed)
-    .map(([k, v]) => {
-      const tag = k.replace(/\s+/g, "_");
-      return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
-    })
-    .join("\n");
-  return `  <${tagName}>\n${children}\n  </${tagName}>`;
 }
 
 /**

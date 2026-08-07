@@ -261,6 +261,3 @@ export class ChronoStore {
   }
 }
 export const Chrono = new ChronoStore();
-if (typeof window !== "undefined") {
-  window.chrono = Chrono;
-}

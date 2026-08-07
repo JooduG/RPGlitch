@@ -5,7 +5,7 @@
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
-import { deserialize_embedding } from "./vectors.js";
+import { deserialize_embedding } from "@utils";
 
 let _pipeline = null;
 let _loading = null;

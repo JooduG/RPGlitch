@@ -1,5 +1,5 @@
 /**
- * src/ui/utils/ui-helpers.js
+ * src/utils/ui-helpers.js
  * 🛠️ UI & CSS RESOLUTION HELPERS
  * Standardized methods for resolving/measuring CSS values and handling Perchance lists.
  */

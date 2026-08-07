@@ -6,7 +6,7 @@
 
 import { detox_prose, NARRATIVE_STYLES } from "@data";
 import { sanitize } from "@platform";
-import { escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
+import { CLOTHING_KEYS, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
@@ -345,28 +345,9 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
 
     // Clothing override protocol: if CLOTHING or specific items are None/Bare/Naked/Off/Removed, strip them from present state
     const is_bare_val = ["none", "bare", "naked", "off", "removed", "disrobed"].includes(val.toLowerCase());
-    const clothing_keys = [
-      "SHIRT",
-      "PANTS",
-      "SUIT",
-      "JACKET",
-      "DRESS",
-      "SKIRT",
-      "COAT",
-      "SHOES",
-      "BOOTS",
-      "GLOVES",
-      "HAT",
-      "ARMOR",
-      "ROBE",
-      "CLOAK",
-      "BOTTOMS",
-      "TOPS",
-      "ACCESSORIES",
-    ];
 
     if (key === "CLOTHING" && is_bare_val) {
-      for (const ck of clothing_keys) {
+      for (const ck of CLOTHING_KEYS) {
         if (parsed[ck]) {
           delete parsed[ck];
         }
@@ -375,7 +356,7 @@ export const merge_prose_into_field = (current_field_value, new_prose) => {
       continue;
     }
 
-    if (clothing_keys.includes(key) && is_bare_val) {
+    if (CLOTHING_KEYS.includes(key) && is_bare_val) {
       delete parsed[key];
       continue;
     }

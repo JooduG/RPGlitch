@@ -5,7 +5,7 @@
  */
 
 import { VISUAL_STYLES, PROTOCOL_LIBRARY, detox_prose } from "@data";
-import { escape_xml, prompt_escape, safe_parse_pseudo_json, state_bridge } from "@utils";
+import { escape_xml, prompt_escape, safe_parse_pseudo_json, state_bridge, physical_to_xml, CLOTHING_KEYS } from "@utils";
 import { get_signature_label } from "./tokens.js";
 
 /**
@@ -170,26 +170,7 @@ function build_aesthetic_map(entity = {}) {
   // If present state declares clothing as None or Bare, strip all eternal clothing tags
   const clothing_val = (merged.CLOTHING || merged.SHIRT || "").toString().toLowerCase();
   if (clothing_val === "none" || clothing_val === "bare" || clothing_val === "naked") {
-    const clothing_keys = [
-      "SHIRT",
-      "PANTS",
-      "SUIT",
-      "JACKET",
-      "DRESS",
-      "SKIRT",
-      "COAT",
-      "SHOES",
-      "BOOTS",
-      "GLOVES",
-      "HAT",
-      "ARMOR",
-      "ROBE",
-      "CLOAK",
-      "BOTTOMS",
-      "TOPS",
-      "ACCESSORIES",
-    ];
-    for (const ck of clothing_keys) {
+    for (const ck of CLOTHING_KEYS) {
       if (merged[ck] && merged[ck].toString().toLowerCase() !== clothing_val) {
         // Only strip if this key was NOT explicitly defined in the present state
         if (!(ck in present_obj)) {
@@ -298,21 +279,6 @@ export const PromptTemplates = {
 
     let ctxBlock;
     let subject;
-
-    const physical_to_xml = (raw, tagName) => {
-      if (!raw) return "";
-      const parsed = safe_parse_pseudo_json(raw);
-      if (parsed.__raw_prose__) {
-        return `  <${tagName}>${prompt_escape(parsed.__raw_prose__)}</${tagName}>`;
-      }
-      const children = Object.entries(parsed)
-        .map(([k, v]) => {
-          const tag = k.replace(/\s+/g, "_");
-          return `    <${tag}>${prompt_escape(String(v))}</${tag}>`;
-        })
-        .join("\n");
-      return `  <${tagName}>\n${children}\n  </${tagName}>`;
-    };
 
     const render_entity = (tagStr, ent) => {
       if (!ent) return "";
@@ -433,34 +399,3 @@ export const get_resolution = (mode) => {
       return { width: 768, height: 768 };
   }
 };
-
-/**
- * Maps an entity's chaos axis (0-100) onto an image guidance scale for
- * automatic/inline image beats.
- *   chaos 0   (max control)  → +3 guidance (faithful, literal)
- *   chaos 100 (max chaos)    → −3 guidance (loose, interpretive)
- * The result is clamped to a safe range so wild scenes never degrade into
- * garbled imagery and controlled scenes never over-lock composition.
- * @param {number} [chaos] - 0-100 chaos axis value; unknown/neutral falls back to base.
- * @param {number} [base=8] - The shot-type default guidance (character 9 / scene 7).
- * @returns {number}
- */
-export function chaos_to_guidance_scale(chaos, base = 8) {
-  if (!Number.isFinite(chaos)) return base;
-  const c = Math.max(0, Math.min(100, chaos));
-  const delta = Math.round(((50 - c) / 100) * 6 * 10) / 10;
-  return Math.max(4, Math.min(14, Math.round((base + delta) * 10) / 10));
-}
-
-/**
- * Formats Perchance parameter injection blocks for resolution and seed control.
- * @param {string} mode
- * @param {number|string} [seed]
- * @returns {string}
- */
-export function format_perchance_params(mode, seed = null) {
-  const { width, height } = get_resolution(mode);
-  const res_param = `(resolution:::${width}x${height})`;
-  const seed_param = seed !== null && seed !== undefined ? ` (seed:::${seed})` : "";
-  return `${res_param}${seed_param}`;
-}
