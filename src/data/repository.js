@@ -7,6 +7,7 @@
  * @property {string} fractal_profile_picture
  * @property {string} fractal_name
  * @property {string} signature_color
+ * @property {number} [is_concluded] - Truthy once the story has been ended (epilogue delivered).
  */
 import { db } from "./db.js";
 import { normalize } from "./normalizer.js";
@@ -186,6 +187,36 @@ export const entities = {
 // ============================================================================
 // 3. STORIES (The Narrative Archive)
 // ============================================================================
+/**
+ * The stories table uses numeric auto-increment keys, but session persistence
+ * stores the ID as a string. Prevents silent lookup failures (mirrors the
+ * coerce_story_key helper in the runtime state).
+ * @param {string | number} id
+ * @returns {string | number}
+ */
+const coerce_story_key = (id) => {
+  if (typeof id === "string" && /^\d+$/.test(id)) return Number(id);
+  return id;
+};
+
+/**
+ * Resolves the set of story ids whose log already contains an epilogue entry.
+ * The epilogue is the app's semantic conclusion marker, so pre-existing stories
+ * (created before the `is_concluded` field existed) still report as concluded.
+ * @param {(string | number)[]} story_ids
+ * @returns {Promise<Set<string>>}
+ */
+async function _epilogue_story_ids(story_ids) {
+  const ids = [...new Set(story_ids.flatMap((id) => [String(id), id]))];
+  if (ids.length === 0) return new Set();
+  const entries = await db.simulation_log.where("story_id").anyOf(ids).toArray();
+  const out = new Set();
+  for (const entry of entries) {
+    if (entry?.meta?.is_epilogue) out.add(String(entry.story_id));
+  }
+  return out;
+}
+
 export const stories = {
   /**
    * Lists all stories with associated fractal metadata.
@@ -203,14 +234,17 @@ export const stories = {
         .toArray();
       const fractal_map = new Map(fractals.map((f) => [f.id, f]));
 
+      const epilogue_story_ids = await _epilogue_story_ids(all_stories.map((s) => s.id));
+
       const unique_map = new Map();
       for (const story of all_stories) {
         if (!unique_map.has(story.id)) {
           const fractal = fractal_map.get(story.fractal_id);
+          const is_concluded = story.is_concluded || epilogue_story_ids.has(String(story.id));
           unique_map.set(story.id, {
             id: story.id,
             title: story.title || "Untitled Fragment",
-            state: story.is_concluded ? "concluded" : "active",
+            state: is_concluded ? "concluded" : "active",
             last_played: story.updated_at,
             fractal_profile_picture: fractal?.profile_picture || "",
             fractal_name: fractal?.name || "The Void",
@@ -225,16 +259,45 @@ export const stories = {
     }
   },
   /** @param {any} id */
-  get: (id) => db.stories.get(id),
+  get: (id) => db.stories.get(coerce_story_key(id)),
   /** @param {any} id @param {any} changes */
-  update: (id, changes) => db.stories.update(id, changes),
+  update: (id, changes) => db.stories.update(coerce_story_key(id), changes),
+  /**
+   * Marks a story as concluded after its epilogue has been delivered. Concluded
+   * stories release their entities back to the storyboard lobby.
+   * @param {string | number} id
+   */
+  conclude: (id) => db.stories.update(coerce_story_key(id), { is_concluded: 1 }),
+  /**
+   * Resolves the entity ids currently claimed by active (non-concluded) stories.
+   * A claimed entity may not be re-selected for another story, and its profile
+   * is locked for editing unless DevMode is enabled.
+   * @returns {Promise<string[]>}
+   */
+  async active_entity_ids() {
+    try {
+      const all_stories = await db.stories.toArray();
+      const epilogue_story_ids = await _epilogue_story_ids(all_stories.map((s) => s.id));
+      const claimed = new Set();
+      for (const story of all_stories) {
+        if (story.is_concluded || epilogue_story_ids.has(String(story.id))) continue;
+        for (const key of ["ai_id", "user_id", "fractal_id"]) {
+          if (story[key] != null) claimed.add(String(story[key]));
+        }
+      }
+      return [...claimed];
+    } catch (err) {
+      error("Archive Failure: Failed to resolve active entity claims.", err);
+      return [];
+    }
+  },
   /**
    * Deletes a story and its entire simulation log.
    * @param {any} id
    */
   async delete(id) {
     await db.simulation_log.where("story_id").equals(id).delete();
-    return db.stories.delete(id);
+    return db.stories.delete(coerce_story_key(id));
   },
 };
 

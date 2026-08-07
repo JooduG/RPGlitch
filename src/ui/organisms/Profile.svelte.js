@@ -58,9 +58,32 @@ export class ProfileState {
   }
 
   /**
+   * Whether profile editing is permitted for the active entity.
+   * Locked while the entity is claimed by an active (non-concluded) story,
+   * unless DevMode is explicitly enabled. The profile modal still opens in
+   * read-only mode — only mutation is blocked.
+   * @type {boolean}
+   */
+  get can_edit() {
+    if (app?.settings?.dev_mode) return true;
+    if (!this.char?.id) return true;
+    return !app.claimed_entity_ids?.has(String(this.char.id));
+  }
+
+  /**
+   * True when the active entity is locked for editing.
+   * @type {boolean}
+   */
+  get story_locked() {
+    return !this.can_edit;
+  }
+
+  /**
    * Initiates the editing state transition and resets interaction tracking.
+   * No-op while the entity is locked by an active story.
    */
   start_editing() {
+    if (!this.can_edit) return;
     this._user_mutated = false;
     this.is_editing = true;
   }

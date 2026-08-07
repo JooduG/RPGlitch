@@ -5,9 +5,10 @@
  * ZERO NESTING - Flattened Schema only.
  */
 import { flushSync } from "svelte";
+import { SvelteSet } from "svelte/reactivity";
 import { generate_uuid, resolve_px } from "@utils";
 import { log as engineLog, guarded_transition } from "@engine";
-import { db, entities, normalize } from "@data";
+import { db, entities, stories, normalize } from "@data";
 import { visual_engine, get_signature_color, Audio } from "@media";
 import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
@@ -105,6 +106,13 @@ export class AppStore {
    */
   fractal_list = $state([]);
   entities_loaded = $state(false);
+  /**
+   * Entity ids currently claimed by active (non-concluded) stories. Claimed
+   * entities are excluded from the storyboard lists and their profiles are
+   * locked for editing unless DevMode is enabled. Reactive SvelteSet, mutated
+   * in place by load_entities().
+   */
+  claimed_entity_ids = new SvelteSet();
   /** @type {CardHandState} */
   card_hand = $state({
     open: false,
@@ -328,13 +336,18 @@ export class AppStore {
   }
   /**
    * Hydrates the storyboard lists with characters and fractals.
+   * Entities claimed by active stories are filtered out so they can't be
+   * re-selected for a second story while still in play.
    */
   async load_entities() {
     try {
-      const [characters, fractals] = await Promise.all([entities.list("character"), entities.list("fractal")]);
-      this.ai_list = characters;
-      this.user_list = characters;
-      this.fractal_list = fractals;
+      const [characters, fractals, claimed] = await Promise.all([entities.list("character"), entities.list("fractal"), stories.active_entity_ids()]);
+      this.claimed_entity_ids.clear();
+      for (const id of claimed) this.claimed_entity_ids.add(id);
+      const is_claimed = (/** @type {any} */ entity) => entity?.id != null && claimed.includes(String(entity.id));
+      this.ai_list = characters.filter((c) => !is_claimed(c));
+      this.user_list = characters.filter((c) => !is_claimed(c));
+      this.fractal_list = fractals.filter((f) => !is_claimed(f));
       this.entities_loaded = true;
     } catch (e) {
       console.error("[AppStore] Failed to load lobby entities:", e);

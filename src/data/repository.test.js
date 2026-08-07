@@ -77,3 +77,60 @@ describe("entity embedding persistence", () => {
     expect(raw.past[0]._embedding[0]).toBeCloseTo(0.5);
   });
 });
+
+describe("story entity claims", () => {
+  beforeEach(async () => {
+    vi.resetModules();
+    const Dexie = (await import("dexie")).default;
+    await Dexie.delete("rpglitch");
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("claims entity ids from non-concluded stories and frees them on conclude", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const active = await db.stories.add({ title: "A", ai_id: "c1", user_id: "c2", fractal_id: "f1", round: 3, created_at: 1, updated_at: 1 });
+    await db.stories.add({ title: "B", ai_id: "c3", user_id: "c4", fractal_id: "f2", is_concluded: 1, round: 5, created_at: 2, updated_at: 2 });
+
+    const claimed = await stories.active_entity_ids();
+    expect(claimed.sort()).toEqual(["c1", "c2", "f1"]);
+
+    await stories.conclude(String(active));
+    const after = await stories.active_entity_ids();
+    expect(after).toEqual([]);
+  });
+
+  it("treats stories with an epilogue log entry as concluded (legacy signal)", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const id = await db.stories.add({ title: "Legacy", ai_id: "lx", user_id: "ly", fractal_id: "lz", round: 9, created_at: 1, updated_at: 1 });
+    await db.simulation_log.add({ story_id: String(id), role: "fractal", type: "text", text: "...", meta: { is_epilogue: true }, created_at: 2 });
+
+    const claimed = await stories.active_entity_ids();
+    expect(claimed).toEqual([]);
+
+    const list = await stories.list();
+    expect(list.find((s) => s.id === id).state).toBe("concluded");
+  });
+
+  it("coerces string story ids for conclude and get", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const id = await db.stories.add({ title: "Coerce", ai_id: "x1", user_id: "x2", fractal_id: "x3", round: 1, created_at: 1, updated_at: 1 });
+    await stories.conclude(String(id));
+
+    const record = await stories.get(String(id));
+    expect(record.is_concluded).toBe(1);
+  });
+});

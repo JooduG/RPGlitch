@@ -23,6 +23,8 @@ vi.mock("@state/app.svelte.js", () => ({
     load_entities: vi.fn(),
     ai_list: [],
     fractal_list: [],
+    settings: { dev_mode: false },
+    claimed_entity_ids: { has: vi.fn(() => false) },
   },
 }));
 
@@ -115,5 +117,48 @@ describe("ProfileState enhance_profile", () => {
     expect(state.busy_fields.has("future")).toBe(false);
     expect(state.busy_fields.has("description")).toBe(false);
     expect(state.is_saving).toBe(false);
+  });
+});
+
+describe("ProfileState story editing lock", () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
+  it("blocks start_editing while the entity is claimed by an active story", async () => {
+    const { app } = await import("@state/app.svelte.js");
+    app.settings.dev_mode = false;
+    app.claimed_entity_ids.has = vi.fn(() => true);
+
+    const state = new ProfileState();
+    state.start_editing();
+
+    expect(state.can_edit).toBe(false);
+    expect(state.story_locked).toBe(true);
+    expect(state.is_editing).toBe(false);
+  });
+
+  it("allows editing when the entity is unclaimed", async () => {
+    const { app } = await import("@state/app.svelte.js");
+    app.settings.dev_mode = false;
+    app.claimed_entity_ids.has = vi.fn(() => false);
+
+    const state = new ProfileState();
+    state.start_editing();
+
+    expect(state.can_edit).toBe(true);
+    expect(state.is_editing).toBe(true);
+  });
+
+  it("bypasses the lock when DevMode is enabled", async () => {
+    const { app } = await import("@state/app.svelte.js");
+    app.settings.dev_mode = true;
+    app.claimed_entity_ids.has = vi.fn(() => true);
+
+    const state = new ProfileState();
+    state.start_editing();
+
+    expect(state.can_edit).toBe(true);
+    expect(state.is_editing).toBe(true);
   });
 });

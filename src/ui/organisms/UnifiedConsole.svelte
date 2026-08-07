@@ -106,6 +106,9 @@
     } else {
       simulation_state.unlock();
     }
+    // Refresh the claim set so the resumed story's entities stay locked from
+    // other stories (profile editing + storyboard lists).
+    await app.load_entities();
     app.set_view("storymode");
     app.toggle_control_panel();
   }
@@ -152,6 +155,7 @@
     try {
       await stories.delete(pending_story_delete.id);
       await refresh_stories();
+      await app.load_entities(); // Deleted story releases any entity claims
       app.log(`Story "${pending_story_delete.title}" deleted.`, "system");
       if (String(runtime.story_id) === String(pending_story_delete.id)) {
         await session_driver.clear_active();
@@ -216,9 +220,18 @@
         motion.intensity = 0.4;
         await chrono_engine.start(selection);
         refresh_stories();
+        await app.load_entities();
         return;
       }
       if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
+      const claimed = new Set(await stories.active_entity_ids());
+      const locked = [app.selected_ai, app.selected_user, app.selected_fractal]
+        .filter(Boolean)
+        .find((e) => e.id != null && claimed.has(String(e.id)));
+      if (locked) {
+        app.log(`"${locked.name || "Entity"}" is claimed by an active story — end or delete that story first.`, "error");
+        return;
+      }
       motion.intensity = 0.4;
       await chrono_engine.start({
         ai: app.selected_ai,
@@ -226,6 +239,7 @@
         fractal: app.selected_fractal,
       });
       refresh_stories(); // Ensure list is instantly updated right after creation
+      await app.load_entities(); // Claim the new story's entities immediately
     },
   };
 
@@ -236,6 +250,10 @@
     is_ending_story = true;
     try {
       await gamemaster.execute_epilogue(runtime.story_id);
+      // Conclude the story so its entities are released back to the lobby and
+      // the story card reports "concluded".
+      await stories.conclude(runtime.story_id);
+      await app.load_entities();
       simulation_state.lock();
       refresh_stories();
     } catch (e) {
@@ -460,6 +478,7 @@
                     size="small"
                     onclick={async () => {
                       await session_driver.clear_active();
+                      await app.load_entities(); // Keep lobby lists in sync with active-story claims
                       app.set_view("storyboard");
                     }}
                   />

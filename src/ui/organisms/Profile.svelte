@@ -268,7 +268,7 @@
       if (profile_state.is_editing) {
         footer_el?.focus();
         profile_state.save(entity_type);
-      } else {
+      } else if (profile_state.can_edit) {
         footer_el?.focus();
         profile_state.start_editing();
       }
@@ -525,14 +525,16 @@
               <Button
                 variant="secondary"
                 class="touch-target-coarse"
-                disabled={simulation_state.busy}
+                disabled={simulation_state.busy || !profile_state.can_edit}
+                aria-label={!profile_state.can_edit ? "Edit locked — entity is in an active story. Enable DevMode to override." : "Edit"}
                 onclick={() => {
+                  if (!profile_state.can_edit) return;
                   previous_scroll_top = info_container_el?.scrollTop || 0;
                   profile_state.start_editing();
                   setTimeout(() => {
                     if (info_container_el) info_container_el.scrollTop = previous_scroll_top;
                   }, 0);
-                }}>Edit</Button
+                }}>{profile_state.can_edit ? "Edit" : "Locked"}</Button
               >
             {/if}
           </footer>
