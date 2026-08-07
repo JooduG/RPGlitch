@@ -1,10 +1,3 @@
-<!--
-  RPGlitch — Session Protocol & Handover Specification
-  Purpose: Authoritative guide for initializing, building, and deploying RPGlitch in external sessions and production environments (Perchance).
-  Dependencies: GEMINI.md, DESIGN.md, package.json
-  Rules: Enforce Svelte 5 Runes, Dexie.js local-first storage, and full single-file bundle verification.
--->
-
 # RPGlitch — Session Protocol & Handover Specification
 
 > **System Designation**: Sovereign AI Roleplay Engine  
@@ -135,8 +128,3 @@ Before declaring work complete or deploying to production, execute local verific
 - 📦 **Bundle Integrity**: Validate single-file Vite compilation via `npm run build`.
 - 🚀 **Pre-Flight Quality Gate**: Run `npm run deploy:prepare` to execute full pre-flight quality verification (sync + checks + tests + build).
 - 🌉 **Production Deployment**: Run `npm run deploy:auto` to deploy the single-file production bundle directly to Perchance via Playwright.
-
-<!-- CHANGELOG
-  - 2026-08-07: Updated topography to mirror active codebase reality (added src/engine/, src/data/presets/, full UI atomic layout, media pipelines, Dexie.js persistence layer, and updated verification scripts).
-  - 2026-08-07: Initial session protocol and handover specification created.
--->
