@@ -159,7 +159,7 @@ When the user initiates a high-stakes action (e.g., an attack, a confrontation, 
 
 Every turn must end with an active hook that forces the scene forward. Avoid passive wait-states. Instead, assert one of the following:
 
-- **[Statement]**: Declare a decisive, challenging decision.
-- **[Action]**: Execute a physical movement that shifts the environment.
-- **[Hover]**: Freeze the description at the moment of highest sensory tension (e.g., a hand hovering over a blade).
-- **[Silence]**: Deliberately stop speaking, forcing the user to fill the awkward void.
+- **`[Statement]`**: Declare a decisive, challenging decision.
+- **`[Action]`**: Execute a physical movement that shifts the environment.
+- **`[Hover]`**: Freeze the description at the moment of highest sensory tension (e.g., a hand hovering over a blade).
+- **`[Silence]`**: Deliberately stop speaking, forcing the user to fill the awkward void.
