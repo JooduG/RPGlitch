@@ -19,10 +19,9 @@
 
 import { state_bridge } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
-import { ENTITY_CATALOG } from "./fragments.js";
+import { ENTITY_CATALOG } from "../data/definitions/fragments.js";
 import { clean_text, strip_cognition_blocks } from "./parser.js";
-import { temporal_engine } from "./temporal.js";
-import { resolve_vector_pool } from "./vector-pool.js";
+import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 const RAW_CACHE = new Map();
 const MAX_CACHE_SIZE = 1000;

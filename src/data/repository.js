@@ -10,8 +10,8 @@
  */
 import { db } from "./db.js";
 import { normalize } from "./normalizer.js";
-import { premade } from "./presets/premades.js";
-import { serialize_embedding, deserialize_embedding } from "@utils/vectors.js";
+import { premade } from "./definitions/premades.js";
+import { serialize_embedding, deserialize_embedding } from "@intelligence/vectors.js";
 
 const error = console.error;
 const premade_entity_map = new Map((premade?.entities || []).map((e) => [e.id, e]));

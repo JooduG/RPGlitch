@@ -9,7 +9,8 @@
   import { click_outside } from "@actions";
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
   import { db, stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
-  import { Chrono, pick_random, session_driver } from "@engine";
+  import { pick_random } from "@utils";
+  import { Chrono, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";

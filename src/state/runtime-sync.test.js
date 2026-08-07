@@ -5,7 +5,7 @@ const mock_checkpoint = {
   load_session_checkpoint: vi.fn(() => null),
   clear_session_checkpoint: vi.fn(),
 };
-vi.mock("@engine/session-checkpoint.js", async (importOriginal) => {
+vi.mock("@engine/session.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
     ...actual,

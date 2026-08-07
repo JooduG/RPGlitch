@@ -7,12 +7,11 @@
 import { ind, prompt_escape, state_bridge } from "@utils";
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
-import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
+import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "../data/definitions/fragments.js";
 import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
-import { temporal_engine } from "./temporal.js";
-import { resolve_vector_pool } from "./vector-pool.js";
+import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
-// PROTOCOL_LIBRARY is defined in @data/presets/protocols.js and re-exported here
+// PROTOCOL_LIBRARY is defined in @data/definitions/protocols.js and re-exported here
 // so both @intelligence and @media share the same catalog without cross-layer
 // import violations.
 export { PROTOCOL_LIBRARY };

@@ -14,7 +14,7 @@
 
 import { context_broker } from "../../../../src/intelligence/context.svelte.js";
 import { prompt_builder } from "../../../../src/intelligence/prompts.js";
-import { premade } from "../../../../src/data/presets/premades.js";
+import { premade } from "../../../../src/data/definitions/premades.js";
 
 /**
  * Enriches a vector with category and triggers fields if missing.

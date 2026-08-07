@@ -3,11 +3,10 @@
  * 🧬 PROFILE STATE — Reactive controller for entity editing.
  */
 import { db, normalize } from "@data";
-import { generate_uuid } from "@engine";
 import { prompt_builder, strip_cognition_blocks, temporal_engine } from "@intelligence";
 import { llm_service } from "@platform";
 import { app, runtime } from "@state";
-import { get_value, set_value } from "@utils";
+import { generate_uuid, get_value, set_value } from "@utils";
 import { SvelteSet } from "svelte/reactivity";
 
 const DEFAULT_FIELD = { key: "visual-prompt", label: "Image Prompt" };

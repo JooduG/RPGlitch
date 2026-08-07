@@ -7,7 +7,7 @@
    * 2. Supports direct editing via contenteditable.
    */
   import { tooltip } from "@atoms";
-  import { pick_random } from "@engine";
+  import { pick_random } from "@utils";
   import { get_signature_color } from "@media";
   import { app } from "@state";
 

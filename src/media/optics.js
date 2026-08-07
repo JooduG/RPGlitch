@@ -269,7 +269,7 @@ export const AestheticResolver = {
   },
 };
 
-// Protocol constants now sourced from @data/presets/protocols.js (PROTOCOL_LIBRARY)
+// Protocol constants now sourced from @data/definitions/protocols.js (PROTOCOL_LIBRARY)
 const JSON_OUTPUT_PROTOCOL = PROTOCOL_LIBRARY.FORMATS.JSON_ONLY;
 
 /**

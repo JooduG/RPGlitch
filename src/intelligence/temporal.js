@@ -9,7 +9,6 @@ import { llm_service } from "@platform";
 import { ensure_embedding, score_by_semantics, cosine_similarity, embed, is_ready } from "./embeddings.svelte.js";
 import { extract_json_block, merge_prose_into_field } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
-import { resolve_vector_pool } from "./vector-pool.js";
 
 /**
  * @typedef {import('@state/runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -38,6 +37,33 @@ import { resolve_vector_pool } from "./vector-pool.js";
  * @property {number} RECENCY_FLOOR - Minimum effective recency multiplier, so age can never drown out relevance entirely.
  * @property {number} DECAY_SOFTEN - Exponent applied to the raw decay factor; <1 flattens the decay curve.
  */
+
+/**
+ * 🧠 VECTOR POOL — Unified memory accessor.
+ * Entities store memories in the `past` and `future` arrays. `resolve_vector_pool`
+ * flattens both into a single normalized pool so every read path shares one
+ * consistent shape and no memory is missed because it lived in the other array.
+ */
+
+/**
+ * Merges an entity's memories into a single normalized array.
+ * String items are passed through untouched.
+ * @param {any} entity
+ * @returns {any[]}
+ */
+export function resolve_vector_pool(entity) {
+  if (!entity || typeof entity !== "object") return [];
+  const normalize_item = (v, type) => (v && typeof v === "object" ? { ...v, type, content: v.content || v.directive || "" } : v);
+  const pool = [];
+  if (Array.isArray(entity.past)) {
+    for (const v of entity.past) pool.push(normalize_item(v, v?.type === "future" ? "future" : "past"));
+  }
+  if (Array.isArray(entity.future)) {
+    for (const v of entity.future) pool.push(normalize_item(v, v?.type === "past" ? "past" : "future"));
+  }
+  return pool;
+}
+
 export const TEMPORAL_SCORING = {
   SEMANTIC_GAIN: 3,
   RECENCY_FLOOR: 0.5,

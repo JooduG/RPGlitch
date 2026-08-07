@@ -3,7 +3,7 @@
 // -> @media -> optics -> @data), and under vitest's transformed-module semantics an
 // export is only readable once its re-export statement in this file has executed.
 // Being last, it was `undefined` when fragments.js/optics.js read it during the cycle.
-export { PROTOCOL_LIBRARY } from "./presets/protocols.js";
+export { PROTOCOL_LIBRARY } from "./definitions/protocols.js";
 export { seed_premades, stories, entities, prune } from "./repository.js";
 export { db, init, set_versionchange_quiesce } from "./db.js";
 export {
@@ -16,6 +16,6 @@ export {
   format_premade,
   detox_prose,
 } from "./normalizer.js";
-export { premade } from "./presets/premades.js";
-export { NARRATIVE_STYLES } from "./presets/narrative-styles.js";
-export { VISUAL_STYLES } from "./presets/visual-styles.js";
+export { premade } from "./definitions/premades.js";
+export { NARRATIVE_STYLES } from "./definitions/narrative-styles.js";
+export { VISUAL_STYLES } from "./definitions/visual-styles.js";

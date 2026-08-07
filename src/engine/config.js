@@ -45,3 +45,24 @@ export const IMAGE_TRIGGER = {
   // The unified 4-Tier Image Taxonomy.
   tiers: ["story_entities", "story_character", "solo_entity", "story_scene"],
 };
+
+/**
+ * Clamps a number between min and max.
+ * @param {number|string} n
+ * @param {number} [min]
+ * @param {number} [max]
+ * @returns {number}
+ */
+export const clamp = (n, min = 0, max = 100) => Math.min(max, Math.max(min, Number(n) || 0));
+
+/**
+ * Standard log function.
+ * Only emits to console if 'dev_mode' is enabled in the app store.
+ * @param {...any} args
+ */
+export const log = (...args) => {
+  const is_dev = /** @type {any} */ (globalThis).app?.settings?.dev_mode;
+  if (is_dev) {
+    console.info("[Engine]", ...args);
+  }
+};
