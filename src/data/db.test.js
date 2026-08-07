@@ -3,9 +3,9 @@ import "fake-indexeddb/auto";
 
 describe("Database db.js", () => {
   /** @type {import('dexie').Dexie | null} */
-  let dbInstance;
+  let db_instance;
   /** @type {import('vitest').MockInstance} */
-  let consoleWarnSpy;
+  let console_warn_spy;
 
   beforeEach(async () => {
     vi.resetModules();
@@ -17,35 +17,35 @@ describe("Database db.js", () => {
       value: { reload: vi.fn() },
     });
 
-    consoleWarnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
+    console_warn_spy = vi.spyOn(console, "warn").mockImplementation(() => {});
   });
 
   afterEach(async () => {
     vi.restoreAllMocks();
-    if (dbInstance) {
-      dbInstance.close();
-      dbInstance = null;
+    if (db_instance) {
+      db_instance.close();
+      db_instance = null;
     }
   });
 
   it("should initialize database connection", async () => {
     const { db, init } = await import("@data/db.js");
-    dbInstance = db;
+    db_instance = db;
     await init();
     expect(db.isOpen()).toBe(true);
   });
 
   it("should log a warning when database is blocked", async () => {
     const { db, init } = await import("@data/db.js");
-    dbInstance = db;
+    db_instance = db;
     await init();
     db.on("blocked").fire({ oldVersion: 10, newVersion: 11 });
-    expect(consoleWarnSpy).toHaveBeenCalledWith("[Data] Database is blocked by another tab/version. Please close other instances.");
+    expect(console_warn_spy).toHaveBeenCalledWith("[Data] Database is blocked by another tab/version. Please close other instances.");
   });
 
   it("should handle versionchange event and close DB/reload window", async () => {
     const { db, init } = await import("@data/db.js");
-    dbInstance = db;
+    db_instance = db;
     await init();
     const close_spy = vi.spyOn(db, "close");
     db.on("versionchange").fire({ oldVersion: 10, newVersion: 11 });
@@ -55,7 +55,7 @@ describe("Database db.js", () => {
 
   it("should invoke the registered quiesce hook before versionchange reload", async () => {
     const { db, init, set_versionchange_quiesce } = await import("@data/db.js");
-    dbInstance = db;
+    db_instance = db;
     await init();
     const quiesce = vi.fn();
     set_versionchange_quiesce(quiesce);
@@ -68,7 +68,7 @@ describe("Database db.js", () => {
 
   it("should guard against duplicate versionchange reloads", async () => {
     const { db, init, set_versionchange_quiesce } = await import("@data/db.js");
-    dbInstance = db;
+    db_instance = db;
     await init();
     const quiesce = vi.fn();
     set_versionchange_quiesce(quiesce);
