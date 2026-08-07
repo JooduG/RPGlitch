@@ -190,13 +190,13 @@ describe("prompt_builder (Refactored)", () => {
       flags: {},
     };
 
-    it("synthesize() omits duplicate SESSION_TIMELINE from FRACTAL PAST block", () => {
-      const result = prompt_builder.synthesize(mock_payload, mock_snapshot);
+    it("build_prologue() omits duplicate SESSION_TIMELINE from FRACTAL PAST block", () => {
+      const result = prompt_builder.build_prologue(mock_payload, mock_snapshot);
       expect(result.system).not.toContain("<SESSION_TIMELINE>");
     });
 
-    it("synthesize() injects core XML tags into simulation prompts", () => {
-      const result = prompt_builder.synthesize(mock_payload, mock_snapshot);
+    it("build_prologue() injects core XML tags into simulation prompts", () => {
+      const result = prompt_builder.build_prologue(mock_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
       expect(result.task).toContain("<POV_DIRECTIVE>");
@@ -205,7 +205,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("<PAST>");
     });
 
-    it("synthesize() renders third-person POV when entity pov is 3rd_person", () => {
+    it("build_prologue() renders third-person POV when entity pov is 3rd_person", () => {
       const third_payload = {
         ...mock_payload,
         entities: {
@@ -213,15 +213,15 @@ describe("prompt_builder (Refactored)", () => {
           AI: { ...mock_payload.entities.AI, pov: "3rd_person" },
         },
       };
-      const result = prompt_builder.synthesize(third_payload, mock_snapshot);
+      const result = prompt_builder.build_prologue(third_payload, mock_snapshot);
       expect(result.task).toContain("<POV_DIRECTIVE>");
       expect(result.task).toContain("Write strictly in third-person");
       expect(result.task).not.toContain("undefined");
     });
 
-    it("synthesize() respects prologue mode", () => {
+    it("build_prologue() respects prologue mode", () => {
       const prologue_payload = { ...mock_payload, type: "prologue" };
-      const result = prompt_builder.synthesize(prologue_payload, {});
+      const result = prompt_builder.build_prologue(prologue_payload, {});
       expect(result.system).toContain('mode="PROLOGUE"');
       expect(result.system).toContain("<ACTIVE_CHARACTERS>");
     });
@@ -241,7 +241,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).not.toContain('"tags"');
     });
 
-    it("synthesize() prunes empty tags and formats entity blocks cleanly", () => {
+    it("build_prologue() prunes empty tags and formats entity blocks cleanly", () => {
       const empty_payload = {
         round: 1,
         entities: {
@@ -252,7 +252,7 @@ describe("prompt_builder (Refactored)", () => {
         simulation_log: [],
         input: "Check the door.",
       };
-      const result = prompt_builder.synthesize(empty_payload, mock_snapshot);
+      const result = prompt_builder.build_prologue(empty_payload, mock_snapshot);
       expect(result.system).toContain("<SYSTEM");
       expect(result.system).not.toContain("<PAST>");
       expect(result.system).not.toContain("<FUTURE>");
@@ -395,7 +395,7 @@ describe("prompt_builder (Refactored)", () => {
   });
 
   describe("Integration: XML Block Verification", () => {
-    it("synthesize() correctly integrates all core XML blocks", () => {
+    it("build_prologue() correctly integrates all core XML blocks", () => {
       const payload = {
         round: 5,
         entities: {
@@ -431,7 +431,7 @@ describe("prompt_builder (Refactored)", () => {
         flags: { test: true },
       };
 
-      const result = prompt_builder.synthesize(payload, snapshot);
+      const result = prompt_builder.build_prologue(payload, snapshot);
 
       expect(result.system).toContain('<SYSTEM role="Viper">');
       expect(result.system).toContain('<YOUR_IDENTITY name="Viper">');
@@ -449,7 +449,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.meta?.memories).toBeInstanceOf(Array);
     });
 
-    it("synthesize() injects adaptive stability protocols based on meta.structural_errors", () => {
+    it("build_prologue() injects adaptive stability protocols based on meta.structural_errors", () => {
       const payload = {
         round: 1,
         entities: {
@@ -464,11 +464,11 @@ describe("prompt_builder (Refactored)", () => {
 
       const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
 
-      let result = prompt_builder.synthesize(payload, snapshot);
+      let result = prompt_builder.build_prologue(payload, snapshot);
       expect(result.task).toContain("WARNING: Structural drift detected.");
 
       payload.meta.structural_errors = 3;
-      result = prompt_builder.synthesize(payload, snapshot);
+      result = prompt_builder.build_prologue(payload, snapshot);
       expect(result.task).toContain("CRITICAL: Structural collapse.");
     });
 
@@ -590,7 +590,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).not.toContain("<NARRATIVE_STYLE");
     });
 
-    it("should prepend author style prompt to render_narrator (prologue) if active", () => {
+    it("should prepend author style prompt to build_narrator (prologue) if active", () => {
       _mock_app.settings.narrative_style = "william_gibson";
       const mock_payload = {
         round: 1,
@@ -604,7 +604,7 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const prologue_payload = { ...mock_payload, type: "prologue" };
-      const result = prompt_builder.synthesize(prologue_payload, mock_snapshot);
+      const result = prompt_builder.build_prologue(prologue_payload, mock_snapshot);
       expect(result.system).toContain('<NARRATIVE_STYLE narrator="william_gibson">');
       _mock_app.settings.narrative_style = "default";
     });
@@ -629,7 +629,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(epilogue_result.system).not.toContain("Perception ends at sensory horizon");
 
       const prologue_payload = { ...mock_payload, type: "prologue" };
-      const prologue_result = prompt_builder.synthesize(prologue_payload, mock_snapshot);
+      const prologue_result = prompt_builder.build_prologue(prologue_payload, mock_snapshot);
       expect(prologue_result.system).not.toContain("Perception ends at sensory horizon");
     });
 

@@ -529,13 +529,13 @@ export const temporal_engine = {
   precompute_context_embedding,
   _is_consolidating: false,
 
-  consolidate: async (Session, db, entities, runtime, app) => {
+  consolidate: async (session, db, entities, runtime, app) => {
     if (temporal_engine._is_consolidating) return;
     temporal_engine._is_consolidating = true;
 
     try {
-      const story_id = Session.require_active();
-      const messages = await Session.load_log(story_id);
+      const story_id = session.require_active();
+      const messages = await session.load_log(story_id);
       const unconsolidated = messages.filter((m) => !m.meta?.consolidated && m.role !== "system");
 
       if (unconsolidated.length >= 8) {
@@ -617,7 +617,7 @@ export const temporal_engine = {
             const memories = forged.memories?.[key] || [];
             if (!memories.length) continue;
             const text = memories.map((v) => v.content || v.directive || "").join(" | ");
-            await Session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
+            await session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
               target: key,
               memories,

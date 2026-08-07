@@ -5,14 +5,14 @@
  *
  * Updated for Bayesian Psychology Engine:
  * - Correct entity mapping (direct present/eternal, not fragments wrapper)
- * - Passes rawMessages for Director AI_LAST_TURN
+ * - Passes raw_messages for Director AI_LAST_TURN
  * - Includes dynamics_baseline in entity mapping
  * - Enriches vectors with category/triggers when missing
  * - Verifies new pipeline features: evidence_classification, cognitive attrs (certainty/regulation),
  *   ACTIVE_GOALS, ATMOSPHERIC_CHANGES, trigger amplification, goal arbitration
  */
 
-import { context_broker } from "../../../../src/intelligence/context.svelte.js";
+import { context_builder } from "../../../../src/intelligence/context.svelte.js";
 import { prompt_builder } from "../../../../src/intelligence/prompts.js";
 import { premade } from "../../../../src/data/definitions/premades.js";
 
@@ -72,8 +72,8 @@ export const SimulationAudit = {
     const raw_entities = await this.resolve_entities(scenario);
     const history = scenario.history || [];
 
-    // Construct the payload as expected by the context_broker
-    const payload = await context_broker.hydrate(input, "simulation", history);
+    // Construct the payload as expected by the context_builder
+    const payload = await context_builder.build_context(input, "simulation", history);
 
     // Map scenario entities to the flattened Kernel structure (Role -> Data)
     // Use direct present/eternal (not fragments wrapper) — prompts access
@@ -83,8 +83,8 @@ export const SimulationAudit = {
       payload.entities[role] = map_entity(data);
     }
 
-    // Ensure rawMessages is available for Director's AI_LAST_TURN block
-    payload.rawMessages = history;
+    // Ensure raw_messages is available for Director's AI_LAST_TURN block
+    payload.raw_messages = history;
 
     // 2. PHASE 2: PHYSICS (Snapshot Construction)
     const snapshot = {

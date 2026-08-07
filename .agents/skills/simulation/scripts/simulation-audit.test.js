@@ -156,7 +156,7 @@ ${SEP}
     expect(result.verification.failed).not.toContain("character:task_has_cognitive_attrs");
   });
 
-  it("passes rawMessages for Director AI_LAST_TURN block", async () => {
+  it("passes raw_messages for Director AI_LAST_TURN block", async () => {
     const scenario = {
       ai_id: "valerius",
       user_id: "caelum",

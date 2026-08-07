@@ -12,7 +12,7 @@ import { generate_uuid as generateUUID, state_bridge } from "@utils";
 import { IMAGE_TRIGGER } from "@engine/config.js";
 import { visual_engine } from "@media";
 import { llm_service, Security } from "@platform";
-import { context_broker } from "./context.svelte.js";
+import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
@@ -189,13 +189,13 @@ function validate_and_repair_response(response) {
  * Computes dynamics deltas for a single target (ai or fractal) and appends to accumulators.
  * @param {string} target
  * @param {Record<string, number>} dynamics
- * @param {any} runtimeTarget
+ * @param {any} runtime_target
  * @param {any[]} deltas
  * @param {string[]} log_strings
  */
-function compute_deltas(target, dynamics, runtimeTarget, deltas, log_strings) {
+function compute_deltas(target, dynamics, runtime_target, deltas, log_strings) {
   Object.entries(dynamics).forEach(([axis, val]) => {
-    const old_value = /** @type {any} */ (runtimeTarget)?.[axis] ?? 50;
+    const old_value = /** @type {any} */ (runtime_target)?.[axis] ?? 50;
     const diff = val - old_value;
     if (diff !== 0) {
       deltas.push({ axis, target, old_value, new_value: val, diff });
@@ -463,7 +463,7 @@ export const gamemaster = {
         }
       }
 
-      const payload = await context_broker.hydrate(input || "", "simulation", simulation_log);
+      const payload = await context_builder.build_context(input || "", "simulation", simulation_log);
       payload.meta = payload.meta || {};
       payload.meta.structural_errors = state_bridge.runtime.structural_errors || 0;
 
@@ -776,12 +776,12 @@ export const gamemaster = {
     state_bridge.app.busy = true;
     try {
       const prologue_input = state_bridge.app.prologue || "";
-      const payload = await context_broker.hydrate(prologue_input, "prologue");
+      const payload = await context_builder.build_context(prologue_input, "prologue");
       // Semantic RAG: precompute the context embedding from the prologue's own
       // input so the narrator's PAST/FUTURE ranking (sync format → score) is
       // scored against the scene the user requested, not pure weight×recency.
       await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 30000))]);
-      const result = prompt_builder.synthesize(payload, {});
+      const result = prompt_builder.build_prologue(payload, {});
       if (!result.system) return null;
 
       state_bridge.app.log("[GameMaster] Generating prologue...", "system");
@@ -944,7 +944,7 @@ export const gamemaster = {
         content: m.text || m.content || "",
         character_name: m.character_name,
       }));
-    const payload = await context_broker.hydrate(input_text || "", "simulation", simulation_log);
+    const payload = await context_builder.build_context(input_text || "", "simulation", simulation_log);
     const ghost_prompt = prompt_builder.build_ghostwriter(payload.entities, input_text);
 
     const result = await llm_service.generate(

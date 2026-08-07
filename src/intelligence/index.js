@@ -1,4 +1,4 @@
-export { context_broker } from "./context.svelte.js";
+export { context_builder } from "./context.svelte.js";
 export { embeddings_engine } from "./embeddings.svelte.js";
 export { gamemaster } from "./kernel.js";
 export {

@@ -1,4 +1,4 @@
-import { context_broker } from "./context.svelte.js";
+import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { _image_gen_queue, gamemaster } from "./kernel.js";
 import { prompt_builder } from "./prompts.js";
@@ -61,14 +61,14 @@ const _mock_simulation_state = {
 
 // Mock dependencies
 vi.mock("@intelligence/context.svelte.js", () => ({
-  context_broker: {
-    hydrate: vi.fn(),
+  context_builder: {
+    build_context: vi.fn(),
   },
 }));
 
 vi.mock("@intelligence/prompts.js", () => ({
   prompt_builder: {
-    synthesize: vi.fn(),
+    build_prologue: vi.fn(),
     build_director_prompt: vi.fn(),
     build_character_prompt: vi.fn(),
     build_epilogue: vi.fn(),
@@ -395,11 +395,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       view_id: "global",
       simulation_log: "",
-      rawMessages: [],
+      raw_messages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
-    vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
     vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
       system: "DIRECTOR_PROMPT",
       task: "DIRECTOR_TASK",
@@ -421,7 +421,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       role: "ai",
     });
 
-    expect(context_broker.hydrate).toHaveBeenCalled();
+    expect(context_builder.build_context).toHaveBeenCalled();
     expect(prompt_builder.build_director_prompt).toHaveBeenCalled();
     expect(prompt_builder.build_character_prompt).toHaveBeenCalled();
     expect(llm_service.generate).toHaveBeenCalled();
@@ -440,12 +440,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       view_id: "global",
       simulation_log: "",
-      rawMessages: [{ role: "model", content: "Last line of context" }],
+      raw_messages: [{ role: "model", content: "Last line of context" }],
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     vi.mocked(session_driver.load_log).mockResolvedValue([{ role: "model", content: "Last line of context" }]);
-    vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
     vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
     vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
       system: "C",
@@ -476,12 +476,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       view_id: "global",
       simulation_log: "",
-      rawMessages: [],
+      raw_messages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
-    vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
-    vi.mocked(prompt_builder.synthesize).mockReturnValue({ system: "PROLOGUE_SYSTEM", task: "PROLOGUE_TASK" });
+    vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
+    vi.mocked(prompt_builder.build_prologue).mockReturnValue({ system: "PROLOGUE_SYSTEM", task: "PROLOGUE_TASK" });
     vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
     vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
       system: "C",
@@ -492,10 +492,10 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
     await gamemaster.execute_prologue("story-123");
 
-    expect(context_broker.hydrate).toHaveBeenCalledWith("The festival begins at dusk over the harbor of Vareld.", "prologue");
+    expect(context_builder.build_context).toHaveBeenCalledWith("The festival begins at dusk over the harbor of Vareld.", "prologue");
     expect(temporal_engine.precompute_context_embedding).toHaveBeenCalledWith("The festival begins at dusk over the harbor of Vareld.");
     expect(temporal_engine.precompute_context_embedding.mock.invocationCallOrder[0]).toBeLessThan(
-      prompt_builder.synthesize.mock.invocationCallOrder[0],
+      prompt_builder.build_prologue.mock.invocationCallOrder[0],
     );
     // The prologue's own image opens the shared cooldown so the opening turn can't
     // immediately fire a second image at round 0.
@@ -539,12 +539,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       view_id: "global",
       simulation_log: "",
-      rawMessages: [],
+      raw_messages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
-      vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+      vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
         system: "DIRECTOR_PROMPT",
         task: "DIRECTOR_TASK",
@@ -669,12 +669,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       view_id: "global",
       simulation_log: "",
-      rawMessages: [],
+      raw_messages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
-      vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+      vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({
         system: "DIRECTOR_PROMPT",
         task: "DIRECTOR_TASK",
@@ -815,12 +815,12 @@ describe("gamemaster (Intelligence Kernel)", () => {
       },
       view_id: "global",
       simulation_log: "",
-      rawMessages: [],
+      raw_messages: [],
       meta: { active_vector: "", timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
-      vi.mocked(context_broker.hydrate).mockResolvedValue(mock_payload);
+      vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
       vi.mocked(prompt_builder.build_director_prompt).mockReturnValue({ system: "D", task: "T" });
       vi.mocked(prompt_builder.build_character_prompt).mockReturnValue({
         system: "C",

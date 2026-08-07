@@ -99,7 +99,7 @@ ${definitions}
  * @param {any} entities
  * @returns {string}
  */
-const val = (text, owner, entities) => {
+const render_field_value = (text, owner, entities) => {
   if (!text) return "";
   return prompt_escape(prompt_builder.parse_macros(String(text).trim(), owner, entities));
 };
@@ -210,7 +210,7 @@ function format_dynamics_attrs(dynObj, options = {}) {
  * @param {any} params
  * @returns {{ system: string, task: string }}
  */
-function render_director({ round, entities, input, render_atom, compressed_snapshot, rawMessages }) {
+function render_director({ round, entities, input, render_accessors, compressed_snapshot, raw_messages }) {
   const protocols = ["FORMATS.JSON_ONLY", "AGENCY.FICTIONAL_LICENSE"].filter(Boolean).join(", ");
   const dynamics_legend = build_dynamics_legend();
 
@@ -223,27 +223,27 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
       <PRESENT>
-        <PHYSICAL>${ind(val(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</PHYSICAL>
-        <NON_PHYSICAL>${ind(val(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</NON_PHYSICAL>
+        <PHYSICAL>${ind(render_field_value(entities?.AI?.present?.physical, entities?.AI, entities), 8)}</PHYSICAL>
+        <NON_PHYSICAL>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 8)}</NON_PHYSICAL>
       </PRESENT>
       <ETERNAL>
-        <PHYSICAL>${val(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PHYSICAL>
-        <NON_PHYSICAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
+        <PHYSICAL>${render_field_value(entities?.AI?.eternal?.physical, entities?.AI, entities)}</PHYSICAL>
+        <NON_PHYSICAL>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
       </ETERNAL>
-      <PAST>${ind(render_atom.past(entities?.AI, { vector_text: true }), 8)}</PAST>
-      <FUTURE>${ind(render_atom.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
+      <PAST>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 8)}</PAST>
+      <FUTURE>${ind(render_accessors.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
       <PRESENT>
-        <PHYSICAL>${ind(val(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</PHYSICAL>
-        <NON_PHYSICAL>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</NON_PHYSICAL>
+        <PHYSICAL>${ind(render_field_value(entities?.USER?.present?.physical, entities?.USER, entities), 8)}</PHYSICAL>
+        <NON_PHYSICAL>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</NON_PHYSICAL>
       </PRESENT>
       <ETERNAL>
-        <PHYSICAL>${val(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PHYSICAL>
-        <NON_PHYSICAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
+        <PHYSICAL>${render_field_value(entities?.USER?.eternal?.physical, entities?.USER, entities)}</PHYSICAL>
+        <NON_PHYSICAL>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
       </ETERNAL>
-      <PAST>${ind(render_atom.past(entities?.USER, { vector_text: true }), 8)}</PAST>
-      <FUTURE>${ind(render_atom.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
+      <PAST>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 8)}</PAST>
+      <FUTURE>${ind(render_accessors.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   ${
@@ -251,15 +251,15 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
     <PRESENT>
-      <PHYSICAL>${val(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</PHYSICAL>
-      <NON_PHYSICAL>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
+      <PHYSICAL>${render_field_value(entities.FRACTAL.present?.physical, entities.FRACTAL, entities)}</PHYSICAL>
+      <NON_PHYSICAL>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
     </PRESENT>
     <ETERNAL>
-      <PHYSICAL>${val(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</PHYSICAL>
-      <NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
+      <PHYSICAL>${render_field_value(entities.FRACTAL.eternal?.physical, entities.FRACTAL, entities)}</PHYSICAL>
+      <NON_PHYSICAL>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
     </ETERNAL>
-    <PAST>${ind(render_atom.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
+    <PAST>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </FRACTAL>`.trim()
       : ""
   }
@@ -273,7 +273,7 @@ function render_director({ round, entities, input, render_atom, compressed_snaps
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 ${(() => {
-  const last_ai = (rawMessages || []).filter((m) => m.role === "model").slice(-1)[0];
+  const last_ai = (raw_messages || []).filter((m) => m.role === "model").slice(-1)[0];
   if (!last_ai) return "";
   const text = strip_cognition_blocks(last_ai.content || last_ai.text || "").trim();
   if (!text) return "";
@@ -301,15 +301,15 @@ ${(() => {
   return { system, task };
 }
 
-function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
+function build_ai_future_xml(entity, scoring_context = "", entities = {}) {
   const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
   if (futures.length === 0) return "";
-  const formatted = temporal_engine.format(futures, scoringContext, { max_chars: 1500, vector_text: true });
+  const formatted = temporal_engine.format(futures, scoring_context, { max_chars: 1500, vector_text: true });
   if (!formatted?.trim()) return "";
   return `    <FUTURE>${ind(prompt_builder.parse_macros(formatted, entity, entities), 6)}</FUTURE>`;
 }
 
-function render_character({ round, entities, input, compressed_snapshot, meta, render_atom, ghostwrite = false, director_data }) {
+function render_character({ round, entities, input, compressed_snapshot, meta, render_accessors, ghostwrite = false, director_data }) {
   const pov_protocol = resolve_pov_protocol(entities?.AI);
   const has_user_action = !!input?.trim();
 
@@ -347,16 +347,16 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
 You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
   ${ind(build_dynamics_legend(), 2)}
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}">
-    <ETERNAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
+    <ETERNAL>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <ETERNAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
+    <ETERNAL>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
+    <ETERNAL>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
   </FRACTAL>`.trim()
       : ""
   }
@@ -369,21 +369,21 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
   const task = clean_xml(`
 <SNAPSHOT>
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-    <PRESENT>${ind(val(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</PRESENT>
-    <PAST>${ind(render_atom.past(entities?.AI, { vector_text: true }), 6)}</PAST>
-${build_ai_future_xml(entities?.AI, render_atom._context, entities)}
+    <PRESENT>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</PRESENT>
+    <PAST>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 6)}</PAST>
+${build_ai_future_xml(entities?.AI, render_accessors._context, entities)}
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <PRESENT>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</PRESENT>
-    <PAST>${ind(render_atom.past(entities?.USER, { vector_text: true }), 6)}</PAST>
+    <PRESENT>${ind(render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</PRESENT>
+    <PAST>${ind(render_accessors.past(entities?.USER, { vector_text: true }), 6)}</PAST>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
-    <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
-    <PAST>${ind(render_atom.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
+    <PRESENT>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
+    <PAST>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </FRACTAL>`.trim()
       : ""
   }
@@ -427,7 +427,7 @@ function render_ghostwriter({ entities, input = "" }) {
     USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, future: [], past: [] },
   };
 
-  const render_atom = data_processors.create_render_atom(swapped, input || "", []);
+  const render_accessors = render_builder.create_render_accessors(swapped, input || "", []);
   const rendered = render_character({
     round: null,
     entities: swapped,
@@ -438,7 +438,7 @@ function render_ghostwriter({ entities, input = "" }) {
       flags: [],
     },
     meta: {},
-    render_atom,
+    render_accessors,
     ghostwrite: true,
   });
 
@@ -456,7 +456,7 @@ function render_ghostwriter({ entities, input = "" }) {
   return rendered;
 }
 
-function render_narrator(mode, { entities, render_atom, compressed_snapshot, round = null, input = null }) {
+function build_narrator(mode, { entities, render_accessors, compressed_snapshot, round = null, input = null }) {
   const task_text =
     mode === "prologue"
       ? `${PROTOCOL_LIBRARY.SCENE.PROLOGUE}\n    Input: ${escape_xml(input?.trim() || "The scene begins.")}`
@@ -468,23 +468,23 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
   ${ind(build_dynamics_legend(), 2)}
   <YOUR_IDENTITY name="${escape_xml(fractal_name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
     <ANCHOR>Resolve all state inferences strictly from this identity block.</ANCHOR>
-    <PRESENT>${val(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</PRESENT>
-    <ETERNAL>${val(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</ETERNAL>
-    <PAST>${ind(render_atom?.past(entities?.FRACTAL, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_atom?.future(entities?.FRACTAL, { vector_text: true }), 6)}</FUTURE>
+    <PRESENT>${render_field_value(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</PRESENT>
+    <ETERNAL>${render_field_value(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</ETERNAL>
+    <PAST>${ind(render_accessors?.past(entities?.FRACTAL, { vector_text: true }), 6)}</PAST>
+    <FUTURE>${ind(render_accessors?.future(entities?.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </YOUR_IDENTITY>
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <PRESENT>${val(entities?.AI?.present?.non_physical, entities?.AI, entities)}</PRESENT>
-      <ETERNAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
-      <PAST>${ind(render_atom?.past(entities?.AI, { vector_text: true }), 8)}</PAST>
-      <FUTURE>${ind(render_atom?.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
+      <PRESENT>${render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities)}</PRESENT>
+      <ETERNAL>${render_field_value(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
+      <PAST>${ind(render_accessors?.past(entities?.AI, { vector_text: true }), 8)}</PAST>
+      <FUTURE>${ind(render_accessors?.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-      <PRESENT>${val(entities?.USER?.present?.non_physical, entities?.USER, entities)}</PRESENT>
-      <ETERNAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
-      <PAST>${ind(render_atom?.past(entities?.USER, { vector_text: true }), 8)}</PAST>
-      <FUTURE>${ind(render_atom?.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
+      <PRESENT>${render_field_value(entities?.USER?.present?.non_physical, entities?.USER, entities)}</PRESENT>
+      <ETERNAL>${render_field_value(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
+      <PAST>${ind(render_accessors?.past(entities?.USER, { vector_text: true }), 8)}</PAST>
+      <FUTURE>${ind(render_accessors?.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
   </ACTIVE_CHARACTERS>
   <PROTOCOLS>
@@ -676,8 +676,8 @@ function render_profile_sorting(entity_type = "character") {
   `).trim();
 }
 
-const data_processors = {
-  create_render_atom(entities = {}, input = "", raw_messages = []) {
+const render_builder = {
+  create_render_accessors(entities = {}, input = "", raw_messages = []) {
     const resolve = (ref) => (typeof ref === "string" ? entities[ref] || entities.AI || {} : ref || {});
     const scoring_context = `${input || ""} ${(Array.isArray(raw_messages) ? raw_messages : [])
       .slice(-10)
@@ -752,15 +752,15 @@ export const prompt_builder = {
     });
   },
   build_director_prompt(payload, snapshot) {
-    const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
+    const render_accessors = prompt_builder.create_render_accessors(payload.entities, payload.input, payload.raw_messages);
     const rendered = render_director({
       ...payload,
-      render_atom,
+      render_accessors,
       compressed_snapshot: snapshot,
     });
     return {
-      system: prompt_builder.clean(rendered.system),
-      task: prompt_builder.clean(rendered.task),
+      system: prompt_builder.clean_prompt_text(rendered.system),
+      task: prompt_builder.clean_prompt_text(rendered.task),
       meta: {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
@@ -768,42 +768,42 @@ export const prompt_builder = {
     };
   },
   build_character_prompt(payload, snapshot, director_data) {
-    const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
+    const render_accessors = prompt_builder.create_render_accessors(payload.entities, payload.input, payload.raw_messages);
     const rendered = render_character({
       ...payload,
-      render_atom,
+      render_accessors,
       compressed_snapshot: snapshot,
       director_data,
     });
     return {
-      system: prompt_builder.clean(rendered.system),
-      task: prompt_builder.clean(rendered.task),
+      system: prompt_builder.clean_prompt_text(rendered.system),
+      task: prompt_builder.clean_prompt_text(rendered.task),
       meta: {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
         flags: snapshot.flags,
-        memories: temporal_engine.score(payload.entities?.AI?.memories || [], render_atom._context).slice(0, 5),
+        memories: temporal_engine.score(payload.entities?.AI?.memories || [], render_accessors._context).slice(0, 5),
       },
     };
   },
-  synthesize(payload, snapshot) {
-    const render_atom = prompt_builder.create_render_atom(payload.entities, payload.input, payload.rawMessages);
+  build_prologue(payload, snapshot) {
+    const render_accessors = prompt_builder.create_render_accessors(payload.entities, payload.input, payload.raw_messages);
     if (payload.type === "prologue") {
-      const rendered = render_narrator("prologue", {
+      const rendered = build_narrator("prologue", {
         ...payload,
-        render_atom,
+        render_accessors,
         compressed_snapshot: snapshot,
       });
       return {
-        system: prompt_builder.clean(rendered.system),
-        task: prompt_builder.clean(rendered.task),
+        system: prompt_builder.clean_prompt_text(rendered.system),
+        task: prompt_builder.clean_prompt_text(rendered.task),
         meta: {},
       };
     }
     return prompt_builder.build_character_prompt(payload, snapshot, {});
   },
-  create_render_atom: data_processors.create_render_atom,
-  render_history: data_processors.render_history,
+  create_render_accessors: render_builder.create_render_accessors,
+  render_history: render_builder.render_history,
   build_scoring_context(input = "", simulation_log = []) {
     const recent = (Array.isArray(simulation_log) ? simulation_log : [])
       .slice(-10)
@@ -838,7 +838,7 @@ export const prompt_builder = {
     protocols_cache.set(selection, rendered);
     return rendered;
   },
-  clean(str) {
+  clean_prompt_text(str) {
     return typeof str === "string"
       ? str
           .replace(/[ \t]+$/gm, "")
@@ -852,17 +852,17 @@ export const prompt_builder = {
       USER: entities?.USER || { name: "USER", present: {}, eternal: {} },
       FRACTAL: entities?.FRACTAL || { name: "FRACTAL", present: {}, eternal: {} },
     };
-    const rendered = render_narrator("epilogue", {
+    const rendered = build_narrator("epilogue", {
       entities: safe_entities,
-      render_atom: prompt_builder.create_render_atom(safe_entities, "", recent_history),
+      render_accessors: prompt_builder.create_render_accessors(safe_entities, "", recent_history),
       compressed_snapshot: {
         ai: { dynamics: dynamics?.ai },
         fractal: { dynamics: dynamics?.fractal },
       },
     });
     return {
-      system: prompt_builder.clean(rendered.system),
-      task: prompt_builder.clean(rendered.task),
+      system: prompt_builder.clean_prompt_text(rendered.system),
+      task: prompt_builder.clean_prompt_text(rendered.task),
       messages: [],
     };
   },
@@ -920,6 +920,6 @@ export {
   render_director,
   render_enhancement,
   render_ghostwriter,
-  render_narrator,
+  build_narrator,
   render_profile_sorting,
 };

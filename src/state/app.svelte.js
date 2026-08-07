@@ -207,14 +207,14 @@ export class AppStore {
     return (this.selected_ai ? 1 : 0) + (this.selected_user ? 1 : 0) + (this.selected_fractal ? 1 : 0);
   }
   get models_ready() {
-    return embeddings_engine.modelReady && Audio.voice.modelReady;
+    return embeddings_engine.model_ready && Audio.voice.modelReady;
   }
   get models_loading() {
-    return embeddings_engine.isLoading || Audio.voice.isLoading;
+    return embeddings_engine.is_loading || Audio.voice.isLoading;
   }
   get models_progress() {
     if (this.models_ready) return 100;
-    const emb_prog = embeddings_engine.modelReady ? 100 : embeddings_engine.loadProgress;
+    const emb_prog = embeddings_engine.model_ready ? 100 : embeddings_engine.load_progress;
     const voice_prog = Audio.voice.modelReady ? 100 : Audio.voice.loadProgress;
     return Math.min(99, Math.round((emb_prog + voice_prog) / 2));
   }

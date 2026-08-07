@@ -1,4 +1,4 @@
-import { context_broker } from "./context.svelte.js";
+import { context_builder } from "./context.svelte.js";
 import { temporal_engine } from "./temporal.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
@@ -74,7 +74,7 @@ vi.mock("@engine/session.svelte.js", () => ({
 
 // Mock temporal_engine to intercept resolution calls while keeping the real
 // (pure) exports — context.svelte.js also imports resolve_vector_pool, so the
-// mock must expose it or hydrate()/manage_vector_lifecycle() break.
+// mock must expose it or build_context()/manage_vector_lifecycle() break.
 vi.mock("@intelligence/temporal.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -86,7 +86,7 @@ vi.mock("@intelligence/temporal.js", async (importOriginal) => {
   };
 });
 
-describe("context_broker", () => {
+describe("context_builder", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mock_round = 1;
@@ -97,15 +97,15 @@ describe("context_broker", () => {
 
   afterEach(() => {});
 
-  it("hydrate() returns a valid payload for simulation", async () => {
-    expect(context_broker.hydrate).toBeDefined();
+  it("build_context() returns a valid payload for simulation", async () => {
+    expect(context_builder.build_context).toBeDefined();
   });
 
   describe("manage_vector_lifecycle", () => {
     it("should gracefully handle missing entity or vectors arrays", async () => {
-      await expect(context_broker.manage_vector_lifecycle(null)).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ future: null })).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ future: [] })).resolves.not.toThrow();
+      await expect(context_builder.manage_vector_lifecycle(null)).resolves.not.toThrow();
+      await expect(context_builder.manage_vector_lifecycle({ future: null })).resolves.not.toThrow();
+      await expect(context_builder.manage_vector_lifecycle({ future: [] })).resolves.not.toThrow();
     });
 
     // --- STRICT STATE AND CHRONO MATRIX TESTS ---
@@ -124,7 +124,7 @@ describe("context_broker", () => {
         ],
       };
       // Requirement is state_anchor: "active" (which is inactive)
-      await context_broker.manage_vector_lifecycle(entity);
+      await context_builder.manage_vector_lifecycle(entity);
 
       expect(temporal_engine.resolve).not.toHaveBeenCalled();
     });
@@ -143,7 +143,7 @@ describe("context_broker", () => {
         ],
       };
 
-      await context_broker.manage_vector_lifecycle(entity);
+      await context_builder.manage_vector_lifecycle(entity);
 
       expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_state", "AUTO_RESOLVED", expect.anything());
     });
@@ -173,7 +173,7 @@ describe("context_broker", () => {
         ],
       };
 
-      await context_broker.manage_vector_lifecycle(entity);
+      await context_builder.manage_vector_lifecycle(entity);
       expect(temporal_engine.resolve).not.toHaveBeenCalled();
     });
 
@@ -190,7 +190,7 @@ describe("context_broker", () => {
         ],
       };
 
-      await context_broker.manage_vector_lifecycle(entity);
+      await context_builder.manage_vector_lifecycle(entity);
       expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED", expect.anything());
     });
   });
@@ -205,35 +205,17 @@ describe("context_broker", () => {
       }));
 
       // Warm up the raw string cache to simulate active gameplay
-      await context_broker.hydrate("Testing with tag_5 in input", "simulation", mock_history);
+      await context_builder.build_context("Testing with tag_5 in input", "simulation", mock_history);
 
       const start = performance.now();
       // Hydrate with new input and the massive history log
-      const _payload = await context_broker.hydrate("Testing with tag_5 in input", "simulation", mock_history);
+      const _payload = await context_builder.build_context("Testing with tag_5 in input", "simulation", mock_history);
       const end = performance.now();
 
       const duration = end - start;
 
       // Verify execution is extremely fast (well under 100ms, typically < 2ms on modern systems, but we allow margin for concurrent CI environments)
       expect(duration).toBeLessThan(100); // Robust 100ms performance gate
-    });
-  });
-
-  describe("History Cache Key Optimization", () => {
-    it("should key text caching by message ID instead of raw text or reference", async () => {
-      const history1 = [{ id: "msg1", role: "model", content: "Initial <think>process</think> message.", character_name: "AI" }];
-
-      const payload1 = await context_broker.hydrate("input", "simulation", history1);
-      expect(payload1.simulation_log).toContain("[AI]: Initial message.");
-
-      // Same ID but different reference and different content.
-      // Since it's keyed by ID, it should return the cached value.
-      const history2 = [{ id: "msg1", role: "model", content: "Changed content entirely.", character_name: "AI" }];
-
-      const payload2 = await context_broker.hydrate("input", "simulation", history2);
-      // It should return the old text because the cache hit the ID
-      expect(payload2.simulation_log).toContain("[AI]: Initial message.");
-      expect(payload2.simulation_log).not.toContain("Changed content entirely");
     });
   });
 
@@ -244,8 +226,8 @@ describe("context_broker", () => {
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
       ];
       // @ts-ignore
-      expect(context_broker.lexical_filter(data_points, null)).toEqual(data_points);
-      expect(context_broker.lexical_filter(data_points, "")).toEqual(data_points);
+      expect(context_builder.lexical_filter(data_points, null)).toEqual(data_points);
+      expect(context_builder.lexical_filter(data_points, "")).toEqual(data_points);
     });
 
     it("should return data_points as is if keywords are all short", () => {
@@ -253,7 +235,7 @@ describe("context_broker", () => {
         { text: "apple", type: "fragment", enhancer: "none", section: "test" },
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
       ];
-      expect(context_broker.lexical_filter(data_points, "a b c")).toEqual(data_points);
+      expect(context_builder.lexical_filter(data_points, "a b c")).toEqual(data_points);
     });
 
     it("should sort data points with keyword matches to the top and maintain stable order for others", () => {
@@ -263,7 +245,7 @@ describe("context_broker", () => {
         { text: "Another random sentence.", type: "fragment", enhancer: "none", section: "test" },
       ];
       const objective = "The quick fox";
-      const result = context_broker.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, objective);
 
       const expected_order = [
         { text: "The quick brown fox.", type: "fragment", enhancer: "none", section: "test" },
@@ -279,7 +261,7 @@ describe("context_broker", () => {
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
       ];
       const objective = "apple";
-      const result = context_broker.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, objective);
       expect(result[0].text).toBe("APPLE");
     });
 
@@ -291,16 +273,16 @@ describe("context_broker", () => {
       const objective = "else";
       // "else" is length 4, so it counts as a keyword
       // @ts-ignore
-      const result = context_broker.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, objective);
       // Since {something: 'else'} doesn't have 'text', it won't match in current implementation
       expect(result).toEqual(data_points);
     });
 
     it("should handle non-array data_points gracefully", () => {
       // @ts-ignore
-      expect(context_broker.lexical_filter(null, "objective")).toBe(null);
+      expect(context_builder.lexical_filter(null, "objective")).toBe(null);
       // @ts-ignore
-      expect(context_broker.lexical_filter({}, "objective")).toEqual({});
+      expect(context_builder.lexical_filter({}, "objective")).toEqual({});
     });
 
     it("should preserve all data points in original order if no matches", () => {
@@ -309,7 +291,7 @@ describe("context_broker", () => {
         { text: "banana", type: "fragment", enhancer: "none", section: "test" },
       ];
       const objective = "zebra";
-      const result = context_broker.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, objective);
       expect(result).toEqual(data_points);
     });
 
@@ -344,7 +326,7 @@ describe("context_broker", () => {
         },
       ];
       const objective = "plot";
-      const result = context_broker.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, objective);
 
       // Expected order based on score:
       // 1. "Unrelated baseline trait" (Score: 1000 + 10 = 1010) - Since original order was preserved, it might sort with Voice tic
@@ -396,7 +378,7 @@ describe("context_broker", () => {
         },
       ];
       const objective = "keyword";
-      const result = context_broker.lexical_filter(data_points, objective);
+      const result = context_builder.lexical_filter(data_points, objective);
 
       // Expected: "Eternal voice tic" (Score: 1000 + 10 = 1010)
       // "Plot keyword match keyword keyword" (Score: 3 * 1 + 5 = 8)

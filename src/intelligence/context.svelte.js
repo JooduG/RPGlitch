@@ -1,6 +1,6 @@
 /**
  * @file src/intelligence/context.svelte.js
- * 🔌 CONTEXT BROKER — State Adapter & Document Assembler
+ * 🔌 CONTEXT BUILDER — State Adapter & Document Assembler
  * Hydrates, cleans, and packages raw simulation state into an IntelligencePayload.
  *
  * @typedef {import('@state/state_bridge.runtime.svelte.js').SimulationEntity} SimulationEntity
@@ -20,39 +20,12 @@
 import { state_bridge } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "../data/definitions/fragments.js";
-import { clean_text, strip_cognition_blocks } from "./parser.js";
+import { clean_text } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
-
-const RAW_CACHE = new Map();
-const MAX_CACHE_SIZE = 1000;
-const SNAPSHOT_ITEM_CACHE = new Map();
 
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
  ************************************************************************************/
-
-/**
- * Strips cognition blocks from a message and caches the output string.
- * @param {any} msg
- * @returns {string}
- */
-function get_sanitized_text(msg) {
-  if (!msg || typeof msg !== "object") return "";
-
-  const cache_key = msg.id || msg.text || msg.content || "";
-  if (RAW_CACHE.has(cache_key)) return RAW_CACHE.get(cache_key);
-
-  const raw = msg.text || msg.content || "";
-  const sanitized = strip_cognition_blocks(raw).trim();
-
-  if (RAW_CACHE.size >= MAX_CACHE_SIZE) {
-    const first_key = RAW_CACHE.keys().next().value;
-    RAW_CACHE.delete(first_key);
-  }
-
-  RAW_CACHE.set(cache_key, sanitized);
-  return sanitized;
-}
 
 /**
  * Resolves a dot-notation path against a nested object.
@@ -107,7 +80,7 @@ function to_data_points(entity) {
   return list.filter((f) => f.text.length > 0);
 }
 
-export const context_broker = {
+export const context_builder = {
   /**
    * HYDRATION PHASE
    * Pulls and resolves all necessary state for an intelligence turn.
@@ -118,7 +91,7 @@ export const context_broker = {
    * @param {any[]} [simulation_log=[]] - Recent message log.
    * @returns {Promise<any>}
    */
-  async hydrate(input, type = "simulation", simulation_log = []) {
+  async build_context(input, type = "simulation", simulation_log = []) {
     const round = state_bridge.runtime?.round ?? 1;
 
     // 1. Resolve Entities mapping (Role -> Data)
@@ -141,7 +114,7 @@ export const context_broker = {
     ];
 
     // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure turn accuracy
-    await Promise.all(entries.map(({ data }) => context_broker.manage_vector_lifecycle(data))).catch((err) =>
+    await Promise.all(entries.map(({ data }) => context_builder.manage_vector_lifecycle(data))).catch((err) =>
       console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
     );
 
@@ -173,7 +146,7 @@ export const context_broker = {
         }
       );
       const data_points = to_data_points(raw);
-      const filtered = context_broker.lexical_filter(data_points, active_vector);
+      const filtered = context_builder.lexical_filter(data_points, active_vector);
 
       if (filtered.length === 0) {
         filtered.push({
@@ -225,41 +198,12 @@ export const context_broker = {
       round,
       entities,
       view_id: "global",
-      simulation_log: context_broker.assemble_snapshot(simulation_log),
-      rawMessages: simulation_log,
+      raw_messages: simulation_log,
       meta: {
         active_vector,
         timestamp: new Date().toISOString(),
       },
     };
-  },
-
-  /**
-   * Creates a dense beat-map of recent history.
-   * @param {any[]} history
-   * @returns {string | null}
-   */
-  assemble_snapshot(history = []) {
-    if (!history.length) return null;
-    return history
-      .map((m) => {
-        if (m && typeof m === "object" && m.id) {
-          const cached = SNAPSHOT_ITEM_CACHE.get(m.id);
-          if (cached !== undefined) return cached;
-        }
-        const owner = m.character_name || (m.role === "user" ? "User" : "AI");
-        const stripped = get_sanitized_text(m);
-        const formatted = `[${owner}]: ${clean_text(stripped, 500)}`;
-        if (m && typeof m === "object" && m.id) {
-          if (SNAPSHOT_ITEM_CACHE.size >= MAX_CACHE_SIZE) {
-            const first_key = SNAPSHOT_ITEM_CACHE.keys().next().value;
-            SNAPSHOT_ITEM_CACHE.delete(first_key);
-          }
-          SNAPSHOT_ITEM_CACHE.set(m.id, formatted);
-        }
-        return formatted;
-      })
-      .join("\n");
   },
 
   /**

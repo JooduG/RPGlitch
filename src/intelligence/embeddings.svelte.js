@@ -222,13 +222,13 @@ export const embeddings_engine = {
   score_by_semantics,
   load_model,
   is_ready,
-  get loadProgress() {
+  get load_progress() {
     return _load_progress;
   },
-  get isLoading() {
+  get is_loading() {
     return _is_loading;
   },
-  get modelReady() {
+  get model_ready() {
     return _model_ready || _pipeline !== null;
   },
   /** Current LRU cache telemetry (size, hits, misses, cap). */

@@ -9,7 +9,7 @@ import { sanitize } from "@platform";
 import { CLOTHING_KEYS, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 import MarkdownIt from "markdown-it";
 
-const md = new MarkdownIt({
+const markdown = new MarkdownIt({
   html: false,
   breaks: true,
   linkify: true,
@@ -173,17 +173,17 @@ export function wrap_dialogue(html) {
  * Resolves the prose detox register based on entity and narrative style hierarchy.
  * Priority: Entity Voice Register > Narrative Style Voice Register > "plain" (default)
  * @param {object|null} [entity] - Active character/user entity
- * @param {string|object|null} [narrativeStyle] - Active narrative style ID or style object
+ * @param {string|object|null} [narrative_style] - Active narrative style ID or style object
  * @returns {"plain"|"ornate"|"raw"|"clinical"}
  */
-export function resolve_voice_register(entity = null, narrativeStyle = null) {
+export function resolve_voice_register(entity = null, narrative_style = null) {
   const valid_registers = ["plain", "ornate", "raw", "clinical"];
 
   if (entity?.voice_register && valid_registers.includes(entity.voice_register)) {
     return entity.voice_register;
   }
 
-  const styleObj = typeof narrativeStyle === "string" ? NARRATIVE_STYLES[narrativeStyle] : narrativeStyle;
+  const styleObj = typeof narrative_style === "string" ? NARRATIVE_STYLES[narrative_style] : narrative_style;
 
   if (styleObj?.voice_register && valid_registers.includes(styleObj.voice_register)) {
     return styleObj.voice_register;
@@ -211,13 +211,13 @@ export function parse_message(rawText, register = "plain") {
   const detoxed_text = text;
 
   // 4. Render Markdown
-  let rendered = sanitize(md.render(text).trim());
+  let rendered = sanitize(markdown.render(text).trim());
   rendered = rendered.replace(/&quot;/g, '"').replace(/&apos;/g, "'");
 
   // 5. Wrap Dialogue Quotes
   rendered = wrap_dialogue(rendered);
 
-  const rendered_think = think_result.think ? sanitize(md.render(think_result.think).trim()) : null;
+  const rendered_think = think_result.think ? sanitize(markdown.render(think_result.think).trim()) : null;
 
   return {
     displayText: rendered,
