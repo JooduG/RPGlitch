@@ -899,4 +899,15 @@ div.flex-1.flex-col footer {
     opacity: 1;
   }
 }
+
+/* Undo-delete countdown bar in the Storymode feed */
+@keyframes undo-countdown-shrink {
+  from {
+    transform: scaleX(1);
+  }
+
+  to {
+    transform: scaleX(0);
+  }
+}
 ```

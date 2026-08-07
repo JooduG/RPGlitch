@@ -42,8 +42,8 @@
   "linters": {
     "eslint": [],
     "htmlhint": ["**/*.svelte"],
-    "markdownlint": ["**/modern-web-guidance/guides/**"],
-    "prettier": [],
+    "markdownlint": ["**/modern-web-guidance/guides/**", "**/suggestion*"],
+    "prettier": ["**/suggestion*"],
     "stylelint": []
   },
   "vscode": {

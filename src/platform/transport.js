@@ -121,7 +121,7 @@ export const llm_service = {
   async enhance(payload) {
     // Use raw: true so generate() returns unprocessed output
     // enhance() owns its own sanitization pass so it isn't double-stripped.
-    const result = await this.generate(payload, { silent: true, raw: true, temperature: 0.5 });
+    const result = await this.generate(payload, { silent: true, raw: true });
     return typeof result === "string" ? sanitize_llm(result) : result;
   },
 
@@ -137,16 +137,10 @@ export const llm_service = {
    * @param {string}  [payload.startWith]            - Text to force the model response to begin with (native plugin option).
    * @param {string}  [payload.role]                - Optional role for the generation (e.g., 'ai', 'fractal').
    * @param {string}  [payload.node_id]             - UI node ID for the stream.
-   * @param {any}  [payload.params]              - Generation parameters.
    * @param {string[]} [payload.stopSequences]       - Stop sequences.
    * @param {Object} [options]                      - Runtime overrides.
    * @param {boolean} [options.silent]              - Suppress streaming UI and console errors.
    * @param {boolean} [options.raw]                 - Skip post-processing sanitization.
-   * @param {number}  [options.temperature]         - Override temperature.
-   * @param {number}  [options.top_p]               - Override top_p.
-   * @param {number}  [options.repetition_penalty]  - Override repetition penalty.
-   * @param {number}  [options.max_tokens]           - Override max tokens.
-   * @param {string}  [options.model]               - Override model.
    * @param {Function}[options.onToken]             - Per-token streaming callback.
    * @param {boolean} [options.json]                - Request structured JSON output.
    * @param {AbortSignal} [options.signal]          - Abort signal for cancellation.
@@ -191,11 +185,6 @@ export const llm_service = {
     try {
       // 3. Prepare generation parameters
       const gen_options = {
-        temperature: options.temperature ?? payload.params?.temperature ?? 0.8,
-        top_p: options.top_p ?? payload.params?.top_p,
-        repetition_penalty: options.repetition_penalty ?? payload.params?.repetition_penalty,
-        max_tokens: options.max_tokens ?? payload.params?.max_tokens,
-        model: options.model ?? payload.params?.model,
         stop_sequences: payload.stopSequences || [],
         startWith: payload.startWith || undefined,
         signal: options.signal,

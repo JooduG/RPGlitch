@@ -33,3 +33,4 @@
 **/yarn.lock
 **/tmp/**
 tmp/**/*
+**/suggestion*

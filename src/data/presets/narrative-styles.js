@@ -1,7 +1,8 @@
 /**
  * src/data/presets/narrative-styles.js
- * 📖 NARRATIVE STYLE SYSTEM — Author & Director Engine presets for prose generation.
- * Each entry's `narrative_engine` XML block is injected into the LLM system prompt context.
+ * 📖 NARRATIVE STYLE SYSTEM — narrative voice presets (authors, directors, etc.)
+ * for prose generation. Each entry's `narrative_engine` XML block is injected
+ * into the LLM system prompt context.
  */
 
 /** @type {Record<string, NarrativeStyle>} */

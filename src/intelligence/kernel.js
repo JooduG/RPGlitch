@@ -626,12 +626,15 @@ export const gamemaster = {
       const tier_from_pref =
         typeof director_data.image_tier === "string" && IMAGE_TRIGGER.tiers.includes(director_data.image_tier) ? director_data.image_tier : null;
       const director_explicit = raw_trigger === true || raw_trigger === "true" || tier_from_string !== null;
-      if (director_explicit) {
-        // Director-initiated triggers bypass the cooldown check, but reset the shared timer.
+      // The shared cooldown gates BOTH image sources (dynamics + Director explicit),
+      // so consecutive turns can't each fire an image. The prologue's image opens the
+      // timer at round 0, so the opening turn is covered too.
+      const director_allowed = director_explicit && cooldown_elapsed;
+      if (director_allowed) {
         state_bridge.runtime.last_auto_image_round = turn_round;
       }
 
-      const image_trigger_active = director_explicit || auto_image_trigger !== null;
+      const image_trigger_active = director_allowed || auto_image_trigger !== null;
       const image_tier =
         tier_from_string || (director_explicit ? tier_from_pref || IMAGE_TRIGGER.default_tier : auto_image_trigger?.tier || null) || null;
 
@@ -686,14 +689,7 @@ export const gamemaster = {
       // 6. GENERATION: Call the model with retry logic
       const validation_result = await this.execute_with_retry(
         async () => {
-          const { top_p, repetition_penalty, max_tokens, model, onToken, json, signal, silent, raw } = llm_options;
-          let temperature = llm_options.temperature || 0.8;
-
-          const raw_chaos = payload.entities.AI?.dynamics?.chaos;
-          if (typeof raw_chaos === "number" && !isNaN(raw_chaos)) {
-            const chaos = Math.max(0, Math.min(100, raw_chaos));
-            temperature = 0.4 + chaos * 0.008;
-          }
+          const { onToken, json, signal, silent, raw } = llm_options;
 
           const generated_text = await llm_service.generate(
             {
@@ -704,11 +700,6 @@ export const gamemaster = {
               node_id: node_id,
             },
             {
-              temperature,
-              top_p,
-              repetition_penalty,
-              max_tokens,
-              model,
               onToken,
               json,
               signal,
@@ -853,6 +844,16 @@ export const gamemaster = {
               console.warn("[Prologue Image Error]", err);
             })
         : Promise.resolve();
+
+      // Prime the streaming cursor so the busy placeholder renders during the opening
+      // turn's director phase (end_stream() above left streaming inactive; a regular
+      // turn gets this from advance_turn). node_id stays null → the "temp" placeholder,
+      // and the character pass streams into it since stream_bridge.is_active() is true.
+      state_bridge.app.streaming.active = true;
+      state_bridge.app.streaming.content = "";
+      state_bridge.app.streaming.text = "";
+      state_bridge.app.streaming.node_id = null;
+      state_bridge.app.streaming.role = "ai";
 
       const turn_promise = this.execute_turn(story_id, { role: "ai", is_opening_turn: true });
 

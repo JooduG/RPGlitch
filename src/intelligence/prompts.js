@@ -7,6 +7,7 @@
 import { ind, PROTOCOL_LIBRARY, prompt_escape, state_bridge } from "@utils";
 import { NARRATIVE_STYLES } from "@data";
 import { DYNAMICS_META } from "./dynamics.js";
+import { build_signals_xml } from "./signals.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "./fragments.js";
 import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine } from "./temporal.js";
@@ -151,7 +152,7 @@ function resolve_pov_protocol(entity) {
 }
 
 /**
- * Renders the active author style XML block.
+ * Renders the active narrative style XML block.
  * @returns {string}
  */
 function render_narrative_style_xml() {
@@ -159,10 +160,10 @@ function render_narrative_style_xml() {
   if (!style_key) return "";
 
   const style_def = NARRATIVE_STYLES[style_key];
-  const author_style_content = style_def.narrative_engine;
-  if (!author_style_content) return "";
+  const style_content = style_def.narrative_engine;
+  if (!style_content) return "";
 
-  const author_attr = `author="${escape_xml(style_key)}"`;
+  const narrator_attr = `narrator="${escape_xml(style_key)}"`;
 
   let desc_xml = "";
   if (style_def.description) {
@@ -174,7 +175,7 @@ function render_narrative_style_xml() {
     themes_xml = `\n    <DEFINING_CHARACTERISTICS>${escape_xml(style_def.tags.join(", "))}</DEFINING_CHARACTERISTICS>`;
   }
 
-  return `\n  <NARRATIVE_STYLE ${author_attr}>${desc_xml}${themes_xml}\n    ${ind(author_style_content, 4).trim()}\n  </NARRATIVE_STYLE>`;
+  return `\n  <NARRATIVE_STYLE ${narrator_attr}>${desc_xml}${themes_xml}\n    ${ind(style_content, 4).trim()}\n  </NARRATIVE_STYLE>`;
 }
 
 /**
@@ -196,25 +197,20 @@ function build_cognitive_state(dynamics) {
 }
 
 /**
- * Builds a per-stat dynamics calibration block for the Character prompt.
- * Explains each axis's current value and its behavioral meaning in plain language.
+ * Builds a response-length directive scaled by the AI's current pacing dynamics.
+ * High intensity compresses prose into urgent beats; low intensity draws it out.
  * @param {Record<string, number>} [dynamics]
- * @returns {string} XML block string, or empty if no dynamics
+ * @returns {string}
  */
-function build_dynamics_calibration(dynamics) {
-  if (!dynamics || typeof dynamics !== "object") return "";
-  const character_axes = ["chaos", "intensity", "openness", "affinity"];
-  const lines = character_axes
-    .filter((k) => typeof dynamics[k] === "number")
-    .map((k) => {
-      const v = Math.round(dynamics[k]);
-      const meta = DYNAMICS_META[k];
-      const label = meta?.label || k;
-      const desc = meta?.desc || "";
-      return `      ${label}="${v}": ${desc}. ${v > 60 ? PROTOCOL_LIBRARY.DYNAMICS.CALIBRATION.HIGH : v < 40 ? PROTOCOL_LIBRARY.DYNAMICS.CALIBRATION.LOW : PROTOCOL_LIBRARY.DYNAMICS.CALIBRATION.BALANCED}`;
-    });
-  if (lines.length === 0) return "";
-  return `    <DYNAMICS_CALIBRATION>\n${lines.join("\n")}\n    </DYNAMICS_CALIBRATION>`;
+function build_length_directive(dynamics) {
+  const intensity = dynamics?.intensity;
+  if (typeof intensity === "number" && intensity > 70) {
+    return "Aim for roughly 1\u20132 short, clipped paragraphs \u2014 high energy compresses prose into urgent beats.";
+  }
+  if (typeof intensity === "number" && intensity < 30) {
+    return "Aim for up to 3 paragraphs, drawn out with heavy, deliberate detail.";
+  }
+  return "Aim for a length of roughly 2 paragraphs, adjusting as the context demands.";
 }
 
 /**
@@ -316,7 +312,7 @@ ${(() => {
           "story_scene"     -> environment / general narrative moment
     STATE & CONTINUITY GUIDANCE:
       - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed vector_append and present_append that move toward them so they materialize as the character's own actions.
-      - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or FRACTAL_FEED, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
+      - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or SNAPSHOT, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
       - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
   </TASK>
   `).trim();
@@ -350,13 +346,13 @@ function build_ai_future_xml(entity, scoringContext = "", entities = {}) {
 
 function render_character({ round, entities, input, compressed_snapshot, meta, render_atom, ghostwrite = false }) {
   const pov_protocol = resolve_pov_protocol(entities?.AI);
+  const has_user_action = !!input?.trim();
 
   const protocols = [
     "COGNITION.PHASES",
     "AGENCY.PRESENT_TENSE",
     "HYGIENE.PROSE",
-    "AGENCY.USER_BOUNDARIES",
-    "AGENCY.YES_AND",
+    ...(has_user_action ? ["AGENCY.USER_BOUNDARIES", "AGENCY.YES_AND"] : []),
     "AGENCY.MOMENTUM",
     "HYGIENE.MARKDOWN",
     "AGENCY.INITIATIVE",
@@ -374,23 +370,18 @@ function render_character({ round, entities, input, compressed_snapshot, meta, r
   const system = clean_xml(`
 <SYSTEM role="${escape_xml(entities?.AI?.name || "AI")}">${render_narrative_style_xml()}
 You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${escape_xml(entities?.USER?.name || "User")} inside ${escape_xml(entities?.FRACTAL?.name || "the environment")}.
+  ${ind(build_dynamics_legend(), 2)}
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}">
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
-    </ETERNAL>
+    <ETERNAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
-    </ETERNAL>
+    <ETERNAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}">
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
-    </ETERNAL>
+    <ETERNAL>${val(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</ETERNAL>
   </FRACTAL>`.trim()
       : ""
   }
@@ -401,34 +392,27 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
   `).trim();
 
   const task = clean_xml(`
-<FRACTAL_FEED>
+<SNAPSHOT>
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-${build_dynamics_calibration(compressed_snapshot?.ai?.dynamics)}
-    <PRESENT>
-      <NON_PHYSICAL>${ind(val(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</NON_PHYSICAL>
-    </PRESENT>
+    <PRESENT>${ind(val(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</PRESENT>
     <PAST>${ind(render_atom.past(entities?.AI, { vector_text: true }), 6)}</PAST>
 ${build_ai_future_xml(entities?.AI, render_atom._context, entities)}
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-    <PRESENT>
-      <NON_PHYSICAL>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</NON_PHYSICAL>
-    </PRESENT>
+    <PRESENT>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 6)}</PRESENT>
     <PAST>${ind(render_atom.past(entities?.USER, { vector_text: true }), 6)}</PAST>
   </USER_PERSONA>
   ${
     entities?.FRACTAL
       ? `
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
-    <PRESENT>
-      <NON_PHYSICAL>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
-    </PRESENT>
+    <PRESENT>${val(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
     <PAST>${ind(render_atom.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
     <FUTURE>${ind(render_atom.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </FRACTAL>`.trim()
       : ""
   }
-</FRACTAL_FEED>
+</SNAPSHOT>
 <ROUND>${escape_xml(String(round))}</ROUND>
 ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
 <TASK>
@@ -439,17 +423,18 @@ ${input?.trim() ? `<USER_ACTION>${ind(input, 2)}</USER_ACTION>` : ""}
     <EPISTEMIC_PHYSICS>
       ${ind(PROTOCOL_LIBRARY.EPISTEMIC_PHYSICS.RULES, 6)}
     </EPISTEMIC_PHYSICS>
+    ${build_signals_xml(compressed_snapshot?.ai?.dynamics, compressed_snapshot?.fractal?.dynamics)}
     <POV_DIRECTIVE>
       ${PROTOCOL_LIBRARY.POV[pov_protocol.split(".")[1] || "FIRST_PERSON"]}
     </POV_DIRECTIVE>
     ${
       ghostwrite
         ? "Follow the <GHOSTWRITE> directive below to complete your turn."
-        : input?.trim()
+        : has_user_action
           ? "Execute your reaction against <USER_ACTION>."
           : "Continue the scene, reacting to the current situation."
     } Stay fully in character. Honor all active <PROTOCOLS>.
-    Aim for a length of roughly 2 paragraphs, adjusting as the context demands.
+    ${build_length_directive(compressed_snapshot?.ai?.dynamics)}
   </TASK>
   `).trim();
 
@@ -504,35 +489,24 @@ function render_narrator(mode, { entities, render_atom, compressed_snapshot, rou
 
   const system = clean_xml(`
 <SYSTEM role="${escape_xml(fractal_name)}" mode="${mode.toUpperCase()}">${render_narrative_style_xml()}
+  ${ind(build_dynamics_legend(), 2)}
   <YOUR_IDENTITY name="${escape_xml(fractal_name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
     <ANCHOR>Resolve all state inferences strictly from this identity block.</ANCHOR>
-    <PRESENT>
-      <NON_PHYSICAL>${val(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</NON_PHYSICAL>
-    </PRESENT>
-    <ETERNAL>
-      <NON_PHYSICAL>${val(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</NON_PHYSICAL>
-    </ETERNAL>
+    <PRESENT>${val(entities?.FRACTAL?.present?.non_physical, entities?.FRACTAL, entities)}</PRESENT>
+    <ETERNAL>${val(entities?.FRACTAL?.eternal?.non_physical, entities?.FRACTAL, entities)}</ETERNAL>
     <PAST>${ind(render_atom?.past(entities?.FRACTAL, { vector_text: true }), 6)}</PAST>
     <FUTURE>${ind(render_atom?.future(entities?.FRACTAL, { vector_text: true }), 6)}</FUTURE>
   </YOUR_IDENTITY>
   <ACTIVE_CHARACTERS>
     <AI_CHARACTER name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
-      <PRESENT>
-        <NON_PHYSICAL>${val(entities?.AI?.present?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
-      </PRESENT>
-      <ETERNAL>
-        <NON_PHYSICAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</NON_PHYSICAL>
-      </ETERNAL>
+      <PRESENT>${val(entities?.AI?.present?.non_physical, entities?.AI, entities)}</PRESENT>
+      <ETERNAL>${val(entities?.AI?.eternal?.non_physical, entities?.AI, entities)}</ETERNAL>
       <PAST>${ind(render_atom?.past(entities?.AI, { vector_text: true }), 8)}</PAST>
       <FUTURE>${ind(render_atom?.future(entities?.AI, { vector_text: true }), 8)}</FUTURE>
     </AI_CHARACTER>
     <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
-      <PRESENT>
-        <NON_PHYSICAL>${ind(val(entities?.USER?.present?.non_physical, entities?.USER, entities), 8)}</NON_PHYSICAL>
-      </PRESENT>
-      <ETERNAL>
-        <NON_PHYSICAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</NON_PHYSICAL>
-      </ETERNAL>
+      <PRESENT>${val(entities?.USER?.present?.non_physical, entities?.USER, entities)}</PRESENT>
+      <ETERNAL>${val(entities?.USER?.eternal?.non_physical, entities?.USER, entities)}</ETERNAL>
       <PAST>${ind(render_atom?.past(entities?.USER, { vector_text: true }), 8)}</PAST>
       <FUTURE>${ind(render_atom?.future(entities?.USER, { vector_text: true }), 8)}</FUTURE>
     </USER_PERSONA>
@@ -550,6 +524,7 @@ ${round != null ? `<ROUND>${escape_xml(String(round))}</ROUND>\n` : ""}${input?.
     ${PROTOCOL_LIBRARY.COGNITION.THINK_NARRATOR}
     </THINK_FORMAT>
     ${task_text}
+    ${build_signals_xml({}, compressed_snapshot?.fractal?.dynamics, { domains: ["fractal"] })}
     <POV_DIRECTIVE>${PROTOCOL_LIBRARY.POV.NARRATOR}</POV_DIRECTIVE>
   </TASK>
   `).trim();
@@ -965,8 +940,8 @@ export const prompt_builder = {
 export {
   build_ai_future_xml,
   build_cognitive_state,
-  build_dynamics_calibration,
   build_dynamics_legend,
+  build_length_directive,
   render_character,
   render_director,
   render_enhancement,

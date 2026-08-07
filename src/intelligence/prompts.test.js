@@ -1,4 +1,4 @@
-import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter, build_cognitive_state, build_dynamics_calibration } from "./prompts.js";
+import { prompt_builder, PROTOCOL_LIBRARY, render_ghostwriter, build_cognitive_state, build_length_directive } from "./prompts.js";
 import { vi, describe, expect, it } from "vitest";
 
 const _mock_app = {
@@ -260,7 +260,7 @@ describe("prompt_builder (Refactored)", () => {
   });
 
   describe("Prefix-Cache System Prompt Re-ordering", () => {
-    it("should separate static SYSTEM from volatile FRACTAL_FEED in character prompt", () => {
+    it("should separate static SYSTEM from volatile SNAPSHOT in character prompt", () => {
       const payload = {
         round: 5,
         entities: {
@@ -304,7 +304,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain("<PROTOCOLS>");
       expect(result.system).not.toContain('intensity="50"');
 
-      expect(result.task).toContain("<FRACTAL_FEED>");
+      expect(result.task).toContain("<SNAPSHOT>");
       expect(result.task).toContain("Volatile Present");
       expect(result.task).toContain("Volatile Past");
       expect(result.task).toContain('intensity="50"');
@@ -518,7 +518,7 @@ describe("prompt_builder (Refactored)", () => {
       };
       const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const result = prompt_builder.build_character_prompt(mock_payload, mock_snapshot, {});
-      expect(result.system).toContain('<NARRATIVE_STYLE author="anna_zaires">');
+      expect(result.system).toContain('<NARRATIVE_STYLE narrator="anna_zaires">');
       _mock_app.settings.narrative_style = "default";
     });
 
@@ -554,7 +554,7 @@ describe("prompt_builder (Refactored)", () => {
       const mock_snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
       const prologue_payload = { ...mock_payload, type: "prologue" };
       const result = prompt_builder.synthesize(prologue_payload, mock_snapshot);
-      expect(result.system).toContain('<NARRATIVE_STYLE author="william_gibson">');
+      expect(result.system).toContain('<NARRATIVE_STYLE narrator="william_gibson">');
       _mock_app.settings.narrative_style = "default";
     });
 
@@ -675,7 +675,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(user_block).toContain("Heroic himbo");
       const ai_block = system.slice(system.indexOf('<USER_PERSONA name="Glitch"'), system.indexOf("</USER_PERSONA>"));
       expect(ai_block).toContain("Cyan-haired hacker");
-      expect(task).toContain("<FRACTAL_FEED>");
+      expect(task).toContain("<SNAPSHOT>");
       expect(task).toContain("<THINK_FORMAT>");
       expect(task).toContain("Do not write dialogue, actions, or thoughts for Glitch");
     });
@@ -717,34 +717,25 @@ describe("prompt_builder (Refactored)", () => {
     });
   });
 
-  describe("build_dynamics_calibration()", () => {
-    it("generates calibration block for character axes", () => {
-      const result = build_dynamics_calibration({ chaos: 75, intensity: 25, openness: 60, affinity: 40 });
-      expect(result).toContain("<DYNAMICS_CALIBRATION>");
-      expect(result).toContain('Chaos="75"');
-      expect(result).toContain('Intensity="25"');
-      expect(result).toContain('Openness="60"');
-      expect(result).toContain('Affinity="40"');
+  describe("build_length_directive()", () => {
+    it("defaults to the neutral 2-paragraph directive when no dynamics are present", () => {
+      expect(build_length_directive(null)).toContain("2 paragraphs");
+      expect(build_length_directive(undefined)).toContain("2 paragraphs");
+      expect(build_length_directive({})).toContain("2 paragraphs");
     });
 
-    it("describes high values as dominant", () => {
-      const result = build_dynamics_calibration({ chaos: 75, intensity: 50, openness: 50, affinity: 50 });
-      expect(result).toContain("High — dominates behavior");
+    it("compresses prose when intensity is high", () => {
+      const result = build_length_directive({ intensity: 85, chaos: 50 });
+      expect(result).toContain("1\u20132 short, clipped paragraphs");
     });
 
-    it("describes low values as suppressed", () => {
-      const result = build_dynamics_calibration({ chaos: 25, intensity: 50, openness: 50, affinity: 50 });
-      expect(result).toContain("Low — suppressed state");
+    it("draws prose out when intensity is low", () => {
+      const result = build_length_directive({ intensity: 20, chaos: 50 });
+      expect(result).toContain("up to 3 paragraphs");
     });
 
-    it("describes mid values as balanced", () => {
-      const result = build_dynamics_calibration({ chaos: 50, intensity: 50, openness: 50, affinity: 50 });
-      expect(result).toContain("Balanced — neutral baseline");
-    });
-
-    it("returns empty string for null/undefined dynamics", () => {
-      expect(build_dynamics_calibration(null)).toBe("");
-      expect(build_dynamics_calibration(undefined)).toBe("");
+    it("keeps the neutral directive at mid-range intensity", () => {
+      expect(build_length_directive({ intensity: 50, chaos: 50 })).toContain("2 paragraphs");
     });
   });
 
@@ -820,22 +811,69 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.task).toContain("Perspective Isolation:");
     });
 
-    it("includes DYNAMICS_CALIBRATION block in FRACTAL_FEED when dynamics are present", () => {
+    it("moves the dynamics legend into SYSTEM and keeps values as attrs on YOUR_IDENTITY", () => {
       const snapshot = {
         ai: { dynamics: { chaos: 50, intensity: 75, openness: 32, affinity: 69 } },
+        fractal: { dynamics: { entropy: 63, velocity: 41 } },
+        flags: {},
+      };
+      const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
+      expect(result.task).not.toContain("<DYNAMICS_CALIBRATION>");
+      expect(result.system).toContain("<DYNAMICS_LEGEND>");
+      expect(result.system).toContain("- entropy (Entropy): Structural Reality / Weirdness");
+      expect(result.task).toContain('chaos="50"');
+      expect(result.task).toContain('intensity="75"');
+      expect(result.task).toContain('entropy="63"');
+    });
+
+    it("gates USER_BOUNDARIES and YES_AND on the presence of a user action", () => {
+      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+      const with_input = prompt_builder.build_character_prompt({ ...mock_payload, input: "Check the console." }, snapshot, {});
+      const without_input = prompt_builder.build_character_prompt({ ...mock_payload, input: "" }, snapshot, {});
+      expect(with_input.system).toContain("Never predict, assume, or generate the user's next action");
+      expect(without_input.system).not.toContain("Never predict, assume, or generate the user's next action");
+      expect(with_input.system).toContain("Yes, and...");
+      expect(without_input.system).not.toContain("Yes, and...");
+      expect(with_input.task).toContain("Execute your reaction against <USER_ACTION>.");
+      expect(without_input.task).toContain("Continue the scene, reacting to the current situation.");
+    });
+
+    it("drives the length directive from AI intensity", () => {
+      const snapshot = { ai: { dynamics: { intensity: 85, chaos: 50, openness: 50, affinity: 50 } }, fractal: { dynamics: {} }, flags: {} };
+      const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
+      expect(result.task).toContain("1\u20132 short, clipped paragraphs");
+      expect(result.task).not.toContain("roughly 2 paragraphs");
+    });
+
+    it("injects a pacing signal when AI intensity is high", () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 85, chaos: 50, openness: 50, affinity: 50 } },
         fractal: { dynamics: {} },
         flags: {},
       };
       const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.task).toContain("<DYNAMICS_CALIBRATION>");
-      expect(result.task).toContain('Chaos="50"');
-      expect(result.task).toContain('Intensity="75"');
+      expect(result.task).toContain("<DYNAMICS_SIGNALS>");
+      expect(result.task).toContain("High-adrenaline pacing");
     });
 
-    it("omits DYNAMICS_CALIBRATION when no dynamics are present", () => {
-      const snapshot = { ai: { dynamics: {} }, fractal: { dynamics: {} }, flags: {} };
+    it("injects a pathetic fallacy signal when fractal entropy is high", () => {
+      const snapshot = {
+        ai: { dynamics: {} },
+        fractal: { dynamics: { entropy: 85, velocity: 50 } },
+        flags: {},
+      };
       const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
-      expect(result.task).not.toContain("<DYNAMICS_CALIBRATION>");
+      expect(result.task).toContain("Pathetic fallacy");
+    });
+
+    it("omits the signals block when all dynamics are neutral", () => {
+      const snapshot = {
+        ai: { dynamics: { intensity: 50, chaos: 50, openness: 50, affinity: 50 } },
+        fractal: { dynamics: { entropy: 50, velocity: 50 } },
+        flags: {},
+      };
+      const result = prompt_builder.build_character_prompt(mock_payload, snapshot, {});
+      expect(result.task).not.toContain("<DYNAMICS_SIGNALS>");
     });
 
     it("keeps cognitive attrs in volatile task, not static system prefix", () => {

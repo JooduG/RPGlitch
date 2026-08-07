@@ -164,6 +164,11 @@ describe("gamemaster (Intelligence Kernel)", () => {
     _mock_runtime.ai = { intensity: 50 };
     _mock_runtime.fractal = { entropy: 50 };
     _mock_runtime.structural_errors = 0;
+    // Cooldown state is now authoritative for BOTH image sources, so every test
+    // starts from the open-gate sentinel (-1) instead of inheriting mutations
+    // from earlier tests (e.g. execute_prologue sets round 0 / last_auto 0).
+    _mock_runtime.round = 1;
+    _mock_runtime.last_auto_image_round = -1;
   });
 
   describe("capture_dynamics_delta()", () => {
@@ -860,14 +865,35 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(_mock_runtime.last_auto_image_round).toBe(2);
     });
 
-    it("Source B: a director explicit trigger bypasses the cooldown and resets the shared timer", async () => {
+    it("Source B: a director explicit trigger is suppressed while the shared cooldown is active", async () => {
       vi.mocked(evaluate_image_trigger).mockReturnValue({
         triggered: false,
         signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
         tier: "story_scene",
         deltas: [],
       });
-      _mock_runtime.last_auto_image_round = 2;
+      _mock_runtime.last_auto_image_round = 2; // round 1 < 2 + 3 → cooldown not elapsed
+      vi.mocked(llm_service.generate)
+        .mockResolvedValueOnce(JSON.stringify({ trigger_image: true, mutations: { AI_CHARACTER: {} } }))
+        .mockResolvedValueOnce("Identified.");
+
+      const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
+
+      expect(result.meta.image_trigger).toBe(false);
+      expect(result.meta.image_tier).toBeNull();
+      expect(visual_engine.visualize).not.toHaveBeenCalled();
+      expect(_mock_runtime.last_auto_image_round).toBe(2);
+    });
+
+    it("Source B: a director explicit trigger fires once the shared cooldown has elapsed and resets the timer", async () => {
+      vi.mocked(evaluate_image_trigger).mockReturnValue({
+        triggered: false,
+        signals: { band_entry: null, displacement: 0, displacement_threshold: 60 },
+        tier: "story_scene",
+        deltas: [],
+      });
+      _mock_runtime.round = 5;
+      _mock_runtime.last_auto_image_round = 2; // 5 >= 2 + 3 → cooldown elapsed
       vi.mocked(llm_service.generate)
         .mockResolvedValueOnce(JSON.stringify({ trigger_image: true, mutations: { AI_CHARACTER: {} } }))
         .mockResolvedValueOnce("Identified.");
@@ -877,7 +903,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       expect(result.meta.image_trigger).toBe(true);
       expect(result.meta.image_source).toBe("director");
       expect(result.meta.image_tier).toBe("story_scene");
-      expect(_mock_runtime.last_auto_image_round).toBe(1);
+      expect(_mock_runtime.last_auto_image_round).toBe(5);
       await vi.waitFor(() => expect(visual_engine.visualize).toHaveBeenCalled());
     });
 

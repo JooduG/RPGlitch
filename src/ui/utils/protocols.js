@@ -72,7 +72,9 @@ Keep each phase under 3 sentences. Total think block < 200 words.`,
 3. Spatial Integrity: Maintain physical boundaries. Avoid unprovoked proximity encroachment or constant posture tagging (e.g., shifting weight, crossing arms).
 4. Concrete Interaction: Prioritize localized object interactions over repetitive physical gestures. Never repeat posture tags in consecutive turns.
 5. Emotion Mapping: Express emotion strictly through observable micro-actions, physical choices, and tone shifts.
-6. Action Dynamics: Avoid formulaic action beats (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward'). Favor varied physical descriptions.`,
+6. Action Dynamics: Avoid formulaic action beats (e.g., 'doesn't just [action]', 'lets out a [sound]', 'lunges forward'). Favor varied physical descriptions.
+7. Somatic Grounding: Every emotional shift must surface in prose as a concrete physical sensation (tightening stomach, cold hands, muscle coiling) — never abstract declarations.
+8. Procedural Skill: If the character possesses a skill (combat, craft, speech, infiltration), describe the technique and muscle memory, not just the outcome.`,
   },
 
   // ── 4. Scene Orchestration & Dynamic Profiles ───────────────────────────────
@@ -105,11 +107,6 @@ name (string), description (string), signature_color (string), eternal_physical 
     LAWS: `1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Ensure present_append matches the mathematical intensity of selected deltas.`,
-    CALIBRATION: {
-      HIGH: "High — dominates behavior.",
-      LOW: "Low — suppressed state.",
-      BALANCED: "Balanced — neutral baseline.",
-    },
   },
 
   // ── 5. Visual Engine & Image Generation (Optics) ────────────────────────────

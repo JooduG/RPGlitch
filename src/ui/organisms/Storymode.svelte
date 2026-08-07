@@ -26,6 +26,14 @@
   let delete_target_id = $state(null);
   /** @type {number | null} */
   let editing_index = $state(null);
+  const UNDO_DELETE_WINDOW_MS = 5000;
+  /**
+   * Staged deletions awaiting undo. Plain $state object (not a Map): Svelte's
+   * $state Map proxy does not invalidate .has()/.get() readers on .set() in
+   * svelte@5.56 (live-verified), which silently broke the placeholder swap.
+   * @type {Record<string | number, { timer: ReturnType<typeof setTimeout>, expires_at: number }>}
+   */
+  let pending_deletes = $state({});
 
   // Streaming trackers for sequential speech queue feeding
   let was_streaming = $state(false);
@@ -257,16 +265,35 @@
   }
 
   /**
-   * Excutes the true database erasure operation via session stream handlers.
+   * Stages the deletion: the entry is visually removed immediately, but the real
+   * database erasure waits out the undo window (or is cancelled by Undo).
    * @returns {Promise<void>}
    */
   async function execute_delete() {
-    if (delete_target_id) {
-      if (Audio.voice.activeMessageId === delete_target_id) {
-        Audio.voice.stop();
-      }
-      await Chrono.delete_log_entry(delete_target_id.toString());
-      delete_target_id = null;
+    const id = delete_target_id;
+    if (id == null) return;
+    delete_target_id = null;
+    if (Audio.voice.activeMessageId === id) {
+      Audio.voice.stop();
+    }
+    const pending = pending_deletes[id];
+    if (pending) clearTimeout(pending.timer);
+    const timer = setTimeout(async () => {
+      delete pending_deletes[id];
+      await Chrono.delete_log_entry(String(id));
+    }, UNDO_DELETE_WINDOW_MS);
+    pending_deletes[id] = { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS };
+  }
+
+  /**
+   * Cancels a staged deletion and restores the entry.
+   * @param {string | number} id
+   */
+  function undo_delete(id) {
+    const pending = pending_deletes[id];
+    if (pending) {
+      clearTimeout(pending.timer);
+      delete pending_deletes[id];
     }
   }
 
@@ -295,7 +322,7 @@
   type="confirm"
   bind:open={show_delete_confirm}
   title="Delete Entry?"
-  message="Permanently delete this log entry? This cannot be undone."
+  message="Delete this log entry? It will be removed in 5 seconds unless you undo."
   confirm_label="Delete"
   on_confirm={execute_delete}
 />
@@ -315,26 +342,44 @@
 >
   <ScrollArea data-id="storymode-scroll-area" style="height: 100%; width: 100%;">
     {#each visible_feed as entry, index (entry.id)}
-      <Message
-        id={entry.id}
-        text={entry.text}
-        sender={map_role(entry.role)}
-        character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
-        timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
-        attachments={entry.attachments}
-        is_last={index === visible_feed.length - 1}
-        on_delete={() => handle_delete(index)}
-        on_regenerate={() => Chrono.retry()}
-        on_continue={() => Chrono.continue()}
-        on_edit={() => handle_edit(index)}
-        is_editing={index === editing_index}
-        on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
-        on_cancel={() => {
-          editing_index = null;
-        }}
-        meta={entry.meta}
-        busy={entry.busy}
-      />
+      {#if pending_deletes[entry.id]}
+        <div
+          role="status"
+          class="relative mx-(--spacing-padding-standard) flex items-center gap-(--spacing-gap-tight) overflow-hidden rounded-(--radius-standard) bg-glass-sunken px-(--spacing-padding-tight) py-(--spacing-padding-tight) text-sm text-frozen"
+        >
+          <span class="flex-1 opacity-80">Message deleted</span>
+          <button
+            class="cursor-pointer rounded-(--radius-standard) bg-(--color-electric-cyan) px-[calc(var(--spacing-unit)*3)] py-1.5 text-xs font-semibold text-(--color-void-black) transition-[filter] duration-150 hover:brightness-[1.15]"
+            onclick={() => undo_delete(entry.id)}>Undo</button
+          >
+          <span
+            aria-hidden="true"
+            class="absolute inset-x-0 bottom-0 h-0.5 origin-left bg-(--color-electric-cyan)"
+            style="animation: undo-countdown-shrink {UNDO_DELETE_WINDOW_MS}ms linear forwards;"
+          ></span>
+        </div>
+      {:else}
+        <Message
+          id={entry.id}
+          text={entry.text}
+          sender={map_role(entry.role)}
+          character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
+          timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
+          attachments={entry.attachments}
+          is_last={index === visible_feed.length - 1}
+          on_delete={() => handle_delete(index)}
+          on_regenerate={() => Chrono.retry()}
+          on_continue={() => Chrono.continue()}
+          on_edit={() => handle_edit(index)}
+          is_editing={index === editing_index}
+          on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
+          on_cancel={() => {
+            editing_index = null;
+          }}
+          meta={entry.meta}
+          busy={entry.busy}
+        />
+      {/if}
     {/each}
 
     {#if visible_feed.length === 0}
