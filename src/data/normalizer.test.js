@@ -7,12 +7,12 @@ import {
   get_random_signature_key,
   normalize,
 } from "./normalizer.js";
-import { Security } from "@platform";
+import { security } from "@platform";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-// Mock Security.sanitize
+// Mock security.sanitize
 vi.mock("@platform/security.js", () => ({
-  Security: {
+  security: {
     sanitize: vi.fn((val) => (typeof val === "string" ? val.trim() : val)),
   },
 }));
@@ -64,9 +64,9 @@ describe("content-normaliser.js", () => {
         signature_color: "Red",
       };
       normalize(input);
-      expect(Security.sanitize).toHaveBeenCalledWith("<b>Danger</b>");
-      expect(Security.sanitize).toHaveBeenCalledWith(" Hello ");
-      expect(Security.sanitize).toHaveBeenCalledWith("Red");
+      expect(security.sanitize).toHaveBeenCalledWith("<b>Danger</b>");
+      expect(security.sanitize).toHaveBeenCalledWith(" Hello ");
+      expect(security.sanitize).toHaveBeenCalledWith("Red");
     });
 
     it("should sanitize, strip newlines, and cap super long name fields", () => {
@@ -110,7 +110,7 @@ describe("content-normaliser.js", () => {
     it("should process tags into a sanitized array of strings", () => {
       const input = { tags: [" tag1 ", "tag2", null, 123] };
       const result = normalize(input);
-      // Security.sanitize is mocked to trim
+      // security.sanitize is mocked to trim
       expect(result.tags).toEqual(["tag1", "tag2", "123"]);
     });
 

@@ -13,7 +13,7 @@ vi.mock("@media/audio.svelte.js", () => ({
     init: vi.fn(),
     _init_promise: null,
     voice: {
-      loadModel: vi.fn().mockResolvedValue(),
+      load_model: vi.fn().mockResolvedValue(),
     },
   },
 }));
@@ -54,7 +54,7 @@ vi.mock("@utils", async (importOriginal) => {
 });
 
 import * as repository from "@data";
-import { AppBootstrap, reset_bootstrap_guard } from "@engine/boot.js";
+import { app_bootstrap, reset_bootstrap_guard } from "@engine/boot.js";
 vi.mock("@state/runtime.svelte.js", () => ({
   runtime: _mock_runtime,
 }));
@@ -64,7 +64,7 @@ vi.mock("svelte", () => ({
 vi.mock("../App.svelte", () => ({
   default: {},
 }));
-describe("AppBootstrap", () => {
+describe("app_bootstrap", () => {
   beforeEach(async () => {
     document.body.innerHTML = "";
     vi.resetAllMocks();
@@ -80,7 +80,7 @@ describe("AppBootstrap", () => {
 
     const console_spy = vi.spyOn(console, "error").mockImplementation(() => {});
 
-    await AppBootstrap.init();
+    await app_bootstrap.init();
     expect(document.body.innerHTML).toContain("SYSTEM HALTED");
     expect(console_spy).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure:"), error);
     expect(_mock_app.log).toHaveBeenCalledWith(expect.stringContaining("[Engine] 🚫 Critical Failure: Critical Failure"), "error");
@@ -102,7 +102,7 @@ describe("AppBootstrap", () => {
 
     _mock_runtime.is_ready = true;
 
-    await AppBootstrap.init();
+    await app_bootstrap.init();
 
     // Verify all functions were called
     expect(repository.seed_premades).toHaveBeenCalled();
@@ -138,7 +138,7 @@ describe("AppBootstrap", () => {
     const console_spy = vi.spyOn(console, "error").mockImplementation(() => {});
     const inner_htmlspy = vi.spyOn(document.body, "innerHTML", "set");
 
-    await AppBootstrap.init();
+    await app_bootstrap.init();
 
     // We want this to be false, indicating we used a safer method like replaceChildren or append with a fragment
     expect(inner_htmlspy).not.toHaveBeenCalled();

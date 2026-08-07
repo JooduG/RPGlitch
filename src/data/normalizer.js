@@ -5,9 +5,9 @@
  * ZERO BACKWARDS COMPATIBILITY.
  */
 import { pick_random, generate_uuid } from "@utils";
-import { Security } from "@platform";
+import { security } from "@platform";
 
-const sanitize_html = (/** @type {any} */ val) => Security.sanitize(val);
+const sanitize_html = (/** @type {any} */ val) => security.sanitize(val);
 export const STORAGE_VERSION = 3;
 
 /**

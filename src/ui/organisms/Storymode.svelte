@@ -12,7 +12,7 @@
   import { Button, ScrollArea } from "@atoms";
   import { clean_image_prompts } from "@intelligence";
   import { Audio } from "@media";
-  import { Chrono } from "@engine";
+  import { chrono_engine } from "@engine";
   import { app, runtime, simulation_log, simulation_state } from "@state";
   import { motion } from "@motion";
   import { Dialog } from "@molecules";
@@ -280,7 +280,7 @@
     if (pending) clearTimeout(pending.timer);
     const timer = setTimeout(async () => {
       delete pending_deletes[id];
-      await Chrono.delete_log_entry(String(id));
+      await chrono_engine.delete_log_entry(String(id));
     }, UNDO_DELETE_WINDOW_MS);
     pending_deletes[id] = { timer, expires_at: Date.now() + UNDO_DELETE_WINDOW_MS };
   }
@@ -313,7 +313,7 @@
    * @returns {Promise<void>}
    */
   async function handle_save_edit(id, updated_text) {
-    await Chrono.edit_log_entry(id.toString(), updated_text);
+    await chrono_engine.edit_log_entry(id.toString(), updated_text);
     editing_index = null;
   }
 </script>
@@ -368,8 +368,8 @@
           attachments={entry.attachments}
           is_last={index === visible_feed.length - 1}
           on_delete={() => handle_delete(index)}
-          on_regenerate={() => Chrono.retry()}
-          on_continue={() => Chrono.continue()}
+          on_regenerate={() => chrono_engine.retry()}
+          on_continue={() => chrono_engine.continue()}
           on_edit={() => handle_edit(index)}
           is_editing={index === editing_index}
           on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
@@ -399,7 +399,7 @@
         "
       >
         <p>Establishing context stream... If the screen remains black, please check your network or AI plugin settings.</p>
-        <Button variant="primary" onclick={() => Chrono.retry()} disabled={simulation_state.busy} label="Retry Connection" />
+        <Button variant="primary" onclick={() => chrono_engine.retry()} disabled={simulation_state.busy} label="Retry Connection" />
       </div>
     {/if}
 

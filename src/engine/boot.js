@@ -36,12 +36,12 @@ export const reset_bootstrap_guard =
     : () => {};
 
 /**
- * AppBootstrap handles the initial sequence of the application.
+ * app_bootstrap handles the initial sequence of the application.
  */
-export const AppBootstrap = {
+export const app_bootstrap = {
   async init() {
     if (has_initialized) {
-      state_bridge.app.log("[Engine] AppBootstrap.init() called more than once. Guarding.", "system");
+      state_bridge.app.log("[Engine] app_bootstrap.init() called more than once. Guarding.", "system");
       return;
     }
     has_initialized = true;
@@ -52,7 +52,7 @@ export const AppBootstrap = {
 
       // Trigger asset pre-downloads on boot without blocking DOM mount
       embeddings_engine?.load_model?.()?.catch?.((err) => console.warn("[Boot] Embeddings pre-download error:", err));
-      Audio?.voice?.loadModel?.()?.catch?.((err) => console.warn("[Boot] Voice pre-download error:", err));
+      Audio?.voice?.load_model?.()?.catch?.((err) => console.warn("[Boot] Voice pre-download error:", err));
 
       // Parallel Initialization: Reduce critical path for LCP.
       await Promise.all([state_bridge.runtime.sync(), state_bridge.app.init(), Audio.init()]);

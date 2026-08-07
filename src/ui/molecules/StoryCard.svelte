@@ -177,7 +177,7 @@
       `
         : 'text-slate-50'}"
     >
-      {format_timestamp(story.lastPlayed)}{#if active}
+      {format_timestamp(story.last_played)}{#if active}
         · ACTIVE{/if}
     </span>
   </div>

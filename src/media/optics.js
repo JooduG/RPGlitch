@@ -206,7 +206,7 @@ function build_aesthetic_map(entity = {}) {
 
 const VS_ORDERED_KEYS = ["_vs_medium", "_vs_palette", "_vs_camera", "_vs_composition", "_vs_texture", "_vs_tags"];
 
-export const AestheticResolver = {
+export const aesthetic_resolver = {
   /**
    * Deterministic extraction of traits from entity fields into formatted JSON property lines.
    * @param {any} [entity]
@@ -256,7 +256,7 @@ const JSON_OUTPUT_PROTOCOL = PROTOCOL_LIBRARY.FORMATS.JSON_ONLY;
 /**
  * Authoritative prompt templates optimized for modern generative diffusion pipelines.
  */
-export const PromptTemplates = {
+export const prompt_templates = {
   /**
    * Constructs system prompts for all image generation tasks (solo entity portraits and multi-character scenes).
    * @param {string} targetType
@@ -373,7 +373,7 @@ ${JSON_OUTPUT_PROTOCOL}
    */
   ENHANCE: (text, _type = "character", entity = null) => {
     const tier = normalize_image_tier(_type || "");
-    return PromptTemplates.BUILDER(tier, text, {
+    return prompt_templates.BUILDER(tier, text, {
       entity,
       mode: "enhance",
       variant: _type === "selfie" ? "selfie" : undefined,

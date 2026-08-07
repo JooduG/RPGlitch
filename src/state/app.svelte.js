@@ -178,10 +178,10 @@ export class AppStore {
   get sim_phase() {
     return simulation_state.phase;
   }
-  get isProcessing() {
+  get is_processing() {
     return simulation_state.phase === "generating" || this.streaming.active;
   }
-  get voiceSuppressed() {
+  get voice_suppressed() {
     return simulation_state.phase === "generating" && !this.streaming.active;
   }
   /**
@@ -193,13 +193,13 @@ export class AppStore {
   /**
    *
    */
-  get turnType() {
+  get turn_type() {
     return runtime.turn_type;
   }
   /**
    *
    */
-  set turnType(val) {
+  set turn_type(val) {
     runtime.turn_type = val;
   }
   // --- READINESS (Derived Logic) ---

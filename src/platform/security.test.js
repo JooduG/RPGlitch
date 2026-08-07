@@ -1,7 +1,7 @@
-import { Security } from "@platform";
+import { security } from "@platform";
 import { describe, expect, test, vi } from "vitest";
-const sanitize_html = Security.sanitize;
-const sanitize_to_fragment = Security.sanitize_to_fragment;
+const sanitize_html = security.sanitize;
+const sanitize_to_fragment = security.sanitize_to_fragment;
 // Mock DOMPurify for sanitize_html tests
 vi.mock("dompurify", () => ({
   default: {
@@ -52,16 +52,16 @@ describe("validation.js", () => {
   describe("escape()", () => {
     test("escapes HTML special characters including quotes", () => {
       const input = "<b>Hello</b> \"World\" & 'Peace'";
-      const output = Security.escape(input);
+      const output = security.escape(input);
       expect(output).toBe("&lt;b&gt;Hello&lt;/b&gt; &quot;World&quot; &amp; &#39;Peace&#39;");
     });
 
     test("handles non-string inputs", () => {
-      expect(Security.escape(123)).toBe("123");
-      expect(Security.escape(0)).toBe("0");
-      expect(Security.escape(true)).toBe("true");
-      expect(Security.escape(null)).toBe("");
-      expect(Security.escape(undefined)).toBe("");
+      expect(security.escape(123)).toBe("123");
+      expect(security.escape(0)).toBe("0");
+      expect(security.escape(true)).toBe("true");
+      expect(security.escape(null)).toBe("");
+      expect(security.escape(undefined)).toBe("");
     });
   });
 
@@ -174,22 +174,22 @@ describe("validation.js", () => {
 
     test("should validate a correct JPEG file", async () => {
       const file = new MockFile([JPEG_HEADER], "test.jpg", { type: "image/jpeg" });
-      await expect(Security.validate_image(file)).resolves.toBe(true);
+      await expect(security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should validate a correct PNG file", async () => {
       const file = new MockFile([PNG_HEADER], "test.png", { type: "image/png" });
-      await expect(Security.validate_image(file)).resolves.toBe(true);
+      await expect(security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should validate a correct GIF file", async () => {
       const file = new MockFile([GIF_HEADER], "test.gif", { type: "image/gif" });
-      await expect(Security.validate_image(file)).resolves.toBe(true);
+      await expect(security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should validate a correct WebP file", async () => {
       const file = new MockFile([WEBP_HEADER], "test.webp", { type: "image/webp" });
-      await expect(Security.validate_image(file)).resolves.toBe(true);
+      await expect(security.validate_image(file)).resolves.toBe(true);
     });
 
     test("should throw error if file is too large", async () => {
@@ -197,19 +197,19 @@ describe("validation.js", () => {
         type: "image/jpeg",
         size: 30 * 1024 * 1024,
       });
-      await expect(Security.validate_image(file)).rejects.toThrow(/File too large/);
+      await expect(security.validate_image(file)).rejects.toThrow(/File too large/);
     });
 
     test("should throw error for invalid MIME type", async () => {
       const file = new MockFile([new Uint8Array([0, 0, 0, 0])], "test.exe", {
         type: "application/x-msdownload",
       });
-      await expect(Security.validate_image(file)).rejects.toThrow(/Invalid file type/);
+      await expect(security.validate_image(file)).rejects.toThrow(/Invalid file type/);
     });
 
     test("should throw error if magic numbers don't match", async () => {
       const file = new MockFile([JPEG_HEADER], "fake.png", { type: "image/png" });
-      await expect(Security.validate_image(file)).rejects.toThrow(/Security verification failed/);
+      await expect(security.validate_image(file)).rejects.toThrow(/Security verification failed/);
     });
   });
 });

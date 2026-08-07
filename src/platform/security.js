@@ -103,7 +103,7 @@ export const validate_image = async (file, options = {}) => {
   return true;
 };
 
-export const Security = {
+export const security = {
   sanitize,
   sanitize_to_fragment,
   escape: escape_html,
@@ -127,5 +127,5 @@ export const Security = {
 };
 export { escape_html as escape };
 export default {
-  Security,
+  security,
 };

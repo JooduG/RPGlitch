@@ -35,7 +35,7 @@ describe("Narrative Vector System", () => {
 
   it("should add a vector to the front (is_vanguard)", () => {
     runtime.add_vector("Background Task", "FRACTAL");
-    runtime.add_vector("Urgent Task", "FRACTAL", true); // isVanguard = true
+    runtime.add_vector("Urgent Task", "FRACTAL", true); // is_vanguard = true
     expect(runtime.active_fractal?.future?.[0].content).toBe("Urgent Task");
     expect(runtime.active_fractal?.future?.[1].content).toBe("Background Task");
   });

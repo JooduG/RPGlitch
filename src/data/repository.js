@@ -3,7 +3,7 @@
  * @property {string|number} id
  * @property {string} title
  * @property {'concluded'|'active'} state
- * @property {number} lastPlayed
+ * @property {number} last_played
  * @property {string} fractal_profile_picture
  * @property {string} fractal_name
  * @property {string} signature_color
@@ -211,7 +211,7 @@ export const stories = {
             id: story.id,
             title: story.title || "Untitled Fragment",
             state: story.is_concluded ? "concluded" : "active",
-            lastPlayed: story.updated_at,
+            last_played: story.updated_at,
             fractal_profile_picture: fractal?.profile_picture || "",
             fractal_name: fractal?.name || "The Void",
             signature_color: fractal?.signature_color || "default",

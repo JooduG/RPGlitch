@@ -7,7 +7,7 @@
    */
   import { Button, TextField, Toggle, NumberField, Dropdown, tooltip, Label } from "@atoms";
   import { strip_cognition_blocks } from "@intelligence";
-  import { AestheticResolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
+  import { aesthetic_resolver, get_signature_label, PALETTE, PALETTE_VARS, SIGNATURE_COLORS } from "@media";
   import { app } from "@state";
   import { VISUAL_STYLES } from "@data";
 
@@ -116,7 +116,7 @@
 
     try {
       if (!has_prompt_text) {
-        profile_state.char.modifiers.prompt = AestheticResolver.extract(profile_state.char);
+        profile_state.char.modifiers.prompt = aesthetic_resolver.extract(profile_state.char);
       } else {
         const result = await app.visual.enhance(profile_state.char.modifiers.prompt, profile_state.char.type, profile_state.char);
         if (result) {

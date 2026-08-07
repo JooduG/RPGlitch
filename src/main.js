@@ -80,9 +80,9 @@ if (typeof window !== "undefined") {
 // Composition root: publish the state layer's accessors and stream handlers into
 // the @utils bridges (state_bridge / stream_bridge) so the engine can read state
 // without importing @state directly — that preserves the downward import rule
-// (engine MUST NOT import from state). Must run before AppBootstrap.init().
+// (engine MUST NOT import from state). Must run before app_bootstrap.init().
 import { app, runtime, simulation_state, simulation_log } from "@state";
-import { AppBootstrap, session_driver } from "@engine";
+import { app_bootstrap, session_driver } from "@engine";
 import { register_state_accessors, register_stream_handlers } from "@utils";
 
 register_state_accessors({ app, runtime, simulation_state, simulation_log, session_driver });
@@ -94,6 +94,6 @@ register_stream_handlers({
   is_active: () => app.streaming.active,
 });
 
-AppBootstrap.init().then(() => {
+app_bootstrap.init().then(() => {
   console.info("[Engine] Entry point active. Handing off to Bootstrap.");
 });

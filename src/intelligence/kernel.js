@@ -11,7 +11,7 @@ import { db, entities, prune } from "@data";
 import { generate_uuid as generateUUID, state_bridge } from "@utils";
 import { IMAGE_TRIGGER } from "@engine/config.js";
 import { visual_engine } from "@media";
-import { llm_service, Security } from "@platform";
+import { llm_service, security } from "@platform";
 import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
@@ -124,7 +124,7 @@ function strip_unmatched_think_closures(text) {
 function validate_and_repair_response(response) {
   const result = { text: response || "", violated: false, refused: false, structural_repair: false };
 
-  if (Security.check_refusal(response)) {
+  if (security.check_refusal(response)) {
     result.refused = true;
     return result;
   }

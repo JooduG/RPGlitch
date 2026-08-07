@@ -71,7 +71,7 @@ export const safe_parse_pseudo_json = (raw) => {
   }
 
   // Tier 3: No structured keys found — preserve the raw prose so downstream
-  // consumers (optics AestheticResolver, prompt XML builders) can still feed
+  // consumers (optics aesthetic_resolver, prompt XML builders) can still feed
   // physical-trait prose into image/LLM prompts instead of silently dropping it.
   return { __raw_prose__: clean_raw };
 };

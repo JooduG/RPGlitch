@@ -2,10 +2,10 @@
 // Manages the strict turn-based progression of the simulation.
 import { session_driver } from "./session.svelte.js";
 import { gamemaster } from "@intelligence";
-import { Security } from "@platform";
+import { security } from "@platform";
 import { state_bridge } from "@utils"; // Engine cannot import from @state — use bridge
 
-export class ChronoStore {
+export class ChronoEngine {
   error = $state(null);
 
   /**
@@ -130,7 +130,7 @@ export class ChronoStore {
    * ADVANCE TURN
    * The ONLY way time moves forward.
    * 1. Locks UI (Loading)
-   * 2. Processes Physics (Security)
+   * 2. Processes Physics (security)
    * 3. Generates Narrative (Engine)
    * 4. PAST: Commit to Memory (Data)
    * 5. Anchoring State (Runtime)
@@ -161,7 +161,7 @@ export class ChronoStore {
       // We pass the current runtime character context to the Shield
       if (input && state_bridge.runtime.character) {
         // Pass Fractal State for Causality Checks
-        shield_context = await Security.process(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
+        shield_context = await security.process(input, state_bridge.runtime.character, state_bridge.runtime.active_fractal || {});
         // 🛑 CAUSALITY CHECK
         if (shield_context && shield_context.causality && shield_context.causality.result === "failure") {
           state_bridge.app.log(`Causality Violation: ${shield_context.causality.constraint}`, "error");
@@ -260,4 +260,4 @@ export class ChronoStore {
     })();
   }
 }
-export const Chrono = new ChronoStore();
+export const chrono_engine = new ChronoEngine();

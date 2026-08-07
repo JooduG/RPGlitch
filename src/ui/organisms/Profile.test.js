@@ -11,7 +11,7 @@ vi.mock("@platform", () => ({
       });
     }),
   },
-  Security: {
+  security: {
     sanitize: vi.fn((val) => val),
   },
 }));

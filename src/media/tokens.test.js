@@ -3,7 +3,7 @@
  * Ported from legacy entities.test.js
  */
 import { get_signature_color, get_signature_label, get_deterministic_color } from "./tokens.js";
-import { AestheticResolver } from "./optics.js";
+import { aesthetic_resolver } from "./optics.js";
 import { describe, expect, test } from "vitest";
 describe("Tokens Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => get_signature_color(e);
@@ -94,10 +94,10 @@ describe("Tokens Color Generation", () => {
     });
   });
 
-  describe("AestheticResolver.flatten", () => {
+  describe("aesthetic_resolver.flatten", () => {
     test("flattens empty entity to default preset", () => {
       const entity = {};
-      const result = AestheticResolver.flatten(entity);
+      const result = aesthetic_resolver.flatten(entity);
       expect(result).toBe("adrenaline pink aesthetic");
     });
 
@@ -112,7 +112,7 @@ describe("Tokens Color Generation", () => {
           physical: '{"wears": "dark cloak"}',
         },
       };
-      const result = AestheticResolver.flatten(entity);
+      const result = aesthetic_resolver.flatten(entity);
       expect(result).toContain("1.8m");
       expect(result).toContain("glow blue");
       expect(result).toContain("dark cloak");
@@ -127,7 +127,7 @@ describe("Tokens Color Generation", () => {
           physical: '{"atmosphere": "sub-zero facility"}',
         },
       };
-      const result = AestheticResolver.flatten(entity);
+      const result = aesthetic_resolver.flatten(entity);
       expect(result).toContain("sub-zero facility");
       expect(result).toContain("void black aesthetic");
     });

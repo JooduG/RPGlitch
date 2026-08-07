@@ -8,11 +8,11 @@ import { db, detox_prose, entities } from "@data";
 import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
 import { llm_service, sanitize_llm } from "@platform";
 import {
-  AestheticResolver,
+  aesthetic_resolver,
   get_resolution,
   NEGATIVE_PROMPT,
   normalize_image_tier,
-  PromptTemplates,
+  prompt_templates,
   resolve_portrait_visual_style_key,
   resolve_story_visual_style_key,
   resolve_visual_engine_tokens,
@@ -129,9 +129,9 @@ export class VisualEngine {
             .map((s) => String(s).slice(0, 150))
             .join(", ");
           const fallback_features = [tags, non_physical].filter(Boolean).join(", ");
-          final_prompt = `${entity.name}${fallback_features ? `, ${fallback_features}` : ""}, ${AestheticResolver.flatten(entity)}`;
+          final_prompt = `${entity.name}${fallback_features ? `, ${fallback_features}` : ""}, ${aesthetic_resolver.flatten(entity)}`;
         } else {
-          final_prompt = entity.modifiers?.prompt || AestheticResolver.flatten(entity) || entity.name;
+          final_prompt = entity.modifiers?.prompt || aesthetic_resolver.flatten(entity) || entity.name;
         }
 
         effective_type = entity.type || "character";
@@ -321,7 +321,7 @@ export class VisualEngine {
     return await this.breaker.execute(async () => {
       return await this.retryer.retry(
         async () => {
-          const system = PromptTemplates.ENHANCE(text, type, entity);
+          const system = prompt_templates.ENHANCE(text, type, entity);
 
           const result = await llm_service.generate({ system, messages: [] }, { silent: true });
           if (!result) throw new Error("Prompt enhancement failed - no content.");
@@ -403,7 +403,7 @@ export class VisualEngine {
 
       const solo_or_char_entity = subject === "user" ? user : subject === "fractal" ? fractal : ai;
 
-      const system = PromptTemplates.BUILDER(tier, visualPrompt, {
+      const system = prompt_templates.BUILDER(tier, visualPrompt, {
         ai,
         user,
         fractal,
@@ -435,7 +435,7 @@ export class VisualEngine {
               : subject === "user"
                 ? user
                 : ai;
-        const fallback_desc = AestheticResolver.flatten(fallback_entity);
+        const fallback_desc = aesthetic_resolver.flatten(fallback_entity);
         const fallback_name = fallback_entity?.name || tier;
         const short_intent = visualPrompt && visualPrompt.length < 200 ? visualPrompt : "";
         refined = `<image_prompt>${short_intent ? `${short_intent}, ` : ""}${fallback_name}, ${fallback_desc || "detailed character portrait, dramatic lighting"}</image_prompt>`;
@@ -455,7 +455,7 @@ export class VisualEngine {
       }
 
       if ((!clean_prompt || clean_prompt.length < 10) && (tier === "story_scene" || tier === "story_entities")) {
-        const fractal_desc = AestheticResolver.flatten(fractal);
+        const fractal_desc = aesthetic_resolver.flatten(fractal);
         clean_prompt = `RAW photograph or structured artistic rendering of ${fractal?.name || "an environment"}, ${fractal_desc || "high architectural definition, crisp spatial depth details, professional landscape layout alignment"}`;
       }
 

@@ -10,7 +10,7 @@
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
   import { db, stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
   import { pick_random } from "@utils";
-  import { Chrono, session_driver } from "@engine";
+  import { chrono_engine, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
@@ -214,13 +214,13 @@
           fractal: app.selected_fractal || { id: "dev_fractal", name: "Dev Fractal" },
         };
         motion.intensity = 0.4;
-        await Chrono.start(selection);
+        await chrono_engine.start(selection);
         refresh_stories();
         return;
       }
       if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
       motion.intensity = 0.4;
-      await Chrono.start({
+      await chrono_engine.start({
         ai: app.selected_ai,
         user: app.selected_user,
         fractal: app.selected_fractal,
@@ -263,7 +263,7 @@
     adjust_height();
 
     try {
-      await Chrono.send(text);
+      await chrono_engine.send(text);
     } catch (e) {
       console.error("Failed to send message:", e);
     }

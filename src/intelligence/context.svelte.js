@@ -218,7 +218,7 @@ export const context_builder = {
     const vectors_to_resolve = [];
 
     for (const vector of futures) {
-      // 1. Chrono Validation
+      // 1. chrono_engine Validation
       const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
       if (round_threshold !== undefined && typeof round_threshold === "number") {
         if ((state_bridge.runtime?.round ?? 0) < round_threshold) {

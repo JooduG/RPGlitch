@@ -143,7 +143,7 @@ export class VoiceEngine {
    * Public method to explicitly trigger model download.
    * Returns a promise that resolves when loading is complete.
    */
-  async loadModel() {
+  async load_model() {
     await this.#ensure_model();
   }
 
