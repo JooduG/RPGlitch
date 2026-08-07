@@ -6,7 +6,7 @@
 
 import { detox_prose, NARRATIVE_STYLES } from "@data";
 import { sanitize } from "@platform";
-import { escape_xml, safe_parse_pseudo_json } from "@utils";
+import { escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const md = new MarkdownIt({
@@ -80,30 +80,6 @@ export function parse_think_block(text) {
     content,
     think: final_think || null,
   };
-}
-
-/**
- * Strips all <think> blocks and optional trailing newlines.
- * @param {string|null|undefined} text
- * @returns {string}
- */
-const MODEL_ARTIFACT_PATTERNS = [
-  // Certain model variants prepend an authorial tag like "Mattis. Archetypes: ..."
-  // or "Mattis:" before actual content; strip the entire leading artifact.
-  /^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i,
-];
-
-export function strip_cognition_blocks(text) {
-  if (!text) return "";
-  let clean = text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
-  // Models occasionally re-close the think block after the narrative has started
-  // (e.g. "...collision of wills.</think>"). A lone closing tag like that must not
-  // survive into history, narrative display, or visual prompt intents.
-  clean = clean.replace(/<\/think\s*>/gi, "");
-  for (const pattern of MODEL_ARTIFACT_PATTERNS) {
-    clean = clean.replace(pattern, "");
-  }
-  return clean.trim();
 }
 
 /**
@@ -297,6 +273,14 @@ export function clean_xml(str) {
  * @returns {Record<string, string>}
  */
 export { safe_parse_pseudo_json };
+
+/**
+ * Cognition-block stripper — canonical implementation lives in @utils/text.js
+ * and is re-exported here so @intelligence consumers keep a stable import path.
+ * @param {string|null|undefined} text
+ * @returns {string}
+ */
+export { strip_cognition_blocks };
 
 /**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)

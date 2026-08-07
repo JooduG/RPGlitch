@@ -5,7 +5,7 @@
    * A high-fidelity placeholder component.
    * RUTHLESSLY FLATTENED: Zero design drift, maximum architectural clarity.
    */
-  import { use_actions } from "@actions";
+  import { use_actions } from "@utils";
 
   let {
     // Design

@@ -11,7 +11,7 @@
    */
   import { Button, ScrollArea, tooltip } from "@atoms";
   import { parse_markdown } from "@utils";
-  import { auto_resize, use_actions } from "@actions";
+  import { auto_resize, use_actions } from "@utils";
   import { fade, slide } from "svelte/transition";
   import { onDestroy } from "svelte";
 

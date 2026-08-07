@@ -5,7 +5,7 @@
    * Renders parsed messages in a Unified Chassis.
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
-  import { safe_html } from "@actions";
+  import { safe_html } from "@utils";
   import { Button, DataBox, TextField, tooltip } from "@atoms";
   import { parse_message, resolve_voice_register } from "@intelligence";
   import { Audio, get_resolution, get_signature_color } from "@media";

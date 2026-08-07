@@ -72,13 +72,19 @@ vi.mock("@engine/session.svelte.js", () => ({
   },
 }));
 
-// Mock temporal_engine to intercept resolution calls
-vi.mock("@intelligence/temporal.js", () => ({
-  temporal_engine: {
-    resolve: vi.fn(),
-    format: vi.fn().mockReturnValue("Continue the journey."),
-  },
-}));
+// Mock temporal_engine to intercept resolution calls while keeping the real
+// (pure) exports — context.svelte.js also imports resolve_vector_pool, so the
+// mock must expose it or hydrate()/manage_vector_lifecycle() break.
+vi.mock("@intelligence/temporal.js", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    temporal_engine: {
+      resolve: vi.fn(),
+      format: vi.fn().mockReturnValue("Continue the journey."),
+    },
+  };
+});
 
 describe("context_broker", () => {
   beforeEach(() => {

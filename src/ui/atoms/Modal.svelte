@@ -6,7 +6,7 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import { Backdrop } from "@atoms";
-  import { use_actions } from "@actions";
+  import { use_actions } from "@utils";
   import { Dialog } from "bits-ui";
 
   let {

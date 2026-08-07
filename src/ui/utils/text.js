@@ -6,16 +6,29 @@
  */
 
 /**
- * Strips cognition blocks (</think>...) from text.
- * Inlined here to avoid cross-layer imports.
+ * Strips cognition blocks (<think>...</think>) from text.
+ * CANONICAL implementation — lives in @utils (the top architectural layer) so
+ * lower layers may import it downward without violating the layer hierarchy.
+ * @intelligence re-exports it (parser.js), keeping exactly one copy of this logic.
  * @param {string|null|undefined} text
  * @returns {string}
  */
+const MODEL_ARTIFACT_PATTERNS = [
+  // Certain model variants prepend an authorial tag like "Mattis. Archetypes: ..."
+  // or "Mattis:" before actual content; strip the entire leading artifact.
+  /^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i,
+];
+
 export function strip_cognition_blocks(text) {
   if (!text) return "";
   let clean = text.replace(/<think\b[^>]*>[\s\S]*?(?:<\/think\s*>|$)\r?\n?/gi, "");
-  // Strip certain model artifacts
-  clean = clean.replace(/^Mattis\b(?:\.\s*Archetypes:[^\n]*\n*|\.|:|\s)*/i, "");
+  // Models occasionally re-close the think block after the narrative has started
+  // (e.g. "...collision of wills.</think>"). A lone closing tag like that must not
+  // survive into history, narrative display, or visual prompt intents.
+  clean = clean.replace(/<\/think\s*>/gi, "");
+  for (const pattern of MODEL_ARTIFACT_PATTERNS) {
+    clean = clean.replace(pattern, "");
+  }
   return clean.trim();
 }
 

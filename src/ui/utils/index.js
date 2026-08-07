@@ -5,6 +5,7 @@
  */
 
 export * from "./ui-helpers.js";
+export * from "./use-actions.js";
 export * from "./field-path.js";
 export * from "./markdown.js";
 export * from "./crypto.js";
