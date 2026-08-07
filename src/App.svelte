@@ -369,6 +369,7 @@
 </script>
 
 <main
+  id="main-content"
   class="relative z-10 h-dvh w-full animate-[fade-in_var(--duration-slow)_var(--ease-standard)_forwards] overflow-hidden text-left"
   data-view={app.view}
 >
