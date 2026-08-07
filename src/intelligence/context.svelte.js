@@ -168,7 +168,8 @@ export const context_broker = {
           fragments: [],
           eternal: { physical: "", non_physical: "" },
           present: { physical: "", non_physical: "" },
-          vectors: [],
+          future: [],
+          past: [],
           dynamics: {},
         }
       );
@@ -211,9 +212,9 @@ export const context_broker = {
         fragments,
         eternal: fragments.eternal,
         present: fragments.present,
-        vectors: resolve_vector_pool(raw),
+        memories: resolve_vector_pool(raw),
         dynamics: raw.dynamics,
-        dynamicsBaseline: raw.dynamicsBaseline,
+        dynamics_baseline: raw.dynamics_baseline,
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
       };
     });

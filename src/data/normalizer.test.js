@@ -78,27 +78,6 @@ describe("content-normaliser.js", () => {
       expect(result.name.startsWith("Lord Valerius Vance")).toBe(true);
     });
 
-    it("should handle [BACKWARD COMPAT] visuals -> modifiers migration", () => {
-      const input = {
-        visuals: {
-          prompt: "test prompt",
-          no_background: true,
-          flipped: true,
-          profile_picture_seed: 123,
-        },
-      };
-      const result = normalize(input);
-      expect(result.modifiers).toEqual({
-        prompt: "test prompt",
-        negative_prompt: "",
-        no_background: true,
-        flipped: true,
-        profile_picture_seed: 123,
-        last_generated_seed: null,
-        color_name: "",
-      });
-    });
-
     it("should persist a custom negative_prompt value", () => {
       const input = {
         modifiers: { prompt: "a hero", negative_prompt: "blurry, low quality" },
@@ -113,43 +92,20 @@ describe("content-normaliser.js", () => {
       expect(result.modifiers.negative_prompt).toBe("");
     });
 
-    it("should prioritize modifiers over legacy visuals", () => {
-      const input = {
-        modifiers: { prompt: "new prompt" },
-        visuals: { prompt: "old prompt" },
-      };
-      const result = normalize(input);
-      expect(result.modifiers.prompt).toBe("new prompt");
-    });
-
-    it("should preserve database identity, timestamps, originId, and dynamicsBaseline", () => {
+    it("should preserve database identity, timestamps, origin, and dynamics baseline", () => {
       const input = {
         id: "id-123",
         created_at: 1000,
         updated_at: 2000,
-        originId: "origin-456",
-        dynamicsBaseline: { chaos: 50 },
+        origin_id: "origin-456",
+        dynamics_baseline: { chaos: 50 },
       };
       const result = normalize(input);
       expect(result.id).toBe("id-123");
       expect(result.created_at).toBe(1000);
       expect(result.updated_at).toBe(2000);
-      expect(result.originId).toBe("origin-456");
-      expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
-    });
-
-    it("should handle camelCase variants for timestamps and baselines", () => {
-      const input = {
-        createdAt: 1000,
-        updatedAt: 2000,
-        originId: "origin-456",
-        dynamicsBaseline: { chaos: 50 },
-      };
-      const result = normalize(input);
-      expect(result.created_at).toBe(1000);
-      expect(result.updated_at).toBe(2000);
-      expect(result.originId).toBe("origin-456");
-      expect(result.dynamicsBaseline).toEqual({ chaos: 50 });
+      expect(result.origin_id).toBe("origin-456");
+      expect(result.dynamics_baseline).toEqual({ chaos: 50 });
     });
 
     it("should process tags into a sanitized array of strings", () => {

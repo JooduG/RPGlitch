@@ -12,11 +12,9 @@ import { clean_xml, collapse_history, escape_xml, safe_parse_pseudo_json, strip_
 import { temporal_engine } from "./temporal.js";
 import { resolve_vector_pool } from "./vector-pool.js";
 
-// PROTOCOL_LIBRARY is now defined in @data/presets/protocols.js and re-exported here.
-// This allows both @intelligence and @media to share the same catalog without
-// cross-layer import violations.
-
-// Re-export for backwards compatibility (tests, index.js, etc.)
+// PROTOCOL_LIBRARY is defined in @data/presets/protocols.js and re-exported here
+// so both @intelligence and @media share the same catalog without cross-layer
+// import violations.
 export { PROTOCOL_LIBRARY };
 
 /** @type {string | null} */
@@ -447,8 +445,8 @@ function render_ghostwriter({ entities, input = "" }) {
 
   const swapped = {
     ...(entities || {}),
-    AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, vectors: [] },
-    USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, vectors: [] },
+    AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, future: [], past: [] },
+    USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, future: [], past: [] },
   };
 
   const render_atom = data_processors.create_render_atom(swapped, input || "", []);
@@ -806,7 +804,7 @@ export const prompt_builder = {
         ai: snapshot.ai?.dynamics,
         fractal: snapshot.fractal?.dynamics,
         flags: snapshot.flags,
-        vectors: temporal_engine.score(payload.entities?.AI?.vectors || [], render_atom._context).slice(0, 5),
+        memories: temporal_engine.score(payload.entities?.AI?.memories || [], render_atom._context).slice(0, 5),
       },
     };
   },

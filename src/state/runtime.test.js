@@ -7,7 +7,7 @@ describe("Narrative Vector System", () => {
     runtime.init_effects();
     // Reset state before each test
     runtime._debug_inject({
-      fractal: /** @type {any} */ ({ id: "test-fractal", active: true, vectors: [] }),
+      fractal: /** @type {any} */ ({ id: "test-fractal", active: true, future: [] }),
     });
   });
 
@@ -15,43 +15,43 @@ describe("Narrative Vector System", () => {
     runtime.teardown_effects();
   });
 
-  it("should initialize with empty vectors", () => {
+  it("should initialize with an empty future pool", () => {
     // Default for FRACTAL is now handled by the caller or Simulation seeding
-    expect(runtime.active_fractal?.vectors).toEqual([]);
+    expect(runtime.active_fractal?.future).toEqual([]);
   });
 
-  it("should add a vector to the background (echoes)", () => {
+  it("should add a vector to the future pool (echoes)", () => {
     runtime.add_vector("Find the key.", "FRACTAL");
-    expect(runtime.active_fractal?.vectors).toHaveLength(1);
-    expect(runtime.active_fractal?.vectors?.[0].type).toBe("future");
-    expect(runtime.active_fractal?.vectors?.[0].content).toBe("Find the key.");
+    expect(runtime.active_fractal?.future).toHaveLength(1);
+    expect(runtime.active_fractal?.future?.[0].type).toBe("future");
+    expect(runtime.active_fractal?.future?.[0].content).toBe("Find the key.");
 
     runtime.add_vector("Explore the cave.", "FRACTAL");
-    expect(runtime.active_fractal?.vectors).toHaveLength(2);
+    expect(runtime.active_fractal?.future).toHaveLength(2);
     // "Find the key" is still index 0 because we pushed
-    expect(runtime.active_fractal?.vectors?.[0].content).toBe("Find the key.");
-    expect(runtime.active_fractal?.vectors?.[1].content).toBe("Explore the cave.");
+    expect(runtime.active_fractal?.future?.[0].content).toBe("Find the key.");
+    expect(runtime.active_fractal?.future?.[1].content).toBe("Explore the cave.");
   });
 
   it("should add a vector to the front (is_vanguard)", () => {
     runtime.add_vector("Background Task", "FRACTAL");
     runtime.add_vector("Urgent Task", "FRACTAL", true); // isVanguard = true
-    expect(runtime.active_fractal?.vectors?.[0].content).toBe("Urgent Task");
-    expect(runtime.active_fractal?.vectors?.[1].content).toBe("Background Task");
+    expect(runtime.active_fractal?.future?.[0].content).toBe("Urgent Task");
+    expect(runtime.active_fractal?.future?.[1].content).toBe("Background Task");
   });
 
   it("should complete the active vector and promote the next one", () => {
     runtime.add_vector("Task A", "FRACTAL");
     runtime.add_vector("Task B", "FRACTAL");
-    expect(runtime.active_fractal?.vectors?.[0].content).toBe("Task A");
+    expect(runtime.active_fractal?.future?.[0].content).toBe("Task A");
     runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.vectors?.[0].content).toBe("Task B");
-    expect(runtime.active_fractal?.vectors).toHaveLength(1);
+    expect(runtime.active_fractal?.future?.[0].content).toBe("Task B");
+    expect(runtime.active_fractal?.future).toHaveLength(1);
   });
 
-  it("should handle completeVector on empty vectors safely", () => {
+  it("should handle complete_vector on an empty future pool safely", () => {
     runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.vectors).toEqual([]);
+    expect(runtime.active_fractal?.future).toEqual([]);
   });
 
   describe("State Synchronization", () => {
@@ -61,7 +61,7 @@ describe("Narrative Vector System", () => {
         name: "User One",
         eternal: { non_physical: "", physical: "" },
         present: { non_physical: "", physical: "" },
-        vectors: [],
+        future: [],
         dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
       };
       const mock_ai = {
@@ -69,7 +69,7 @@ describe("Narrative Vector System", () => {
         name: "AI One",
         eternal: { non_physical: "", physical: "" },
         present: { non_physical: "", physical: "" },
-        vectors: [],
+        future: [],
         dynamics: { chaos: 50, openness: 50, intensity: 50, affinity: 50 },
       };
       const mock_fractal = {
@@ -77,7 +77,7 @@ describe("Narrative Vector System", () => {
         name: "Fractal One",
         eternal: { non_physical: "", physical: "" },
         present: { non_physical: "", physical: "" },
-        vectors: [],
+        future: [],
         dynamics: { velocity: 50, entropy: 50 },
       };
 

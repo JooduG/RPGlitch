@@ -171,7 +171,7 @@
     };
   });
 
-  // --- DERIVATIONS & COMPATIBILITY ---
+  // --- DERIVATIONS ---
   let is_empty = $derived(!entity);
   let signature_color = $derived(get_signature_color(entity, variant === "library" ? undefined : "var(--color-gunmetal)"));
   let name = $derived(entity?.name || "Untitled");

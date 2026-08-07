@@ -171,15 +171,14 @@
         if (key === "past" || key === "future") {
           if (Array.isArray(val)) {
             const new_vectors = val.map((text_str) => {
-              const vector_str =
-                typeof text_str === "string" ? text_str : text_str.content || text_str.directive || text_str.text || JSON.stringify(text_str);
+              const vector_str = typeof text_str === "string" ? text_str : text_str.content || text_str.directive || JSON.stringify(text_str);
               return {
                 ...temporal_engine.create(vector_str, key),
                 id: crypto.randomUUID(),
                 emotional_weight: 5,
               };
             });
-            entity.vectors = [...(entity.vectors || []), ...new_vectors];
+            entity[key] = [...(entity[key] || []), ...new_vectors];
           }
         } else if (typeof val === "object" && !Array.isArray(val)) {
           for (const [sub_key, subVal] of Object.entries(val)) {

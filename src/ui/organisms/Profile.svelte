@@ -282,7 +282,7 @@
     type="confirm"
     bind:open={profile_state.show_delete_confirm}
     title="Delete {profile_state.char.name || 'Entity'}"
-    message="This action is irreversible. All associated data, including history and vectors, will be lost."
+    message="This action is irreversible. All associated data, including history and memories, will be lost."
     confirm_label="Confirm"
     on_confirm={() => profile_state.delete(entity_type)}
   />

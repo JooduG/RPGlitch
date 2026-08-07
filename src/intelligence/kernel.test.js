@@ -470,9 +470,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
       type: "prologue",
       round: 1,
       entities: {
-        AI: { name: "Viper", vectors: [] },
-        USER: { name: "Ghost", vectors: [] },
-        FRACTAL: { name: "Void", vectors: [] },
+        AI: { name: "Viper", future: [], past: [] },
+        USER: { name: "Ghost", future: [], past: [] },
+        FRACTAL: { name: "Void", future: [], past: [] },
       },
       view_id: "global",
       simulation_log: "",

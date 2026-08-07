@@ -190,7 +190,13 @@ export class VisualEngine {
             }
 
             const entity_type = effective_type;
-            const tier_for_shot = normalize_image_tier(entity_type);
+            const tier_for_shot = normalize_image_tier(
+              entity_type === "solo_entity" || entity_type === "story_character" || entity_type === "story_entities"
+                ? entity_type
+                : entity_type === "fractal"
+                  ? "story_scene"
+                  : "story_character",
+            );
             // story_scene is environmental; every other tier depicts one or more characters.
             const is_character_shot = tier_for_shot !== "story_scene";
             const char_neg_tokens = is_character_shot
@@ -370,22 +376,18 @@ export class VisualEngine {
       };
     }
 
-    // Unified 4-Tier Image Taxonomy routing (legacy targets normalize onto the tiers).
+    // Unified 4-Tier Image Taxonomy routing. targetType is a canonical tier;
+    // subject (the entity whose perspective the image is taken from) may be
+    // supplied separately via options.
     const tier = normalize_image_tier(targetType);
     const is_selfie = targetType === "selfie";
 
-    const target_id_map = {
-      ai: story.ai_id,
-      fractal: story.fractal_id,
-      scene: story.fractal_id,
-      story_scene: story.fractal_id,
-      user: story.user_id,
-    };
-    const target_id = target_id_map[targetType] || story.ai_id;
+    const subject = options.subject || (targetType === "user" ? "user" : targetType === "fractal" ? "fractal" : "ai");
+    const target_id = subject === "user" ? story.user_id : subject === "fractal" ? story.fractal_id : story.ai_id;
 
     if (!silent) {
       state_bridge.simulation_state.start_typing(
-        tier === "story_scene" || tier === "story_entities" ? "fractal" : targetType === "user" ? "user" : "ai",
+        tier === "story_scene" || tier === "story_entities" ? "fractal" : subject === "user" ? "user" : "ai",
         target_id,
       );
     }
@@ -399,7 +401,7 @@ export class VisualEngine {
       const user = (runtime?.active_user?.id === story.user_id && runtime.active_user) || (await this._resolveEntity(story.user_id));
       const fractal = (runtime?.active_fractal?.id === story.fractal_id && runtime.active_fractal) || (await this._resolveEntity(story.fractal_id));
 
-      const solo_or_char_entity = targetType === "user" ? user : targetType === "fractal" ? fractal : ai;
+      const solo_or_char_entity = subject === "user" ? user : subject === "fractal" ? fractal : ai;
 
       const system = PromptTemplates.BUILDER(tier, visualPrompt, {
         ai,
@@ -423,14 +425,14 @@ export class VisualEngine {
         console.warn("[VisualEngine] visualize: LLM returned empty/null, synthesizing fallback prompt.");
         const fallback_entity =
           tier === "solo_entity"
-            ? targetType === "user"
+            ? subject === "user"
               ? user
-              : targetType === "fractal"
+              : subject === "fractal"
                 ? fractal
                 : ai
             : tier === "story_scene" || tier === "story_entities"
               ? fractal
-              : targetType === "user"
+              : subject === "user"
                 ? user
                 : ai;
         const fallback_desc = AestheticResolver.flatten(fallback_entity);

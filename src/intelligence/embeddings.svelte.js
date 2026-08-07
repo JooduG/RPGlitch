@@ -146,9 +146,9 @@ export function cosine_similarity(a, b) {
 
 /**
  * Embeds a vector's directive and stores the embedding on the vector object.
- * Accepts a live Float32Array, a persisted plain-array form, or the legacy
- * JSON-flattened {"0":…} object, upgrading whichever is present. If the stored
- * value is corrupt/missing it is dropped so a fresh inference happens once.
+ * Accepts a live Float32Array or the persisted plain-array form, upgrading
+ * whichever is present. If the stored value is corrupt/missing it is dropped
+ * so a fresh inference happens once.
  * @param {any} vector
  * @returns {Promise<Float32Array | null>}
  */

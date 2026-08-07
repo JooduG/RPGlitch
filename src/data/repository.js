@@ -32,10 +32,10 @@ export const seed_premades = async () => {
     const existing_ids = new Set();
     for (const e of existing) {
       if (e.id != null) existing_ids.add(e.id);
-      if (e.originId != null) existing_ids.add(e.originId);
+      if (e.origin_id != null) existing_ids.add(e.origin_id);
     }
     for (const bp of premade.entities) {
-      // Check by ID or originId to prevent duplicates of factory stock
+      // Check by ID or origin_id to prevent duplicates of factory stock
       const has_child = existing_ids.has(bp.id);
       if (!has_child) {
         // Trust the Normalizer to handle flattening and type-aware dynamics
@@ -43,7 +43,7 @@ export const seed_premades = async () => {
         to_add.push({
           ...normalized,
           id: bp.id,
-          originId: bp.id,
+          origin_id: bp.id,
           isSnapshot: 0,
           created_at: Date.now(),
           updated_at: Date.now(),
@@ -64,7 +64,7 @@ export const seed_premades = async () => {
 // ============================================================================
 
 /**
- * Maps `_embedding` on temporal vectors (past/future, plus legacy `vectors`) through a transform without mutating
+ * Maps `_embedding` on temporal vectors (past/future) through a transform without mutating
  * the input. Missing embeddings are dropped so corrupt/empty values never persist.
  * @param {any} entity
  * @param {(emb: any) => any} transform
@@ -73,7 +73,7 @@ export const seed_premades = async () => {
 function _map_vector_embeddings(entity, transform) {
   if (!entity || typeof entity !== "object") return entity;
   const out = { ...entity };
-  for (const key of ["past", "future", "vectors"]) {
+  for (const key of ["past", "future"]) {
     if (!Array.isArray(out[key])) continue;
     out[key] = out[key].map((v) => {
       if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;

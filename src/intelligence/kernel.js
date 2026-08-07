@@ -498,9 +498,9 @@ export const gamemaster = {
       );
 
       snapshot.pruned_vectors = {
-        AI: prune(payload.entities.AI?.vectors),
-        USER: prune(payload.entities.USER?.vectors),
-        FRACTAL: prune(payload.entities.FRACTAL?.vectors),
+        AI: prune(payload.entities.AI?.memories),
+        USER: prune(payload.entities.USER?.memories),
+        FRACTAL: prune(payload.entities.FRACTAL?.memories),
       };
 
       // 4. DIRECTOR PASS (Shot 1)
@@ -823,7 +823,7 @@ export const gamemaster = {
 
       const image_promise = visual_engine
         ? visual_engine
-            .visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true })
+            .visualize(story_id, strip_cognition_blocks(response), "story_entities", { silent: true })
             .then((img_result) => {
               if (img_result?.imageUrl) {
                 state_bridge.session_driver.update_log_attachment(node_id, 0, {
@@ -897,7 +897,7 @@ export const gamemaster = {
     let epilogue_attachments = [];
     if (visual_engine) {
       try {
-        const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "characters", { silent: true });
+        const img_result = await visual_engine.visualize(story_id, strip_cognition_blocks(response), "story_entities", { silent: true });
         if (img_result?.imageUrl) {
           epilogue_attachments = [
             {

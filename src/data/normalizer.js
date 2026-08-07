@@ -102,18 +102,12 @@ export const normalize = (base = {}) => {
   const {
     id,
     created_at,
-    createdAt,
     updated_at,
-    updatedAt,
     origin_id,
-    originId,
     is_premade,
-    isPremade,
     is_custom,
-    isCustom,
     version,
     dynamics_baseline,
-    dynamicsBaseline,
     name = "",
     description = "",
     type = "character",
@@ -121,43 +115,34 @@ export const normalize = (base = {}) => {
     present = {},
     past = [],
     future = [],
-    vectors = [],
     tags = [],
     signature_color = "",
     profile_picture = "",
     dynamics = null,
     modifiers = {},
-    visuals = null, // [BACKWARD COMPAT] Legacy object
     voice = {},
     custom_data = {},
     narrative_style = "",
     visual_style = "",
     pov = "",
     voice_register = "",
-    voiceRegister = "",
   } = base;
 
-  const norm_is_premade = is_premade ?? isPremade ?? 0;
-  const norm_is_custom = is_custom ?? isCustom ?? 0;
-  const norm_origin_id = origin_id ?? originId ?? null;
-  const norm_dynamics_baseline = (dynamics_baseline ?? dynamicsBaseline) instanceof Object ? { ...(dynamics_baseline ?? dynamicsBaseline) } : null;
+  const norm_is_premade = is_premade ?? 0;
+  const norm_is_custom = is_custom ?? 0;
+  const norm_origin_id = origin_id ?? null;
+  const norm_dynamics_baseline = dynamics_baseline instanceof Object ? { ...dynamics_baseline } : null;
 
   const result = {
     // --- CORE METADATA ---
     id: id ?? "",
-    created_at: created_at ?? createdAt ?? 0,
-    updated_at: updated_at ?? updatedAt ?? 0,
+    created_at: created_at ?? 0,
+    updated_at: updated_at ?? 0,
     origin_id: norm_origin_id,
     is_premade: norm_is_premade,
     is_custom: norm_is_custom,
     version: version ?? 0,
     dynamics_baseline: norm_dynamics_baseline,
-
-    // [BACKWARD COMPAT] CamelCase DB flags for Dexie indexes
-    isCustom: norm_is_custom,
-    isPremade: norm_is_premade,
-    originId: norm_origin_id,
-    dynamicsBaseline: norm_dynamics_baseline,
 
     name: (() => {
       const clean = sanitize_html(name)
@@ -184,7 +169,7 @@ export const normalize = (base = {}) => {
       return type === "fractal" ? "3rd_person" : "1st_person";
     })(),
     voice_register: (() => {
-      const parsed = sanitize_html(String(voice_register || voiceRegister || "")).trim();
+      const parsed = sanitize_html(String(voice_register || "")).trim();
       return parsed === "ornate" || parsed === "plain" ? parsed : "";
     })(),
     tags: (Array.isArray(tags) ? tags : []).map((s) => (s != null ? sanitize_html(String(s).trim()) : "")).filter(Boolean),
@@ -200,20 +185,16 @@ export const normalize = (base = {}) => {
     },
     past: coerce_temporal_vectors(past),
     future: coerce_temporal_vectors(future),
-    // The temporal engine and profile editor keep their working memory list in
-    // the legacy `vectors` array. Preserve it so normalize never wipes memories
-    // that live there (they are read via resolve_vector_pool alongside past/future).
-    vectors: coerce_temporal_vectors(vectors),
 
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {
-      prompt: sanitize_html(modifiers?.prompt ?? visuals?.prompt ?? "").trim(),
+      prompt: sanitize_html(modifiers?.prompt ?? "").trim(),
       negative_prompt: sanitize_html(modifiers?.negative_prompt ?? "").trim(),
-      no_background: !!(modifiers?.no_background ?? modifiers?.noBackground ?? visuals?.noBackground ?? visuals?.no_background ?? false),
-      flipped: !!(modifiers?.flipped ?? visuals?.flipped ?? false),
-      profile_picture_seed: Number(modifiers?.profile_picture_seed ?? visuals?.profile_picture_seed ?? 0),
-      last_generated_seed: modifiers?.last_generated_seed ?? visuals?.last_generated_seed ?? null,
-      color_name: sanitize_html(modifiers?.color_name ?? visuals?.color_name ?? "").trim(),
+      no_background: !!(modifiers?.no_background ?? false),
+      flipped: !!(modifiers?.flipped ?? false),
+      profile_picture_seed: Number(modifiers?.profile_picture_seed ?? 0),
+      last_generated_seed: modifiers?.last_generated_seed ?? null,
+      color_name: sanitize_html(modifiers?.color_name ?? "").trim(),
     },
 
     // --- DYNAMICS (Physics Sliders) ---
@@ -254,9 +235,8 @@ export function coerce_temporal_array(val) {
 
 /**
  * Coerces raw temporal data (strings or objects) into proper TemporalVector-shaped objects.
- * Strings are wrapped into canonical vector objects. Objects are normalized in place:
- * content is read from `content`/`directive`/`text` (legacy lenient read) but the canonical
- * key is always `content`; `directive` is dropped. `type` is either "future" or "past".
+ * Strings are wrapped into canonical vector objects; object items pass through untouched.
+ * `type` is either "future" or "past".
  * @param {any} val
  * @returns {any[]}
  */

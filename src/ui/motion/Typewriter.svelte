@@ -13,47 +13,23 @@
 
   // --- PROP MATRIX BOUNDARIES ---
   let {
-    // Legacy single-string input (supports backwards compatibility with Svelte actions)
     target_html = "",
-    // Legacy alias
-    targetHtml = null,
 
     // Core parameters
     text = "",
     words = null,
     class: className = "",
     type_speed = null, // ms per char (null falls back to smart engine pacing)
-    // Legacy alias
-    typeSpeed = null,
     delete_speed = null, // ms per char (null falls back to fast engine reverse)
-    // Legacy alias
-    deleteSpeed = null,
     delay = 0, // Delay before initial phrase entry begins
     pause_delay = 1000,
-    // Legacy alias
-    pauseDelay = null,
     loop = false,
     as = "div",
     show_cursor = false,
-    // Legacy alias
-    showCursor = null,
     blink_cursor = true,
-    // Legacy alias
-    blinkCursor = null,
     cursor_style = "line",
-    // Legacy alias
-    cursorStyle = null,
     is_finished = $bindable(false),
   } = $props();
-
-  // Normalize legacy camelCase props to snake_case
-  const _target_html = $derived(targetHtml ?? target_html);
-  const _type_speed = $derived(typeSpeed ?? type_speed);
-  const _delete_speed = $derived(deleteSpeed ?? delete_speed);
-  const _pause_delay = $derived(pauseDelay ?? pause_delay);
-  const _show_cursor = $derived(showCursor ?? show_cursor);
-  const _blink_cursor = $derived(blinkCursor ?? blink_cursor);
-  const _cursor_style = $derived(cursorStyle ?? cursor_style);
   let _is_finished = $state(is_finished);
 
   // --- UNIFIED REACTIVE TRACKERS ---
@@ -67,7 +43,7 @@
   const words_to_animate = $derived.by(() => {
     if (words && words.length > 0) return words;
     if (text) return [text];
-    if (_target_html) return [_target_html];
+    if (target_html) return [target_html];
     return [];
   });
 
@@ -155,20 +131,20 @@
 
   // Determine active cursor element style representation
   const cursor_glyph = $derived.by(() => {
-    if (_cursor_style === "block") return "▌";
-    if (_cursor_style === "underscore") return "_";
+    if (cursor_style === "block") return "▌";
+    if (cursor_style === "underscore") return "_";
     return "|";
   });
 
   // Secondary evaluation to show trailing typing pointers
   const should_show_cursor = $derived(
-    _show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length),
+    show_cursor && !(!loop && current_word_index === words_to_animate.length - 1 && current_char_index >= total_length),
   );
 
   // Compute delta progress increments across execution phases
   const active_speed = $derived.by(() => {
     if (phase === "typing") {
-      if (_type_speed !== null && _type_speed > 0) return 1 / _type_speed;
+      if (type_speed !== null && type_speed > 0) return 1 / type_speed;
 
       // Inherited smart-acceleration matrix for chat streams
       const remaining = total_length - current_char_index;
@@ -185,7 +161,7 @@
     }
 
     if (phase === "deleting") {
-      if (_delete_speed !== null && _delete_speed > 0) return 1 / _delete_speed;
+      if (delete_speed !== null && delete_speed > 0) return 1 / delete_speed;
       return 0.08 * (motion.isReduced ? 0 : motion.intensity);
     }
 
@@ -247,7 +223,7 @@
           }
         } else if (phase === "pause") {
           pause_accumulator += elapsed;
-          if (pause_accumulator >= _pause_delay) {
+          if (pause_accumulator >= pause_delay) {
             if (has_multiple_words_raw || loop) {
               phase = "deleting";
             }
@@ -290,7 +266,7 @@
   {@html sliced_html}
 
   {#if should_show_cursor}
-    <span class="ml-0.5 inline-block text-(--signature-color) {_blink_cursor ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]' : ''}">
+    <span class="ml-0.5 inline-block text-(--signature-color) {blink_cursor ? 'animate-[blink_var(--duration-slow,500ms)_step-end_infinite]' : ''}">
       {cursor_glyph}
     </span>
   {/if}

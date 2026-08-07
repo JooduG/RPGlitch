@@ -34,9 +34,10 @@ import { app } from "./app.svelte.js";
  * @property {string} [description]
  * @property {EntityFragments} eternal
  * @property {EntityFragments} present
- * @property {TemporalVector[]} vectors
+ * @property {TemporalVector[]} past
+ * @property {TemporalVector[]} future
  * @property {EntityDynamics} dynamics
- * @property {EntityDynamics} [dynamicsBaseline]
+ * @property {EntityDynamics} [dynamics_baseline]
  * @property {any} [voice]
  * @property {string | null} [profile_picture]
  * @property {string} [signature_color]
@@ -88,14 +89,15 @@ function create_runtime_store() {
     description: "No data stream connected.",
     eternal: { non_physical: "", physical: "" },
     present: { non_physical: "", physical: "" },
-    vectors: [],
+    future: [],
+    past: [],
     dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 },
     voice: { rate: 1.0 },
     profile_picture: null,
     signature_color: "",
     modifiers: {
       prompt: "",
-      noBackground: false,
+      no_background: false,
       flipped: false,
       profile_picture_seed: 0,
       last_generated_seed: null,
@@ -113,7 +115,8 @@ function create_runtime_store() {
     description: "",
     eternal: { non_physical: "", physical: "" },
     present: { non_physical: "", physical: "" },
-    vectors: [],
+    future: [],
+    past: [],
     dynamics: { velocity: 50, entropy: 50 },
     profile_picture: null,
     signature_color: "",
@@ -269,10 +272,10 @@ function create_runtime_store() {
     add_vector: (text, role = "AI", is_vanguard = false) => {
       const entity = api._get_entity_by_role(role);
       if (!entity) return;
-      if (!Array.isArray(entity.vectors)) entity.vectors = [];
+      if (!Array.isArray(entity.future)) entity.future = [];
       const new_vector = temporal_engine.create(text, "future");
-      if (is_vanguard) entity.vectors.unshift(new_vector);
-      else entity.vectors.push(new_vector);
+      if (is_vanguard) entity.future.unshift(new_vector);
+      else entity.future.push(new_vector);
     },
     /**
      * @param {string} content
@@ -296,16 +299,17 @@ function create_runtime_store() {
     complete_vector: (role = "AI") => {
       const entity = api._get_entity_by_role(role);
       if (!entity) return;
-      // Remove the active future vector from whichever memory array holds it
-      // (legacy `vectors` first, then new-layer `future`, then `past`).
-      for (const key of ["vectors", "future", "past"]) {
-        const arr = entity[key];
-        if (!Array.isArray(arr)) continue;
-        const idx = arr.findIndex((v) => v?.type === "future");
+      // Remove the active future vector (the newest pending ambition).
+      if (Array.isArray(entity.future)) {
+        const idx = entity.future.findIndex((v) => v?.type === "future");
         if (idx !== -1) {
-          arr.splice(idx, 1);
+          entity.future.splice(idx, 1);
           return;
         }
+      }
+      if (Array.isArray(entity.past)) {
+        const idx = entity.past.findIndex((v) => v?.type === "future");
+        if (idx !== -1) entity.past.splice(idx, 1);
       }
     },
     /**
@@ -389,14 +393,14 @@ function create_runtime_store() {
               ? { ...story.entity_snapshots.fractal.dynamics }
               : { ...fractal_data.dynamics };
         }
-        // Stamp dynamicsBaseline from the story snapshot.
+        // Stamp dynamics_baseline from the story snapshot.
         // This gives the physics engine a per-character gravitational center
         // rather than the universal 50 fallback.
         if (story.entity_snapshots?.ai?.dynamics && active_ai_state) {
-          active_ai_state.dynamicsBaseline = { ...story.entity_snapshots.ai.dynamics };
+          active_ai_state.dynamics_baseline = { ...story.entity_snapshots.ai.dynamics };
         }
         if (story.entity_snapshots?.fractal?.dynamics && active_fractal_state) {
-          active_fractal_state.dynamicsBaseline = { ...story.entity_snapshots.fractal.dynamics };
+          active_fractal_state.dynamics_baseline = { ...story.entity_snapshots.fractal.dynamics };
         }
 
         // Synchronize app selections for UI consistency in storymode
@@ -505,7 +509,8 @@ function create_runtime_store() {
               description: "No data stream connected.",
               eternal: { non_physical: "", physical: "" },
               present: { non_physical: "", physical: "" },
-              vectors: [],
+              future: [],
+              past: [],
               dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 },
             });
           }

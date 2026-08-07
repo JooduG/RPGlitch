@@ -47,23 +47,6 @@ describe("entity embedding persistence", () => {
     expect(loaded.past[0]._embedding[383]).toBeCloseTo(-0.25);
   });
 
-  it("hydrates the legacy JSON-flattened embedding object form", async () => {
-    const { db, init } = await import("./db.js");
-    await init();
-    const { entities } = await import("./repository.js");
-    const legacy_embedding = Object.fromEntries(Array.from({ length: 384 }, (_, i) => [i, i / 384]));
-    const entity = make_entity("char-legacy");
-    entity.past = [{ id: "lp1", timestamp: 1, content: "m", type: "past", emotional_weight: 5, meta: {}, _embedding: legacy_embedding }];
-
-    await db.entities.put(entity);
-    const loaded = await entities.get("character", "char-legacy");
-
-    expect(loaded.past[0]._embedding).toBeInstanceOf(Float32Array);
-    expect(loaded.past[0]._embedding.length).toBe(384);
-    expect(loaded.past[0]._embedding[0]).toBeCloseTo(0);
-    expect(loaded.past[0]._embedding[383]).toBeCloseTo(383 / 384, 4);
-  });
-
   it("drops corrupt embeddings so callers re-infer", async () => {
     const { db, init } = await import("./db.js");
     await init();

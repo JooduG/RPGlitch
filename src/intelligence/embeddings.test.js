@@ -82,14 +82,6 @@ describe("embeddings LRU cache", () => {
     expect(vector._embedding).toBe(emb);
   });
 
-  it("upgrades the legacy JSON-flattened embedding object form", async () => {
-    const legacy = Object.fromEntries(Array.from({ length: EMBED_DIM }, (_, i) => [i, i / EMBED_DIM]));
-    const vector = { content: "lore", _embedding: legacy };
-    const emb = await ensure_embedding(vector);
-    expect(emb).toBeInstanceOf(Float32Array);
-    expect(emb[EMBED_DIM - 1]).toBeCloseTo((EMBED_DIM - 1) / EMBED_DIM);
-  });
-
   it("re-infers when the stored embedding is corrupt", async () => {
     const vector = { content: "lore", _embedding: { 0: "nope" } };
     const emb = await ensure_embedding(vector);

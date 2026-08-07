@@ -98,26 +98,24 @@ export class ProfileState {
 
   /**
    * Returns the vector items belonging to one UI section ('past' | 'future').
-   * Vectors without an explicit type are treated as past (the legacy default).
+   * Vectors without an explicit type are treated as past.
    * @param {'past' | 'future'} type
    * @returns {any[]}
    */
   _vectors_of_type(type) {
-    const all = Array.isArray(this.char?.vectors) ? this.char.vectors : [];
-    return all.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") === type);
+    const arr = Array.isArray(this.char?.[type]) ? this.char[type] : [];
+    if (type === "future") return arr.slice();
+    return arr.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") === "past");
   }
 
   /**
-   * Replaces one section's vectors inside the unified `vectors` array,
-   * preserving the other section's vectors.
+   * Replaces one section's memories inside the matching past/future array.
    * @param {'past' | 'future'} type
    * @param {any[]} items
    */
   _set_vectors_of_type(type, items) {
     if (!this.char) return;
-    const all = Array.isArray(this.char.vectors) ? this.char.vectors : [];
-    const kept = all.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") !== type);
-    this.char.vectors = [...kept, ...items];
+    this.char[type] = items.slice();
   }
 
   /**
@@ -176,10 +174,12 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_saving = true;
     try {
-      if (Array.isArray(this.char.vectors)) {
-        this.char.vectors = this.char.vectors.filter((v) =>
-          typeof v === "object" && v !== null ? !!(v.content || v.directive || v.text)?.trim() : !!String(v).trim(),
-        );
+      for (const key of ["past", "future"]) {
+        if (Array.isArray(this.char[key])) {
+          this.char[key] = this.char[key].filter((v) =>
+            typeof v === "object" && v !== null ? !!(v.content || v.directive)?.trim() : !!String(v).trim(),
+          );
+        }
       }
       await runtime.save_entity(entity_type, this.char);
       await app.load_entities(); // Refresh lists

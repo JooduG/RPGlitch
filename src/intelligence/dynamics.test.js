@@ -14,8 +14,8 @@ describe("dynamics.js", () => {
   });
 
   describe("dynamics_engine._get_baselines", () => {
-    it("returns dynamicsBaseline when set", () => {
-      const entity = { dynamicsBaseline: { chaos: 42, intensity: 55 } };
+    it("returns dynamics_baseline when set", () => {
+      const entity = { dynamics_baseline: { chaos: 42, intensity: 55 } };
       const baselines = dynamics_engine._get_baselines(entity);
       expect(baselines).toEqual({ chaos: 42, intensity: 55 });
     });

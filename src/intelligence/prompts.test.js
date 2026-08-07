@@ -445,8 +445,8 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.meta).toBeDefined();
       expect(result.meta.ai).toEqual(snapshot.ai.dynamics);
       expect(result.meta.fractal).toEqual(snapshot.fractal.dynamics);
-      expect(result.meta?.vectors).toBeDefined();
-      expect(result.meta?.vectors).toBeInstanceOf(Array);
+      expect(result.meta?.memories).toBeDefined();
+      expect(result.meta?.memories).toBeInstanceOf(Array);
     });
 
     it("synthesize() injects adaptive stability protocols based on meta.structural_errors", () => {
@@ -534,10 +534,8 @@ describe("prompt_builder (Refactored)", () => {
       const entity = {
         eternal: { physical: "Eternal body.", non_physical: "Eternal psyche." },
         present: { physical: "Present outfit.", non_physical: "Present mood." },
-        vectors: [
-          { id: "p1", content: "Old memory anchor", type: "past", emotional_weight: 5 },
-          { id: "f1", content: "Impending prophecy", type: "future", emotional_weight: 6 },
-        ],
+        past: [{ id: "p1", content: "Old memory anchor", type: "past", emotional_weight: 5 }],
+        future: [{ id: "f1", content: "Impending prophecy", type: "future", emotional_weight: 6 }],
       };
       const result = prompt_builder.build_enhancement("present.non_physical", "Present mood.", "Viper", "character", false, entity);
       expect(result.system).toContain("Present mood.");

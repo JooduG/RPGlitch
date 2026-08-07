@@ -24,25 +24,25 @@ const _mock_runtime = {
   },
   get snapshot_entities() {
     return {
-      AI: { id: "ai", name: "AI", role: "AI", vectors: [], dynamics: {} },
-      USER: { id: "user", name: "USER", role: "USER", vectors: [], dynamics: {} },
+      AI: { id: "ai", name: "AI", role: "AI", future: [], dynamics: {} },
+      USER: { id: "user", name: "USER", role: "USER", future: [], dynamics: {} },
       FRACTAL: {
         id: "fractal",
         name: "FRACTAL",
         role: "FRACTAL",
-        vectors: [],
+        future: [],
         dynamics: {},
       },
     };
   },
   get active_ai() {
-    return { vectors: [] };
+    return { future: [] };
   },
   get active_user() {
-    return { vectors: [] };
+    return { future: [] };
   },
   get active_fractal() {
-    return { vectors: [] };
+    return { future: [] };
   },
 };
 
@@ -98,8 +98,8 @@ describe("context_broker", () => {
   describe("manage_vector_lifecycle", () => {
     it("should gracefully handle missing entity or vectors arrays", async () => {
       await expect(context_broker.manage_vector_lifecycle(null)).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ vectors: null })).resolves.not.toThrow();
-      await expect(context_broker.manage_vector_lifecycle({ vectors: [] })).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: null })).resolves.not.toThrow();
+      await expect(context_broker.manage_vector_lifecycle({ future: [] })).resolves.not.toThrow();
     });
 
     // --- STRICT STATE AND CHRONO MATRIX TESTS ---
@@ -107,7 +107,7 @@ describe("context_broker", () => {
     it("should not resolve state-locked vectors if requires state is not met", async () => {
       mock_app_state.state_anchor = "inactive";
       const entity = {
-        vectors: [
+        future: [
           {
             id: "v_state",
             requires: { state_anchor: "active" },
@@ -126,7 +126,7 @@ describe("context_broker", () => {
     it("should resolve state-locked vectors instantly when requires state matches", async () => {
       mock_app_state.state_anchor = "active";
       const entity = {
-        vectors: [
+        future: [
           {
             id: "v_state",
             requires: { state_anchor: "active" },
@@ -145,7 +145,7 @@ describe("context_broker", () => {
     it("should block resolution if round has not met threshold from requires or meta", async () => {
       mock_round = 2;
       const entity = {
-        vectors: [
+        future: [
           {
             id: "v_chrono_req",
             requires: { round: 3 },
@@ -174,7 +174,7 @@ describe("context_broker", () => {
     it("should resolve when round has met threshold", async () => {
       mock_round = 3;
       const entity = {
-        vectors: [
+        future: [
           {
             id: "v_chrono_req_ok",
             requires: { round: 3 },

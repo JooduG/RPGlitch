@@ -91,7 +91,7 @@
         attachments: [{ src: null, metadata: { mode: target_mode } }],
       });
 
-      const result = await visual_engine.visualize(runtime.story_id, prompt, kind);
+      const result = await visual_engine.visualize(runtime.story_id, prompt, kind, { subject });
 
       if (result?.imageUrl && placeholder_entry?.id) {
         await session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -313,7 +313,7 @@
       items.push({ separator: true });
       items.push({
         label: photo_label,
-        onSelect: () => take_photo(type, photo_prompt, type),
+        onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "story_scene" : "story_character"),
         disabled: is_locked || visual_engine.isLoading,
       });
       if (type === "fractal") {

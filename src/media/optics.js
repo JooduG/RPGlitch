@@ -25,30 +25,15 @@ export const NEGATIVE_PROMPT = PROTOCOL_LIBRARY.OPTICS.NEGATIVE_PROMPT;
  */
 export const IMAGE_TIERS = ["story_entities", "story_character", "solo_entity", "story_scene"];
 
-/** Legacy target aliases mapped onto the 4-tier taxonomy. */
-const IMAGE_TIER_ALIASES = {
-  ai: "story_character",
-  user: "story_character",
-  selfie: "story_character",
-  portrait: "story_character",
-  character: "story_character",
-  prologue: "story_character",
-  characters: "story_entities",
-  story: "story_entities",
-  fractal: "story_scene",
-  scene: "story_scene",
-  landscape: "story_scene",
-  setting: "story_scene",
-};
-
 /**
- * Normalizes any image target (legacy or canonical) onto the 4-tier taxonomy.
+ * Validates an image target against the 4-tier taxonomy. Unknown targets fall
+ * back to the default tier.
  * @param {string} [targetType]
  * @returns {string}
  */
 export function normalize_image_tier(targetType) {
   if (IMAGE_TIERS.includes(targetType)) return targetType;
-  return IMAGE_TIER_ALIASES[targetType] || "story_character";
+  return "story_character";
 }
 
 /**
@@ -301,7 +286,7 @@ export const PromptTemplates = {
   BUILDER: (targetType, rawIntent, context) => {
     const { ai, user, fractal, entity, history, mode = "visualize", variant } = context || {};
 
-    // Unified 4-Tier Image Taxonomy: legacy targets normalize onto the four tiers.
+    // Unified 4-Tier Image Taxonomy routing.
     const tier = normalize_image_tier(targetType);
     const is_selfie = variant === "selfie" || targetType === "selfie";
 

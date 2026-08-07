@@ -221,7 +221,6 @@ export class AppStore {
   get is_ready() {
     return this.settings.dev_mode || (this.selected_ai !== null && this.selected_user !== null && this.selected_fractal !== null);
   }
-  /** Legacy alias for storyboard readiness */
 
   // --- TELEMETRY (DevMode HUD) ---
   /**
@@ -281,15 +280,6 @@ export class AppStore {
       await db.kv_settings.put({ key: "rpg_settings", value: $state.snapshot(this.settings) });
     } catch (e) {
       console.error("[Security] Settings Save Failed:", e);
-    }
-    // Global Sync for non-Svelte legacy components
-    if (typeof window !== "undefined") {
-      window.RPGLITCH_CONFIG = {
-        sound: this.settings.sound,
-        auto_scroll: this.settings.auto_scroll,
-        text_speed: this.settings.stream_text ? 30 : 0,
-        dev_mode: this.settings.dev_mode,
-      };
     }
   };
 

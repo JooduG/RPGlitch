@@ -202,14 +202,6 @@ export const session_driver = {
   },
 
   /**
-   * Legacy wrapper for log_message matching Intelligence Kernel's expected signature.
-   * @param {string} text
-   * @param {string} character_name
-   * @param {string} role
-   * @param {any} [meta]
-   */
-
-  /**
    * Fetch history for a story.
    * @param {string} story_id
    * @returns {Promise<any[]>}

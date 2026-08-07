@@ -11,7 +11,6 @@ export const EMBEDDING_DIM = 384;
 
 /**
  * Serializes an embedding into a JSON-safe form (number[]).
- * Accepts Float32Array, number[], or any ArrayBuffer view.
  * @param {any} emb
  * @returns {number[] | null}
  */
@@ -25,8 +24,8 @@ export function serialize_embedding(emb) {
 
 /**
  * Deserializes a stored embedding back into a Float32Array of EMBEDDING_DIM.
- * Accepts Float32Array, number[], and the legacy JSON-round-tripped {"0":…}
- * object form. Returns null for missing/corrupt values so callers re-infer.
+ * Accepts Float32Array or number[] (the JSON-safe persisted form). Returns
+ * null for missing/corrupt values so callers re-infer.
  * @param {any} value
  * @returns {Float32Array | null}
  */
@@ -38,15 +37,6 @@ export function deserialize_embedding(value) {
       if (typeof n !== "number" || !Number.isFinite(n)) return null;
     }
     return Float32Array.from(value);
-  }
-  if (value && typeof value === "object") {
-    const arr = new Array(EMBEDDING_DIM);
-    for (let i = 0; i < EMBEDDING_DIM; i++) {
-      const n = Number(value[i]);
-      if (!Number.isFinite(n)) return null;
-      arr[i] = n;
-    }
-    return Float32Array.from(arr);
   }
   return null;
 }

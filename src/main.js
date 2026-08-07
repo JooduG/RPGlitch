@@ -5,7 +5,7 @@
 import "@media/design.css";
 import Dexie from "dexie";
 import DOMPurify from "dompurify";
-// 🚑 EMERGENCY POLYFILL: Expose to window for legacy code/perchance integration
+// Expose core libs to the global scope (Perchance integration).
 // Must happen BEFORE any other code runs
 Object.assign(window, { Dexie, DOMPurify });
 

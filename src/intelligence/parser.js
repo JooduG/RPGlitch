@@ -252,7 +252,6 @@ export function parse_message(rawText, register = "plain") {
 
 /**
  * Escapes characters for safe use in XML.
- * Re-exported from @utils for backward compatibility.
  * @param {string|null|undefined} str
  * @returns {string}
  */
@@ -294,7 +293,6 @@ export function clean_xml(str) {
 
 /**
  * High-fidelity parser that extracts pseudo-JSON configurations.
- * Re-exported from @utils for backward compatibility.
  * @param {string} raw
  * @returns {Record<string, string>}
  */

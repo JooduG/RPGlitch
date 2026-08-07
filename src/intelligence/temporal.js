@@ -187,7 +187,7 @@ export function format(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of ranked) {
-    const text = v.content || v.directive || v.text || "";
+    const text = v.content || v.directive || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -204,7 +204,7 @@ export function format(vectors, input, options = {}) {
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || v.directive || v.text || "";
+      if (show_text) return v.content || v.directive || "";
       return "";
     })
     .join("\n");
@@ -223,7 +223,7 @@ export async function format_async(vectors, input, options = {}) {
   const selected_texts = [];
 
   for (const v of sliced) {
-    const text = v.content || v.directive || v.text || "";
+    const text = v.content || v.directive || "";
     if (!text.trim()) continue;
 
     if (is_duplicate(text, selected_texts.join(" "))) continue;
@@ -240,21 +240,30 @@ export async function format_async(vectors, input, options = {}) {
 
   return selected
     .map((v) => {
-      if (show_text) return v.content || v.directive || v.text || "";
+      if (show_text) return v.content || v.directive || "";
       return "";
     })
     .join("\n");
 }
 
 export function resolve(entity, vector_id, resolution = null, session = null) {
-  if (!entity || !Array.isArray(entity.vectors)) return;
-  const index = entity.vectors.findIndex((v) => v.id === vector_id);
-  if (index === -1) return;
+  if (!entity || typeof entity !== "object") return;
+  let vector = null;
+  for (const key of ["future", "past"]) {
+    const arr = entity[key];
+    if (!Array.isArray(arr)) continue;
+    const index = arr.findIndex((v) => v.id === vector_id);
+    if (index !== -1) {
+      [vector] = arr.splice(index, 1);
+      break;
+    }
+  }
+  if (!vector) return;
 
-  const [vector] = entity.vectors.splice(index, 1);
+  if (!Array.isArray(entity.past)) entity.past = [];
   vector.type = "past";
   vector.timestamp = Date.now();
-  entity.vectors.push(vector);
+  entity.past.push(vector);
 
   if (session?.log_system_entry) {
     const text = vector.content || "";
@@ -306,43 +315,32 @@ export async function forge_memory(entity_targets, history_slice) {
       return null;
     }
 
-    const raw_memories = memory?.memories && typeof memory.memories === "object" ? memory.memories : null;
-    const legacy_directive = String(memory?.directive || memory?.summary || "").trim();
-
     const forged = {
-      vectors: {},
-      present_consolidated: memory?.present_summaries || memory?.present_consolidated || {},
-      eternal_consolidated: memory?.eternal_mutations || memory?.eternal_consolidated || {},
+      memories: {},
+      present_consolidated: memory?.present_consolidated || {},
+      eternal_consolidated: memory?.eternal_consolidated || {},
     };
 
     for (const { key } of entity_targets) {
       const entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : {};
 
-      const pres = entity_block.present_consolidated || entity_block.present_summary;
+      const pres = entity_block.present_consolidated;
       if (pres && typeof pres === "object") {
         forged.present_consolidated[key] = pres;
       }
 
-      const et = entity_block.eternal_consolidated || entity_block.eternal_mutations;
+      const et = entity_block.eternal_consolidated;
       if (et && typeof et === "object") {
         forged.eternal_consolidated[key] = et;
       }
 
-      const raw_vectors = Array.isArray(entity_block.vector_append)
-        ? entity_block.vector_append
-        : entity_block.memory
-          ? [entity_block.memory]
-          : raw_memories?.[key]
-            ? [raw_memories[key]]
-            : legacy_directive
-              ? [{ content: legacy_directive, type: "past" }]
-              : [];
+      const raw_vectors = Array.isArray(entity_block.vector_append) ? entity_block.vector_append : [];
 
-      forged.vectors[key] = [];
+      forged.memories[key] = [];
 
       for (const raw of raw_vectors) {
         if (!raw || typeof raw !== "object") continue;
-        const content = String(raw.content ?? raw.directive ?? raw.summary ?? "").trim();
+        const content = String(raw.content ?? raw.directive ?? "").trim();
         if (!content) continue;
 
         const vector = {
@@ -350,7 +348,7 @@ export async function forge_memory(entity_targets, history_slice) {
           timestamp: Date.now(),
           type: normalize_forged_type(raw.type),
           content,
-          emotional_weight: Number(raw.emotional_weight ?? raw.base_weight ?? memory?.emotional_weight ?? memory?.base_weight ?? 5) || 5,
+          emotional_weight: Number(raw.emotional_weight ?? 5) || 5,
           meta: { ...(memory?.meta || {}), forged_for: key },
         };
 
@@ -358,15 +356,15 @@ export async function forge_memory(entity_targets, history_slice) {
           await ensure_embedding(vector);
         }
 
-        forged.vectors[key].push(vector);
+        forged.memories[key].push(vector);
       }
     }
 
-    const has_vectors = Object.values(forged.vectors).some((arr) => arr.length > 0);
+    const has_memories = Object.values(forged.memories).some((arr) => arr.length > 0);
     const has_present = Object.keys(forged.present_consolidated).length > 0;
     const has_eternal = Object.keys(forged.eternal_consolidated).length > 0;
 
-    if (!has_vectors && !has_present && !has_eternal) return null;
+    if (!has_memories && !has_present && !has_eternal) return null;
 
     return forged;
   } catch (err) {
@@ -412,21 +410,22 @@ export function apply_state_mutations(entity, mutations, session = null) {
       ? mutations.new_vectors
       : [];
   if (new_list.length > 0) {
-    if (!Array.isArray(entity.vectors)) entity.vectors = [];
     new_list.forEach((v) => {
       const payload = (v.content || v.directive || "").trim();
       if (!payload) return;
-      const new_vector = create(payload, v.type || "future", v.emotional_weight ?? v.weight ?? 5);
+      const new_vector = create(payload, v.type === "past" ? "past" : "future", v.emotional_weight ?? v.weight ?? 5);
+      const bucket = new_vector.type === "future" ? "future" : "past";
+      if (!Array.isArray(entity[bucket])) entity[bucket] = [];
       v.id = new_vector.id;
       ensure_embedding(new_vector)
         .then(() => {
           if (entity?.id) {
             const type = entity.type === "fractal" ? "fractal" : "character";
-            state_bridge.runtime?.update_entity?.(type, entity.id, { vectors: entity.vectors })?.catch(() => {});
+            state_bridge.runtime?.update_entity?.(type, entity.id, { past: entity.past, future: entity.future })?.catch(() => {});
           }
         })
         .catch(() => {});
-      entity.vectors.push(new_vector);
+      entity[bucket].push(new_vector);
       changed = true;
     });
   }
@@ -448,7 +447,8 @@ export function apply_state_mutations(entity, mutations, session = null) {
     state_bridge.runtime
       ?.update_entity?.(type, entity.id, {
         present: entity.present,
-        vectors: entity.vectors,
+        past: entity.past,
+        future: entity.future,
         eternal: entity.eternal,
       })
       ?.catch((err) => {
@@ -467,10 +467,10 @@ export function apply_neuroplasticity(entity_targets, memory, runtime) {
     const is_positive = (memory?.emotional_weight ?? 5) <= 4 || is_reconciliation;
 
     const ai_target = entity_targets.find((t) => t.entity === runtime?.active_ai);
-    if (!ai_target || !Array.isArray(ai_target.entity.vectors)) return;
+    if (!ai_target || !Array.isArray(ai_target.entity.past)) return;
 
     let changed = false;
-    for (const v of ai_target.entity.vectors) {
+    for (const v of ai_target.entity.past) {
       if (v.type === "future") continue;
       if (v.emotional_weight >= 8) {
         if (is_positive && chaos < 80) {
@@ -483,7 +483,7 @@ export function apply_neuroplasticity(entity_targets, memory, runtime) {
       }
     }
     if (changed) {
-      runtime?.update_entity?.(ai_target.type, ai_target.entity.id, { vectors: ai_target.entity.vectors });
+      runtime?.update_entity?.(ai_target.type, ai_target.entity.id, { past: ai_target.entity.past });
     }
   } catch (err) {
     console.error("[TemporalEngine] Neuroplasticity pass failed:", err);
@@ -526,26 +526,24 @@ export const temporal_engine = {
         const forged = await forge_memory(entity_targets, slice);
         if (forged) {
           for (const { key, type, entity } of entity_targets) {
-            const vectors = forged.vectors?.[key] || [];
-            for (const memory of vectors) {
+            const memories = forged.memories?.[key] || [];
+            for (const memory of memories) {
               if (memory.type === "future") {
-                if (!Array.isArray(entity.vectors)) entity.vectors = [];
-                entity.vectors = [...entity.vectors, memory];
-                await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
+                entity.future = [...(entity.future || []), memory];
+                await runtime.update_entity(type, entity.id, { future: entity.future });
               } else if (memory.type === "present") {
                 if (!entity.present) entity.present = { physical: "", non_physical: "" };
                 entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || "");
                 await runtime.update_entity(type, entity.id, { present: entity.present });
               } else {
-                if (!Array.isArray(entity.vectors)) entity.vectors = [];
-                entity.vectors = [...entity.vectors, memory];
-                await runtime.update_entity(type, entity.id, { vectors: entity.vectors });
+                entity.past = [...(entity.past || []), memory];
+                await runtime.update_entity(type, entity.id, { past: entity.past });
               }
             }
           }
 
-          if (forged.vectors?.AI_CHARACTER?.length) {
-            const primary_mem = forged.vectors.AI_CHARACTER[0];
+          if (forged.memories?.AI_CHARACTER?.length) {
+            const primary_mem = forged.memories.AI_CHARACTER[0];
             if (primary_mem) {
               apply_neuroplasticity(entity_targets, primary_mem, runtime);
             }
@@ -580,25 +578,23 @@ export const temporal_engine = {
               }
               if (eternal_changed) {
                 await runtime.update_entity(type, entity.id, { eternal: entity.eternal });
-                const primary_vector = forged.vectors?.[key]?.[0];
+                const primary_vector = forged.memories?.[key]?.[0];
                 if (primary_vector && primary_vector.type !== "present" && !primary_vector.meta?.eternal_shift) {
                   primary_vector.meta = { ...(primary_vector.meta || {}), eternal_shift: true };
-                  const payload = {};
-                  if (Array.isArray(entity.vectors)) payload.vectors = entity.vectors;
-                  await runtime.update_entity(type, entity.id, payload);
+                  await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
                 }
               }
             }
           }
 
           for (const { key } of entity_targets) {
-            const vectors = forged.vectors?.[key] || [];
-            if (!vectors.length) continue;
-            const text = vectors.map((v) => v.content || v.directive || "").join(" | ");
+            const memories = forged.memories?.[key] || [];
+            if (!memories.length) continue;
+            const text = memories.map((v) => v.content || v.directive || "").join(" | ");
             await Session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
               target: key,
-              vectors,
+              memories,
               turns_count: slice.length,
             });
           }
