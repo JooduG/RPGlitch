@@ -36,7 +36,7 @@ function create_kinetic_action(node, config) {
     is_hovered = true;
     node.dataset.kinetic = "true";
 
-    const intensity = motion.isReduced ? 0 : motion.intensity;
+    const intensity = motion.is_reduced ? 0 : motion.intensity;
     if (intensity === 0) return;
 
     const target = get_target(node);
@@ -64,7 +64,7 @@ function create_kinetic_action(node, config) {
   if (typeof window !== "undefined") {
     cleanup_effect = $effect.root(() => {
       $effect(() => {
-        const intensity = motion.isReduced ? 0 : motion.intensity;
+        const intensity = motion.is_reduced ? 0 : motion.intensity;
         if (is_hovered) {
           if (intensity === 0) {
             if (animation) {

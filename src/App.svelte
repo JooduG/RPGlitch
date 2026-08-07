@@ -314,13 +314,13 @@
       items.push({
         label: photo_label,
         onSelect: () => take_photo(type, photo_prompt, type === "fractal" ? "story_scene" : "story_character"),
-        disabled: is_locked || visual_engine.isLoading,
+        disabled: is_locked || visual_engine.is_loading,
       });
       if (type === "fractal") {
         items.push({
           label: "Generate Story Image",
           onSelect: () => take_group_photo(),
-          disabled: is_locked || visual_engine.isLoading,
+          disabled: is_locked || visual_engine.is_loading,
         });
       }
       if (type === "user") {
@@ -387,7 +387,7 @@
       class="pointer-events-none fixed -inset-5 z-max bg-(image:--noise-url) mix-blend-overlay {app.sim_phase === 'generating'
         ? 'animate-[noise-breathing_0.08s_steps(4)_infinite] opacity-[calc(var(--opacity-whisper)+0.1)]'
         : 'animate-[noise-breathing_0.2s_steps(4)_infinite] opacity-ghost'}"
-      style:animation-play-state={motion.isReduced ? "paused" : "running"}
+      style:animation-play-state={motion.is_reduced ? "paused" : "running"}
     ></div>
   </div>
 

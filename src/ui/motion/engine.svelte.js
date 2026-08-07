@@ -19,14 +19,14 @@ if (media_query) {
  * Global motion state engine tracking visual intensity and accessibility states.
  * @namespace
  * @property {number} intensity - Global animation speed/play multiplier (0.0 to 1.0).
- * @property {boolean} isReduced - Evaluates to true if hardware or user requests reduced motion.
+ * @property {boolean} is_reduced - Evaluates to true if hardware or user requests reduced motion.
  */
 export const motion = $state({
   intensity: 1.0,
-  get isReduced() {
+  get is_reduced() {
     return is_reduced_state;
   },
-  set isReduced(value) {
+  set is_reduced(value) {
     is_reduced_state = value;
   },
 });

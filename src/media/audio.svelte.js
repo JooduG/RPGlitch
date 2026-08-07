@@ -91,16 +91,16 @@ const KOKORO_VOICES = [
 export class VoiceEngine {
   // --- REACTIVE STATE ---
   /** @type {string | null | number} */
-  activeMessageId = $state(null);
+  active_message_id = $state(null);
 
-  isSpeaking = $state(false);
-  isLoading = $state(false);
-  loadProgress = $state(0);
-  modelReady = $state(false);
+  is_speaking = $state(false);
+  is_loading = $state(false);
+  load_progress = $state(0);
+  model_ready = $state(false);
   /** @type {any[]} */
   voices = $state([]);
   /** @type {string | null} */
-  selectedVoice = $state(null);
+  selected_voice = $state(null);
   volume = $state(1.0);
   rate = $state(1.0);
   enabled = $state(false); // Master voice switch (default off)
@@ -111,19 +111,19 @@ export class VoiceEngine {
   /** @type {any | null} KokoroTTS instance */
   #tts = null;
   /** @type {boolean} */
-  #useFallback = false;
+  #use_fallback = false;
   /** @type {SpeechSynthesis | null} */
-  #fallbackSynth = null;
-  /** @type {Array<{ text: string, voiceUri: string|null }>} */
+  #synth_fallback = null;
+  /** @type {Array<{ text: string, voice_id: string|null, message_id: string|null }>} */
   #queue = [];
   /** @type {boolean} */
-  #isProcessing = false;
+  #is_processing = false;
   /** @type {AudioContext | null} */
-  #audioContext = null;
+  #audio_context = null;
   /** @type {GainNode | null} */
-  #gainNode = null;
+  #voice_volume = null;
   /** @type {AudioBufferSourceNode | null} */
-  #currentSource = null;
+  #current_audio_source = null;
 
   /**
    * Initializes the voice engine with Kokoro voice list.
@@ -132,11 +132,10 @@ export class VoiceEngine {
     this.voices = KOKORO_VOICES.map((v) => ({
       name: v.name,
       uri: v.uri,
-      supportsParams: true,
     }));
 
-    if (!this.selectedVoice) {
-      this.selectedVoice = "af_heart";
+    if (!this.selected_voice) {
+      this.selected_voice = "af_heart";
     }
   }
 
@@ -145,17 +144,17 @@ export class VoiceEngine {
    * Returns a promise that resolves when loading is complete.
    */
   async loadModel() {
-    await this.#ensureModel();
+    await this.#ensure_model();
   }
 
   /**
    * Lazily loads the Kokoro TTS model from CDN.
    * Falls back to Web Speech API if loading fails.
    */
-  async #ensureModel() {
-    if (this.#tts || this.#useFallback) return;
+  async #ensure_model() {
+    if (this.#tts || this.#use_fallback) return;
 
-    this.isLoading = true;
+    this.is_loading = true;
     try {
       const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
 
@@ -175,32 +174,32 @@ export class VoiceEngine {
               file_progress[data.file] = data.progress;
               const values = Object.values(file_progress);
               const avg = values.reduce((a, b) => a + b, 0) / values.length;
-              this.loadProgress = Math.round(avg);
+              this.load_progress = Math.round(avg);
             }
           }
         },
       });
-      this.loadProgress = 100;
-      this.modelReady = true;
+      this.load_progress = 100;
+      this.model_ready = true;
     } catch (err) {
       console.warn("[VoiceEngine] Kokoro failed to load, falling back to Web Speech API:", err);
-      this.#useFallback = true;
-      this.#initFallback();
-      this.modelReady = true;
+      this.#use_fallback = true;
+      this.#init_fallback();
+      this.model_ready = true;
     } finally {
-      this.isLoading = false;
+      this.is_loading = false;
     }
   }
 
   /**
    * Initializes the Web Speech API fallback.
    */
-  #initFallback() {
+  #init_fallback() {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
-    this.#fallbackSynth = window.speechSynthesis;
+    this.#synth_fallback = window.speechSynthesis;
     // Load platform voices for fallback
     const load_fallback = () => {
-      const raw = this.#fallbackSynth.getVoices();
+      const raw = this.#synth_fallback.getVoices();
       if (
         raw.length > 0 &&
         !this.voices.some((v) => v.uri.startsWith("af_") || v.uri.startsWith("am_") || v.uri.startsWith("bf_") || v.uri.startsWith("bm_"))
@@ -210,29 +209,28 @@ export class VoiceEngine {
           .map((v) => ({
             name: v.name,
             uri: v.voiceURI,
-            supportsParams: !v.name.includes("Natural"),
             _ref: v,
           }));
-        if (!this.selectedVoice && this.voices.length > 0) {
-          this.selectedVoice = this.voices[0].uri;
+        if (!this.selected_voice && this.voices.length > 0) {
+          this.selected_voice = this.voices[0].uri;
         }
       }
     };
     load_fallback();
-    this.#fallbackSynth.onvoiceschanged = load_fallback;
+    this.#synth_fallback.onvoiceschanged = load_fallback;
   }
 
   /**
    * Ensures an AudioContext is available for Kokoro playback.
    */
-  #ensureAudioContext() {
-    if (this.#audioContext) return;
+  #create_audio_context() {
+    if (this.#audio_context) return;
     const AudioCtx = window.AudioContext || window.webkitAudioContext;
     if (!AudioCtx) return;
-    this.#audioContext = new AudioCtx();
-    this.#gainNode = this.#audioContext.createGain();
-    this.#gainNode.gain.setValueAtTime(this.volume, this.#audioContext.currentTime);
-    this.#gainNode.connect(this.#audioContext.destination);
+    this.#audio_context = new AudioCtx();
+    this.#voice_volume = this.#audio_context.createGain();
+    this.#voice_volume.gain.setValueAtTime(this.volume, this.#audio_context.currentTime);
+    this.#voice_volume.connect(this.#audio_context.destination);
   }
 
   /**
@@ -263,33 +261,33 @@ export class VoiceEngine {
 
     this.#queue.push({
       text: speech_ready_text,
-      voiceUri: this.selectedVoice,
-      messageId: this.activeMessageId,
+      voice_id: this.selected_voice,
+      message_id: this.active_message_id,
     });
 
-    if (!this.#isProcessing) {
-      this.#processQueue();
+    if (!this.#is_processing) {
+      this.#process_queue();
     } else {
-      this.#pregenerateQueue();
+      this.#pregenerate_queue();
     }
   }
 
   /**
    * Pre-generates audio for queued items in the background to eliminate playback pauses.
    */
-  #pregenerateQueue() {
-    if (this.#useFallback || !this.#tts) return;
+  #pregenerate_queue() {
+    if (this.#use_fallback || !this.#tts) return;
 
     for (const item of this.#queue) {
       if (!item.audioPromise && !item.audioData) {
-        const item_msg_id = item.messageId;
+        const item_msg_id = item.message_id;
         item.audioPromise = (async () => {
           try {
             const res = await this.#tts.generate(item.text, {
-              voice: item.voiceUri || "am_adam",
+              voice: item.voice_id || "am_adam",
               speed: this.rate,
             });
-            if (this.activeMessageId && item_msg_id && item_msg_id !== this.activeMessageId) {
+            if (this.active_message_id && item_msg_id && item_msg_id !== this.active_message_id) {
               return null;
             }
             return res;
@@ -305,37 +303,37 @@ export class VoiceEngine {
   /**
    * Processes the queue sequentially, generating audio for each chunk.
    */
-  async #processQueue() {
+  async #process_queue() {
     if (this.#queue.length === 0) {
-      this.#isProcessing = false;
-      this.isSpeaking = false;
-      this.activeMessageId = null;
+      this.#is_processing = false;
+      this.is_speaking = false;
+      this.active_message_id = null;
       return;
     }
 
-    this.#isProcessing = true;
-    this.isSpeaking = true;
+    this.#is_processing = true;
+    this.is_speaking = true;
 
-    await this.#ensureModel();
+    await this.#ensure_model();
 
-    if (this.#useFallback) {
-      this.#processFallback();
+    if (this.#use_fallback) {
+      this.#process_fallback();
       return;
     }
 
-    this.#pregenerateQueue();
+    this.#pregenerate_queue();
 
     const current_item = this.#queue[0];
     if (!current_item) {
-      this.#isProcessing = false;
-      this.isSpeaking = false;
+      this.#is_processing = false;
+      this.is_speaking = false;
       return;
     }
 
-    // Discard chunk if messageId does not match activeMessageId
-    if (current_item.messageId && this.activeMessageId && current_item.messageId !== this.activeMessageId) {
+    // Discard chunk if message_id does not match active_message_id
+    if (current_item.message_id && this.active_message_id && current_item.message_id !== this.active_message_id) {
       this.#queue.shift();
-      this.#processQueue();
+      this.#process_queue();
       return;
     }
 
@@ -345,34 +343,34 @@ export class VoiceEngine {
         : current_item.audioPromise
           ? await current_item.audioPromise
           : await this.#tts.generate(current_item.text, {
-              voice: current_item.voiceUri || "am_adam",
+              voice: current_item.voice_id || "am_adam",
               speed: this.rate,
             });
 
-      // Check if we were stopped or activeMessageId changed while generating
-      if (!this.#isProcessing || (current_item.messageId && this.activeMessageId && current_item.messageId !== this.activeMessageId)) {
+      // Check if we were stopped or active_message_id changed while generating
+      if (!this.#is_processing || (current_item.message_id && this.active_message_id && current_item.message_id !== this.active_message_id)) {
         return;
       }
 
       if (audio?.audio) {
-        this.#playAudio(audio.audio, audio.sampling_rate || 24000);
+        this.#play_audio(audio.audio, audio.sampling_rate || 24000);
 
         // Wait for playback to finish
         await new Promise((resolve) => {
-          if (!this.#currentSource) {
+          if (!this.#current_audio_source) {
             resolve(undefined);
             return;
           }
-          this.#currentSource.onended = () => resolve(undefined);
+          this.#current_audio_source.onended = () => resolve(undefined);
         });
       }
     } catch (err) {
       console.warn("[VoiceEngine] Kokoro generation error:", err);
     }
 
-    if (this.#isProcessing) {
+    if (this.#is_processing) {
       this.#queue.shift();
-      setTimeout(() => this.#processQueue(), 5);
+      setTimeout(() => this.#process_queue(), 5);
     }
   }
 
@@ -381,44 +379,44 @@ export class VoiceEngine {
    * @param {Float32Array|number[]} audioData
    * @param {number} sampleRate
    */
-  #playAudio(audioData, sampleRate) {
-    this.#ensureAudioContext();
-    if (!this.#audioContext) return;
+  #play_audio(audioData, sampleRate) {
+    this.#create_audio_context();
+    if (!this.#audio_context) return;
 
-    const ctx = this.#audioContext;
+    const ctx = this.#audio_context;
     const buffer = ctx.createBuffer(1, audioData.length, sampleRate);
     buffer.getChannelData(0).set(audioData);
 
     const source = ctx.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.#gainNode);
+    source.connect(this.#voice_volume);
 
     if (ctx.state === "suspended") ctx.resume();
 
     source.start(0);
-    this.#currentSource = source;
+    this.#current_audio_source = source;
   }
 
   /**
    * Fallback processing using Web Speech API.
    */
-  #processFallback() {
-    if (!this.#fallbackSynth) {
-      this.#isProcessing = false;
-      this.isSpeaking = false;
+  #process_fallback() {
+    if (!this.#synth_fallback) {
+      this.#is_processing = false;
+      this.is_speaking = false;
       return;
     }
 
     if (this.#queue.length === 0) {
-      this.#isProcessing = false;
-      this.isSpeaking = false;
-      this.activeMessageId = null;
+      this.#is_processing = false;
+      this.is_speaking = false;
+      this.active_message_id = null;
       return;
     }
 
     const current_item = this.#queue[0];
     const utterance = new SpeechSynthesisUtterance(current_item.text);
-    const voice = this.voices.find((v) => v.uri === current_item.voiceUri) || this.voices[0];
+    const voice = this.voices.find((v) => v.uri === current_item.voice_id) || this.voices[0];
     if (voice?._ref) utterance.voice = voice._ref;
     utterance.volume = this.volume;
     utterance.rate = this.rate;
@@ -428,12 +426,12 @@ export class VoiceEngine {
       if (settled) return;
       settled = true;
       this.#queue.shift();
-      setTimeout(() => this.#processFallback(), interrupted ? 250 : 40);
+      setTimeout(() => this.#process_fallback(), interrupted ? 250 : 40);
     };
 
     utterance.onend = () => advance(false);
     utterance.onerror = (e) => advance(e?.error === "interrupted" || e?.error === "canceled");
-    this.#fallbackSynth.speak(utterance);
+    this.#synth_fallback.speak(utterance);
   }
 
   /**
@@ -446,34 +444,34 @@ export class VoiceEngine {
     const voice = this.voices.find((v) => v.uri === uri);
     if (!voice) return;
 
-    await this.#ensureModel();
+    await this.#ensure_model();
 
-    if (this.#useFallback) {
-      if (!this.#fallbackSynth) return;
-      this.isSpeaking = true;
+    if (this.#use_fallback) {
+      if (!this.#synth_fallback) return;
+      this.is_speaking = true;
       const utterance = new SpeechSynthesisUtterance("Previewing voice system.");
       const v = this.voices.find((v) => v.uri === uri) || this.voices[0];
       if (v?._ref) utterance.voice = v._ref;
       utterance.rate = rate;
-      utterance.onend = () => (this.isSpeaking = false);
-      utterance.onerror = () => (this.isSpeaking = false);
-      this.#fallbackSynth.speak(utterance);
+      utterance.onend = () => (this.is_speaking = false);
+      utterance.onerror = () => (this.is_speaking = false);
+      this.#synth_fallback.speak(utterance);
       return;
     }
 
-    this.isSpeaking = true;
+    this.is_speaking = true;
     try {
       const audio = await this.#tts.generate("Previewing voice system.", {
         voice: uri,
         speed: rate,
       });
-      this.#playAudio(audio.audio, audio.sampling_rate || 24000);
-      if (this.#currentSource) {
-        this.#currentSource.onended = () => (this.isSpeaking = false);
+      this.#play_audio(audio.audio, audio.sampling_rate || 24000);
+      if (this.#current_audio_source) {
+        this.#current_audio_source.onended = () => (this.is_speaking = false);
       }
     } catch (err) {
       console.warn("[VoiceEngine] Preview failed:", err);
-      this.isSpeaking = false;
+      this.is_speaking = false;
     }
   }
 
@@ -482,24 +480,24 @@ export class VoiceEngine {
    */
   stop() {
     this.#queue = [];
-    this.#isProcessing = false;
+    this.#is_processing = false;
 
-    if (this.#currentSource) {
+    if (this.#current_audio_source) {
       try {
-        this.#currentSource.onended = null;
-        this.#currentSource.stop();
+        this.#current_audio_source.onended = null;
+        this.#current_audio_source.stop();
       } catch {
         /* empty */
       }
-      this.#currentSource = null;
+      this.#current_audio_source = null;
     }
 
-    if (this.#fallbackSynth) {
-      this.#fallbackSynth.cancel();
+    if (this.#synth_fallback) {
+      this.#synth_fallback.cancel();
     }
 
-    this.isSpeaking = false;
-    this.activeMessageId = null;
+    this.is_speaking = false;
+    this.active_message_id = null;
   }
 
   /**
@@ -508,9 +506,9 @@ export class VoiceEngine {
    */
   destroy() {
     this.stop();
-    if (this.#audioContext && this.#audioContext.state !== "closed") {
+    if (this.#audio_context && this.#audio_context.state !== "closed") {
       try {
-        this.#audioContext.suspend();
+        this.#audio_context.suspend();
       } catch {
         /* empty */
       }
@@ -528,19 +526,19 @@ export class VoiceEngine {
 class AudioEffectsEngine {
   // --- PRIVATE TYPED PROPERTIES ---
   /** @type {AudioContext | null} */
-  #audioContext = null;
+  #audio_context = null;
   /** @type {GainNode | null} */
-  #gainNode = null;
+  #master_volume = null;
   /** @type {Map<string, AudioBuffer>} */
-  #buffers = new Map();
+  #sound_cache = new Map();
   /** @type {Map<string, Promise<AudioBuffer>>} */
-  #pendingBuffers = new Map();
+  #pending_fetches = new Map();
   /** @type {boolean} */
-  #unlocked = false;
+  #is_unlocked = false;
   /** @type {number} */
-  #lastPlayed = 0;
+  #last_played = 0;
   /** @type {number} */
-  #threshold = 500; // debounce in ms
+  #threshold_ms = 500; // debounce in ms
 
   // --- REACTIVE STATE ---
   notifications_enabled = $state(false); // Defaulting strictly to off
@@ -549,7 +547,7 @@ class AudioEffectsEngine {
    * Initializes browser window interaction listeners.
    */
   constructor() {
-    this.#initListeners();
+    this.#init_listeners();
   }
 
   /**
@@ -559,17 +557,17 @@ class AudioEffectsEngine {
     try {
       const entry = await db.audio_prefs.get(STORAGE_KEY);
       if (entry && entry.value) {
-        this.notifications_enabled = entry.value.notificationsEnabled === true;
-        Audio.voice.enabled = entry.value.voiceEnabled === true;
-        if (entry.value.entityVoice && typeof entry.value.entityVoice === "object") {
+        this.notifications_enabled = entry.value.notifications_enabled === true;
+        Audio.voice.enabled = entry.value.voice_enabled === true;
+        if (entry.value.entity_voice && typeof entry.value.entity_voice === "object") {
           Audio.voice.entity_voice = {
-            ai: entry.value.entityVoice.ai === true,
-            user: entry.value.entityVoice.user === true,
-            fractal: entry.value.entityVoice.fractal === true,
+            ai: entry.value.entity_voice.ai === true,
+            user: entry.value.entity_voice.user === true,
+            fractal: entry.value.entity_voice.fractal === true,
           };
         }
-        if (entry.value.masterVolume !== undefined) {
-          Audio.voice.volume = entry.value.masterVolume;
+        if (entry.value.master_volume !== undefined) {
+          Audio.voice.volume = entry.value.master_volume;
         }
       } else {
         this.notifications_enabled = false;
@@ -588,10 +586,10 @@ class AudioEffectsEngine {
       await db.audio_prefs.put({
         key: STORAGE_KEY,
         value: {
-          notificationsEnabled: this.notifications_enabled,
-          voiceEnabled: Audio.voice.enabled,
-          entityVoice: Audio.voice.entity_voice,
-          masterVolume: Audio.voice.volume,
+          notifications_enabled: this.notifications_enabled,
+          voice_enabled: Audio.voice.enabled,
+          entity_voice: Audio.voice.entity_voice,
+          master_volume: Audio.voice.volume,
         },
       });
     } catch (e) {
@@ -604,15 +602,15 @@ class AudioEffectsEngine {
    * @param {number} volume
    */
   setVolume(volume) {
-    if (this.#gainNode && this.#audioContext) {
-      /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(volume, /** @type {AudioContext} */ (this.#audioContext).currentTime);
+    if (this.#master_volume && this.#audio_context) {
+      /** @type {GainNode} */ (this.#master_volume).gain.setValueAtTime(volume, /** @type {AudioContext} */ (this.#audio_context).currentTime);
     }
   }
 
   /**
    * Intercepts gestures to dynamically prime browser AudioContext properties.
    */
-  #initListeners() {
+  #init_listeners() {
     if (typeof window === "undefined") return;
 
     const unlock_handler = () => {
@@ -626,27 +624,27 @@ class AudioEffectsEngine {
    * Awakens the suspended audio landscape context safely.
    */
   async unlock() {
-    if (this.#unlocked) return;
+    if (this.#is_unlocked) return;
     try {
-      if (!this.#audioContext) {
+      if (!this.#audio_context) {
         const AudioCtx = /** @type {any} */ (window).AudioContext || /** @type {any} */ (window).webkitAudioContext;
         if (!AudioCtx) {
           console.warn("[AudioEngine] AudioContext not supported in this environment.");
           return;
         }
-        this.#audioContext = new AudioCtx();
+        this.#audio_context = new AudioCtx();
 
-        this.#gainNode = /** @type {AudioContext} */ (this.#audioContext).createGain();
-        /** @type {GainNode} */ (this.#gainNode).gain.setValueAtTime(
+        this.#master_volume = /** @type {AudioContext} */ (this.#audio_context).createGain();
+        /** @type {GainNode} */ (this.#master_volume).gain.setValueAtTime(
           Audio.voice.volume,
-          /** @type {AudioContext} */ (this.#audioContext).currentTime,
+          /** @type {AudioContext} */ (this.#audio_context).currentTime,
         );
-        /** @type {GainNode} */ (this.#gainNode).connect(/** @type {AudioContext} */ (this.#audioContext).destination);
+        /** @type {GainNode} */ (this.#master_volume).connect(/** @type {AudioContext} */ (this.#audio_context).destination);
       }
-      if (this.#audioContext && /** @type {AudioContext} */ (this.#audioContext).state === "suspended") {
-        await /** @type {AudioContext} */ (this.#audioContext).resume();
+      if (this.#audio_context && /** @type {AudioContext} */ (this.#audio_context).state === "suspended") {
+        await /** @type {AudioContext} */ (this.#audio_context).resume();
       }
-      this.#unlocked = true;
+      this.#is_unlocked = true;
     } catch (e) {
       console.warn("[AudioEngine] Failed to unlock AudioContext:", e);
     }
@@ -657,11 +655,11 @@ class AudioEffectsEngine {
    */
   async play(key) {
     if (key === "notification" && !this.notifications_enabled) return;
-    if (!this.#unlocked || !this.#audioContext || !this.#gainNode) return;
+    if (!this.#is_unlocked || !this.#audio_context || !this.#master_volume) return;
 
     const now = Date.now();
-    if (now - this.#lastPlayed < this.#threshold) return;
-    this.#lastPlayed = now;
+    if (now - this.#last_played < this.#threshold_ms) return;
+    this.#last_played = now;
 
     let url = null;
     const sound_list = get_rpg_list("sounds");
@@ -677,10 +675,10 @@ class AudioEffectsEngine {
     if (!url) return;
 
     try {
-      let buffer = this.#buffers.get(key);
+      let buffer = this.#sound_cache.get(key);
       if (!buffer) {
-        if (this.#pendingBuffers.has(key)) {
-          buffer = await this.#pendingBuffers.get(key);
+        if (this.#pending_fetches.has(key)) {
+          buffer = await this.#pending_fetches.get(key);
         } else {
           const fetch_promise = (async () => {
             try {
@@ -688,24 +686,24 @@ class AudioEffectsEngine {
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
               const array_buffer = await response.arrayBuffer();
               const decoded = await new Promise((resolve, reject) => {
-                const promise = /** @type {AudioContext} */ (this.#audioContext).decodeAudioData(array_buffer, resolve, reject);
+                const promise = /** @type {AudioContext} */ (this.#audio_context).decodeAudioData(array_buffer, resolve, reject);
                 if (promise) promise.then(resolve).catch(reject);
               });
-              this.#buffers.set(key, decoded);
+              this.#sound_cache.set(key, decoded);
               return decoded;
             } finally {
-              this.#pendingBuffers.delete(key);
+              this.#pending_fetches.delete(key);
             }
           })();
 
-          this.#pendingBuffers.set(key, fetch_promise);
+          this.#pending_fetches.set(key, fetch_promise);
           buffer = await fetch_promise;
         }
       }
-      const source = /** @type {AudioContext} */ (this.#audioContext).createBufferSource();
+      const source = /** @type {AudioContext} */ (this.#audio_context).createBufferSource();
       source.buffer = buffer || null;
 
-      source.connect(/** @type {GainNode} */ (this.#gainNode));
+      source.connect(/** @type {GainNode} */ (this.#master_volume));
       source.start(0);
     } catch (e) {
       console.warn("[AudioEngine] Playback error:", e);
@@ -717,15 +715,15 @@ class AudioEffectsEngine {
    * Called when the host component or application unmounts.
    */
   destroy() {
-    if (this.#audioContext && this.#audioContext.state !== "closed") {
+    if (this.#audio_context && this.#audio_context.state !== "closed") {
       try {
-        this.#audioContext.suspend();
+        this.#audio_context.suspend();
       } catch {
         /* empty */
       }
     }
-    this.#buffers.clear();
-    this.#pendingBuffers.clear();
+    this.#sound_cache.clear();
+    this.#pending_fetches.clear();
   }
 }
 
@@ -736,7 +734,7 @@ class AudioEffectsEngine {
 export const Audio = new (class {
   #effects = new AudioEffectsEngine();
   /** @type {Promise<void> | null} */
-  #initPromise = null;
+  #init_promise = null;
 
   voice = new VoiceEngine();
 
@@ -824,9 +822,9 @@ export const Audio = new (class {
    * Pre-loads configurations and states safely before interface assembly.
    */
   async init() {
-    if (this.#initPromise) return this.#initPromise;
-    this.#initPromise = this.#effects.initSettings();
-    return this.#initPromise;
+    if (this.#init_promise) return this.#init_promise;
+    this.#init_promise = this.#effects.initSettings();
+    return this.#init_promise;
   }
 
   /**

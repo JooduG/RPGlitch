@@ -81,7 +81,7 @@
 
   const current_label = $derived(get_signature_label(profile_state.char));
 
-  const is_prompt_busy = $derived(app.visual.isLoading || profile_state.busy_fields.has("visual-prompt"));
+  const is_prompt_busy = $derived(app.visual.is_loading || profile_state.busy_fields.has("visual-prompt"));
 
   const prompt_value = $derived((profile_state.char?.modifiers?.prompt || "").trim());
 
@@ -334,7 +334,7 @@
     {#snippet status()}
       <div class="flex items-center gap-2">
         <span class="font-mono text-[0.625rem] tracking-widest text-slate-50 uppercase">Positive Prompt</span>
-        {#if is_prompt_busy || app.visual.error || app.visual.isOffline}
+        {#if is_prompt_busy || app.visual.error || app.visual.is_offline}
           <div
             class="
               flex
@@ -344,7 +344,7 @@
               border
               p-2
 
-              {app.visual.error || app.visual.isOffline
+              {app.visual.error || app.visual.is_offline
               ? `
                 border-red-500/15
                 bg-red-500/15
@@ -365,7 +365,7 @@
               gap-2
             "
             >
-              {#if app.visual.isOffline}
+              {#if app.visual.is_offline}
                 <span
                   class="
                     font-mono

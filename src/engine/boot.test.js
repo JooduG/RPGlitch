@@ -11,7 +11,7 @@ vi.mock("@state/app.svelte.js", () => ({
 vi.mock("@media/audio.svelte.js", () => ({
   Audio: {
     init: vi.fn(),
-    _initPromise: null,
+    _init_promise: null,
     voice: {
       loadModel: vi.fn().mockResolvedValue(),
     },

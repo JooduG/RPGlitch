@@ -163,7 +163,7 @@
         translate-y-full
         opacity-0
       `}
-      {motion.isReduced
+      {motion.is_reduced
       ? `
         translate-y-0
         transition-opacity!

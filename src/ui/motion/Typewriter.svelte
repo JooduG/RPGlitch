@@ -155,14 +155,14 @@
       else if (remaining > 50) base_speed = 0.08;
       else if (remaining < 15) base_speed = 0.01; // Almost caught up to stream (slow down)
 
-      const intensity = motion.isReduced ? 0 : motion.intensity;
-      const voice_rate_factor = Audio.voice.enabled && Audio.voice.isSpeaking ? Audio.voice.rate : 1.0;
+      const intensity = motion.is_reduced ? 0 : motion.intensity;
+      const voice_rate_factor = Audio.voice.enabled && Audio.voice.is_speaking ? Audio.voice.rate : 1.0;
       return base_speed * intensity * voice_rate_factor;
     }
 
     if (phase === "deleting") {
       if (delete_speed !== null && delete_speed > 0) return 1 / delete_speed;
-      return 0.08 * (motion.isReduced ? 0 : motion.intensity);
+      return 0.08 * (motion.is_reduced ? 0 : motion.intensity);
     }
 
     return 0;

@@ -233,7 +233,7 @@
    */
   function handle_select() {
     if (!disabled) {
-      if (variant === "library" && !motion.isReduced) {
+      if (variant === "library" && !motion.is_reduced) {
         // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
         // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after animation duration

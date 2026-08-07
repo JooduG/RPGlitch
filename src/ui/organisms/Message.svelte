@@ -175,10 +175,10 @@
   function handle_speak() {
     if (!clean_markdown) return;
 
-    Audio.voice.activeMessageId = id;
+    Audio.voice.active_message_id = id;
 
     if (entity && entity.voice) {
-      Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
+      Audio.voice.selected_voice = entity.voice.uri || Audio.voice.selected_voice;
       Audio.voice.rate = entity.voice.rate ?? 1.0;
     }
 
@@ -379,7 +379,7 @@
                   </svg>
                 </Button>
               {/if}
-              {#if Audio.voice.isSpeaking && Audio.voice.activeMessageId === id}
+              {#if Audio.voice.is_speaking && Audio.voice.active_message_id === id}
                 <Button
                   variant="invisible"
                   size="small"

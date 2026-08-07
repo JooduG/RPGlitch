@@ -65,11 +65,11 @@ function find_image_engine() {
 
 export class VisualEngine {
   // --- Reactive State (Svelte 5 Runes) ---
-  isLoading = $state(false);
+  is_loading = $state(false);
   /** @type {string | null} */
   error = $state(null);
   attempts = $state(0);
-  isOffline = $state(false);
+  is_offline = $state(false);
 
   constructor() {
     this.retryer = new ExponentialBackoffRetryer({
@@ -92,7 +92,7 @@ export class VisualEngine {
    * @returns {Promise<any>}
    */
   async generate(target, options = {}) {
-    this.isLoading = true;
+    this.is_loading = true;
     this.error = null;
     this.attempts = 0;
 
@@ -104,7 +104,7 @@ export class VisualEngine {
       this.breaker.state = "HALF_OPEN";
       this.breaker.successCount = 0;
     }
-    this.isOffline = this.breaker.isOpen;
+    this.is_offline = this.breaker.isOpen;
 
     try {
       let final_prompt = "";
@@ -292,7 +292,7 @@ export class VisualEngine {
       });
 
       // 3. Persistence & State Sync
-      this.isOffline = this.breaker.isOpen;
+      this.is_offline = this.breaker.isOpen;
 
       if (result && entity_id && !options.noCache) {
         await this._cacheImage(entity_id, result, effective_type === "user" ? "character" : effective_type);
@@ -302,11 +302,11 @@ export class VisualEngine {
     } catch (err) {
       const error = /** @type {Error} */ (err);
       this.error = error.message;
-      this.isOffline = this.breaker.isOpen;
+      this.is_offline = this.breaker.isOpen;
       console.error("[VisualEngine] Service Failure:", error);
       throw error;
     } finally {
-      this.isLoading = false;
+      this.is_loading = false;
     }
   }
 

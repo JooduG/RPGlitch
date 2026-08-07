@@ -44,7 +44,7 @@ export const seed_premades = async () => {
           ...normalized,
           id: bp.id,
           origin_id: bp.id,
-          isSnapshot: 0,
+          is_snapshot: 0,
           created_at: Date.now(),
           updated_at: Date.now(),
         });
@@ -136,7 +136,7 @@ export const entities = {
         ...normalize({ ...base, ...clean_entity }),
         id,
         type: type,
-        isSnapshot: 0,
+        is_snapshot: 0,
         updated_at: Date.now(),
       };
       await db.entities.put(saved);
@@ -210,7 +210,7 @@ export const stories = {
           unique_map.set(story.id, {
             id: story.id,
             title: story.title || "Untitled Fragment",
-            state: story.isConcluded ? "concluded" : "active",
+            state: story.is_concluded ? "concluded" : "active",
             lastPlayed: story.updated_at,
             fractal_profile_picture: fractal?.profile_picture || "",
             fractal_name: fractal?.name || "The Void",

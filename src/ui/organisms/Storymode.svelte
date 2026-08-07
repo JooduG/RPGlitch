@@ -50,7 +50,7 @@
       const active_role = app.streaming.role;
       // Only hard-stop voice on same-role transitions (e.g., retry).
       // For cross-role transitions (fractal → ai), let the queue drain naturally —
-      // the activeMessageId mechanism skips old sentences at sentence boundaries.
+      // the active_message_id mechanism skips old sentences at sentence boundaries.
       if (last_streaming_role === active_role) {
         Audio.voice.stop();
       }
@@ -64,7 +64,7 @@
         Audio.voice.enabled = !!Audio.voice.entity_voice[active_role];
 
         if (entity && entity.voice) {
-          Audio.voice.selectedVoice = entity.voice.uri || Audio.voice.selectedVoice;
+          Audio.voice.selected_voice = entity.voice.uri || Audio.voice.selected_voice;
           Audio.voice.rate = entity.voice.rate ?? 1.0;
         }
       } else if (active_role === "user") {
@@ -88,7 +88,7 @@
         const clean_sentence = clean_image_prompts(structural_sentence).trim();
 
         if (clean_sentence) {
-          Audio.voice.activeMessageId = app.streaming.node_id;
+          Audio.voice.active_message_id = app.streaming.node_id;
           try {
             Audio.voice.speak(clean_sentence, false);
           } catch (tts_err) {
@@ -105,7 +105,7 @@
     if (!app.streaming.active && was_streaming) {
       const errored_node = app.streaming.errored_node_id;
 
-      if (app.streaming.errored && errored_node && Audio.voice.activeMessageId === errored_node) {
+      if (app.streaming.errored && errored_node && Audio.voice.active_message_id === errored_node) {
         Audio.voice.stop();
       } else {
         Audio.play("notification");
@@ -117,7 +117,7 @@
         const clean_remainder = clean_image_prompts(remaining_text).trim();
 
         if (clean_remainder) {
-          Audio.voice.activeMessageId = app.streaming.node_id;
+          Audio.voice.active_message_id = app.streaming.node_id;
           Audio.voice.speak(clean_remainder, false);
         }
       }
@@ -214,7 +214,7 @@
     if (!el) return;
 
     const scroll_to_bottom = (smooth = true) => {
-      const is_reduced = motion.isReduced;
+      const is_reduced = motion.is_reduced;
       if (is_reduced || !smooth || typeof el.scrollTo !== "function") {
         el.scrollTop = el.scrollHeight;
       } else {
@@ -273,7 +273,7 @@
     const id = delete_target_id;
     if (id == null) return;
     delete_target_id = null;
-    if (Audio.voice.activeMessageId === id) {
+    if (Audio.voice.active_message_id === id) {
       Audio.voice.stop();
     }
     const pending = pending_deletes[id];
