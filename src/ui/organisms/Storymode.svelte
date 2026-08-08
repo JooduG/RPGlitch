@@ -14,7 +14,7 @@
   import { Audio } from "@media";
   import { chrono_engine } from "@engine";
   import { app, runtime, simulation_log, simulation_state } from "@state";
-  import { motion } from "@motion";
+  import { motion, item_in } from "@motion";
   import { Dialog } from "@molecules";
   import { Message } from "@organisms";
 
@@ -359,26 +359,28 @@
           ></span>
         </div>
       {:else}
-        <Message
-          id={entry.id}
-          text={entry.text}
-          sender={map_role(entry.role)}
-          character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
-          timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
-          attachments={entry.attachments}
-          is_last={index === visible_feed.length - 1}
-          on_delete={() => handle_delete(index)}
-          on_regenerate={() => chrono_engine.retry()}
-          on_continue={() => chrono_engine.continue()}
-          on_edit={() => handle_edit(index)}
-          is_editing={index === editing_index}
-          on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
-          on_cancel={() => {
-            editing_index = null;
-          }}
-          meta={entry.meta}
-          busy={entry.busy}
-        />
+        <div class="w-full shrink-0" in:item_in>
+          <Message
+            id={entry.id}
+            text={entry.text}
+            sender={map_role(entry.role)}
+            character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
+            timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
+            attachments={entry.attachments}
+            is_last={index === visible_feed.length - 1}
+            on_delete={() => handle_delete(index)}
+            on_regenerate={() => chrono_engine.retry()}
+            on_continue={() => chrono_engine.continue()}
+            on_edit={() => handle_edit(index)}
+            is_editing={index === editing_index}
+            on_save={(new_text) => entry.id && handle_save_edit(entry.id, new_text)}
+            on_cancel={() => {
+              editing_index = null;
+            }}
+            meta={entry.meta}
+            busy={entry.busy}
+          />
+        </div>
       {/if}
     {/each}
 

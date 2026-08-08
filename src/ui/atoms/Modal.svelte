@@ -6,6 +6,7 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import { Backdrop } from "@atoms";
+  import { overlay_out } from "@motion";
   import { use_actions } from "@utils";
   import { Dialog } from "bits-ui";
 
@@ -14,6 +15,10 @@
     busy = null, // Dynamic fallback
     blur = true, // Pass-through for Backdrop blur
     is_pass_through = false, // Interaction pass-through
+    // Bindable open state. Consumers may bind:open so the Modal stays mounted
+    // and its exit transition can play when the value flips false; otherwise it
+    // defaults to open and the parent controls the full lifecycle.
+    open = $bindable(true),
 
     // Design
     variant = "standard",
@@ -36,9 +41,6 @@
   // busy={true} explicitly when whole-modal graying is desired (e.g. local loading).
   let is_busy = $derived(busy !== null ? busy : false);
 
-  // Bind dialog open state
-  let open = $state(true);
-
   // Track active state for mount/unmount gating
   let active_open = $derived(open);
 
@@ -51,7 +53,7 @@
 </script>
 
 <Dialog.Root
-  open={true}
+  {open}
   onOpenChange={(v) => {
     if (!v) on_close();
   }}
@@ -74,8 +76,10 @@
               }
             }}
             onclick={() => {
+              // Route close through on_close so the consumer's bound `open`
+              // flips false and the internal {#if} can play the exit transition.
               if (variant !== "profile") {
-                open = false;
+                on_close();
               }
             }}
             {z_index}
@@ -144,11 +148,13 @@
                           brightness-90
                           grayscale-50
                         `,
+                      variant !== "profile" && "modal-in",
                       className,
                     ]}
                     onclick={(/** @type {MouseEvent} */ e) => {
                       if (variant !== "lightbox") e.stopPropagation();
                     }}
+                    out:overlay_out
                     use:use_actions={actions}
                   >
                     {@render children?.()}
@@ -162,3 +168,27 @@
     </Dialog.Overlay>
   </Dialog.Portal>
 </Dialog.Root>
+
+<style>
+  @keyframes modal-in {
+    from {
+      opacity: var(--opacity-none);
+      transform: translateY(calc(var(--spacing-unit) * 2.5)) scale(0.97);
+    }
+
+    to {
+      opacity: var(--opacity-solid);
+      transform: none;
+    }
+  }
+
+  .modal-in {
+    animation: modal-in var(--duration-standard) var(--ease-standard) both;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modal-in {
+      animation: none !important;
+    }
+  }
+</style>

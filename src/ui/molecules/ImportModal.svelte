@@ -206,74 +206,73 @@
   }
 </script>
 
-{#if open}
-  <Modal
-    variant="bare"
-    z_index="1000"
-    class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
-    busy={is_loading}
-    on_close={() => (open = false)}
-  >
-    <div class="flex h-full flex-col gap-6 font-sans">
-      <div class="flex items-center justify-between">
-        <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">IMPORT ENTITY</h5>
-        <div class="flex items-center gap-6 font-mono text-xs text-slate-300">
-          <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
-          <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
-        </div>
-      </div>
-
-      <div class="flex flex-1 flex-col gap-4">
-        {#if error_message}
-          <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
-            {error_message}
-          </div>
-        {/if}
-
-        <div class="flex flex-col gap-2">
-          <TextField
-            is_edit={true}
-            bind:value={raw_text}
-            placeholder="Paste raw text, lore, character descriptions, or raw entity JSON here, or click Upload File to parse a Character Card PNG / JSON file..."
-            disabled={is_loading}
-            class="min-h-52"
-          />
-        </div>
-
-        {#if image_data}
-          <div class="flex items-center gap-3.5 rounded-xl border border-white/10 bg-white/5 p-3">
-            <img src={image_data} alt="Import Avatar" class="h-12 w-12 rounded-lg border border-white/10 object-cover shadow-md" />
-            <div class="flex flex-col gap-0.5">
-              <span class="text-xs font-bold text-slate-200">Avatar Image Detected</span>
-              <span class="text-[10px] text-slate-400">Image will be attached as the primary entity profile picture.</span>
-            </div>
-          </div>
-        {/if}
-      </div>
-
-      <div class="flex items-center justify-between pt-2">
-        <Button onclick={trigger_file_input} variant="secondary" size="small" disabled={is_loading}>
-          <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-            <polyline points="17 8 12 3 7 8"></polyline>
-            <line x1="12" y1="3" x2="12" y2="15"></line>
-          </svg>
-          <span class="text-xs font-bold tracking-widest uppercase">Upload File</span>
-        </Button>
-
-        <Button variant="primary" size="small" onclick={handle_import} disabled={is_loading || (!import_character && !import_fractal)}>
-          {#if is_loading}
-            <span class="text-xs font-bold tracking-widest uppercase">Importing...</span>
-          {:else}
-            <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
-          {/if}
-        </Button>
+<Modal
+  bind:open
+  variant="bare"
+  z_index="1000"
+  class="relative w-[clamp(26rem,92vw,44rem)] max-w-2xl rounded-2xl bg-glass-elevated p-6 shadow-[0_16px_48px_rgba(0,0,0,0.8)] [backdrop-filter:var(--blur-mist)] before:pointer-events-none before:absolute before:inset-0 before:-z-10 before:bg-(--noise-url) before:opacity-10 before:mix-blend-overlay before:content-['']"
+  busy={is_loading}
+  on_close={() => (open = false)}
+>
+  <div class="flex h-full flex-col gap-6 font-sans">
+    <div class="flex items-center justify-between">
+      <h5 class="m-0 text-xs font-bold tracking-widest text-slate-300 uppercase">IMPORT ENTITY</h5>
+      <div class="flex items-center gap-6 font-mono text-xs text-slate-300">
+        <Toggle label="Character" bind:value={import_character} disabled={is_loading} />
+        <Toggle label="Fractal" bind:value={import_fractal} disabled={is_loading} />
       </div>
     </div>
-  </Modal>
-{/if}
+
+    <div class="flex flex-1 flex-col gap-4">
+      {#if error_message}
+        <div class="rounded-xl border border-red-500/20 bg-red-500/10 p-3.5 text-xs text-red-400">
+          {error_message}
+        </div>
+      {/if}
+
+      <div class="flex flex-col gap-2">
+        <TextField
+          is_edit={true}
+          bind:value={raw_text}
+          placeholder="Paste raw text, lore, character descriptions, or raw entity JSON here, or click Upload File to parse a Character Card PNG / JSON file..."
+          disabled={is_loading}
+          class="min-h-52"
+        />
+      </div>
+
+      {#if image_data}
+        <div class="flex items-center gap-3.5 rounded-xl border border-white/10 bg-white/5 p-3">
+          <img src={image_data} alt="Import Avatar" class="h-12 w-12 rounded-lg border border-white/10 object-cover shadow-md" />
+          <div class="flex flex-col gap-0.5">
+            <span class="text-xs font-bold text-slate-200">Avatar Image Detected</span>
+            <span class="text-[10px] text-slate-400">Image will be attached as the primary entity profile picture.</span>
+          </div>
+        </div>
+      {/if}
+    </div>
+
+    <div class="flex items-center justify-between pt-2">
+      <Button onclick={trigger_file_input} variant="secondary" size="small" disabled={is_loading}>
+        <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+          <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+          <polyline points="17 8 12 3 7 8"></polyline>
+          <line x1="12" y1="3" x2="12" y2="15"></line>
+        </svg>
+        <span class="text-xs font-bold tracking-widest uppercase">Upload File</span>
+      </Button>
+
+      <Button variant="primary" size="small" onclick={handle_import} disabled={is_loading || (!import_character && !import_fractal)}>
+        {#if is_loading}
+          <span class="text-xs font-bold tracking-widest uppercase">Importing...</span>
+        {:else}
+          <svg viewBox="0 0 24 24" class="size-3.5 fill-none stroke-current stroke-2" style="stroke-linecap: round; stroke-linejoin: round;">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7 10 12 15 17 10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          <span class="text-xs font-bold tracking-widest uppercase">Import Entity</span>
+        {/if}
+      </Button>
+    </div>
+  </div>
+</Modal>

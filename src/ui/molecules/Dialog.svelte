@@ -6,10 +6,9 @@
    * Svelte 5 runes · Fully accessible.
    */
   import { Backdrop, Button } from "@atoms";
-  import { resolve_ms, resolve_px } from "@utils";
+  import { overlay_in, overlay_out } from "@motion";
+  import { resolve_ms } from "@utils";
   import { AlertDialog } from "bits-ui";
-  import { quartOut } from "svelte/easing";
-  import { fly, scale } from "svelte/transition";
 
   let {
     // Data
@@ -54,9 +53,8 @@
     open = false;
   };
 
-  const offset = resolve_px("--spacing-5", 20);
-  const duration_in = resolve_ms("--duration-(--duration-standard)", 350);
-  const duration_out = resolve_ms("--duration-(--duration-fast)", 250);
+  const duration_in = resolve_ms("--duration-standard", 300);
+  const duration_out = resolve_ms("--duration-fast", 150);
 </script>
 
 <svelte:window
@@ -113,8 +111,8 @@
                     backdrop-filter: var(--blur-mist);
                     transition-property: filter;
                   "
-                  in:fly={{ y: offset, duration: duration_in, easing: quartOut }}
-                  out:scale={{ duration: duration_out, easing: quartOut, start: 0.95 }}
+                  in:overlay_in={{ duration: duration_in }}
+                  out:overlay_out={{ duration: duration_out }}
                 >
                   <AlertDialog.Title class="m-0 p-0 text-left">
                     <h6 class="m-0 uppercase">{title}</h6>

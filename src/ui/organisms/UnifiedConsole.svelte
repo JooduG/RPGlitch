@@ -14,7 +14,7 @@
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
-  import { motion, pulse, roll, shimmy, stab } from "@motion";
+  import { motion, pulse, roll, shimmy, stab, item_in } from "@motion";
   import { app, runtime, simulation_state, simulation_log } from "@state";
 
   // --- CORE VIEW ENGINE STATE ---
@@ -500,13 +500,15 @@
                 {#if story_cache.length > 0}
                   <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
                     {#each story_cache as story (story.id)}
-                      <StoryCard
-                        {story}
-                        active={runtime.story_id === String(story.id)}
-                        onclick={() => load_story(story.id)}
-                        ondelete={delete_story}
-                        onrename={start_rename_story}
-                      />
+                      <div class="min-w-0" in:item_in>
+                        <StoryCard
+                          {story}
+                          active={runtime.story_id === String(story.id)}
+                          onclick={() => load_story(story.id)}
+                          ondelete={delete_story}
+                          onrename={start_rename_story}
+                        />
+                      </div>
                     {/each}
                   </div>
                 {:else}
