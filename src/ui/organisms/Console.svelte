@@ -5,27 +5,15 @@
    * Polymorphic command control system merging GlassPill, StoryboardPill, ControlPanel, and InputBar.
    * Standard: Ultra-Lean DOM
    */
-  import { tick } from "svelte";
   import { click_outside } from "@utils";
-  import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
-  import { db, stories, NAME_PREFIXES, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
+  import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, TextField, tooltip } from "@atoms";
+  import { stories, NAME_PREFIXES, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
   import { pick_random } from "@utils";
   import { chrono_engine, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
-  import { Audio, get_signature_color } from "@media";
-  import { Dialog, StoryCard } from "@molecules";
-  import {
-    motion,
-    pulse,
-    roll,
-    shimmy,
-    stab,
-    item_in,
-    fly_card_in,
-    fly_card_out,
-    capture_storyboard_flight,
-    fly_storyboard_cards_into_prologue,
-  } from "@motion";
+  import { get_signature_color } from "@media";
+  import { StoryManager, ConsoleInputBar, AudioControls, DevControls } from "@molecules";
+  import { motion, pulse, roll, shimmy, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@motion";
   import { app, runtime, simulation_state, simulation_log } from "@state";
 
   // --- CORE VIEW ENGINE STATE ---
@@ -34,156 +22,11 @@
   let label_text = $derived(ready_to_begin ? "BEGIN STORY" : `SELECT ENTITIES (${app.selected_count}/3)`);
 
   // --- STORYMODE CONSOLE STATE ---
-  let value = $state("");
   let is_focused = $state(false);
-  /** @type {HTMLTextAreaElement | undefined} */
-  let textarea = $state();
-  let is_ghostwriting = $state(false);
-
-  $effect(() => {
-    // Snapshot the request count synchronously so it's the only reactive dep here.
-    const req = app.ghostwrite_request;
-    if (req === 0) return;
-    // Mark as consumed immediately to prevent the effect from re-firing when
-    // is_ghostwriting toggles back to false after the draft returns.
-    app.ghostwrite_request = 0;
-    (async () => {
-      if (is_locked) return;
-      is_ghostwriting = true;
-      try {
-        const draft = await gamemaster.execute_ghostwriter(value);
-        if (draft) {
-          value = draft;
-          await tick();
-          adjust_height();
-        }
-      } catch (e) {
-        console.error("[Ghostwriter Error]", e);
-        app.log(`Ghostwriter failed: ${e.message || e}`, "error");
-      } finally {
-        is_ghostwriting = false;
-      }
-    })();
-  });
-
-  $effect(() => {
-    if (value !== undefined && textarea) {
-      tick().then(adjust_height);
-    }
-  });
 
   let is_locked = $derived(simulation_state.busy);
   let story_locked = $derived(simulation_state.phase === "locked");
   let signature_color = $derived(get_signature_color(runtime.active_user || app.selected_user, "var(--color-gunmetal)"));
-
-  // --- CONTROL PANEL STATE ---
-  let is_confirming_reset = $state(false);
-  let is_confirming_story_delete = $state(false);
-  /** @type {any} */
-  let pending_story_delete = $state(null);
-  let is_renaming_story = $state(false);
-  /** @type {any} */
-  let pending_rename_story = $state(null);
-  let rename_draft = $state("");
-  /** @type {any[]} */
-  let story_cache = $state([]);
-
-  // --- MUTE STATE ---
-  let previous_volume = $state(1.0);
-  let explicitly_muted = $state(false);
-  let is_muted = $derived(Audio.volume === 0 || explicitly_muted);
-
-  function toggle_mute() {
-    if (explicitly_muted || Audio.volume === 0) {
-      explicitly_muted = false;
-      Audio.volume = previous_volume || 1.0;
-    } else {
-      previous_volume = Audio.volume;
-      explicitly_muted = true;
-      Audio.volume = 0;
-      Audio.voice.stop();
-    }
-  }
-
-  const log_action = (action) => app.log(`Control Panel: ${action}`, "system");
-
-  async function load_story(id) {
-    log_action(`Loading Story [${id}]`);
-    await session_driver.set_active(String(id));
-    await runtime.sync(String(id));
-    await simulation_log.refresh();
-    if (simulation_log.feed.some((e) => e.meta?.is_epilogue)) {
-      simulation_state.lock();
-    } else {
-      simulation_state.unlock();
-    }
-    // Refresh the claim set so the resumed story's entities stay locked from
-    // other stories (profile editing + storyboard lists).
-    await app.load_entities();
-    app.set_view("storymode");
-    app.toggle_control_panel();
-  }
-
-  async function hard_reset() {
-    db.close();
-    await db.delete();
-    setTimeout(() => window.location.reload(), 150);
-  }
-
-  async function refresh_stories() {
-    story_cache = await stories.list();
-  }
-
-  async function delete_story(story) {
-    pending_story_delete = story;
-    is_confirming_story_delete = true;
-  }
-
-  async function start_rename_story(story) {
-    pending_rename_story = story;
-    rename_draft = story.title || "";
-    is_renaming_story = true;
-  }
-
-  async function confirm_rename_story() {
-    if (!pending_rename_story) return;
-    const trimmed = rename_draft.trim();
-    if (trimmed && trimmed !== pending_rename_story.title) {
-      try {
-        await stories.update(pending_rename_story.id, { title: trimmed });
-        await refresh_stories();
-        app.log(`Story renamed to "${trimmed}".`, "system");
-      } catch (err) {
-        app.log(`Rename failed: ${/** @type {Error} */ (err).message}`, "error");
-      }
-    }
-    pending_rename_story = null;
-    rename_draft = "";
-  }
-
-  async function confirm_story_delete() {
-    if (!pending_story_delete) return;
-    try {
-      await stories.delete(pending_story_delete.id);
-      await refresh_stories();
-      await app.load_entities(); // Deleted story releases any entity claims
-      app.log(`Story "${pending_story_delete.title}" deleted.`, "system");
-      if (String(runtime.story_id) === String(pending_story_delete.id)) {
-        await session_driver.clear_active();
-        app.set_view("storyboard");
-      }
-    } catch (err) {
-      app.log(`Delete failed: ${/** @type {Error} */ (err).message}`, "error");
-    } finally {
-      pending_story_delete = null;
-    }
-  }
-
-  $effect(() => {
-    if (app.control_panel_open) {
-      refresh_stories();
-    }
-  });
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---
   let shuffle_active = $state(false);
@@ -358,7 +201,6 @@
         };
         motion.intensity = 0.4;
         await chrono_engine.start(selection);
-        refresh_stories();
         await app.load_entities();
         return;
       }
@@ -377,7 +219,6 @@
         user: app.selected_user,
         fractal: app.selected_fractal,
       });
-      refresh_stories(); // Ensure list is instantly updated right after creation
       await app.load_entities(); // Claim the new story's entities immediately
     },
   };
@@ -441,42 +282,11 @@
       await stories.conclude(runtime.story_id);
       await app.load_entities();
       simulation_state.lock();
-      refresh_stories();
     } catch (e) {
       console.error("[End Story Error]", e);
       app.log(`End Story failed: ${e.message || e}`, "error");
     } finally {
       is_ending_story = false;
-    }
-  }
-
-  function adjust_height() {
-    if (!textarea) return;
-    textarea.style.height = "auto";
-    textarea.style.height = `${textarea.scrollHeight}px`;
-  }
-
-  async function handle_send() {
-    const text = value.trim();
-    if (!text || is_locked) return;
-
-    value = "";
-
-    // Wait for Svelte to flush the empty value to the DOM before measuring
-    await tick();
-    adjust_height();
-
-    try {
-      await chrono_engine.send(text);
-    } catch (e) {
-      console.error("Failed to send message:", e);
-    }
-  }
-
-  function handle_keydown(e) {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handle_send();
     }
   }
 
@@ -486,45 +296,9 @@
       app.control_panel_open = false;
     }
   }
-
-  $effect(() => {
-    if (app.view === "storymode" && textarea && !app.control_panel_open) {
-      textarea.focus();
-    }
-  });
 </script>
 
 <svelte:window onkeydown={handle_window_keydown} />
-
-<Dialog
-  type="confirm"
-  bind:open={is_confirming_reset}
-  title="Wipe Data?"
-  message="This will permanently delete all stories, characters, and logs. This action cannot be undone."
-  confirm_label="Erase All"
-  on_confirm={hard_reset}
-/>
-
-<Dialog
-  type="confirm"
-  bind:open={is_confirming_story_delete}
-  title="Delete Story?"
-  message={`This will permanently delete "${pending_story_delete?.title ?? ""}" and its entire simulation log. This action cannot be undone.`}
-  confirm_label="Delete"
-  on_confirm={confirm_story_delete}
-/>
-
-<Dialog
-  type="confirm"
-  bind:open={is_renaming_story}
-  title="Rename Story"
-  message={`Enter a new title for "${pending_rename_story?.title ?? ""}":`}
-  confirm_label="Save"
-  show_input={true}
-  input_placeholder="New story title..."
-  bind:input_value={rename_draft}
-  on_confirm={confirm_rename_story}
-/>
 
 <div class="pointer-events-none relative flex h-full w-full justify-center {app.control_panel_open ? 'z-50' : 'z-10'}">
   {#if app.control_panel_open}
@@ -600,55 +374,7 @@
             <div class="flex w-full flex-col gap-2 px-2" style="--signature-color: var(--color-frozen);">
               <!-- DECK A: AUDIO -->
               <Accordion label="Audio" content_class="flex flex-col gap-4">
-                <Toggle label="NOTIFICATIONS" bind:value={Audio.notifications_enabled} />
-                <div class="flex w-full items-center gap-4">
-                  <Button
-                    variant="bare"
-                    onclick={toggle_mute}
-                    aria-label={is_muted ? "Unmute" : "Mute"}
-                    actions={[[tooltip, is_muted ? "Unmute" : "Mute"]]}
-                    class="
-                                          pointer-events-auto
-                                          flex h-6 w-10
-                                          shrink-0 items-center justify-center
-                                          rounded-md
-                                          bg-transparent
-                                          text-slate-400 transition-colors
-                                          hover:bg-slate-700/50 hover:text-white
-                                          focus-visible:outline
-                                          focus-visible:outline-offset-1 focus-visible:outline-slate-600 active:scale-95
-                                        "
-                  >
-                    {#if is_muted}
-                      <svg viewBox="0 0 24 24" class="size-5">
-                        <path
-                          fill="currentColor"
-                          d="M12,4L9.91,6.09L12,8.18M4.27,3L3,4.27L7.73,9H3V15H7L12,20V13.27L16.25,17.53C15.58,18.04 14.83,18.46 14,18.7V20.77C15.38,20.45 16.63,19.82 17.68,18.96L19.73,21L21,19.73L12,10.73M19,12C19,12.94 18.8,13.82 18.46,14.64L19.97,16.15C20.62,14.91 21,13.5 21,12C21,7.72 18,4.14 14,3.23V5.29C16.89,6.15 19,8.83 19,12M16.5,12C16.5,10.23 15.5,8.71 14,7.97V10.18L16.45,12.63C16.5,12.43 16.5,12.21 16.5,12Z"
-                        />
-                      </svg>
-                    {:else}
-                      <svg viewBox="0 0 24 24" class="size-5">
-                        <path
-                          fill="currentColor"
-                          d="M14,3.23V5.29C16.89,6.15 19,8.83 19,12C19,15.17 16.89,17.85 14,18.71V20.77C18.01,19.86 21,16.28 21,12C21,7.72 18.01,4.14 14,3.23M16.5,12C16.5,10.23 15.5,8.71 14,7.97V16.03C15.5,15.29 16.5,13.77 16.5,12M3,9V15H7L12,20V4L7,9H3Z"
-                        />
-                      </svg>
-                    {/if}
-                  </Button>
-                  <Slider
-                    horizontal
-                    label=""
-                    bind:value={Audio.volume}
-                    min={0}
-                    max={1}
-                    step={0.1}
-                    neutral={0}
-                    format={(v) => Math.round(v * 100) + "%"}
-                    disabled={explicitly_muted}
-                    disabled_label="MUTED"
-                    show_value_tooltip={true}
-                  />
-                </div>
+                <AudioControls />
               </Accordion>
 
               <!-- DECK B: STORYBOARD (Contextual) -->
@@ -688,39 +414,12 @@
 
               <!-- DECK D: LIBRARY (Always available) -->
               <Accordion label="Library" content_class="flex flex-col gap-4">
-                {#if story_cache.length > 0}
-                  <div class="grid grid-cols-[repeat(auto-fill,minmax(17rem,1fr))] gap-4">
-                    {#each story_cache as story (story.id)}
-                      <div class="min-w-0" in:item_in>
-                        <StoryCard
-                          {story}
-                          active={runtime.story_id === String(story.id)}
-                          onclick={() => load_story(story.id)}
-                          ondelete={delete_story}
-                          onrename={start_rename_story}
-                        />
-                      </div>
-                    {/each}
-                  </div>
-                {:else}
-                  <p class="m-0 py-4 text-center text-sm text-slate-500 italic">No stories yet..</p>
-                {/if}
+                <StoryManager />
               </Accordion>
 
               <!-- DECK E: ADVANCED -->
               <Accordion label="Advanced" content_class="flex w-full items-center justify-between gap-4">
-                <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
-                <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
-                  <svg
-                    class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"
-                    viewBox="0 0 24 24"
-                  >
-                    <path d="M3 6h18" />
-                    <path d="M19 6v14c0 1-2 2-2 2H7c0 0-2-1-2-2V6" />
-                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
-                  </svg>
-                  <span class="text-xs font-bold tracking-widest uppercase">Delete All</span>
-                </Button>
+                <DevControls />
               </Accordion>
             </div>
           </ScrollArea>
@@ -842,62 +541,7 @@
           </svg>
         </Button>
 
-        <textarea
-          bind:this={textarea}
-          class="
-          max-h-32
-          flex-1
-          resize-none
-          overflow-y-hidden
-          border-none
-          bg-transparent
-          p-2
-          text-base
-          text-inherit
-          outline-none
-          placeholder:text-slate-400
-          placeholder:opacity-60
-          disabled:cursor-wait
-          disabled:opacity-30
-        "
-          bind:value
-          onkeydown={handle_keydown}
-          oninput={adjust_height}
-          onfocus={() => (is_focused = true)}
-          onblur={() => (is_focused = false)}
-          placeholder="Type a message..."
-          rows="1"
-          disabled={app.control_panel_open || is_ghostwriting}
-          aria-label="Input message"
-        ></textarea>
-
-        {#if app.streaming.active}
-          <Button
-            variant="invisible"
-            disabled={app.control_panel_open}
-            onclick={() => app.trigger_interrupt()}
-            aria-label="Interrupt Generation"
-            actions={[tooltip]}
-            class="touch-target-coarse text-slate-500 transition-colors hover:bg-transparent! hover:text-red-500!"
-          >
-            <svg class="block size-icon-medium" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11H7v-2h10v2z" />
-            </svg>
-          </Button>
-        {:else}
-          <Button
-            variant="invisible"
-            onclick={handle_send}
-            disabled={!value.trim() || is_locked || app.control_panel_open}
-            aria-label="Send Message"
-            actions={[stab, tooltip]}
-            class="touch-target-coarse"
-          >
-            <svg class="block size-icon-medium" viewBox="0 0 24 24">
-              <path fill="currentColor" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" />
-            </svg>
-          </Button>
-        {/if}
+        <ConsoleInputBar bind:is_focused />
       {/if}
     </div>
   </div>

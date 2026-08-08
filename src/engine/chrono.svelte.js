@@ -36,7 +36,7 @@ export class ChronoEngine {
       // 3. Begin-story card choreography: hold the cards in "prologue" mode and
       // suppress the card-slot view-transition morph so the cards don't fly to
       // the side panels. The storyboard STAYS VISIBLE while the prologue
-      // generates (so the viewport is never empty); the UnifiedConsole watcher
+      // generate (so the viewport is never empty); the Console watcher
       // flips to storymode the moment the real prologue entry renders, then
       // flies the storyboard cards into its message.
       state_bridge.app.suppress_card_transitions = true;
@@ -57,7 +57,7 @@ export class ChronoEngine {
         state_bridge.app.end_stream();
       }
 
-      // The UnifiedConsole watcher consumes begin_story_pending the moment the
+      // The Console watcher consumes begin_story_pending the moment the
       // prologue renders (it also flips the view). If it somehow never did —
       // and no flight is mid-air (signalled by _begin_flight_assets) — flip to
       // storymode and fall back to panel placement so the cards are never left

@@ -106,6 +106,7 @@ export class VoiceEngine {
   enabled = $state(false); // Master voice switch (default off)
   /** Per-entity voice toggles: { ai: bool, user: bool, fractal: bool }. */
   entity_voice = $state({ ai: false, user: false, fractal: false });
+  spoken_character_cursor = $state(0);
 
   // --- PRIVATE ---
   /** @type {any | null} KokoroTTS instance */
@@ -512,6 +513,46 @@ export class VoiceEngine {
       } catch {
         /* empty */
       }
+    }
+  }
+
+  reset_stream() {
+    this.spoken_character_cursor = 0;
+  }
+
+  queue_stream_sentence(current_raw_text) {
+    const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
+    const fresh_buffer = sanitized_stream_track.slice(this.spoken_character_cursor);
+
+    const sentence_regex = /[^.!?]+[.!?]+/g;
+    let match;
+    let highest_match_offset = 0;
+
+    while ((match = sentence_regex.exec(fresh_buffer)) !== null) {
+      const structural_sentence = match[0];
+      const clean_sentence = strip_cognition_blocks(structural_sentence).trim();
+
+      if (clean_sentence) {
+        try {
+          this.speak(clean_sentence, false);
+        } catch (tts_err) {
+          console.warn("[VoiceEngine] TTS speak error during streaming:", tts_err);
+        }
+      }
+
+      highest_match_offset = match.index + match[0].length;
+    }
+
+    this.spoken_character_cursor += highest_match_offset;
+  }
+
+  flush_stream_remainder(current_raw_text) {
+    const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
+    const remaining_text = sanitized_stream_track.slice(this.spoken_character_cursor);
+    const clean_remainder = strip_cognition_blocks(remaining_text).trim();
+
+    if (clean_remainder) {
+      this.speak(clean_remainder, false);
     }
   }
 }

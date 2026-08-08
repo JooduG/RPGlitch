@@ -4,7 +4,7 @@
    * THE CORE SHELL
    * Central view orchestration shell executing view-switching logic natively.
    * Refactored: Option A — persistent layout hoist.
-   * EntityCards and UnifiedConsole are mounted ONCE here and never destroyed
+   * EntityCards and Console are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
   import { Skeleton, Tooltip, StyleBadge } from "@atoms";
@@ -19,7 +19,7 @@
     set_regenerate_error,
   } from "@molecules";
   import { motion } from "@motion";
-  import { CardHand, Layout, Profile, Storyboard, Storymode, UnifiedConsole } from "@organisms";
+  import { CardHand, Layout, Profile, Storyboard, Storymode, Console } from "@organisms";
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
@@ -527,7 +527,7 @@
 
     {#snippet footer()}
       {#if app.entities_loaded}
-        <UnifiedConsole />
+        <Console />
       {/if}
     {/snippet}
   </Layout>

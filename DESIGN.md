@@ -260,6 +260,21 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
   mask-composite: exclude;
 }
 
+@utility console-shimmer {
+  position: absolute;
+  background: linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--color-electric-cyan) 10%, transparent) 50%, transparent 58%);
+  background-size: 250% 100%;
+  animation: console-shimmer-sweep 2.4s linear infinite;
+}
+
+@utility message--prologue {
+  transition: opacity 650ms ease;
+}
+
+@utility prologue-awaiting-flight {
+  opacity: 0;
+}
+
 @layer base {
   *,
   *::before,

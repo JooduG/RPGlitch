@@ -1,8 +1,8 @@
 # 📜 FUTURE (The Muscle)
 
 > **Role**: Active implementation blueprint for the _current_ track.
-> **Status**: Track Initialized — `refactor-ui-deconstruction-2026-08-08` [~]
-> **Tracks**: `refactor-ui-deconstruction-2026-08-08` [~] · `forge-entity-isolation-2026-08-03` ✅ · `memory-engine-tuning-2026-08-03` ✅ · `engine-stability-fixes-2026-08-03` ✅
+> **Status**: Track Initialized — `refactor-ui-deconstruction-2026-08-08` [~~]
+> **Tracks**: `refactor-ui-deconstruction-2026-08-08` [~~] · `forge-entity-isolation-2026-08-03` ✅ · `memory-engine-tuning-2026-08-03` ✅ · `engine-stability-fixes-2026-08-03` ✅
 
 ---
 
