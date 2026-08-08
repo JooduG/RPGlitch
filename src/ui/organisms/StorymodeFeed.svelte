@@ -1,8 +1,8 @@
 <script>
   import { onDestroy, tick } from "svelte";
   import { ScrollArea, Button } from "@atoms";
-  import { Dialog, MessageUndoDelete } from "@molecules";
-  import { Message } from "@organisms";
+  import { Dialog } from "@molecules";
+  import { Message, MessageUndoDelete } from "@organisms";
   import { Audio } from "@media/audio.svelte.js";
   import { chrono_engine } from "@engine";
   import { app, simulation_state } from "@state";
@@ -175,7 +175,7 @@
   }
 
   function map_role(role) {
-    if (role === "ai" || role === "user" || role === "fractal") return role;
+    if (role === "ai" || role === "user" || role === "fractal" || role === "system") return role;
     return "ai";
   }
 </script>
@@ -204,7 +204,8 @@
             id={entry.id}
             text={entry.text}
             sender={map_role(entry.role)}
-            character_name={entry.character_name || (map_role(entry.role) === "ai" ? app.selected_ai?.name : "")}
+            character_name={entry.character_name ||
+              (map_role(entry.role) === "ai" ? app.selected_ai?.name : map_role(entry.role) === "system" ? "SYSTEM" : "")}
             timestamp={entry.created_at ? new Date(entry.created_at) : new Date()}
             attachments={entry.attachments}
             is_last={index === visible_feed.length - 1}

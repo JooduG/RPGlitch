@@ -1,6 +1,6 @@
 <script>
   import { DataBox, TextField } from "@atoms";
-  import DevTelemetryBlock from "./DevTelemetryBlock.svelte";
+  import { DevTelemetryBlock } from "@molecules";
   import { Typewriter } from "@motion";
   import { safe_html } from "@utils";
   import { app } from "@state";

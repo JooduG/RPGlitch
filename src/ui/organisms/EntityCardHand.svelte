@@ -7,7 +7,8 @@
    */
   import { Backdrop, Button } from "@atoms";
   import { create_new, entities as repository } from "@data";
-  import { EntityCard, ImportModal } from "@molecules";
+  import { ImportModal } from "@molecules";
+  import EntityCard from "./EntityCard.svelte";
   import { motion, fly_card_in, fly_card_out, rect_of } from "@motion";
   import { app } from "@state";
 

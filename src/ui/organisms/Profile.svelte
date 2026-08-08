@@ -7,7 +7,7 @@
   import { auto_resize, click_outside, safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, ProfilePicture, TextField, Toggle, tooltip, Dropdown, Label } from "@atoms";
   import { get_signature_color } from "@media";
-  import { AudioWing, DevWing, Dialog, VisualWing } from "@molecules";
+  import { Audio, Dev, Dialog, VisualWing } from "@molecules";
   import { ProfileState, ProfileArray, ProfileHeader } from "@organisms";
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
@@ -665,14 +665,14 @@
               class={"flex flex-col gap-4 " + (app.viewport.mobile ? "max-h-[65vh] max-w-sm scrollbar-none overflow-y-auto pb-4" : "w-full")}
               transition:fade={{ duration: 250 }}
             >
-              <AudioWing {profile_state} />
+              <Audio {profile_state} />
               {#if app.settings.dev_mode}
-                <DevWing {profile_state} />
+                <Dev {profile_state} />
               {/if}
             </div>
           {:else if app.settings.dev_mode}
             <div style={app.viewport.mobile ? "width: 85vw; flex-shrink: 0;" : ""} class={app.viewport.mobile ? "max-w-sm" : "w-full"}>
-              <DevWing {profile_state} />
+              <Dev {profile_state} />
             </div>
           {/if}
         </div>

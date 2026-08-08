@@ -8,7 +8,8 @@
   import { Button, StyleBadge } from "@atoms";
   import { parse_message, resolve_voice_register } from "@intelligence";
   import { Audio, get_resolution, get_signature_color } from "@media";
-  import { EntityCard, image_picker, open_picker, MessageHeader, MessageBody, DevTelemetryBlock } from "@molecules";
+  import { image_picker, open_picker, DevTelemetryBlock } from "@molecules";
+  import { EntityCard, MessageHeader, MessageBody } from "@organisms";
   import { app, runtime } from "@state";
 
   /**

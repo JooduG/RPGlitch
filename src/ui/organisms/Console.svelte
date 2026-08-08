@@ -12,7 +12,8 @@
   import { chrono_engine, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { get_signature_color } from "@media";
-  import { StoryManager, ConsoleInputBar, AudioControls, DevControls } from "@molecules";
+  import { StoryCardManager, AudioControls, DevControls } from "@molecules";
+  import { ConsoleInputBar } from "@organisms";
   import { motion, pulse, roll, shimmy, fly_card_in, fly_card_out, capture_storyboard_flight, fly_storyboard_cards_into_prologue } from "@motion";
   import { app, runtime, simulation_state, simulation_log } from "@state";
 
@@ -414,7 +415,7 @@
 
               <!-- DECK D: LIBRARY (Always available) -->
               <Accordion label="Library" content_class="flex flex-col gap-4">
-                <StoryManager />
+                <StoryCardManager />
               </Accordion>
 
               <!-- DECK E: ADVANCED -->

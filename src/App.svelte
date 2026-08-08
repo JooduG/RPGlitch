@@ -13,13 +13,12 @@
     ImagePreview,
     open_image_preview,
     close_image_preview,
-    EntityCard,
     start_regenerate,
     deliver_candidates,
     set_regenerate_error,
   } from "@molecules";
   import { motion } from "@motion";
-  import { CardHand, Layout, Profile, Storyboard, Storymode, Console } from "@organisms";
+  import { EntityCardHand, EntityCard, Layout, Profile, Storyboard, Storymode, Console } from "@organisms";
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";
@@ -533,7 +532,7 @@
   </Layout>
 
   {#if app.entities_loaded}
-    <CardHand />
+    <EntityCardHand />
   {/if}
 
   {#if app.profile_open}

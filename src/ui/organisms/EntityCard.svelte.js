@@ -181,7 +181,7 @@ export function fly_card_out(source_el, to_rect, options = {}) {
  * p=1 → panels) so they stay fully interactive once docked. Also hosts the
  * begin-story flight that carries the storyboard cards into the prologue.
  */
-import { motion } from "./engine.svelte.js";
+import { motion } from "@motion";
 
 const CARD_TYPES = ["ai", "fractal", "user"];
 

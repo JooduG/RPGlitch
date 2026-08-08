@@ -4,7 +4,7 @@
    * Displays the continuous message feed (AI, user, fractal roles).
    */
   import { app, simulation_log, simulation_state } from "@state";
-  import StoryFeed from "./StoryFeed.svelte";
+  import StorymodeFeed from "./StorymodeFeed.svelte";
 
   // --- STATE ---
   let { card_actions } = $props();
@@ -41,7 +41,10 @@
   });
 
   let visible_feed = $derived.by(() => {
-    const list = [...simulation_log.feed];
+    let list = [...simulation_log.feed];
+    if (!app.settings.dev_mode) {
+      list = list.filter((entry) => entry.role !== "system");
+    }
     if (is_active_turn && app.streaming.active) {
       const active_id = app.streaming.node_id ?? "temp";
       if (!list.some((entry) => entry.id === active_id)) {
@@ -60,4 +63,4 @@
   });
 </script>
 
-<StoryFeed {visible_feed} {card_actions} />
+<StorymodeFeed {visible_feed} {card_actions} />
