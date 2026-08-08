@@ -15,7 +15,7 @@ import { app } from "./app.svelte.js";
  */
 
 /**
- * @typedef {Object} CardHandState
+ * @typedef {Object} EntityCardHandState
  * @property {boolean} open - Whether the card hand is currently visible.
  * @property {'ai' | 'user' | 'fractal' | null} type - The target category for entity selection.
  * @property {number} regenerate_count - The number of times the current selection pool has been shuffled.

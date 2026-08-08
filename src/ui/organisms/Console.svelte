@@ -1,13 +1,14 @@
 <script>
   /**
-   * @file UnifiedConsole.svelte
+   * @file src/ui/organisms/Console.svelte
    * 🎛️ THE SOVEREIGN CORE CONSOLE
    * Polymorphic command control system merging GlassPill, StoryboardPill, ControlPanel, and InputBar.
    * Standard: Ultra-Lean DOM
    */
   import { click_outside } from "@utils";
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, TextField, tooltip } from "@atoms";
-  import { stories, NAME_PREFIXES, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
+  import { stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
+  import { claimed_entity_lock, compute_initials, deck_geometry } from "./Console.svelte.js";
   import { pick_random } from "@utils";
   import { chrono_engine, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
@@ -31,24 +32,6 @@
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---
   let shuffle_active = $state(false);
-
-  /** Derives card initials from an entity name, skipping common prefixes. */
-  function compute_initials(str) {
-    const words = String(str || "")
-      .replace(/['']/g, "")
-      .replace(/[^\p{L}\s]/gu, " ")
-      .trim()
-      .split(/\s+/);
-    const stop_words = new Set(NAME_PREFIXES.map((w) => w.replace(/\.$/, "")));
-    const filtered = words.filter((w) => !stop_words.has(w.toLowerCase()));
-    return (
-      (filtered.length ? filtered : words)
-        .slice(0, 3)
-        .map((w) => w.charAt(0))
-        .join("")
-        .toUpperCase() || "?"
-    );
-  }
 
   /**
    * Re-dresses a flying card clone with the newly drawn entity's appearance, so
@@ -146,12 +129,7 @@
 
       slots.forEach((s, i) => {
         const r = /** @type {{ left: number, top: number, width: number, height: number }} */ (s.rect);
-        const deck = {
-          left: Math.max(0, viewport_w / 2 - (r.width * 0.62) / 2),
-          top: Math.max(0, viewport_h - r.height * 0.62 * 1.25),
-          width: r.width * 0.62,
-          height: r.height * 0.62,
-        };
+        const deck = deck_geometry({ width: viewport_w, height: viewport_h }, r);
 
         // Phase 1: return the current occupant to the deck (snappy exit).
         if (occupied[s.type] && s.root) {
@@ -206,10 +184,8 @@
         return;
       }
       if (!app.selected_ai || !app.selected_user || !app.selected_fractal) return;
-      const claimed = new Set(await stories.active_entity_ids());
-      const locked = [app.selected_ai, app.selected_user, app.selected_fractal]
-        .filter(Boolean)
-        .find((e) => e.id != null && claimed.has(String(e.id)));
+      const claimed = await stories.active_entity_ids();
+      const locked = claimed_entity_lock([app.selected_ai, app.selected_user, app.selected_fractal], claimed);
       if (locked) {
         app.log(`"${locked.name || "Entity"}" is claimed by an active story — end or delete that story first.`, "error");
         return;

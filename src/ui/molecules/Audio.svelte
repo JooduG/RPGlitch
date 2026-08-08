@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/profile/AudioWing.svelte
+   * @file src/ui/molecules/Audio.svelte
    * THE SONIC IDENTITY
    * Manages character voice selection and parameters.
    * Part of the RPGlitch UI.

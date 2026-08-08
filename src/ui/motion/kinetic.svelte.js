@@ -7,7 +7,7 @@
 
 import { resolve_ms, resolve_number, resolve_string } from "@utils";
 import { Spring } from "svelte/motion";
-import { motion } from "@motion";
+import { motion } from "@motion/engine.svelte.js";
 
 /* --- Kinetic Primitives --- */
 

@@ -223,7 +223,7 @@
     }
   }
 
-  /** Ghostwriter trigger — fires a signal the UnifiedConsole watches */
+  /** Ghostwriter trigger — fires a signal the Console watches */
   function ghostwrite() {
     if (is_locked) return;
     app.ghostwrite_request++;

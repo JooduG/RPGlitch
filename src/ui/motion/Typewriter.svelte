@@ -5,7 +5,7 @@
    * Combines HTML token-safe parsing with multi-word cycling phase loops.
    */
   import { untrack } from "svelte";
-  import { motion } from "@motion";
+  import { motion } from "@motion/engine.svelte.js";
   import { Audio } from "@media";
 
   // Fast check for Unicode surrogate pairs (e.g. emojis)

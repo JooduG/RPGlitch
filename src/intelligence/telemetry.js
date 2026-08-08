@@ -1,8 +1,8 @@
 /**
- * Mirror of DevTelemetryBlock's per-entity block normalization for the current
- * `{ type, updates }` telemetry shape, producing the identical
- * `{ key, name, dynamics, physical, non_physical, eternal_physical, eternal_non_physical, new_vectors, retrieval, has_dynamics, has_mods }`
- * block the component renders.
+ * Canonical telemetry normalization for the `{ type, updates }` event shape,
+ * producing the `{ key, name, dynamics, physical, non_physical,
+ * eternal_physical, eternal_non_physical, new_vectors, retrieval,
+ * has_dynamics, has_mods }` blocks rendered by DevTelemetryBlock.
  * @param {any} meta
  */
 export function process_entity_blocks(meta = {}) {

@@ -1,5 +1,5 @@
 /**
- * @file src/ui/motion/card.svelte.js
+ * @file src/ui/organisms/EntityCard.svelte.js
  * 🃏 CARD MOTION ENGINE
  * Clone-based physical card travel shared by the card hand (select), the slot
  * swap, and the storyboard shuffle. A fixed-position clone of a card element
@@ -171,7 +171,7 @@ export function fly_card_out(source_el, to_rect, options = {}) {
 
 // ── SCROLL-LINKED CARD MIGRATION (merged from card-migration.svelte.js) ──────────────
 /**
- * @file src/ui/motion/card-migration.svelte.js (merged into card.svelte.js)
+ * @file src/ui/organisms/EntityCard.svelte.js (merged from motion/card-migration.svelte.js)
  * 🎞 SCROLL-LINKED ENTITY CARD MIGRATION
  * The story's three entity cards are scrubbed by the scroll wheel: while the
  * prologue message is in view they sit inside it, and scrolling carries them
@@ -181,7 +181,7 @@ export function fly_card_out(source_el, to_rect, options = {}) {
  * p=1 → panels) so they stay fully interactive once docked. Also hosts the
  * begin-story flight that carries the storyboard cards into the prologue.
  */
-import { motion } from "@motion";
+import { motion } from "@motion/engine.svelte.js";
 
 const CARD_TYPES = ["ai", "fractal", "user"];
 

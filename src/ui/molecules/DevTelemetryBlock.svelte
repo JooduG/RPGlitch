@@ -1,7 +1,7 @@
 <script>
   /**
-   * @file MessageDevBlock.svelte
-   * ðŸ“¡ THE TELEMETRY MODULE
+   * @file src/ui/molecules/DevTelemetryBlock.svelte
+   * 📊 THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */
   import { Accordion, DataBox } from "@atoms";

@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file CardHand.svelte
+   * @file src/ui/organisms/EntityCardHand.svelte
    * 🃏 THE QUANTUM CARD-FAN OVERLAY
    * Replaces the legacy slide-up drawer with an immersive, orbital card-fan engine.
    * Standard: Fine-grained Svelte 5 Reactivity & Kinetic Geometry.

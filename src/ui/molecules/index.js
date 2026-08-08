@@ -1,11 +1,8 @@
 export { default as Audio } from "./Audio.svelte";
-export { default as AudioWing } from "./Audio.svelte";
 export { default as Dev } from "./Dev.svelte";
-export { default as DevWing } from "./Dev.svelte";
 export { default as Dialog } from "./Dialog.svelte";
 export { default as VisualWing } from "./VisualWing.svelte";
 export { default as StoryCardManager } from "./StoryCardManager.svelte";
-export { default as StoryManager } from "./StoryCardManager.svelte";
 export { default as AudioControls } from "./AudioControls.svelte";
 export { default as DevControls } from "./DevControls.svelte";
 export { default as StoryCard } from "./StoryCard.svelte";
@@ -15,5 +12,4 @@ export { default as DevTelemetryVector } from "./DevTelemetryVector.svelte";
 export { default as ImportModal } from "./ImportModal.svelte";
 export { default as ImagePicker } from "./ImagePicker.svelte";
 export { image_preview, open_image_preview, close_image_preview, default as ImagePreview } from "./ImagePreview.svelte";
-export { default as EntityCard } from "../organisms/EntityCard.svelte";
 export * from "./ImagePicker.svelte.js";

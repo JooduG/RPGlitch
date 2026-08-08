@@ -1,5 +1,5 @@
 /**
- * src/ui/molecules/EntityCardContextMenu.svelte.js
+ * src/ui/organisms/EntityCardContextMenu.svelte.js
  * Shared context-menu coordination signal.
  * Each EntityCard claims the menu when it opens; all others auto-close.
  */

@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file src/ui/devmode/DevWing.svelte
+   * @file src/ui/molecules/Dev.svelte
    * DYNAMIC DEVELOPER CONSOLE
    * Dynamically renders and binds to all entity dynamics (Somatic or Environmental).
    * Part of the RPGlitch UI.

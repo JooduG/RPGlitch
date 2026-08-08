@@ -49,7 +49,7 @@ db.version(11)
 db.version(12).stores({
   entities: "id, name, description, profile_picture, signature_color, created_at, updated_at, tags, type",
 });
-// v13: Drop the `[type+isCustom]` index (isCustom field retired by the DevWing
+// v13: Drop the `[type+isCustom]` index (isCustom field retired by the Dev wing
 // data-block harmonization). Re-declaring entities is a no-op for existing rows;
 // the index simply stops existing going forward.
 db.version(13).stores({
