@@ -19,6 +19,14 @@
  * @property {string[]} tags - Visual descriptor keywords injected into generation
  * @property {string} visual_engine - Injected XML prompt block
  * @property {string} negative_prompt - Style-differentiating negative prompt
+ * @property {boolean} [llm_refine] - When false, story tiers using this style skip LLM
+ *   prompt refinement and use deterministic flattening (for raw/unmodified styles).
+ *   Defaults to true when absent.
+ * @property {number} [guidance_scale] - Optional per-style guidance scale nudge
+ *   (higher = tighter prompt adherence). Tiers are authoritative: the value is
+ *   clamped to within ±2 of the tier baseline (character 9 / scene 7), so a style
+ *   can never overrule the tier or push a shot to extreme guidance. Keep values
+ *   in a moderate band (7–10).
  */
 
 /** @type {Record<string, VisualStyle>} */
@@ -30,6 +38,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/f968b744a4afde6ab81c0e751dc5e972.png",
     description: "Raw prompt generation without any visual style tokens or negative prompts injected.",
     tags: ["none", "raw", "unmodified"],
+    llm_refine: false,
     visual_engine: "",
     negative_prompt: "",
   },
@@ -46,6 +55,8 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/f3cf9efe77281754064a6629e354d799.png",
     description: "Unfiltered commercial photography captured with high-end medium format optics, natural dynamic range, and rich micro-textures.",
     tags: ["photography", "realistic", "standard", "raw", "lifelike", "hasselblad"],
+    llm_refine: false,
+    guidance_scale: 10,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action RAW commercial photograph, unedited sensor capture</medium>
 <palette>natural dynamic range, neutral balance, naturalistic key and fill lighting</palette>
@@ -63,6 +74,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/0bb4f7bd1737684ea227e701d3566c5e.png",
     description: "Casual unprepared smartphone photo featuring candid mirror selfie perspective, awkward angles, and direct flash glare.",
     tags: ["amateur", "iphone", "snapshot", "mirror_selfie", "candid", "casual", "flash_photo", "raw"],
+    llm_refine: false,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action candid smartphone photo, casual mobile phone snapshot, mirror selfie capture</medium>
 <palette>casual uncalibrated ambient room lighting, harsh direct phone flash glare, unedited everyday color cast</palette>
@@ -80,6 +92,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
     description: "Sleek high-fashion editorial aesthetic with opulent metallic tones and dramatic studio rim lighting.",
     tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
+    guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action high-fashion editorial photography in the style of Vogue magazine cover shoot</medium>
 <palette>opulent metallic accents, rich luxury tones, dramatic studio rim lighting</palette>
@@ -87,7 +100,7 @@ export const VISUAL_STYLES = {
 <texture>sleek polished editorial print quality, crisp high-fashion detail, flawless editorial finish</texture>
 </VISUAL_ENGINE>`,
     negative_prompt:
-      "text, typography, watermark, magazine text, title letters, white background, rugged grunge texture, anime, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
+      "watermark, white background, rugged grunge texture, anime, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
   },
 
   cinematic: {
@@ -97,6 +110,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/67a672baf7752bf089eea071f15a9ca9.png",
     description: "Atmospheric widescreen cinema shot featuring 35mm anamorphic optics, volumetric light shafts, and crushed shadows.",
     tags: ["cinematic", "film", "volumetric", "anamorphic", "movie", "dramatic", "shadows"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action widescreen 35mm cinematic feature film capture</medium>
 <palette>dramatic cinematic color grade, volumetric light shafts, deep crushed shadow voids, warm key and cold fill lighting</palette>
@@ -115,6 +129,7 @@ export const VISUAL_STYLES = {
     description:
       "Classic 1940s detective cinema aesthetic featuring high-contrast black and white, hard chiaroscuro shadows, and venetian blinds light.",
     tags: ["film_noir", "monochrome", "detective", "1940s", "shadows"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action 1940s monochrome cinema frame, silver gelatin film print</medium>
 <palette>high contrast black and white, deep shadow voids, harsh key lighting, silver midtones</palette>
@@ -132,6 +147,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/c7f758d7f2997cf541d721fb428e77cf.png",
     description: "Authentic instant Polaroid photo featuring soft optical focus, faded vintage color shifts, and harsh direct flash exposure.",
     tags: ["polaroid", "instant_film", "vintage", "retro", "analog", "flash"],
+    guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action Polaroid SX-70 instant film photo, vintage flash snapshot</medium>
 <palette>faded vintage color shifts, muted cyan and magenta tones, harsh direct flash illumination, washed-out shadows</palette>
@@ -150,6 +166,7 @@ export const VISUAL_STYLES = {
     description:
       "Uncanny lofi 1990s VHS tape snapshot or high-angle CCTV security camera screen capture with scanlines, tracking glitches, and lens distortion.",
     tags: ["analog_video", "vhs", "cctv", "found_footage", "surveillance", "glitch", "scanlines", "camcorder", "interlacing"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>photorealistic live-action magnetic tape analog horror frame, CCTV security screen capture, low-fi video snapshot</medium>
 <palette>unsettling washed-out low-light shadows, desaturated phosphor cast, harsh dark contrast, heavy video sensor noise</palette>
@@ -172,6 +189,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/293e5b0c1e675dd32d6f0eb968a47e50.png",
     description: "Vibrant cel-shaded Japanese anime & manga art style with clean line work, expressive key framing, and stylized proportions.",
     tags: ["anime", "manga", "cel_shading", "illustration", "2d", "stylized"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>Japanese anime and manga cel-shaded 2D illustration keyframe</medium>
 <palette>vibrant saturated anime colors, clean flat cel shading with sharp rim light accents</palette>
@@ -188,6 +206,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/4aaf95f0ba916c7498c960abb4ecd87e.png",
     description: "Warm hand-painted animation style with lush scenic landscapes, soft watercolor wash backgrounds, and nostalgic warmth.",
     tags: ["studio_ghibli", "anime", "hand_painted", "nostalgic", "whimsical"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>Studio Ghibli 2D anime background matte painting art</medium>
 <palette>warm earthy tones, soft pastel skies, lush natural landscapes, gentle golden light</palette>
@@ -205,6 +224,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/ab3d3721f029e356d540c524df0d876d.png",
     description: "Golden-age hand-drawn 2D animation featuring ink-and-paint cels, painterly gouache backgrounds, and fairytale warmth.",
     tags: ["disney", "2d", "classic_animation", "hand_drawn", "cel_art", "fairytale"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>golden age 2d feature animation cel in the style of classic Walt Disney hand-drawn animation</medium>
 <palette>warm theatrical key lighting, luminous fairytale jewel tones, soft pastel background washes</palette>
@@ -223,6 +243,7 @@ export const VISUAL_STYLES = {
     description:
       "Stylized 3D CGI feature film artwork combining Pixar character warmth, ray-traced global illumination, and Unreal Engine 5 optical depth.",
     tags: ["cgi", "animation", "3d", "pixar", "unreal_engine", "raytracing", "stylized"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>3d animated feature film digital artwork, high-end CGI scene render in the style of Pixar and Unreal Engine 5</medium>
 <palette>physically based lighting, warm studio key light, soft rim glow, volumetric light shafts, harmonious color palette</palette>
@@ -260,6 +281,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/87f3a245a478d2bdfeb284e5d8a83327.png",
     description: "Retro 16-bit video game sprite aesthetic featuring a limited color palette, crisp blocky pixel grids, and dithered shading.",
     tags: ["pixel_art", "retro", "16bit", "dithered", "indie_game"],
+    guidance_scale: 7,
     visual_engine: `<VISUAL_ENGINE>
 <medium>retro pixel art, 16-bit video game sprite</medium>
 <palette>limited 32-color palette, dithered shading, vibrant contrasting colors</palette>
@@ -337,6 +359,7 @@ export const VISUAL_STYLES = {
     description:
       "Bold graphic novel, pop art screenprint, and risograph poster aesthetic featuring black ink outlines, Ben-Day halftone dots, and spot-color translucent ink bleeds.",
     tags: ["graphic_print", "comic_book", "pop_art", "risograph", "halftone", "ben_day", "spot_color", "ink"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>bold graphic novel illustration, pop art Ben-Day dot screenprint, spot-color risograph poster artwork</medium>
 <palette>flat primary color blocks, high-contrast saturation, overlapping translucent neon ink bleeds</palette>
@@ -390,6 +413,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/29d4709051646f4e5bffbbd0f34e2048.png",
     description: "Classical fine art oil painting with thick impasto brushwork, layered glazes, rich chiaroscuro, and luminous depth.",
     tags: ["oil_painting", "classical", "impasto", "traditional", "baroque"],
+    guidance_scale: 7,
     visual_engine: `<VISUAL_ENGINE>
 <medium>thick impasto oil painting in the style of Michelangelo and Rembrandt, classical fine art masterwork</medium>
 <palette>rich layered glazes, warm earth tones, deep chiaroscuro, varnished luminous depth</palette>
@@ -406,6 +430,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/115456547820baafccc89970b7c5fb7a.png",
     description: "Delicate watercolor painting featuring soft wet-on-wet washes, pigment diffusion bleeding, and granulating textures.",
     tags: ["watercolor", "painting", "organic", "soft", "translucent"],
+    guidance_scale: 7,
     visual_engine: `<VISUAL_ENGINE>
 <medium>delicate watercolor painting, wet-on-wet technique</medium>
 <palette>soft translucent washes, bleeding pigment edges, pastel undertones with granulating textures</palette>
@@ -439,6 +464,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/34dc78c445a2749a4cc1dff08db37033.png",
     description: "Casual ballpoint pen and marker doodles drawn in notebook margins with quirky line art and scribbled shading.",
     tags: ["doodle", "sketch", "notebook", "scribble", "margin_art", "casual", "hand_drawn"],
+    guidance_scale: 7,
     visual_engine: `<VISUAL_ENGINE>
 <medium>raw unedited ballpoint pen sketch on lined notebook paper</medium>
 <palette>monochrome ballpoint ink on grid-lined paper, subtle highlighter accents</palette>
@@ -459,6 +485,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/a166f0706f17833ab3990b791d9937ab.png",
     description: "Vivid 1950s fantasy and sci-fi paperback book illustration featuring dramatic gouache brushwork and theatrical staging.",
     tags: ["pulp", "retro", "50s", "paperback", "sci-fi", "gouache"],
+    guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
 <medium>1950s pulp magazine cover illustration in the style of Frank Frazetta, vintage paperback gouache painting</medium>
 <palette>vivid primary accents, warm highlights, deep cool shadows, dramatic rim lighting</palette>
@@ -475,6 +502,7 @@ export const VISUAL_STYLES = {
     portrait: "https://user.uploads.dev/file/643e256027b322312bea15c98e3f937e.png",
     description: "Neon-soaked dystopian aesthetic with wet rain-slicked asphalt, holographic interfaces, and high-tech urban grime.",
     tags: ["cyberpunk", "neon", "scifi", "dystopian", "chrome"],
+    guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
 <medium>neon cyberpunk dystopian digital concept art matte painting</medium>
 <palette>vibrant neon accents, deep blacks, holographic iridescent accents, harsh LED lighting</palette>
@@ -492,6 +520,7 @@ export const VISUAL_STYLES = {
     description:
       "80s outrun synthwave and 90s vaporwave digital collage blending neon grid horizons, pastel cyan/magenta gradients, and CRT scan lines.",
     tags: ["synthwave", "vaporwave", "retro", "80s", "90s", "neon", "pastel", "glitch"],
+    guidance_scale: 8,
     visual_engine: `<VISUAL_ENGINE>
 <medium>retro 1980s synthwave digital airbrush art, nostalgic 1990s vaporwave digital 3d collage</medium>
 <palette>vibrant retro-futuristic cyan and magenta gradients, glowing twilight horizon, pastel washes</palette>

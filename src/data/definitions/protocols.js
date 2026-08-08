@@ -117,7 +117,7 @@ name (string), description (string), signature_color (string), eternal_physical 
       "NEVER write quality buzzwords ('masterpiece', '8K resolution', 'ultra HD', 'photorealistic', 'digital art') in EITHER the 'prompt' OR the 'negative_prompt'. Ground outputs using physical optics and real-world materials.",
     NATURAL_PROSE: "Output continuous descriptive sentences. Avoid booru tag soup or comma-separated lists.",
     PERCHANCE_SYNTAX: "MAY use Perchance dynamic selection syntax '{Option A|Option B}' for variable features to ensure organic variation.",
-    NEGATIVE_PROMPT: "blurry, low resolution, compressed artifacts, text, watermark, bad anatomy, distorted features",
+    NEGATIVE_PROMPT: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
 
     REFINE_PROTOCOL: `1. Concept Enrichment: Enrich core subject, clothing, and environment with physical descriptors.
 2. Visual Integration: Honor <VISUAL_ENGINE>. Merge palette, lighting, and camera directives into natural prose.
@@ -148,7 +148,8 @@ PHASE 4: STYLE & MEDIUM DISCIPLINE
 - Palette Strictness: Strict medium palettes (monochrome, sepia, cyanotype) override conflicting color terms.
 
 PHASE 5: SENSORY & ENVIRONMENTAL GROUNDING
-- Ground scenes through real-world light sources, physical textures, and concrete environmental geometry rather than abstract concepts.`,
+- Ground scenes through real-world light sources, physical textures, and concrete environmental geometry rather than abstract concepts.
+	- Typography & Signage (OPTIONAL): Render on-screen text ONLY when the scene itself calls for it — signs, graffiti, titles, or UI that are part of the subject matter. Never add text artificially. When text IS present, spell it out exactly and specify placement, font, and color (e.g. "OPEN" in glowing red neon, centered above the doors) — never invent, garble, or approximate lettering, and never output generic placeholders like "text" or "sign".`,
   },
 
   // ── 6. Formats & System Recovery ───────────────────────────────────────────

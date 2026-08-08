@@ -6,7 +6,7 @@
 
 import { VISUAL_STYLES, PROTOCOL_LIBRARY, detox_prose } from "@data";
 import { escape_xml, prompt_escape, safe_parse_pseudo_json, state_bridge, physical_to_xml, CLOTHING_KEYS } from "@utils";
-import { get_signature_label } from "./tokens.js";
+import { get_signature_label, PALETTE } from "./tokens.js";
 
 /**
  * Modern concise fallback negative prompt optimized for T5-XXL text streams.
@@ -198,7 +198,10 @@ function build_aesthetic_map(entity = {}) {
 
   const color_name = get_signature_label(entity);
   if (color_name) {
-    merged.aesthetic = `${color_name.toLowerCase()} aesthetic`;
+    // flux.md §5: bind the palette hex directly ("in color #HEX") so the aesthetic
+    // locks to the exact palette tone; fall back to the legacy label phrasing.
+    const hex = /** @type {Record<string, string>} */ (PALETTE)[color_name];
+    merged.aesthetic = hex ? `in color ${hex}` : `${color_name.toLowerCase()} aesthetic`;
   }
 
   return merged;

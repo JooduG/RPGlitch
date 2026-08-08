@@ -3,14 +3,26 @@ import "fake-indexeddb/auto";
 
 describe("entity embedding persistence", () => {
   beforeEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
     vi.resetModules();
     const Dexie = (await import("dexie")).default;
     await Dexie.delete("rpglitch");
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});
-  });
+  }, 15000);
 
-  afterEach(() => {
+  afterEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
     vi.restoreAllMocks();
   });
 
@@ -80,14 +92,26 @@ describe("entity embedding persistence", () => {
 
 describe("story entity claims", () => {
   beforeEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
     vi.resetModules();
     const Dexie = (await import("dexie")).default;
     await Dexie.delete("rpglitch");
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "warn").mockImplementation(() => {});
-  });
+  }, 15000);
 
-  afterEach(() => {
+  afterEach(async () => {
+    try {
+      const { db } = await import("./db.js");
+      db.close();
+    } catch (err) {
+      void err;
+    }
     vi.restoreAllMocks();
   });
 

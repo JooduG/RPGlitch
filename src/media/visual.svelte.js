@@ -4,7 +4,7 @@
  * The sensory cortex orchestrator. Fully optimized with engine caching and localized JSON peeling.
  */
 
-import { db, detox_prose, entities } from "@data";
+import { db, detox_prose, entities, VISUAL_STYLES } from "@data";
 import { generate_secure_seed as generateSecureSeed, strip_cognition_blocks, state_bridge } from "@utils";
 import { llm_service, sanitize_llm } from "@platform";
 import {
@@ -186,7 +186,7 @@ export class VisualEngine {
               .filter(Boolean)
               .join(", ");
             if (vs_positive && style_key !== "none" && !final_prompt.includes(vs_tokens.medium || "\x00")) {
-              final_prompt = `${vs_positive}, ${final_prompt}`;
+              final_prompt = `${final_prompt}, ${vs_positive}`;
             }
 
             const entity_type = effective_type;
@@ -215,7 +215,16 @@ export class VisualEngine {
             const effective_negative_prompt = deduplicated_neg_tokens.join(", ");
             const effective_seed = options.seed ?? generateSecureSeed();
             const effective_resolution = `${res.width}x${res.height}`;
-            const effective_guidance_scale = options.guidanceScale ?? (is_character_shot ? 9 : 7);
+            // The TIER baseline is authoritative (character shots 9, story scenes 7).
+            // A per-style guidance_scale may nudge guidance only within ±2 of that
+            // baseline, so the tier always governs and shots never hit extreme values.
+            const tier_guidance_baseline = is_character_shot ? 9 : 7;
+            const style_guidance = VISUAL_STYLES[style_key]?.guidance_scale;
+            const effective_guidance_scale =
+              options.guidanceScale ??
+              (style_guidance == null
+                ? tier_guidance_baseline
+                : Math.min(Math.max(style_guidance, tier_guidance_baseline - 2), tier_guidance_baseline + 2));
 
             const generate_promise = image_engine({
               prompt: final_prompt,
@@ -403,26 +412,36 @@ export class VisualEngine {
 
       const solo_or_char_entity = subject === "user" ? user : subject === "fractal" ? fractal : ai;
 
-      const system = prompt_templates.BUILDER(tier, visualPrompt, {
-        ai,
-        user,
-        fractal,
-        entity: tier === "solo_entity" || tier === "story_character" ? solo_or_char_entity : undefined,
-        variant: is_selfie ? "selfie" : options?.variant,
-        history: "",
-        mode: "visualize",
-      });
+      // Tier-based LLM refinement policy:
+      //  - selfie: always LLM (its caption is produced by the LLM)
+      //  - story_entities: always LLM (multi-character composition needs planning)
+      //  - solo_entity: quick path — deterministic flattening, no LLM round-trip
+      //  - story_character / story_scene: defer to the active style's llm_refine flag
+      const style_key_for_llm = tier === "solo_entity" ? resolve_portrait_visual_style_key(solo_or_char_entity) : resolve_story_visual_style_key();
+      const use_llm = is_selfie || tier === "story_entities" || (tier !== "solo_entity" && (VISUAL_STYLES[style_key_for_llm]?.llm_refine ?? true));
 
       let refined = null;
-      try {
-        const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
-        refined = await Promise.race([llm_service.generate({ system, messages: [] }, { silent: true }), extraction_timeout]);
-      } catch (extractErr) {
-        console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", extractErr.message);
+      if (use_llm) {
+        const system = prompt_templates.BUILDER(tier, visualPrompt, {
+          ai,
+          user,
+          fractal,
+          entity: tier === "solo_entity" || tier === "story_character" ? solo_or_char_entity : undefined,
+          variant: is_selfie ? "selfie" : options?.variant,
+          history: this._build_visual_history(),
+          mode: "visualize",
+        });
+
+        try {
+          const extraction_timeout = new Promise((_, reject) => setTimeout(() => reject(new Error("LLM prompt extraction timed out")), 90000));
+          refined = await Promise.race([llm_service.generate({ system, messages: [] }, { silent: true }), extraction_timeout]);
+        } catch (extractErr) {
+          console.warn("[VisualEngine] visualize: LLM prompt extraction failed, using fallback:", extractErr.message);
+        }
       }
 
       if (!refined) {
-        console.warn("[VisualEngine] visualize: LLM returned empty/null, synthesizing fallback prompt.");
+        if (use_llm) console.warn("[VisualEngine] visualize: LLM returned empty/null, synthesizing fallback prompt.");
         const fallback_entity =
           tier === "solo_entity"
             ? subject === "user"
@@ -702,6 +721,24 @@ export class VisualEngine {
   }
 
   // --- Private Helpers ---
+
+  /**
+   * Builds a compact recent-narrative digest for the BUILDER <HISTORY> block.
+   * Mirrors narrative context without importing @intelligence (would create a
+   * @media -> @intelligence import cycle).
+   * @param {number} [max_entries=2]
+   * @param {number} [max_chars=200]
+   * @returns {string}
+   */
+  _build_visual_history(max_entries = 2, max_chars = 200) {
+    const feed = state_bridge.simulation_log?.feed;
+    if (!Array.isArray(feed) || feed.length === 0) return "";
+    return feed
+      .filter((entry) => entry && typeof entry.text === "string" && entry.text.trim())
+      .slice(-max_entries)
+      .map((entry) => `${entry.character_name || entry.role || "narrator"}: ${entry.text.slice(0, max_chars)}`)
+      .join("\n");
+  }
 
   /**
    * @param {string} id
