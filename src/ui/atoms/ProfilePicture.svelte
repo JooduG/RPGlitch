@@ -63,6 +63,7 @@
 
 {#snippet fallback_initials()}
   <div
+    data-card-text
     class="
       pointer-events-none
       flex

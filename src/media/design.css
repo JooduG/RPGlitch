@@ -531,7 +531,7 @@
 ::view-transition-old(card-slot-fractal),
 ::view-transition-old(unified-console) {
   animation: none;
-  opacity: 0 !important;
+  opacity: 0;
   mix-blend-mode: normal !important;
 }
 
@@ -540,7 +540,7 @@
 ::view-transition-new(card-slot-fractal),
 ::view-transition-new(unified-console) {
   animation: none;
-  opacity: 1 !important;
+  opacity: 1;
   mix-blend-mode: normal !important;
   height: 100% !important;
   width: 100% !important;

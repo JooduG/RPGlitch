@@ -646,7 +646,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 ::view-transition-old(card-slot-fractal),
 ::view-transition-old(unified-console) {
   animation: none;
-  opacity: 0 !important;
+  opacity: 0;
   mix-blend-mode: normal !important;
 }
 
@@ -655,7 +655,7 @@ The **Weaver** is the bridge between the Architect's intent and the Engine's rea
 ::view-transition-new(card-slot-fractal),
 ::view-transition-new(unified-console) {
   animation: none;
-  opacity: 1 !important;
+  opacity: 1;
   mix-blend-mode: normal !important;
   height: 100% !important;
   width: 100% !important;

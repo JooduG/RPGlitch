@@ -68,6 +68,114 @@
     }));
 
   const has_wings = $derived(!app.transitioning_profile && !profile_state.is_packing_up && (profile_state.is_editing || app.settings.dev_mode));
+
+  // --- WING CHOREOGRAPHY GATE ---
+  // CSS *animations* of transform-like properties freeze at time 0 in this
+  // environment (opacity animations and CSS transitions are unaffected), and
+  // the profile card/wings are captured by the open/close view-transition. So
+  // the wings-open/close choreography is driven with CSS *transitions* (FLIP),
+  // and ONLY when `has_wings` toggles after the profile has settled: never
+  // during a flip, never on the initial open (the flip is the open), never on
+  // mobile (no wings layout there).
+  let card_ref = $state(undefined);
+  let wings_ref = $state(undefined);
+  let _prev_has_wings = null;
+
+  /** Slides `el` from one translateX to another via a CSS transition (FLIP). */
+  function slide_x(el, from_x, to_x, ease = "var(--motion-elastic)") {
+    el.style.transition = "none";
+    el.style.transform = `translateX(${from_x})`;
+    // Stage the "to" pose on the next frame so the transition actually fires
+    // (an immediate same-task restyle does not start a transition here).
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.transition = `transform ${ease}`;
+        el.style.transform = `translateX(${to_x})`;
+      });
+    });
+    setTimeout(() => {
+      el.style.transition = "";
+      el.style.transform = "";
+    }, 1000);
+  }
+
+  /** Briefly dips the info column opacity to mask the instant edit/readonly content swap. */
+  function dip_content(el) {
+    el.style.transition = "none";
+    el.style.opacity = "1";
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        el.style.transition = "opacity 90ms ease-in";
+        el.style.opacity = "0";
+      });
+    });
+    setTimeout(() => {
+      el.style.transition = "opacity 220ms ease-out";
+      el.style.opacity = "1";
+    }, 120);
+    setTimeout(() => {
+      el.style.transition = "";
+      el.style.opacity = "";
+    }, 400);
+  }
+
+  $effect(() => {
+    const hw = has_wings;
+    if (app.transitioning_profile) {
+      // Page is being captured by the flip — disarm and clear the choreography.
+      _prev_has_wings = null;
+      if (card_ref) {
+        card_ref.style.transition = "";
+        card_ref.style.transform = "";
+      }
+      if (wings_ref) {
+        wings_ref.style.transition = "";
+        wings_ref.style.transform = "";
+        wings_ref.style.opacity = "";
+      }
+      return;
+    }
+    if (app.viewport.mobile) {
+      _prev_has_wings = hw;
+      return;
+    }
+    if (_prev_has_wings === null) {
+      _prev_has_wings = hw;
+      return;
+    }
+    if (_prev_has_wings !== hw) {
+      _prev_has_wings = hw;
+      if (hw) {
+        // Entering edit — wings sweep in from behind, card glides left.
+        if (card_ref) slide_x(card_ref, "33.33%", "0", "var(--motion-elastic)");
+        if (wings_ref) slide_x(wings_ref, "-165%", "0", "var(--motion-elastic)");
+      } else {
+        // Exiting edit — card glides back to center, wings sweep back out to
+        // the left behind the card (mirror of their entrance).
+        if (card_ref) slide_x(card_ref, "-33.33%", "0", "300ms ease-out");
+        if (wings_ref) slide_x(wings_ref, "0", "-165%", "var(--motion-elastic)");
+      }
+    }
+  });
+
+  let _prev_is_editing = null;
+
+  $effect(() => {
+    const editing = profile_state.is_editing;
+    if (app.transitioning_profile || app.viewport.mobile) {
+      _prev_is_editing = editing;
+      return;
+    }
+    if (_prev_is_editing === null) {
+      _prev_is_editing = editing;
+      return;
+    }
+    if (_prev_is_editing !== editing) {
+      _prev_is_editing = editing;
+      if (info_container_el) dip_content(info_container_el);
+    }
+  });
+
   const active_sections = $derived(PROFILE_SECTIONS_BY_TYPE[entity_type] || PROFILE_SECTIONS_BY_TYPE.character);
   const target_morph_name = $derived.by(() => {
     if (!profile_state.char?.id) return undefined;
@@ -90,7 +198,8 @@
     "flex overflow-hidden border border-solid transition-all duration-300 relative z-10 " +
       (app.viewport.mobile
         ? "col-span-full h-full flex-col rounded-none "
-        : (has_wings ? "modal-profile-grid-main my-auto h-[90dvh]" : "modal-profile-grid-flat h-full") + " rounded-2xl ") +
+        : (has_wings ? "modal-profile-grid-main row-start-1 my-auto h-[90dvh]" : "modal-profile-grid-flat row-start-1 my-auto h-[90dvh]") +
+          " rounded-2xl ") +
       (entity_type === "fractal" ? "flex-col" : "flex-row"),
   );
 
@@ -299,20 +408,14 @@
   >
     <div
       class={`m-auto grid w-grid-width grid-cols-12 transition-all duration-300 ${
-        app.viewport.mobile
-          ? has_wings
-            ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4"
-            : "h-dvh grid-rows-1"
-          : has_wings
-            ? "my-auto h-dvh grid-rows-1"
-            : "my-auto h-[90dvh] grid-rows-1"
+        app.viewport.mobile ? (has_wings ? "h-auto grid-rows-[auto_auto] gap-y-4 pb-4" : "h-dvh grid-rows-1") : "my-auto h-dvh grid-rows-1"
       }`}
       data-mobile={app.viewport.mobile}
       role="presentation"
     >
       <div
         class={main_card_class}
-        style:animation={has_wings ? "main-card-slide-left var(--motion-elastic) forwards" : "main-card-slide-center var(--motion-elastic) forwards"}
+        bind:this={card_ref}
         style:background-color="color-mix(in srgb, var(--signature-color) 1%, var(--color-glass-sunken))"
         style:border-color="color-mix(in srgb, var(--signature-color) 30%, transparent)"
         style:backdrop-filter="var(--blur-mist)"
@@ -545,12 +648,10 @@
       <aside
         data-wings-container
         class={"relative isolate z-0 flex scrollbar-none gap-4 [&::-webkit-scrollbar]:hidden " +
-          (app.viewport.mobile ? "col-span-full w-full items-start overflow-x-visible" : "col-[9/12] flex-col items-center overflow-y-auto")}
-        style:animation={has_wings && !app.viewport.mobile
-          ? "wing-slide-out var(--motion-elastic) forwards"
-          : !app.viewport.mobile
-            ? "wing-slide-in var(--motion-elastic) forwards"
-            : ""}
+          (app.viewport.mobile
+            ? "col-span-full w-full items-start overflow-x-visible"
+            : "col-[9/12] row-start-1 flex-col items-center overflow-y-auto")}
+        bind:this={wings_ref}
         style:pointer-events={has_wings ? "auto" : "none"}
       >
         <div class={"flex gap-4 " + (app.viewport.mobile ? "w-fit flex-row px-4" : "w-full flex-col")}>

@@ -24,6 +24,7 @@
    * @property {() => void} [onclick] - Select click handler
    * @property {() => void} [on_select] - Selection callback mapping
    * @property {any[]} [actions] - Context menu actions (config-driven: { label, onSelect, disabled, separator, danger })
+   * @property {boolean} [launch_gesture] - Rack-pull-eject launch on select (default true; disable when the parent animates selection itself)
    */
 
   /** @type {Props} */
@@ -36,6 +37,7 @@
     onclick = undefined,
     on_select = undefined,
     actions = [],
+    launch_gesture = true,
   } = $props();
 
   // --- STATE RUNES ---
@@ -233,7 +235,7 @@
    */
   function handle_select() {
     if (!disabled) {
-      if (variant === "library" && !motion.is_reduced) {
+      if (variant === "library" && !motion.is_reduced && launch_gesture) {
         // Build spring tension state; compilation execution defers to the native hardware animation lifecycle
         is_launching = true;
         // Fallback: If animationend event fails to fire (e.g. browser lag, test environment), force selection trigger after animation duration
@@ -493,6 +495,7 @@
       `}"
   >
     <span
+      data-card-text
       class="
         [display:-webkit-box]
         w-full
@@ -534,6 +537,7 @@
     >
     {#if !is_empty && variant !== "library" && variant !== "message" && app.view !== "storymode"}
       <p
+        data-card-text
         class="
           mt-2
           [display:-webkit-box]
@@ -568,7 +572,10 @@
   </div>
 
   {#if type === "fractal" && variant === "panel" && app.view !== "storymode"}
-    <div class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5">
+    <div
+      data-card-badge
+      class="pointer-events-none absolute top-[clamp(0.25rem,4cqi,0.5rem)] left-[clamp(0.25rem,4cqi,0.5rem)] z-50 flex flex-col gap-1.5"
+    >
       <StyleBadge {entity} class="flex flex-col gap-1.5" />
     </div>
   {/if}

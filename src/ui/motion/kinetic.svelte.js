@@ -6,7 +6,8 @@
  */
 
 import { resolve_ms, resolve_number, resolve_string } from "@utils";
-import { motion, spring } from "@motion";
+import { Spring } from "svelte/motion";
+import { motion } from "@motion";
 
 /* --- Kinetic Primitives --- */
 
@@ -188,17 +189,17 @@ pulse.is_kinetic = true;
 export function roll(node) {
   const stiffness = resolve_number("--spring-stiffness-default", 0.15, node);
   const damping = resolve_number("--spring-damping-default", 0.8, node);
-  const angle_spring = spring(0, { stiffness, damping });
+  const angle_spring = new Spring(0, { stiffness, damping });
 
   const target = get_target(node);
 
   const trigger = () => {
     node.dataset.kinetic = "true";
-    angle_spring.value = 360;
+    angle_spring.target = 360;
   };
 
   const stop = () => {
-    angle_spring.value = 0;
+    angle_spring.target = 0;
   };
 
   /** @type {(() => void) | null} */
@@ -206,7 +207,7 @@ export function roll(node) {
   if (typeof window !== "undefined") {
     cleanup_effect = $effect.root(() => {
       $effect(() => {
-        const val = angle_spring.value;
+        const val = angle_spring.current;
         target.style.transform = `rotate(${val}deg)`;
       });
     });

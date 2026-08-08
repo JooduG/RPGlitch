@@ -452,6 +452,7 @@
       {:else}
         <div
           class="flex h-full w-full items-center justify-center"
+          data-slot-type="ai"
           style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_ai?.id
             ? "entity-morph-ai"
             : undefined}
@@ -482,6 +483,7 @@
           {@const entity = app.selected_fractal}
           <div
             class="flex h-full w-full items-center justify-center"
+            data-slot-type="fractal"
             style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === entity?.id
               ? "entity-morph-fractal"
               : undefined}
@@ -522,6 +524,7 @@
           class="flex h-full w-full items-center justify-center {app.view === 'storymode'
             ? 'transition-transform duration-300 md:translate-x-[calc(-0.5*var(--spacing-column-unit))]'
             : ''}"
+          data-slot-type="user"
           style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-user" : undefined}
         >
           <EntityCard

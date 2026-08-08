@@ -6,7 +6,7 @@
    * Headless refactor powered by bits-ui/Dialog and Svelte 5.
    */
   import { Backdrop } from "@atoms";
-  import { overlay_out } from "@motion";
+  import { overlay_in, overlay_out } from "@motion";
   import { use_actions } from "@utils";
   import { Dialog } from "bits-ui";
 
@@ -148,12 +148,12 @@
                           brightness-90
                           grayscale-50
                         `,
-                      variant !== "profile" && "modal-in",
                       className,
                     ]}
                     onclick={(/** @type {MouseEvent} */ e) => {
                       if (variant !== "lightbox") e.stopPropagation();
                     }}
+                    in:overlay_in={{ duration: variant === "profile" ? 0 : 300 }}
                     out:overlay_out
                     use:use_actions={actions}
                   >
@@ -168,27 +168,3 @@
     </Dialog.Overlay>
   </Dialog.Portal>
 </Dialog.Root>
-
-<style>
-  @keyframes modal-in {
-    from {
-      opacity: var(--opacity-none);
-      transform: translateY(calc(var(--spacing-unit) * 2.5)) scale(0.97);
-    }
-
-    to {
-      opacity: var(--opacity-solid);
-      transform: none;
-    }
-  }
-
-  .modal-in {
-    animation: modal-in var(--duration-standard) var(--ease-standard) both;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .modal-in {
-      animation: none !important;
-    }
-  }
-</style>

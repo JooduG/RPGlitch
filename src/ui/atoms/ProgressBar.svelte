@@ -7,6 +7,9 @@
    * For fluctuating range measurements (dynamics, volume), use Meter (bits-ui Meter).
    */
   import { Progress, useId } from "bits-ui";
+  import { Tween } from "svelte/motion";
+  import { quartOut } from "svelte/easing";
+  import { motion } from "@motion";
   import Label from "./Label.svelte";
 
   /**
@@ -27,6 +30,10 @@
   const label_id = useId();
   const is_indeterminate = $derived(value === null);
   const clamped_pct = $derived(is_indeterminate ? 0 : Math.max(0, Math.min(100, ((value - min) / (max - min)) * 100)));
+  const pct_tween = new Tween(0, { duration: 300, easing: quartOut });
+  $effect(() => {
+    pct_tween.set(clamped_pct, { duration: motion.is_reduced ? 0 : 300, easing: quartOut });
+  });
 </script>
 
 <div class="flex w-full flex-col gap-1 {className}" {style}>
@@ -34,7 +41,7 @@
     <Label id={label_id} class="w-full justify-between font-mono">
       <span>{label}</span>
       {#if !is_indeterminate}
-        <span class="tabular-nums opacity-70">{Math.round(clamped_pct)}%</span>
+        <span class="tabular-nums opacity-70">{Math.round(pct_tween.current)}%</span>
       {/if}
     </Label>
   {/if}
@@ -75,11 +82,8 @@
           rounded-full
           bg-electric-cyan
           shadow-[0_0_8px_var(--color-electric-cyan)]
-          transition-[width]
-          duration-300
-          ease-out
         "
-        style="width: {clamped_pct}%;"
+        style="width: {pct_tween.current}%;"
       ></div>
     {/if}
   </Progress.Root>

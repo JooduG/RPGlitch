@@ -8,7 +8,7 @@
   import { Backdrop, Button } from "@atoms";
   import { create_new, entities as repository } from "@data";
   import { EntityCard, ImportModal } from "@molecules";
-  import { motion } from "@motion";
+  import { motion, fly_card_in, fly_card_out, rect_of } from "@motion";
   import { app } from "@state";
 
   // --- RUNES & CORE VIEW ENGINE CONNECTIONS ---
@@ -18,6 +18,8 @@
   /** @type {number | null} */
   let hovered_index = $state(null);
   let show_import_modal = $state(false);
+  /** True while a card is mid-flight to its storyboard slot — ignores concurrent selects. */
+  let flight_active = $state(false);
 
   // Deferral state for symmetric unmount
   let render_active = $state(false);
@@ -114,9 +116,85 @@
 
   /** @param {any} entity */
   function handle_select(entity) {
-    if (is_disabled(entity)) return;
-    app.select_entity(card_hand_type, entity);
+    if (is_disabled(entity) || flight_active) return;
+    hovered_index = null;
+
+    if (motion.is_reduced) {
+      app.select_entity(card_hand_type, entity);
+      app.close_card_hand();
+      return;
+    }
+
+    const source = document.querySelector(`[data-entity-id="${CSS.escape(String(entity.id))}"] [data-card-root]`);
+    const target =
+      document.querySelector(`[data-slot-type="${card_hand_type}"] [data-card-root]`) ||
+      document.querySelector(`[data-slot-type="${card_hand_type}"]`);
+    if (!source || !target) {
+      app.select_entity(card_hand_type, entity);
+      app.close_card_hand();
+      return;
+    }
+    fly_card_to_slot(entity, source, target);
+  }
+
+  /**
+   * 🛫 THE HAND-TO-SLOT FLIGHT
+   * Physically lifts the clicked card out of the fan and carries it across the
+   * stage onto its storyboard slot. If the slot already holds an entity, the
+   * swapped-out card returns to the deck in the same motion. Real selection is
+   * committed only when the clone lands, masking the slot's update.
+   * @param {any} entity
+   * @param {HTMLElement} source
+   * @param {HTMLElement} target
+   */
+  function fly_card_to_slot(entity, source, target) {
+    flight_active = true;
     app.close_card_hand();
+
+    const existing =
+      card_hand_type === "ai"
+        ? app.selected_ai
+        : card_hand_type === "user"
+          ? app.selected_user
+          : card_hand_type === "fractal"
+            ? app.selected_fractal
+            : null;
+
+    const source_rect = rect_of(source);
+    const target_rect = rect_of(target);
+
+    // Hide the real card — its clone is the stand-in for the flight.
+    source.style.transition = "none";
+    source.style.opacity = "0";
+
+    // Swap: return the current slot occupant to the deck while the new card is airborne.
+    let old_root = null;
+    if (existing && String(existing.id) !== String(entity.id)) {
+      old_root = target.matches("[data-card-root]") ? target : target.querySelector("[data-card-root]");
+      if (old_root) {
+        const out_rect = rect_of(old_root);
+        fly_card_out(old_root, {
+          left: Math.max(0, window.innerWidth / 2 - (out_rect.width * 0.7) / 2),
+          top: Math.max(0, window.innerHeight - out_rect.height * 0.72),
+          width: out_rect.width * 0.7,
+          height: out_rect.height * 0.7,
+        });
+        old_root.style.transition = "none";
+        old_root.style.opacity = "0";
+      }
+    }
+
+    fly_card_in(source, source_rect, target_rect, {
+      on_land: () => {
+        if (old_root) {
+          old_root.style.opacity = "";
+          old_root.style.transition = "";
+        }
+        app.select_entity(card_hand_type, entity);
+      },
+    }).finally(() => {
+      flight_active = false;
+    });
   }
 
   /** @param {KeyboardEvent} e */
@@ -341,6 +419,7 @@
             hover:z-50!
           "
           role="presentation"
+          data-entity-id={entity.id}
           style:transform="rotate({dynamic_angle}deg) translateY(0)"
           style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
           style:z-index={idx + 1}
@@ -401,6 +480,7 @@
               {entity}
               type={card_hand_type ?? undefined}
               disabled={is_disabled(entity)}
+              launch_gesture={false}
               onclick={() => handle_select(entity)}
             />
           </div>

@@ -8,13 +8,13 @@
   import { tick } from "svelte";
   import { click_outside } from "@utils";
   import { Accordion, Backdrop, Button, ProgressBar, ScrollArea, Slider, TextField, Toggle, tooltip } from "@atoms";
-  import { db, stories, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
+  import { db, stories, NAME_PREFIXES, VISUAL_STYLES, NARRATIVE_STYLES } from "@data";
   import { pick_random } from "@utils";
   import { chrono_engine, session_driver } from "@engine";
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
-  import { motion, pulse, roll, shimmy, stab, item_in } from "@motion";
+  import { motion, pulse, roll, shimmy, stab, item_in, fly_card_in, fly_card_out } from "@motion";
   import { app, runtime, simulation_state, simulation_log } from "@state";
 
   // --- CORE VIEW ENGINE STATE ---
@@ -175,6 +175,58 @@
   });
 
   // --- STORYBOARD NARRATIVE ORCHESTRATION ---
+  let shuffle_active = $state(false);
+
+  /** Derives card initials from an entity name, skipping common prefixes. */
+  function compute_initials(str) {
+    const words = String(str || "")
+      .replace(/['']/g, "")
+      .replace(/[^\p{L}\s]/gu, " ")
+      .trim()
+      .split(/\s+/);
+    const stop_words = new Set(NAME_PREFIXES.map((w) => w.replace(/\.$/, "")));
+    const filtered = words.filter((w) => !stop_words.has(w.toLowerCase()));
+    return (
+      (filtered.length ? filtered : words)
+        .slice(0, 3)
+        .map((w) => w.charAt(0))
+        .join("")
+        .toUpperCase() || "?"
+    );
+  }
+
+  /**
+   * Re-dresses a flying card clone with the newly drawn entity's appearance, so
+   * the deal-in doesn't carry the swapped-out card's face up to the slot.
+   * @param {HTMLElement} clone
+   * @param {any} entity
+   */
+  function dress_deal_card(clone, entity) {
+    if (!entity) return;
+    const color = get_signature_color(entity, "var(--color-gunmetal)");
+    clone.style.setProperty("--signature-color", color);
+    clone.querySelectorAll("[style]").forEach((el) => {
+      if (el.style.getPropertyValue("--signature-color")) {
+        el.style.setProperty("--signature-color", color);
+      }
+    });
+    const pic = entity.profile_picture;
+    if (pic) {
+      clone.querySelectorAll("img").forEach((img) => {
+        img.src = pic;
+        img.removeAttribute("srcset");
+      });
+    }
+    const name_span = clone.querySelector(".bg-linear-to-t > span");
+    if (name_span) name_span.textContent = entity.name || "Untitled";
+    const desc = clone.querySelector(".bg-linear-to-t p");
+    if (desc) desc.textContent = entity.description || "No description provided.";
+    const initials = compute_initials(entity.name);
+    clone.querySelectorAll("[class*='text-[clamp(0.6rem']").forEach((el) => {
+      el.textContent = initials;
+    });
+  }
+
   const storyboard = {
     async shuffle() {
       if (!app.ai_list.length) {
@@ -182,22 +234,18 @@
       }
       if (!app.ai_list.length) return;
 
-      app.selected_ai = pick_random(Array.isArray(app.ai_list) ? app.ai_list : []);
-      let available_users = app.user_list;
-      if (app.selected_ai && Array.isArray(app.user_list)) {
-        available_users = app.user_list.filter((u) => u.id !== app.selected_ai.id);
+      const pick_ai = pick_random(Array.isArray(app.ai_list) ? app.ai_list : []);
+      let available_users = Array.isArray(app.user_list) ? app.user_list : [];
+      if (pick_ai) {
+        available_users = available_users.filter((u) => u.id !== pick_ai.id);
       }
+      const pick_user = available_users.length ? pick_random(available_users) : app.user_list?.[0] || null;
 
-      if (available_users.length) {
-        app.selected_user = pick_random(available_users);
-      } else if (app.user_list.length) {
-        app.selected_user = app.user_list[0];
-      }
-
+      let pick_fractal = null;
       if (Array.isArray(app.fractal_list) && app.fractal_list.length) {
         const random_fractal = pick_random(app.fractal_list);
         if (random_fractal) {
-          app.selected_fractal = {
+          pick_fractal = {
             ...random_fractal,
             visual_style: pick_random(Object.keys(VISUAL_STYLES)),
             narrative_style: pick_random(Object.keys(NARRATIVE_STYLES)),
@@ -205,9 +253,80 @@
         }
       }
 
-      if (typeof app.regenerate_title === "function") {
-        app.regenerate_title();
+      const commit = () => {
+        app.selected_ai = pick_ai;
+        app.selected_user = pick_user;
+        app.selected_fractal = pick_fractal;
+        if (typeof app.regenerate_title === "function") {
+          app.regenerate_title();
+        }
+      };
+
+      const slots = ["ai", "user", "fractal"].map((type) => {
+        const wrapper = document.querySelector(`[data-slot-type="${type}"]`);
+        const root = wrapper?.querySelector("[data-card-root]") || wrapper || null;
+        return { type, wrap: wrapper, root, rect: root ? root.getBoundingClientRect() : null };
+      });
+
+      const dealable = !motion.is_reduced && app.view === "storyboard" && !shuffle_active;
+      if (!dealable || slots.some((s) => !s.root || !s.rect)) {
+        // If a deal is already airborne, ignore the click rather than double-committing.
+        if (!shuffle_active) commit();
+        return;
       }
+
+      // 🃏 THE SHUFFLE DEAL — current cards return to the deck, then the newly
+      // drawn cards deal out to their slots, staggered like a real hand.
+      shuffle_active = true;
+      slots.forEach((s) => {
+        s.wrap?.classList.remove("deal-reveal", "deal-revealed");
+        s.wrap?.classList.add("deal-reveal");
+      });
+      const occupied = { ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal };
+      const picks = { ai: pick_ai, user: pick_user, fractal: pick_fractal };
+      const viewport_w = window.innerWidth;
+      const viewport_h = window.innerHeight;
+
+      slots.forEach((s, i) => {
+        const r = /** @type {{ left: number, top: number, width: number, height: number }} */ (s.rect);
+        const deck = {
+          left: Math.max(0, viewport_w / 2 - (r.width * 0.62) / 2),
+          top: Math.max(0, viewport_h - r.height * 0.62 * 1.25),
+          width: r.width * 0.62,
+          height: r.height * 0.62,
+        };
+
+        // Phase 1: return the current occupant to the deck (snappy exit).
+        if (occupied[s.type] && s.root) {
+          s.root.style.transition = "none";
+          s.root.style.opacity = "0";
+          fly_card_out(s.root, deck, { duration_ms: 210 });
+        }
+
+        // Phase 2: deal the new card in, staggered per slot.
+        setTimeout(() => {
+          if (!s.root || !s.rect) return;
+          fly_card_in(s.root, deck, s.rect, {
+            tag: "data-deal-in",
+            on_clone: (clone) => dress_deal_card(clone, picks[s.type]),
+            on_land: () => {
+              if (s.root) {
+                s.root.style.opacity = "";
+                s.root.style.transition = "";
+              }
+              s.wrap?.classList.add("deal-revealed");
+              app.selected_ai = picks.ai;
+              app.selected_user = picks.user;
+              app.selected_fractal = picks.fractal;
+              if (typeof app.regenerate_title === "function") app.regenerate_title();
+            },
+          });
+        }, i * 90);
+      });
+
+      setTimeout(() => {
+        shuffle_active = false;
+      }, 180 + 700);
     },
     async begin() {
       if (app.settings.dev_mode) {
@@ -711,3 +830,19 @@
     </div>
   </div>
 </div>
+
+<style>
+  /* Shuffle deal reveal — flying clones are art-only (strip_card_text); the
+     landed cards fade their text/badges back in after arrival. */
+  :global(.deal-reveal [data-card-text]),
+  :global(.deal-reveal [data-card-badge]) {
+    opacity: 0 !important;
+    transition: none !important;
+  }
+
+  :global(.deal-revealed [data-card-text]),
+  :global(.deal-revealed [data-card-badge]) {
+    opacity: 1 !important;
+    transition: opacity 0.45s ease 0.1s !important;
+  }
+</style>
