@@ -6,7 +6,7 @@
    * Standard: Pure Svelte 5 layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { safe_html } from "@utils";
-  import { Button, DataBox, TextField, tooltip } from "@atoms";
+  import { Button, DataBox, StyleBadge, TextField, tooltip } from "@atoms";
   import { parse_message, resolve_voice_register } from "@intelligence";
   import { Audio, get_resolution, get_signature_color } from "@media";
   import { DevTelemetryBlock, EntityCard, image_regenerate, open_picker } from "@molecules";
@@ -500,14 +500,21 @@
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
               <div class="min-w-0" style="flex-grow: 2" data-msg-card="fractal">
-                <EntityCard
-                  entity={f}
-                  type="fractal"
-                  variant="message"
-                  actions={card_actions.fractal}
-                  onclick={() => app.open_profile(f)}
-                  onViewProfile={() => app.open_profile(f)}
-                />
+                <div class="flex h-full w-full flex-col gap-2 md:gap-4">
+                  <div class="min-h-0 flex-1">
+                    <EntityCard
+                      entity={f}
+                      type="fractal"
+                      variant="message"
+                      actions={card_actions.fractal}
+                      onclick={() => app.open_profile(f)}
+                      onViewProfile={() => app.open_profile(f)}
+                    />
+                  </div>
+                  <div class="flex w-full shrink-0 justify-center gap-2 md:gap-4" data-msg-style-badge>
+                    <StyleBadge entity={f} layout="prologue" class="flex w-full justify-center gap-2 md:gap-4" />
+                  </div>
+                </div>
               </div>
             {/if}
             {#if runtime.active_user || app.selected_user}
@@ -566,6 +573,7 @@
               [&_strong]:[text-shadow:0_0_8px_color-mix(in_srgb,var(--signature-color,var(--color-slate-400)),transparent_85%)]
 
               {is_fractal ? 'text-center' : ''}
+              {meta?.is_prologue || meta?.is_epilogue ? '' : ''}
             "
             style={!should_use_typewriter ? "content-visibility: auto;" : ""}
           >

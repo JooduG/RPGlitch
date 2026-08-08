@@ -16,23 +16,31 @@
    *   size class is used (Tailwind's !important on arbitrary classes would
    *   override the inline style). Includes the entity-card-style hover overlay
    *   (name in signature color on dark gradient) + zoom. No tooltip in this mode.
+   * - `"prologue"`: badges are flex-filled — each takes half the parent row's
+   *   width (minus the gap) at a perfect 1:1 ratio, so the row height derives
+   *   from the container width on the spot.
    * - default: container-query responsive sizing for the storyboard overlay.
    */
-  /** @type {{ entity?: any, class?: string, layout?: "storymode" | "default" }} */
+  /** @type {{ entity?: any, class?: string, layout?: "storymode" | "prologue" | "default" }} */
   let { entity = undefined, class: className = "flex w-full justify-center gap-1.5", layout = "default" } = $props();
 
   let is_storymode = $derived(layout === "storymode");
+  let is_prologue = $derived(layout === "prologue");
 
-  let badge_size_class = $derived(is_storymode ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]");
+  let badge_size_class = $derived(is_storymode ? "" : "");
 
   // In storymode, set only the height and use aspect-ratio for a perfect 1:1 square.
   // Subtract the inter-badge gap so two badges + gap = exactly the card width above.
   // flex-shrink: 0 prevents the flex container from compressing the width.
   let badge_size_style = $derived(
-    is_storymode ? "height: calc((var(--spacing-character-card-width) - var(--spacing-gap-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;" : "",
+    is_storymode
+      ? "height: calc((var(--spacing-character-card-width) - var(--spacing-gap-standard)) / 2); aspect-ratio: 1 / 1; flex-shrink: 0;"
+      : is_prologue
+        ? "flex: 1 1 0%; aspect-ratio: 1 / 1; min-width: 0;"
+        : "",
   );
 
-  let opacity_class = $derived(is_storymode ? "opacity-100" : "opacity-70 hover:opacity-100");
+  let opacity_class = $derived(is_storymode || is_prologue ? "opacity-100" : "opacity-70 hover:opacity-100");
 
   // Storymode hover zoom — same utilities the entity cards use
   let hover_zoom_class = $derived(is_storymode ? "hover:scale-lift hover:brightness-glow" : "");
@@ -114,18 +122,17 @@
           items-center
           justify-center
           overflow-hidden
-          rounded-none
           border
           border-solid
           border-(--signature-color)
           bg-black/40
           {opacity_class}
           {hover_zoom_class}
+          rounded-[clamp(0.5rem,9cqi,1rem)]
           shadow-md
           transition-all
           duration-300
           ease-in-out
-          md:rounded-2xl
         "
       >
         <div
@@ -166,18 +173,17 @@
           items-center
           justify-center
           overflow-hidden
-          rounded-none
           border
           border-solid
           border-(--signature-color)
           bg-black/40
           {opacity_class}
           {hover_zoom_class}
+          rounded-[clamp(0.5rem,9cqi,1rem)]
           shadow-md
           transition-all
           duration-300
           ease-in-out
-          md:rounded-2xl
         "
       >
         <div

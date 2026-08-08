@@ -37,6 +37,11 @@ export function make_card_clone(el, tag, z) {
   clone.style.filter = "brightness(1.12) drop-shadow(0 calc(var(--spacing-unit, 4px) * 3) calc(var(--spacing-unit, 4px) * 5) rgba(0, 0, 0, 0.55))";
   clone.removeAttribute("data-scrub-hidden");
   clone.removeAttribute("data-scrub-prev-tabindex");
+  // Flight clones are visual-only: strip the card's click/hover affordance so
+  // they never LOOK interactive mid-flight (the cloned inner wrapper hard-sets
+  // pointer-events:auto, which would otherwise keep hover/cursor alive).
+  clone.style.cursor = "default";
+  clone.querySelectorAll(".pointer-events-auto").forEach((n) => n.style.setProperty("pointer-events", "none", "important"));
   strip_card_text(clone);
   document.body.appendChild(clone);
   return clone;

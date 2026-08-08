@@ -29,12 +29,12 @@ function clamp(v, lo, hi) {
 }
 
 // ── HIDDEN-STATE MECHANISM ────────────────────────────────────────────────
-// Cards are hidden via a `data-scrub-hidden` attribute enforced with
-// `!important` CSS rather than inline styles. Inline opacity is owned by
-// EntityCard's `style:opacity` binding (e.g. the profile view-transition
-// morph), which would silently wipe a manually-set inline opacity — the cause
-// of "hidden" cards popping back when a profile closes. `!important` beats
-// that binding, and the descendant rule defeats EntityCard's
+// Cards (and the fractal style badge) are hidden via a `data-scrub-hidden`
+// attribute enforced with `!important` CSS rather than inline styles. Inline
+// opacity is owned by EntityCard's `style:opacity` binding (e.g. the profile
+// view-transition morph), which would silently wipe a manually-set inline
+// opacity — the cause of "hidden" cards popping back when a profile closes.
+// `!important` beats that binding, and the descendant rule defeats EntityCard's
 // `pointer-events-auto` inner wrapper, so hidden cards are truly unclickable.
 let scrub_style_injected = false;
 
@@ -43,12 +43,12 @@ function ensure_scrub_style() {
   scrub_style_injected = true;
   const style = document.createElement("style");
   style.textContent =
-    "[data-card-root][data-scrub-hidden]{opacity:0!important;transition:none!important}" +
-    "[data-card-root][data-scrub-hidden], [data-card-root][data-scrub-hidden] *{pointer-events:none!important}";
+    "[data-scrub-hidden]{opacity:0!important;transition:none!important}" +
+    "[data-scrub-hidden], [data-scrub-hidden] *{pointer-events:none!important}";
   document.head.appendChild(style);
 }
 
-/** Instantly hides a card while keeping its layout box. */
+/** Instantly hides an element while keeping its layout box. */
 function hide_card(el) {
   if (!el) return;
   ensure_scrub_style();
@@ -59,7 +59,7 @@ function hide_card(el) {
   }
 }
 
-/** Reveals a card, letting its own transition fade it back in. */
+/** Reveals an element, letting its own transition fade it back in. */
 function show_card(el) {
   if (!el) return;
   if (!el.hasAttribute("data-scrub-hidden")) return;
@@ -82,9 +82,30 @@ function show_msg_cards() {
   for (const type of CARD_TYPES) show_card(msg_card(type));
 }
 
+// The fractal's style badge travels with its card: message (under the prologue
+// fractal card) ↔ storymode panel (under the fractal panel).
+function msg_badge() {
+  return document.querySelector("[data-msg-prologue] [data-msg-style-badge]");
+}
+function panel_badge() {
+  return document.querySelector("[data-panel-style-badge]");
+}
+function hide_msg_badge() {
+  hide_card(msg_badge());
+}
+function show_msg_badge() {
+  show_card(msg_badge());
+}
+function hide_panel_badge() {
+  hide_card(panel_badge());
+}
+function show_panel_badge() {
+  show_card(panel_badge());
+}
+
 /** Removes every hidden style and scrub clone (e.g. when storymode unmounts). */
 export function clear_card_location() {
-  document.querySelectorAll("[data-card-root]").forEach(show_card);
+  document.querySelectorAll("[data-card-root], [data-msg-style-badge], [data-panel-style-badge]").forEach(show_card);
   dispose_scrub_clones();
 }
 
@@ -111,15 +132,64 @@ function make_scrub_clone(src) {
   clone.removeAttribute("data-scrub-prev-tabindex");
   strip_card_text(clone);
   document.body.appendChild(clone);
+  // Mid-scroll clicking: route the click to the real card so the SAME context
+  // menu opens (anchored at the cursor). The clone itself has no handlers.
+  clone.addEventListener("click", (e) => {
+    if (!src?.isConnected) return;
+    src.dispatchEvent(new MouseEvent("click", { bubbles: true, cancelable: true, view: window, clientX: e.clientX, clientY: e.clientY }));
+  });
   return clone;
 }
 
 function dispose_scrub_clones() {
+  if (scrub_badge_clone) {
+    scrub_badge_clone.remove();
+    scrub_badge_clone = null;
+  }
   if (!scrub_clones) return;
   for (const type of CARD_TYPES) {
     if (scrub_clones[type]) scrub_clones[type].remove();
   }
   scrub_clones = null;
+}
+
+let scrub_badge_clone = null;
+
+/** Fixed-position art-only clone of the fractal style badge strip. */
+function make_badge_scrub_clone(src) {
+  const clone = src.cloneNode(true);
+  clone.setAttribute("data-scrub-clone", "true");
+  clone.setAttribute("aria-hidden", "true");
+  clone.style.position = "fixed";
+  clone.style.margin = "0";
+  clone.style.zIndex = "9996";
+  clone.style.pointerEvents = "none";
+  clone.style.transition = "none";
+  clone.style.opacity = "";
+  clone.style.left = "0";
+  clone.style.top = "0";
+  clone.style.width = "0";
+  clone.style.height = "0";
+  clone.style.willChange = "left, top, width, height";
+  clone.style.removeProperty("view-transition-name");
+  clone.removeAttribute("data-scrub-hidden");
+  clone.removeAttribute("data-scrub-prev-tabindex");
+  document.body.appendChild(clone);
+  return clone;
+}
+
+/** Positions the badge scrub clone along the same p as the cards. */
+function place_badge_clone(p, shift) {
+  const src = msg_badge();
+  const dst = panel_badge();
+  if (!scrub_badge_clone || !src || !dst) return;
+  const start = rect_of(src);
+  const end = rect_of(dst);
+  const start_top = start.top - shift;
+  scrub_badge_clone.style.left = `${start.left + (end.left - start.left) * p}px`;
+  scrub_badge_clone.style.top = `${start_top + (end.top - start_top) * p}px`;
+  scrub_badge_clone.style.width = `${start.width + (end.width - start.width) * p}px`;
+  scrub_badge_clone.style.height = `${start.height + (end.height - start.height) * p}px`;
 }
 
 let begin_flight_running = false;
@@ -137,6 +207,7 @@ export function update_card_scrub({ pending = false } = {}) {
   // the flight (hidden until each card lands); only keep the panels stowed.
   if (pending || begin_flight_running) {
     hide_panels();
+    hide_panel_badge();
     dispose_scrub_clones();
     return;
   }
@@ -156,9 +227,13 @@ export function update_card_scrub({ pending = false } = {}) {
     if (p > 0.5) {
       show_panels();
       hide_msg_cards();
+      show_panel_badge();
+      hide_msg_badge();
     } else {
       show_msg_cards();
       hide_panels();
+      show_msg_badge();
+      hide_panel_badge();
     }
     dispose_scrub_clones();
     return;
@@ -167,12 +242,16 @@ export function update_card_scrub({ pending = false } = {}) {
   if (p <= 0) {
     show_msg_cards();
     hide_panels();
+    show_msg_badge();
+    hide_panel_badge();
     dispose_scrub_clones();
     return;
   }
   if (p >= 1) {
     show_panels();
     hide_msg_cards();
+    show_panel_badge();
+    hide_msg_badge();
     dispose_scrub_clones();
     return;
   }
@@ -180,12 +259,18 @@ export function update_card_scrub({ pending = false } = {}) {
   // 0 < p < 1 — the cards travel with the scroll wheel.
   hide_msg_cards();
   hide_panels();
+  hide_msg_badge();
+  hide_panel_badge();
   if (!scrub_clones) {
     scrub_clones = {};
     for (const type of CARD_TYPES) {
       const src = msg_card(type);
       scrub_clones[type] = src ? make_scrub_clone(src) : null;
     }
+  }
+  if (!scrub_badge_clone) {
+    const bsrc = msg_badge();
+    scrub_badge_clone = bsrc ? make_badge_scrub_clone(bsrc) : null;
   }
   const vp_rect = vp.getBoundingClientRect();
   const shift = row.getBoundingClientRect().top - vp_rect.top;
@@ -205,6 +290,7 @@ export function update_card_scrub({ pending = false } = {}) {
     clone.style.width = `${start.width + (end.width - start.width) * p}px`;
     clone.style.height = `${start.height + (end.height - start.height) * p}px`;
   }
+  place_badge_clone(p, shift);
 }
 
 // ── BEGIN-STORY FLIGHT ─────────────────────────────────────────────────────
@@ -224,6 +310,16 @@ export function capture_storyboard_flight(enabled = { ai: true, fractal: true, u
     retained.style.removeProperty("view-transition-name");
     assets.clones[type] = retained;
     assets.rects[type] = rect_of(root);
+  }
+  // The fractal's style badge (overlay on the storyboard fractal card) rides
+  // the flight and lands under the prologue's fractal card.
+  if (enabled.fractal) {
+    const badge_root = document.querySelector(`[data-slot-type="fractal"] [data-card-badge]`);
+    if (badge_root) {
+      const retained = badge_root.cloneNode(true);
+      retained.style.removeProperty("view-transition-name");
+      assets.badge = { clone: retained, rect: rect_of(badge_root) };
+    }
   }
   return assets.clones.ai || assets.clones.fractal || assets.clones.user ? assets : null;
 }
@@ -328,6 +424,27 @@ export async function fly_storyboard_cards_into_prologue(assets, dst_rects = {})
       }),
     );
   });
+
+  // The fractal's style badge strip flies just under the fractal card and
+  // lands below the prologue message's fractal card.
+  const badge_src = assets.badge?.clone;
+  const badge_from = assets.badge?.rect;
+  const badge_dst = document.querySelector("[data-msg-prologue] [data-msg-style-badge]");
+  if (badge_src && badge_from && badge_dst) {
+    const badge_to = badge_dst.getBoundingClientRect();
+    jobs.push(
+      new Promise((resolve) => {
+        cover_flight(badge_src, badge_from, badge_to, {
+          tag: "data-begin-flight",
+          z: 9995,
+          duration: 420,
+          delay: 110,
+          on_clone: (clone) => clone.style.removeProperty("view-transition-name"),
+        }).then(resolve);
+      }),
+    );
+  }
+
   await Promise.all(jobs);
   begin_flight_running = false;
 }

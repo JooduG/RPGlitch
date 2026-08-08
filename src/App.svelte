@@ -437,7 +437,9 @@
               }}
             />
           </div>
-          <StyleBadge entity={app.selected_fractal} layout="storymode" class="flex w-full justify-center gap-gap-standard" />
+          <div data-panel-style-badge>
+            <StyleBadge entity={app.selected_fractal} layout="storymode" class="flex w-full justify-center gap-gap-standard" />
+          </div>
         </div>
       {:else}
         <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">

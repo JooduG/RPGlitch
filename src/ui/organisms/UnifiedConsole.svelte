@@ -240,6 +240,7 @@
 
   const storyboard = {
     async shuffle() {
+      if (app.simulation.loading) return;
       if (!app.ai_list.length) {
         await app.load_entities();
       }
@@ -578,6 +579,11 @@
     style:view-transition-name="unified-console"
     data-testid="unified-console"
   >
+    {#if app.simulation.loading}
+      <div class="pointer-events-none absolute inset-0 z-30 overflow-hidden rounded-[inherit]" aria-hidden="true">
+        <div class="console-shimmer h-full w-full"></div>
+      </div>
+    {/if}
     <!-- ACCORDION SETTINGS (VERTICAL EXPANSION) -->
     <div
       class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open
@@ -765,7 +771,7 @@
                 ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
                 : undefined}
             >
-              {app.simulation.loading ? "NARRATING PROLOGUE…" : label_text}
+              {app.simulation.loading ? "WRITING PROLOGUE…" : label_text}
             </h6>
           </Button>
         {/if}
@@ -774,7 +780,7 @@
           flank={true}
           variant="invisible"
           aria-label="Shuffle Entities"
-          disabled={app.control_panel_open}
+          disabled={app.control_panel_open || app.simulation.loading}
           onclick={() => storyboard.shuffle()}
           actions={[shimmy, tooltip]}
           class="touch-target-coarse"
@@ -898,6 +904,27 @@
 </div>
 
 <style>
+  /* Prologue-writing shimmer — a light band sweeps the console left-to-right
+     while loading (reading/progress direction). Animated via background-position
+     (NOT transform): the console carries a view-transition-name, and transform
+     keyframe animations freeze on view-transition-captured elements. */
+  .console-shimmer {
+    position: absolute;
+    background: linear-gradient(115deg, transparent 42%, color-mix(in srgb, var(--color-electric-cyan) 10%, transparent) 50%, transparent 58%);
+    background-size: 250% 100%;
+    animation: console-shimmer-sweep 2.4s linear infinite;
+  }
+
+  @keyframes console-shimmer-sweep {
+    0% {
+      background-position: 100% 0;
+    }
+
+    100% {
+      background-position: -150% 0;
+    }
+  }
+
   /* Shuffle deal reveal — flying clones are art-only (strip_card_text); the
      landed cards fade their text/badges back in after arrival. */
   :global(.deal-reveal [data-card-text]),
