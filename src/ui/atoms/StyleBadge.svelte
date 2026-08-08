@@ -27,7 +27,7 @@
   let is_storymode = $derived(layout === "storymode");
   let is_prologue = $derived(layout === "prologue");
 
-  let badge_size_class = $derived(is_storymode ? "" : "");
+  let badge_size_class = $derived(is_storymode || is_prologue ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]");
 
   // In storymode, set only the height and use aspect-ratio for a perfect 1:1 square.
   // Subtract the inter-badge gap so two badges + gap = exactly the card width above.

@@ -489,7 +489,7 @@
       duration-300
       ease-in-out
 
-      {app.view === 'storymode' && variant !== 'library' && variant !== 'message'
+      {app.view === 'storymode' && variant !== 'library'
       ? `
         opacity-0
         group-hover:opacity-100
