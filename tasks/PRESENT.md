@@ -35,6 +35,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 > **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\.gemini\antigravity-ide\archive\`.
 
+- [~] refactor-ui-deconstruction-2026-08-08: Deconstruct and refactor Storymode, Message, DevTelemetryBlock, and UnifiedConsole into modular Svelte 5 runes-driven component suites under clean namespaces.
 - [x] feature-2026-07-28-bayesian-psychology: Bayesian Psychology Engine — vector categories, attachment presets, evidence classification + trigger amplification, cognitive state signal, goal arbitration tension, neuroplasticity (6 adaptations, 0 new LLM calls, 0 new UI).
 - [x] fix-2026-07-22-storymode-bugs: Storymode & Import UX Bug Fixes (Import modal styling/z-index, Prologue/Epilogue 3-card layout & inline images, Audio playback non-interruption, Session reset on End Story, Ghostwriter function binding, and Library deduplication).
 - [x] feature-2026-07-22-storymode-enhancements: Storymode & UI Feature Enhancements (Core UI refinements, dual entity import, Ghostwriter prompt compiler, dynamic peak & prologue/epilogue inline image generation, Prologue/Epilogue layout, and Fractal female premade voices).
