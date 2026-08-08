@@ -133,4 +133,24 @@ describe("story entity claims", () => {
     const record = await stories.get(String(id));
     expect(record.is_concluded).toBe(1);
   });
+
+  it("deletes a story's simulation log regardless of id form (numeric or string)", async () => {
+    const { db, init } = await import("./db.js");
+    await init();
+    const { stories } = await import("./repository.js");
+
+    const id = await db.stories.add({ title: "Delete Me", ai_id: "d1", user_id: "d2", fractal_id: "d3", round: 1, created_at: 1, updated_at: 1 });
+    await db.simulation_log.add({ story_id: String(id), role: "fractal", type: "text", text: "one", created_at: 2 });
+    await db.simulation_log.add({ story_id: String(id), role: "fractal", type: "text", text: "two", created_at: 3 });
+
+    await stories.delete(id); // numeric id exactly as stories.list() returns it
+
+    expect(
+      await db.simulation_log
+        .where("story_id")
+        .anyOf([String(id), id])
+        .count(),
+    ).toBe(0);
+    expect(await db.stories.get(id)).toBeUndefined();
+  });
 });

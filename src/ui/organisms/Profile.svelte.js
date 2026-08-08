@@ -65,9 +65,9 @@ export class ProfileState {
    * @type {boolean}
    */
   get can_edit() {
-    if (app?.settings?.dev_mode) return true;
+    if (app.settings.dev_mode) return true;
     if (!this.char?.id) return true;
-    return !app.claimed_entity_ids?.has(String(this.char.id));
+    return !app.claimed_entity_ids.has(String(this.char.id));
   }
 
   /**

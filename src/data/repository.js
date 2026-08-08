@@ -296,7 +296,10 @@ export const stories = {
    * @param {any} id
    */
   async delete(id) {
-    await db.simulation_log.where("story_id").equals(id).delete();
+    // Log entries persist story_id as a string while stories.list() returns the
+    // numeric auto-increment key — match both forms so orphaned rows never leak.
+    const ids = [...new Set([String(id), id])];
+    await db.simulation_log.where("story_id").anyOf(ids).delete();
     return db.stories.delete(coerce_story_key(id));
   },
 };
@@ -333,22 +336,4 @@ export function prune(vectors) {
       meta: v.meta || {},
     }));
   return [...past, ...future];
-}
-
-/**
- * @param {any} snapshot
- */
-export function hydrate(snapshot) {
-  if (!snapshot) return null;
-  // Zero Data Loss: if it's already an entity, return as is
-  if (snapshot.fragments) return snapshot;
-
-  return {
-    id: snapshot.id,
-    name: snapshot.n || snapshot.name || "Unknown",
-    fragments: {
-      present: { non_physical: snapshot.p || "" },
-      eternal: { non_physical: snapshot.e || "" },
-    },
-  };
 }

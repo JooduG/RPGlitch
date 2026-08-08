@@ -473,7 +473,7 @@ function create_runtime_store() {
     update_entity: async (type, id, data) => {
       try {
         if (type === "story") {
-          await db.stories.update(id, data);
+          await db.stories.update(coerce_story_key(id), data);
           if (simulation_story_id === id) {
             Object.assign(simulation_story.by_id[id] || {}, data);
           }
