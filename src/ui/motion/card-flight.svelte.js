@@ -35,6 +35,8 @@ export function make_card_clone(el, tag, z) {
   clone.style.transition = "none";
   clone.style.opacity = ""; // source may be hidden for the flight; the clone must be visible
   clone.style.filter = "brightness(1.12) drop-shadow(0 calc(var(--spacing-unit, 4px) * 3) calc(var(--spacing-unit, 4px) * 5) rgba(0, 0, 0, 0.55))";
+  clone.removeAttribute("data-scrub-hidden");
+  clone.removeAttribute("data-scrub-prev-tabindex");
   strip_card_text(clone);
   document.body.appendChild(clone);
   return clone;

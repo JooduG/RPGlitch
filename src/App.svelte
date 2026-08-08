@@ -413,12 +413,7 @@
         <div
           class="pointer-events-none flex h-full w-full flex-col items-center justify-center gap-gap-standard transition-transform duration-300 md:translate-x-[calc(var(--spacing-column-unit)*0.5)]"
         >
-          <div
-            class="pointer-events-auto flex w-full items-center justify-center"
-            style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_ai?.id
-              ? "entity-morph-ai"
-              : undefined}
-          >
+          <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="ai">
             <EntityCard
               variant="panel"
               type="ai"
@@ -430,12 +425,7 @@
               }}
             />
           </div>
-          <div
-            class="pointer-events-auto flex w-full items-center justify-center"
-            style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_fractal?.id
-              ? "entity-morph-fractal"
-              : undefined}
-          >
+          <div class="pointer-events-auto flex w-full items-center justify-center" data-panel-card="fractal">
             <EntityCard
               variant="panel"
               type="fractal"
@@ -450,13 +440,7 @@
           <StyleBadge entity={app.selected_fractal} layout="storymode" class="flex w-full justify-center gap-gap-standard" />
         </div>
       {:else}
-        <div
-          class="flex h-full w-full items-center justify-center"
-          data-slot-type="ai"
-          style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === app.selected_ai?.id
-            ? "entity-morph-ai"
-            : undefined}
-        >
+        <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
           <EntityCard
             variant={app.selected_ai ? "panel" : "slot"}
             type="ai"
@@ -481,13 +465,7 @@
           <Skeleton variant="card" width="100%" height="100%" />
         {:else}
           {@const entity = app.selected_fractal}
-          <div
-            class="flex h-full w-full items-center justify-center"
-            data-slot-type="fractal"
-            style:view-transition-name={app.transitioning_profile && !app.profile_open && app.transition_target_id === entity?.id
-              ? "entity-morph-fractal"
-              : undefined}
-          >
+          <div class="flex h-full w-full items-center justify-center" data-slot-type="fractal">
             <EntityCard
               variant={entity ? "panel" : "slot"}
               type="fractal"
@@ -509,7 +487,7 @@
           {#if !app.entities_loaded}
             <Skeleton variant="card" width="100%" height="100%" />
           {:else}
-            <Storymode />
+            <Storymode card_actions={{ ai: ai_actions, user: user_actions, fractal: fractal_actions }} />
           {/if}
         </div>
       {/if}
@@ -525,7 +503,7 @@
             ? 'transition-transform duration-300 md:translate-x-[calc(-0.5*var(--spacing-column-unit))]'
             : ''}"
           data-slot-type="user"
-          style:view-transition-name={app.transitioning_profile && app.transition_target_id === entity?.id ? "entity-morph-user" : undefined}
+          data-panel-card="user"
         >
           <EntityCard
             variant={app.view === "storymode" ? "panel" : entity ? "panel" : "slot"}

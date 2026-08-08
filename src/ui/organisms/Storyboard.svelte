@@ -6,6 +6,7 @@
    * 1. Generates a randomized "cinematic" title.
    * 2. Supports direct editing via contenteditable.
    */
+  import { untrack } from "svelte";
   import { tooltip } from "@atoms";
   import { pick_random } from "@utils";
   import { get_signature_color } from "@media";
@@ -32,20 +33,41 @@
   const get_color = (entity) => get_signature_color(entity);
 
   /**
+   * The rolled title prefix (e.g. "The Story of"). Rolls exactly ONCE per
+   * regenerate_title() call — never on selection changes — so a single shuffle
+   * deal produces exactly one title re-roll; the entity-name updates simply
+   * follow the deal as the cards land.
+   */
+  let prefix_roll = $state(roll_prefix());
+  let last_roll_key = $state(app.card_hand.regenerate_count);
+
+  function roll_prefix() {
+    return untrack(() => {
+      const has_entities = !!(app.selected_ai || app.selected_user);
+      const has_fractal = !!app.selected_fractal;
+      return pick_random(has_fractal && !has_entities ? PREFIXES.FRACTAL : PREFIXES.STANDARD);
+    });
+  }
+
+  $effect(() => {
+    const key = app.card_hand.regenerate_count;
+    if (key === last_roll_key) return;
+    last_roll_key = key;
+    prefix_roll = roll_prefix();
+  });
+
+  /**
    * Generates structured title parts with entity colors
    */
   let title_parts = $derived.by(() => {
     if (is_custom && custom_title) return [{ text: custom_title }];
-
-    // Trigger on regenerate
-    void app.card_hand.regenerate_count;
 
     const { selected_ai: ai, selected_user: user, selected_fractal: fractal } = app;
     const has_entities = ai || user;
     const has_fractal = !!fractal;
 
     if (has_entities && has_fractal) {
-      const prefix = pick_random(PREFIXES.STANDARD);
+      const prefix = prefix_roll || pick_random(PREFIXES.STANDARD);
       /** @type {Array<{text: string, color?: string, no_gap?: boolean}>} */
       const parts = [{ text: `${prefix} ` }];
 
@@ -68,7 +90,7 @@
     }
 
     if (has_entities) {
-      const prefix = pick_random(PREFIXES.STANDARD);
+      const prefix = prefix_roll || pick_random(PREFIXES.STANDARD);
       /** @type {Array<{text: string, color?: string, no_gap?: boolean}>} */
       const parts = [{ text: `${prefix} ` }];
 
@@ -87,7 +109,7 @@
     }
 
     if (has_fractal) {
-      const prefix = pick_random(PREFIXES.FRACTAL);
+      const prefix = prefix_roll || pick_random(PREFIXES.FRACTAL);
       const parts = [{ text: `${prefix} ` }, { text: fractal.name, color: get_color(fractal) }];
       return parts;
     }

@@ -51,6 +51,8 @@
     is_editing = false,
     on_save = undefined,
     on_cancel = undefined,
+    /** @type {{ ai: any[], user: any[], fractal: any[] }} */
+    card_actions = { ai: [], user: [], fractal: [] },
   } = $props();
 
   // --- STATE RUNES ---
@@ -481,20 +483,28 @@
               {/if}
             </h2>
           {/if}
-          <div class="mb-4 flex h-character-card-height w-full items-stretch gap-2 md:gap-4">
+          <div class="mb-4 flex h-character-card-height w-full items-stretch gap-2 md:gap-4" data-msg-prologue={meta?.is_prologue ? "" : undefined}>
             {#if runtime.active_ai || app.selected_ai}
               {@const a = runtime.active_ai || app.selected_ai}
-              <div class="min-w-0" style="flex-grow: 1">
-                <EntityCard entity={a} type="ai" variant="message" onclick={() => app.open_profile(a)} onViewProfile={() => app.open_profile(a)} />
+              <div class="min-w-0" style="flex-grow: 1" data-msg-card="ai">
+                <EntityCard
+                  entity={a}
+                  type="ai"
+                  variant="message"
+                  actions={card_actions.ai}
+                  onclick={() => app.open_profile(a)}
+                  onViewProfile={() => app.open_profile(a)}
+                />
               </div>
             {/if}
             {#if runtime.active_fractal || app.selected_fractal}
               {@const f = runtime.active_fractal || app.selected_fractal}
-              <div class="min-w-0" style="flex-grow: 2">
+              <div class="min-w-0" style="flex-grow: 2" data-msg-card="fractal">
                 <EntityCard
                   entity={f}
                   type="fractal"
                   variant="message"
+                  actions={card_actions.fractal}
                   onclick={() => app.open_profile(f)}
                   onViewProfile={() => app.open_profile(f)}
                 />
@@ -502,8 +512,15 @@
             {/if}
             {#if runtime.active_user || app.selected_user}
               {@const u = runtime.active_user || app.selected_user}
-              <div class="min-w-0" style="flex-grow: 1">
-                <EntityCard entity={u} type="user" variant="message" onclick={() => app.open_profile(u)} onViewProfile={() => app.open_profile(u)} />
+              <div class="min-w-0" style="flex-grow: 1" data-msg-card="user">
+                <EntityCard
+                  entity={u}
+                  type="user"
+                  variant="message"
+                  actions={card_actions.user}
+                  onclick={() => app.open_profile(u)}
+                  onViewProfile={() => app.open_profile(u)}
+                />
               </div>
             {/if}
           </div>
@@ -707,6 +724,12 @@
 {/if}
 
 <style>
+  /* Prologue inline cards are art-only — the names/descriptions are removed so
+     the cards stay clean while they travel (and scale) with the scroll scrub. */
+  :global([data-msg-prologue] [data-card-text]) {
+    display: none !important;
+  }
+
   @keyframes scan {
     from {
       transform: translateX(-100%) skewX(-20deg);

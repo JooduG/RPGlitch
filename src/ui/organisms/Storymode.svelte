@@ -8,17 +8,23 @@
    * 3. Integrated with design language & Chess Grid.
    * 4. Progressive sentence-by-sentence text-to-speech parsing with cognition shield filters.
    */
-  import { tick } from "svelte";
+  import { tick, onDestroy } from "svelte";
   import { Button, ScrollArea } from "@atoms";
   import { clean_image_prompts } from "@intelligence";
   import { Audio } from "@media";
   import { chrono_engine } from "@engine";
   import { app, runtime, simulation_log, simulation_state } from "@state";
-  import { motion, item_in } from "@motion";
+  import { motion, item_in, update_card_scrub, clear_card_location } from "@motion";
   import { Dialog } from "@molecules";
   import { Message } from "@organisms";
 
   // --- STATE ---
+  /**
+   * Context-menu action sets for the three entity slots, forwarded from
+   * App.svelte so the prologue message cards offer the same menu as the panels.
+   * @type {{ ai: any[], user: any[], fractal: any[] }}
+   */
+  let { card_actions = { ai: [], user: [], fractal: [] } } = $props();
   /** @type {HTMLDivElement | null} */
   let scroll_ref = $state(null);
   let show_delete_confirm = $state(false);
@@ -187,6 +193,16 @@
 
   let user_scrolled_up = $state(false);
 
+  // Scroll-linked entity card scrub: recompute on every scroll frame.
+  let scrub_raf = 0;
+  function schedule_scrub() {
+    if (scrub_raf) return;
+    scrub_raf = requestAnimationFrame(() => {
+      scrub_raf = 0;
+      update_card_scrub({ pending: app.begin_story_pending });
+    });
+  }
+
   $effect(() => {
     if (!scroll_ref) return;
     const el = scroll_ref.querySelector(".scroll-area-viewport");
@@ -195,6 +211,7 @@
     const handle_scroll = () => {
       const distance_to_bottom = el.scrollHeight - el.scrollTop - el.clientHeight;
       user_scrolled_up = distance_to_bottom > 10;
+      schedule_scrub();
     };
 
     el.addEventListener("scroll", handle_scroll, { passive: true });
@@ -207,6 +224,7 @@
   $effect(() => {
     // Read dependencies to trigger effect
     const _is_active = app.streaming.active;
+    const _pending = app.begin_story_pending;
     const current_len = visible_feed.length;
 
     if (!scroll_ref) return;
@@ -224,6 +242,15 @@
         });
       }
     };
+
+    // While a begin-story flight is landing, the feed is pinned at the top
+    // (prologue) by the flight orchestrator — the viewport must not yank to
+    // the bottom. Record the length so nothing fires once the flight clears.
+    if (_pending) {
+      last_feed_length = current_len;
+      user_scrolled_up = true;
+      return;
+    }
 
     // Reset scroll lock when a new message is posted to the feed (e.g. USER message submission)
     if (current_len > last_feed_length) {
@@ -247,6 +274,30 @@
       observer.observe(el, { childList: true, subtree: true, characterData: true });
       return () => observer.disconnect();
     }
+  });
+
+  // --- ENTITY CARD SCRUB (scroll-linked prologue message ↔ side panels) ---
+
+  // Re-scrub whenever the begin-flight state or the feed changes.
+  $effect(() => {
+    const _pending = app.begin_story_pending;
+    const _len = visible_feed.length;
+    if (scroll_ref) schedule_scrub();
+  });
+
+  // Keep the scrub honest across viewport resizes and the initial mount.
+  $effect(() => {
+    if (!scroll_ref) return;
+    const vp = scroll_ref.querySelector(".scroll-area-viewport");
+    if (!vp) return;
+    const observer = new ResizeObserver(() => schedule_scrub());
+    observer.observe(vp);
+    schedule_scrub();
+    return () => observer.disconnect();
+  });
+
+  onDestroy(() => {
+    clear_card_location();
   });
 
   // --- ACTIONS ---
@@ -359,7 +410,11 @@
           ></span>
         </div>
       {:else}
-        <div class="w-full shrink-0" in:item_in>
+        <div
+          class="w-full shrink-0 {entry.meta?.is_prologue ? 'message--prologue' : ''}"
+          class:prologue-awaiting-flight={entry.meta?.is_prologue && app.begin_story_pending && !motion.is_reduced}
+          in:item_in={{ duration: entry.meta?.is_prologue ? 0 : 300 }}
+        >
           <Message
             id={entry.id}
             text={entry.text}
@@ -379,6 +434,7 @@
             }}
             meta={entry.meta}
             busy={entry.busy}
+            {card_actions}
           />
         </div>
       {/if}
@@ -417,5 +473,15 @@
     top: 0 !important;
     bottom: 0 !important;
     height: 100dvh !important;
+  }
+
+  /* Prologue entrance: the message fades in as the storyboard cards fly into
+     it (the awaiting class is dropped once the begin-flight starts). */
+  .message--prologue {
+    transition: opacity 650ms ease;
+  }
+
+  .message--prologue.prologue-awaiting-flight {
+    opacity: 0;
   }
 </style>

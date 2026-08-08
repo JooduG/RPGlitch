@@ -33,10 +33,17 @@ export class ChronoEngine {
       // 2. Synchronize Runtime State with the new session
       await state_bridge.runtime.sync(story_id);
 
-      // 3. Switch View (Immediate Feedback)
-      state_bridge.app.set_view("storymode");
+      // 3. Begin-story card choreography: hold the cards in "prologue" mode and
+      // suppress the card-slot view-transition morph so the cards don't fly to
+      // the side panels. The storyboard STAYS VISIBLE while the prologue
+      // generates (so the viewport is never empty); the UnifiedConsole watcher
+      // flips to storymode the moment the real prologue entry renders, then
+      // flies the storyboard cards into its message.
+      state_bridge.app.suppress_card_transitions = true;
+      state_bridge.app.begin_story_pending = true;
+      state_bridge.app._begin_flight_assets = null;
 
-      // 4. Trigger Prologue Generation
+      // 4. Trigger Prologue Generation (view remains on the storyboard)
       state_bridge.simulation_state.start_generation("fractal");
       try {
         await gamemaster.execute_prologue(story_id);
@@ -49,8 +56,25 @@ export class ChronoEngine {
         state_bridge.simulation_state.complete();
         state_bridge.app.end_stream();
       }
+
+      // The UnifiedConsole watcher consumes begin_story_pending the moment the
+      // prologue renders (it also flips the view). If it somehow never did —
+      // and no flight is mid-air (signalled by _begin_flight_assets) — flip to
+      // storymode and fall back to panel placement so the cards are never left
+      // stranded.
+      if (state_bridge.app.begin_story_pending && !state_bridge.app._begin_flight_assets) {
+        if (state_bridge.app.view !== "storymode") state_bridge.app.set_view("storymode");
+        state_bridge.app.begin_story_pending = false;
+        state_bridge.app.suppress_card_transitions = false;
+        state_bridge.app._begin_flight_assets = null;
+      }
     } catch (e) {
       console.error("[Chrono] Start Failed:", e);
+      // Failure fallback: cards live in the panels, no pending flight.
+      if (state_bridge.app.view !== "storymode") state_bridge.app.set_view("storymode");
+      state_bridge.app.begin_story_pending = false;
+      state_bridge.app.suppress_card_transitions = false;
+      state_bridge.app._begin_flight_assets = null;
       this.error = /** @type {Error} */ (e).message;
     } finally {
       state_bridge.app.simulation.loading = false;

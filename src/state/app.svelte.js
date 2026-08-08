@@ -93,6 +93,12 @@ export class AppStore {
   selected_user = $state(null);
   /** @type {any | null} */
   selected_fractal = $state(null);
+  /** True while the begin-story flight into the prologue is pending. */
+  begin_story_pending = $state(false);
+  /** Suppresses card-slot view-transition morphs during the begin-story flip. */
+  suppress_card_transitions = $state(false);
+  /** Non-reactive holder for the begin-flight clones/rects. */
+  _begin_flight_assets = null;
   /**
    * @type {string | any[]}
    */

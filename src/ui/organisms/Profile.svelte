@@ -185,12 +185,9 @@
     else if (app.selected_fractal?.id === profile_state.char.id) type = "fractal";
 
     if (!type) return undefined;
-    if (app.view === "storyboard") {
-      return "card-slot-" + type;
-    } else if (app.view === "storymode") {
-      return "entity-morph-" + type;
-    }
-    return undefined;
+    // Unified flip source: the armed entity card's root carries "card-slot-<type>"
+    // in every view (storyboard slot, storymode panel, or prologue message card).
+    return "card-slot-" + type;
   });
 
   // --- STYLELINT SAFE LAYOUT ENGINE STATES ---

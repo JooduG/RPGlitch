@@ -14,7 +14,18 @@
   import { gamemaster } from "@intelligence";
   import { Audio, get_signature_color } from "@media";
   import { Dialog, StoryCard } from "@molecules";
-  import { motion, pulse, roll, shimmy, stab, item_in, fly_card_in, fly_card_out } from "@motion";
+  import {
+    motion,
+    pulse,
+    roll,
+    shimmy,
+    stab,
+    item_in,
+    fly_card_in,
+    fly_card_out,
+    capture_storyboard_flight,
+    fly_storyboard_cards_into_prologue,
+  } from "@motion";
   import { app, runtime, simulation_state, simulation_log } from "@state";
 
   // --- CORE VIEW ENGINE STATE ---
@@ -286,6 +297,7 @@
       const picks = { ai: pick_ai, user: pick_user, fractal: pick_fractal };
       const viewport_w = window.innerWidth;
       const viewport_h = window.innerHeight;
+      let title_done = false;
 
       slots.forEach((s, i) => {
         const r = /** @type {{ left: number, top: number, width: number, height: number }} */ (s.rect);
@@ -318,7 +330,12 @@
               app.selected_ai = picks.ai;
               app.selected_user = picks.user;
               app.selected_fractal = picks.fractal;
-              if (typeof app.regenerate_title === "function") app.regenerate_title();
+              // One title roll per shuffle — each slot's on_land used to
+              // regenerate the dynamic storyboard title (3x per shuffle).
+              if (!title_done && typeof app.regenerate_title === "function") {
+                title_done = true;
+                app.regenerate_title();
+              }
             },
           });
         }, i * 90);
@@ -329,6 +346,8 @@
       }, 180 + 700);
     },
     async begin() {
+      // Reset the begin-flight latch so a fresh begin can orchestrate again.
+      begin_flight_started = false;
       if (app.settings.dev_mode) {
         app.log("Lobby Bypass Triggered (DEV_MODE)", "system");
         const selection = {
@@ -361,6 +380,53 @@
       await app.load_entities(); // Claim the new story's entities immediately
     },
   };
+
+  // --- BEGIN-STORY FLIGHT ORCHESTRATION ---
+  // chrono.start now leaves the storyboard VISIBLE while the prologue
+  // generates (no empty viewport). The moment the real prologue entry lands in
+  // the feed, we capture the storyboard cards, flip to storymode, and fly the
+  // cards from the storyboard into the prologue message.
+  let begin_flight_started = $state(false);
+  $effect(() => {
+    const _pending = app.begin_story_pending;
+    if (!_pending) return;
+    const has_real_prologue = simulation_log.feed.some((entry) => entry.meta?.is_prologue && !entry.busy);
+    if (!has_real_prologue || begin_flight_started) return;
+    begin_flight_started = true;
+    // Capture BEFORE the flip — the storyboard unmounts on the view change.
+    const assets = capture_storyboard_flight();
+    app._begin_flight_assets = assets;
+    // Defer out of the effect stack: set_view runs flushSync, which must not
+    // execute synchronously inside an effect body.
+    setTimeout(() => {
+      if (!app.begin_story_pending) return; // already handled elsewhere
+      app.set_view("storymode");
+      setTimeout(() => {
+        if (!app.begin_story_pending) return; // already handled elsewhere
+        if (!document.querySelector("[data-msg-prologue]")) {
+          // Bail gracefully: no prologue message to land in.
+          app.begin_story_pending = false;
+          app.suppress_card_transitions = false;
+          app._begin_flight_assets = null;
+          return;
+        }
+        const vp = document.querySelector("[data-id='storymode-scroll-area'] .scroll-area-viewport");
+        if (vp) vp.scrollTop = 0;
+        const dst_rects = {};
+        const row = document.querySelector("[data-msg-prologue]");
+        if (row) {
+          for (const type of ["ai", "fractal", "user"]) {
+            const card = row.querySelector(`[data-msg-card="${type}"] [data-card-root]`);
+            if (card) dst_rects[type] = card.getBoundingClientRect();
+          }
+        }
+        fly_storyboard_cards_into_prologue(assets, dst_rects);
+        app.begin_story_pending = false;
+        app.suppress_card_transitions = false;
+        app._begin_flight_assets = null;
+      }, 350);
+    }, 0);
+  });
 
   let is_ending_story = $state(false);
 
@@ -686,7 +752,7 @@
             class="group touch-target-coarse"
             data-ready={ready_to_begin}
             variant="invisible"
-            busy={!ready_to_begin}
+            busy={!ready_to_begin || app.simulation.loading}
             disabled={app.control_panel_open}
             onclick={storyboard.begin}
             actions={[pulse]}
@@ -699,7 +765,7 @@
                 ? "color: var(--color-emerald-green); text-shadow: 0 0 0.5rem color-mix(in srgb, var(--color-emerald-green) 25%, transparent);"
                 : undefined}
             >
-              {label_text}
+              {app.simulation.loading ? "NARRATING PROLOGUE…" : label_text}
             </h6>
           </Button>
         {/if}

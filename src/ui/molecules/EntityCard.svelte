@@ -12,7 +12,7 @@
   import { motion } from "@motion";
   import { app } from "@state";
   import { flushSync } from "svelte";
-  import { claim_menu, get_menu_epoch } from "./EntityCardContextMenu.svelte.js";
+  import { claim_menu, get_menu_epoch, claim_morph_epoch, get_morph_epoch } from "./EntityCardContextMenu.svelte.js";
 
   /**
    * @typedef {Object} Props
@@ -53,6 +53,9 @@
   let menu_x = $state(0);
   let menu_y = $state(0);
   let my_menu_epoch = 0;
+  // Epoch of the last time THIS card's context menu opened. Only the most
+  // recently opened menu's card is the profile-flip morph source.
+  let my_morph_epoch = 0;
 
   function open_menu_at(x, y) {
     const vw = window.innerWidth;
@@ -70,6 +73,8 @@
       menu_y = Math.min(y, vh - 200);
     }
     my_menu_epoch = claim_menu();
+    // Arm this card as the profile-flip source ("Profile" lives in the menu).
+    my_morph_epoch = claim_morph_epoch();
     menu_open = true;
     // Re-clamp after render using actual menu dimensions
     requestAnimationFrame(() => {
@@ -149,9 +154,20 @@
       return undefined;
     }
 
-    // 1. If actively transitioning profile, only target gets the transition name
+    // 0b. Suppress during the begin-story flip so the cards don't morph into
+    // the side panels — they fly into the prologue message instead.
+    if (app.suppress_card_transitions) {
+      return undefined;
+    }
+
+    // 1. If actively transitioning profile, only the ARMED source card carries
+    // the transition name (the card whose context menu opened last). This lets
+    // any card — storyboard slot, storymode panel, or prologue message card —
+    // flip into the profile, while the same entity shown elsewhere (message row
+    // + side panel) never duplicates a view-transition-name.
     if (app.transitioning_profile) {
-      if (entity?.id === app.transition_target_id) {
+      if (variant === "library") return undefined;
+      if (entity?.id === app.transition_target_id && my_morph_epoch === get_morph_epoch()) {
         return "card-slot-" + type;
       }
       return undefined;
