@@ -1,7 +1,7 @@
 import { describe, expect, test } from "vitest";
 
 /**
- * Mirror of DevTelemetryBlock's per-entity block normalization for the current
+ * Mirror of MessageDevBlock's per-entity block normalization for the current
  * `{ type, updates }` telemetry shape, producing the identical
  * `{ key, name, dynamics, physical, non_physical, eternal_physical, eternal_non_physical, new_vectors, retrieval, has_dynamics, has_mods }`
  * block the component renders.
@@ -67,7 +67,7 @@ function process_entity_blocks(meta = {}) {
 }
 
 /**
- * Mirror of DevTelemetryBlock's entity-name resolution.
+ * Mirror of MessageDevBlock's entity-name resolution.
  * @param {string} key
  * @param {any} [runtime]
  */
@@ -79,7 +79,7 @@ function resolve_entity_name(key, runtime = {}) {
 }
 
 /**
- * Mirror of DevTelemetryBlock's human-readable memory/vector type label.
+ * Mirror of MessageDevBlock's human-readable memory/vector type label.
  * @param {string} [type]
  * @param {string} [fallback]
  */
@@ -90,7 +90,7 @@ function vector_label(type, fallback) {
   return String(t).toUpperCase();
 }
 
-describe("DevTelemetryBlock Telemetry Logic", () => {
+describe("MessageDevBlock Telemetry Logic", () => {
   test("reads the updates shape into per-entity blocks (dynamics + present_mutations + new vectors)", () => {
     const meta = {
       type: "DYNAMICS_DELTA",

@@ -2,7 +2,7 @@
 // cyclic import graph (@data -> normalizer -> @platform -> @intelligence -> kernel
 // -> @media -> optics -> @data), and under vitest's transformed-module semantics an
 // export is only readable once its re-export statement in this file has executed.
-// Being last, it was `undefined` when fragments.js/optics.js read it during the cycle.
+// Being last, it was `undefined` when fragments.js/image-prompts.js read it during the cycle.
 export { PROTOCOL_LIBRARY } from "./definitions/protocols.js";
 export { seed_premades, stories, entities, prune } from "./repository.js";
 export { db, init, set_versionchange_quiesce } from "./db.js";

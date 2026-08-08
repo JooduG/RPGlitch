@@ -1,5 +1,5 @@
 /**
- * src/utils/vectors.js
+ * src/utils/embedding-serialization.js
  * 🧬 VECTOR UTILITIES — Embedding serialization for durable storage.
  * The repository layer round-trips records through JSON.stringify, which
  * flattens Float32Array into a bare {"0":…} object. These helpers convert

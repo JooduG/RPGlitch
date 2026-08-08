@@ -1,6 +1,6 @@
 <script>
   /**
-   * @file DevTelemetryBlock.svelte
+   * @file MessageDevBlock.svelte
    * ðŸ“¡ THE TELEMETRY MODULE
    * Renders internal simulation physics, state changes (deltas), and memory vectors.
    */

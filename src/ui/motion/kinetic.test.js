@@ -40,7 +40,7 @@ describe("kinetic utilities", () => {
       action.destroy?.();
     });
 
-    it("starts return animation on stop and maintains dataset (managed by use-actions)", () => {
+    it("starts return animation on stop and maintains dataset (managed by actions)", () => {
       const action = pulse(node);
       node.dispatchEvent(new MouseEvent("mouseenter"));
 

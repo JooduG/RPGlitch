@@ -1,4 +1,4 @@
-import { safe_html } from "./use-actions.js";
+import { safe_html } from "./actions.js";
 import * as security from "@platform";
 import { beforeEach, describe, expect, test, vi } from "vitest";
 vi.mock("@platform/security.js", async (importOriginal) => {

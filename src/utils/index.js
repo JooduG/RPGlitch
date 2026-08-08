@@ -6,12 +6,11 @@
  */
 
 export * from "./ui-helpers.js";
-export * from "./use-actions.js";
+export * from "./actions.js";
 export * from "./field-path.js";
 export * from "./markdown.js";
 export * from "./crypto.js";
 export * from "./xml.js";
 export * from "./bridges.js";
 export * from "./text.js";
-export * from "./vectors.js";
-export * from "./physical-xml.js";
+export * from "./embedding-serialization.js";

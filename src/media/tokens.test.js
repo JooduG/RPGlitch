@@ -3,7 +3,7 @@
  * Ported from legacy entities.test.js
  */
 import { get_signature_color, get_signature_label, get_deterministic_color } from "./tokens.js";
-import { aesthetic_resolver } from "./optics.js";
+import { aesthetic_resolver } from "./image-prompts.js";
 import { describe, expect, test } from "vitest";
 describe("Tokens Color Generation", () => {
   const get_signature = (/** @type {any} */ e) => get_signature_color(e);

@@ -9,7 +9,7 @@
    */
   import { Skeleton, Tooltip, StyleBadge } from "@atoms";
   import {
-    ImageRegenerate,
+    ImagePicker,
     ImagePreview,
     open_image_preview,
     close_image_preview,
@@ -392,7 +392,7 @@
   </div>
 
   <ImagePreview />
-  <ImageRegenerate />
+  <ImagePicker />
 
   <!--
     PERSISTENT LAYOUT — single instance always in the DOM.

@@ -7,4 +7,5 @@ export { default as Layout } from "./Layout.svelte";
 export { default as ProfileHeader } from "./ProfileHeader.svelte";
 export { default as UnifiedConsole } from "./UnifiedConsole.svelte";
 export { default as Message } from "./Message.svelte";
+export { default as MessageDevBlock } from "./MessageDevBlock.svelte";
 export * from "./Profile.svelte.js";

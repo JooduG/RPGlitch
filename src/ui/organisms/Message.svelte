@@ -9,7 +9,8 @@
   import { Button, DataBox, StyleBadge, TextField, tooltip } from "@atoms";
   import { parse_message, resolve_voice_register } from "@intelligence";
   import { Audio, get_resolution, get_signature_color } from "@media";
-  import { DevTelemetryBlock, EntityCard, image_regenerate, open_picker } from "@molecules";
+  import MessageDevBlock from "./MessageDevBlock.svelte";
+  import { EntityCard, image_picker, open_picker } from "@molecules";
   import { Typewriter } from "@motion";
   import { app, runtime, simulation_state } from "@state";
 
@@ -161,8 +162,8 @@
       if (w && h) return { width: w, height: h };
     }
     let mode = typeof attachment === "object" && (attachment?.metadata?.mode || attachment?.mode);
-    if (!mode && image_regenerate.regenerating_key === regenerate_key && image_regenerate.last_mode) {
-      mode = image_regenerate.last_mode;
+    if (!mode && image_picker.regenerating_key === regenerate_key && image_picker.last_mode) {
+      mode = image_picker.last_mode;
     }
     if (!mode) {
       mode = is_fractal ? "landscape" : "character";
@@ -214,7 +215,7 @@
       "
     >
       <div class="w-[calc(var(--spacing-column-unit)*6)]">
-        <DevTelemetryBlock {meta} />
+        <MessageDevBlock {meta} />
       </div>
     </div>
   {/if}
@@ -546,7 +547,7 @@
           {#if app.settings.dev_mode}
             {#if meta && (meta.dynamics || meta.vectors || meta.deltas || meta.updates)}
               <div class="mb-4">
-                <DevTelemetryBlock {meta} />
+                <MessageDevBlock {meta} />
               </div>
             {/if}
           {/if}
@@ -612,11 +613,11 @@
               {@const box_h = 480}
               {@const box_w = Math.round((box_h * res.width) / res.height)}
               {@const container_style = `height: ${box_h}px; width: ${box_w}px; max-width: 100%; max-height: 60vh; aspect-ratio: ${res.width} / ${res.height};`}
-              {#if image_regenerate.hasError(regenerate_key)}
+              {#if image_picker.hasError(regenerate_key)}
                 <div class="flex flex-col items-center justify-center gap-2 rounded-lg bg-red-900/20 p-4" style={container_style}>
-                  <p class="text-center text-sm text-red-400">{image_regenerate.error}</p>
+                  <p class="text-center text-sm text-red-400">{image_picker.error}</p>
                 </div>
-              {:else if image_regenerate.isReady(regenerate_key)}
+              {:else if image_picker.isReady(regenerate_key)}
                 <Button
                   variant="bare"
                   class="group relative flex cursor-pointer flex-col items-center justify-center gap-4 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50 shadow-md transition-all duration-300 hover:border-(--signature-color,slate-300)/80 hover:bg-neutral-800/80 hover:shadow-[0_0_24px_color-mix(in_srgb,var(--signature-color,white)_25%,transparent)]"
@@ -653,7 +654,7 @@
                     </svg>
                   </div>
                 </Button>
-              {:else if image_regenerate.isRegenerating(regenerate_key)}
+              {:else if image_picker.isRegenerating(regenerate_key)}
                 <div
                   class="relative flex flex-col items-center justify-center gap-5 overflow-hidden rounded-lg border border-(--signature-color,slate-600)/30 bg-neutral-900/50"
                   style={container_style}

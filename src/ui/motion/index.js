@@ -8,7 +8,7 @@
 export { motion } from "./engine.svelte.js";
 export { pulse, roll, shimmy, stab } from "./kinetic.svelte.js";
 export { overlay_in, overlay_out, item_in } from "./transitions.svelte.js";
-export { fly_card_in, fly_card_out, make_card_clone, rect_of, strip_card_text } from "./card-flight.svelte.js";
-export { capture_storyboard_flight, fly_storyboard_cards_into_prologue, update_card_scrub, clear_card_location } from "./card-migration.svelte.js";
+export { fly_card_in, fly_card_out, make_card_clone, rect_of, strip_card_text } from "./card.svelte.js";
+export { capture_storyboard_flight, fly_storyboard_cards_into_prologue, update_card_scrub, clear_card_location } from "./card.svelte.js";
 export { typewriter } from "./Typewriter.svelte.js";
 export { default as Typewriter } from "./Typewriter.svelte";

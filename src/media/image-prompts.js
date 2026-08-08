@@ -1,5 +1,5 @@
 /**
- * src/media/optics.js
+ * src/media/image-prompts.js
  * 👁️ OPTICS LAYER — PROMPT ENGINEERING & VISUAL STYLE ENGINE
  * Optimized for FLUX.1 (Rectified Flow), T5-XXL text encoders, and Perchance parameter injection.
  */

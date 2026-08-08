@@ -1,20 +1,20 @@
 <script>
   /**
-   * @file ImageRegenerate.svelte
+   * @file ImagePicker.svelte
    * 🎲 The 3-Card Regenerate Picker
    * Three image candidates are revealed face-up so the user can see
    * and pick their favorite. Includes a "Regenerate" button for a 2nd
    * round of generation with LLM-refined prompts.
    */
   import {
-    image_regenerate,
+    image_picker,
     select_candidate,
     close_regenerate,
     deliver_candidates,
     set_regenerate_error,
     begin_picker_regeneration,
     get_persisted_meta,
-  } from "./ImageRegenerate.svelte.js";
+  } from "./ImagePicker.svelte.js";
   import { visual_engine, get_resolution } from "@media";
   import { Backdrop, Button } from "@atoms";
   import { Dialog } from "bits-ui";
@@ -28,13 +28,13 @@
       const [w, h] = meta_res.split("x").map(Number);
       if (w && h) return { width: w, height: h };
     }
-    const mode = candidate?.metadata?.mode || image_regenerate.last_mode || "character";
+    const mode = candidate?.metadata?.mode || image_picker.last_mode || "character";
     return get_resolution(mode);
   }
 
   async function handle_regenerate() {
     if (is_regenerating) return;
-    const key = image_regenerate.regenerating_key;
+    const key = image_picker.regenerating_key;
     if (!key) {
       set_regenerate_error("No image context available to regenerate.");
       return;
@@ -51,14 +51,14 @@
     // click "Select Image" again.)
     begin_picker_regeneration();
     try {
-      const signature_color = image_regenerate.signature_color;
+      const signature_color = image_picker.signature_color;
 
       const prompt = meta.prompt || "";
       const mode = meta.mode || "character";
       const negative_prompt = meta.negative_prompt || "";
 
       if (!prompt) {
-        console.error("[ImageRegenerate] NO PROMPT! meta was:", meta);
+        console.error("[ImagePicker] NO PROMPT! meta was:", meta);
         set_regenerate_error("No prompt found for this image. Cannot regenerate.");
         return;
       }
@@ -72,7 +72,7 @@
           final_negative = refined.negative_prompt || negative_prompt;
         }
       } catch (enhanceErr) {
-        console.warn("[ImageRegenerate] Prompt enhancement failed, using original prompt:", enhanceErr);
+        console.warn("[ImagePicker] Prompt enhancement failed, using original prompt:", enhanceErr);
       }
 
       // SAFETY NET: If enhance() returned a full JSON blob instead of just the prompt field,
@@ -121,7 +121,7 @@
   }
 </script>
 
-{#if image_regenerate.picker_open}
+{#if image_picker.picker_open}
   <Dialog.Root open={true} preventScroll={false}>
     <Dialog.Portal>
       <Dialog.Overlay forceMount>
@@ -134,9 +134,9 @@
                   class="relative flex min-h-[60vh] w-[clamp(20rem,95vw,96rem)] flex-col items-center justify-center gap-8 px-2 py-6"
                   onclick={(e) => e.stopPropagation()}
                 >
-                  {#if image_regenerate.error}
+                  {#if image_picker.error}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
-                      <p class="text-lg text-red-400">{image_regenerate.error}</p>
+                      <p class="text-lg text-red-400">{image_picker.error}</p>
                       <div class="flex gap-4">
                         <Button
                           variant="bare"
@@ -149,7 +149,7 @@
                         </Button>
                       </div>
                     </div>
-                  {:else if image_regenerate.candidates.length < 2}
+                  {:else if image_picker.candidates.length < 2}
                     <div class="flex flex-col items-center gap-4" in:fade={{ duration: 200 }}>
                       <div class="flex gap-1.5">
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 0ms"></div>
@@ -157,10 +157,10 @@
                         <div class="h-3 w-3 animate-pulse rounded-full bg-white/60" style="animation-delay: 300ms"></div>
                       </div>
                     </div>
-                  {:else if image_regenerate.candidates.length >= 2}
+                  {:else if image_picker.candidates.length >= 2}
                     <!-- POLAROID CARD GRID -->
                     <div class="flex max-w-full flex-wrap items-end justify-center gap-6 p-4 md:gap-8 lg:gap-10" in:fade={{ duration: 300 }}>
-                      {#each image_regenerate.candidates as candidate, i (i)}
+                      {#each image_picker.candidates as candidate, i (i)}
                         {@const letter = String.fromCharCode(65 + i)}
                         {@const { width: cW, height: cH } = resolve_candidate_resolution(candidate)}
                         {@const ratio = cW && cH ? cW / cH : 2 / 3}
@@ -174,10 +174,10 @@
                               : "w-60 sm:w-64 md:w-72 lg:w-76"}
                         <Button
                           variant="bare"
-                          class="group relative {card_width_class} shrink-0 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out {image_regenerate.selected_index ===
+                          class="group relative {card_width_class} shrink-0 pt-2 pb-10 shadow-[0_8px_24px_rgba(0,0,0,0.6)] transition-all duration-300 ease-out {image_picker.selected_index ===
                           i
                             ? 'scale-105 cursor-default ring-2 ring-emerald-400/60'
-                            : image_regenerate.selected_index !== null
+                            : image_picker.selected_index !== null
                               ? 'scale-95 cursor-default opacity-40'
                               : 'cursor-pointer hover:scale-[1.02] hover:shadow-[0_12px_32px_rgba(0,0,0,0.7)]'}"
                           style="background: #f5f0e6; border-radius: var(--radius-sharp); transform-origin: bottom center; transform: rotate({rot}deg);"
@@ -186,7 +186,7 @@
                         >
                           <div class="relative overflow-hidden bg-neutral-200" style="aspect-ratio: {ar};">
                             <img src={candidate.url} alt="Candidate {letter}" class="h-full w-full object-cover" />
-                            {#if image_regenerate.selected_index === i}
+                            {#if image_picker.selected_index === i}
                               <div class="absolute inset-0 flex items-center justify-center bg-emerald-500/20">
                                 <div class="rounded-full bg-emerald-400 p-3 text-white shadow-lg">
                                   <svg
@@ -213,7 +213,7 @@
                       {/each}
                     </div>
 
-                    {#if image_regenerate.selected_index === null}
+                    {#if image_picker.selected_index === null}
                       <div class="flex flex-wrap items-center justify-center gap-3" in:fade={{ duration: 300 }}>
                         <span class="font-mono text-sm tracking-widest text-slate-400 uppercase">Choose One or</span>
                         <Button

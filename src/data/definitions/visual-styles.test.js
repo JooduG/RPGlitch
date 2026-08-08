@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { VISUAL_STYLES } from "./visual-styles.js";
-import { parse_visual_engine } from "../../media/optics.js";
+import { parse_visual_engine } from "../../media/image-prompts.js";
 
 describe("VISUAL_STYLES Preset Registry", () => {
   it("exports all expected visual styles including lego and concept", () => {
