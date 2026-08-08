@@ -18,7 +18,7 @@
    *   (name in signature color on dark gradient) + zoom. No tooltip in this mode.
    * - `"prologue"`: badges are flex-filled — each takes half the parent row's
    *   width (minus the gap) at a perfect 1:1 ratio, so the row height derives
-   *   from the container width on the spot.
+   *   from the container width on the spot. Same hover overlay + zoom as storymode.
    * - default: container-query responsive sizing for the storyboard overlay.
    */
   /** @type {{ entity?: any, class?: string, layout?: "storymode" | "prologue" | "default" }} */
@@ -42,8 +42,8 @@
 
   let opacity_class = $derived(is_storymode || is_prologue ? "opacity-100" : "opacity-70 hover:opacity-100");
 
-  // Storymode hover zoom — same utilities the entity cards use
-  let hover_zoom_class = $derived(is_storymode ? "hover:scale-lift hover:brightness-glow" : "");
+  // Storymode/prologue hover zoom — same utilities the entity cards use
+  let hover_zoom_class = $derived(is_storymode || is_prologue ? "hover:scale-lift hover:brightness-glow" : "");
 
   let style_details = $derived(entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null);
   let vstyle_details = $derived(
@@ -80,7 +80,7 @@
       transition-all
       duration-300
       ease-in-out
-      group-hover:opacity-100
+      group-hover/badge:opacity-100
     "
   >
     <span
@@ -110,10 +110,10 @@
   <div class="pointer-events-none flex {className}" style={is_storymode ? `--signature-color: ${signature_color};` : ""}>
     {#if style_details}
       <div
-        use:tooltip={is_storymode ? null : { text: `Narrative Style: ${style_details.name}` }}
+        use:tooltip={is_storymode || is_prologue ? null : { text: `Narrative Style: ${style_details.name}` }}
         style={badge_size_style}
         class="
-          group
+          group/badge
           pointer-events-auto
           relative
           flex
@@ -146,7 +146,7 @@
           {/if}
         </div>
 
-        {#if is_storymode}
+        {#if is_storymode || is_prologue}
           {@render storymode_overlay(style_details.name)}
         {/if}
       </div>
@@ -161,10 +161,10 @@
             ? "text-[clamp(0.44rem,4.4cqi,0.6rem)]"
             : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
       <div
-        use:tooltip={is_storymode ? null : { text: `Visual Style: ${vstyle_details.name}` }}
+        use:tooltip={is_storymode || is_prologue ? null : { text: `Visual Style: ${vstyle_details.name}` }}
         style={badge_size_style}
         class="
-          group
+          group/badge
           pointer-events-auto
           relative
           flex
@@ -197,7 +197,7 @@
           {/if}
         </div>
 
-        {#if is_storymode}
+        {#if is_storymode || is_prologue}
           {@render storymode_overlay(vname)}
         {/if}
       </div>

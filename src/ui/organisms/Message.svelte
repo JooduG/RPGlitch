@@ -466,7 +466,11 @@
       <div class="relative p-4">
         {#if meta?.is_prologue || meta?.is_epilogue}
           {#if app.story_title}
-            <h2 class="mb-4 text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance" style="font-family: Satisfy, cursive;">
+            <h2
+              class="mb-4 text-center text-[clamp(1.3rem,2.8vw,2.2rem)] font-normal text-balance"
+              style="font-family: Satisfy, cursive;"
+              data-msg-title={meta?.is_prologue ? "" : undefined}
+            >
               {#if app.story_title_parts.length > 0}
                 {#each app.story_title_parts as part, i (i)}
                   {#if part.color}
@@ -732,12 +736,6 @@
 {/if}
 
 <style>
-  /* Prologue inline cards are art-only — the names/descriptions are removed so
-     the cards stay clean while they travel (and scale) with the scroll scrub. */
-  :global([data-msg-prologue] [data-card-text]) {
-    display: none !important;
-  }
-
   @keyframes scan {
     from {
       transform: translateX(-100%) skewX(-20deg);

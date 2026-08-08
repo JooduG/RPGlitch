@@ -191,7 +191,12 @@
     return list;
   });
 
-  let user_scrolled_up = $state(false);
+  // Start "scrolled up": never auto-drag the view on load (opening a saved
+  // story, right after begin, etc.) — the reader's position is theirs until
+  // they actually scroll to the very bottom.
+  let user_scrolled_up = $state(true);
+  // A scroll only counts as "really at the bottom" within this many px of slack.
+  const AUTO_SCROLL_SLACK = 40;
 
   // Scroll-linked entity card scrub: recompute on every scroll frame.
   let scrub_raf = 0;
@@ -207,10 +212,22 @@
     if (!scroll_ref) return;
     const el = scroll_ref.querySelector(".scroll-area-viewport");
     if (!el) return;
+    let last_scroll_top = el.scrollTop;
 
     const handle_scroll = () => {
-      const distance_to_bottom = el.scrollHeight - el.scrollTop - el.clientHeight;
-      user_scrolled_up = distance_to_bottom > 10;
+      const now_top = el.scrollTop;
+      const moving_up = now_top < last_scroll_top - 1;
+      last_scroll_top = now_top;
+      const distance_to_bottom = el.scrollHeight - now_top - el.clientHeight;
+      if (moving_up) {
+        // The reader scrolled back up — hands off the wheel.
+        user_scrolled_up = true;
+      } else if (distance_to_bottom <= AUTO_SCROLL_SLACK) {
+        // Genuinely at the very bottom (or a follow-glide landed there).
+        user_scrolled_up = false;
+      }
+      // Downward scrolls far from the bottom are left untouched: they're either
+      // the reader drifting down (already unpinned) or our own follow-glide.
       schedule_scrub();
     };
 
@@ -231,18 +248,6 @@
     const el = scroll_ref.querySelector(".scroll-area-viewport");
     if (!el) return;
 
-    const scroll_to_bottom = (smooth = true) => {
-      const is_reduced = motion.is_reduced;
-      if (is_reduced || !smooth || typeof el.scrollTo !== "function") {
-        el.scrollTop = el.scrollHeight;
-      } else {
-        el.scrollTo({
-          top: el.scrollHeight,
-          behavior: "smooth",
-        });
-      }
-    };
-
     // While a begin-story flight is landing, the feed is pinned at the top
     // (prologue) by the flight orchestrator — the viewport must not yank to
     // the bottom. Record the length so nothing fires once the flight clears.
@@ -252,28 +257,52 @@
       return;
     }
 
-    // Reset scroll lock when a new message is posted to the feed (e.g. USER message submission)
+    // Smooth follow-glide: eases the viewport toward the growing bottom so
+    // newly streamed content never snaps into place. Runs rAF-driven while the
+    // reader is pinned; handle_scroll backs us off the instant they scroll up.
+    let follow_raf = 0;
+    const ease_follow = () => {
+      follow_raf = 0;
+      if (user_scrolled_up) return;
+      const target = el.scrollHeight - el.clientHeight;
+      const diff = target - el.scrollTop;
+      if (Math.abs(diff) < 0.5) return;
+      if (motion.is_reduced) {
+        el.scrollTop = target;
+        return;
+      }
+      el.scrollTop += diff * 0.25;
+      follow_raf = requestAnimationFrame(ease_follow);
+    };
+    const start_follow = () => {
+      if (user_scrolled_up || follow_raf) return;
+      follow_raf = requestAnimationFrame(ease_follow);
+    };
+
+    // A new message was posted — follow it only if the reader is still pinned
+    // at the very bottom. Never drag someone who scrolled up to read.
     if (current_len > last_feed_length) {
-      user_scrolled_up = false;
-      tick().then(() => scroll_to_bottom(false));
+      if (!user_scrolled_up) tick().then(start_follow);
     }
     last_feed_length = current_len;
 
-    // Trigger immediate scroll on major state changes if user hasn't scrolled up manually
+    // Major state changes while pinned → glide along.
     if (!user_scrolled_up) {
-      tick().then(() => scroll_to_bottom(true));
+      tick().then(start_follow);
     }
 
-    // Track dynamic height expansion (user typing, AI streaming, layout rendering)
-    if (!user_scrolled_up) {
-      const observer = new MutationObserver(() => {
-        if (!user_scrolled_up) {
-          scroll_to_bottom(false); // Instant scroll to prevent animation fighting
-        }
-      });
-      observer.observe(el, { childList: true, subtree: true, characterData: true });
-      return () => observer.disconnect();
-    }
+    // While pinned, glide to the bottom for ANY new content — AI_CHARACTER,
+    // FRACTAL, USER_PERSONA bubbles, images, streaming text, layout growth.
+    const observer = new MutationObserver(() => start_follow());
+    observer.observe(el, { childList: true, subtree: true, characterData: true });
+    // Image loads don't mutate the DOM but expand the feed height — catch them
+    // in the capture phase so image bubbles follow smoothly too.
+    el.addEventListener("load", start_follow, true);
+    return () => {
+      observer.disconnect();
+      el.removeEventListener("load", start_follow, true);
+      if (follow_raf) cancelAnimationFrame(follow_raf);
+    };
   });
 
   // --- ENTITY CARD SCRUB (scroll-linked prologue message ↔ side panels) ---

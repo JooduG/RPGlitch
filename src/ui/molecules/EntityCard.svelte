@@ -282,7 +282,7 @@
   bind:this={root_el}
   data-card-root
   class="
-    group
+    group group/card
     @container
     relative
     cursor-pointer
@@ -438,7 +438,7 @@
         text-slate-50
         opacity-15
 
-        group-hover:opacity-100
+        group-hover/card:opacity-100
       `
       : ''}"
   >
@@ -492,11 +492,11 @@
       {app.view === 'storymode' && variant !== 'library'
       ? `
         opacity-0
-        group-hover:opacity-100
+        group-hover/card:opacity-100
       `
       : 'opacity-100'}
 
-      {variant === 'library' || variant === 'message'
+      {variant === 'library'
       ? `
         h-auto
         min-h-[40%]
@@ -526,7 +526,7 @@
         [-webkit-line-clamp:3]
         [line-clamp:3]
 
-        {variant === 'library' || variant === 'message'
+        {variant === 'library'
         ? `
           text-sm
           leading-snug
@@ -547,7 +547,7 @@
           duration-300
           ease-in-out
 
-          group-hover:opacity-100
+          group-hover/card:opacity-100
         `
         : ''}">{is_empty ? role_label || "Create New" : entity?.name || name}</span
     >
