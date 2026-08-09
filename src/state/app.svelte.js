@@ -6,7 +6,7 @@
  */
 import { flushSync } from "svelte";
 import { SvelteSet } from "svelte/reactivity";
-import { generate_uuid, resolve_px } from "@utils";
+import { generate_uuid, resolve_px, stories_bridge } from "@utils";
 import { log as engineLog, guarded_transition } from "@engine";
 import { db, entities, stories, normalize } from "@data";
 import { visual_engine, get_signature_color, Audio } from "@media";
@@ -160,6 +160,9 @@ export class AppStore {
     visual_style: "none",
   });
   ghostwrite_request = $state(0);
+  /** Bumped whenever the story archive changes (create/update/conclude/delete)
+   * so the Library can refresh even while the control panel stays open. */
+  stories_version = $state(0);
   /** @type {((ctx: any) => void) | null} */
   regenerate_image_handler = $state(null);
   // --- SENSORY ENGINES ---
@@ -540,6 +543,9 @@ export class AppStore {
   };
 }
 export const app = new AppStore();
+stories_bridge.register_bump(() => {
+  app.stories_version++;
+});
 if (typeof window !== "undefined") {
   window.app = app;
   window.rpgApp = app;

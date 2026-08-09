@@ -1,6 +1,6 @@
 import { db } from "@data";
 import { SESSION_ID_KEY } from "./config.js";
-import { state_bridge } from "@utils";
+import { state_bridge, stories_bridge } from "@utils";
 
 /**
  * SESSION (Simulation & Gamemaster)
@@ -85,6 +85,7 @@ export const session_driver = {
       round: 0,
     });
     const story_id = id.toString();
+    stories_bridge.bump();
     await session_driver.set_active(story_id);
 
     // Initial system entry

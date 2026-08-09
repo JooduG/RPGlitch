@@ -99,9 +99,16 @@ shared utilities lived under layer-specific folders. No behaviour changes — pu
 - [ ] Task 8.5: Run `npm run test:unit`.
 - [ ] Task 8.6: Run `npm run verify` & `npm run build`.
 
+### Phase 9: Library invalidation + Toggle a11y [DONE]
+
+Two nits found during the live end-to-end pass (2026-08-09).
+
+- [x] Task 9.1: Fix stale Library list — `StoryManager` only refreshed on control-panel open, so a story auto-saved while the panel stayed open never appeared until close/reopen. Added `stories_bridge` (`register_bump`/`bump`) to `utils/bridges.js`; `app` exposes a reactive `stories_version` (bump registered at module load). Bumps now fire at every story write site: `session_driver.create_from_selection` (`db.stories.add`), `runtime.save` + `runtime.update_entity(type:"story")`, and `repository.stories.{update,conclude,delete}`. `StoryManager`'s `$effect` now also tracks `app.stories_version`, so the Library self-refreshes even while the panel stays open.
+- [x] Task 9.2: Give `Toggle` switches an accessible name — the switch `<button>` now renders `aria-label={label || rest["aria-label"] || undefined}` (falls back to any caller-supplied `aria-label`); `Profile.svelte`'s label-less perspective toggle got `aria-label="Perspective"`.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 8 Layer Inversion Fix (actions → @ui, collapse_history → @utils, resilience → @utils).
-- **Status**: Moves/rewrites written (8.1–8.4); awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).
+- **Active Task**: Phase 9 Library invalidation + Toggle a11y.
+- **Status**: Both nits fixed (9.1–9.2); awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).

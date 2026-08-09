@@ -12,7 +12,7 @@
 import { db } from "./db.js";
 import { normalize } from "./normalizer.js";
 import { premade } from "./definitions/premades.js";
-import { serialize_embedding, deserialize_embedding, generate_uuid } from "@utils";
+import { serialize_embedding, deserialize_embedding, generate_uuid, stories_bridge } from "@utils";
 
 const error = console.error;
 const premade_entity_map = new Map((premade?.entities || []).map((e) => [e.id, e]));
@@ -261,13 +261,21 @@ export const stories = {
   /** @param {any} id */
   get: (id) => db.stories.get(coerce_story_key(id)),
   /** @param {any} id @param {any} changes */
-  update: (id, changes) => db.stories.update(coerce_story_key(id), changes),
+  update: async (id, changes) => {
+    const result = await db.stories.update(coerce_story_key(id), changes);
+    stories_bridge.bump();
+    return result;
+  },
   /**
    * Marks a story as concluded after its epilogue has been delivered. Concluded
    * stories release their entities back to the storyboard lobby.
    * @param {string | number} id
    */
-  conclude: (id) => db.stories.update(coerce_story_key(id), { is_concluded: 1 }),
+  conclude: async (id) => {
+    const result = await db.stories.update(coerce_story_key(id), { is_concluded: 1 });
+    stories_bridge.bump();
+    return result;
+  },
   /**
    * Resolves the entity ids currently claimed by active (non-concluded) stories.
    * A claimed entity may not be re-selected for another story, and its profile
@@ -300,7 +308,9 @@ export const stories = {
     // numeric auto-increment key — match both forms so orphaned rows never leak.
     const ids = [...new Set([String(id), id])];
     await db.simulation_log.where("story_id").anyOf(ids).delete();
-    return db.stories.delete(coerce_story_key(id));
+    const result = await db.stories.delete(coerce_story_key(id));
+    stories_bridge.bump();
+    return result;
   },
 };
 

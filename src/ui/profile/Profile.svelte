@@ -893,6 +893,7 @@
           </Button>
           <Toggle
             id="perspective-toggle"
+            aria-label="Perspective"
             value={profile_state.char.pov === "3rd_person"}
             disabled={!profile_state.is_editing}
             always_signature={true}

@@ -436,6 +436,7 @@ function create_runtime_store() {
           ai_dynamics: $state.snapshot(ai_physics),
           fractal_dynamics: $state.snapshot(fractal_physics),
         });
+        app.stories_version++;
       } catch (err) {
         console.error("[Data] Story Save Failed:", err);
       }
@@ -474,6 +475,7 @@ function create_runtime_store() {
       try {
         if (type === "story") {
           await db.stories.update(coerce_story_key(id), data);
+          app.stories_version++;
           if (simulation_story_id === id) {
             Object.assign(simulation_story.by_id[id] || {}, data);
           }

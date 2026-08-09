@@ -79,3 +79,21 @@ export const stream_bridge = {
   end: () => _handlers.end?.(),
   error: (node_id) => _handlers.error?.(node_id),
 };
+
+/**
+ * Story-version bridge — lets the @data/@engine layers notify the UI that the
+ * story archive changed without importing from @state directly (downward
+ * import rule). The state layer registers a bump callback at module load.
+ */
+/** @type {(() => void) | null} */
+let _bump_stories_version = null;
+
+export const stories_bridge = {
+  /** @param {() => void} fn */
+  register_bump(fn) {
+    _bump_stories_version = fn;
+  },
+  bump() {
+    _bump_stories_version?.();
+  },
+};

@@ -78,6 +78,7 @@
     {#snippet child({ props })}
       <button
         {...props}
+        aria-label={label || rest["aria-label"] || undefined}
         class="
           group
           relative
