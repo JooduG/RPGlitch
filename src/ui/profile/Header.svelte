@@ -6,7 +6,7 @@
    * Enforces strict Svelte 5 state machine physics and Nordic styling token regimes.
    */
 
-  import { auto_resize } from "@utils";
+  import { auto_resize } from "@ui";
   import { ENTITY_FRAGMENTS } from "@data";
   import { GlassWrapper } from "@primitives";
 

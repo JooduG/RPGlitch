@@ -2,7 +2,7 @@
   import { DataBox, TextField } from "@primitives";
   import TelemetryCard from "./TelemetryCard.svelte";
   import { Typewriter } from "@motion";
-  import { safe_html } from "@utils";
+  import { safe_html } from "@ui";
   import { app } from "@state";
 
   /**

@@ -1,5 +1,5 @@
 <script>
-  import { use_actions } from "@utils";
+  import { use_actions } from "@ui";
 
   /**
    * @typedef {Object} Props

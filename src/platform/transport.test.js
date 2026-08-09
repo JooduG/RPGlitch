@@ -4,9 +4,6 @@ import { sanitize_llm } from "./transport.js";
 vi.mock("@utils", () => ({
   escape_xml: vi.fn((s) => s),
   stream_bridge: { start: vi.fn(), update: vi.fn(), end: vi.fn() },
-}));
-
-vi.mock("@intelligence", () => ({
   collapse_history: vi.fn(),
 }));
 

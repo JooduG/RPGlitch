@@ -23,5 +23,4 @@ export {
   parse_visual_engine,
   resolve_visual_engine_tokens,
 } from "./image-prompts.js";
-export { ExponentialBackoffRetryer, CircuitBreaker } from "./resilience.js";
 export { visual_engine, VisualEngine } from "./visual.svelte.js";

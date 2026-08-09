@@ -26,40 +26,44 @@ vi.mock("@platform", () => ({
   sanitize_llm: (text) => text,
 }));
 
-vi.mock("@utils", () => ({
-  generate_secure_seed: vi.fn(() => 42),
-  strip_cognition_blocks: (text) => text,
-  escape_xml: (text) =>
-    String(text)
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&apos;")
-      .replace(/\[/g, "&#91;")
-      .replace(/\]/g, "&#93;"),
-  prompt_escape: (text) =>
-    String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\[/g, "&#91;").replace(/\]/g, "&#93;"),
-  safe_parse_pseudo_json: (raw) => {
-    if (typeof raw !== "string") return raw;
-    try {
-      return JSON.parse(raw);
-    } catch {
-      return { __raw_prose__: raw };
-    }
-  },
-  state_bridge: {
-    runtime: {
-      active_story: null,
-      active_ai: { id: "ai-1", name: "Viper", type: "character" },
-      active_user: { id: "user-1", name: "Ghost", type: "user" },
-      active_fractal: { id: "fx-1", name: "Void", type: "fractal" },
+vi.mock("@utils", async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...actual,
+    generate_secure_seed: vi.fn(() => 42),
+    strip_cognition_blocks: (text) => text,
+    escape_xml: (text) =>
+      String(text)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&apos;")
+        .replace(/\[/g, "&#91;")
+        .replace(/\]/g, "&#93;"),
+    prompt_escape: (text) =>
+      String(text).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/\[/g, "&#91;").replace(/\]/g, "&#93;"),
+    safe_parse_pseudo_json: (raw) => {
+      if (typeof raw !== "string") return raw;
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return { __raw_prose__: raw };
+      }
     },
-    app: { selected_ai: null, selected_user: null, selected_fractal: null, settings: {} },
-    simulation_state: { start_typing: vi.fn() },
-    simulation_log: { update: vi.fn() },
-  },
-}));
+    state_bridge: {
+      runtime: {
+        active_story: null,
+        active_ai: { id: "ai-1", name: "Viper", type: "character" },
+        active_user: { id: "user-1", name: "Ghost", type: "user" },
+        active_fractal: { id: "fx-1", name: "Void", type: "fractal" },
+      },
+      app: { selected_ai: null, selected_user: null, selected_fractal: null, settings: {} },
+      simulation_state: { start_typing: vi.fn() },
+      simulation_log: { update: vi.fn() },
+    },
+  };
+});
 
 describe("VisualEngine.visualize — solo_entity _entity propagation", () => {
   let engine;

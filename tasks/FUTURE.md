@@ -90,7 +90,7 @@ Two coordinated fixes on the live memory engine:
 - Rework `sanitize_llm` line 44: remove the blanket `[ "']$` class strip. Keep `.trim()`, filler-phrase strip, code-fence strip.
 - Strip a leading quote only when **unmatched** (no trailing quote) — removes the `"Sure, here is…` artifact while never eating a closing dialogue quote. Paired outer quotes stay intact (rendered as dialogue spans by `wrap_dialogue` anyway).
 - **TDD** (`src/platform/transport.test.js`, new): trailing `"`/`'` preserved; unmatched leading quote stripped; paired outer quotes preserved; fences + filler still stripped.
-- Audit `src/ui/utils/text.js` `derive_vector_title` (103) — title-only strip, leave unless a test flags it.
+- Audit `src/utils/text.js` `derive_vector_title` (103) — title-only strip, leave unless a test flags it.
 
 ### Phase 2 — True bounded LRU cache (1B)
 

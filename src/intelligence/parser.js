@@ -6,7 +6,7 @@
 
 import { detox_prose, NARRATIVE_STYLES } from "@data";
 import { sanitize } from "@platform";
-import { CLOTHING_KEYS, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
+import { CLOTHING_KEYS, collapse_history, escape_xml, safe_parse_pseudo_json, strip_cognition_blocks } from "@utils";
 import MarkdownIt from "markdown-it";
 
 const markdown = new MarkdownIt({
@@ -283,6 +283,15 @@ export { safe_parse_pseudo_json };
 export { strip_cognition_blocks };
 
 /**
+ * Conversation-history collapsing — canonical implementation lives in @utils/text.js
+ * and is re-exported here so @intelligence consumers keep a stable import path.
+ * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
+ * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
+ * @returns {Array<{role: string, name: string, content: string}>}
+ */
+export { collapse_history };
+
+/**
  * Merges raw prose into an existing field (either pseudo-JSON or plain text)
  * and reserializes it securely without destructive appends.
  * @param {string} current_field_value
@@ -407,37 +416,4 @@ export function escape_unescaped_json_quotes(json_string) {
     const escaped_value = value.replace(/(?<!\\)"/g, '\\"');
     return `: "${escaped_value}"`;
   });
-}
-
-/**
- * Collapses conversation history into role-grouped entries.
- * Consecutive messages from the same character are merged into a single entry.
- * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
- * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
- * @returns {Array<{role: string, name: string, content: string}>}
- */
-export function collapse_history(messages, options = {}) {
-  const { separator = "\n", stripBoldQuotes = false } = options;
-  if (!Array.isArray(messages) || messages.length === 0) return [];
-
-  const collapsed = [];
-  for (const m of messages) {
-    if (m.role === "system") continue;
-    const lower_role = (m.role || "").toLowerCase();
-    const role = lower_role === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lower_role) ? "FRACTAL" : "AI_CHARACTER";
-    const name = m.character_name || "";
-    let content = strip_cognition_blocks(m.content || m.text || "");
-    if (stripBoldQuotes) {
-      content = content.replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
-    }
-    if (!content) continue;
-
-    const last = collapsed[collapsed.length - 1];
-    if (last && last.role === role && last.name === name) {
-      last.content += `${separator}${content}`;
-    } else {
-      collapsed.push({ role, name, content });
-    }
-  }
-  return collapsed;
 }

@@ -4,7 +4,8 @@
    * 🧪 ENTITY EDITOR — Primary orchestrator for viewing and editing entities.
    * Flat DOM · Bolted Architecture
    */
-  import { auto_resize, click_outside, safe_parse_pseudo_json } from "@utils";
+  import { auto_resize, click_outside } from "@ui";
+  import { safe_parse_pseudo_json } from "@utils";
   import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label } from "@primitives";
   import { ProfilePicture } from "@image";
   import { get_signature_color } from "@media";

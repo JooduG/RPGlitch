@@ -7,7 +7,7 @@
    */
   import { Backdrop } from "@primitives";
   import { overlay_in, overlay_out } from "@motion";
-  import { use_actions } from "@utils";
+  import { use_actions } from "@ui";
   import { Dialog } from "bits-ui";
 
   let {

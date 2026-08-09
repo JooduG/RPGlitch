@@ -127,3 +127,36 @@ export function derive_vector_title(text, maxLen = 38) {
   const truncated = last_space > 15 ? sub.slice(0, last_space) : sub;
   return truncated.replace(/[.,;:]+$/, "") + "…";
 }
+
+/**
+ * Collapses conversation history into role-grouped entries.
+ * Consecutive messages from the same character are merged into a single entry.
+ * @param {Array<{role: string, content?: string, text?: string, character_name?: string}>} messages
+ * @param {{separator?: string, stripBoldQuotes?: boolean}} [options]
+ * @returns {Array<{role: string, name: string, content: string}>}
+ */
+export function collapse_history(messages, options = {}) {
+  const { separator = "\n", stripBoldQuotes = false } = options;
+  if (!Array.isArray(messages) || messages.length === 0) return [];
+
+  const collapsed = [];
+  for (const m of messages) {
+    if (m.role === "system") continue;
+    const lower_role = (m.role || "").toLowerCase();
+    const role = lower_role === "user" ? "USER_PERSONA" : ["prologue", "fractal"].includes(lower_role) ? "FRACTAL" : "AI_CHARACTER";
+    const name = m.character_name || "";
+    let content = strip_cognition_blocks(m.content || m.text || "");
+    if (stripBoldQuotes) {
+      content = content.replace(/\*\*\s*"(.*?)"\s*\*\*/g, '"$1"');
+    }
+    if (!content) continue;
+
+    const last = collapsed[collapsed.length - 1];
+    if (last && last.role === role && last.name === name) {
+      last.content += `${separator}${content}`;
+    } else {
+      collapsed.push({ role, name, content });
+    }
+  }
+  return collapsed;
+}

@@ -89,7 +89,6 @@ src/
 │   ├── optics.js               # aesthetic_resolver / prompt_templates — Perchance T2I prompt builders & parameter resolver
 │   ├── tokens.js               # Design tokens & color system bridge
 │   ├── design.css              # Primary design styles & Tailwind CSS directives
-│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker — media error handling & fallbacks
 │   └── index.js                # @media barrel
 ├── platform/               # External transport, security & iframe boundaries
 │   ├── transport.js            # llm_service — core text/image generation & enhancement API handlers
@@ -109,16 +108,17 @@ src/
 │   ├── physical-xml.js         # Physical-trait XML serialization
 │   ├── crypto.js               # UUID & secure-seed generation
 │   ├── field-path.js           # Nested field-path accessors
-│   ├── text.js                 # Raw-prose fallback & text cleaning
+│   ├── text.js                 # Raw-prose fallback, text cleaning, strip_cognition_blocks & collapse_history (canonical)
+│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker — retry & circuit-breaking for external API volatility (canonical)
 │   ├── vectors.js              # Vector helpers
-│   ├── use-actions.js          # Svelte DOM actions (moved from ui/actions)
 │   └── index.js                # @utils barrel
 └── ui/                     # Sensory UI layer (top-level views + feature modules + shared primitives)
     ├── Layout.svelte           # Top-level view: persistent app frame (Layout)
     ├── Storymode.svelte        # Top-level view: Storymode (scroll/feed shell)
     ├── Storyboard.svelte       # Top-level view: Storyboard (entity selection deck)
     ├── Storyboard.svelte.js    # Component-sibling state module (card initials, deck geometry, claim lock, shuffle-deal + begin-flight choreography)
-    ├── index.js                # @ui barrel (Layout, Storymode, Storyboard, storyboard controller)
+    ├── actions.js              # Svelte DOM actions — use_actions, click_outside, safe_html, auto_resize (canonical; consumers import via @ui)
+    ├── index.js                # @ui barrel (Layout, Storymode, Storyboard, storyboard controller, use_actions, click_outside, safe_html, auto_resize)
     ├── console/                # Console module (Console, ControlPanel, SettingsButton, StoryboardBar, StorymodeBar, AudioControls, DevControls)
     ├── story/                  # Story library module (StoryCard, StoryManager)
     ├── message/                # Message module (Message, Header, Body, Attachments, PrologueEpilogue, Feed, UndoToast, TelemetryCard, TelemetryBlocks, TelemetryVector)

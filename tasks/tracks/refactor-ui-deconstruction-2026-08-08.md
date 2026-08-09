@@ -87,9 +87,21 @@ Deconstruct high-complexity UI components (`Storymode.svelte`, `Message.svelte`,
 - [ ] Task 7.7: Run `npm run test:unit`.
 - [ ] Task 7.8: Run `npm run verify` & `npm run build`.
 
+### Phase 8: Layer Inversion Fix — actions → @ui, collapse_history → @utils, resilience → @utils [IN PROGRESS]
+
+Fixes three architectural inversions where lower/leaf code was hosted in the wrong layer, or where
+shared utilities lived under layer-specific folders. No behaviour changes — pure relocation.
+
+- [x] Task 8.1: Move `utils/actions.js` + `utils/actions.test.js` → `src/ui/actions.js` + `src/ui/actions.test.js` (Svelte DOM actions are UI-layer concerns). Exported via the `@ui` barrel; all consumers (`Toggle`, `TextField`, `Slider`, `Skeleton`, `NumberField`, `Modal`, `Backdrop` → `use_actions`; `Profile`, `Console` → `click_outside`; `Profile`, `Header`, `TextField` → `auto_resize`; `Body` → `safe_html`) now import from `@ui`. Breaks the `utils`→`platform` import cycle (`actions.js` was importing `sanitize_to_fragment` from `@platform`).
+- [x] Task 8.2: Move `collapse_history` from `intelligence/parser.js` → `utils/text.js` (pure text-collapsing helper, used by `platform/transport.js` which is below `@intelligence`). `parser.js` imports + re-exports it so `@intelligence` consumers (`prompts.js`, `intelligence/index.js`) keep stable paths; `transport.js` imports from `@utils`.
+- [x] Task 8.3: Move `media/resilience.js` + `media/resilience.test.js` → `utils/resilience.js` + `utils/resilience.test.js` (generic retry/circuit-breaker, not media-specific). `media/visual.svelte.js` imports from `@utils`; `media/index.js` no longer re-exports it.
+- [x] Task 8.4: Fix `jsconfig.json` paths — `@utils` now `src/utils/index.js`, dead `@actions`/`@actions/*` aliases removed.
+- [ ] Task 8.5: Run `npm run test:unit`.
+- [ ] Task 8.6: Run `npm run verify` & `npm run build`.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 7 Naming Round & shell/ removal.
-- **Status**: Renames/moves written (7.1–7.6); awaiting unit-test/build verification (6.7–6.8, 7.7–7.8).
+- **Active Task**: Phase 8 Layer Inversion Fix (actions → @ui, collapse_history → @utils, resilience → @utils).
+- **Status**: Moves/rewrites written (8.1–8.4); awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).

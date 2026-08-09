@@ -13,7 +13,7 @@
    * @property {(e: Event) => void} [onchange] - Change callback.
    */
 
-  import { use_actions } from "@utils";
+  import { use_actions } from "@ui";
   import { Switch } from "bits-ui";
   import Label from "./Label.svelte";
 

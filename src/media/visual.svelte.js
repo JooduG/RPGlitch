@@ -17,7 +17,7 @@ import {
   resolve_story_visual_style_key,
   resolve_visual_engine_tokens,
 } from "./image-prompts.js";
-import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
+import { CircuitBreaker, ExponentialBackoffRetryer } from "@utils";
 
 // Global cache for the Perchance text-to-image engine function to eliminate runtime lookup overhead
 let cached_image_engine = null;

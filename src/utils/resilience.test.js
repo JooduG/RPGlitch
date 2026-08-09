@@ -1,5 +1,5 @@
 /**
- * src/media/resilience.test.js
+ * src/utils/resilience.test.js
  */
 import { CircuitBreaker, ExponentialBackoffRetryer } from "./resilience.js";
 import { beforeEach, describe, expect, it, vi } from "vitest";

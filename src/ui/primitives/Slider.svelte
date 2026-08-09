@@ -19,7 +19,7 @@
    * @property {boolean} [show_value_tooltip] - Show reactive value tooltip.
    */
 
-  import { use_actions } from "@utils";
+  import { use_actions } from "@ui";
   import { Slider } from "bits-ui";
   import Label from "./Label.svelte";
 
