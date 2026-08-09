@@ -106,9 +106,58 @@ Two nits found during the live end-to-end pass (2026-08-09).
 - [x] Task 9.1: Fix stale Library list — `StoryManager` only refreshed on control-panel open, so a story auto-saved while the panel stayed open never appeared until close/reopen. Added `stories_bridge` (`register_bump`/`bump`) to `utils/bridges.js`; `app` exposes a reactive `stories_version` (bump registered at module load). Bumps now fire at every story write site: `session_driver.create_from_selection` (`db.stories.add`), `runtime.save` + `runtime.update_entity(type:"story")`, and `repository.stories.{update,conclude,delete}`. `StoryManager`'s `$effect` now also tracks `app.stories_version`, so the Library self-refreshes even while the panel stays open.
 - [x] Task 9.2: Give `Toggle` switches an accessible name — the switch `<button>` now renders `aria-label={label || rest["aria-label"] || undefined}` (falls back to any caller-supplied `aria-label`); `Profile.svelte`'s label-less perspective toggle got `aria-label="Perspective"`.
 
+### Phase 10: Decouple grid mode from devmode [DONE]
+
+- [x] Task 10.1: `app.save_settings()` no longer forces `dev_grid_visible = dev_mode` — the visual chess-grid overlay is now an independent setting (`app.settings.dev_grid_visible`, persisted like the rest of settings, read only by `App.svelte`).
+- [x] Task 10.2: Added a standalone **GRID MODE** toggle to the Advanced deck (`DevControls.svelte`), stacked above DEVMODE, persisting via `app.save_settings()`.
+- [x] Task 10.3: `Console.test.js` replaced the coupling test with a decoupling test (both settings save independently of each other).
+
+### Phase 11: Console panel layout polish [DONE]
+
+- [x] Task 11.1: **Audio deck** — NOTIFICATIONS toggle, the Mute button, and the volume slider now share a single wrapping flex row (slider keeps `flex-1`, floored at `min-w-40` so it wraps gracefully on narrow widths).
+- [x] Task 11.2: **Advanced deck** — DEVMODE, GRID MODE, and DELETE ALL now sit on one `justify-between` row in exactly that order (siblings inside the deck's flex row, with `flex-wrap`).
+- [x] Task 11.3: **Accordion content inset** — the `Accordion` primitive's content wrapper gained `px-3` (`px-3 pt-2 pb-4`) so content beneath an open accordion trigger is indented from the trigger edges; applies consistently to all accordions (console decks + the raw-data accordions in TelemetryCard/DevWing).
+- [x] Task 11.4: **Prologue wiring verified** — `app.prologue` (bound via the Storyboard deck's `TextField` → textarea `bind:value`) is read by `gamemaster.execute_prologue()` (`state_bridge.app.prologue`) and fed to `context_builder.build_context(input, "prologue")`; `kernel.test.js` asserts the exact path. No code change needed.
+
+### Phase 12: Audio deck 2-col split + arrow-symmetric accordion inset [DONE]
+
+Follow-up on user feedback from the round-9 layout: the Audio row was too cramped and the accordion content inset too small.
+
+- [x] Task 12.1: **Audio deck → two half-width columns** — `AudioControls.svelte` root is now `grid w-full grid-cols-2 gap-4`: left column = NOTIFICATIONS toggle (left-aligned), right column = Mute button + volume slider inline (`flex min-w-0 flex-wrap items-center gap-3`). Slider keeps `horizontal` (so it fills the column) and drops the `min-w-40` floor in favour of `min-w-0 flex-1` so it shrinks gracefully on narrow screens. NOTIFICATIONS and the slider now get a column each, ~half the deck width, exactly as requested.
+- [x] Task 12.2: **Accordion content inset = 2 × arrow-to-console-edge gap** — measured the live geometry via browser_eval: the ▼ arrow's right edge sits 8px from the console panel's right edge (the deck's `px-2`). Per the user's formula, content padding is now that gap × 2 = 16px, i.e. `px-4` (was `px-3`) on the `Accordion` content wrapper. Applies uniformly to all accordions (console decks + raw-data accordions), keeping the left gutter symmetric with the arrow's right gutter.
+
+### Phase 13: Round-2 feedback — arrow-centered inset + toggle label size [DONE]
+
+Follow-up: user reported the whitespace change "doesn't seem implemented" and asked for toggle labels to match the Delete All button size.
+
+- [x] Task 13.1: **Accordion inset `px-4` → `px-6` (24px)** — diagnosis: round 10's 16px (`2 × 8px` arrow gap) landed, but at 16px the content's right edge (1330.9px) still butts against the arrow's left edge (1329.5px), so the arrow had ~0 whitespace on its left vs 8px on its right — the very asymmetry the user was complaining about. The arrow is only _centered_ in the gutter (equal whitespace both sides) when content padding ≈ arrow glyph width + arrow gap ≈ 25px. Bumped to `px-6` (24px), which puts the content right edge ~6.6px left of the arrow with 8px right — visibly balanced.
+- [x] Task 13.2: **Toggle labels `text-[10px]` → `text-xs` (12px)** — `Toggle.svelte` passes `text-xs!` (Tailwind v4 trailing-important, same syntax the component already uses for `cursor-default!`/`cursor-wait!`) through to the shared `Label`, so DEVMODE / GRID MODE / NOTIFICATIONS now match the Delete All button's `text-xs font-bold tracking-widest uppercase` label. Scoped to toggles only — Slider/Meter/Profile/audio labels keep 10px.
+
+### Phase 14: Round-3 feedback — padding reverted & removed [DONE]
+
+User rejected the accordion content inset entirely and flagged an unwanted strip above the accordions. (Note: round 11 was validated on the vite dev server, not the deployed bundle — the live page still shows round 10's 16px until a full rebuild.)
+
+- [x] Task 14.1: **Revert accordion left/right padding** — `Accordion` content wrapper back to `pt-2 pb-4` (no horizontal padding). Measured open-state gap above the Audio accordion was 32px = drawer `p-4` (16px) + ControlPanel grid `mt-2` (8px) + ControlPanel container `py-2` (8px). Reverted the two ControlPanel-level spacers: removed `mt-2` from the open-state grid wrapper and dropped the container's `py-2` (kept `pb-4`). The remaining 16px is the console drawer's own `p-4` — left intact to preserve the glass panel's breathing room and the bottom bar's spacing.
+
+### Phase 15: FLUX/T5 prompt-engineering alignment [DONE]
+
+User shared a researched spec: Perchance's T2I backend is FLUX (T5-XXL encoder) which IGNORES CLIP bracket arithmetic (`(x:1.3)`, `((x))`, `[x:0.4]`); emphasis should come from natural-language descriptors, semantic redundancy, attenuation phrasing, and positive framing rather than weight syntax. Audited all image-prompt instructions; then closed the gaps.
+
+- [x] Task 15.1: **Audit (no code needed)** — already aligned: `NATURAL_PROSE` (continuous sentences, no tag soup), BUILDER_PROTOCOL PHASE 3 "Feature Weighting" (max descriptive effort on unique features), `KEYWORD_INTEGRITY` (no quality buzzwords). The `[KEY: VALUE]` brackets in entity data are RPGlitch's internal pseudo-JSON (parsed to structured traits before prompt assembly), NOT CLIP weights. `{Option A|Option B}` (`PERCHANCE_SYNTAX`) is Perchance template alternation resolved by Perchance before the engine sees it — genuinely useful, not dead weight.
+- [x] Task 15.2: **New directives in `OPTICS`** (`src/data/definitions/protocols.js`): `FLUX_T5_WEIGHTING` — explicit ban on bracket weight math + how to emphasize instead (strong modifiers, varied rephrasing, attenuation phrasing like 'faint'/'subtle touch of'/'barely visible in the distance'); `POSITIVE_FRAMING` — describe what IS in frame, keep negative_prompt to global quality artifacts.
+- [x] Task 15.3: **Enforcement wired into both protocols** — BUILDER_PROTOCOL PHASE 1 gained two enforcement bullets; PHASE 3 "Feature Weighting" now says "varied rephrasing across clauses rather than numeric weights"; REFINE_PROTOCOL gained step 5. Verified parse-clean with esbuild-wasm; `visual.svelte.test.js` mocks OPTICS wholesale so no test breakage.
+- [x] Task 15.4: **`flux.md` (global skills prompt guide) updated** — added §2 "Weighting — What the T5 Encoder Ignores" (CLIP bracket arithmetic `(x:1.3)`/`((x))`/`[x:0.4]` is dead weight under T5-XXL; emphasis via strong descriptors, semantic redundancy, attenuation phrasing, positive framing), plus a clarification that `[KEY: VALUE]` pseudojson tags are NOT weight syntax and stay valid. Remaining sections renumbered §2→§3 … §9→§10 with cross-references fixed. Updated file delivered alongside the round-13 zip for the user's global skills folder.
+
+### Phase 16: amateur visual style removal — test sync [DONE]
+
+User manually deleted the `amateur` visual style from their repo (their `npm run test` then failed 2 tests in `visual-styles.test.js`).
+
+- [x] Task 16.1: **Synced the removal** into the workspace `src` + the `scratch/repo` reference copy of `src/data/definitions/visual-styles.js`. The `amateur` preset block is gone. The literal tokens `amateur snapshot` / `amateur photo` inside OTHER styles' negative prompts (cinematic/analog-video exclusions) are unrelated and kept.
+- [x] Task 16.2: **`visual-styles.test.js` updated** (both copies) — dropped the `expect(VISUAL_STYLES.amateur).toBeDefined()` check and the entire "configures amateur with mirror_selfie tag and casual tokens" test. The schema-validation and XML-parse tests iterate `VISUAL_STYLES` dynamically, so they adapt automatically. Both style files esbuild-parse clean.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 9 Library invalidation + Toggle a11y.
-- **Status**: Both nits fixed (9.1–9.2); awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).
+- **Active Task**: Phase 16 amateur style removal test sync.
+- **Status**: 16.1–16.2 done (round 14 delivered — test-only fix; style removal was user-side); still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).

@@ -53,36 +53,18 @@ export const VISUAL_STYLES = {
     name: "RAW Photography",
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/f3cf9efe77281754064a6629e354d799.png",
-    description: "Unfiltered commercial photography captured with high-end medium format optics, natural dynamic range, and rich micro-textures.",
-    tags: ["photography", "realistic", "standard", "raw", "lifelike", "hasselblad"],
+    description: "Authentic candid photograph capturing natural everyday lighting, unposed perspectives, and realistic skin micro-textures.",
+    tags: ["photography", "realistic", "candid", "raw", "lifelike", "natural", "snapshot"],
     llm_refine: false,
-    guidance_scale: 10,
+    guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
-<medium>photorealistic live-action RAW commercial photograph, unedited sensor capture</medium>
-<palette>natural dynamic range, neutral balance, naturalistic key and fill lighting</palette>
-<camera>Hasselblad X2D 100C, 85mm prime f/1.2 lens, shallow depth of field, crisp optical focus</camera>
-<texture>natural micro-details, true-to-life surface textures, fine material weave, natural glass refraction</texture>
+<medium>photorealistic live-action candid photograph, authentic real-life snapshot, unposed documentary capture</medium>
+<palette>natural ambient illumination, authentic neutral color balance, unedited organic daylight and shade</palette>
+<camera>35mm street photography lens, eye-level candid framing, crisp natural focus, realistic depth of field</camera>
+<texture>organic skin micro-textures, true-to-life surface details, fine natural material weave, unretouched subtle imperfections</texture>
 </VISUAL_ENGINE>`,
     negative_prompt:
-      "anime, illustration, 3d render, cartoon, drawing, painting, digital painting, glossy skin, smooth airbrushed, amateur snapshot, harsh flash glare, cel-shaded, vector, cctv, surveillance",
-  },
-
-  amateur: {
-    id: "amateur",
-    name: "Amateur Smartphone",
-    category: "Photographic & Lens-Captured",
-    portrait: "https://user.uploads.dev/file/0bb4f7bd1737684ea227e701d3566c5e.png",
-    description: "Casual unprepared smartphone photo featuring candid mirror selfie perspective, awkward angles, and direct flash glare.",
-    tags: ["amateur", "iphone", "snapshot", "mirror_selfie", "candid", "casual", "flash_photo", "raw"],
-    llm_refine: false,
-    visual_engine: `<VISUAL_ENGINE>
-<medium>photorealistic live-action candid smartphone photo, casual mobile phone snapshot, mirror selfie capture</medium>
-<palette>casual uncalibrated ambient room lighting, harsh direct phone flash glare, unedited everyday color cast</palette>
-<camera>handheld iPhone camera lens, awkward off-center handheld framing, spontaneous candid angle, quick unposed mirror selfie snapshot perspective</camera>
-<texture>digital sensor noise, slight motion blur smudge, harsh flash specular highlights, subtle lens smudge haze, subtle jpeg compression artifacts</texture>
-</VISUAL_ENGINE>`,
-    negative_prompt:
-      "professional photograph, Hasselblad, studio lighting, flawless retouching, cinematic color grading, polished model photoshoot, bokeh, 3d render, illustration, artwork, anime, cartoon, drawing, painting, cel-shaded, vector, cctv, surveillance",
+      "studio lighting, beauty dish, Hasselblad commercial polish, glamor retouching, heavy flash glare, mirror selfie, selfie arm, smartphone camera UI, anime, illustration, 3d render, cartoon, drawing, painting, digital painting, smooth airbrushed, cel-shaded, vector, cctv, surveillance",
   },
 
   fashion: {
@@ -90,17 +72,18 @@ export const VISUAL_STYLES = {
     name: "Fashion Magazine",
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
-    description: "Sleek high-fashion editorial aesthetic with opulent metallic tones and dramatic studio rim lighting.",
-    tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
+    description:
+      "Sleek high-fashion editorial photography shot on medium format optics with opulent metallic tones and polished studio key lighting.",
+    tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion", "hasselblad", "studio"],
     guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
-<medium>photorealistic live-action high-fashion editorial photography in the style of Vogue magazine cover shoot</medium>
-<palette>opulent metallic accents, rich luxury tones, dramatic studio rim lighting</palette>
-<camera>85mm fashion editorial lens, crisp studio key light, polished beauty dish lighting</camera>
-<texture>sleek polished editorial print quality, crisp high-fashion detail, flawless editorial finish</texture>
+<medium>photorealistic live-action high-fashion editorial photograph, commercial Vogue cover shoot</medium>
+<palette>opulent metallic accents, rich luxury tones, controlled studio key light, dramatic rim lighting, polished beauty dish balance</palette>
+<camera>Hasselblad X2D 100C, 85mm prime f/1.2 lens, pin-sharp optical focus, shallow depth of field</camera>
+<texture>sleek polished editorial print quality, crisp high-fashion detail, flawless commercial finish, smooth retouching</texture>
 </VISUAL_ENGINE>`,
     negative_prompt:
-      "watermark, white background, rugged grunge texture, anime, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
+      "amateur snapshot, casual phone photo, candid awkwardness, uncalibrated ambient room light, watermark, white background, rugged grunge texture, anime, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
   },
 
   cinematic: {

@@ -156,7 +156,7 @@
     <Label
       for={test_id}
       disabled={is_disabled || busy}
-      class="w-auto flex-none [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125"
+      class="w-auto flex-none text-xs! [text-shadow:0_0_10px_rgba(0,0,0,0.5)] group-hover/toggle:brightness-125"
     >
       {label}
     </Label>

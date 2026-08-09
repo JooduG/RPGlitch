@@ -19,12 +19,12 @@
 <!-- ACCORDION SETTINGS (VERTICAL EXPANSION) -->
 <div
   class="grid min-h-0 w-full transition-[grid-template-rows] duration-500 ease-in-out {app.control_panel_open
-    ? 'mt-2 grid-rows-[1fr]'
+    ? 'grid-rows-[1fr]'
     : 'grid-rows-[0fr]'}"
 >
   <div class="flex min-h-0 w-full flex-col overflow-hidden">
     <div
-      class="mx-auto flex min-h-0 w-full flex-col gap-4 py-2 pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
+      class="mx-auto flex min-h-0 w-full flex-col gap-4 pb-4 opacity-0 transition-opacity md:w-[calc(var(--spacing-column-unit)*5-2rem)] {app.control_panel_open
         ? 'opacity-100 delay-300 duration-200'
         : 'delay-0 duration-150'}"
     >
@@ -76,7 +76,7 @@
           </Accordion>
 
           <!-- DECK E: ADVANCED -->
-          <Accordion label="Advanced" content_class="flex w-full items-center justify-between gap-4">
+          <Accordion label="Advanced" content_class="flex w-full flex-wrap items-center justify-between gap-4">
             <DevControls />
           </Accordion>
         </div>

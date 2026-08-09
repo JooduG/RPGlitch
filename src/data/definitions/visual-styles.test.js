@@ -7,7 +7,6 @@ describe("VISUAL_STYLES Preset Registry", () => {
     expect(VISUAL_STYLES.none).toBeDefined();
     expect(VISUAL_STYLES.lego).toBeDefined();
     expect(VISUAL_STYLES.analog_video).toBeDefined();
-    expect(VISUAL_STYLES.amateur).toBeDefined();
     expect(VISUAL_STYLES.cinematic).toBeDefined();
   });
 
@@ -37,16 +36,6 @@ describe("VISUAL_STYLES Preset Registry", () => {
     const parsed = parse_visual_engine(vhs.visual_engine);
     expect(parsed.texture).toContain("horizontal scanline stripes");
     expect(parsed.texture).toContain("interlacing tear lines");
-  });
-
-  it("configures amateur with mirror_selfie tag and casual tokens", () => {
-    const snap = VISUAL_STYLES.amateur;
-    expect(snap.tags).toContain("mirror_selfie");
-    expect(snap.tags).toContain("candid");
-    expect(snap.tags).toContain("casual");
-    expect(snap.description.toLowerCase()).toContain("casual");
-    expect(snap.visual_engine).toContain("mirror selfie");
-    expect(snap.visual_engine).toContain("candid");
   });
 
   it("configures cinematic with widescreen optics and non-anime negative prompt", () => {

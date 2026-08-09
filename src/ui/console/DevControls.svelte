@@ -23,6 +23,7 @@
 />
 
 <Toggle label="DEVMODE" bind:value={app.settings.dev_mode} onchange={() => app.save_settings()} />
+<Toggle label="GRID" bind:value={app.settings.dev_grid_visible} onchange={() => app.save_settings()} />
 <Button variant="danger" size="small" onclick={() => (is_confirming_reset = true)} title="Delete All">
   <svg
     class="size-3.5 -translate-y-kinetic-shimmy-y fill-none stroke-current stroke-2 [stroke-linecap:round] [stroke-linejoin:round]"

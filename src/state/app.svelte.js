@@ -288,11 +288,10 @@ export class AppStore {
   }
 
   /**
-   * Persist app settings to IndexedDB storage and sync dev grid visibility.
+   * Persist app settings to IndexedDB storage.
    */
   save_settings = async () => {
     if (typeof window === "undefined" || !this.settings) return;
-    this.settings.dev_grid_visible = this.settings.dev_mode;
     try {
       await db.kv_settings.put({ key: "rpg_settings", value: $state.snapshot(this.settings) });
     } catch (e) {

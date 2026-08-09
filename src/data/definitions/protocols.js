@@ -116,13 +116,18 @@ name (string), description (string), signature_color (string), eternal_physical 
     KEYWORD_INTEGRITY:
       "NEVER write quality buzzwords ('masterpiece', '8K resolution', 'ultra HD', 'photorealistic', 'digital art') in EITHER the 'prompt' OR the 'negative_prompt'. Ground outputs using physical optics and real-world materials.",
     NATURAL_PROSE: "Output continuous descriptive sentences. Avoid booru tag soup or comma-separated lists.",
+    FLUX_T5_WEIGHTING:
+      "NEVER use CLIP-style bracket weight arithmetic ('(red hair:1.3)', '((horns))', '[scar:0.4]') in the 'prompt' — the FLUX/T5-XXL encoder reads the words but ignores the weight math, so weighting syntax is dead weight. Emphasize with natural language instead: intensify core concepts with strong modifiers ('strikingly prominent', 'dominant', 'intensely'), reinforce key themes by repeating them with varied synonyms across separate clauses, and soften secondary details with attenuation phrasing ('faint', 'subtle touch of', 'barely visible in the distance').",
+    POSITIVE_FRAMING:
+      "Frame exclusions as explicit positive context inside the 'prompt' — describe what IS physically present (e.g. 'a softly moonlit glade' rather than 'no harsh sunlight'). Reserve the negative_prompt for global quality artifacts only.",
     PERCHANCE_SYNTAX: "MAY use Perchance dynamic selection syntax '{Option A|Option B}' for variable features to ensure organic variation.",
     NEGATIVE_PROMPT: "blurry, low resolution, compressed artifacts, watermark, bad anatomy, distorted features",
 
     REFINE_PROTOCOL: `1. Concept Enrichment: Enrich core subject, clothing, and environment with physical descriptors.
 2. Visual Integration: Honor <VISUAL_ENGINE>. Merge palette, lighting, and camera directives into natural prose.
 3. Quality Standard: Enforce KEYWORD_INTEGRITY and NATURAL_PROSE.
-4. Reasoning: Write step-by-step composition plan inside "_thought_process" key before prompt output.`,
+4. Reasoning: Write step-by-step composition plan inside "_thought_process" key before prompt output.
+5. Weighting: Enforce FLUX_T5_WEIGHTING — no bracket weight math; emphasize via descriptors, redundancy, and attenuation phrasing. Frame exclusions positively (POSITIVE_FRAMING).`,
 
     BUILDER_PROTOCOL: `EXECUTE VISUAL SYNTHESIS IN 5 ORDERED PHASES:
 
@@ -130,6 +135,8 @@ PHASE 1: EXECUTION & OUTPUT STRUCTURE
 - Formulate composition strategy inside "_thought_process" key first.
 - Output final image prompt inside "prompt" as continuous, fluid prose.
 - Output negative tokens inside "negative_prompt". Enforce KEYWORD_INTEGRITY — quality buzzwords ('masterpiece', '8K', 'ultra HD', 'photorealistic', 'digital art') are forbidden in BOTH "prompt" and "negative_prompt".
+- Enforce FLUX_T5_WEIGHTING — NEVER emit bracket weight math ('(x:1.3)', '((x))', '[x:0.4]'): FLUX/T5 reads words, not weights. Emphasize via descriptors, varied rephrasing, and attenuation phrasing.
+- Enforce POSITIVE_FRAMING — describe what IS physically in frame; keep the negative_prompt limited to global quality artifacts.
 
 PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
 - FIRST SENTENCE MANDATE: Always place main entities and active physical interactions in the VERY FIRST sentence.
@@ -139,7 +146,7 @@ PHASE 2: SUBJECT & SPATIAL FRAMING (FIRST SENTENCE PRIORITY)
 PHASE 3: CHARACTER SPECIFICATION & OVERRIDES
 - Explicit Identifiers: Always explicitly state gender and physical identifiers (e.g., "a handsome young male high-elf man").
 - Animal/Creature Disambiguation: Never use bare animal/creature proper names (e.g., "Beast"). Translate to explicit physical traits (e.g., "a massive grey-green male orc warrior").
-- Feature Weighting: Dedicate maximum descriptive effort to unique features (scars, glowing eyes, horns); keep common traits brief.
+- Feature Weighting: Dedicate maximum descriptive effort to unique features (scars, glowing eyes, horns); keep common traits brief. Reinforce key subjects through varied rephrasing across clauses rather than numeric weights.
 - Alternation Resolution: If an input attribute contains Perchance alternation syntax '{Option A|Option B}', resolve it to exactly ONE option consistent with the current narrative; never blend options and never echo the braces or pipe.
 - Dynamic State Override: Follow a strict bottom-up hierarchy where the most recent (bottom-most) physical condition update ALWAYS overrides preceding static tags like <SHIRT> or <JACKET>. If a conflicting state appears later (e.g. 'no clothes' then later 'shirt: white'), the most recent/latest state wins.
 
