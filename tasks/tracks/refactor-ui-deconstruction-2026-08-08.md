@@ -155,9 +155,17 @@ User manually deleted the `amateur` visual style from their repo (their `npm run
 - [x] Task 16.1: **Synced the removal** into the workspace `src` + the `scratch/repo` reference copy of `src/data/definitions/visual-styles.js`. The `amateur` preset block is gone. The literal tokens `amateur snapshot` / `amateur photo` inside OTHER styles' negative prompts (cinematic/analog-video exclusions) are unrelated and kept.
 - [x] Task 16.2: **`visual-styles.test.js` updated** (both copies) — dropped the `expect(VISUAL_STYLES.amateur).toBeDefined()` check and the entire "configures amateur with mirror_selfie tag and casual tokens" test. The schema-validation and XML-parse tests iterate `VISUAL_STYLES` dynamically, so they adapt automatically. Both style files esbuild-parse clean.
 
+### Phase 17: UX polish round — badge duotone, preview width, scroll-anywhere [DONE]
+
+Three user-requested refinements (discussed first, then implemented).
+
+- [x] Task 17.1: **StyleBadge duotone tint** — portrait-bearing badges (narrative + visual) now render a signature-color `mix-blend-multiply` overlay at 55% that fades to 0 on hover (`group-hover/badge:opacity-0`), so the fractal/entity's signature color tints the badge at rest and the portrait returns to normal colors when hovered — with the existing signature bottom-gradient + name overlay preserved on hover. Initials-only badges (no portrait) skip the tint (their tile is already signature-colored).
+- [x] Task 17.2: **ImagePreview info panel width** — `md:w-lg` (32rem) → `md:w-[calc(var(--spacing-column-unit)*3)]`, matching the profile wings (Profile's `col-[9/12]` = 3 column-units of the 12-col grid). Mobile keeps `w-full` stacked below the image.
+- [x] Task 17.3: **Scroll-anywhere in storymode** — `Feed.svelte` adds a window `wheel` listener that forwards `deltaY` (with deltaMode normalisation) to the feed's `.scroll-area-viewport` when the cursor is outside the feed — so wheeling over the character/fractal cards or gutters scrolls the feed instead of hitting an invisible boundary. Forwarding is skipped when the target is inside any scrollable region (feed, console accordions, dropdowns), or over `[data-modal-variant]` / `[data-backdrop]` / inputs / textareas / native scrollables, so nothing double-scrolls. Passive listener; no `preventDefault`. All three components Svelte-compiler clean.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 16 amateur style removal test sync.
-- **Status**: 16.1–16.2 done (round 14 delivered — test-only fix; style removal was user-side); still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).
+- **Active Task**: Phase 17 UX polish round.
+- **Status**: 17.1–17.3 done (round 15 delivered, awaiting vite + build/deploy confirmation); still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).

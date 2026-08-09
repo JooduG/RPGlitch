@@ -53,6 +53,45 @@
     return () => el.removeEventListener("scroll", handle_scroll);
   });
 
+  // SCROLL-ANYWHERE: forward the mouse wheel to the feed viewport when the
+  // cursor sits outside the feed (over the character/fractal cards, gutters,
+  // etc.) so the invisible feed boundary doesn't trap the wheel. Native
+  // scrolling is left untouched when the target is already inside any
+  // scrollable region (feed, console accordions, dropdowns, modals, inputs).
+  $effect(() => {
+    if (!scroll_ref) return;
+    const vp = scroll_ref.querySelector(".scroll-area-viewport");
+    if (!vp) return;
+
+    const is_inside_scrollable = (node) => {
+      let el = node;
+      while (el instanceof Element && el !== document.documentElement) {
+        if (el.classList.contains("scroll-area-viewport")) return true;
+        const tag = el.tagName;
+        if (tag === "TEXTAREA" || tag === "SELECT" || tag === "INPUT") return true;
+        const cs = getComputedStyle(el);
+        if ((cs.overflowY === "auto" || cs.overflowY === "scroll" || cs.overflowY === "overlay") && el.scrollHeight > el.clientHeight) return true;
+        el = el.parentElement;
+      }
+      return false;
+    };
+
+    const on_wheel = (e) => {
+      const t = e.target;
+      if (!(t instanceof Element)) return;
+      if (is_inside_scrollable(t)) return;
+      if (t.closest("[data-modal-variant], [data-backdrop], .dropdown-portal-wrapper, [data-dropdown-menu], .menu, .tooltip-portal")) return;
+      if (e.deltaY === 0) return;
+      let dy = e.deltaY;
+      if (e.deltaMode === 1) dy *= 16;
+      else if (e.deltaMode === 2) dy *= vp.clientHeight;
+      vp.scrollTop += dy;
+    };
+
+    window.addEventListener("wheel", on_wheel, { passive: true });
+    return () => window.removeEventListener("wheel", on_wheel);
+  });
+
   let last_feed_length = $state(0);
 
   $effect(() => {

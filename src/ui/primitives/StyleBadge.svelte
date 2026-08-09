@@ -146,6 +146,14 @@
           {/if}
         </div>
 
+        {#if style_details.portrait}
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-55 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
+            style="background-color: {signature_color}; mix-blend-mode: multiply;"
+          ></div>
+        {/if}
+
         {#if is_storymode || is_prologue}
           {@render storymode_overlay(style_details.name)}
         {/if}
@@ -196,6 +204,14 @@
             {vname}
           {/if}
         </div>
+
+        {#if vstyle_details.portrait}
+          <div
+            aria-hidden="true"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-55 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
+            style="background-color: {signature_color}; mix-blend-mode: multiply;"
+          ></div>
+        {/if}
 
         {#if is_storymode || is_prologue}
           {@render storymode_overlay(vname)}
