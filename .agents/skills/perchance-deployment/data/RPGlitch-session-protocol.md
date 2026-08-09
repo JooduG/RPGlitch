@@ -113,19 +113,23 @@ src/
 │   ├── vectors.js              # Vector helpers
 │   ├── use-actions.js          # Svelte DOM actions (moved from ui/actions)
 │   └── index.js                # @utils barrel
-└── ui/                     # Sensory UI layer (feature modules + shared primitives)
-    ├── shell/                  # App shell & top-level views (Layout, Storymode, Storyboard)
-    ├── console/                # Console module (Console, InputBar, AudioControls, DevControls)
+└── ui/                     # Sensory UI layer (top-level views + feature modules + shared primitives)
+    ├── Layout.svelte           # Top-level view: persistent app frame (Layout)
+    ├── Storymode.svelte        # Top-level view: Storymode (scroll/feed shell)
+    ├── Storyboard.svelte       # Top-level view: Storyboard (entity selection deck)
+    ├── Storyboard.svelte.js    # Component-sibling state module (card initials, deck geometry, claim lock, shuffle-deal + begin-flight choreography)
+    ├── index.js                # @ui barrel (Layout, Storymode, Storyboard, storyboard controller)
+    ├── console/                # Console module (Console, ControlPanel, SettingsButton, StoryboardBar, StorymodeBar, AudioControls, DevControls)
     ├── story/                  # Story library module (StoryCard, StoryManager)
-    ├── message/                # Message module (Message, Header, Body, Feed, UndoToast, TelemetryCard, TelemetryBlocks, TelemetryVector)
-    ├── entity/                 # Entity module (EntityCard, EntityCardHand, ImportModal)
+    ├── message/                # Message module (Message, Header, Body, Attachments, PrologueEpilogue, Feed, UndoToast, TelemetryCard, TelemetryBlocks, TelemetryVector)
+    ├── entity/                 # Entity module (EntityCard, CardHand, ContextMenu, ImportModal)
     ├── profile/                # Profile module (Profile, Header, Vectors, VisualWing, AudioWing, DevWing)
     ├── image/                  # Image module (ImagePicker, ImagePreview, ProfilePicture)
     ├── primitives/             # Shared primitives (Accordion, Backdrop, Button, DataBox, Dialog, Dropdown, GlassWrapper, Label, Meter, Modal, NumberField, ProgressBar, ScrollArea, Skeleton, Slider, StyleBadge, TextField, Toggle, Tooltip)
     └── motion/                 # Animation engines (Typewriter, kinetic, engine)
 ```
 
-> Note: component-sibling `.svelte.js` state modules keep the component's PascalCase filename (`Profile.svelte.js`, `ImagePicker.svelte.js`, `EntityCardContextMenu.svelte.js`, `Typewriter.svelte.js`) — they mirror their component and are NOT renamed.
+> Note: component-sibling `.svelte.js` state modules keep the component's PascalCase filename (`Profile.svelte.js`, `ImagePicker.svelte.js`, `Storyboard.svelte.js`, `ContextMenu.svelte.js`, `Typewriter.svelte.js`) — they mirror their component and are NOT renamed.
 
 ---
 

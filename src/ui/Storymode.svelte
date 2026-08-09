@@ -1,6 +1,6 @@
 <script>
   /**
-   * src/ui/shell/Storymode.svelte
+   * src/ui/Storymode.svelte
    * Displays the continuous message feed (AI, user, fractal roles).
    */
   import { app, simulation_log, simulation_state } from "@state";

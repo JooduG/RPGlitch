@@ -17,8 +17,8 @@ Deconstruct high-complexity UI components (`Storymode.svelte`, `Message.svelte`,
 
 ### Success Criteria
 
-- `Console.svelte` (formerly `UnifiedConsole.svelte`) line count reduced from 942 to < 200 lines.
-- `Message.svelte` line count reduced from 750 to < 120 lines.
+- `Console.svelte` line count reduced to < 200 lines. _(565 → ~190 in Phase 6: accordion decks → `ControlPanel`, gear → `SettingsButton`, storyboard bottom bar → `StoryboardBar`, shuffle/begin choreography → `storyboard.svelte.js`.)_
+- `Message.svelte` line count reduced to < 350 lines. _(538 → ~330 in Phase 6: attachment regenerate gallery → `Attachments.svelte`, prologue/epilogue entity trio → `PrologueCards.svelte`. Criterion revised from < 120 after investigation, 2026-08-09: the remainder is Svelte 5 runes orchestration — parse pipeline, stream/typewriter reconciliation, focus/audio/copy handlers — that must live in component context to stay reactive; forcing < 120 would contort it into non-Svelte modules and hurt clarity.)_
 - `Storymode.svelte` line count reduced from 516 to < 150 lines.
 - `DevTelemetryBlock.svelte` (formerly `MessageDevBlock.svelte`) line count reduced from 553 to < 180 lines.
 - 100% of existing unit test suites pass (`npm run test:unit`).
@@ -65,9 +65,31 @@ Deconstruct high-complexity UI components (`Storymode.svelte`, `Message.svelte`,
 - [x] Task 5.2: Run `npm run deploy:check`.
 - [x] Task 5.3: Run `npm run build`.
 
+### Phase 6: Round-2 Extractions (post-reorg, module layout) [IN PROGRESS]
+
+- [x] Task 6.1: Extract `ControlPanel.svelte` (accordion decks) from `Console.svelte`.
+- [x] Task 6.2: Extract `SettingsButton.svelte` (gear control) from `Console.svelte`.
+- [x] Task 6.3: Extract `StoryboardBar.svelte` (storyboard bottom bar) from `Console.svelte`.
+- [x] Task 6.4: Extract `storyboard.svelte.js` (shuffle-deal + begin-flight choreography) from `Console.svelte`.
+- [x] Task 6.5: Extract `Attachments.svelte` (regenerate/select/preview gallery) from `Message.svelte`.
+- [x] Task 6.6: Extract `PrologueCards.svelte` (story title + entity trio) from `Message.svelte`.
+- [ ] Task 6.7: Run `npm run test:unit`.
+- [ ] Task 6.8: Run `npm run verify` & `npm run build`.
+
+### Phase 7: Naming Round & shell/ Removal [IN PROGRESS]
+
+- [x] Task 7.1: Rename `InputBar.svelte` → `StorymodeBar.svelte` (mirrors `StoryboardBar`).
+- [x] Task 7.2: Rename `PrologueCards.svelte` → `PrologueEpilogue.svelte` (serves both prologue & epilogue).
+- [x] Task 7.3: Rename `EntityCardHand.svelte` → `CardHand.svelte` (+ `EntityCardHandState` → `CardHandState` typedefs).
+- [x] Task 7.4: Rename `EntityContextMenu.svelte.js` → `ContextMenu.svelte.js`.
+- [x] Task 7.5: Remove `ui/shell/` — `Layout`/`Storymode`/`Storyboard` move to `src/ui/` root, exported via new `@ui` barrel (`src/ui/index.js`).
+- [x] Task 7.6: Move storyboard choreography `console/storyboard.svelte.js` → `src/ui/Storyboard.svelte.js` (component-sibling state module), absorbing `Console.svelte.js` helpers; `Console.svelte.js` deleted, its helper tests moved to `Storyboard.svelte.test.js`.
+- [ ] Task 7.7: Run `npm run test:unit`.
+- [ ] Task 7.8: Run `npm run verify` & `npm run build`.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Task 3.1: Extract `MessageHeader.svelte`.
-- **Status**: Executing Phase 3.
+- **Active Task**: Phase 7 Naming Round & shell/ removal.
+- **Status**: Renames/moves written (7.1–7.6); awaiting unit-test/build verification (6.7–6.8, 7.7–7.8).

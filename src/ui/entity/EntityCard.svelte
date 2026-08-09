@@ -13,7 +13,7 @@
   import { motion } from "@motion";
   import { app } from "@state";
   import { flushSync } from "svelte";
-  import { claim_menu, get_menu_epoch, claim_morph_epoch, get_morph_epoch } from "./EntityCardContextMenu.svelte.js";
+  import { claim_menu, get_menu_epoch, claim_morph_epoch, get_morph_epoch } from "./ContextMenu.svelte.js";
 
   /**
    * @typedef {Object} Props

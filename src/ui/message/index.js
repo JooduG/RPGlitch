@@ -2,6 +2,8 @@ export { default as Feed } from "./Feed.svelte";
 export { default as Message } from "./Message.svelte";
 export { default as Header } from "./Header.svelte";
 export { default as Body } from "./Body.svelte";
+export { default as Attachments } from "./Attachments.svelte";
+export { default as PrologueEpilogue } from "./PrologueEpilogue.svelte";
 export { default as UndoToast } from "./UndoToast.svelte";
 export { default as TelemetryCard } from "./TelemetryCard.svelte";
 export { default as TelemetryBlocks } from "./TelemetryBlocks.svelte";

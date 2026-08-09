@@ -18,10 +18,10 @@
     set_regenerate_error,
   } from "@image";
   import { motion } from "@motion";
-  import { EntityCardHand, EntityCard } from "@entity";
-  import { Layout } from "@shell";
+  import { CardHand, EntityCard } from "@entity";
+  import { Layout } from "@ui";
   import { Profile } from "@profile";
-  import { Storyboard, Storymode } from "@shell";
+  import { Storyboard, Storymode } from "@ui";
   import { Console } from "@console";
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
@@ -536,7 +536,7 @@
   </Layout>
 
   {#if app.entities_loaded}
-    <EntityCardHand />
+    <CardHand />
   {/if}
 
   {#if app.profile_open}

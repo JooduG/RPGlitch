@@ -16,7 +16,6 @@ export default defineConfig({
       "@state": path.resolve(__dirname, "./src/state"),
       "@media": path.resolve(__dirname, "./src/media"),
       "@ui": path.resolve(__dirname, "./src/ui"),
-      "@shell": path.resolve(__dirname, "./src/ui/shell"),
       "@console": path.resolve(__dirname, "./src/ui/console"),
       "@story": path.resolve(__dirname, "./src/ui/story"),
       "@message": path.resolve(__dirname, "./src/ui/message"),

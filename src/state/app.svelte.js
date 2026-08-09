@@ -29,7 +29,7 @@ const close_image_preview = () => _image_preview_bridge.close?.();
 const open_image_preview = (src, caption = "") => _image_preview_bridge.open?.(src, caption);
 
 /** @typedef {import('./status.svelte.js').AppSettings} AppSettings */
-/** @typedef {import('./status.svelte.js').EntityCardHandState} EntityCardHandState */
+/** @typedef {import('./status.svelte.js').CardHandState} CardHandState */
 /** @typedef {import('./status.svelte.js').SimulationControl} SimulationControl */
 /** @typedef {import('./status.svelte.js').FateSystem} FateSystem */
 
@@ -119,7 +119,7 @@ export class AppStore {
    * in place by load_entities().
    */
   claimed_entity_ids = new SvelteSet();
-  /** @type {EntityCardHandState} */
+  /** @type {CardHandState} */
   card_hand = $state({
     open: false,
     type: null, // 'ai' | 'user' | 'fractal'
