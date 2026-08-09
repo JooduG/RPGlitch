@@ -28,6 +28,72 @@ import { temporal_engine } from "./temporal.js";
 const IMAGE_GEN_QUEUE_CAPACITY = 3;
 export const _image_gen_queue = [];
 
+// Ghost-card hard cap: at most this many unresolved (src:null) placeholders may
+// exist in the log at once. Beyond it, new triggers are refused until resolution
+// or the age-based sweep clears some — a permanent hard bound on ghost images.
+const IMAGE_PLACEHOLDER_HARD_CAP = 3;
+const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
+const IMAGE_GHOST_MAX_AGE_MS = 5 * 60 * 1000;
+
+/**
+ * Counts unresolved image placeholders (src:null, not already marked failed) in
+ * the current story's log.
+ * @returns {Promise<number>}
+ */
+async function count_pending_ghosts() {
+  try {
+    const story_id = state_bridge.runtime.story_id;
+    if (!story_id) return 0;
+    const entries = await state_bridge.session_driver.load_log(story_id);
+    let count = 0;
+    for (const entry of entries) {
+      const atts = entry?.attachments || [];
+      for (const a of atts) {
+        if (a && a.src == null && !a.metadata?.failed) count++;
+      }
+    }
+    return count;
+  } catch (_err) {
+    return 0;
+  }
+}
+
+/**
+ * Marks any placeholder older than IMAGE_GHOST_MAX_AGE_MS as failed so a hung
+ * or extremely slow generation can never leave a permanent ghost card behind.
+ * @returns {Promise<void>}
+ */
+async function sweep_stale_ghosts() {
+  try {
+    const story_id = state_bridge.runtime.story_id;
+    if (!story_id) return;
+    const entries = await state_bridge.session_driver.load_log(story_id);
+    const now = Date.now();
+    for (const entry of entries) {
+      const atts = entry?.attachments || [];
+      for (let i = 0; i < atts.length; i++) {
+        const a = atts[i];
+        if (a && a.src == null && !a.metadata?.failed) {
+          const age = now - (entry.created_at || 0);
+          if (age > IMAGE_GHOST_MAX_AGE_MS) {
+            await state_bridge.session_driver.update_log_attachment(entry.id, i, {
+              src: null,
+              metadata: {
+                ...(a.metadata || {}),
+                failed: true,
+                image_ghost_swept: true,
+                error: "Image beat timed out before it could resolve.",
+              },
+            });
+          }
+        }
+      }
+    }
+  } catch (_err) {
+    /* sweep must never break the trigger path */
+  }
+}
+
 /**
  * Marks a logged placeholder attachment as failed so it never lingers as a
  * permanent `src: null` ghost card in the chat log.
@@ -381,6 +447,18 @@ export const gamemaster = {
     const fractal_name = runtime_state.active_fractal?.name || "Fractal";
 
     try {
+      // Ghost hard cap: refuse new beats once too many placeholders are already
+      // unresolved, and sweep stale ones first so recovered placeholders count.
+      await sweep_stale_ghosts();
+      const pending = await count_pending_ghosts();
+      if (pending >= IMAGE_PLACEHOLDER_HARD_CAP) {
+        state_bridge.app.log(
+          `[Image Trigger] Skipped ${tier} — ${pending} unresolved image beats pending (hard cap ${IMAGE_PLACEHOLDER_HARD_CAP}).`,
+          "warn",
+        );
+        return;
+      }
+
       const placeholder_metadata = { mode: tier, image_source: source, image_explicit: explicit };
       const placeholder_entry = await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
         turn_type: "SYSTEM_TURN",
@@ -398,7 +476,10 @@ export const gamemaster = {
 
       const resolve_placeholder = async () => {
         try {
-          const result = await visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true });
+          const result = await Promise.race([
+            visual_engine.visualize(runtime_state.story_id, visual_prompt, tier, { silent: true }),
+            new Promise((_, reject) => setTimeout(() => reject(new Error("IMAGE_RESOLVE_TIMEOUT")), IMAGE_RESOLVE_TIMEOUT_MS)),
+          ]);
           _remove_from_image_gen_queue(placeholder_entry.id);
           if (result?.imageUrl) {
             await state_bridge.session_driver.update_log_attachment(placeholder_entry.id, 0, {
@@ -486,16 +567,13 @@ export const gamemaster = {
         flags: [],
       };
 
-      dynamics_engine.settle_physics(
-        snapshot.ai.dynamics,
-        dynamics_engine._get_baselines(payload.entities.AI),
-        snapshot.fractal.dynamics?.entropy || 50,
-      );
-      dynamics_engine.settle_physics(
-        snapshot.fractal.dynamics,
-        dynamics_engine._get_baselines(payload.entities.FRACTAL),
-        snapshot.fractal.dynamics?.entropy || 50,
-      );
+      // Director-delta axes are collected during 4.1 and exempted from the gravity
+      // settle afterwards, so a Director-calibrated axis (including a deliberate 0)
+      // is authoritative for that turn instead of being overwritten by baseline drift.
+      /** @type {Set<string>} */
+      const ai_delta_axes = new Set();
+      /** @type {Set<string>} */
+      const fractal_delta_axes = new Set();
 
       snapshot.pruned_vectors = {
         AI: prune(payload.entities.AI?.memories),
@@ -550,6 +628,7 @@ export const gamemaster = {
           Object.entries(entity_mutations.AI_CHARACTER.dynamics_deltas).forEach(([k, delta]) => {
             const val = Number(delta);
             if (!isNaN(val)) {
+              ai_delta_axes.add(k);
               const current = snapshot.ai.dynamics[k] || 50;
               snapshot.ai.dynamics[k] = Math.max(1, Math.min(100, current + val));
             }
@@ -569,12 +648,31 @@ export const gamemaster = {
           Object.entries(entity_mutations.FRACTAL.dynamics_deltas).forEach(([k, delta]) => {
             const val = Number(delta);
             if (!isNaN(val)) {
+              fractal_delta_axes.add(k);
               const current = snapshot.fractal.dynamics[k] || 50;
               snapshot.fractal.dynamics[k] = Math.max(1, Math.min(100, current + val));
             }
           });
         }
       }
+
+      // 4.2. GRAVITY SETTLEMENT — after the Director's explicit deltas, so axes it
+      // calibrated this turn (including deliberate 0s) are authoritative. Untouched
+      // axes still drift gently toward their baselines to prevent runaway drift.
+      dynamics_engine.settle_physics(
+        snapshot.ai.dynamics,
+        dynamics_engine._get_baselines(payload.entities.AI),
+        snapshot.fractal.dynamics?.entropy || 50,
+        0.1,
+        ai_delta_axes,
+      );
+      dynamics_engine.settle_physics(
+        snapshot.fractal.dynamics,
+        dynamics_engine._get_baselines(payload.entities.FRACTAL),
+        snapshot.fractal.dynamics?.entropy || 50,
+        0.1,
+        fractal_delta_axes,
+      );
 
       // 4.5. PHYSICS SYNC & TELEMETRY
       const character_prompt = prompt_builder.build_character_prompt(payload, snapshot, director_data);
@@ -822,23 +920,45 @@ export const gamemaster = {
       state_bridge.app.end_stream();
 
       const image_promise = visual_engine
-        ? visual_engine
-            .visualize(story_id, strip_cognition_blocks(response), "story_entities", { silent: true })
-            .then((img_result) => {
-              if (img_result?.imageUrl) {
-                state_bridge.session_driver.update_log_attachment(node_id, 0, {
-                  src: img_result.imageUrl,
-                  metadata: {
-                    ...(img_result.metadata || {}),
-                    prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                    mode: "characters",
-                  },
-                });
-              }
-            })
-            .catch((err) => {
-              console.warn("[Prologue Image Error]", err);
-            })
+        ? Promise.race([
+            visual_engine
+              .visualize(story_id, strip_cognition_blocks(response), "story_entities", { silent: true })
+              .then((img_result) => {
+                if (img_result?.imageUrl) {
+                  state_bridge.session_driver.update_log_attachment(node_id, 0, {
+                    src: img_result.imageUrl,
+                    metadata: {
+                      ...(img_result.metadata || {}),
+                      prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
+                      mode: "characters",
+                    },
+                  });
+                }
+              })
+              .catch((err) => {
+                console.warn("[Prologue Image Error]", err);
+              }),
+            new Promise((resolve) =>
+              setTimeout(async () => {
+                // Mark the placeholder failed ONLY if it is still unresolved — never
+                // clobber an image that resolved in the meantime.
+                try {
+                  const key = isNaN(Number(node_id)) ? node_id : Number(node_id);
+                  const entry = await db.simulation_log.get(key);
+                  const att = entry?.attachments?.[0];
+                  if (att && att.src == null) {
+                    await state_bridge.session_driver.update_log_attachment(node_id, 0, {
+                      src: null,
+                      metadata: { ...(att.metadata || {}), failed: true, image_ghost_swept: true, error: "Prologue image timed out." },
+                    });
+                  }
+                } catch (_err) {
+                  /* guard must never break the prologue */
+                }
+                resolve();
+              }, IMAGE_RESOLVE_TIMEOUT_MS),
+            ),
+          ])
         : Promise.resolve();
 
       // Prime the streaming cursor so the busy placeholder renders during the opening

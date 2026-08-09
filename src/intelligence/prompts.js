@@ -8,7 +8,7 @@ import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "../data/definitions/fragments.js";
-import { clean_xml, collapse_history, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
+import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 // PROTOCOL_LIBRARY is defined in @data/definitions/protocols.js and re-exported here
@@ -295,6 +295,15 @@ ${(() => {
       - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or SNAPSHOT, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
       - Compose the "directive" key as your narrative voice into the AI character's turn: weave the active <PAST>, <FUTURE>, and <ETERNAL> threads across the AI character, user persona, and fractal into a short, subtle in-character cue. Keep it deniable and atmospheric — never state hidden agendas as fact, never deliver exposition the character could not have inferred. Empty string when nothing is warranted.
       - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
+    DYNAMICS CALIBRATION (dynamics_deltas must mirror the scene's actual register, never a mechanical ratchet):
+      - Quiet, vulnerable, contemplative, or tension-easing beats move intensity DOWNWARD (or leave it flat at 0). Genuine spikes — violence, confrontation, revelations, climaxes — move it upward, using the full -10..+10 range when warranted.
+      - openness/affinity move on the beats that actually touch them: vulnerability, trust, honesty, and shared risk push openness/affinity UP; guardedness, betrayal, deception, and manipulation push them DOWN.
+      - A delta of 0 is a deliberate "no change" — prefer it over tiny meaningless ±1 drift, and never nudge an axis just to register activity.
+      - Entropy (fractal) rises on reality-warping or systemic failures and falls on stability; velocity rises on chases, infiltration, and fast cuts and falls on meditation, aftermath, and silence.
+    PLOT DRIVE (occasional — you initiate, you do not only react):
+      - When the user action is open-ended, a scene has settled, or several rounds have passed without plot movement, introduce ONE concrete new development rather than only re-tuning mood: a discovery, a complication, an arrival, an obstacle, or a decision the characters are forced to make.
+      - Seed it through the mechanics: an AI_CHARACTER vector_append (their own next move) and/or a FRACTAL vector_append (an environmental shift), and cue it subtly inside the "directive".
+      - Do NOT force a plot beat mid-climax or while the user is actively steering a scene to a point — reaction is the correct call there.
   </TASK>
   `).trim();
 
@@ -449,7 +458,9 @@ function render_ghostwriter({ entities, input = "" }) {
   rendered.task += clean_xml(`
 <GHOSTWRITE>
     ${draft_directive}
-    Write strictly from ${escape_xml(user_name)}'s perspective and voice. Do not write dialogue, actions, or thoughts for ${escape_xml(ai_name)}. Do not describe ${escape_xml(ai_name)}'s reactions. Output only the raw text — no preamble, no meta-commentary, no XML wrappers.
+    Write strictly from ${escape_xml(user_name)}'s perspective and voice: only their physical actions, dialogue, sensations, and internal states.
+    Do not write dialogue, actions, or thoughts for ${escape_xml(ai_name)}. Also do not write their body language, expressions, or reactions — never narrate how the other character looks or feels in response to you.
+    Output only the raw text — no preamble, no meta-commentary, no XML wrappers.
 </GHOSTWRITE>
   `);
 
@@ -565,6 +576,10 @@ ${entity_blocks}
       - "vector_append": Add temporal vectors written strictly from that entity's own perspective:
           "past"   = a settled historical anchor (memory).
           "future" = a prophecy, intent, or goal to carry forward.
+    FACT RETENTION (mandatory — facts outrank feelings):
+      - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
+      - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
+      - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
   </TASK>

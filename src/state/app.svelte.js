@@ -253,11 +253,25 @@ export class AppStore {
     const entry = {
       id: generate_uuid(),
       timestamp: log_time_formatter.format(Date.now()),
+      created_at: Date.now(),
       message,
       type, // 'system' | 'ai' | 'db' | 'error'
     };
     this.logs.unshift(entry);
     if (this.logs.length > 100) this.logs.pop();
+
+    // Persist the telemetry log (capped, debounced) so DevMode history survives
+    // reloads instead of being wiped with the session.
+    if (typeof db?.kv_settings !== "undefined") {
+      clearTimeout(this._log_persist_timer);
+      this._log_persist_timer = setTimeout(async () => {
+        try {
+          await db.kv_settings.put({ key: "rpg_telemetry_logs", value: $state.snapshot(this.logs).slice(0, 100) });
+        } catch (_persistErr) {
+          /* telemetry persistence must never break the app */
+        }
+      }, 800);
+    }
 
     // Call engine-wide logger
     engineLog(`[Telemetry:${type.toUpperCase()}] ${message}`);
@@ -285,6 +299,19 @@ export class AppStore {
     } catch (e) {
       console.error("[Security] Settings Hydration Failed:", e);
     }
+
+    // Hydrate the persisted DevMode telemetry log so history survives reloads.
+    try {
+      const stored = await db.kv_settings.get("rpg_telemetry_logs");
+      if (stored?.value && Array.isArray(stored.value) && stored.value.length > 0) {
+        this.logs = $state.snapshot(stored.value).slice(0, 100);
+      }
+    } catch (e) {
+      console.error("[Security] Telemetry Log Hydration Failed:", e);
+    }
+
+    // Freeze watchdog: never let a stuck state machine leave the composer dead.
+    install_freeze_watchdog();
   }
 
   /**
@@ -541,6 +568,100 @@ export class AppStore {
     this.view = "storymode";
   };
 }
+/**
+ * 🧊 FREEZE WATCHDOG (composer-freeze recovery)
+ * The composer can only die if the simulation state machine gets stuck
+ * (phase generating/locked or intent_active stuck true) with no live turn.
+ * Two tiers:
+ *   - Tier 1 (fast & safe): busy/locked with NO active stream for 120s → force unlock.
+ *   - Tier 2 (broad): busy/locked for 5 min regardless of streaming, with no
+ *     streaming progress (content growing / heartbeat) → abort + force unlock.
+ * A live stream with growing content extends the window, so slow-but-healthy
+ * generations are never interrupted.
+ */
+let _freeze_watchdog_started = false;
+const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
+const FREEZE_WATCHDOG_IDLE_GRACE_MS = 120000;
+const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
+
+function install_freeze_watchdog() {
+  if (_freeze_watchdog_started || typeof window === "undefined") return;
+  _freeze_watchdog_started = true;
+
+  /** @type {number} */
+  let stuck_since = 0;
+  let last_stream_len = 0;
+
+  const force_recover = (reason) => {
+    console.warn("[Watchdog] Detected frozen simulation state — force-recovering.", {
+      reason,
+      phase: simulation_state.phase,
+      intent_active: simulation_state.intent_active,
+      loading: app.simulation.loading,
+      streaming_active: app.streaming.active,
+    });
+    app.log(`[Watchdog] ${reason} — force-recovering the simulation.`, "error");
+    try {
+      simulation_state.complete();
+      simulation_state.unlock();
+      simulation_state.set_intent_active(false);
+    } catch (_err) {
+      /* state store never throws */
+    }
+    app.simulation.loading = false;
+    app.end_stream();
+    app.streaming.active = false;
+    app.streaming.content = "";
+    app.streaming.node_id = null;
+    if (app.streaming.abort_controller) {
+      try {
+        app.streaming.abort_controller.abort();
+      } catch (_err) {
+        /* already aborted */
+      }
+      app.streaming.abort_controller = null;
+    }
+  };
+
+  setInterval(() => {
+    const phase = simulation_state.phase;
+    const intent_active = simulation_state.intent_active;
+    const busy = phase === "generating" || intent_active;
+    const locked = phase === "locked";
+    const streaming_active = app.streaming.active;
+    const stream_len = app.streaming.content?.length ?? 0;
+
+    const stuck = busy || locked;
+    if (!stuck) {
+      stuck_since = 0;
+      last_stream_len = stream_len;
+      return;
+    }
+
+    if (stuck_since === 0) {
+      stuck_since = Date.now();
+      last_stream_len = stream_len;
+      return;
+    }
+
+    const elapsed = Date.now() - stuck_since;
+    const stream_grew = stream_len > last_stream_len;
+    last_stream_len = stream_len;
+
+    if (!streaming_active && elapsed >= FREEZE_WATCHDOG_IDLE_GRACE_MS) {
+      force_recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no stream`);
+      stuck_since = 0;
+      return;
+    }
+
+    if (elapsed >= FREEZE_WATCHDOG_MAX_MS && !stream_grew) {
+      force_recover(`Simulation stuck ${Math.round(elapsed / 1000)}s with no progress`);
+      stuck_since = 0;
+      return;
+    }
+  }, FREEZE_WATCHDOG_INTERVAL_MS);
+}
+
 export const app = new AppStore();
 stories_bridge.register_bump(() => {
   app.stories_version++;

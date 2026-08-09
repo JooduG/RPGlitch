@@ -32,14 +32,16 @@ export const dynamics_engine = {
    * @param {Record<string, number>} [baselines={}] - The baseline gravitational centers
    * @param {number} [active_entropy=50] - The current world entropy (0-100)
    * @param {number} [base_gravity=0.1] - The baseline gravity strength (e.g. 0.1)
+   * @param {Set<string>|null} [skip_axes=null] - Axes the Director explicitly calibrated this turn; they are exempt from gravity so its deltas stay authoritative.
    */
-  settle_physics(dynamics, baselines = {}, active_entropy = 50, base_gravity = 0.1) {
+  settle_physics(dynamics, baselines = {}, active_entropy = 50, base_gravity = 0.1, skip_axes = null) {
     if (!dynamics || typeof dynamics !== "object") return;
 
     // 1. Gravity Pull & Settlement (Clamp to 0-100 bounds)
     const variance = (active_entropy / 100) * 0.05;
 
     Object.keys(dynamics).forEach((axis) => {
+      if (skip_axes && skip_axes.has(axis)) return;
       const target = baselines[axis] ?? 50;
       const randomized_gravity = base_gravity + (Math.random() * 2 - 1) * variance;
       const applied_gravity = Math.max(0, Math.min(1, randomized_gravity)); // Clamp [0, 1]

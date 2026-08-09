@@ -201,6 +201,102 @@ function is_duplicate(a, b) {
   return shared / Math.min(words_a.size, words_b.size) > 0.6;
 }
 
+// --- PROFILE HYGIENE (Fix: eternal/present pollution) ---
+// ETERNAL is identity: it must not accumulate contradictory mutation lines.
+// Appends are deduped (verbatim or near-duplicate lines are skipped) and capped
+// from the TAIL so the opening identity block is always preserved.
+export const FUTURE_VECTOR_CAP = 30;
+const ETERNAL_MAX_CHARS = 1500;
+const PRESENT_MAX_SEGMENTS = 3;
+
+function vector_id_exists(entity, id) {
+  if (!entity || !id) return false;
+  return (
+    (Array.isArray(entity.past) && entity.past.some((v) => v && v.id === id)) ||
+    (Array.isArray(entity.future) && entity.future.some((v) => v && v.id === id))
+  );
+}
+
+/** Reassigns a fresh UUID when a vector id collides with an existing one in either pool. */
+export function ensure_unique_vector_id(entity, vector) {
+  if (!entity || !vector || !vector.id) return vector;
+  let attempts = 0;
+  while (vector_id_exists(entity, vector.id) && attempts < 5) {
+    vector.id = _uuid();
+    attempts++;
+  }
+  return vector;
+}
+
+/** Pushes a future vector under a hard cap, logging the oldest eviction. */
+export function append_future_vector(entity, vector) {
+  if (!entity) return;
+  if (!Array.isArray(entity.future)) entity.future = [];
+  entity.future.push(vector);
+  if (entity.future.length > FUTURE_VECTOR_CAP) {
+    const evicted = entity.future.shift();
+    const evicted_text = String(evicted?.content || evicted?.directive || "").trim();
+    if (evicted_text) {
+      console.warn(
+        `[TemporalEngine] Future cap (${FUTURE_VECTOR_CAP}) reached — evicting oldest future vector: "${evicted_text.slice(0, 60)}${evicted_text.length > 60 ? "..." : ""}"`,
+      );
+      try {
+        state_bridge.app?.log?.(
+          `[TemporalEngine] Evicted oldest future vector (cap ${FUTURE_VECTOR_CAP}): "${evicted_text.slice(0, 40)}..."`,
+          "warn",
+        );
+      } catch (_err) {
+        /* never let telemetry break the mutation path */
+      }
+    }
+  }
+}
+
+/** Deduplicates an incoming eternal mutation against the existing identity field. */
+function eternal_field_dedup(existing, incoming) {
+  const norm = (s) =>
+    String(s || "")
+      .toLowerCase()
+      .replace(/\s+/g, " ")
+      .trim();
+  const inc = norm(incoming);
+  if (!inc) return true;
+  const lines = String(existing || "")
+    .split("\n")
+    .map(norm)
+    .filter(Boolean);
+  if (lines.includes(inc)) return true;
+  for (const line of lines) {
+    if (line && is_duplicate(line, inc)) return true;
+  }
+  return false;
+}
+
+/**
+ * Merges new prose into an ETERNAL identity field: skips near-duplicates and
+ * caps from the tail so the identity opening is never overwritten by pollution.
+ */
+function merge_eternal_field(current_field_value, new_prose) {
+  if (!new_prose || !new_prose.trim()) return current_field_value || "";
+  const existing = String(current_field_value || "").trim();
+  if (existing && eternal_field_dedup(existing, new_prose)) return existing;
+  const combined = existing ? `${existing}\n${new_prose.trim()}` : new_prose.trim();
+  return combined.length > ETERNAL_MAX_CHARS ? combined.slice(0, ETERNAL_MAX_CHARS) : combined;
+}
+
+/**
+ * Decays a PRESENT prose field to its most recent segments so stale snapshots
+ * ("standing in the penthouse doorway" + "by the wall of files in B7" at once)
+ * can never pile up between consolidations.
+ */
+function cap_present_prose(current_field_value) {
+  const lines = String(current_field_value || "")
+    .split("\n")
+    .filter((l) => l.trim());
+  if (lines.length <= PRESENT_MAX_SEGMENTS) return lines.join("\n");
+  return lines.slice(-PRESENT_MAX_SEGMENTS).join("\n");
+}
+
 export function format(vectors, input, options = {}) {
   const show_text = options.vector_text ?? true;
   const max_chars = options.max_chars || 1500;
@@ -414,7 +510,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
     mutations.present_append?.non_physical || mutations.present_mutations?.non_physical || mutations.present_append_non_physical || "";
   if (pres_non_phys.trim()) {
     if (!entity.present) entity.present = { physical: "", non_physical: "" };
-    entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, pres_non_phys);
+    entity.present.non_physical = cap_present_prose(merge_prose_into_field(entity.present.non_physical, pres_non_phys));
     changed = true;
   }
 
@@ -442,6 +538,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
       const new_vector = create(payload, v.type === "past" ? "past" : "future", v.emotional_weight ?? v.weight ?? 5);
       const bucket = new_vector.type === "future" ? "future" : "past";
       if (!Array.isArray(entity[bucket])) entity[bucket] = [];
+      ensure_unique_vector_id(entity, new_vector);
       v.id = new_vector.id;
       ensure_embedding(new_vector)
         .then(() => {
@@ -451,7 +548,11 @@ export function apply_state_mutations(entity, mutations, session = null) {
           }
         })
         .catch(() => {});
-      entity[bucket].push(new_vector);
+      if (new_vector.type === "future") {
+        append_future_vector(entity, new_vector);
+      } else {
+        entity[bucket].push(new_vector);
+      }
       changed = true;
     });
   }
@@ -459,11 +560,11 @@ export function apply_state_mutations(entity, mutations, session = null) {
   const eternal_muts = mutations.eternal_consolidated || mutations.eternal_baseline || mutations.eternal_mutations;
   if (eternal_muts && entity.eternal) {
     if (eternal_muts.physical?.trim()) {
-      entity.eternal.physical = merge_prose_into_field(entity.eternal.physical, eternal_muts.physical);
+      entity.eternal.physical = merge_eternal_field(entity.eternal.physical, eternal_muts.physical);
       changed = true;
     }
     if (eternal_muts.non_physical?.trim()) {
-      entity.eternal.non_physical = merge_prose_into_field(entity.eternal.non_physical, eternal_muts.non_physical);
+      entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, eternal_muts.non_physical);
       changed = true;
     }
   }
@@ -525,6 +626,8 @@ export const temporal_engine = {
   resolve,
   forge_memory,
   apply_state_mutations,
+  append_future_vector,
+  ensure_unique_vector_id,
   set_round,
   precompute_context_embedding,
   _is_consolidating: false,
@@ -553,18 +656,30 @@ export const temporal_engine = {
         if (forged) {
           for (const { key, type, entity } of entity_targets) {
             const memories = forged.memories?.[key] || [];
+            let entity_changed = false;
             for (const memory of memories) {
               if (memory.type === "future") {
-                entity.future = [...(entity.future || []), memory];
-                await runtime.update_entity(type, entity.id, { future: entity.future });
+                ensure_unique_vector_id(entity, memory);
+                append_future_vector(entity, memory);
+                entity_changed = true;
               } else if (memory.type === "present") {
                 if (!entity.present) entity.present = { physical: "", non_physical: "" };
-                entity.present.non_physical = merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || "");
-                await runtime.update_entity(type, entity.id, { present: entity.present });
+                entity.present.non_physical = cap_present_prose(
+                  merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
+                );
+                entity_changed = true;
               } else {
+                ensure_unique_vector_id(entity, memory);
                 entity.past = [...(entity.past || []), memory];
-                await runtime.update_entity(type, entity.id, { past: entity.past });
+                entity_changed = true;
               }
+            }
+            if (entity_changed) {
+              await runtime.update_entity(type, entity.id, {
+                past: entity.past,
+                future: entity.future,
+                present: entity.present,
+              });
             }
           }
 
@@ -579,10 +694,17 @@ export const temporal_engine = {
             const summaries = forged.present_consolidated;
             for (const { key, type, entity } of entity_targets) {
               const summary = summaries[key];
-              if (!summary || typeof summary !== "object") continue;
-              if (!entity.present) entity.present = { physical: "", non_physical: "" };
-              if (summary.physical !== undefined) entity.present.physical = summary.physical;
-              if (summary.non_physical !== undefined) entity.present.non_physical = summary.non_physical;
+              if (summary && typeof summary === "object") {
+                if (!entity.present) entity.present = { physical: "", non_physical: "" };
+                if (summary.physical !== undefined) entity.present.physical = summary.physical;
+                if (summary.non_physical !== undefined) entity.present.non_physical = summary.non_physical;
+              } else {
+                // No fresh replacement this batch: decay the accumulated prose so
+                // stale snapshots (conflicting locations/situations) can't pile up.
+                if (entity.present && entity.present.non_physical) {
+                  entity.present.non_physical = cap_present_prose(entity.present.non_physical);
+                }
+              }
               await runtime.update_entity(type, entity.id, { present: entity.present });
             }
           }
@@ -595,11 +717,11 @@ export const temporal_engine = {
               if (!entity.eternal) entity.eternal = { physical: "", non_physical: "" };
               let eternal_changed = false;
               if (e_mut.physical?.trim()) {
-                entity.eternal.physical = merge_prose_into_field(entity.eternal.physical, e_mut.physical);
+                entity.eternal.physical = merge_eternal_field(entity.eternal.physical, e_mut.physical);
                 eternal_changed = true;
               }
               if (e_mut.non_physical?.trim()) {
-                entity.eternal.non_physical = merge_prose_into_field(entity.eternal.non_physical, e_mut.non_physical);
+                entity.eternal.non_physical = merge_eternal_field(entity.eternal.non_physical, e_mut.non_physical);
                 eternal_changed = true;
               }
               if (eternal_changed) {

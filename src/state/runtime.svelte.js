@@ -159,6 +159,7 @@ function create_runtime_store() {
               .update(coerce_story_key(simulation_story_id), {
                 round: _round,
                 last_played: Date.now(),
+                updated_at: Date.now(),
                 ai_dynamics: $state.snapshot(_ai),
                 fractal_dynamics: $state.snapshot(_fractal),
               })
@@ -433,6 +434,7 @@ function create_runtime_store() {
         await db.stories.update(coerce_story_key(simulation_story_id), {
           round: target_round,
           last_played: Date.now(),
+          updated_at: Date.now(),
           ai_dynamics: $state.snapshot(ai_physics),
           fractal_dynamics: $state.snapshot(fractal_physics),
         });

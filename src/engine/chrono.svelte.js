@@ -260,13 +260,65 @@ export class ChronoEngine {
         } else {
           state_bridge.app.log(`Time Fracture: ${error.message}`, "error");
           console.error("[Chrono] 💥 Time Fracture:", error);
-          // Push error to feed so user knows what happened
-          state_bridge.simulation_log.add({
-            id: `err-${Date.now()}`,
-            role: "system",
-            text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
-            timestamp: Date.now(),
-          });
+          // 🛡️ ORPHANED-TURN GUARD: if the user's message was persisted but the AI
+          // reply never landed, retry generation ONCE and record a durable marker so
+          // the failure is never lost to a reload (the pre-fix state of round 14).
+          const round_after_failure = state_bridge.runtime.round;
+          let retry_landed = false;
+          try {
+            if (final_input && !this._orphan_retry_in_flight) {
+              this._orphan_retry_in_flight = true;
+              try {
+                const latest_log = await session_driver.load_log(story_id);
+                const tail = latest_log.filter((m) => m.role !== "system");
+                const last_user_idx = tail.findLastIndex((m) => m.role === "user");
+                if (last_user_idx !== -1) {
+                  const has_reply_after = tail.slice(last_user_idx + 1).some((m) => m.role === "model" || m.role === "fractal");
+                  if (!has_reply_after) {
+                    state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
+                    state_bridge.simulation_state.start_generation(options.role || "ai");
+                    await gamemaster.execute_turn(story_id, {
+                      shield_context,
+                      input: final_input,
+                      signal: controller.signal,
+                    });
+                    retry_landed = true;
+                    state_bridge.app.log("Orphaned turn recovered.", "system");
+                  }
+                }
+              } catch (retryErr) {
+                console.error("[Chrono] Orphan retry failed:", retryErr);
+                state_bridge.app.log(`Orphan retry failed: ${retryErr.message || retryErr}`, "error");
+              } finally {
+                this._orphan_retry_in_flight = false;
+              }
+            }
+          } catch (guardErr) {
+            console.error("[Chrono] Orphan guard failed:", guardErr);
+          }
+
+          // Durable record: survives reloads, unlike the in-memory feed entry.
+          try {
+            await session_driver.log_system_entry(
+              `A turn failed after the message was recorded${
+                retry_landed ? " (recovered by automatic retry)" : " — no reply was generated"
+              }. Round ${round_after_failure}. (${error.message || "Unknown error"})`,
+              "system",
+              { type: "TURN_ORPHANED", round: round_after_failure, recovered: retry_landed },
+            );
+          } catch (logErr) {
+            console.error("[Chrono] Failed to persist orphan marker:", logErr);
+          }
+
+          if (!retry_landed) {
+            // Push error to feed so user knows what happened
+            state_bridge.simulation_log.add({
+              id: `err-${Date.now()}`,
+              role: "system",
+              text: `Simulation Error: ${error.message || "Unknown Time Fracture"}`,
+              timestamp: Date.now(),
+            });
+          }
         }
       } finally {
         // Unified Cleanup Framework
