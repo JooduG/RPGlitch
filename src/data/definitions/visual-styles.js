@@ -72,18 +72,17 @@ export const VISUAL_STYLES = {
     name: "Fashion Magazine",
     category: "Photographic & Lens-Captured",
     portrait: "https://user.uploads.dev/file/2112636b40fd390a0a7654395f608c59.png",
-    description:
-      "Sleek high-fashion editorial photography shot on medium format optics with opulent metallic tones and polished studio key lighting.",
-    tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion", "hasselblad", "studio"],
+    description: "Sleek high-fashion editorial aesthetic with opulent metallic tones and dramatic studio rim lighting.",
+    tags: ["fashion", "editorial", "magazine", "vogue", "glamour", "high_fashion"],
     guidance_scale: 9,
     visual_engine: `<VISUAL_ENGINE>
-<medium>photorealistic live-action high-fashion editorial photograph, commercial Vogue cover shoot</medium>
-<palette>opulent metallic accents, rich luxury tones, controlled studio key light, dramatic rim lighting, polished beauty dish balance</palette>
-<camera>Hasselblad X2D 100C, 85mm prime f/1.2 lens, pin-sharp optical focus, shallow depth of field</camera>
-<texture>sleek polished editorial print quality, crisp high-fashion detail, flawless commercial finish, smooth retouching</texture>
+<medium>photorealistic live-action high-fashion editorial photography in the style of Vogue magazine cover shoot</medium>
+<palette>opulent metallic accents, rich luxury tones, dramatic studio rim lighting</palette>
+<camera>85mm fashion editorial lens, crisp studio key light, polished beauty dish lighting</camera>
+<texture>sleek polished editorial print quality, crisp high-fashion detail, flawless editorial finish</texture>
 </VISUAL_ENGINE>`,
     negative_prompt:
-      "amateur snapshot, casual phone photo, candid awkwardness, uncalibrated ambient room light, watermark, white background, rugged grunge texture, anime, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
+      "watermark, white background, rugged grunge texture, anime, illustration, 3d render, drawing, painting, cel-shaded, vector, cctv, surveillance",
   },
 
   cinematic: {

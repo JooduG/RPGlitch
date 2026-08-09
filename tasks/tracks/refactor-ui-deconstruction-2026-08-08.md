@@ -163,9 +163,17 @@ Three user-requested refinements (discussed first, then implemented).
 - [x] Task 17.2: **ImagePreview info panel width** — `md:w-lg` (32rem) → `md:w-[calc(var(--spacing-column-unit)*3)]`, matching the profile wings (Profile's `col-[9/12]` = 3 column-units of the 12-col grid). Mobile keeps `w-full` stacked below the image.
 - [x] Task 17.3: **Scroll-anywhere in storymode** — `Feed.svelte` adds a window `wheel` listener that forwards `deltaY` (with deltaMode normalisation) to the feed's `.scroll-area-viewport` when the cursor is outside the feed — so wheeling over the character/fractal cards or gutters scrolls the feed instead of hitting an invisible boundary. Forwarding is skipped when the target is inside any scrollable region (feed, console accordions, dropdowns), or over `[data-modal-variant]` / `[data-backdrop]` / inputs / textareas / native scrollables, so nothing double-scrolls. Passive listener; no `preventDefault`. All three components Svelte-compiler clean.
 
+### Phase 18: Round-2 polish + GitHub sync audit [DONE]
+
+User applied round 15 (live), then worried they may have lost files before a GitHub sync; also gave follow-up tweaks.
+
+- [x] Task 18.1: **GitHub sync audit (nothing lost)** — compared GitHub HEAD (`JooduG/RPGlitch` main) against the workspace `src/`: all 159 workspace files exist on GitHub, all 159 GitHub files exist locally (18 extra zip entries are just folder placeholders). Of the files touched in rounds 9–15, 9/11 matched GitHub byte-for-byte; the two diffs were: `DevControls.svelte` (GitHub has `GRID`, workspace had `GRID MODE` — the user's intentional manual edit; workspace adopted `GRID`) and `visual-styles.js` (GitHub's `photo`/"RAW Photography" preset is the newer 35mm candid version; the workspace carried a stale Hasselblad medium-format version — workspace + reference copies synced to GitHub's). The `amateur` removal is consistent on both.
+- [x] Task 18.2: **StyleBadge duotone → 100%** — tint opacity bumped `opacity-55` → `opacity-100` (full multiply duotone at rest, fades to normal colors on hover). Clarified scope: `StyleBadge` renders in exactly 3 places (storymode row, storyboard entity cards, prologue); the visual-style _dropdown_ items in Profile/VisualWing are separate color swatches, not `StyleBadge`, so they were never tinted — and stay untinted per the user's wish.
+- [x] Task 18.3: **ImagePreview gap = profile wings gap** — confirmed the profile modal card (`grid-column: 2/8`) and wings (`col-[9/12]`) are separated by exactly one column, so the image→info-panel gap in `ImagePreview.svelte` is now `md:gap-[calc(var(--spacing-column-unit))]` (mobile keeps `gap-4` stacked). Panel width itself already matches the wings (`*3` column-units) from round 15.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 17 UX polish round.
-- **Status**: 17.1–17.3 done (round 15 delivered, awaiting vite + build/deploy confirmation); still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).
+- **Active Task**: Phase 18 round-2 polish + GitHub sync audit.
+- **Status**: 18.1–18.3 done (round 16 delivered, awaiting vite + build/deploy confirmation); still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).

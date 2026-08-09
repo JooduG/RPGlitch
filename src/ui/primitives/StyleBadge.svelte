@@ -149,7 +149,7 @@
         {#if style_details.portrait}
           <div
             aria-hidden="true"
-            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-55 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
             style="background-color: {signature_color}; mix-blend-mode: multiply;"
           ></div>
         {/if}
@@ -208,7 +208,7 @@
         {#if vstyle_details.portrait}
           <div
             aria-hidden="true"
-            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-55 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
             style="background-color: {signature_color}; mix-blend-mode: multiply;"
           ></div>
         {/if}
