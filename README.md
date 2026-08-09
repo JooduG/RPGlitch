@@ -60,7 +60,7 @@ The system architecture prioritizes offline-first resilience and agentic automat
 - `src/platform/` : Environment integrations.
 - `src/data/` : Database, Repository, and Persistence.
 - `src/state/` : Reactive State Bridges.
-- `src/ui/` : Atomic Interface Components (actions, atoms, molecules, organisms, motion).
+- `src/ui/` : Module-based Interface Components (primitives, motion, shell, console, story, message, entity, profile, image).
 - `src/media/` : Visuals, Audio, CSS Design System, and Sensory Layer.
 
 ### Tech Stack

@@ -1,0 +1,77 @@
+<script>
+  /**
+   * @file src/ui/primitives/ScrollArea.svelte
+   * 📜 THE ATOMIC SCROLLAREA
+   * Custom scroll container powered by bits-ui/ScrollArea & design tokens.
+   */
+  import { ScrollArea } from "bits-ui";
+
+  /** @type {{
+   * children?: import('svelte').Snippet;
+   * class?: string;
+   * style?: string;
+   * orientation?: "vertical" | "horizontal";
+   * }} */
+  let { children, class: className = "", style = "", orientation = "vertical", ...rest } = $props();
+</script>
+
+<ScrollArea.Root
+  {style}
+  class="
+    relative
+    flex
+    flex-col
+    overflow-hidden
+
+    {className}"
+  {...rest}
+>
+  <ScrollArea.Viewport
+    class="
+      scroll-area-viewport
+      h-full
+      max-h-[inherit]
+      min-h-0
+      w-full
+      rounded-[inherit]
+    "
+  >
+    {@render children?.()}
+  </ScrollArea.Viewport>
+
+  <ScrollArea.Scrollbar
+    {orientation}
+    class="
+      z-50
+      flex
+      touch-none
+      bg-zinc-900/40
+      p-px
+      backdrop-blur-sm
+      transition-colors
+      duration-150
+      select-none
+
+      data-[orientation=horizontal]:h-2
+      data-[orientation=horizontal]:flex-col
+
+      data-[orientation=vertical]:w-2
+    "
+  >
+    <ScrollArea.Thumb
+      class="
+        relative
+        flex-1
+        rounded-xl
+        bg-[#555d66]
+        opacity-30
+        transition-opacity
+        duration-150
+
+        hover:opacity-100
+      "
+    />
+  </ScrollArea.Scrollbar>
+
+  <ScrollArea.Corner />
+</ScrollArea.Root>

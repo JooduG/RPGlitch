@@ -113,14 +113,19 @@ src/
 │   ├── vectors.js              # Vector helpers
 │   ├── use-actions.js          # Svelte DOM actions (moved from ui/actions)
 │   └── index.js                # @utils barrel
-└── ui/                     # Sensory UI layer (Atomic Design Structure)
-    ├── organisms/              # Complex views (CardHand, Layout, Message, Profile, ProfileArray, ProfileHeader, Storyboard, Storymode, UnifiedConsole)
-    ├── molecules/              # Composite components (AudioWing, DevTelemetryBlock, DevWing, Dialog, EntityCard, EntityCardContextMenu, ImagePreview, ImageRegenerate, ImportModal, StoryCard, VisualWing)
-    ├── atoms/                  # Primitive controls (Accordion, Backdrop, Button, DataBox, Dropdown, GlassWrapper, Label, Meter, Modal, NumberField, ProfilePicture, ProgressBar, ScrollArea, Skeleton, Slider, StyleBadge, TextField, Toggle, Tooltip)
+└── ui/                     # Sensory UI layer (feature modules + shared primitives)
+    ├── shell/                  # App shell & top-level views (Layout, Storymode, Storyboard)
+    ├── console/                # Console module (Console, InputBar, AudioControls, DevControls)
+    ├── story/                  # Story library module (StoryCard, StoryManager)
+    ├── message/                # Message module (Message, Header, Body, Feed, UndoToast, TelemetryCard, TelemetryBlocks, TelemetryVector)
+    ├── entity/                 # Entity module (EntityCard, EntityCardHand, ImportModal)
+    ├── profile/                # Profile module (Profile, Header, Vectors, VisualWing, AudioWing, DevWing)
+    ├── image/                  # Image module (ImagePicker, ImagePreview, ProfilePicture)
+    ├── primitives/             # Shared primitives (Accordion, Backdrop, Button, DataBox, Dialog, Dropdown, GlassWrapper, Label, Meter, Modal, NumberField, ProgressBar, ScrollArea, Skeleton, Slider, StyleBadge, TextField, Toggle, Tooltip)
     └── motion/                 # Animation engines (Typewriter, kinetic, engine)
 ```
 
-> Note: component-sibling `.svelte.js` state modules keep the component's PascalCase filename (`Profile.svelte.js`, `ImageRegenerate.svelte.js`, `EntityCardContextMenu.svelte.js`, `Typewriter.svelte.js`) — they mirror their component and are NOT renamed.
+> Note: component-sibling `.svelte.js` state modules keep the component's PascalCase filename (`Profile.svelte.js`, `ImagePicker.svelte.js`, `EntityCardContextMenu.svelte.js`, `Typewriter.svelte.js`) — they mirror their component and are NOT renamed.
 
 ---
 

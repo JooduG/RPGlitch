@@ -2,7 +2,7 @@
  * Canonical telemetry normalization for the `{ type, updates }` event shape,
  * producing the `{ key, name, dynamics, physical, non_physical,
  * eternal_physical, eternal_non_physical, new_vectors, retrieval,
- * has_dynamics, has_mods }` blocks rendered by DevTelemetryBlock.
+ * has_dynamics, has_mods }` blocks rendered by TelemetryCard.
  * @param {any} meta
  */
 export function process_entity_blocks(meta = {}) {
@@ -65,7 +65,7 @@ export function process_entity_blocks(meta = {}) {
 }
 
 /**
- * Mirror of DevTelemetryBlock's entity-name resolution.
+ * Mirror of TelemetryCard's entity-name resolution.
  * @param {string} key
  * @param {any} [runtime]
  */
@@ -77,7 +77,7 @@ export function resolve_entity_name(key, runtime = {}) {
 }
 
 /**
- * Mirror of DevTelemetryBlock's human-readable memory/vector type label.
+ * Mirror of TelemetryCard's human-readable memory/vector type label.
  * @param {string} [type]
  * @param {string} [fallback]
  */

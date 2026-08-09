@@ -7,7 +7,7 @@
    * EntityCards and Console are mounted ONCE here and never destroyed
    * during view transitions, enabling true View Transition API morphing.
    */
-  import { Skeleton, Tooltip, StyleBadge } from "@atoms";
+  import { Skeleton, Tooltip, StyleBadge } from "@primitives";
   import {
     ImagePicker,
     ImagePreview,
@@ -16,9 +16,13 @@
     start_regenerate,
     deliver_candidates,
     set_regenerate_error,
-  } from "@molecules";
+  } from "@image";
   import { motion } from "@motion";
-  import { EntityCardHand, EntityCard, Layout, Profile, Storyboard, Storymode, Console } from "@organisms";
+  import { EntityCardHand, EntityCard } from "@entity";
+  import { Layout } from "@shell";
+  import { Profile } from "@profile";
+  import { Storyboard, Storymode } from "@shell";
+  import { Console } from "@console";
   import { app, runtime, simulation_state, register_image_preview_handlers } from "@state";
   import { session_driver } from "@engine";
   import { llm_service } from "@platform";

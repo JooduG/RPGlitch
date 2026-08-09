@@ -15,7 +15,7 @@ import { runtime } from "./runtime.svelte.js";
 import { simulation_state, ui_state } from "./status.svelte.js";
 
 /**
- * Image preview bridge: The state layer cannot import from @atoms (UI layer).
+ * Image preview bridge: The state layer cannot import from @primitives (UI layer).
  * Instead, the UI layer registers its open/close handlers here at boot time.
  * These stubs delegate to the registered handlers if available.
  * @type {{ open: ((src: any, caption?: string) => void) | null, close: (() => void) | null }}
