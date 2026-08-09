@@ -171,9 +171,55 @@ User applied round 15 (live), then worried they may have lost files before a Git
 - [x] Task 18.2: **StyleBadge duotone → 100%** — tint opacity bumped `opacity-55` → `opacity-100` (full multiply duotone at rest, fades to normal colors on hover). Clarified scope: `StyleBadge` renders in exactly 3 places (storymode row, storyboard entity cards, prologue); the visual-style _dropdown_ items in Profile/VisualWing are separate color swatches, not `StyleBadge`, so they were never tinted — and stay untinted per the user's wish.
 - [x] Task 18.3: **ImagePreview gap = profile wings gap** — confirmed the profile modal card (`grid-column: 2/8`) and wings (`col-[9/12]`) are separated by exactly one column, so the image→info-panel gap in `ImagePreview.svelte` is now `md:gap-[calc(var(--spacing-column-unit))]` (mobile keeps `gap-4` stacked). Panel width itself already matches the wings (`*3` column-units) from round 15.
 
+### Phase 19: StyleBadge storyboard opacity + profile-tile & tint Q&A [DONE]
+
+- [x] Task 19.1: **Storyboard badges now full opacity** — the default-`layout` StyleBadge (used only on the storyboard fractal card, `EntityCard.svelte` line 596) no longer renders at `opacity-70`. `opacity_class` simplified to a constant `"opacity-100"`; every layout (storymode / prologue / storyboard) is now full-opacity, so the tiny multiply-tinted tiles no longer look washed out on the fractal card. No hover-fade distinction remains (they were already `opacity-100` in the other two layouts).
+- [x] Task 19.2: **Profile-modal style portraits are Dropdowns, not badges** — answered the user's question. The two "badge-like" tiles at the top-right of the fractal profile modal are the Narrative-Style / Visual-Style `Dropdown` _triggers_ in `Profile.svelte` (fixed 8.5rem, click opens the picker, editing-mode hover shows a blurred "NARRATIVE STYLE"/"VISUAL STYLE" label). They are not `StyleBadge` because StyleBadge is a display-only primitive (fluid container-query sizing matched to card width, tooltip-only interaction, renders the style pair together) while the profile tiles must be individually clickable picker triggers at a fixed size. Anatomy is otherwise the same (portrait-or-initials tile, signature-color fill, colored border) — the only real visual gap is the missing multiply tint. Offered to unify if the user wants it.
+- [x] Task 19.3: **Tint overlay mechanics documented for the user** — explained the `mix-blend-mode: multiply` duotone wash (separate sibling div painted with the entity's signature color, only when the style has a `portrait`; multiply can only darken so shadows stay dark, midtones tint, highlights take on the signature hue; `opacity-100` = full strength; `group-hover/badge:opacity-0` reveals the true-color portrait on hover with a 300ms fade). Listed the knobs: opacity %, blend mode (multiply / color / soft-light / overlay / screen), grayscale base for a true clean duotone, hover behavior, and per-layout / per-style control (a `tint`/`tint_opacity` prop). No code change made for 19.2/19.3 — awaiting the user's pick.
+
+### Phase 20: Profile-modal tiles are now real StyleBadges + grayscale duotone [DONE]
+
+User approved the "make the profile tiles actual StyleBadges" direction and the grayscale tint, and noted they never received the round-17 zip (so the round-17 opacity fix is folded into this round's delivery).
+
+- [x] Task 20.1: **StyleBadge gains `layout="profile"`** — new layout renders a single fixed-size tile that fills its parent (the profile modal sizes the Dropdown trigger to 8.5rem), with `rounded-xl`, `text-lg` narrative initials, and the fixed `text-[8px]/[9px]/[10px]` visual name sizes the modal used. New `which` prop (`"both" | "narrative" | "visual"`) selects which tile to render, and new optional `tooltip` prop carries the rich style tooltip (Profile passes the `selected_item` tooltip, suppressed while editing). In profile mode the component renders a placeholder tile ("No Narrative Style" / "No Visual Style") when the entity has no style set, so it still works as an edit-mode picker trigger.
+- [x] Task 20.2: **Profile.svelte dropdown triggers now embed StyleBadge** — both fractal-modal style dropdowns' `trigger_content` was replaced with `<StyleBadge layout="profile" which="narrative|visual">`; the trigger's own chrome (border/bg/rounded/shadow/uppercase/text-white) was stripped to a bare 8.5rem wrapper so the badge supplies the whole look, and the editing-mode blurred "NARRATIVE STYLE"/"VISUAL STYLE" hover label is kept as a sibling overlay. `get_style_initials` import removed from Profile. Still clickable → opens the picker; when not editing, `data-disabled` keeps it inert without dimming (bits-ui sets `data-disabled`, not the `disabled` attribute, so the trigger's `disabled:opacity-30/grayscale` classes never fire).
+- [x] Task 20.3: **Grayscale duotone base (all layouts)** — badge portraits now render `grayscale` so the multiply tint produces a true black→signature-color duotone (shadows black, highlights the signature hue — not black/white/signature). Hovering lifts the grayscale AND fades the tint, so the original full-color portrait reveals exactly as before.
+
+### Phase 21: Profile-modal badge hover = standard badge hover [DONE]
+
+User: profile-modal style tiles should use the standard StyleBadge hover effects (tint fade + grayscale lift revealing the full-color portrait, plus the tooltip on hover) — the only profile-modal-specific difference being the cursor signalling that the dropdown is clickable.
+
+- [x] Task 21.1: **Removed the custom editing hover** — the blurred "NARRATIVE STYLE"/"VISUAL STYLE" label overlays and the trigger's `hover:brightness-110` are gone from both fractal-modal style dropdowns in `Profile.svelte`; the wrapping `<div class="relative h-full w-full overflow-hidden rounded-xl">` and the now-unused `group/stylecard` / `group/visualcard` classes were dropped too. `trigger_content` is now just the bare `<StyleBadge layout="profile">`, so hovering behaves exactly like a storyboard/default badge: duotone washes away, original colors reveal.
+- [x] Task 21.2: **Tooltip always on hover** — the rich style tooltip now shows whether editing or not (`tooltip={selected_item?.tooltip}`), matching the standard badge's always-on tooltip.
+- [x] Task 21.3: **Cursor = interactability signal** — trigger keeps `cursor-pointer` while the dropdown is available (editing) and falls back to `cursor-default` via `data-disabled:cursor-default` when it isn't (bits-ui sets `data-disabled`, not `disabled`, so no dimming/grayscale ever kicks in). This is the only behavioral difference from a standard badge.
+
+### Phase 22: Grayscale duotone reverted — plain tint only [DONE]
+
+User: "not working — remove the grayscale, try it with the tint thing". The grayscale base didn't land; revert the badge portraits to full color under the plain multiply tint.
+
+- [x] Task 22.1: **Grayscale removed from StyleBadge portraits** — both the narrative and visual badge imgs dropped `grayscale group-hover/badge:grayscale-0`. Portraits render in their original colors underneath the multiply wash again (the round-16/18 tint: `opacity-100` at rest, fades on hover to reveal the true colors). Applies to every layout (storyboard, storymode, prologue, profile). File header comment updated to describe the plain-tint wash.
+
+### Phase 23: Tint strength dropped to 75% [DONE]
+
+User: "try like 75% or something". The multiply tint wash was full-strength (`opacity-100`); soften it so the original portrait reads through more.
+
+- [x] Task 23.1: **Tint overlay → `opacity-75`** — both StyleBadge tint layers (narrative + visual, all layouts) went from `opacity-100` to `opacity-75`. The hover fade-to-color behavior is unchanged.
+
+### Phase 24: Tint strength → 25% (subtle) [DONE]
+
+User: "images look darker — is that normal?" (yes: multiply only darkens) — "let's try something subtle like 25%".
+
+- [x] Task 24.1: **Tint overlay → `opacity-25`** — both StyleBadge tint layers went from `opacity-75` to `opacity-25` (all layouts). Much subtler signature-color wash; the portrait stays close to its original brightness. Note: the deployed bundle at review time was still on `opacity-100` (the 75% build had not landed), so the "darker" look the user saw was the full-strength wash — 25% is far gentler. Hover fade-to-color unchanged.
+
+### Phase 25: Tint blend switched to `color` — no more darkening [DONE]
+
+User: "make it so it doesn't darken at all". `multiply` can only darken; the fix is switching the wash blend mode.
+
+- [x] Task 25.1: **`mix-blend-mode: multiply` → `color`** — both StyleBadge tint layers now use `color` blend: every pixel's brightness is preserved exactly (no darkening, no lightening) while the portrait is recolored toward the signature hue. Combined with the current `opacity-25`, this is a gentle color cast instead of a darkening wash. Opacity can be raised later with no darkening side-effect. Hover fade-to-color unchanged. File header comment updated.
+
 ---
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 18 round-2 polish + GitHub sync audit.
-- **Status**: 18.1–18.3 done (round 16 delivered, awaiting vite + build/deploy confirmation); still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8).
+- **Active Task**: Phase 25 tint blend → `color` (no darkening).
+- **Status**: 25.1 done (round 23 delivered). Awaiting vite + build/deploy confirmation. Still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8, 18.x, 19.x, 20.x, 21.x, 22.x, 23.x, 24.x).

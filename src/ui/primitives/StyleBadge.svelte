@@ -1,8 +1,16 @@
 <script>
   /**
    * @file src/ui/primitives/StyleBadge.svelte
-   * Narrative & visual style indicator squares, sized to match the fractal card width.
-   * Rendered underneath the fractal card in storymode/storyboard layouts.
+   * Narrative & visual style indicator squares. Rendered underneath/over the fractal
+   * card in storymode/storyboard layouts, as prologue message tiles, and — in
+   * `layout="profile"` — as the selectable style tiles inside the fractal profile
+   * modal's dropdown triggers.
+   *
+   * Portraits render with a subtle tint: a `color`-blend layer painted with the
+   * entity's signature color sits over the portrait — it recolors toward the
+   * signature hue while preserving each pixel's exact brightness, so the image
+   * never darkens. Hovering fades the wash (300ms), revealing the original
+   * portrait.
    */
   import { tooltip } from "@primitives";
   import { get_signature_color } from "@media";
@@ -19,15 +27,31 @@
    * - `"prologue"`: badges are flex-filled — each takes half the parent row's
    *   width (minus the gap) at a perfect 1:1 ratio, so the row height derives
    *   from the container width on the spot. Same hover overlay + zoom as storymode.
+   * - `"profile"`: one fixed-size tile that fills its parent (the profile modal
+   *   sizes the Dropdown trigger to 8.5rem). Renders a placeholder tile ("No
+   *   Narrative Style" / "No Visual Style") when the entity has no style set, so
+   *   it works as an edit-mode picker trigger. Tooltip is opt-in via the `tooltip`
+   *   prop. Use `which` to request just one tile.
    * - default: container-query responsive sizing for the storyboard overlay.
    */
-  /** @type {{ entity?: any, class?: string, layout?: "storymode" | "prologue" | "default" }} */
-  let { entity = undefined, class: className = "flex w-full justify-center gap-1.5", layout = "default" } = $props();
+  /** @type {{ entity?: any, class?: string, layout?: "storymode" | "prologue" | "profile" | "default", which?: "both" | "narrative" | "visual", tooltip?: string }} */
+  let {
+    entity = undefined,
+    class: className = "flex w-full justify-center gap-1.5",
+    layout = "default",
+    which = "both",
+    tooltip: tooltip_text = undefined,
+  } = $props();
 
   let is_storymode = $derived(layout === "storymode");
   let is_prologue = $derived(layout === "prologue");
+  let is_profile = $derived(layout === "profile");
+  let render_narrative = $derived(which !== "visual");
+  let render_visual = $derived(which !== "narrative");
 
-  let badge_size_class = $derived(is_storymode || is_prologue ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]");
+  let badge_size_class = $derived(
+    is_profile ? "h-full w-full" : is_storymode || is_prologue ? "" : "h-[clamp(2rem,18cqi,3rem)] w-[clamp(2rem,18cqi,3rem)]",
+  );
 
   // In storymode, set only the height and use aspect-ratio for a perfect 1:1 square.
   // Subtract the inter-badge gap so two badges + gap = exactly the card width above.
@@ -40,10 +64,14 @@
         : "",
   );
 
-  let opacity_class = $derived(is_storymode || is_prologue ? "opacity-100" : "opacity-70 hover:opacity-100");
+  let opacity_class = "opacity-100";
 
   // Storymode/prologue hover zoom — same utilities the entity cards use
   let hover_zoom_class = $derived(is_storymode || is_prologue ? "hover:scale-lift hover:brightness-glow" : "");
+
+  let badge_radius_class = $derived(is_profile ? "rounded-xl" : "rounded-[clamp(0.5rem,9cqi,1rem)]");
+
+  let initials_class = $derived(is_profile ? "text-lg" : "text-[clamp(0.75rem,8cqi,1.1rem)]");
 
   let style_details = $derived(entity?.narrative_style && entity.narrative_style !== "default" ? NARRATIVE_STYLES[entity.narrative_style] : null);
   let vstyle_details = $derived(
@@ -106,11 +134,13 @@
   </div>
 {/snippet}
 
-{#if style_details || vstyle_details}
-  <div class="pointer-events-none flex {className}" style={is_storymode ? `--signature-color: ${signature_color};` : ""}>
-    {#if style_details}
+{#if (render_narrative && (style_details || is_profile)) || (render_visual && (vstyle_details || is_profile))}
+  <div class="pointer-events-none flex {className}" style={is_storymode || is_profile ? `--signature-color: ${signature_color};` : ""}>
+    {#if render_narrative && (style_details || is_profile)}
+      {@const dname = style_details?.name || "No Narrative Style"}
+      {@const dportrait = style_details?.portrait}
       <div
-        use:tooltip={is_storymode || is_prologue ? null : { text: `Narrative Style: ${style_details.name}` }}
+        use:tooltip={is_profile ? tooltip_text : is_storymode || is_prologue ? null : { text: `Narrative Style: ${style_details.name}` }}
         style={badge_size_style}
         class="
           group/badge
@@ -128,7 +158,7 @@
           bg-black/40
           {opacity_class}
           {hover_zoom_class}
-          rounded-[clamp(0.5rem,9cqi,1rem)]
+          {badge_radius_class}
           shadow-md
           transition-all
           duration-300
@@ -136,40 +166,46 @@
         "
       >
         <div
-          class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-[clamp(0.75rem,8cqi,1.1rem)] font-bold text-white uppercase select-none"
+          class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading {initials_class} font-bold text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
-          {#if style_details.portrait}
-            <img src={style_details.portrait} alt={style_details.name} class="h-full w-full object-cover object-center" draggable="false" />
+          {#if dportrait}
+            <img src={dportrait} alt={dname} class="h-full w-full object-cover object-center" draggable="false" />
           {:else}
-            {get_style_initials(style_details.name)}
+            {get_style_initials(dname)}
           {/if}
         </div>
 
-        {#if style_details.portrait}
+        {#if dportrait}
           <div
             aria-hidden="true"
-            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
-            style="background-color: {signature_color}; mix-blend-mode: multiply;"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-25 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
+            style="background-color: {signature_color}; mix-blend-mode: color;"
           ></div>
         {/if}
 
         {#if is_storymode || is_prologue}
-          {@render storymode_overlay(style_details.name)}
+          {@render storymode_overlay(dname)}
         {/if}
       </div>
     {/if}
 
-    {#if vstyle_details}
-      {@const vname = vstyle_details.name}
-      {@const vfontsize =
-        vname.length > 12
+    {#if render_visual && (vstyle_details || is_profile)}
+      {@const vname = vstyle_details?.name || "No Visual Style"}
+      {@const vportrait = vstyle_details?.portrait}
+      {@const vfontsize = is_profile
+        ? vname.length > 12
+          ? "text-[8px]"
+          : vname.length > 8
+            ? "text-[9px]"
+            : "text-[10px]"
+        : vname.length > 12
           ? "text-[clamp(0.35rem,3.4cqi,0.48rem)]"
           : vname.length > 8
             ? "text-[clamp(0.44rem,4.4cqi,0.6rem)]"
             : "text-[clamp(0.55rem,5.5cqi,0.75rem)]"}
       <div
-        use:tooltip={is_storymode || is_prologue ? null : { text: `Visual Style: ${vstyle_details.name}` }}
+        use:tooltip={is_profile ? tooltip_text : is_storymode || is_prologue ? null : { text: `Visual Style: ${vstyle_details.name}` }}
         style={badge_size_style}
         class="
           group/badge
@@ -187,7 +223,7 @@
           bg-black/40
           {opacity_class}
           {hover_zoom_class}
-          rounded-[clamp(0.5rem,9cqi,1rem)]
+          {badge_radius_class}
           shadow-md
           transition-all
           duration-300
@@ -198,18 +234,18 @@
           class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-[1.1] font-bold tracking-tighter wrap-break-word hyphens-auto text-white uppercase select-none"
           style="background-color: {signature_color};"
         >
-          {#if vstyle_details.portrait}
-            <img src={vstyle_details.portrait} alt={vstyle_details.name} class="h-full w-full object-cover object-center" draggable="false" />
+          {#if vportrait}
+            <img src={vportrait} alt={vname} class="h-full w-full object-cover object-center" draggable="false" />
           {:else}
             {vname}
           {/if}
         </div>
 
-        {#if vstyle_details.portrait}
+        {#if vportrait}
           <div
             aria-hidden="true"
-            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-100 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
-            style="background-color: {signature_color}; mix-blend-mode: multiply;"
+            class="pointer-events-none absolute inset-0 rounded-[inherit] opacity-25 transition-opacity duration-300 ease-in-out group-hover/badge:opacity-0"
+            style="background-color: {signature_color}; mix-blend-mode: color;"
           ></div>
         {/if}
 

@@ -6,7 +6,7 @@
    */
   import { auto_resize, click_outside } from "@ui";
   import { safe_parse_pseudo_json } from "@utils";
-  import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label } from "@primitives";
+  import { Button, Modal, TextField, Toggle, tooltip, Dropdown, Label, StyleBadge } from "@primitives";
   import { ProfilePicture } from "@image";
   import { get_signature_color } from "@media";
   import { Dialog } from "@primitives";
@@ -19,7 +19,6 @@
   import { app, runtime, simulation_state } from "@state";
   import { fade } from "svelte/transition";
   import { NARRATIVE_STYLES, VISUAL_STYLES, PROFILE_SECTIONS_BY_TYPE } from "@data";
-  import { get_style_initials } from "@utils";
 
   /** @type {{ entity_type?: "character" | "fractal" }} */
   let { entity_type = "character" } = $props();
@@ -451,36 +450,17 @@
                   align="center"
                   disabled={!profile_state.is_editing}
                   variant="bare"
-                  class="group/stylecard flex transform-gpu cursor-pointer flex-col items-center overflow-hidden rounded-xl border border-solid bg-black/40 text-white uppercase shadow-lg outline-none {profile_state.is_editing
-                    ? 'hover:brightness-110'
-                    : ''} disabled:cursor-default data-disabled:cursor-default"
-                  trigger_style="width: 8.5rem; height: 8.5rem; border-color: {signature_color};"
+                  class="block cursor-pointer p-0 outline-none data-disabled:cursor-default"
+                  trigger_style="width: 8.5rem; height: 8.5rem;"
                 >
                   {#snippet trigger_content({ selected_item })}
-                    <div
-                      class="absolute inset-0 flex items-center justify-center overflow-hidden rounded-[inherit] font-heading text-lg font-bold select-none"
-                      style="background-color: {signature_color};"
-                      use:tooltip={profile_state.is_editing ? undefined : selected_item?.tooltip}
-                    >
-                      {#if selected_item?.portrait}
-                        <img
-                          src={selected_item.portrait}
-                          alt={selected_item.label}
-                          class="h-full w-full object-cover object-center"
-                          draggable="false"
-                        />
-                      {:else}
-                        {get_style_initials(selected_item?.label || "No Narrative Style")}
-                      {/if}
-                    </div>
-
-                    {#if profile_state.is_editing}
-                      <div
-                        class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/stylecard:opacity-100"
-                      >
-                        <span class="text-[10px] font-bold tracking-widest">NARRATIVE STYLE</span>
-                      </div>
-                    {/if}
+                    <StyleBadge
+                      entity={profile_state.char}
+                      layout="profile"
+                      which="narrative"
+                      class="h-full w-full"
+                      tooltip={selected_item?.tooltip}
+                    />
                   {/snippet}
                 </Dropdown>
               {/if}
@@ -496,39 +476,12 @@
                   align="center"
                   disabled={!profile_state.is_editing}
                   variant="bare"
-                  class="group/visualcard flex transform-gpu cursor-pointer flex-col items-center overflow-hidden rounded-xl border border-solid bg-black/40 text-white uppercase shadow-lg outline-none {profile_state.is_editing
-                    ? 'hover:brightness-110'
-                    : ''} disabled:cursor-default data-disabled:cursor-default"
-                  trigger_style="width: 8.5rem; height: 8.5rem; border-color: {signature_color};"
+                  class="block cursor-pointer p-0 outline-none data-disabled:cursor-default"
+                  trigger_style="width: 8.5rem; height: 8.5rem;"
                   onchange={() => (profile_state._user_mutated = true)}
                 >
                   {#snippet trigger_content({ selected_item })}
-                    {@const vname = selected_item?.label || "No Visual Style"}
-                    {@const vfontsize = vname.length > 12 ? "text-[8px]" : vname.length > 8 ? "text-[9px]" : "text-[10px]"}
-                    <div
-                      class="absolute inset-0 flex flex-col items-center justify-center overflow-hidden rounded-[inherit] text-center font-heading {vfontsize} leading-tight font-bold tracking-tighter wrap-break-word hyphens-auto select-none"
-                      style="background-color: {signature_color};"
-                      use:tooltip={profile_state.is_editing ? undefined : selected_item?.tooltip}
-                    >
-                      {#if selected_item?.portrait}
-                        <img
-                          src={selected_item.portrait}
-                          alt={selected_item.label}
-                          class="h-full w-full object-cover object-center"
-                          draggable="false"
-                        />
-                      {:else}
-                        {vname}
-                      {/if}
-                    </div>
-
-                    {#if profile_state.is_editing}
-                      <div
-                        class="absolute inset-0 z-20 flex items-center justify-center overflow-hidden rounded-[inherit] bg-black/0 opacity-0 backdrop-blur-sm transition-opacity group-hover/visualcard:opacity-100"
-                      >
-                        <span class="text-[10px] font-bold tracking-widest">VISUAL STYLE</span>
-                      </div>
-                    {/if}
+                    <StyleBadge entity={profile_state.char} layout="profile" which="visual" class="h-full w-full" tooltip={selected_item?.tooltip} />
                   {/snippet}
                 </Dropdown>
               {/if}
