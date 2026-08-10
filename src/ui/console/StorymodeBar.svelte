@@ -15,6 +15,7 @@
   let is_ghostwriting = $state(false);
 
   let is_locked = $derived(simulation_state.busy);
+  let is_consolidating = $derived(simulation_state.is_consolidating);
 
   $effect(() => {
     // Snapshot the request count synchronously so it's the only reactive dep here.
@@ -113,6 +114,16 @@
   disabled={app.control_panel_open || is_ghostwriting}
   aria-label="Input message"
 ></textarea>
+
+{#if is_consolidating && !app.streaming.active}
+  <span
+    class="flex shrink-0 items-center gap-1.5 text-[10px] font-bold tracking-widest text-slate-400 uppercase"
+    use:tooltip={"Storing this turn into memory… send resumes momentarily."}
+  >
+    <span class="size-2 animate-pulse rounded-full bg-electric-cyan"></span>
+    Processing memory
+  </span>
+{/if}
 
 {#if app.streaming.active}
   <Button

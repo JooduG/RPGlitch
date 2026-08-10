@@ -4,7 +4,7 @@ import { state_bridge } from "@utils";
 import App from "../App.svelte";
 import { sanitize_to_fragment } from "@platform";
 import { mount } from "svelte";
-import { embeddings_engine } from "@intelligence";
+import { embeddings_engine, reconcile_vector_caps } from "@intelligence";
 import { save_session_checkpoint } from "./session.js";
 
 let has_initialized = false;
@@ -56,6 +56,25 @@ export const app_bootstrap = {
 
       // Parallel Initialization: Reduce critical path for LCP.
       await Promise.all([state_bridge.runtime.sync(), state_bridge.app.init(), Audio.init()]);
+
+      // Vector hygiene: entities saved under looser caps may still hold over-cap
+      // past/future pools. Trim them once on load (origin/premade vectors are kept)
+      // so memory stays bounded going forward.
+      const runtime = state_bridge.runtime;
+      for (const { entity, type } of [
+        { entity: runtime.active_ai, type: "character" },
+        { entity: runtime.active_user, type: "character" },
+        { entity: runtime.active_fractal, type: "fractal" },
+      ]) {
+        if (!entity) continue;
+        try {
+          if (reconcile_vector_caps(entity)) {
+            await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
+          }
+        } catch (err) {
+          console.warn("[Boot] Vector reconciliation failed for", entity.id, err);
+        }
+      }
 
       // 5. Mount Svelte App
       mount(App, {

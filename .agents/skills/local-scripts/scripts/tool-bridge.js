@@ -35,8 +35,15 @@ if (fs.existsSync(absolutePath)) {
   const result = spawnSync("node", [absolutePath, ...toolArgs], { stdio: "inherit", shell: true });
   process.exit(result.status ?? 0);
 } else {
-  // If the global tool does not exist (e.g. in CI or on another machine)
-  console.log(`[Tool-Bridge] Global tool "${toolName}" not found at "${absolutePath}". Using local fallback.`);
+  // If the global tool does not exist (e.g. in CI or on another machine),
+  // print the fallback notice only once per process tree: child npm invocations
+  // spawned below inherit TOOL_BRIDGE_FALLBACK_NOTICED, so nested
+  // summarize:sequential / summarize:parallel chains don't repeat it.
+  const alreadyNoticed = process.env.TOOL_BRIDGE_FALLBACK_NOTICED === "1";
+  if (!alreadyNoticed) {
+    console.log(`[Tool-Bridge] Global tool "${toolName}" not found at "${absolutePath}". Using local fallback.`);
+    process.env.TOOL_BRIDGE_FALLBACK_NOTICED = "1";
+  }
 
   if (toolName === "summarize") {
     // Filter out flags (e.g. --mode=sequential or --mode=parallel)

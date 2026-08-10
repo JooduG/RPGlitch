@@ -156,7 +156,6 @@ export default defineConfig(({ command, mode }) => {
         output: {
           format: "iife",
           name: "RPGlitch",
-          inlineDynamicImports: true,
         },
       },
     },

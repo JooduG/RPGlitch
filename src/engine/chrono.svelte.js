@@ -238,6 +238,23 @@ export class ChronoEngine {
             signal: controller.signal,
           });
           state_bridge.app.log("Generation complete.", "system");
+          try {
+            // Per-turn telemetry summary: what the round actually produced.
+            const tail = (state_bridge.simulation_log?.feed || []).slice(-16);
+            const counts = {};
+            for (const m of tail) {
+              if (!m || m.role === "system") continue;
+              const role = m.role === "model" ? "ai" : m.role;
+              counts[role] = (counts[role] || 0) + 1;
+            }
+            const parts = Object.entries(counts).map(([r, n]) => `${r}×${n}`);
+            state_bridge.app.log(
+              `Turn ${state_bridge.runtime.round} complete — ${parts.length ? parts.join(", ") : "no messages recorded"}.`,
+              "system",
+            );
+          } catch (_err) {
+            /* telemetry must never break the turn */
+          }
         } catch (e) {
           console.error("[Chrono] Generation Failed:", e);
           state_bridge.app.log("Error: Generation Failed.", "error");

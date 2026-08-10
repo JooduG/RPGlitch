@@ -277,7 +277,11 @@
   function build_actions(type) {
     const in_storymode = app.view === "storymode";
     const in_dev = app.settings.dev_mode;
-    const entity_map = { ai: app.selected_ai, user: app.selected_user, fractal: app.selected_fractal };
+    const entity_map = {
+      ai: app.selected_ai || runtime.active_ai,
+      user: app.selected_user || runtime.active_user,
+      fractal: app.selected_fractal || runtime.active_fractal,
+    };
     const entity = entity_map[type];
 
     const photo_label = type === "ai" ? "Generate AI Character Image" : type === "user" ? "Generate User Persona Image" : "Generate Fractal Image";
@@ -420,11 +424,11 @@
             <EntityCard
               variant="panel"
               type="ai"
-              entity={app.selected_ai}
+              entity={app.selected_ai || runtime.active_ai}
               role_label="AI Character"
               actions={ai_actions}
               on_select={() => {
-                if (app.selected_ai) app.toggle_profile(true, app.selected_ai);
+                if (app.selected_ai || runtime.active_ai) app.toggle_profile(true, app.selected_ai || runtime.active_ai);
               }}
             />
           </div>
@@ -432,29 +436,33 @@
             <EntityCard
               variant="panel"
               type="fractal"
-              entity={app.selected_fractal}
+              entity={app.selected_fractal || runtime.active_fractal}
               role_label="Fractal"
               actions={fractal_actions}
               on_select={() => {
-                if (app.selected_fractal) app.toggle_profile(true, app.selected_fractal);
+                if (app.selected_fractal || runtime.active_fractal) app.toggle_profile(true, app.selected_fractal || runtime.active_fractal);
               }}
             />
           </div>
           <div data-panel-style-badge>
-            <StyleBadge entity={app.selected_fractal} layout="storymode" class="flex w-full justify-center gap-gap-standard" />
+            <StyleBadge
+              entity={app.selected_fractal || runtime.active_fractal}
+              layout="storymode"
+              class="flex w-full justify-center gap-gap-standard"
+            />
           </div>
         </div>
       {:else}
         <div class="flex h-full w-full items-center justify-center" data-slot-type="ai">
           <EntityCard
-            variant={app.selected_ai ? "panel" : "slot"}
+            variant={app.selected_ai || runtime.active_ai ? "panel" : "slot"}
             type="ai"
-            entity={app.selected_ai}
+            entity={app.selected_ai || runtime.active_ai}
             role_label="AI Character"
             actions={ai_actions}
             on_select={() => {
-              if (app.selected_ai) {
-                app.toggle_profile(true, app.selected_ai);
+              if (app.selected_ai || runtime.active_ai) {
+                app.toggle_profile(true, app.selected_ai || runtime.active_ai);
               } else if (app.view === "storyboard") {
                 app.open_card_hand("ai");
               }
@@ -469,7 +477,7 @@
         {#if !app.entities_loaded}
           <Skeleton variant="card" width="100%" height="100%" />
         {:else}
-          {@const entity = app.selected_fractal}
+          {@const entity = app.selected_fractal || runtime.active_fractal}
           <div class="flex h-full w-full items-center justify-center" data-slot-type="fractal">
             <EntityCard
               variant={entity ? "panel" : "slot"}
@@ -502,7 +510,7 @@
       {#if !app.entities_loaded}
         <Skeleton variant="card" width="100%" height="100%" />
       {:else}
-        {@const entity = app.selected_user}
+        {@const entity = app.selected_user || runtime.active_user}
         <div
           class="flex h-full w-full items-center justify-center {app.view === 'storymode'
             ? 'transition-transform duration-300 md:translate-x-[calc(-0.5*var(--spacing-column-unit))]'

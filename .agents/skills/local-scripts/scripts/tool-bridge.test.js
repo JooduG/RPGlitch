@@ -51,7 +51,7 @@ describe("tool-bridge.js CLI", () => {
 
   it("skips non-summarize global tools in CI (when global tool is missing)", () => {
     const result = spawnSync("node", [BRIDGE_PATH, "knowledge"], {
-      env: { ...process.env, TEST_HOME_DIR: path.join(TEST_DIR, "nonexistent") },
+      env: { ...process.env, TEST_HOME_DIR: path.join(TEST_DIR, "nonexistent"), TOOL_BRIDGE_FALLBACK_NOTICED: "" },
       encoding: "utf8",
     });
 

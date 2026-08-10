@@ -391,6 +391,16 @@
 {#if profile_state.char?.id}
   <Dialog
     type="confirm"
+    bind:open={profile_state.pending_swap_confirm}
+    title="Discard unsaved changes?"
+    message={`You have unsaved edits to ${profile_state.char?.name || "this profile"}. Open the other entity and discard them?`}
+    confirm_label="Discard & Continue"
+    on_confirm={() => profile_state.confirm_swap()}
+    on_cancel={() => profile_state.reject_swap()}
+  />
+
+  <Dialog
+    type="confirm"
     bind:open={profile_state.show_delete_confirm}
     title="Delete {profile_state.char.name || 'Entity'}"
     message="This action is irreversible. All associated data, including history and memories, will be lost."

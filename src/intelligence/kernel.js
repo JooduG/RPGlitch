@@ -53,7 +53,7 @@ async function count_pending_ghosts() {
       }
     }
     return count;
-  } catch (err) {
+  } catch (_err) {
     return 0;
   }
 }
@@ -89,7 +89,7 @@ async function sweep_stale_ghosts() {
         }
       }
     }
-  } catch (err) {
+  } catch (_err) {
     /* sweep must never break the trigger path */
   }
 }
@@ -1127,7 +1127,7 @@ export const gamemaster = {
                       metadata: { ...(att.metadata || {}), failed: true, image_ghost_swept: true, error: "Prologue image timed out." },
                     });
                   }
-                } catch (err) {
+                } catch (_err) {
                   /* guard must never break the prologue */
                 }
                 resolve();

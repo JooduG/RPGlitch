@@ -79,6 +79,16 @@ class SimulationStateStore {
     return this.#phase === "generating" || this.#intent_active;
   }
 
+  /**
+   * True while the engine has finished streaming a turn and is silently
+   * consolidating memory in the background (idle phase + intent lock held).
+   * The UI shows a "Processing memory…" cue instead of a plain disabled send.
+   * @type {boolean}
+   */
+  get is_consolidating() {
+    return this.#phase === "idle" && this.#intent_active;
+  }
+
   start_generation(role = "ai") {
     this.#phase = "generating";
     this.#role = /** @type {"ai" | "system" | "fractal" | "user" | null} */ (role);

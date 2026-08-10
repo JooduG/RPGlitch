@@ -17,6 +17,6 @@ export {
   collapse_history,
 } from "./parser.js";
 export { prompt_builder, PROTOCOL_LIBRARY } from "./prompts.js";
-export { temporal_engine, resolve_vector_pool } from "./temporal.js";
+export { temporal_engine, resolve_vector_pool, reconcile_vector_caps } from "./temporal.js";
 export { dynamics_engine, DYNAMICS_META } from "./dynamics.js";
 export { process_entity_blocks, resolve_entity_name, vector_label, get_pct } from "./telemetry.js";

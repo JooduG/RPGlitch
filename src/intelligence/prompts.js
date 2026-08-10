@@ -8,7 +8,7 @@ import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "../data/definitions/fragments.js";
-import { clean_xml, collapse_history, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
+import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 // PROTOCOL_LIBRARY is defined in @data/definitions/protocols.js and re-exported here
@@ -31,7 +31,7 @@ const DIRECTOR_JSON_SCHEMA = `{
       "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none]), or empty string.",
       "non_physical": "Immediate internal shifts or emotional reactions, or empty string."
     },
-    "vector_append": [ { "content": "New goal, event, or prophecy (AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
+    "vector_append": [ { "content": "ONLY a genuinely significant new goal/event/prophecy (EMPTY LIST on routine turns; AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
     "vector_resolve": [ { "id": "<vector_id>", "resolution_summary": "Summary." } ],
     "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
   },
@@ -42,7 +42,7 @@ const DIRECTOR_JSON_SCHEMA = `{
   },
   "FRACTAL": {
     "present_append": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "New environmental event, prophecy, or shift (AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
+    "vector_append": [ { "content": "ONLY a genuinely significant environmental event/prophecy/shift (EMPTY LIST on routine turns; AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
     "vector_resolve": [],
     "dynamics_deltas": { "entropy": 0, "velocity": 0 }
   },
@@ -54,17 +54,17 @@ const MEMORY_JSON_SCHEMA = `{
   "AI_CHARACTER": {
     "eternal_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
     "present_consolidated": { "physical": "Clean updated physical state (or empty if unchanged)", "non_physical": "Clean updated mental/emotional baseline (or empty if unchanged)" },
-    "vector_append": [ { "content": "One settled historical anchor OR forward impulse (AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "ONLY if a durable fact/goal emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
   },
   "USER_PERSONA": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "One settled historical anchor OR forward impulse (AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "ONLY if a durable fact/goal emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
   },
   "FRACTAL": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "One settled historical anchor OR environmental impulse (AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
   }
 }`;
 
@@ -296,6 +296,8 @@ ${(() => {
       - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed vector_append and present_append that move toward them so they materialize as the character's own actions.
       - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or SNAPSHOT, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
       - Compose the "directive" key as your narrative voice into the AI character's turn: weave the active <PAST>, <FUTURE>, and <ETERNAL> threads across the AI character, user persona, and fractal into a short, subtle in-character cue. Keep it deniable and atmospheric — never state hidden agendas as fact, never deliver exposition the character could not have inferred. Empty string when nothing is warranted.
+      - VECTOR RESTRAINT: vector_append is for MEANINGFUL change only — a new goal, a resolved thread, a story-arc shift. On routine or continuative turns emit an empty list. Never re-log what a <PAST>/<FUTURE>/<ETERNAL> block or an existing vector already covers, and never mint a vector for a passing sensation.
+      - VOICE VARIETY: avoid repeating the same physical tics or ambient phrases the character used in recent turns (growls, rumbles, vibrations, signature motions). Refresh how the body and environment are described each turn.
       - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
     DYNAMICS CALIBRATION (dynamics_deltas must mirror the scene's actual register, never a mechanical ratchet):
       - Quiet, vulnerable, contemplative, or tension-easing beats move intensity DOWNWARD (or leave it flat at 0). Genuine spikes — violence, confrontation, revelations, climaxes — move it upward, using the full -10..+10 range when warranted.

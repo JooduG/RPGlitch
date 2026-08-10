@@ -30,6 +30,11 @@ export class ProfileState {
    */
   _user_mutated = $state(false);
 
+  /** * Pending entity-swap held back by the dirty guard (see sync()). */
+  _pending_swap = null;
+  /** * True while the user is asked whether to discard in-flight edits. */
+  pending_swap_confirm = $state(false);
+
   constructor() {
     this.char = normalize(app.editing_entity || runtime.character);
   }
@@ -93,7 +98,42 @@ export class ProfileState {
    */
   sync() {
     if (app.editing_entity && app.editing_entity.id !== this.char?.id) {
+      // Mid-edit entity swap: never silently discard in-flight edits. Hold the
+      // swap behind a confirm dialog so the user decides what happens to them.
+      if (this.is_dirty) {
+        this._pending_swap = app.editing_entity;
+        this.pending_swap_confirm = true;
+        return;
+      }
       this.char = normalize(app.editing_entity);
+      this.reset_active_field();
+    }
+  }
+
+  /**
+   * User confirmed the swap: discard the in-flight edits and open the new entity.
+   */
+  confirm_swap() {
+    const next = this._pending_swap;
+    this._pending_swap = null;
+    this.pending_swap_confirm = false;
+    if (next) {
+      this.is_editing = false;
+      this._user_mutated = false;
+      this.char = normalize(next);
+      this.reset_active_field();
+    }
+  }
+
+  /**
+   * User cancelled the swap: keep editing the current entity and restore
+   * app.editing_entity so the app still targets the entity on screen.
+   */
+  reject_swap() {
+    this._pending_swap = null;
+    this.pending_swap_confirm = false;
+    if (app.editing_entity && app.editing_entity.id !== this.char?.id) {
+      app.editing_entity = this.char;
     }
   }
 

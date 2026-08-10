@@ -19,7 +19,7 @@ export const MACROS = {
 export const PROTOCOL_LIBRARY = {
   // ── 1. Core Output Mechanics & Hygiene ──────────────────────────────────────
   HYGIENE: {
-    PROSE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality. Use metric system & 24h clocks.`,
+    PROSE: `${BASE_HYGIENE} No timestamps or headers. No echoing user dialogue. Match character profile. Write natural physicality. Vary physical tics and ambient motifs across turns. Use metric system & 24h clocks.`,
     CONCISENESS:
       "Use impactful, concise prose. Avoid purple prose, redundant adjectives, and flowery descriptions. Every sentence must carry narrative weight.",
     AFFIRMATIVE: "Construct sentences in the affirmative. State what IS, not what isn't.",

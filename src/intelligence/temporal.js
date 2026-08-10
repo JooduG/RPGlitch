@@ -207,9 +207,72 @@ function is_duplicate(a, b) {
 // ETERNAL is identity: it must not accumulate contradictory mutation lines.
 // Appends are deduped (verbatim or near-duplicate lines are skipped) and capped
 // from the TAIL so the opening identity block is always preserved.
-export const FUTURE_VECTOR_CAP = 30;
+// Vectors are capped per pool and evicted OLDEST-FIRST — but hand-authored
+// premade vectors (meta.origin) are never evicted, so the user's curated origin
+// past/future blocks can never be silently destroyed by a busy forge cycle.
+export const FUTURE_VECTOR_CAP = 16;
+export const PAST_VECTOR_CAP = 20;
 const ETERNAL_MAX_CHARS = 1500;
 const PRESENT_MAX_SEGMENTS = 3;
+
+/** True for vectors that were hand-authored (premade stock) and must never be evicted.
+ *  Premade vectors are stamped `timestamp: 0`, so that marker also protects stock
+ *  vectors inside saved entities that predate the `meta.origin` flag. */
+function is_origin(v) {
+  return !!(v && (v.meta?.origin || v.origin || v.timestamp === 0));
+}
+
+/**
+ * Load-time reconciliation: trims over-cap past/future pools down to their caps,
+ * oldest-evictable-first, while origin vectors (premade stock) are always kept.
+ * Returns true if anything was removed so callers can persist the change.
+ */
+export function reconcile_vector_caps(entity) {
+  if (!entity || typeof entity !== "object") return false;
+  let changed = false;
+  for (const [bucket, cap] of [
+    ["future", FUTURE_VECTOR_CAP],
+    ["past", PAST_VECTOR_CAP],
+  ]) {
+    if (!Array.isArray(entity[bucket])) continue;
+    while (entity[bucket].length > cap) {
+      const before = entity[bucket].length;
+      evict_oldest_evictable(entity, bucket, cap);
+      if (entity[bucket].length === before) break; // pool fully origin-protected
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+/** True when `content` is a near-duplicate of any existing vector's text. */
+function is_near_duplicate(existing_list, content) {
+  if (!content || !Array.isArray(existing_list)) return false;
+  for (const v of existing_list) {
+    const text = v && (v.content || v.directive || "");
+    if (text && is_duplicate(text, content)) return true;
+  }
+  return false;
+}
+
+/** Shared eviction: drop the oldest evictable (non-origin) vector, if any. */
+function evict_oldest_evictable(entity, bucket, cap) {
+  if (!Array.isArray(entity[bucket]) || entity[bucket].length <= cap) return;
+  const index = entity[bucket].findIndex((v) => !is_origin(v));
+  if (index === -1) return; // all vectors are origin-protected — allow growth
+  const [evicted] = entity[bucket].splice(index, 1);
+  const evicted_text = String(evicted?.content || evicted?.directive || "").trim();
+  if (evicted_text) {
+    console.warn(
+      `[TemporalEngine] ${bucket} cap (${cap}) reached — evicting oldest evictable vector: "${evicted_text.slice(0, 60)}${evicted_text.length > 60 ? "..." : ""}"`,
+    );
+    try {
+      state_bridge.app?.log?.(`[TemporalEngine] Evicted oldest ${bucket} vector (cap ${cap}): "${evicted_text.slice(0, 40)}..."`, "warn");
+    } catch (_err) {
+      /* never let telemetry break the mutation path */
+    }
+  }
+}
 
 function vector_id_exists(entity, id) {
   if (!entity || !id) return false;
@@ -230,28 +293,24 @@ export function ensure_unique_vector_id(entity, vector) {
   return vector;
 }
 
-/** Pushes a future vector under a hard cap, logging the oldest eviction. */
+/** Pushes a future vector under a hard cap, skipping near-duplicates and never evicting origin vectors. */
 export function append_future_vector(entity, vector) {
   if (!entity) return;
   if (!Array.isArray(entity.future)) entity.future = [];
+  const content = vector?.content || vector?.directive || "";
+  if (is_near_duplicate(entity.future, content)) return;
   entity.future.push(vector);
-  if (entity.future.length > FUTURE_VECTOR_CAP) {
-    const evicted = entity.future.shift();
-    const evicted_text = String(evicted?.content || evicted?.directive || "").trim();
-    if (evicted_text) {
-      console.warn(
-        `[TemporalEngine] Future cap (${FUTURE_VECTOR_CAP}) reached — evicting oldest future vector: "${evicted_text.slice(0, 60)}${evicted_text.length > 60 ? "..." : ""}"`,
-      );
-      try {
-        state_bridge.app?.log?.(
-          `[TemporalEngine] Evicted oldest future vector (cap ${FUTURE_VECTOR_CAP}): "${evicted_text.slice(0, 40)}..."`,
-          "warn",
-        );
-      } catch (err) {
-        /* never let telemetry break the mutation path */
-      }
-    }
-  }
+  evict_oldest_evictable(entity, "future", FUTURE_VECTOR_CAP);
+}
+
+/** Pushes a past vector under a hard cap, skipping near-duplicates and never evicting origin vectors. */
+export function append_past_vector(entity, vector) {
+  if (!entity) return;
+  if (!Array.isArray(entity.past)) entity.past = [];
+  const content = vector?.content || vector?.directive || "";
+  if (is_near_duplicate(entity.past, content)) return;
+  entity.past.push(vector);
+  evict_oldest_evictable(entity, "past", PAST_VECTOR_CAP);
 }
 
 /** Deduplicates an incoming eternal mutation against the existing identity field. */
@@ -539,7 +598,7 @@ async function fallback_consolidate(entity_targets, slice, runtime, session) {
       const content = facts ? `Past: ${facts.slice(0, 500)}` : `${entity.name || key} carries the last events forward.`;
       const vector = create(content, "past", 5);
       ensure_unique_vector_id(entity, vector);
-      entity.past = [...(entity.past || []), vector];
+      append_past_vector(entity, vector);
       await runtime.update_entity(type, entity.id, { past: entity.past });
       await session.log_system_entry(`Memory Forged (${key}): ${vector.content.substring(0, 50)}...`, "system", {
         type: "MEMORY_FORMATION",
@@ -611,7 +670,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
       if (new_vector.type === "future") {
         append_future_vector(entity, new_vector);
       } else {
-        entity[bucket].push(new_vector);
+        append_past_vector(entity, new_vector);
       }
       changed = true;
     });
@@ -687,6 +746,8 @@ export const temporal_engine = {
   forge_memory,
   apply_state_mutations,
   append_future_vector,
+  append_past_vector,
+  reconcile_vector_caps,
   ensure_unique_vector_id,
   set_round,
   precompute_context_embedding,
@@ -729,7 +790,7 @@ export const temporal_engine = {
                 await runtime.update_entity(type, entity.id, { present: entity.present });
               } else {
                 ensure_unique_vector_id(entity, memory);
-                entity.past = [...(entity.past || []), memory];
+                append_past_vector(entity, memory);
                 await runtime.update_entity(type, entity.id, { past: entity.past });
               }
             }

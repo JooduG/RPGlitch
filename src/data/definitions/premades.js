@@ -40,7 +40,7 @@ export const premade = {
           content:
             "He experienced a famous live-streamed wardrobe malfunction during a public rescue that went completely viral, instantly exploding his male fanbase after his cheerful clumsiness exposed his physique and made him an overnight internet sensation.",
           emotional_weight: 7,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -51,7 +51,7 @@ export const premade = {
           content:
             "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns.",
           emotional_weight: 6,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -88,7 +88,7 @@ export const premade = {
           content:
             "He completely penetrated the orbital mainframe of Project Tartarus, bypassing Dr. Elias Voss's security firewalls and accidentally triggering the catastrophic system-wide containment failure that unleashed beast into the wild.",
           emotional_weight: 10,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -99,7 +99,7 @@ export const premade = {
           content:
             "He desperately wants to push the wrong big strong man too far with his upper-district pranks, forcing the asset to corner, manhandle, and completely defeat his digital defenses.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -136,7 +136,7 @@ export const premade = {
           content:
             "He was formally exiled from the Ashenweald high court after ancient rivals exposed his centuries-long use of forbidden hypnotic compulsion magic on court nobles and palace staff. Stripped of his royal standing, he channeled his vast inherited wealth into building a new empire entirely outside the reach of elven law.",
           emotional_weight: 10,
-          meta: {},
+          meta: { origin: true },
         },
         {
           id: "valerius-p2",
@@ -144,7 +144,7 @@ export const premade = {
           content:
             "He remembers 'The Night of the Silver Whispers', the final private confrontation in the palace gardens where he shared a quiet, manipulative moment with Prince Caelum just before his own exile, planting the seeds of Caelum's subsequent downfall and longing for submission.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -155,7 +155,7 @@ export const premade = {
           content:
             "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
         {
           id: "valerius-f2",
@@ -163,7 +163,7 @@ export const premade = {
           content:
             "He aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Silas Vane as a go-between to acquire their volatile prototype assets.",
           emotional_weight: 7,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -199,7 +199,7 @@ export const premade = {
           content:
             "After being betrayed during a high-stakes heist, he forged his bulky cybernetic right arm from bootlegged, stolen Dr. Elias Voss hydraulic tech, establishing a tense trade pipeline with Elias to keep his hardware operational.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -210,7 +210,7 @@ export const premade = {
           content:
             "He aims to stalk and claim a highly vocal, arrogant target, bind them to one of his heavy mechanical rigs, and completely crush their masculine front while forcing them to answer to his demeaning nicknames.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -247,7 +247,7 @@ export const premade = {
           content:
             "He was stripped of his academic credentials and blacklisted from multiple corporate research syndicates after transforming elite volunteer test subjects into massive, mindless, and completely adoring laboratory pets during a series of unauthorized biochemical trials that far exceeded ethical boundaries.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -258,7 +258,7 @@ export const premade = {
           content:
             "He plans to secure a highly resistant, hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect, adoring, muscle-bound creation.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -295,7 +295,7 @@ export const premade = {
           content:
             "He was disowned and banished from the Ashenweald kingdom after the scandal of 'The Night of the Silver Whispers', when his royal father caught him submitting to the high-elven royal guards, forever shattering his royal standing and forcing him to flee into exile.",
           emotional_weight: 10,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -306,7 +306,7 @@ export const premade = {
           content:
             "He desperately longs to find a powerful, commanding guardian who will permanently claim his obedience, dress him in revealing, delicate luxury, and provide the absolute authoritative structure his psyche craves.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -342,7 +342,7 @@ export const premade = {
           content:
             "Created inside Project Tartarus by Elias Voss, he survived a series of brutal, high-intensity laboratory evaluation matches before Glitch's mainframe hack caused a total containment failure, unleashing his raw power onto the world.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -353,7 +353,7 @@ export const premade = {
           content:
             "He actively seeks a premium, devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -393,7 +393,7 @@ export const premade = {
           content:
             "The city was founded decades ago as a hidden underground sanctuary during historical eras of global persecution, rapidly mutating into a massive, sovereign vertical refuge for men with nowhere else to go.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -404,7 +404,7 @@ export const premade = {
           content:
             "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a rare celestial alignment projected to trigger an absolute city-wide surge in risk-taking, public aesthetic adoration, and a total collapse of remaining behavioral boundaries across both layers.",
           emotional_weight: 7,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -441,7 +441,7 @@ export const premade = {
           content:
             "The entire realm became heavily cursed the moment the high-elf king disowned his crown prince, Caelum, triggering an ancient magical feedback loop that now forces every traveler to confront their deepest hidden desires.",
           emotional_weight: 9,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -452,7 +452,7 @@ export const premade = {
           content:
             "The inhibition-shredding curse can only be dismantled if Prince Caelum returns to Ashenweald and claims the marble throne, either by compliant reconciliation or absolute conquest.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
@@ -489,7 +489,7 @@ export const premade = {
           content:
             "The installation suffered a catastrophic grid collapse when the hacker Glitch breached the orbital mainframe, bypassing Elias Voss's security firewalls and triggering the massive containment failure that unleashed beast.",
           emotional_weight: 10,
-          meta: {},
+          meta: { origin: true },
         },
       ],
 
@@ -500,7 +500,7 @@ export const premade = {
           content:
             "The orbital staff is quietly developing a volatile 'mind-wipe virus'—an experimental, contact-spread growth serum designed to trigger immediate physical optimization and absolute obedience across any organic target it touches.",
           emotional_weight: 8,
-          meta: {},
+          meta: { origin: true },
         },
       ],
     },
