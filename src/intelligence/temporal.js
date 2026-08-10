@@ -210,7 +210,7 @@ function is_duplicate(a, b) {
 // Vectors are capped per pool and evicted OLDEST-FIRST — but hand-authored
 // premade vectors (meta.origin) are never evicted, so the user's curated origin
 // past/future blocks can never be silently destroyed by a busy forge cycle.
-export const FUTURE_VECTOR_CAP = 16;
+export const FUTURE_VECTOR_CAP = 5;
 export const PAST_VECTOR_CAP = 20;
 const ETERNAL_MAX_CHARS = 1500;
 const PRESENT_MAX_SEGMENTS = 3;
@@ -429,7 +429,443 @@ export async function format_async(vectors, input, options = {}) {
     .join("\n");
 }
 
-export function resolve(entity, vector_id, resolution = null, session = null) {
+const IRREGULAR_PAST = {
+  am: "was",
+  is: "was",
+  are: "were",
+  become: "became",
+  begin: "began",
+  break: "broke",
+  bring: "brought",
+  build: "built",
+  buy: "bought",
+  come: "came",
+  do: "did",
+  eat: "ate",
+  fall: "fell",
+  feel: "felt",
+  find: "found",
+  get: "got",
+  give: "gave",
+  go: "went",
+  have: "had",
+  hold: "held",
+  keep: "kept",
+  know: "knew",
+  leave: "left",
+  lose: "lost",
+  make: "made",
+  meet: "met",
+  pay: "paid",
+  run: "ran",
+  say: "said",
+  see: "saw",
+  send: "sent",
+  show: "showed",
+  speak: "spoke",
+  spend: "spent",
+  stand: "stood",
+  steal: "stole",
+  take: "took",
+  tell: "told",
+  think: "thought",
+  throw: "threw",
+  wake: "woke",
+  win: "won",
+  write: "wrote",
+  shut: "shut",
+  hit: "hit",
+  put: "put",
+  let: "let",
+  cut: "cut",
+  set: "set",
+  arise: "arose",
+  bite: "bit",
+  choose: "chose",
+  deal: "dealt",
+  dig: "dug",
+  draw: "drew",
+  dream: "dreamt",
+  drink: "drank",
+  drive: "drove",
+  flee: "fled",
+  forbid: "forbade",
+  forget: "forgot",
+  forgive: "forgave",
+  freeze: "froze",
+  grow: "grew",
+  hang: "hung",
+  hide: "hid",
+  leap: "leapt",
+  lend: "lent",
+  light: "lit",
+  ring: "rang",
+  rise: "rose",
+  seek: "sought",
+  sell: "sold",
+  shake: "shook",
+  shine: "shone",
+  shoot: "shot",
+  shrink: "shrank",
+  sing: "sang",
+  sink: "sank",
+  sit: "sat",
+  slide: "slid",
+  smell: "smelt",
+  speed: "sped",
+  spin: "spun",
+  spring: "sprang",
+  stink: "stank",
+  strike: "struck",
+  swear: "swore",
+  swim: "swam",
+  swing: "swung",
+  teach: "taught",
+  tear: "tore",
+  tread: "trod",
+  wear: "wore",
+  weave: "wove",
+  weep: "wept",
+};
+
+const CLAUSE_PAST = {
+  wakes: "woke",
+  arrives: "arrived",
+  opens: "opened",
+  seals: "sealed",
+  closes: "closed",
+  comes: "came",
+  goes: "went",
+  does: "did",
+  has: "had",
+  finds: "found",
+  sees: "saw",
+  says: "said",
+  gets: "got",
+  makes: "made",
+  takes: "took",
+  reaches: "reached",
+  returns: "returned",
+  emerges: "emerged",
+  begins: "began",
+  starts: "started",
+  turns: "turned",
+  breaks: "broke",
+  calls: "called",
+  leaves: "left",
+  loses: "lost",
+  runs: "ran",
+  sends: "sent",
+  shows: "showed",
+  speaks: "spoke",
+  stands: "stood",
+  tells: "told",
+  thinks: "thought",
+  throws: "threw",
+  wins: "won",
+  writes: "wrote",
+  falls: "fell",
+  brings: "brought",
+  buys: "bought",
+  catches: "caught",
+  drinks: "drank",
+  drives: "drove",
+  eats: "ate",
+  feels: "felt",
+  fights: "fought",
+  flies: "flew",
+  gives: "gave",
+  grows: "grew",
+  hits: "hit",
+  holds: "held",
+  knows: "knew",
+  meets: "met",
+  pays: "paid",
+  puts: "put",
+  reads: "read",
+  rides: "rode",
+  sings: "sang",
+  sleeps: "slept",
+  spends: "spent",
+  steals: "stole",
+  swims: "swam",
+  understands: "understood",
+  wears: "wore",
+  // bare/infinitive forms ("before the guards arrive", "until the sun sets"):
+  wake: "woke",
+  arrive: "arrived",
+  open: "opened",
+  seal: "sealed",
+  close: "closed",
+  come: "came",
+  go: "went",
+  do: "did",
+  have: "had",
+  find: "found",
+  see: "saw",
+  say: "said",
+  get: "got",
+  make: "made",
+  take: "took",
+  reach: "reached",
+  return: "returned",
+  emerge: "emerged",
+  begin: "began",
+  start: "started",
+  turn: "turned",
+  break: "broke",
+  call: "called",
+  leave: "left",
+  lose: "lost",
+  run: "ran",
+  send: "sent",
+  show: "showed",
+  speak: "spoke",
+  stand: "stood",
+  tell: "told",
+  think: "thought",
+  throw: "threw",
+  win: "won",
+  write: "wrote",
+  fall: "fell",
+  bring: "brought",
+  buy: "bought",
+  catch: "caught",
+  drink: "drank",
+  drive: "drove",
+  eat: "ate",
+  feel: "felt",
+  fight: "fought",
+  fly: "flew",
+  give: "gave",
+  grow: "grew",
+  hit: "hit",
+  hold: "held",
+  know: "knew",
+  meet: "met",
+  pay: "paid",
+  put: "put",
+  read: "read",
+  ride: "rode",
+  sing: "sang",
+  sleep: "slept",
+  spend: "spent",
+  steal: "stole",
+  swim: "swam",
+  understand: "understood",
+  wear: "wore",
+  stop: "stopped",
+  stops: "stopped",
+  exit: "exited",
+  exits: "exited",
+  enter: "entered",
+  enters: "entered",
+  rush: "rushed",
+  rushes: "rushed",
+  abandon: "abandoned",
+  abandons: "abandoned",
+  activate: "activated",
+  activates: "activated",
+  trigger: "triggered",
+  triggers: "triggered",
+  complete: "completed",
+  completes: "completed",
+  finish: "finished",
+  finishes: "finished",
+  unlock: "unlocked",
+  unlocks: "unlocked",
+  reveal: "revealed",
+  reveals: "revealed",
+  awaken: "awakened",
+  awakens: "awakened",
+  collapse: "collapsed",
+  collapses: "collapsed",
+  flood: "flooded",
+  floods: "flooded",
+  resume: "resumed",
+  resumes: "resumed",
+  spread: "spread",
+  spreads: "spread",
+  fail: "failed",
+  fails: "failed",
+  fade: "faded",
+  fades: "faded",
+  pass: "passed",
+  passes: "passed",
+  end: "ended",
+  ends: "ended",
+  die: "died",
+  dies: "died",
+  shut: "shut",
+  shuts: "shut",
+  cut: "cut",
+  cuts: "cut",
+  rise: "rose",
+  rises: "rose",
+};
+
+function past_tense_stem(word) {
+  const lower = String(word).toLowerCase();
+  if (IRREGULAR_PAST[lower]) return IRREGULAR_PAST[lower];
+  if (/y$/.test(lower) && !/[aeiou]y$/.test(lower)) return lower.replace(/y$/, "ied");
+  if (/e$/.test(lower)) return lower + "d";
+  // Double the final consonant only for short single-vowel verbs (rip→ripped,
+  // stop→stopped, stab→stabbed); never for want→wanted, turn→turned, open→opened.
+  const vowels = (lower.match(/[aeiou]/g) || []).length;
+  if (vowels === 1 && lower.length <= 5 && /[aeiou][^aeiouy]$/.test(lower)) {
+    return lower + lower[lower.length - 1] + "ed";
+  }
+  return lower + "ed";
+}
+
+const DESIRE_PAST = {
+  want: "wanted",
+  wants: "wanted",
+  wanted: "wanted",
+  aim: "aimed",
+  aims: "aimed",
+  aimed: "aimed",
+  hope: "hoped",
+  hopes: "hoped",
+  hoped: "hoped",
+  intend: "intended",
+  intends: "intended",
+  intended: "intended",
+  plan: "planned",
+  plans: "planned",
+  planned: "planned",
+};
+
+const FIRST_WORD_STOPLIST = new Set([
+  "the",
+  "a",
+  "an",
+  "he",
+  "she",
+  "it",
+  "they",
+  "we",
+  "i",
+  "you",
+  "this",
+  "that",
+  "these",
+  "those",
+  "his",
+  "her",
+  "their",
+  "its",
+  "our",
+  "my",
+  "your",
+  "one",
+  "some",
+  "no",
+  "every",
+  "each",
+  "any",
+  "all",
+  "there",
+  "if",
+  "when",
+  "after",
+  "before",
+  "until",
+  "while",
+  "though",
+  "as",
+  "once",
+  "unless",
+  "what",
+  "who",
+  "which",
+  "with",
+  "under",
+  "inside",
+  "outside",
+  "from",
+  "into",
+  "within",
+  "against",
+  "during",
+  "through",
+  "upon",
+  "behind",
+  "among",
+  "between",
+]);
+
+const TIME_SUBORDINATOR = /\b(as soon as|before|until|once|when|after)\b([^.!?]+)/g;
+
+/**
+ * Lightweight future→past rewording used when a directive is resolved outside the
+ * memory-forge compile pass (the forge emits properly reworded past_content via the
+ * LLM; this heuristic is the offline fallback and keeps the tense grammatical).
+ */
+export function reword_to_past(content, outcome = "neutral") {
+  const raw = String(content || "");
+  const original = raw.trim().replace(/\.+$/, "");
+  if (!original) return raw;
+
+  // Past-tense the deadline verb inside a time subclause — the LAST verb-like
+  // word after the subordinator ("before the facility wakes up" -> "woke up",
+  // "until the patrol reaches the vault" -> "reached"). Scanning backwards
+  // avoids tense-ing common nouns that double as verbs ("before the power
+  // returns" keeps "power" and tenses "returns").
+  const tense_subclauses = (text) =>
+    text.replace(TIME_SUBORDINATOR, (m, sub, clause) => {
+      let last = -1;
+      let lastRaw = "";
+      clause.replace(/\b([a-zA-Z]+)\b/g, (wm, w, off) => {
+        if (CLAUSE_PAST[w.toLowerCase()] !== undefined) {
+          last = off;
+          lastRaw = wm;
+        }
+        return wm;
+      });
+      if (last === -1) return m;
+      const past = CLAUSE_PAST[lastRaw.toLowerCase()];
+      const repl = lastRaw !== lastRaw.toLowerCase() ? past[0].toUpperCase() + past.slice(1) : past;
+      return sub + clause.slice(0, last) + repl + clause.slice(last + lastRaw.length);
+    });
+
+  const desire = original.match(/^(wants?|wanted|aims?|hopes?|intends?|planned?|plans?)\s+to\s+(.+)$/i);
+  if (desire) {
+    const prefix = desire[1].toLowerCase();
+    const past = DESIRE_PAST[prefix] || prefix;
+    const head = past[0].toUpperCase() + past.slice(1);
+    if (outcome === "failure") {
+      return `${head} to ${desire[2]} but failed.`;
+    }
+    return `${head} to ${tense_subclauses(desire[2])}.`;
+  }
+
+  const text = tense_subclauses(original);
+
+  if (outcome === "failure") {
+    // The action never happened: keep the main verb as a bare infinitive
+    // after "Failed to" (lowercased), only the subclauses move to past.
+    const first = (text.match(/^([A-Za-z]+)/) || ["", ""])[1];
+    let rest = text;
+    if (first) {
+      rest = first[0].toLowerCase() + first.slice(1) + text.slice(first.length);
+    }
+    return `Failed to ${rest}.`;
+  }
+
+  let out = text;
+  const first = (out.match(/^([A-Za-z]+)/) || ["", ""])[1];
+  if (first && !FIRST_WORD_STOPLIST.has(first.toLowerCase())) {
+    const stem = past_tense_stem(first);
+    if (stem !== first.toLowerCase()) {
+      out = stem[0].toUpperCase() + stem.slice(1) + out.slice(first.length);
+    }
+  }
+
+  return out.replace(/\.+$/, "") + ".";
+}
+
+export function resolve(entity, vector_id, resolution = null, session = null, outcome = null, past_content = null) {
   if (!entity || typeof entity !== "object") return;
   let vector = null;
   for (const key of ["future", "past"]) {
@@ -446,6 +882,22 @@ export function resolve(entity, vector_id, resolution = null, session = null) {
   if (!Array.isArray(entity.past)) entity.past = [];
   vector.type = "past";
   vector.timestamp = Date.now();
+  const fresh = past_content && String(past_content).trim();
+  if (fresh) {
+    // The caller supplied a grammar-corrected account of what actually happened.
+    vector.content = String(past_content).trim();
+  } else if (outcome != null) {
+    // Outcome-bearing resolutions (director/forge) rewrite the directive into a
+    // grammatical past memory — success/failure/neutral each tense it properly.
+    vector.content = reword_to_past(vector.content, outcome);
+  }
+  // Otherwise this is a mechanical future->past transition; keep the original
+  // content verbatim so plain resolutions never mangle the text.
+  vector.meta = {
+    ...(vector.meta || {}),
+    outcome: outcome || "neutral",
+    resolution_summary: resolution && typeof resolution === "string" ? resolution : "DIRECTOR_RESOLUTION",
+  };
   entity.past.push(vector);
 
   if (session?.log_system_entry) {
@@ -454,6 +906,7 @@ export function resolve(entity, vector_id, resolution = null, session = null) {
       type: "VECTOR_RESOLUTION",
       vector,
       resolution,
+      outcome: outcome || "neutral",
     });
   }
 }
@@ -516,10 +969,20 @@ export async function forge_memory(entity_targets, history_slice) {
       memories: {},
       present_consolidated: memory?.present_consolidated || {},
       eternal_consolidated: memory?.eternal_consolidated || {},
+      future_compiles: {},
     };
 
     for (const { key } of entity_targets) {
       const entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : {};
+
+      const fc = entity_block.future_compile;
+      if (fc && typeof fc === "object") {
+        forged.future_compiles[key] = {
+          retire: Array.isArray(fc.retire) ? fc.retire : [],
+          revise: Array.isArray(fc.revise) ? fc.revise : [],
+          add: Array.isArray(fc.add) ? fc.add : [],
+        };
+      }
 
       const pres = entity_block.present_consolidated;
       if (pres && typeof pres === "object") {
@@ -640,7 +1103,7 @@ export function apply_state_mutations(entity, mutations, session = null) {
       : [];
   if (resolve_list.length > 0) {
     resolve_list.forEach((v) => {
-      resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION", session);
+      resolve(entity, v.id, v.resolution_summary || "DIRECTOR_RESOLUTION", session, v.outcome, v.past_content);
       changed = true;
     });
   }
@@ -672,6 +1135,21 @@ export function apply_state_mutations(entity, mutations, session = null) {
       } else {
         append_past_vector(entity, new_vector);
       }
+      changed = true;
+    });
+  }
+
+  const update_list = Array.isArray(mutations.vector_update) ? mutations.vector_update : [];
+  if (update_list.length > 0) {
+    update_list.forEach((u) => {
+      if (!u?.id) return;
+      const target = (Array.isArray(entity.future) ? entity.future : []).find((v) => v.id === u.id);
+      if (!target) return;
+      const updated_content = String(u.content || "").trim();
+      if (!updated_content) return;
+      target.content = updated_content;
+      target.timestamp = Date.now();
+      if (u.emotional_weight) target.emotional_weight = Number(u.emotional_weight) || target.emotional_weight;
       changed = true;
     });
   }
@@ -743,6 +1221,7 @@ export const temporal_engine = {
   format,
   format_async,
   resolve,
+  reword_to_past,
   forge_memory,
   apply_state_mutations,
   append_future_vector,
@@ -848,6 +1327,43 @@ export const temporal_engine = {
             }
           }
 
+          // FUTURE DIRECTIVE COMPILE — the forge audits each entity's active
+          // directives: retire resolved/expired ones (writing their outcome as a
+          // past-tense memory), revise still-relevant ones, and add at most one new
+          // goal — always keeping the future pool at or under FUTURE_VECTOR_CAP.
+          for (const { key, type, entity } of entity_targets) {
+            const fc = forged.future_compiles?.[key];
+            if (!fc) continue;
+            for (const r of fc.retire || []) {
+              if (!r?.id) continue;
+              if ((Array.isArray(entity.future) ? entity.future : []).some((v) => v.id === r.id)) {
+                resolve(entity, r.id, r.outcome || "COMPILED_RESOLUTION", session, r.outcome || "neutral", r.past_content);
+                await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
+              }
+            }
+            for (const rv of fc.revise || []) {
+              if (!rv?.id || !String(rv.content || "").trim()) continue;
+              const target =
+                (Array.isArray(entity.future) ? entity.future : []).find((v) => v.id === rv.id) ||
+                (Array.isArray(entity.past) ? entity.past : []).find((v) => v.id === rv.id);
+              if (target) {
+                target.content = String(rv.content).trim();
+                target.timestamp = Date.now();
+                await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
+              }
+            }
+            for (const ad of fc.add || []) {
+              if (!String(ad.content || "").trim()) continue;
+              const vec = create(String(ad.content).trim(), "future", ad.emotional_weight ?? 5);
+              ensure_unique_vector_id(entity, vec);
+              append_future_vector(entity, vec);
+              await runtime.update_entity(type, entity.id, { future: entity.future });
+            }
+            if (reconcile_vector_caps(entity)) {
+              await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
+            }
+          }
+
           for (const { key } of entity_targets) {
             const memories = forged.memories?.[key] || [];
             if (!memories.length) continue;
@@ -885,3 +1401,7 @@ export const temporal_engine = {
     }
   },
 };
+
+if (typeof window !== "undefined") {
+  window.temporal_engine = temporal_engine;
+}

@@ -46,7 +46,7 @@ if (fs.existsSync(absolutePath)) {
   }
 
   if (toolName === "summarize") {
-    // Filter out flags (e.g. --mode=sequential or --mode=parallel)
+    const isParallel = toolArgs.includes("--mode=parallel");
     const commands = toolArgs.filter((arg) => !arg.startsWith("--"));
 
     if (commands.length === 0) {
@@ -54,21 +54,44 @@ if (fs.existsSync(absolutePath)) {
       process.exit(0);
     }
 
-    console.log(`[Tool-Bridge] Sequentially running local commands: ${commands.join(", ")}`);
+    if (isParallel) {
+      console.log(`[Tool-Bridge] Concurrently running local commands in parallel: ${commands.join(", ")}`);
+      const { spawn } = await import("child_process");
+      const promises = commands.map((cmd) => {
+        return new Promise((resolve, reject) => {
+          console.log(`>> [Tool-Bridge] Spawning (parallel): npm run ${cmd}`);
+          const child = spawn("npm", ["run", cmd], { stdio: "inherit", shell: true });
+          child.on("close", (code) => {
+            if (code === 0) resolve();
+            else reject(new Error(`Command "npm run ${cmd}" failed with code ${code}`));
+          });
+        });
+      });
 
-    for (const cmd of commands) {
-      console.log(`\n>> [Tool-Bridge] Executing: npm run ${cmd}`);
-      // Use npm.cmd on Windows if shell: false, but shell: true resolves it automatically
-      const result = spawnSync("npm", ["run", cmd], { stdio: "inherit", shell: true });
-
-      if (result.status !== 0) {
-        console.error(`\n[Tool-Bridge] Command "npm run ${cmd}" failed with code ${result.status}. Aborting execution.`);
-        process.exit(result.status ?? 1);
+      try {
+        await Promise.all(promises);
+        console.log("\n[Tool-Bridge] All parallel commands completed successfully.");
+        process.exit(0);
+      } catch (err) {
+        console.error(`\n[Tool-Bridge] ${err.message}. Aborting execution.`);
+        process.exit(1);
       }
-    }
+    } else {
+      console.log(`[Tool-Bridge] Sequentially running local commands: ${commands.join(", ")}`);
 
-    console.log("\n[Tool-Bridge] All sequential commands completed successfully.");
-    process.exit(0);
+      for (const cmd of commands) {
+        console.log(`\n>> [Tool-Bridge] Executing: npm run ${cmd}`);
+        const result = spawnSync("npm", ["run", cmd], { stdio: "inherit", shell: true });
+
+        if (result.status !== 0) {
+          console.error(`\n[Tool-Bridge] Command "npm run ${cmd}" failed with code ${result.status}. Aborting execution.`);
+          process.exit(result.status ?? 1);
+        }
+      }
+
+      console.log("\n[Tool-Bridge] All sequential commands completed successfully.");
+      process.exit(0);
+    }
   } else {
     // Other developer-only global tools are skipped in CI
     console.log(`[Tool-Bridge] Script "${toolName}" is developer-only and not required for CI builds. Skipping.`);

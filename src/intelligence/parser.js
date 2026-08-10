@@ -83,6 +83,38 @@ export function parse_think_block(text) {
 }
 
 /**
+ * Extracts a concise 1-sentence immediate intent from a <think> block for 1-turn TTL carryover.
+ * Looks for line 3 (Intent & Rhythm, Intent:, or final beat) inside the think text.
+ * @param {string|null|undefined} think_text
+ * @returns {string|null}
+ */
+export function extract_immediate_intent(think_text) {
+  if (!think_text || typeof think_text !== "string") return null;
+  const lines = think_text
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  for (const line of lines) {
+    if (/^(?:3\.?|(?:3\.?\s*)?intent(?:\s*&\s*rhythm)?|rhythm|beat)/i.test(line) && line.includes(":")) {
+      const cleaned = line.replace(/^(?:\d+\.\s*)?(?:intent(?:\s*&\s*rhythm)?|rhythm|beat)?:\s*/i, "").trim();
+      if (cleaned) return cleaned.slice(0, 250);
+    }
+  }
+
+  // Fallback: use the last non-empty line of the think block if concise
+  const last_line = lines[lines.length - 1];
+  if (last_line && last_line.length < 250) {
+    return last_line
+      .replace(/^\d+\.\s*/, "")
+      .replace(/^(?:intent(?:\s*&\s*rhythm)?|rhythm|beat):\s*/i, "")
+      .trim();
+  }
+
+  return null;
+}
+
+/**
  * Extracts the outermost JSON object from a raw LLM response.
  * Strips markdown code fences and isolates the substring between the first "{" and last "}".
  * @param {string} raw

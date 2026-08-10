@@ -9,6 +9,7 @@ import {
   escape_unescaped_json_quotes,
   safe_parse_pseudo_json,
   merge_prose_into_field,
+  extract_immediate_intent,
 } from "./parser.js";
 import { NARRATIVE_STYLES } from "@data";
 import { describe, expect, it } from "vitest";
@@ -354,5 +355,34 @@ describe("merge_prose_into_field", () => {
     const new_prose = "Sweat trickling down his neck";
     const merged = merge_prose_into_field(current, new_prose);
     expect(merged).toBe("[SHIRT: grease-stained tank top] [CONDITION: Heavy breathing, Sweat trickling down his neck]");
+  });
+});
+
+describe("extract_immediate_intent", () => {
+  it("should extract Intent line from 3-part think block", () => {
+    const think = `1. Visceral Reaction: My pulse spikes.
+2. Subtext & Vulnerability: He's getting too close to the truth.
+3. Intent & Rhythm: Challenge his pride with a smirk, lean against the doorframe, and keep hand near sidearm.`;
+    const intent = extract_immediate_intent(think);
+    expect(intent).toBe("Challenge his pride with a smirk, lean against the doorframe, and keep hand near sidearm.");
+  });
+
+  it("should extract line starting with Intent: or Beat:", () => {
+    const think = `Evaluating scene dynamics...
+Intent: Step back into shadow and keep eyes locked on the target.`;
+    const intent = extract_immediate_intent(think);
+    expect(intent).toBe("Step back into shadow and keep eyes locked on the target.");
+  });
+
+  it("should fallback to last non-empty line if no Intent prefix matched", () => {
+    const think = `Analyzing situation.
+Decided to hold my ground and grin softly.`;
+    const intent = extract_immediate_intent(think);
+    expect(intent).toBe("Decided to hold my ground and grin softly.");
+  });
+
+  it("should return null for null/empty think input", () => {
+    expect(extract_immediate_intent(null)).toBeNull();
+    expect(extract_immediate_intent("")).toBeNull();
   });
 });

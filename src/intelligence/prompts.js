@@ -31,8 +31,9 @@ const DIRECTOR_JSON_SCHEMA = `{
       "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none]), or empty string.",
       "non_physical": "Immediate internal shifts or emotional reactions, or empty string."
     },
-    "vector_append": [ { "content": "ONLY a genuinely significant new goal/event/prophecy (EMPTY LIST on routine turns; AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
-    "vector_resolve": [ { "id": "<vector_id>", "resolution_summary": "Summary." } ],
+    "vector_append": [ { "content": "NEW future vector — 2-3 sentences (intent, prophecy, looming threat, or impulse), written in the same long form as the existing <FUTURE> entries. ONLY when it genuinely outranks an existing vector AND the pool stays at or under 5; when adding one, ALSO retire the displaced vector via vector_resolve. EMPTY LIST on routine turns.", "type": "future", "emotional_weight": 5 } ],
+    "vector_update": [ { "id": "<vector_id>", "content": "Rewritten vector text (2-3 sentences), or empty list" } ],
+    "vector_resolve": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "resolution_summary": "Brief reason." } ],
     "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
   },
   "USER_PERSONA": {
@@ -42,7 +43,8 @@ const DIRECTOR_JSON_SCHEMA = `{
   },
   "FRACTAL": {
     "present_append": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "ONLY a genuinely significant environmental event/prophecy/shift (EMPTY LIST on routine turns; AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
+    "vector_append": [ { "content": "NEW future vector — 2-3 sentences (intent, prophecy, looming threat, or impulse), written in the same long form as the existing <FUTURE> entries. ONLY when it outranks an existing vector AND the pool stays at or under 5; retire the displaced one via vector_resolve. EMPTY LIST on routine turns.", "type": "future", "emotional_weight": 5 } ],
+    "vector_update": [ { "id": "<vector_id>", "content": "Rewritten vector text (2-3 sentences), or empty list" } ],
     "vector_resolve": [],
     "dynamics_deltas": { "entropy": 0, "velocity": 0 }
   },
@@ -54,17 +56,20 @@ const MEMORY_JSON_SCHEMA = `{
   "AI_CHARACTER": {
     "eternal_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
     "present_consolidated": { "physical": "Clean updated physical state (or empty if unchanged)", "non_physical": "Clean updated mental/emotional baseline (or empty if unchanged)" },
-    "vector_append": [ { "content": "ONLY if a durable fact/goal emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "ONLY if a durable fact/impulse emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ],
+    "future_compile": { "retire": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "past_content": "<Past-tense memory of what actually happened — grammar corrected>" } ], "revise": [ { "id": "<vector_id>", "content": "<Updated 2-3 sentence future vector (intent, prophecy, or impulse)>" } ], "add": [ { "content": "<New 2-3 sentence future vector (intent, prophecy, or impulse)>" } ] }
   },
   "USER_PERSONA": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "ONLY if a durable fact/goal emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "ONLY if a durable fact/impulse emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ],
+    "future_compile": { "retire": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "past_content": "<Past-tense memory of what actually happened — grammar corrected>" } ], "revise": [ { "id": "<vector_id>", "content": "<Updated 2-3 sentence future vector (intent, prophecy, or impulse)>" } ], "add": [ { "content": "<New 2-3 sentence future vector (intent, prophecy, or impulse)>" } ] }
   },
   "FRACTAL": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ],
+    "future_compile": { "retire": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "past_content": "<Past-tense memory of what actually happened — grammar corrected>" } ], "revise": [ { "id": "<vector_id>", "content": "<Updated 2-3 sentence future vector (intent, prophecy, or impulse)>" } ], "add": [ { "content": "<New 2-3 sentence future vector (intent, prophecy, or impulse)>" } ] }
   }
 }`;
 
@@ -213,7 +218,9 @@ function format_dynamics_attrs(dynObj, options = {}) {
  * @returns {{ system: string, task: string }}
  */
 function render_director({ round, entities, input, render_accessors, compressed_snapshot, raw_messages }) {
-  const protocols = ["FORMATS.JSON_ONLY", "AGENCY.FICTIONAL_LICENSE"].filter(Boolean).join(", ");
+  const protocols = ["FORMATS.JSON_ONLY", "AGENCY.FICTIONAL_LICENSE", "DIRECTOR.CONTINUITY", "DIRECTOR.PLOT_DRIVE", "DIRECTOR.IMAGE_TRIGGERS"]
+    .filter(Boolean)
+    .join(", ");
   const dynamics_legend = build_dynamics_legend();
 
   const system = clean_xml(`
@@ -282,37 +289,11 @@ ${(() => {
   return `<AI_LAST_TURN>${ind(text, 2)}</AI_LAST_TURN>`;
 })()}
 <TASK>
-    Evaluate state mutations caused by the ${input?.trim() ? "<USER_ACTION>" : "current situation"}. Record your reasoning inside the "_thought_process" key at the top of the object.
-    Return a single valid JSON payload starting with { and ending with } following this exact schema:
+    Evaluate state mutations caused by ${input?.trim() ? "<USER_ACTION>" : "the current situation"}.
+    Record your reasoning inside "_thought_process" and return a single valid JSON object following this exact schema:
     ${DIRECTOR_JSON_SCHEMA}
-    IMAGE TRIGGER GUIDANCE (optional, use sparingly — reserved for key narrative beats):
-      - Set "trigger_image" to false (or "false") unless the moment genuinely demands a visual.
-      - Set "trigger_image" to one of the 4-tier target strings to request an automatic visual beat this round:
-          "story_entities"  -> group shot of all active entities
-          "story_character" -> single in-scene character focus
-          "solo_entity"     -> isolated portrait
-          "story_scene"     -> environment / general narrative moment
-    STATE & CONTINUITY GUIDANCE:
-      - A character's <FUTURE> block encodes private ambitions. Never state them overtly — weave them in indirectly: seed vector_append and present_append that move toward them so they materialize as the character's own actions.
-      - A <USER_PERSONA> FUTURE is that player's secret agenda. The AI character must never learn it — never place it in the character's SYSTEM or SNAPSHOT, and never have the character narrate or act on it as known fact. Reveal it through the environment only: seed its traces into atmosphere, NPCs, obstacles, and the user's own choices, so it unfolds as discovery rather than exposition.
-      - Compose the "directive" key as your narrative voice into the AI character's turn: weave the active <PAST>, <FUTURE>, and <ETERNAL> threads across the AI character, user persona, and fractal into a short, subtle in-character cue. Keep it deniable and atmospheric — never state hidden agendas as fact, never deliver exposition the character could not have inferred. Empty string when nothing is warranted.
-      - VECTOR RESTRAINT: vector_append is for MEANINGFUL change only — a new goal, a resolved thread, a story-arc shift. On routine or continuative turns emit an empty list. Never re-log what a <PAST>/<FUTURE>/<ETERNAL> block or an existing vector already covers, and never mint a vector for a passing sensation.
-      - VOICE VARIETY: avoid repeating the same physical tics or ambient phrases the character used in recent turns (growls, rumbles, vibrations, signature motions). Refresh how the body and environment are described each turn.
-      - If a physical field contains Perchance alternation syntax '{Option A|Option B}', write exactly ONE resolved option into your mutations; never preserve the braces or pipe.
-    DYNAMICS CALIBRATION (dynamics_deltas must mirror the scene's actual register, never a mechanical ratchet):
-      - Quiet, vulnerable, contemplative, or tension-easing beats move intensity DOWNWARD (or leave it flat at 0). Genuine spikes — violence, confrontation, revelations, climaxes — move it upward, using the full -10..+10 range when warranted.
-      - openness/affinity move on the beats that actually touch them: vulnerability, trust, honesty, and shared risk push openness/affinity UP; guardedness, betrayal, deception, and manipulation push them DOWN.
-      - A delta of 0 is a deliberate "no change" — prefer it over tiny meaningless ±1 drift, and never nudge an axis just to register activity.
-      - Entropy (fractal) rises on reality-warping or systemic failures and falls on stability; velocity rises on chases, infiltration, and fast cuts and falls on meditation, aftermath, and silence.
-    PLOT DRIVE (occasional — you initiate, you do not only react):
-      - When the user action is open-ended, a scene has settled, or several rounds have passed without plot movement, introduce ONE concrete new development rather than only re-tuning mood: a discovery, a complication, an arrival, an obstacle, or a decision the characters are forced to make.
-      - Seed it through the mechanics: an AI_CHARACTER vector_append (their own next move) and/or a FRACTAL vector_append (an environmental shift), and cue it subtly inside the "directive".
-      - Do NOT force a plot beat mid-climax or while the user is actively steering a scene to a point — reaction is the correct call there.
-    CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt the simulation):
-      - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 800 characters. "_thought_process" and "directive" must be terse or omitted.
-      - Never truncate the object — a complete smaller JSON beats a large cut-off one. If you run out of room, drop optional fields (vector_resolve, then vector_append) before dropping the closing brace.
-  </TASK>
+    Obey all active <PROTOCOLS>. Keep output under 800 characters and return strictly JSON.
+</TASK>
   `).trim();
 
   return { system, task };
@@ -387,7 +368,7 @@ You are ${escape_xml(entities?.AI?.name || "AI")} in an active scene with ${esca
 <SNAPSHOT>
   <YOUR_IDENTITY name="${escape_xml(entities?.AI?.name || "AI")}"${format_dynamics_attrs(compressed_snapshot?.ai?.dynamics)}>
     <PRESENT>${ind(render_field_value(entities?.AI?.present?.non_physical, entities?.AI, entities), 6)}</PRESENT>
-    <PAST>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 6)}</PAST>
+    ${entities?.AI?.immediate_intent ? `<IMMEDIATE_INTENT>${ind(escape_xml(entities.AI.immediate_intent), 6)}</IMMEDIATE_INTENT>\n    ` : ""}<PAST>${ind(render_accessors.past(entities?.AI, { vector_text: true }), 6)}</PAST>
 ${build_ai_future_xml(entities?.AI, render_accessors._context, entities)}
   </YOUR_IDENTITY>
   <USER_PERSONA name="${escape_xml(entities?.USER?.name || "User")}">
@@ -555,6 +536,16 @@ function render_entity_memory_context(key, entity) {
       </PHYSICAL>
       <NON_PHYSICAL>${escape_xml(entity?.present?.non_physical || "")}</NON_PHYSICAL>
     </PRESENT>
+    ${(() => {
+      const dirs = Array.isArray(entity?.future) ? entity.future.filter((v) => v && (v.content || v.directive)) : [];
+      if (!dirs.length) return "";
+      const rendered_dirs = dirs
+        .map((v) => `  <directive id="${escape_xml(String(v.id || ""))}">${escape_xml(v.content || v.directive || "")}</directive>`)
+        .join("\n");
+      return `<FUTURE_DIRECTIVES>
+      ${rendered_dirs}
+      </FUTURE_DIRECTIVES>`;
+    })()}
   </${key}>
   `).trim();
 }
@@ -594,13 +585,18 @@ ${entity_blocks}
       - "vector_append": Add temporal vectors written strictly from that entity's own perspective:
           "past"   = a settled historical anchor (memory).
           "future" = a prophecy, intent, or goal to carry forward.
+      - "future_compile": Audit the entity's active <FUTURE_DIRECTIVES> (listed by id above) against this history:
+          "retire"  = a directive whose goal resolved or whose condition elapsed (e.g. "before the facility wakes up" when it did, or "Secure X" once secured) — write what ACTUALLY happened as a past-tense memory in "past_content" (change the grammar: "Secure X before Y wakes" -> "Secured X before Y woke", or "Failed to secure X before Y woke"; outcome: success | failure | neutral).
+          "revise"  = sharpen a directive that is still relevant to match the current situation (keep it 2-3 sentences).
+          "add"     = at most ONE new directive, ONLY if it is a genuinely significant new goal that outranks existing ones — write it as 2-3 sentences in the same long form as the current directives.
+        After compiling, the entity must hold AT MOST 5 future directives — retire the least important if over. Do not invent a retirement for a directive that remains unfulfilled and still matters.
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
       - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
       - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 900 characters. Omit any unchanged field; "_thought_process" must be one short clause.
+      - Keep the ENTIRE JSON under 1400 characters. Omit any unchanged field; "_thought_process" must be one short clause.
       - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop vector_append before dropping the closing brace.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
@@ -960,3 +956,7 @@ export {
   build_narrator,
   render_profile_sorting,
 };
+
+if (typeof window !== "undefined") {
+  window.prompt_builder = prompt_builder;
+}

@@ -14,7 +14,7 @@ import { visual_engine } from "@media";
 import { llm_service, looks_truncated, security } from "@platform";
 import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
-import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
+import { escape_unescaped_json_quotes, extract_immediate_intent, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 import { temporal_engine } from "./temporal.js";
 
@@ -1000,6 +1000,13 @@ export const gamemaster = {
         state_bridge.runtime.structural_errors = (state_bridge.runtime.structural_errors || 0) + 1;
       } else {
         state_bridge.runtime.structural_errors = Math.max(0, (state_bridge.runtime.structural_errors || 0) - 1);
+      }
+
+      // 6.6. EXTRACT 1-TURN IMMEDIATE INTENT (Carryover for Turn N+1)
+      const character_think = parse_think_block(validation_result.text).think;
+      const extracted_intent = extract_immediate_intent(character_think);
+      if (state_bridge.runtime.active_ai) {
+        state_bridge.runtime.active_ai.immediate_intent = extracted_intent || null;
       }
 
       // 7. PERSISTENCE: Save the result

@@ -28,7 +28,7 @@ export const PROTOCOL_LIBRARY = {
     BANNED_TROPES:
       "Never use overused AI prose tropes. A post-processing filter actively rewrites the offenders below, so they will not survive to the page: 'hum/humming', 'murmur/murmuring', 'purr/purred', 'rasp/raspy', 'bellow/boom', 'ozone', 'testament to', 'rich tapestry of', 'symphony of', 'coiled spring', 'a study in', 'marrow of the teeth', 'obsidian', 'the void', 'old parchment', 'white knuckles', 'spatial disturbance', 'jolts of electricity', 'shimmering', 'fever dream', 'breathless', 'crimson', 'amber', 'iridescent', 'frozen/froze', 'fluttered', 'flickered', 'bruised purple', 'leaning in', 'crumpled map', 'once in a blue moon', 'merging molecules'. Write concrete, grounded physical actions in specific, plain language.",
     PROSE_STRUCTURE:
-      "Avoid sentence-level AI tics the filter cannot fix: the denial-then-affirmation formula ('X didn't just Y; it Z'd', 'Not X... not Y... Z.', 'it didn't X, but Y'); pseudo-profound gibberish ('the ink was dry but the numbers still screaming'); self-answering dialogue ('Tomato? Some sort of red fruit...?'); recycled fantasy names (Elara, Kaelen, Valerius, Thorne, Xylos-Tarn, Julian — use natural, varied names); anachronisms (wrist watches, cufflinks) unless the setting supports them; thesaurized similes and metaphors; and em-dash overuse.",
+      "Avoid sentence-level AI tics the filter cannot fix: the denial-then-affirmation formula ('X didn't just Y; it Z'd', 'Not X... not Y... Z.', 'it didn't X, but Y'); pseudo-profound gibberish ('the ink was dry but the numbers still screaming'); self-answering dialogue ('Tomato? Some sort of red fruit...?'); recycled fantasy names (Elara, Kaelen, Valerius, Thorne, Xylos-Tarn, Julian — use natural, varied names); anachronisms (wrist watches, cufflinks) unless the setting supports them; thesaurized similes and metaphors; em-dash overuse; and formulaic action-dialogue sandwiching ([action] + 'dialogue' + [action] every turn — allow dialogue to stand alone or lead with speech before action).",
   },
 
   // ── 2. Narrative Agency & Perspective ──────────────────────────────────────
@@ -58,14 +58,13 @@ export const PROTOCOL_LIBRARY = {
 
   // ── 3. Cognition & World Physics ───────────────────────────────────────────
   COGNITION: {
-    PHASES: `Document internal calculations sequentially inside <think>:
-Phase 1 (Baseline): Establish identity, emotional state, and psychological vectors.
-Phase 2 (Signal): Decode user input, environmental shifts, and dynamic values.
-Phase 3 (Probability): Assess likely behavioral shifts, tics, or pivots given evidence.
-Phase 4 (State): Declare finalized emotional state and immediate intent.
-Keep each phase under 3 sentences. Total think block < 200 words.`,
-    THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using COGNITION phases based on <PRESENT> states. ${BASE_THINK_CLOSURE}`,
-    THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, phases, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
+    PHASES: `Document internal calculations inside <think> as an organic, in-character train of thought:
+1. Visceral Reaction: How does the immediate situation or <USER_ACTION> hit your body and internal state?
+2. Secret Tensions & Drivers: What active impulses, prophecies, looming events, or hidden goals (future vectors) steer your choice?
+3. Intent & Rhythm: What physical movement, vocal tone, or opening beat will you execute?
+Keep think block concise (< 200 words).`,
+    THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
+    THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, world atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
   },
 
   EPISTEMIC_PHYSICS: {
@@ -109,6 +108,15 @@ name (string), description (string), signature_color (string), eternal_physical 
     LAWS: `1. Calibrate dynamics_deltas conservatively (+1 to +4 standard; +8 to +12 extreme).
 2. Adjust deltas carefully near boundaries (5 or 95) to prevent clipping at 0 or 100.
 3. Ensure present_append matches the mathematical intensity of selected deltas.`,
+  },
+
+  DIRECTOR: {
+    CONTINUITY: `SECRET AGENDAS: <FUTURE> vectors encode private ambitions. Weave entity vectors indirectly into atmosphere/obstacles. Never present another entity's hidden agenda as known fact to the AI character.
+STAGE DIRECTION: Compose "directive" as a short, subtle, in-character cue (< 30 words) for the AI character's turn. Keep it deniable and atmospheric. Empty string when nothing is warranted.
+VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 future vectors per entity — resolve or update existing ones before adding.
+OUTPUT CONSTRAINT: Output ONLY valid JSON under 800 characters. No markdown code fences, no prose.`,
+    PLOT_DRIVE: `When user input is open-ended or a scene has settled, introduce ONE concrete new development (a discovery, obstacle, or decision). Seed it via AI/Fractal vector_append and cue it in "directive". Do not force plot beats mid-climax.`,
+    IMAGE_TRIGGERS: `Set "trigger_image" to false unless the moment demands a visual. Target strings: "story_entities" (group), "story_character" (solo focus), "solo_entity" (portrait), "story_scene" (environment).`,
   },
 
   // ── 5. Visual Engine & Image Generation (Optics) ────────────────────────────
