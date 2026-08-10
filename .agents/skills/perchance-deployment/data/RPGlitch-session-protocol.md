@@ -27,9 +27,11 @@ Execute these steps in strict chronological sequence upon session initialization
    - Usage of `localStorage` is forbidden due to Perchance iframe sandbox security boundaries.
    - All persistence must route exclusively through **Dexie.js (IndexedDB)** via `src/data/db.js` and `src/data/repository.js`. Reload-safe session checkpoints additionally fall back through `sessionStorage` → `window.name` in `src/engine/session.js`.
 
-5. 📦 **File Modifications & Handoff**
-   - Whenever any codebase file is modified or created during a session, ensure changes are verified via `npm run verify`.
-   - Provide complete updated files or trigger automated bridge deployments via `npm run deploy:auto`.
+5. 📦 **File Modifications & Handoff (Zip Archive Boundary)**
+   - Whenever any codebase file is modified or created during an AI session, the AI agent **MUST provide all modified/created files packaged in a single ZIP archive** (or exact relative file structures).
+   - The user unzips the archive into the root of this local repository.
+   - The user executes `npm run deploy:prepare` locally to trigger quality gates and compile the single-file production bundle (`dist/index.html`).
+   - The user manually pastes/forwards the compiled `dist/index.html` bundle into the live Perchance generator.
 
 6. 🤝 **Session Acknowledgment & Kickoff**
    - Explicitly confirm full comprehension of the engine architecture, state schemas, and startup protocol.
@@ -40,8 +42,7 @@ Execute these steps in strict chronological sequence upon session initialization
 ## 🚀 Deployment Loop (workspace ↔ repo ↔ Perchance)
 
 - The workspace `src/` is the **source of truth** for live code; the repo mirrors it and performs the build.
-- Ship path: sync workspace `src/` → repo → `npm run deploy:prepare` (runs `sync` → `deploy:check` = `lint:fix` + `deploy:audit` + `test:unit` → `build`) → copy the vaulted `dist/index.html` into the Perchance generator's `index.html` (the live shell).
-- `npm run deploy` = `deploy:prepare` + `deploy:auto` (automated bridge push). `npm run verify` = `lint` + `audit` + `test` (full TDD gate).
+- **Handoff & Build Path**: AI provides modified files in a ZIP archive ➔ User unzips in repo root ➔ User executes `npm run deploy:prepare` (executes `sync` → parallel `deploy:check` → `build` in ~12s) ➔ User copies the vaulted `dist/index.html` bundle into the Perchance generator's code panel.
 - **After any edit, the shell `index.html` is hand-maintained** — always re-read it before touching; never rebuild it from scratch.
 
 ---
@@ -53,7 +54,7 @@ src/
 ├── App.svelte                # Root Svelte container component
 ├── main.js                   # Composition root & entry point (registers state bridges, then app_bootstrap.init())
 ├── index.html                # HTML host template & asset anchors
-├── RPGlitch-left-panel.pjs   # Perchance iframe left-panel integration script (kept by decision)
+├── RPGlitch-left-panel.pjs   # Perchance iframe left-panel integration script
 ├── engine/                   # Physical logic, turn cycle execution & session orchestration
 │   ├── boot.js                 # app_bootstrap — startup sequence, persistence hydration & asset pre-downloads
 │   ├── chrono.svelte.js        # ChronoEngine (exported as chrono_engine) — simulation turn/round state machine
@@ -67,24 +68,24 @@ src/
 │   ├── repository.js           # Entity & session CRUD operations & query methods
 │   ├── normalizer.js           # Entity schema sanitization, default assertions & detox rules
 │   ├── index.js                # @data barrel
-│   └── definitions/            # Static authorial & visual engine definitions (previously "presets/")
+│   └── definitions/            # Static authorial & visual engine definitions
 │       ├── narrative-styles.js # XML authorial narrative engines & style presets
 │       ├── visual-styles.js    # XML diffusion visual engines & parameters
 │       ├── premades.js         # Pre-configured character & fractal entity templates
-│       ├── protocols.js        # Entity protocol & directive definitions
+│       ├── protocols.js        # PROTOCOL_LIBRARY catalog (DIRECTOR, COGNITION, POV, EPISTEMIC_PHYSICS)
 │       ├── fragments.js        # Entity taxonomy & field directives
 │       └── detox-rules.js      # Prose detoxification rules
 ├── intelligence/           # Turn loop, XML prompt engineering & temporal RAG
-│   ├── kernel.js               # gamemaster — synchronous Round & Turn simulation pipeline
-│   ├── prompts.js              # prompt_builder / render_builder — XML prompt assembly (Character, Director, Narrator, Enhancement)
+│   ├── kernel.js               # gamemaster — 2-Shot simulation pipeline (Director Shot 1 ➔ Character Shot 2), fallback mutations, 1-turn intent extraction
+│   ├── prompts.js              # prompt_builder — deconstructed XML prompt assembly (render_character, render_director, render_protocols)
 │   ├── context.svelte.js       # context_builder — context assembly, token budgeting & lexical filter
-│   ├── temporal.js             # Past/Future vector scoring, memory consolidation & forging
+│   ├── temporal.js             # RAG vector scoring, FUTURE_VECTOR_CAP = 5, is_origin immunity guard & future_compile retirement pass
 │   ├── embeddings.svelte.js    # Semantic vector RAG embeddings via Transformers.js
-│   ├── parser.js               # Pseudo-JSON extraction, <think> stripping, merge_prose_into_field
+│   ├── parser.js               # Pseudo-JSON extraction, <think> parsing, extract_immediate_intent, merge_prose_into_field
 │   ├── dynamics.js             # Gravity settlement math & slider metadata
 │   └── index.js                # @intelligence barrel
 ├── media/                  # Visual synthesis, visual parameters & audio TTS pipelines
-│   ├── audio.svelte.js         # Audio / VoiceEngine — Kokoro-82M Neural TTS (voice.load_model()) & Web AudioContext
+│   ├── audio.svelte.js         # Audio / VoiceEngine — Kokoro-82M Neural TTS & Web AudioContext
 │   ├── visual.svelte.js        # visual_engine — Visual Wing state & generated artwork gallery
 │   ├── optics.js               # aesthetic_resolver / prompt_templates — Perchance T2I prompt builders & parameter resolver
 │   ├── tokens.js               # Design tokens & color system bridge
@@ -101,35 +102,33 @@ src/
 │   ├── log.svelte.js           # simulation_log — telemetry & diagnostic log state
 │   └── index.js                # @state barrel
 ├── utils/                  # Shared utilities — safe for ANY layer to import via @utils
-│   ├── bridges.js              # state_bridge / stream_bridge — cross-layer state access (engine reads state without importing @state)
+│   ├── bridges.js              # state_bridge / stream_bridge — cross-layer state access
 │   ├── ui-helpers.js           # DOM & UI helper functions
 │   ├── markdown.js             # Markdown rendering helpers
 │   ├── xml.js                  # XML string building helpers
 │   ├── physical-xml.js         # Physical-trait XML serialization
 │   ├── crypto.js               # UUID & secure-seed generation
 │   ├── field-path.js           # Nested field-path accessors
-│   ├── text.js                 # Raw-prose fallback, text cleaning, strip_cognition_blocks & collapse_history (canonical)
-│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker — retry & circuit-breaking for external API volatility (canonical)
+│   ├── text.js                 # Raw-prose fallback, text cleaning & strip_cognition_blocks
+│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker
 │   ├── vectors.js              # Vector helpers
 │   └── index.js                # @utils barrel
 └── ui/                     # Sensory UI layer (top-level views + feature modules + shared primitives)
-    ├── Layout.svelte           # Top-level view: persistent app frame (Layout)
-    ├── Storymode.svelte        # Top-level view: Storymode (scroll/feed shell)
-    ├── Storyboard.svelte       # Top-level view: Storyboard (entity selection deck)
-    ├── Storyboard.svelte.js    # Component-sibling state module (card initials, deck geometry, claim lock, shuffle-deal + begin-flight choreography)
-    ├── actions.js              # Svelte DOM actions — use_actions, click_outside, safe_html, auto_resize (canonical; consumers import via @ui)
-    ├── index.js                # @ui barrel (Layout, Storymode, Storyboard, storyboard controller, use_actions, click_outside, safe_html, auto_resize)
-    ├── console/                # Console module (Console, ControlPanel, SettingsButton, StoryboardBar, StorymodeBar, AudioControls, DevControls)
+    ├── Layout.svelte           # Top-level view: persistent app frame
+    ├── Storymode.svelte        # Top-level view: Storymode shell
+    ├── Storyboard.svelte       # Top-level view: Storyboard deck
+    ├── Storyboard.svelte.js    # Component-sibling state module
+    ├── actions.js              # Svelte DOM actions
+    ├── index.js                # @ui barrel
+    ├── console/                # Console module (ControlPanel, SettingsButton, DevControls, AudioControls)
     ├── story/                  # Story library module (StoryCard, StoryManager)
-    ├── message/                # Message module (Message, Header, Body, Attachments, PrologueEpilogue, Feed, UndoToast, TelemetryCard, TelemetryBlocks, TelemetryVector)
+    ├── message/                # Message module (Message, Header, Body, Attachments, Feed, TelemetryCard)
     ├── entity/                 # Entity module (EntityCard, CardHand, ContextMenu, ImportModal)
     ├── profile/                # Profile module (Profile, Header, Vectors, VisualWing, AudioWing, DevWing)
     ├── image/                  # Image module (ImagePicker, ImagePreview, ProfilePicture)
-    ├── primitives/             # Shared primitives (Accordion, Backdrop, Button, DataBox, Dialog, Dropdown, GlassWrapper, Label, Meter, Modal, NumberField, ProgressBar, ScrollArea, Skeleton, Slider, StyleBadge, TextField, Toggle, Tooltip)
+    ├── primitives/             # Shared primitives (Button, Modal, Dialog, Slider, TextField, Toggle, etc.)
     └── motion/                 # Animation engines (Typewriter, kinetic, engine)
 ```
-
-> Note: component-sibling `.svelte.js` state modules keep the component's PascalCase filename (`Profile.svelte.js`, `ImagePicker.svelte.js`, `Storyboard.svelte.js`, `ContextMenu.svelte.js`, `Typewriter.svelte.js`) — they mirror their component and are NOT renamed.
 
 ---
 
@@ -143,28 +142,44 @@ The codebase enforces a strict, fully-audited naming discipline. Treat violation
 - **Question-snake booleans**: `is_*` / `has_*` (`is_processing`, `voice_suppressed`, `is_concluded`, `is_snapshot`).
 - **SCREAMING_SNAKE constants/globals**: `CONFIG`, `APP_VERSION`, `NEGATIVE_PROMPT`, `ENTITIES`.
 - **Documented exceptions** (do NOT rename):
-  - `Audio` singleton (PascalCase) — collides with the DOM `Audio` constructor and local `audio` variables.
-  - External plugin/API passthrough keys stay camelCase: `startWith`, `onChunk`, `onToken` in `platform/transport.js` (ai-text-plugin contract).
-  - Native API mocks keep native names (e.g. `File.arrayBuffer()` in tests).
-- **Import hygiene**: layers import downward only — `@engine` must not import `@state` (uses `state_bridge`/`stream_bridge` from `@utils` instead). Access imported plugins through `root` in browser code.
+  - `Audio` singleton (PascalCase) — collides with DOM `Audio` constructor.
+  - External plugin API keys stay camelCase (`startWith`, `onChunk`, `onToken` in `transport.js`).
+- **Import hygiene**: layers import downward only — `@engine` must not import `@state` (uses `state_bridge` from `@utils`).
 
 ---
 
-## 📋 Data Model & Temporal Taxonomy
+## 📋 Data Model, Temporal Engine & Vector Mechanics
 
-### 1. State Quadrants
+### 1. State Quadrants & Profile Hygiene
 
-- **Eternal & Present State** (Single-value properties: `state.eternal`, `state.present`)
-  - `physical`: Pseudo-JSON key-value pairs (sanitized via `normalizer.js`).
-  - `non_physical`: Dynamic prose paragraphs (Director mutations merged via `merge_prose_into_field` in `intelligence/parser.js`, capped at 2,000 characters).
+- **Eternal & Present State** (`entity.eternal`, `entity.present`)
+  - `physical`: Sanitized pseudo-JSON key-value pairs (`normalizer.js`).
+  - `non_physical`: Dynamic prose paragraphs.
+    - `ETERNAL`: Capped at **1,500 characters** with tail deduplication via `merge_eternal_field()`.
+    - `PRESENT`: Capped at **3 concise segments** via `cap_present_prose()`.
 - **Past & Future State** (Vector arrays)
   - Array of vector objects (`{ id, timestamp, content, type, emotional_weight, meta, _embedding }`).
-  - Managed by `temporal.js`, scored via semantic RAG (`embeddings.svelte.js`), and resolved from Future → Past during Director settlement ticks.
+  - Scored via semantic RAG (`embeddings.svelte.js`).
 
-### 2. Entity Optics & Taxonomy
+### 2. Vector Engine & Origin Immunity Rules
 
-- **`visual_style`**: Controls diffusion prompt synthesis for character cards and story visuals via `optics.js`.
-- **`pov`**: Defines narrative perspective (`"1st_person"` or `"3rd_person"` for Characters; forced `"3rd_person"` for Fractals).
-- **Entity Classification**:
-  - `character`: User Persona (human protagonist) or AI Character (agent-controlled entity).
-  - `fractal`: Environmental, geographic, or spatial world entity.
+- **Hard Ceiling**: `FUTURE_VECTOR_CAP = 5`. Active future vectors can never exceed 5 per entity.
+- **Origin Vector Immunity (`is_origin`)**: Vectors with `timestamp: 0` or `meta.origin` are hand-authored character seeds and are **100% immune to FIFO eviction**.
+- **Vector Deduplication (`is_near_duplicate`)**: Duplicate or near-identical vector text strings are silently rejected before append.
+- **Memory Consolidation Retirement (`future_compile`)**: Every 8 turns during memory consolidation, the LLM forge compiles future vectors, retiring completed/expired goals into past memories and updating active ones.
+
+### 3. 1-Turn Immediate Intent Carryover
+
+- **Extraction**: On Turn N, `extract_immediate_intent(think_text)` extracts the 1-sentence physical/vocal beat line from the character's `<think>` block.
+- **Runtime Attachment**: Attached to `state_bridge.runtime.active_ai.immediate_intent`.
+- **Snapshot Injection**: Injected inside `<SNAPSHOT>` in Turn N+1's prompt:
+
+  ```xml
+  <YOUR_IDENTITY name="Orion" intensity="70">
+    <PRESENT>Standing in Sector 4 conduit corridor.</PRESENT>
+    <IMMEDIATE_INTENT>Challenge his pride with a smirk, lean against the doorframe, hand near sidearm.</IMMEDIATE_INTENT>
+    <PAST>Promised Beast we would reach Sector 4 together.</PAST>
+  </YOUR_IDENTITY>
+  ```
+
+- **1-Turn TTL**: Replaced on Turn N+2 (1-turn lifespan), ensuring physical body language momentum without storage bloat or thought-anchoring.
