@@ -109,18 +109,7 @@ function create_runtime_store() {
   /** @type {SimulationEntity | null} */
   let active_ai_state = $state(null);
   /** @type {SimulationEntity | null} */
-  let active_fractal_state = $state({
-    id: "active_fractal",
-    name: "Environment",
-    description: "",
-    eternal: { non_physical: "", physical: "" },
-    present: { non_physical: "", physical: "" },
-    future: [],
-    past: [],
-    dynamics: { velocity: 50, entropy: 50 },
-    profile_picture: null,
-    signature_color: "",
-  });
+  let active_fractal_state = $state(null);
 
   let simulation_is_ready = $state(false);
   /** @type {string | null} */
