@@ -267,7 +267,7 @@ export class AppStore {
       this._log_persist_timer = setTimeout(async () => {
         try {
           await db.kv_settings.put({ key: "rpg_telemetry_logs", value: $state.snapshot(this.logs).slice(0, 100) });
-        } catch (_persistErr) {
+        } catch (persistErr) {
           /* telemetry persistence must never break the app */
         }
       }, 800);
@@ -573,7 +573,7 @@ export class AppStore {
  * The composer can only die if the simulation state machine gets stuck
  * (phase generating/locked or intent_active stuck true) with no live turn.
  * Two tiers:
- *   - Tier 1 (fast & safe): busy/locked with NO active stream for 120s → force unlock.
+ *   - Tier 1 (fast & safe): busy/locked with NO active stream for 90s → force unlock.
  *   - Tier 2 (broad): busy/locked for 5 min regardless of streaming, with no
  *     streaming progress (content growing / heartbeat) → abort + force unlock.
  * A live stream with growing content extends the window, so slow-but-healthy
@@ -581,7 +581,7 @@ export class AppStore {
  */
 let _freeze_watchdog_started = false;
 const FREEZE_WATCHDOG_INTERVAL_MS = 15000;
-const FREEZE_WATCHDOG_IDLE_GRACE_MS = 120000;
+const FREEZE_WATCHDOG_IDLE_GRACE_MS = 90000;
 const FREEZE_WATCHDOG_MAX_MS = 5 * 60 * 1000;
 
 function install_freeze_watchdog() {
@@ -605,7 +605,7 @@ function install_freeze_watchdog() {
       simulation_state.complete();
       simulation_state.unlock();
       simulation_state.set_intent_active(false);
-    } catch (_err) {
+    } catch (err) {
       /* state store never throws */
     }
     app.simulation.loading = false;
@@ -616,7 +616,7 @@ function install_freeze_watchdog() {
     if (app.streaming.abort_controller) {
       try {
         app.streaming.abort_controller.abort();
-      } catch (_err) {
+      } catch (err) {
         /* already aborted */
       }
       app.streaming.abort_controller = null;

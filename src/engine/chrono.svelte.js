@@ -271,9 +271,11 @@ export class ChronoEngine {
               try {
                 const latest_log = await session_driver.load_log(story_id);
                 const tail = latest_log.filter((m) => m.role !== "system");
-                const last_user_idx = tail.findLastIndex((m) => m.role === "user");
-                if (last_user_idx !== -1) {
-                  const has_reply_after = tail.slice(last_user_idx + 1).some((m) => m.role === "model" || m.role === "fractal");
+                const last = tail[tail.length - 1];
+                if (last?.role === "user" && last.created_at) {
+                  const has_reply_after = tail.some(
+                    (m) => (m.role === "model" || m.role === "fractal") && (m.created_at ?? 0) > (last.created_at ?? 0),
+                  );
                   if (!has_reply_after) {
                     state_bridge.app.log("Detected orphaned turn — retrying generation once...", "warn");
                     state_bridge.simulation_state.start_generation(options.role || "ai");

@@ -11,7 +11,7 @@ import { db, entities, prune } from "@data";
 import { generate_uuid as generateUUID, state_bridge } from "@utils";
 import { IMAGE_TRIGGER } from "@engine/config.js";
 import { visual_engine } from "@media";
-import { llm_service, security } from "@platform";
+import { llm_service, looks_truncated, security } from "@platform";
 import { context_builder } from "./context.svelte.js";
 import { dynamics_engine, evaluate_image_trigger } from "./dynamics.js";
 import { escape_unescaped_json_quotes, extract_json_block, parse_think_block, strip_cognition_blocks } from "./parser.js";
@@ -53,7 +53,7 @@ async function count_pending_ghosts() {
       }
     }
     return count;
-  } catch (_err) {
+  } catch (err) {
     return 0;
   }
 }
@@ -89,7 +89,7 @@ async function sweep_stale_ghosts() {
         }
       }
     }
-  } catch (_err) {
+  } catch (err) {
     /* sweep must never break the trigger path */
   }
 }
@@ -151,6 +151,136 @@ function parse_director_json(raw_text) {
     const extracted_think = parse_think_block(stripped).think;
     return { internal_monologue: extracted_think || stripped, _parse_error: true };
   }
+}
+
+/**
+ * Normalizes an llm_service raw result (primitive string or String object with
+ * `.text`/`.generatedText`/`.stopReason`) into plain text.
+ * @param {any} raw
+ * @returns {string}
+ */
+function raw_to_text(raw) {
+  if (typeof raw === "string") return raw.trim();
+  if (raw && typeof raw === "object") {
+    return String(raw.generatedText ?? raw.text ?? "").trim();
+  }
+  return String(raw ?? "").trim();
+}
+
+/**
+ * Returns the Director's reason for a truncated/failed output, if the transport
+ * surfaced one (server stop reason attached to the raw String object).
+ * @param {any} raw
+ * @returns {string}
+ */
+function raw_stop_reason(raw) {
+  if (raw && typeof raw === "object" && !(raw instanceof String)) return "";
+  return raw && typeof raw === "object" && raw.stopReason ? String(raw.stopReason) : "";
+}
+
+/**
+ * Terse replacement for the Director task — used on the retry after a truncated
+ * JSON so the model emits a complete, minimal payload.
+ * @returns {string}
+ */
+function terse_director_task() {
+  return `
+<TASK>
+  Return a single, COMPLETE, VALID JSON object. It MUST fit in under 700 characters.
+  - Omit "_thought_process" entirely, or keep it to one clause of a few words.
+  - Omit the "directive" key entirely.
+  - For each entity, include only NON-EMPTY mutations:
+      "present_append": { "physical": "", "non_physical": "<one short clause>" }
+      "vector_append": [] (or a SINGLE item)
+      "vector_resolve": []
+      "dynamics_deltas": { small integers }
+  - Set "trigger_image": "false".
+  Output ONLY the JSON. No markdown fences, no prose, no trailing commas.
+  End with a closing "}". A small complete object beats a large cut-off one.
+</TASK>
+  `.trim();
+}
+
+/** Extracts a single short sentence (≤160 chars) from a blob of text. */
+function first_sentence(text) {
+  const clean = String(text || "")
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<\/?think>/gi, "")
+    .replace(/```/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!clean) return "";
+  const m = clean.match(/^[^.!?]{1,160}[.!?]?/);
+  const sentence = (m ? m[0] : clean.slice(0, 160)).trim();
+  return sentence;
+}
+
+/**
+ * MINIMAL-MUTATION FALLBACK — when the Director JSON could not be parsed even
+ * after a terse retry, synthesize just enough mutations that entity memory and
+ * dynamics never freeze for a whole turn. Prevents the present/future stall that
+ * occurred whenever the Director fell back to raw prose.
+ * @param {any} prev_data - the failed parse result (may be undefined).
+ * @param {string} input - the user's current input.
+ * @param {any} bridge - the state bridge (for runtime entities).
+ * @returns {any}
+ */
+function synthesize_director_fallback(prev_data, input, bridge) {
+  const monologue = String(prev_data?.internal_monologue || input || "").trim();
+  const fallback = {
+    _parse_error: true,
+    internal_monologue: monologue || "The scene continues.",
+    trigger_image: "false",
+  };
+  const ai = bridge?.runtime?.active_ai;
+  const user = bridge?.runtime?.active_user;
+  const fractal = bridge?.runtime?.active_fractal;
+  if (ai) {
+    fallback.AI_CHARACTER = {
+      present_append: { physical: "", non_physical: first_sentence(monologue) || "Reacts to the turn's events." },
+      vector_append: [],
+      vector_resolve: [],
+    };
+  }
+  if (user) {
+    fallback.USER_PERSONA = {
+      present_append: { physical: "", non_physical: first_sentence(input) || "" },
+      vector_append: [],
+      vector_resolve: [],
+    };
+  }
+  if (fractal) {
+    fallback.FRACTAL = {
+      present_append: { physical: "", non_physical: "" },
+      vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "future", emotional_weight: 3 }],
+      vector_resolve: [],
+    };
+  }
+  return fallback;
+}
+
+/** Completion directive appended to the character prompt when a reply was truncated. */
+const TRUNCATION_COMPLETE_NOTE =
+  "\n\nIMPORTANT: Your previous reply was cut off mid-sentence. Finish this response IMMEDIATELY: do not repeat any earlier text, do not rehash events, just bring the current moment to a natural close with a complete sentence, then stop.";
+
+/**
+ * Minimum narrative length (beyond think blocks) before a missing sentence-ending
+ * punctuation is treated as a genuine mid-sentence cutoff. Short unpunctuated
+ * beats ("She nods", "Wait") are legitimate endings; real token-budget
+ * truncations are always long, rambling replies cut mid-flow.
+ */
+const TRUNCATION_MIN_PROSE = 40;
+
+/**
+ * Closes out a truncated reply in-character so the narrative never ends mid-sentence.
+ * @param {string} text
+ * @param {string} character_name
+ * @returns {string}
+ */
+function force_close_response(text, character_name) {
+  const t = String(text || "").trimEnd();
+  if (!t) return t;
+  return `${t}\n\n${character_name} goes quiet, the moment settling around ${character_name === "AI" ? "them" : "it"} like dust.`;
 }
 
 /**
@@ -550,7 +680,9 @@ export const gamemaster = {
 
       const scoring_context = prompt_builder.build_scoring_context(input, simulation_log);
       if (scoring_context) {
-        await Promise.race([temporal_engine.precompute_context_embedding(scoring_context), new Promise((resolve) => setTimeout(resolve, 30000))]);
+        // Best-effort precompute with a strict budget: embeddings for scoring are a
+        // nice-to-have, and a slow/synchronous embed must never delay the turn.
+        await Promise.race([temporal_engine.precompute_context_embedding(scoring_context), new Promise((resolve) => setTimeout(resolve, 1500))]);
       }
 
       // 3. SIMULATION: Evaluate world physics snapshot prior to generation
@@ -585,37 +717,58 @@ export const gamemaster = {
       state_bridge.app.log("[GameMaster] Context hydrated. Physics resolved. Entering DIRECTOR_TURN...", "system");
       const director_prompt = prompt_builder.build_director_prompt(payload, snapshot);
 
-      const director_raw = await this.execute_with_retry(
-        async () => {
-          return await llm_service.generate(
-            {
-              system: director_prompt.system,
-              task: director_prompt.task,
-              messages: [],
-              role: "system",
-              node_id: node_id + "-director",
-            },
-            {
-              ...llm_options,
-              json: true,
-              silent: true,
-              raw: true,
-              onToken: null,
-            },
-          );
-        },
-        2,
-        1000,
-      );
+      const director_call = async (terse = false) => {
+        return await this.execute_with_retry(
+          async () => {
+            return await llm_service.generate(
+              {
+                system: director_prompt.system,
+                task: terse ? terse_director_task() : director_prompt.task,
+                messages: [],
+                role: "system",
+                node_id: node_id + "-director",
+              },
+              {
+                ...llm_options,
+                json: true,
+                silent: true,
+                raw: true,
+                onToken: null,
+              },
+            );
+          },
+          2,
+          1000,
+        );
+      };
 
-      let director_text = "";
-      if (typeof director_raw === "string") {
-        director_text = director_raw.trim();
-      } else if (director_raw && typeof director_raw === "object") {
-        director_text = String(director_raw.generatedText ?? director_raw.text ?? "").trim();
+      const director_raw = await director_call(false);
+      let director_text = raw_to_text(director_raw);
+      let director_data = parse_director_json(director_text) || {};
+
+      // TRUNCATION RETRY — a cut-off JSON silently drops every mutation. Retry
+      // once with a terse directive so the payload fits the output budget and
+      // closes cleanly. (A successful parse is kept even if the server's stop
+      // reason was "length" — the object is complete, only optional fields may
+      // have been dropped.)
+      if (director_data._parse_error) {
+        const reason = raw_stop_reason(director_raw);
+        state_bridge.app.log(`[GameMaster] Director JSON truncated${reason ? ` (${reason})` : ""} — retrying with terse directive...`, "warn");
+        const terse_raw = await director_call(true);
+        const terse_text = raw_to_text(terse_raw);
+        const retry_data = parse_director_json(terse_text) || {};
+        if (!retry_data._parse_error) {
+          director_data = retry_data;
+        }
       }
 
-      const director_data = parse_director_json(director_text) || {};
+      // MINIMAL-MUTATION FALLBACK — if the Director STILL failed to produce a
+      // valid payload, synthesize enough mutations that memory & dynamics never
+      // freeze for this turn (the pre-fix behavior that caused the 6-round stalls).
+      if (!director_data || director_data._parse_error) {
+        state_bridge.app.log("[GameMaster] Director degraded — applying minimal-mutation fallback.", "warn");
+        director_data = synthesize_director_fallback(director_data, input, state_bridge);
+      }
 
       // 4.1 Apply State Mutations
       const entity_mutations = director_data.mutations || director_data;
@@ -784,41 +937,63 @@ export const gamemaster = {
         }
       }
 
-      // 6. GENERATION: Call the model with retry logic
-      const validation_result = await this.execute_with_retry(
-        async () => {
-          const { onToken, json, signal, silent, raw } = llm_options;
+      // 6. GENERATION: Call the model with retry logic. If a reply comes back
+      // truncated (cut off mid-sentence by the token budget), re-run once with a
+      // completion directive so the narrative never ends abruptly.
+      const make_character_try = async (completion_note) => {
+        const { onToken, json, signal, silent, raw } = llm_options;
 
-          const generated_text = await llm_service.generate(
-            {
-              system: character_prompt.system,
-              task: character_prompt.task,
-              messages: simulation_log,
-              role,
-              node_id: node_id,
-            },
-            {
-              onToken,
-              json,
-              signal,
-              silent,
-              raw,
-            },
-          );
+        const task = completion_note ? character_prompt.task + completion_note : character_prompt.task;
+        const generated_text = await llm_service.generate(
+          {
+            system: character_prompt.system,
+            task,
+            messages: simulation_log,
+            role,
+            node_id: node_id,
+          },
+          {
+            onToken,
+            json,
+            signal,
+            silent,
+            raw,
+          },
+        );
 
-          const full_text = (director_monologue || "") + (generated_text || "");
+        const full_text = (director_monologue || "") + (generated_text || "");
 
-          const v_result = validate_and_repair_response(full_text);
-          if (v_result.refused) {
-            state_bridge.app.streaming.content = "";
-            state_bridge.app.streaming.text = "";
-            throw new Error("AI_REFUSAL_DETECTED");
+        const v_result = validate_and_repair_response(full_text);
+        if (v_result.refused) {
+          state_bridge.app.streaming.content = "";
+          state_bridge.app.streaming.text = "";
+          throw new Error("AI_REFUSAL_DETECTED");
+        }
+        return v_result;
+      };
+
+      let validation_result = await this.execute_with_retry(() => make_character_try(null), 2, 1000);
+
+      if (!validation_result.violated && looks_truncated(validation_result.text)) {
+        // Only regenerate when narrative prose actually got cut off mid-sentence:
+        // a think-only reply is an empty generation, not truncation, and short
+        // unpunctuated beats are legitimate narrative endings.
+        const prose_only = String(validation_result.text)
+          .replace(/<think>[\s\S]*?<\/think>/gi, "")
+          .replace(/<\/?think>/gi, "")
+          .trim();
+        if (prose_only && prose_only.length >= TRUNCATION_MIN_PROSE) {
+          state_bridge.app.log("[GameMaster] Reply truncated — regenerating with completion directive...", "warn");
+          state_bridge.app.streaming.content = director_monologue || "";
+          state_bridge.app.streaming.text = director_monologue || "";
+          validation_result = await this.execute_with_retry(() => make_character_try(TRUNCATION_COMPLETE_NOTE), 1, 500);
+          if (looks_truncated(validation_result.text)) {
+            const speaker = role === "ai" ? state_bridge.runtime.active_ai?.name || "AI" : state_bridge.runtime.active_fractal?.name || "Fractal";
+            validation_result.text = force_close_response(validation_result.text, speaker);
+            validation_result.structural_repair = true;
           }
-          return v_result;
-        },
-        2,
-        1000,
-      );
+        }
+      }
 
       // 6.5. POST-GENERATION PIPELINE
       if (validation_result.violated || validation_result.structural_repair) {
@@ -878,7 +1053,7 @@ export const gamemaster = {
       // Semantic RAG: precompute the context embedding from the prologue's own
       // input so the narrator's PAST/FUTURE ranking (sync format → score) is
       // scored against the scene the user requested, not pure weight×recency.
-      await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 30000))]);
+      await Promise.race([temporal_engine.precompute_context_embedding(prologue_input), new Promise((resolve) => setTimeout(resolve, 1500))]);
       const result = prompt_builder.build_prologue(payload, {});
       if (!result.system) return null;
 
@@ -952,7 +1127,7 @@ export const gamemaster = {
                       metadata: { ...(att.metadata || {}), failed: true, image_ghost_swept: true, error: "Prologue image timed out." },
                     });
                   }
-                } catch (_err) {
+                } catch (err) {
                   /* guard must never break the prologue */
                 }
                 resolve();

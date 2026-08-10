@@ -36,6 +36,13 @@ export async function load_model() {
   _loading = (async () => {
     try {
       const transformers = await import("https://esm.sh/@huggingface/transformers@3.5.2");
+      // Run ONNX inference on a Web Worker so long embeds never block the main
+      // thread. Fall back silently if the runtime doesn't support it.
+      try {
+        transformers.env.backends.onnx.wasm.proxy = true;
+      } catch (err) {
+        console.warn("[Embeddings] Worker-backed ONNX unavailable, using main thread:", err);
+      }
       _pipeline = await transformers.pipeline("feature-extraction", MODEL_ID, {
         progress_callback: (/** @type {any} */ data) => {
           if (data && (data.status === "progress" || data.status === "download")) {
@@ -113,6 +120,9 @@ export async function embed(text) {
   _cache_misses++;
   try {
     const pipe = await get_pipeline();
+    // Yield one frame before inference so the UI can repaint even when the
+    // embed runs synchronously on the main thread (worker-unavailable fallback).
+    await new Promise((resolve) => setTimeout(resolve, 0));
     const output = await pipe(text, { pooling: "mean", normalize: true });
     const embedding = new Float32Array(output.data);
 

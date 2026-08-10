@@ -44,7 +44,7 @@
 ### Round 5
 
 - **Beat:** "Show pony" lands; Orion's mask cracks (doubt needle).
-- **Successes:** Best dialogue beat so far — the taunt-integration is genuinely good; the model *uses* the insult instead of deflecting it.
+- **Successes:** Best dialogue beat so far — the taunt-integration is genuinely good; the model _uses_ the insult instead of deflecting it.
 - **Issues:** Openness −5 (the model interprets any hit to pride as closing up — fine, but it never lets openness recover into trust; the dyad stays adversarial too long). "Mountain of muscle" phrase reuse.
 
 ### Round 6
@@ -82,8 +82,8 @@
 ### Round 11
 
 - **Beat:** The Bone Yard reveal (crate, dark water, name carved in ribs, firebombed block).
-- **Successes:** The AI integrates a user-authored backstory *and* escalates it ("They tried to carve out everything else, too"). Camera-stare ending is a good mic-drop. Openness +4, Affinity +5.
-- **Issues:** The concrete worldbuilding (Nova City, Bone Yard, the firebombing) is *not* captured by the memory forge this round — the consolidation reduces it to "livestock" vibes. This is the core long-term-memory weakness: **facts are not retained, only affect.**
+- **Successes:** The AI integrates a user-authored backstory _and_ escalates it ("They tried to carve out everything else, too"). Camera-stare ending is a good mic-drop. Openness +4, Affinity +5.
+- **Issues:** The concrete worldbuilding (Nova City, Bone Yard, the firebombing) is _not_ captured by the memory forge this round — the consolidation reduces it to "livestock" vibes. This is the core long-term-memory weakness: **facts are not retained, only affect.**
 
 ### Round 12
 
@@ -95,12 +95,12 @@
 
 - **Beat:** The concrete-handshake alliance; Sector 4 blueprints.
 - **Successes:** The handshake is a proper "button" (Beat gestures, Orion returns the gesture honestly). Openness −7 as they commit to secrecy — sensible. Consolidation batch 4.
-- **Issues:** **Round 14's turn later orphaned** (see below) means the momentum built here is continued *by the user* rather than by the AI. Sector 4 lives in Orion's *future* pool (good) but not in any *past* pool (the factual loss pattern again).
+- **Issues:** **Round 14's turn later orphaned** (see below) means the momentum built here is continued _by the user_ rather than by the AI. Sector 4 lives in Orion's _future_ pool (good) but not in any _past_ pool (the factual loss pattern again).
 
 ### Round 14 — ⚠️ ORPHANED TURN
 
 - **Beat (user message only):** Crossing checkpoints, "they trained you well," "I almost started believing them."
-- **Issues (severe):** **The turn died after logging the user message — no AI reply ever generated.** Round counter advanced to 14, dynamics delta missing, feed ends on an unanswered Beast line. Cause not yet isolated (turn exception is logged in-memory only and is lost on reload). This is the most important *reliability* failure of the session.
+- **Issues (severe):** **The turn died after logging the user message — no AI reply ever generated.** Round counter advanced to 14, dynamics delta missing, feed ends on an unanswered Beast line. Cause not yet isolated (turn exception is logged in-memory only and is lost on reload). This is the most important _reliability_ failure of the session.
 - **What should have happened:** The beat (checkpoint-escort) was perfectly set up to show Orion's double-life. Instead the story skipped it; the next user message had to retcon the crossing ("We clear the last checkpoint").
 
 ### Round 15
@@ -113,7 +113,7 @@
 
 - **Beat:** Into the off-book corridor; "the first file you open is mine."
 - **Successes:** The "place that officially doesn't exist" worldbuilding is strong; the "truth about what they did to you" turn-over is well timed.
-- **Issues:** Intensity +2, velocity −3 — the engine is *reducing* velocity exactly when the plot is accelerating (descent into the forbidden archive). Dynamics-to-narrative alignment is partial.
+- **Issues:** Intensity +2, velocity −3 — the engine is _reducing_ velocity exactly when the plot is accelerating (descent into the forbidden archive). Dynamics-to-narrative alignment is partial.
 
 ### Round 17
 
@@ -131,7 +131,7 @@
 
 - **Beat:** The second file — Orion's own torture footage; "I'm not a protector. I'm a product."
 - **Successes:** The escalation from "bought" to "broken and re-glued into a protein-shake shape" is sharp; the model refuses the easy redemption. Image resolved (story_entities).
-- **Issues:** **Composer froze** (textarea dead, Send never enables, reload required) — second freeze this session. Also: this beat (the second file) was *invented by the user's message*; the AI had nothing planned for it — acceptable for a cooperative sim, but the AI never proactively advances the *plot*, only the *mood*. Biggest prompt-pipeline gap: **the AI reacts brilliantly but never drives.**
+- **Issues:** **Composer froze** (textarea dead, Send never enables, reload required) — second freeze this session. Also: this beat (the second file) was _invented by the user's message_; the AI had nothing planned for it — acceptable for a cooperative sim, but the AI never proactively advances the _plot_, only the _mood_. Biggest prompt-pipeline gap: **the AI reacts brilliantly but never drives.**
 
 ### Round 20
 
@@ -142,7 +142,7 @@
 ### Round 21
 
 - **Beat:** The consortium of three names; Voss identified from the spec sheet.
-- **Successes:** The villain is located and personalized ("He built me to be a corpse with a price tag"). Affinity −2 — the engine finally starts driving the dyad toward the climax by *withdrawing* warmth. Image resolved (story_scene).
+- **Successes:** The villain is located and personalized ("He built me to be a corpse with a price tag"). Affinity −2 — the engine finally starts driving the dyad toward the climax by _withdrawing_ warmth. Image resolved (story_scene).
 - **Issues:** "Taste of copper" tic again (I stopped counting). The plot now lives entirely in the futures pool; the pasts hold no record of the consortium — **if this story had gone 60 rounds, Voss's name would be forgotten.**
 
 ### Round 22
@@ -154,7 +154,7 @@
 ### Round 23 — Current End
 
 - **Beat:** The penthouse door; Voss's glass hits the floor; "The party's over, Voss. We've come to settle the account."
-- **Successes:** Cleanest payoff of the session; the "mascot at my back" imagery closes the arc; **Chaos +5 | Intensity +6 | Openness −7 | Velocity +7** — the dynamics finally spike *with* the narrative.
+- **Successes:** Cleanest payoff of the session; the "mascot at my back" imagery closes the arc; **Chaos +5 | Intensity +6 | Openness −7 | Velocity +7** — the dynamics finally spike _with_ the narrative.
 - **Issues:** The round ends on the confrontation (cliffhanger). 30 future vectors for Orion/Tartarus are now saturated; **the cap silently drops the oldest futures, so the earliest arc beats (strength-validation, etc.) are gone and cannot be recalled.**
 
 ---
@@ -173,7 +173,7 @@ Two distinct writers modify entity profiles:
    - `past` vectors → appended to `entity.past`.
    - `future` vectors → appended to `entity.future`.
    - `present` vectors → merged into `entity.present.non_physical`.
-   - `present_consolidated` → **replaces** `entity.present` fields *only if the LLM returns them*.
+   - `present_consolidated` → **replaces** `entity.present` fields _only if the LLM returns them_.
    - `eternal_consolidated` → **merged into `entity.eternal`**.
    - Forged messages are flagged `meta.consolidated:true` and excluded from future hydration.
 
@@ -181,11 +181,11 @@ Two distinct writers modify entity profiles:
 
 **Observed state (round 23):**
 
-| field | Orion | Beast | Tartarus |
-| --- | --- | --- | --- |
-| past | 7 (1 seed + 6 forged) | 7 | 7 |
-| future | 30 (CAPPED) | 7 (seed + 6 forged) | 30 (CAPPED) |
-| present | 4 stale snapshots | 3 stale snapshots | 4 stale snapshots |
+| field   | Orion                                                                        | Beast                       | Tartarus                                 |
+| ------- | ---------------------------------------------------------------------------- | --------------------------- | ---------------------------------------- |
+| past    | 7 (1 seed + 6 forged)                                                        | 7                           | 7                                        |
+| future  | 30 (CAPPED)                                                                  | 7 (seed + 6 forged)         | 30 (CAPPED)                              |
+| present | 4 stale snapshots                                                            | 3 stale snapshots           | 4 stale snapshots                        |
 | eternal | polluted (truncated start + 5 appended mutation lines, 1 verbatim duplicate) | polluted (3 appended lines) | polluted (3 appended lines, 1 duplicate) |
 
 ---
@@ -203,22 +203,22 @@ Two distinct writers modify entity profiles:
 ### B. Prompt-pipeline verdict for narrative excellence: **B+ prose, C+ memory, C− driving**
 
 - **Prose:** genuinely strong. Register control (himbo→raw) is the standout; the model integrates taunts/backstory; produces real lines ("Let's burn the mirrors," "A death warrant is something I actually own," "Two cages, one key"). GRRM style directive holds up; worldbuilding stays consistent across 23 rounds.
-- **Memory:** the *effect* is good (emotionally coherent pasts, thematically locked futures) but the *content* is weak for continuity. **Facts are systematically discarded** (Bone Yard, firebombing, consortium of three names, B7, Sector 4 live only in futures or not at all). 60 rounds would leave the plot factually adrift.
-- **Driving:** the AI reacts excellently but never *drives*. Every major plot advancement in rounds 14–23 came from the user's messages; the AI escalated mood but not events. The Director pass is effectively a mood-tuner, not a plot-engine.
+- **Memory:** the _effect_ is good (emotionally coherent pasts, thematically locked futures) but the _content_ is weak for continuity. **Facts are systematically discarded** (Bone Yard, firebombing, consortium of three names, B7, Sector 4 live only in futures or not at all). 60 rounds would leave the plot factually adrift.
+- **Driving:** the AI reacts excellently but never _drives_. Every major plot advancement in rounds 14–23 came from the user's messages; the AI escalated mood but not events. The Director pass is effectively a mood-tuner, not a plot-engine.
 - **Dynamics:** arc-level, the numbers track the story (Affinity climbs then withdraws; Chaos/Intensity spike at the penthouse). Round-level, they're noisy and partially decoupled from the felt register (quiet beats still push Intensity; the biggest vulnerability beats barely move Openness).
 
 ### C. Ai-isms catalog (repeat offenders)
 
 1. **Somatic clichés:** "taste of copper" (≈8×), "chest heaves/heaving," "heart hammers against my ribs," "heat floods my chest," "spandex across my pecs," "muscles strain against the fabric," "stomach twists into a knot," "hair on my neck prickles."
 2. **The 3-beat paragraph** (sensory → internal feeling → pose + pun) — every Orion paragraph is the same skeleton by round 5.
-3. **The register-drop move** ("boom fades to a low rasp when serious") — used well but is now the *only* tool for gravity.
+3. **The register-drop move** ("boom fades to a low rasp when serious") — used well but is now the _only_ tool for gravity.
 4. **Destruction-as-emotion:** fists into walls/consoles ×3 in five rounds.
 5. **Fractal future-diversity collapse:** the narrator generates ~6 distinct phrasings of "a security alarm/lockdown will trigger" across rounds 10–22; low-value, repetitive, and it feeds the recurring "impending security" motif into the plot.
 6. **Verbatim profile leakage:** "Stay strong, citizens!" was quoted straight from Orion's eternal.
 
 ### D. Long-term story development — what worked
 
-- The two-backstory interlock (rounds 11–13) is a genuine example of the pipeline *enabling* long-form structure: backstory seeded by the user, integrated, mirrored by the AI's own reveal, sealed with a physical button (handshake).
+- The two-backstory interlock (rounds 11–13) is a genuine example of the pipeline _enabling_ long-form structure: backstory seeded by the user, integrated, mirrored by the AI's own reveal, sealed with a physical button (handshake).
 - The imagery chain (crate → vat → cradle → mirrors → "settle the account") is consistent across 23 rounds — the hydration window (full recent history in context) is doing this work, not the memory vectors.
 - Theme discipline (assets/trophies/products/toys) holds from round 2 to 23.
 

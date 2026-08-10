@@ -148,7 +148,9 @@ export async function precompute_context_embedding(input) {
     _context_embedding = null;
     return;
   }
-  _context_embedding = await embed(input);
+  // Cap the embedded context so a huge scoring blob can't stall inference.
+  const capped = String(input).slice(0, 3000);
+  _context_embedding = await embed(capped);
 }
 
 /** @type {number} */
@@ -245,7 +247,7 @@ export function append_future_vector(entity, vector) {
           `[TemporalEngine] Evicted oldest future vector (cap ${FUTURE_VECTOR_CAP}): "${evicted_text.slice(0, 40)}..."`,
           "warn",
         );
-      } catch (_err) {
+      } catch (err) {
         /* never let telemetry break the mutation path */
       }
     }
@@ -397,6 +399,32 @@ export function resolve(entity, vector_id, resolution = null, session = null) {
   }
 }
 
+/** Parses an llm_service forge response into a memory JSON object, or null. */
+function parse_forge_response(response) {
+  let raw_text = "";
+  if (typeof response === "string") {
+    raw_text = response.trim();
+  } else if (response && typeof response === "object") {
+    const r = /** @type {any} */ (response);
+    raw_text = String(r.generatedText ?? r.text ?? "").trim();
+  }
+
+  const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
+  if (stripped.length > 65536) {
+    console.warn("[TemporalEngine] Skipping memory forge: payload exceeds 64KB safety limit.");
+    return null;
+  }
+
+  const json_string = extract_json_block(raw_text);
+  if (!json_string) return null;
+  try {
+    return JSON.parse(json_string);
+  } catch (e) {
+    console.warn("[TemporalEngine] Malformed JSON in memory forge:", e);
+    return null;
+  }
+}
+
 export async function forge_memory(entity_targets, history_slice) {
   if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
   try {
@@ -406,36 +434,24 @@ export async function forge_memory(entity_targets, history_slice) {
       FRACTAL: entity_targets.find((t) => t.key === "FRACTAL")?.entity || null,
     };
 
-    const payload = prompt_builder.build_memory_prompt(entities, history_slice);
-    const response = await llm_service.generate(payload, {
-      json: true,
-      silent: true,
-      raw: true,
-    });
+    const attempt = async () => {
+      const payload = prompt_builder.build_memory_prompt(entities, history_slice);
+      const response = await llm_service.generate(payload, {
+        json: true,
+        silent: true,
+        raw: true,
+      });
+      return parse_forge_response(response);
+    };
 
-    let raw_text = "";
-    if (typeof response === "string") {
-      raw_text = response.trim();
-    } else if (response && typeof response === "object") {
-      const r = /** @type {any} */ (response);
-      raw_text = String(r.generatedText ?? r.text ?? "").trim();
+    let memory = await attempt();
+    if (!memory) {
+      // Terse retry: the prompt builder compresses the history on rebuild, so a
+      // second call usually emits a complete payload.
+      console.warn("[TemporalEngine] Memory forge returned no JSON — retrying once.");
+      memory = await attempt();
     }
-
-    const stripped = raw_text.replace(/```json\n?|```/g, "").trim();
-    if (stripped.length > 65536) {
-      console.warn("[TemporalEngine] Skipping memory forge: payload exceeds 64KB safety limit.");
-      return null;
-    }
-
-    const json_string = extract_json_block(raw_text);
-    if (!json_string) return null;
-    let memory;
-    try {
-      memory = JSON.parse(json_string);
-    } catch (e) {
-      console.warn("[TemporalEngine] Malformed JSON in memory forge:", e);
-      return null;
-    }
+    if (!memory) return null;
 
     const forged = {
       memories: {},
@@ -492,6 +508,50 @@ export async function forge_memory(entity_targets, history_slice) {
   } catch (err) {
     console.error("[TemporalEngine] Resonance forge failed.", err);
     return null;
+  }
+}
+
+/**
+ * Deterministic fallback when the LLM memory forge fails twice: derive a "past"
+ * vector straight from the slice's beats so temporal memory and the
+ * MEMORY_FORMATION card still advance even without a model response.
+ * @param {Array<{key:string,type:string,entity:any}>} entity_targets
+ * @param {Array<any>} slice
+ * @param {any} runtime
+ * @param {any} session
+ */
+async function fallback_consolidate(entity_targets, slice, runtime, session) {
+  try {
+    const facts = (Array.isArray(slice) ? slice : [])
+      .filter((m) => m && (m.role === "ai" || m.role === "fractal" || m.role === "user"))
+      .map((m) => {
+        const speaker = m.character_name || (m.role === "ai" ? "AI" : m.role === "user" ? "User" : "Environment");
+        return `${speaker}: ${String(m.text ?? m.content ?? "")
+          .replace(/<think>[\s\S]*?<\/think>/gi, "")
+          .replace(/\s+/g, " ")
+          .trim()
+          .slice(0, 220)}`;
+      })
+      .join(" ");
+
+    for (const { key, type, entity } of entity_targets) {
+      if (!entity) continue;
+      const content = facts ? `Past: ${facts.slice(0, 500)}` : `${entity.name || key} carries the last events forward.`;
+      const vector = create(content, "past", 5);
+      ensure_unique_vector_id(entity, vector);
+      entity.past = [...(entity.past || []), vector];
+      await runtime.update_entity(type, entity.id, { past: entity.past });
+      await session.log_system_entry(`Memory Forged (${key}): ${vector.content.substring(0, 50)}...`, "system", {
+        type: "MEMORY_FORMATION",
+        target: key,
+        memories: [vector],
+        turns_count: slice.length,
+      });
+    }
+    state_bridge.app?.log?.("[TemporalEngine] LLM forge unavailable — past vectors derived deterministically.", "warn");
+  } catch (err) {
+    // The fallback must never abort slice consolidation (bulkPut marking).
+    console.warn("[TemporalEngine] Fallback consolidation incomplete:", err);
   }
 }
 
@@ -656,30 +716,22 @@ export const temporal_engine = {
         if (forged) {
           for (const { key, type, entity } of entity_targets) {
             const memories = forged.memories?.[key] || [];
-            let entity_changed = false;
             for (const memory of memories) {
               if (memory.type === "future") {
                 ensure_unique_vector_id(entity, memory);
                 append_future_vector(entity, memory);
-                entity_changed = true;
+                await runtime.update_entity(type, entity.id, { future: entity.future });
               } else if (memory.type === "present") {
                 if (!entity.present) entity.present = { physical: "", non_physical: "" };
                 entity.present.non_physical = cap_present_prose(
                   merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
                 );
-                entity_changed = true;
+                await runtime.update_entity(type, entity.id, { present: entity.present });
               } else {
                 ensure_unique_vector_id(entity, memory);
                 entity.past = [...(entity.past || []), memory];
-                entity_changed = true;
+                await runtime.update_entity(type, entity.id, { past: entity.past });
               }
-            }
-            if (entity_changed) {
-              await runtime.update_entity(type, entity.id, {
-                past: entity.past,
-                future: entity.future,
-                present: entity.present,
-              });
             }
           }
 
@@ -746,6 +798,10 @@ export const temporal_engine = {
               turns_count: slice.length,
             });
           }
+        } else {
+          // LLM forge failed both attempts — derive past vectors deterministically
+          // so memory and the formation card still advance.
+          await fallback_consolidate(entity_targets, slice, runtime, session);
         }
 
         for (const msg of slice) {

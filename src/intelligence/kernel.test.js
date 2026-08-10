@@ -83,6 +83,7 @@ vi.mock("@platform/transport.js", () => ({
     generate: vi.fn(),
   },
   sanitize_llm: vi.fn((text) => text),
+  looks_truncated: vi.fn(() => false),
 }));
 
 vi.mock("@engine/session.svelte.js", () => ({
@@ -798,7 +799,8 @@ describe("gamemaster (Intelligence Kernel)", () => {
         role: "ai",
       });
 
-      expect(call_count).toBe(2);
+      // Director prose attempt → terse JSON retry → character pass.
+      expect(call_count).toBe(3);
       expect(result.response).toBe("<think>\n## Cognition\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
     });
   });

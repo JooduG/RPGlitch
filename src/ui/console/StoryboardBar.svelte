@@ -5,7 +5,7 @@
    * gear, the models-progress / "BEGIN STORY" trigger, and the shuffle control.
    */
   import { Button, ProgressBar, tooltip } from "@primitives";
-  import { pulse, shimmy } from "@motion";
+  import { roll, pulse, shimmy } from "@motion";
   import { app } from "@state";
   import { storyboard } from "@ui";
   import SettingsButton from "./SettingsButton.svelte";

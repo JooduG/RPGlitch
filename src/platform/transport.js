@@ -27,6 +27,33 @@ import { collapse_history, escape_xml, stream_bridge } from "@utils";
  * phrases, and outer quotation marks.
  ************************************************************************************/
 /**
+ * Detects a mid-sentence / truncated generation. Strips think blocks and checks
+ * whether the remaining prose ends on terminal punctuation. Think-only responses
+ * (no prose at all) also count as truncated. A trailing quote is treated as a
+ * valid dialogue close only if a punctuation mark precedes it (a stray opening
+ * quote at the end means the line was cut).
+ * @param {string} text
+ * @returns {boolean}
+ */
+export function looks_truncated(text) {
+  if (!text || typeof text !== "string") return false;
+  if (!text.trim()) return false;
+  const stripped = text
+    .replace(/<think>[\s\S]*?<\/think>/gi, "")
+    .replace(/<\/?think>/gi, "")
+    .trim();
+  if (!stripped) return true; // think-only or empty prose = cut before any narrative
+  const last = stripped[stripped.length - 1];
+  const quotes = `"'“”‘’`;
+  if (quotes.includes(last)) {
+    const prev = stripped.slice(0, -1).trimEnd();
+    const prevLast = prev[prev.length - 1] || "";
+    return !/[.!?…"]/.test(prevLast);
+  }
+  return !/[.!?…]/.test(last);
+}
+
+/**
  * Strips code fences, outer quotes, and common conversational filler from LLM output.
  * @param {string} text
  * @returns {string}
@@ -255,11 +282,23 @@ export const llm_service = {
 
       // Stream is left active so orchestrator can gracefully hand off to permanent log
 
-      // 6. Coerce String object from ai-text-plugin to primitive, then sanitize
+      // 6. Coerce String object from ai-text-plugin to primitive, then sanitize.
       //    The plugin returns `new String(text)` with extra props (.text, .stopReason, etc.)
       //    typeof check fails for String objects, so sanitization was silently skipped.
+      //    When `raw` is requested we KEEP the String object so callers can read
+      //    `.stopReason` (the server's stop reason — "length" means truncated output).
       if (result != null && typeof result !== "string") {
-        result = String(result.text ?? result.generatedText ?? result);
+        const stop_reason = result.stopReason;
+        const text = String(result.text ?? result.generatedText ?? result);
+        if (options.raw) {
+          const kept = new String(text);
+          kept.stopReason = stop_reason;
+          kept.text = text;
+          kept.generatedText = result.generatedText;
+          result = kept;
+        } else {
+          result = text;
+        }
       }
       if (typeof result === "string" && !options.raw) {
         result = sanitize_llm(result);

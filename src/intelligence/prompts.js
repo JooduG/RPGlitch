@@ -8,7 +8,7 @@ import { ind, prompt_escape, state_bridge, escape_xml, physical_to_xml } from "@
 import { NARRATIVE_STYLES, PROTOCOL_LIBRARY } from "@data";
 import { DYNAMICS_META, build_signals_xml } from "./dynamics.js";
 import { ENTITY_CATALOG, ENTITY_FRAGMENTS } from "../data/definitions/fragments.js";
-import { clean_xml, collapse_history, strip_cognition_blocks } from "./parser.js";
+import { clean_xml, collapse_history, safe_parse_pseudo_json, strip_cognition_blocks } from "./parser.js";
 import { temporal_engine, resolve_vector_pool } from "./temporal.js";
 
 // PROTOCOL_LIBRARY is defined in @data/definitions/protocols.js and re-exported here
@@ -24,47 +24,47 @@ const protocols_cache = new Map();
 // --- JSON Schema Templates ---
 
 const DIRECTOR_JSON_SCHEMA = `{
-  "_thought_process": "<step-by-step state evaluation>",
-  "directive": "<Optional short stage direction for the AI_CHARACTER this turn: a subtle in-character cue that weaves the active PAST / FUTURE / ETERNAL threads (theirs, the user's, and the fractal's) into the character's behavior. Never reveal another entity's hidden agenda as fact — cue it through atmosphere, body language, and situation only. Empty string when no directive is warranted.>",
+  "_thought_process": "<ONE short sentence: the key state change this turn>",
+  "directive": "<Optional in-character stage direction for the AI_CHARACTER (under 30 words, or empty string). Never reveal hidden agendas as fact.>",
   "AI_CHARACTER": {
     "present_append": {
-      "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none] [CLOTHING: bare] [PANTS: unzipped/exposed]), or empty string.",
+      "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none]), or empty string.",
       "non_physical": "Immediate internal shifts or emotional reactions, or empty string."
     },
-    "vector_append": [ { "content": "New goal, event, or prophecy", "type": "future", "emotional_weight": 5 } ],
-    "vector_resolve": [ { "id": "<vector_id>", "resolution_summary": "Summary of resolution." } ],
+    "vector_append": [ { "content": "New goal, event, or prophecy (AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
+    "vector_resolve": [ { "id": "<vector_id>", "resolution_summary": "Summary." } ],
     "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
   },
   "USER_PERSONA": {
-    "present_append": { "physical": "New physical changes (e.g. [SHIRT: none] [CLOTHING: bare]), or empty string.", "non_physical": "" },
+    "present_append": { "physical": "", "non_physical": "" },
     "vector_append": [],
     "vector_resolve": []
   },
   "FRACTAL": {
     "present_append": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "New environmental event, prophecy, or shift", "type": "future", "emotional_weight": 5 } ],
+    "vector_append": [ { "content": "New environmental event, prophecy, or shift (AT MOST 1 ITEM)", "type": "future", "emotional_weight": 5 } ],
     "vector_resolve": [],
     "dynamics_deltas": { "entropy": 0, "velocity": 0 }
   },
-  "trigger_image": "false | story_entities | story_character | solo_entity | story_scene"
+  "trigger_image": "false"
 }`;
 
 const MEMORY_JSON_SCHEMA = `{
-  "_thought_process": "<analysis of key shifts and emotional weight>",
+  "_thought_process": "<one short sentence>",
   "AI_CHARACTER": {
     "eternal_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
-    "present_consolidated": { "physical": "Clean updated physical state (discarding expired temporary states)", "non_physical": "Clean updated mental/emotional baseline" },
-    "vector_append": [ { "content": "Historical anchor or forward impulse", "type": "past | future", "emotional_weight": 5 } ]
+    "present_consolidated": { "physical": "Clean updated physical state (or empty if unchanged)", "non_physical": "Clean updated mental/emotional baseline (or empty if unchanged)" },
+    "vector_append": [ { "content": "One settled historical anchor OR forward impulse (AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
   },
   "USER_PERSONA": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "Historical anchor or forward impulse", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "One settled historical anchor OR forward impulse (AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
   },
   "FRACTAL": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "Historical anchor or environmental impulse", "type": "past | future", "emotional_weight": 5 } ]
+    "vector_append": [ { "content": "One settled historical anchor OR environmental impulse (AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ]
   }
 }`;
 
@@ -181,13 +181,15 @@ function build_cognitive_state(dynamics) {
  */
 function build_length_directive(dynamics) {
   const intensity = dynamics?.intensity;
+  let base;
   if (typeof intensity === "number" && intensity > 70) {
-    return "Aim for roughly 1\u20132 short, clipped paragraphs \u2014 high energy compresses prose into urgent beats.";
+    base = "Aim for roughly 1\u20132 short, clipped paragraphs \u2014 high energy compresses prose into urgent beats.";
+  } else if (typeof intensity === "number" && intensity < 30) {
+    base = "Aim for up to 3 paragraphs, drawn out with heavy, deliberate detail.";
+  } else {
+    base = "Aim for a length of roughly 2 paragraphs, adjusting as the context demands.";
   }
-  if (typeof intensity === "number" && intensity < 30) {
-    return "Aim for up to 3 paragraphs, drawn out with heavy, deliberate detail.";
-  }
-  return "Aim for a length of roughly 2 paragraphs, adjusting as the context demands.";
+  return `${base} Always end your response with a complete sentence — never stop mid-thought or mid-quote.`;
 }
 
 /**
@@ -304,6 +306,10 @@ ${(() => {
       - When the user action is open-ended, a scene has settled, or several rounds have passed without plot movement, introduce ONE concrete new development rather than only re-tuning mood: a discovery, a complication, an arrival, an obstacle, or a decision the characters are forced to make.
       - Seed it through the mechanics: an AI_CHARACTER vector_append (their own next move) and/or a FRACTAL vector_append (an environmental shift), and cue it subtly inside the "directive".
       - Do NOT force a plot beat mid-climax or while the user is actively steering a scene to a point — reaction is the correct call there.
+    CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt the simulation):
+      - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
+      - Keep the ENTIRE JSON under 800 characters. "_thought_process" and "directive" must be terse or omitted.
+      - Never truncate the object — a complete smaller JSON beats a large cut-off one. If you run out of room, drop optional fields (vector_resolve, then vector_append) before dropping the closing brace.
   </TASK>
   `).trim();
 
@@ -566,7 +572,17 @@ function render_memory({ entities, history }) {
 ${entity_blocks}
   </ENTITY_CONTEXT>
   <INPUT_HISTORY>
-    ${JSON.stringify(history, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")}
+    ${(() => {
+      // Downsample the slice so the model has room to emit a complete (untruncated)
+      // consolidation JSON: keep the last 6 entries, each trimmed to ~400 chars.
+      const rows = Array.isArray(history) ? history.slice(-6) : [];
+      const compact = rows.map((m) => ({
+        role: m?.role || "",
+        character_name: m?.character_name || "",
+        text: String(m?.text ?? m?.content ?? "").slice(0, 400),
+      }));
+      return JSON.stringify(compact, null, 2).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    })()}
   </INPUT_HISTORY>
   <TASK>
     Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
@@ -580,6 +596,10 @@ ${entity_blocks}
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
       - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
+    CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
+      - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
+      - Keep the ENTIRE JSON under 900 characters. Omit any unchanged field; "_thought_process" must be one short clause.
+      - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop vector_append before dropping the closing brace.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}
   </TASK>
