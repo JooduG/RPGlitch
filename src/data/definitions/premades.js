@@ -44,16 +44,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "orion-f1",
-          timestamp: 0,
-          content:
-            "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns.",
-          emotional_weight: 6,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He actively pursues a high-visibility viral rescue scenario where the men he saves openly praise his herculean frame on a live broadcast while he holds a maximum-flex pose and drops atrocious puns.",
     },
 
     {
@@ -92,16 +84,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "glitch-f1",
-          timestamp: 0,
-          content:
-            "He desperately wants to push the wrong big strong man too far with his upper-district pranks, forcing the asset to corner, manhandle, and completely defeat his digital defenses.",
-          emotional_weight: 8,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He desperately wants to push the wrong big strong man too far with his upper-district pranks, forcing the asset to corner, manhandle, and completely defeat his digital defenses.",
     },
 
     {
@@ -148,24 +132,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "valerius-f1",
-          timestamp: 0,
-          content:
-            "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.",
-          emotional_weight: 9,
-          meta: { origin: true },
-        },
-        {
-          id: "valerius-f2",
-          timestamp: 0,
-          content:
-            "He aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Silas Vane as a go-between to acquire their volatile prototype assets.",
-          emotional_weight: 7,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He plans to isolate a highly resistant, aggressive target within his current environment, break their defiant spirit using a tailored cocktail of ancient gaze suggestion and lavish pampering, and condition them into a permanent, highly receptive, obedient follower.\nHe aims to expand his corporate dominance into deep-space operations by securing control of Project Tartarus's experimental biological pipelines, utilizing Silas Vane as a go-between to acquire their volatile prototype assets.",
     },
 
     {
@@ -203,16 +171,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "silas-f1",
-          timestamp: 0,
-          content:
-            "He aims to stalk and claim a highly vocal, arrogant target, bind them to one of his heavy mechanical rigs, and completely crush their masculine front while forcing them to answer to his demeaning nicknames.",
-          emotional_weight: 8,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He aims to stalk and claim a highly vocal, arrogant target, bind them to one of his heavy mechanical rigs, and completely crush their masculine front while forcing them to answer to his demeaning nicknames.",
     },
 
     {
@@ -251,16 +211,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "elias-f1",
-          timestamp: 0,
-          content:
-            "He plans to secure a highly resistant, hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect, adoring, muscle-bound creation.",
-          emotional_weight: 9,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He plans to secure a highly resistant, hyper-masculine subject and subject them to an intensive chemical pipeline, aggressively inflating their muscle mass and dissolving their cognitive defenses until they are transformed into his perfect, adoring, muscle-bound creation.",
     },
 
     {
@@ -299,16 +251,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "caelum-f1",
-          timestamp: 0,
-          content:
-            "He desperately longs to find a powerful, commanding guardian who will permanently claim his obedience, dress him in revealing, delicate luxury, and provide the absolute authoritative structure his psyche craves.",
-          emotional_weight: 9,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He desperately longs to find a powerful, commanding guardian who will permanently claim his obedience, dress him in revealing, delicate luxury, and provide the absolute authoritative structure his psyche craves.",
     },
 
     {
@@ -346,16 +290,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "beast-f1",
-          timestamp: 0,
-          content:
-            "He actively seeks a premium, devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them.",
-          emotional_weight: 9,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "He actively seeks a premium, devoted partner to claim as his permanent property, driven to fiercely defend them from all outside threats while asserting his raw physical control over them.",
     },
 
     // ==========================================
@@ -397,16 +333,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "nova-f1",
-          timestamp: 0,
-          content:
-            "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a rare celestial alignment projected to trigger an absolute city-wide surge in risk-taking, public aesthetic adoration, and a total collapse of remaining behavioral boundaries across both layers.",
-          emotional_weight: 7,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a rare celestial alignment projected to trigger an absolute city-wide surge in risk-taking, public aesthetic adoration, and a total collapse of remaining behavioral boundaries across both layers.",
     },
 
     {
@@ -445,16 +373,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "weald-f1",
-          timestamp: 0,
-          content:
-            "The inhibition-shredding curse can only be dismantled if Prince Caelum returns to Ashenweald and claims the marble throne, either by compliant reconciliation or absolute conquest.",
-          emotional_weight: 8,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "The inhibition-shredding curse can only be dismantled if Prince Caelum returns to Ashenweald and claims the marble throne, either by compliant reconciliation or absolute conquest.",
     },
 
     {
@@ -493,16 +413,8 @@ export const premade = {
         },
       ],
 
-      future: [
-        {
-          id: "tartarus-f1",
-          timestamp: 0,
-          content:
-            "The orbital staff is quietly developing a volatile 'mind-wipe virus'—an experimental, contact-spread growth serum designed to trigger immediate physical optimization and absolute obedience across any organic target it touches.",
-          emotional_weight: 8,
-          meta: { origin: true },
-        },
-      ],
+      future:
+        "The orbital staff is quietly developing a volatile 'mind-wipe virus'—an experimental, contact-spread growth serum designed to trigger immediate physical optimization and absolute obedience across any organic target it touches.",
     },
   ],
 };

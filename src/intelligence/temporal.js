@@ -48,6 +48,8 @@ import { prompt_builder } from "./prompts.js";
 /**
  * Merges an entity's memories into a single normalized array.
  * String items are passed through untouched.
+ * PAST holds the only vector pool (memories). FUTURE is a consolidated prose
+ * field, not a pool, so it contributes nothing here.
  * @param {any} entity
  * @returns {any[]}
  */
@@ -58,9 +60,6 @@ export function resolve_vector_pool(entity) {
   if (Array.isArray(entity.past)) {
     for (const v of entity.past) pool.push(normalize_item(v, v?.type === "future" ? "future" : "past"));
   }
-  if (Array.isArray(entity.future)) {
-    for (const v of entity.future) pool.push(normalize_item(v, v?.type === "past" ? "past" : "future"));
-  }
   return pool;
 }
 
@@ -70,7 +69,10 @@ export const TEMPORAL_SCORING = {
   DECAY_SOFTEN: 0.5,
 };
 
-const VALID_FORGED_TYPES = new Set(["past", "future", "present"]);
+// FUTURE is a prose field now, so the forge may only emit "past" (memory) or
+// "present" vectors — any stray "future" type is demoted to a past anchor so
+// nothing intended for the future pool is silently dropped.
+const VALID_FORGED_TYPES = new Set(["past", "present"]);
 
 function normalize_forged_type(value) {
   const type = String(value || "")
@@ -207,10 +209,10 @@ function is_duplicate(a, b) {
 // ETERNAL is identity: it must not accumulate contradictory mutation lines.
 // Appends are deduped (verbatim or near-duplicate lines are skipped) and capped
 // from the TAIL so the opening identity block is always preserved.
-// Vectors are capped per pool and evicted OLDEST-FIRST — but hand-authored
+// PAST vectors are capped per pool and evicted OLDEST-FIRST — but hand-authored
 // premade vectors (meta.origin) are never evicted, so the user's curated origin
-// past/future blocks can never be silently destroyed by a busy forge cycle.
-export const FUTURE_VECTOR_CAP = 5;
+// past block can never be silently destroyed by a busy forge cycle.
+// (FUTURE is a prose field now — it has no pool or cap.)
 export const PAST_VECTOR_CAP = 20;
 const ETERNAL_MAX_CHARS = 1500;
 const PRESENT_MAX_SEGMENTS = 3;
@@ -223,21 +225,18 @@ function is_origin(v) {
 }
 
 /**
- * Load-time reconciliation: trims over-cap past/future pools down to their caps,
+ * Load-time reconciliation: trims over-cap past pools down to their caps,
  * oldest-evictable-first, while origin vectors (premade stock) are always kept.
  * Returns true if anything was removed so callers can persist the change.
  */
 export function reconcile_vector_caps(entity) {
   if (!entity || typeof entity !== "object") return false;
   let changed = false;
-  for (const [bucket, cap] of [
-    ["future", FUTURE_VECTOR_CAP],
-    ["past", PAST_VECTOR_CAP],
-  ]) {
-    if (!Array.isArray(entity[bucket])) continue;
-    while (entity[bucket].length > cap) {
+  const bucket = "past";
+  if (Array.isArray(entity[bucket])) {
+    while (entity[bucket].length > PAST_VECTOR_CAP) {
       const before = entity[bucket].length;
-      evict_oldest_evictable(entity, bucket, cap);
+      evict_oldest_evictable(entity, bucket, PAST_VECTOR_CAP);
       if (entity[bucket].length === before) break; // pool fully origin-protected
       changed = true;
     }
@@ -294,13 +293,10 @@ function evict_oldest_evictable(entity, bucket, cap) {
 
 function vector_id_exists(entity, id) {
   if (!entity || !id) return false;
-  return (
-    (Array.isArray(entity.past) && entity.past.some((v) => v && v.id === id)) ||
-    (Array.isArray(entity.future) && entity.future.some((v) => v && v.id === id))
-  );
+  return Array.isArray(entity.past) && entity.past.some((v) => v && v.id === id);
 }
 
-/** Reassigns a fresh UUID when a vector id collides with an existing one in either pool. */
+/** Reassigns a fresh UUID when a vector id collides with an existing one in the past pool. */
 export function ensure_unique_vector_id(entity, vector) {
   if (!entity || !vector || !vector.id) return vector;
   let attempts = 0;
@@ -309,17 +305,6 @@ export function ensure_unique_vector_id(entity, vector) {
     attempts++;
   }
   return vector;
-}
-
-/** Pushes a future vector under a hard cap, skipping near-duplicates and never evicting origin vectors. */
-export function append_future_vector(entity, vector) {
-  if (!entity) return;
-  if (!Array.isArray(entity.future)) entity.future = [];
-  const content = vector?.content || vector?.directive || "";
-  if (is_near_duplicate(entity.future, content)) return;
-  if (is_semantic_duplicate(entity.future, vector)) return;
-  entity.future.push(vector);
-  evict_oldest_evictable(entity, "future", FUTURE_VECTOR_CAP);
 }
 
 /** Pushes a past vector under a hard cap, skipping near-duplicates and never evicting origin vectors. */
@@ -887,19 +872,12 @@ export function reword_to_past(content, outcome = "neutral") {
 
 export function resolve(entity, vector_id, resolution = null, session = null, outcome = null, past_content = null) {
   if (!entity || typeof entity !== "object") return;
-  let vector = null;
-  for (const key of ["future", "past"]) {
-    const arr = entity[key];
-    if (!Array.isArray(arr)) continue;
-    const index = arr.findIndex((v) => v.id === vector_id);
-    if (index !== -1) {
-      [vector] = arr.splice(index, 1);
-      break;
-    }
-  }
+  const arr = Array.isArray(entity.past) ? entity.past : [];
+  const index = arr.findIndex((v) => v.id === vector_id);
+  if (index === -1) return;
+  const [vector] = arr.splice(index, 1);
   if (!vector) return;
 
-  if (!Array.isArray(entity.past)) entity.past = [];
   vector.type = "past";
   vector.timestamp = Date.now();
   const fresh = past_content && String(past_content).trim();
@@ -911,8 +889,8 @@ export function resolve(entity, vector_id, resolution = null, session = null, ou
     // grammatical past memory — success/failure/neutral each tense it properly.
     vector.content = reword_to_past(vector.content, outcome);
   }
-  // Otherwise this is a mechanical future->past transition; keep the original
-  // content verbatim so plain resolutions never mangle the text.
+  // Otherwise this is a mechanical transition; keep the original content
+  // verbatim so plain resolutions never mangle the text.
   vector.meta = {
     ...(vector.meta || {}),
     outcome: outcome || "neutral",
@@ -1019,19 +997,18 @@ export async function forge_memory(entity_targets, history_slice) {
       memories: {},
       present_consolidated: memory?.present_consolidated || {},
       eternal_consolidated: memory?.eternal_consolidated || {},
-      future_compiles: {},
+      future_consolidated: {},
     };
 
     for (const { key } of entity_targets) {
       const entity_block = memory?.[key] && typeof memory[key] === "object" ? memory[key] : {};
 
-      const fc = entity_block.future_compile;
-      if (fc && typeof fc === "object") {
-        forged.future_compiles[key] = {
-          retire: Array.isArray(fc.retire) ? fc.retire : [],
-          revise: Array.isArray(fc.revise) ? fc.revise : [],
-          add: Array.isArray(fc.add) ? fc.add : [],
-        };
+      // FUTURE is a single consolidated prose field, mirroring present:
+      // the forge rewrites the standing agenda wholesale, dropping fulfilled or
+      // abandoned goals and keeping/adding what still matters.
+      const fut = entity_block.future_consolidated;
+      if (typeof fut === "string" && fut.trim()) {
+        forged.future_consolidated[key] = fut.trim();
       }
 
       const pres = entity_block.present_consolidated;
@@ -1087,8 +1064,9 @@ export async function forge_memory(entity_targets, history_slice) {
     const has_memories = Object.values(forged.memories).some((arr) => arr.length > 0);
     const has_present = Object.keys(forged.present_consolidated).length > 0;
     const has_eternal = Object.keys(forged.eternal_consolidated).length > 0;
+    const has_future = Object.keys(forged.future_consolidated).length > 0;
 
-    if (!has_memories && !has_present && !has_eternal) return null;
+    if (!has_memories && !has_present && !has_eternal && !has_future) return null;
 
     return forged;
   } catch (err) {
@@ -1181,39 +1159,19 @@ export function apply_state_mutations(entity, mutations, session = null) {
     new_list.forEach((v) => {
       const payload = (v.content || v.directive || "").trim();
       if (!payload) return;
-      const new_vector = create(payload, v.type === "past" ? "past" : "future", v.emotional_weight ?? v.weight ?? 5);
-      const bucket = new_vector.type === "future" ? "future" : "past";
-      if (!Array.isArray(entity[bucket])) entity[bucket] = [];
+      // FUTURE is prose now — every appended vector is a past anchor.
+      const new_vector = create(payload, "past", v.emotional_weight ?? v.weight ?? 5);
       ensure_unique_vector_id(entity, new_vector);
       v.id = new_vector.id;
       ensure_embedding(new_vector)
         .then(() => {
           if (entity?.id) {
             const type = entity.type === "fractal" ? "fractal" : "character";
-            state_bridge.runtime?.update_entity?.(type, entity.id, { past: entity.past, future: entity.future })?.catch(() => {});
+            state_bridge.runtime?.update_entity?.(type, entity.id, { past: entity.past })?.catch(() => {});
           }
         })
         .catch(() => {});
-      if (new_vector.type === "future") {
-        append_future_vector(entity, new_vector);
-      } else {
-        append_past_vector(entity, new_vector);
-      }
-      changed = true;
-    });
-  }
-
-  const update_list = Array.isArray(mutations.vector_update) ? mutations.vector_update : [];
-  if (update_list.length > 0) {
-    update_list.forEach((u) => {
-      if (!u?.id) return;
-      const target = (Array.isArray(entity.future) ? entity.future : []).find((v) => v.id === u.id);
-      if (!target) return;
-      const updated_content = String(u.content || "").trim();
-      if (!updated_content) return;
-      target.content = updated_content;
-      target.timestamp = Date.now();
-      if (u.emotional_weight) target.emotional_weight = Number(u.emotional_weight) || target.emotional_weight;
+      append_past_vector(entity, new_vector);
       changed = true;
     });
   }
@@ -1288,7 +1246,6 @@ export const temporal_engine = {
   reword_to_past,
   forge_memory,
   apply_state_mutations,
-  append_future_vector,
   append_past_vector,
   reconcile_vector_caps,
   ensure_unique_vector_id,
@@ -1321,11 +1278,7 @@ export const temporal_engine = {
           for (const { key, type, entity } of entity_targets) {
             const memories = forged.memories?.[key] || [];
             for (const memory of memories) {
-              if (memory.type === "future") {
-                ensure_unique_vector_id(entity, memory);
-                append_future_vector(entity, memory);
-                await runtime.update_entity(type, entity.id, { future: entity.future });
-              } else if (memory.type === "present") {
+              if (memory.type === "present") {
                 if (!entity.present) entity.present = { physical: "", non_physical: "" };
                 entity.present.non_physical = cap_present_prose(
                   merge_prose_into_field(entity.present.non_physical, memory.content || memory.directive || ""),
@@ -1391,41 +1344,15 @@ export const temporal_engine = {
             }
           }
 
-          // FUTURE DIRECTIVE COMPILE — the forge audits each entity's active
-          // directives: retire resolved/expired ones (writing their outcome as a
-          // past-tense memory), revise still-relevant ones, and add at most one new
-          // goal — always keeping the future pool at or under FUTURE_VECTOR_CAP.
+          // FUTURE CONSOLIDATION — the forge rewrites each entity's standing
+          // agenda prose wholesale (mirroring present_consolidated): fulfilled
+          // or abandoned goals fall away, still-relevant ones are refreshed, and
+          // new intents are folded in as one clean block.
           for (const { key, type, entity } of entity_targets) {
-            const fc = forged.future_compiles?.[key];
-            if (!fc) continue;
-            for (const r of fc.retire || []) {
-              if (!r?.id) continue;
-              if ((Array.isArray(entity.future) ? entity.future : []).some((v) => v.id === r.id)) {
-                resolve(entity, r.id, r.outcome || "COMPILED_RESOLUTION", session, r.outcome || "neutral", r.past_content);
-                await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
-              }
-            }
-            for (const rv of fc.revise || []) {
-              if (!rv?.id || !String(rv.content || "").trim()) continue;
-              const target =
-                (Array.isArray(entity.future) ? entity.future : []).find((v) => v.id === rv.id) ||
-                (Array.isArray(entity.past) ? entity.past : []).find((v) => v.id === rv.id);
-              if (target) {
-                target.content = String(rv.content).trim();
-                target.timestamp = Date.now();
-                await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
-              }
-            }
-            for (const ad of fc.add || []) {
-              if (!String(ad.content || "").trim()) continue;
-              const vec = create(String(ad.content).trim(), "future", ad.emotional_weight ?? 5);
-              ensure_unique_vector_id(entity, vec);
-              append_future_vector(entity, vec);
-              await runtime.update_entity(type, entity.id, { future: entity.future });
-            }
-            if (reconcile_vector_caps(entity)) {
-              await runtime.update_entity(type, entity.id, { past: entity.past, future: entity.future });
-            }
+            const rewritten = forged.future_consolidated?.[key];
+            if (typeof rewritten !== "string" || !rewritten.trim()) continue;
+            entity.future = rewritten.trim();
+            await runtime.update_entity(type, entity.id, { future: entity.future });
           }
 
           for (const { key } of entity_targets) {
@@ -1460,8 +1387,8 @@ export const temporal_engine = {
 
   ensure_momentum: (runtime, app) => {
     const fractal = runtime.active_fractal;
-    if (fractal && !resolve_vector_pool(fractal).some((v) => v?.type === "future")) {
-      app?.log("[TemporalEngine] Placeholder momentum active (No vectors found)", "system");
+    if (fractal && !String(fractal.future || "").trim()) {
+      app?.log("[TemporalEngine] Placeholder momentum active (No future agenda set)", "system");
     }
   },
 };

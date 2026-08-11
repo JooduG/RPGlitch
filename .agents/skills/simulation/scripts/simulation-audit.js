@@ -34,7 +34,8 @@ function enrich_vector(v) {
 /**
  * Maps a raw premade entity into the structure the prompt builder expects.
  * Ensures present/eternal are direct properties (not nested in fragments),
- * and enriches past/future vectors with category/triggers.
+ * enriches past vectors with category/triggers, and passes future through
+ * as its consolidated prose string.
  * @param {any} data
  * @returns {any}
  */
@@ -47,7 +48,7 @@ function map_entity(data) {
     present: data.present || { physical: "", non_physical: "" },
     eternal: data.eternal || { physical: "", non_physical: "" },
     past: (data.past || []).map(enrich_vector),
-    future: (data.future || []).map(enrich_vector),
+    future: data.future || "",
     dynamics: data.dynamics || {},
     dynamics_baseline: data.dynamics_baseline || null,
     pov: data.pov || "",

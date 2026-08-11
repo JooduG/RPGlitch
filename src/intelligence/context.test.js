@@ -1,5 +1,4 @@
 import { context_builder } from "./context.svelte.js";
-import { temporal_engine } from "./temporal.js";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Hoisted mock variables starting with 'mock' to satisfy Vitest prefix requirement and bypass TDZ
@@ -24,25 +23,25 @@ const _mock_runtime = {
   },
   get snapshot_entities() {
     return {
-      AI: { id: "ai", name: "AI", role: "AI", future: [], dynamics: {} },
-      USER: { id: "user", name: "USER", role: "USER", future: [], dynamics: {} },
+      AI: { id: "ai", name: "AI", role: "AI", future: "", dynamics: {} },
+      USER: { id: "user", name: "USER", role: "USER", future: "", dynamics: {} },
       FRACTAL: {
         id: "fractal",
         name: "FRACTAL",
         role: "FRACTAL",
-        future: [],
+        future: "",
         dynamics: {},
       },
     };
   },
   get active_ai() {
-    return { future: [] };
+    return { future: "" };
   },
   get active_user() {
-    return { future: [] };
+    return { future: "" };
   },
   get active_fractal() {
-    return { future: [] };
+    return { future: "" };
   },
 };
 
@@ -72,9 +71,9 @@ vi.mock("@engine/session.svelte.js", () => ({
   },
 }));
 
-// Mock temporal_engine to intercept resolution calls while keeping the real
-// (pure) exports — context.svelte.js also imports resolve_vector_pool, so the
-// mock must expose it or build_context()/manage_vector_lifecycle() break.
+// Mock @intelligence/temporal.js to keep context.svelte.js's resolve_vector_pool
+// real while avoiding side effects; context no longer imports temporal_engine
+// itself (FUTURE is a prose field, so the vector lifecycle is gone).
 vi.mock("@intelligence/temporal.js", async (importOriginal) => {
   const actual = await importOriginal();
   return {
@@ -99,100 +98,6 @@ describe("context_builder", () => {
 
   it("build_context() returns a valid payload for simulation", async () => {
     expect(context_builder.build_context).toBeDefined();
-  });
-
-  describe("manage_vector_lifecycle", () => {
-    it("should gracefully handle missing entity or vectors arrays", async () => {
-      await expect(context_builder.manage_vector_lifecycle(null)).resolves.not.toThrow();
-      await expect(context_builder.manage_vector_lifecycle({ future: null })).resolves.not.toThrow();
-      await expect(context_builder.manage_vector_lifecycle({ future: [] })).resolves.not.toThrow();
-    });
-
-    // --- STRICT STATE AND CHRONO MATRIX TESTS ---
-
-    it("should not resolve state-locked vectors if requires state is not met", async () => {
-      mock_app_state.state_anchor = "inactive";
-      const entity = {
-        future: [
-          {
-            id: "v_state",
-            requires: { state_anchor: "active" },
-            tags: ["apple"],
-            type: "future",
-            content: "The state is active",
-          },
-        ],
-      };
-      // Requirement is state_anchor: "active" (which is inactive)
-      await context_builder.manage_vector_lifecycle(entity);
-
-      expect(temporal_engine.resolve).not.toHaveBeenCalled();
-    });
-
-    it("should resolve state-locked vectors instantly when requires state matches", async () => {
-      mock_app_state.state_anchor = "active";
-      const entity = {
-        future: [
-          {
-            id: "v_state",
-            requires: { state_anchor: "active" },
-            tags: ["apple"],
-            type: "future",
-            content: "The state is active",
-          },
-        ],
-      };
-
-      await context_builder.manage_vector_lifecycle(entity);
-
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_state", "AUTO_RESOLVED", expect.anything());
-    });
-
-    it("should block resolution if round has not met threshold from requires or meta", async () => {
-      mock_round = 2;
-      const entity = {
-        future: [
-          {
-            id: "v_chrono_req",
-            requires: { round: 3 },
-            tags: ["banana"],
-            type: "future",
-          },
-          {
-            id: "v_chrono_meta",
-            meta: { round: 4 },
-            tags: ["banana"],
-            type: "future",
-          },
-          {
-            id: "v_chrono_meta_thresh",
-            meta: { round_threshold: 5 },
-            tags: ["banana"],
-            type: "future",
-          },
-        ],
-      };
-
-      await context_builder.manage_vector_lifecycle(entity);
-      expect(temporal_engine.resolve).not.toHaveBeenCalled();
-    });
-
-    it("should resolve when round has met threshold", async () => {
-      mock_round = 3;
-      const entity = {
-        future: [
-          {
-            id: "v_chrono_req_ok",
-            requires: { round: 3 },
-            tags: ["banana"],
-            type: "future",
-          },
-        ],
-      };
-
-      await context_builder.manage_vector_lifecycle(entity);
-      expect(temporal_engine.resolve).toHaveBeenCalledWith(entity, "v_chrono_req_ok", "AUTO_RESOLVED", expect.anything());
-    });
   });
 
   describe("Performance Stress Test", () => {

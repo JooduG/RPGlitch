@@ -103,8 +103,8 @@ A simulation requires entities (Characters and Fractals) to execute a narrative.
 - **The Four Entity Fragments**:
 - **Eternal**: Baseline physical features and core essence.
 - **Present**: Immediate physical conditions and active processing states.
-- **Past (Memories)**: Historical anchors, critical precedents, and session memories stored in the `past` vector array.
-- **Future (Future Vectors)**: Impending intent, active plans, and prophecies stored in the `future` vector array.
+- **Past (Memories)**: Historical anchors, critical precedents, and session memories stored in the `past` vector array (retrieved via vector RAG).
+- **Future (Standing Agenda)**: Active trajectory, impending intent, and standing agenda stored as a single consolidated prose field (rewritten wholesale by the Memory Forge each cycle).
 
 ---
 

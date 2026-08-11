@@ -65,8 +65,9 @@ export const seed_premades = async () => {
 // ============================================================================
 
 /**
- * Maps `_embedding` on temporal vectors (past/future) through a transform without mutating
- * the input. Missing embeddings are dropped so corrupt/empty values never persist.
+ * Maps `_embedding` on temporal vectors (past pool only — future is prose now)
+ * through a transform without mutating the input. Missing embeddings are dropped
+ * so corrupt/empty values never persist.
  * @param {any} entity
  * @param {(emb: any) => any} transform
  * @returns {any}
@@ -74,17 +75,15 @@ export const seed_premades = async () => {
 function _map_vector_embeddings(entity, transform) {
   if (!entity || typeof entity !== "object") return entity;
   const out = { ...entity };
-  for (const key of ["past", "future"]) {
-    if (!Array.isArray(out[key])) continue;
-    out[key] = out[key].map((v) => {
-      if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
-      const mapped = transform(v._embedding);
-      if (mapped) return { ...v, _embedding: mapped };
-      const copy = { ...v };
-      delete copy._embedding;
-      return copy;
-    });
-  }
+  if (!Array.isArray(out.past)) return out;
+  out.past = out.past.map((v) => {
+    if (!v || !Object.prototype.hasOwnProperty.call(v, "_embedding")) return v;
+    const mapped = transform(v._embedding);
+    if (mapped) return { ...v, _embedding: mapped };
+    const copy = { ...v };
+    delete copy._embedding;
+    return copy;
+  });
   return out;
 }
 
@@ -112,7 +111,19 @@ export const entities = {
       let item = await db.entities.get(id);
       if (!item) item = premade_entity_map.get(id);
       if (!item || item.type !== type) return null;
-      return _map_vector_embeddings(item, deserialize_embedding);
+      let out = _map_vector_embeddings(item, deserialize_embedding);
+      // FUTURE is a single prose field now — flatten any legacy array payloads
+      // on read so old seeded entities don't render as comma-joined objects.
+      if (out && Array.isArray(out.future)) {
+        out = {
+          ...out,
+          future: out.future
+            .map((v) => (v && typeof v === "object" ? v.content || v.directive || "" : String(v ?? "")))
+            .filter(Boolean)
+            .join("\n"),
+        };
+      }
+      return out;
     } catch (err) {
       error(`Failed to fetch ${type} [${id}] from the void:`, err);
       return null;
@@ -319,13 +330,13 @@ export const stories = {
 // ============================================================================
 
 /**
- * Prunes a vectors array for a compact snapshot: up to 3 past-type vectors
- * plus the single most recent future-type vector. Content-only, no directive key.
+ * Prunes a vectors array for a compact snapshot: up to 3 past-type vectors.
+ * Content-only, no directive key. (FUTURE is a prose field now, not a pool.)
  * @param {any[]} vectors
  */
 export function prune(vectors) {
   if (!Array.isArray(vectors)) return [];
-  const past = vectors
+  return vectors
     .filter((v) => v?.type !== "future")
     .slice(0, 3)
     .map((v) => ({
@@ -335,15 +346,4 @@ export function prune(vectors) {
       type: "past",
       meta: v.meta || {},
     }));
-  const future = vectors
-    .filter((v) => v?.type === "future")
-    .slice(0, 1)
-    .map((v) => ({
-      id: v.id,
-      content: v.content || v.directive || v.text || v.summary || "",
-      emotional_weight: v.emotional_weight ?? 5,
-      type: "future",
-      meta: v.meta || {},
-    }));
-  return [...past, ...future];
 }

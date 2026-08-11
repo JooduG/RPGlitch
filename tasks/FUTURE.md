@@ -2,7 +2,17 @@
 
 > **Role**: Active implementation blueprint for the _current_ track.
 > **Status**: Track Initialized — `refactor-ui-deconstruction-2026-08-08` [~~]
-> **Tracks**: `refactor-ui-deconstruction-2026-08-08` [~~] · `forge-entity-isolation-2026-08-03` ✅ · `memory-engine-tuning-2026-08-03` ✅ · `engine-stability-fixes-2026-08-03` ✅
+> **Tracks**: `refactor-future-prose-architecture-2026-08-11` ✅ · `refactor-ui-deconstruction-2026-08-08` [~~] · `forge-entity-isolation-2026-08-03` ✅ · `memory-engine-tuning-2026-08-03` ✅ · `engine-stability-fixes-2026-08-03` ✅
+
+---
+
+## 🎯 Completed Track — refactor-future-prose-architecture-2026-08-11 ✅
+
+**Future Fragment Prose Architecture**:
+1. **Unlabelled Prose Field**: Converted `future` entity state from vector array (`future: [vectors]`) to a single unlabelled prose string (`future: string`), representing the entity's active trajectory or standing agenda.
+2. **Symmetric Future Consolidation**: Updated Memory Forge schema from `future_compile: {retire, revise, add}` to symmetric `future_consolidated: { type: "string" }` (wholesale rewrite of standing agenda, matching `present_consolidated`).
+3. **Embedding Overhead Elimination**: Removed `append_future_vector`, `FUTURE_VECTOR_CAP`, and vector ONNX embedding calls for futures (`past` vector memories remain the sole vector pool).
+4. **UI & Data Layer Alignment**: Updated `fragments.js`, `normalizer.js` (legacy array-to-string fallback), `premades.js`, `context.svelte.js`, `prompts.js`, and `Profile.svelte` (renders prose `<TextField>`).
 
 ---
 

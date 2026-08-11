@@ -163,21 +163,21 @@ describe("prompt_builder (Refactored)", () => {
           present: { non_physical: "Viper Present" },
           eternal: { non_physical: "Viper Eternal" },
           past: [{ directive: "Viper past 1" }],
-          future: [{ directive: "Viper future 1" }],
+          future: "Viper future 1",
         },
         USER: {
           name: "Ghost",
           present: { non_physical: "Ghost Present" },
           eternal: { non_physical: "Ghost Eternal" },
           past: [{ directive: "Ghost past 1" }],
-          future: [],
+          future: "",
         },
         FRACTAL: {
           name: "Void",
           present: { non_physical: "Void Present" },
           eternal: { non_physical: "Void Eternal" },
           past: [{ directive: "Void past 1" }],
-          future: [{ directive: "Void future 1" }],
+          future: "Void future 1",
         },
       },
       simulation_log: [],
@@ -237,7 +237,7 @@ describe("prompt_builder (Refactored)", () => {
       expect(result.system).toContain('name="Viper"');
       expect(result.system).toContain('name="Void"');
       expect(result.system).toContain("For each active entity");
-      expect(result.system).toContain('"type": "past | future"');
+      expect(result.system).toContain('"type": "past"');
       expect(result.system).not.toContain('"tags"');
     });
 
@@ -245,9 +245,9 @@ describe("prompt_builder (Refactored)", () => {
       const empty_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Check the door.",
@@ -269,21 +269,21 @@ describe("prompt_builder (Refactored)", () => {
             present: { non_physical: "Volatile Present" },
             eternal: { non_physical: "Static Eternal" },
             past: [{ directive: "Volatile Past", emotional_weight: 9 }],
-            future: [{ directive: "Volatile Future", emotional_weight: 9 }],
+            future: "Volatile Future",
           },
           USER: {
             name: "Ghost",
             present: { non_physical: "User Present" },
             eternal: { non_physical: "User Eternal" },
             past: [],
-            future: [],
+            future: "",
           },
           FRACTAL: {
             name: "Void",
             present: { non_physical: "Void Present" },
             eternal: { non_physical: "Void Eternal" },
             past: [],
-            future: [],
+            future: "",
           },
         },
         simulation_log: [],
@@ -320,9 +320,9 @@ describe("prompt_builder (Refactored)", () => {
             name: "Viper",
             present: { non_physical: "Volatile Mental State" },
             eternal: { non_physical: "Static Mental State" },
-            future: [{ directive: "Future Goal" }],
+            future: "Future Goal",
           },
-          USER: { name: "Ghost", present: {}, eternal: {}, future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -349,21 +349,21 @@ describe("prompt_builder (Refactored)", () => {
             present: {},
             eternal: {},
             past: [{ directive: "Viper past thread" }],
-            future: [],
+            future: "",
           },
           USER: {
             name: "Ghost",
             present: {},
             eternal: {},
             past: [{ directive: "Ghost past thread" }],
-            future: [],
+            future: "",
           },
           FRACTAL: {
             name: "Void",
             present: {},
             eternal: {},
             past: [{ directive: "Void past thread" }],
-            future: [],
+            future: "",
           },
         },
         simulation_log: [],
@@ -404,21 +404,21 @@ describe("prompt_builder (Refactored)", () => {
             present: { non_physical: "Present" },
             eternal: { non_physical: "Eternal" },
             past: [{ directive: "P1", emotional_weight: 9 }],
-            future: [{ directive: "F1", emotional_weight: 9 }],
+            future: "F1",
           },
           USER: {
             name: "Ghost",
             present: { non_physical: "User Present" },
             eternal: { non_physical: "User Eternal" },
             past: [],
-            future: [],
+            future: "",
           },
           FRACTAL: {
             name: "Void",
             present: { non_physical: "Void Present" },
             eternal: { non_physical: "Void Eternal" },
             past: [],
-            future: [],
+            future: "",
           },
         },
         simulation_log: [],
@@ -535,7 +535,7 @@ describe("prompt_builder (Refactored)", () => {
         eternal: { physical: "Eternal body.", non_physical: "Eternal psyche." },
         present: { physical: "Present outfit.", non_physical: "Present mood." },
         past: [{ id: "p1", content: "Old memory anchor", type: "past", emotional_weight: 5 }],
-        future: [{ id: "f1", content: "Impending prophecy", type: "future", emotional_weight: 6 }],
+        future: "Impending prophecy",
       };
       const result = prompt_builder.build_enhancement("present.non_physical", "Present mood.", "Viper", "character", false, entity);
       expect(result.system).toContain("Present mood.");
@@ -560,9 +560,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -578,9 +578,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -595,9 +595,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -613,9 +613,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -637,9 +637,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "",
@@ -659,9 +659,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -681,9 +681,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -703,9 +703,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -724,8 +724,8 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload_no_fractal = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
           FRACTAL: undefined,
         },
         simulation_log: [],
@@ -744,9 +744,9 @@ describe("prompt_builder (Refactored)", () => {
       const mock_payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello",
@@ -864,21 +864,21 @@ describe("prompt_builder (Refactored)", () => {
           present: { non_physical: "Volatile Present" },
           eternal: { non_physical: "Static Eternal" },
           past: [],
-          future: [],
+          future: "",
         },
         USER: {
           name: "Ghost",
           present: { non_physical: "User Present" },
           eternal: { non_physical: "User Eternal" },
           past: [],
-          future: [],
+          future: "",
         },
         FRACTAL: {
           name: "Void",
           present: { non_physical: "Void Present" },
           eternal: { non_physical: "Void Eternal" },
           past: [],
-          future: [],
+          future: "",
         },
       },
       simulation_log: [],
@@ -1014,13 +1014,10 @@ describe("prompt_builder (Refactored)", () => {
             present: { non_physical: "Volatile Present" },
             eternal: { non_physical: "Static Eternal" },
             past: [],
-            future: [
-              { id: "g1", content: "Seek the artifact", emotional_weight: 8 },
-              { id: "t1", content: "The empire watches", emotional_weight: 5 },
-            ],
+            future: "Seek the artifact\nThe empire watches",
           },
-          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: [] },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          USER: { name: "Ghost", present: {}, eternal: {}, past: [], future: "" },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Check the door.",
@@ -1037,15 +1034,15 @@ describe("prompt_builder (Refactored)", () => {
       const payload = {
         round: 1,
         entities: {
-          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: [] },
+          AI: { name: "Viper", present: {}, eternal: {}, past: [], future: "" },
           USER: {
             name: "Ghost",
             present: { non_physical: "Present note" },
             eternal: {},
             past: [],
-            future: [{ id: "u1", content: "Bind the Protector to the rig", emotional_weight: 9 }],
+            future: "Bind the Protector to the rig",
           },
-          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: [] },
+          FRACTAL: { name: "Void", present: {}, eternal: {}, past: [], future: "" },
         },
         simulation_log: [],
         input: "Hello.",

@@ -252,7 +252,7 @@ function synthesize_director_fallback(prev_data, input, bridge) {
   if (fractal) {
     fallback.FRACTAL = {
       present_append: { physical: "", non_physical: "" },
-      vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "future", emotional_weight: 3 }],
+      vector_append: [{ content: `${fractal.name || "The environment"} shifts with the turn's events.`, type: "past", emotional_weight: 3 }],
       vector_resolve: [],
     };
   }

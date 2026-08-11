@@ -169,7 +169,7 @@
       for (const [key, val] of Object.entries(clean_json)) {
         if (key === "profile_picture" || key === "image" || key === "id" || key === "type") continue;
 
-        if (key === "past" || key === "future") {
+        if (key === "past") {
           if (Array.isArray(val)) {
             const new_vectors = val.map((text_str) => {
               const vector_str = typeof text_str === "string" ? text_str : text_str.content || text_str.directive || JSON.stringify(text_str);
@@ -181,6 +181,9 @@
             });
             entity[key] = [...(entity[key] || []), ...new_vectors];
           }
+        } else if (key === "future" && typeof val === "string") {
+          // FUTURE is a prose field — import the flat text.
+          entity.future = val.trim();
         } else if (typeof val === "object" && !Array.isArray(val)) {
           for (const [sub_key, subVal] of Object.entries(val)) {
             if (typeof subVal === "string") {

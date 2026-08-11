@@ -40,7 +40,7 @@ describe("content-normaliser.js", () => {
         eternal: { physical: "", non_physical: "" },
         present: { physical: "", non_physical: "" },
         past: [],
-        future: [],
+        future: "",
         modifiers: {
           prompt: "",
           negative_prompt: "",

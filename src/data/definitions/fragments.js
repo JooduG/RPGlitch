@@ -128,17 +128,12 @@ export const ENTITY_FRAGMENTS = {
     },
   },
   future: {
-    sublabel: "Vector",
-    description: "Active trajectory or narrative impulse: clear intent, building pressure, or impending event driving next state change.",
+    sublabel: "Standing Agenda",
+    description:
+      "The entity's active trajectory or standing agenda: clear intent, building pressure, or impending event driving the next state change. A single consolidated block, rewritten by the memory forge each cycle.",
     directive:
       "One active trajectory or narrative impulse: a clear intent, building pressure, or impending event. What drives this entity toward its next state change. Must be distinct from Present. Active future tense — live impulses, not past observations.",
     enhancer: "TRAJECTORY_SIMULATOR",
-    type: "array",
-    fields: {
-      directive:
-        "One active trajectory or narrative impulse: a clear intent, building pressure, or impending event. What drives this entity toward its next state change. Must be distinct from Present. Active future tense — live impulses, not past observations.",
-      emotional_weight: "Narrative importance score (1-10) driving relevance.",
-    },
   },
   past: {
     sublabel: "Memory",
@@ -307,7 +302,7 @@ export function build_profile_sections(entity_type = "character") {
           : [
               {
                 key: sectionKey,
-                label: format_key_as_label(sectionKey),
+                label: null,
                 sublabel: section.sublabel || null,
                 description: section.description || section.directive || "",
                 directive: section.directive || "",

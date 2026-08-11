@@ -21,7 +21,7 @@ import { state_bridge } from "@utils";
 import { ensure_embeddings } from "./embeddings.svelte.js";
 import { ENTITY_CATALOG } from "../data/definitions/fragments.js";
 import { clean_text } from "./parser.js";
-import { temporal_engine, resolve_vector_pool } from "./temporal.js";
+import { resolve_vector_pool } from "./temporal.js";
 
 /************************************************************************************
  * [SECTION: PRIVATE HELPERS]
@@ -97,26 +97,11 @@ export const context_builder = {
     // 1. Resolve Entities mapping (Role -> Data)
     const clean = state_bridge.runtime?.snapshot_entities ?? {};
 
-    // Resolve active fractal vector via temporal engine
-    const active_vector =
-      temporal_engine.format(
-        resolve_vector_pool(clean?.FRACTAL).filter((v) => v?.type === "future"),
-        null,
-        {
-          vector_text: true,
-        },
-      ) || "Continue the journey.";
-
     const entries = [
       { role: "AI", data: clean.AI },
       { role: "USER", data: clean.USER },
       { role: "FRACTAL", data: clean.FRACTAL },
     ];
-
-    // Lifecycle Management: Resolve satisfied future vectors before hydration to ensure turn accuracy
-    await Promise.all(entries.map(({ data }) => context_builder.manage_vector_lifecycle(data))).catch((err) =>
-      console.warn("[Vector Lifecycle] Failed to auto-resolve vectors:", err),
-    );
 
     // Pre-embed all temporal vectors for semantic scoring (awaited with timeout fallback)
     const all_vectors = [];
@@ -140,13 +125,13 @@ export const context_builder = {
           fragments: [],
           eternal: { physical: "", non_physical: "" },
           present: { physical: "", non_physical: "" },
-          future: [],
+          future: "",
           past: [],
           dynamics: {},
         }
       );
       const data_points = to_data_points(raw);
-      const filtered = context_builder.lexical_filter(data_points, active_vector);
+      const filtered = data_points;
 
       if (filtered.length === 0) {
         filtered.push({
@@ -201,67 +186,9 @@ export const context_builder = {
       view_id: "global",
       raw_messages: simulation_log,
       meta: {
-        active_vector,
         timestamp: new Date().toISOString(),
       },
     };
-  },
-
-  /**
-   * Dynamically resolves FUTURE_VECTOR items based on temporal_engine state constraints.
-   * @param {any} entity
-   * @returns {Promise<void>}
-   */
-  async manage_vector_lifecycle(entity) {
-    const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
-    if (futures.length === 0) return;
-
-    const vectors_to_resolve = [];
-
-    for (const vector of futures) {
-      // 1. chrono_engine Validation
-      const round_threshold = vector.requires?.round ?? vector.meta?.round ?? vector.meta?.round_threshold;
-      if (round_threshold !== undefined && typeof round_threshold === "number") {
-        if ((state_bridge.runtime?.round ?? 0) < round_threshold) {
-          continue;
-        }
-      }
-
-      let is_resolved = false;
-      const has_requires = vector.requires && typeof vector.requires === "object" && Object.keys(vector.requires).length > 0;
-
-      if (has_requires) {
-        // 2. State Evaluation
-        let state_checks_passed = true;
-        for (const [req_key, req_val] of Object.entries(vector.requires)) {
-          if (req_key === "round") continue;
-
-          let actual_val = state_bridge.runtime ? get_path_value(state_bridge.runtime, req_key) : undefined;
-          if ((actual_val === undefined || actual_val === "") && state_bridge.app) {
-            actual_val = get_path_value(state_bridge.app, req_key);
-          }
-
-          if (actual_val !== req_val) {
-            state_checks_passed = false;
-            break;
-          }
-        }
-
-        if (state_checks_passed) {
-          is_resolved = true;
-        }
-      }
-
-      if (is_resolved) {
-        vectors_to_resolve.push(vector.id);
-      }
-    }
-
-    if (vectors_to_resolve.length > 0) {
-      for (const id of vectors_to_resolve) {
-        temporal_engine.resolve(entity, id, "AUTO_RESOLVED", state_bridge.session_driver);
-      }
-    }
   },
 
   /**

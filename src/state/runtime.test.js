@@ -38,7 +38,7 @@ describe("Narrative Vector System", () => {
     runtime.init_effects();
     // Reset state before each test
     runtime._debug_inject({
-      fractal: /** @type {any} */ ({ id: "test-fractal", active: true, future: [] }),
+      fractal: /** @type {any} */ ({ id: "test-fractal", active: true, future: "" }),
     });
   });
 
@@ -46,43 +46,36 @@ describe("Narrative Vector System", () => {
     runtime.teardown_effects();
   });
 
-  it("should initialize with an empty future pool", () => {
-    // Default for FRACTAL is now handled by the caller or Simulation seeding
-    expect(runtime.active_fractal?.future).toEqual([]);
+  it("should initialize with an empty future agenda", () => {
+    // FUTURE is a consolidated prose field, not a vector pool.
+    expect(runtime.active_fractal?.future).toEqual("");
   });
 
-  it("should add a vector to the future pool (echoes)", () => {
+  it("should append agenda lines to the future field", () => {
     runtime.add_vector("Find the key.", "FRACTAL");
-    expect(runtime.active_fractal?.future).toHaveLength(1);
-    expect(runtime.active_fractal?.future?.[0].type).toBe("future");
-    expect(runtime.active_fractal?.future?.[0].content).toBe("Find the key.");
+    expect(runtime.active_fractal?.future).toBe("Find the key.");
 
     runtime.add_vector("Explore the cave.", "FRACTAL");
-    expect(runtime.active_fractal?.future).toHaveLength(2);
-    // "Find the key" is still index 0 because we pushed
-    expect(runtime.active_fractal?.future?.[0].content).toBe("Find the key.");
-    expect(runtime.active_fractal?.future?.[1].content).toBe("Explore the cave.");
+    expect(runtime.active_fractal?.future).toBe("Find the key.\nExplore the cave.");
   });
 
-  it("should add a vector to the front (is_vanguard)", () => {
+  it("should prepend a vanguard agenda line", () => {
     runtime.add_vector("Background Task", "FRACTAL");
     runtime.add_vector("Urgent Task", "FRACTAL", true); // is_vanguard = true
-    expect(runtime.active_fractal?.future?.[0].content).toBe("Urgent Task");
-    expect(runtime.active_fractal?.future?.[1].content).toBe("Background Task");
+    expect(runtime.active_fractal?.future).toBe("Urgent Task\nBackground Task");
   });
 
-  it("should complete the active vector and promote the next one", () => {
+  it("should complete the newest agenda line (drop it)", () => {
     runtime.add_vector("Task A", "FRACTAL");
     runtime.add_vector("Task B", "FRACTAL");
-    expect(runtime.active_fractal?.future?.[0].content).toBe("Task A");
+    expect(runtime.active_fractal?.future).toBe("Task A\nTask B");
     runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.future?.[0].content).toBe("Task B");
-    expect(runtime.active_fractal?.future).toHaveLength(1);
+    expect(runtime.active_fractal?.future).toBe("Task A");
   });
 
-  it("should handle complete_vector on an empty future pool safely", () => {
+  it("should handle complete_vector on an empty future field safely", () => {
     runtime.complete_vector("FRACTAL");
-    expect(runtime.active_fractal?.future).toEqual([]);
+    expect(runtime.active_fractal?.future).toEqual("");
   });
 
   describe("State Synchronization", () => {

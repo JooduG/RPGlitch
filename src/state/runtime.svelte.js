@@ -35,7 +35,7 @@ import { app } from "./app.svelte.js";
  * @property {EntityFragments} eternal
  * @property {EntityFragments} present
  * @property {TemporalVector[]} past
- * @property {TemporalVector[]} future
+ * @property {string} future
  * @property {EntityDynamics} dynamics
  * @property {EntityDynamics} [dynamics_baseline]
  * @property {any} [voice]
@@ -89,7 +89,7 @@ function create_runtime_store() {
     description: "No data stream connected.",
     eternal: { non_physical: "", physical: "" },
     present: { non_physical: "", physical: "" },
-    future: [],
+    future: "",
     past: [],
     dynamics: { chaos: 50, intensity: 50, openness: 50, affinity: 50 },
     voice: { rate: 1.0 },
@@ -262,10 +262,11 @@ function create_runtime_store() {
     add_vector: (text, role = "AI", is_vanguard = false) => {
       const entity = api._get_entity_by_role(role);
       if (!entity) return;
-      if (!Array.isArray(entity.future)) entity.future = [];
-      const new_vector = temporal_engine.create(text, "future");
-      if (is_vanguard) entity.future.unshift(new_vector);
-      else entity.future.push(new_vector);
+      const line = String(text || "").trim();
+      if (!line) return;
+      // FUTURE is a consolidated prose field (not a vector pool) — append a line.
+      const existing = String(entity.future || "").trim();
+      entity.future = existing ? (is_vanguard ? `${line}\n${existing}` : `${existing}\n${line}`) : line;
     },
     /**
      * @param {string} content
@@ -289,18 +290,14 @@ function create_runtime_store() {
     complete_vector: (role = "AI") => {
       const entity = api._get_entity_by_role(role);
       if (!entity) return;
-      // Remove the active future vector (the newest pending ambition).
-      if (Array.isArray(entity.future)) {
-        const idx = entity.future.findIndex((v) => v?.type === "future");
-        if (idx !== -1) {
-          entity.future.splice(idx, 1);
-          return;
-        }
-      }
-      if (Array.isArray(entity.past)) {
-        const idx = entity.past.findIndex((v) => v?.type === "future");
-        if (idx !== -1) entity.past.splice(idx, 1);
-      }
+      // FUTURE is a consolidated prose field — "completing" it drops the most
+      // recent agenda line (the forge rewrites the rest on the next cycle).
+      const lines = String(entity.future || "")
+        .split("\n")
+        .map((l) => l.trim())
+        .filter(Boolean);
+      lines.pop();
+      entity.future = lines.join("\n");
     },
     /**
      * @param {string} role

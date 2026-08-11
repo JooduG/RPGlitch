@@ -62,7 +62,7 @@ export const ENTITY_TEMPLATES = {
       color_name: "",
     },
     past: [],
-    future: [],
+    future: "",
     visual_style: "none",
     pov: "1st_person",
     voice_register: "",
@@ -78,7 +78,7 @@ export const ENTITY_TEMPLATES = {
     eternal: { physical: "", non_physical: "" },
     present: { physical: "", non_physical: "" },
     past: [],
-    future: [],
+    future: "",
     narrative_style: "",
     visual_style: "none",
     pov: "3rd_person",
@@ -114,7 +114,7 @@ export const normalize = (base = {}) => {
     eternal = {},
     present = {},
     past = [],
-    future = [],
+    future = "",
     tags = [],
     signature_color = "",
     profile_picture = "",
@@ -184,7 +184,20 @@ export const normalize = (base = {}) => {
       non_physical: sanitize_html(present?.non_physical ?? "").trim(),
     },
     past: coerce_temporal_vectors(past),
-    future: coerce_temporal_vectors(future),
+    // FUTURE is a single consolidated prose field (like present), not a vector
+    // pool. Legacy array payloads are flattened into newline-joined text.
+    future: (() => {
+      if (typeof future === "string") return sanitize_html(future).trim();
+      if (Array.isArray(future)) {
+        return sanitize_html(
+          future
+            .map((v) => (v && typeof v === "object" ? v.content || v.directive || "" : String(v ?? "")))
+            .filter(Boolean)
+            .join("\n"),
+        ).trim();
+      }
+      return "";
+    })(),
 
     // --- MODIFIERS (Visual/Aesthetic overrides) ---
     modifiers: {

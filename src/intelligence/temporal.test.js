@@ -198,39 +198,39 @@ describe("temporal_engine", () => {
   });
 
   describe("resolve", () => {
-    it("transitions a future impulse to a past anchor", () => {
+    it("re-applies a resolved past anchor with its outcome memory", () => {
       const entity = /** @type {any} */ ({
-        future: [
+        past: [
           {
             id: "v1",
             timestamp: 100,
             content: "Goal",
-            type: "future",
+            type: "past",
             emotional_weight: 5,
             meta: {},
           },
         ],
       });
 
-      temporal_engine.resolve(entity, "v1", "SUCCESS");
+      temporal_engine.resolve(entity, "v1", "SUCCESS", null, "success", "Completed the goal.");
 
-      expect(entity.future).toHaveLength(0);
       expect(entity.past).toHaveLength(1);
-      expect(entity.past[0].content).toBe("Goal");
+      expect(entity.past[0].content).toBe("Completed the goal.");
       expect(entity.past[0].type).toBe("past");
+      expect(entity.past[0].meta.outcome).toBe("success");
     });
   });
 
   describe("apply_state_mutations", () => {
-    it("appends to present_append and shifts future_to_past", () => {
+    it("appends to present_append and resolves a past anchor", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Initial state." },
-        future: [
+        past: [
           {
             id: "v1",
             timestamp: 100,
             content: "Goal",
-            type: "future",
+            type: "past",
             emotional_weight: 5,
             tags: [],
             meta: {},
@@ -246,7 +246,6 @@ describe("temporal_engine", () => {
       const result = temporal_engine.apply_state_mutations(entity, mutations);
       expect(result).toBe(true);
       expect(entity.present.non_physical).toBe("Initial state.\nNow they are angry.");
-      expect(entity.future).toHaveLength(0);
       expect(entity.past).toHaveLength(1);
       expect(entity.past[0].type).toBe("past");
     });
@@ -257,8 +256,8 @@ describe("temporal_engine", () => {
       expect(result).toBe(false);
     });
 
-    it("passes category through from Director new_vectors", () => {
-      const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, future: [] });
+    it("passes category through from Director new_vectors (all become past anchors)", () => {
+      const entity = /** @type {any} */ ({ present: { physical: "", non_physical: "" }, past: [] });
       const mutations = {
         new_vectors: [
           { content: "Avenge the fallen", category: "goal", tags: ["vengeance"] },
@@ -266,13 +265,13 @@ describe("temporal_engine", () => {
         ],
       };
       temporal_engine.apply_state_mutations(entity, mutations);
-      expect(entity.future).toHaveLength(2);
+      expect(entity.past).toHaveLength(2);
     });
 
     it("applies present_append_non_physical state mutations", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Calm." },
-        future: [],
+        future: "",
       });
 
       const mutations = { present_append_non_physical: "She smiles." };
@@ -285,17 +284,7 @@ describe("temporal_engine", () => {
     it("skips amplification when evidence is null or has no _amplifiedTell", () => {
       const entity = /** @type {any} */ ({
         present: { physical: "", non_physical: "Calm." },
-        future: [
-          {
-            id: "w1",
-            timestamp: 100,
-            content: "Old wound",
-            type: "past",
-            emotional_weight: 9,
-            tags: ["trauma"],
-            meta: {},
-          },
-        ],
+        future: "",
       });
 
       const mutations = { present_append_non_physical: "She reacts." };
@@ -417,7 +406,7 @@ describe("temporal_engine", () => {
       expect(result?.memories?.AI_CHARACTER?.[0]?.timestamp).toBe(Date.now());
     });
 
-    it("preserves future and present types while normalizing invalid types to past", async () => {
+    it("preserves present type while normalizing future and invalid types to past", async () => {
       vi.mocked(llm_service.generate).mockResolvedValue(
         JSON.stringify({
           AI_CHARACTER: { vector_append: [{ content: "Prophecy", type: "future" }] },
@@ -428,7 +417,8 @@ describe("temporal_engine", () => {
 
       const result = await temporal_engine.forge_memory(targets(), []);
 
-      expect(result?.memories?.AI_CHARACTER?.[0]?.type).toBe("future");
+      // FUTURE is prose now, so a forge "future" vector is demoted to a past anchor.
+      expect(result?.memories?.AI_CHARACTER?.[0]?.type).toBe("past");
       expect(result?.memories?.USER_PERSONA?.[0]?.type).toBe("present");
       expect(result?.memories?.FRACTAL?.[0]?.type).toBe("past");
     });
@@ -491,7 +481,7 @@ describe("temporal_engine", () => {
       };
       const mock_db = { simulation_log: { bulkPut: vi.fn() } };
       const mock_entities = { save: vi.fn() };
-      const mock_runtime = { active_ai: { future: [], past: [] } };
+      const mock_runtime = { active_ai: { future: "", past: [] } };
       const mock_app = { log: vi.fn() };
 
       await temporal_engine.consolidate(
@@ -516,9 +506,9 @@ describe("temporal_engine", () => {
       const mock_db = { simulation_log: { bulkPut: vi.fn() } };
       const mock_entities = { save: vi.fn() };
 
-      const ai = { id: "ai1", future: [], past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
-      const user = { id: "u1", future: [], past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
-      const fractal = { id: "f1", future: [], past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const ai = { id: "ai1", future: "", past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const user = { id: "u1", future: "", past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
+      const fractal = { id: "f1", future: "", past: [], present: { physical: "", non_physical: "" }, eternal: { physical: "", non_physical: "" } };
 
       const mock_runtime = {
         active_ai: ai,
@@ -546,11 +536,12 @@ describe("temporal_engine", () => {
 
       expect(ai.past).toHaveLength(1);
       expect(ai.past[0].content).toContain("Viper");
-      expect(ai.past.filter((v) => v.type === "future")).toHaveLength(0);
 
-      expect(user.future).toHaveLength(1);
-      expect(user.future[0].content).toContain("confront");
-      expect(user.past || []).toHaveLength(0);
+      // The USER's "future"-typed append is demoted to a past anchor — the
+      // agenda now lives in the consolidated future prose field.
+      expect(user.future).toBe("");
+      expect(user.past).toHaveLength(1);
+      expect(user.past[0].content).toContain("confront");
 
       expect(fractal.present.non_physical).toContain("blackout");
       expect(fractal.past || []).toHaveLength(0);
@@ -737,17 +728,16 @@ describe("temporal_engine", () => {
 
 describe("resolve_vector_pool()", () => {
   const past = [{ id: "p1", timestamp: 1, content: "past mem", type: "past", emotional_weight: 5, meta: {} }];
-  const future = [{ id: "f1", timestamp: 2, content: "future mem", type: "future", emotional_weight: 5, meta: {} }];
 
-  it("combines past and future into one pool", () => {
-    const pool = resolve_vector_pool({ past, future });
-    expect(pool).toHaveLength(2);
-    expect(pool.map((v) => v.type)).toEqual(["past", "future"]);
-    expect(pool.map((v) => v.content)).toEqual(["past mem", "future mem"]);
+  it("returns only the past pool — future is prose, not a vector pool", () => {
+    const pool = resolve_vector_pool({ past, future: "An active trajectory." });
+    expect(pool).toHaveLength(1);
+    expect(pool[0].type).toBe("past");
+    expect(pool[0].content).toBe("past mem");
   });
 
   it("returns past only when future is empty", () => {
-    const pool = resolve_vector_pool({ past, future: [] });
+    const pool = resolve_vector_pool({ past, future: "" });
     expect(pool).toHaveLength(1);
     expect(pool[0].type).toBe("past");
   });
@@ -756,7 +746,7 @@ describe("resolve_vector_pool()", () => {
     expect(resolve_vector_pool(null)).toEqual([]);
     expect(resolve_vector_pool(undefined)).toEqual([]);
     expect(resolve_vector_pool({})).toEqual([]);
-    expect(resolve_vector_pool({ past: [], future: [] })).toEqual([]);
+    expect(resolve_vector_pool({ past: [], future: "" })).toEqual([]);
   });
 
   it("normalizes content from directive fallback and infers past type", () => {

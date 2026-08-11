@@ -159,20 +159,19 @@ export class ProfileState {
   }
 
   /**
-   * Returns the vector items belonging to one UI section ('past' | 'future').
+   * Returns the vector items belonging to the 'past' memory array.
    * Vectors without an explicit type are treated as past.
-   * @param {'past' | 'future'} type
+   * @param {'past'} [type]
    * @returns {any[]}
    */
-  _vectors_of_type(type) {
+  _vectors_of_type(type = "past") {
     const arr = Array.isArray(this.char?.[type]) ? this.char[type] : [];
-    if (type === "future") return arr.slice();
     return arr.filter((v) => (v && typeof v === "object" ? v.type || "past" : "past") === "past");
   }
 
   /**
-   * Replaces one section's memories inside the matching past/future array.
-   * @param {'past' | 'future'} type
+   * Replaces memories inside the matching past vector array.
+   * @param {'past'} type
    * @param {any[]} items
    */
   _set_vectors_of_type(type, items) {
@@ -236,7 +235,7 @@ export class ProfileState {
     this._user_mutated = false;
     this.is_saving = true;
     try {
-      for (const key of ["past", "future"]) {
+      for (const key of ["past"]) {
         if (Array.isArray(this.char[key])) {
           this.char[key] = this.char[key].filter((v) =>
             typeof v === "object" && v !== null ? !!(v.content || v.directive)?.trim() : !!String(v).trim(),
@@ -317,8 +316,9 @@ export class ProfileState {
       if (result) {
         const clean_result = strip_cognition_blocks(result).trim();
 
-        // Array fields (past/future) return JSON arrays of vector objects
-        const is_array_field = key === "past" || key === "future";
+        // Array fields (past) return JSON arrays of vector objects; all other
+        // fields (including the prose FUTURE field) return plain text.
+        const is_array_field = key === "past";
         if (is_array_field) {
           const json_str = clean_result.replace(/```json\n?|```/g, "").trim();
           const start = json_str.indexOf("[");
@@ -362,7 +362,7 @@ export class ProfileState {
 
   /**
    * AI-enhanced text generation for a specific vector item in an array (e.g. past[0]).
-   * @param {string} path - Array path ('past' or 'future')
+   * @param {string} path - Array path ('past')
    * @param {number} index - Index of item to enhance
    */
   async enhance_vector_item(path, index) {
@@ -498,7 +498,7 @@ export class ProfileState {
             else if (key === "present_physical") key = "present.physical";
             else if (key === "present_non_physical") key = "present.non_physical";
 
-            if (key === "past" || key === "future") {
+            if (key === "past") {
               if (Array.isArray(val)) {
                 const current_vectors = this._vectors_of_type(key);
                 const new_vectors = val.map((text_str, idx) => {
@@ -513,6 +513,9 @@ export class ProfileState {
                 });
                 this._set_vectors_of_type(key, new_vectors);
               }
+            } else if (key === "future" && typeof val === "string") {
+              // FUTURE is a prose field — flat string value lands directly.
+              set_value(this.char, "future", val);
             } else if (typeof val === "object" && !Array.isArray(val)) {
               for (const [sub_key, subVal] of Object.entries(val)) {
                 if (typeof subVal === "string") {

@@ -31,21 +31,13 @@ const DIRECTOR_JSON_SCHEMA = `{
       "physical": "New physical changes (e.g. bleeding, or explicit clothing updates like [SHIRT: none]), or empty string.",
       "non_physical": "Immediate internal shifts or emotional reactions, or empty string."
     },
-    "vector_append": [ { "content": "NEW future vector — 2-3 sentences (intent, prophecy, looming threat, or impulse), written in the same long form as the existing <FUTURE> entries. ONLY when it genuinely outranks an existing vector AND the pool stays at or under 5; when adding one, ALSO retire the displaced vector via vector_resolve. EMPTY LIST on routine turns.", "type": "future", "emotional_weight": 5 } ],
-    "vector_update": [ { "id": "<vector_id>", "content": "Rewritten vector text (2-3 sentences), or empty list" } ],
-    "vector_resolve": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "resolution_summary": "Brief reason." } ],
     "dynamics_deltas": { "chaos": 0, "intensity": 0, "openness": 0, "affinity": 0 }
   },
   "USER_PERSONA": {
-    "present_append": { "physical": "", "non_physical": "" },
-    "vector_append": [],
-    "vector_resolve": []
+    "present_append": { "physical": "", "non_physical": "" }
   },
   "FRACTAL": {
     "present_append": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "NEW future vector — 2-3 sentences (intent, prophecy, looming threat, or impulse), written in the same long form as the existing <FUTURE> entries. ONLY when it outranks an existing vector AND the pool stays at or under 5; retire the displaced one via vector_resolve. EMPTY LIST on routine turns.", "type": "future", "emotional_weight": 5 } ],
-    "vector_update": [ { "id": "<vector_id>", "content": "Rewritten vector text (2-3 sentences), or empty list" } ],
-    "vector_resolve": [],
     "dynamics_deltas": { "entropy": 0, "velocity": 0 }
   },
   "trigger_image": "false"
@@ -56,20 +48,20 @@ const MEMORY_JSON_SCHEMA = `{
   "AI_CHARACTER": {
     "eternal_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
     "present_consolidated": { "physical": "Clean updated physical state (or empty if unchanged)", "non_physical": "Clean updated mental/emotional baseline (or empty if unchanged)" },
-    "vector_append": [ { "content": "ONLY if a durable fact/impulse emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ],
-    "future_compile": { "retire": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "past_content": "<Past-tense memory of what actually happened — grammar corrected>" } ], "revise": [ { "id": "<vector_id>", "content": "<Updated 2-3 sentence future vector (intent, prophecy, or impulse)>" } ], "add": [ { "content": "<New 2-3 sentence future vector (intent, prophecy, or impulse)>" } ] }
+    "future_consolidated": "Clean rewritten standing agenda (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense, or empty string if unchanged",
+    "vector_append": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "USER_PERSONA": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "ONLY if a durable fact/impulse emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ],
-    "future_compile": { "retire": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "past_content": "<Past-tense memory of what actually happened — grammar corrected>" } ], "revise": [ { "id": "<vector_id>", "content": "<Updated 2-3 sentence future vector (intent, prophecy, or impulse)>" } ], "add": [ { "content": "<New 2-3 sentence future vector (intent, prophecy, or impulse)>" } ] }
+    "future_consolidated": "Clean rewritten standing agenda (2-5 sentences, active future tense), or empty string if unchanged",
+    "vector_append": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "FRACTAL": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past | future", "emotional_weight": 5 } ],
-    "future_compile": { "retire": [ { "id": "<vector_id>", "outcome": "success | failure | neutral", "past_content": "<Past-tense memory of what actually happened — grammar corrected>" } ], "revise": [ { "id": "<vector_id>", "content": "<Updated 2-3 sentence future vector (intent, prophecy, or impulse)>" } ], "add": [ { "content": "<New 2-3 sentence future vector (intent, prophecy, or impulse)>" } ] }
+    "future_consolidated": "Clean rewritten standing agenda — environmental prophecy, looming threat, or impulse (2-5 sentences, active future tense), or empty string if unchanged",
+    "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   }
 }`;
 
@@ -300,11 +292,9 @@ ${(() => {
 }
 
 function build_ai_future_xml(entity, scoring_context = "", entities = {}) {
-  const futures = resolve_vector_pool(entity).filter((v) => v?.type === "future");
-  if (futures.length === 0) return "";
-  const formatted = temporal_engine.format(futures, scoring_context, { max_chars: 1500, vector_text: true });
-  if (!formatted?.trim()) return "";
-  return `    <FUTURE>${ind(prompt_builder.parse_macros(formatted, entity, entities), 6)}</FUTURE>`;
+  const text = String(entity?.future || "").trim();
+  if (!text) return "";
+  return `    <FUTURE>${ind(prompt_builder.parse_macros(text, entity, entities), 6)}</FUTURE>`;
 }
 
 function render_character({ round, entities, input, compressed_snapshot, meta, render_accessors, ghostwrite = false, director_data }) {
@@ -421,8 +411,8 @@ function render_ghostwriter({ entities, input = "" }) {
 
   const swapped = {
     ...(entities || {}),
-    AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, future: [], past: [] },
-    USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, future: [], past: [] },
+    AI: entities?.USER ? entities.USER : { name: user_name, present: {}, eternal: {}, future: "", past: [] },
+    USER: entities?.AI ? entities.AI : { name: ai_name, present: {}, eternal: {}, future: "", past: [] },
   };
 
   const render_accessors = render_builder.create_render_accessors(swapped, input || "", []);
@@ -536,16 +526,7 @@ function render_entity_memory_context(key, entity) {
       </PHYSICAL>
       <NON_PHYSICAL>${escape_xml(entity?.present?.non_physical || "")}</NON_PHYSICAL>
     </PRESENT>
-    ${(() => {
-      const dirs = Array.isArray(entity?.future) ? entity.future.filter((v) => v && (v.content || v.directive)) : [];
-      if (!dirs.length) return "";
-      const rendered_dirs = dirs
-        .map((v) => `  <directive id="${escape_xml(String(v.id || ""))}">${escape_xml(v.content || v.directive || "")}</directive>`)
-        .join("\n");
-      return `<FUTURE_DIRECTIVES>
-      ${rendered_dirs}
-      </FUTURE_DIRECTIVES>`;
-    })()}
+    <FUTURE>${escape_xml(String(entity?.future || "").trim())}</FUTURE>
   </${key}>
   `).trim();
 }
@@ -582,14 +563,8 @@ ${entity_blocks}
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal_consolidated": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
       - "present_consolidated": Rewrite a clean, updated physical and non-physical state, discarding expired temporary deltas.
-      - "vector_append": Add temporal vectors written strictly from that entity's own perspective:
-          "past"   = a settled historical anchor (memory).
-          "future" = a prophecy, intent, or goal to carry forward.
-      - "future_compile": Audit the entity's active <FUTURE_DIRECTIVES> (listed by id above) against this history:
-          "retire"  = a directive whose goal resolved or whose condition elapsed (e.g. "before the facility wakes up" when it did, or "Secure X" once secured) — write what ACTUALLY happened as a past-tense memory in "past_content" (change the grammar: "Secure X before Y wakes" -> "Secured X before Y woke", or "Failed to secure X before Y woke"; outcome: success | failure | neutral).
-          "revise"  = sharpen a directive that is still relevant to match the current situation (keep it 2-3 sentences).
-          "add"     = at most ONE new directive, ONLY if it is a genuinely significant new goal that outranks existing ones — write it as 2-3 sentences in the same long form as the current directives.
-        After compiling, the entity must hold AT MOST 5 future directives — retire the least important if over. Do not invent a retirement for a directive that remains unfulfilled and still matters.
+      - "future_consolidated": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <FUTURE> text above; drop any goal this history fulfilled or abandoned (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. Empty string only if the agenda is genuinely unchanged.
+      - "vector_append": Add settled historical anchors (memories) written strictly from that entity's own perspective — a "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future_consolidated".
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
       - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
@@ -631,15 +606,25 @@ function render_enhancement_field_context(entity, field_id, content = "") {
   `).trim();
   }
 
-  if (field_id === "past" || field_id === "future") {
-    const type = field_id;
-    const vectors = resolve_vector_pool(entity).filter((v) => (type === "future" ? v?.type === "future" : v?.type !== "future"));
+  if (field_id === "past") {
+    const vectors = resolve_vector_pool(entity).filter((v) => v?.type !== "future");
     const text = vectors.length ? temporal_engine.format(vectors, content || "", { max_chars: 1500 }) : "";
     return clean_xml(`
   <ENTITY_CONTEXT>
-    <${type.toUpperCase()}>
+    <PAST>
       ${ind(escape_xml(text), 6)}
-    </${type.toUpperCase()}>
+    </PAST>
+  </ENTITY_CONTEXT>
+  `).trim();
+  }
+
+  if (field_id === "future") {
+    const text = String(entity?.future || "").trim();
+    return clean_xml(`
+  <ENTITY_CONTEXT>
+    <FUTURE>
+      ${ind(escape_xml(text), 6)}
+    </FUTURE>
   </ENTITY_CONTEXT>
   `).trim();
   }
@@ -735,18 +720,10 @@ const render_builder = {
         );
         return prompt_builder.parse_macros(formatted, entity, entities);
       },
-      future: (ref, options = {}) => {
+      future: (ref) => {
         const entity = resolve(ref);
-        const formatted = temporal_engine.format(
-          vector_pool(entity).filter((v) => v?.type === "future"),
-          scoring_context,
-          {
-            offset: 0,
-            max_chars: 1500,
-            ...options,
-          },
-        );
-        return prompt_builder.parse_macros(formatted, entity, entities);
+        // FUTURE is a single consolidated prose field, rendered verbatim.
+        return prompt_builder.parse_macros(String(entity?.future || "").trim(), entity, entities);
       },
       simulation_log: (limit = 10, offset = 0) => prompt_builder.render_history(raw_messages, limit, offset),
     };

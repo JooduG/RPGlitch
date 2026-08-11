@@ -67,7 +67,7 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 
 - **Objective**: Evaluates raw state mutations and spatial physics consequences of the user's action before any narrative text generation occurs.
 - **Format Constraints**: Demands a single, valid JSON payload wrapped strictly inside a `<SYSTEM role="DIRECTOR">` block.
-- **Prompt Architecture**: Supplies only the `JSON_OUTPUT` prose protocol to minimize tokens, but retains critical entity attributes including `PRESENT_NON_PHYSICAL`, `ETERNAL_NON_PHYSICAL`, and `FUTURE` vectors to ensure accurate physics calculations.
+- **Prompt Architecture**: Supplies only the `JSON_OUTPUT` prose protocol to minimize tokens, but retains critical entity attributes including `PRESENT_NON_PHYSICAL`, `ETERNAL_NON_PHYSICAL`, and `FUTURE` standing agenda to ensure accurate physics calculations.
 - **Output Validation**: Restricts return values purely to objective mutation definitions (`present_append_physical`, `new_vectors`, numerical `dynamics_deltas`). Absolutely no narrative prose or dialogue allowed at this stage.
 
 ### Shot 2: The Actor Pipeline (`render_character`)
@@ -75,7 +75,7 @@ The generation framework operates via distinct pipeline phases. Maintain absolut
 - **Objective**: Generates the in-character prose response using localized sensory filters.
 - **Prompt Architecture (Prefix Caching)**: The prompt payload is strictly bifurcated to maximize LLM prefix caching.
   - **`<SYSTEM>`**: A completely static prefix containing eternal identity, narrative style, epistemic physics, and protocols. This achieves a ~100% cache hit rate between turns.
-  - **`<FRACTAL_FEED>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`) and all `present`/`past`/`future` vectors.
+  - **`<FRACTAL_FEED>`**: A volatile suffix appended at the end containing dynamic sliders (`intensity`, `chaos`), `present` state, `past` vector memories, and `future` standing agenda.
 - **Format Constraints**: Leverages a dual-layer strategy. It mandates an explicit `<think>` block containing the four-stage cognition sequence, which MUST be explicitly terminated with a closing `</think>` tag before generating exactly two paragraphs of novel-style prose.
 
 ### Shot 3: The Asset Pipeline (`render_visual`)

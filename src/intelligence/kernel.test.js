@@ -397,7 +397,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       raw_messages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString() },
+      meta: { timestamp: new Date().toISOString() },
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
@@ -442,7 +442,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       raw_messages: [{ role: "model", content: "Last line of context" }],
-      meta: { active_vector: "", timestamp: new Date().toISOString() },
+      meta: { timestamp: new Date().toISOString() },
     };
 
     vi.mocked(session_driver.load_log).mockResolvedValue([{ role: "model", content: "Last line of context" }]);
@@ -478,7 +478,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       raw_messages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString() },
+      meta: { timestamp: new Date().toISOString() },
     };
 
     vi.mocked(context_builder.build_context).mockResolvedValue(mock_payload);
@@ -541,7 +541,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       raw_messages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString() },
+      meta: { timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
@@ -671,7 +671,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       raw_messages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString() },
+      meta: { timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
@@ -818,7 +818,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       view_id: "global",
       simulation_log: "",
       raw_messages: [],
-      meta: { active_vector: "", timestamp: new Date().toISOString() },
+      meta: { timestamp: new Date().toISOString() },
     };
 
     beforeEach(() => {
