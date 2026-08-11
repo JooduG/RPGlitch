@@ -367,19 +367,21 @@ export class VoiceEngine {
           /** @type {Record<string, number>} */
           const file_progress = {};
 
-          this.#tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
-            dtype,
-            device,
-            progress_callback: (/** @type {any} */ data) => {
-              if (data.status === "progress" || data.status === "download") {
-                if (data.file && typeof data.progress === "number") {
-                  file_progress[data.file] = data.progress;
-                  const values = Object.values(file_progress);
-                  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-                  this.load_progress = Math.round(avg);
+          this.#tts = await onnx_mutex.run(async () => {
+            return await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
+              dtype,
+              device,
+              progress_callback: (/** @type {any} */ data) => {
+                if (data.status === "progress" || data.status === "download") {
+                  if (data.file && typeof data.progress === "number") {
+                    file_progress[data.file] = data.progress;
+                    const values = Object.values(file_progress);
+                    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                    this.load_progress = Math.round(avg);
+                  }
                 }
-              }
-            },
+              },
+            });
           });
           this.load_progress = 100;
           this.model_ready = true;
@@ -1065,7 +1067,11 @@ class AudioEffectsEngine {
         value: {
           notifications_enabled: this.notifications_enabled,
           voice_enabled: Audio.voice.enabled,
-          entity_voice: Audio.voice.entity_voice,
+          entity_voice: {
+            ai: Boolean(Audio.voice.entity_voice?.ai),
+            user: Boolean(Audio.voice.entity_voice?.user),
+            fractal: Boolean(Audio.voice.entity_voice?.fractal),
+          },
           master_volume: Audio.voice.volume,
         },
       });
