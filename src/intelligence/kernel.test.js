@@ -90,6 +90,7 @@ vi.mock("@engine/session.svelte.js", () => ({
   session_driver: {
     load_log: vi.fn().mockResolvedValue([]),
     log_message: vi.fn().mockResolvedValue({ id: "img-1" }),
+    edit_log_entry: vi.fn().mockResolvedValue({}),
     log_system_entry: vi.fn().mockResolvedValue({}),
     update_log_attachment: vi.fn().mockResolvedValue({}),
   },
@@ -126,6 +127,7 @@ vi.mock("@utils", async (importOriginal) => {
         return {
           load_log: session_driver.load_log,
           log_message: session_driver.log_message,
+          edit_log_entry: session_driver.edit_log_entry,
           log_system_entry: session_driver.log_system_entry,
           update_log_attachment: session_driver.update_log_attachment,
         };
@@ -489,7 +491,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
       task: "T",
       meta: { ai: {}, fractal: {}, flags: [], vectors: [] },
     });
-    vi.mocked(llm_service.generate).mockResolvedValueOnce("Prologue prose.").mockResolvedValueOnce("{}").mockResolvedValueOnce("Identified.");
+    vi.mocked(llm_service.generate).mockResolvedValue("Prologue prose.");
 
     await gamemaster.execute_prologue("story-123");
 
@@ -761,7 +763,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const payload = session_driver.log_system_entry.mock.calls[0][2];
       expect(payload.trigger_image).toBe(true);
-      expect(payload.thoughts).toContain("## Reasoning");
+      expect(payload.thoughts).toContain("**Reasoning:**");
       expect(payload.thoughts).toContain("The room is a trap and the doors are sealed.");
       expect(payload.updates.AI_CHARACTER.vectors.new[0].content).toBe("corner Glitch against the sterile walls.");
     });
@@ -778,7 +780,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       const result = await gamemaster.execute_turn("story-123", { input: "Hello", role: "ai" });
 
-      expect(result.response).toContain("<think>\n## Reasoning\nThe door seals shut behind them.\n</think>");
+      expect(result.response).toContain("<think>\n**Reasoning:** The door seals shut behind them.\n</think>");
       expect(result.response).toContain("<think>The character steadies itself.</think>");
       expect(result.response).toContain("It moves deeper.");
     });
@@ -801,7 +803,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
 
       // Director prose attempt → terse JSON retry → character pass.
       expect(call_count).toBe(3);
-      expect(result.response).toBe("<think>\n## Cognition\nOrion looks angry and the room is dark\n</think>\n\nCharacter response text");
+      expect(result.response).toBe("<think>\n**Cognition:** Orion looks angry and the room is dark\n</think>\n\nCharacter response text");
     });
   });
 

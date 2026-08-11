@@ -90,11 +90,11 @@
 
   let active_style = $derived(runtime.active_fractal?.narrative_style || "");
   let register = $derived(resolve_voice_register(entity, active_style));
-  let parsed = $derived(parse_message(text, register));
+  let is_streaming_target = $derived(!!(app.streaming.active && (app.streaming.node_id === id || (meta?.id && app.streaming.node_id === meta.id))));
+  let active_text = $derived(is_streaming_target ? app.streaming.text : text);
+  let parsed = $derived(parse_message(active_text, register));
   let display_text = $derived(parsed.displayText);
   let think_block = $derived(parsed.think);
-
-  let is_streaming_target = $derived(!!(app.streaming.active && id && (app.streaming.node_id === id || app.streaming.node_id === id)));
   let should_use_typewriter = $derived(is_streaming_target || (was_streaming && !is_typing_finished));
 
   // Track when this specific message becomes an active stream target
@@ -162,7 +162,8 @@
     if (entity && entity.voice) {
       const v_id = entity.voice.name || entity.voice.uri;
       Audio.voice.selected_voice = resolve_voice_uri(v_id);
-      Audio.voice.rate = get_cadence_rate(entity.voice.cadence);
+      const dyn_val = is_user ? 50 : is_ai ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
+      Audio.voice.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
     }
 
     Audio.voice.speak(clean_markdown, true, true);

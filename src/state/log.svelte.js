@@ -50,7 +50,7 @@ export class SimulationLogStore {
    * @param {Partial<LogEntry>} updates
    */
   update(id, updates) {
-    const target = this.feed.find((entry) => entry.id === id);
+    const target = this.feed.find((entry) => entry.id === id || entry.meta?.id === id || String(entry.id) === String(id));
     if (target) {
       Object.assign(target, updates);
     }
@@ -60,10 +60,11 @@ export class SimulationLogStore {
    * @param {string|number} id
    */
   remove(id) {
-    const index = this.feed.findIndex((entry) => entry.id === id);
+    const index = this.feed.findIndex((entry) => entry.id === id || entry.meta?.id === id || String(entry.id) === String(id));
     if (index !== -1) {
+      const removed_id = this.feed[index].id;
       this.feed.splice(index, 1);
-      this._id_set.delete(id);
+      if (removed_id != null) this._id_set.delete(removed_id);
     }
   }
 }

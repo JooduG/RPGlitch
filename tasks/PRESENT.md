@@ -35,6 +35,7 @@ All 9 phases of the Monolithic Refactoring Campaign and the Final Integrity Revi
 
 > **Archival Standard**: Upon track completion, implementation blueprints are archived exclusively to `C:\Users\johng\.gemini\antigravity-ide\archive\`.
 
+- [x] 093d403 track-audio-expressiveness: Emotional Cadence Modulation (linear +-5% rate drift from base cadence anchor) & Intonation Micro-Perturbations (Markdown typography performance, 100% invisible engine magic).
 - [x] refactor-future-prose-architecture-2026-08-11: Convert `future` entity fragment from vector array to single consolidated prose field (Standing Agenda), replace `future_compile` with `future_consolidated` in Memory Forge, update UI/normalizer/prompts, and eliminate future ONNX embedding overhead.
 - [x] refactor-ui-deconstruction-2026-08-08: Deconstruct and refactor Storymode, Message, DevTelemetryBlock, and UnifiedConsole into modular Svelte 5 runes-driven component suites under clean namespaces.
 - [x] feature-2026-07-28-bayesian-psychology: Bayesian Psychology Engine — vector categories, attachment presets, evidence classification + trigger amplification, cognitive state signal, goal arbitration tension, neuroplasticity (6 adaptations, 0 new LLM calls, 0 new UI).

@@ -32,7 +32,12 @@ export const IMAGE_TIERS = ["story_entities", "story_character", "solo_entity", 
  * @returns {string}
  */
 export function normalize_image_tier(targetType) {
-  if (IMAGE_TIERS.includes(targetType)) return targetType;
+  if (!targetType) return "story_character";
+  const str = String(targetType).trim().toLowerCase();
+  if (str === "characters" || str === "prologue" || str === "group" || str === "story_entities") {
+    return "story_entities";
+  }
+  if (IMAGE_TIERS.includes(str)) return str;
   return "story_character";
 }
 

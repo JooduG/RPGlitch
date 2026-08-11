@@ -38,8 +38,6 @@
 
   let entity_blocks = $derived(process_entity_blocks(meta));
 
-  let display_thoughts = $derived((meta.thoughts || "").replace(/^##\s+.*$/gm, "").trim());
-
   const get_entity_name = (key) => {
     return resolve_entity_name(key, runtime);
   };
@@ -76,17 +74,6 @@
           <TelemetryVector {meta} {forged_vectors} {get_entity_name} />
         {:else}
           <!-- [S] DEFAULT SIMULATION TELEMETRY -->
-
-          {#if meta.thoughts}
-            <div class="flex flex-col gap-2">
-              <header class="text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">Thoughts</header>
-              <div
-                class="rounded-sm border-l-8 border-transparent border-l-(--color-dev-accent) bg-black/40 px-3 py-3 font-mono text-xs leading-relaxed whitespace-pre-wrap text-slate-50"
-              >
-                {display_thoughts}
-              </div>
-            </div>
-          {/if}
 
           {#if meta.trigger_image === true || meta.image_trigger === true}
             <div class="flex items-center gap-2 rounded-sm border border-(--color-dev-accent)/40 bg-(--color-dev-accent)/10 px-3 py-2">

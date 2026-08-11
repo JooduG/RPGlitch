@@ -188,3 +188,49 @@ export class CircuitBreaker {
     }
   }
 }
+
+/**
+ * Global mutex for WebAssembly ONNX runtime execution.
+ * Prevents concurrent WASM inference calls (e.g. Kokoro TTS vs Embeddings)
+ * from colliding on shared ort-wasm memory heaps and crashing.
+ */
+class OnnxMutex {
+  #queue = [];
+  #active = false;
+
+  /**
+   * Enqueues an async ONNX inference task for sequential execution.
+   * @template T
+   * @param {() => Promise<T>} fn
+   * @returns {Promise<T>}
+   */
+  async run(fn) {
+    return new Promise((resolve, reject) => {
+      this.#queue.push(async () => {
+        try {
+          const result = await fn();
+          resolve(result);
+        } catch (err) {
+          reject(err);
+        }
+      });
+      this.#process();
+    });
+  }
+
+  async #process() {
+    if (this.#active) return;
+    this.#active = true;
+    while (this.#queue.length > 0) {
+      const task = this.#queue.shift();
+      try {
+        if (task) await task();
+      } catch (_e) {
+        // Individual task errors are captured by the promise returned in run()
+      }
+    }
+    this.#active = false;
+  }
+}
+
+export const onnx_mutex = new OnnxMutex();

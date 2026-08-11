@@ -145,9 +145,14 @@ export const session_driver = {
    * @param {string} new_text
    */
   edit_log_entry: async function (id, new_text) {
-    const key = isNaN(Number(id)) ? id : Number(id);
+    let key = isNaN(Number(id)) ? id : Number(id);
+    let entry = await db.simulation_log.get(key);
+    if (!entry) {
+      const match = state_bridge.simulation_log?.feed?.find((m) => m.id === id || m.meta?.id === id || String(m.id) === String(id));
+      if (match) key = match.id;
+    }
     await db.simulation_log.update(key, { text: new_text });
-    state_bridge.simulation_log.update(key, { text: new_text });
+    state_bridge.simulation_log.update(id, { text: new_text });
   },
 
   /**
@@ -157,13 +162,25 @@ export const session_driver = {
    * @param {any} new_attachment
    */
   update_log_attachment: async function (id, attachment_index, new_attachment) {
-    const key = isNaN(Number(id)) ? id : Number(id);
-    const entry = await db.simulation_log.get(key);
-    if (entry && entry.attachments && entry.attachments[attachment_index]) {
+    const numeric_key = isNaN(Number(id)) ? null : Number(id);
+    let entry = numeric_key ? await db.simulation_log.get(numeric_key) : null;
+    if (!entry) {
+      const feed_match = state_bridge.simulation_log?.feed?.find((m) => m.id === id || m.meta?.id === id || String(m.id) === String(id));
+      if (feed_match) {
+        entry = await db.simulation_log.get(feed_match.id);
+      }
+    }
+    if (!entry) {
+      entry = await db.simulation_log.filter((m) => m.meta?.id === id).first();
+    }
+    if (entry) {
+      if (!Array.isArray(entry.attachments)) {
+        entry.attachments = [];
+      }
       entry.attachments[attachment_index] = $state.snapshot(new_attachment);
       const plain_entry = $state.snapshot(entry);
       await db.simulation_log.put(plain_entry);
-      state_bridge.simulation_log.update(key, { attachments: plain_entry.attachments });
+      state_bridge.simulation_log.update(id, { attachments: plain_entry.attachments });
     }
   },
 

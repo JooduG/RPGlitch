@@ -841,11 +841,11 @@ export const gamemaster = {
           .replace(/<\/?think>/gi, "")
           .trim();
       const think_sections = [];
-      if (director_data.internal_monologue) think_sections.push(`## Cognition\n${clean_think(director_data.internal_monologue)}`);
-      if (director_data.intent) think_sections.push(`## Intent\n${clean_think(director_data.intent)}`);
-      if (director_data.somatic_tells) think_sections.push(`## Somatic Tells\n${clean_think(director_data.somatic_tells)}`);
-      if (director_data.dialogue_direction) think_sections.push(`## Dialogue Direction\n${clean_think(director_data.dialogue_direction)}`);
-      if (director_data._thought_process) think_sections.push(`## Reasoning\n${clean_think(director_data._thought_process)}`);
+      if (director_data.internal_monologue) think_sections.push(`**Cognition:** ${clean_think(director_data.internal_monologue)}`);
+      if (director_data.intent) think_sections.push(`**Intent:** ${clean_think(director_data.intent)}`);
+      if (director_data.somatic_tells) think_sections.push(`**Somatic Tells:** ${clean_think(director_data.somatic_tells)}`);
+      if (director_data.dialogue_direction) think_sections.push(`**Dialogue Direction:** ${clean_think(director_data.dialogue_direction)}`);
+      if (director_data._thought_process) think_sections.push(`**Reasoning:** ${clean_think(director_data._thought_process)}`);
       const think_content = think_sections.join("\n\n");
       if (think_content) final_meta.thoughts = think_content;
 
@@ -1066,6 +1066,24 @@ export const gamemaster = {
 
       state_bridge.app.log("[GameMaster] Generating prologue...", "system");
       const node_id = generateUUID();
+      const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
+
+      state_bridge.runtime.round = 0;
+      state_bridge.runtime.turn_type = "SYSTEM_TURN";
+      // The prologue's own image (dispatched below) opens the shared cooldown, so
+      // the opening turn's dynamics gate can't immediately fire a second image at round 0.
+      state_bridge.runtime.last_auto_image_round = 0;
+
+      // Log placeholder message BEFORE streaming begins so the feed entry exists.
+      await state_bridge.session_driver.log_message("", "fractal", fractal_name, {
+        turn_type: "SYSTEM_TURN",
+        meta: {
+          id: node_id,
+          round: 0,
+          is_prologue: true,
+        },
+        attachments: [],
+      });
 
       const response = await this.execute_with_retry(async () => {
         const text = await llm_service.generate({
@@ -1080,26 +1098,13 @@ export const gamemaster = {
         return text;
       });
 
-      const fractal_name = state_bridge.runtime.active_fractal?.name || "Fractal Entity";
-
-      state_bridge.runtime.round = 0;
-      state_bridge.runtime.turn_type = "SYSTEM_TURN";
-      // The prologue's own image (dispatched below) opens the shared cooldown, so
-      // the opening turn's dynamics gate can't immediately fire a second image at round 0.
-      state_bridge.runtime.last_auto_image_round = 0;
-
-      await state_bridge.session_driver.log_message(response, "fractal", fractal_name, {
-        turn_type: "SYSTEM_TURN",
-        meta: {
-          id: node_id,
-          round: 0,
-          is_prologue: true,
-        },
-        attachments: [{ src: null, metadata: { mode: "characters" } }],
-      });
+      await state_bridge.session_driver.edit_log_entry(node_id, response);
       state_bridge.app.log("[GameMaster] Prologue established (Round 0).", "system");
 
       state_bridge.app.end_stream();
+
+      // Attach the image placeholder ONLY after text streaming finishes so the card pops up post-stream
+      await state_bridge.session_driver.update_log_attachment(node_id, 0, { src: null, metadata: { mode: "story_entities" } });
 
       const image_promise = visual_engine
         ? Promise.race([
@@ -1112,7 +1117,7 @@ export const gamemaster = {
                     metadata: {
                       ...(img_result.metadata || {}),
                       prompt: img_result.refinedPrompt || img_result.metadata?.prompt,
-                      mode: "characters",
+                      mode: "story_entities",
                     },
                   });
                 }

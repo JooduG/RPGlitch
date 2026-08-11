@@ -558,15 +558,25 @@ export class AppStore {
     Audio.voice.active_message_id = id;
 
     if (role && role !== "system") {
+      const clean_role = String(role).toLowerCase();
+      const norm_role = clean_role.includes("user")
+        ? "user"
+        : clean_role.includes("fractal")
+          ? "fractal"
+          : clean_role.includes("ai") || clean_role.includes("character") || clean_role === "model"
+            ? "ai"
+            : null;
+
       let entity = null;
-      if (role === "ai") entity = runtime.active_ai;
-      else if (role === "user") entity = runtime.active_user;
-      else if (role === "fractal") entity = runtime.active_fractal;
+      if (norm_role === "ai") entity = runtime.active_ai;
+      else if (norm_role === "user") entity = runtime.active_user;
+      else if (norm_role === "fractal") entity = runtime.active_fractal;
 
       if (entity && entity.voice) {
         const v_id = entity.voice.name || entity.voice.uri;
         Audio.voice.selected_voice = resolve_voice_uri(v_id);
-        Audio.voice.rate = get_cadence_rate(entity.voice.cadence);
+        const dyn_val = norm_role === "user" ? 50 : norm_role === "ai" ? (entity.dynamics?.intensity ?? 50) : (entity.dynamics?.velocity ?? 50);
+        Audio.voice.rate = get_cadence_rate(entity.voice.cadence, dyn_val);
       }
     }
   };

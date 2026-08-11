@@ -4,7 +4,7 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { get_rpg_list, strip_cognition_blocks } from "@utils";
+import { get_rpg_list, strip_cognition_blocks, onnx_mutex } from "@utils";
 import { db } from "@data";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
@@ -45,6 +45,22 @@ if (typeof window !== "undefined") {
   );
 }
 
+/**
+ * Normalizes input entity role names to internal keys: "ai", "user", "fractal".
+ * Handles AI_CHARACTER, USER_PERSONA, FRACTAL, model, etc.
+ * @param {string|null} role
+ * @returns {"ai" | "user" | "fractal" | null}
+ */
+export function normalize_role(role) {
+  if (!role) return null;
+  const str = String(role).trim().toLowerCase();
+  if (str === "system") return null;
+  if (str.includes("ai") || str.includes("character") || str === "model") return "ai";
+  if (str.includes("user")) return "user";
+  if (str.includes("fractal")) return "fractal";
+  return null;
+}
+
 /************************************************************************************
  * [SECTION: VOICE ENGINE]
  * Kokoro-82M neural TTS powered by kokoro-js (Transformers.js).
@@ -69,8 +85,21 @@ export const VOICE_CADENCES = [
   { id: "rapid", label: "Rapid", rate: 1.2 },
 ];
 
-export function get_cadence_rate(cadence) {
-  return CADENCE_RATES[cadence] || 1.0;
+/**
+ * Returns the effective cadence rate, applying a linear +-5% offset anchored to
+ * the character's base profile rate centered at dynamics value 50.
+ * @param {string} cadence
+ * @param {number} [dynamics_val=50]
+ * @returns {number}
+ */
+export function get_cadence_rate(cadence, dynamics_val = 50) {
+  const base_rate = CADENCE_RATES[cadence] || 1.0;
+  if (dynamics_val === undefined || dynamics_val === null || isNaN(Number(dynamics_val))) {
+    return base_rate;
+  }
+  const clean_dyn = Math.max(0, Math.min(100, Number(dynamics_val)));
+  const offset = (clean_dyn - 50) * 0.001;
+  return Math.max(0.5, Math.min(2.0, base_rate + offset));
 }
 
 export function resolve_voice_uri(name_or_uri) {
@@ -101,12 +130,55 @@ function is_word_char(ch) {
 }
 
 /**
- * Splits prose into sentences, treating quoted spans as atomic so dialogue
- * stays attached to its attribution. Returns the complete sentences, the
- * character offset up to which the input forms complete sentences, and any
- * trailing (still-incomplete) tail.
+ * Extracts typographic segments from prose (*italics*, **bold**, ALL-CAPS).
  * @param {string} text
- * @returns {{ sentences: string[], committed: number, tail: string }}
+ * @returns {Array<{ text: string, style: "normal" | "italics" | "bold" | "all_caps", volume_db: number, rate_scale: number }>}
+ */
+export function extract_styled_segments(text) {
+  if (!text) return [];
+  const segments = [];
+  const regex = /(\*\*(.*?)\*\*|\*(.*?)\*|([^*]+))/g;
+  let match;
+  while ((match = regex.exec(text)) !== null) {
+    let content;
+    // eslint-disable-next-line better-tailwindcss/no-unknown-classes
+    let style = "normal";
+    let volume_db = 0;
+    let rate_scale = 1.0;
+
+    if (match[2] !== undefined) {
+      content = match[2].trim();
+      style = "bold";
+      volume_db = 3;
+      rate_scale = 1.05;
+    } else if (match[3] !== undefined) {
+      content = match[3].trim();
+      style = "italics";
+      volume_db = -2;
+      rate_scale = 0.95;
+    } else {
+      content = match[4].trim();
+      const letters = content.replace(/[^A-Za-z]/g, "");
+      if (letters.length >= 2 && letters === letters.toUpperCase()) {
+        style = "all_caps";
+        volume_db = 2;
+        rate_scale = 1.05;
+      }
+    }
+
+    if (content) {
+      segments.push({ text: content, style, volume_db, rate_scale });
+    }
+  }
+  return segments;
+}
+
+/**
+ * Splits prose into sentences, treating quoted spans as atomic so dialogue
+ * stays attached to its attribution. Returns complete sentences, character offset,
+ * trailing tail, and parsed typographic segments.
+ * @param {string} text
+ * @returns {{ sentences: string[], committed: number, tail: string, segments: Array<{ text: string, style: string, volume_db: number, rate_scale: number }> }}
  */
 export function split_speech_sentences(text) {
   const sentences = [];
@@ -139,9 +211,6 @@ export function split_speech_sentences(text) {
       if (complete_end.test(trimmed)) {
         const rest = text.slice(i + 1);
         const next_nonspace = /^\s*(\S)/.exec(rest);
-        // At a closing quote, hold the sentence when a lowercase word follows
-        // (likely dialogue attribution: "Run!" he shouted.), so the tag stays
-        // attached to its quote.
         const is_attribution_follow =
           ch === '"' || ch === "'" || ch === "\u201d" || ch === "\u2019" ? Boolean(next_nonspace && /^[a-z]/.test(next_nonspace[1])) : false;
         if (!is_attribution_follow && (rest.length === 0 || /^\s/.test(rest))) {
@@ -153,7 +222,8 @@ export function split_speech_sentences(text) {
     }
   }
 
-  return { sentences, committed, tail: text.slice(committed).trim() };
+  const segments = extract_styled_segments(text);
+  return { sentences, committed, tail: text.slice(committed).trim(), segments };
 }
 
 /** Kokoro voice definitions (sorted: male voices first, then female voices, alphabetical by name within group). */
@@ -235,6 +305,8 @@ export class VoiceEngine {
   #audio_cache = new Map();
   /** @type {AudioBufferSourceNode | null} */
   #current_audio_source = null;
+  /** @type {number} Scheduled end timestamp in AudioContext.currentTime for seamless buffer chaining. */
+  #next_play_time = 0;
 
   /**
    * Initializes the voice engine with Kokoro voice list.
@@ -529,10 +601,12 @@ export class VoiceEngine {
     const key = `${voice_id}\u0000${speed}\u0000${text}`;
     const existing = this.#audio_cache.get(key);
     if (existing) return existing;
-    const promise = this.#tts.generate(text, { voice: voice_id, speed }).catch((err) => {
-      this.#audio_cache.delete(key);
-      throw err;
-    });
+    const promise = onnx_mutex
+      .run(() => this.#tts.generate(text, { voice: voice_id, speed }))
+      .catch((err) => {
+        this.#audio_cache.delete(key);
+        throw err;
+      });
     if (this.#audio_cache.size >= AUDIO_CACHE_MAX) {
       this.#audio_cache.delete(this.#audio_cache.keys().next().value);
     }
@@ -605,7 +679,24 @@ export class VoiceEngine {
 
     if (this.#is_processing) {
       this.#queue.shift();
-      setTimeout(() => this.#process_queue(), 5);
+      if (this.#queue.length > 0) {
+        const ctx = get_master_context();
+        const lead_time = ctx ? (this.#next_play_time - ctx.currentTime) * 1000 : 0;
+        if (lead_time > 2000) {
+          setTimeout(() => this.#process_queue(), Math.max(50, Math.round(lead_time - 1000)));
+        } else {
+          setTimeout(() => this.#process_queue(), 0);
+        }
+      } else {
+        await this.#wait_for_playback();
+        if (this.#queue.length === 0) {
+          this.#is_processing = false;
+          this.is_speaking = false;
+          this.#next_play_time = 0;
+        } else {
+          setTimeout(() => this.#process_queue(), 0);
+        }
+      }
     }
   }
 
@@ -683,7 +774,10 @@ export class VoiceEngine {
     source.buffer = buffer;
     source.connect(gain);
 
-    source.start(0);
+    const now = ctx.currentTime;
+    const start_time = Math.max(now, this.#next_play_time);
+    source.start(start_time);
+    this.#next_play_time = start_time + buffer.duration;
     this.#current_audio_source = source;
   }
 
@@ -774,6 +868,7 @@ export class VoiceEngine {
     this.#is_processing = false;
     this.#paused = false;
     this.is_paused = false;
+    this.#next_play_time = 0;
 
     const ctx = get_master_context();
     if (ctx && ctx.state === "suspended") {
@@ -810,6 +905,7 @@ export class VoiceEngine {
 
   reset_stream() {
     this.spoken_character_cursor = 0;
+    this.#next_play_time = 0;
   }
 
   queue_stream_sentence(current_raw_text) {
@@ -1165,36 +1261,42 @@ export const Audio = new (class {
 
   /**
    * Returns whether voice playback is active for a specific entity role.
-   * @param {"ai" | "user" | "fractal" | "system" | null} role
+   * Handles role string variations like "AI_CHARACTER", "ai", "USER_PERSONA", "user", "FRACTAL", "fractal".
+   * @param {string | null} role
    * @returns {boolean}
    */
   is_role_enabled(role) {
-    if (!role || role === "system") return false;
-    return this.voice_enabled && !!this.voice.entity_voice[role];
+    const norm = normalize_role(role);
+    if (!norm) return false;
+    return this.voice_enabled && !!this.voice.entity_voice[norm];
   }
 
   /**
    * Toggles a specific entity's voice and persists settings.
-   * @param {"ai" | "user" | "fractal"} role
+   * @param {string} role
    * @param {boolean} value
    */
   set_entity_voice(role, value) {
+    const norm = normalize_role(role);
+    if (!norm) return;
     const val = !!value;
     if (val) {
       this.voice_enabled = true;
     }
-    this.voice.entity_voice[role] = val;
+    this.voice.entity_voice[norm] = val;
     this.#effects.saveAllSettings();
   }
 
   /**
    * Toggles a specific entity's voice and persists settings.
-   * @param {"ai" | "user" | "fractal"} role
+   * @param {string} role
    * @returns {boolean} the new value
    */
   toggle_entity_voice(role) {
-    const next = !this.voice.entity_voice[role];
-    this.set_entity_voice(role, next);
+    const norm = normalize_role(role);
+    if (!norm) return false;
+    const next = !this.voice.entity_voice[norm];
+    this.set_entity_voice(norm, next);
     if (!next) this.voice.stop();
     return next;
   }

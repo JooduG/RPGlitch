@@ -5,7 +5,7 @@
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
-import { deserialize_embedding } from "@utils";
+import { deserialize_embedding, onnx_mutex } from "@utils";
 
 let _pipeline = null;
 let _loading = null;
@@ -123,7 +123,7 @@ export async function embed(text) {
     // Yield one frame before inference so the UI can repaint even when the
     // embed runs synchronously on the main thread (worker-unavailable fallback).
     await new Promise((resolve) => setTimeout(resolve, 0));
-    const output = await pipe(text, { pooling: "mean", normalize: true });
+    const output = await onnx_mutex.run(() => pipe(text, { pooling: "mean", normalize: true }));
     const embedding = new Float32Array(output.data);
 
     if (_embedding_cache.size >= _max_cache) {

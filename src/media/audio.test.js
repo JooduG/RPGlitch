@@ -99,4 +99,31 @@ describe("Audio & Voice Configurations", () => {
     Audio.voice.stop();
     expect(Audio.voice.is_paused).toBe(false);
   });
+
+  it("calculates linear +-5% cadence rate modulation centered at dynamics 50", () => {
+    expect(get_cadence_rate("drawl", 50)).toBeCloseTo(0.85);
+    expect(get_cadence_rate("drawl", 0)).toBeCloseTo(0.8);
+    expect(get_cadence_rate("drawl", 100)).toBeCloseTo(0.9);
+
+    expect(get_cadence_rate("standard", 50)).toBeCloseTo(1.0);
+    expect(get_cadence_rate("standard", 0)).toBeCloseTo(0.95);
+    expect(get_cadence_rate("standard", 100)).toBeCloseTo(1.05);
+
+    expect(get_cadence_rate("rapid", 50)).toBeCloseTo(1.2);
+    expect(get_cadence_rate("rapid", 0)).toBeCloseTo(1.15);
+    expect(get_cadence_rate("rapid", 100)).toBeCloseTo(1.25);
+  });
+
+  it("parses typographic segments for italics, bold, and all-caps emphasis", () => {
+    const { segments } = split_speech_sentences(`He whispered, *be quiet*. **Look out!** THEY ARE HERE.`);
+    expect(segments).toBeDefined();
+    expect(segments.length).toBeGreaterThan(0);
+    expect(segments).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ style: "italics", text: "be quiet" }),
+        expect.objectContaining({ style: "bold", text: "Look out!" }),
+        expect.objectContaining({ style: "all_caps", text: "THEY ARE HERE." }),
+      ]),
+    );
+  });
 });

@@ -218,17 +218,18 @@ export const llm_service = {
       };
 
       // 4. Wire streaming to the app layer
+      if (!options.silent) {
+        /** @type {any} */
+        const role = payload.role || "ai";
+        stream_bridge.start(payload.node_id || "temp", role);
+      }
+
       /**
        * @param {any} data
        */
       const on_chunk = (data) => {
         const chunk = typeof data === "string" ? data : data?.textChunk || "";
         if (!options.silent) {
-          if (!stream_bridge.is_active()) {
-            /** @type {any} */
-            const role = payload.role || "ai";
-            stream_bridge.start(payload.node_id || "temp", role);
-          }
           stream_bridge.update(chunk);
         }
         if (options.onToken) options.onToken(chunk);
