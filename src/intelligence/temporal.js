@@ -4,10 +4,10 @@
  * Consolidates Past (Historical Anchors) and Future (Active Impulses) into a unified temporal continuum.
  */
 
-import { generate_uuid as _uuid, state_bridge } from "@utils";
+import { generate_uuid as _uuid, state_bridge, deserialize_embedding } from "@utils";
 import { llm_service } from "@platform";
 import { ensure_embedding, score_by_semantics, cosine_similarity, embed, is_ready } from "./embeddings.svelte.js";
-import { extract_json_block, merge_prose_into_field } from "./parser.js";
+import { extract_json_block, merge_prose_into_field, escape_unescaped_json_quotes } from "./parser.js";
 import { prompt_builder } from "./prompts.js";
 
 /**
@@ -255,6 +255,24 @@ function is_near_duplicate(existing_list, content) {
   return false;
 }
 
+/**
+ * True when `vector`'s embedding is near-identical to an existing vector's —
+ * catches paraphrased duplicates the lexical check misses (e.g. "shielded Ryker"
+ * vs "acted as the wall for Ryker"). Purely a guardrail: vectors without an
+ * embedding (or loaded before embeddings existed) are simply skipped.
+ */
+function is_semantic_duplicate(existing_list, vector) {
+  const emb = vector && deserialize_embedding(vector._embedding);
+  if (!emb) return false;
+  for (const v of existing_list || []) {
+    if (!v) continue;
+    const vemb = deserialize_embedding(v._embedding);
+    if (!vemb) continue;
+    if (cosine_similarity(emb, vemb) > 0.92) return true;
+  }
+  return false;
+}
+
 /** Shared eviction: drop the oldest evictable (non-origin) vector, if any. */
 function evict_oldest_evictable(entity, bucket, cap) {
   if (!Array.isArray(entity[bucket]) || entity[bucket].length <= cap) return;
@@ -299,6 +317,7 @@ export function append_future_vector(entity, vector) {
   if (!Array.isArray(entity.future)) entity.future = [];
   const content = vector?.content || vector?.directive || "";
   if (is_near_duplicate(entity.future, content)) return;
+  if (is_semantic_duplicate(entity.future, vector)) return;
   entity.future.push(vector);
   evict_oldest_evictable(entity, "future", FUTURE_VECTOR_CAP);
 }
@@ -309,6 +328,7 @@ export function append_past_vector(entity, vector) {
   if (!Array.isArray(entity.past)) entity.past = [];
   const content = vector?.content || vector?.directive || "";
   if (is_near_duplicate(entity.past, content)) return;
+  if (is_semantic_duplicate(entity.past, vector)) return;
   entity.past.push(vector);
   evict_oldest_evictable(entity, "past", PAST_VECTOR_CAP);
 }
@@ -929,13 +949,43 @@ function parse_forge_response(response) {
 
   const json_string = extract_json_block(raw_text);
   if (!json_string) return null;
-  try {
-    return JSON.parse(json_string);
-  } catch (e) {
-    console.warn("[TemporalEngine] Malformed JSON in memory forge:", e);
-    return null;
+
+  const try_parse = (s) => {
+    try {
+      return JSON.parse(s);
+    } catch {
+      return undefined;
+    }
+  };
+
+  const direct = try_parse(json_string);
+  if (direct !== undefined) return direct;
+
+  // LLMs occasionally slip stray characters or unescaped quotes into the forge
+  // JSON. Run a chain of conservative repairs — each candidate must still parse
+  // cleanly to be used, so a bad repair simply degrades to the existing retry path.
+  const repair_chain = [
+    (s) => escape_unescaped_json_quotes(s),
+    // Unquoted bare keys: { content: "..." -> {"content": "..."
+    (s) => s.replace(/([{,[]\s*)([A-Za-z_][A-Za-z0-9_]*)(\s*:)/g, '$1"$2"$3'),
+    // Stray bareword fragment directly before a quoted key: { H"content": -> {"content":
+    (s) => s.replace(/([{,]\s*)[^"{}[\],]+?(?="[A-Za-z_][^"]*"\s*:)/g, "$1"),
+    // Trailing commas before closers: "key": 1, } -> "key": 1 }
+    (s) => s.replace(/,\s*(?=\s*[}\]])/g, ""),
+  ];
+
+  for (const repair of repair_chain) {
+    const repaired = repair(json_string);
+    if (repaired === json_string) continue;
+    const parsed = try_parse(repaired);
+    if (parsed !== undefined) return parsed;
   }
+
+  console.warn("[TemporalEngine] Malformed JSON in memory forge:", new Error("repair chain exhausted"));
+  return null;
 }
+
+const FORGE_EMBED_BUDGET_MS = 45000;
 
 export async function forge_memory(entity_targets, history_slice) {
   if (!Array.isArray(entity_targets) || entity_targets.length === 0) return null;
@@ -997,6 +1047,7 @@ export async function forge_memory(entity_targets, history_slice) {
       const raw_vectors = Array.isArray(entity_block.vector_append) ? entity_block.vector_append : [];
 
       forged.memories[key] = [];
+      const pending_embeds = [];
 
       for (const raw of raw_vectors) {
         if (!raw || typeof raw !== "object") continue;
@@ -1013,10 +1064,23 @@ export async function forge_memory(entity_targets, history_slice) {
         };
 
         if (vector.type !== "present") {
-          await ensure_embedding(vector);
+          pending_embeds.push(vector);
         }
 
         forged.memories[key].push(vector);
+      }
+
+      // Embed every new vector in parallel, but never let ONNX/wasm inference
+      // stall the post-turn consolidation indefinitely (it can be slow on the
+      // main thread, and a stuck intent-lock froze the UI for 300s+ in the
+      // field). Vectors that miss the budget still append — they simply score 0
+      // semantically and fall back to lexical ranking; build_context re-embeds
+      // with its own bounded race.
+      if (pending_embeds.length) {
+        await Promise.race([
+          Promise.allSettled(pending_embeds.map((v) => ensure_embedding(v))),
+          new Promise((resolve) => setTimeout(resolve, FORGE_EMBED_BUDGET_MS)),
+        ]);
       }
     }
 

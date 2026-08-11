@@ -593,6 +593,7 @@ ${entity_blocks}
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
       - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
+      - Shared mission facts (contract terms, meeting codes, agreed meeting places, deadlines, and the plan the AI character is part of) must ALSO be encoded as AI_CHARACTER "past" vectors — the character remembers the job, not just the feelings.
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
       - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
@@ -717,12 +718,14 @@ const render_builder = {
       .map((m) => m.content || m.text || "")
       .join(" ")}`.trim();
 
+    const vector_pool = (entity) => (Array.isArray(entity?.memories) && entity.memories.length ? entity.memories : resolve_vector_pool(entity));
+
     return {
       _context: scoring_context,
       past: (ref, options = {}) => {
         const entity = resolve(ref);
         const formatted = temporal_engine.format(
-          resolve_vector_pool(entity).filter((v) => v?.type !== "future"),
+          vector_pool(entity).filter((v) => v?.type !== "future"),
           scoring_context,
           {
             offset: 0,
@@ -735,7 +738,7 @@ const render_builder = {
       future: (ref, options = {}) => {
         const entity = resolve(ref);
         const formatted = temporal_engine.format(
-          resolve_vector_pool(entity).filter((v) => v?.type === "future"),
+          vector_pool(entity).filter((v) => v?.type === "future"),
           scoring_context,
           {
             offset: 0,

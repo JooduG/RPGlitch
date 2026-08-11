@@ -150,7 +150,10 @@ export class VoiceEngine {
 
   /**
    * Lazily loads the Kokoro TTS model from CDN.
-   * Falls back to Web Speech API if loading fails.
+   * Tries WebGPU first when available, then the WASM backend (a GPU context can
+   * exist while onnxruntime-web's WASM init has not completed, which surfaces as
+   * "WebAssembly is not initialized yet"), and only then falls back to the Web
+   * Speech API.
    */
   async #ensure_model() {
     if (this.#tts || this.#use_fallback) return;
@@ -160,27 +163,47 @@ export class VoiceEngine {
       const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
 
       const has_web_gpu = typeof navigator !== "undefined" && Boolean(/** @type {any} */ (navigator).gpu);
-      const device = has_web_gpu ? "webgpu" : "wasm";
-      const dtype = has_web_gpu ? "fp32" : "q8";
+      const candidates = has_web_gpu
+        ? [
+            { device: "webgpu", dtype: "fp32" },
+            { device: "wasm", dtype: "q8" },
+          ]
+        : [{ device: "wasm", dtype: "q8" }];
 
-      /** @type {Record<string, number>} */
-      const file_progress = {};
+      let last_error = null;
+      for (const { device, dtype } of candidates) {
+        try {
+          /** @type {Record<string, number>} */
+          const file_progress = {};
 
-      this.#tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
-        dtype,
-        device,
-        progress_callback: (/** @type {any} */ data) => {
-          if (data.status === "progress" || data.status === "download") {
-            if (data.file && typeof data.progress === "number") {
-              file_progress[data.file] = data.progress;
-              const values = Object.values(file_progress);
-              const avg = values.reduce((a, b) => a + b, 0) / values.length;
-              this.load_progress = Math.round(avg);
-            }
-          }
-        },
-      });
-      this.load_progress = 100;
+          this.#tts = await KokoroTTS.from_pretrained("onnx-community/Kokoro-82M-v1.0-ONNX", {
+            dtype,
+            device,
+            progress_callback: (/** @type {any} */ data) => {
+              if (data.status === "progress" || data.status === "download") {
+                if (data.file && typeof data.progress === "number") {
+                  file_progress[data.file] = data.progress;
+                  const values = Object.values(file_progress);
+                  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                  this.load_progress = Math.round(avg);
+                }
+              }
+            },
+          });
+          this.load_progress = 100;
+          this.model_ready = true;
+          return;
+        } catch (err) {
+          last_error = err;
+          this.#tts = null;
+          this.load_progress = 0;
+        }
+      }
+
+      // Every device attempt failed — fall back to the Web Speech API.
+      console.warn("[VoiceEngine] Kokoro failed to load, falling back to Web Speech API:", last_error);
+      this.#use_fallback = true;
+      this.#init_fallback();
       this.model_ready = true;
     } catch (err) {
       console.warn("[VoiceEngine] Kokoro failed to load, falling back to Web Speech API:", err);

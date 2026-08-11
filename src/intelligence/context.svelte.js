@@ -185,6 +185,7 @@ export const context_builder = {
         eternal: fragments.eternal,
         present: fragments.present,
         memories: resolve_vector_pool(raw),
+        immediate_intent: raw.immediate_intent || null,
         dynamics: raw.dynamics,
         dynamics_baseline: raw.dynamics_baseline,
         associated_ids: /** @type {any} */ (raw).associated_ids || [],
