@@ -149,6 +149,26 @@
             variant="invisible"
             size="small"
             square={true}
+            aria-label={Audio.voice.is_paused ? "Resume Audio" : "Pause Audio"}
+            actions={[tooltip]}
+            onclick={() => Audio.voice.toggle_pause()}
+            class="text-white/85 transition-colors hover:text-white"
+          >
+            {#if Audio.voice.is_paused}
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
+                <polygon points="5 3 19 12 5 21 5 3"></polygon>
+              </svg>
+            {:else}
+              <svg viewBox="0 0 24 24" class="h-4 w-4 fill-current stroke-none">
+                <rect x="6" y="4" width="4" height="16" rx="1"></rect>
+                <rect x="14" y="4" width="4" height="16" rx="1"></rect>
+              </svg>
+            {/if}
+          </Button>
+          <Button
+            variant="invisible"
+            size="small"
+            square={true}
             aria-label="Interrupt Audio"
             actions={[tooltip]}
             onclick={() => Audio.voice.stop()}

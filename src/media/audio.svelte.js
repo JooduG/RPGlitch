@@ -87,6 +87,75 @@ export function resolve_voice_name(name_or_uri) {
   return found ? found.name : "Cinematic Narrator";
 }
 
+const PREGENERATE_BUDGET = 3;
+const AUDIO_CACHE_MAX = 64;
+
+/**
+ * True when the character is a word character (used by quote-aware sentence
+ * splitting to distinguish contractions/apostrophes from quote delimiters).
+ * @param {string} ch
+ * @returns {boolean}
+ */
+function is_word_char(ch) {
+  return /[A-Za-z0-9]/.test(ch);
+}
+
+/**
+ * Splits prose into sentences, treating quoted spans as atomic so dialogue
+ * stays attached to its attribution. Returns the complete sentences, the
+ * character offset up to which the input forms complete sentences, and any
+ * trailing (still-incomplete) tail.
+ * @param {string} text
+ * @returns {{ sentences: string[], committed: number, tail: string }}
+ */
+export function split_speech_sentences(text) {
+  const sentences = [];
+  let buffer = "";
+  let quote = null;
+  let committed = 0;
+  const complete_end = /[.!?\u2026]["'\u201d\u2019]*$/;
+
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    const prev = i > 0 ? text[i - 1] : " ";
+    const next = i < text.length - 1 ? text[i + 1] : " ";
+    buffer += ch;
+
+    if (quote === null) {
+      if (ch === '"' || ch === "\u201c" || ch === "\u201e") {
+        quote = '"';
+      } else if ((ch === "'" || ch === "\u2018" || ch === "\u201a") && !is_word_char(prev) && is_word_char(next)) {
+        quote = "'";
+      }
+    } else if (quote === '"') {
+      if (ch === '"' || ch === "\u201d") quote = null;
+    } else if (quote === "'") {
+      if ((ch === "'" || ch === "\u2019") && is_word_char(prev) && !is_word_char(next)) quote = null;
+    }
+
+    const is_terminal = quote === null && (/[.!?\u2026]/.test(ch) || ch === '"' || ch === "'" || ch === "\u201d" || ch === "\u2019");
+    if (is_terminal) {
+      const trimmed = buffer.trim();
+      if (complete_end.test(trimmed)) {
+        const rest = text.slice(i + 1);
+        const next_nonspace = /^\s*(\S)/.exec(rest);
+        // At a closing quote, hold the sentence when a lowercase word follows
+        // (likely dialogue attribution: "Run!" he shouted.), so the tag stays
+        // attached to its quote.
+        const is_attribution_follow =
+          ch === '"' || ch === "'" || ch === "\u201d" || ch === "\u2019" ? Boolean(next_nonspace && /^[a-z]/.test(next_nonspace[1])) : false;
+        if (!is_attribution_follow && (rest.length === 0 || /^\s/.test(rest))) {
+          sentences.push(trimmed);
+          committed = i + 1;
+          buffer = "";
+        }
+      }
+    }
+  }
+
+  return { sentences, committed, tail: text.slice(committed).trim() };
+}
+
 /** Kokoro voice definitions (sorted: male voices first, then female voices, alphabetical by name within group). */
 const KOKORO_VOICES = [
   // Male Voices (American & British, alphabetical by name)
@@ -142,6 +211,7 @@ export class VoiceEngine {
   enabled = $state(false); // Master voice switch (default off)
   /** Per-entity voice toggles: { ai: bool, user: bool, fractal: bool }. */
   entity_voice = $state({ ai: false, user: false, fractal: false });
+  is_paused = $state(false);
   spoken_character_cursor = $state(0);
 
   // --- PRIVATE ---
@@ -151,14 +221,18 @@ export class VoiceEngine {
   #use_fallback = false;
   /** @type {SpeechSynthesis | null} */
   #synth_fallback = null;
+  /** @type {Array<{ name: string, uri: string, _ref: SpeechSynthesisVoice }>} */
+  #platform_voices = [];
   /** @type {Array<{ text: string, voice_id: string|null, message_id: string|null }>} */
   #queue = [];
   /** @type {boolean} */
   #is_processing = false;
-  /** @type {AudioContext | null} */
-  #audio_context = null;
-  /** @type {GainNode | null} */
-  #voice_volume = null;
+  /** @type {boolean} */
+  #paused = false;
+  /** @type {Promise<void> | null} */
+  #model_promise = null;
+  /** @type {Map<string, Promise<any>>} */
+  #audio_cache = new Map();
   /** @type {AudioBufferSourceNode | null} */
   #current_audio_source = null;
 
@@ -172,7 +246,7 @@ export class VoiceEngine {
     }));
 
     if (!this.selected_voice) {
-      this.selected_voice = "af_heart";
+      this.selected_voice = "am_adam";
     }
   }
 
@@ -193,7 +267,16 @@ export class VoiceEngine {
    */
   async #ensure_model() {
     if (this.#tts || this.#use_fallback) return;
+    if (this.#model_promise) return this.#model_promise;
+    this.#model_promise = this.#load_model_inner();
+    try {
+      return await this.#model_promise;
+    } finally {
+      this.#model_promise = null;
+    }
+  }
 
+  async #load_model_inner() {
     this.is_loading = true;
     try {
       const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
@@ -257,40 +340,109 @@ export class VoiceEngine {
   #init_fallback() {
     if (typeof window === "undefined" || !window.speechSynthesis) return;
     this.#synth_fallback = window.speechSynthesis;
-    // Load platform voices for fallback
+    // Platform voices are cached separately — `this.voices` stays the Kokoro
+    // catalog so the UI never swaps to arbitrary system voice names.
     const load_fallback = () => {
       const raw = this.#synth_fallback.getVoices();
-      if (
-        raw.length > 0 &&
-        !this.voices.some((v) => v.uri.startsWith("af_") || v.uri.startsWith("am_") || v.uri.startsWith("bf_") || v.uri.startsWith("bm_"))
-      ) {
-        this.voices = raw
-          .filter((v) => v.lang.startsWith("en"))
-          .map((v) => ({
-            name: v.name,
-            uri: v.voiceURI,
-            _ref: v,
-          }));
-        if (!this.selected_voice && this.voices.length > 0) {
-          this.selected_voice = this.voices[0].uri;
-        }
-      }
+      if (raw.length === 0) return;
+      this.#platform_voices = raw
+        .filter((v) => v.lang && String(v.lang).toLowerCase().startsWith("en"))
+        .map((v) => ({
+          name: v.name,
+          uri: v.voiceURI,
+          _ref: v,
+        }));
     };
     load_fallback();
     this.#synth_fallback.onvoiceschanged = load_fallback;
   }
 
   /**
-   * Ensures an AudioContext is available for Kokoro playback.
+   * Picks the best-matching platform voice for a Kokoro voice id, preferring an
+   * exact name match, then a partial name match, then any English voice.
+   * @param {string | null} voice_id
+   * @returns {any | null}
    */
-  #create_audio_context() {
-    if (this.#audio_context) return;
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    if (!AudioCtx) return;
-    this.#audio_context = new AudioCtx();
-    this.#voice_volume = this.#audio_context.createGain();
-    this.#voice_volume.gain.setValueAtTime(this.volume, this.#audio_context.currentTime);
-    this.#voice_volume.connect(this.#audio_context.destination);
+  #pick_fallback_voice(voice_id) {
+    if (this.#platform_voices.length === 0) return null;
+    const kokoro_name = resolve_voice_name(voice_id).toLowerCase();
+    const by_exact = this.#platform_voices.find((v) => v.name.toLowerCase() === kokoro_name);
+    if (by_exact) return by_exact;
+    const by_partial = this.#platform_voices.find((v) => v.name.toLowerCase().includes(kokoro_name));
+    return by_partial || this.#platform_voices[0];
+  }
+
+  /**
+   * Pauses ongoing speech synthesis. Suspends the shared AudioContext (or the
+   * Web Speech fallback); playback resumes from where it stopped.
+   */
+  pause() {
+    if (this.#paused) return;
+    this.#paused = true;
+    this.is_paused = true;
+    const ctx = get_master_context();
+    if (ctx && ctx.state === "running") {
+      ctx.suspend().catch(() => {});
+    }
+    if (this.#synth_fallback) {
+      try {
+        this.#synth_fallback.pause();
+      } catch {
+        /* empty */
+      }
+    }
+  }
+
+  /**
+   * Resumes paused speech synthesis.
+   */
+  resume() {
+    if (!this.#paused) return;
+    this.#paused = false;
+    this.is_paused = false;
+    const ctx = get_master_context();
+    if (ctx && ctx.state === "suspended") {
+      ctx.resume().catch(() => {});
+    }
+    if (this.#synth_fallback) {
+      try {
+        this.#synth_fallback.resume();
+      } catch {
+        /* empty */
+      }
+    }
+  }
+
+  /**
+   * Toggles pause/resume for ongoing speech synthesis.
+   */
+  toggle_pause() {
+    if (this.#paused) this.resume();
+    else this.pause();
+  }
+
+  /**
+   * Public master-volume setter that also live-updates the shared master gain.
+   * @param {number} v
+   */
+  set_volume(v) {
+    this.volume = v;
+    set_master_volume(v);
+  }
+
+  /**
+   * Ensures the shared AudioContext exists and is running (unlocked).
+   * Invoked from user-gesture handlers to satisfy browser autoplay policies.
+   */
+  async resume_context() {
+    const ctx = get_master_context();
+    if (ctx && ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        // Autoplay blocked — will be retried on the next user gesture.
+      }
+    }
   }
 
   /**
@@ -304,7 +456,9 @@ export class VoiceEngine {
     if (!this.enabled && !force) return;
 
     if (clearQueue) {
+      const pending_message_id = this.active_message_id;
       this.stop();
+      this.active_message_id = pending_message_id;
     }
 
     const speech_ready_text = strip_cognition_blocks(text)
@@ -315,11 +469,10 @@ export class VoiceEngine {
 
     if (!speech_ready_text) return;
 
-    // Split multi-sentence text into clean chunks to prevent Kokoro TTS model truncation
-    const chunks = speech_ready_text
-      .split(/(?<=[.!?])\s+/)
-      .map((c) => c.trim())
-      .filter(Boolean);
+    // Split multi-sentence text into clean chunks (quote-aware, so dialogue
+    // stays attached to its attribution) to prevent Kokoro TTS model truncation.
+    const { sentences, tail } = split_speech_sentences(speech_ready_text);
+    const chunks = tail ? [...sentences, tail] : sentences;
 
     for (const chunk of chunks) {
       if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === chunk) {
@@ -346,26 +499,45 @@ export class VoiceEngine {
   #pregenerate_queue() {
     if (this.#use_fallback || !this.#tts) return;
 
+    // Pre-generate only the next few chunks so a long message doesn't spike
+    // memory by synthesizing every sentence up front.
+    let budget = PREGENERATE_BUDGET;
     for (const item of this.#queue) {
+      if (budget <= 0) break;
       if (!item.audioPromise && !item.audioData) {
+        budget--;
         const item_msg_id = item.message_id;
-        item.audioPromise = (async () => {
-          try {
-            const res = await this.#tts.generate(item.text, {
-              voice: item.voice_id || "am_adam",
-              speed: this.rate,
-            });
-            if (this.active_message_id && item_msg_id && item_msg_id !== this.active_message_id) {
-              return null;
-            }
-            return res;
-          } catch (e) {
-            console.warn("[VoiceEngine] Background generation error:", e);
+        item.audioPromise = this.#cached_generate(item.text, item.voice_id || "am_adam", this.rate).then((res) => {
+          if (this.active_message_id && item_msg_id && item_msg_id !== this.active_message_id) {
             return null;
           }
-        })();
+          return res;
+        });
       }
     }
+  }
+
+  /**
+   * Generates audio through a (text, voice, speed) keyed cache so repeated
+   * lines are never re-synthesized.
+   * @param {string} text
+   * @param {string} voice_id
+   * @param {number} speed
+   * @returns {Promise<any>}
+   */
+  #cached_generate(text, voice_id, speed) {
+    const key = `${voice_id}\u0000${speed}\u0000${text}`;
+    const existing = this.#audio_cache.get(key);
+    if (existing) return existing;
+    const promise = this.#tts.generate(text, { voice: voice_id, speed }).catch((err) => {
+      this.#audio_cache.delete(key);
+      throw err;
+    });
+    if (this.#audio_cache.size >= AUDIO_CACHE_MAX) {
+      this.#audio_cache.delete(this.#audio_cache.keys().next().value);
+    }
+    this.#audio_cache.set(key, promise);
+    return promise;
   }
 
   /**
@@ -410,10 +582,7 @@ export class VoiceEngine {
         ? current_item.audioData
         : current_item.audioPromise
           ? await current_item.audioPromise
-          : await this.#tts.generate(current_item.text, {
-              voice: current_item.voice_id || "am_adam",
-              speed: this.rate,
-            });
+          : await this.#cached_generate(current_item.text, current_item.voice_id || "am_adam", this.rate);
 
       // Check if we were stopped or active_message_id changed while generating
       if (!this.#is_processing || (current_item.message_id && this.active_message_id && current_item.message_id !== this.active_message_id)) {
@@ -421,16 +590,14 @@ export class VoiceEngine {
       }
 
       if (audio?.audio) {
-        this.#play_audio(audio.audio, audio.sampling_rate || 24000);
-
-        // Wait for playback to finish
-        await new Promise((resolve) => {
-          if (!this.#current_audio_source) {
-            resolve(undefined);
-            return;
-          }
-          this.#current_audio_source.onended = () => resolve(undefined);
-        });
+        if (this.#paused) {
+          // Hold the rendered chunk until the user resumes.
+          current_item.audioData = audio.audio;
+          this.#resume_wait();
+          return;
+        }
+        await this.#play_audio(audio.audio, audio.sampling_rate || 24000);
+        await this.#wait_for_playback();
       }
     } catch (err) {
       console.warn("[VoiceEngine] Kokoro generation error:", err);
@@ -443,23 +610,78 @@ export class VoiceEngine {
   }
 
   /**
-   * Plays raw audio data through the AudioContext.
+   * Polls until playback is unpaused, then resumes queue processing. Used when
+   * a pause arrives while a chunk is still being generated.
+   */
+  #resume_wait() {
+    setTimeout(() => {
+      if (this.#paused) {
+        this.#resume_wait();
+      } else if (this.#is_processing) {
+        this.#process_queue();
+      }
+    }, 50);
+  }
+
+  /**
+   * Waits for the active buffer source to finish playing. Guards against a
+   * permanently suspended (autoplay-blocked) AudioContext wedging the queue,
+   * and never cuts playback that is intentionally paused.
+   */
+  #wait_for_playback() {
+    return new Promise((resolve) => {
+      const source = this.#current_audio_source;
+      if (!source) {
+        resolve();
+        return;
+      }
+      const done = () => {
+        if (this.#current_audio_source === source) this.#current_audio_source = null;
+        resolve();
+      };
+      source.onended = done;
+      const guard = () => {
+        if (this.#current_audio_source === source) {
+          if (this.#paused) {
+            setTimeout(guard, 5000);
+            return;
+          }
+          try {
+            source.stop();
+          } catch {
+            /* empty */
+          }
+        }
+        done();
+      };
+      setTimeout(guard, 30000);
+    });
+  }
+
+  /**
+   * Plays raw audio data through the shared AudioContext / master gain.
    * @param {Float32Array|number[]} audioData
    * @param {number} sampleRate
    */
-  #play_audio(audioData, sampleRate) {
-    this.#create_audio_context();
-    if (!this.#audio_context) return;
+  async #play_audio(audioData, sampleRate) {
+    const ctx = get_master_context();
+    const gain = get_master_gain();
+    if (!ctx || !gain) return;
 
-    const ctx = this.#audio_context;
+    if (ctx.state === "suspended") {
+      try {
+        await ctx.resume();
+      } catch {
+        // Autoplay blocked — the gesture unlock listener will resume it.
+      }
+    }
+
     const buffer = ctx.createBuffer(1, audioData.length, sampleRate);
     buffer.getChannelData(0).set(audioData);
 
     const source = ctx.createBufferSource();
     source.buffer = buffer;
-    source.connect(this.#voice_volume);
-
-    if (ctx.state === "suspended") ctx.resume();
+    source.connect(gain);
 
     source.start(0);
     this.#current_audio_source = source;
@@ -484,7 +706,7 @@ export class VoiceEngine {
 
     const current_item = this.#queue[0];
     const utterance = new SpeechSynthesisUtterance(current_item.text);
-    const voice = this.voices.find((v) => v.uri === current_item.voice_id) || this.voices[0];
+    const voice = this.#pick_fallback_voice(current_item.voice_id) || this.voices[0];
     if (voice?._ref) utterance.voice = voice._ref;
     utterance.volume = this.volume;
     utterance.rate = this.rate;
@@ -519,7 +741,7 @@ export class VoiceEngine {
       if (!this.#synth_fallback) return;
       this.is_speaking = true;
       const utterance = new SpeechSynthesisUtterance("Previewing voice system.");
-      const v = this.voices.find((v) => v.uri === uri) || this.voices[0];
+      const v = this.#pick_fallback_voice(uri);
       if (v?._ref) utterance.voice = v._ref;
       utterance.rate = rate;
       utterance.onend = () => (this.is_speaking = false);
@@ -534,7 +756,7 @@ export class VoiceEngine {
         voice: uri,
         speed: rate,
       });
-      this.#play_audio(audio.audio, audio.sampling_rate || 24000);
+      await this.#play_audio(audio.audio, audio.sampling_rate || 24000);
       if (this.#current_audio_source) {
         this.#current_audio_source.onended = () => (this.is_speaking = false);
       }
@@ -550,6 +772,13 @@ export class VoiceEngine {
   stop() {
     this.#queue = [];
     this.#is_processing = false;
+    this.#paused = false;
+    this.is_paused = false;
+
+    const ctx = get_master_context();
+    if (ctx && ctx.state === "suspended") {
+      ctx.resume().catch(() => {});
+    }
 
     if (this.#current_audio_source) {
       try {
@@ -570,18 +799,13 @@ export class VoiceEngine {
   }
 
   /**
-   * Suspends the AudioContext and flushes all audio resources.
+   * Suspends the shared AudioContext and flushes all audio resources.
    * Called when components consuming voice playback unmount.
    */
   destroy() {
     this.stop();
-    if (this.#audio_context && this.#audio_context.state !== "closed") {
-      try {
-        this.#audio_context.suspend();
-      } catch {
-        /* empty */
-      }
-    }
+    this.#audio_cache.clear();
+    suspend_master_context();
   }
 
   reset_stream() {
@@ -592,14 +816,9 @@ export class VoiceEngine {
     const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
     const fresh_buffer = sanitized_stream_track.slice(this.spoken_character_cursor);
 
-    const sentence_regex = /[^.!?]+[.!?]+/g;
-    let match;
-    let highest_match_offset = 0;
+    const { sentences, committed } = split_speech_sentences(fresh_buffer);
 
-    while ((match = sentence_regex.exec(fresh_buffer)) !== null) {
-      const structural_sentence = match[0];
-      const clean_sentence = strip_cognition_blocks(structural_sentence).trim();
-
+    for (const clean_sentence of sentences) {
       if (clean_sentence) {
         try {
           this.speak(clean_sentence, false);
@@ -607,11 +826,9 @@ export class VoiceEngine {
           console.warn("[VoiceEngine] TTS speak error during streaming:", tts_err);
         }
       }
-
-      highest_match_offset = match.index + match[0].length;
     }
 
-    this.spoken_character_cursor += highest_match_offset;
+    this.spoken_character_cursor += committed;
   }
 
   flush_stream_remainder(current_raw_text) {
@@ -626,6 +843,65 @@ export class VoiceEngine {
 }
 
 /************************************************************************************
+ * [SECTION: SHARED AUDIO GRAPH]
+ * A single AudioContext + master gain owned by the whole audio system, so voice
+ * and sound effects share one unlock/resume path and one master volume.
+ ************************************************************************************/
+
+let shared_context = null;
+let master_gain = null;
+let current_master_volume = 1.0;
+
+/**
+ * Returns the module-wide AudioContext, creating it on first use.
+ * @returns {AudioContext | null}
+ */
+function get_master_context() {
+  if (shared_context) return shared_context;
+  if (typeof window === "undefined") return null;
+  const AudioCtx = /** @type {any} */ (window).AudioContext || /** @type {any} */ (window).webkitAudioContext;
+  if (!AudioCtx) return null;
+  shared_context = new AudioCtx();
+  master_gain = shared_context.createGain();
+  master_gain.gain.setValueAtTime(current_master_volume, shared_context.currentTime);
+  master_gain.connect(shared_context.destination);
+  return shared_context;
+}
+
+/**
+ * @returns {GainNode | null}
+ */
+function get_master_gain() {
+  get_master_context();
+  return master_gain;
+}
+
+/**
+ * Updates the master volume on the shared graph, and the value applied when the
+ * graph is created later.
+ * @param {number} v
+ */
+function set_master_volume(v) {
+  current_master_volume = v;
+  if (master_gain && shared_context) {
+    master_gain.gain.setValueAtTime(v, shared_context.currentTime);
+  }
+}
+
+/**
+ * Suspends the shared AudioContext (safe no-op when absent or not running).
+ */
+function suspend_master_context() {
+  if (shared_context && shared_context.state !== "closed" && shared_context.state !== "suspended") {
+    try {
+      shared_context.suspend();
+    } catch {
+      /* empty */
+    }
+  }
+}
+
+/************************************************************************************
  * [SECTION: AUDIO EFFECTS ENGINE]
  * Handles sound effects and browser AudioContext state.
  ************************************************************************************/
@@ -634,10 +910,6 @@ export class VoiceEngine {
  */
 class AudioEffectsEngine {
   // --- PRIVATE TYPED PROPERTIES ---
-  /** @type {AudioContext | null} */
-  #audio_context = null;
-  /** @type {GainNode | null} */
-  #master_volume = null;
   /** @type {Map<string, AudioBuffer>} */
   #sound_cache = new Map();
   /** @type {Map<string, Promise<AudioBuffer>>} */
@@ -676,7 +948,7 @@ class AudioEffectsEngine {
           };
         }
         if (entry.value.master_volume !== undefined) {
-          Audio.voice.volume = entry.value.master_volume;
+          Audio.voice.set_volume(entry.value.master_volume);
         }
       } else {
         this.notifications_enabled = false;
@@ -711,9 +983,7 @@ class AudioEffectsEngine {
    * @param {number} volume
    */
   setVolume(volume) {
-    if (this.#master_volume && this.#audio_context) {
-      /** @type {GainNode} */ (this.#master_volume).gain.setValueAtTime(volume, /** @type {AudioContext} */ (this.#audio_context).currentTime);
-    }
+    set_master_volume(volume);
   }
 
   /**
@@ -735,23 +1005,13 @@ class AudioEffectsEngine {
   async unlock() {
     if (this.#is_unlocked) return;
     try {
-      if (!this.#audio_context) {
-        const AudioCtx = /** @type {any} */ (window).AudioContext || /** @type {any} */ (window).webkitAudioContext;
-        if (!AudioCtx) {
-          console.warn("[AudioEngine] AudioContext not supported in this environment.");
-          return;
-        }
-        this.#audio_context = new AudioCtx();
-
-        this.#master_volume = /** @type {AudioContext} */ (this.#audio_context).createGain();
-        /** @type {GainNode} */ (this.#master_volume).gain.setValueAtTime(
-          Audio.voice.volume,
-          /** @type {AudioContext} */ (this.#audio_context).currentTime,
-        );
-        /** @type {GainNode} */ (this.#master_volume).connect(/** @type {AudioContext} */ (this.#audio_context).destination);
+      const ctx = get_master_context();
+      if (!ctx) {
+        console.warn("[AudioEngine] AudioContext not supported in this environment.");
+        return;
       }
-      if (this.#audio_context && /** @type {AudioContext} */ (this.#audio_context).state === "suspended") {
-        await /** @type {AudioContext} */ (this.#audio_context).resume();
+      if (ctx.state === "suspended") {
+        await ctx.resume();
       }
       this.#is_unlocked = true;
     } catch (e) {
@@ -764,7 +1024,9 @@ class AudioEffectsEngine {
    */
   async play(key) {
     if (key === "notification" && !this.notifications_enabled) return;
-    if (!this.#is_unlocked || !this.#audio_context || !this.#master_volume) return;
+    const ctx = get_master_context();
+    const gain = get_master_gain();
+    if (!this.#is_unlocked || !ctx || !gain) return;
 
     const now = Date.now();
     if (now - this.#last_played < this.#threshold_ms) return;
@@ -795,7 +1057,7 @@ class AudioEffectsEngine {
               if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
               const array_buffer = await response.arrayBuffer();
               const decoded = await new Promise((resolve, reject) => {
-                const promise = /** @type {AudioContext} */ (this.#audio_context).decodeAudioData(array_buffer, resolve, reject);
+                const promise = ctx.decodeAudioData(array_buffer, resolve, reject);
                 if (promise) promise.then(resolve).catch(reject);
               });
               this.#sound_cache.set(key, decoded);
@@ -809,10 +1071,10 @@ class AudioEffectsEngine {
           buffer = await fetch_promise;
         }
       }
-      const source = /** @type {AudioContext} */ (this.#audio_context).createBufferSource();
+      const source = ctx.createBufferSource();
       source.buffer = buffer || null;
 
-      source.connect(/** @type {GainNode} */ (this.#master_volume));
+      source.connect(gain);
       source.start(0);
     } catch (e) {
       console.warn("[AudioEngine] Playback error:", e);
@@ -820,17 +1082,11 @@ class AudioEffectsEngine {
   }
 
   /**
-   * Suspends the AudioContext and flushes buffered audio resources.
+   * Suspends the shared AudioContext and flushes buffered audio resources.
    * Called when the host component or application unmounts.
    */
   destroy() {
-    if (this.#audio_context && this.#audio_context.state !== "closed") {
-      try {
-        this.#audio_context.suspend();
-      } catch {
-        /* empty */
-      }
-    }
+    suspend_master_context();
     this.#sound_cache.clear();
     this.#pending_fetches.clear();
   }
@@ -847,6 +1103,16 @@ export const Audio = new (class {
 
   voice = new VoiceEngine();
 
+  constructor() {
+    // Unlock the voice AudioContext on the first user gesture so streaming
+    // (non-gesture) playback is never silently blocked by autoplay policy.
+    if (typeof window === "undefined" || typeof document === "undefined") return;
+    const unlock_voice = () => {
+      this.voice.resume_context().catch(() => {});
+    };
+    ["click", "touchstart", "keydown"].forEach((ev) => document.addEventListener(ev, unlock_voice, { once: true }));
+  }
+
   /**
    * Unified master volume interface bridging both vocal streams and sound effect contexts.
    */
@@ -856,8 +1122,7 @@ export const Audio = new (class {
 
   set volume(v) {
     const clean_volume = Math.max(0, Math.min(1, Number(v)));
-    this.voice.volume = clean_volume;
-    this.#effects.setVolume(clean_volume);
+    this.voice.set_volume(clean_volume);
     this.#effects.saveAllSettings();
   }
 

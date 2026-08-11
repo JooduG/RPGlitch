@@ -22,9 +22,9 @@
     /** Ensure the voice state object is initialized correctly. */
     if (!profile_state.char) return;
     if (!profile_state.char.voice) {
-      profile_state.char.voice = { name: "Vanguard", uri: "am_adam", cadence: "standard" };
+      profile_state.char.voice = { name: "Cinematic Narrator", uri: "am_adam", cadence: "standard" };
     } else {
-      const v_key = profile_state.char.voice.name || profile_state.char.voice.uri || "Vanguard";
+      const v_key = profile_state.char.voice.name || profile_state.char.voice.uri || "Cinematic Narrator";
       profile_state.char.voice.name = resolve_voice_name(v_key);
       profile_state.char.voice.uri = resolve_voice_uri(v_key);
       profile_state.char.voice.cadence ??= "standard";
@@ -33,7 +33,7 @@
 
   // --- DERIVED ---
 
-  const active_voice_name = $derived(resolve_voice_name(profile_state.char?.voice?.name || profile_state.char?.voice?.uri || "Vanguard"));
+  const active_voice_name = $derived(resolve_voice_name(profile_state.char?.voice?.name || profile_state.char?.voice?.uri || "Cinematic Narrator"));
 
   const selected_voice = $derived(Audio.voice.voices.find((v) => v.name === active_voice_name || v.uri === profile_state.char?.voice?.uri));
 
