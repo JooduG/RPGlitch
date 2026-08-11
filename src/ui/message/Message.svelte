@@ -7,7 +7,7 @@
    * layout primitives, fully decoupled event chains, and deterministic metrics.
    */
   import { parse_message, resolve_voice_register } from "@intelligence";
-  import { Audio, get_signature_color } from "@media";
+  import { Audio, get_cadence_rate, resolve_voice_uri, get_signature_color } from "@media";
   import { app, runtime } from "@state";
   import TelemetryCard from "./TelemetryCard.svelte";
   import Header from "./Header.svelte";
@@ -160,8 +160,9 @@
     Audio.voice.active_message_id = id;
 
     if (entity && entity.voice) {
-      Audio.voice.selected_voice = entity.voice.uri || Audio.voice.selected_voice;
-      Audio.voice.rate = entity.voice.rate ?? 1.0;
+      const v_id = entity.voice.name || entity.voice.uri;
+      Audio.voice.selected_voice = resolve_voice_uri(v_id);
+      Audio.voice.rate = get_cadence_rate(entity.voice.cadence);
     }
 
     Audio.voice.speak(clean_markdown, true, true);

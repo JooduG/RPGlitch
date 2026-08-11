@@ -260,7 +260,7 @@ function render_director({ round, entities, input, render_accessors, compressed_
       <NON_PHYSICAL>${render_field_value(entities.FRACTAL.eternal?.non_physical, entities.FRACTAL, entities)}</NON_PHYSICAL>
     </ETERNAL>
     <PAST>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
+    <STANDING_OBJECTIVE>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</STANDING_OBJECTIVE>
   </FRACTAL>`.trim()
       : ""
   }
@@ -371,7 +371,7 @@ ${build_ai_future_xml(entities?.AI, render_accessors._context, entities)}
   <FRACTAL name="${escape_xml(entities.FRACTAL.name)}"${format_dynamics_attrs(compressed_snapshot?.fractal?.dynamics, { cognitive: false })}>
     <PRESENT>${render_field_value(entities.FRACTAL.present?.non_physical, entities.FRACTAL, entities)}</PRESENT>
     <PAST>${ind(render_accessors.past(entities.FRACTAL, { vector_text: true }), 6)}</PAST>
-    <FUTURE>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</FUTURE>
+    <STANDING_OBJECTIVE>${ind(render_accessors.future(entities.FRACTAL, { vector_text: true }), 6)}</STANDING_OBJECTIVE>
   </FRACTAL>`.trim()
       : ""
   }

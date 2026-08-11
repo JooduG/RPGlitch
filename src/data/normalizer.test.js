@@ -50,8 +50,9 @@ describe("content-normaliser.js", () => {
           last_generated_seed: null,
         },
         voice: {
+          name: "",
           uri: "",
-          rate: 1.0,
+          cadence: "standard",
         },
       });
       expect(result.signature_color).toBeDefined();

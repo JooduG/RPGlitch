@@ -58,10 +58,10 @@ export const PROTOCOL_LIBRARY = {
 
   // ── 3. Cognition & World Physics ───────────────────────────────────────────
   COGNITION: {
-    PHASES: `Document internal calculations inside <think> as an organic, in-character train of thought:
-1. Visceral Reaction: How does the immediate situation or <USER_ACTION> hit your body and internal state?
-2. Secret Tensions & Drivers: What active impulses, prophecies, looming events, or hidden goals (future vectors) steer your choice?
-3. Intent & Rhythm: What physical movement, vocal tone, or opening beat will you execute?
+    PHASES: `Document internal calculations inside <think> as an organic train of thought:
+1. Visceral Reaction: How does the immediate situation hit your body and state?
+2. Secret Tensions & Drivers: How does the Fractal's <STANDING_OBJECTIVE> steer your choice? Treat objective as a distant target; build tension through initial hurdles first.
+3. Intent & Rhythm: What physical movement or vocal beat will you execute?
 Keep think block concise (< 200 words).`,
     THINK_CHARACTER: `Begin response with <think>. Process reaction to <USER_ACTION> using in-character subconscious reasoning. ${BASE_THINK_CLOSURE}`,
     THINK_NARRATOR: `Begin response with <think>. ALL internal calculations, world atmosphere shifts, and markdown headers MUST remain strictly INSIDE this block. ${BASE_THINK_CLOSURE}`,
@@ -115,7 +115,7 @@ name (string), description (string), signature_color (string), eternal_physical 
 STAGE DIRECTION: Compose "directive" as a short, subtle, in-character cue (< 30 words) for the AI character's turn. Keep it deniable and atmospheric. Empty string when nothing is warranted.
 VECTOR RESTRAINT: Mint new vectors ONLY for meaningful story shifts. Max 5 future vectors per entity — resolve or update existing ones before adding.
 OUTPUT CONSTRAINT: Output ONLY valid JSON under 800 characters. No markdown code fences, no prose.`,
-    PLOT_DRIVE: `When user input is open-ended or a scene has settled, introduce ONE concrete new development (a discovery, obstacle, or decision). Seed it via AI/Fractal vector_append and cue it in "directive". Do not force plot beats mid-climax.`,
+    PLOT_DRIVE: `Treat the active Fractal's <FUTURE> as the <STANDING_OBJECTIVE> — a long-term scenario horizon. Evaluate whether <USER_ACTION> advances, complicates, or risks this objective. CRITICAL PACING LAW: Do NOT rush to accomplish or resolve the standing objective in early turns. Cue subtle, incremental developments and initial obstacles in "directive" that build tension gradually over time, preserving narrative momentum.`,
     IMAGE_TRIGGERS: `Set "trigger_image" to false unless the moment demands a visual. Target strings: "story_entities" (group), "story_character" (solo focus), "solo_entity" (portrait), "story_scene" (environment).`,
   },
 

@@ -9,7 +9,7 @@ import { SvelteSet } from "svelte/reactivity";
 import { generate_uuid, resolve_px, stories_bridge } from "@utils";
 import { log as engineLog, guarded_transition } from "@engine";
 import { db, entities, stories, normalize } from "@data";
-import { visual_engine, get_signature_color, Audio } from "@media";
+import { visual_engine, get_signature_color, Audio, get_cadence_rate, resolve_voice_uri } from "@media";
 import { embeddings_engine } from "@intelligence";
 import { runtime } from "./runtime.svelte.js";
 import { simulation_state, ui_state } from "./status.svelte.js";
@@ -553,17 +553,42 @@ export class AppStore {
     this.streaming.role = role;
     this.streaming.errored = false;
     this.streaming.errored_node_id = null;
+
+    Audio.voice.reset_stream();
+    Audio.voice.active_message_id = id;
+
+    if (role && role !== "system") {
+      let entity = null;
+      if (role === "ai") entity = runtime.active_ai;
+      else if (role === "user") entity = runtime.active_user;
+      else if (role === "fractal") entity = runtime.active_fractal;
+
+      if (entity && entity.voice) {
+        const v_id = entity.voice.name || entity.voice.uri;
+        Audio.voice.selected_voice = resolve_voice_uri(v_id);
+        Audio.voice.rate = get_cadence_rate(entity.voice.cadence);
+      }
+    }
   };
   update_stream = (/** @type {string} */ chunk) => {
     this.streaming.content += chunk;
     this.streaming.text = this.streaming.content;
+
+    if (Audio.is_role_enabled(this.streaming.role)) {
+      Audio.voice.queue_stream_sentence(this.streaming.content);
+    }
   };
   end_stream = () => {
+    if (this.streaming.active && Audio.is_role_enabled(this.streaming.role)) {
+      Audio.voice.flush_stream_remainder(this.streaming.content);
+    }
+
     this.streaming.active = false;
     this.streaming.content = "";
     this.streaming.text = "";
     this.streaming.node_id = null;
     this.streaming.role = "ai";
+    Audio.voice.reset_stream();
   };
   signal_stream_error = (node_id) => {
     this.streaming.errored = true;

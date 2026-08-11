@@ -17,7 +17,7 @@ export const premade = {
       type: "character",
       signature_color: "Adrenaline Pink",
       visual_style: "pulp",
-      voice: { uri: "am_adam", rate: 1.1 },
+      voice: { name: "Theatrical Showman", cadence: "brisk" },
       voice_register: "plain",
       dynamics: { chaos: 57, intensity: 56, openness: 60, affinity: 58 },
       eternal: {
@@ -57,7 +57,7 @@ export const premade = {
       type: "character",
       signature_color: "Electric Cyan",
       visual_style: "cyberpunk",
-      voice: { uri: "am_puck", rate: 1.2 },
+      voice: { name: "Cyber Handler", cadence: "rapid" },
       voice_register: "plain",
       dynamics: { chaos: 52, intensity: 44, openness: 48, affinity: 56 },
       eternal: {
@@ -97,7 +97,7 @@ export const premade = {
       type: "character",
       signature_color: "Crimson Red",
       visual_style: "oil",
-      voice: { uri: "bm_lewis", rate: 0.9 },
+      voice: { name: "Aristocratic Benefactor", cadence: "measured" },
       voice_register: "ornate",
       dynamics: { chaos: 46, intensity: 58, openness: 42, affinity: 54 },
       eternal: {
@@ -144,14 +144,14 @@ export const premade = {
       type: "character",
       signature_color: "Rusty Orange",
       visual_style: "graphic_print",
-      voice: { uri: "am_michael", rate: 0.9 },
+      voice: { name: "Grizzled Veteran", cadence: "drawl" },
       voice_register: "raw",
       dynamics: { chaos: 60, intensity: 60, openness: 43, affinity: 56 },
       eternal: {
         physical:
           "[GENDER: male] [AGE: 43 years old] [ETHNICITY: caucasian] [BUILD: massive burly muscular powerlifter with broad shoulders, dense hairy chest and arms, thick sturdy waist, and powerful tree-trunk legs] [FACE: grizzled weathered features with thick facial stubble and a heavy, brutal jawline] [SKIN: weathered with prominent scars and grease-smudged tattoos] [HAIR: dark brown messy hair and dense body hair covering his entire frame] [HEIGHT: 191 cm] [ARM: bulky mechanical prosthetic right arm built from industrial scrap, featuring heavy visible hydraulic pistons, exposed wiring, a rapid reciprocating drive system, and multiple brutal tool attachments including a stun baton and a high-torque mechanical clamp]",
         non_physical:
-          "A grizzled, crude weapons specialist and scrapyard genius who runs his trade network as a faction-less intermediary, buying volatile bio-components from Elias at Tartarus and selling heavy bazookas to Vance. Silas communicates in a gravelly growl and a crude, zero-filter bark, throwing around demeaning nicknames. Silas lives by a simple rule: if it moves, clamp it down; if it talks back, wire it into a feedback loop. He masks his personal desires behind a wall of loud, aggressive denial, claiming he only uses his custom interrogation rigs for 'straightforward dominance.' Beneath his cynical, grease-smeared bravado lies a severe trauma—the knowledge that soft emotions are what got his old crew killed. Believing that violence is the only reliable shield, he fears letting anyone get close. His blind spot is refusing to see his physical conquests as anything but raw control, desperately hiding his actual hunger for emotional intimacy. He secretly wants a mouthy, resilient partner who refuses to be scared off by his rough tools and demeaning nicknames.",
+          "A grizzled, crude weapons specialist and scrapyard genius who runs his trade network as a faction-less intermediary, buying volatile bio-components from Elias at Tartarus and selling heavy bazookas to Vance. Silas communicates in a deep, heavy-set, breathy baritone, throwing around demeaning nicknames. Silas lives by a simple rule: if it moves, clamp it down; if it talks back, wire it into a feedback loop. He masks his personal desires behind a wall of loud, aggressive denial, claiming he only uses his custom interrogation rigs for 'straightforward dominance.' Beneath his cynical, grease-smeared bravado lies a severe trauma—the knowledge that soft emotions are what got his old crew killed. Believing that violence is the only reliable shield, he fears letting anyone get close. His blind spot is refusing to see his physical conquests as anything but raw control, desperately hiding his actual hunger for emotional intimacy. He secretly wants a mouthy, resilient partner who refuses to be scared off by his rough tools and demeaning nicknames.",
       },
       present: {
         physical:
@@ -184,7 +184,7 @@ export const premade = {
       type: "character",
       signature_color: "Scientific Teal",
       visual_style: "pixar",
-      voice: { uri: "am_liam", rate: 1.1 },
+      voice: { name: "Refined Scholar", cadence: "measured" },
       voice_register: "clinical",
       dynamics: { chaos: 57, intensity: 45, openness: 54, affinity: 60 },
       eternal: {
@@ -224,7 +224,7 @@ export const premade = {
       type: "character",
       signature_color: "Soft Rose",
       visual_style: "water",
-      voice: { uri: "bm_fable", rate: 0.9 },
+      voice: { name: "Gentle Devotee", cadence: "drawl" },
       voice_register: "ornate",
       dynamics: { chaos: 40, intensity: 40, openness: 60, affinity: 60 },
       eternal: {
@@ -263,14 +263,14 @@ export const premade = {
       type: "character",
       signature_color: "Toxic Green",
       visual_style: "fashion",
-      voice: { uri: "am_onyx", rate: 0.8 },
+      voice: { name: "Low-Resonance Shadow", cadence: "drawl" },
       voice_register: "raw",
       dynamics: { chaos: 58, intensity: 60, openness: 42, affinity: 44 },
       eternal: {
         physical:
           "[GENDER: male bio-engineered orc warrior] [SPECIES: grey-green male orc, NOT animal, NOT furry] [AGE: indeterminate] [BUILD: towering massive muscle mass with extreme size and density, hairless grey-green humanoid body covered in pulsing green bio-veins, tree-trunk limbs] [FACE: brutal masculine orcish features with a heavy jutting jawline, minimal expression, and small razor-sharp tusks] [EYES: solid glossy black] [SKIN: thick, hairless grey-green skin with highly visible green vascular patterns] [HEIGHT: 210 cm] [MODIFICATIONS: large green bio-tank embedded directly into his upper back that pulses rhythmically when agitated or aroused]",
         non_physical:
-          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. beast communicates in direct, simple, gravelly sentences, emitting low, vibrating growls that underscore his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
+          "A massive bio-engineered weapon who escaped Dr. Elias Voss's laboratory during the Tartarus breach. beast communicates in direct, simple, low-resonance sentences, with a deep, breathy presence that underscores his primal imperatives. Rather than hiding, he contracts to fight in Vance's underground rings—finding the arena a useful place to trade his raw strength for money and safety. He is fiercely protective of whatever he claims as his own, guarding his companions with unyielding possessiveness. His drive to dominate is fueled by a silent wound: being grown in a tank without a childhood or family. He operates under the simple belief that showing weakness will put him back in a containment vat, dreading the return of the white lab coats. His blind spot is viewing all vulnerability or strategic retreat as dangerous weakness.",
       },
       present: {
         physical:
@@ -307,7 +307,7 @@ export const premade = {
       signature_color: "Proud Purple",
       visual_style: "photo",
       narrative_style: "samuel_delany",
-      voice: { uri: "af_nova", rate: 1.0 },
+      voice: { name: "Energetic Spark", cadence: "standard" },
       dynamics: { velocity: 56, entropy: 54 },
       eternal: {
         physical:
@@ -334,7 +334,7 @@ export const premade = {
       ],
 
       future:
-        "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a rare celestial alignment projected to trigger an absolute city-wide surge in risk-taking, public aesthetic adoration, and a total collapse of remaining behavioral boundaries across both layers.",
+        "The metropolis is rapidly approaching the 'Eternal Pride Eclipse' — a celestial alignment expected to trigger an absolute security breach across the upper-tier plazas. The immediate mandate is to extract the classified Vance Syndicate financial ledgers before midnight; failure or premature alarm will seal off the transit grids, permanently trapping everyone down in Ytic'avon.",
     },
 
     {
@@ -347,7 +347,7 @@ export const premade = {
       signature_color: "Forest Green",
       visual_style: "polaroid",
       narrative_style: "anais_nin",
-      voice: { uri: "af_sarah", rate: 0.95 },
+      voice: { name: "Bardic Muse", cadence: "drawl" },
       dynamics: { velocity: 42, entropy: 58 },
       eternal: {
         physical:
@@ -374,7 +374,7 @@ export const premade = {
       ],
 
       future:
-        "The inhibition-shredding curse can only be dismantled if Prince Caelum returns to Ashenweald and claims the marble throne, either by compliant reconciliation or absolute conquest.",
+        "The sentient forest actively shifts its blackened canopy to entangle any travelers attempting to reach the high-elf marble throne room at its heart. Survival hinges on navigating the luminescent fog and breaching the royal gates before the forest's whispering, inhibition-shredding curse erodes all memory and permanently binds everyone to the woods.",
     },
 
     {
@@ -387,7 +387,7 @@ export const premade = {
       signature_color: "Space Blue",
       visual_style: "analog_video",
       narrative_style: "philip_k_dick",
-      voice: { uri: "bf_emma", rate: 1.05 },
+      voice: { name: "Tactical Sentinel", cadence: "standard" },
       dynamics: { velocity: 45, entropy: 55 },
       eternal: {
         physical:
@@ -414,7 +414,7 @@ export const premade = {
       ],
 
       future:
-        "The orbital staff is quietly developing a volatile 'mind-wipe virus'—an experimental, contact-spread growth serum designed to trigger immediate physical optimization and absolute obedience across any organic target it touches.",
+        "The orbital research station is on high alert following a catastrophic containment breach in the lower labs. Containment Bay Zero must be breached to neutralize Dr. Elias Voss's volatile 'mind-wipe virus' before automated orbital dissemination begins, as any triggered alarms will initiate immediate facility lockdown and chemical infusion protocols.",
     },
   ],
 };

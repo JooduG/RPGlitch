@@ -6,7 +6,7 @@
    * Part of the RPGlitch UI.
    */
   import { Button, Dropdown, Slider, tooltip, Label } from "@primitives";
-  import { Audio } from "@media";
+  import { Audio, VOICE_CADENCES, get_cadence_rate, resolve_voice_name, resolve_voice_uri } from "@media";
 
   /**
    * @typedef {Object} Props
@@ -22,24 +22,55 @@
     /** Ensure the voice state object is initialized correctly. */
     if (!profile_state.char) return;
     if (!profile_state.char.voice) {
-      profile_state.char.voice = { uri: "am_adam", rate: 1.0 };
+      profile_state.char.voice = { name: "Vanguard", uri: "am_adam", cadence: "standard" };
     } else {
-      profile_state.char.voice.uri ??= "am_adam";
-      profile_state.char.voice.rate ??= 1.0;
+      const v_key = profile_state.char.voice.name || profile_state.char.voice.uri || "Vanguard";
+      profile_state.char.voice.name = resolve_voice_name(v_key);
+      profile_state.char.voice.uri = resolve_voice_uri(v_key);
+      profile_state.char.voice.cadence ??= "standard";
     }
   });
 
   // --- DERIVED ---
 
-  const selected_voice = $derived(Audio.voice.voices.find((v) => v.uri === profile_state.char?.voice?.uri));
+  const active_voice_name = $derived(resolve_voice_name(profile_state.char?.voice?.name || profile_state.char?.voice?.uri || "Vanguard"));
+
+  const selected_voice = $derived(Audio.voice.voices.find((v) => v.name === active_voice_name || v.uri === profile_state.char?.voice?.uri));
 
   // Derived list formatted for the Dropdown atom schema
   const dropdown_items = $derived(
     Audio.voice.voices.map((voice) => ({
-      value: voice.uri,
+      value: voice.name,
       label: voice.name,
     })),
   );
+
+  /** Finds index 0..4 in VOICE_CADENCES for the active cadence string key */
+  const cadence_index = $derived.by(() => {
+    const key = profile_state.char?.voice?.cadence || "standard";
+    const idx = VOICE_CADENCES.findIndex((c) => c.id === key);
+    return idx >= 0 ? idx : 2;
+  });
+
+  /** The active cadence item for label formatting */
+  const active_cadence = $derived(VOICE_CADENCES[cadence_index]);
+
+  function handle_voice_change(new_name) {
+    if (profile_state.char?.voice && typeof new_name === "string") {
+      profile_state.char.voice.name = resolve_voice_name(new_name);
+      profile_state.char.voice.uri = resolve_voice_uri(new_name);
+    }
+  }
+
+  /**
+   * @param {Event & { currentTarget: HTMLInputElement }} e
+   */
+  function handle_cadence_change(e) {
+    const idx = Number(e.currentTarget.value);
+    if (!isNaN(idx) && VOICE_CADENCES[idx]) {
+      profile_state.char.voice.cadence = VOICE_CADENCES[idx].id;
+    }
+  }
 </script>
 
 <section
@@ -70,7 +101,8 @@
     >
       <Dropdown
         id="voice-select"
-        bind:value={profile_state.char.voice.uri}
+        bind:value={profile_state.char.voice.name}
+        onchange={handle_voice_change}
         items={dropdown_items}
         disabled={!profile_state.is_editing}
         label="Select Voice"
@@ -84,7 +116,7 @@
         aria-label="Preview Voice"
         square
         disabled={!selected_voice}
-        onclick={() => Audio.voice.preview(profile_state.char.voice.uri, profile_state.char.voice.rate)}
+        onclick={() => Audio.voice.preview(active_voice_name, get_cadence_rate(profile_state.char.voice.cadence))}
         variant="secondary"
       >
         <svg viewBox="0 0 24 24" class="size-icon-small">
@@ -97,13 +129,15 @@
 
       <div class="col-span-2 w-full pt-2">
         <Slider
-          min={0.1}
-          max={1.9}
-          step={0.1}
-          bind:value={profile_state.char.voice.rate}
+          min={0}
+          max={4}
+          step={1}
+          value={cadence_index}
+          onchange={handle_cadence_change}
           disabled={!profile_state.is_editing || !selected_voice}
-          label="Rate"
-          neutral={1.0}
+          label="Cadence"
+          neutral={2}
+          format={() => active_cadence.label}
           style="--empty-fill: var(--signature-color, #555d66)"
         />
       </div>

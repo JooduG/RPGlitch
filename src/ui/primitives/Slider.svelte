@@ -33,7 +33,7 @@
     busy = false,
     label = "",
     neutral = null,
-    format = (v) => v.toFixed(1),
+    format = (v) => (step < 0.1 ? Number(v).toFixed(2) : Number(v).toFixed(1)),
     actions = [],
     class: className = "",
     style = "",

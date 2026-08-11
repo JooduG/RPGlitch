@@ -6,14 +6,14 @@ import { describe, expect, it } from "vitest";
 import { premade } from "@data";
 
 describe("Audio & Voice Configurations", () => {
-  it("assigns valid female voice configurations to all premade fractals", () => {
+  it("assigns valid voice configurations to all premade fractals", () => {
     const fractals = premade.entities.filter((e) => e.type === "fractal");
     expect(fractals.length).toBeGreaterThan(0);
 
     fractals.forEach((fractal) => {
       expect(fractal.voice).toBeDefined();
-      expect(fractal.voice.uri).toMatch(/^(af_|bf_)/);
-      expect(typeof fractal.voice.rate).toBe("number");
+      expect(typeof (fractal.voice.name || fractal.voice.uri)).toBe("string");
+      expect(typeof fractal.voice.cadence).toBe("string");
     });
   });
 });

@@ -220,8 +220,9 @@ export const normalize = (base = {}) => {
 
     // --- VOICE ---
     voice: {
-      uri: voice?.uri || "",
-      rate: voice?.rate || 1.0,
+      name: sanitize_html(voice?.name || "").trim(),
+      uri: sanitize_html(voice?.uri || "").trim(),
+      cadence: sanitize_html(voice?.cadence || "standard").trim(),
     },
 
     // --- INTERNAL ---

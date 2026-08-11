@@ -52,39 +52,75 @@ if (typeof window !== "undefined") {
  * Kokoro fails to load (e.g. no WebGPU/WASM support or model download blocked).
  ************************************************************************************/
 
-/** Kokoro voice definitions (sorted: male first, then female, alphabetical within each group). */
-const KOKORO_VOICES = [
-  // Male voices (am_* / bm_*)
-  { uri: "am_adam", name: "Adam" },
-  { uri: "bm_daniel", name: "Daniel" },
-  { uri: "am_echo", name: "Echo" },
-  { uri: "bm_fable", name: "Fable" },
-  { uri: "am_fenrir", name: "Fenrir" },
-  { uri: "bm_george", name: "George" },
-  { uri: "am_liam", name: "Liam" },
-  { uri: "bm_lewis", name: "Lewis" },
-  { uri: "am_michael", name: "Michael" },
-  { uri: "am_onyx", name: "Onyx" },
-  { uri: "am_puck", name: "Puck" },
-  { uri: "am_santa", name: "Santa" },
-  // Female voices (af_* / bf_*)
-  { uri: "bf_alice", name: "Alice" },
-  { uri: "af_alloy", name: "Alloy" },
-  { uri: "af_aoede", name: "Aoede" },
-  { uri: "af_bella", name: "Bella" },
-  { uri: "bf_emma", name: "Emma" },
-  { uri: "af_heart", name: "Heart" },
-  { uri: "bf_isabella", name: "Isabella" },
-  { uri: "af_jessica", name: "Jessica" },
-  { uri: "af_kore", name: "Kore" },
-  { uri: "bf_lily", name: "Lily" },
-  { uri: "af_nicole", name: "Nicole" },
-  { uri: "af_nova", name: "Nova" },
-  { uri: "af_river", name: "River" },
-  { uri: "af_sarah", name: "Sarah" },
-  { uri: "af_sky", name: "Sky" },
+export const CADENCE_RATES = {
+  drawl: 0.85,
+  measured: 0.95,
+  standard: 1.0,
+  brisk: 1.1,
+  rapid: 1.2,
+};
+
+/** 5 Symmetrical voice cadences (Standard in center) */
+export const VOICE_CADENCES = [
+  { id: "drawl", label: "Drawl", rate: 0.85 },
+  { id: "measured", label: "Measured", rate: 0.95 },
+  { id: "standard", label: "Standard", rate: 1.0 },
+  { id: "brisk", label: "Brisk", rate: 1.1 },
+  { id: "rapid", label: "Rapid", rate: 1.2 },
 ];
 
+export function get_cadence_rate(cadence) {
+  return CADENCE_RATES[cadence] || 1.0;
+}
+
+export function resolve_voice_uri(name_or_uri) {
+  if (!name_or_uri) return "am_adam";
+  const str = String(name_or_uri).trim().toLowerCase();
+  const found = KOKORO_VOICES.find((v) => v.name.toLowerCase() === str || v.uri.toLowerCase() === str);
+  return found ? found.uri : "am_adam";
+}
+
+export function resolve_voice_name(name_or_uri) {
+  if (!name_or_uri) return "Cinematic Narrator";
+  const str = String(name_or_uri).trim().toLowerCase();
+  const found = KOKORO_VOICES.find((v) => v.name.toLowerCase() === str || v.uri.toLowerCase() === str);
+  return found ? found.name : "Cinematic Narrator";
+}
+
+/** Kokoro voice definitions (sorted: male voices first, then female voices, alphabetical by name within group). */
+const KOKORO_VOICES = [
+  // Male Voices (American & British, alphabetical by name)
+  { uri: "am_eric", name: "Animated Sidekick" },
+  { uri: "bm_lewis", name: "Aristocratic Benefactor" },
+  { uri: "am_adam", name: "Cinematic Narrator" },
+  { uri: "am_fenrir", name: "Cyber Handler" },
+  { uri: "am_liam", name: "Everyday Companion" },
+  { uri: "am_puck", name: "Gentle Devotee" },
+  { uri: "am_michael", name: "Grizzled Veteran" },
+  { uri: "am_echo", name: "Late-Night Host" },
+  { uri: "am_onyx", name: "Low-Resonance Shadow" },
+  { uri: "bm_fable", name: "Modern Presenter" },
+  { uri: "bm_george", name: "Refined Scholar" },
+  { uri: "bm_daniel", name: "Seasoned Veteran" },
+  { uri: "am_santa", name: "Theatrical Showman" },
+
+  // Female Voices (American & British, alphabetical by name)
+  { uri: "af_aoede", name: "Bardic Muse" },
+  { uri: "af_kore", name: "Celestial Oracle" },
+  { uri: "af_alloy", name: "Cyber Interface" },
+  { uri: "af_nova", name: "Energetic Spark" },
+  { uri: "af_sky", name: "Ethereal Wanderer" },
+  { uri: "af_river", name: "Frontier Wanderer" },
+  { uri: "bf_lily", name: "Gentle Seraph" },
+  { uri: "af_sarah", name: "Guild Sovereign" },
+  { uri: "af_bella", name: "Imperial Leader" },
+  { uri: "bf_alice", name: "Refined Aristocrat" },
+  { uri: "bf_isabella", name: "Royal Matriarch" },
+  { uri: "bf_emma", name: "Scholarly Duchess" },
+  { uri: "af_jessica", name: "Tactical Sentinel" },
+  { uri: "af_nicole", name: "Velvet Whisper" },
+  { uri: "af_heart", name: "Warm Anchor" },
+];
 /**
  * Handles vocal synthesis engine configuration and lifecycle management.
  */
@@ -279,15 +315,23 @@ export class VoiceEngine {
 
     if (!speech_ready_text) return;
 
-    if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === speech_ready_text) {
-      return;
-    }
+    // Split multi-sentence text into clean chunks to prevent Kokoro TTS model truncation
+    const chunks = speech_ready_text
+      .split(/(?<=[.!?])\s+/)
+      .map((c) => c.trim())
+      .filter(Boolean);
 
-    this.#queue.push({
-      text: speech_ready_text,
-      voice_id: this.selected_voice,
-      message_id: this.active_message_id,
-    });
+    for (const chunk of chunks) {
+      if (this.#queue.length > 0 && this.#queue[this.#queue.length - 1].text === chunk) {
+        continue;
+      }
+
+      this.#queue.push({
+        text: chunk,
+        voice_id: this.selected_voice,
+        message_id: this.active_message_id,
+      });
+    }
 
     if (!this.#is_processing) {
       this.#process_queue();
@@ -463,9 +507,10 @@ export class VoiceEngine {
    * @param {string} uri
    * @param {number} [rate]
    */
-  async preview(uri, rate = 1.0) {
+  async preview(name_or_uri, rate = 1.0) {
     this.stop();
-    const voice = this.voices.find((v) => v.uri === uri);
+    const uri = resolve_voice_uri(name_or_uri);
+    const voice = this.voices.find((v) => v.uri === uri || v.name === name_or_uri);
     if (!voice) return;
 
     await this.#ensure_model();
@@ -854,12 +899,26 @@ export const Audio = new (class {
   }
 
   /**
+   * Returns whether voice playback is active for a specific entity role.
+   * @param {"ai" | "user" | "fractal" | "system" | null} role
+   * @returns {boolean}
+   */
+  is_role_enabled(role) {
+    if (!role || role === "system") return false;
+    return this.voice_enabled && !!this.voice.entity_voice[role];
+  }
+
+  /**
    * Toggles a specific entity's voice and persists settings.
    * @param {"ai" | "user" | "fractal"} role
    * @param {boolean} value
    */
   set_entity_voice(role, value) {
-    this.voice.entity_voice[role] = !!value;
+    const val = !!value;
+    if (val) {
+      this.voice_enabled = true;
+    }
+    this.voice.entity_voice[role] = val;
     this.#effects.saveAllSettings();
   }
 
