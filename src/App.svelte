@@ -292,14 +292,15 @@
           ? "A character portrait of the user persona"
           : "An environmental shot of the current setting";
 
-    const items = [
-      { label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity },
-      {
+    const items = [{ label: "Profile", onSelect: () => app.toggle_profile(true, entity), disabled: !entity }];
+
+    if (entity?.profile_picture) {
+      items.push({
         label: "Profile Picture",
         onSelect: () =>
           app.open_image_preview({
-            src: entity?.profile_picture,
-            metadata: entity?.modifiers
+            src: entity.profile_picture,
+            metadata: entity.modifiers
               ? {
                   prompt: entity.modifiers.prompt,
                   negative_prompt: entity.modifiers.negative_prompt,
@@ -307,14 +308,14 @@
                 }
               : null,
           }),
-        disabled: !entity?.profile_picture,
-      },
-      {
-        label: Audio.entity_voice[type] ? "Disable Voice" : "Enable Voice",
-        active: Audio.entity_voice[type],
-        onSelect: () => Audio.toggle_entity_voice(type),
-      },
-    ];
+      });
+    }
+
+    items.push({
+      label: Audio.entity_voice[type] ? "Disable Voice" : "Enable Voice",
+      active: Audio.entity_voice[type],
+      onSelect: () => Audio.toggle_entity_voice(type),
+    });
 
     if (in_storymode) {
       items.push({ separator: true });

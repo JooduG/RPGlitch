@@ -377,20 +377,35 @@ export class AppStore {
     this.viewport.is_touch = window.ontouchstart !== undefined || navigator.maxTouchPoints > 0;
   }
   /**
+   * Unselects any storyboard slots whose entities are currently claimed by active stories.
+   */
+  clean_claimed_selections() {
+    if (this.selected_ai?.id != null && this.claimed_entity_ids.has(String(this.selected_ai.id))) {
+      this.selected_ai = null;
+    }
+    if (this.selected_user?.id != null && this.claimed_entity_ids.has(String(this.selected_user.id))) {
+      this.selected_user = null;
+    }
+    if (this.selected_fractal?.id != null && this.claimed_entity_ids.has(String(this.selected_fractal.id))) {
+      this.selected_fractal = null;
+    }
+  }
+
+  /**
    * Hydrates the storyboard lists with characters and fractals.
-   * Entities claimed by active stories are filtered out so they can't be
-   * re-selected for a second story while still in play.
+   * Claimed entity IDs are tracked so they can be marked unavailable in UI
+   * and unselected from lobby slots.
    */
   async load_entities() {
     try {
       const [characters, fractals, claimed] = await Promise.all([entities.list("character"), entities.list("fractal"), stories.active_entity_ids()]);
       this.claimed_entity_ids.clear();
       for (const id of claimed) this.claimed_entity_ids.add(id);
-      const is_claimed = (/** @type {any} */ entity) => entity?.id != null && claimed.includes(String(entity.id));
-      this.ai_list = characters.filter((c) => !is_claimed(c));
-      this.user_list = characters.filter((c) => !is_claimed(c));
-      this.fractal_list = fractals.filter((f) => !is_claimed(f));
+      this.ai_list = characters;
+      this.user_list = characters;
+      this.fractal_list = fractals;
       this.entities_loaded = true;
+      this.clean_claimed_selections();
     } catch (e) {
       console.error("[AppStore] Failed to load lobby entities:", e);
     }
@@ -405,6 +420,9 @@ export class AppStore {
     this.control_panel_open = !this.control_panel_open;
   };
   set_view = (/** @type {string} */ view) => {
+    if (view === "storyboard") {
+      this.clean_claimed_selections();
+    }
     guarded_transition(
       () => {
         flushSync(() => {

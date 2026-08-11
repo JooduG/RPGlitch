@@ -5,7 +5,7 @@
    * Replaces the legacy slide-up drawer with an immersive, orbital card-fan engine.
    * Standard: Fine-grained Svelte 5 Reactivity & Kinetic Geometry.
    */
-  import { Backdrop, Button } from "@primitives";
+  import { Backdrop, Button, tooltip } from "@primitives";
   import { create_new, entities as repository } from "@data";
   import ImportModal from "./ImportModal.svelte";
   import EntityCard from "./EntityCard.svelte";
@@ -48,11 +48,46 @@
   let entity_list = $derived(
     /** @type {any[]} */ (
       card_hand_type === "ai" ? app.ai_list : card_hand_type === "user" ? app.user_list : card_hand_type === "fractal" ? app.fractal_list : []
-    ).filter((/** @type {any} */ entity) => !is_disabled(entity)),
+    ),
   );
 
   const total_cards = $derived(entity_list.length);
   const card_step = $derived(Math.max(1.8, Math.min(3.2, 45 / Math.max(1, total_cards))));
+
+  // --- KINETIC FAN ROTATION & CURSOR DYNAMICS ---
+  /** Normalized cursor X position (-1 to 1) */
+  let cursor_x = $state(0);
+  /** Additional wheel scroll rotation offset in degrees */
+  let scroll_angle = $state(0);
+
+  $effect(() => {
+    if (is_open) {
+      cursor_x = 0;
+      scroll_angle = 0;
+    }
+  });
+
+  /** Dynamic tilt response range (degrees) based on deck size */
+  const max_fan_tilt = $derived(motion.is_reduced ? 0 : Math.min(35, Math.max(10, total_cards * 1.4)));
+
+  /** Combined orbital rotation angle for the entire fan */
+  const fan_rotation = $derived(motion.is_reduced ? 0 : -cursor_x * max_fan_tilt + scroll_angle);
+
+  /** @param {PointerEvent} e */
+  function handle_pointer_move(e) {
+    if (!is_open || motion.is_reduced) return;
+    const width = window.innerWidth || 1000;
+    cursor_x = Math.max(-1, Math.min(1, (e.clientX / width) * 2 - 1));
+  }
+
+  /** @param {WheelEvent} e */
+  function handle_wheel(e) {
+    if (!is_open || motion.is_reduced) return;
+    const delta = e.deltaY || e.deltaX;
+    if (delta) {
+      scroll_angle = Math.max(-45, Math.min(45, scroll_angle + (delta > 0 ? 3 : -3)));
+    }
+  }
 
   // Center premade cards at angle 0; place action cards predictably to the left
   const first_card_angle = $derived(-((total_cards - 1) / 2) * card_step);
@@ -70,22 +105,39 @@
 
   // --- MUTUAL EXCLUSION SAFETY BARRIERS ---
   /**
+   * Returns the reason why an entity cannot be selected, or null if available.
+   * @param {any} entity
+   * @returns {string | null}
+   */
+  function get_unavailable_reason(entity) {
+    if (!entity || !card_hand_type) return null;
+
+    if (entity.id != null && app.claimed_entity_ids.has(String(entity.id))) {
+      return "This entity is already in an active story";
+    }
+
+    if (card_hand_type === "ai") {
+      if (app.selected_ai?.id === entity.id) return "This entity is already selected as AI Character";
+      if (app.selected_user?.id === entity.id) return "This entity is already selected as User Persona";
+    }
+    if (card_hand_type === "user") {
+      if (app.selected_user?.id === entity.id) return "This entity is already selected as User Persona";
+      if (app.selected_ai?.id === entity.id) return "This entity is already selected as AI Character";
+    }
+    if (card_hand_type === "fractal") {
+      if (app.selected_fractal?.id === entity.id) return "This entity is already selected as Fractal";
+    }
+
+    return null;
+  }
+
+  /**
    * Prevents identity allocation collisions across synchronized role slots.
    * @param {any} entity
    * @returns {boolean}
    */
   function is_disabled(entity) {
-    if (!entity || !card_hand_type) return false;
-    if (card_hand_type === "ai") {
-      return app.selected_ai?.id === entity.id || app.selected_user?.id === entity.id;
-    }
-    if (card_hand_type === "user") {
-      return app.selected_user?.id === entity.id || app.selected_ai?.id === entity.id;
-    }
-    if (card_hand_type === "fractal") {
-      return app.selected_fractal?.id === entity.id;
-    }
-    return false;
+    return get_unavailable_reason(entity) !== null;
   }
 
   // --- PERSISTENCE & FACTORY ACTIONS ---
@@ -204,7 +256,7 @@
   }
 </script>
 
-<svelte:window onkeydown={handle_keydown} />
+<svelte:window onkeydown={handle_keydown} onpointermove={handle_pointer_move} onwheel={handle_wheel} />
 
 {#if is_open}
   <!-- Svelte handles Backdrop outro natively. Removing redundant wrapper div. -->
@@ -303,7 +355,7 @@
           hover:z-50!
         "
         role="presentation"
-        style:transform="rotate({import_angle}deg) translateY(0)"
+        style:transform="rotate({import_angle + fan_rotation}deg) translateY(0)"
         style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
         style:z-index="0"
         onmouseenter={() => (hovered_index = -2)}
@@ -340,7 +392,9 @@
             ease-in-out
             will-change-transform
           "
-          style:transform={hovered_index === -2 ? `rotate(${-import_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)` : "none"}
+          style:transform={hovered_index === -2
+            ? `rotate(${-(import_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
+            : "none"}
         >
           <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Import" onclick={handle_open_import} />
         </div>
@@ -360,7 +414,7 @@
           hover:z-50!
         "
         role="presentation"
-        style:transform="rotate({create_angle}deg) translateY(0)"
+        style:transform="rotate({create_angle + fan_rotation}deg) translateY(0)"
         style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
         style:z-index="0"
         onmouseenter={() => (hovered_index = -1)}
@@ -397,7 +451,9 @@
             ease-in-out
             will-change-transform
           "
-          style:transform={hovered_index === -1 ? `rotate(${-create_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)` : "none"}
+          style:transform={hovered_index === -1
+            ? `rotate(${-(create_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.6)) scale(1.08)`
+            : "none"}
         >
           <EntityCard variant="library" type={card_hand_type ?? undefined} role_label="Create New" onclick={handle_create_new} />
         </div>
@@ -421,7 +477,7 @@
           "
           role="presentation"
           data-entity-id={entity.id}
-          style:transform="rotate({dynamic_angle}deg) translateY(0)"
+          style:transform="rotate({dynamic_angle + fan_rotation}deg) translateY(0)"
           style:transform-origin="center calc(100% + calc(var(--spacing-row-unit) * 25))"
           style:z-index={idx + 1}
           onmouseenter={() => (hovered_index = idx)}
@@ -462,9 +518,8 @@
 
               {is_disabled(entity)
               ? `
-                pointer-events-none
-                brightness-[0.2]
-                grayscale-[0.9]
+                opacity-85
+                grayscale-[0.6]
               `
               : ''}
               {hovered_index !== null && !is_hovered && !is_disabled(entity)
@@ -474,7 +529,10 @@
                 grayscale-[0.4]
               `
               : ''}"
-            style:transform={is_hovered ? `rotate(${-dynamic_angle}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)` : "none"}
+            use:tooltip={get_unavailable_reason(entity)}
+            style:transform={is_hovered && !is_disabled(entity)
+              ? `rotate(${-(dynamic_angle + fan_rotation)}deg) translateY(calc(var(--spacing-row-unit) * -0.85)) scale(1.18)`
+              : "none"}
           >
             <EntityCard
               variant="library"

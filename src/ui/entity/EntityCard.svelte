@@ -322,10 +322,9 @@
       transform-none!
       border-[rgba(255,255,255,0.15)]
       bg-transparent
-      opacity-50
+      opacity-85
       shadow-none!
-      brightness-75
-      grayscale
+      grayscale-[0.6]
       filter
 
       after:border-transparent
