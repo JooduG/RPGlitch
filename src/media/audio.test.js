@@ -100,6 +100,17 @@ describe("Audio & Voice Configurations", () => {
     expect(Audio.voice.is_paused).toBe(false);
   });
 
+  it("prevents stream sentence queueing after stop() is called", async () => {
+    const { Audio } = await import("./audio.svelte.js");
+    Audio.voice.reset_stream();
+    Audio.voice.stop();
+    Audio.voice.queue_stream_sentence("This is sentence one. This is sentence two.");
+    expect(Audio.voice.is_speaking).toBe(false);
+
+    Audio.voice.reset_stream();
+    expect(Audio.voice.spoken_character_cursor).toBe(0);
+  });
+
   it("calculates linear +-5% cadence rate modulation centered at dynamics 50", () => {
     expect(get_cadence_rate("drawl", 50)).toBeCloseTo(0.85);
     expect(get_cadence_rate("drawl", 0)).toBeCloseTo(0.8);

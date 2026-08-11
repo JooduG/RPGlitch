@@ -307,6 +307,8 @@ export class VoiceEngine {
   #current_audio_source = null;
   /** @type {number} Scheduled end timestamp in AudioContext.currentTime for seamless buffer chaining. */
   #next_play_time = 0;
+  /** @type {boolean} Flag indicating whether current stream playback has been explicitly stopped by user. */
+  #stream_stopped = false;
 
   /**
    * Initializes the voice engine with Kokoro voice list.
@@ -533,6 +535,7 @@ export class VoiceEngine {
       const pending_message_id = this.active_message_id;
       this.stop();
       this.active_message_id = pending_message_id;
+      this.#stream_stopped = false;
     }
 
     const speech_ready_text = strip_cognition_blocks(text)
@@ -866,6 +869,7 @@ export class VoiceEngine {
    * Cancels active audio playback and flushes the queue.
    */
   stop() {
+    this.#stream_stopped = true;
     this.#queue = [];
     this.#is_processing = false;
     this.#paused = false;
@@ -906,11 +910,13 @@ export class VoiceEngine {
   }
 
   reset_stream() {
+    this.#stream_stopped = false;
     this.spoken_character_cursor = 0;
     this.#next_play_time = 0;
   }
 
   queue_stream_sentence(current_raw_text) {
+    if (this.#stream_stopped) return;
     const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
     const fresh_buffer = sanitized_stream_track.slice(this.spoken_character_cursor);
 
@@ -930,6 +936,7 @@ export class VoiceEngine {
   }
 
   flush_stream_remainder(current_raw_text) {
+    if (this.#stream_stopped) return;
     const sanitized_stream_track = current_raw_text.replace(/<think>[\s\S]*?<\/think>/gi, "").replace(/<think>[\s\S]*/gi, "");
     const remaining_text = sanitized_stream_track.slice(this.spoken_character_cursor);
     const clean_remainder = strip_cognition_blocks(remaining_text).trim();
