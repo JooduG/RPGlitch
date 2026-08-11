@@ -291,7 +291,7 @@ ${(() => {
   return { system, task };
 }
 
-function build_ai_future_xml(entity, scoring_context = "", entities = {}) {
+function build_ai_future_xml(entity, _scoring_context = "", entities = {}) {
   const text = String(entity?.future || "").trim();
   if (!text) return "";
   return `    <FUTURE>${ind(prompt_builder.parse_macros(text, entity, entities), 6)}</FUTURE>`;

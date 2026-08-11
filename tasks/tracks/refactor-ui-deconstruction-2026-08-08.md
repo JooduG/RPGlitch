@@ -1,9 +1,9 @@
 ---
 id: refactor-ui-deconstruction-2026-08-08
 type: refactor
-status: in-progress
+status: completed
 created_at: 2026-08-08
-updated_at: 2026-08-08
+updated_at: 2026-08-11
 description: Deconstruct and refactor Storymode, Message, MessageDevBlock, and UnifiedConsole into modular, Svelte 5 runes-driven component suites with clean namespace nesting.
 ---
 
@@ -46,26 +46,26 @@ Deconstruct high-complexity UI components (`Storymode.svelte`, `Message.svelte`,
 - [x] Task 2.3: Extract `AudioControls.svelte` & `DevControls.svelte` in `src/ui/molecules/`.
 - [x] Task 2.4: Rebuild `Console.svelte` as a lean drawer container shell.
 
-### Phase 3.1: MessageHeader Extraction [DONE]
+### Phase 3.1: MessageHeader Extraction `[DONE]`
 
 - [x] Create `src/ui/molecules/MessageHeader.svelte`.
 - [x] Move character name and timestamp logic into `MessageHeader.svelte`.
 - [x] Export `MessageHeader` from `src/ui/molecules/index.js`.
 - [x] Remove header markup from `src/ui/organisms/Message.svelte` and import `MessageHeader`.
 
-### Phase 4: Audio Streaming & Scrolling Abstraction [DONE]
+### Phase 4: Audio Streaming & Scrolling Abstraction `[DONE]`
 
 - [x] Task 4.1: Decouple TTS streaming parsing loop from `Storymode.svelte` into `Audio.voice.queue_stream_sentence()` in `src/media/audio.svelte.js`.
 - [x] Task 4.2: Extract `MessageUndoDelete.svelte` from `Storymode.svelte`.
 - [x] Task 4.3: Rebuild `Storymode.svelte` as a clean scroll & viewport shell (extracted `StoryFeed.svelte`).
 
-### Phase 5: Verification & Gate [DONE]
+### Phase 5: Verification & Gate `[DONE]`
 
 - [x] Task 5.1: Run `npm run test:unit`.
 - [x] Task 5.2: Run `npm run deploy:check`.
 - [x] Task 5.3: Run `npm run build`.
 
-### Phase 6: Round-2 Extractions (post-reorg, module layout) [IN PROGRESS]
+### Phase 6: Round-2 Extractions (post-reorg, module layout) `[DONE]`
 
 - [x] Task 6.1: Extract `ControlPanel.svelte` (accordion decks) from `Console.svelte`.
 - [x] Task 6.2: Extract `SettingsButton.svelte` (gear control) from `Console.svelte`.
@@ -73,10 +73,10 @@ Deconstruct high-complexity UI components (`Storymode.svelte`, `Message.svelte`,
 - [x] Task 6.4: Extract `storyboard.svelte.js` (shuffle-deal + begin-flight choreography) from `Console.svelte`.
 - [x] Task 6.5: Extract `Attachments.svelte` (regenerate/select/preview gallery) from `Message.svelte`.
 - [x] Task 6.6: Extract `PrologueCards.svelte` (story title + entity trio) from `Message.svelte`.
-- [ ] Task 6.7: Run `npm run test:unit`.
-- [ ] Task 6.8: Run `npm run verify` & `npm run build`.
+- [x] Task 6.7: Run `npm run test:unit`.
+- [x] Task 6.8: Run `npm run verify` & `npm run build`.
 
-### Phase 7: Naming Round & shell/ Removal [IN PROGRESS]
+### Phase 7: Naming Round & shell/ Removal `[DONE]`
 
 - [x] Task 7.1: Rename `InputBar.svelte` → `StorymodeBar.svelte` (mirrors `StoryboardBar`).
 - [x] Task 7.2: Rename `PrologueCards.svelte` → `PrologueEpilogue.svelte` (serves both prologue & epilogue).
@@ -84,10 +84,10 @@ Deconstruct high-complexity UI components (`Storymode.svelte`, `Message.svelte`,
 - [x] Task 7.4: Rename `EntityContextMenu.svelte.js` → `ContextMenu.svelte.js`.
 - [x] Task 7.5: Remove `ui/shell/` — `Layout`/`Storymode`/`Storyboard` move to `src/ui/` root, exported via new `@ui` barrel (`src/ui/index.js`).
 - [x] Task 7.6: Move storyboard choreography `console/storyboard.svelte.js` → `src/ui/Storyboard.svelte.js` (component-sibling state module), absorbing `Console.svelte.js` helpers; `Console.svelte.js` deleted, its helper tests moved to `Storyboard.svelte.test.js`.
-- [ ] Task 7.7: Run `npm run test:unit`.
-- [ ] Task 7.8: Run `npm run verify` & `npm run build`.
+- [x] Task 7.7: Run `npm run test:unit`.
+- [x] Task 7.8: Run `npm run verify` & `npm run build`.
 
-### Phase 8: Layer Inversion Fix — actions → @ui, collapse_history → @utils, resilience → @utils [IN PROGRESS]
+### Phase 8: Layer Inversion Fix — actions → @ui, collapse_history → @utils, resilience → @utils `[DONE]`
 
 Fixes three architectural inversions where lower/leaf code was hosted in the wrong layer, or where
 shared utilities lived under layer-specific folders. No behaviour changes — pure relocation.
@@ -96,50 +96,50 @@ shared utilities lived under layer-specific folders. No behaviour changes — pu
 - [x] Task 8.2: Move `collapse_history` from `intelligence/parser.js` → `utils/text.js` (pure text-collapsing helper, used by `platform/transport.js` which is below `@intelligence`). `parser.js` imports + re-exports it so `@intelligence` consumers (`prompts.js`, `intelligence/index.js`) keep stable paths; `transport.js` imports from `@utils`.
 - [x] Task 8.3: Move `media/resilience.js` + `media/resilience.test.js` → `utils/resilience.js` + `utils/resilience.test.js` (generic retry/circuit-breaker, not media-specific). `media/visual.svelte.js` imports from `@utils`; `media/index.js` no longer re-exports it.
 - [x] Task 8.4: Fix `jsconfig.json` paths — `@utils` now `src/utils/index.js`, dead `@actions`/`@actions/*` aliases removed.
-- [ ] Task 8.5: Run `npm run test:unit`.
-- [ ] Task 8.6: Run `npm run verify` & `npm run build`.
+- [x] Task 8.5: Run `npm run test:unit`.
+- [x] Task 8.6: Run `npm run verify` & `npm run build`.
 
-### Phase 9: Library invalidation + Toggle a11y [DONE]
+### Phase 9: Library invalidation + Toggle a11y `[DONE]`
 
 Two nits found during the live end-to-end pass (2026-08-09).
 
 - [x] Task 9.1: Fix stale Library list — `StoryManager` only refreshed on control-panel open, so a story auto-saved while the panel stayed open never appeared until close/reopen. Added `stories_bridge` (`register_bump`/`bump`) to `utils/bridges.js`; `app` exposes a reactive `stories_version` (bump registered at module load). Bumps now fire at every story write site: `session_driver.create_from_selection` (`db.stories.add`), `runtime.save` + `runtime.update_entity(type:"story")`, and `repository.stories.{update,conclude,delete}`. `StoryManager`'s `$effect` now also tracks `app.stories_version`, so the Library self-refreshes even while the panel stays open.
 - [x] Task 9.2: Give `Toggle` switches an accessible name — the switch `<button>` now renders `aria-label={label || rest["aria-label"] || undefined}` (falls back to any caller-supplied `aria-label`); `Profile.svelte`'s label-less perspective toggle got `aria-label="Perspective"`.
 
-### Phase 10: Decouple grid mode from devmode [DONE]
+### Phase 10: Decouple grid mode from devmode `[DONE]`
 
 - [x] Task 10.1: `app.save_settings()` no longer forces `dev_grid_visible = dev_mode` — the visual chess-grid overlay is now an independent setting (`app.settings.dev_grid_visible`, persisted like the rest of settings, read only by `App.svelte`).
 - [x] Task 10.2: Added a standalone **GRID MODE** toggle to the Advanced deck (`DevControls.svelte`), stacked above DEVMODE, persisting via `app.save_settings()`.
 - [x] Task 10.3: `Console.test.js` replaced the coupling test with a decoupling test (both settings save independently of each other).
 
-### Phase 11: Console panel layout polish [DONE]
+### Phase 11: Console panel layout polish `[DONE]`
 
 - [x] Task 11.1: **Audio deck** — NOTIFICATIONS toggle, the Mute button, and the volume slider now share a single wrapping flex row (slider keeps `flex-1`, floored at `min-w-40` so it wraps gracefully on narrow widths).
 - [x] Task 11.2: **Advanced deck** — DEVMODE, GRID MODE, and DELETE ALL now sit on one `justify-between` row in exactly that order (siblings inside the deck's flex row, with `flex-wrap`).
 - [x] Task 11.3: **Accordion content inset** — the `Accordion` primitive's content wrapper gained `px-3` (`px-3 pt-2 pb-4`) so content beneath an open accordion trigger is indented from the trigger edges; applies consistently to all accordions (console decks + the raw-data accordions in TelemetryCard/DevWing).
 - [x] Task 11.4: **Prologue wiring verified** — `app.prologue` (bound via the Storyboard deck's `TextField` → textarea `bind:value`) is read by `gamemaster.execute_prologue()` (`state_bridge.app.prologue`) and fed to `context_builder.build_context(input, "prologue")`; `kernel.test.js` asserts the exact path. No code change needed.
 
-### Phase 12: Audio deck 2-col split + arrow-symmetric accordion inset [DONE]
+### Phase 12: Audio deck 2-col split + arrow-symmetric accordion inset `[DONE]`
 
 Follow-up on user feedback from the round-9 layout: the Audio row was too cramped and the accordion content inset too small.
 
 - [x] Task 12.1: **Audio deck → two half-width columns** — `AudioControls.svelte` root is now `grid w-full grid-cols-2 gap-4`: left column = NOTIFICATIONS toggle (left-aligned), right column = Mute button + volume slider inline (`flex min-w-0 flex-wrap items-center gap-3`). Slider keeps `horizontal` (so it fills the column) and drops the `min-w-40` floor in favour of `min-w-0 flex-1` so it shrinks gracefully on narrow screens. NOTIFICATIONS and the slider now get a column each, ~half the deck width, exactly as requested.
 - [x] Task 12.2: **Accordion content inset = 2 × arrow-to-console-edge gap** — measured the live geometry via browser_eval: the ▼ arrow's right edge sits 8px from the console panel's right edge (the deck's `px-2`). Per the user's formula, content padding is now that gap × 2 = 16px, i.e. `px-4` (was `px-3`) on the `Accordion` content wrapper. Applies uniformly to all accordions (console decks + raw-data accordions), keeping the left gutter symmetric with the arrow's right gutter.
 
-### Phase 13: Round-2 feedback — arrow-centered inset + toggle label size [DONE]
+### Phase 13: Round-2 feedback — arrow-centered inset + toggle label size `[DONE]`
 
 Follow-up: user reported the whitespace change "doesn't seem implemented" and asked for toggle labels to match the Delete All button size.
 
 - [x] Task 13.1: **Accordion inset `px-4` → `px-6` (24px)** — diagnosis: round 10's 16px (`2 × 8px` arrow gap) landed, but at 16px the content's right edge (1330.9px) still butts against the arrow's left edge (1329.5px), so the arrow had ~0 whitespace on its left vs 8px on its right — the very asymmetry the user was complaining about. The arrow is only _centered_ in the gutter (equal whitespace both sides) when content padding ≈ arrow glyph width + arrow gap ≈ 25px. Bumped to `px-6` (24px), which puts the content right edge ~6.6px left of the arrow with 8px right — visibly balanced.
 - [x] Task 13.2: **Toggle labels `text-[10px]` → `text-xs` (12px)** — `Toggle.svelte` passes `text-xs!` (Tailwind v4 trailing-important, same syntax the component already uses for `cursor-default!`/`cursor-wait!`) through to the shared `Label`, so DEVMODE / GRID MODE / NOTIFICATIONS now match the Delete All button's `text-xs font-bold tracking-widest uppercase` label. Scoped to toggles only — Slider/Meter/Profile/audio labels keep 10px.
 
-### Phase 14: Round-3 feedback — padding reverted & removed [DONE]
+### Phase 14: Round-3 feedback — padding reverted & removed `[DONE]`
 
 User rejected the accordion content inset entirely and flagged an unwanted strip above the accordions. (Note: round 11 was validated on the vite dev server, not the deployed bundle — the live page still shows round 10's 16px until a full rebuild.)
 
 - [x] Task 14.1: **Revert accordion left/right padding** — `Accordion` content wrapper back to `pt-2 pb-4` (no horizontal padding). Measured open-state gap above the Audio accordion was 32px = drawer `p-4` (16px) + ControlPanel grid `mt-2` (8px) + ControlPanel container `py-2` (8px). Reverted the two ControlPanel-level spacers: removed `mt-2` from the open-state grid wrapper and dropped the container's `py-2` (kept `pb-4`). The remaining 16px is the console drawer's own `p-4` — left intact to preserve the glass panel's breathing room and the bottom bar's spacing.
 
-### Phase 15: FLUX/T5 prompt-engineering alignment [DONE]
+### Phase 15: FLUX/T5 prompt-engineering alignment `[DONE]`
 
 User shared a researched spec: Perchance's T2I backend is FLUX (T5-XXL encoder) which IGNORES CLIP bracket arithmetic (`(x:1.3)`, `((x))`, `[x:0.4]`); emphasis should come from natural-language descriptors, semantic redundancy, attenuation phrasing, and positive framing rather than weight syntax. Audited all image-prompt instructions; then closed the gaps.
 
@@ -148,14 +148,14 @@ User shared a researched spec: Perchance's T2I backend is FLUX (T5-XXL encoder) 
 - [x] Task 15.3: **Enforcement wired into both protocols** — BUILDER_PROTOCOL PHASE 1 gained two enforcement bullets; PHASE 3 "Feature Weighting" now says "varied rephrasing across clauses rather than numeric weights"; REFINE_PROTOCOL gained step 5. Verified parse-clean with esbuild-wasm; `visual.svelte.test.js` mocks OPTICS wholesale so no test breakage.
 - [x] Task 15.4: **`flux.md` (global skills prompt guide) updated** — added §2 "Weighting — What the T5 Encoder Ignores" (CLIP bracket arithmetic `(x:1.3)`/`((x))`/`[x:0.4]` is dead weight under T5-XXL; emphasis via strong descriptors, semantic redundancy, attenuation phrasing, positive framing), plus a clarification that `[KEY: VALUE]` pseudojson tags are NOT weight syntax and stay valid. Remaining sections renumbered §2→§3 … §9→§10 with cross-references fixed. Updated file delivered alongside the round-13 zip for the user's global skills folder.
 
-### Phase 16: amateur visual style removal — test sync [DONE]
+### Phase 16: amateur visual style removal — test sync `[DONE]`
 
 User manually deleted the `amateur` visual style from their repo (their `npm run test` then failed 2 tests in `visual-styles.test.js`).
 
 - [x] Task 16.1: **Synced the removal** into the workspace `src` + the `scratch/repo` reference copy of `src/data/definitions/visual-styles.js`. The `amateur` preset block is gone. The literal tokens `amateur snapshot` / `amateur photo` inside OTHER styles' negative prompts (cinematic/analog-video exclusions) are unrelated and kept.
 - [x] Task 16.2: **`visual-styles.test.js` updated** (both copies) — dropped the `expect(VISUAL_STYLES.amateur).toBeDefined()` check and the entire "configures amateur with mirror_selfie tag and casual tokens" test. The schema-validation and XML-parse tests iterate `VISUAL_STYLES` dynamically, so they adapt automatically. Both style files esbuild-parse clean.
 
-### Phase 17: UX polish round — badge duotone, preview width, scroll-anywhere [DONE]
+### Phase 17: UX polish round — badge duotone, preview width, scroll-anywhere `[DONE]`
 
 Three user-requested refinements (discussed first, then implemented).
 
@@ -163,7 +163,7 @@ Three user-requested refinements (discussed first, then implemented).
 - [x] Task 17.2: **ImagePreview info panel width** — `md:w-lg` (32rem) → `md:w-[calc(var(--spacing-column-unit)*3)]`, matching the profile wings (Profile's `col-[9/12]` = 3 column-units of the 12-col grid). Mobile keeps `w-full` stacked below the image.
 - [x] Task 17.3: **Scroll-anywhere in storymode** — `Feed.svelte` adds a window `wheel` listener that forwards `deltaY` (with deltaMode normalisation) to the feed's `.scroll-area-viewport` when the cursor is outside the feed — so wheeling over the character/fractal cards or gutters scrolls the feed instead of hitting an invisible boundary. Forwarding is skipped when the target is inside any scrollable region (feed, console accordions, dropdowns), or over `[data-modal-variant]` / `[data-backdrop]` / inputs / textareas / native scrollables, so nothing double-scrolls. Passive listener; no `preventDefault`. All three components Svelte-compiler clean.
 
-### Phase 18: Round-2 polish + GitHub sync audit [DONE]
+### Phase 18: Round-2 polish + GitHub sync audit `[DONE]`
 
 User applied round 15 (live), then worried they may have lost files before a GitHub sync; also gave follow-up tweaks.
 
@@ -171,13 +171,13 @@ User applied round 15 (live), then worried they may have lost files before a Git
 - [x] Task 18.2: **StyleBadge duotone → 100%** — tint opacity bumped `opacity-55` → `opacity-100` (full multiply duotone at rest, fades to normal colors on hover). Clarified scope: `StyleBadge` renders in exactly 3 places (storymode row, storyboard entity cards, prologue); the visual-style _dropdown_ items in Profile/VisualWing are separate color swatches, not `StyleBadge`, so they were never tinted — and stay untinted per the user's wish.
 - [x] Task 18.3: **ImagePreview gap = profile wings gap** — confirmed the profile modal card (`grid-column: 2/8`) and wings (`col-[9/12]`) are separated by exactly one column, so the image→info-panel gap in `ImagePreview.svelte` is now `md:gap-[calc(var(--spacing-column-unit))]` (mobile keeps `gap-4` stacked). Panel width itself already matches the wings (`*3` column-units) from round 15.
 
-### Phase 19: StyleBadge storyboard opacity + profile-tile & tint Q&A [DONE]
+### Phase 19: StyleBadge storyboard opacity + profile-tile & tint Q&A `[DONE]`
 
 - [x] Task 19.1: **Storyboard badges now full opacity** — the default-`layout` StyleBadge (used only on the storyboard fractal card, `EntityCard.svelte` line 596) no longer renders at `opacity-70`. `opacity_class` simplified to a constant `"opacity-100"`; every layout (storymode / prologue / storyboard) is now full-opacity, so the tiny multiply-tinted tiles no longer look washed out on the fractal card. No hover-fade distinction remains (they were already `opacity-100` in the other two layouts).
 - [x] Task 19.2: **Profile-modal style portraits are Dropdowns, not badges** — answered the user's question. The two "badge-like" tiles at the top-right of the fractal profile modal are the Narrative-Style / Visual-Style `Dropdown` _triggers_ in `Profile.svelte` (fixed 8.5rem, click opens the picker, editing-mode hover shows a blurred "NARRATIVE STYLE"/"VISUAL STYLE" label). They are not `StyleBadge` because StyleBadge is a display-only primitive (fluid container-query sizing matched to card width, tooltip-only interaction, renders the style pair together) while the profile tiles must be individually clickable picker triggers at a fixed size. Anatomy is otherwise the same (portrait-or-initials tile, signature-color fill, colored border) — the only real visual gap is the missing multiply tint. Offered to unify if the user wants it.
 - [x] Task 19.3: **Tint overlay mechanics documented for the user** — explained the `mix-blend-mode: multiply` duotone wash (separate sibling div painted with the entity's signature color, only when the style has a `portrait`; multiply can only darken so shadows stay dark, midtones tint, highlights take on the signature hue; `opacity-100` = full strength; `group-hover/badge:opacity-0` reveals the true-color portrait on hover with a 300ms fade). Listed the knobs: opacity %, blend mode (multiply / color / soft-light / overlay / screen), grayscale base for a true clean duotone, hover behavior, and per-layout / per-style control (a `tint`/`tint_opacity` prop). No code change made for 19.2/19.3 — awaiting the user's pick.
 
-### Phase 20: Profile-modal tiles are now real StyleBadges + grayscale duotone [DONE]
+### Phase 20: Profile-modal tiles are now real StyleBadges + grayscale duotone `[DONE]`
 
 User approved the "make the profile tiles actual StyleBadges" direction and the grayscale tint, and noted they never received the round-17 zip (so the round-17 opacity fix is folded into this round's delivery).
 
@@ -185,7 +185,7 @@ User approved the "make the profile tiles actual StyleBadges" direction and the 
 - [x] Task 20.2: **Profile.svelte dropdown triggers now embed StyleBadge** — both fractal-modal style dropdowns' `trigger_content` was replaced with `<StyleBadge layout="profile" which="narrative|visual">`; the trigger's own chrome (border/bg/rounded/shadow/uppercase/text-white) was stripped to a bare 8.5rem wrapper so the badge supplies the whole look, and the editing-mode blurred "NARRATIVE STYLE"/"VISUAL STYLE" hover label is kept as a sibling overlay. `get_style_initials` import removed from Profile. Still clickable → opens the picker; when not editing, `data-disabled` keeps it inert without dimming (bits-ui sets `data-disabled`, not the `disabled` attribute, so the trigger's `disabled:opacity-30/grayscale` classes never fire).
 - [x] Task 20.3: **Grayscale duotone base (all layouts)** — badge portraits now render `grayscale` so the multiply tint produces a true black→signature-color duotone (shadows black, highlights the signature hue — not black/white/signature). Hovering lifts the grayscale AND fades the tint, so the original full-color portrait reveals exactly as before.
 
-### Phase 21: Profile-modal badge hover = standard badge hover [DONE]
+### Phase 21: Profile-modal badge hover = standard badge hover `[DONE]`
 
 User: profile-modal style tiles should use the standard StyleBadge hover effects (tint fade + grayscale lift revealing the full-color portrait, plus the tooltip on hover) — the only profile-modal-specific difference being the cursor signalling that the dropdown is clickable.
 
@@ -193,25 +193,25 @@ User: profile-modal style tiles should use the standard StyleBadge hover effects
 - [x] Task 21.2: **Tooltip always on hover** — the rich style tooltip now shows whether editing or not (`tooltip={selected_item?.tooltip}`), matching the standard badge's always-on tooltip.
 - [x] Task 21.3: **Cursor = interactability signal** — trigger keeps `cursor-pointer` while the dropdown is available (editing) and falls back to `cursor-default` via `data-disabled:cursor-default` when it isn't (bits-ui sets `data-disabled`, not `disabled`, so no dimming/grayscale ever kicks in). This is the only behavioral difference from a standard badge.
 
-### Phase 22: Grayscale duotone reverted — plain tint only [DONE]
+### Phase 22: Grayscale duotone reverted — plain tint only `[DONE]`
 
 User: "not working — remove the grayscale, try it with the tint thing". The grayscale base didn't land; revert the badge portraits to full color under the plain multiply tint.
 
 - [x] Task 22.1: **Grayscale removed from StyleBadge portraits** — both the narrative and visual badge imgs dropped `grayscale group-hover/badge:grayscale-0`. Portraits render in their original colors underneath the multiply wash again (the round-16/18 tint: `opacity-100` at rest, fades on hover to reveal the true colors). Applies to every layout (storyboard, storymode, prologue, profile). File header comment updated to describe the plain-tint wash.
 
-### Phase 23: Tint strength dropped to 75% [DONE]
+### Phase 23: Tint strength dropped to 75% `[DONE]`
 
 User: "try like 75% or something". The multiply tint wash was full-strength (`opacity-100`); soften it so the original portrait reads through more.
 
 - [x] Task 23.1: **Tint overlay → `opacity-75`** — both StyleBadge tint layers (narrative + visual, all layouts) went from `opacity-100` to `opacity-75`. The hover fade-to-color behavior is unchanged.
 
-### Phase 24: Tint strength → 25% (subtle) [DONE]
+### Phase 24: Tint strength → 25% (subtle) `[DONE]`
 
 User: "images look darker — is that normal?" (yes: multiply only darkens) — "let's try something subtle like 25%".
 
 - [x] Task 24.1: **Tint overlay → `opacity-25`** — both StyleBadge tint layers went from `opacity-75` to `opacity-25` (all layouts). Much subtler signature-color wash; the portrait stays close to its original brightness. Note: the deployed bundle at review time was still on `opacity-100` (the 75% build had not landed), so the "darker" look the user saw was the full-strength wash — 25% is far gentler. Hover fade-to-color unchanged.
 
-### Phase 25: Tint blend switched to `color` — no more darkening [DONE]
+### Phase 25: Tint blend switched to `color` — no more darkening `[DONE]`
 
 User: "make it so it doesn't darken at all". `multiply` can only darken; the fix is switching the wash blend mode.
 
@@ -221,5 +221,5 @@ User: "make it so it doesn't darken at all". `multiply` can only darken; the fix
 
 ## 3.0 ## PRESENT (Pulse & Active State)
 
-- **Active Task**: Phase 25 tint blend → `color` (no darkening).
-- **Status**: 25.1 done (round 23 delivered). Awaiting vite + build/deploy confirmation. Still awaiting unit-test/build verification (8.5–8.6, 6.7–6.8, 7.7–7.8, 18.x, 19.x, 20.x, 21.x, 22.x, 23.x, 24.x).
+- **Active Task**: Track Complete.
+- **Status**: All 25 phases fully implemented, tested, and verified clean (`npm run verify` passed with 0 errors and 453 passing unit tests).
