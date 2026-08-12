@@ -1370,6 +1370,7 @@ export const temporal_engine = {
               type: "MEMORY_FORMATION",
               target: key,
               memories,
+              vectors: memories,
               turns_count: slice.length,
             });
           }

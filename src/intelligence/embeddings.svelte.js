@@ -5,7 +5,7 @@
  * Embeds text into 384-dim float arrays; cosine similarity for semantic retrieval.
  */
 
-import { deserialize_embedding, onnx_mutex } from "@utils";
+import { deserialize_embedding, onnx_mutex, mark_ort_ready } from "@utils";
 
 let _pipeline = null;
 let _loading = null;
@@ -43,7 +43,11 @@ export async function load_model() {
   _is_loading = true;
   _loading = (async () => {
     try {
-      const transformers = await import("https://esm.sh/@huggingface/transformers@3.5.2");
+      // Pin STABLE onnxruntime-web: the 1.22.0-dev build esm.sh resolves by default for
+      // transformers 3.5.x fails WASM init inside the Perchance iframe ("WebAssembly is
+      // not initialized yet" on every backend), silently degrading RAG to lexical-only.
+      // 1.22.0 stable inits fine; 1.21.0 lacks the _OrtGetInputName binding kokoro needs.
+      const transformers = await import("https://esm.sh/@huggingface/transformers@3.5.2?deps=onnxruntime-web@1.22.0");
       // Run ONNX inference on a Web Worker so long embeds never block the main
       // thread. Fall back silently if the runtime doesn't support it.
       try {
@@ -52,23 +56,8 @@ export async function load_model() {
         console.warn("[Embeddings] Worker-backed ONNX unavailable, using main thread:", err);
       }
       try {
-        _pipeline = await transformers.pipeline("feature-extraction", MODEL_ID, {
-          progress_callback: (/** @type {any} */ data) => {
-            if (data && (data.status === "progress" || data.status === "download")) {
-              if (data.file && typeof data.progress === "number") {
-                file_progress[data.file] = data.progress;
-                const values = Object.values(file_progress);
-                const avg = values.reduce((a, b) => a + b, 0) / values.length;
-                _load_progress = Math.round(avg);
-              }
-            }
-          },
-        });
-      } catch (proxyErr) {
-        if (transformers.env?.backends?.onnx?.wasm?.proxy) {
-          console.warn("[Embeddings] Proxy WASM pipeline init failed, falling back to main thread:", proxyErr);
-          transformers.env.backends.onnx.wasm.proxy = false;
-          _pipeline = await transformers.pipeline("feature-extraction", MODEL_ID, {
+        _pipeline = await onnx_mutex.run(() =>
+          transformers.pipeline("feature-extraction", MODEL_ID, {
             progress_callback: (/** @type {any} */ data) => {
               if (data && (data.status === "progress" || data.status === "download")) {
                 if (data.file && typeof data.progress === "number") {
@@ -79,13 +68,33 @@ export async function load_model() {
                 }
               }
             },
-          });
+          }),
+        );
+      } catch (proxyErr) {
+        if (transformers.env?.backends?.onnx?.wasm?.proxy) {
+          console.warn("[Embeddings] Proxy WASM pipeline init failed, falling back to main thread:", proxyErr);
+          transformers.env.backends.onnx.wasm.proxy = false;
+          _pipeline = await onnx_mutex.run(() =>
+            transformers.pipeline("feature-extraction", MODEL_ID, {
+              progress_callback: (/** @type {any} */ data) => {
+                if (data && (data.status === "progress" || data.status === "download")) {
+                  if (data.file && typeof data.progress === "number") {
+                    file_progress[data.file] = data.progress;
+                    const values = Object.values(file_progress);
+                    const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                    _load_progress = Math.round(avg);
+                  }
+                }
+              },
+            }),
+          );
         } else {
           throw proxyErr;
         }
       }
       _load_progress = 100;
       _model_ready = true;
+      mark_ort_ready();
       return _pipeline;
     } catch (err) {
       console.error("[Embeddings] Failed to load model:", err);

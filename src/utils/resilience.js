@@ -234,3 +234,24 @@ class OnnxMutex {
 }
 
 export const onnx_mutex = new OnnxMutex();
+
+/**
+ * One-shot readiness signal for the shared ort-wasm runtime. The embeddings
+ * pipeline is the first ort user at boot; once it constructs, ort-wasm is
+ * fully initialized. Kokoro's loader awaits this before attempting any device
+ * so a webgpu session never fires while ort-wasm is still mid-initialization
+ * (that aborts the in-flight init and fails every backend with "WebAssembly
+ * is not initialized yet").
+ */
+let _ort_ready_resolve = null;
+const _ort_ready = new Promise((resolve) => {
+  _ort_ready_resolve = resolve;
+});
+
+export function mark_ort_ready() {
+  _ort_ready_resolve?.();
+}
+
+export function wait_ort_ready(timeout_ms = 45000) {
+  return Promise.race([_ort_ready, new Promise((resolve) => setTimeout(resolve, timeout_ms))]);
+}

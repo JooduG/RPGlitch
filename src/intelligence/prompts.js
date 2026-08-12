@@ -48,19 +48,19 @@ const MEMORY_JSON_SCHEMA = `{
   "AI_CHARACTER": {
     "eternal_consolidated": { "physical": "Permanent physical change or empty string", "non_physical": "Permanent psychological shift or empty string" },
     "present_consolidated": { "physical": "Clean updated physical state (or empty if unchanged)", "non_physical": "Clean updated mental/emotional baseline (or empty if unchanged)" },
-    "future_consolidated": "Clean rewritten standing agenda (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense, or empty string if unchanged",
+    "future_consolidated": "REQUIRED: the standing agenda rewritten from this history (intent, prophecy, looming threat, impulse) as 2-5 sentences of active future tense — must differ from the old agenda whenever events changed it; never echo it verbatim",
     "vector_append": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "USER_PERSONA": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "future_consolidated": "Clean rewritten standing agenda (2-5 sentences, active future tense), or empty string if unchanged",
+    "future_consolidated": "REQUIRED: the standing agenda rewritten from this history (2-5 sentences, active future tense) — drop goals this history fulfilled, refresh the rest; never echo the old text verbatim",
     "vector_append": [ { "content": "ONLY if a durable fact emerged worth keeping (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   },
   "FRACTAL": {
     "eternal_consolidated": { "physical": "", "non_physical": "" },
     "present_consolidated": { "physical": "", "non_physical": "" },
-    "future_consolidated": "Clean rewritten standing agenda — environmental prophecy, looming threat, or impulse (2-5 sentences, active future tense), or empty string if unchanged",
+    "future_consolidated": "REQUIRED: the world standing agenda — environmental prophecy, looming threat, or impulse — rewritten from this history (2-5 sentences, active future tense). Resolved threats/prophecies MUST be dropped and replaced by their aftermath; never leave the world agenda unchanged and never echo the old text verbatim",
     "vector_append": [ { "content": "ONLY if a durable fact/environmental shift emerged (EMPTY LIST otherwise; AT MOST 1 ITEM)", "type": "past", "emotional_weight": 5 } ]
   }
 }`;
@@ -562,9 +562,9 @@ ${entity_blocks}
     Compress this history into structured state updates and temporal vectors. Record internal evaluation inside "_thought_process" at the top of the JSON object.
     For each active entity (AI_CHARACTER, USER_PERSONA, FRACTAL):
       - "eternal_consolidated": Record permanent identity, psychological, or physical changes to baseline form (or empty string).
-      - "present_consolidated": Rewrite a clean, updated physical and non-physical state, discarding expired temporary deltas.
-      - "future_consolidated": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <FUTURE> text above; drop any goal this history fulfilled or abandoned (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged.
-      - "vector_append": Add settled historical anchors (memories) written strictly from that entity's own perspective — a "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future_consolidated".
+      - "present_consolidated": Rewrite a clean, updated physical and non-physical state, discarding expired temporary deltas. MANDATORY FOR PHYSICAL STATE: You MUST retain physical attire/clothing (e.g. [CLOTHING: flight suit], [SHIRT: cargo jacket]) and active equipment/implants/containers (e.g. [EQUIPMENT: scrap-tech arm, bio-tank]) unless explicitly destroyed or disrobed.
+      - "future_consolidated": Rewrite the entity's standing agenda as ONE clean block of 2-5 sentences (active future tense). Read the entity's current <FUTURE> text above; drop any goal this history fulfilled or abandoned (and record what actually happened as a "past" vector instead), sharpen whatever still matters, and fold in at most one genuinely new intent. This field is REQUIRED for every active entity this batch — never omit it. For FRACTAL entities, you MUST rewrite the standing agenda so world events and environmental prophecies advance; do not leave the world agenda unchanged. When an event resolves a prophecy or threat, that agenda item must be dropped and REPLACED by its aftermath — a resolved "eclipse in 3 days" must become the post-eclipse state, never remain verbatim.
+      - "vector_append": Add settled historical anchors (memories) written strictly from that entity's own perspective — a "past" vector is a concrete event or fact that already happened and must be remembered. No future items: the agenda lives in "future_consolidated". HIGH THRESHOLD FOR FRACTAL: For FRACTAL entities, vector_append is strictly restricted to MAJOR structural shifts or cataclysmic chapter transitions (e.g. facility destruction). Do NOT record minor room breaches, vent entries, or security alarms as past vectors for the Fractal — leave vector_append as an EMPTY LIST [] for standard turns.
     FACT RETENTION (mandatory — facts outrank feelings):
       - Concrete facts MUST survive: proper nouns (names, places, organizations, facilities, rooms), numbers (years, counts, floor levels, prices), named objects (files, devices, blueprints, vats), cause/effect chains, and promises or agreements.
       - Encode settled facts as "past" vectors even when they carry no emotion — a dry, factual anchor beats an eloquent omission. The current emotional color is secondary and may be dropped; the facts may not.
@@ -572,7 +572,7 @@ ${entity_blocks}
       - When in doubt about whether a fact will matter later, retain it. Missing facts corrupt long-form continuity.
     CRITICAL OUTPUT CONSTRAINT (failure to obey will corrupt memory):
       - Output ONLY the JSON object. No code fences, no prose, no trailing commas.
-      - Keep the ENTIRE JSON under 1400 characters. Omit any unchanged field; "_thought_process" must be one short clause.
+      - Keep the ENTIRE JSON under 1800 characters. Omit any truly unchanged optional field; "_thought_process" must be one short clause. Never omit "future_consolidated" for an active entity — if you must cut something to fit, cut eternal_consolidated or vector_append extras first.
       - Never truncate — a complete smaller JSON beats a large cut-off one. If you run out of room, drop vector_append before dropping the closing brace.
     Output strict JSON matching this schema:
     ${MEMORY_JSON_SCHEMA}

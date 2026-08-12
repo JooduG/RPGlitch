@@ -34,7 +34,7 @@
   /** @type {Props} */
   let { meta = {} } = $props();
 
-  let forged_vectors = $derived(Array.isArray(meta.vectors) ? meta.vectors : []);
+  let forged_vectors = $derived(Array.isArray(meta.vectors) ? meta.vectors : Array.isArray(meta.memories) ? meta.memories : []);
 
   let entity_blocks = $derived(process_entity_blocks(meta));
 

@@ -4,7 +4,7 @@
  * The sensory cortex for all things sonic. Handles sound effects,
  * notifications, and text-to-speech with Svelte 5 reactivity.
  */
-import { get_rpg_list, strip_cognition_blocks, onnx_mutex } from "@utils";
+import { get_rpg_list, strip_cognition_blocks, onnx_mutex, wait_ort_ready } from "@utils";
 import { db } from "@data";
 
 const STORAGE_KEY = "rpglitch_audio_settings";
@@ -353,7 +353,16 @@ export class VoiceEngine {
   async #load_model_inner() {
     this.is_loading = true;
     try {
-      const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1");
+      // Pin STABLE onnxruntime-web (same reason as embeddings.svelte.js): kokoro-js' default
+      // esm.sh resolution fails WASM init inside the Perchance iframe, forcing the Web Speech
+      // API fallback. The ?deps= override propagates through kokoro-js -> transformers -> ort.
+      const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1?deps=onnxruntime-web@1.22.0");
+
+      // Hold until the embeddings pipeline has finished initializing the shared
+      // ort-wasm runtime. Attempting a kokoro session while that init is still
+      // in flight aborts it and fails every backend ("WebAssembly is not
+      // initialized yet"), forcing the Web Speech API fallback.
+      await wait_ort_ready();
 
       const has_web_gpu = typeof navigator !== "undefined" && Boolean(/** @type {any} */ (navigator).gpu);
       const candidates = has_web_gpu
