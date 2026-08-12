@@ -234,7 +234,13 @@ export const session_driver = {
    */
   load_log: async function (story_id) {
     if (!story_id) return [];
-    return await db.simulation_log.where("story_id").equals(story_id).sortBy("created_at");
+    const str_id = String(story_id);
+    const num_id = Number(story_id);
+    let msgs = await db.simulation_log.where("story_id").equals(str_id).sortBy("created_at");
+    if (msgs.length === 0 && !isNaN(num_id)) {
+      msgs = await db.simulation_log.where("story_id").equals(num_id).sortBy("created_at");
+    }
+    return msgs;
   },
 
   /**

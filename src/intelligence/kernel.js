@@ -76,15 +76,19 @@ async function sweep_stale_ghosts() {
         if (a && a.src == null && !a.metadata?.failed) {
           const age = now - (entry.created_at || 0);
           if (age > IMAGE_GHOST_MAX_AGE_MS) {
-            await state_bridge.session_driver.update_log_attachment(entry.id, i, {
-              src: null,
-              metadata: {
-                ...(a.metadata || {}),
-                failed: true,
-                image_ghost_swept: true,
-                error: "Image beat timed out before it could resolve.",
-              },
-            });
+            if (!entry.text || !entry.text.trim()) {
+              await state_bridge.session_driver.delete_log_entry(entry.id);
+            } else {
+              await state_bridge.session_driver.update_log_attachment(entry.id, i, {
+                src: null,
+                metadata: {
+                  ...(a.metadata || {}),
+                  failed: true,
+                  image_ghost_swept: true,
+                  error: "Image beat timed out before it could resolve.",
+                },
+              });
+            }
           }
         }
       }
