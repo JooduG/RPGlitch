@@ -79,14 +79,14 @@ src/
 │   ├── kernel.js               # gamemaster — 2-Shot simulation pipeline (Director Shot 1 ➔ Character Shot 2), fallback mutations, 1-turn intent extraction
 │   ├── prompts.js              # prompt_builder — deconstructed XML prompt assembly (render_character, render_director, render_protocols)
 │   ├── context.svelte.js       # context_builder — context assembly, token budgeting & lexical filter
-│   ├── temporal.js             # RAG vector scoring, FUTURE_VECTOR_CAP = 5, is_origin immunity guard & future_compile retirement pass
-│   ├── embeddings.svelte.js    # Semantic vector RAG embeddings via Transformers.js
+│   ├── temporal.js             # RAG vector scoring, memory forge consolidation, telemetry logging & future_consolidated standing agenda engine
+│   ├── embeddings.svelte.js    # Semantic vector RAG embeddings via Transformers.js (main-thread WASM, numThreads = 1, onnx_mutex guarded)
 │   ├── parser.js               # Pseudo-JSON extraction, <think> parsing, extract_immediate_intent, merge_prose_into_field
 │   ├── dynamics.js             # Gravity settlement math & slider metadata
 │   └── index.js                # @intelligence barrel
 ├── media/                  # Visual synthesis, visual parameters & audio TTS pipelines
-│   ├── audio.svelte.js         # Audio / VoiceEngine — Kokoro-82M Neural TTS & Web AudioContext
-│   ├── visual.svelte.js        # visual_engine — Visual Wing state & generated artwork gallery
+│   ├── audio.svelte.js         # Audio / VoiceEngine — Kokoro-82M Neural TTS (wait_ort_ready 10s gate, onnx_mutex guarded) & Web AudioContext
+│   ├── visual.svelte.js        # visual_engine — Visual Wing state & generated artwork gallery (F4 sweep watchdog)
 │   ├── optics.js               # aesthetic_resolver / prompt_templates — Perchance T2I prompt builders & parameter resolver
 │   ├── tokens.js               # Design tokens & color system bridge
 │   ├── design.css              # Primary design styles & Tailwind CSS directives
@@ -97,7 +97,7 @@ src/
 │   └── index.js                # @platform barrel
 ├── state/                  # Centralized Svelte 5 Rune stores & reactive state
 │   ├── app.svelte.js           # app — application configuration, view state & user preferences
-│   ├── runtime.svelte.js       # runtime — active entity state, chronology & turn status
+│   ├── runtime.svelte.js       # runtime — active entity state, chronology & turn status (sync restores active session)
 │   ├── status.svelte.js        # simulation_state — execution stasis phase & simulation lock (STASIS)
 │   ├── log.svelte.js           # simulation_log — telemetry & diagnostic log state
 │   └── index.js                # @state barrel
@@ -110,7 +110,7 @@ src/
 │   ├── crypto.js               # UUID & secure-seed generation
 │   ├── field-path.js           # Nested field-path accessors
 │   ├── text.js                 # Raw-prose fallback, text cleaning & strip_cognition_blocks
-│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker
+│   ├── resilience.js           # ExponentialBackoffRetryer / CircuitBreaker / onnx_mutex / wait_ort_ready
 │   ├── vectors.js              # Vector helpers
 │   └── index.js                # @utils barrel
 └── ui/                     # Sensory UI layer (top-level views + feature modules + shared primitives)
@@ -148,7 +148,7 @@ The codebase enforces a strict, fully-audited naming discipline. Treat violation
 
 ---
 
-## 📋 Data Model, Temporal Engine & Vector Mechanics
+## 📋 Data Model, Temporal Engine & Memory Mechanics
 
 ### 1. State Quadrants & Profile Hygiene
 
@@ -157,18 +157,14 @@ The codebase enforces a strict, fully-audited naming discipline. Treat violation
   - `non_physical`: Dynamic prose paragraphs.
     - `ETERNAL`: Capped at **1,500 characters** with tail deduplication via `merge_eternal_field()`.
     - `PRESENT`: Capped at **3 concise segments** via `cap_present_prose()`.
-- **Past & Future State** (Vector arrays)
-  - Array of vector objects (`{ id, timestamp, content, type, emotional_weight, meta, _embedding }`).
-  - Scored via semantic RAG (`embeddings.svelte.js`).
+- **Past State** (`entity.past`)
+  - Vector array (`{ id, timestamp, content, type, emotional_weight, meta, _embedding }`).
+  - Scored via semantic RAG (`embeddings.svelte.js`). High-threshold selectivity enforced for Fractal past vectors (major facility destructions only).
+- **Future State / Standing Agenda** (`entity.future_consolidated`)
+  - Single consolidated prose field representing the entity's active trajectory, impending intent, or environmental prophecy.
+  - Rewritten **wholesale** by the Memory Forge on every consolidation cycle (every 8 turns), evolving post-climax into aftermath. Eliminates FIFO vector eviction and ONNX embedding overhead.
 
-### 2. Vector Engine & Origin Immunity Rules
-
-- **Hard Ceiling**: `FUTURE_VECTOR_CAP = 5`. Active future vectors can never exceed 5 per entity.
-- **Origin Vector Immunity (`is_origin`)**: Vectors with `timestamp: 0` or `meta.origin` are hand-authored character seeds and are **100% immune to FIFO eviction**.
-- **Vector Deduplication (`is_near_duplicate`)**: Duplicate or near-identical vector text strings are silently rejected before append.
-- **Memory Consolidation Retirement (`future_compile`)**: Every 8 turns during memory consolidation, the LLM forge compiles future vectors, retiring completed/expired goals into past memories and updating active ones.
-
-### 3. 1-Turn Immediate Intent Carryover
+### 2. 1-Turn Immediate Intent Carryover
 
 - **Extraction**: On Turn N, `extract_immediate_intent(think_text)` extracts the 1-sentence physical/vocal beat line from the character's `<think>` block.
 - **Runtime Attachment**: Attached to `state_bridge.runtime.active_ai.immediate_intent`.
@@ -183,3 +179,8 @@ The codebase enforces a strict, fully-audited naming discipline. Treat violation
   ```
 
 - **1-Turn TTL**: Replaced on Turn N+2 (1-turn lifespan), ensuring physical body language momentum without storage bloat or thought-anchoring.
+
+### 3. Session Protocol & Quality Testing (`scrobbles.md`)
+
+- **Protocol Execution**: Before running a live simulation audit, re-read [`scrobbles.md`](file:///c:/Users/johng/source/repos/RPGlitch/scrobbles.md).
+- **Narrative Focus**: [`scrobbles.md`](file:///c:/Users/johng/source/repos/RPGlitch/scrobbles.md) governs narrative edge-case testing (Extreme Vulnerability, Physical Contradiction, Unprompted AI Initiative, Moral Choice, Long-Horizon Fact Recall, Climax Transition, and Anti-Cliché Tic Audits) over a 25–30 turn session.
