@@ -21,29 +21,29 @@
       </p>
     </div>
 
-    <div class="grid grid-cols-2 gap-4 pt-4">
-      <div class="col-span-2 mx-auto flex w-full flex-col">
-        <header class="border-b border-(--color-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
-          NEWLY FORGED MEMORIES
-        </header>
-        <div class="flex flex-col gap-2 pt-2">
-          {#each forged_vectors as v, i (v.id || v.content)}
-            <div
-              class="flex animate-[slide-in_300ms_cubic-bezier(0.4,0,0.2,1)_both] gap-4 rounded-sm border border-l-8 border-[color-mix(in_srgb,var(--color-dev-accent),transparent_85%)] border-l-slate-600 bg-[color-mix(in_srgb,var(--color-dev-accent),transparent_95%)] px-2 py-2 text-xs leading-relaxed"
-              style="animation-delay: {i * 100}ms"
-            >
-              <div class="flex flex-wrap items-center gap-2">
-                <span class="font-mono text-slate-500">FORGED</span>
-                <span class="font-mono text-slate-500 uppercase">{vector_label(v.type, "past")}</span>
+    {#if forged_vectors.length > 0}
+      <div class="grid grid-cols-2 gap-4 pt-4">
+        <div class="col-span-2 mx-auto flex w-full flex-col">
+          <header class="border-b border-(--color-dev-accent)/20 pb-1 text-xs font-bold tracking-widest text-(--color-dev-accent) uppercase">
+            NEWLY FORGED MEMORIES
+          </header>
+          <div class="flex flex-col gap-2 pt-2">
+            {#each forged_vectors as v, i (v.id || v.content)}
+              <div
+                class="flex animate-[slide-in_300ms_cubic-bezier(0.4,0,0.2,1)_both] gap-4 rounded-sm border border-l-8 border-[color-mix(in_srgb,var(--color-dev-accent),transparent_85%)] border-l-slate-600 bg-[color-mix(in_srgb,var(--color-dev-accent),transparent_95%)] px-2 py-2 text-xs leading-relaxed"
+                style="animation-delay: {i * 100}ms"
+              >
+                <div class="flex flex-wrap items-center gap-2">
+                  <span class="font-mono text-slate-500">FORGED</span>
+                  <span class="font-mono text-slate-500 uppercase">{vector_label(v.type, "past")}</span>
+                </div>
+                <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{v.content}</span>
               </div>
-              <span class="line-clamp-2 overflow-hidden text-ellipsis text-slate-50">{v.content}</span>
-            </div>
-          {:else}
-            <div class="font-mono text-xs text-slate-400">NO MEMORIES FORGED</div>
-          {/each}
+            {/each}
+          </div>
         </div>
       </div>
-    </div>
+    {/if}
   </div>
 {:else if meta.type === "VECTOR_RESOLUTION"}
   <!-- [#] VECTOR RESOLUTION -->

@@ -79,9 +79,7 @@
 
   $effect(() => {
     const _stories_version = app.stories_version;
-    if (app.control_panel_open) {
-      refresh_stories();
-    }
+    refresh_stories();
   });
 </script>
 

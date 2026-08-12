@@ -57,10 +57,22 @@ export const app_bootstrap = {
       // Parallel Initialization: Reduce critical path for LCP.
       await Promise.all([state_bridge.runtime.sync(), state_bridge.app.init(), Audio.init()]);
 
+      // Auto-resume active story session & hydrate simulation log feed on page reload
+      const runtime = state_bridge.runtime;
+      if (runtime.story_id) {
+        try {
+          await state_bridge.simulation_log?.refresh?.();
+          await state_bridge.app?.load_entities?.();
+          state_bridge.app.stories_version++;
+          state_bridge.app?.set_view?.("storymode");
+        } catch (syncErr) {
+          console.warn("[Boot] Active story auto-resume failed:", syncErr);
+        }
+      }
+
       // Vector hygiene: entities saved under looser caps may still hold over-cap
       // past/future pools. Trim them once on load (origin/premade vectors are kept)
       // so memory stays bounded going forward.
-      const runtime = state_bridge.runtime;
       for (const { entity, type } of [
         { entity: runtime.active_ai, type: "character" },
         { entity: runtime.active_user, type: "character" },

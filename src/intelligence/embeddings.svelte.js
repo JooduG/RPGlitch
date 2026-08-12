@@ -48,53 +48,34 @@ export async function load_model() {
       // not initialized yet" on every backend), silently degrading RAG to lexical-only.
       // 1.22.0 stable inits fine; 1.21.0 lacks the _OrtGetInputName binding kokoro needs.
       const transformers = await import("https://esm.sh/@huggingface/transformers@3.5.2?deps=onnxruntime-web@1.22.0");
-      // Run ONNX inference on a Web Worker so long embeds never block the main
-      // thread. Fall back silently if the runtime doesn't support it.
+      // Disable worker proxy & enforce single-threaded WASM execution inside iframe sandboxes.
+      // Cross-origin iframe worker blobs cause "WebAssembly is not initialized yet" runtime crashes on reload.
       try {
-        transformers.env.backends.onnx.wasm.proxy = true;
-      } catch (err) {
-        console.warn("[Embeddings] Worker-backed ONNX unavailable, using main thread:", err);
-      }
-      try {
-        _pipeline = await onnx_mutex.run(() =>
-          transformers.pipeline("feature-extraction", MODEL_ID, {
-            progress_callback: (/** @type {any} */ data) => {
-              if (data && (data.status === "progress" || data.status === "download")) {
-                if (data.file && typeof data.progress === "number") {
-                  file_progress[data.file] = data.progress;
-                  const values = Object.values(file_progress);
-                  const avg = values.reduce((a, b) => a + b, 0) / values.length;
-                  _load_progress = Math.round(avg);
-                }
-              }
-            },
-          }),
-        );
-      } catch (proxyErr) {
-        if (transformers.env?.backends?.onnx?.wasm?.proxy) {
-          console.warn("[Embeddings] Proxy WASM pipeline init failed, falling back to main thread:", proxyErr);
+        if (transformers.env?.backends?.onnx?.wasm) {
           transformers.env.backends.onnx.wasm.proxy = false;
-          _pipeline = await onnx_mutex.run(() =>
-            transformers.pipeline("feature-extraction", MODEL_ID, {
-              progress_callback: (/** @type {any} */ data) => {
-                if (data && (data.status === "progress" || data.status === "download")) {
-                  if (data.file && typeof data.progress === "number") {
-                    file_progress[data.file] = data.progress;
-                    const values = Object.values(file_progress);
-                    const avg = values.reduce((a, b) => a + b, 0) / values.length;
-                    _load_progress = Math.round(avg);
-                  }
-                }
-              },
-            }),
-          );
-        } else {
-          throw proxyErr;
+          transformers.env.backends.onnx.wasm.numThreads = 1;
         }
+      } catch (err) {
+        console.warn("[Embeddings] ONNX env setup:", err);
       }
+      mark_ort_ready();
+
+      _pipeline = await onnx_mutex.run(() =>
+        transformers.pipeline("feature-extraction", MODEL_ID, {
+          progress_callback: (/** @type {any} */ data) => {
+            if (data && (data.status === "progress" || data.status === "download")) {
+              if (data.file && typeof data.progress === "number") {
+                file_progress[data.file] = data.progress;
+                const values = Object.values(file_progress);
+                const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                _load_progress = Math.round(avg);
+              }
+            }
+          },
+        }),
+      );
       _load_progress = 100;
       _model_ready = true;
-      mark_ort_ready();
       return _pipeline;
     } catch (err) {
       console.error("[Embeddings] Failed to load model:", err);

@@ -50,8 +50,6 @@
               </div>
             {/each}
           </div>
-        {:else if !block.has_mods}
-          <div class="font-mono text-xs text-slate-400">NO DYNAMICS UPDATED</div>
         {/if}
         {#if block.physical.trim() || block.non_physical.trim() || block.eternal_physical.trim() || block.eternal_non_physical.trim() || block.new_vectors.length > 0 || block.retrieval?.length > 0}
           <div class="flex flex-col gap-2 pt-1">

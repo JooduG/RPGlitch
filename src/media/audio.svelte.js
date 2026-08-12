@@ -358,11 +358,9 @@ export class VoiceEngine {
       // API fallback. The ?deps= override propagates through kokoro-js -> transformers -> ort.
       const { KokoroTTS } = await import("https://esm.sh/kokoro-js@1.2.1?deps=onnxruntime-web@1.22.0");
 
-      // Hold until the embeddings pipeline has finished initializing the shared
-      // ort-wasm runtime. Attempting a kokoro session while that init is still
-      // in flight aborts it and fails every backend ("WebAssembly is not
-      // initialized yet"), forcing the Web Speech API fallback.
-      await wait_ort_ready();
+      // Hold until the embeddings pipeline has configured the shared ort runtime.
+      // 10s fallback ensures speech synth never hangs indefinitely if embeddings load is delayed.
+      await wait_ort_ready(10000);
 
       const has_web_gpu = typeof navigator !== "undefined" && Boolean(/** @type {any} */ (navigator).gpu);
       const candidates = has_web_gpu
