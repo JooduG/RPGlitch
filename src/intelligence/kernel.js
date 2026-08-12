@@ -758,6 +758,12 @@ export const gamemaster = {
         const terse_text = raw_to_text(terse_raw);
         const retry_data = parse_director_json(terse_text) || {};
         if (!retry_data._parse_error) {
+          if (!retry_data._thought_process && director_data?._thought_process) {
+            retry_data._thought_process = director_data._thought_process;
+          }
+          if (!retry_data._thought_process) {
+            retry_data._thought_process = "High tension turn evaluation completed.";
+          }
           director_data = retry_data;
         }
       }

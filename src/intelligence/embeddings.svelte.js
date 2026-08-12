@@ -18,12 +18,20 @@ const MODEL_ID = "Xenova/all-MiniLM-L6-v2";
 /** @type {Record<string, number>} */
 const file_progress = {};
 
+let _debug_pipeline_fn = null;
+
 /**
  * Loads the transformers.js pipeline with progress tracking.
  * Can be triggered on boot or lazily on first embedding request.
  * @returns {Promise<any>}
  */
 export async function load_model() {
+  if (_debug_pipeline_fn) {
+    _pipeline = _debug_pipeline_fn;
+    _model_ready = true;
+    _is_loading = false;
+    return _pipeline;
+  }
   if (_pipeline) {
     _model_ready = true;
     _load_progress = 100;
@@ -43,18 +51,39 @@ export async function load_model() {
       } catch (err) {
         console.warn("[Embeddings] Worker-backed ONNX unavailable, using main thread:", err);
       }
-      _pipeline = await transformers.pipeline("feature-extraction", MODEL_ID, {
-        progress_callback: (/** @type {any} */ data) => {
-          if (data && (data.status === "progress" || data.status === "download")) {
-            if (data.file && typeof data.progress === "number") {
-              file_progress[data.file] = data.progress;
-              const values = Object.values(file_progress);
-              const avg = values.reduce((a, b) => a + b, 0) / values.length;
-              _load_progress = Math.round(avg);
+      try {
+        _pipeline = await transformers.pipeline("feature-extraction", MODEL_ID, {
+          progress_callback: (/** @type {any} */ data) => {
+            if (data && (data.status === "progress" || data.status === "download")) {
+              if (data.file && typeof data.progress === "number") {
+                file_progress[data.file] = data.progress;
+                const values = Object.values(file_progress);
+                const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                _load_progress = Math.round(avg);
+              }
             }
-          }
-        },
-      });
+          },
+        });
+      } catch (proxyErr) {
+        if (transformers.env?.backends?.onnx?.wasm?.proxy) {
+          console.warn("[Embeddings] Proxy WASM pipeline init failed, falling back to main thread:", proxyErr);
+          transformers.env.backends.onnx.wasm.proxy = false;
+          _pipeline = await transformers.pipeline("feature-extraction", MODEL_ID, {
+            progress_callback: (/** @type {any} */ data) => {
+              if (data && (data.status === "progress" || data.status === "download")) {
+                if (data.file && typeof data.progress === "number") {
+                  file_progress[data.file] = data.progress;
+                  const values = Object.values(file_progress);
+                  const avg = values.reduce((a, b) => a + b, 0) / values.length;
+                  _load_progress = Math.round(avg);
+                }
+              }
+            },
+          });
+        } else {
+          throw proxyErr;
+        }
+      }
       _load_progress = 100;
       _model_ready = true;
       return _pipeline;
@@ -133,8 +162,24 @@ export async function embed(text) {
     _embedding_cache.set(cache_key, embedding);
     return embedding;
   } catch (err) {
-    console.warn("[Embeddings] Embed failed for text:", text.substring(0, 60), err);
-    return null;
+    console.warn("[Embeddings] Embed failed for text, clearing pipeline for retry:", text.substring(0, 60), err);
+    _pipeline = null;
+    _model_ready = false;
+    try {
+      const pipe = await get_pipeline();
+      await new Promise((resolve) => setTimeout(resolve, 0));
+      const output = await onnx_mutex.run(() => pipe(text, { pooling: "mean", normalize: true }));
+      const embedding = new Float32Array(output.data);
+      if (_embedding_cache.size >= _max_cache) {
+        const lru_key = _embedding_cache.keys().next().value;
+        _embedding_cache.delete(lru_key);
+      }
+      _embedding_cache.set(cache_key, embedding);
+      return embedding;
+    } catch (retryErr) {
+      console.warn("[Embeddings] Embed retry failed:", retryErr);
+      return null;
+    }
   }
 }
 
@@ -254,7 +299,8 @@ export const embeddings_engine = {
   },
   /** @private TEST ONLY: injects a fake pipeline (fn(text, opts) → {data}). */
   _debug_set_pipeline(fn) {
-    _pipeline = typeof fn === "function" ? fn : null;
+    _debug_pipeline_fn = typeof fn === "function" ? fn : null;
+    _pipeline = _debug_pipeline_fn;
     _model_ready = typeof fn === "function";
     _loading = null;
     _is_loading = false;

@@ -40,6 +40,14 @@ export const session_driver = {
   },
 
   /**
+   * Restore active session ID without redundant persistence writes (e.g. on app reload sync).
+   * @param {string} id
+   */
+  restore_active: function (id) {
+    _active_id = id;
+  },
+
+  /**
    * Clear active session state.
    */
   clear_active: async function () {

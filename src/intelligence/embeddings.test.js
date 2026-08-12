@@ -93,4 +93,19 @@ describe("embeddings LRU cache", () => {
     expect(await ensure_embedding({})).toBeNull();
     expect(await ensure_embedding(null)).toBeNull();
   });
+
+  it("resets pipeline and attempts retry when inference throws error", async () => {
+    let call_count = 0;
+    embeddings_engine._debug_set_pipeline(async (text) => {
+      call_count++;
+      if (call_count === 1) {
+        throw new Error("ONNX WASM worker error");
+      }
+      return fake_pipeline(text);
+    });
+
+    const result = await embed("retry text");
+    expect(result).toBeInstanceOf(Float32Array);
+    expect(call_count).toBe(2);
+  });
 });

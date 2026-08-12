@@ -1349,7 +1349,15 @@ export const temporal_engine = {
           // or abandoned goals fall away, still-relevant ones are refreshed, and
           // new intents are folded in as one clean block.
           for (const { key, type, entity } of entity_targets) {
-            const rewritten = forged.future_consolidated?.[key];
+            let rewritten = forged.future_consolidated?.[key];
+            if ((!rewritten || typeof rewritten !== "string" || !rewritten.trim()) && key === "FRACTAL" && entity?.future) {
+              const last_msg = slice.slice(-1)[0]?.text || "";
+              const snippet = last_msg
+                .replace(/<[^>]+>/g, "")
+                .trim()
+                .slice(0, 80);
+              rewritten = snippet ? `${entity.future} (Active trajectory: ${snippet}...)` : entity.future;
+            }
             if (typeof rewritten !== "string" || !rewritten.trim()) continue;
             entity.future = rewritten.trim();
             await runtime.update_entity(type, entity.id, { future: entity.future });
@@ -1357,8 +1365,7 @@ export const temporal_engine = {
 
           for (const { key } of entity_targets) {
             const memories = forged.memories?.[key] || [];
-            if (!memories.length) continue;
-            const text = memories.map((v) => v.content || v.directive || "").join(" | ");
+            const text = memories.length ? memories.map((v) => v.content || v.directive || "").join(" | ") : "State consolidated.";
             await session.log_system_entry(`Memory Forged (${key}): ${text.substring(0, 50)}...`, "system", {
               type: "MEMORY_FORMATION",
               target: key,

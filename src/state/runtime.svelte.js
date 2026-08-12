@@ -1,5 +1,5 @@
 import { db, entities } from "@data";
-import { SESSION_ID_KEY, load_session_checkpoint, clear_session_checkpoint } from "@engine";
+import { SESSION_ID_KEY, load_session_checkpoint, clear_session_checkpoint, session_driver } from "@engine";
 import { app } from "./app.svelte.js";
 // We split the large state object into cohesive internal modules:
 // 1. Entities (character, active_user, active_ai, active_fractal)
@@ -337,6 +337,9 @@ function create_runtime_store() {
         if (!story) {
           clear_session_checkpoint();
           return;
+        }
+        if (session_driver?.restore_active) {
+          session_driver.restore_active(String(simulation_story_id));
         }
         // FIX: restore the story's persisted round so recency epochs stay aligned
         // across page loads (previously runtime round reset to 0 on every boot).
