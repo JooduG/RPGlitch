@@ -556,6 +556,42 @@ export function detox_prose(raw_text, register = "plain") {
     // 3. SENSORY & ENVIRONMENTAL CLICHÉS
     // =========================================================================
     {
+      regex: /\btaste(s)?\s+(of|like)\s+copper\b/gi,
+      replace: {
+        plain: ["raw, metallic edge", "sharp tang", "bitter bite in the mouth", "stale grit on the tongue"],
+        ornate: ["a harsh, metallic resonance", "a bitter tang on the tongue", "a sharp electric sting", "a cold iron aftertaste"],
+        raw: ["raw grit", "taste of hot wire", "burnt metal tang", "bitter iron taste"],
+        clinical: ["metallic gustatory perception", "sharp oral sensation", "elevated sensory response", "bitter oral feedback"],
+      },
+    },
+    {
+      regex: /\b(heart|pulse)\s+(hammering|hammers|pounding|pounds)\b/gi,
+      replace: {
+        plain: ["pulse racing", "chest tight", "breath catching", "blood rushing"],
+        ornate: ["rhythm surging violently", "chest reverberating", "tempo spiking inside", "blood surging fast"],
+        raw: ["chest straining", "blood thumping", "breath coming hard", "pulse tearing fast"],
+        clinical: ["elevated heart rate", "cardiovascular acceleration", "increased pulse velocity", "rapid cardiac cycle"],
+      },
+    },
+    {
+      regex: /\bstomach\s+(knots|twists|drops|tightens|turns|turned|twisted|dropped)\b/gi,
+      replace: {
+        plain: ["guts tensing", "instinct surging", "chest pulling tight", "focus sharpening"],
+        ornate: ["a cold drop inside", "a sudden shift in the gut", "the core locking tight", "a sharp visceral pull"],
+        raw: ["guts twisting", "gut clenching tight", "instinct kicking in", "belly going cold"],
+        clinical: ["visceral contraction", "gastrointestinal tension", "autonomic response", "acute visceral reaction"],
+      },
+    },
+    {
+      regex: /\btrembling\s+(fingers|hands)\b/gi,
+      replace: {
+        plain: ["unsteady hands", "shaky grip", "fingers twitching", "strained grip"],
+        ornate: ["unsteady hands", "hands betraying the tension", "fingers quivering lightly", "a subtle tremor in the grip"],
+        raw: ["shaky hands", "strained grip", "fingers jerking", "unsteady hands"],
+        clinical: ["motor tremor in hands", "unsteady manual dexterity", "involuntary muscle movement", "fine motor instability"],
+      },
+    },
+    {
       regex: /\bair tastes of ozone\b/gi,
       replace: {
         plain: [
@@ -1092,6 +1128,110 @@ export function detox_prose(raw_text, register = "plain") {
       },
     },
     {
+      regex: /\bshift(s|ed|ing)?\s+(his|her|their|my|your)?\s*weight\b/gi,
+      replace: {
+        plain: ["adjusting posture", "stepping back slightly", "bracing feet", "changing stance"],
+        ornate: ["readjusting footing", "shifting stance against the floor", "bracing for movement", "settling into a new posture"],
+        raw: ["bracing feet", "shifting stance", "stepping back", "resetting grip"],
+        clinical: ["adjusting posture", "rebalancing center of gravity", "shifting weight distribution", "modifying stance"],
+      },
+    },
+    {
+      regex: /\bpredatory\b/gi,
+      replace: {
+        plain: ["sharp", "calculating", "focused", "intent"],
+        ornate: ["deliberate and sharp", "watching with quiet intensity", "calculating every move", "poised and watchful"],
+        raw: ["dangerous", "hard", "sharp-eyed", "looking for an opening"],
+        clinical: ["high-threat", "calculating", "focused", "observant"],
+      },
+    },
+    {
+      regex: /\bpossessive(ly)?\b/gi,
+      replace: {
+        plain: ["firmly", "tightly", "with clear intent", "holding fast"],
+        ornate: ["with absolute certainty", "claiming the space", "holding with deliberate warmth", "anchoring firmly"],
+        raw: ["tight", "hard", "holding fast", "locking down"],
+        clinical: ["assertively", "with high grip strength", "firmly", "securely"],
+      },
+    },
+    {
+      regex: /\bnibbl(es|ed|ing)\b/gi,
+      replace: {
+        plain: ["biting lightly", "tugging gently", "brushing past", "grazing softly"],
+        ornate: ["grazing with light pressure", "touching softly", "tugging gently", "brushing past in a quiet movement"],
+        raw: ["biting light", "catching with teeth", "grazing hard", "tugging"],
+        clinical: ["applying light pressure with teeth", "contacting lightly", "touching softly", "grazing"],
+      },
+    },
+    {
+      regex: /\bearlobe(s)?\b/gi,
+      replace: {
+        plain: ["ear", "side of the jaw", "neck", "side of the face"],
+        ornate: ["curve of the jaw", "side of the throat", "soft edge of the jawline", "temple"],
+        raw: ["jaw", "ear", "neck", "side of the face"],
+        clinical: ["auricle region", "lateral jawline", "temporal region", "cervical boundary"],
+      },
+    },
+    {
+      regex: /\bcaress(es|ed|ing)?\b/gi,
+      replace: {
+        plain: ["touching softly", "brushing against", "tracing a line along", "running fingers over"],
+        ornate: ["tracing a slow line over", "letting fingers glide across", "brushing lightly against", "moving with quiet softness across"],
+        raw: ["sliding hands over", "rubbing along", "grazing across", "brushing past"],
+        clinical: ["applying light tactile pressure to", "tracing a linear path across", "contacting softly", "moving over"],
+      },
+    },
+    {
+      regex: /\bnostril(s)?\s+(flared|filled)\b/gi,
+      replace: {
+        plain: ["breath catching", "taking in a sharp breath", "breathing in deep", "drawing in air"],
+        ornate: ["drawing the scent deep into the lungs", "taking in a sharp, sudden breath", "inhaling deeply", "catching the air all at once"],
+        raw: ["sucking in air", "taking a deep breath", "breathing hard", "inhaling sharp"],
+        clinical: ["nasal inhalation expanding", "taking a deep breath", "increasing tidal volume", "inhaling rapidly"],
+      },
+    },
+    {
+      regex: /\bspatial\s+disturbance(s)?\b/gi,
+      replace: {
+        plain: ["movement in the air", "shattering silence", "sudden ripple", "shift in the room"],
+        ornate: ["a sudden pulse through the room", "a sharp break in the atmosphere", "a ripple across the quiet", "an unexpected tremor"],
+        raw: ["hard shockwave", "sudden rattle", "air breaking open", "jarring pulse"],
+        clinical: ["environmental perturbation", "atmospheric pressure shift", "acoustic displacement", "physical disruption"],
+      },
+    },
+    {
+      regex: /\bproper\s+madness\b/gi,
+      replace: {
+        plain: ["pure chaos", "complete insanity", "reckless risk", "sheer madness"],
+        ornate: ["unfiltered delirium", "a descent into chaos", "utter irrationality", "unvarnished madness"],
+        raw: ["raw insanity", "straight-up crazy", "total chaos", "reckless insanity"],
+        clinical: ["extreme cognitive disorganization", "severe irrationality", "acute behavioral instability", "uncontrolled disorder"],
+      },
+    },
+    {
+      regex: /\bsquelch(ing|ed)?\b/gi,
+      replace: {
+        plain: ["squishing", "sloshing", "churning underfoot", "squelching"],
+        ornate: ["sloshing heavily through liquid", "yielding wetly underfoot", "churning through damp silt", "giving way with a heavy wet sound"],
+        raw: ["squishing loudly", "splashing through muck", "grinding through mud", "sloshing"],
+        clinical: ["displacing fluid saturated media", "yielding wetly under pressure", "producing hydraulic noise", "churning wet media"],
+      },
+    },
+    {
+      regex: /\bforce\s+of\s+a\s+physical\s+blow\b/gi,
+      replace: {
+        plain: ["sudden impact", "hard realization", "heavy hit", "sharp shock"],
+        ornate: [
+          "a shock that landed like a physical weight",
+          "an impact that rattled the frame",
+          "a sudden, heavy realization",
+          "force that left no room for doubt",
+        ],
+        raw: ["hard hit", "punch to the gut", "heavy impact", "shock that hurt"],
+        clinical: ["significant psychological impact", "abrupt cognitive disruption", "acute sensory feedback", "heavy emotional impact"],
+      },
+    },
+    {
       regex: /\btracing lazy circles\b/gi,
       replace: {
         plain: ["drawing slow circles", "moving his fingers in loops", "tracing idle shapes", "brushing back and forth slowly"],
@@ -1118,6 +1258,29 @@ export function detox_prose(raw_text, register = "plain") {
       return pick_replacement(match, rule_item.replace, exact_voice, fallback_voice, offset);
     });
   }
+
+  // =========================================================================
+  // STRUCTURAL PATTERN DETOX (SENTENCE-LEVEL AI-ISMS)
+  // =========================================================================
+
+  // 1. Denial-then-Affirmation Formula:
+  // "X didn't just Y, it Z'd" -> "X Z'd"
+  // "The limestone didn't scream before it gave way, it simply sighed" -> "The limestone gave way with a low sigh"
+  clean_text = clean_text.replace(
+    /\b(?:the\s+)?([A-Za-z0-9_-]+)\s+(?:didn't|did not|wasn't|was not)\s+just\s+([^,;.]+)[,;.]?\s*(?:it|he|she|they)?\s*(?:simply|instead|was|did|became)?\s+([^.!?]+)/gi,
+    (match, subject, negated, affirmative) => {
+      if (!subject || !affirmative) return match;
+      const clean_affirmative = affirmative.trim();
+      return `${subject} ${clean_affirmative}`;
+    },
+  );
+
+  // 2. Self-Answering Dialogue:
+  // "Tomato? What's that, some sort of red fruit...?" -> "Tomato..."
+  clean_text = clean_text.replace(
+    /\b([A-Z][a-z0-9_-]+)\?\s*What(?:'s| is)\s+that,\s+some\s+sort\s+of\s+[^?]+\?\s*/gi,
+    (match, word) => `${word}... `,
+  );
 
   return clean_text;
 }

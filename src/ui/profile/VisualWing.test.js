@@ -20,7 +20,6 @@ function ensure_modifiers(char) {
     char.modifiers = {
       prompt: "",
       negative_prompt: "",
-      no_background: false,
       flipped: false,
       profile_picture_seed: 0,
       last_generated_seed: null,
@@ -28,7 +27,6 @@ function ensure_modifiers(char) {
   } else {
     char.modifiers.prompt ??= "";
     char.modifiers.negative_prompt ??= "";
-    char.modifiers.no_background ??= false;
     char.modifiers.flipped ??= false;
     char.modifiers.profile_picture_seed ??= 0;
     char.modifiers.last_generated_seed ??= null;
@@ -69,7 +67,6 @@ describe("VisualWing Stability (Hotfix)", () => {
     expect(char.modifiers).toBeDefined();
     expect(char.modifiers.prompt).toBe("");
     expect(char.modifiers.negative_prompt).toBe("");
-    expect(char.modifiers.no_background).toBe(false);
   });
 
   test("ensure_modifiers preserves existing modifiers and fills missing fields", () => {
@@ -82,7 +79,6 @@ describe("VisualWing Stability (Hotfix)", () => {
     ensure_modifiers(char);
     expect(char.modifiers.prompt).toBe("Existing prompt");
     expect(char.modifiers.negative_prompt).toBe("");
-    expect(char.modifiers.no_background).toBe(false);
     expect(char.modifiers.profile_picture_seed).toBe(0);
   });
 

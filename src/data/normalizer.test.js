@@ -44,7 +44,6 @@ describe("content-normaliser.js", () => {
         modifiers: {
           prompt: "",
           negative_prompt: "",
-          no_background: false,
           flipped: false,
           profile_picture_seed: 0,
           last_generated_seed: null,

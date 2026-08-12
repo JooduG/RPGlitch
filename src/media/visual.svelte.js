@@ -231,7 +231,6 @@ export class VisualEngine {
               negativePrompt: effective_negative_prompt,
               seed: effective_seed,
               resolution: effective_resolution,
-              removeBackground: !!(options.removeBackground ?? options.no_background),
               guidanceScale: effective_guidance_scale,
             });
 

@@ -48,21 +48,6 @@ export class ProfileState {
   }
 
   /**
-   * Reactive accessor for background removal modifier.
-   * @type {boolean}
-   */
-  get noBackground() {
-    return !!this.char?.modifiers?.no_background;
-  }
-
-  set noBackground(val) {
-    if (this.char?.modifiers) {
-      this.char.modifiers.no_background = val;
-      this._user_mutated = true;
-    }
-  }
-
-  /**
    * Whether profile editing is permitted for the active entity.
    * Locked while the entity is claimed by an active (non-concluded) story,
    * unless DevMode is explicitly enabled. The profile modal still opens in

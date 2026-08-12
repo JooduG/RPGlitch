@@ -57,7 +57,6 @@
       profile_state.char.modifiers = {
         prompt: "",
         negative_prompt: "",
-        no_background: false,
         flipped: false,
         profile_picture_seed: null,
         last_generated_seed: null,
@@ -66,7 +65,6 @@
     }
     profile_state.char.modifiers.prompt ??= "";
     profile_state.char.modifiers.negative_prompt ??= "";
-    profile_state.char.modifiers.no_background ??= false;
     profile_state.char.modifiers.flipped ??= false;
     if (profile_state.char.modifiers.profile_picture_seed === 0 || profile_state.char.modifiers.profile_picture_seed === undefined) {
       profile_state.char.modifiers.profile_picture_seed = null;
@@ -170,7 +168,6 @@
       // (the Enhance button in this wing is the only path that runs the LLM).
       const payload = await app.visual.generate(prompt_value, {
         mode: "solo_entity",
-        no_background: profile_state.noBackground,
         negative_prompt: profile_state.char.modifiers.negative_prompt || undefined,
         seed:
           profile_state.char.modifiers.profile_picture_seed !== null &&
@@ -507,7 +504,6 @@
   <div class="flex items-center justify-between gap-2">
     <!-- Left: Toggles -->
     <div class="flex flex-col gap-2">
-      <Toggle label="Transparent Background" bind:value={profile_state.noBackground} disabled={!profile_state.is_editing} />
       <Toggle
         label="Flip Image"
         bind:value={profile_state.char.modifiers.flipped}

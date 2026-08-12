@@ -55,7 +55,6 @@ export const ENTITY_TEMPLATES = {
     modifiers: {
       prompt: "",
       negative_prompt: "",
-      no_background: false,
       flipped: false,
       profile_picture_seed: 0,
       last_generated_seed: null,
@@ -203,7 +202,6 @@ export const normalize = (base = {}) => {
     modifiers: {
       prompt: sanitize_html(modifiers?.prompt ?? "").trim(),
       negative_prompt: sanitize_html(modifiers?.negative_prompt ?? "").trim(),
-      no_background: !!(modifiers?.no_background ?? false),
       flipped: !!(modifiers?.flipped ?? false),
       profile_picture_seed: Number(modifiers?.profile_picture_seed ?? 0),
       last_generated_seed: modifiers?.last_generated_seed ?? null,
