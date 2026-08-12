@@ -73,22 +73,21 @@ async function sweep_stale_ghosts() {
       const atts = entry?.attachments || [];
       for (let i = 0; i < atts.length; i++) {
         const a = atts[i];
-        if (a && a.src == null && !a.metadata?.failed) {
-          const age = now - (entry.created_at || 0);
-          if (age > IMAGE_GHOST_MAX_AGE_MS) {
-            if (!entry.text || !entry.text.trim()) {
-              await state_bridge.session_driver.delete_log_entry(entry.id);
-            } else {
-              await state_bridge.session_driver.update_log_attachment(entry.id, i, {
-                src: null,
-                metadata: {
-                  ...(a.metadata || {}),
-                  failed: true,
-                  image_ghost_swept: true,
-                  error: "Image beat timed out before it could resolve.",
-                },
-              });
-            }
+        if (a && a.src == null) {
+          const is_failed = a.metadata?.failed === true || a.metadata?.image_ghost_swept === true;
+          const is_stale = now - (entry.created_at || 0) > IMAGE_GHOST_MAX_AGE_MS;
+          if ((!entry.text || !entry.text.trim()) && (is_failed || is_stale)) {
+            await state_bridge.session_driver.delete_log_entry(entry.id);
+          } else if (is_stale && !is_failed) {
+            await state_bridge.session_driver.update_log_attachment(entry.id, i, {
+              src: null,
+              metadata: {
+                ...(a.metadata || {}),
+                failed: true,
+                image_ghost_swept: true,
+                error: "Image beat timed out before it could resolve.",
+              },
+            });
           }
         }
       }

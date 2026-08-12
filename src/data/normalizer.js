@@ -186,10 +186,11 @@ export const normalize = (base = {}) => {
     // FUTURE is a single consolidated prose field (like present), not a vector
     // pool. Legacy array payloads are flattened into newline-joined text.
     future: (() => {
-      if (typeof future === "string") return sanitize_html(future).trim();
-      if (Array.isArray(future)) {
+      const raw_future = future || base.future_consolidated;
+      if (typeof raw_future === "string") return sanitize_html(raw_future).trim();
+      if (Array.isArray(raw_future)) {
         return sanitize_html(
-          future
+          raw_future
             .map((v) => (v && typeof v === "object" ? v.content || v.directive || "" : String(v ?? "")))
             .filter(Boolean)
             .join("\n"),
@@ -226,6 +227,17 @@ export const normalize = (base = {}) => {
     // --- INTERNAL ---
     custom_data: custom_data || {},
   };
+
+  Object.defineProperty(result, "future_consolidated", {
+    get() {
+      return this.future;
+    },
+    set(val) {
+      this.future = typeof val === "string" ? sanitize_html(val).trim() : "";
+    },
+    enumerable: true,
+    configurable: true,
+  });
 
   return result;
 };
