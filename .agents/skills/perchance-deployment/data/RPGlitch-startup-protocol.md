@@ -179,8 +179,3 @@ The codebase enforces a strict, fully-audited naming discipline. Treat violation
   ```
 
 - **1-Turn TTL**: Replaced on Turn N+2 (1-turn lifespan), ensuring physical body language momentum without storage bloat or thought-anchoring.
-
-### 3. Session Protocol & Quality Testing (`scrobbles.md`)
-
-- **Protocol Execution**: Before running a live simulation audit, re-read [`scrobbles.md`](file:///c:/Users/johng/source/repos/RPGlitch/scrobbles.md).
-- **Narrative Focus**: [`scrobbles.md`](file:///c:/Users/johng/source/repos/RPGlitch/scrobbles.md) governs narrative edge-case testing (Extreme Vulnerability, Physical Contradiction, Unprompted AI Initiative, Moral Choice, Long-Horizon Fact Recall, Climax Transition, and Anti-Cliché Tic Audits) over a 25–30 turn session.
