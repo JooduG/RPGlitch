@@ -1038,7 +1038,9 @@ describe("gamemaster (Intelligence Kernel)", () => {
       // Keep beats pending so the queue fills to capacity instead of resolving immediately.
       visual_engine.visualize.mockReturnValue(new Promise(() => {}));
 
-      // Fire one more beat than the queue capacity; the oldest must be evicted.
+      // Fire one more beat than the queue capacity (5); the oldest must be evicted.
+      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
+      await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
       await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
       await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
       await gamemaster.fire_image_trigger("story_scene", { source: "dynamics" });
@@ -1051,7 +1053,7 @@ describe("gamemaster (Intelligence Kernel)", () => {
           expect.objectContaining({ metadata: expect.objectContaining({ failed: true }) }),
         ),
       );
-      expect(_image_gen_queue.length).toBeLessThanOrEqual(3);
+      expect(_image_gen_queue.length).toBeLessThanOrEqual(5);
     });
   });
 });

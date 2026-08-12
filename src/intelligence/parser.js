@@ -272,6 +272,7 @@ export function parse_message(rawText, register = "plain") {
 
   // 3. Anti-Cliche Layer
   text = detox_prose(text, register);
+  const detoxed_think = think_result.think ? detox_prose(think_result.think, register) : null;
   const detoxed_text = text;
 
   // 4. Render Markdown
@@ -281,7 +282,7 @@ export function parse_message(rawText, register = "plain") {
   // 5. Wrap Dialogue Quotes
   rendered = wrap_dialogue(rendered);
 
-  const rendered_think = think_result.think ? sanitize(markdown.render(think_result.think).trim()) : null;
+  const rendered_think = detoxed_think ? sanitize(markdown.render(detoxed_think).trim()) : null;
 
   return {
     displayText: rendered,

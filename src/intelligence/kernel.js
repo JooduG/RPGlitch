@@ -25,13 +25,13 @@ import { temporal_engine } from "./temporal.js";
 // 🖼️ Image beat queue — bounds concurrent background image generations.
 // When the queue reaches capacity the oldest beat is dropped and its placeholder
 // is marked failed so evicted beats never leave permanent `src: null` ghost cards.
-const IMAGE_GEN_QUEUE_CAPACITY = 3;
+const IMAGE_GEN_QUEUE_CAPACITY = 5;
 export const _image_gen_queue = [];
 
 // Ghost-card hard cap: at most this many unresolved (src:null) placeholders may
 // exist in the log at once. Beyond it, new triggers are refused until resolution
 // or the age-based sweep clears some — a permanent hard bound on ghost images.
-const IMAGE_PLACEHOLDER_HARD_CAP = 3;
+const IMAGE_PLACEHOLDER_HARD_CAP = 5;
 const IMAGE_RESOLVE_TIMEOUT_MS = 120000;
 const IMAGE_GHOST_MAX_AGE_MS = 5 * 60 * 1000;
 

@@ -556,12 +556,44 @@ export function detox_prose(raw_text, register = "plain") {
     // 3. SENSORY & ENVIRONMENTAL CLICHÉS
     // =========================================================================
     {
-      regex: /\btaste(s)?\s+(of|like)\s+copper\b/gi,
+      regex: /\b(taste|tastes|tasted|tasting)\s+(of|like)\s+(a\s+)?(copper|metal|iron|pennies)\b/gi,
       replace: {
         plain: ["raw, metallic edge", "sharp tang", "bitter bite in the mouth", "stale grit on the tongue"],
         ornate: ["a harsh, metallic resonance", "a bitter tang on the tongue", "a sharp electric sting", "a cold iron aftertaste"],
         raw: ["raw grit", "taste of hot wire", "burnt metal tang", "bitter iron taste"],
         clinical: ["metallic gustatory perception", "sharp oral sensation", "elevated sensory response", "bitter oral feedback"],
+      },
+    },
+    {
+      regex: /\b(spike|surge|jolt|rush|flash|shot|hit)\s+of\s+adrenaline\b/gi,
+      replace: {
+        plain: ["sudden surge of instinct", "sharp pulse of urgency", "sudden focus", "raw pulse of energy"],
+        ornate: [
+          "a sharp pulse of raw sensation",
+          "an intense wave of focus",
+          "a sudden surge of heightened perception",
+          "a electric pulse of clarity",
+        ],
+        raw: ["raw pulse of heat", "sudden kick in the chest", "hard spike of blood", "raw instinct hit"],
+        clinical: ["acute epinephrine discharge", "sympathetic nervous system response", "rapid adrenaline elevation", "acute physiological arousal"],
+      },
+    },
+    {
+      regex: /\badrenaline\s+(spike|surge|jolt|rush|hit|spiking|surging)\b/gi,
+      replace: {
+        plain: ["instinct surging", "urgency spiking", "blood surging", "energy spiking"],
+        ornate: ["heightened perception surging", "raw focus spiking", "visceral pulse accelerating", "electric clarity surging"],
+        raw: ["chest pumping hard", "blood slamming through veins", "raw pulse spiking", "guts firing tight"],
+        clinical: ["epinephrine elevation", "sympathetic arousal", "autonomic surge", "rapid physiological acceleration"],
+      },
+    },
+    {
+      regex: /\badrenaline\b/gi,
+      replace: {
+        plain: ["instinct", "urgency", "focus", "raw energy"],
+        ornate: ["heightened awareness", "visceral focus", "electric pulse", "sharp clarity"],
+        raw: ["raw blood", "gut heat", "hard pulse", "raw drive"],
+        clinical: ["epinephrine", "autonomic arousal", "sympathetic response", "physiological drive"],
       },
     },
     {
@@ -653,7 +685,7 @@ export function detox_prose(raw_text, register = "plain") {
       },
     },
     {
-      regex: /\b(hit|hits|felt)\s+like\s+a\s+physical\s+blow\b/gi,
+      regex: /\b(is|was|felt|hits|hit|strikes|landed|slams|slamming)?\s*(like\s+a\s+)?physical\s+blow\b/gi,
       replace: {
         plain: ["landed with sudden force", "carried real weight", "hit like a heavy punch", "pulled the air right out"],
         ornate: ["struck with visceral force", "landed with devastating clarity", "carried heavy physical weight", "reverberated instantly"],
